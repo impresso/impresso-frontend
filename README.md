@@ -1,4 +1,4 @@
-# impresso
+# impresso-frontend
 
 > A Vue.js project
 
