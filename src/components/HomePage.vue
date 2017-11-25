@@ -1,70 +1,52 @@
 <template>
-<main>
-  <div id="splash">
-    <div class="backdrop"></div>
-      <h1 class="slogan">Media Monitoring<br>of the Past</h1>
-  </div>
-  <div class="container pt-3">
-    <h1>This is the homepage</h1>
-    <p>Here you can do anything you want</p>
+<main id="HomePage">
+  <div class="search_wrapper">
+    <b-container>
+      <b-row>
+        <b-col md="6" offset-md="3">
+          <SearchBar api="http://localhost:8000/api/" @changeSearchQuery="onChangeSearchQuery" @search="onSearch" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <h1>This is the homepage</h1>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+            irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </b-col>
+      </b-row>
+    </b-container>
   </div>
 </main>
 </template>
 
 <script>
+import SearchBar from './modules/SearchInputQuery';
+
 export default {
   name: 'HelloWorld',
+  methods: {
+    onChangeSearchQuery(val) {
+      this.$store.commit('search/UPDATE_SEARCH_QUERY', {
+        query: val,
+      });
+    },
+    onSearch(val) {
+      this.$store.commit('search/STORE_SEARCH', {
+        query: val,
+      });
+      this.$router.push({
+        name: 'search_results',
+      });
+    },
+  },
+  components: {
+    SearchBar,
+  },
 };
 </script>
 
 <style scoped lang="less">
-@font-face {
-    font-family: JosefinSans;
-    src: url('./../assets/fonts/Josefin_Sans/JosefinSans-Bold.ttf');
-    font-weight: bold;
-    font-style: normal;
+.search_wrapper {
+    margin: 15px 0;
 }
-@font-face {
-    font-family: JosefinSans;
-    src: url('./../assets/fonts/Josefin_Sans/JosefinSans-Regular.ttf');
-    font-weight: normal;
-    font-style: normal;
-}
-@font-face {
-    font-family: JosefinSans;
-    src: url('./../assets/fonts/Josefin_Sans/JosefinSans-Thin.ttf');
-    font-weight: lighter;
-    font-style: normal;
-}
-
-#splash {
-    height: 300px;
-    background: url('./../assets/img/Benefits-of-nature-Hike.jpg') no-repeat center 40%;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-    position: relative;
-
-    .backdrop{
-      background: #234;
-      opacity: .7;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
-
-    .slogan {
-        font-family: JosefinSans;
-        position: absolute;
-        top: 50%;
-        margin-top: -1em;
-        width: 100%;
-        text-align: center;
-        color: white;
-        font-size: 3em;
-    }
-}
-
-.HomePage {}
 </style>

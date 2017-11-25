@@ -1,7 +1,7 @@
 <template lang="html">
   <header id="header" class="py-2">
     <div class="container">
-      impresso
+      <router-link :to="{name: 'home'}" class="logo">impresso</router-link>
     </div>
   </header>
 </template>
@@ -16,5 +16,10 @@ export default {
 header {
     background: #234;
     color:white;
+    .logo{
+      color:white;
+      font-weight: lighter;
+      font-size: smaller;
+    }
 }
 </style>
