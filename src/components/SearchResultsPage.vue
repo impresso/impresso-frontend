@@ -8,7 +8,7 @@
     </b-row>
     <b-row>
       <b-col xs="6">
-        Sort
+        {{$t("sort")}}
         <b-dropdown :text="displaySortBy + ' ' + displaySortOrder" size="sm" variant="outline-primary">
           <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'">Relevance ASC</b-dropdown-item>
           <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'">Relevance DESC</b-dropdown-item>
@@ -18,7 +18,7 @@
         </b-dropdown>
       </b-col>
       <b-col xs="6" class="text-right">
-        Display
+        {{$t("display")}}
         <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
           <b-form-radio value="list">List</b-form-radio>
           <b-form-radio value="tiles">Tiles</b-form-radio>
@@ -125,3 +125,16 @@ export default {
     margin: 15px 0;
 }
 </style>
+
+<i18n>
+{
+  "en": {
+    "display": "Display",
+    "sort": "Sort"
+  },
+  "nl": {
+    "display": "Toon",
+    "sort": "Sorteer"
+  }
+}
+</i18n>
