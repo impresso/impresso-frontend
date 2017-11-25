@@ -1,11 +1,11 @@
 <template lang="html">
   <div class="wrapper">
     <b-input-group>
-      <b-form-input @keyup.enter.native="search" v-model="query_model" type="text" placeholder="Search"></b-form-input>
+      <b-form-input @keyup.enter.native="search" v-model="query_model" type="text" :placeholder="$t('search.placeholder')"></b-form-input>
       <b-input-group-button slot="right">
         <b-btn variant="danger" @click="clear">x</b-btn>
         <b-btn variant="dark">+</b-btn>
-        <b-btn @click="search" variant="info">Search</b-btn>
+        <b-btn @click="search" variant="info">{{$t("search.button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
     <div class="results" v-show="results.length > 0">
@@ -29,6 +29,14 @@ export default {
     api: {
       type: String,
       required: true,
+    },
+    text_placeholder: {
+      type: String,
+      default: 'Search query',
+    },
+    text_button: {
+      type: String,
+      default: 'Go',
     },
   },
   computed: {
@@ -77,3 +85,26 @@ export default {
     }
 }
 </style>
+
+<i18n>
+{
+  "en": {
+    "search": {
+      "button": "Go!",
+      "placeholder": "Search"
+    }
+  },
+  "fr": {
+    "search": {
+      "button": "Allez!",
+      "placeholder": "Recherche"
+    }
+  },
+  "nl": {
+    "search": {
+      "button": "Ga!",
+      "placeholder": "Zoek"
+    }
+  }
+}
+</i18n>
