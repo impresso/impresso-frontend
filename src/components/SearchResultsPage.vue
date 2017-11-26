@@ -6,38 +6,52 @@
         <SearchBar api="http://localhost:8000/api/" :query="query" @changeSearchQuery="onChangeSearchQuery" @search="onSearch" @clear="onClear" />
       </b-col>
     </b-row>
+    <hr>
     <b-row>
-      <b-col xs="6">
-        {{$t("label_sort")}}
-        <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
-          <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
-          <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="setSort('date', 'asc')" :active="displaySortBy === 'date' && displaySortOrder === 'asc'" v-html="getSortByLabel('date', 'asc')"></b-dropdown-item>
-          <b-dropdown-item @click="setSort('date', 'desc')" :active="displaySortBy === 'date' && displaySortOrder === 'desc'" v-html="getSortByLabel('date', 'desc')"></b-dropdown-item>
-        </b-dropdown>
+      <b-col md="3">
+        <h4>Filters</h4>
+        <ol>
+          <li>Here there will be a filters</li>
+          <li>And another filter</li>
+          <li>More filters</li>
+        </ol>
+        <hr>
+        <h4>Search History</h4>
+        <div class="" style="font-size: smaller;" v-for="search in searchesReversed">
+          <ul>
+            <li>query: {{search.query}}</li>
+            <li>uuid: {{search.uuid}}</li>
+            <li>display sort by: {{search.displaySortBy}}</li>
+            <li>display sort order: {{search.displaySortOrder}}</li>
+            <li>display style: {{search.displayStyle}}</li>
+          </ul>
+          <b-button variant="primary" size="sm" @click="loadSearch(search.uuid)">Load</b-button>
+          <hr>
+        </div>
       </b-col>
-      <b-col xs="6" class="text-right">
-        {{$t("label_display")}}
-        <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
-          <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-          <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-        </b-form-radio-group>
+      <b-col>
+        <b-row>
+          <b-col xs="6">
+            {{$t("label_sort")}}
+            <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
+              <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
+              <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
+              <b-dropdown-divider></b-dropdown-divider>
+              <b-dropdown-item @click="setSort('date', 'asc')" :active="displaySortBy === 'date' && displaySortOrder === 'asc'" v-html="getSortByLabel('date', 'asc')"></b-dropdown-item>
+              <b-dropdown-item @click="setSort('date', 'desc')" :active="displaySortBy === 'date' && displaySortOrder === 'desc'" v-html="getSortByLabel('date', 'desc')"></b-dropdown-item>
+            </b-dropdown>
+          </b-col>
+          <b-col xs="6" class="text-right">
+            {{$t("label_display")}}
+            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
+              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+            </b-form-radio-group>
+          </b-col>
+        </b-row>
+        <h4>Results</h4>
       </b-col>
     </b-row>
-    <hr>
-    <h1>Search History</h1>
-    <div class="" v-for="search in searchesReversed">
-      <ul>
-        <li>query: {{search.query}}</li>
-        <li>uuid: {{search.uuid}}</li>
-        <li>display sort by: {{search.displaySortBy}}</li>
-        <li>display sort order: {{search.displaySortOrder}}</li>
-        <li>display style: {{search.displayStyle}}</li>
-      </ul>
-      <b-button variant="primary" @click="loadSearch(search.uuid)">Load</b-button>
-      <hr>
-    </div>
   </b-container>
 </main>
 </template>
