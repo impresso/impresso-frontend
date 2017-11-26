@@ -1,11 +1,11 @@
 <template lang="html">
   <div class="wrapper">
     <b-input-group>
-      <b-form-input @keyup.enter.native="search" v-model="query_model" type="text" :placeholder="$t('search.placeholder')"></b-form-input>
+      <b-form-input @keyup.enter.native="search" v-model="query_model" type="text" :placeholder="$t('search.query_placeholder')"></b-form-input>
       <b-input-group-button slot="right">
         <b-btn variant="danger" @click="clear">x</b-btn>
         <b-btn variant="dark">+</b-btn>
-        <b-btn @click="search" variant="info">{{$t("search.button")}}</b-btn>
+        <b-btn @click="search" variant="info">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
     <div class="results" v-show="results.length > 0">
@@ -90,20 +90,20 @@ export default {
 {
   "en": {
     "search": {
-      "button": "Go!",
-      "placeholder": "Search"
+      "query_button": "Go!",
+      "query_placeholder": "Search"
     }
   },
   "fr": {
     "search": {
-      "button": "Allez!",
-      "placeholder": "Recherche"
+      "query_button": "Allez!",
+      "query_placeholder": "Recherche"
     }
   },
   "nl": {
     "search": {
-      "button": "Ga!",
-      "placeholder": "Zoek"
+      "query_button": "Ga!",
+      "query_placeholder": "Zoek"
     }
   }
 }

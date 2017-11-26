@@ -6,7 +6,7 @@
           <router-link :to="{name: 'home'}" class="logo">impresso</router-link>
         </b-col>
         <b-col class="text-right">
-          {{$t("header.language")}}
+          {{$t("language")}}
           <b-dropdown right size="sm" variant="link" :text="languages[activeLanguageCode].name">
             <b-dropdown-item
               v-for="language in languages"

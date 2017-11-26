@@ -1,17 +1,11 @@
 export default {
   en: {
-    header: {
-      language: 'Language',
-    },
+    language: 'Language',
   },
   nl: {
-    header: {
-      language: 'Taal',
-    },
+    language: 'Taal',
   },
   fr: {
-    header: {
-      language: 'Langue',
-    },
+    language: 'Langue',
   },
 };
