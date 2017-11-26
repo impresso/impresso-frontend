@@ -23,6 +23,9 @@ export default {
     getSearches(state) {
       return state.searches;
     },
+    getSearchesReversed(state) {
+      return state.searches.slice().reverse();
+    },
   },
   mutations: {
     UPDATE_SEARCH_QUERY(state, payload) {
