@@ -1,9 +1,9 @@
 <template>
-<main id="HomePage">
+<main id="SearchResultsPage">
   <b-container>
     <b-row>
       <b-col md="6" offset-md="3">
-        <SearchBar api="http://localhost:8000/api/" :query="query" @changeSearchQuery="onChangeSearchQuery" @search="onSearch" @clear="onClear" />
+        <search-bar api="http://localhost:8000/api/" :query="query" @changeSearchQuery="onChangeSearchQuery" @search="onSearch" @clear="onClear" />
       </b-col>
     </b-row>
     <hr>
@@ -49,7 +49,20 @@
             </b-form-radio-group>
           </b-col>
         </b-row>
-        <h4>Results</h4>
+        <hr>
+        <search-results-list-item v-if="displayStyle === 'list'" v-for="searchResult in searchResults" v-bind:value="searchResult" />
+        <b-row v-if="displayStyle === 'tiles'">
+          <b-col cols="6" sm="4" md="3" lg="2" v-for="searchResult in searchResults">
+            <search-results-tiles-item v-bind:value="searchResult" />
+          </b-col>
+        </b-row>
+        <hr>
+        <pagination
+          v-bind:perPage="paginationPerPage"
+          v-bind:currentPage="paginationCurrentPage"
+          v-bind:totalRows="paginationTotalRows"
+          v-on:input="onInputPagination"
+        />
       </b-col>
     </b-row>
   </b-container>
@@ -58,6 +71,9 @@
 
 <script>
 import SearchBar from './modules/SearchInputQuery';
+import Pagination from './modules/Pagination';
+import SearchResultsListItem from './SearchResultsListItem';
+import SearchResultsTilesItem from './SearchResultsTilesItem';
 
 export default {
   name: 'HelloWorld',
@@ -71,6 +87,21 @@ export default {
     displaySortBy: {
       get() {
         return this.$store.state.search.search.displaySortBy;
+      },
+    },
+    paginationPerPage: {
+      get() {
+        return this.$store.state.search.search.paginationPerPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.search.search.paginationCurrentPage;
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.search.search.paginationTotalRows;
       },
     },
     query: {
@@ -91,6 +122,34 @@ export default {
     searchesReversed: {
       get() {
         return this.$store.getters['search/getSearchesReversed'];
+      },
+    },
+    searchResults: {
+      get() {
+        return [{
+          title: 'Article Title',
+          image: 'http://placehold.it/300x300',
+          extract: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+          details: [{
+            col_a: 1,
+            col_b: 'abc',
+          }, {
+            col_a: 2,
+            col_b: 'def',
+          }],
+        }, {
+          title: 'Article Title',
+          image: 'http://placehold.it/200x400',
+          extract: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+          details: [{
+            col_a: 1,
+            col_b: 'abc',
+          }, {
+            col_a: 2,
+            col_b: 'def',
+          }],
+        }];
+        // return this.$store.state.search.results;
       },
     },
   },
@@ -138,9 +197,17 @@ export default {
     loadSearch(uuid) {
       this.$store.commit('search/LOAD_SEARCH', uuid);
     },
+    onInputPagination(pageNumber) {
+      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
+        paginationCurrentPage: pageNumber,
+      });
+    },
   },
   components: {
-    SearchBar,
+    Pagination,
+    'search-bar': SearchBar,
+    'search-results-list-item': SearchResultsListItem,
+    'search-results-tiles-item': SearchResultsTilesItem,
   },
   mounted() {
     if (this.uuid !== undefined) {

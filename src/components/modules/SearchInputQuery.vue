@@ -17,6 +17,13 @@
 </template>
 
 <script>
+import Vue from 'vue';
+import BootstrapVue from 'bootstrap-vue';
+import VueI18n from 'vue-i18n';
+
+Vue.use(BootstrapVue);
+Vue.use(VueI18n);
+
 export default {
   data: () => ({
     results: [],

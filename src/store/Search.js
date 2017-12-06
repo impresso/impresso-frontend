@@ -1,3 +1,6 @@
+// TODO: make action to load search results form the server
+// this should set this.results and this.paginationTotalRows
+
 const uuid = require('uuid');
 
 function Search({
@@ -5,12 +8,16 @@ function Search({
     displaySortBy = 'relevance',
     displaySortOrder = 'asc',
     displayStyle = 'list',
+    paginationPerPage = 10,
   } = {}) {
   this.query = query;
   this.uuid = uuid.v4();
   this.displaySortBy = displaySortBy;
   this.displaySortOrder = displaySortOrder;
   this.displayStyle = displayStyle;
+  this.paginationPerPage = paginationPerPage;
+  this.paginationCurrentPage = 1;
+  this.paginationTotalRows = 2;
 }
 
 export default {
@@ -18,6 +25,7 @@ export default {
   state: {
     search: new Search(),
     searches: [],
+    results: [],
   },
   getters: {
     getSearches(state) {
@@ -37,6 +45,9 @@ export default {
     },
     UPDATE_SEARCH_DISPLAY_STYLE(state, payload) {
       state.search.displayStyle = payload.displayStyle;
+    },
+    UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
+      state.search.paginationCurrentPage = payload.paginationCurrentPage;
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
