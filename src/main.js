@@ -4,7 +4,7 @@ import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
 
-import 'bootstrap/dist/css/bootstrap.css';
+import 'impresso-bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 import App from './App';
