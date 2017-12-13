@@ -4,7 +4,7 @@
     <b-container>
       <b-row>
         <b-col md="6" offset-md="3">
-          <SearchBar api="http://localhost:8000/api/" v-on:changeSearchQuery="onChangeSearchQuery" v-on:search="onSearch" />
+          <SearchBar />
         </b-col>
       </b-row>
       <b-row>
@@ -19,25 +19,10 @@
 </template>
 
 <script>
-import SearchBar from './modules/SearchInputQuery';
+import SearchBar from './SearchInputQueryWrapper';
 
 export default {
   name: 'HelloWorld',
-  methods: {
-    onChangeSearchQuery(val) {
-      this.$store.commit('search/UPDATE_SEARCH_QUERY', {
-        query: val,
-      });
-    },
-    onSearch(val) {
-      this.$store.commit('search/STORE_SEARCH', {
-        query: val,
-      });
-      this.$router.push({
-        name: 'search_results',
-      });
-    },
-  },
   components: {
     SearchBar,
   },
