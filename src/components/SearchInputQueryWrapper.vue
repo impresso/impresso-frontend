@@ -1,6 +1,5 @@
 <template lang="html">
   <search-bar
-  api="http://localhost:8000/api/"
   :query="query"
   @changeSearchQuery="onChangeSearchQuery"
   @search="onSearch"
