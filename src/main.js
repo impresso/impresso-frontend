@@ -15,7 +15,7 @@ import lang from './lang';
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 
-Vue.config.productionTip = false;
+Vue.config.productionTip = process.env.NODE_ENV === 'production';
 
 // Create VueI18n instance with options
 const i18n = new VueI18n({
