@@ -10,11 +10,7 @@
     <b-row>
       <b-col md="3">
         <h4>Filters</h4>
-        <ol>
-          <li>Here there will be a filters</li>
-          <li>And another filter</li>
-          <li>More filters</li>
-        </ol>
+        <search-filter-wrapper />
         <hr>
         <h4>Search History</h4>
         <div class="" style="font-size: smaller;" v-for="search in searchesReversed">
@@ -72,6 +68,7 @@
 <script>
 import SearchBar from './SearchInputQueryWrapper';
 import Pagination from './modules/Pagination';
+import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
 
@@ -187,6 +184,7 @@ export default {
     'search-bar': SearchBar,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
+    'search-filter-wrapper': SearchFilterWrapper,
   },
   mounted() {
     if (this.uuid !== undefined) {
