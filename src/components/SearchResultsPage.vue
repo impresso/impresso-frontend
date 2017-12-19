@@ -9,7 +9,6 @@
     <hr>
     <b-row>
       <b-col md="3">
-        <h4>Filters</h4>
         <search-filter-wrapper />
         <hr>
         <h4>Search History</h4>
