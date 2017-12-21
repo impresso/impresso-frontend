@@ -9,6 +9,8 @@ function Search({
     displaySortOrder = 'asc',
     displayStyle = 'list',
     paginationPerPage = 10,
+    filterDateRangeStart = 0,
+    filterDateRangeEnd = (new Date()).getFullYear(),
   } = {}) {
   this.query = query;
   this.uuid = uuid.v4();
@@ -18,6 +20,8 @@ function Search({
   this.paginationPerPage = paginationPerPage;
   this.paginationCurrentPage = 1;
   this.paginationTotalRows = 2;
+  this.filterDateRangeStart = filterDateRangeStart;
+  this.filterDateRangeEnd = filterDateRangeEnd;
 }
 
 export default {
@@ -48,6 +52,10 @@ export default {
     },
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
       state.search.paginationCurrentPage = payload.paginationCurrentPage;
+    },
+    UPDATE_FILTER_DATE_RANGE(state, payload) {
+      state.search.filterDateRangeStart = parseInt(payload.filterDateRangeStart, 10);
+      state.search.filterDateRangeEnd = parseInt(payload.filterDateRangeEnd, 10);
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);

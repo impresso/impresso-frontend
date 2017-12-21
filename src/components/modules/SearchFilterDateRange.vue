@@ -17,21 +17,35 @@
 
 <script>
 export default {
+  props: {
+    dateStart: {
+      type: [String, Number],
+      required: true,
+    },
+    dateEnd: {
+      type: [String, Number],
+      required: true,
+    },
+  },
   computed: {
     y1: {
       get() {
-        return 1650;
+        return this.dateStart;
       },
-      set(val) {
-        console.log(val);
+      set(value) {
+        this.$emit('changeDateStart', value);
       },
     },
     y2: {
       get() {
-        return 1950;
+        if (this.dateEnd < this.dateStart) {
+          return this.dateStart;
+        }
+
+        return this.dateEnd;
       },
-      set(val) {
-        console.log(val);
+      set(value) {
+        this.$emit('changeDateEnd', value);
       },
     },
   },
