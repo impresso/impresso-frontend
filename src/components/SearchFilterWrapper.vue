@@ -1,12 +1,14 @@
 <template lang="html">
   <div>
     <filter-date-range
-    v-bind:date-start="date_range.start"
-    v-bind:date-end="date_range.end"
-    v-on:changeDateStart="onChangeDateStart"
-    v-on:changeDateEnd="onChangeDateEnd"
+      v-bind:date-start="date_range.start"
+      v-bind:date-end="date_range.end"
+      v-on:changeDateStart="onChangeDateStart"
+      v-on:changeDateEnd="onChangeDateEnd"
     />
-    <filter-map />
+    <filter-map
+      v-on:changeBounds="onChangeBounds"
+    />
     <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
   </div>
 </template>
@@ -40,6 +42,9 @@ export default {
         filterDateRangeStart: this.date_range.start,
         filterDateRangeEnd: this.date_range.end,
       });
+    },
+    onChangeBounds(boundingbox) {
+      this.$store.commit('search/UPDATE_FILTER_BOUNDING_BOX', boundingbox);
     },
     submitFilter() {
       this.$store.commit('search/STORE_SEARCH');
