@@ -33,10 +33,6 @@ export default {
       type: String,
       default: '',
     },
-    api: {
-      type: String,
-      required: true,
-    },
     text_placeholder: {
       type: String,
       default: 'Search query',

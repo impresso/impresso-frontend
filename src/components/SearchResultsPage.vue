@@ -3,18 +3,13 @@
   <b-container>
     <b-row>
       <b-col md="6" offset-md="3">
-        <search-bar api="http://localhost:8000/api/" :query="query" @changeSearchQuery="onChangeSearchQuery" @search="onSearch" @clear="onClear" />
+        <search-bar />
       </b-col>
     </b-row>
     <hr>
     <b-row>
       <b-col md="3">
-        <h4>Filters</h4>
-        <ol>
-          <li>Here there will be a filters</li>
-          <li>And another filter</li>
-          <li>More filters</li>
-        </ol>
+        <search-filter-wrapper />
         <hr>
         <h4>Search History</h4>
         <div class="" style="font-size: smaller;" v-for="search in searchesReversed">
@@ -70,8 +65,9 @@
 </template>
 
 <script>
-import SearchBar from './modules/SearchInputQuery';
+import SearchBar from './SearchInputQueryWrapper';
 import Pagination from './modules/Pagination';
+import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
 
@@ -102,11 +98,6 @@ export default {
     paginationTotalRows: {
       get() {
         return this.$store.state.search.search.paginationTotalRows;
-      },
-    },
-    query: {
-      get() {
-        return this.$store.state.search.search.query;
       },
     },
     displayStyle: {
@@ -172,22 +163,6 @@ export default {
 
       return label;
     },
-    onChangeSearchQuery(val) {
-      this.$store.commit('search/UPDATE_SEARCH_QUERY', {
-        query: val,
-      });
-    },
-    onSearch(val) {
-      this.$store.commit('search/STORE_SEARCH', {
-        query: val,
-      });
-      this.$router.push({
-        name: 'search_results',
-      });
-    },
-    onClear() {
-      this.$store.commit('search/CLEAR_QUERY');
-    },
     setSort(sortBy, sortOrder) {
       this.$store.commit('search/UPDATE_SEARCH_DISPLAY_SORT', {
         displaySortBy: sortBy,
@@ -208,6 +183,7 @@ export default {
     'search-bar': SearchBar,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
+    'search-filter-wrapper': SearchFilterWrapper,
   },
   mounted() {
     if (this.uuid !== undefined) {
