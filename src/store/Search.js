@@ -26,12 +26,25 @@ function Search({
   this.filterBoundingBox = filterBoundingBox;
 }
 
+function SearchResult({
+  title = 'test title',
+  image = 'test image',
+  extract = 'test extract',
+  details = [],
+} = {}) {
+  this.title = title;
+  this.image = image;
+  this.extract = extract;
+  this.details = details;
+}
+
 export default {
   namespaced: true,
   state: {
     search: new Search(),
     searches: [],
     results: [],
+    is_searching: false,
   },
   getters: {
     getSearches(state) {
@@ -81,6 +94,53 @@ export default {
 
         state.search = new Search(searchData);
       }
+    },
+    CLEAR_RESULTS(state) {
+      state.results = [];
+    },
+    UPDATE_RESULTS(state, results) {
+      state.results = results;
+    },
+    UPDATE_SEARCH_STATUS(state, status) {
+      if (status) {
+        state.is_searching = true;
+      } else {
+        state.is_searching = false;
+      }
+    },
+  },
+  actions: {
+    SEARCH(context) {
+      context.commit('CLEAR_RESULTS');
+      context.commit('UPDATE_SEARCH_STATUS', true);
+
+      const results = [];
+
+      return new Promise(
+        (resolve) => {
+          setTimeout(() => {
+            for (let i = 0; i < 10; i += 1) {
+              results.push(new SearchResult({
+                title: `Article Title number ${i}`,
+                image: 'http://placehold.it/300x300',
+                extract: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                details: [{
+                  col_a: i,
+                  col_b: 'abc',
+                }, {
+                  col_a: i * 10,
+                  col_b: 'def',
+                }],
+              }));
+            }
+
+            context.commit('UPDATE_RESULTS', results);
+            context.commit('UPDATE_SEARCH_STATUS', false);
+
+            resolve(results);
+          }, Math.floor(Math.random() * 4000) + 500);
+        },
+      );
     },
   },
 };
