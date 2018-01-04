@@ -52,7 +52,7 @@ export default {
       return this.$store.state.settings.language_code;
     },
     showProgress() {
-      return 1;
+      return this.$store.state.search.is_searching;
     },
   },
   methods: {
@@ -68,7 +68,8 @@ export default {
 
 <style scoped lang="less">
 @bg_color: #234;
-@fg_color: #678;
+@fg_color: #432;
+@speed: 1s;
 header {
     background: @bg_color;
     color: white;
@@ -83,7 +84,7 @@ header {
     &.loading {
         background: @bg_color;
         background: linear-gradient(45deg, @bg_color, @fg_color, @bg_color);
-        animation: progress 2s linear infinite;
+        animation: progress @speed linear infinite;
     }
 }
 
