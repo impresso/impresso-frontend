@@ -1,7 +1,10 @@
 <template lang="html">
   <div class="filter">
     <v-map ref="map" :zoom=13 :center="[49.609325, 6.129330]" >
-      <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+      <v-tilelayer
+      url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+      attribution='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a>'
+      ></v-tilelayer>
     </v-map>
   </div>
 </template>
