@@ -48,6 +48,7 @@ export default {
     },
     submitFilter() {
       this.$store.commit('search/STORE_SEARCH');
+      this.$store.dispatch('search/SEARCH');
       this.$router.push({
         name: 'search_results',
       });

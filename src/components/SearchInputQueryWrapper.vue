@@ -28,6 +28,9 @@ export default {
       this.$store.commit('search/STORE_SEARCH', {
         query: val,
       });
+
+      this.$store.dispatch('search/SEARCH');
+
       this.$router.push({
         name: 'search_results',
       });

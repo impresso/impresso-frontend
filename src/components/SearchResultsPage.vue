@@ -145,14 +145,17 @@ export default {
         displaySortBy: sortBy,
         displaySortOrder: sortOrder,
       });
+      this.$store.dispatch('search/SEARCH');
     },
     loadSearch(uuid) {
       this.$store.commit('search/LOAD_SEARCH', uuid);
+      this.$store.dispatch('search/SEARCH');
     },
     onInputPagination(pageNumber) {
       this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
         paginationCurrentPage: pageNumber,
       });
+      this.$store.dispatch('search/SEARCH');
     },
   },
   components: {
@@ -165,15 +168,15 @@ export default {
   mounted() {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
+      this.$store.dispatch('search/SEARCH').then(
+        (results) => {
+          console.log(results);
+        },
+        (err) => {
+          console.log(err);
+        },
+      );
     }
-    this.$store.dispatch('search/SEARCH').then(
-      (results) => {
-        console.log(results);
-      },
-      (err) => {
-        console.log(err);
-      },
-    );
   },
 };
 </script>
