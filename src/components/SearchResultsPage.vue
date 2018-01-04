@@ -52,12 +52,7 @@
           </b-col>
         </b-row>
         <hr>
-        <pagination
-          v-bind:perPage="paginationPerPage"
-          v-bind:currentPage="paginationCurrentPage"
-          v-bind:totalRows="paginationTotalRows"
-          v-on:input="onInputPagination"
-        />
+        <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" />
       </b-col>
     </b-row>
   </b-container>
@@ -117,30 +112,12 @@ export default {
     },
     searchResults: {
       get() {
-        return [{
-          title: 'Article Title',
-          image: 'http://placehold.it/300x300',
-          extract: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          details: [{
-            col_a: 1,
-            col_b: 'abc',
-          }, {
-            col_a: 2,
-            col_b: 'def',
-          }],
-        }, {
-          title: 'Article Title',
-          image: 'http://placehold.it/200x400',
-          extract: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          details: [{
-            col_a: 1,
-            col_b: 'abc',
-          }, {
-            col_a: 2,
-            col_b: 'def',
-          }],
-        }];
-        // return this.$store.state.search.results;
+        return this.$store.state.search.results;
+      },
+    },
+    searchStatus: {
+      get() {
+        return this.$store.state.search.is_searching;
       },
     },
   },
@@ -189,6 +166,14 @@ export default {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
+    this.$store.dispatch('search/SEARCH').then(
+      (results) => {
+        console.log(results);
+      },
+      (err) => {
+        console.log(err);
+      },
+    );
   },
 };
 </script>
