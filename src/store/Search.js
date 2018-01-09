@@ -1,7 +1,11 @@
-// TODO: make action to load search results form the server
-// this should set this.results and this.paginationTotalRows
+import Vue from 'vue';
+import VueResource from 'vue-resource';
+
+Vue.use(VueResource);
 
 const uuid = require('uuid');
+
+const url = `${process.env.MIDDLELAYER_API}/articles`;
 
 function Search({
     query = '',
@@ -20,7 +24,7 @@ function Search({
   this.displayStyle = displayStyle;
   this.paginationPerPage = paginationPerPage;
   this.paginationCurrentPage = 1;
-  this.paginationTotalRows = 2;
+  this.paginationTotalRows = 0;
   this.filterDateRangeStart = filterDateRangeStart;
   this.filterDateRangeEnd = filterDateRangeEnd;
   this.filterBoundingBox = filterBoundingBox;
@@ -67,6 +71,9 @@ export default {
     },
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
       state.search.paginationCurrentPage = payload.paginationCurrentPage;
+    },
+    UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
+      state.search.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_FILTER_DATE_RANGE(state, payload) {
       state.search.filterDateRangeStart = parseInt(payload.filterDateRangeStart, 10);
@@ -117,28 +124,57 @@ export default {
       const results = [];
 
       return new Promise(
-        (resolve) => {
-          setTimeout(() => {
-            for (let i = 0; i < 10; i += 1) {
-              results.push(new SearchResult({
-                title: `Article Title number ${i}`,
-                image: 'http://placehold.it/300x300',
-                extract: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                details: [{
-                  col_a: i,
-                  col_b: 'abc',
-                }, {
-                  col_a: i * 10,
-                  col_b: 'def',
-                }],
-              }));
-            }
+        (resolve, reject) => {
+          let sortOrder = '';
 
-            context.commit('UPDATE_RESULTS', results);
-            context.commit('UPDATE_SEARCH_STATUS', false);
+          if (context.state.search.displaySortOrder === 'desc') {
+            sortOrder += '-';
+          }
 
-            resolve(results);
-          }, Math.floor(Math.random() * 4000) + 500);
+          sortOrder += context.state.search.displaySortBy;
+
+          Vue.http.get(url,
+            {
+              params: {
+                query: context.state.search.query,
+                page: context.state.search.paginationCurrentPage,
+                limit: context.state.search.paginationPerPage,
+                sort_order: sortOrder,
+              },
+            },
+          ).then(
+           (res) => {
+             context.commit('UPDATE_RESULTS', results);
+             context.commit('UPDATE_SEARCH_STATUS', false);
+             context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+               paginationTotalRows: res.body.count,
+             });
+
+             for (let i = 0; i < res.body.records.length; i += 1) {
+               results.push(new SearchResult({
+                 title: `${res.body.records[i].name}`,
+                 image: 'http://placehold.it/300x300',
+                 extract: `${res.body.records[i].name} Lorem ipsum.`,
+                 details: [{
+                   col_a: i,
+                   col_b: 'abc',
+                 }, {
+                   col_a: i * 10,
+                   col_b: 'def',
+                 }],
+               }));
+             }
+
+             context.commit('UPDATE_RESULTS', results);
+             context.commit('UPDATE_SEARCH_STATUS', false);
+
+             resolve(results);
+           },
+           (err) => {
+             context.commit('UPDATE_SEARCH_STATUS', false);
+             reject(err);
+           },
+         );
         },
       );
     },

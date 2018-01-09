@@ -168,14 +168,7 @@ export default {
   mounted() {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
-      this.$store.dispatch('search/SEARCH').then(
-        (results) => {
-          console.log(results);
-        },
-        (err) => {
-          console.log(err);
-        },
-      );
+      this.$store.dispatch('search/SEARCH');
     }
   },
 };
