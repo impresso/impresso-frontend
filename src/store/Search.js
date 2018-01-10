@@ -48,7 +48,6 @@ export default {
     search: new Search(),
     searches: [],
     results: [],
-    is_searching: false,
   },
   getters: {
     getSearches(state) {
@@ -108,18 +107,11 @@ export default {
     UPDATE_RESULTS(state, results) {
       state.results = results;
     },
-    UPDATE_SEARCH_STATUS(state, status) {
-      if (status) {
-        state.is_searching = true;
-      } else {
-        state.is_searching = false;
-      }
-    },
   },
   actions: {
     SEARCH(context) {
       context.commit('CLEAR_RESULTS');
-      context.commit('UPDATE_SEARCH_STATUS', true);
+      this.commit('SET_PROCESSING', true);
 
       const results = [];
 
@@ -144,34 +136,34 @@ export default {
             },
           ).then(
            (res) => {
-             context.commit('UPDATE_RESULTS', results);
-             context.commit('UPDATE_SEARCH_STATUS', false);
-             context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-               paginationTotalRows: res.body.count,
-             });
+             this.commit('SET_PROCESSING', false);
 
-             for (let i = 0; i < res.body.records.length; i += 1) {
-               results.push(new SearchResult({
-                 title: `${res.body.records[i].name}`,
-                 image: 'http://placehold.it/300x300',
-                 extract: `${res.body.records[i].name} Lorem ipsum.`,
-                 details: [{
-                   col_a: i,
-                   col_b: 'abc',
-                 }, {
-                   col_a: i * 10,
-                   col_b: 'def',
-                 }],
-               }));
+             if (res.body.records !== undefined) {
+               for (let i = 0; i < res.body.records.length; i += 1) {
+                 results.push(new SearchResult({
+                   title: `${res.body.records[i].name}`,
+                   image: 'http://placehold.it/300x300',
+                   extract: `${res.body.records[i].name} Lorem ipsum.`,
+                   details: [{
+                     col_a: i,
+                     col_b: 'abc',
+                   }, {
+                     col_a: i * 10,
+                     col_b: 'def',
+                   }],
+                 }));
+               }
+
+               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+                 paginationTotalRows: res.body.count,
+               });
+               context.commit('UPDATE_RESULTS', results);
              }
 
-             context.commit('UPDATE_RESULTS', results);
-             context.commit('UPDATE_SEARCH_STATUS', false);
-
-             resolve(results);
+             resolve(res);
            },
            (err) => {
-             context.commit('UPDATE_SEARCH_STATUS', false);
+             this.commit('SET_PROCESSING', false);
              reject(err);
            },
          );

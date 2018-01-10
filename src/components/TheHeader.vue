@@ -52,7 +52,7 @@ export default {
       return this.$store.state.settings.language_code;
     },
     showProgress() {
-      return this.$store.state.search.is_searching;
+      return this.$store.state.processing_status;
     },
   },
   methods: {
@@ -73,8 +73,6 @@ export default {
 header {
     background: @bg_color;
     color: white;
-    position: relative;
-    overflow: hidden;
     .logo {
         color: white;
         display: block;
