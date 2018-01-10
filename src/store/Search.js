@@ -8,7 +8,6 @@ const uuid = require('uuid');
 const url = `${process.env.MIDDLELAYER_API}/articles`;
 
 function Search({
-    query = '',
     displaySortBy = 'relevance',
     displaySortOrder = 'asc',
     displayStyle = 'list',
@@ -18,7 +17,6 @@ function Search({
     filterBoundingBox = [],
     filters = [],
   } = {}) {
-  this.query = query;
   this.filters = filters;
   this.uuid = uuid.v4();
   this.displaySortBy = displaySortBy;
@@ -60,9 +58,6 @@ export default {
     },
   },
   mutations: {
-    UPDATE_SEARCH_QUERY(state, payload) {
-      state.search.query = payload.query;
-    },
     UPDATE_SEARCH_DISPLAY_SORT(state, payload) {
       state.search.displaySortOrder = payload.displaySortOrder;
       state.search.displaySortBy = payload.displaySortBy;
@@ -93,8 +88,8 @@ export default {
       state.searches.push(state.search);
       state.search = new Search(state.search);
     },
-    CLEAR_QUERY(state) {
-      state.search.query = '';
+    CLEAR(state) {
+      state.search = new Search();
     },
     LOAD_SEARCH(state, id) {
       if (state.searches.length) {
