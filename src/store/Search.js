@@ -16,8 +16,10 @@ function Search({
     filterDateRangeStart = 0,
     filterDateRangeEnd = (new Date()).getFullYear(),
     filterBoundingBox = [],
+    filters = [],
   } = {}) {
   this.query = query;
+  this.filters = filters;
   this.uuid = uuid.v4();
   this.displaySortBy = displaySortBy;
   this.displaySortOrder = displaySortOrder;
@@ -81,6 +83,12 @@ export default {
     UPDATE_FILTER_BOUNDING_BOX(state, payload) {
       state.search.filterBoundingBox = payload;
     },
+    ADD_FILTER(state, payload) {
+      state.search.filters.push(payload);
+    },
+    REMOVE_FILTER(state, payload) {
+      state.search.filters.splice(payload.index, 1);
+    },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
       state.search = new Search(state.search);
@@ -128,7 +136,7 @@ export default {
           Vue.http.get(url,
             {
               params: {
-                query: context.state.search.query,
+                filters: context.state.search.filters,
                 page: context.state.search.paginationCurrentPage,
                 limit: context.state.search.paginationPerPage,
                 sort_order: sortOrder,

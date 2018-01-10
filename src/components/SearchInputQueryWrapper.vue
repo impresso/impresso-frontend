@@ -1,10 +1,17 @@
 <template lang="html">
-  <search-bar
-  :query="query"
-  @changeSearchQuery="onChangeSearchQuery"
-  @search="onSearch"
-  @clear="onClear"
-  />
+  <div>
+    <search-bar
+    v-bind:query="query"
+    v-on:changeSearchQuery="onChangeSearchQuery"
+    v-on:search="onSearch"
+    v-on:clear="onClear"
+    v-on:click_add="onClickAdd"
+    />
+    <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
+      <b-button variant="primary">{{filter.type}}: {{filter.query}}</b-button>
+      <b-button variant="danger" v-on:click="removeFilter(key)">x</b-button>
+    </b-button-group>
+  </div>
 </template>
 
 <script>
@@ -17,6 +24,11 @@ export default {
         return this.$store.state.search.search.query;
       },
     },
+    filters: {
+      get() {
+        return this.$store.state.search.search.filters;
+      },
+    },
   },
   methods: {
     onChangeSearchQuery(val) {
@@ -25,6 +37,7 @@ export default {
       });
     },
     onSearch(val) {
+      this.onClickAdd();
       this.$store.commit('search/STORE_SEARCH', {
         query: val,
       });
@@ -38,6 +51,28 @@ export default {
     onClear() {
       this.$store.commit('search/CLEAR_QUERY');
     },
+    onClickAdd() {
+      const operators = [
+        'and',
+        'or',
+        '(',
+        ')',
+      ];
+
+      if (this.query !== '') {
+        this.$store.commit('search/ADD_FILTER', {
+          type: operators.indexOf(this.query.toLowerCase()) >= 0 ? 'Operator' : 'String',
+          query: this.query,
+        });
+
+        this.$store.commit('search/CLEAR_QUERY');
+      }
+    },
+    removeFilter(key) {
+      this.$store.commit('search/REMOVE_FILTER', {
+        index: key,
+      });
+    },
   },
   components: {
     'search-bar': SearchBar,
@@ -45,5 +80,9 @@ export default {
 };
 </script>
 
-<style lang="css">
+<style scoped lang="less">
+.filter {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
 </style>

@@ -4,8 +4,8 @@
       <b-form-input @keyup.enter.native="search" v-model="query_model" type="text" :placeholder="$t('search.query_placeholder')"></b-form-input>
       <b-input-group-button slot="right">
         <b-btn variant="danger" @click="clear">x</b-btn>
-        <b-btn variant="dark">+</b-btn>
-        <b-btn @click="search" variant="info">{{$t("search.query_button")}}</b-btn>
+        <b-btn v-on:click="add" variant="dark">+</b-btn>
+        <b-btn v-on:click="search" variant="info">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
     <div class="results" v-show="results.length > 0">
@@ -58,6 +58,9 @@ export default {
     },
     clear() {
       this.$emit('clear');
+    },
+    add() {
+      this.$emit('click_add');
     },
   },
 };
