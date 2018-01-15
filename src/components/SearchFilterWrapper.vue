@@ -1,8 +1,18 @@
 <template lang="html">
   <div>
-    <div v-for="(filter, index) in filters" v-bind:key="index">
-
-      <filter-abstract-wrapper v-model="filters[index]" />
+    <button type="button" name="button" v-on:click="addStringFilter">Add String Filter</button>
+    <button type="button" name="button" v-on:click="addMapFilter">Add Map Filter</button>
+    <button type="button" name="button" v-on:click="addDateRangeFilter">Add Date Range Filter</button>
+    <div ref="filters" v-for="(filter, index) in filters" v-bind:key="index">
+      <div v-if="filter.type.toLowerCase() == 'string'">
+        <filter-string v-model="filters[index]" v-on:input="updateFilter" />
+      </div>
+      <div v-if="filter.type.toLowerCase() == 'daterange'">
+        <filter-date-range v-model="filters[index]" v-on:input="updateFilter" />
+      </div>
+      <div v-if="filter.type.toLowerCase() == 'latlngbounds'">
+        <filter-map v-model="filters[index]" v-on:input="updateFilter" />
+      </div>
       <hr>
     </div>
     <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
@@ -10,7 +20,9 @@
 </template>
 
 <script>
-import FilterAbstractWrapper from './modules/FilterAbstractWrapper';
+import FilterDateRange from './modules/FilterDateRange';
+import FilterMap from './modules/FilterMap';
+import FilterString from './modules/FilterString';
 
 export default {
   computed: {
@@ -21,6 +33,13 @@ export default {
     },
   },
   methods: {
+    updateFilter(filter, key) {
+      console.log(filter);
+      this.$store.commit('search/UPDATE_FILTER', {
+        filter,
+        key,
+      });
+    },
     submitFilter() {
       this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
@@ -28,9 +47,40 @@ export default {
         name: 'search_results',
       });
     },
+    addStringFilter() {
+      this.$store.commit('search/ADD_FILTER', {
+        type: 'String',
+        query: '',
+        context: 'include',
+      });
+    },
+    addMapFilter() {
+      this.$store.commit('search/ADD_FILTER', {
+        type: 'LatLngBounds',
+        SouthWest: {
+          lat: 31.50362930577303,
+          lng: -12.304687500000002,
+        },
+        NorthEast: {
+          lat: 56.26776108757582,
+          lng: 24.609375000000004,
+        },
+        context: 'include',
+      });
+    },
+    addDateRangeFilter() {
+      this.$store.commit('search/ADD_FILTER', {
+        type: 'DateRange',
+        start: '1850',
+        end: `${(new Date()).getFullYear()}`,
+        context: 'include',
+      });
+    },
   },
   components: {
-    'filter-abstract-wrapper': FilterAbstractWrapper,
+    'filter-map': FilterMap,
+    'filter-string': FilterString,
+    'filter-date-range': FilterDateRange,
   },
 };
 </script>
