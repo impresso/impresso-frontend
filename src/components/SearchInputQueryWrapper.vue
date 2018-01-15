@@ -56,6 +56,7 @@ export default {
         this.$store.commit('search/ADD_FILTER', {
           type: operators.indexOf(this.query.toLowerCase()) >= 0 ? 'Operator' : 'String',
           query: this.query,
+          context: 'include',
         });
       }
       this.query = '';

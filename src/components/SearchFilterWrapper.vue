@@ -1,26 +1,24 @@
 <template lang="html">
   <div>
-    <filter-date-range v-model="date_range" />
-    <filter-map />
-    <!-- <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button> -->
+    <div v-for="(filter, index) in filters" v-bind:key="index">
+
+      <filter-abstract-wrapper v-model="filters[index]" />
+      <hr>
+    </div>
+    <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
   </div>
 </template>
 
 <script>
-import FilterDateRange from './modules/SearchFilterDateRange';
-import FilterMap from './modules/SearchFilterMap';
+import FilterAbstractWrapper from './modules/FilterAbstractWrapper';
 
 export default {
-  data() {
-    return {
-      date_range: {
-        start: this.$store.state.search.dateRangeStart,
-        end: this.$store.state.search.dateRangeEnd,
+  computed: {
+    filters: {
+      get() {
+        return this.$store.state.search.search.filters;
       },
-      bounding_box: {
-
-      },
-    };
+    },
   },
   methods: {
     submitFilter() {
@@ -32,14 +30,10 @@ export default {
     },
   },
   components: {
-    'filter-date-range': FilterDateRange,
-    'filter-map': FilterMap,
+    'filter-abstract-wrapper': FilterAbstractWrapper,
   },
 };
 </script>
 
 <style scoped lang="less">
-.filter {
-    margin-bottom: 15px;
-}
 </style>
