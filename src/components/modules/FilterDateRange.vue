@@ -1,15 +1,20 @@
 <template lang="html">
   <div class="filter">
-    <div class="row">
-      <div class="col">
-        <b-form-group label="Start">
-          <b-form-input type="number" id="y1" v-model="y1"></b-form-input>
-        </b-form-group>
-      </div>
-      <div class="col">
-        <b-form-group label="End">
-          <b-form-input type="number" id="y2" v-model="y2"></b-form-input>
-        </b-form-group>
+    <div class="context">
+      <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
+    </div>
+    <div class="body">
+      <div class="row">
+        <div class="col">
+          <b-form-group label="Start">
+            <b-form-input type="number" id="y1" v-model="filter.start" v-on:input="updateFilter"></b-form-input>
+          </b-form-group>
+        </div>
+        <div class="col">
+          <b-form-group label="End">
+            <b-form-input type="number" id="y2" v-model="filter.end" v-on:input="updateFilter"></b-form-input>
+          </b-form-group>
+        </div>
       </div>
     </div>
   </div>
@@ -17,31 +22,23 @@
 
 <script>
 export default {
-  props: {
-    value: {
-      required: true,
+  data: () => ({
+    options: [{
+      value: 'include',
+      text: 'Include',
     },
+    {
+      value: 'exclude',
+      text: 'Exclude',
+    }],
+  }),
+  model: {
+    prop: 'filter',
   },
-  computed: {
-    y1: {
-      get() {
-        return this.value.start;
-      },
-      set() {
-        this.$emit('input', this.value);
-      },
-    },
-    y2: {
-      get() {
-        // if (this.dateEnd < this.dateStart) {
-        //   return this.dateStart;
-        // }
-
-        return this.value.end;
-      },
-      set() {
-        this.$emit('input', this.value);
-      },
+  props: ['filter'],
+  methods: {
+    updateFilter() {
+      this.$emit('input', this.filter);
     },
   },
 };

@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="filter">
     <div class="context">
-      <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" class="mb-3" />
+      <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
     </div>
     <div class="body">
       <b-input type="text" v-model="filter.query" v-on:input="updateFilter" />
