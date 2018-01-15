@@ -69,6 +69,9 @@ export default {
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);
     },
+    UPDATE_FILTER(state, payload) {
+      state.search.filters[payload.key] = payload.filter;
+    },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
       state.search = new Search(state.search);

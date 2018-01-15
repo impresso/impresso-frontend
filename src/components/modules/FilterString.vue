@@ -1,13 +1,35 @@
 <template lang="html">
-    <b-input type="text" v-model="filter.query" />
+  <div class="filter">
+    <div class="context">
+      <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" class="mb-3" />
+    </div>
+    <div class="body">
+      <b-input type="text" v-model="filter.query" v-on:input="updateFilter" />
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
+  data: () => ({
+    options: [{
+      value: 'include',
+      text: 'Include',
+    },
+    {
+      value: 'exclude',
+      text: 'Exclude',
+    }],
+  }),
   model: {
     prop: 'filter',
   },
   props: ['filter'],
+  methods: {
+    updateFilter() {
+      this.$emit('input', this.filter);
+    },
+  },
 };
 </script>
 

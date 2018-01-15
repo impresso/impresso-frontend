@@ -1,8 +1,7 @@
 <template lang="html">
   <div>
     <div v-for="(filter, index) in filters" v-bind:key="index">
-
-      <filter-abstract-wrapper v-model="filters[index]" />
+      <filter-abstract-wrapper v-model="filters[index]" v-on:input="updateFilter(filter, index)" />
       <hr>
     </div>
     <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
@@ -21,6 +20,12 @@ export default {
     },
   },
   methods: {
+    updateFilter(filter, key) {
+      this.$store.commit('search/UPDATE_FILTER', {
+        filter,
+        key,
+      });
+    },
     submitFilter() {
       this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
