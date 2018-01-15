@@ -8,26 +8,10 @@ const uuid = require('uuid');
 const url = `${process.env.MIDDLELAYER_API}/articles`;
 
 function Search({
-    displaySortBy = 'relevance',
-    displaySortOrder = 'asc',
-    displayStyle = 'list',
-    paginationPerPage = 10,
-    filterDateRangeStart = 0,
-    filterDateRangeEnd = (new Date()).getFullYear(),
-    filterBoundingBox = [],
     filters = [],
   } = {}) {
   this.filters = filters;
   this.uuid = uuid.v4();
-  this.displaySortBy = displaySortBy;
-  this.displaySortOrder = displaySortOrder;
-  this.displayStyle = displayStyle;
-  this.paginationPerPage = paginationPerPage;
-  this.paginationCurrentPage = 1;
-  this.paginationTotalRows = 0;
-  this.filterDateRangeStart = filterDateRangeStart;
-  this.filterDateRangeEnd = filterDateRangeEnd;
-  this.filterBoundingBox = filterBoundingBox;
 }
 
 function SearchResult({
@@ -48,6 +32,14 @@ export default {
     search: new Search(),
     searches: [],
     results: [],
+    displaySortBy: 'relevance',
+    displaySortOrder: 'asc',
+    displayStyle: 'list',
+    paginationPerPage: 10,
+    paginationCurrentPage: 1,
+    paginationTotalRows: 0,
+    dateRangeStart: 1800,
+    dateRangeEnd: (new Date()).getFullYear(),
   },
   getters: {
     getSearches(state) {
@@ -59,24 +51,17 @@ export default {
   },
   mutations: {
     UPDATE_SEARCH_DISPLAY_SORT(state, payload) {
-      state.search.displaySortOrder = payload.displaySortOrder;
-      state.search.displaySortBy = payload.displaySortBy;
+      state.displaySortOrder = payload.displaySortOrder;
+      state.displaySortBy = payload.displaySortBy;
     },
     UPDATE_SEARCH_DISPLAY_STYLE(state, payload) {
-      state.search.displayStyle = payload.displayStyle;
+      state.displayStyle = payload.displayStyle;
     },
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
-      state.search.paginationCurrentPage = payload.paginationCurrentPage;
+      state.paginationCurrentPage = payload.paginationCurrentPage;
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
-      state.search.paginationTotalRows = payload.paginationTotalRows;
-    },
-    UPDATE_FILTER_DATE_RANGE(state, payload) {
-      state.search.filterDateRangeStart = parseInt(payload.filterDateRangeStart, 10);
-      state.search.filterDateRangeEnd = parseInt(payload.filterDateRangeEnd, 10);
-    },
-    UPDATE_FILTER_BOUNDING_BOX(state, payload) {
-      state.search.filterBoundingBox = payload;
+      state.paginationTotalRows = payload.paginationTotalRows;
     },
     ADD_FILTER(state, payload) {
       state.search.filters.push(payload);

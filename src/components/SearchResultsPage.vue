@@ -72,32 +72,32 @@ export default {
   computed: {
     displaySortOrder: {
       get() {
-        return this.$store.state.search.search.displaySortOrder;
+        return this.$store.state.search.displaySortOrder;
       },
     },
     displaySortBy: {
       get() {
-        return this.$store.state.search.search.displaySortBy;
+        return this.$store.state.search.displaySortBy;
       },
     },
     paginationPerPage: {
       get() {
-        return this.$store.state.search.search.paginationPerPage;
+        return this.$store.state.search.paginationPerPage;
       },
     },
     paginationCurrentPage: {
       get() {
-        return this.$store.state.search.search.paginationCurrentPage;
+        return this.$store.state.search.paginationCurrentPage;
       },
     },
     paginationTotalRows: {
       get() {
-        return this.$store.state.search.search.paginationTotalRows;
+        return this.$store.state.search.paginationTotalRows;
       },
     },
     displayStyle: {
       get() {
-        return this.$store.state.search.search.displayStyle;
+        return this.$store.state.search.displayStyle;
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', {
@@ -113,11 +113,6 @@ export default {
     searchResults: {
       get() {
         return this.$store.state.search.results;
-      },
-    },
-    searchStatus: {
-      get() {
-        return this.$store.state.search.is_searching;
       },
     },
   },

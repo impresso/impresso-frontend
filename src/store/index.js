@@ -41,6 +41,9 @@ export default new Vuex.Store({
       'settings.language_code',
       'search.search',
       'search.searches',
+      'search.displaySortBy',
+      'search.displaySortOrder',
+      'search.displayStyle',
     ],
   })],
 });
