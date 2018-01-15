@@ -2,10 +2,10 @@
   <div>
     <search-bar
     v-bind:query="query"
-    v-on:changeSearchQuery="onChangeSearchQuery"
     v-on:search="onSearch"
     v-on:clear="onClear"
     v-on:click_add="onClickAdd"
+    v-on:changeSearchQuery="onChangeSearchQuery"
     />
     <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
       <b-button variant="primary">{{filter.type}}: {{filter.query}}</b-button>
@@ -18,12 +18,10 @@
 import SearchBar from './modules/SearchInputQuery';
 
 export default {
+  data: () => ({
+    query: '',
+  }),
   computed: {
-    query: {
-      get() {
-        return this.$store.state.search.search.query;
-      },
-    },
     filters: {
       get() {
         return this.$store.state.search.search.filters;
@@ -31,25 +29,20 @@ export default {
     },
   },
   methods: {
-    onChangeSearchQuery(val) {
-      this.$store.commit('search/UPDATE_SEARCH_QUERY', {
-        query: val,
-      });
-    },
-    onSearch(val) {
+    onSearch() {
       this.onClickAdd();
-      this.$store.commit('search/STORE_SEARCH', {
-        query: val,
-      });
-
+      this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
-
       this.$router.push({
         name: 'search_results',
       });
     },
+    onChangeSearchQuery(query) {
+      this.query = query;
+    },
     onClear() {
-      this.$store.commit('search/CLEAR_QUERY');
+      this.$store.commit('search/CLEAR');
+      this.query = '';
     },
     onClickAdd() {
       const operators = [
@@ -64,9 +57,8 @@ export default {
           type: operators.indexOf(this.query.toLowerCase()) >= 0 ? 'Operator' : 'String',
           query: this.query,
         });
-
-        this.$store.commit('search/CLEAR_QUERY');
       }
+      this.query = '';
     },
     removeFilter(key) {
       this.$store.commit('search/REMOVE_FILTER', {

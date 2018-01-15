@@ -1,15 +1,8 @@
 <template lang="html">
   <div>
-    <filter-date-range
-      v-bind:date-start="date_range.start"
-      v-bind:date-end="date_range.end"
-      v-on:changeDateStart="onChangeDateStart"
-      v-on:changeDateEnd="onChangeDateEnd"
-    />
-    <filter-map
-      v-on:changeBounds="onChangeBounds"
-    />
-    <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
+    <filter-date-range v-model="date_range" />
+    <filter-map />
+    <!-- <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button> -->
   </div>
 </template>
 
@@ -18,34 +11,18 @@ import FilterDateRange from './modules/SearchFilterDateRange';
 import FilterMap from './modules/SearchFilterMap';
 
 export default {
-  computed: {
-    date_range: {
-      get() {
-        return {
-          start: this.$store.state.search.search.filterDateRangeStart,
-          end: this.$store.state.search.search.filterDateRangeEnd,
-        };
+  data() {
+    return {
+      date_range: {
+        start: this.$store.state.search.dateRangeStart,
+        end: this.$store.state.search.dateRangeEnd,
       },
-    },
+      bounding_box: {
+
+      },
+    };
   },
   methods: {
-    onChangeDateStart(val) {
-      this.date_range.start = val;
-      this.updateFilterDateRange();
-    },
-    onChangeDateEnd(val) {
-      this.date_range.end = val;
-      this.updateFilterDateRange();
-    },
-    updateFilterDateRange() {
-      this.$store.commit('search/UPDATE_FILTER_DATE_RANGE', {
-        filterDateRangeStart: this.date_range.start,
-        filterDateRangeEnd: this.date_range.end,
-      });
-    },
-    onChangeBounds(boundingbox) {
-      this.$store.commit('search/UPDATE_FILTER_BOUNDING_BOX', boundingbox);
-    },
     submitFilter() {
       this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
