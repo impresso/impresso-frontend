@@ -1,7 +1,15 @@
 <template lang="html">
   <div>
     <div v-for="(filter, index) in filters" v-bind:key="index">
-      <filter-abstract-wrapper v-model="filters[index]" v-on:input="updateFilter(filter, index)" />
+      <div v-if="filter.type.toLowerCase() == 'string'">
+        <filter-string v-model="filters[index]" v-on:input="updateFilter" />
+      </div>
+      <div v-if="filter.type.toLowerCase() == 'daterange'">
+        <filter-date-range v-model="filters[index]" />
+      </div>
+      <div v-if="filter.type.toLowerCase() == 'boundingbox'">
+        <filter-map v-model="filters[index]" v-on:input="updateFilter" />
+      </div>
       <hr>
     </div>
     <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
@@ -9,7 +17,9 @@
 </template>
 
 <script>
-import FilterAbstractWrapper from './modules/FilterAbstractWrapper';
+import FilterDateRange from './modules/FilterDateRange';
+import FilterMap from './modules/FilterMap';
+import FilterString from './modules/FilterString';
 
 export default {
   computed: {
@@ -35,7 +45,9 @@ export default {
     },
   },
   components: {
-    'filter-abstract-wrapper': FilterAbstractWrapper,
+    'filter-map': FilterMap,
+    'filter-string': FilterString,
+    'filter-date-range': FilterDateRange,
   },
 };
 </script>
