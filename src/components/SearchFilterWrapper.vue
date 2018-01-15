@@ -10,7 +10,7 @@
       <div v-if="filter.type.toLowerCase() == 'daterange'">
         <filter-date-range v-model="filters[index]" v-on:input="updateFilter" />
       </div>
-      <div v-if="filter.type.toLowerCase() == 'boundingbox'">
+      <div v-if="filter.type.toLowerCase() == 'latlngbounds'">
         <filter-map v-model="filters[index]" v-on:input="updateFilter" />
       </div>
       <hr>
@@ -56,9 +56,15 @@ export default {
     },
     addMapFilter() {
       this.$store.commit('search/ADD_FILTER', {
-        type: 'BoundingBox',
-        topleft: [12.34, 56.78],
-        bottomright: [23.45, 67.89],
+        type: 'LatLngBounds',
+        SouthWest: {
+          lat: 31.50362930577303,
+          lng: -12.304687500000002,
+        },
+        NorthEast: {
+          lat: 56.26776108757582,
+          lng: 24.609375000000004,
+        },
         context: 'include',
       });
     },
