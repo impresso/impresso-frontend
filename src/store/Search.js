@@ -122,7 +122,7 @@ export default {
                 filters: context.state.search.filters,
                 page: context.state.paginationCurrentPage,
                 limit: context.state.paginationPerPage,
-                sort_order: sortOrder,
+                order_by: sortOrder,
               },
             },
           ).then(
