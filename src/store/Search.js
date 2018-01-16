@@ -110,18 +110,18 @@ export default {
         (resolve, reject) => {
           let sortOrder = '';
 
-          if (context.state.search.displaySortOrder === 'desc') {
+          if (context.state.displaySortOrder === 'desc') {
             sortOrder += '-';
           }
 
-          sortOrder += context.state.search.displaySortBy;
+          sortOrder += context.state.displaySortBy;
 
           Vue.http.get(url,
             {
               params: {
                 filters: context.state.search.filters,
-                page: context.state.search.paginationCurrentPage,
-                limit: context.state.search.paginationPerPage,
+                page: context.state.paginationCurrentPage,
+                limit: context.state.paginationPerPage,
                 sort_order: sortOrder,
               },
             },
