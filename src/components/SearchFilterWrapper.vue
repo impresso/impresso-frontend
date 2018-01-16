@@ -1,8 +1,10 @@
 <template lang="html">
-  <div>
-    <button type="button" name="button" v-on:click="addStringFilter">Add String Filter</button>
-    <button type="button" name="button" v-on:click="addMapFilter">Add Map Filter</button>
-    <button type="button" name="button" v-on:click="addDateRangeFilter">Add Date Range Filter</button>
+  <div id="search-filter-wrapper">
+    <b-dropdown text="Add Filter" class="add-filter">
+      <b-dropdown-item v-on:click="addStringFilter">String</b-dropdown-item>
+      <b-dropdown-item v-on:click="addMapFilter">Map</b-dropdown-item>
+      <b-dropdown-item v-on:click="addDateRangeFilter">Date Range</b-dropdown-item>
+    </b-dropdown>
     <div ref="filters" v-for="(filter, index) in filters" v-bind:key="index">
       <div v-if="filter.type.toLowerCase() == 'string'">
         <filter-string v-model="filters[index]" v-on:input="updateFilter" />
@@ -13,7 +15,6 @@
       <div v-if="filter.type.toLowerCase() == 'latlngbounds'">
         <filter-map v-model="filters[index]" v-on:input="updateFilter" />
       </div>
-      <hr>
     </div>
     <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
   </div>
@@ -85,5 +86,20 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
+#search-filter-wrapper {
+    .add-filter {
+        margin-bottom: 20px;
+        width: 100%;
+        .dropdown-toggle {
+            width: 100%;
+        }
+    }
+
+    .filter {
+        margin-bottom: 20px;
+        border: 1px solid black;
+        padding: 1px;
+    }
+}
 </style>
