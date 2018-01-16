@@ -35,7 +35,6 @@ export default {
   },
   methods: {
     updateFilter(filter, key) {
-      console.log(filter);
       this.$store.commit('search/UPDATE_FILTER', {
         filter,
         key,
