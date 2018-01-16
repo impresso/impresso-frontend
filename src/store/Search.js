@@ -69,6 +69,9 @@ export default {
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);
     },
+    UPDATE_FILTER(state, payload) {
+      state.search.filters[payload.key] = payload.filter;
+    },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
       state.search = new Search(state.search);
@@ -107,19 +110,19 @@ export default {
         (resolve, reject) => {
           let sortOrder = '';
 
-          if (context.state.search.displaySortOrder === 'desc') {
+          if (context.state.displaySortOrder === 'desc') {
             sortOrder += '-';
           }
 
-          sortOrder += context.state.search.displaySortBy;
+          sortOrder += context.state.displaySortBy;
 
           Vue.http.get(url,
             {
               params: {
                 filters: context.state.search.filters,
-                page: context.state.search.paginationCurrentPage,
-                limit: context.state.search.paginationPerPage,
-                sort_order: sortOrder,
+                page: context.state.paginationCurrentPage,
+                limit: context.state.paginationPerPage,
+                order_by: sortOrder,
               },
             },
           ).then(
