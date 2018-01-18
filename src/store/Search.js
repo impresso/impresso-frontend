@@ -132,9 +132,11 @@ export default {
              if (res.body.records !== undefined) {
                for (let i = 0; i < res.body.records.length; i += 1) {
                  results.push(new SearchResult({
-                   title: `${res.body.records[i].name}`,
+                   title: res.body.records[i].title,
+                   dl: res.body.records[i].dl,
+                   uid: res.body.records[i].uid,
                    image: 'http://placehold.it/300x300',
-                   extract: `${res.body.records[i].name} Lorem ipsum.`,
+                   extract: 'Lorem ipsum.',
                    details: [{
                      col_a: i,
                      col_b: 'abc',
