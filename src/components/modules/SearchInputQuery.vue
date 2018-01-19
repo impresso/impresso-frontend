@@ -12,7 +12,7 @@
         <icon name="font"></icon>
         Search for <strong>"{{query}}"</strong>
       </b-media>
-      <b-media v-for="result in results" v-bind:key="result.id" class="result">
+      <b-media v-for="result in results" v-bind:key="result.id" class="result" v-on:click="clickFilter(result)">
         <strong>
           <icon v-if="result.label === 'person'" name="user-circle"></icon>
           <icon v-if="result.label === 'location'" name="map-marker"></icon>
@@ -83,8 +83,8 @@ export default {
     clear() {
       this.$emit('clear');
     },
-    add() {
-      this.$emit('click_add');
+    clickFilter(filter) {
+      this.$emit('clickFilter', filter);
     },
   },
   directives: {
