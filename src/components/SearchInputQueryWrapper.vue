@@ -2,11 +2,11 @@
   <div>
     <search-bar
     v-bind:query="query"
+    v-bind:results="results"
     v-on:search="onSearch"
     v-on:clear="onClear"
     v-on:click_add="onClickAdd"
     v-on:changeSearchQuery="onChangeSearchQuery"
-    v-bind:results="results"
     />
     <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
       <b-button variant="primary">{{filter.type}}: {{filter.query}}</b-button>
