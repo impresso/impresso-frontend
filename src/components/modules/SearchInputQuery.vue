@@ -7,13 +7,17 @@
         <b-btn v-on:click="search" variant="info">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
-    <div v-click-outside="hideResults" class="results" v-show="results.length > 0 && showResults">
+    <div v-click-outside="hideResults" class="results" v-show="(results.length > 0 || query) && showResults">
+      <b-media class="result">
+        <icon name="font"></icon>
+        Search for <strong>"{{query}}"</strong>
+      </b-media>
       <b-media v-for="result in results" v-bind:key="result.id" class="result">
-
-        <p><strong>
+        <strong>
           <icon v-if="result.label === 'person'" name="user-circle"></icon>
           <icon v-if="result.label === 'location'" name="map-marker"></icon>
-          {{result.title}}</strong></p>
+          {{result.title}}
+        </strong>
       </b-media>
     </div>
   </div>
@@ -28,6 +32,7 @@ import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/user-circle';
 import 'vue-awesome/icons/map-marker';
+import 'vue-awesome/icons/font';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
@@ -62,6 +67,7 @@ export default {
         return this.query;
       },
       set(value) {
+        this.query = value;
         this.showResults = true;
         this.$emit('changeSearchQuery', value);
       },
@@ -103,6 +109,13 @@ export default {
         background: white;
         box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
         .result {
+          padding: 0;
+          margin: 0;
+          .fa-icon{
+            margin-right:10px;
+            width: 16px;
+            margin-bottom: -2px;
+          }
             padding: 7px 15px;
             border-bottom: 1px solid black;
             transition: all 500ms;
