@@ -9,7 +9,11 @@
     </b-input-group>
     <div v-click-outside="hideResults" class="results" v-show="results.length > 0 && showResults">
       <b-media v-for="result in results" v-bind:key="result.id" class="result">
-        <p><strong>{{result.title}}</strong></p>
+
+        <p><strong>
+          <icon v-if="result.label === 'person'" name="user-circle"></icon>
+          <icon v-if="result.label === 'location'" name="map-marker"></icon>
+          {{result.title}}</strong></p>
       </b-media>
     </div>
   </div>
@@ -20,6 +24,10 @@ import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
 import ClickOutside from 'vue-click-outside';
+import Icon from 'vue-awesome/components/Icon';
+
+import 'vue-awesome/icons/user-circle';
+import 'vue-awesome/icons/map-marker';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
@@ -75,6 +83,9 @@ export default {
   },
   directives: {
     ClickOutside,
+  },
+  components: {
+    Icon,
   },
 };
 </script>
