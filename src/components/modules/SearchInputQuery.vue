@@ -1,16 +1,15 @@
 <template lang="html">
   <div class="wrapper">
     <b-input-group>
-      <b-form-input @keyup.enter.native="search" v-model="query_model" type="text" :placeholder="$t('search.query_placeholder')"></b-form-input>
+      <b-form-input v-on:keyup.enter.native="search" v-model="query_model" type="text" :placeholder="$t('search.query_placeholder')"></b-form-input>
       <b-input-group-button slot="right">
-        <b-btn variant="danger" @click="clear">x</b-btn>
-        <b-btn v-on:click="add" variant="dark">+</b-btn>
+        <b-btn variant="danger" v-on:click="clear">x</b-btn>
         <b-btn v-on:click="search" variant="info">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
-    <div class="results" v-show="results.length > 0">
+    <div v-click-outside="hideResults" class="results" v-show="results.length > 0 && showResults">
       <b-media v-for="result in results" v-bind:key="result.id" class="result">
-        <p><strong>Search Result Title</strong><br>Some text</p>
+        <p><strong>{{result.title}}</strong></p>
       </b-media>
     </div>
   </div>
@@ -20,13 +19,14 @@
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
+import ClickOutside from 'vue-click-outside';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 
 export default {
   data: () => ({
-    results: [],
+    showResults: false,
   }),
   props: {
     query: {
@@ -41,6 +41,12 @@ export default {
       type: String,
       default: 'Go',
     },
+    results: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
   },
   computed: {
     query_model: {
@@ -48,11 +54,15 @@ export default {
         return this.query;
       },
       set(value) {
+        this.showResults = true;
         this.$emit('changeSearchQuery', value);
       },
     },
   },
   methods: {
+    hideResults() {
+      this.showResults = false;
+    },
     search() {
       this.$emit('search', this.query_model);
     },
@@ -63,6 +73,9 @@ export default {
       this.$emit('click_add');
     },
   },
+  directives: {
+    ClickOutside,
+  },
 };
 </script>
 
@@ -71,7 +84,7 @@ export default {
     position: relative;
     margin: 15px 0;
     .results {
-        z-index: 1;
+        z-index: 10;
         position: absolute;
         top: 45px;
         width: 100%;

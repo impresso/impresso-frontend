@@ -6,6 +6,7 @@
     v-on:clear="onClear"
     v-on:click_add="onClickAdd"
     v-on:changeSearchQuery="onChangeSearchQuery"
+    v-bind:results="results"
     />
     <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
       <b-button variant="primary">{{filter.type}}: {{filter.query}}</b-button>
@@ -27,6 +28,11 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    results: {
+      get() {
+        return this.$store.state.autocomplete.results;
+      },
+    },
   },
   methods: {
     onSearch() {
@@ -39,9 +45,13 @@ export default {
     },
     onChangeSearchQuery(query) {
       this.query = query;
+      this.$store.dispatch('autocomplete/SEARCH', {
+        query: query.trim(),
+      });
     },
     onClear() {
       this.$store.commit('search/CLEAR');
+      this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.query = '';
     },
     onClickAdd() {

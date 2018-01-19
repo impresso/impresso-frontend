@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import settings from './Settings';
 import search from './Search';
+import autocomplete from './Autocomplete';
 
 Vue.use(Vuex);
 
@@ -13,6 +14,7 @@ export default new Vuex.Store({
   modules: {
     settings,
     search,
+    autocomplete,
   },
   state: {
     processing_status: false,
