@@ -7,7 +7,7 @@ const url = `${process.env.MIDDLELAYER_API}/suggestions`;
 
 function SearchResult({
   title = 'test title',
-  entity = {},
+  filter = {},
   data = {}, // raw return data
   df = 0,
   labels = [],
@@ -15,22 +15,21 @@ function SearchResult({
 } = {}) {
   this.title = title;
   this.data = data;
-  this.entity = entity;
+  this.filter = filter;
   this.df = df;
   this.labels = labels;
   this.label = label;
 }
 
-function Person({
-  name = '',
-  firstname = '',
-  surname = '',
+function NamedEntityFilter({
+  context = 'include',
   uid = '',
+  label = 'The filter lavel',
 } = {}) {
-  this.name = name;
-  this.firstname = firstname;
-  this.surname = surname;
+  this.type = 'NamedEntity';
+  this.context = context;
   this.uid = uid;
+  this.label = label;
 }
 
 export default {
@@ -75,7 +74,10 @@ export default {
                  results.push(new SearchResult({
                    title: res.body.result[i].entity.name,
                    data: res.body.result[i],
-                   entity: new Person(),
+                   filter: new NamedEntityFilter({
+                     uid: res.body.result[i].entity.uid,
+                     label: res.body.result[i].entity.name,
+                   }),
                    df: res.body.result[i].entity.df,
                    labels: res.body.result[i].entity.labels,
                    label: res.body.result[i].entity.labels[1],

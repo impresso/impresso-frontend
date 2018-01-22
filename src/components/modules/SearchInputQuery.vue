@@ -7,10 +7,10 @@
         <b-btn v-on:click="search" variant="info">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
-    <div v-click-outside="hideResults" class="results" v-show="(results.length > 0 || query) && showResults">
-      <b-media class="result">
+    <div v-click-outside="hideResults" class="results" v-show="(results.length > 0 || query_model) && showResults">
+      <b-media class="result" v-on:click="clickString">
         <icon name="font"></icon>
-        Search for <strong>"{{query}}"</strong>
+        Search for <strong>"{{query_model}}"</strong>
       </b-media>
       <b-media v-for="result in results" v-bind:key="result.id" class="result" v-on:click="clickFilter(result)">
         <strong>
@@ -67,7 +67,6 @@ export default {
         return this.query;
       },
       set(value) {
-        this.query = value;
         this.showResults = true;
         this.$emit('changeSearchQuery', value);
       },
@@ -85,6 +84,16 @@ export default {
     },
     clickFilter(filter) {
       this.$emit('clickFilter', filter);
+    },
+    clickString() {
+      this.$emit('clickFilter', {
+        filter: {
+          type: 'String',
+          query: this.query_model,
+          context: 'include',
+          label: this.query_model,
+        },
+      });
     },
   },
   directives: {
@@ -109,13 +118,13 @@ export default {
         background: white;
         box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
         .result {
-          padding: 0;
-          margin: 0;
-          .fa-icon{
-            margin-right:10px;
-            width: 16px;
-            margin-bottom: -2px;
-          }
+            padding: 0;
+            margin: 0;
+            .fa-icon {
+                margin-right: 10px;
+                width: 16px;
+                margin-bottom: -2px;
+            }
             padding: 7px 15px;
             border-bottom: 1px solid black;
             transition: all 500ms;

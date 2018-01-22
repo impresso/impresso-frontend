@@ -5,8 +5,8 @@
     v-bind:results="results"
     v-on:search="onSearch"
     v-on:clear="onClear"
-    v-on:click_add="onClickAdd"
     v-on:changeSearchQuery="onChangeSearchQuery"
+    v-on:clickFilter="onClickFilter"
     />
     <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
       <b-button variant="primary">{{filter.type}}: {{filter.query}}</b-button>
@@ -36,7 +36,6 @@ export default {
   },
   methods: {
     onSearch() {
-      this.onClickAdd();
       this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
       this.$router.push({
@@ -54,22 +53,8 @@ export default {
       this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.query = '';
     },
-    onClickAdd() {
-      const operators = [
-        'and',
-        'or',
-        '(',
-        ')',
-      ];
-
-      if (this.query !== '') {
-        this.$store.commit('search/ADD_FILTER', {
-          type: operators.indexOf(this.query.toLowerCase()) >= 0 ? 'Operator' : 'String',
-          query: this.query,
-          context: 'include',
-        });
-      }
-      this.query = '';
+    onClickFilter(filter) {
+      this.$store.commit('search/ADD_FILTER', filter.filter);
     },
     removeFilter(key) {
       this.$store.commit('search/REMOVE_FILTER', {
