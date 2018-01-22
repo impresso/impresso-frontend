@@ -1,36 +1,14 @@
 import Vue from 'vue';
 import VueResource from 'vue-resource';
 
+import SearchResult from '../modules/AutocompleteSearchResult';
+import NamedEntityFilter from '../modules/filters/NamedEntity';
+import StringFilter from '../modules/filters/String';
+
+
 Vue.use(VueResource);
 
 const url = `${process.env.MIDDLELAYER_API}/suggestions`;
-
-function SearchResult({
-  title = 'test title',
-  filter = {},
-  data = {}, // raw return data
-  df = 0,
-  labels = [],
-  label, // single type of the result
-} = {}) {
-  this.title = title;
-  this.data = data;
-  this.filter = filter;
-  this.df = df;
-  this.labels = labels;
-  this.label = label;
-}
-
-function NamedEntityFilter({
-  context = 'include',
-  uid = '',
-  label = 'The filter lavel',
-} = {}) {
-  this.type = 'NamedEntity';
-  this.context = context;
-  this.uid = uid;
-  this.label = label;
-}
 
 export default {
   namespaced: true,
@@ -41,8 +19,8 @@ export default {
     CLEAR_RESULTS(state) {
       state.results = [];
     },
-    UPDATE_RESULTS(state, results) {
-      state.results = results;
+    ADD_RESULT(state, result) {
+      state.results.push(result);
     },
   },
   actions: {
@@ -56,7 +34,15 @@ export default {
       context.commit('CLEAR_RESULTS');
       this.commit('SET_PROCESSING', true);
 
-      const results = [];
+      // we commit now because we want to see the first result immediatly
+      context.commit('ADD_RESULT', new SearchResult({
+        title: payload.query,
+        filter: new StringFilter({
+          title: payload.query,
+          query: payload.query,
+        }),
+        label: 'string',
+      }));
 
       return new Promise(
         (resolve, reject) => {
@@ -70,21 +56,24 @@ export default {
            (res) => {
              this.commit('SET_PROCESSING', false);
              if (res.body.result !== undefined) {
-               for (let i = 0; i < res.body.result.length; i += 1) {
-                 results.push(new SearchResult({
-                   title: res.body.result[i].entity.name,
-                   data: res.body.result[i],
-                   filter: new NamedEntityFilter({
-                     uid: res.body.result[i].entity.uid,
-                     label: res.body.result[i].entity.name,
-                   }),
-                   df: res.body.result[i].entity.df,
-                   labels: res.body.result[i].entity.labels,
-                   label: res.body.result[i].entity.labels[1],
-                 }));
-               }
+               res.body.result.forEach((result) => {
+                 let filter = {};
 
-               context.commit('UPDATE_RESULTS', results);
+                 if (result.type === 'entity') {
+                   filter = new NamedEntityFilter({
+                     title: result.entity.name,
+                     uid: result.entity.uid,
+                     label: result.entity.labels[1],
+                   });
+                 }
+
+                 context.commit('ADD_RESULT', new SearchResult({
+                   title: result.entity.name,
+                   data: result,
+                   filter,
+                   label: result.entity.labels[1],
+                 }));
+               });
              }
 
              resolve(res);

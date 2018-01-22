@@ -1,19 +1,16 @@
 <template lang="html">
   <div class="wrapper">
     <b-input-group>
-      <b-form-input v-on:keyup.enter.native="search" v-model="query_model" type="text" :placeholder="$t('search.query_placeholder')"></b-form-input>
+      <b-form-input v-on:keyup.native="keyup" v-model="query_model" type="text" :placeholder="$t('search.query_placeholder')"></b-form-input>
       <b-input-group-button slot="right">
         <b-btn variant="danger" v-on:click="clear">x</b-btn>
         <b-btn v-on:click="search" variant="info">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
     <div v-click-outside="hideResults" class="results" v-show="(results.length > 0 || query_model) && showResults">
-      <b-media class="result" v-on:click="clickString">
-        <icon name="font"></icon>
-        Search for <strong>"{{query_model}}"</strong>
-      </b-media>
-      <b-media v-for="result in results" v-bind:key="result.id" class="result" v-on:click="clickFilter(result)">
+      <b-media v-for="result in results" v-bind:key="result.id" class="result" v-on:click="clickResult(result)">
         <strong>
+          <icon v-if="result.label === 'string'" name="font"></icon>
           <icon v-if="result.label === 'person'" name="user-circle"></icon>
           <icon v-if="result.label === 'location'" name="map-marker"></icon>
           {{result.title}}
@@ -73,27 +70,30 @@ export default {
     },
   },
   methods: {
+    keyup(event) {
+      switch (event.key) {
+        case 'Escape':
+          this.hideResults();
+          break;
+        case 'Enter':
+          this.hideResults();
+          this.search();
+          break;
+        default:
+          break;
+      }
+    },
     hideResults() {
       this.showResults = false;
     },
     search() {
-      this.$emit('search', this.query_model);
+      this.$emit('search');
     },
     clear() {
       this.$emit('clear');
     },
-    clickFilter(filter) {
-      this.$emit('clickFilter', filter);
-    },
-    clickString() {
-      this.$emit('clickFilter', {
-        filter: {
-          type: 'String',
-          query: this.query_model,
-          context: 'include',
-          label: this.query_model,
-        },
-      });
+    clickResult(result) {
+      this.$emit('clickResult', result);
     },
   },
   directives: {
