@@ -9,7 +9,7 @@
     v-on:clickResult="onClickResult"
     />
     <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
-      <b-button variant="primary">{{filter.type}}: {{filter.title}}</b-button>
+      <b-button variant="primary">{{filter.label ? filter.label : filter.type}}: {{filter.title}}</b-button>
       <b-button variant="danger" v-on:click="removeFilter(key)">x</b-button>
     </b-button-group>
   </div>
