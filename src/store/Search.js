@@ -38,8 +38,6 @@ export default {
     paginationPerPage: 10,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
-    dateRangeStart: 1800,
-    dateRangeEnd: (new Date()).getFullYear(),
   },
   getters: {
     getSearches(state) {
