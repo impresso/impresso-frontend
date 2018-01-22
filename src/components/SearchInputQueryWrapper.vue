@@ -4,7 +4,7 @@
     v-bind:query="query"
     v-bind:results="results"
     v-on:search="onSearch"
-    v-on:clear="onClear"
+    v-on:reset="onReset"
     v-on:changeSearchQuery="onChangeSearchQuery"
     v-on:clickResult="onClickResult"
     />
@@ -36,6 +36,8 @@ export default {
   },
   methods: {
     onSearch() {
+      this.query = '';
+      this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
       this.$router.push({
@@ -48,12 +50,14 @@ export default {
         query: query.trim(),
       });
     },
-    onClear() {
+    onReset() {
       this.$store.commit('search/CLEAR');
       this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.query = '';
     },
     onClickResult(result) {
+      this.query = '';
+      this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.$store.commit('search/ADD_FILTER', result.filter);
     },
     removeFilter(key) {

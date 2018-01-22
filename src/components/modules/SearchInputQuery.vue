@@ -3,7 +3,7 @@
     <b-input-group>
       <b-form-input v-on:keyup.native="keyup" v-model="query_model" type="text" :placeholder="$t('search.query_placeholder')"></b-form-input>
       <b-input-group-button slot="right">
-        <b-btn variant="danger" v-on:click="clear">x</b-btn>
+        <b-btn variant="danger" v-on:click="reset">x</b-btn>
         <b-btn v-on:click="search" variant="info">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
@@ -89,8 +89,8 @@ export default {
     search() {
       this.$emit('search');
     },
-    clear() {
-      this.$emit('clear');
+    reset() {
+      this.$emit('reset');
     },
     clickResult(result) {
       this.$emit('clickResult', result);
