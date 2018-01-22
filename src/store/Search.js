@@ -62,7 +62,8 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     ADD_FILTER(state, payload) {
-      state.search.filters.push(payload);
+      // here we clone the payload/object using util.extend
+      state.search.filters.push(Vue.util.extend({}, payload));
     },
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);
