@@ -1,10 +1,5 @@
 <template lang="html">
   <div id="search-filter-wrapper">
-    <b-dropdown text="Add Filter" class="add-filter">
-      <b-dropdown-item v-on:click="addStringFilter">String</b-dropdown-item>
-      <b-dropdown-item v-on:click="addMapFilter">Map</b-dropdown-item>
-      <b-dropdown-item v-on:click="addDateRangeFilter">Date Range</b-dropdown-item>
-    </b-dropdown>
     <div ref="filters" v-for="(filter, index) in filters" v-bind:key="index">
       <div v-if="filter.type.toLowerCase() == 'string'">
         <filter-string v-model="filters[index]" v-on:input="updateFilter" />
@@ -45,35 +40,6 @@ export default {
       this.$store.dispatch('search/SEARCH');
       this.$router.push({
         name: 'search_results',
-      });
-    },
-    addStringFilter() {
-      this.$store.commit('search/ADD_FILTER', {
-        type: 'String',
-        query: '',
-        context: 'include',
-      });
-    },
-    addMapFilter() {
-      this.$store.commit('search/ADD_FILTER', {
-        type: 'LatLngBounds',
-        SouthWest: {
-          lat: 31.50362930577303,
-          lng: -12.304687500000002,
-        },
-        NorthEast: {
-          lat: 56.26776108757582,
-          lng: 24.609375000000004,
-        },
-        context: 'include',
-      });
-    },
-    addDateRangeFilter() {
-      this.$store.commit('search/ADD_FILTER', {
-        type: 'DateRange',
-        start: '1850',
-        end: `${(new Date()).getFullYear()}`,
-        context: 'include',
       });
     },
   },
