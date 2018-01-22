@@ -4,21 +4,18 @@
       <div v-if="filter.type.toLowerCase() == 'string'">
         <filter-string v-model="filters[index]" v-on:input="updateFilter" />
       </div>
-      <div v-if="filter.type.toLowerCase() == 'daterange'">
-        <filter-date-range v-model="filters[index]" v-on:input="updateFilter" />
+      <div v-if="filter.type.toLowerCase() == 'namedentity'">
+        <filter-named-entity v-model="filters[index]" v-on:input="updateFilter" />
       </div>
-      <div v-if="filter.type.toLowerCase() == 'latlngbounds'">
-        <filter-map v-model="filters[index]" v-on:input="updateFilter" />
-      </div>
+
     </div>
     <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
   </div>
 </template>
 
 <script>
-import FilterDateRange from './modules/FilterDateRange';
-import FilterMap from './modules/FilterMap';
 import FilterString from './modules/FilterString';
+import FilterNamedEntity from './modules/FilterNamedEntity';
 
 export default {
   computed: {
@@ -44,9 +41,8 @@ export default {
     },
   },
   components: {
-    'filter-map': FilterMap,
     'filter-string': FilterString,
-    'filter-date-range': FilterDateRange,
+    'filter-named-entity': FilterNamedEntity,
   },
 };
 </script>
