@@ -4,7 +4,7 @@
       <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
     </div>
     <div class="body">
-      <b-input type="text" v-model="filter.query" v-on:input="updateFilter" />
+      <b-input type="text" v-model="filter.query" v-on:input="updateFilter" v-on:keyup.enter.native="submitFilter" />
     </div>
   </div>
 </template>
@@ -29,6 +29,9 @@ export default {
     updateFilter() {
       this.filter.title = this.filter.query;
       this.$emit('input', this.filter);
+    },
+    submitFilter() {
+      this.$emit('submit');
     },
   },
 };

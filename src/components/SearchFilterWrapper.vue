@@ -2,7 +2,7 @@
   <div id="search-filter-wrapper">
     <div ref="filters" v-for="(filter, index) in filters" v-bind:key="index">
       <div v-if="filter.type.toLowerCase() == 'string'">
-        <filter-string v-model="filters[index]" v-on:input="updateFilter" />
+        <filter-string v-model="filters[index]" v-on:input="updateFilter" v-on:submit="submitFilter" />
       </div>
       <div v-if="filter.type.toLowerCase() == 'namedentity'">
         <filter-named-entity v-model="filters[index]" v-on:input="updateFilter" />
