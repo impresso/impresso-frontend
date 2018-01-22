@@ -38,8 +38,6 @@ export default {
     paginationPerPage: 10,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
-    dateRangeStart: 1800,
-    dateRangeEnd: (new Date()).getFullYear(),
   },
   getters: {
     getSearches(state) {
@@ -64,7 +62,8 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     ADD_FILTER(state, payload) {
-      state.search.filters.push(payload);
+      // here we clone the payload/object using util.extend
+      state.search.filters.push(Vue.util.extend({}, payload));
     },
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);

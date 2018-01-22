@@ -2,13 +2,14 @@
   <div>
     <search-bar
     v-bind:query="query"
+    v-bind:results="results"
     v-on:search="onSearch"
-    v-on:clear="onClear"
-    v-on:click_add="onClickAdd"
+    v-on:reset="onReset"
     v-on:changeSearchQuery="onChangeSearchQuery"
+    v-on:clickResult="onClickResult"
     />
     <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
-      <b-button variant="primary">{{filter.type}}: {{filter.query}}</b-button>
+      <b-button variant="primary">{{filter.label ? filter.label : filter.type}}: {{filter.title}}</b-button>
       <b-button variant="danger" v-on:click="removeFilter(key)">x</b-button>
     </b-button-group>
   </div>
@@ -27,10 +28,16 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    results: {
+      get() {
+        return this.$store.state.autocomplete.results;
+      },
+    },
   },
   methods: {
     onSearch() {
-      this.onClickAdd();
+      this.query = '';
+      this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
       this.$router.push({
@@ -39,27 +46,19 @@ export default {
     },
     onChangeSearchQuery(query) {
       this.query = query;
+      this.$store.dispatch('autocomplete/SEARCH', {
+        query: query.trim(),
+      });
     },
-    onClear() {
+    onReset() {
       this.$store.commit('search/CLEAR');
+      this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.query = '';
     },
-    onClickAdd() {
-      const operators = [
-        'and',
-        'or',
-        '(',
-        ')',
-      ];
-
-      if (this.query !== '') {
-        this.$store.commit('search/ADD_FILTER', {
-          type: operators.indexOf(this.query.toLowerCase()) >= 0 ? 'Operator' : 'String',
-          query: this.query,
-          context: 'include',
-        });
-      }
+    onClickResult(result) {
       this.query = '';
+      this.$store.commit('autocomplete/CLEAR_RESULTS');
+      this.$store.commit('search/ADD_FILTER', result.filter);
     },
     removeFilter(key) {
       this.$store.commit('search/REMOVE_FILTER', {

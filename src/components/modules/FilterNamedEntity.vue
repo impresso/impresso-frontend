@@ -4,12 +4,19 @@
       <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
     </div>
     <div class="body">
-      <b-input type="text" v-model="filter.query" v-on:input="updateFilter" v-on:keyup.enter.native="submitFilter" />
+      <icon v-if="filter.label === 'person'" name="user-circle"></icon>
+      <icon v-if="filter.label === 'location'" name="map-marker"></icon>
+      {{filter.title}}
     </div>
   </div>
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
+
+import 'vue-awesome/icons/user-circle';
+import 'vue-awesome/icons/map-marker';
+
 export default {
   data: () => ({
     options: [{
@@ -27,15 +34,23 @@ export default {
   props: ['filter'],
   methods: {
     updateFilter() {
-      this.filter.title = this.filter.query;
       this.$emit('input', this.filter);
     },
-    submitFilter() {
-      this.$emit('submit');
-    },
+  },
+  components: {
+    Icon,
   },
 };
 </script>
 
-<style lang="css">
+<style scoped lang="less">
+  .filter{
+    .body{
+      padding: 5px 10px;
+      .fa-icon{
+        width: 12px;
+        margin-bottom: -2px;
+      }
+    }
+  }
 </style>
