@@ -1,14 +1,26 @@
 <template lang="html">
   <div class="wrapper">
     <b-input-group>
-      <b-form-input v-on:keyup.native="keyup" v-model="query_model" type="text" :placeholder="$t('search.query_placeholder')"></b-form-input>
+        <input
+        v-on:keyup.prevent="keyup"
+        v-model="query_model"
+        :placeholder="$t('search.query_placeholder')"
+        type="text"
+        class="form-control">
       <b-input-group-button slot="right">
         <b-btn variant="danger" v-on:click="reset">x</b-btn>
         <b-btn v-on:click="search" variant="info">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
     <div v-click-outside="hideResults" class="results" v-show="(results.length > 0 || query_model) && showResults">
-      <b-media v-for="result in results" v-bind:key="result.id" class="result" v-on:click="clickResult(result)">
+      <b-media
+        v-for="(result, index) in results"
+        v-bind:key="result.id"
+        v-bind:class="{active: index == activeResultIndex }"
+        v-on:click="clickResult(result)"
+        v-on:mouseover="setActiveResultIndex(index)"
+        class="result"
+        >
         <strong>
           <icon v-if="result.label === 'string'" name="font"></icon>
           <icon v-if="result.label === 'person'" name="user-circle"></icon>
@@ -37,6 +49,7 @@ Vue.use(VueI18n);
 export default {
   data: () => ({
     showResults: false,
+    activeResultIndex: 0,
   }),
   props: {
     query: {
@@ -76,17 +89,34 @@ export default {
           this.hideResults();
           break;
         case 'Enter':
+          this.$emit('clickResult', this.results[this.activeResultIndex]);
           this.hideResults();
           this.search();
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          if (this.activeResultIndex < this.results.length - 1) {
+            this.activeResultIndex += 1;
+          }
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          if (this.activeResultIndex > 0) {
+            this.activeResultIndex -= 1;
+          }
           break;
         default:
           break;
       }
     },
+    setActiveResultIndex(value) {
+      this.activeResultIndex = value;
+    },
     hideResults() {
       this.showResults = false;
     },
     search() {
+      this.setActiveResultIndex(0);
       this.$emit('search');
     },
     reset() {
@@ -94,6 +124,7 @@ export default {
     },
     clickResult(result) {
       this.$emit('clickResult', result);
+      this.$emit('search');
     },
   },
   directives: {
@@ -128,8 +159,9 @@ export default {
             padding: 7px 15px;
             border-bottom: 1px solid black;
             transition: all 500ms;
+            &.active,
             &:hover {
-                background: #f4f5f6;
+                background: #8cf; // @todo change color to styleguide
                 display: block;
                 cursor: pointer;
             }
