@@ -37,7 +37,6 @@ export default {
   methods: {
     onSearch() {
       this.query = '';
-      this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
       this.$router.push({

@@ -9,20 +9,7 @@
     <hr>
     <b-row>
       <b-col md="3">
-        <search-filter-wrapper />
-        <hr>
-        <h4>Search History</h4>
-        <div class="" style="font-size: smaller;" v-for="search in searchesReversed">
-          <ul>
-            <li>query: {{search.query}}</li>
-            <li>uuid: {{search.uuid}}</li>
-            <li>display sort by: {{search.displaySortBy}}</li>
-            <li>display sort order: {{search.displaySortOrder}}</li>
-            <li>display style: {{search.displayStyle}}</li>
-          </ul>
-          <b-button variant="primary" size="sm" @click="loadSearch(search.uuid)">Load</b-button>
-          <hr>
-        </div>
+        <search-filter-wrapper />        
       </b-col>
       <b-col>
         <b-row>
@@ -103,11 +90,6 @@ export default {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', {
           displayStyle: val,
         });
-      },
-    },
-    searchesReversed: {
-      get() {
-        return this.$store.getters['search/getSearchesReversed'];
       },
     },
     searchResults: {
