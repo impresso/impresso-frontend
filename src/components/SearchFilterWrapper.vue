@@ -1,50 +1,36 @@
 <template lang="html">
-  <div>
-    <filter-date-range
-      v-bind:date-start="date_range.start"
-      v-bind:date-end="date_range.end"
-      v-on:changeDateStart="onChangeDateStart"
-      v-on:changeDateEnd="onChangeDateEnd"
-    />
-    <filter-map
-      v-on:changeBounds="onChangeBounds"
-    />
+  <div id="search-filter-wrapper">
+    <div ref="filters" v-for="(filter, index) in filters" v-bind:key="index">
+      <div v-if="filter.type.toLowerCase() == 'string'">
+        <filter-string v-model="filters[index]" v-on:input="updateFilter" v-on:submit="submitFilter" />
+      </div>
+      <div v-if="filter.type.toLowerCase() == 'namedentity'">
+        <filter-named-entity v-model="filters[index]" v-on:input="updateFilter" />
+      </div>
+
+    </div>
     <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
   </div>
 </template>
 
 <script>
-import FilterDateRange from './modules/SearchFilterDateRange';
-import FilterMap from './modules/SearchFilterMap';
+import FilterString from './modules/FilterString';
+import FilterNamedEntity from './modules/FilterNamedEntity';
 
 export default {
   computed: {
-    date_range: {
+    filters: {
       get() {
-        return {
-          start: this.$store.state.search.search.filterDateRangeStart,
-          end: this.$store.state.search.search.filterDateRangeEnd,
-        };
+        return this.$store.state.search.search.filters;
       },
     },
   },
   methods: {
-    onChangeDateStart(val) {
-      this.date_range.start = val;
-      this.updateFilterDateRange();
-    },
-    onChangeDateEnd(val) {
-      this.date_range.end = val;
-      this.updateFilterDateRange();
-    },
-    updateFilterDateRange() {
-      this.$store.commit('search/UPDATE_FILTER_DATE_RANGE', {
-        filterDateRangeStart: this.date_range.start,
-        filterDateRangeEnd: this.date_range.end,
+    updateFilter(filter, key) {
+      this.$store.commit('search/UPDATE_FILTER', {
+        filter,
+        key,
       });
-    },
-    onChangeBounds(boundingbox) {
-      this.$store.commit('search/UPDATE_FILTER_BOUNDING_BOX', boundingbox);
     },
     submitFilter() {
       this.$store.commit('search/STORE_SEARCH');
@@ -55,14 +41,26 @@ export default {
     },
   },
   components: {
-    'filter-date-range': FilterDateRange,
-    'filter-map': FilterMap,
+    'filter-string': FilterString,
+    'filter-named-entity': FilterNamedEntity,
   },
 };
 </script>
 
-<style scoped lang="less">
-.filter {
-    margin-bottom: 15px;
+<style lang="less">
+#search-filter-wrapper {
+    .add-filter {
+        margin-bottom: 20px;
+        width: 100%;
+        .dropdown-toggle {
+            width: 100%;
+        }
+    }
+
+    .filter {
+        margin-bottom: 20px;
+        border: 1px solid black;
+        padding: 1px;
+    }
 }
 </style>

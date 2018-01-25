@@ -1,42 +1,68 @@
 <template lang="html">
-  <search-bar
-  :query="query"
-  @changeSearchQuery="onChangeSearchQuery"
-  @search="onSearch"
-  @clear="onClear"
-  />
+  <div>
+    <search-bar
+    v-bind:query="query"
+    v-bind:results="results"
+    v-on:search="onSearch"
+    v-on:reset="onReset"
+    v-on:changeSearchQuery="onChangeSearchQuery"
+    v-on:clickResult="onClickResult"
+    />
+    <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
+      <b-button variant="primary">{{filter.label ? filter.label : filter.type}}: {{filter.title}}</b-button>
+      <b-button variant="danger" v-on:click="removeFilter(key)">x</b-button>
+    </b-button-group>
+  </div>
 </template>
 
 <script>
 import SearchBar from './modules/SearchInputQuery';
 
 export default {
+  data: () => ({
+    query: '',
+  }),
   computed: {
-    query: {
+    filters: {
       get() {
-        return this.$store.state.search.search.query;
+        return this.$store.state.search.search.filters;
+      },
+    },
+    results: {
+      get() {
+        return this.$store.state.autocomplete.results;
       },
     },
   },
   methods: {
-    onChangeSearchQuery(val) {
-      this.$store.commit('search/UPDATE_SEARCH_QUERY', {
-        query: val,
-      });
-    },
-    onSearch(val) {
-      this.$store.commit('search/STORE_SEARCH', {
-        query: val,
-      });
-
+    onSearch() {
+      this.query = '';
+      this.$store.commit('search/STORE_SEARCH');
       this.$store.dispatch('search/SEARCH');
-
       this.$router.push({
         name: 'search_results',
       });
     },
-    onClear() {
-      this.$store.commit('search/CLEAR_QUERY');
+    onChangeSearchQuery(query) {
+      this.query = query;
+      this.$store.dispatch('autocomplete/SEARCH', {
+        query: query.trim(),
+      });
+    },
+    onReset() {
+      this.$store.commit('search/CLEAR');
+      this.$store.commit('autocomplete/CLEAR_RESULTS');
+      this.query = '';
+    },
+    onClickResult(result) {
+      this.query = '';
+      this.$store.commit('autocomplete/CLEAR_RESULTS');
+      this.$store.commit('search/ADD_FILTER', result.filter);
+    },
+    removeFilter(key) {
+      this.$store.commit('search/REMOVE_FILTER', {
+        index: key,
+      });
     },
   },
   components: {
@@ -45,5 +71,9 @@ export default {
 };
 </script>
 
-<style lang="css">
+<style scoped lang="less">
+.filter {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
 </style>

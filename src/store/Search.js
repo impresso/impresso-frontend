@@ -8,26 +8,10 @@ const uuid = require('uuid');
 const url = `${process.env.MIDDLELAYER_API}/articles`;
 
 function Search({
-    query = '',
-    displaySortBy = 'relevance',
-    displaySortOrder = 'asc',
-    displayStyle = 'list',
-    paginationPerPage = 10,
-    filterDateRangeStart = 0,
-    filterDateRangeEnd = (new Date()).getFullYear(),
-    filterBoundingBox = [],
+    filters = [],
   } = {}) {
-  this.query = query;
+  this.filters = filters;
   this.uuid = uuid.v4();
-  this.displaySortBy = displaySortBy;
-  this.displaySortOrder = displaySortOrder;
-  this.displayStyle = displayStyle;
-  this.paginationPerPage = paginationPerPage;
-  this.paginationCurrentPage = 1;
-  this.paginationTotalRows = 0;
-  this.filterDateRangeStart = filterDateRangeStart;
-  this.filterDateRangeEnd = filterDateRangeEnd;
-  this.filterBoundingBox = filterBoundingBox;
 }
 
 function SearchResult({
@@ -48,6 +32,12 @@ export default {
     search: new Search(),
     searches: [],
     results: [],
+    displaySortBy: 'relevance',
+    displaySortOrder: 'asc',
+    displayStyle: 'list',
+    paginationPerPage: 10,
+    paginationCurrentPage: 1,
+    paginationTotalRows: 0,
   },
   getters: {
     getSearches(state) {
@@ -58,35 +48,35 @@ export default {
     },
   },
   mutations: {
-    UPDATE_SEARCH_QUERY(state, payload) {
-      state.search.query = payload.query;
-    },
     UPDATE_SEARCH_DISPLAY_SORT(state, payload) {
-      state.search.displaySortOrder = payload.displaySortOrder;
-      state.search.displaySortBy = payload.displaySortBy;
+      state.displaySortOrder = payload.displaySortOrder;
+      state.displaySortBy = payload.displaySortBy;
     },
     UPDATE_SEARCH_DISPLAY_STYLE(state, payload) {
-      state.search.displayStyle = payload.displayStyle;
+      state.displayStyle = payload.displayStyle;
     },
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
-      state.search.paginationCurrentPage = payload.paginationCurrentPage;
+      state.paginationCurrentPage = payload.paginationCurrentPage;
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
-      state.search.paginationTotalRows = payload.paginationTotalRows;
+      state.paginationTotalRows = payload.paginationTotalRows;
     },
-    UPDATE_FILTER_DATE_RANGE(state, payload) {
-      state.search.filterDateRangeStart = parseInt(payload.filterDateRangeStart, 10);
-      state.search.filterDateRangeEnd = parseInt(payload.filterDateRangeEnd, 10);
+    ADD_FILTER(state, payload) {
+      // here we clone the payload/object using util.extend
+      state.search.filters.push(Vue.util.extend({}, payload));
     },
-    UPDATE_FILTER_BOUNDING_BOX(state, payload) {
-      state.search.filterBoundingBox = payload;
+    REMOVE_FILTER(state, payload) {
+      state.search.filters.splice(payload.index, 1);
+    },
+    UPDATE_FILTER(state, payload) {
+      state.search.filters[payload.key] = payload.filter;
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
       state.search = new Search(state.search);
     },
-    CLEAR_QUERY(state) {
-      state.search.query = '';
+    CLEAR(state) {
+      state.search = new Search();
     },
     LOAD_SEARCH(state, id) {
       if (state.searches.length) {
@@ -119,19 +109,19 @@ export default {
         (resolve, reject) => {
           let sortOrder = '';
 
-          if (context.state.search.displaySortOrder === 'desc') {
+          if (context.state.displaySortOrder === 'desc') {
             sortOrder += '-';
           }
 
-          sortOrder += context.state.search.displaySortBy;
+          sortOrder += context.state.displaySortBy;
 
           Vue.http.get(url,
             {
               params: {
-                query: context.state.search.query,
-                page: context.state.search.paginationCurrentPage,
-                limit: context.state.search.paginationPerPage,
-                sort_order: sortOrder,
+                filters: context.state.search.filters,
+                page: context.state.paginationCurrentPage,
+                limit: context.state.paginationPerPage,
+                order_by: sortOrder,
               },
             },
           ).then(
@@ -141,9 +131,11 @@ export default {
              if (res.body.records !== undefined) {
                for (let i = 0; i < res.body.records.length; i += 1) {
                  results.push(new SearchResult({
-                   title: `${res.body.records[i].name}`,
+                   title: res.body.records[i].title,
+                   dl: res.body.records[i].dl,
+                   uid: res.body.records[i].uid,
                    image: 'http://placehold.it/300x300',
-                   extract: `${res.body.records[i].name} Lorem ipsum.`,
+                   extract: 'Lorem ipsum.',
                    details: [{
                      col_a: i,
                      col_b: 'abc',

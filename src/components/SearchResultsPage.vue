@@ -9,20 +9,7 @@
     <hr>
     <b-row>
       <b-col md="3">
-        <search-filter-wrapper />
-        <hr>
-        <h4>Search History</h4>
-        <div class="" style="font-size: smaller;" v-for="search in searchesReversed">
-          <ul>
-            <li>query: {{search.query}}</li>
-            <li>uuid: {{search.uuid}}</li>
-            <li>display sort by: {{search.displaySortBy}}</li>
-            <li>display sort order: {{search.displaySortOrder}}</li>
-            <li>display style: {{search.displayStyle}}</li>
-          </ul>
-          <b-button variant="primary" size="sm" @click="loadSearch(search.uuid)">Load</b-button>
-          <hr>
-        </div>
+        <search-filter-wrapper />        
       </b-col>
       <b-col>
         <b-row>
@@ -72,32 +59,32 @@ export default {
   computed: {
     displaySortOrder: {
       get() {
-        return this.$store.state.search.search.displaySortOrder;
+        return this.$store.state.search.displaySortOrder;
       },
     },
     displaySortBy: {
       get() {
-        return this.$store.state.search.search.displaySortBy;
+        return this.$store.state.search.displaySortBy;
       },
     },
     paginationPerPage: {
       get() {
-        return this.$store.state.search.search.paginationPerPage;
+        return this.$store.state.search.paginationPerPage;
       },
     },
     paginationCurrentPage: {
       get() {
-        return this.$store.state.search.search.paginationCurrentPage;
+        return this.$store.state.search.paginationCurrentPage;
       },
     },
     paginationTotalRows: {
       get() {
-        return this.$store.state.search.search.paginationTotalRows;
+        return this.$store.state.search.paginationTotalRows;
       },
     },
     displayStyle: {
       get() {
-        return this.$store.state.search.search.displayStyle;
+        return this.$store.state.search.displayStyle;
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', {
@@ -105,19 +92,9 @@ export default {
         });
       },
     },
-    searchesReversed: {
-      get() {
-        return this.$store.getters['search/getSearchesReversed'];
-      },
-    },
     searchResults: {
       get() {
         return this.$store.state.search.results;
-      },
-    },
-    searchStatus: {
-      get() {
-        return this.$store.state.search.is_searching;
       },
     },
   },
