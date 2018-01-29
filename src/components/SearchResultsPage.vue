@@ -1,28 +1,18 @@
 <template>
 <main id="SearchResultsPage">
+  <div class="top mb-4 py-2">
+    <b-container>
+      <b-row>
+        <b-col md="6" offset-md="3">
+          <search-bar />
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
   <b-container>
-    <b-row>
-      <b-col md="6" offset-md="3">
-        <search-bar />
-      </b-col>
-    </b-row>
-    <hr>
     <b-row>
       <b-col md="3">
         <search-filter-wrapper />
-        <hr>
-        <h4>Search History</h4>
-        <div class="" style="font-size: smaller;" v-for="search in searchesReversed">
-          <ul>
-            <li>query: {{search.query}}</li>
-            <li>uuid: {{search.uuid}}</li>
-            <li>display sort by: {{search.displaySortBy}}</li>
-            <li>display sort order: {{search.displaySortOrder}}</li>
-            <li>display style: {{search.displayStyle}}</li>
-          </ul>
-          <b-button variant="primary" size="sm" @click="loadSearch(search.uuid)">Load</b-button>
-          <hr>
-        </div>
       </b-col>
       <b-col>
         <b-row>
@@ -52,12 +42,7 @@
           </b-col>
         </b-row>
         <hr>
-        <pagination
-          v-bind:perPage="paginationPerPage"
-          v-bind:currentPage="paginationCurrentPage"
-          v-bind:totalRows="paginationTotalRows"
-          v-on:input="onInputPagination"
-        />
+        <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" />
       </b-col>
     </b-row>
   </b-container>
@@ -77,32 +62,32 @@ export default {
   computed: {
     displaySortOrder: {
       get() {
-        return this.$store.state.search.search.displaySortOrder;
+        return this.$store.state.search.displaySortOrder;
       },
     },
     displaySortBy: {
       get() {
-        return this.$store.state.search.search.displaySortBy;
+        return this.$store.state.search.displaySortBy;
       },
     },
     paginationPerPage: {
       get() {
-        return this.$store.state.search.search.paginationPerPage;
+        return this.$store.state.search.paginationPerPage;
       },
     },
     paginationCurrentPage: {
       get() {
-        return this.$store.state.search.search.paginationCurrentPage;
+        return this.$store.state.search.paginationCurrentPage;
       },
     },
     paginationTotalRows: {
       get() {
-        return this.$store.state.search.search.paginationTotalRows;
+        return this.$store.state.search.paginationTotalRows;
       },
     },
     displayStyle: {
       get() {
-        return this.$store.state.search.search.displayStyle;
+        return this.$store.state.search.displayStyle;
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', {
@@ -110,37 +95,9 @@ export default {
         });
       },
     },
-    searchesReversed: {
-      get() {
-        return this.$store.getters['search/getSearchesReversed'];
-      },
-    },
     searchResults: {
       get() {
-        return [{
-          title: 'Article Title',
-          image: 'http://placehold.it/300x300',
-          extract: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          details: [{
-            col_a: 1,
-            col_b: 'abc',
-          }, {
-            col_a: 2,
-            col_b: 'def',
-          }],
-        }, {
-          title: 'Article Title',
-          image: 'http://placehold.it/200x400',
-          extract: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-          details: [{
-            col_a: 1,
-            col_b: 'abc',
-          }, {
-            col_a: 2,
-            col_b: 'def',
-          }],
-        }];
-        // return this.$store.state.search.results;
+        return this.$store.state.search.results;
       },
     },
   },
@@ -168,14 +125,17 @@ export default {
         displaySortBy: sortBy,
         displaySortOrder: sortOrder,
       });
+      this.$store.dispatch('search/SEARCH');
     },
     loadSearch(uuid) {
       this.$store.commit('search/LOAD_SEARCH', uuid);
+      this.$store.dispatch('search/SEARCH');
     },
     onInputPagination(pageNumber) {
       this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
         paginationCurrentPage: pageNumber,
       });
+      this.$store.dispatch('search/SEARCH');
     },
   },
   components: {
@@ -188,6 +148,7 @@ export default {
   mounted() {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
+      this.$store.dispatch('search/SEARCH');
     }
   },
 };
@@ -196,6 +157,10 @@ export default {
 <style scoped lang="less">
 .search_wrapper {
     margin: 15px 0;
+}
+
+.top{
+  background: #f4f5f6;
 }
 </style>
 

@@ -1,5 +1,5 @@
 <template lang="html">
-  <header id="header" class="py-2">
+  <header id="header" class="py-2" v-bind:class="{loading: showProgress}">
     <div class="container">
       <b-row>
         <b-col>
@@ -51,6 +51,9 @@ export default {
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
+    showProgress() {
+      return this.$store.state.processing_status;
+    },
   },
   methods: {
     selectLanguage(languageCode) {
@@ -64,8 +67,11 @@ export default {
 </script>
 
 <style scoped lang="less">
+@bg_color: #234;
+@fg_color: #432;
+@speed: 1s;
 header {
-    background: #234;
+    background: @bg_color;
     color: white;
     .logo {
         color: white;
@@ -73,5 +79,19 @@ header {
         padding-top: 0.25rem; //inherterd from the language dropdown
     }
 
+    &.loading {
+        background: @bg_color;
+        background: linear-gradient(45deg, @bg_color, @fg_color, @bg_color);
+        animation: progress @speed linear infinite;
+    }
+}
+
+@-webkit-keyframes progress {
+    0% {
+        background-position: -100vw 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
 }
 </style>
