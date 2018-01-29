@@ -1,5 +1,4 @@
 <template lang="html">
-  <div>
     <search-bar
     v-bind:query="query"
     v-bind:results="results"
@@ -8,11 +7,6 @@
     v-on:changeSearchQuery="onChangeSearchQuery"
     v-on:clickResult="onClickResult"
     />
-    <b-button-group class="filter" size="sm" v-for="(filter, key) in filters">
-      <b-button variant="primary">{{filter.label ? filter.label : filter.type}}: {{filter.title}}</b-button>
-      <b-button variant="danger" v-on:click="removeFilter(key)">x</b-button>
-    </b-button-group>
-  </div>
 </template>
 
 <script>
@@ -58,11 +52,6 @@ export default {
       this.query = '';
       this.$store.commit('autocomplete/CLEAR_RESULTS');
       this.$store.commit('search/ADD_FILTER', result.filter);
-    },
-    removeFilter(key) {
-      this.$store.commit('search/REMOVE_FILTER', {
-        index: key,
-      });
     },
   },
   components: {
