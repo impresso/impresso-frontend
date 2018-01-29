@@ -8,8 +8,8 @@
         type="text"
         class="form-control">
       <b-input-group-button slot="right">
-        <b-btn variant="danger" v-on:click="reset">x</b-btn>
-        <b-btn v-on:click="search" variant="info">{{$t("search.query_button")}}</b-btn>
+        <b-btn variant="danger" v-on:click="reset"><icon name="times" /></b-btn>
+        <b-btn v-on:click="search" variant="success">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
     <div v-click-outside="hideResults" class="results" v-show="(results.length > 0 || query_model) && showResults">
@@ -42,6 +42,7 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/user-circle';
 import 'vue-awesome/icons/map-marker';
 import 'vue-awesome/icons/font';
+import 'vue-awesome/icons/times';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);

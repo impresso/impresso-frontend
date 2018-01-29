@@ -1,15 +1,18 @@
 <template>
 <main id="SearchResultsPage">
+  <div class="top mb-4 py-2">
+    <b-container>
+      <b-row>
+        <b-col md="6" offset-md="3">
+          <search-bar />
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
   <b-container>
     <b-row>
-      <b-col md="6" offset-md="3">
-        <search-bar />
-      </b-col>
-    </b-row>
-    <hr>
-    <b-row>
       <b-col md="3">
-        <search-filter-wrapper />        
+        <search-filter-wrapper />
       </b-col>
       <b-col>
         <b-row>
@@ -154,6 +157,10 @@ export default {
 <style scoped lang="less">
 .search_wrapper {
     margin: 15px 0;
+}
+
+.top{
+  background: #f4f5f6;
 }
 </style>
 

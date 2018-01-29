@@ -2,14 +2,27 @@
   <div id="search-filter-wrapper">
     <div ref="filters" v-for="(filter, index) in filters" v-bind:key="index">
       <div v-if="filter.type.toLowerCase() == 'string'">
-        <filter-string v-model="filters[index]" v-on:input="updateFilter" v-on:submit="submitFilter" />
+        <filter-string
+          v-model="filters[index]"
+          v-on:input="updateFilter"
+          v-on:submit="submitFilter"
+          v-on:remove="removeFilter(index)"
+        />
       </div>
       <div v-if="filter.type.toLowerCase() == 'namedentity'">
-        <filter-named-entity v-model="filters[index]" v-on:input="updateFilter" />
+        <filter-named-entity
+          v-model="filters[index]"
+          v-on:input="updateFilter"
+          v-on:remove="removeFilter(index)"
+        />
       </div>
-
     </div>
-    <b-button v-on:click="submitFilter" id="button-filter" variant="primary" block>Filter</b-button>
+    <b-button
+      id="button-filter"
+      class="mb-4"
+      block
+      variant="success"
+      v-on:click="submitFilter">Filter</b-button>
   </div>
 </template>
 
@@ -39,6 +52,11 @@ export default {
         name: 'search_results',
       });
     },
+    removeFilter(index) {
+      this.$store.commit('search/REMOVE_FILTER', {
+        index,
+      });
+    },
   },
   components: {
     'filter-string': FilterString,
@@ -48,19 +66,4 @@ export default {
 </script>
 
 <style lang="less">
-#search-filter-wrapper {
-    .add-filter {
-        margin-bottom: 20px;
-        width: 100%;
-        .dropdown-toggle {
-            width: 100%;
-        }
-    }
-
-    .filter {
-        margin-bottom: 20px;
-        border: 1px solid black;
-        padding: 1px;
-    }
-}
 </style>
