@@ -19,11 +19,16 @@ function SearchResult({
   image = 'test image',
   extract = 'test extract',
   details = [],
+  dl = 0,
+  uid = false,
+
 } = {}) {
   this.title = title;
   this.image = image;
   this.extract = extract;
   this.details = details;
+  this.dl = dl;
+  this.uid = uid;
 }
 
 export default {

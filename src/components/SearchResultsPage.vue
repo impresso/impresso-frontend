@@ -35,10 +35,17 @@
           </b-col>
         </b-row>
         <hr>
-        <search-results-list-item v-if="displayStyle === 'list'" v-for="searchResult in searchResults" v-bind:value="searchResult" />
+        <search-results-list-item
+          v-if="displayStyle === 'list'"
+          v-for="searchResult in searchResults"
+          v-bind:value="searchResult"
+          v-on:click="onClickResult(searchResult)" />
         <b-row v-if="displayStyle === 'tiles'">
           <b-col cols="6" sm="4" md="3" lg="2" v-for="searchResult in searchResults">
-            <search-results-tiles-item v-bind:value="searchResult" />
+            <search-results-tiles-item
+            v-on:click="onClickResult(searchResult)"
+            v-bind:value="searchResult"
+            />
           </b-col>
         </b-row>
         <hr>
@@ -53,8 +60,8 @@
 import SearchBar from './SearchInputQueryWrapper';
 import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
-import SearchResultsListItem from './SearchResultsListItem';
-import SearchResultsTilesItem from './SearchResultsTilesItem';
+import SearchResultsListItem from './modules/SearchResultsListItem';
+import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 
 export default {
   name: 'HelloWorld',
@@ -136,6 +143,14 @@ export default {
         paginationCurrentPage: pageNumber,
       });
       this.$store.dispatch('search/SEARCH');
+    },
+    onClickResult(searchResult) {
+      this.$router.push({
+        name: 'article',
+        params: {
+          article_id: searchResult.uid,
+        },
+      });
     },
   },
   components: {
