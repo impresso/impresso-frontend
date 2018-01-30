@@ -1,6 +1,8 @@
 <template lang="html">
   <div class="">
-    <b-img class="thumbnail" slot="aside" v-bind:src="value.image" fluid />
+    <a href="#" v-on:click.prevent="click">
+      <b-img class="thumbnail" slot="aside" v-bind:src="value.image" fluid />
+    </a>
   </div>
 
 
@@ -17,7 +19,9 @@ Vue.use(VueI18n);
 export default {
   props: ['value'],
   methods: {
-
+    click() {
+      this.$emit('click');
+    },
   },
 };
 </script>

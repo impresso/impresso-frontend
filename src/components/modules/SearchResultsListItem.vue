@@ -1,9 +1,9 @@
 <template lang="html">
   <b-media>
-    <div class="thumbnail" slot="aside">
-      <b-img fluid v-bind:src="value.image" v-bind:alt="value.title" />
+    <div class="thumbnail" slot="aside" >
+      <a href="#" v-on:click.prevent="click"><b-img fluid v-bind:src="value.image" v-bind:alt="value.title" /></a>
     </div>
-    <h2>{{value.title}}</h2>
+    <h2><a href="#" v-on:click.prevent="click">{{value.title}}</a></h2>
     <p>{{value.extract}}</p>
     <b-table small :items="value.details"></b-table>
   </b-media>
@@ -18,8 +18,16 @@ Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 
 export default {
-  props: ['value'],
-  methods: {},
+  props: {
+    value: {
+      required: true,
+    },
+  },
+  methods: {
+    click() {
+      this.$emit('click');
+    },
+  },
 };
 </script>
 
