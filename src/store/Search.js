@@ -15,16 +15,16 @@ function Search({
 }
 
 function SearchResult({
-  title = 'test title',
-  image = 'test image',
-  extract = 'test extract',
+  title = '',
+  iiif = '',
+  extract = '',
   details = [],
   dl = 0,
   uid = false,
 
 } = {}) {
   this.title = title;
-  this.image = image;
+  this.iiif = iiif;
   this.extract = extract;
   this.details = details;
   this.dl = dl;
@@ -139,7 +139,7 @@ export default {
                    title: res.body.records[i].title,
                    dl: res.body.records[i].dl,
                    uid: res.body.records[i].uid,
-                   image: 'http://placehold.it/300x300',
+                   iiif: res.body.records[i].pages[0].iiif, // we take the first page as a preview
                    extract: 'Lorem ipsum.',
                    details: [{
                      col_a: i,

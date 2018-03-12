@@ -1,11 +1,9 @@
 <template lang="html">
   <div class="">
     <a href="#" v-on:click.prevent="click">
-      <b-img class="thumbnail" slot="aside" v-bind:src="value.image" fluid />
+      <img v-bind:src="value.iiif + '/full/300,/0/default.jpg'" class="img-fluid mb-3" />
     </a>
   </div>
-
-
 </template>
 
 <script>
@@ -28,7 +26,7 @@ export default {
 
 <style scoped lang="less">
 .thumbnail{
-  width: 100%;
+  margin-bottom: 100px;
 }
 </style>
 

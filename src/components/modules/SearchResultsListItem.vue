@@ -1,7 +1,9 @@
 <template lang="html">
   <b-media>
     <div class="thumbnail" slot="aside" >
-      <a href="#" v-on:click.prevent="click"><b-img fluid v-bind:src="value.image" v-bind:alt="value.title" /></a>
+      <a href="#" v-on:click.prevent="click">
+        <img v-bind:src="value.iiif + '/full/180,/0/default.jpg'" class="img-fluid" />
+      </a>
     </div>
     <h2><a href="#" v-on:click.prevent="click">{{value.title}}</a></h2>
     <p>{{value.extract}}</p>
@@ -33,7 +35,7 @@ export default {
 
 <style scoped lang="less">
 .thumbnail {
-    width: 120px;
+    width: 180px;
 }
 </style>
 
