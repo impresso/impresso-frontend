@@ -1,21 +1,21 @@
-<template lang="html">
-  <main id="ArticlePage">
-    <div class="table">
-      <div class="table-cell sidebar">
+<template lang='html'>
+  <main id='ArticlePage'>
+    <div class='table'>
+      <div class='table-cell sidebar'>
         <b-container fluid>
           <b-row>
             <b-col><h1>sidebar</h1></b-col>
           </b-row>
         </b-container>
       </div>
-      <div class="table-cell">
-        <div class="table">
-          <div class="table-row">
-            <div id="os-viewer" class="table-cell viewer">
+      <div class='table-cell'>
+        <div class='table'>
+          <div class='table-row'>
+            <div id='os-viewer' class='table-cell viewer'>
             </div>
           </div>
-          <div class="table-row">
-            <div class="table-cell strip">
+          <div class='table-row'>
+            <div class='table-cell strip'>
               <h1>strip</h1>
             </div>
           </div>
@@ -31,17 +31,71 @@ import OpenSeadragon from 'openseadragon';
 export default {
   mounted() {
     OpenSeadragon({
+      // debugMode: true,
+      collectionMode: true,
+      collectionRows: 1,
+      collectionTileSize: 1024,
+      collectionTileMargin: 256,
       id: 'os-viewer',
-      tileSources: {
-        type: 'image',
-        url: '/static/Titanic_Newspaper_Front_Page_1912-04-26_Evening_Bulletin__Honolulu__HI___April_26__1912__330_PM_EDITION__Page_1.pdf.jpg',
-      },
+      showNavigator: true,
+      navigatorPosition: 'ABSOLUTE',
+      navigatorTop: '90%',
+      navigatorLeft: 0,
+      navigatorHeight: '10%',
+      navigatorWidth: '100%',
+      // sequenceMode: true,
+      // showReferenceStrip: true,
+      tileSources: [
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+        'http://192.168.56.102/loris/bug.jpg',
+        'http://192.168.56.102/loris/mt.jpg',
+        'http://192.168.56.102/loris/hr_1.jpg',
+      ],
     });
   },
 };
 </script>
 
-<style scoped lang="less">
+<style scoped lang='less'>
 #ArticlePage {
     position: absolute;
     width: 100%;
