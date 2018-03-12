@@ -41,7 +41,7 @@
           v-bind:value="searchResult"
           v-on:click="onClickResult(searchResult)" />
         <b-row v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="4" md="3" lg="2" v-for="searchResult in searchResults">
+          <b-col cols="6" sm="6" md="4" lg="4" v-for="searchResult in searchResults">
             <search-results-tiles-item
             v-on:click="onClickResult(searchResult)"
             v-bind:value="searchResult"
