@@ -1,7 +1,7 @@
 <template lang="html">
   <b-media>
     <div class="thumbnail" slot="aside" >
-      <a href="#" v-on:click.prevent="click"><b-img fluid v-bind:src="value.image" v-bind:alt="value.title" /></a>
+      <open-seadragon-viewer v-model="value.iiif"></open-seadragon-viewer>
     </div>
     <h2><a href="#" v-on:click.prevent="click">{{value.title}}</a></h2>
     <p>{{value.extract}}</p>
@@ -13,6 +13,8 @@
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
+
+import OpenSeadragonViewer from './OpenSeadragonViewer';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
@@ -28,12 +30,18 @@ export default {
       this.$emit('click');
     },
   },
+  components: {
+    OpenSeadragonViewer,
+  },
 };
 </script>
 
 <style scoped lang="less">
 .thumbnail {
-    width: 120px;
+    width: 240px;
+    height: 180px;
+    position: relative;
+    cursor: move;
 }
 </style>
 
