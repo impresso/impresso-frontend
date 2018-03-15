@@ -20,15 +20,20 @@ function SearchResult({
   extract = '',
   details = [],
   dl = 0,
-  uid = false,
-
+  articleUID = false,
+  issueUID = false,
+  pageNumber = false,
+  raw = {},
 } = {}) {
   this.title = title;
   this.iiif = iiif;
   this.extract = extract;
   this.details = details;
   this.dl = dl;
-  this.uid = uid;
+  this.article_uid = articleUID;
+  this.issue_uid = issueUID;
+  this.page_number = pageNumber;
+  this.raw = raw;
 }
 
 export default {
@@ -138,9 +143,12 @@ export default {
                  results.push(new SearchResult({
                    title: res.body.records[i].title,
                    dl: res.body.records[i].dl,
-                   uid: res.body.records[i].uid,
+                   articleUID: res.body.records[i].uid,
+                   issueUID: res.body.records[i].issue.uid,
+                   pageNumber: res.body.records[i].pages[0].num,
                    iiif: res.body.records[i].pages[0].iiif, // we take the first page as a preview
                    extract: 'Lorem ipsum.',
+                   raw: res.body.records[i],
                    details: [{
                      col_a: i,
                      col_b: 'abc',
