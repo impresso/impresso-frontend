@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import HomePage from '../components/HomePage';
 import SearchPage from '../components/SearchResultsPage';
-import ArticlePage from '../components/ArticlePage';
+import IssuePage from '../components/IssuePage';
 
 Vue.use(Router);
 
@@ -49,8 +49,20 @@ export default new Router({
     //   props: true,
     // },
     {
-      path: '/article/:article_id',
-      component: ArticlePage,
+      path: '/issue/:issue_uid',
+      component: IssuePage,
+      name: 'issue',
+      props: true,
+    },
+    {
+      path: '/issue/:issue_uid/page/:page_number',
+      component: IssuePage,
+      name: 'page',
+      props: true,
+    },
+    {
+      path: '/issue/:issue_uid/page/:page_number/article/:article_uid',
+      component: IssuePage,
       name: 'article',
       props: true,
     },

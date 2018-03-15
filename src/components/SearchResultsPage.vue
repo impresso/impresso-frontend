@@ -35,17 +35,18 @@
           </b-col>
         </b-row>
         <hr>
-        <search-results-list-item
-          v-if="displayStyle === 'list'"
-          v-for="searchResult in searchResults"
-          v-bind:value="searchResult"
-          v-on:click="onClickResult(searchResult)" />
+        <b-row v-if="displayStyle === 'list'">
+          <b-col cols="12" v-for="searchResult in searchResults">
+            <search-results-list-item
+              v-bind:value="searchResult"
+              v-on:click="onClickResult(searchResult)" />
+          </b-col>
+        </b-row>
         <b-row v-if="displayStyle === 'tiles'">
           <b-col cols="6" sm="6" md="4" lg="4" v-for="searchResult in searchResults">
             <search-results-tiles-item
-            v-on:click="onClickResult(searchResult)"
-            v-bind:value="searchResult"
-            />
+              v-on:click="onClickResult(searchResult)"
+              v-bind:value="searchResult" />
           </b-col>
         </b-row>
         <hr>
@@ -148,7 +149,9 @@ export default {
       this.$router.push({
         name: 'article',
         params: {
-          article_id: searchResult.uid,
+          issue_uid: searchResult.issue_uid,
+          page_number: searchResult.page_number,
+          article_uid: searchResult.article_uid,
         },
       });
     },
