@@ -16,17 +16,20 @@
         <p>{{$t("welcome.body")}}</p>
       </b-col>
     </b-row>
+    <thumbnail-slider></thumbnail-slider>
   </b-container>
 </main>
 </template>
 
 <script>
 import SearchBar from './SearchInputQueryWrapper';
+import ThumbnailSlider from './modules/ThumbnailSlider';
 
 export default {
   name: 'HelloWorld',
   components: {
     SearchBar,
+    ThumbnailSlider,
   },
 };
 </script>
