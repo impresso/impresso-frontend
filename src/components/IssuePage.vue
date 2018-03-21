@@ -46,7 +46,7 @@ export default {
         collectionRows: 1,
         // collectionTileMargin: 20,
         id: 'os-viewer',
-        showNavigator: false,
+        showNavigator: true,
         showNavigationControl: false,
         initialPage: 0,
         // minZoomLevel: 0.001,
