@@ -16,6 +16,9 @@
         <p>{{$t("welcome.body")}}</p>
       </b-col>
     </b-row>
+    <button v-for="page in sliderdata.pages" v-on:click="gotoPage(page.num)" type="button" name="button" class="btn btn-info" v-bind:class="{active: page.num === sliderdata.activePage}">{{page.num}}</button>
+    <br>
+    <br>
     <thumbnail-slider v-model="sliderdata"></thumbnail-slider>
   </b-container>
 </main>
@@ -54,42 +57,42 @@ export default {
         uid: 'GDL-1811-11-29-a-0001',
         Project: 'impresso',
         iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_1',
-        num: 1,
+        num: 5,
       }, {
         uid: 'GDL-1811-11-29-a-0002',
         Project: 'impresso',
         iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_2',
-        num: 2,
+        num: 6,
       }, {
         uid: 'GDL-1811-11-29-a-0003',
         Project: 'impresso',
         iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_3',
-        num: 3,
+        num: 7,
       }, {
         uid: 'GDL-1811-11-29-a-0004',
         Project: 'impresso',
         iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_4',
-        num: 4,
+        num: 8,
       }, {
         uid: 'GDL-1811-11-29-a-0001',
         Project: 'impresso',
         iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_1',
-        num: 1,
+        num: 9,
       }, {
         uid: 'GDL-1811-11-29-a-0002',
         Project: 'impresso',
         iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_2',
-        num: 2,
+        num: 10,
       }, {
         uid: 'GDL-1811-11-29-a-0003',
         Project: 'impresso',
         iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_3',
-        num: 3,
+        num: 11,
       }, {
         uid: 'GDL-1811-11-29-a-0004',
         Project: 'impresso',
         iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_4',
-        num: 4,
+        num: 12,
       }],
     },
   }),
@@ -97,14 +100,20 @@ export default {
     SearchBar,
     ThumbnailSlider,
   },
+  methods: {
+    gotoPage(num) {
+      this.sliderdata.activePage = num;
+    },
+  },
 };
 </script>
 
 <style scoped lang="less">
 .search_wrapper {
     background: #d460ff;
-    padding: 70px 0; margin-bottom: 50px;
-  }
+    padding: 70px 0;
+    margin-bottom: 50px;
+}
 </style>
 
 <i18n>
