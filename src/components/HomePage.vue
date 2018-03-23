@@ -33,12 +33,7 @@ export default {
 
 <style scoped lang="less">
 .search_wrapper {
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#d460ff+0,63f9ff+100 */
-    background: #d460ff; /* Old browsers */
-    background: -moz-linear-gradient(-45deg, #d460ff 0%, #63f9ff 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(-45deg, #d460ff 0%,#63f9ff 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(135deg, #d460ff 0%,#63f9ff 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d460ff', endColorstr='#63f9ff',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+    background: #d460ff;
     padding: 70px 0;
     margin-bottom: 50px;
 }
