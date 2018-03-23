@@ -16,94 +16,17 @@
         <p>{{$t("welcome.body")}}</p>
       </b-col>
     </b-row>
-    <button v-for="page in sliderdata.pages" v-on:click="gotoPage(page.num)" type="button" name="button" class="btn btn-info" v-bind:class="{active: page.num === sliderdata.activePage}">{{page.num}}</button>
-    <br>
-    <br>
-    <thumbnail-slider v-model="sliderdata"></thumbnail-slider>
   </b-container>
 </main>
 </template>
 
 <script>
 import SearchBar from './SearchInputQueryWrapper';
-import ThumbnailSlider from './modules/ThumbnailSlider';
 
 export default {
   name: 'HelloWorld',
-  data: () => ({
-    sliderdata: {
-      activePage: 1,
-      pages: [{
-        uid: 'GDL-1811-11-29-a-0001',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_1',
-        num: 1,
-      }, {
-        uid: 'GDL-1811-11-29-a-0002',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_2',
-        num: 2,
-      }, {
-        uid: 'GDL-1811-11-29-a-0003',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_3',
-        num: 3,
-      }, {
-        uid: 'GDL-1811-11-29-a-0004',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_4',
-        num: 4,
-      }, {
-        uid: 'GDL-1811-11-29-a-0001',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_1',
-        num: 5,
-      }, {
-        uid: 'GDL-1811-11-29-a-0002',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_2',
-        num: 6,
-      }, {
-        uid: 'GDL-1811-11-29-a-0003',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_3',
-        num: 7,
-      }, {
-        uid: 'GDL-1811-11-29-a-0004',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_4',
-        num: 8,
-      }, {
-        uid: 'GDL-1811-11-29-a-0001',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_1',
-        num: 9,
-      }, {
-        uid: 'GDL-1811-11-29-a-0002',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_2',
-        num: 10,
-      }, {
-        uid: 'GDL-1811-11-29-a-0003',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_3',
-        num: 11,
-      }, {
-        uid: 'GDL-1811-11-29-a-0004',
-        Project: 'impresso',
-        iiif: 'http://dhlabsrv8.epfl.ch/iiif_letemps/GDL_1811_11_29_4',
-        num: 12,
-      }],
-    },
-  }),
   components: {
     SearchBar,
-    ThumbnailSlider,
-  },
-  methods: {
-    gotoPage(num) {
-      this.sliderdata.activePage = num;
-    },
   },
 };
 </script>
