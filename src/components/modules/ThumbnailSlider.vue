@@ -1,7 +1,5 @@
 <template lang="html">
-  <div>
     <div id="thumbnail-slider"></div>
-  </div>
 </template>
 
 <script>
@@ -12,14 +10,20 @@ export default {
     app: false,
     tile: false,
     tiles: false,
+    lastValue: 1,
+    center: true,
   }),
   props: {
     height: {
       type: Number,
       default: 200,
     },
-    value: {
+    pages: {
       required: true,
+    },
+    value: {
+      type: Number,
+      default: 1,
     },
   },
   mounted() {
@@ -27,43 +31,49 @@ export default {
 
     this.tiles = this.app.append('div')
       .classed('tiles', true);
-
-    this.tile = this.tiles.selectAll('div.tile')
-      .data(this.value.pages)
-      .enter()
-      .append('div')
-      .classed('tile', true)
-      .on('click', (d) => {
-        this.selectThumbnail(d.num);
-        this.$emit('input', {
-          pages: this.value.pages,
-          activePage: d.num,
-        });
-      });
-
-    this.selectThumbnail(this.value.pages[0].num);
-
-    this.tile.append('img')
-      .attr('src', d => (`${d.iiif}/full/${this.height},/0/default.jpg`))
-      .style('height', `${this.height}px`);
   },
   methods: {
-    selectThumbnail(num, center = false) {
+    selectThumbnail(num) {
       this.tile.classed('selected', d => d.num === num);
 
-      if (center) {
+      if (this.center && this.tiles.select('.selected').nodes().length > 0) {
         this.app.node().scrollLeft =
-          this.tiles.select('.selected').node().offsetLeft -
-          (this.app.node().offsetWidth / 2) - (this.tiles.select('.selected').node().offsetWidth / 2);
+          (this.tiles.select('.selected').node().offsetLeft +
+          (this.tiles.select('.selected').node().getBoundingClientRect().width / 2))
+          - (this.app.node().getBoundingClientRect().width / 2);
       }
+
+      this.center = true;
+    },
+    drawPages() {
+      this.tile = this.tiles.selectAll('div.tile')
+        .data(this.pages)
+        .enter()
+        .append('div')
+        .classed('tile', true)
+        .classed('selected', (d, i) => i === 0)
+        .on('click', (d) => {
+          this.center = false; // dont want to center the thumb on manual press
+          this.$emit('input', d.num);
+        });
+
+      this.selectThumbnail(this.value, true);
+
+      this.tile.append('img')
+        .attr('src', d => (`${d.iiif}/full/${this.height - 50},/0/default.jpg`))
+        .style('height', `${this.height - 50}px`);
     },
   },
   watch: {
-    value: {
-      handler(val, oldVal) {
-        this.selectThumbnail(val.activePage, val.activePage === oldVal.activePage);
+    pages: {
+      handler() {
+        this.drawPages();
       },
-      deep: true,
+    },
+    value: {
+      handler(val) {
+        this.selectThumbnail(val);
+      },
     },
   },
 };
@@ -73,9 +83,14 @@ export default {
 #thumbnail-slider {
     border: 1px solid black;
     overflow-x: auto;
+    overflow-y: hidden;
     white-space: nowrap;
+    position: absolute;
+    width: 100%;
+    height: 100%;
     .tiles {
         background: white;
+        padding: 10px;
         .tile {
             display: inline-block;
             margin: 5px;
@@ -83,6 +98,9 @@ export default {
             border-radius: 5px;
             &.selected {
                 border-color: #ccc;
+            }
+            &:last-child {
+                margin-right: 10px;
             }
         }
     }
