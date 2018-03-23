@@ -89,7 +89,7 @@ export default {
     width: 100%;
     height: 100%;
     .tiles {
-        background: white;
+        background: #eee;
         padding: 10px;
         .tile {
             display: inline-block;
