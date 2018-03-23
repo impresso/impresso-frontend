@@ -1,27 +1,14 @@
 <template lang='html'>
   <main id='IssuePage'>
-    <div class='table'>
-      <div class='table-cell sidebar'>
-        <b-container fluid>
-          <b-row>
-            <b-col><h1>sidebar</h1></b-col>
-          </b-row>
-        </b-container>
-      </div>
-      <div class='table-cell'>
-        <div class='table'>
-          <div class='table-row'>
-            <div id='os-viewer' class='table-cell viewer'>
-            </div>
-          </div>
-          <div class='table-row'>
-            <div class='table-cell strip'>
-              <h1>strip</h1>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="sidebar">
+      <button v-for="page in pages" v-on:click="gotoPage(page.num)" type="button" name="button" class="btn btn-info" v-bind:class="{active: page.num === activePage}">{{page.num}}</button>
     </div>
+      <div class="viewer">
+        <div id="os-viewer"></div>
+      </div>
+      <div class="strip">
+        <thumbnail-slider v-model="activePage" v-bind:pages="pages" v-bind:height="220"></thumbnail-slider>
+      </div>
   </main>
 </template>
 
@@ -29,10 +16,15 @@
 import Vue from 'vue';
 import VueResource from 'vue-resource';
 import OpenSeadragon from 'openseadragon';
+import ThumbnailSlider from './modules/ThumbnailSlider';
 
 Vue.use(VueResource);
 
 export default {
+  data: () => ({
+    activePage: 1,
+    pages: [],
+  }),
   mounted() {
     const resource = this.$resource(`${process.env.MIDDLELAYER_API}/issues{/issue_uid}`);
     const issueUID = this.$route.params.issue_uid;
@@ -40,13 +32,15 @@ export default {
     resource.get({
       issue_uid: issueUID,
     }).then((response) => {
+      this.pages = response.body[0].pages;
+
       OpenSeadragon({
         // debugMode: true,
         collectionMode: true,
         collectionRows: 1,
         // collectionTileMargin: 20,
         id: 'os-viewer',
-        showNavigator: true,
+        showNavigator: false,
         showNavigationControl: false,
         initialPage: 0,
         // minZoomLevel: 0.001,
@@ -55,48 +49,55 @@ export default {
       });
     });
   },
+  methods: {
+    gotoPage(num) {
+      this.activePage = num;
+    },
+  },
+  components: {
+    ThumbnailSlider,
+  },
 };
 </script>
 
 <style scoped lang='less'>
+@sidebar_width: 250px;
+@strip_height: 220px;
+
 #IssuePage {
     position: absolute;
     width: 100%;
-    top: 47px;
     bottom: 0;
+    top:47px;
+    overflow: hidden;
+
+    .sidebar {
+        position: absolute;
+        left: 0;
+        width: @sidebar_width;
+        height: 100%;
+    }
+
+    .viewer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: @sidebar_width;
+        bottom: @strip_height;
+        background: #111;
+    }
+
+    .strip {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: @sidebar_width;
+        height: @strip_height;
+    }
 }
 
-.table {
-    display: table;
-    height: 100%;
-    margin: 0;
-}
-
-.table-row {
-    display: table-row;
-}
-
-.table-cell {
-    display: table-cell;
-    vertical-align: top;
-}
-
-.table-col {
-    display: table-column;
-}
-
-.sidebar {
-    overflow-y: auto;
-    width: 25%;
-    border-right: 1px solid #ccc;
-}
-
-.viewer {
-    background: #111;
-}
-
-.strip {
-    height: 60px;
-    border-top: 1px solid #ccc;
+#os-viewer{
+  width: 100%;
+  height: 100%;
 }
 </style>
