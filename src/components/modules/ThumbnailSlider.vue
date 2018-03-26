@@ -34,9 +34,9 @@ export default {
       .classed('tiles', true);
   },
   methods: {
-    selectThumbnail(num) {
+    selectThumbnail(index) {
       if (this.tile) {
-        this.tile.classed('selected', d => d.num === num);
+        this.tile.classed('selected', (d, i) => i === index);
       }
 
       if (this.center && this.tiles.select('.selected').nodes().length > 0) {
@@ -55,9 +55,9 @@ export default {
         .append('div')
         .classed('tile', true)
         .classed('selected', (d, i) => i === 0)
-        .on('click', (d) => {
+        .on('click', (d, i) => {
           this.center = false; // dont want to center the thumb on manual press
-          this.$emit('input', d.num);
+          this.$emit('input', i);
         })
         .style('height', `${this.height - 20}px`)
         .style('width', `${this.height - 20}px`);
@@ -97,7 +97,7 @@ export default {
         padding: 10px;
         .tile {
             display: inline-block;
-            margin: 5px 0;
+            margin: 5px 0 0;
             border: 2px solid rgba(0,0,0,0);
             border-radius: 5px;
             &.selected {

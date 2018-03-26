@@ -1,7 +1,7 @@
 <template lang='html'>
   <main id='IssuePage'>
     <div class="sidebar">
-      <button v-for="page in pages" v-on:click="gotoPage(page.num)" type="button" name="button" class="btn btn-info" v-bind:class="{active: page.num === activePage}">{{page.num}}</button>
+      <button v-for="(page, index) in pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button>
     </div>
       <div class="viewer">
         <div id="os-viewer"></div>
@@ -22,7 +22,7 @@ Vue.use(VueResource);
 
 export default {
   data: () => ({
-    activePage: 1,
+    activePage: 0,
     pages: [],
     viewer: false,
   }),
@@ -32,7 +32,11 @@ export default {
     // const articleUID = this.$route.params.article_uid;
 
     if (this.$route.params.page_number !== undefined) {
-      this.activePage = parseInt(this.$route.params.page_number, 10);
+      // TODO: here we assume that page number 5 has index 4 (starting at 0 in array)
+      // but we could be missing pages, so page number 5 might have index 2 for example
+      // We need to fix this so that the initial active page number corresponds with
+      // the correct index in the array
+      this.activePage = parseInt(this.$route.params.page_number, 10) - 1;
     }
 
     resource.get({
@@ -69,7 +73,7 @@ export default {
     activePage: {
       handler(val) {
         if (this.viewer) {
-          this.viewer.goToPage(val - 1);
+          this.viewer.goToPage(val);
         }
       },
     },
@@ -79,7 +83,7 @@ export default {
 
 <style scoped lang='less'>
 @sidebar_width: 250px;
-@strip_height: 180px;
+@strip_height: 165px;
 
 #IssuePage {
     position: absolute;
@@ -102,6 +106,7 @@ export default {
         left: @sidebar_width;
         bottom: @strip_height;
         background: #111;
+        box-shadow: 5px -5px 20px rgba(0,0,0,0.8) inset;
     }
 
     .strip {
