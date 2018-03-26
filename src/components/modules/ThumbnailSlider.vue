@@ -34,13 +34,15 @@ export default {
   },
   methods: {
     selectThumbnail(num) {
-      this.tile.classed('selected', d => d.num === num);
+      if (this.tile) {
+        this.tile.classed('selected', d => d.num === num);
+      }
 
       if (this.center && this.tiles.select('.selected').nodes().length > 0) {
         this.app.node().scrollLeft =
           (this.tiles.select('.selected').node().offsetLeft +
-          (this.tiles.select('.selected').node().getBoundingClientRect().width / 2))
-          - (this.app.node().getBoundingClientRect().width / 2);
+            (this.tiles.select('.selected').node().getBoundingClientRect().width / 2)) -
+          (this.app.node().getBoundingClientRect().width / 2);
       }
 
       this.center = true;
