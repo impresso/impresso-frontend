@@ -88,8 +88,8 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
+    background: #eee;
     .tiles {
-        background: #eee;
         padding: 10px;
         .tile {
             display: inline-block;
