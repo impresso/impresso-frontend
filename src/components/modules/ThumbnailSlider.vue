@@ -57,13 +57,14 @@ export default {
         .on('click', (d) => {
           this.center = false; // dont want to center the thumb on manual press
           this.$emit('input', d.num);
-        });
+        })
+        .style('height', `${this.height - 20}px`)
+        .style('width', `${this.height - 20}px`);
 
       this.selectThumbnail(this.value, true);
 
       this.tile.append('img')
-        .attr('src', d => (`${d.iiif}/full/${this.height - 50},/0/default.jpg`))
-        .style('height', `${this.height - 50}px`);
+        .attr('src', d => (`${d.iiif}/full/!${this.height},${this.height}/0/default.jpg`));
     },
   },
   watch: {
@@ -83,26 +84,31 @@ export default {
 
 <style lang="less">
 #thumbnail-slider {
-    border: 1px solid black;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #eee;
+    background: #666;
     .tiles {
+        text-align: center;
         padding: 10px;
         .tile {
             display: inline-block;
-            margin: 5px;
-            border: 5px solid rgba(0,0,0,0);
+            margin: 5px 0;
+            border: 2px solid rgba(0,0,0,0);
             border-radius: 5px;
             &.selected {
                 border-color: #ccc;
             }
             &:last-child {
                 margin-right: 10px;
+            }
+
+            img{
+              padding:5%;
+              height: 100%;
             }
         }
     }

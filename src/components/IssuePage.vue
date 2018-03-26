@@ -7,7 +7,7 @@
         <div id="os-viewer"></div>
       </div>
       <div class="strip">
-        <thumbnail-slider v-model="activePage" v-bind:pages="pages" v-bind:height="220"></thumbnail-slider>
+        <thumbnail-slider v-model="activePage" v-bind:pages="pages" v-bind:height="140"></thumbnail-slider>
       </div>
   </main>
 </template>
@@ -24,27 +24,35 @@ export default {
   data: () => ({
     activePage: 1,
     pages: [],
+    viewer: false,
   }),
   mounted() {
     const resource = this.$resource(`${process.env.MIDDLELAYER_API}/issues{/issue_uid}`);
     const issueUID = this.$route.params.issue_uid;
+    // const articleUID = this.$route.params.article_uid;
+
+    if (this.$route.params.page_number !== undefined) {
+      this.activePage = parseInt(this.$route.params.page_number, 10);
+    }
 
     resource.get({
       issue_uid: issueUID,
     }).then((response) => {
       this.pages = response.body[0].pages;
 
-      OpenSeadragon({
+      this.viewer = OpenSeadragon({
         // debugMode: true,
-        collectionMode: true,
+        // collectionMode: true,
+        sequenceMode: true,
         collectionRows: 1,
         // collectionTileMargin: 20,
         id: 'os-viewer',
         showNavigator: false,
         showNavigationControl: false,
-        initialPage: 0,
-        // minZoomLevel: 0.001,
-        defaultZoomLevel: 0.0005,
+        showSequenceControl: false,
+        initialPage: this.activePage - 1,
+        minZoomLevel: 0.001,
+        defaultZoomLevel: 0.5,
         tileSources: response.body[0].pages.map(elm => elm.iiif),
       });
     });
@@ -57,18 +65,27 @@ export default {
   components: {
     ThumbnailSlider,
   },
+  watch: {
+    activePage: {
+      handler(val) {
+        if (this.viewer) {
+          this.viewer.goToPage(val - 1);
+        }
+      },
+    },
+  },
 };
 </script>
 
 <style scoped lang='less'>
 @sidebar_width: 250px;
-@strip_height: 220px;
+@strip_height: 160px;
 
 #IssuePage {
     position: absolute;
     width: 100%;
     bottom: 0;
-    top:47px;
+    top: 47px;
     overflow: hidden;
 
     .sidebar {
@@ -96,8 +113,8 @@ export default {
     }
 }
 
-#os-viewer{
-  width: 100%;
-  height: 100%;
+#os-viewer {
+    width: 100%;
+    height: 100%;
 }
 </style>
