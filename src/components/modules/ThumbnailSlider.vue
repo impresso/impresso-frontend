@@ -1,8 +1,9 @@
 <template lang="html">
-    <div id="thumbnail-slider"></div>
+    <div id="thumbnail-slider" class="dragscroll"></div>
 </template>
 
 <script>
+require('dragscroll');
 const d3 = require('d3');
 
 export default {
@@ -33,14 +34,16 @@ export default {
       .classed('tiles', true);
   },
   methods: {
-    selectThumbnail(num) {
-      this.tile.classed('selected', d => d.num === num);
+    selectThumbnail(index) {
+      if (this.tile) {
+        this.tile.classed('selected', (d, i) => i === index);
+      }
 
       if (this.center && this.tiles.select('.selected').nodes().length > 0) {
         this.app.node().scrollLeft =
           (this.tiles.select('.selected').node().offsetLeft +
-          (this.tiles.select('.selected').node().getBoundingClientRect().width / 2))
-          - (this.app.node().getBoundingClientRect().width / 2);
+            (this.tiles.select('.selected').node().getBoundingClientRect().width / 2)) -
+          (this.app.node().getBoundingClientRect().width / 2);
       }
 
       this.center = true;
@@ -52,16 +55,17 @@ export default {
         .append('div')
         .classed('tile', true)
         .classed('selected', (d, i) => i === 0)
-        .on('click', (d) => {
+        .on('click', (d, i) => {
           this.center = false; // dont want to center the thumb on manual press
-          this.$emit('input', d.num);
-        });
+          this.$emit('input', i);
+        })
+        .style('height', `${this.height - 20}px`)
+        .style('width', `${this.height - 20}px`);
 
       this.selectThumbnail(this.value, true);
 
       this.tile.append('img')
-        .attr('src', d => (`${d.iiif}/full/${this.height - 50},/0/default.jpg`))
-        .style('height', `${this.height - 50}px`);
+        .attr('src', d => (`${d.iiif}/full/!${this.height},${this.height}/0/default.jpg`));
     },
   },
   watch: {
@@ -81,26 +85,31 @@ export default {
 
 <style lang="less">
 #thumbnail-slider {
-    border: 1px solid black;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #eee;
+    background: #666;
     .tiles {
+        text-align: center;
         padding: 10px;
         .tile {
             display: inline-block;
-            margin: 5px;
-            border: 5px solid rgba(0,0,0,0);
+            margin: 5px 0 0;
+            border: 2px solid rgba(0,0,0,0);
             border-radius: 5px;
             &.selected {
                 border-color: #ccc;
             }
             &:last-child {
                 margin-right: 10px;
+            }
+
+            img{
+              padding:5%;
+              height: 100%;
             }
         }
     }
