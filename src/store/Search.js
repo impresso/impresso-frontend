@@ -15,15 +15,25 @@ function Search({
 }
 
 function SearchResult({
-  title = 'test title',
-  image = 'test image',
-  extract = 'test extract',
+  title = '',
+  iiif = '',
+  extract = '',
   details = [],
+  dl = 0,
+  articleUID = false,
+  issueUID = false,
+  pageNumber = false,
+  raw = {},
 } = {}) {
   this.title = title;
-  this.image = image;
+  this.iiif = iiif;
   this.extract = extract;
   this.details = details;
+  this.dl = dl;
+  this.article_uid = articleUID;
+  this.issue_uid = issueUID;
+  this.page_number = pageNumber;
+  this.raw = raw;
 }
 
 export default {
@@ -133,9 +143,12 @@ export default {
                  results.push(new SearchResult({
                    title: res.body.records[i].title,
                    dl: res.body.records[i].dl,
-                   uid: res.body.records[i].uid,
-                   image: 'http://placehold.it/300x300',
+                   articleUID: res.body.records[i].uid,
+                   issueUID: res.body.records[i].issue.uid,
+                   pageNumber: res.body.records[i].pages[0].num,
+                   iiif: res.body.records[i].pages[0].iiif, // we take the first page as a preview
                    extract: 'Lorem ipsum.',
+                   raw: res.body.records[i],
                    details: [{
                      col_a: i,
                      col_b: 'abc',

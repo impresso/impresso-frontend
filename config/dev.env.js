@@ -4,5 +4,5 @@ const prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  MIDDLELAYER_API: '"http://localhost:3030"'
+  MIDDLELAYER_API: '"https://api-impresso.uni.lu"'
 })

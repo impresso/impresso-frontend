@@ -7,14 +7,16 @@
           <SearchBar />
         </b-col>
       </b-row>
-      <b-row>
-        <b-col>
-          <h1>{{$t("welcome.title")}}</h1>
-          <p>{{$t("welcome.body")}}</p>
-        </b-col>
-      </b-row>
     </b-container>
   </div>
+  <b-container>
+    <b-row>
+      <b-col>
+        <h1>{{$t("welcome.title")}}</h1>
+        <p>{{$t("welcome.body")}}</p>
+      </b-col>
+    </b-row>
+  </b-container>
 </main>
 </template>
 
@@ -31,7 +33,9 @@ export default {
 
 <style scoped lang="less">
 .search_wrapper {
-    margin: 15px 0;
+    background: #d460ff;
+    padding: 70px 0;
+    margin-bottom: 50px;
 }
 </style>
 

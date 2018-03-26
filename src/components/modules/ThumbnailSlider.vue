@@ -1,0 +1,117 @@
+<template lang="html">
+    <div id="thumbnail-slider" class="dragscroll"></div>
+</template>
+
+<script>
+require('dragscroll');
+const d3 = require('d3');
+
+export default {
+  data: () => ({
+    app: false,
+    tile: false,
+    tiles: false,
+    lastValue: 1,
+    center: true,
+  }),
+  props: {
+    height: {
+      type: Number,
+      default: 200,
+    },
+    pages: {
+      required: true,
+    },
+    value: {
+      type: Number,
+      default: 1,
+    },
+  },
+  mounted() {
+    this.app = d3.select('#thumbnail-slider');
+
+    this.tiles = this.app.append('div')
+      .classed('tiles', true);
+  },
+  methods: {
+    selectThumbnail(index) {
+      if (this.tile) {
+        this.tile.classed('selected', (d, i) => i === index);
+      }
+
+      if (this.center && this.tiles.select('.selected').nodes().length > 0) {
+        this.app.node().scrollLeft =
+          (this.tiles.select('.selected').node().offsetLeft +
+            (this.tiles.select('.selected').node().getBoundingClientRect().width / 2)) -
+          (this.app.node().getBoundingClientRect().width / 2);
+      }
+
+      this.center = true;
+    },
+    drawPages() {
+      this.tile = this.tiles.selectAll('div.tile')
+        .data(this.pages)
+        .enter()
+        .append('div')
+        .classed('tile', true)
+        .classed('selected', (d, i) => i === 0)
+        .on('click', (d, i) => {
+          this.center = false; // dont want to center the thumb on manual press
+          this.$emit('input', i);
+        })
+        .style('height', `${this.height - 20}px`)
+        .style('width', `${this.height - 20}px`);
+
+      this.selectThumbnail(this.value, true);
+
+      this.tile.append('img')
+        .attr('src', d => (`${d.iiif}/full/!${this.height},${this.height}/0/default.jpg`));
+    },
+  },
+  watch: {
+    pages: {
+      handler() {
+        this.drawPages();
+      },
+    },
+    value: {
+      handler(val) {
+        this.selectThumbnail(val);
+      },
+    },
+  },
+};
+</script>
+
+<style lang="less">
+#thumbnail-slider {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #666;
+    .tiles {
+        text-align: center;
+        padding: 10px;
+        .tile {
+            display: inline-block;
+            margin: 5px 0 0;
+            border: 2px solid rgba(0,0,0,0);
+            border-radius: 5px;
+            &.selected {
+                border-color: #ccc;
+            }
+            &:last-child {
+                margin-right: 10px;
+            }
+
+            img{
+              padding:5%;
+              height: 100%;
+            }
+        }
+    }
+}
+</style>
