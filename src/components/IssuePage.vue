@@ -79,7 +79,7 @@ export default {
 
 <style scoped lang='less'>
 @sidebar_width: 250px;
-@strip_height: 160px;
+@strip_height: 180px;
 
 #IssuePage {
     position: absolute;

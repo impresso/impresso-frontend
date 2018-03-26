@@ -1,8 +1,9 @@
 <template lang="html">
-    <div id="thumbnail-slider"></div>
+    <div id="thumbnail-slider" class="dragscroll"></div>
 </template>
 
 <script>
+require('dragscroll');
 const d3 = require('d3');
 
 export default {
