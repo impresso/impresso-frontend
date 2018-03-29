@@ -36,7 +36,7 @@ export default {
       margin: 0,
       padding: 0,
       'z-index': 1000,
-      transition: 'all 200ms',
+      transition: 'all 100ms',
       display: 'none',
     },
   }),
@@ -59,6 +59,8 @@ export default {
       panHorizontal: false,
       panVertical: false,
     });
+
+    this.$emit('mounted');
   },
   methods: {
     update() {

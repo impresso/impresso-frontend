@@ -2,7 +2,12 @@
   <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
     <div class="tiles">
       <div class="tile" v-bind:class="{selected: value === index}" v-for="(page, index) in pages" v-on:click="goToPage(index)">
-        <thumbnail-slider-item v-bind:tileSources="page.iiif" v-bind:bounds="bounds" v-bind:active="value === index"></thumbnail-slider-item>
+        <thumbnail-slider-item
+          v-bind:tileSources="page.iiif"
+          v-bind:bounds="bounds"
+          v-bind:active="value === index"
+          v-on:mounted="onMountedTile"
+          ></thumbnail-slider-item>
       </div>
     </div>
   </div>
@@ -17,6 +22,8 @@ export default {
   data: () => ({
     bounds: [],
     scrollLeft: 0,
+    center: true,
+    mountedTiles: 0,
   }),
   props: {
     height: {
@@ -37,11 +44,32 @@ export default {
   mounted() {},
   methods: {
     goToPage(page) {
+      this.center = false;
+
+      // only if no sroll took place we want to emit the click
       if (this.scrollLeft === this.$refs['thumbnail-slider'].scrollLeft) {
         this.$emit('input', page);
       }
 
       this.scrollLeft = this.$refs['thumbnail-slider'].scrollLeft;
+    },
+    centerActiveTile() {
+      if (this.center && this.viewer) {
+        const activeElement = this.$refs['thumbnail-slider'].getElementsByClassName('tile')[this.value];
+        const parentElement = this.$refs['thumbnail-slider'];
+
+        parentElement.scrollLeft = activeElement.offsetLeft + (
+          (activeElement.offsetWidth / 2) - (parentElement.offsetWidth / 2)
+        );
+      }
+    },
+    onMountedTile() {
+      this.mountedTiles += 1;
+
+      // if all tiles are mounted we want to center the slider
+      if (this.pages.length === this.mountedTiles) {
+        this.centerActiveTile();
+      }
     },
   },
   watch: {
@@ -54,6 +82,12 @@ export default {
         this.viewer.addHandler('update-viewport', () => {
           this.bounds = this.viewer.viewport.getBoundsNoRotate();
         });
+      },
+    },
+    value: {
+      handler() {
+        this.centerActiveTile();
+        this.center = true;
       },
     },
   },
