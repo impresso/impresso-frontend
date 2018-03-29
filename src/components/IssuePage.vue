@@ -54,7 +54,7 @@ export default {
         showNavigator: false,
         showNavigationControl: false,
         showSequenceControl: false,
-        initialPage: this.activePage - 1,
+        initialPage: this.activePage,
         minZoomLevel: 0.001,
         defaultZoomLevel: 0.5,
         tileSources: response.body[0].pages.map(elm => elm.iiif),
