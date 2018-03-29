@@ -26,10 +26,6 @@ export default {
     mountedTiles: 0,
   }),
   props: {
-    height: {
-      type: Number,
-      default: 200,
-    },
     pages: {
       required: true,
     },
@@ -114,7 +110,7 @@ export default {
             display: inline-block;
             border: 2px solid rgba(0,0,0,0);
             border-radius: 5px;
-            width: 140px;
+            width: 100px;
             height: 100%;
             padding: 5px;
             overflow: hidden;
