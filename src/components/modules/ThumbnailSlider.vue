@@ -1,18 +1,22 @@
 <template lang="html">
-    <div id="thumbnail-slider" class="dragscroll"></div>
+  <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
+    <div class="tiles">
+      <div class="tile" v-bind:class="{selected: value === index}" v-for="(page, index) in pages" v-on:click="goToPage(index)">
+        <thumbnail-slider-item v-bind:tileSources="page.iiif" v-bind:bounds="bounds" v-bind:active="value === index"></thumbnail-slider-item>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+import ThumbnailSliderItem from './ThumbnailSliderItem';
+
 require('dragscroll');
-const d3 = require('d3');
 
 export default {
   data: () => ({
-    app: false,
-    tile: false,
-    tiles: false,
-    lastValue: 1,
-    center: true,
+    bounds: [],
+    scrollLeft: 0,
   }),
   props: {
     height: {
@@ -26,59 +30,35 @@ export default {
       type: Number,
       default: 1,
     },
-  },
-  mounted() {
-    this.app = d3.select('#thumbnail-slider');
-
-    this.tiles = this.app.append('div')
-      .classed('tiles', true);
-  },
-  methods: {
-    selectThumbnail(index) {
-      if (this.tile) {
-        this.tile.classed('selected', (d, i) => i === index);
-      }
-
-      if (this.center && this.tiles.select('.selected').nodes().length > 0) {
-        this.app.node().scrollLeft =
-          (this.tiles.select('.selected').node().offsetLeft +
-            (this.tiles.select('.selected').node().getBoundingClientRect().width / 2)) -
-          (this.app.node().getBoundingClientRect().width / 2);
-      }
-
-      this.center = true;
+    viewer: {
+      default: false,
     },
-    drawPages() {
-      this.tile = this.tiles.selectAll('div.tile')
-        .data(this.pages)
-        .enter()
-        .append('div')
-        .classed('tile', true)
-        .classed('selected', (d, i) => i === 0)
-        .on('click', (d, i) => {
-          this.center = false; // dont want to center the thumb on manual press
-          this.$emit('input', i);
-        })
-        .style('height', `${this.height - 20}px`)
-        .style('width', `${this.height - 20}px`);
+  },
+  mounted() {},
+  methods: {
+    goToPage(page) {
+      if (this.scrollLeft === this.$refs['thumbnail-slider'].scrollLeft) {
+        this.$emit('input', page);
+      }
 
-      this.selectThumbnail(this.value, true);
-
-      this.tile.append('img')
-        .attr('src', d => (`${d.iiif}/full/!${this.height},${this.height}/0/default.jpg`));
+      this.scrollLeft = this.$refs['thumbnail-slider'].scrollLeft;
     },
   },
   watch: {
-    pages: {
+    viewer: {
       handler() {
-        this.drawPages();
+        this.viewer.addHandler('animation', () => {
+          this.bounds = this.viewer.viewport.getBoundsNoRotate();
+        });
+
+        this.viewer.addHandler('update-viewport', () => {
+          this.bounds = this.viewer.viewport.getBoundsNoRotate();
+        });
       },
     },
-    value: {
-      handler(val) {
-        this.selectThumbnail(val);
-      },
-    },
+  },
+  components: {
+    ThumbnailSliderItem,
   },
 };
 </script>
@@ -95,23 +75,26 @@ export default {
     .tiles {
         text-align: center;
         padding: 10px;
+        height: 100%;
         .tile {
             display: inline-block;
-            margin: 5px 0 0;
             border: 2px solid rgba(0,0,0,0);
             border-radius: 5px;
+            width: 140px;
+            height: 100%;
+            padding: 5px;
+            overflow: hidden;
             &.selected {
                 border-color: #ccc;
             }
-            &:last-child {
-                margin-right: 10px;
-            }
-
-            img{
-              padding:5%;
-              height: 100%;
-            }
         }
+    }
+    .dragscroll {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 999999;
+        background: rgba(255,100,0,0.8);
     }
 }
 </style>
