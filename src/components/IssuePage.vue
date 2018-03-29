@@ -7,7 +7,7 @@
         <div id="os-viewer"></div>
       </div>
       <div class="strip">
-        <thumbnail-slider v-model="activePage" v-bind:pages="pages" v-bind:height="140"></thumbnail-slider>
+        <thumbnail-slider v-model="activePage" v-bind:pages="pages" v-bind:viewer="viewer"></thumbnail-slider>
       </div>
   </main>
 </template>
@@ -25,6 +25,7 @@ export default {
     activePage: 0,
     pages: [],
     viewer: false,
+    bounds: [],
   }),
   mounted() {
     const resource = this.$resource(`${process.env.MIDDLELAYER_API}/issues{/issue_uid}`);
@@ -56,7 +57,7 @@ export default {
         showSequenceControl: false,
         initialPage: this.activePage,
         minZoomLevel: 0.001,
-        defaultZoomLevel: 0.5,
+        defaultZoomLevel: 0,
         tileSources: response.body[0].pages.map(elm => elm.iiif),
       });
     });
