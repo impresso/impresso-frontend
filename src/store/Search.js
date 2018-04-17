@@ -45,7 +45,7 @@ export default {
     displaySortBy: 'relevance',
     displaySortOrder: 'asc',
     displayStyle: 'list',
-    paginationPerPage: 10,
+    paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
   },

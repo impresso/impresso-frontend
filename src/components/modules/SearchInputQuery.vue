@@ -9,7 +9,7 @@
         class="form-control">
       <b-input-group-button slot="right">
         <b-btn variant="danger" v-on:click="reset"><icon name="times" /></b-btn>
-        <b-btn v-on:click="search" variant="success">{{$t("search.query_button")}}</b-btn>
+        <b-btn v-on:click="clickSearch" variant="success">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
     <div v-click-outside="hideResults" class="results" v-show="(results.length > 0 || query_model) && showResults">
@@ -90,9 +90,11 @@ export default {
           this.hideResults();
           break;
         case 'Enter':
-          this.$emit('clickResult', this.results[this.activeResultIndex]);
-          this.hideResults();
-          this.search();
+          if (this.results.length > 0) {
+            this.$emit('clickResult', this.results[this.activeResultIndex]);
+            this.hideResults();
+            this.search();
+          }
           break;
         case 'ArrowDown':
           event.preventDefault();
@@ -120,12 +122,18 @@ export default {
       this.setActiveResultIndex(0);
       this.$emit('search');
     },
+    clickSearch() {
+      if (this.results.length > 0) {
+        this.$emit('clickResult', this.results[this.activeResultIndex]);
+        this.search();
+      }
+    },
     reset() {
       this.$emit('reset');
     },
     clickResult(result) {
       this.$emit('clickResult', result);
-      this.$emit('search');
+      this.search();
     },
   },
   directives: {

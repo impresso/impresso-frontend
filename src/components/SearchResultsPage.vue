@@ -9,7 +9,12 @@
       </b-row>
     </b-container>
   </div>
-  <b-container>
+  <b-container v-if="filters.length == 0">
+    <b-row>
+      <h1>No results</h1>
+    </b-row>
+  </b-container>
+  <b-container v-if="filters.length > 0">
     <b-row>
       <b-col md="3">
         <search-filter-wrapper />
@@ -108,6 +113,11 @@ export default {
         return this.$store.state.search.results;
       },
     },
+    filters: {
+      get() {
+        return this.$store.state.search.search.filters;
+      },
+    },
   },
   methods: {
     getSortByLabel(sortBy, sortOrder) {
@@ -132,6 +142,9 @@ export default {
       this.$store.commit('search/UPDATE_SEARCH_DISPLAY_SORT', {
         displaySortBy: sortBy,
         displaySortOrder: sortOrder,
+      });
+      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
+        paginationCurrentPage: 1,
       });
       this.$store.dispatch('search/SEARCH');
     },
@@ -166,7 +179,6 @@ export default {
   mounted() {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
-      this.$store.dispatch('search/SEARCH');
     }
   },
 };

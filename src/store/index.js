@@ -42,10 +42,14 @@ export default new Vuex.Store({
     paths: [
       'settings.language_code',
       'search.search',
+      'search.results',
       'search.searches',
       'search.displaySortBy',
       'search.displaySortOrder',
       'search.displayStyle',
+      'search.paginationPerPage',
+      'search.paginationCurrentPage',
+      'search.paginationTotalRows',
     ],
   })],
 });
