@@ -20,4 +20,4 @@ socket.on('reconnect', () => {
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
 // repeat this line for every service in our backend
-export const suggestionService = app.service('suggestions');
+export const suggestion = app.service('suggestions');
