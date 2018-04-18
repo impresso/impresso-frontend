@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import HomePage from '../components/HomePage';
 import SearchPage from '../components/SearchResultsPage';
 import IssuePage from '../components/IssuePage';
+import UserLoginPage from '../components/UserLoginPage';
 
 Vue.use(Router);
 
@@ -24,6 +25,19 @@ export default new Router({
       component: SearchPage,
       props: true,
     },
+    {
+      path: '/user/login',
+      name: 'login',
+      component: UserLoginPage,
+      props: true,
+    },
+    {
+      path: '/user/logout',
+      name: 'logout',
+      component: UserLoginPage,
+      props: true,
+    },
+
     // {
     //   path: '/archive/:archive_id',
     //   component: ArchivePage,
