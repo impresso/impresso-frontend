@@ -41,14 +41,14 @@
         </b-row>
         <hr>
         <b-row v-if="displayStyle === 'list'">
-          <b-col cols="12" v-for="searchResult in searchResults">
+          <b-col cols="12" v-for="searchResult in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item
               v-bind:value="searchResult"
               v-on:click="onClickResult(searchResult)" />
           </b-col>
         </b-row>
         <b-row v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="6" md="4" lg="4" v-for="searchResult in searchResults">
+          <b-col cols="6" sm="6" md="4" lg="4" v-for="searchResult in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-tiles-item
               v-on:click="onClickResult(searchResult)"
               v-bind:value="searchResult" />
