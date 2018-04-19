@@ -90,7 +90,7 @@ export default {
     position: absolute;
     width: 100%;
     bottom: 0;
-    top: 47px;
+    top: 54px;
     overflow: hidden;
 
     .sidebar {
