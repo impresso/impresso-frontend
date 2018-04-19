@@ -7,7 +7,8 @@
         </b-col>
         <b-col class="text-right">
           <!-- {{$t("language")}} -->
-          <b-dropdown right size="sm" variant="link" :text="languages[activeLanguageCode].name">
+          <b-button v-bind:to="{name: 'login'}" variant="link">Login</b-button>
+          <b-dropdown right variant="link" :text="languages[activeLanguageCode].name">
             <b-dropdown-item
               v-for="language in languages"
               v-bind:active="activeLanguageCode === language.code"
@@ -69,7 +70,7 @@ export default {
 <style lang="less">
 header {
     background: #345;
-    color:white;
+    color: white;
     transition: background-color 100ms;
     .logo {
         color: white;
@@ -77,11 +78,11 @@ header {
         padding-top: 0.25rem; //inherterd from the language dropdown
     }
 
-    .btn{
-      color:white;
-      &:hover{
-        color:#ccc;
-      }
+    .btn {
+        color: white;
+        &:hover {
+            color: #ccc;
+        }
     }
 
     &.loading {
