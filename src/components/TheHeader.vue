@@ -7,7 +7,13 @@
         </b-col>
         <b-col class="text-right">
           <!-- {{$t("language")}} -->
-          <b-button v-bind:to="{name: 'login'}" variant="link">Login</b-button>
+          <b-button v-show="!userData" v-bind:to="{name: 'login'}" variant="link">Login</b-button>
+
+          <b-dropdown v-show="userData" right variant="link" :text="`${userData.nameFirst} ${userData.nameLast}`">
+            <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
+            <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
+          </b-dropdown>
+
           <b-dropdown right variant="link" :text="languages[activeLanguageCode].name">
             <b-dropdown-item
               v-for="language in languages"
@@ -55,12 +61,20 @@ export default {
     showProgress() {
       return this.$store.state.processing_status;
     },
+    userData() {
+      return this.$store.state.user.userData;
+    },
   },
   methods: {
     selectLanguage(languageCode) {
       this.$i18n.locale = languageCode;
       this.$store.commit('settings/SET_LANGUAGE', {
         language_code: languageCode,
+      });
+    },
+    logout() {
+      this.$store.dispatch('user/LOGOUT').then(() => {
+        this.$router.push('/');
       });
     },
   },

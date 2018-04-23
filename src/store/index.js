@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import settings from './Settings';
+import user from './User';
 import search from './Search';
 import autocomplete from './Autocomplete';
 
@@ -15,6 +16,7 @@ export default new Vuex.Store({
     settings,
     search,
     autocomplete,
+    user,
   },
   state: {
     processing_status: false,
@@ -50,6 +52,8 @@ export default new Vuex.Store({
       'search.paginationPerPage',
       'search.paginationCurrentPage',
       'search.paginationTotalRows',
+      'user.rememberCredetials',
+      'user.userData',
     ],
   })],
 });

@@ -4,6 +4,7 @@ import HomePage from '../components/HomePage';
 import SearchPage from '../components/SearchResultsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
+import UserDashboardPage from '../components/UserDashboardPage';
 
 Vue.use(Router);
 
@@ -29,15 +30,17 @@ export default new Router({
       path: '/user/login',
       name: 'login',
       component: UserLoginPage,
-      props: true,
     },
     {
       path: '/user/logout',
       name: 'logout',
       component: UserLoginPage,
-      props: true,
     },
-
+    {
+      path: '/user/dashboard',
+      name: 'dashboard',
+      component: UserDashboardPage,
+    },
     // {
     //   path: '/archive/:archive_id',
     //   component: ArchivePage,
