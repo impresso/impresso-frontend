@@ -11,7 +11,9 @@
   </div>
   <b-container v-if="filters.length == 0">
     <b-row>
-      <h1>No results</h1>
+      <b-col>
+        <h1>No results</h1>
+      </b-col>
     </b-row>
   </b-container>
   <b-container v-if="filters.length > 0">
