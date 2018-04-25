@@ -45,7 +45,7 @@ export default {
 
       return new Promise(
         (resolve, reject) => {
-          services.suggestion.find({
+          services.suggestions.find({
             query: {
               q: payload.query,
             },

@@ -125,7 +125,7 @@ export default {
 
           sortOrder += context.state.displaySortBy;
 
-          services.article.find({
+          services.articles.find({
             query: {
               filters: context.state.search.filters,
               page: context.state.paginationCurrentPage,
