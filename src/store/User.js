@@ -33,7 +33,7 @@ export default {
         });
       });
     },
-    LOGIN(context, payload) {
+    _LOGIN(context, payload) {
       this.commit('SET_PROCESSING', true);
       return new Promise((resolve, reject) => {
         context.dispatch('_AUTHENTICATE', payload).then(() => {
@@ -50,7 +50,7 @@ export default {
         });
       });
     },
-    _AUTHENTICATE(context, payload) {
+    LOGIN(context, payload) {
       this.commit('SET_PROCESSING', true);
 
       return new Promise(
@@ -59,11 +59,17 @@ export default {
             strategy: 'local',
             email: payload.email,
             password: payload.password,
-          }).then(
-            (res) => {
+          })
+          .then(res => services.app.passport.verifyJWT(res.accessToken))
+          .then(res => services.app.service('users').get(res.userId))
+          .then(
+            (user) => {
+              services.app.set('user', user);
               this.commit('SET_PROCESSING', false);
-              resolve(res);
+              resolve();
             },
+          )
+          .catch(
             (err) => {
               this.commit('SET_PROCESSING', false);
               reject(err);
