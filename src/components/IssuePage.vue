@@ -43,7 +43,7 @@ export default {
     resource.get({
       issue_uid: issueUID,
     }).then((response) => {
-      this.pages = response.body[0].pages;
+      this.pages = response.body.pages;
 
       this.viewer = OpenSeadragon({
         // debugMode: true,
@@ -58,7 +58,7 @@ export default {
         initialPage: this.activePage,
         minZoomLevel: 0.3,
         defaultZoomLevel: 0,
-        tileSources: response.body[0].pages.map(elm => elm.iiif),
+        tileSources: response.body.pages.map(elm => elm.iiif),
       });
     });
   },
