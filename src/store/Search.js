@@ -1,9 +1,4 @@
-import Vue from 'vue';
-import VueResource from 'vue-resource';
-
 import * as services from '../services';
-
-Vue.use(VueResource);
 
 const uuid = require('uuid');
 
@@ -72,8 +67,7 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     ADD_FILTER(state, payload) {
-      // here we clone the payload/object using util.extend
-      state.search.filters.push(Vue.util.extend({}, payload));
+      state.search.filters.push({ ...payload });
     },
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);
@@ -134,7 +128,6 @@ export default {
             },
           }).then(
             (res) => {
-              console.log(res);
               this.commit('SET_PROCESSING', false);
 
               if (res.records !== undefined) {
