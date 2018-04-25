@@ -1,13 +1,8 @@
-import Vue from 'vue';
-import VueResource from 'vue-resource';
-
 import SearchResult from '../modules/AutocompleteSearchResult';
 import NamedEntityFilter from '../modules/filters/NamedEntity';
 import StringFilter from '../modules/filters/String';
 
 import * as services from '../services';
-
-Vue.use(VueResource);
 
 export default {
   namespaced: true,
@@ -45,7 +40,7 @@ export default {
 
       return new Promise(
         (resolve, reject) => {
-          services.suggestion.find({
+          services.suggestions.find({
             query: {
               q: payload.query,
             },
