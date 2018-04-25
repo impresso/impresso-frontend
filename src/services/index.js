@@ -1,16 +1,14 @@
 // https://github.com/delay/feathers-vue-blog-admin-demo/blob/master/client/src/services/index.js
 import io from 'socket.io-client';
-import feathers from 'feathers/client';
-import hooks from 'feathers-hooks';
-import socketio from 'feathers-socketio/client';
-import authentication from 'feathers-authentication/client';
+import feathers from '@feathersjs/feathers';
+import socketio from '@feathersjs/socketio-client';
+import auth from '@feathersjs/authentication-client';
 
 const socket = io(`${process.env.MIDDLELAYER_API}`);
 
 export const app = feathers()
   .configure(socketio(socket))
-  .configure(hooks())
-  .configure(authentication({
+  .configure(auth({
     storage: window.localStorage,
   }));
 
