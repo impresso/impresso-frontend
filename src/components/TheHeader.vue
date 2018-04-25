@@ -9,7 +9,7 @@
           <!-- {{$t("language")}} -->
           <b-button v-show="!userData" v-bind:to="{name: 'login'}" variant="link">Login</b-button>
 
-          <b-dropdown v-show="userData" right variant="link" :text="`${userData.nameFirst} ${userData.nameLast}`">
+          <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
             <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
             <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
           </b-dropdown>
