@@ -13,12 +13,10 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import VueResource from 'vue-resource';
 import OpenSeadragon from 'openseadragon';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
-Vue.use(VueResource);
+import * as services from '../services';
 
 export default {
   data: () => ({
@@ -28,9 +26,7 @@ export default {
     bounds: [],
   }),
   mounted() {
-    const resource = this.$resource(`${process.env.MIDDLELAYER_API}/issues{/issue_uid}`);
     const issueUID = this.$route.params.issue_uid;
-    // const articleUID = this.$route.params.article_uid;
 
     if (this.$route.params.page_number !== undefined) {
       // TODO: here we assume that page number 5 has index 4 (starting at 0 in array)
@@ -40,10 +36,8 @@ export default {
       this.activePage = parseInt(this.$route.params.page_number, 10) - 1;
     }
 
-    resource.get({
-      issue_uid: issueUID,
-    }).then((response) => {
-      this.pages = response.body.pages;
+    services.issues.get(issueUID, {}).then((response) => {
+      this.pages = response.pages;
 
       this.viewer = OpenSeadragon({
         // debugMode: true,
@@ -58,7 +52,7 @@ export default {
         initialPage: this.activePage,
         minZoomLevel: 0.3,
         defaultZoomLevel: 0,
-        tileSources: response.body.pages.map(elm => elm.iiif),
+        tileSources: response.pages.map(elm => elm.iiif),
       });
     });
   },

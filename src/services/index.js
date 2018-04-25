@@ -19,3 +19,4 @@ socket.on('reconnect', () => {
 // repeat this line for every service in our backend
 export const suggestions = app.service('suggestions');
 export const articles = app.service('articles');
+export const issues = app.service('issues');
