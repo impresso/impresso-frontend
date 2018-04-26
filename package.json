@@ -20,7 +20,6 @@
     "bootstrap-vue": "^1.5.1",
     "d3": "^4.13.0",
     "dragscroll": "0.0.8",
-    "impresso-bootstrap": "git+https://github.com/impresso/impresso-bootstrap.git",
     "openseadragon": "^2.3.1",
     "uuid": "^3.2.1",
     "vue": "^2.5.16",
