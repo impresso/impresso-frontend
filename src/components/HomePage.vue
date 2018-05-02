@@ -12,7 +12,7 @@
   <b-container>
     <b-row>
       <b-col>
-        <h1>{{$t("welcome.title")}}</h1>
+        <h1 class="text-serif font-weight-bold">{{$t("welcome.title")}}</h1>
         <p>{{$t("welcome.body")}}</p>
       </b-col>
     </b-row>

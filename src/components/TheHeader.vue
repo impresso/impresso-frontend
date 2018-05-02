@@ -1,9 +1,21 @@
 <template lang="html">
-  <header id="header" class="py-2" v-bind:class="{loading: showProgress}">
+  <header id="header" v-bind:class="{loading: showProgress}">
     <b-container fluid>
-      <b-row>
-        <b-col>
-          <router-link :to="{name: 'home'}" class="logo">impresso</router-link>
+      <b-row class="bb">
+        <b-col cols="9">
+          <div class="blocks">
+            <div class="block br">
+              <router-link :to="{name: 'home'}">
+                <img src="./../assets/img/impresso-logo.v4-1.jpg" class="logo" />
+              </router-link>
+            </div>
+            <div class="block">
+              <router-link :to="{name: 'home'}" class="link">Home</router-link>
+              <router-link :to="{name: 'dashboard'}" class="link">Newspapers</router-link>
+              <router-link :to="{name: 'named_entities'}" class="link">Named Entities</router-link>
+              <router-link :to="{name: 'about'}" class="link">About</router-link>
+            </div>
+          </div>
         </b-col>
         <b-col class="text-right">
           <!-- {{$t("language")}} -->
@@ -82,25 +94,57 @@ export default {
 </script>
 
 <style lang="less">
+@import "./../assets/less/style.less";
+
 header {
-    background: #345;
-    color: white;
+    background: @clr-white;
     transition: background-color 100ms;
-    .logo {
-        color: white;
-        display: block;
-        padding-top: 0.25rem; //inherterd from the language dropdown
-    }
-
-    .btn {
-        color: white;
-        &:hover {
-            color: #ccc;
-        }
-    }
-
     &.loading {
-        background: #f50;
+        background: @clr-yellow;
+    }
+
+    .br,
+    .bb,
+    .bt,
+    .bl{
+      border-color: @clr-black;
+      border-style: solid;
+      border-width: 0;
+    }
+
+    .br{ border-right-width: 1px; }
+    .bb{ border-bottom-width: 1px; }
+    .bl{ border-left-width: 1px; }
+    .bt{ border-top-width: 1px; }
+
+    .logo {
+        height: 100%;
+        padding-right: 20px;
+    }
+
+    .link{
+      margin-right: 10px;
+      padding: 5px 7px;
+      font-size: 12px;
+      color:black;
+      &.router-link-exact-active{
+        font-weight: bold;
+      }
+    }
+
+    .blocks{
+      width:100%;
+      height:32px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      .block{
+        display: inline-block;
+        height: 100%;
+        margin-right: 20px;
+        a.link{
+
+        }
+      }
     }
 }
 </style>
