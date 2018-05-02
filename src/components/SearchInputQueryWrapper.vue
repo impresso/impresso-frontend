@@ -71,8 +71,4 @@ export default {
 </script>
 
 <style scoped lang="less">
-.filter {
-    margin-right: 5px;
-    margin-bottom: 5px;
-}
 </style>
