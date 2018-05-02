@@ -1,40 +1,42 @@
 <template lang="html">
-  <header id="header" class="" v-bind:class="{loading: showProgress}">
-    <b-row>
-      <b-col cols="9">
-        <div class="blocks">
-          <div class="block br">
-            <router-link :to="{name: 'home'}">
-              <img src="./../assets/img/impresso-logo.v4-1.jpg" class="logo" />
-            </router-link>
+  <header id="header" v-bind:class="{loading: showProgress}">
+    <b-container fluid>
+      <b-row class="bb">
+        <b-col cols="9">
+          <div class="blocks">
+            <div class="block br">
+              <router-link :to="{name: 'home'}">
+                <img src="./../assets/img/impresso-logo.v4-1.jpg" class="logo" />
+              </router-link>
+            </div>
+            <div class="block">
+              <router-link :to="{name: 'home'}" class="link">Home</router-link>
+              <router-link :to="{name: 'dashboard'}" class="link">Newspapers</router-link>
+              <router-link :to="{name: 'named_entities'}" class="link">Named Entities</router-link>
+              <router-link :to="{name: 'about'}" class="link">About</router-link>
+            </div>
           </div>
-          <div class="block">
-            <router-link :to="{name: 'home'}" class="link">Home</router-link>
-            <router-link :to="{name: 'dashboard'}" class="link">Newspapers</router-link>
-            <router-link :to="{name: 'named_entities'}" class="link">Named Entities</router-link>
-            <router-link :to="{name: 'about'}" class="link">About</router-link>
-          </div>
-        </div>
-      </b-col>
-      <b-col class="text-right">
-        <!-- {{$t("language")}} -->
-        <b-button v-show="!userData" v-bind:to="{name: 'login'}" variant="link">Login</b-button>
+        </b-col>
+        <b-col class="text-right">
+          <!-- {{$t("language")}} -->
+          <b-button v-show="!userData" v-bind:to="{name: 'login'}" variant="link">Login</b-button>
 
-        <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
-          <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
-          <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
-        </b-dropdown>
+          <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
+            <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
+            <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
+          </b-dropdown>
 
-        <b-dropdown right variant="link" :text="languages[activeLanguageCode].name">
-          <b-dropdown-item
-            v-for="language in languages"
-            v-bind:active="activeLanguageCode === language.code"
-            v-bind:key="language.code"
-            @click.prevent="selectLanguage(language.code)"
-            href="#">{{language.name}}</b-dropdown-item>
-        </b-dropdown>
-      </b-col>
-    </b-row>
+          <b-dropdown right variant="link" :text="languages[activeLanguageCode].name">
+            <b-dropdown-item
+              v-for="language in languages"
+              v-bind:active="activeLanguageCode === language.code"
+              v-bind:key="language.code"
+              @click.prevent="selectLanguage(language.code)"
+              href="#">{{language.name}}</b-dropdown-item>
+          </b-dropdown>
+        </b-col>
+      </b-row>
+    </b-container>
   </header>
 </template>
 
@@ -97,7 +99,6 @@ export default {
 header {
     background: @clr-white;
     transition: background-color 100ms;
-    padding: 5px 15px;
     &.loading {
         background: @clr-yellow;
     }
@@ -133,7 +134,9 @@ header {
 
     .blocks{
       width:100%;
-      height:40px;
+      height:32px;
+      margin-top: 5px;
+      margin-bottom: 5px;
       .block{
         display: inline-block;
         height: 100%;
