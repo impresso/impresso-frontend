@@ -1,9 +1,9 @@
 <template lang="html">
-  <header id="header" class="py-2" v-bind:class="{loading: showProgress}">
-    <b-container fluid>
+  <header id="header" class="" v-bind:class="{loading: showProgress}">
+    <b-container fluid class="bb py-1">
       <b-row>
         <b-col>
-          <router-link :to="{name: 'home'}" class="logo">impresso</router-link>
+          <router-link :to="{name: 'home'}" class="logo br"></router-link>
         </b-col>
         <b-col class="text-right">
           <!-- {{$t("language")}} -->
@@ -82,25 +82,37 @@ export default {
 </script>
 
 <style lang="less">
+@import "./../assets/less/style.less";
+
 header {
-    background: #345;
-    color: white;
+    background: @clr-white;
     transition: background-color 100ms;
-    .logo {
-        color: white;
-        display: block;
-        padding-top: 0.25rem; //inherterd from the language dropdown
-    }
-
-    .btn {
-        color: white;
-        &:hover {
-            color: #ccc;
-        }
-    }
-
     &.loading {
-        background: #f50;
+        background: @clr-yellow;
     }
+
+    .br,
+    .bb,
+    .bt,
+    .bl{
+      border-color: @clr-black;
+      border-style: solid;
+      border-width: 0;
+    }
+
+    .br{ border-right-width: 1px; }
+    .bb{ border-bottom-width: 1px; }
+    .bl{ border-left-width: 1px; }
+    .bt{ border-top-width: 1px; }
+
+    .logo {
+        display: block;
+        background: url("./../assets/img/impresso-logo.v4-1.jpg");
+        background-size: auto 35px;
+        background-repeat: no-repeat;
+        height: 100%;
+        width: 200px;
+    }
+
 }
 </style>
