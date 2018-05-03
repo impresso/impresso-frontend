@@ -47,8 +47,8 @@ export default {
           }).then(
            (res) => {
              this.commit('SET_PROCESSING', false);
-             if (res.result !== undefined) {
-               res.result.forEach((result) => {
+             if (res.data !== undefined) {
+               res.data.forEach((result) => {
                  let filter = {};
 
                  if (result.type === 'entity') {

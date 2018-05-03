@@ -130,17 +130,17 @@ export default {
             (res) => {
               this.commit('SET_PROCESSING', false);
 
-              if (res.records !== undefined) {
-                for (let i = 0; i < res.records.length; i += 1) {
+              if (res.data !== undefined) {
+                res.data.forEach((result, i) => {
                   results.push(new SearchResult({
-                    title: res.records[i].title,
-                    dl: res.records[i].dl,
-                    articleUID: res.records[i].uid,
-                    issueUID: res.records[i].issue.uid,
-                    pageNumber: res.records[i].pages[0].num,
-                    iiif: res.records[i].pages[0].iiif, // we take the first page as a preview
+                    title: result.title,
+                    dl: result.dl,
+                    articleUID: result.uid,
+                    issueUID: result.issue.uid,
+                    pageNumber: result.pages[0].num,
+                    iiif: result.pages[0].iiif, // we take the first page as a preview
                     extract: 'Lorem ipsum.',
-                    raw: res.records[i],
+                    raw: result,
                     details: [{
                       col_a: i,
                       col_b: 'abc',
@@ -149,7 +149,7 @@ export default {
                       col_b: 'def',
                     }],
                   }));
-                }
+                });
 
                 context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                   paginationTotalRows: res.count,
