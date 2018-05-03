@@ -1,19 +1,26 @@
 <template lang="html">
   <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
     <div class="tiles">
-      <div class="tile" v-bind:class="{selected: value === index}" v-for="(page, index) in pages" v-on:click="goToPage(index)">
-        <thumbnail-slider-item
-          v-bind:tileSources="page.iiif"
-          v-bind:bounds="bounds"
-          v-bind:active="value === index"
-          v-on:mounted="onMountedTile"
-          ></thumbnail-slider-item>
+      <div class="tile"
+        v-for="(page, index) in pages"
+        v-on:click="goToPage(index)">
+        <span class="page_number">{{page.num}}</span>
+        <div class="mini_viewer" v-bind:class="{selected: value === index}">
+          <thumbnail-slider-item
+            v-bind:tileSources="page.iiif"
+            v-bind:bounds="bounds"
+            v-bind:active="value === index"
+            v-on:mounted="onMountedTile"
+            ></thumbnail-slider-item>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+// TODO: fix scroll because we now use vertical instead of horizontal scroll
+
 import ThumbnailSliderItem from './ThumbnailSliderItem';
 
 require('dragscroll');
@@ -94,29 +101,48 @@ export default {
 </script>
 
 <style lang="less">
+@import "./../../assets/less/style.less";
+
 #thumbnail-slider {
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     white-space: nowrap;
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #666;
+    &::-webkit-scrollbar{
+      display: none;
+    }
     .tiles {
-        text-align: center;
-        padding: 10px;
+        // text-align: center;
+        width: 100%;
+        position: relative;
         height: 100%;
         .tile {
-            display: inline-block;
-            border: 2px solid rgba(0,0,0,0);
-            border-radius: 5px;
-            width: 100px;
-            height: 100%;
-            padding: 5px;
-            overflow: hidden;
-            &.selected {
-                border-color: #ccc;
+            width: 100%;
+            height: 160px;
+            padding: 10px;
+            position: relative;
+            .page_number {
+              font-size: smaller;
+              position: absolute;
+              top:30px;
             }
+
+            .mini_viewer {
+                // border: 1px solid rgba(0,0,0,0);
+                background: white;
+                border:1px solid @clr-grey-300;
+                width: 100px;
+                height: 100%;
+                float: right;
+                overflow: hidden;
+                padding: 5px;
+                &.selected {
+                    border-color: #ccc;
+                }
+            }
+
         }
     }
     .dragscroll {

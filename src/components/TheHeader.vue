@@ -125,7 +125,6 @@ header {
     .link{
       margin-right: 10px;
       padding: 5px 7px;
-      font-size: 12px;
       color:black;
       &.router-link-exact-active{
         font-weight: bold;
