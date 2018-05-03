@@ -1,2 +1,46 @@
 @import "./color.less";
 @import "./type.less";
+
+/* COLOR */
+@clr-ui-border-dark: @clr-grey-500;
+
+body{
+  background: white;
+  color:black;
+}
+
+a,
+.btn-link {
+    color: @clr-blue-500;
+    &:hover {
+      color: @clr-blue-300
+    }
+}
+
+/* TYPE */
+body{
+  font-family:  OpenSans, "helvetica neue", Arial, sans-serif;
+  font-size: .78rem;
+}
+
+.text-serif{
+  font-family:  PlayfairDisplay, Garamond, Baskerville, "Baskerville Old Face", "Hoefler Text", "Times New Roman", serif;
+  &.font-weight-black{
+    font-weight: 900;
+  }
+}
+
+/* UI */
+.br,
+.bb,
+.bt,
+.bl{
+  border-color: @clr-ui-border-dark;
+  border-style: solid;
+  border-width: 0;
+}
+
+.br{ border-right-width: 1px; }
+.bb{ border-bottom-width: 1px; }
+.bl{ border-left-width: 1px; }
+.bt{ border-top-width: 1px; }
