@@ -25,7 +25,7 @@ const i18n = new VueI18n({
 });
 
 /* eslint-disable no-new */
-new Vue({
+window.app = new Vue({
   el: '#app',
   i18n,
   router,
