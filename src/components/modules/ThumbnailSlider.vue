@@ -19,8 +19,6 @@
 </template>
 
 <script>
-// TODO: fix scroll because we now use vertical instead of horizontal scroll
-
 import ThumbnailSliderItem from './ThumbnailSliderItem';
 
 require('dragscroll');
@@ -28,7 +26,7 @@ require('dragscroll');
 export default {
   data: () => ({
     bounds: [],
-    scrollLeft: 0,
+    scrollTop: 0,
     center: true,
     mountedTiles: 0,
   }),
@@ -50,19 +48,19 @@ export default {
       this.center = false;
 
       // only if no sroll took place we want to emit the click
-      if (this.scrollLeft === this.$refs['thumbnail-slider'].scrollLeft) {
+      if (this.scrollTop === this.$refs['thumbnail-slider'].scrollTop) {
         this.$emit('input', page);
       }
 
-      this.scrollLeft = this.$refs['thumbnail-slider'].scrollLeft;
+      this.scrollTop = this.$refs['thumbnail-slider'].scrollTop;
     },
     centerActiveTile() {
       if (this.center && this.viewer) {
         const activeElement = this.$refs['thumbnail-slider'].getElementsByClassName('tile')[this.value];
         const parentElement = this.$refs['thumbnail-slider'];
 
-        parentElement.scrollLeft = activeElement.offsetLeft + (
-          (activeElement.offsetWidth / 2) - (parentElement.offsetWidth / 2)
+        parentElement.scrollTop = activeElement.offsetTop + (
+          (activeElement.offsetHeight / 2) - (parentElement.offsetHeight / 2)
         );
       }
     },
