@@ -1,15 +1,10 @@
-import Vue from 'vue';
-import VueResource from 'vue-resource';
-
-Vue.use(VueResource);
+import * as services from '../services';
 
 const uuid = require('uuid');
 
-const url = `${process.env.MIDDLELAYER_API}/articles`;
-
 function Search({
-    filters = [],
-  } = {}) {
+  filters = [],
+} = {}) {
   this.filters = filters;
   this.uuid = uuid.v4();
 }
@@ -45,7 +40,7 @@ export default {
     displaySortBy: 'relevance',
     displaySortOrder: 'asc',
     displayStyle: 'list',
-    paginationPerPage: 10,
+    paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
   },
@@ -72,8 +67,7 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     ADD_FILTER(state, payload) {
-      // here we clone the payload/object using util.extend
-      state.search.filters.push(Vue.util.extend({}, payload));
+      state.search.filters.push({ ...payload });
     },
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);
@@ -125,53 +119,51 @@ export default {
 
           sortOrder += context.state.displaySortBy;
 
-          Vue.http.get(url,
-            {
-              params: {
-                filters: context.state.search.filters,
-                page: context.state.paginationCurrentPage,
-                limit: context.state.paginationPerPage,
-                order_by: sortOrder,
-              },
+          services.articles.find({
+            query: {
+              filters: context.state.search.filters,
+              page: context.state.paginationCurrentPage,
+              limit: context.state.paginationPerPage,
+              order_by: sortOrder,
             },
-          ).then(
-           (res) => {
-             this.commit('SET_PROCESSING', false);
+          }).then(
+            (res) => {
+              this.commit('SET_PROCESSING', false);
 
-             if (res.body.records !== undefined) {
-               for (let i = 0; i < res.body.records.length; i += 1) {
-                 results.push(new SearchResult({
-                   title: res.body.records[i].title,
-                   dl: res.body.records[i].dl,
-                   articleUID: res.body.records[i].uid,
-                   issueUID: res.body.records[i].issue.uid,
-                   pageNumber: res.body.records[i].pages[0].num,
-                   iiif: res.body.records[i].pages[0].iiif, // we take the first page as a preview
-                   extract: 'Lorem ipsum.',
-                   raw: res.body.records[i],
-                   details: [{
-                     col_a: i,
-                     col_b: 'abc',
-                   }, {
-                     col_a: i * 10,
-                     col_b: 'def',
-                   }],
-                 }));
-               }
+              if (res.data !== undefined) {
+                res.data.forEach((result, i) => {
+                  results.push(new SearchResult({
+                    title: result.title,
+                    dl: result.dl,
+                    articleUID: result.uid,
+                    issueUID: result.issue.uid,
+                    pageNumber: result.pages[0].num,
+                    iiif: result.pages[0].iiif, // we take the first page as a preview
+                    extract: 'Lorem ipsum.',
+                    raw: result,
+                    details: [{
+                      col_a: i,
+                      col_b: 'abc',
+                    }, {
+                      col_a: i * 10,
+                      col_b: 'def',
+                    }],
+                  }));
+                });
 
-               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-                 paginationTotalRows: res.body.count,
-               });
-               context.commit('UPDATE_RESULTS', results);
-             }
+                context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+                  paginationTotalRows: res.count,
+                });
+                context.commit('UPDATE_RESULTS', results);
+              }
 
-             resolve(res);
-           },
-           (err) => {
-             this.commit('SET_PROCESSING', false);
-             reject(err);
-           },
-         );
+              resolve(res);
+            },
+            (err) => {
+              this.commit('SET_PROCESSING', false);
+              reject(err);
+            },
+          );
         },
       );
     },

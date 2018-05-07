@@ -30,18 +30,28 @@ export default {
   },
   methods: {
     onSearch() {
-      this.query = '';
-      this.$store.commit('search/STORE_SEARCH');
-      this.$store.dispatch('search/SEARCH');
-      this.$router.push({
-        name: 'search_results',
-      });
+      if (this.$store.state.search.search.filters.length) {
+        this.query = '';
+
+        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
+          paginationCurrentPage: 1,
+        });
+
+        this.$store.commit('search/STORE_SEARCH');
+        this.$store.dispatch('search/SEARCH');
+
+        this.$router.push({
+          name: 'search_results',
+        });
+      }
     },
     onChangeSearchQuery(query) {
-      this.query = query;
-      this.$store.dispatch('autocomplete/SEARCH', {
-        query: query.trim(),
-      });
+      if (query.length > 1) {
+        this.query = query;
+        this.$store.dispatch('autocomplete/SEARCH', {
+          query: query.trim(),
+        });
+      }
     },
     onReset() {
       this.$store.commit('search/CLEAR');
@@ -61,8 +71,4 @@ export default {
 </script>
 
 <style scoped lang="less">
-.filter {
-    margin-right: 5px;
-    margin-bottom: 5px;
-}
 </style>

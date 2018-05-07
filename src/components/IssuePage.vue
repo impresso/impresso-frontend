@@ -1,35 +1,39 @@
 <template lang='html'>
   <main id='IssuePage'>
     <div class="sidebar">
-      <button v-for="(page, index) in pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button>
+      <!-- <button v-for="(page, index) in pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button> -->
+      <div class="px-3 py-4">
+        <h1 class="text-serif font-weight-bold">Le Temps</h1>
+        <p class="text-muted">Lundi, 06 March 1920</p>
+        <p><strong><i>Le Temps</i> is a Swiss French-language daily newspaper published in Berliner format in Geneva by Le Temaps SA.</strong></p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <hr>
+      </div>
     </div>
-      <div class="viewer">
-        <div id="os-viewer"></div>
-      </div>
-      <div class="strip">
-        <thumbnail-slider v-model="activePage" v-bind:pages="pages" v-bind:height="140"></thumbnail-slider>
-      </div>
+    <div class="strip">
+      <thumbnail-slider v-model="activePage" v-bind:pages="pages" v-bind:viewer="viewer"></thumbnail-slider>
+    </div>
+    <div class="viewer">
+      <div id="os-viewer"></div>
+    </div>
   </main>
 </template>
 
 <script>
-import Vue from 'vue';
-import VueResource from 'vue-resource';
 import OpenSeadragon from 'openseadragon';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
-Vue.use(VueResource);
+import * as services from '../services';
 
 export default {
   data: () => ({
     activePage: 0,
     pages: [],
     viewer: false,
+    bounds: [],
   }),
   mounted() {
-    const resource = this.$resource(`${process.env.MIDDLELAYER_API}/issues{/issue_uid}`);
     const issueUID = this.$route.params.issue_uid;
-    // const articleUID = this.$route.params.article_uid;
 
     if (this.$route.params.page_number !== undefined) {
       // TODO: here we assume that page number 5 has index 4 (starting at 0 in array)
@@ -39,25 +43,22 @@ export default {
       this.activePage = parseInt(this.$route.params.page_number, 10) - 1;
     }
 
-    resource.get({
-      issue_uid: issueUID,
-    }).then((response) => {
-      this.pages = response.body[0].pages;
+    services.issues.get(issueUID, {}).then((response) => {
+      this.pages = response.pages;
 
       this.viewer = OpenSeadragon({
         // debugMode: true,
         // collectionMode: true,
         sequenceMode: true,
         collectionRows: 1,
-        // collectionTileMargin: 20,
         id: 'os-viewer',
         showNavigator: false,
         showNavigationControl: false,
         showSequenceControl: false,
-        initialPage: this.activePage - 1,
-        minZoomLevel: 0.001,
-        defaultZoomLevel: 0.5,
-        tileSources: response.body[0].pages.map(elm => elm.iiif),
+        initialPage: this.activePage,
+        minZoomLevel: 0.3,
+        defaultZoomLevel: 0,
+        tileSources: response.pages.map(elm => elm.iiif),
       });
     });
   },
@@ -82,39 +83,40 @@ export default {
 </script>
 
 <style scoped lang='less'>
-@sidebar_width: 250px;
-@strip_height: 165px;
+@import "./../assets/less/style.less";
+
+@sidebar_width: 25%;
+@strip_width: 140px;
 
 #IssuePage {
     position: absolute;
     width: 100%;
     bottom: 0;
-    top: 47px;
+    top: 43px;
     overflow: hidden;
-
+    background: @clr-grey-200;
     .sidebar {
         position: absolute;
         left: 0;
         width: @sidebar_width;
         height: 100%;
+        background: @clr-grey-300;
     }
 
     .viewer {
         position: absolute;
-        top: 0;
         right: 0;
-        left: @sidebar_width;
-        bottom: @strip_height;
-        background: #111;
-        box-shadow: 5px -5px 20px rgba(0,0,0,0.8) inset;
+        left: ~"calc(@{sidebar_width} + @{strip_width})"; // prevent less calc() overwrite
+        height:100%;
+        background: @clr-grey-200;
     }
 
     .strip {
         position: absolute;
         right: 0;
-        bottom: 0;
         left: @sidebar_width;
-        height: @strip_height;
+        width: @strip_width;
+        height:100%;
     }
 }
 

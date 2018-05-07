@@ -9,7 +9,14 @@
       </b-row>
     </b-container>
   </div>
-  <b-container>
+  <b-container v-if="filters.length == 0">
+    <b-row>
+      <b-col>
+        <h1>No results</h1>
+      </b-col>
+    </b-row>
+  </b-container>
+  <b-container v-if="filters.length > 0">
     <b-row>
       <b-col md="3">
         <search-filter-wrapper />
@@ -36,14 +43,14 @@
         </b-row>
         <hr>
         <b-row v-if="displayStyle === 'list'">
-          <b-col cols="12" v-for="searchResult in searchResults">
+          <b-col cols="12" v-for="searchResult in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item
               v-bind:value="searchResult"
               v-on:click="onClickResult(searchResult)" />
           </b-col>
         </b-row>
         <b-row v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="6" md="4" lg="4" v-for="searchResult in searchResults">
+          <b-col cols="6" sm="6" md="4" lg="4" v-for="searchResult in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-tiles-item
               v-on:click="onClickResult(searchResult)"
               v-bind:value="searchResult" />
@@ -108,6 +115,11 @@ export default {
         return this.$store.state.search.results;
       },
     },
+    filters: {
+      get() {
+        return this.$store.state.search.search.filters;
+      },
+    },
   },
   methods: {
     getSortByLabel(sortBy, sortOrder) {
@@ -132,6 +144,9 @@ export default {
       this.$store.commit('search/UPDATE_SEARCH_DISPLAY_SORT', {
         displaySortBy: sortBy,
         displaySortOrder: sortOrder,
+      });
+      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
+        paginationCurrentPage: 1,
       });
       this.$store.dispatch('search/SEARCH');
     },
@@ -166,7 +181,6 @@ export default {
   mounted() {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
-      this.$store.dispatch('search/SEARCH');
     }
   },
 };

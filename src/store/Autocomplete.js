@@ -1,14 +1,8 @@
-import Vue from 'vue';
-import VueResource from 'vue-resource';
-
 import SearchResult from '../modules/AutocompleteSearchResult';
 import NamedEntityFilter from '../modules/filters/NamedEntity';
 import StringFilter from '../modules/filters/String';
 
-
-Vue.use(VueResource);
-
-const url = `${process.env.MIDDLELAYER_API}/suggestions`;
+import * as services from '../services';
 
 export default {
   namespaced: true,
@@ -46,17 +40,15 @@ export default {
 
       return new Promise(
         (resolve, reject) => {
-          Vue.http.get(url,
-            {
-              params: {
-                q: payload.query,
-              },
+          services.suggestions.find({
+            query: {
+              q: payload.query,
             },
-          ).then(
+          }).then(
            (res) => {
              this.commit('SET_PROCESSING', false);
-             if (res.body.result !== undefined) {
-               res.body.result.forEach((result) => {
+             if (res.data !== undefined) {
+               res.data.forEach((result) => {
                  let filter = {};
 
                  if (result.type === 'entity') {

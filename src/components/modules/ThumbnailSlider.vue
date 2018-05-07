@@ -1,24 +1,38 @@
 <template lang="html">
-    <div id="thumbnail-slider" class="dragscroll"></div>
+  <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
+    <div class="tiles">
+      <div class="tile"
+        v-for="(page, index) in pages"
+        v-on:click="goToPage(index)">
+        <span class="page_number">{{page.num}}</span>
+        <div class="mini_viewer" v-bind:class="{selected: value === index}">
+          <thumbnail-slider-item
+            v-bind:tileSources="page.iiif"
+            v-bind:bounds="bounds"
+            v-bind:active="value === index"
+            v-on:mounted="onMountedTile"
+            ></thumbnail-slider-item>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+// TODO: fix scroll because we now use vertical instead of horizontal scroll
+
+import ThumbnailSliderItem from './ThumbnailSliderItem';
+
 require('dragscroll');
-const d3 = require('d3');
 
 export default {
   data: () => ({
-    app: false,
-    tile: false,
-    tiles: false,
-    lastValue: 1,
+    bounds: [],
+    scrollLeft: 0,
     center: true,
+    mountedTiles: 0,
   }),
   props: {
-    height: {
-      type: Number,
-      default: 200,
-    },
     pages: {
       required: true,
     },
@@ -26,92 +40,117 @@ export default {
       type: Number,
       default: 1,
     },
-  },
-  mounted() {
-    this.app = d3.select('#thumbnail-slider');
-
-    this.tiles = this.app.append('div')
-      .classed('tiles', true);
-  },
-  methods: {
-    selectThumbnail(index) {
-      if (this.tile) {
-        this.tile.classed('selected', (d, i) => i === index);
-      }
-
-      if (this.center && this.tiles.select('.selected').nodes().length > 0) {
-        this.app.node().scrollLeft =
-          (this.tiles.select('.selected').node().offsetLeft +
-            (this.tiles.select('.selected').node().getBoundingClientRect().width / 2)) -
-          (this.app.node().getBoundingClientRect().width / 2);
-      }
-
-      this.center = true;
+    viewer: {
+      default: false,
     },
-    drawPages() {
-      this.tile = this.tiles.selectAll('div.tile')
-        .data(this.pages)
-        .enter()
-        .append('div')
-        .classed('tile', true)
-        .classed('selected', (d, i) => i === 0)
-        .on('click', (d, i) => {
-          this.center = false; // dont want to center the thumb on manual press
-          this.$emit('input', i);
-        })
-        .style('height', `${this.height - 20}px`)
-        .style('width', `${this.height - 20}px`);
+  },
+  mounted() {},
+  methods: {
+    goToPage(page) {
+      this.center = false;
 
-      this.selectThumbnail(this.value, true);
+      // only if no sroll took place we want to emit the click
+      if (this.scrollLeft === this.$refs['thumbnail-slider'].scrollLeft) {
+        this.$emit('input', page);
+      }
 
-      this.tile.append('img')
-        .attr('src', d => (`${d.iiif}/full/!${this.height},${this.height}/0/default.jpg`));
+      this.scrollLeft = this.$refs['thumbnail-slider'].scrollLeft;
+    },
+    centerActiveTile() {
+      if (this.center && this.viewer) {
+        const activeElement = this.$refs['thumbnail-slider'].getElementsByClassName('tile')[this.value];
+        const parentElement = this.$refs['thumbnail-slider'];
+
+        parentElement.scrollLeft = activeElement.offsetLeft + (
+          (activeElement.offsetWidth / 2) - (parentElement.offsetWidth / 2)
+        );
+      }
+    },
+    onMountedTile() {
+      this.mountedTiles += 1;
+
+      // if all tiles are mounted we want to center the slider
+      if (this.pages.length === this.mountedTiles) {
+        this.centerActiveTile();
+      }
     },
   },
   watch: {
-    pages: {
+    viewer: {
       handler() {
-        this.drawPages();
+        this.viewer.addHandler('animation', () => {
+          this.bounds = this.viewer.viewport.getBoundsNoRotate();
+        });
+
+        this.viewer.addHandler('update-viewport', () => {
+          this.bounds = this.viewer.viewport.getBoundsNoRotate();
+        });
       },
     },
     value: {
-      handler(val) {
-        this.selectThumbnail(val);
+      handler() {
+        this.centerActiveTile();
+        this.center = true;
       },
     },
+  },
+  components: {
+    ThumbnailSliderItem,
   },
 };
 </script>
 
 <style lang="less">
+@import "./../../assets/less/style.less";
+
 #thumbnail-slider {
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     white-space: nowrap;
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #666;
+    &::-webkit-scrollbar{
+      display: none;
+    }
     .tiles {
-        text-align: center;
-        padding: 10px;
+        // text-align: center;
+        width: 100%;
+        position: relative;
+        height: 100%;
         .tile {
-            display: inline-block;
-            margin: 5px 0 0;
-            border: 2px solid rgba(0,0,0,0);
-            border-radius: 5px;
-            &.selected {
-                border-color: #ccc;
-            }
-            &:last-child {
-                margin-right: 10px;
+            width: 100%;
+            height: 160px;
+            padding: 10px;
+            position: relative;
+            .page_number {
+              font-size: smaller;
+              position: absolute;
+              top:30px;
             }
 
-            img{
-              padding:5%;
-              height: 100%;
+            .mini_viewer {
+                // border: 1px solid rgba(0,0,0,0);
+                background: white;
+                border:1px solid @clr-grey-300;
+                width: 100px;
+                height: 100%;
+                float: right;
+                overflow: hidden;
+                padding: 5px;
+                &.selected {
+                    border-color: #ccc;
+                }
             }
+
         }
+    }
+    .dragscroll {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 999999;
+        background: rgba(255,100,0,0.8);
     }
 }
 </style>

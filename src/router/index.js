@@ -3,6 +3,8 @@ import Router from 'vue-router';
 import HomePage from '../components/HomePage';
 import SearchPage from '../components/SearchResultsPage';
 import IssuePage from '../components/IssuePage';
+import UserLoginPage from '../components/UserLoginPage';
+import UserDashboardPage from '../components/UserDashboardPage';
 
 Vue.use(Router);
 
@@ -23,6 +25,21 @@ export default new Router({
       name: 'search',
       component: SearchPage,
       props: true,
+    },
+    {
+      path: '/user/login',
+      name: 'login',
+      component: UserLoginPage,
+    },
+    {
+      path: '/user/logout',
+      name: 'logout',
+      component: UserLoginPage,
+    },
+    {
+      path: '/user/dashboard',
+      name: 'dashboard',
+      component: UserDashboardPage,
     },
     // {
     //   path: '/archive/:archive_id',
