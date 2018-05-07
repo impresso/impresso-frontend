@@ -15,4 +15,12 @@ export default {
       weekday: 'long',
     },
   },
+  it: {
+    long: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    },
+  },
 };
