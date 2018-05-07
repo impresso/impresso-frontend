@@ -12,6 +12,15 @@ export const app = feathers()
     storage: window.localStorage,
   }));
 
+app.hooks({
+  before() {
+    window.app.$store.commit('SET_PROCESSING', true);
+  },
+  after() {
+    window.app.$store.commit('SET_PROCESSING', false);
+  },
+});
+
 socket.on('reconnect', () => {
   app.authenticate();
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
