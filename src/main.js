@@ -11,6 +11,7 @@ import App from './App';
 import router from './router';
 import store from './store';
 import lang from './lang';
+import dateTimeFormats from './dateTimeFormats';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
@@ -22,6 +23,7 @@ const i18n = new VueI18n({
   fallbackLocale: 'en',
   locale: store.state.settings.language_code,
   messages: lang,
+  dateTimeFormats,
 });
 
 /* eslint-disable no-new */
