@@ -2,11 +2,13 @@
   <main id='IssuePage'>
     <div class="sidebar">
       <div class="px-3 py-4">
-        <button v-for="(page, index) in issue.pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button>
+        <!-- <button v-for="(page, index) in issue.pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button> -->
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
         <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
         <p><strong><i>Le Temps</i> is a Swiss French-language daily newspaper published in Berliner format in Geneva by Le Temaps SA.</strong></p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+        <hr>
+        <named-entity-explorer></named-entity-explorer>
         <hr>
         <pre>{{issue}}</pre>
       </div>
@@ -23,6 +25,7 @@
 <script>
 import OpenSeadragon from 'openseadragon';
 import ThumbnailSlider from './modules/ThumbnailSlider';
+import NamedEntityExplorer from './modules/NamedEntityExplorer';
 
 import * as services from '../services';
 
@@ -74,6 +77,7 @@ export default {
   },
   components: {
     ThumbnailSlider,
+    NamedEntityExplorer,
   },
   watch: {
     activePage: {
