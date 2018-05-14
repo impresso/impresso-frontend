@@ -16,6 +16,19 @@ export default {
     activePage: {
       default: 0,
     },
+    articles: [
+      {
+        labels: [
+          'article',
+        ],
+        regions: [
+          [10, 10, 50, 50],
+        ],
+        date: '1859-01-01',
+        uid: 'GDL-1860-01-24-a-0001-4961839',
+        title: 'Article Title',
+      },
+    ],
   },
   data: () => ({
     viewer: false,
@@ -43,6 +56,14 @@ export default {
         this.viewer.goToPage(page);
       },
     },
+  },
+  methods: {
+    drawArticleOverlay(articleID) {
+      console.log(this.articles, articleID);
+    },
+  },
+  mounted() {
+    this.drawArticleOverlay('GDL-1860-01-24-a-0001-4961839');
   },
 };
 </script>
