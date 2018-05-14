@@ -2,14 +2,14 @@
   <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
     <div class="tiles">
       <div class="tile"
-        v-for="(page, index) in pages"
-        v-on:click="goToPage(index)">
+        v-for="(page, index) in issue.pages"
+        v-on:click="onClickPage(index)">
         <span class="page_number">{{page.num}}</span>
-        <div class="mini_viewer" v-bind:class="{selected: value === index}">
+        <div class="mini_viewer" v-bind:class="{selected: page_number === index}">
           <thumbnail-slider-item
             v-bind:tileSources="page.iiif"
             v-bind:bounds="bounds"
-            v-bind:active="value === index"
+            v-bind:active="page_number === index"
             v-on:mounted="onMountedTile"
             ></thumbnail-slider-item>
         </div>
@@ -24,17 +24,18 @@ import ThumbnailSliderItem from './ThumbnailSliderItem';
 require('dragscroll');
 
 export default {
+  model: {
+    prop: 'issue',
+  },
   data: () => ({
     bounds: [],
     scrollTop: 0,
-    center: true,
+    center: false,
     mountedTiles: 0,
   }),
   props: {
-    pages: {
-      required: true,
-    },
-    value: {
+    issue: {},
+    page_number: {
       type: Number,
       default: 1,
     },
@@ -44,13 +45,13 @@ export default {
   },
   mounted() {},
   methods: {
-    goToPage(page) {
+    onClickPage(page) {
       this.center = false;
-      this.$emit('input', page);
+      this.$emit('click', page);
     },
     centerActiveTile() {
       if (this.center && this.viewer) {
-        const activeElement = this.$refs['thumbnail-slider'].getElementsByClassName('tile')[this.value];
+        const activeElement = this.$refs['thumbnail-slider'].getElementsByClassName('tile')[this.page_number];
         const parentElement = this.$refs['thumbnail-slider'];
 
         parentElement.scrollTop = activeElement.offsetTop + (
@@ -62,7 +63,7 @@ export default {
       this.mountedTiles += 1;
 
       // if all tiles are mounted we want to center the slider
-      if (this.pages.length === this.mountedTiles) {
+      if (this.issue.pages.length === this.mountedTiles) {
         this.centerActiveTile();
       }
     },
@@ -79,7 +80,7 @@ export default {
         });
       },
     },
-    value: {
+    issue: {
       handler() {
         this.centerActiveTile();
         this.center = true;
