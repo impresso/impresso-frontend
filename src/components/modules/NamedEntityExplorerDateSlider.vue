@@ -1,8 +1,6 @@
 <template lang="html">
   <div ref="app" v-bind:id="id" class="app">
     <div class='center date text-capitalize'><div class='value'></div></div>
-    <div class='edge start date text-capitalize'><div class='value'></div></div>
-    <div class='edge end date text-capitalize'><div class='value'></div></div>
     <div class='selection start date text-capitalize'><div class='value'></div></div>
     <div class='selection end date text-capitalize'><div class='value'></div></div>
   </div>
@@ -29,14 +27,14 @@ export default {
   data: () => ({
     app: null, // this holds de svg selection
     width: 200, // width of the svg. Should be calculated on resize
-    height: 150, // height of the svg
+    height: 110, // height of the svg
     widthInterval: 1, // width if the dragable block, depends on day/week/month
     heightInterval: 40, // height of the dragable block
     duration: 100, // speed of animation
     widthBlock: 6,
     monthOffset: 2,
-    sliderOffsetTop: 40,
-
+    sliderOffsetTop: 23,
+    dateFieldWidth: 85,
     id: `ne-explorer-${uuid.v4()}`,
   }),
   methods: {
@@ -47,15 +45,15 @@ export default {
       const posx = Math.min(
         Math.max(this.halfWidthInterval, this.svg.period.x), this.width - this.halfWidthInterval);
 
-      console.log('translatePeriod');
-      console.log('  - event x:    ', this.svg.period.x);
-      console.log('  - posx:       ', posx);
+      // console.log('translatePeriod');
+      // console.log('  - event x:    ', this.svg.period.x);
+      // console.log('  - posx:       ', posx);
       this.app.selection = [posx - this.halfWidthInterval, posx + this.halfWidthInterval];
       this.app.selectionStartDate = this.app.scaleTime.invert(this.app.selection[0]);
       this.app.selectionEndDate = this.app.scaleTime.invert(this.app.selection[1]);
 
-      console.log('  - left date:  ', this.app.selectionStartDate);
-      console.log('  - right date: ', this.app.selectionEndDate);
+      // console.log('  - left date:  ', this.app.selectionStartDate);
+      // console.log('  - right date: ', this.app.selectionEndDate);
 
       this.svg.period
         .transition()
@@ -65,7 +63,7 @@ export default {
       this.updateTimeSelection(duration);
     },
     setIntervalWidth() {
-      const day = this.width / (365 / 2);
+      const day = this.app.oneDayInPx;
 
       if (this.period === 'day') {
         this.widthInterval = day;
@@ -116,31 +114,38 @@ export default {
         g.select('.domain').remove();
         g.selectAll('line').attr('y1', 18).attr('y2', 60);
       });
+      // update day in Px
+      this.app.oneDayInPx = Math.abs(this.app.scaleTime(this.app.date) -
+        this.app.scaleTime(d3.utcDay.offset(this.app.date, 1)));
+      // console.log('updateTimeBoundaries', this.app.oneDayInPx);
 
-      this.app.startDateField.html(this.timeFormat(this.app.startDate));
-      this.app.endDateField.html(this.timeFormat(this.app.endDate));
-      this.app.centerDateField.html(this.timeFormat(this.date));
+      // update date field
+      this.app.dateField.html(this.timeFormat(this.app.date));
     },
 
     updateTimeSelection() {
       if (!this.app.selectionStartDate || !this.app.selectionEndDate) {
         return;
       }
-      const startposx = Math.max(100, this.app.selection[0]);
-      const startposy = startposx === 100 ? 25 : 0;
+      const startposx = Math.min(
+        Math.max(this.dateFieldWidth, this.app.selection[0]),
+        this.width - this.dateFieldWidth);
+      // const startposy = startposx === this.dateFieldWidth ? 25 : 0;
 
-      const endposx = Math.min(-100, this.app.selection[1] - this.width);
-      const endposy = endposx === -100 ? 25 : 0;
-
-      // this.selectionStartDateField.value
-      //   .html(this.timeFormat(this.app.selectionStartDate));
+      const endposx = Math.min(
+        Math.max(this.dateFieldWidth - this.width, this.app.selection[1] - this.width),
+        -this.dateFieldWidth);
+      // const endposy = endposx === -100 ? 25 : 0;
+      // console.log('updateTimeSelection > startposx', startposx);
+      this.app.selectionStartDateFieldValue
+        .html(this.timeFormat(this.app.selectionStartDate));
       this.app.selectionStartDateField
-        .attr('style', `transform: translate(${startposx}px,${startposy}px)`);
+        .attr('style', `transform: translate(${startposx}px,0)`);
 
-      // this.app.selectionEndDateField.value
-      //   .html(this.timeFormat(this.app.selectionEndDate));
+      this.app.selectionEndDateFieldValue
+        .html(this.timeFormat(this.app.selectionEndDate));
       this.app.selectionEndDateField
-        .attr('style', `transform: translate(${endposx}px,${endposy}px)`);
+        .attr('style', `transform: translate(${endposx}px,0)`);
     },
     afterResize() {
       this.width = this.$refs.app.parentNode.offsetWidth;
@@ -149,11 +154,17 @@ export default {
       return this.$d(value, format);
     },
     initialize() {
-      this.app.startDate = d3.timeMonth.offset(this.issue.date, -this.monthOffset);
-      this.app.endDate = d3.timeMonth.offset(this.issue.date, this.monthOffset);
-      console.log('initialize', this.date, this.app.startDate, this.app.endDate);
+      if (this.app.isReady) {
+        return;
+      }
+      this.app.isReady = true;
+      this.app.date = new Date(this.issue.date);
 
+      this.app.startDate = d3.timeMonth.offset(this.app.date, -this.monthOffset);
+      this.app.endDate = d3.timeMonth.offset(this.app.date, this.monthOffset);
       // updates dates (e.g; whenever the edge dates change)
+      console.log('initialize', this.issue.date, this.app.date, this.app.startDate, this.app.endDate);
+
       this.updateTimeBoundaries();
       this.setIntervalWidth();
       this.translatePeriod();
@@ -165,7 +176,7 @@ export default {
     },
     issue: {
       handler(val) {
-        console.log('HEY I VE GOT THE DATA', val);
+        console.log('VALUE', val);
         this.initialize();
       },
     },
@@ -179,33 +190,26 @@ export default {
       .append('svg')
       .attr('width', `${this.width}px`)
       .attr('height', `${this.height}px`);
-      // deprecated viewbox, easier to listen to events .attr('width', '100%')
-      // .attr('viewBox', `0 0 ${this.width} ${this.height}`)
-      // .attr('preserveAspectRatio', 'none');
 
-    // dates below.
-
-    this.app.centerDateField = this.app.select('div.center .value').on('click', () => {
+    // initialize date fields
+    this.app.dateField = this.app.select('div.center .value').on('click', () => {
       this.svg.period.x = this.width / 2; // :D
       this.translatePeriod(0);
     });
 
-    this.app.startDateField = this.app.select('div.edge.start .value');
-    this.app.endDateField = this.app.select('div.edge.end .value');
-    this.app.selectionStartDateField = this.app.select('div.selection.start');
-
-    this.app.selectionStartDateField.call(d3.drag().on('drag', () => {
+    this.app.selectionStartDateField = this.app.select('div.selection.start').call(d3.drag().on('drag', () => {
       // this.svg.period.x = d3.event.x;
       // this.translatePeriod();
 
     }));
-    this.app.selectionStartDateField.value = this.app.selectionStartDateField.select('.value');
+    this.app.selectionStartDateFieldValue = this.app.selectionStartDateField.select('.value');
+
     this.app.selectionEndDateField = this.app.select('div.selection.end');
-    this.app.selectionEndDateField.value = this.app.selectionEndDateField.select('.value');
+    this.app.selectionEndDateFieldValue = this.app.selectionEndDateField.select('.value');
     // time ticks
     this.app.ticks = this.svg.append('g')
       .classed('ticks', 1)
-      .attr('transform', 'translate(0,40)');
+      .attr('transform', `translate(0,${this.sliderOffsetTop})`);
 
 
     this.svg.slider = this.svg.append('g')
@@ -222,7 +226,7 @@ export default {
       .attr('x', this.width / 2)
       .attr('y', 0)
       .attr('width', 1)
-      .attr('height', 100)
+      .attr('height', 83)
       .classed('line', 1);
 
     this.svg.arrow.style('transform', `translate(${(this.width / 2) + 0.5}px)`);
@@ -249,19 +253,19 @@ export default {
     this.svg.period.x = this.width / 2;
 
     this.svg.period.interval = this.svg.period.append('rect')
-      .attr('y', 60)
+      .attr('y', this.sliderOffsetTop + 20)
       // .attr('y', () => (this.height - this.heightInterval) / 2)
       .attr('height', this.heightInterval)
       .classed('interval', 1);
 
     this.svg.period.blockLeft = this.svg.period.append('rect')
-      .attr('y', 60)
+      .attr('y', this.sliderOffsetTop + 20)
       .attr('height', this.heightInterval)
       .attr('width', this.widthBlock)
       .classed('block', 1);
 
     this.svg.period.blockRight = this.svg.period.append('rect')
-      .attr('y', 60)
+      .attr('y', this.sliderOffsetTop + 20)
       .attr('height', this.heightInterval)
       .attr('width', this.widthBlock)
       .classed('block', 1);
@@ -331,22 +335,21 @@ export default {
 
     .selection {
         position: absolute;
-        top: 100px; // at the bottom of the svg slider
+        top: 83px; // at the bottom of the svg slider
 
-        .value {
-          border: 1px solid;
-        }
 
         &.start {
            .value {
               left:auto;
-              right:0;
+              border: 1px solid;
+              right: 0;
            }
         }
 
         &.end {
            .value {
-              left:0;
+              border: 1px solid;
+              left: 0;
               right:auto;
            }
         }
