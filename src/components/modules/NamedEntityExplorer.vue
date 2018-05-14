@@ -3,7 +3,7 @@
 
     <div class="results">
       <ul class="nav nav-fill">
-        <li class="nav-item bb" v-for="t in types">
+        <li class="nav-item " v-for="t in types">
           <a
           class="nav-link text-capitalize"
           href="#"
@@ -12,17 +12,17 @@
           >{{t}}</a>
         </li>
       </ul>
-      <date-slider v-model="issue" v-bind:period="period"></date-slider>
-      <div class="selection">
+
         <ul class="nav nav-fill">
-          <li class="nav-item bt" v-for="p in perdiods"><a
+          <li class="nav-item " v-for="p in perdiods"><a
             class="nav-link text-capitalize"
             href='#'
             v-bind:class="{active: (period === p)}"
             v-on:click.prevent="selectPeriod(p)"
             >{{p}}</a></li>
         </ul>
-      </div>
+      <date-slider v-model="issue" v-bind:period="period"></date-slider>
+
       <div class="list">
         <div class="media" v-for="item in [1,2,3]">
           <img class="mr-3" src="http://www.placehold.it/48x48" alt="Generic placeholder image">
