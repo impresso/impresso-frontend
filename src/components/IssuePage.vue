@@ -62,7 +62,6 @@ export default {
     }
 
     services.issues.get(issueUID, {}).then((response) => {
-      console.log(this.issue);
       this.issue = response;
     });
   },
