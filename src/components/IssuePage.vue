@@ -17,15 +17,15 @@
       <thumbnail-slider v-model="activePage" v-bind:pages="issue.pages" v-bind:viewer="viewer"></thumbnail-slider>
     </div>
     <div class="viewer">
-      <div id="os-viewer"></div>
+      <issue-viewer v-model="issue" v-bind:activePage="activePage"></issue-viewer>
     </div>
   </main>
 </template>
 
 <script>
-import OpenSeadragon from 'openseadragon';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 import NamedEntityExplorer from './modules/NamedEntityExplorer';
+import IssueViewer from './modules/IssueViewer';
 
 import * as services from '../services';
 
@@ -38,9 +38,12 @@ export default {
         name: '',
       },
     },
-    viewer: false,
-    bounds: [],
   }),
+  components: {
+    ThumbnailSlider,
+    NamedEntityExplorer,
+    IssueViewer,
+  },
   mounted() {
     const issueUID = this.$route.params.issue_uid;
 
@@ -54,39 +57,7 @@ export default {
 
     services.issues.get(issueUID, {}).then((response) => {
       this.issue = response;
-
-      this.viewer = OpenSeadragon({
-        // debugMode: true,
-        sequenceMode: true,
-        collectionRows: 1,
-        id: 'os-viewer',
-        showNavigator: false,
-        showNavigationControl: false,
-        showSequenceControl: false,
-        initialPage: this.activePage,
-        minZoomLevel: 0.3,
-        defaultZoomLevel: 0,
-        tileSources: response.pages.map(elm => elm.iiif),
-      });
     });
-  },
-  methods: {
-    gotoPage(num) {
-      this.activePage = num;
-    },
-  },
-  components: {
-    ThumbnailSlider,
-    NamedEntityExplorer,
-  },
-  watch: {
-    activePage: {
-      handler(val) {
-        if (this.viewer) {
-          this.viewer.goToPage(val);
-        }
-      },
-    },
   },
 };
 </script>
@@ -128,10 +99,5 @@ export default {
         width: @strip_width;
         height: 100%;
     }
-}
-
-#os-viewer {
-    width: 100%;
-    height: 100%;
 }
 </style>
