@@ -1,6 +1,6 @@
 <template lang='html'>
   <main id='IssuePage'>
-    <div class="sidebar">
+    <div class="metadata">
       <div class="px-3 py-4">
         <!-- <button v-for="(page, index) in issue.pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button> -->
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
@@ -18,6 +18,9 @@
     </div>
     <div class="viewer">
       <div id="os-viewer"></div>
+    </div>
+    <div class="userdata">
+
     </div>
   </main>
 </template>
@@ -94,40 +97,68 @@ export default {
 <style scoped lang='less'>
 @import "./../assets/less/style.less";
 
-@sidebar_width: 25%;
+@sidebar_metadata_width: 350px;
+@sidebar_userdata_width: 200px;
 @strip_width: 140px;
 
 #IssuePage {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    top: 43px;
-    overflow: hidden;
-    background: @clr-grey-200;
-    .sidebar {
-        position: absolute;
-        left: 0;
-        width: @sidebar_width;
-        height: 100%;
-        background: @clr-grey-300;
-        overflow-y: auto;
-    }
-
-    .viewer {
-        position: absolute;
-        right: 0;
-        left: ~"calc(@{sidebar_width} + @{strip_width})"; // prevent less calc() overwrite
-        height: 100%;
-        background: @clr-grey-200;
+    display: flex;
+    .metadata {
+        width: @sidebar_metadata_width;
     }
 
     .strip {
-        position: absolute;
-        right: 0;
-        left: @sidebar_width;
+        position: relative;
         width: @strip_width;
-        height: 100%;
     }
+
+    .viewer {
+        width: 500px;
+        flex: 1;
+    }
+
+    .userdata {
+        width: 80px;
+        background: orange;
+    }
+    // position: absolute;
+    // width: 100%;
+    // bottom: 0;
+    // top: 43px;
+    // overflow: hidden;
+    // background: @clr-grey-200;
+    // .sidebar {
+    //     position: absolute;
+    //
+    //     height: 100%;
+    //     overflow-y: auto;
+    //     &.metadata {
+    //         left: 0;
+    //         width: @sidebar_metadata_width;
+    //         background: @clr-grey-300;
+    //     }
+    //     &.userdata {
+    //         right: 0;
+    //         width: @sidebar_userdata_width;
+    //         background: orange;
+    //     }
+    // }
+    //
+    // .viewer {
+    //     position: absolute;
+    //     right: @sidebar_userdata_width;
+    //     left: ~"calc(@{sidebar_metadata_width} + @{strip_width})"; // prevent less calc() overwrite
+    //     height: 100%;
+    //     background: @clr-grey-200;
+    // }
+    //
+    // .strip {
+    //     position: absolute;
+    //     right: 0;
+    //     left: @sidebar_metadata_width;
+    //     width: @strip_width;
+    //     height: 100%;
+    // }
 }
 
 #os-viewer {
