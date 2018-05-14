@@ -58,25 +58,23 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import "./../../assets/less/style.less";
+
 #issue-viewer{
-  width: 100%;
+  display: flex;
   height: 100%;
-  position: relative;
+  background: @clr-grey-200;
 }
 
 #os-viewer {
-    position: absolute;
+    flex: 1;
     height: 100%;
-    right:0;
-    left: 140px;
 }
 
 .strip {
-    position: absolute;
-    right: 0;
-    left: 0;
     width: 140px;
     height: 100%;
+    position: relative;
 }
 
 </style>
