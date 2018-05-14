@@ -62,19 +62,20 @@ export default {
 <style scoped lang='less'>
 @import "./../assets/less/style.less";
 
-@sidebar_metadata_width: 350px;
-@sidebar_userdata_width: 200px;
-@strip_width: 140px;
-
 #IssuePage {
     display: flex;
+    position: absolute;
+    bottom: 0;
+    top: 43px;
+    width: 100%;
     .metadata {
-        width: @sidebar_metadata_width;
-    }
-
-    .strip {
-        position: relative;
-        width: @strip_width;
+        width: 350px;
+        height: 100%;
+        overflow-y: auto;
+        background: @clr-grey-300;
+        &::-webkit-scrollbar{
+          display: none;
+        }
     }
 
     .viewer {
@@ -84,45 +85,6 @@ export default {
 
     .userdata {
         width: 80px;
-        background: orange;
     }
-    // position: absolute;
-    // width: 100%;
-    // bottom: 0;
-    // top: 43px;
-    // overflow: hidden;
-    // background: @clr-grey-200;
-    // .sidebar {
-    //     position: absolute;
-    //
-    //     height: 100%;
-    //     overflow-y: auto;
-    //     &.metadata {
-    //         left: 0;
-    //         width: @sidebar_metadata_width;
-    //         background: @clr-grey-300;
-    //     }
-    //     &.userdata {
-    //         right: 0;
-    //         width: @sidebar_userdata_width;
-    //         background: orange;
-    //     }
-    // }
-    //
-    // .viewer {
-    //     position: absolute;
-    //     right: @sidebar_userdata_width;
-    //     left: ~"calc(@{sidebar_metadata_width} + @{strip_width})"; // prevent less calc() overwrite
-    //     height: 100%;
-    //     background: @clr-grey-200;
-    // }
-    //
-    // .strip {
-    //     position: absolute;
-    //     right: 0;
-    //     left: @sidebar_metadata_width;
-    //     width: @strip_width;
-    //     height: 100%;
-    // }
 }
 </style>
