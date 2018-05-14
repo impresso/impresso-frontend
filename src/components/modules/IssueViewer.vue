@@ -1,9 +1,16 @@
 <template lang="html">
-  <div id="os-viewer"></div>
+  <div id="issue-viewer">
+    <div class="strip">
+      <thumbnail-slider v-model="activePage" v-bind:pages="issue.pages" v-bind:viewer="viewer"></thumbnail-slider>
+    </div>
+    <div id="os-viewer"></div>
+  </div>
 </template>
 
 <script>
 import OpenSeadragon from 'openseadragon';
+
+import ThumbnailSlider from '../modules/ThumbnailSlider';
 
 export default {
   model: {
@@ -65,12 +72,31 @@ export default {
   mounted() {
     this.drawArticleOverlay('GDL-1860-01-24-a-0001-4961839');
   },
+  components: {
+    ThumbnailSlider,
+  },
 };
 </script>
 
 <style scoped lang="less">
-#os-viewer {
+#issue-viewer {
     width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#os-viewer {
+    position: absolute;
+    height: 100%;
+    right: 0;
+    left: 140px;
+}
+
+.strip {
+    position: absolute;
+    right: 0;
+    left: 0;
+    width: 140px;
     height: 100%;
 }
 </style>
