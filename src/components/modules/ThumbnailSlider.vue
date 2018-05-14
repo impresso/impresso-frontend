@@ -106,7 +106,6 @@ export default {
         display: none;
     }
     .tiles {
-        // text-align: center;
         width: 100%;
         position: relative;
         height: 100%;
@@ -122,7 +121,6 @@ export default {
             }
 
             .mini_viewer {
-                // border: 1px solid rgba(0,0,0,0);
                 background: white;
                 border: 1px solid @clr-grey-300;
                 width: 100px;
@@ -131,18 +129,11 @@ export default {
                 overflow: hidden;
                 padding: 5px;
                 &.selected {
-                    border-color: #ccc;
+                    border-color: @clr-grey-500;
                 }
             }
 
         }
-    }
-    .dragscroll {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        z-index: 999999;
-        background: rgba(255,100,0,0.8);
     }
 }
 </style>
