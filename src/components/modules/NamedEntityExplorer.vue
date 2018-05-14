@@ -12,7 +12,7 @@
           >{{t}}</a>
         </li>
       </ul>
-      <date-slider v-bind:period="period"></date-slider>
+      <date-slider v-bind:period="period" v-bind:date="new Date(date)"></date-slider>
       <div class="selection">
         <ul class="nav nav-fill">
           <li class="nav-item bt" v-for="p in perdiods"><a
@@ -42,6 +42,7 @@
 import DateSlider from './NamedEntityExplorerDateSlider';
 
 export default {
+  props: ['date'],
   data: () => ({
     types: ['title', 'corpus'],
     type: 'title',

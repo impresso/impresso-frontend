@@ -8,7 +8,7 @@
         <p><strong><i>Le Temps</i> is a Swiss French-language daily newspaper published in Berliner format in Geneva by Le Temaps SA.</strong></p>
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
         <hr>
-        <named-entity-explorer></named-entity-explorer>
+        <named-entity-explorer v-model="issue"></named-entity-explorer>
         <hr>
         <pre>{{issue}}</pre>
       </div>
@@ -53,6 +53,7 @@ export default {
     }
 
     services.issues.get(issueUID, {}).then((response) => {
+      console.log(this.issue);
       this.issue = response;
 
       this.viewer = OpenSeadragon({
@@ -94,7 +95,7 @@ export default {
 <style scoped lang='less'>
 @import "./../assets/less/style.less";
 
-@sidebar_width: 25%;
+@sidebar_width: 400px; // 25%;
 @strip_width: 140px;
 
 #IssuePage {
