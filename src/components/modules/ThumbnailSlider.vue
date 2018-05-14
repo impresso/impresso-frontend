@@ -46,13 +46,7 @@ export default {
   methods: {
     goToPage(page) {
       this.center = false;
-
-      // only if no sroll took place we want to emit the click
-      if (this.scrollTop === this.$refs['thumbnail-slider'].scrollTop) {
-        this.$emit('input', page);
-      }
-
-      this.scrollTop = this.$refs['thumbnail-slider'].scrollTop;
+      this.$emit('input', page);
     },
     centerActiveTile() {
       if (this.center && this.viewer) {
@@ -108,8 +102,8 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
-    &::-webkit-scrollbar{
-      display: none;
+    &::-webkit-scrollbar {
+        display: none;
     }
     .tiles {
         // text-align: center;
@@ -122,15 +116,15 @@ export default {
             padding: 10px;
             position: relative;
             .page_number {
-              font-size: smaller;
-              position: absolute;
-              top:30px;
+                font-size: smaller;
+                position: absolute;
+                top: 30px;
             }
 
             .mini_viewer {
                 // border: 1px solid rgba(0,0,0,0);
                 background: white;
-                border:1px solid @clr-grey-300;
+                border: 1px solid @clr-grey-300;
                 width: 100px;
                 height: 100%;
                 float: right;
