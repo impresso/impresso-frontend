@@ -15,8 +15,8 @@
     <div class="viewer">
       <issue-viewer v-model="issue" v-bind:activePage="activePage"></issue-viewer>
     </div>
-    <div class="userdata">
-
+    <div class="userdata" v-bind:class="{active: userDataActive}">
+      <a href="#" v-on:click="toggleUserData">toggle</a>
     </div>
   </main>
 </template>
@@ -36,10 +36,16 @@ export default {
         name: '',
       },
     },
+    userDataActive: false,
   }),
   components: {
     NamedEntityExplorer,
     IssueViewer,
+  },
+  methods: {
+    toggleUserData() {
+      this.userDataActive = !this.userDataActive;
+    },
   },
   mounted() {
     const issueUID = this.$route.params.issue_uid;
@@ -73,8 +79,8 @@ export default {
         height: 100%;
         overflow-y: auto;
         background: @clr-grey-300;
-        &::-webkit-scrollbar{
-          display: none;
+        &::-webkit-scrollbar {
+            display: none;
         }
     }
 
@@ -85,6 +91,9 @@ export default {
 
     .userdata {
         width: 80px;
+        &.active {
+            width: 300px;
+        }
     }
 }
 </style>
