@@ -2,7 +2,6 @@
   <main id='IssuePage'>
     <div class="sidebar">
       <div class="px-3 py-4">
-        <!-- <button v-for="(page, index) in issue.pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button> -->
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
         <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
         <p><strong><i>Le Temps</i> is a Swiss French-language daily newspaper published in Berliner format in Geneva by Le Temaps SA.</strong></p>
@@ -13,9 +12,6 @@
         <pre>{{issue}}</pre>
       </div>
     </div>
-    <div class="strip">
-      <thumbnail-slider v-model="activePage" v-bind:pages="issue.pages" v-bind:viewer="viewer"></thumbnail-slider>
-    </div>
     <div class="viewer">
       <issue-viewer v-model="issue" v-bind:activePage="activePage"></issue-viewer>
     </div>
@@ -23,7 +19,6 @@
 </template>
 
 <script>
-import ThumbnailSlider from './modules/ThumbnailSlider';
 import NamedEntityExplorer from './modules/NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
 
@@ -40,7 +35,6 @@ export default {
     },
   }),
   components: {
-    ThumbnailSlider,
     NamedEntityExplorer,
     IssueViewer,
   },
@@ -87,17 +81,9 @@ export default {
     .viewer {
         position: absolute;
         right: 0;
-        left: ~"calc(@{sidebar_width} + @{strip_width})"; // prevent less calc() overwrite
+        left: ~"calc(@{sidebar_width})"; // prevent less calc() overwrite
         height: 100%;
         background: @clr-grey-200;
-    }
-
-    .strip {
-        position: absolute;
-        right: 0;
-        left: @sidebar_width;
-        width: @strip_width;
-        height: 100%;
     }
 }
 </style>
