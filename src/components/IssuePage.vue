@@ -2,7 +2,6 @@
   <main id='IssuePage'>
     <div class="metadata">
       <div class="px-3 py-4">
-        <!-- <button v-for="(page, index) in issue.pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button> -->
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
         <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
         <p><strong><i>Le Temps</i> is a Swiss French-language daily newspaper published in Berliner format in Geneva by Le Temaps SA.</strong></p>
@@ -12,9 +11,6 @@
         <hr>
         <pre>{{issue}}</pre>
       </div>
-    </div>
-    <div class="strip">
-      <thumbnail-slider v-model="activePage" v-bind:pages="issue.pages" v-bind:viewer="viewer"></thumbnail-slider>
     </div>
     <div class="viewer">
       <issue-viewer v-model="issue" v-bind:activePage="activePage"></issue-viewer>
@@ -26,7 +22,6 @@
 </template>
 
 <script>
-import ThumbnailSlider from './modules/ThumbnailSlider';
 import NamedEntityExplorer from './modules/NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
 
@@ -43,7 +38,6 @@ export default {
     },
   }),
   components: {
-    ThumbnailSlider,
     NamedEntityExplorer,
     IssueViewer,
   },
