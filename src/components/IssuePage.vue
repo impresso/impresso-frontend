@@ -1,8 +1,7 @@
 <template lang='html'>
   <main id='IssuePage'>
-    <div class="sidebar">
+    <div class="metadata">
       <div class="px-3 py-4">
-        <!-- <button v-for="(page, index) in issue.pages" v-on:click="gotoPage(index)" type="button" name="button" class="btn btn-info" v-bind:class="{active: index === activePage}">{{page.num}}</button> -->
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
         <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
         <p><strong><i>Le Temps</i> is a Swiss French-language daily newspaper published in Berliner format in Geneva by Le Temaps SA.</strong></p>
@@ -13,19 +12,18 @@
         <pre>{{issue}}</pre>
       </div>
     </div>
-    <div class="strip">
-      <thumbnail-slider v-model="activePage" v-bind:pages="issue.pages" v-bind:viewer="viewer"></thumbnail-slider>
-    </div>
     <div class="viewer">
-      <div id="os-viewer"></div>
+      <issue-viewer v-model="issue" v-bind:activePage="activePage"></issue-viewer>
+    </div>
+    <div class="userdata">
+
     </div>
   </main>
 </template>
 
 <script>
-import OpenSeadragon from 'openseadragon';
-import ThumbnailSlider from './modules/ThumbnailSlider';
 import NamedEntityExplorer from './modules/NamedEntityExplorer';
+import IssueViewer from './modules/IssueViewer';
 
 import * as services from '../services';
 
@@ -38,9 +36,11 @@ export default {
         name: '',
       },
     },
-    viewer: false,
-    bounds: [],
   }),
+  components: {
+    NamedEntityExplorer,
+    IssueViewer,
+  },
   mounted() {
     const issueUID = this.$route.params.issue_uid;
 
@@ -55,39 +55,7 @@ export default {
     services.issues.get(issueUID, {}).then((response) => {
       console.log(this.issue);
       this.issue = response;
-
-      this.viewer = OpenSeadragon({
-        // debugMode: true,
-        sequenceMode: true,
-        collectionRows: 1,
-        id: 'os-viewer',
-        showNavigator: false,
-        showNavigationControl: false,
-        showSequenceControl: false,
-        initialPage: this.activePage,
-        minZoomLevel: 0.3,
-        defaultZoomLevel: 0,
-        tileSources: response.pages.map(elm => elm.iiif),
-      });
     });
-  },
-  methods: {
-    gotoPage(num) {
-      this.activePage = num;
-    },
-  },
-  components: {
-    ThumbnailSlider,
-    NamedEntityExplorer,
-  },
-  watch: {
-    activePage: {
-      handler(val) {
-        if (this.viewer) {
-          this.viewer.goToPage(val);
-        }
-      },
-    },
   },
 };
 </script>
@@ -95,44 +63,29 @@ export default {
 <style scoped lang='less'>
 @import "./../assets/less/style.less";
 
-@sidebar_width: 400px; // 25%;
-@strip_width: 140px;
-
 #IssuePage {
+    display: flex;
     position: absolute;
-    width: 100%;
     bottom: 0;
     top: 43px;
-    overflow: hidden;
-    background: @clr-grey-200;
-    .sidebar {
-        position: absolute;
-        left: 0;
-        width: @sidebar_width;
+    width: 100%;
+    .metadata {
+        width: 350px;
         height: 100%;
-        background: @clr-grey-300;
         overflow-y: auto;
+        background: @clr-grey-300;
+        &::-webkit-scrollbar{
+          display: none;
+        }
     }
 
     .viewer {
-        position: absolute;
-        right: 0;
-        left: ~"calc(@{sidebar_width} + @{strip_width})"; // prevent less calc() overwrite
-        height: 100%;
-        background: @clr-grey-200;
+        width: 500px;
+        flex: 1;
     }
 
-    .strip {
-        position: absolute;
-        right: 0;
-        left: @sidebar_width;
-        width: @strip_width;
-        height: 100%;
+    .userdata {
+        width: 80px;
     }
-}
-
-#os-viewer {
-    width: 100%;
-    height: 100%;
 }
 </style>

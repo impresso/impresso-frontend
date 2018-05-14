@@ -98,9 +98,10 @@ export default {
 
 <style scoped lang="less">
 .ts-item {
-  pointer-events: none;
+  // pointer-events: none;
     height: 100%;
     width: 100%;
     position: relative;
+    cursor:pointer;
 }
 </style>
