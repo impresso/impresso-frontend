@@ -38,9 +38,12 @@ export default {
         labels: [
           'article',
         ],
-        regions: [
-          [10, 10, 50, 50],
-        ],
+        regions: {
+          x: 547,
+          y: 850,
+          h: 448,
+          w: 206,
+        },
         date: '1859-01-01',
         uid: 'GDL-1860-01-24-a-0001-4961839',
         title: 'Article Title',
@@ -73,6 +76,101 @@ export default {
     goToPage(page) {
       this.$emit('click', page);
     },
+    // drawArticleOverlay(articleID) {
+    //   const art = this.articles.find(x => x.uid === articleID);
+    //   console.log(art.title);
+    // }
+    // clicky(clickToZoom) {
+    //   this.viewer.gestureSettingsMouse.clickToZoom = clickToZoom;
+    // },
+    drawArticleOverlay() {
+      this.viewer.addOnceHandler('open', () => {
+        // console.log('OK ----');
+        const self = this.viewer;
+        const overlay = this.viewer.svgOverlay();
+
+        const articles = d3.select(overlay.node()).append('g').classed('article', true);
+        const article = articles.selectAll('rect').data(this.articles).enter().append('rect')
+          .attr('fill', 'rgba(0,0,0,0)')
+          .attr('stroke', 'black')
+          .attr('stroke-width', '0.01px')
+          .attr('opacity', '0.5');
+
+        article
+          .attr('x', d => this.getImageToViewportCoordinates(d.regions.x, 0).x)
+          .attr('width', d => this.getImageToViewportCoordinates(d.regions.w, 0).x)
+          .attr('y', d => this.getImageToViewportCoordinates(0, d.regions.y).y)
+          .attr('height', d => this.getImageToViewportCoordinates(0, d.regions.h).y)
+          .on('click', function mousedown() {
+            d3.select(this)
+              .attr('stroke', 'red');
+          })
+          .on('mouseover', function mouseover() {
+            // d3.event.preventDefault();
+            self.gestureSettingsMouse.clickToZoom = false;
+            d3.select(this)
+              .attr('opacity', '1');
+          })
+          .on('mouseout', function mouseout() {
+            self.gestureSettingsMouse.clickToZoom = true;
+            d3.select(this)
+              .attr('opacity', '0.5');
+          });
+
+        // draw entity highlights
+        const highlights = d3.select(overlay.node()).append('g').classed('highlights', true);
+        const highlight = highlights.selectAll('rect').data(this.namedEntities).enter().append('rect')
+          .attr('fill', 'rgba(255,220,0,0.5)')
+          .attr('stroke-width', '0');
+
+        highlight
+          .attr('x', d => this.getImageToViewportCoordinates(d.boundingBox.x, 0).x)
+          .attr('width', d => this.getImageToViewportCoordinates(d.boundingBox.w, 0).x)
+          .attr('y', d => this.getImageToViewportCoordinates(0, d.boundingBox.y).y)
+          .attr('height', d => this.getImageToViewportCoordinates(0, d.boundingBox.h).y)
+          .on('click', function mousedown() {
+            const id = d => d.id;
+            console.log('clicked', id);
+            d3.select(this)
+              .transition()
+              .ease(d3.easeSin)
+              .duration(100)
+              .attr('fill', 'red');
+          })
+          .on('mouseover', function mouseover() {
+            // d3.event.preventDefault();
+            self.gestureSettingsMouse.clickToZoom = false;
+            d3.select(this)
+              .transition()
+              .ease(d3.easeSin)
+              .duration(200)
+              .attr('opacity', '1')
+              .attr('stroke-width', '0.01px');
+          })
+          .on('mouseout', function mouseout() {
+            self.gestureSettingsMouse.clickToZoom = true;
+            d3.select(this)
+              .transition()
+              .ease(d3.easeSin)
+              .duration(200)
+              .attr('opacity', '0.5')
+              .attr('stroke-width', '.004px');
+          });
+      });
+    },
+    getImageToViewportCoordinates(x, y) {
+      // console.log(x, y);
+      // console.log(this.viewer.viewport.imageToViewportCoordinates(x, y).x);
+      // console.log(this.viewer.viewport.imageToViewportCoordinates(x, y).y);
+      return this.viewer.viewport.imageToViewportCoordinates(x, y);
+      // let i;
+      // let tiledImage;
+      // let count = viewer.world.getItemCount();
+      // for (i = 0; i < count; i += 1) {
+      //   tiledImage = viewer.world.getItemAt(i);
+      //   tiledImage.setPosition(new OpenSeadragon.Point(i, 0));
+      // }
+    },
   },
   watch: {
     issue: {
@@ -80,7 +178,7 @@ export default {
         if (!this.viewer) {
           this.viewer = OpenSeadragon({
             // debugMode: true,
-            sequenceMode: true,
+            sequenceMode: false,
             collectionRows: 1,
             id: 'os-viewer',
             showNavigator: false,
@@ -88,10 +186,12 @@ export default {
             showSequenceControl: false,
             initialPage: this.page_number,
             minZoomLevel: 0.3,
-            defaultZoomLevel: 0,
+            defaultZoomLevel: 0.5,
             tileSources: val.pages.map(elm => elm.iiif),
           });
         }
+
+        this.drawArticleOverlay('GDL-1860-01-24-a-0001-4961839');
       },
     },
     page_number: {
@@ -102,41 +202,7 @@ export default {
       },
     },
   },
-  methods: {
-    drawArticleOverlay(articleID) {
-      const art = this.articles.find(x => x.uid === articleID);
-      console.log(art.title);
-    },
-  },
-  mounted() {
-    const overlay = this.viewer.svgOverlay();
-    const highlights = d3.select(overlay.node()).append('g').classed('highlights', true);
-    const highlight = highlights.selectAll('rect').data(this.namedEntities).enter().append('rect')
-      .attr('fill', 'rgba(255,220,0,0.5)')
-      .attr('stroke', 'red')
-      .attr('stroke-width', '.001px');
-
-    // draw entity highlights
-    highlight
-      .attr('x', d => this.getImageToViewportCoordinates(d.boundingBox.x, 0).x)
-      .attr('width', d => this.getImageToViewportCoordinates(d.boundingBox.w, 0).x)
-      .attr('y', d => this.getImageToViewportCoordinates(0, d.boundingBox.y).y)
-      .attr('height', d => this.getImageToViewportCoordinates(0, d.boundingBox.h).y);
-
-    // const highlights = d3.select(overlay.node()).append('g').classed('highlights', true);
-    const d3Rect = d3.select(overlay.node()).append('rect')
-      .style('fill', '#f00')
-      .attr('x', 0.5)
-      .attr('width', 0.25)
-      .attr('y', 0.5)
-      .attr('height', 0.25);
-
-    overlay.onClick(d3Rect.node(), () => {
-      console.log('click');
-    });
-
-    this.drawArticleOverlay('GDL-1860-01-24-a-0001-4961839');
-  },
+  mounted() {},
   components: {
     ThumbnailSlider,
   },
@@ -162,8 +228,7 @@ export default {
     height: 100%;
     position: relative;
 }
-<<<<<<< HEAD .highlights rect {
+.highlights rect {
     fill: green;
 }
-======= >>>>>>> f65929f40f3b4c10377167ee4c3e5cc09a419523
 </style>
