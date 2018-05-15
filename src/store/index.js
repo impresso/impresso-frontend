@@ -43,6 +43,7 @@ export default new Vuex.Store({
     key: 'impresso',
     paths: [
       'settings.language_code',
+      'settings.sidebar_userdata_expanded',
       'search.search',
       'search.results',
       'search.searches',

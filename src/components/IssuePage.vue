@@ -36,15 +36,21 @@ export default {
         name: '',
       },
     },
-    userDataActive: false,
   }),
+  computed: {
+    userDataActive: {
+      get() {
+        return this.$store.state.settings.sidebar_userdata_expanded;
+      },
+    },
+  },
   components: {
     NamedEntityExplorer,
     IssueViewer,
   },
   methods: {
     toggleUserData() {
-      this.userDataActive = !this.userDataActive;
+      this.$store.commit('settings/TOGGLE_USERDATA_EXPANDED');
     },
   },
   mounted() {
