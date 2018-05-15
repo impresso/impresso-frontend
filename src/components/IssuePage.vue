@@ -16,7 +16,10 @@
       <issue-viewer v-model="issue" v-bind:activePage="activePage"></issue-viewer>
     </div>
     <div class="userdata" v-bind:class="{active: userDataActive}">
-      <a href="#" v-on:click="toggleUserData">toggle</a>
+      <a href="#" class="toggle" v-on:click.prevent="toggleUserData()"><i class="icon" v-bind:class="[userDataActive ? 'close' : 'arrow-left']"></i></a>
+      <div class="data" v-show="userDataActive">
+          <h1>userdata</h1>
+      </div>
     </div>
   </main>
 </template>
@@ -74,6 +77,8 @@ export default {
 <style scoped lang='less'>
 @import "./../assets/less/style.less";
 
+@width_sidebar_userdata_contracted: 52px;
+
 #IssuePage {
     display: flex;
     position: absolute;
@@ -96,10 +101,34 @@ export default {
     }
 
     .userdata {
-        width: 80px;
+        width: @width_sidebar_userdata_contracted;
+        display: flex;
+        .data{
+          flex: 1;
+        }
+
         &.active {
             width: 300px;
         }
+
+        .toggle {
+            display: block;
+            margin: 5px;
+            width: @width_sidebar_userdata_contracted - 10px;
+            height: @width_sidebar_userdata_contracted - 10px;
+            .icon {
+                transform: scale(2) translate(5px, 5px);
+                color:@clr-grey-600;
+                transition: color 200ms;
+            }
+
+            &:hover{
+              .icon{
+                color:@clr-blue-grey-600;
+              }
+            }
+        }
     }
+
 }
 </style>
