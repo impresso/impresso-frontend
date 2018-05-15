@@ -1,7 +1,12 @@
 <template lang="html">
   <div id="issue-viewer">
     <div class="strip">
-      <thumbnail-slider v-model="activePage" v-bind:pages="issue.pages" v-bind:viewer="viewer"></thumbnail-slider>
+      <thumbnail-slider
+      v-model="issue"
+      v-bind:viewer="viewer"
+      v-bind:page_number="page_number"
+      v-on:click="goToPage"
+      ></thumbnail-slider>
     </div>
     <div id="os-viewer"></div>
   </div>
@@ -20,9 +25,9 @@ export default {
   },
   props: {
     issue: {
-      default: null,
+      default: false,
     },
-    activePage: {
+    page_number: {
       default: 0,
     },
   },
@@ -64,35 +69,36 @@ export default {
       },
     ],
   }),
+  methods: {
+    goToPage(page) {
+      this.$emit('click', page);
+    },
+  },
   watch: {
     issue: {
       handler(val) {
-        this.viewer = OpenSeadragon({
-          // debugMode: true,
-          sequenceMode: true,
-          collectionRows: 1,
-          id: 'os-viewer',
-          showNavigator: false,
-          showNavigationControl: false,
-          showSequenceControl: false,
-          initialPage: this.activePage,
-          minZoomLevel: 0.3,
-          defaultZoomLevel: 0,
-          tileSources: val.pages.map(elm => elm.iiif),
-          overlays: [{
-            id: 'global-overlay-filter',
-            px: 0,
-            py: 0,
-            width: 6425,
-            height: 8535,
-            className: 'filter',
-          }],
-        });
+        if (!this.viewer) {
+          this.viewer = OpenSeadragon({
+            // debugMode: true,
+            sequenceMode: true,
+            collectionRows: 1,
+            id: 'os-viewer',
+            showNavigator: false,
+            showNavigationControl: false,
+            showSequenceControl: false,
+            initialPage: this.page_number,
+            minZoomLevel: 0.3,
+            defaultZoomLevel: 0,
+            tileSources: val.pages.map(elm => elm.iiif),
+          });
+        }
       },
     },
-    activePage: {
+    page_number: {
       handler(page) {
-        this.viewer.goToPage(page);
+        if (this.viewer) {
+          this.viewer.goToPage(page);
+        }
       },
     },
   },
@@ -156,7 +162,8 @@ export default {
     height: 100%;
     position: relative;
 }
-.highlights rect {
+<<<<<<< HEAD .highlights rect {
     fill: green;
 }
+======= >>>>>>> f65929f40f3b4c10377167ee4c3e5cc09a419523
 </style>
