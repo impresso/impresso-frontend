@@ -1,6 +1,6 @@
 <template lang='html'>
   <main id='IssuePage'>
-    <div class="sidebar">
+    <div class="metadata">
       <div class="px-3 py-4">
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
         <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
@@ -14,6 +14,9 @@
     </div>
     <div class="viewer">
       <issue-viewer v-model="issue" v-bind:activePage="activePage"></issue-viewer>
+    </div>
+    <div class="userdata">
+
     </div>
   </main>
 </template>
@@ -59,31 +62,29 @@ export default {
 <style scoped lang='less'>
 @import "./../assets/less/style.less";
 
-@sidebar_width: 25%;
-@strip_width: 140px;
-
 #IssuePage {
+    display: flex;
     position: absolute;
-    width: 100%;
     bottom: 0;
     top: 43px;
-    overflow: hidden;
-    background: @clr-grey-200;
-    .sidebar {
-        position: absolute;
-        left: 0;
-        width: @sidebar_width;
+    width: 100%;
+    .metadata {
+        width: 350px;
         height: 100%;
-        background: @clr-grey-300;
         overflow-y: auto;
+        background: @clr-grey-300;
+        &::-webkit-scrollbar{
+          display: none;
+        }
     }
 
     .viewer {
-        position: absolute;
-        right: 0;
-        left: ~"calc(@{sidebar_width})"; // prevent less calc() overwrite
-        height: 100%;
-        background: @clr-grey-200;
+        width: 500px;
+        flex: 1;
+    }
+
+    .userdata {
+        width: 80px;
     }
 }
 </style>
