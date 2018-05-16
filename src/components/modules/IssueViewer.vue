@@ -75,6 +75,21 @@ export default {
     ],
   }),
   methods: {
+    init() {
+      if (!this.viewer) {
+        this.viewer = OpenSeadragon({
+          // debugMode: true,
+          sequenceMode: false,
+          id: 'os-viewer',
+          showNavigationControl: false,
+          showSequenceControl: false,
+          initialPage: this.page_number,
+          minZoomLevel: 0.3,
+          defaultZoomLevel: 0.5,
+          tileSources: this.issue.pages.map(elm => elm.iiif),
+        });
+      }
+    },
     goToPage(page) {
       this.$emit('click', page);
     },
@@ -176,24 +191,10 @@ export default {
   },
   watch: {
     issue: {
-      handler(val) {
-        if (!this.viewer) {
-          this.viewer = OpenSeadragon({
-            // debugMode: true,
-            sequenceMode: false,
-            collectionRows: 1,
-            id: 'os-viewer',
-            showNavigator: false,
-            showNavigationControl: false,
-            showSequenceControl: false,
-            initialPage: this.page_number,
-            minZoomLevel: 0.3,
-            defaultZoomLevel: 0.5,
-            tileSources: val.pages.map(elm => elm.iiif),
-          });
-        }
+      handler() {
+        this.init();
 
-        this.drawArticleOverlay('GDL-1860-01-24-a-0001-4961839');
+        // this.drawArticleOverlay('GDL-1860-01-24-a-0001-4961839');
       },
     },
     page_number: {
