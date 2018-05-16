@@ -15,6 +15,8 @@
 <script>
 import * as d3 from 'd3';
 import OpenSeadragon from 'openseadragon';
+
+import * as services from '../../services';
 import ThumbnailSlider from '../modules/ThumbnailSlider';
 
 require('svg-overlay');
@@ -199,6 +201,10 @@ export default {
         if (this.viewer) {
           this.viewer.goToPage(page);
         }
+
+        services.pages.get(this.issue.pages[page].uid, {}).then((res) => {
+          console.log(res);
+        });
       },
     },
   },
