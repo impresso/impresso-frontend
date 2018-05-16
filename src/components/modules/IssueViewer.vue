@@ -35,44 +35,7 @@ export default {
   },
   data: () => ({
     viewer: false,
-    articles: [
-      {
-        labels: [
-          'article',
-        ],
-        regions: {
-          x: 547,
-          y: 850,
-          h: 448,
-          w: 206,
-        },
-        date: '1859-01-01',
-        uid: 'GDL-1860-01-24-a-0001-4961839',
-        title: 'Article Title',
-      },
-    ],
-    namedEntities: [
-      {
-        id: 'a0',
-        imgUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg/304px-Einstein_1921_by_F_Schmutzer_-_restoration.jpg',
-        boundingBox: {
-          x: 147,
-          y: 1850,
-          h: 48,
-          w: 106,
-        },
-      },
-      {
-        id: 'a1',
-        imgUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Franz_Liszt_by_Nadar%2C_March_1886.png/297px-Franz_Liszt_by_Nadar%2C_March_1886.png',
-        boundingBox: {
-          x: 372,
-          y: 2010,
-          h: 48,
-          w: 194,
-        },
-      },
-    ],
+    pagedata: {},
   }),
   methods: {
     init() {
@@ -188,12 +151,18 @@ export default {
       //   tiledImage.setPosition(new OpenSeadragon.Point(i, 0));
       // }
     },
+    getPageData() {
+      services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
+        this.pagedata = res;
+        console.log(res);
+      });
+    },
   },
   watch: {
     issue: {
       handler() {
         this.init();
-
+        this.getPageData();
         // this.drawArticleOverlay('GDL-1860-01-24-a-0001-4961839');
       },
     },
@@ -201,11 +170,8 @@ export default {
       handler(page) {
         if (this.viewer) {
           this.viewer.goToPage(page);
+          this.getPageData();
         }
-
-        services.pages.get(this.issue.pages[page].uid, {}).then((res) => {
-          console.log(res);
-        });
       },
     },
   },
