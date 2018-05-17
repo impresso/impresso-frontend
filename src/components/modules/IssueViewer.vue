@@ -182,26 +182,31 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 @import "./../../assets/less/style.less";
 
 #issue-viewer {
     display: flex;
     height: 100%;
     background: @clr-grey-200;
+
+    .strip {
+        width: 140px;
+        height: 100%;
+        position: relative;
+    }
+
 }
 
 #os-viewer {
     flex: 1;
     height: 100%;
-}
+    .openseadragon-canvas {
+        outline: none;
+    }
 
-.strip {
-    width: 140px;
-    height: 100%;
-    position: relative;
-}
-.highlights rect {
-    fill: green;
+    .highlights rect {
+        fill: green;
+    }
 }
 </style>
