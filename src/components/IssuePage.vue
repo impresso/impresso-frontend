@@ -16,9 +16,13 @@
       <issue-viewer v-model="issue" v-bind:page_number="page_number" v-on:click="onClickPage"></issue-viewer>
     </div>
     <div class="userdata" v-bind:class="{active: userDataActive}">
-      <a href="#" class="toggle" v-on:click.prevent="toggleUserData()"><i class="icon" v-bind:class="[userDataActive ? 'close' : 'arrow-left']"></i></a>
+      <div class="controls">
+        <a href="#" class="toggle mb-4" v-on:click.prevent="toggleUserData()"><i class="icon" v-bind:class="[userDataActive ? 'close' : 'arrow-left']"></i></a>
+        <issue-viewer-zoom-slider v-model="zoomLevel"></issue-viewer-zoom-slider>
+      </div>
       <div class="data" v-show="userDataActive">
           <h1>userdata</h1>
+          <h2>{{zoomLevel}}</h2>
       </div>
     </div>
   </main>
@@ -27,6 +31,7 @@
 <script>
 import NamedEntityExplorer from './modules/NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
+import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
 
 import * as services from '../services';
 
@@ -39,6 +44,7 @@ export default {
         name: '',
       },
     },
+    zoomLevel: 0,
   }),
   computed: {
     userDataActive: {
@@ -50,6 +56,7 @@ export default {
   components: {
     NamedEntityExplorer,
     IssueViewer,
+    IssueViewerZoomSlider,
   },
   methods: {
     toggleUserData() {
@@ -83,6 +90,8 @@ export default {
 @width_sidebar_userdata_contracted: 52px;
 
 #IssuePage {
+  background: @clr-grey-200;
+
     display: flex;
     position: absolute;
     bottom: 0;
@@ -106,29 +115,35 @@ export default {
     .userdata {
         width: @width_sidebar_userdata_contracted;
         display: flex;
-        .data{
-          flex: 1;
+        .data {
+            flex: 1;
         }
 
         &.active {
             width: 300px;
+            background: @clr-white;
+            transition: background-color 200ms;
         }
 
-        .toggle {
-            display: block;
-            margin: 5px;
-            width: @width_sidebar_userdata_contracted - 10px;
-            height: @width_sidebar_userdata_contracted - 10px;
-            .icon {
-                transform: scale(2) translate(5px, 5px);
-                color:@clr-grey-600;
-                transition: color 200ms;
-            }
+        .controls {
+            width: @width_sidebar_userdata_contracted;
 
-            &:hover{
-              .icon{
-                color:@clr-blue-grey-600;
-              }
+            .toggle {
+                display: block;
+                margin: 5px;
+                width: @width_sidebar_userdata_contracted - 10px;
+                height: @width_sidebar_userdata_contracted - 10px;
+                .icon {
+                    transform: scale(1) translate(10px, 10px);
+                    color: @clr-black;
+                    transition: color 200ms;
+                }
+
+                &:hover {
+                    .icon {
+                        color: @clr-blue-grey-600;
+                    }
+                }
             }
         }
     }
