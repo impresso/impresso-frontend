@@ -29,3 +29,4 @@ socket.on('reconnect', () => {
 export const suggestions = app.service('suggestions');
 export const articles = app.service('articles');
 export const issues = app.service('issues');
+export const pages = app.service('pages');

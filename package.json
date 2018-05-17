@@ -21,6 +21,7 @@
     "d3": "^4.13.0",
     "dragscroll": "0.0.8",
     "openseadragon": "^2.3.1",
+    "svg-overlay": "github:openseadragon/svg-overlay",
     "uuid": "^3.2.1",
     "vue": "^2.5.16",
     "vue-awesome": "^2.3.5",

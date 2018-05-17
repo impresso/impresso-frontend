@@ -13,7 +13,7 @@
       </div>
     </div>
     <div class="viewer">
-      <issue-viewer v-model="issue" v-bind:activePage="activePage"></issue-viewer>
+      <issue-viewer v-model="issue" v-bind:page_number="page_number" v-on:click="onClickPage"></issue-viewer>
     </div>
     <div class="userdata" v-bind:class="{active: userDataActive}">
       <a href="#" class="toggle" v-on:click.prevent="toggleUserData()"><i class="icon" v-bind:class="[userDataActive ? 'close' : 'arrow-left']"></i></a>
@@ -32,7 +32,7 @@ import * as services from '../services';
 
 export default {
   data: () => ({
-    activePage: 0,
+    page_number: 0,
     issue: {
       date: '',
       newspaper: {
@@ -55,6 +55,9 @@ export default {
     toggleUserData() {
       this.$store.commit('settings/TOGGLE_USERDATA_EXPANDED');
     },
+    onClickPage(page) {
+      this.page_number = page;
+    },
   },
   mounted() {
     const issueUID = this.$route.params.issue_uid;
@@ -64,7 +67,7 @@ export default {
       // but we could be missing pages, so page number 5 might have index 2 for example
       // We need to fix this so that the initial active page number corresponds with
       // the correct index in the array
-      this.activePage = parseInt(this.$route.params.page_number, 10) - 1;
+      this.page_number = parseInt(this.$route.params.page_number, 10) - 1;
     }
 
     services.issues.get(issueUID, {}).then((response) => {
