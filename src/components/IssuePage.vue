@@ -13,16 +13,23 @@
       </div>
     </div>
     <div class="viewer">
-      <issue-viewer v-model="issue" v-bind:page_number="page_number" v-on:click="onClickPage"></issue-viewer>
+      <issue-viewer
+        v-model="issue"
+        v-bind:minZoomLevel="minZoomLevel"
+        v-bind:maxZoomLevel="maxZoomLevel"
+        v-bind:zoomLevel="zoomLevel"
+        v-bind:page_number="page_number"
+        v-on:click="onClickPage"
+        v-on:zoom="onZoom"
+        ></issue-viewer>
     </div>
     <div class="userdata" v-bind:class="{active: userDataActive}">
       <div class="controls">
         <a href="#" class="toggle mb-4" v-on:click.prevent="toggleUserData()"><i class="icon" v-bind:class="[userDataActive ? 'close' : 'arrow-left']"></i></a>
-        <issue-viewer-zoom-slider v-model="zoomLevel"></issue-viewer-zoom-slider>
+        <issue-viewer-zoom-slider v-model="zoomLevel" v-bind:domain="domain"></issue-viewer-zoom-slider>
       </div>
       <div class="data" v-show="userDataActive">
           <h1>userdata</h1>
-          <h2>{{zoomLevel}}</h2>
       </div>
     </div>
   </main>
@@ -44,12 +51,19 @@ export default {
         name: '',
       },
     },
-    zoomLevel: 0,
+    zoomLevel: 0.5,
+    minZoomLevel: 0.25,
+    maxZoomLevel: 4,
   }),
   computed: {
     userDataActive: {
       get() {
         return this.$store.state.settings.sidebar_userdata_expanded;
+      },
+    },
+    domain: {
+      get() {
+        return [this.minZoomLevel, this.maxZoomLevel];
       },
     },
   },
@@ -64,6 +78,9 @@ export default {
     },
     onClickPage(page) {
       this.page_number = page;
+    },
+    onZoom(zoom) {
+      this.zoomLevel = zoom;
     },
   },
   mounted() {

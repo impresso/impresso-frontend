@@ -32,6 +32,15 @@ export default {
     page_number: {
       default: 0,
     },
+    minZoomLevel: {
+      default: 0.25,
+    },
+    maxZoomLevel: {
+      default: 5,
+    },
+    zoomLevel: {
+      default: 0.5,
+    },
   },
   data: () => ({
     viewer: false,
@@ -47,9 +56,15 @@ export default {
           showNavigationControl: false,
           showSequenceControl: false,
           initialPage: this.page_number,
-          minZoomLevel: 0.3,
-          defaultZoomLevel: 0.5,
+          minZoomLevel: this.minZoomLevel,
+          maxZoomLevel: this.maxZoomLevel,
+          defaultZoomLevel: this.zoomLevel,
           tileSources: this.issue.pages.map(elm => elm.iiif),
+          animationTime: 0.1,
+        });
+
+        this.viewer.addHandler('zoom', (event) => {
+          this.$emit('zoom', event.zoom);
         });
       }
     },
@@ -154,7 +169,6 @@ export default {
     getPageData() {
       services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
         this.pagedata = res;
-        console.log(res);
       });
     },
   },
@@ -172,6 +186,11 @@ export default {
           this.viewer.goToPage(page);
           this.getPageData();
         }
+      },
+    },
+    zoomLevel: {
+      handler(val) {
+        this.viewer.viewport.zoomTo(val);
       },
     },
   },

@@ -7,11 +7,14 @@ import * as d3 from 'd3';
 
 export default {
   model: {
-    prop: 'position',
+    prop: 'zoomLevel',
   },
   props: {
-    position: {
-      default: 0, // location of the slider from 0 to 1
+    zoomLevel: {
+      default: 0,
+    },
+    domain: {
+      default: [0, 1],
     },
   },
   data: () => ({
@@ -22,8 +25,8 @@ export default {
     stroke_width: 2,
   }),
   methods: {
-    moveSlider(location) {
-      const y = location * this.getLength();
+    moveSlider(zoomLevel) {
+      const y = this.app.scale(zoomLevel) * this.getLength();
 
       this.app.slider
         .style('transform', `translate(0, ${y}px)`);
@@ -34,11 +37,11 @@ export default {
     getLength() {
       return this.height - (this.getDotSize() * 2);
     },
-    setPosition(position) {
-      position = Math.max(0, position);
-      position = Math.min(1, position);
+    setZoomLevel(zoomLevel) {
+      zoomLevel = Math.max(0, zoomLevel);
+      zoomLevel = Math.min(1, zoomLevel);
 
-      this.$emit('input', position.toFixed(2));
+      this.$emit('input', this.app.scale.invert(zoomLevel));
     },
   },
   mounted() {
@@ -51,10 +54,12 @@ export default {
       .attr('viewBox', `0 0 ${this.width} ${this.height}`)
       .attr('preserveAspectRatio', 'none');
 
+    this.app.scale = d3.scalePow().domain(this.domain).range([0, 1]);
+
     this.app.indicator = this.app.append('g').classed('indicator', 1);
     this.app.slider = this.app.append('g').classed('slider', 1);
 
-    this.moveSlider(this.position, false);
+    this.moveSlider(this.zoomLevel, false);
 
     this.app.indicator.append('rect')
       .attr('x', this.width / 2)
@@ -71,11 +76,11 @@ export default {
       .classed('area', 1)
       .on('click', () => {
         const num = (d3.event.offsetY - this.getDotSize()) / this.getLength();
-        this.setPosition(num);
+        this.setZoomLevel(num);
       })
       .call(d3.drag().on('drag', () => {
         const num = (d3.event.y - this.getDotSize()) / this.getLength();
-        this.setPosition(num);
+        this.setZoomLevel(num);
       }));
 
     this.app.slider.append('circle')
@@ -93,9 +98,9 @@ export default {
       .classed('inner', 1);
   },
   watch: {
-    position: {
+    zoomLevel: {
       handler(val) {
-        this.moveSlider(val, true);
+        this.moveSlider(val);
       },
     },
   },
