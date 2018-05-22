@@ -8,7 +8,13 @@
       v-on:click="goToPage"
       ></thumbnail-slider>
     </div>
-    <div id="os-viewer"></div>
+    <div id="os-viewer">
+      <div class="header">
+        <div class="ocr-qt">
+          OCR Quality <span class="qt">80%</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -109,18 +115,48 @@ export default {
     display: flex;
     height: 100%;
     background: @clr-grey-200;
-
     .strip {
         width: 140px;
         height: 100%;
         position: relative;
     }
-
 }
 
 #os-viewer {
     flex: 1;
     height: 100%;
+    position: relative;
+    .header{
+        position: absolute;
+        z-index: 1000;
+        top:0;
+        width: 100%;
+        height: 50px;
+        background: fade(@clr-grey-200, 75);
+        .ocr-qt{
+          float:right;
+          padding: 15px;
+          font-size: .75em;
+          line-height: 2.3em;
+          color: @clr-grey-800;
+          font-style: italic;
+          span.qt{
+            display: block;
+            float:right;
+            line-height: 1em;
+            padding: 3px 5px;
+            font-size: 1.2em;
+            margin-left: 10px;
+            font-style: normal;
+            .text-serif();
+            font-weight: bold;
+            border:2px solid @clr-grey-800;
+            // padding: 3px 7px;
+            border-radius: 5px;
+          }
+        }
+    }
+
     .openseadragon-canvas {
         outline: none;
     }
