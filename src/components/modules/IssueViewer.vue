@@ -132,7 +132,10 @@ export default {
         top:0;
         width: 100%;
         height: 50px;
-        background: fade(@clr-grey-200, 75);
+        transition: background 250ms;
+        &:hover{
+            background: fade(@clr-grey-200, 100);
+        }
         .ocr-qt{
           float:right;
           padding: 15px;
