@@ -174,8 +174,9 @@ export default {
     getPageData() {
       services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
         this.pagedata = res;
+        console.log(res);
         this.viewer.addOnceHandler('open', () => {
-          this.overlay.update(res[0]);
+          this.overlay.update(res);
         });
         // const MouseTracker = new OpenSeadragon.MouseTracker({
         //   element: 'html-overlay',
@@ -260,15 +261,26 @@ export default {
         text-align: right;
         width: 200px;
         margin-left: -200px;
-        padding-right: 10px;
+        text-decoration: none;
+
+        .entity {
+
+            border-right: 5px solid transparent;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 10px;
+            &:hover {
+                border-color: teal;
+            }
+        }
         h3 {
+            padding-right: 15px;
             border-bottom: 1px solid lightgray;
             padding-bottom: 0.5rem;
             font-style: italic;
             font-size: 100%;
         }
         .entity-title {
-            padding-top: 0.5rem;
             font-weight: bold;
         }
         .entity-description {}
@@ -278,7 +290,6 @@ export default {
         background-color: green;
         color: white;
         width: 200px;
-        margin-left: 10px;
         min-height: 100px;
     }
     .highlights rect {
