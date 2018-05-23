@@ -4,7 +4,6 @@
       <div class="tile"
         v-for="(page, index) in issue.pages"
         v-on:click="onClickPage(index)">
-        <span class="page_number">{{page.num}}</span>
         <div class="mini_viewer" v-bind:class="{selected: page_number === index}">
           <thumbnail-slider-item
             v-bind:tileSources="page.iiif"
@@ -13,6 +12,7 @@
             v-on:mounted="onMountedTile"
             ></thumbnail-slider-item>
         </div>
+        <span class="page_number">{{page.num}}</span>
       </div>
     </div>
   </div>
@@ -118,7 +118,18 @@ export default {
             .page_number {
                 font-size: smaller;
                 position: absolute;
-                top: 30px;
+                right: 10px;
+                bottom: 10px;
+                background: fade(@clr-grey-200, 90);
+                color: #424242;
+                width: 2em;
+                height: 2em;
+                text-align: center;
+                padding-top: 0.2em;
+                border: 1px solid @clr-grey-300;
+                z-index: 1000;
+                // border-right-color: transparent !important;
+                // border-bottom-color: transparent !important;
             }
 
             .mini_viewer {
@@ -131,6 +142,11 @@ export default {
                 padding: 5px;
                 &.selected {
                     border-color: @clr-grey-500;
+                }
+                &.selected + .page_number {
+                    border: 1px solid @clr-grey-500;
+                    background: fade(@clr-grey-400, 90);
+                    color: white;
                 }
             }
 

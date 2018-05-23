@@ -10,8 +10,25 @@
     </div>
     <div id="os-viewer">
       <div class="header">
+        <div class="page-tags">
+          Page Tags
+        </div>
+        <div class="articleMeta">
+          <div class="title">
+            LOCAL
+          </div>
+          <div class="description">
+            chronique locale
+          </div>
+        </div>
           <div class="pagination">
-            <a href="#" class="left"><span class="arrow-left icon"></span></a> 6/45 <a href="#" class="right"><span class="arrow-right icon"></span></a>
+            <a v-on:click="goToPage(page_number - 1)" href="#" class="left">
+              <span class="arrow-left icon"></span>
+            </a>
+              <strong>{{page_number + 1}}</strong> / <strong>125</strong>
+              <a v-on:click="goToPage(page_number + 1)" href="#" class="right">
+                <span class="arrow-right icon"></span>
+              </a>
           </div>
           <div class="ocr-qt">
             OCR Quality <span class="qt">80%</span>
@@ -76,7 +93,9 @@ export default {
       }
     },
     goToPage(page) {
-      this.$emit('click', page);
+      if (page >= 0 && page < this.issue.pages.length) {
+        this.$emit('click', page);
+      }
     },
     getPageData() {
       services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
@@ -120,7 +139,8 @@ export default {
     height: 100%;
     background: @clr-grey-200;
     .strip {
-        width: 140px;
+        background: fade(@clr-grey-200, 90);
+        width: 120px;
         height: 100%;
         position: relative;
     }
@@ -131,18 +151,27 @@ export default {
     height: 100%;
     position: relative;
     .header {
-        background: fade(@clr-grey-200, 75);
+        background: fade(@clr-grey-200, 90);
         position: absolute;
         z-index: 1000;
         top: 0;
         width: 100%;
-        height: 42px;
-        line-height: 35px;
+        height: 48px;
+        line-height: 36px;
         padding: 5px;
         transition: background 250ms;
         display: flex;
         justify-content: flex-end;
-        font-size: 0.75em;
+        font-size: 0.80em;
+        border-bottom: 0.05em solid @clr-grey-400;
+        .articleMeta {
+            opacity: 0.6;
+            margin-top: 0.4em;
+            line-height: 1.7;
+            .title {
+                font-weight: bold;
+            }
+        }
         .pagination {
             width: 50%;
             text-align: center;
@@ -151,20 +180,39 @@ export default {
             a {
                 display: inline-block;
                 box-sizing: border-box;
-                width: 40px;
+                width: 34px;
                 height: 34px;
-                padding: 0;
-                vertical-align:bottom;
+                border-radius: 0.2em;
+                margin: 0 1em;
+                // outline: 1px solid red;
+                vertical-align: bottom;
+                transition: background 300ms;
                 .icon {
                     margin-left: -8px;
                     transform: scale(0.5);
                     margin-top: 17px;
+                    transition: margin 150ms 300ms;
                 }
+                &:hover {
+                    background: fade(@clr-grey-400, 40);
+                }
+                &:hover .arrow-left {
+                    margin-left: -12px;
+                }
+                &:hover .arrow-right {
+                    margin-left: -4px;
+                }
+
             }
         }
 
-        &:hover {
-            background: fade(@clr-grey-200, 100);
+        // &:hover {
+        //     background: fade(@clr-grey-200, 90);
+        // }
+        .page-tags {
+            width: 15%;
+            color: @clr-grey-800;
+            font-style: italic;
         }
         .ocr-qt {
             width: 25%;
@@ -180,7 +228,9 @@ export default {
                 font-style: normal;
                 .text-serif();
                 font-weight: bold;
-                border: 2px solid @clr-grey-800;
+                background: @clr-grey-400;
+                color: @clr-grey-100;
+                // border: 2px solid @clr-grey-800;
                 // padding: 3px 7px;
                 border-radius: 5px;
             }
