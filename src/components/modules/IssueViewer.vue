@@ -49,7 +49,8 @@ export default {
   methods: {
     init() {
       this.overlay = new ViewerOverlay({
-        container: '#overlay-left',
+        page: '#page-overlay',
+        left: '#left-overlay',
       });
 
       if (!this.viewer) {
@@ -69,7 +70,11 @@ export default {
               px: 0,
               py: 0,
               id: 'overlay-left',
-              class: 'overlay',
+            },
+            {
+              px: 0,
+              py: 0,
+              id: 'page-overlay',
             },
           ],
           animationTime: 0.1,
@@ -89,6 +94,7 @@ export default {
       services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
         this.pagedata = res;
         this.viewer.addOnceHandler('open', () => {
+          this.overlay.init(this.viewer);
           this.overlay.update(res);
         });
       });
@@ -181,8 +187,16 @@ export default {
         width: 200px;
         min-height: 100px;
     }
-    .highlights rect {
-        fill: green;
+    .highlight {
+        background: #ffeb3b;
+        mix-blend-mode: multiply;
+    }
+    .region {
+        background: #ffeb3b;
+        mix-blend-mode: multiply;
+        position: absolute;
+        width: 10px;
+        height: 10px;
     }
 
     #image-ruler {
