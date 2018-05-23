@@ -10,8 +10,12 @@
     </div>
     <div id="os-viewer">
       <div class="header">
-        <div class="ocr-qt">
-          OCR Quality <span class="qt">80%</span>
+          <div class="pagination">
+            <a href="#" class="left"><span class="arrow-left icon"></span></a> 6/45 <a href="#" class="right"><span class="arrow-right icon"></span></a>
+          </div>
+          <div class="ocr-qt">
+            OCR Quality <span class="qt">80%</span>
+          </div>
         </div>
       </div>
     </div>
@@ -126,37 +130,60 @@ export default {
     flex: 1;
     height: 100%;
     position: relative;
-    .header{
+    .header {
+        background: fade(@clr-grey-200, 75);
         position: absolute;
         z-index: 1000;
-        top:0;
+        top: 0;
         width: 100%;
-        height: 50px;
+        height: 42px;
+        line-height: 35px;
+        padding: 5px;
         transition: background 250ms;
-        &:hover{
+        display: flex;
+        justify-content: flex-end;
+        font-size: 0.75em;
+        .pagination {
+            width: 50%;
+            text-align: center;
+            display: block;
+
+            a {
+                display: inline-block;
+                box-sizing: border-box;
+                width: 40px;
+                height: 34px;
+                padding: 0;
+                vertical-align:bottom;
+                .icon {
+                    margin-left: -8px;
+                    transform: scale(0.5);
+                    margin-top: 17px;
+                }
+            }
+        }
+
+        &:hover {
             background: fade(@clr-grey-200, 100);
         }
-        .ocr-qt{
-          float:right;
-          padding: 15px;
-          font-size: .75em;
-          line-height: 2.3em;
-          color: @clr-grey-800;
-          font-style: italic;
-          span.qt{
-            display: block;
-            float:right;
-            line-height: 1em;
-            padding: 3px 5px;
-            font-size: 1.2em;
-            margin-left: 10px;
-            font-style: normal;
-            .text-serif();
-            font-weight: bold;
-            border:2px solid @clr-grey-800;
-            // padding: 3px 7px;
-            border-radius: 5px;
-          }
+        .ocr-qt {
+            width: 25%;
+            color: @clr-grey-800;
+            font-style: italic;
+            text-align: right;
+            span.qt {
+                display: inline;
+                line-height: 1em;
+                padding: 3px 5px;
+                font-size: 1.2em;
+                margin-left: 10px;
+                font-style: normal;
+                .text-serif();
+                font-weight: bold;
+                border: 2px solid @clr-grey-800;
+                // padding: 3px 7px;
+                border-radius: 5px;
+            }
         }
     }
 
