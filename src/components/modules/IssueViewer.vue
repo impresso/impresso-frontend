@@ -48,11 +48,6 @@ export default {
   }),
   methods: {
     init() {
-      this.overlay = new ViewerOverlay({
-        page: '#page-overlay',
-        left: '#left-overlay',
-      });
-
       if (!this.viewer) {
         this.viewer = OpenSeadragon({
           // debugMode: true,
@@ -65,26 +60,15 @@ export default {
           maxZoomLevel: this.maxZoomLevel,
           defaultZoomLevel: this.zoomLevel,
           tileSources: this.issue.pages.map(elm => elm.iiif),
-          overlays: [
-            {
-              px: 0,
-              py: 0,
-              id: 'overlay-left',
-            },
-            {
-              px: 0,
-              py: 0,
-              id: 'page-overlay',
-            },
-          ],
-          animationTime: 0.1,
+          animationTime: 0,
         });
+
+        this.overlay = new ViewerOverlay(this.viewer);
 
         this.viewer.addHandler('zoom', (event) => {
+          this.overlay.updateZoomLevel(event.zoom);
           this.$emit('zoom', event.zoom);
         });
-
-        // console.log(this.viewer.viewport.getBounds());
       }
     },
     goToPage(page) {
@@ -93,10 +77,7 @@ export default {
     getPageData() {
       services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
         this.pagedata = res;
-        this.viewer.addOnceHandler('open', () => {
-          this.overlay.init(this.viewer);
-          this.overlay.update(res);
-        });
+        this.overlay.update(res);
       });
     },
   },
@@ -147,19 +128,19 @@ export default {
 #os-viewer {
     flex: 1;
     height: 100%;
+
     .openseadragon-canvas {
         outline: none;
     }
+
     #overlay-left {
-        // outline: 1px solid red;
+      font-size: 3em;
+
         color: gray;
         text-align: right;
-        width: 200px;
-        margin-left: -200px;
         text-decoration: none;
-
+        padding-top: 15px;
         .entity {
-
             border-right: 5px solid transparent;
             padding-top: 5px;
             padding-bottom: 5px;
@@ -167,43 +148,30 @@ export default {
             &:hover {
                 border-color: teal;
             }
+
+            .title {
+                font-weight: bold;
+            }
         }
+
         h3 {
+            font-weight: bold;
             padding-right: 15px;
             border-bottom: 1px solid lightgray;
             padding-bottom: 0.5rem;
             font-style: italic;
-            font-size: 100%;
+            font-size: 1.3em;
         }
-        .entity-title {
-            font-weight: bold;
-        }
-        .entity-description {}
     }
 
-    #overlay-right {
-        background-color: green;
-        color: white;
-        width: 200px;
-        min-height: 100px;
-    }
-    .highlight {
-        background: #ffeb3b;
-        mix-blend-mode: multiply;
-    }
     .region {
-        background: #ffeb3b;
-        mix-blend-mode: multiply;
-        position: absolute;
-        width: 10px;
-        height: 10px;
-    }
 
-    #image-ruler {
-        background-color: red;
-        color: white;
-        width: 50px;
-        height: 500px;
+        border:6px solid @clr-teal-400;
+        mix-blend-mode: multiply;
+        transition: background 200ms;
+        &:hover{
+            background: fade(@clr-yellow, 50);
+        }
     }
 
 }
