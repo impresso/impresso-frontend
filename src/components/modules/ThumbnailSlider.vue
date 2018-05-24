@@ -128,7 +128,10 @@ export default {
                 padding-top: 0.2em;
                 border: 1px solid @clr-grey-300;
                 z-index: 1000;
+                // border-right-color: transparent !important;
+                // border-bottom-color: transparent !important;
             }
+
             .mini_viewer {
                 background: white;
                 border: 1px solid @clr-grey-300;
@@ -146,6 +149,7 @@ export default {
                     color: white;
                 }
             }
+
         }
     }
 }

@@ -41,7 +41,7 @@
 
 <script>
 import OpenSeadragon from 'openseadragon';
-import ViewerOverlay from '../../d3-modules/ViewerOverlay';
+
 import * as services from '../../services';
 import ThumbnailSlider from '../modules/ThumbnailSlider';
 
@@ -56,6 +56,9 @@ export default {
     page_number: {
       default: 0,
     },
+    page_length: {
+      default: 0,
+    },
     minZoomLevel: {
       default: 0.25,
     },
@@ -68,8 +71,6 @@ export default {
   },
   data: () => ({
     viewer: false,
-    overlay: null,
-    page_length: 0,
     pagedata: {},
   }),
   methods: {
@@ -94,12 +95,10 @@ export default {
           visibilityRatio: 0.1,
         });
 
-        this.overlay = new ViewerOverlay(this.viewer);
-
         this.viewer.addHandler('zoom', (event) => {
-          this.overlay.updateZoomLevel(event.zoom);
           this.$emit('zoom', event.zoom);
         });
+        this.page_length = this.issue.pages.length;
       }
     },
     goToPage(page) {
@@ -110,7 +109,6 @@ export default {
     getPageData() {
       services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
         this.pagedata = res;
-        this.overlay.update(res);
       });
     },
   },
@@ -119,7 +117,6 @@ export default {
       handler() {
         this.init();
         this.getPageData();
-        this.page_length = this.issue.pages.length;
       },
     },
     page_number: {
@@ -253,6 +250,7 @@ export default {
         outline: none;
     }
 
+<<<<<<< HEAD
     #overlay-left {
         font-size: 3em;
 
@@ -290,7 +288,10 @@ export default {
         &:hover {
             background: fade(@clr-yellow, 50);
         }
+=======
+    .highlights rect {
+        fill: green;
+>>>>>>> parent of 03d0eb5... Merge branch 'develop' into feature/issuepage_userdata
     }
-
 }
 </style>
