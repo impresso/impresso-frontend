@@ -41,7 +41,7 @@
 
 <script>
 import OpenSeadragon from 'openseadragon';
-
+import ViewerOverlay from '../../d3-modules/ViewerOverlay';
 import * as services from '../../services';
 import ThumbnailSlider from '../modules/ThumbnailSlider';
 
@@ -71,6 +71,7 @@ export default {
   },
   data: () => ({
     viewer: false,
+    overlay: null,
     pagedata: {},
   }),
   methods: {
@@ -87,10 +88,13 @@ export default {
           maxZoomLevel: this.maxZoomLevel,
           defaultZoomLevel: this.zoomLevel,
           tileSources: this.issue.pages.map(elm => elm.iiif),
-          animationTime: 0.1,
+          animationTime: 0,
         });
 
+        this.overlay = new ViewerOverlay(this.viewer);
+
         this.viewer.addHandler('zoom', (event) => {
+          this.overlay.updateZoomLevel(event.zoom);
           this.$emit('zoom', event.zoom);
         });
         this.page_length = this.issue.pages.length;
@@ -104,6 +108,7 @@ export default {
     getPageData() {
       services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
         this.pagedata = res;
+        this.overlay.update(res);
       });
     },
   },
@@ -245,8 +250,46 @@ export default {
         outline: none;
     }
 
-    .highlights rect {
-        fill: green;
+    #overlay-left {
+        font-size: 3em;
+
+        color: gray;
+        text-align: right;
+        text-decoration: none;
+        padding-top: 15px;
+        .entity {
+            border-right: 5px solid transparent;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 10px;
+            &:hover {
+                border-color: teal;
+            }
+
+            .title {
+                font-weight: bold;
+            }
+        }
+
+        h3 {
+            font-weight: bold;
+            padding-right: 15px;
+            border-bottom: 1px solid lightgray;
+            padding-bottom: 0.5rem;
+            font-style: italic;
+            font-size: 1.3em;
+        }
     }
+
+    .region {
+
+        border: 6px solid @clr-teal-400;
+        mix-blend-mode: multiply;
+        transition: background 200ms;
+        &:hover {
+            background: fade(@clr-yellow, 50);
+        }
+    }
+
 }
 </style>
