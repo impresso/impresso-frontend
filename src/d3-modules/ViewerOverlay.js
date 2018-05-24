@@ -11,8 +11,10 @@ class ViewerOverlay {
     this.data = {};
     this.zoom = 1;
     this.overlayLeft = null; // d3 selection
+    this.overlayRight = null; // d3 selection
     this.overlayRegions = null; // d3 selection
     this.overlayLeftWidth = 600; // int in pixels
+    this.overlayRightWidth = 200; // int in pixels
   }
 
   updateZoomLevel(zoom) {
@@ -47,31 +49,72 @@ class ViewerOverlay {
     });
 
     this.overlayLeft = d3.select(overlayLeft)
-      .append('div')
-      .style('width', `${this.overlayLeftWidth}px`)
-      .style('transform-origin', 'top left');
+        .append('div')
+        .style('width', `${this.overlayLeftWidth}px`)
+        .style('transform-origin', 'top left');
 
     const entities = this.overlayLeft.append('div')
-      .classed('entities', 1)
-      .style('transform', `translateX(-${this.overlayLeftWidth}px)`);
+        .classed('entities', 1)
+        .style('transform', `translateX(-${this.overlayLeftWidth}px)`);
 
     entities.html('<h3>relevant entities<br>on current page</h3>');
 
     const entity = entities.selectAll('div.entity')
-      .data(this.data.entities)
-      .enter()
-      .append('div')
-      .classed('entity', 1);
+        .data(this.data.entities)
+        .enter()
+        .append('div')
+        .classed('entity', 1);
 
     entity.append('div')
-      .attr('class', 'title')
-      .html(d => d.name);
+        .attr('class', 'title')
+        .html(d => d.name);
 
     entity.append('div')
-      .attr('class', 'description')
-      .html(d => `${d.labels} (df:${d.df})`);
+        .attr('class', 'description')
+        .html(d => `${d.labels} (df:${d.df})`);
   }
 
+  //
+  // tag overlay
+  //
+  updateOverlayRight() {
+    const overlayRight = document.createElement('div');
+    overlayRight.setAttribute('id', 'overlay-right');
+
+    this.viewer.addOverlay({
+      x: 1,
+      y: 0,
+      element: overlayRight,
+    });
+
+    this.overlayRight = d3.select(overlayRight)
+          .append('div')
+          .style('width', `${this.overlayRightWidth}px`)
+          .style('transform-origin', 'top right');
+
+    const entities = this.overlayRight.append('div')
+          .classed('entities', 1);
+
+    entities.html('<h3>relevant tags<br>on current page</h3>');
+
+    const entity = entities.selectAll('div.entity')
+          .data(this.data.tags)
+          .enter()
+          .append('div')
+          .classed('entity', 1);
+
+    entity.append('div')
+          .attr('class', 'title')
+          .html(d => d.name);
+
+    entity.append('div')
+          .attr('class', 'description')
+          .html(d => `${d.description}`);
+  }
+
+  //
+  // article regions
+  //
   updateOverlayRegions() {
     const overlayRegions = document.createElement('div');
     overlayRegions.setAttribute('id', 'overlay-regions');
@@ -102,8 +145,8 @@ class ViewerOverlay {
       .append('div')
       .classed('region', true)
       .style('position', 'absolute')
-      .style('top', d => `${d[0]}px`)
-      .style('left', d => `${d[1]}px`)
+      .style('left', d => `${d[0]}px`)
+      .style('top', d => `${d[1]}px`)
       .style('width', d => `${d[2]}px`)
       .style('height', d => `${d[3]}px`);
   }
@@ -111,6 +154,7 @@ class ViewerOverlay {
   update(data) {
     this.data = data;
     this.updateOverlayLeft();
+    this.updateOverlayRight();
     this.updateOverlayRegions();
 
     this.scaleOverlays();
