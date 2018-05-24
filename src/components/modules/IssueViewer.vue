@@ -56,9 +56,6 @@ export default {
     page_number: {
       default: 0,
     },
-    page_length: {
-      default: 0,
-    },
     minZoomLevel: {
       default: 0.25,
     },
@@ -72,6 +69,7 @@ export default {
   data: () => ({
     viewer: false,
     pagedata: {},
+    page_length: 0,
   }),
   methods: {
     init() {
@@ -98,7 +96,6 @@ export default {
         this.viewer.addHandler('zoom', (event) => {
           this.$emit('zoom', event.zoom);
         });
-        this.page_length = this.issue.pages.length;
       }
     },
     goToPage(page) {
@@ -117,6 +114,7 @@ export default {
       handler() {
         this.init();
         this.getPageData();
+        this.page_length = this.issue.pages.length;
       },
     },
     page_number: {
