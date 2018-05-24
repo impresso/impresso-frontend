@@ -289,7 +289,7 @@ export default {
 
     .region {
 
-        border: 6px solid @clr-teal-400;
+        border: 1px solid @clr-teal-400;
         mix-blend-mode: multiply;
         transition: background 200ms;
         &:hover {
