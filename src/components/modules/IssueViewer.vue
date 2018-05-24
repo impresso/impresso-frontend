@@ -22,11 +22,11 @@
           </div>
         </div>
           <div class="pagination">
-            <a v-on:click="goToPage(page_number - 1)" href="#" class="left">
+            <a v-on:click.prevent="goToPage(page_number - 1)" href="#" class="left">
               <span class="arrow-left icon"></span>
             </a>
               <strong>{{page_number + 1}}</strong> / <strong>{{page_length}}</strong>
-              <a v-on:click="goToPage(page_number + 1)" href="#" class="right">
+              <a v-on:click.prevent="goToPage(page_number + 1)" href="#" class="right">
                 <span class="arrow-right icon"></span>
               </a>
           </div>
@@ -36,12 +36,13 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script>
 import OpenSeadragon from 'openseadragon';
-
+import ViewerOverlay from '../../d3-modules/ViewerOverlay';
 import * as services from '../../services';
 import ThumbnailSlider from '../modules/ThumbnailSlider';
 
@@ -68,6 +69,7 @@ export default {
   },
   data: () => ({
     viewer: false,
+    overlay: null,
     pagedata: {},
     page_length: 0,
   }),
@@ -93,7 +95,10 @@ export default {
           visibilityRatio: 0.1,
         });
 
+        this.overlay = new ViewerOverlay(this.viewer);
+
         this.viewer.addHandler('zoom', (event) => {
+          this.overlay.updateZoomLevel(event.zoom);
           this.$emit('zoom', event.zoom);
         });
       }
@@ -106,6 +111,7 @@ export default {
     getPageData() {
       services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
         this.pagedata = res;
+        this.overlay.update(res);
       });
     },
   },
@@ -145,12 +151,14 @@ export default {
     display: flex;
     height: 100%;
     background: @clr-grey-200;
+
     .strip {
         background: fade(@clr-grey-200, 90);
         width: 120px;
         height: 100%;
         position: relative;
     }
+
 }
 
 #os-viewer {
@@ -171,6 +179,7 @@ export default {
         justify-content: flex-end;
         font-size: 0.80em;
         border-bottom: 0.05em solid @clr-grey-400;
+
         .articleMeta {
             opacity: 0.6;
             margin-top: 0.4em;
@@ -179,8 +188,9 @@ export default {
                 font-weight: bold;
             }
         }
+
         .pagination {
-            width: 50%;
+            width: 40%;
             text-align: center;
             display: block;
 
@@ -213,19 +223,18 @@ export default {
             }
         }
 
-        // &:hover {
-        //     background: fade(@clr-grey-200, 90);
-        // }
         .page-tags {
-            width: 15%;
+            flex: 1;
             color: @clr-grey-800;
             font-style: italic;
         }
+
         .ocr-qt {
-            width: 25%;
+            width: 30%;
             color: @clr-grey-800;
             font-style: italic;
             text-align: right;
+            margin-right: 15px;
             span.qt {
                 display: inline;
                 line-height: 1em;
@@ -250,7 +259,6 @@ export default {
 
     #overlay-left {
         font-size: 3em;
-
         color: gray;
         text-align: right;
         text-decoration: none;
@@ -259,19 +267,21 @@ export default {
             border-right: 5px solid transparent;
             padding-top: 5px;
             padding-bottom: 5px;
-            padding-right: 10px;
+            padding-right: 50px;
             &:hover {
                 border-color: teal;
             }
+
             .title {
                 font-weight: bold;
             }
         }
+
         h3 {
             font-weight: bold;
-            padding-right: 15px;
             border-bottom: 1px solid lightgray;
             padding-bottom: 0.5rem;
+            padding-right: 50px;
             font-style: italic;
             font-size: 1.3em;
         }
@@ -286,5 +296,6 @@ export default {
             background: fade(@clr-yellow, 50);
         }
     }
+
 }
 </style>
