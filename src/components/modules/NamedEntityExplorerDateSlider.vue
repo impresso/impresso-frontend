@@ -163,6 +163,7 @@ export default {
       this.app.startDate = d3.timeMonth.offset(this.app.date, -this.monthOffset);
       this.app.endDate = d3.timeMonth.offset(this.app.date, this.monthOffset);
       // updates dates (e.g; whenever the edge dates change)
+      console.log('initialize', this.issue.date, this.app.date, this.app.startDate, this.app.endDate);
 
       this.updateTimeBoundaries();
       this.setIntervalWidth();
@@ -174,7 +175,8 @@ export default {
       this.setIntervalWidth();
     },
     issue: {
-      handler() {
+      handler(val) {
+        console.log('VALUE', val);
         this.initialize();
       },
     },
