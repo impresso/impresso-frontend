@@ -250,7 +250,6 @@ export default {
         outline: none;
     }
 
-<<<<<<< HEAD
     #overlay-left {
         font-size: 3em;
 
@@ -288,10 +287,6 @@ export default {
         &:hover {
             background: fade(@clr-yellow, 50);
         }
-=======
-    .highlights rect {
-        fill: green;
->>>>>>> parent of 03d0eb5... Merge branch 'develop' into feature/issuepage_userdata
     }
 }
 </style>
