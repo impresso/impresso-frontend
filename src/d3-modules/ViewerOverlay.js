@@ -21,7 +21,11 @@ class ViewerOverlay {
   }
 
   scaleOverlays() {
-    const zoom = this.viewer.viewport.viewportToImageZoom(this.zoom);
+    let zoom = this.zoom;
+
+    if (this.viewer.world.getItemAt(0)) {
+      zoom = this.viewer.world.getItemAt(0).viewportToImageZoom(this.zoom);
+    }
 
     if (this.overlayLeft) {
       this.overlayLeft.style('transform', `scale(${zoom})`);
