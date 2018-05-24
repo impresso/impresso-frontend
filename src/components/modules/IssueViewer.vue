@@ -25,7 +25,7 @@
             <a v-on:click="goToPage(page_number - 1)" href="#" class="left">
               <span class="arrow-left icon"></span>
             </a>
-              <strong>{{page_number + 1}}</strong> / <strong>125</strong>
+              <strong>{{page_number + 1}}</strong> / <strong>{{page_length}}</strong>
               <a v-on:click="goToPage(page_number + 1)" href="#" class="right">
                 <span class="arrow-right icon"></span>
               </a>
@@ -54,6 +54,9 @@ export default {
       default: false,
     },
     page_number: {
+      default: 0,
+    },
+    page_length: {
       default: 0,
     },
     minZoomLevel: {
@@ -90,6 +93,7 @@ export default {
         this.viewer.addHandler('zoom', (event) => {
           this.$emit('zoom', event.zoom);
         });
+        this.page_length = this.issue.pages.length;
       }
     },
     goToPage(page) {
