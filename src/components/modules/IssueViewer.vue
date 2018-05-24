@@ -250,6 +250,7 @@ export default {
 
     #overlay-left {
         font-size: 3em;
+
         color: gray;
         text-align: right;
         text-decoration: none;
