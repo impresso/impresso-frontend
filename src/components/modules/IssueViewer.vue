@@ -61,6 +61,11 @@ export default {
           defaultZoomLevel: this.zoomLevel,
           tileSources: this.issue.pages.map(elm => elm.iiif),
           animationTime: 0,
+          gestureSettingsMouse: {
+            clickToZoom: false,
+            dblClickToZoom: true,
+          },
+          visibilityRatio: 0.1,
         });
 
         this.overlay = new ViewerOverlay(this.viewer);
