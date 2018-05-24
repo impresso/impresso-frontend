@@ -132,6 +132,7 @@ export default {
     .userdata {
         width: @width_sidebar_userdata_contracted;
         display: flex;
+        transition: all 200ms ease-in;
         .data {
             flex: 1;
         }
@@ -139,7 +140,6 @@ export default {
         &.active {
             width: 300px;
             background: @clr-white;
-            transition: background-color 200ms;
         }
 
         .controls {
