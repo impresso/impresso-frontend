@@ -42,9 +42,11 @@
 
 <script>
 import OpenSeadragon from 'openseadragon';
-import ViewerOverlay from '../../d3-modules/ViewerOverlay';
-import * as services from '../../services';
-import ThumbnailSlider from '../modules/ThumbnailSlider';
+
+import ViewerOverlay from '@/d3-modules/ViewerOverlay';
+import * as services from '@/services';
+
+import ThumbnailSlider from './ThumbnailSlider';
 
 export default {
   model: {

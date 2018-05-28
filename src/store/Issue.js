@@ -1,4 +1,4 @@
-import Issue from '@/modules/Issue';
+import Issue from '@/models/Issue';
 
 export default {
   namespaced: true,

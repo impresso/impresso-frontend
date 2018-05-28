@@ -1,5 +1,5 @@
-import * as services from '../services';
-import User from '../modules/User';
+import * as services from '@/services';
+import User from '@/models/User';
 
 export default {
   namespaced: true,

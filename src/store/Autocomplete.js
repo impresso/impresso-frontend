@@ -1,8 +1,8 @@
-import SearchResult from '../modules/AutocompleteSearchResult';
-import NamedEntityFilter from '../modules/filters/NamedEntity';
-import StringFilter from '../modules/filters/String';
+import SearchResult from '@/models/AutocompleteSearchResult';
+import NamedEntityFilter from '@/models/filters/NamedEntity';
+import StringFilter from '@/models/filters/String';
 
-import * as services from '../services';
+import * as services from '@/services';
 
 export default {
   namespaced: true,

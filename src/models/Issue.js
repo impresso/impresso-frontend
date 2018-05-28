@@ -1,4 +1,4 @@
-import Newspaper from '@/modules/Newspaper';
+import Newspaper from '@/models/Newspaper';
 
 /**
  * @class Issue is an object representing a newspaper issue
