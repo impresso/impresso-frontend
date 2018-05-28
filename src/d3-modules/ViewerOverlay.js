@@ -32,7 +32,12 @@ class ViewerOverlay {
     }
 
     if (this.overlayRegions) {
-      this.overlayRegions.style('transform', `scale(${zoom})`);
+      this.overlayRegions.regions
+      // .style('transform', `scale(${zoom})`)
+      .style('top', d => `${d[0] * zoom}px`)
+      .style('left', d => `${d[1] * zoom}px`)
+      .style('width', d => `${d[2] * zoom}px`)
+      .style('height', d => `${d[3] * zoom}px`);
     }
   }
 
@@ -84,7 +89,7 @@ class ViewerOverlay {
       .append('div')
       .style('transform-origin', 'top left');
 
-    this.overlayRegions.selectAll('div.regions')
+    this.overlayRegions.regions = this.overlayRegions.selectAll('div.regions')
       .data(this.data.regions.map((d) => {
         if (d.regions) {
           d.regions = chunk(d.regions);
@@ -101,11 +106,7 @@ class ViewerOverlay {
       .enter()
       .append('div')
       .classed('region', true)
-      .style('position', 'absolute')
-      .style('top', d => `${d[0]}px`)
-      .style('left', d => `${d[1]}px`)
-      .style('width', d => `${d[2]}px`)
-      .style('height', d => `${d[3]}px`);
+      .style('position', 'absolute');
   }
 
   update(data) {
