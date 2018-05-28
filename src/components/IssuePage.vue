@@ -36,11 +36,11 @@
 </template>
 
 <script>
+import * as services from '@/services';
+
 import NamedEntityExplorer from './modules/NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
 import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
-
-import * as services from '../services';
 
 export default {
   data: () => ({

@@ -1,10 +1,12 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
+
 import settings from './Settings';
 import user from './User';
 import search from './Search';
 import autocomplete from './Autocomplete';
+import issue from './Issue';
 
 Vue.use(Vuex);
 
@@ -17,6 +19,7 @@ export default new Vuex.Store({
     search,
     autocomplete,
     user,
+    issue,
   },
   state: {
     processing_status: false,

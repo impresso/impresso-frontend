@@ -1,4 +1,4 @@
-import * as services from '../services';
+import * as services from '@/services';
 
 const uuid = require('uuid');
 
