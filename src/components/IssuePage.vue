@@ -36,8 +36,6 @@
 </template>
 
 <script>
-import * as services from '@/services';
-
 import NamedEntityExplorer from './modules/NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
 import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
@@ -45,26 +43,19 @@ import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
 export default {
   data: () => ({
     page_number: 0,
-    issue: {
-      date: '',
-      newspaper: {
-        name: '',
-      },
-    },
     zoomLevel: 0.5,
     minZoomLevel: 0.25,
     maxZoomLevel: 4,
   }),
   computed: {
-    userDataActive: {
-      get() {
-        return this.$store.state.settings.sidebar_userdata_expanded;
-      },
+    userDataActive() {
+      return this.$store.state.settings.sidebar_userdata_expanded;
     },
-    domain: {
-      get() {
-        return [this.minZoomLevel, this.maxZoomLevel];
-      },
+    domain() {
+      return [this.minZoomLevel, this.maxZoomLevel];
+    },
+    issue() {
+      return this.$store.state.issue.issue;
     },
   },
   components: {
@@ -94,9 +85,7 @@ export default {
       this.page_number = parseInt(this.$route.params.page_number, 10) - 1;
     }
 
-    services.issues.get(issueUID, {}).then((response) => {
-      this.issue = response;
-    });
+    this.$store.dispatch('issue/LOAD_ISSUE', issueUID);
   },
 };
 </script>
@@ -107,7 +96,7 @@ export default {
 @width_sidebar_userdata_contracted: 52px;
 
 #IssuePage {
-  background: @clr-grey-200;
+    background: @clr-grey-200;
 
     display: flex;
     position: absolute;
