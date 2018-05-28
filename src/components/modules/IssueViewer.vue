@@ -286,6 +286,32 @@ export default {
             font-size: 1.3em;
         }
     }
+    #overlay-right {
+        font-size: 0.8em;
+        color: gray;
+        text-align: left;
+        text-decoration: none;
+        padding-top: 15px;
+        .entity {
+            border-left: 5px solid transparent;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 10px;
+            &:hover {
+                border-color: teal;
+            }
+            .title {
+                font-weight: bold;
+            }
+        }
+        h3 {
+            border-bottom: 1px solid lightgray;
+            padding-bottom: 0.5rem;
+            padding-left: 10px;
+            font-style: italic;
+            font-size: 1em;
+        }
+    }
 
     .region {
 
