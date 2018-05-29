@@ -57,7 +57,7 @@ export default {
       default: false,
     },
     page_number: {
-      default: 0,
+      default: 1,
     },
     minZoomLevel: {
       default: 0.25,
@@ -80,11 +80,11 @@ export default {
       if (!this.viewer) {
         this.viewer = OpenSeadragon({
           // debugMode: true,
-          sequenceMode: false,
+          sequenceMode: true,
           id: 'os-viewer',
           showNavigationControl: false,
           showSequenceControl: false,
-          initialPage: this.page_number,
+          initialPage: 0,
           minZoomLevel: this.minZoomLevel,
           maxZoomLevel: this.maxZoomLevel,
           defaultZoomLevel: this.zoomLevel,
@@ -106,12 +106,15 @@ export default {
       }
     },
     goToPage(page) {
-      if (page >= 0 && page < this.issue.pages.length) {
-        this.$emit('click', page);
-      }
+      this.$emit('click', page);
+      //  if (page >= 0 && page < this.issue.pages.length) {
+      //   this.$emit('click', page);
+      // }
     },
     getPageData() {
-      services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
+      const index = this.issue.pages.findIndex(page => page.num === this.page_number);
+      const uid = this.issue.pages[index].uid;
+      services.pages.get(uid, {}).then((res) => {
         this.pagedata = res;
         this.overlay.update(res);
       });
@@ -127,8 +130,9 @@ export default {
     },
     page_number: {
       handler(page) {
+        const index = this.issue.pages.findIndex(p => p.num === page);
         if (this.viewer) {
-          this.viewer.goToPage(page);
+          this.viewer.goToPage(index);
           this.getPageData();
         }
       },

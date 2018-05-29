@@ -1,4 +1,6 @@
-import Newspaper from '@/models/Newspaper';
+import Newspaper from './Newspaper';
+import Entity from './Entity';
+import Page from './Page';
 
 /**
  * @class Issue is an object representing a newspaper issue
@@ -14,7 +16,7 @@ import Newspaper from '@/models/Newspaper';
 export default function Issue({
   countArticles = 0,
   countPages = 0,
-  date = '',
+  date = 0,
   entities = [],
   newspaper = new Newspaper(),
   pages = [],
@@ -23,10 +25,54 @@ export default function Issue({
 } = {}) {
   this.countArticles = countArticles;
   this.countPages = countPages;
-  this.date = date;
-  this.entities = entities;
-  this.newspaper = newspaper;
-  this.pages = pages;
-  this.uid = uid;
-  this.year = year;
+
+  if (date instanceof Date) {
+    this.date = date;
+  } else {
+    this.date = new Date(date);
+  }
+
+  this.entities = entities.map((entity) => {
+    if (entity instanceof Entity) {
+      return entity;
+    }
+
+    return new Entity({
+      df: entity.df,
+      labels: entity.labels,
+      name: entity.name,
+      uid: entity.uid,
+    });
+  });
+
+  if (newspaper instanceof Newspaper) {
+    this.newspaper = newspaper;
+  } else {
+    this.newspaper = new Newspaper({
+      acronym: newspaper.acronym,
+      countArticles: newspaper.count_articles,
+      countIssues: newspaper.count_issues,
+      countPages: newspaper.count_pages,
+      deltaYear: newspaper.delta_year,
+      endYear: newspaper.end_year,
+      name: newspaper.name,
+      startYear: newspaper.start_year,
+      uid: newspaper.uid,
+    });
+  }
+
+  this.pages = pages.map((page) => {
+    if (page instanceof Page) {
+      return page;
+    }
+
+    return new Page({
+      iiif: page.iiif,
+      labels: page.labels,
+      num: page.num,
+      uid: page.uid,
+    });
+  });
+  this.uid = String(uid);
+  this.year = parseInt(year, 10);
 }
