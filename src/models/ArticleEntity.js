@@ -14,17 +14,12 @@ export default function ArticleEntity({
   type = '',
 } = {}) {
   this.articleUid = String(articleUid);
-
   this.entityUid = String(entityUid);
 
   if (properties instanceof ArticleEntityProperties) {
     this.properties = properties;
   } else {
-    this.properties = new ArticleEntityProperties({
-      ntf: properties.ntf,
-      splitpoints: properties.splitpoints,
-      tf: properties.tf,
-    });
+    this.properties = new ArticleEntityProperties(properties);
   }
 
   this.type = String(type);

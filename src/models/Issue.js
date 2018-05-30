@@ -32,28 +32,13 @@ export default function Issue({
       return entity;
     }
 
-    return new Entity({
-      df: entity.df,
-      labels: entity.labels,
-      name: entity.name,
-      uid: entity.uid,
-    });
+    return new Entity(entity);
   });
 
   if (newspaper instanceof Newspaper) {
     this.newspaper = newspaper;
   } else {
-    this.newspaper = new Newspaper({
-      acronym: newspaper.acronym,
-      countArticles: newspaper.count_articles,
-      countIssues: newspaper.count_issues,
-      countPages: newspaper.count_pages,
-      deltaYear: newspaper.delta_year,
-      endYear: newspaper.end_year,
-      name: newspaper.name,
-      startYear: newspaper.start_year,
-      uid: newspaper.uid,
-    });
+    this.newspaper = new Newspaper(newspaper);
   }
 
   this.pages = pages.map((page) => {
@@ -61,13 +46,9 @@ export default function Issue({
       return page;
     }
 
-    return new Page({
-      iiif: page.iiif,
-      labels: page.labels,
-      num: page.num,
-      uid: page.uid,
-    });
+    return new Page(page);
   });
+
   this.uid = String(uid);
   this.year = parseInt(year, 10);
 }

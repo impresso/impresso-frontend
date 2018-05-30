@@ -19,13 +19,7 @@ export default function ArticleTag({
   if (properties instanceof ArticleTagProperties) {
     this.properties = properties;
   } else {
-    this.properties = new ArticleTagProperties({
-      creationDate: properties.creation_date,
-      creationTime: properties.creation_time,
-      creator: properties.creator,
-      lastModifiedDate: properties.last_modified_date,
-      lastModifiedTime: properties.last_modified_time,
-    });
+    this.properties = new ArticleTagProperties(properties);
   }
 
   this.type = String(type);

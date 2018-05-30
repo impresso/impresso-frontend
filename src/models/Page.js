@@ -29,52 +29,57 @@ export default function Page({
   tags = [],
   uid = '',
 } = {}) {
-  this.articles = articles.map(article => new Article({
-    uid: article.uid,
-    date: article.date,
-    labels: article.labels,
-    newspaperUid: article.newspaper_uid,
-  }));
+  this.articles = articles.map((article) => {
+    if (article instanceof Article) {
+      return article;
+    }
 
-  this.articlesEntities = articlesEntities.map(articleEntity => new ArticleEntity({
-    articleUid: articleEntity.article_uid,
-    entityUid: articleEntity.entity_uid,
-    properties: articleEntity.properties,
-    type: articleEntity.type,
-  }));
+    return new Article(article);
+  });
 
-  this.articlesTags = articlesTags.map(articleTag => new ArticleTag({
-    articleUid: articleTag.article_uid,
-    tagUid: articleTag.tag_uid,
-    properties: articleTag.properties,
-    type: articleTag.type,
-  }));
+  this.articlesEntities = articlesEntities.map((articleEntity) => {
+    if (articleEntity instanceof ArticleEntity) {
+      return articleEntity;
+    }
 
-  this.entities = entities.map(entity => new Entity({
-    df: entity.df,
-    labels: entity.labels,
-    name: entity.name,
-    uid: entity.uid,
-  }));
+    return new ArticleEntity(articleEntity);
+  });
+
+  this.articlesTags = articlesTags.map((articleTag) => {
+    if (articleTag instanceof ArticleTag) {
+      return articleTag;
+    }
+
+    return new ArticleTag(articleTag);
+  });
+
+  this.entities = entities.map((entity) => {
+    if (entity instanceof Entity) {
+      return entity;
+    }
+
+    return new Entity(entity);
+  });
 
   this.iiif = String(iiif);
-
   this.labels = labels.map(label => String(label));
-
   this.num = parseInt(num, 10);
 
-  this.regions = regions.map(region => new Region({
-    articleUid: region.article_uid,
-    regions: region.regions,
-  }));
+  this.regions = regions.map((region) => {
+    if (region instanceof Region) {
+      return region;
+    }
 
-  this.tags = tags.map(tag => new Tag({
-    appliesTo: tag.appliesTo,
-    description: tag.description,
-    labels: tag.labels,
-    name: tag.name,
-    uid: tag.uid,
-  }));
+    return new Region(region);
+  });
+
+  this.tags = tags.map((tag) => {
+    if (tag instanceof Tag) {
+      return tag;
+    }
+
+    return new Tag(tag);
+  });
 
   this.uid = String(uid);
 }
