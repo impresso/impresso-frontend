@@ -11,7 +11,7 @@ export default function ArticleEntityProperties({
   splitpoints = [],
   tf = 0,
 } = {}) {
-  this.ntf = ntf;
-  this.splitpoints = splitpoints;
-  this.tf = tf;
+  this.ntf = parseFloat(ntf);
+  this.splitpoints = splitpoints.map(splitpoint => parseInt(splitpoint, 10));
+  this.tf = parseInt(tf, 10);
 }

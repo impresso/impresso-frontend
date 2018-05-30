@@ -3,7 +3,7 @@ import ArticleEntityProperties from './ArticleEntityProperties';
  * @class ArticleEntity is an object representing a link between an Article and Entity
  * @param {String} articleUid UID of the Article
  * @param {String} entityUid UID of the Entity
- * @param {ArticleEntityProperties} properties ArticleEntityProperties object
+ * @param {Array} properties ArticleEntityProperties object
  * @param {String} type String describing the type of link
 
  */
@@ -13,8 +13,19 @@ export default function ArticleEntity({
   properties = new ArticleEntityProperties(),
   type = '',
 } = {}) {
-  this.articleUid = articleUid;
-  this.entityUid = entityUid;
-  this.properties = properties;
-  this.type = type;
+  this.articleUid = String(articleUid);
+
+  this.entityUid = String(entityUid);
+
+  if (properties instanceof ArticleEntityProperties) {
+    this.properties = properties;
+  } else {
+    this.properties = new ArticleEntityProperties({
+      ntf: properties.ntf,
+      splitpoints: properties.splitpoints,
+      tf: properties.tf,
+    });
+  }
+
+  this.type = String(type);
 }

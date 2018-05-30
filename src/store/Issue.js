@@ -20,12 +20,32 @@ export default {
   actions: {
     LOAD_ISSUE(context, uid) {
       services.issues.get(uid, {}).then((response) => {
-        context.commit('UPDATE_ISSUE', response);
+        context.commit('UPDATE_ISSUE', {
+          countArticles: response.count_articles,
+          countPages: response.count_pages,
+          date: response.date,
+          entities: response.entities,
+          newspaper: response.newspaper,
+          pages: response.pages,
+          uid: response.uid,
+          year: response.year,
+        });
       });
     },
     LOAD_PAGE(context, page) {
-      services.pages.get(page.uid, {}).then((res) => {
-        context.commit('UPDATE_PAGE', res);
+      services.pages.get(page.uid, {}).then((response) => {
+        context.commit('UPDATE_PAGE', {
+          articles: response.articles,
+          articlesEntities: response.articles_entities,
+          articlesTags: response.articles_tags,
+          entities: response.entities,
+          iiif: response.iiif,
+          labels: response.labels,
+          num: response.num,
+          regions: response.regions,
+          tags: response.tags,
+          uid: response.uid,
+        });
       });
     },
   },

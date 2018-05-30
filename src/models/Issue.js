@@ -6,7 +6,7 @@ import Page from './Page';
  * @class Issue is an object representing a newspaper issue
  * @param {Integer} countArticles Amount of articles in the issue
  * @param {Integer} countPages Amount of pages in the issue
- * @param {Date} date Date of the issue as yyyy-mm-dd
+ * @param {Date} date Date of the issue
  * @param {Array} entities Array of Entity objects
  * @param {Newspaper} newspaper Newspaper object
  * @param {Array} pages Array of Page objects
@@ -16,7 +16,7 @@ import Page from './Page';
 export default function Issue({
   countArticles = 0,
   countPages = 0,
-  date = 0,
+  date = new Date(),
   entities = [],
   newspaper = new Newspaper(),
   pages = [],
@@ -25,12 +25,7 @@ export default function Issue({
 } = {}) {
   this.countArticles = countArticles;
   this.countPages = countPages;
-
-  if (date instanceof Date) {
-    this.date = date;
-  } else {
-    this.date = new Date(date);
-  }
+  this.date = new Date(date);
 
   this.entities = entities.map((entity) => {
     if (entity instanceof Entity) {
