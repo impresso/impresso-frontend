@@ -1,7 +1,7 @@
 /**
  * @class Article is an object representing a newspaper article
  * @param {String} articleUid Unique identifier for the article
- * @param {Array} regions
+ * @param {Array} regions Array of region objects
  */
 
 function chunk(arr, len = 4) {

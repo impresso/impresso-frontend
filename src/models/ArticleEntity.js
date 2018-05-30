@@ -3,7 +3,7 @@ import ArticleEntityProperties from './ArticleEntityProperties';
  * @class ArticleEntity is an object representing a link between an Article and Entity
  * @param {String} articleUid UID of the Article
  * @param {String} entityUid UID of the Entity
- * @param {Array} properties ArticleEntityProperties object
+ * @param {ArticleEntityProperties} properties ArticleEntityProperties object
  * @param {String} type String describing the type of link
 
  */
