@@ -2,13 +2,13 @@
   <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
     <div class="tiles">
       <div class="tile"
-        v-for="(page, index) in issue.pages"
-        v-on:click="onClickPage(index)">
-        <div class="mini_viewer" v-bind:class="{selected: page_number === index}">
+        v-for="page in issue.pages"
+        v-on:click="onClickPage(page)">
+        <div class="mini_viewer" v-bind:class="{selected: page_number === page.num}">
           <thumbnail-slider-item
             v-bind:tileSources="page.iiif"
             v-bind:bounds="bounds"
-            v-bind:active="page_number === index"
+            v-bind:active="page_number === page.num"
             v-on:mounted="onMountedTile"
             ></thumbnail-slider-item>
         </div>

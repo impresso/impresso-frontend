@@ -11,8 +11,8 @@ export default function Entity({
   name = '',
   uid = '',
 } = {}) {
-  this.df = df;
-  this.labels = labels;
-  this.name = name;
-  this.uid = uid;
+  this.df = parseInt(df, 10);
+  this.labels = labels.map(label => String(label));
+  this.name = String(name);
+  this.uid = String(uid);
 }

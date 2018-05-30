@@ -42,7 +42,7 @@ import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
 
 export default {
   data: () => ({
-    page_number: 0,
+    page_number: 1,
     zoomLevel: 0.5,
     minZoomLevel: 0.25,
     maxZoomLevel: 4,
@@ -68,7 +68,8 @@ export default {
       this.$store.commit('settings/TOGGLE_USERDATA_EXPANDED');
     },
     onClickPage(page) {
-      this.page_number = page;
+      this.page_number = page.num;
+      this.$store.dispatch('issue/LOAD_PAGE', page);
     },
     onZoom(zoom) {
       this.zoomLevel = zoom;
@@ -78,11 +79,7 @@ export default {
     const issueUID = this.$route.params.issue_uid;
 
     if (this.$route.params.page_number !== undefined) {
-      // TODO: here we assume that page number 5 has index 4 (starting at 0 in array)
-      // but we could be missing pages, so page number 5 might have index 2 for example
-      // We need to fix this so that the initial active page number corresponds with
-      // the correct index in the array
-      this.page_number = parseInt(this.$route.params.page_number, 10) - 1;
+      this.page_number = parseInt(this.$route.params.page_number, 10);
     }
 
     this.$store.dispatch('issue/LOAD_ISSUE', issueUID);
