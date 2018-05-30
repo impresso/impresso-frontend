@@ -6,6 +6,34 @@ export default {
       day: 'numeric',
       weekday: 'long',
     },
+    short: {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    },
+    month: {
+      month: 'short',
+      year: 'numeric',
+    },
+  },
+  fr: {
+    long: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    },
+    short: {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    },
+    month: {
+      month: 'short',
+      year: 'numeric',
+    },
   },
   nl: {
     long: {
@@ -13,6 +41,16 @@ export default {
       month: 'long',
       day: 'numeric',
       weekday: 'long',
+    },
+    short: {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    },
+    month: {
+      month: 'short',
+      year: 'numeric',
     },
   },
   it: {
