@@ -4,8 +4,9 @@
       <thumbnail-slider
       v-model="issue"
       v-bind:viewer="viewer"
-      v-bind:page_number="page_number"
       v-on:click="goToPage"
+      v-bind:page_uid="page.uid"
+      v-bind:page="page"
       ></thumbnail-slider>
     </div>
     <div id="os-viewer">
@@ -22,11 +23,11 @@
           </div>
         </div>
           <div class="pagination">
-            <a v-on:click.prevent="goToPage(page_number - 1)" href="#" class="left">
+            <a v-on:click.prevent="goToPage('previous')" href="#" class="left">
               <span class="arrow-left icon"></span>
             </a>
-              <strong>{{page_number + 1}}</strong> / <strong>{{page_length}}</strong>
-              <a v-on:click.prevent="goToPage(page_number + 1)" href="#" class="right">
+              <strong>{{page.num}}</strong> / <strong>{{issue.lastPageNumber}}</strong>
+              <a v-on:click.prevent="goToPage('next')" href="#" class="right">
                 <span class="arrow-right icon"></span>
               </a>
           </div>
@@ -36,16 +37,14 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
 import OpenSeadragon from 'openseadragon';
-
 import ViewerOverlay from '@/d3-modules/ViewerOverlay';
-import * as services from '@/services';
-
+import Page from '@/models/Page';
+import Issue from '@/models/Issue';
 import ThumbnailSlider from './ThumbnailSlider';
 
 export default {
@@ -54,10 +53,7 @@ export default {
   },
   props: {
     issue: {
-      default: false,
-    },
-    page_number: {
-      default: 1,
+      default: new Issue(),
     },
     minZoomLevel: {
       default: 0.25,
@@ -68,12 +64,13 @@ export default {
     zoomLevel: {
       default: 0.5,
     },
+    page: {
+      default: new Page(),
+    },
   },
   data: () => ({
     viewer: false,
     overlay: null,
-    pagedata: {},
-    page_length: 0,
   }),
   methods: {
     init() {
@@ -106,40 +103,33 @@ export default {
       }
     },
     goToPage(page) {
-      this.$emit('click', page);
-      //  if (page >= 0 && page < this.issue.pages.length) {
-      //   this.$emit('click', page);
-      // }
-    },
-    getPageData() {
-      const index = this.issue.pages.findIndex(page => page.num === this.page_number);
-      const uid = this.issue.pages[index].uid;
-      services.pages.get(uid, {}).then((res) => {
-        this.pagedata = res;
-        this.overlay.update(res);
-      });
+      const index = this.issue.pages.findIndex(p => p.uid === this.page.uid);
+
+      if (page instanceof Page) {
+        this.$emit('click', page);
+      } else if (page === 'previous') {
+        this.$emit('click', this.issue.pages[Math.max(0, index - 1)]);
+      } else if (page === 'next') {
+        this.$emit('click', this.issue.pages[Math.min(this.issue.pages.length - 1, index + 1)]);
+      }
     },
   },
   watch: {
     issue: {
       handler() {
         this.init();
-        this.getPageData();
-        this.page_length = this.issue.pages.length;
-      },
-    },
-    page_number: {
-      handler(page) {
-        const index = this.issue.pages.findIndex(p => p.num === page);
-        if (this.viewer) {
-          this.viewer.goToPage(index);
-          this.getPageData();
-        }
       },
     },
     zoomLevel: {
       handler(val) {
         this.viewer.viewport.zoomTo(val);
+      },
+    },
+    page: {
+      handler(val) {
+        if (this.viewer) {
+          this.viewer.goToPage(this.issue.pages.indexOf(val));
+        }
       },
     },
   },

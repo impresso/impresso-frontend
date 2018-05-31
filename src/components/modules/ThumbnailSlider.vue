@@ -1,24 +1,26 @@
 <template lang="html">
   <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
     <div class="tiles">
-      <div class="tile"
-        v-for="page in issue.pages"
-        v-on:click="onClickPage(page)">
-        <div class="mini_viewer" v-bind:class="{selected: page_number === page.num}">
+      <div
+        v-for="item in issue.pages"
+        class="tile"
+        v-bind:class="{active: page.uid === item.uid}"
+        v-on:click="onClickPage(item)">
+        <div class="mini_viewer" v-bind:class="{selected: page.uid === item.uid}">
           <thumbnail-slider-item
-            v-bind:tileSources="page.iiif"
+            v-bind:tileSources="item.iiif"
             v-bind:bounds="bounds"
-            v-bind:active="page_number === page.num"
-            v-on:mounted="onMountedTile"
+            v-bind:active="page.uid === item.uid"
             ></thumbnail-slider-item>
         </div>
-        <span class="page_number">{{page.num}}</span>
+        <span class="page_number">{{item.num}}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Page from '@/models/Page';
 import ThumbnailSliderItem from './ThumbnailSliderItem';
 
 require('dragscroll');
@@ -29,43 +31,19 @@ export default {
   },
   data: () => ({
     bounds: [],
-    scrollTop: 0,
-    center: false,
     mountedTiles: 0,
   }),
   props: {
     issue: {},
-    page_number: {
-      type: Number,
-      default: 1,
-    },
     viewer: {
       default: false,
     },
+    page: new Page(),
   },
   mounted() {},
   methods: {
-    onClickPage(page) {
-      this.center = false;
-      this.$emit('click', page);
-    },
-    centerActiveTile() {
-      if (this.center && this.viewer) {
-        const activeElement = this.$refs['thumbnail-slider'].getElementsByClassName('tile')[this.page_number];
-        const parentElement = this.$refs['thumbnail-slider'];
-
-        parentElement.scrollTop = activeElement.offsetTop + (
-          (activeElement.offsetHeight / 2) - (parentElement.offsetHeight / 2)
-        );
-      }
-    },
-    onMountedTile() {
-      this.mountedTiles += 1;
-
-      // if all tiles are mounted we want to center the slider
-      if (this.issue.pages.length === this.mountedTiles) {
-        this.centerActiveTile();
-      }
+    onClickPage(item) {
+      this.$emit('click', item);
     },
   },
   watch: {
@@ -78,12 +56,6 @@ export default {
         this.viewer.addHandler('update-viewport', () => {
           this.bounds = this.viewer.viewport.getBoundsNoRotate();
         });
-      },
-    },
-    issue: {
-      handler() {
-        this.centerActiveTile();
-        this.center = true;
       },
     },
   },
@@ -128,8 +100,6 @@ export default {
                 padding-top: 0.2em;
                 border: 1px solid @clr-grey-300;
                 z-index: 1000;
-                // border-right-color: transparent !important;
-                // border-bottom-color: transparent !important;
             }
 
             .mini_viewer {

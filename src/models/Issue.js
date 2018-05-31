@@ -49,6 +49,13 @@ export default function Issue({
     return new Page(page);
   });
 
+  if (this.pages.length > 0) {
+    this.lastPageNumber = this.pages[this.pages.length - 1].num;
+  } else {
+    this.lastPageNumber = 0;
+  }
+
+
   this.uid = String(uid);
   this.year = parseInt(year, 10);
 }

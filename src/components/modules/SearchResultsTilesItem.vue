@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="mb-4">
     <div class="thumbnail">
-      <open-seadragon-viewer v-model="value.iiif"></open-seadragon-viewer>
+      <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
     </div>
     <a href="#" class="btn btn-primary btn-sm btn-block" v-on:click.prevent="click">View</a>
   </div>
@@ -18,7 +18,10 @@ Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 
 export default {
-  props: ['value'],
+  model: {
+    prop: 'article',
+  },
+  props: ['article'],
   methods: {
     click() {
       this.$emit('click');
