@@ -72,13 +72,13 @@ export default new Router({
       props: true,
     },
     {
-      path: '/issue/:issue_uid/page/:page_number',
+      path: '/issue/:issue_uid/page/:page_uid',
       component: IssuePage,
       name: 'page',
       props: true,
     },
     {
-      path: '/issue/:issue_uid/page/:page_number/article/:article_uid',
+      path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
       component: IssuePage,
       name: 'article',
       props: true,

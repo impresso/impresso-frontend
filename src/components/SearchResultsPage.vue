@@ -43,17 +43,13 @@
         </b-row>
         <hr>
         <b-row v-if="displayStyle === 'list'">
-          <b-col cols="12" v-for="searchResult in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-list-item
-              v-bind:value="searchResult"
-              v-on:click="onClickResult(searchResult)" />
+          <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+            <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
-        <b-row v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="6" md="4" lg="4" v-for="searchResult in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-tiles-item
-              v-on:click="onClickResult(searchResult)"
-              v-bind:value="searchResult" />
+        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+          <b-col cols="6" sm="6" md="4" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+            <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
         <hr>
@@ -164,9 +160,10 @@ export default {
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: searchResult.issue_uid,
-          page_number: searchResult.page_number,
-          article_uid: searchResult.article_uid,
+          issue_uid: searchResult.issue.uid,
+          page_number: searchResult.pages[0].num,
+          page_uid: searchResult.pages[0].uid,
+          article_uid: searchResult.uid,
         },
       });
     },
@@ -191,8 +188,8 @@ export default {
     margin: 15px 0;
 }
 
-.top{
-  background: #f4f5f6;
+.top {
+    background: #f4f5f6;
 }
 </style>
 

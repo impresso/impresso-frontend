@@ -1,4 +1,5 @@
 import * as services from '@/services';
+import Article from '@/models/Article';
 
 const uuid = require('uuid');
 
@@ -7,28 +8,6 @@ function Search({
 } = {}) {
   this.filters = filters;
   this.uuid = uuid.v4();
-}
-
-function SearchResult({
-  title = '',
-  iiif = '',
-  extract = '',
-  details = [],
-  dl = 0,
-  articleUID = false,
-  issueUID = false,
-  pageNumber = false,
-  raw = {},
-} = {}) {
-  this.title = title;
-  this.iiif = iiif;
-  this.extract = extract;
-  this.details = details;
-  this.dl = dl;
-  this.article_uid = articleUID;
-  this.issue_uid = issueUID;
-  this.page_number = pageNumber;
-  this.raw = raw;
 }
 
 export default {
@@ -131,28 +110,24 @@ export default {
               this.commit('SET_PROCESSING', false);
 
               if (res.data !== undefined) {
-                res.data.forEach((result, i) => {
-                  results.push(new SearchResult({
-                    title: result.title,
-                    dl: result.dl,
-                    articleUID: result.uid,
-                    issueUID: result.issue.uid,
-                    pageNumber: result.pages[0].num,
-                    iiif: result.pages[0].iiif, // we take the first page as a preview
-                    extract: 'Lorem ipsum.',
-                    raw: result,
-                    details: [{
-                      col_a: i,
-                      col_b: 'abc',
-                    }, {
-                      col_a: i * 10,
-                      col_b: 'def',
-                    }],
+                res.data.forEach((result) => {
+                  results.push(new Article({
+                    ...result,
+                    issue: {
+                      ...result.issue,
+                      countArticles: result.issue.count_articles,
+                      countPages: result.issue.count_pages,
+                    },
+                    tags: result.tags.map((tag) => {
+                      tag.appliesTo = tag.applies_to;
+                      return tag;
+                    }),
+                    newspaperUid: result.newspaper_uid,
                   }));
                 });
 
                 context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-                  paginationTotalRows: res.count,
+                  paginationTotalRows: res.total,
                 });
                 context.commit('UPDATE_RESULTS', results);
               }
