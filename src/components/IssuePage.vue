@@ -18,9 +18,9 @@
         v-bind:minZoomLevel="minZoomLevel"
         v-bind:maxZoomLevel="maxZoomLevel"
         v-bind:zoomLevel="zoomLevel"
-        v-bind:page_number="page_number"
-        v-on:click="onClickPage"
+        v-bind:page="page"
         v-on:zoom="onZoom"
+        v-on:click="onClick"
         ></issue-viewer>
     </div>
     <div class="userdata" v-bind:class="{active: userDataActive}">
@@ -36,16 +36,17 @@
 </template>
 
 <script>
+import Page from '@/models/Page';
 import NamedEntityExplorer from './modules/NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
 import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
 
 export default {
   data: () => ({
-    page_number: 1,
     zoomLevel: 0.5,
     minZoomLevel: 0.25,
     maxZoomLevel: 4,
+    page: new Page(),
   }),
   computed: {
     userDataActive() {
@@ -67,22 +68,40 @@ export default {
     toggleUserData() {
       this.$store.commit('settings/TOGGLE_USERDATA_EXPANDED');
     },
-    onClickPage(page) {
-      this.page_number = page.num;
-      this.$store.dispatch('issue/LOAD_PAGE', page);
-    },
     onZoom(zoom) {
       this.zoomLevel = zoom;
     },
+    onClick(page) {
+      this.$router.push({
+        name: 'article',
+        params: {
+          issue_uid: this.issue.uid,
+          page_uid: page.uid,
+        },
+      });
+    },
   },
   mounted() {
-    const issueUID = this.$route.params.issue_uid;
+    this.$store.dispatch('issue/LOAD_ISSUE', this.$route.params.issue_uid).then((issue) => {
+      let pageUid = issue.pages[0].uid;
 
-    if (this.$route.params.page_number !== undefined) {
-      this.page_number = parseInt(this.$route.params.page_number, 10);
-    }
+      if (typeof this.$route.params.page_uid !== 'undefined') {
+        pageUid = this.$route.params.page_uid;
+      }
 
-    this.$store.dispatch('issue/LOAD_ISSUE', issueUID);
+      this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
+        this.page = this.issue.pages.find(p => p.uid === page.uid);
+      });
+    });
+  },
+  watch: {
+    '$route.params.page_uid': {
+      handler(pageUid) {
+        this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
+          this.page = this.issue.pages.find(p => p.uid === page.uid);
+        });
+      },
+    },
   },
 };
 </script>
