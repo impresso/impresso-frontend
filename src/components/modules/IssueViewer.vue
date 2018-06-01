@@ -129,6 +129,7 @@ export default {
       handler(val) {
         if (this.viewer) {
           this.viewer.goToPage(this.issue.pages.indexOf(val));
+          this.overlay.update(val);
         }
       },
     },
