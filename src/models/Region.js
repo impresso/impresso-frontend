@@ -33,5 +33,7 @@ export default function Region({
 
   if (Array.isArray(regions) && regions.length > 0) {
     this.regions = chunk(regions);
+  } else {
+    this.regions = [];
   }
 }

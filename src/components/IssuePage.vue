@@ -72,8 +72,9 @@ export default {
       this.zoomLevel = zoom;
     },
     onClick(page) {
+      // TODO: name: 'article' when there is an article_uid
       this.$router.push({
-        name: 'article',
+        name: 'page',
         params: {
           issue_uid: this.issue.uid,
           page_uid: page.uid,

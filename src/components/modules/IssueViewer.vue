@@ -129,6 +129,7 @@ export default {
       handler(val) {
         if (this.viewer) {
           this.viewer.goToPage(this.issue.pages.indexOf(val));
+          this.overlay.update(val);
         }
       },
     },
@@ -197,7 +198,6 @@ export default {
                 height: 34px;
                 border-radius: 0.2em;
                 margin: 0 1em;
-                // outline: 1px solid red;
                 vertical-align: bottom;
                 transition: background 300ms;
                 .icon {
@@ -242,8 +242,6 @@ export default {
                 font-weight: bold;
                 background: @clr-grey-400;
                 color: @clr-grey-100;
-                // border: 2px solid @clr-grey-800;
-                // padding: 3px 7px;
                 border-radius: 5px;
             }
         }

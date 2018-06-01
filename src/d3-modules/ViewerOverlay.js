@@ -1,14 +1,13 @@
 /* eslint no-console: 0 */
 import * as d3 from 'd3';
-import {
-  chunk,
-} from './common';
+import Page from '@/models/Page';
 
 class ViewerOverlay {
 
   constructor(viewer) {
     this.viewer = viewer;
     this.data = {};
+    this.page = new Page();
     this.zoom = 1;
     this.overlayLeft = null; // d3 selection
     this.overlayRight = null; // d3 selection
@@ -35,11 +34,10 @@ class ViewerOverlay {
 
     if (this.overlayRegions) {
       this.overlayRegions.regions
-      // .style('transform', `scale(${zoom})`)
-      .style('left', d => `${d[0] * zoom}px`)
-      .style('top', d => `${d[1] * zoom}px`)
-      .style('width', d => `${d[2] * zoom}px`)
-      .style('height', d => `${d[3] * zoom}px`);
+        .style('left', d => `${d.left * zoom}px`)
+        .style('top', d => `${d.top * zoom}px`)
+        .style('width', d => `${d.width * zoom}px`)
+        .style('height', d => `${d.height * zoom}px`);
     }
   }
 
@@ -54,29 +52,29 @@ class ViewerOverlay {
     });
 
     this.overlayLeft = d3.select(overlayLeft)
-        .append('div')
-        .style('width', `${this.overlayLeftWidth}px`)
-        .style('transform-origin', 'top left');
+      .append('div')
+      .style('width', `${this.overlayLeftWidth}px`)
+      .style('transform-origin', 'top left');
 
     const entities = this.overlayLeft.append('div')
-        .classed('entities', 1)
-        .style('transform', `translateX(-${this.overlayLeftWidth}px)`);
+      .classed('entities', 1)
+      .style('transform', `translateX(-${this.overlayLeftWidth}px)`);
 
     entities.html('<h3>relevant entities<br>on current page</h3>');
 
     const entity = entities.selectAll('div.entity')
-        .data(this.data.entities)
-        .enter()
-        .append('div')
-        .classed('entity', 1);
+      .data(this.page.entities)
+      .enter()
+      .append('div')
+      .classed('entity', 1);
 
     entity.append('div')
-        .attr('class', 'title')
-        .html(d => d.name);
+      .attr('class', 'title')
+      .html(d => d.name);
 
     entity.append('div')
-        .attr('class', 'description')
-        .html(d => `${d.labels} (df:${d.df})`);
+      .attr('class', 'description')
+      .html(d => `${d.labels} (df:${d.df})`);
   }
 
   //
@@ -93,28 +91,28 @@ class ViewerOverlay {
     });
 
     this.overlayRight = d3.select(overlayRight)
-          .append('div')
-          .style('width', `${this.overlayRightWidth}px`)
-          .style('transform-origin', 'top right');
+      .append('div')
+      .style('width', `${this.overlayRightWidth}px`)
+      .style('transform-origin', 'top right');
 
     const entities = this.overlayRight.append('div')
-          .classed('entities', 1);
+      .classed('entities', 1);
 
     entities.html('<h3>relevant tags<br>on current page</h3>');
 
     const entity = entities.selectAll('div.entity')
-          .data(this.data.tags)
-          .enter()
-          .append('div')
-          .classed('entity', 1);
+      .data(this.page.tags)
+      .enter()
+      .append('div')
+      .classed('entity', 1);
 
     entity.append('div')
-          .attr('class', 'title')
-          .html(d => d.name);
+      .attr('class', 'title')
+      .html(d => d.name);
 
     entity.append('div')
-          .attr('class', 'description')
-          .html(d => `${d.description}`);
+      .attr('class', 'description')
+      .html(d => `${d.description}`);
   }
 
   //
@@ -133,14 +131,7 @@ class ViewerOverlay {
       .style('transform-origin', 'top left');
 
     this.overlayRegions.regions = this.overlayRegions.selectAll('div.regions')
-      .data(this.data.regions.map((d) => {
-        if (d.regions) {
-          d.regions = chunk(d.regions);
-        } else {
-          d.regions = [];
-        }
-        return d;
-      })).enter()
+      .data(this.page.regions).enter()
       .append('div')
       .attr('data-uid', d => d.article_uid)
       .classed('regions', true)
@@ -152,8 +143,8 @@ class ViewerOverlay {
       .style('position', 'absolute');
   }
 
-  update(data) {
-    this.data = data;
+  update(page) {
+    this.page = page;
     this.updateOverlayLeft();
     this.updateOverlayRight();
     this.updateOverlayRegions();
