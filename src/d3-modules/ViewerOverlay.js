@@ -136,12 +136,7 @@ class ViewerOverlay {
       .attr('data-uid', d => d.article_uid)
       .classed('regions', true)
       .selectAll('div.region')
-      .data((d) => {
-        if (d.regions instanceof Array) {
-          return d.regions;
-        }
-        return [];
-      })
+      .data(d => d.regions)
       .enter()
       .append('div')
       .classed('region', true)
