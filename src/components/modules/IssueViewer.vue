@@ -251,12 +251,27 @@ export default {
         outline: none;
     }
 
-    #overlay-left {
-        font-size: 3em;
-        color: gray;
-        text-align: right;
+    #overlay-left,
+    #overlay-right {
+        color: @clr-grey-600;
         text-decoration: none;
         padding-top: 15px;
+        & > div:first-child {
+            &.loading {
+                opacity: 0;
+            }
+
+            &.loaded {
+                opacity: 1;
+                transition: opacity 250ms;
+                transition-delay: 250ms;
+            }
+        }
+    }
+
+    #overlay-left {
+        font-size: 3em;
+        text-align: right;
         .entity {
             border-right: 5px solid transparent;
             padding-top: 5px;
@@ -280,12 +295,12 @@ export default {
             font-size: 1.3em;
         }
     }
+
     #overlay-right {
         font-size: 0.8em;
-        color: gray;
         text-align: left;
         text-decoration: none;
-        padding-top: 15px;
+
         .entity {
             border-left: 5px solid transparent;
             padding-top: 5px;
@@ -307,14 +322,14 @@ export default {
         }
     }
 
-    .region {
-
-        border: 1px solid @clr-teal-400;
-        mix-blend-mode: multiply;
-        transition: background 200ms;
-        &:hover {
-            background: fade(@clr-yellow, 50);
-        }
+    #overlay-regions{
+      .region {
+          mix-blend-mode: multiply;
+          transition: background 200ms;
+          &:hover {
+              background: fade(@clr-yellow, 30);
+          }
+      }
     }
 
 }
