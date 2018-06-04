@@ -24,11 +24,11 @@
       <date-slider v-model="issue" v-bind:period="period"></date-slider>
 
       <div class="list">
-        <div class="media" v-for="item in [1,2,3]">
+        <div class="media" v-for="item in issue.entities">
           <img class="mr-3" src="http://www.placehold.it/48x48" alt="Generic placeholder image">
           <div class="media-body">
-            <p class="m-0"><strong>Media heading</strong></p>
-            <p>Test 123</p>
+            <p class="m-0"><strong>{{item.name}}</strong> <b-badge v-for="label in getLabel(item)" v-bind:class="label" class="float-right">{{label}}</b-badge></p>
+            <p>Lorem ipsum dolor sit amet</p>
             <hr>
           </div>
         </div>
@@ -62,6 +62,15 @@ export default {
     },
     selectPeriod(period) {
       this.period = period;
+    },
+    getLabel(item) {
+      return item.labels.filter((label) => {
+        if (label !== 'entity') {
+          return label;
+        }
+
+        return false;
+      });
     },
   },
   components: {
@@ -120,5 +129,15 @@ h1 {
             width: 100%;
         }
     }
+}
+
+.badge.location {
+    background: @clr-yellow;
+    color: @clr-black;
+}
+
+.badge.person {
+    background: @clr-blue;
+    color: @clr-white;
 }
 </style>
