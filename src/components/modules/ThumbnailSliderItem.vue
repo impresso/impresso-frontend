@@ -31,7 +31,7 @@ export default {
       width: 0,
       height: 0,
       position: 'absolute',
-      border: '2px solid rgb(255, 225, 49)',
+      border: '1px solid rgb(255, 225, 49)',
       background: 'rgba(255, 225, 49, 0.3)',
       backgroundBlendMode: 'multiply',
       overflow: 'hidden',

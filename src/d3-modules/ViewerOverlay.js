@@ -8,7 +8,7 @@ class ViewerOverlay {
     this.viewer = viewer;
     this.data = {};
     this.page = new Page();
-    this.zoom = 1;
+    this.zoom = 0;
     this.overlayLeft = null; // d3 selection
     this.overlayRight = null; // d3 selection
     this.overlayRegions = null; // d3 selection
@@ -54,7 +54,9 @@ class ViewerOverlay {
     this.overlayLeft = d3.select(overlayLeft)
       .append('div')
       .style('width', `${this.overlayLeftWidth}px`)
-      .style('transform-origin', 'top left');
+      .style('transform-origin', 'top left')
+      .classed('loading', true)
+      .classed('loaded', false);
 
     const entities = this.overlayLeft.append('div')
       .classed('entities', 1)
@@ -93,7 +95,9 @@ class ViewerOverlay {
     this.overlayRight = d3.select(overlayRight)
       .append('div')
       .style('width', `${this.overlayRightWidth}px`)
-      .style('transform-origin', 'top right');
+      .style('transform-origin', 'top right')
+      .classed('loading', true)
+      .classed('loaded', false);
 
     const entities = this.overlayRight.append('div')
       .classed('entities', 1);
@@ -128,7 +132,9 @@ class ViewerOverlay {
 
     this.overlayRegions = d3.select(overlayRegions)
       .append('div')
-      .style('transform-origin', 'top left');
+      .style('transform-origin', 'top left')
+      .classed('loading', true)
+      .classed('loaded', false);
 
     this.overlayRegions.regions = this.overlayRegions.selectAll('div.regions')
       .data(this.page.regions).enter()
@@ -150,6 +156,10 @@ class ViewerOverlay {
     this.updateOverlayRegions();
 
     this.scaleOverlays();
+
+    this.overlayLeft.classed('loading', false).classed('loaded', true);
+    this.overlayRight.classed('loading', false).classed('loaded', true);
+    this.overlayRegions.classed('loading', false).classed('loaded', true);
   }
 }
 
