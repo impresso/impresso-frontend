@@ -62,8 +62,6 @@ class ViewerOverlay {
       .classed('entities', 1)
       .style('transform', `translateX(-${this.overlayLeftWidth}px)`);
 
-    entities.html('<h3>relevant entities<br>on current page</h3>');
-
     const entity = entities.selectAll('div.entity')
       .data(this.page.entities)
       .enter()
@@ -101,8 +99,6 @@ class ViewerOverlay {
 
     const entities = this.overlayRight.append('div')
       .classed('entities', 1);
-
-    entities.html('<h3>relevant tags<br>on current page</h3>');
 
     const entity = entities.selectAll('div.entity')
       .data(this.page.tags)
