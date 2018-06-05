@@ -19,19 +19,17 @@
         v-on:mouseover="select(elm)"
         class="suggestion"
         v-bind:class="{selected: elm === suggestion}"
+        v-on:click="submit(elm)"
         >
         <suggestion-location
           v-if="elm.hasLabel('location')"
-          v-model="suggestions[index]"
-          v-on:click.native="submit(elm)" />
+          v-model="suggestions[index]" />
         <suggestion-person
           v-if="elm.hasLabel('person')"
-          v-model="suggestions[index]"
-          v-on:click.native="submit(elm)" />
+          v-model="suggestions[index]" />
         <suggestion-string
           v-if="elm.type === 'string'"
-          v-model="suggestions[index]"
-          v-on:click.native="submit(elm)" />
+          v-model="suggestions[index]" />
       </div>
     </div>
   </div>
