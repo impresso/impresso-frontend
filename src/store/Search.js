@@ -1,19 +1,11 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
-
-const uuid = require('uuid');
-
-function Search({
-  filters = [],
-} = {}) {
-  this.filters = filters;
-  this.uuid = uuid.v4();
-}
+import SearchQuery from '@/models/SearchQuery';
 
 export default {
   namespaced: true,
   state: {
-    search: new Search(),
+    search: new SearchQuery(),
     searches: [],
     results: [],
     displaySortBy: 'relevance',
@@ -56,10 +48,10 @@ export default {
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
-      state.search = new Search(state.search);
+      state.search = new SearchQuery(state.search);
     },
     CLEAR(state) {
-      state.search = new Search();
+      state.search = new SearchQuery();
     },
     LOAD_SEARCH(state, id) {
       if (state.searches.length) {
@@ -71,7 +63,7 @@ export default {
           searchData = state.searches.find(search => search.uuid === id);
         }
 
-        state.search = new Search(searchData);
+        state.search = new SearchQuery(searchData);
       }
     },
     CLEAR_RESULTS(state) {
