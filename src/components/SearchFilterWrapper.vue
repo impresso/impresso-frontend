@@ -9,7 +9,7 @@
           v-on:remove="removeFilter(index)"
         />
       </div>
-      <div v-if="filter.type.toLowerCase() == 'namedentity'">
+      <div v-if="filter.type.toLowerCase() == 'entity'">
         <filter-named-entity
           v-model="filters[index]"
           v-on:input="updateFilter"

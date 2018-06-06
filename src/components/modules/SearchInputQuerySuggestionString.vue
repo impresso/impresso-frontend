@@ -1,7 +1,11 @@
 <template lang="html">
   <section>
-    <icon name="font"/>
-    {{suggestion.query}}
+      <icon name="font"/>
+      {{suggestion.query}}
+      <span class="float-right">
+        <a href="#" v-on:click.prevent="add">add</a>
+        <a href="#" v-on:click.prevent="submit">submit</a>
+      </span>
   </section>
 </template>
 
@@ -16,6 +20,14 @@ export default {
   props: ['suggestion'],
   components: {
     Icon,
+  },
+  methods: {
+    add() {
+      this.$emit('add', this.suggestion);
+    },
+    submit() {
+      this.$emit('submit', this.suggestion);
+    },
   },
 };
 </script>

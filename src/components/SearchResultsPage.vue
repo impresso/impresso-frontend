@@ -4,7 +4,7 @@
     <b-container>
       <b-row>
         <b-col md="6" offset-md="3">
-          <search-bar v-bind:showAddButton="true" />
+          <search-bar />
         </b-col>
       </b-row>
     </b-container>

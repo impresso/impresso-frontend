@@ -10,9 +10,7 @@
       />
       <b-input-group-button slot="right">
         <b-btn variant="danger" v-on:click="reset"><icon name="times" /></b-btn>
-        <b-btn variant="info" v-show="showAddButton === true" v-on:click="add()"><icon name="plus" /></b-btn>
         <b-btn variant="success" v-on:click="submit()">{{$t("search.query_button")}}</b-btn>
-
       </b-input-group-button>
     </b-input-group>
     <div class="suggestions" v-show="(suggestions.length > 0) && showSuggestions">
@@ -21,20 +19,27 @@
         v-on:mouseover="select(elm)"
         class="suggestion"
         v-bind:class="{selected: elm === suggestion}"
-        v-on:click="submit(elm)"
         >
         <suggestion-location
           v-if="elm.hasLabel('location')"
-          v-model="suggestions[index]" />
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
         <suggestion-person
           v-if="elm.hasLabel('person')"
-          v-model="suggestions[index]" />
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
         <suggestion-string
           v-if="elm.type === 'string'"
-          v-model="suggestions[index]" />
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
         <suggestion-test
           v-if="elm.hasLabel('test')"
-          v-model="suggestions[index]" />
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
       </div>
     </div>
   </div>
@@ -71,10 +76,6 @@ export default {
     },
     suggestions: {
       type: Array,
-    },
-    showAddButton: {
-      type: Boolean,
-      default: false,
     },
   },
   computed: {
@@ -119,7 +120,11 @@ export default {
           this.showSuggestions = !this.showSuggestions; // toggle
           break;
         case 'Enter':
-          this.$emit('submit', this.suggestion);
+          if (event.altKey === true) {
+            this.$emit('add', this.suggestion);
+          } else {
+            this.$emit('submit', this.suggestion);
+          }
           break;
         case 'ArrowDown':
           event.preventDefault();
@@ -177,9 +182,9 @@ export default {
         width: 100%;
         background: white;
         .suggestion {
-            & > section{
-              cursor: pointer;
-              padding: 7px;
+            & > section {
+                cursor: pointer;
+                padding: 7px;
             }
             &.selected {
                 background: #eee;

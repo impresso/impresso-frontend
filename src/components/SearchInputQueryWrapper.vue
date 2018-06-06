@@ -1,7 +1,6 @@
 <template lang="html">
   <search-bar
   v-model="query"
-  v-bind:showAddButton="showAddButton"
   v-bind:suggestions="suggestions"
   v-on:reset="reset"
   v-on:submit="submit"
@@ -24,12 +23,6 @@ export default {
       get() {
         return this.$store.state.autocomplete.suggestions;
       },
-    },
-  },
-  props: {
-    showAddButton: {
-      type: Boolean,
-      default: false,
     },
   },
   methods: {
