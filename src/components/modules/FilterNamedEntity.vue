@@ -1,12 +1,12 @@
 <template lang="html">
-  <filter-wrapper v-bind:title="$t(`label.${filter.label}`)" v-on:remove="remove">
+  <filter-wrapper v-bind:title="$t(`label.${filter.entity.getLabel(1)}`)" v-on:remove="remove">
     <div slot="context">
       <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
     </div>
     <div class="p-2">
-      <icon v-if="filter.label === 'person'" name="user-circle"></icon>
-      <icon v-if="filter.label === 'location'" name="map-marker"></icon>
-      {{filter.title}}
+      <icon v-if="filter.entity.hasLabel('person')" name="user-circle"></icon>
+      <icon v-if="filter.entity.hasLabel('location')" name="map-marker"></icon>
+      {{filter.entity.name}}
     </div>
   </filter-wrapper>
 </template>

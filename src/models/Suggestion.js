@@ -20,6 +20,4 @@ export default function Suggestion({
   this.query = String(query);
 
   this.type = type;
-
-  this.hasLabel = needle => this.entity.labels.find(label => label === needle);
 }

@@ -9,9 +9,7 @@
 </template>
 
 <script>
-import FilterEntity from '@/models/filters/Entity';
-import FilterString from '@/models/filters/String';
-
+import Filter from '@/models/Filter';
 import SearchBar from './modules/SearchInputQuery';
 
 export default {
@@ -35,15 +33,11 @@ export default {
       this.add(suggestion);
     },
     add(suggestion) {
-      if (suggestion.type === 'entity') {
-        this.$store.commit('search/ADD_FILTER', new FilterEntity({
-          entity: suggestion.entity,
-        }));
-      } else if (suggestion.type === 'string') {
-        this.$store.commit('search/ADD_FILTER', new FilterString({
-          query: suggestion.query,
-        }));
-      }
+      this.$store.commit('search/ADD_FILTER', new Filter({
+        type: suggestion.type,
+        query: suggestion.query,
+        entity: suggestion.entity,
+      }));
 
       this.$router.push({
         name: 'search',

@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import Filter from '@/models/Filter';
 import FilterString from './modules/FilterString';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 
@@ -34,7 +35,7 @@ export default {
   computed: {
     filters: {
       get() {
-        return this.$store.state.search.search.filters;
+        return this.$store.state.search.search.filters.map(filter => new Filter(filter));
       },
     },
   },

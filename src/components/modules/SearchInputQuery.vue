@@ -21,12 +21,12 @@
         v-bind:class="{selected: elm === suggestion}"
         >
         <suggestion-location
-          v-if="elm.hasLabel('location')"
+          v-if="elm.entity.hasLabel('location')"
           v-model="suggestions[index]"
           v-on:add="add"
           v-on:submit="submit" />
         <suggestion-person
-          v-if="elm.hasLabel('person')"
+          v-if="elm.entity.hasLabel('person')"
           v-model="suggestions[index]"
           v-on:add="add"
           v-on:submit="submit" />
@@ -36,7 +36,7 @@
           v-on:add="add"
           v-on:submit="submit" />
         <suggestion-test
-          v-if="elm.hasLabel('test')"
+          v-if="elm.entity.hasLabel('test')"
           v-model="suggestions[index]"
           v-on:add="add"
           v-on:submit="submit" />
