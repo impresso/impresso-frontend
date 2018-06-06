@@ -16,7 +16,7 @@
       </b-col>
     </b-row>
   </b-container>
-  <b-container v-if="filters.length > 0">
+  <b-container v-else>
     <b-row>
       <b-col md="3">
         <search-filter-wrapper />
@@ -68,15 +68,6 @@ import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 
 export default {
-  props: {
-    // uid and query are passed down from the router
-    uid: { // uid of a named entity
-      default: false,
-    },
-    query: { // string search
-      default: false,
-    },
-  },
   computed: {
     displaySortOrder: {
       get() {
