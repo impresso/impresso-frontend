@@ -1,10 +1,14 @@
+/**
+ * String filter
+ * @param {String} context either 'include' or 'exclude'
+ * @param {String} query The search query
+ */
+
 export default function StringFilter({
-  title = '',
   context = 'include',
-  query = '', // the query as a string
+  query = '',
 } = {}) {
-  this.type = 'String';
-  this.title = title;
   this.context = context;
   this.query = query;
+  this.type = 'string';
 }

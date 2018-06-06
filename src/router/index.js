@@ -19,10 +19,6 @@ export default new Router({
       path: '/search',
       name: 'search',
       component: SearchPage,
-      props: route => ({
-        query: route.query.query,
-        uid: route.query.uid,
-      }),
     },
     {
       path: '/user/login',

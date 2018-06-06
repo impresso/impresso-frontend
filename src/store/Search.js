@@ -38,7 +38,9 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     ADD_FILTER(state, payload) {
-      state.search.filters.push({ ...payload });
+      state.search.filters.push({
+        ...payload,
+      });
     },
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);
@@ -75,9 +77,6 @@ export default {
   },
   actions: {
     SEARCH(context) {
-      context.commit('CLEAR_RESULTS');
-      const results = [];
-
       return new Promise(
         (resolve, reject) => {
           let sortOrder = '';
@@ -97,28 +96,23 @@ export default {
             },
           }).then(
             (res) => {
-              if (res.data !== undefined) {
-                res.data.forEach((result) => {
-                  results.push(new Article({
-                    ...result,
-                    issue: {
-                      ...result.issue,
-                      countArticles: result.issue.count_articles,
-                      countPages: result.issue.count_pages,
-                    },
-                    tags: result.tags.map((tag) => {
-                      tag.appliesTo = tag.applies_to;
-                      return tag;
-                    }),
-                    newspaperUid: result.newspaper_uid,
-                  }));
-                });
+              context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
+                ...result,
+                issue: {
+                  ...result.issue,
+                  countArticles: result.issue.count_articles,
+                  countPages: result.issue.count_pages,
+                },
+                tags: result.tags.map((tag) => {
+                  tag.appliesTo = tag.applies_to;
+                  return tag;
+                }),
+                newspaperUid: result.newspaper_uid,
+              })));
 
-                context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-                  paginationTotalRows: res.total,
-                });
-                context.commit('UPDATE_RESULTS', results);
-              }
+              context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+                paginationTotalRows: res.total,
+              });
 
               resolve(res);
             },

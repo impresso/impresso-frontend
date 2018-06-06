@@ -10,7 +10,9 @@
       />
       <b-input-group-button slot="right">
         <b-btn variant="danger" v-on:click="reset"><icon name="times" /></b-btn>
+        <b-btn variant="info" v-show="showAddButton === true" v-on:click="add()"><icon name="plus" /></b-btn>
         <b-btn variant="success" v-on:click="submit()">{{$t("search.query_button")}}</b-btn>
+
       </b-input-group-button>
     </b-input-group>
     <div class="suggestions" v-show="(suggestions.length > 0) && showSuggestions">
@@ -46,6 +48,7 @@ import ClickOutside from 'vue-click-outside';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/times';
+import 'vue-awesome/icons/plus';
 
 import Suggestion from '@/models/Suggestion';
 import SuggestionLocation from './SearchInputQuerySuggestionLocation';
@@ -69,6 +72,10 @@ export default {
     suggestions: {
       type: Array,
     },
+    showAddButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     query: {
@@ -89,6 +96,13 @@ export default {
         this.$emit('submit', suggestion);
       } else {
         this.$emit('submit', this.suggestion);
+      }
+    },
+    add(suggestion) {
+      if (suggestion instanceof Suggestion) {
+        this.$emit('add', suggestion);
+      } else {
+        this.$emit('add', this.suggestion);
       }
     },
     select(suggestion) {

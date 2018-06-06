@@ -4,7 +4,7 @@
     <b-container>
       <b-row>
         <b-col md="6" offset-md="3">
-          <search-bar />
+          <search-bar v-bind:showAddButton="true" />
         </b-col>
       </b-row>
     </b-container>
@@ -68,7 +68,6 @@ import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 
 export default {
-  name: 'HelloWorld',
   props: {
     // uid and query are passed down from the router
     uid: { // uid of a named entity

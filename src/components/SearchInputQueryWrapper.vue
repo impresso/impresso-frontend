@@ -1,13 +1,18 @@
 <template lang="html">
   <search-bar
   v-model="query"
+  v-bind:showAddButton="showAddButton"
   v-bind:suggestions="suggestions"
   v-on:reset="reset"
   v-on:submit="submit"
+  v-on:add="add"
   />
 </template>
 
 <script>
+import FilterEntity from '@/models/filters/Entity';
+import FilterString from '@/models/filters/String';
+
 import SearchBar from './modules/SearchInputQuery';
 
 export default {
@@ -21,27 +26,35 @@ export default {
       },
     },
   },
+  props: {
+    showAddButton: {
+      type: Boolean,
+      default: false,
+    },
+  },
   methods: {
     reset() {
       this.$store.commit('search/CLEAR');
       this.query = '';
     },
     submit(suggestion) {
-      if (suggestion.type === 'entity' && suggestion.entity.uid !== '') {
-        this.$router.push({
-          name: 'search',
-          query: {
-            uid: suggestion.entity.uid,
-          },
-        });
+      this.reset();
+      this.add(suggestion);
+    },
+    add(suggestion) {
+      if (suggestion.type === 'entity') {
+        this.$store.commit('search/ADD_FILTER', new FilterEntity({
+          entity: suggestion.entity,
+        }));
       } else if (suggestion.type === 'string') {
-        this.$router.push({
-          name: 'search',
-          query: {
-            query: suggestion.query,
-          },
-        });
+        this.$store.commit('search/ADD_FILTER', new FilterString({
+          query: suggestion.query,
+        }));
       }
+
+      this.$router.push({
+        name: 'search',
+      });
     },
   },
   watch: {
