@@ -30,6 +30,9 @@
         <suggestion-string
           v-if="elm.type === 'string'"
           v-model="suggestions[index]" />
+        <suggestion-test
+          v-if="elm.hasLabel('test')"
+          v-model="suggestions[index]" />
       </div>
     </div>
   </div>
@@ -48,6 +51,7 @@ import Suggestion from '@/models/Suggestion';
 import SuggestionLocation from './SearchInputQuerySuggestionLocation';
 import SuggestionPerson from './SearchInputQuerySuggestionPerson';
 import SuggestionString from './SearchInputQuerySuggestionString';
+import SuggestionTest from './SearchInputQuerySuggestionTest';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
@@ -145,6 +149,7 @@ export default {
     SuggestionLocation,
     SuggestionPerson,
     SuggestionString,
+    SuggestionTest,
   },
 };
 </script>
@@ -158,8 +163,10 @@ export default {
         width: 100%;
         background: white;
         .suggestion {
-            cursor: pointer;
-            padding: 7px;
+            & > section{
+              cursor: pointer;
+              padding: 7px;
+            }
             &.selected {
                 background: #eee;
             }
