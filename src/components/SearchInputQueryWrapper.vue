@@ -27,7 +27,21 @@ export default {
       this.query = '';
     },
     submit(suggestion) {
-      console.log(suggestion);
+      if (suggestion.type === 'entity' && suggestion.entity.uid !== '') {
+        this.$router.push({
+          name: 'search',
+          query: {
+            uid: suggestion.entity.uid,
+          },
+        });
+      } else if (suggestion.type === 'string') {
+        this.$router.push({
+          name: 'search',
+          query: {
+            query: suggestion.query,
+          },
+        });
+      }
     },
   },
   watch: {

@@ -17,14 +17,12 @@ export default new Router({
     },
     {
       path: '/search',
-      name: 'search_results',
-      component: SearchPage,
-    },
-    {
-      path: '/search/:uuid',
       name: 'search',
       component: SearchPage,
-      props: true,
+      props: route => ({
+        query: route.query.query,
+        uid: route.query.uid,
+      }),
     },
     {
       path: '/user/login',

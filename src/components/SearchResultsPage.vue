@@ -57,6 +57,7 @@
       </b-col>
     </b-row>
   </b-container>
+  {{query}} {{uid}}
 </main>
 </template>
 
@@ -69,7 +70,15 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 
 export default {
   name: 'HelloWorld',
-  props: ['uuid'],
+  props: {
+    // uid and query are passed down from the router
+    uid: { // uid of a named entity
+      default: false,
+    },
+    query: { // string search
+      default: false,
+    },
+  },
   computed: {
     displaySortOrder: {
       get() {
