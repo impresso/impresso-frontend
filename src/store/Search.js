@@ -76,8 +76,6 @@ export default {
   actions: {
     SEARCH(context) {
       context.commit('CLEAR_RESULTS');
-      this.commit('SET_PROCESSING', true);
-
       const results = [];
 
       return new Promise(
@@ -99,8 +97,6 @@ export default {
             },
           }).then(
             (res) => {
-              this.commit('SET_PROCESSING', false);
-
               if (res.data !== undefined) {
                 res.data.forEach((result) => {
                   results.push(new Article({
@@ -127,7 +123,6 @@ export default {
               resolve(res);
             },
             (err) => {
-              this.commit('SET_PROCESSING', false);
               reject(err);
             },
           );

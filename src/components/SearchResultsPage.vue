@@ -57,7 +57,6 @@
       </b-col>
     </b-row>
   </b-container>
-  {{query}} {{uid}}
 </main>
 </template>
 
