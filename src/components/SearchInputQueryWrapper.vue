@@ -53,6 +53,7 @@ export default {
             query: val.trim(),
           });
         } else {
+          // if length of the query is 0 then we clear the suggestions
           this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
         }
       },
