@@ -32,7 +32,11 @@ export default {
       state.displayStyle = payload.displayStyle;
     },
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
-      state.paginationCurrentPage = payload.paginationCurrentPage;
+      if (typeof payload.paginationCurrentPage === 'undefined') {
+        state.paginationCurrentPage = 1;
+      } else {
+        state.paginationCurrentPage = payload.paginationCurrentPage;
+      }
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
@@ -54,6 +58,8 @@ export default {
     },
     CLEAR(state) {
       state.search = new SearchQuery();
+      state.results = [];
+      state.paginationCurrentPage = 1;
     },
     LOAD_SEARCH(state, id) {
       if (state.searches.length) {
@@ -89,10 +95,16 @@ export default {
 
           services.articles.find({
             query: {
-              filters: context.state.search.filters,
+              filters: context.state.search.filters.map(filter => ({
+                context: filter.context,
+                type: filter.type,
+                q: filter.query,
+                uid: filter.entity.uid,
+              })),
               page: context.state.paginationCurrentPage,
               limit: context.state.paginationPerPage,
               order_by: sortOrder,
+              // TODO: group_by: 'article|issue|page';
             },
           }).then(
             (res) => {

@@ -38,19 +38,14 @@ export default {
   },
   methods: {
     updateFilter() {
+      this.$emit('update');
       this.$store.commit('search/UPDATE_FILTER', {});
     },
     submitFilter() {
-      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
-        paginationCurrentPage: 1,
-      });
-      this.$store.commit('search/STORE_SEARCH');
-      this.$store.dispatch('search/SEARCH');
-      this.$router.push({
-        name: 'search_results',
-      });
+      this.$emit('submit');
     },
     removeFilter(index) {
+      this.$emit('remove');
       this.$store.commit('search/REMOVE_FILTER', {
         index,
       });

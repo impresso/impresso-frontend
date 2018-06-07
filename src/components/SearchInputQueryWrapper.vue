@@ -25,23 +25,27 @@ export default {
   },
   methods: {
     reset() {
-      this.$store.commit('search/CLEAR');
+      this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
       this.query = '';
+      this.$emit('reset');
     },
     submit(suggestion) {
-      this.reset();
-      this.add(suggestion);
+      if (this.suggestions.length > 0) {
+        this.$store.commit('search/CLEAR');
+        this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
+        this.query = '';
+        this.add(suggestion);
+      }
     },
     add(suggestion) {
+      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {});
       this.$store.commit('search/ADD_FILTER', new Filter({
         type: suggestion.type,
         query: suggestion.query,
         entity: suggestion.entity,
       }));
 
-      this.$router.push({
-        name: 'search',
-      });
+      this.$emit('add');
     },
   },
   watch: {

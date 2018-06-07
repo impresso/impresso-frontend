@@ -6,6 +6,7 @@
     <div class="p-2">
       <icon v-if="filter.entity.hasLabel('person')" name="user-circle"></icon>
       <icon v-if="filter.entity.hasLabel('location')" name="map-marker"></icon>
+      <icon v-if="filter.entity.hasLabel('test')" name="flash"></icon>
       {{filter.entity.name}}
     </div>
   </filter-wrapper>
@@ -17,6 +18,7 @@ import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/user-circle';
 import 'vue-awesome/icons/map-marker';
+import 'vue-awesome/icons/flash';
 
 import FilterWrapper from './FilterWrapper';
 
@@ -71,7 +73,8 @@ export default {
   "en": {
     "label": {
       "person": "Person",
-      "location": "Location"
+      "location": "Location",
+      "test": "Daniel and Paul sitting in a tree, Jay Es Sea Ar Eye Pee Tee"
     }
   },
   "fr": {
