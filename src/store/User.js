@@ -21,21 +21,16 @@ export default {
   },
   actions: {
     LOGOUT(context) {
-      this.commit('SET_PROCESSING', true);
       return new Promise((resolve, reject) => {
         services.app.logout().then((res) => {
           context.commit('CLEAR_USER');
-          this.commit('SET_PROCESSING', false);
           resolve(res);
         }, (err) => {
-          this.commit('SET_PROCESSING', false);
           reject(err);
         });
       });
     },
     LOGIN(context, payload) {
-      this.commit('SET_PROCESSING', true);
-
       return new Promise(
         (resolve, reject) => {
           services.app.authenticate({
@@ -55,13 +50,11 @@ export default {
                 isStaff: user.is_staff,
               }));
 
-              this.commit('SET_PROCESSING', false);
               resolve();
             },
           )
           .catch(
             (err) => {
-              this.commit('SET_PROCESSING', false);
               reject(err);
             },
           );
