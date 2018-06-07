@@ -1,21 +1,19 @@
 <template lang="html">
   <div id="search-filter-wrapper">
     <div ref="filters" v-for="(filter, index) in filters" v-bind:key="index">
-      <div v-if="filter.type.toLowerCase() == 'string'">
         <filter-string
+          v-if="filter.type.toLowerCase() === 'string'"
           v-model="filters[index]"
           v-on:input="updateFilter"
           v-on:submit="submitFilter"
           v-on:remove="removeFilter(index)"
         />
-      </div>
-      <div v-if="filter.type.toLowerCase() == 'entity'">
         <filter-named-entity
+          v-if="filter.type.toLowerCase() === 'entity'"
           v-model="filters[index]"
           v-on:input="updateFilter"
           v-on:remove="removeFilter(index)"
         />
-      </div>
     </div>
     <b-button
       id="button-filter"
@@ -27,7 +25,6 @@
 </template>
 
 <script>
-import Filter from '@/models/Filter';
 import FilterString from './modules/FilterString';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 
@@ -35,16 +32,13 @@ export default {
   computed: {
     filters: {
       get() {
-        return this.$store.state.search.search.filters.map(filter => new Filter(filter));
+        return this.$store.state.search.search.filters;
       },
     },
   },
   methods: {
-    updateFilter(filter, key) {
-      this.$store.commit('search/UPDATE_FILTER', {
-        filter,
-        key,
-      });
+    updateFilter() {
+      this.$store.commit('search/UPDATE_FILTER', {});
     },
     submitFilter() {
       this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {

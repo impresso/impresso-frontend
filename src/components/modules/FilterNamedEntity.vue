@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import Filter from '@/models/Filter';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/user-circle';
@@ -30,16 +31,17 @@ export default {
       text: 'Exclude',
     }],
   }),
-  model: {
-    prop: 'filter',
+  props: ['value'],
+  computed: {
+    filter: {
+      get() {
+        return new Filter(this.value);
+      },
+    },
   },
-  props: ['filter'],
   methods: {
     updateFilter() {
       this.$emit('input', this.filter);
-    },
-    getLabel(label) {
-      return this.$t(`label.${label}`);
     },
     remove() {
       this.$emit('remove');
