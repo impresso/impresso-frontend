@@ -1,33 +1,46 @@
 <template lang="html">
-  <div class="wrapper">
+  <div class="wrapper" v-ClickOutside="hideSuggestions">
     <b-input-group>
-        <input
-        v-on:keyup.prevent="keyup"
-        v-model="query_model"
-        :placeholder="$t('search.query_placeholder')"
-        type="text"
-        class="form-control">
+      <input
+      type="text"
+      class="form-control"
+      v-model="query"
+      v-on:keyup="keyup"
+      v-bind:placeholder="$t('search.query_placeholder')"
+      />
       <b-input-group-button slot="right">
         <b-btn variant="danger" v-on:click="reset"><icon name="times" /></b-btn>
-        <b-btn v-on:click="clickSearch" variant="success">{{$t("search.query_button")}}</b-btn>
+        <b-btn variant="success" v-on:click="submit()">{{$t("search.query_button")}}</b-btn>
       </b-input-group-button>
     </b-input-group>
-    <div v-click-outside="hideResults" class="results" v-show="(results.length > 0 || query_model) && showResults">
-      <b-media
-        v-for="(result, index) in results"
-        v-bind:key="result.id"
-        v-bind:class="{active: index == activeResultIndex }"
-        v-on:click="clickResult(result)"
-        v-on:mouseover="setActiveResultIndex(index)"
-        class="result"
+    <div class="suggestions" v-show="(suggestions.length > 0) && showSuggestions">
+      <div
+        v-for="(elm, index) in suggestions"
+        v-on:mouseover="select(elm)"
+        class="suggestion"
+        v-bind:class="{selected: elm === suggestion}"
         >
-        <strong>
-          <icon v-if="result.label === 'string'" name="font"></icon>
-          <icon v-if="result.label === 'person'" name="user-circle"></icon>
-          <icon v-if="result.label === 'location'" name="map-marker"></icon>
-          {{result.title}}
-        </strong>
-      </b-media>
+        <suggestion-location
+          v-if="elm.entity.hasLabel('location')"
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
+        <suggestion-person
+          v-if="elm.entity.hasLabel('person')"
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
+        <suggestion-string
+          v-if="elm.type === 'string'"
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
+        <suggestion-test
+          v-if="elm.entity.hasLabel('test')"
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
+      </div>
     </div>
   </div>
 </template>
@@ -39,101 +52,112 @@ import VueI18n from 'vue-i18n';
 import ClickOutside from 'vue-click-outside';
 import Icon from 'vue-awesome/components/Icon';
 
-import 'vue-awesome/icons/user-circle';
-import 'vue-awesome/icons/map-marker';
-import 'vue-awesome/icons/font';
 import 'vue-awesome/icons/times';
+import 'vue-awesome/icons/plus';
+
+import Suggestion from '@/models/Suggestion';
+import SuggestionLocation from './SearchInputQuerySuggestionLocation';
+import SuggestionPerson from './SearchInputQuerySuggestionPerson';
+import SuggestionString from './SearchInputQuerySuggestionString';
+import SuggestionTest from './SearchInputQuerySuggestionTest';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 
 export default {
   data: () => ({
-    showResults: false,
-    activeResultIndex: 0,
+    showSuggestions: false,
+    suggestion: new Suggestion(),
   }),
   props: {
-    query: {
-      type: String,
+    value: {
       default: '',
-    },
-    text_placeholder: {
       type: String,
-      default: 'Search query',
     },
-    text_button: {
-      type: String,
-      default: 'Go',
-    },
-    results: {
+    suggestions: {
       type: Array,
-      default() {
-        return [];
-      },
     },
   },
   computed: {
-    query_model: {
+    query: {
       get() {
-        return this.query;
+        return this.value;
       },
-      set(value) {
-        this.showResults = true;
-        this.$emit('changeSearchQuery', value);
+      set(val) {
+        this.$emit('input', val);
       },
     },
   },
   methods: {
+    reset() {
+      this.$emit('reset');
+    },
+    submit(suggestion) {
+      if (suggestion instanceof Suggestion) {
+        this.$emit('submit', suggestion);
+      } else {
+        this.$emit('submit', this.suggestion);
+      }
+    },
+    add(suggestion) {
+      if (suggestion instanceof Suggestion) {
+        this.$emit('add', suggestion);
+      } else {
+        this.$emit('add', this.suggestion);
+      }
+    },
+    select(suggestion) {
+      this.suggestion = suggestion;
+    },
+    hideSuggestions() {
+      this.showSuggestions = false;
+    },
     keyup(event) {
+      const index = this.suggestions.indexOf(this.suggestion);
+
       switch (event.key) {
         case 'Escape':
-          this.hideResults();
+          this.showSuggestions = !this.showSuggestions; // toggle
           break;
         case 'Enter':
-          if (this.results.length > 0) {
-            this.$emit('clickResult', this.results[this.activeResultIndex]);
-            this.hideResults();
-            this.search();
+          if (event.altKey === true) {
+            this.$emit('add', this.suggestion);
+          } else {
+            this.$emit('submit', this.suggestion);
           }
           break;
         case 'ArrowDown':
           event.preventDefault();
-          if (this.activeResultIndex < this.results.length - 1) {
-            this.activeResultIndex += 1;
+          if (this.suggestions[index + 1]) {
+            this.suggestion = this.suggestions[index + 1];
+          } else {
+            this.suggestion = this.suggestions[0];
           }
           break;
         case 'ArrowUp':
           event.preventDefault();
-          if (this.activeResultIndex > 0) {
-            this.activeResultIndex -= 1;
+          if (this.suggestions[index - 1]) {
+            this.suggestion = this.suggestions[index - 1];
+          } else {
+            this.suggestion = this.suggestions[this.suggestions.length - 1];
           }
           break;
         default:
           break;
       }
     },
-    setActiveResultIndex(value) {
-      this.activeResultIndex = value;
+  },
+  watch: {
+    value: {
+      handler() {
+        this.showSuggestions = true;
+      },
     },
-    hideResults() {
-      this.showResults = false;
-    },
-    search() {
-      this.setActiveResultIndex(0);
-      this.$emit('search');
-    },
-    clickSearch() {
-      if (this.results.length > 0) {
-        this.$emit('clickResult', this.results[this.activeResultIndex]);
-        this.search();
-      }
-    },
-    reset() {
-      this.$emit('reset');
-    },
-    clickResult(result) {
-      this.$emit('clickResult', result);
-      this.search();
+    suggestions: {
+      handler(val) {
+        this.showSuggestions = true;
+        this.suggestion = val[0];
+      },
     },
   },
   directives: {
@@ -141,6 +165,10 @@ export default {
   },
   components: {
     Icon,
+    SuggestionLocation,
+    SuggestionPerson,
+    SuggestionString,
+    SuggestionTest,
   },
 };
 </script>
@@ -148,31 +176,18 @@ export default {
 <style scoped lang="less">
 .wrapper {
     position: relative;
-    margin: 15px 0;
-    .results {
-        z-index: 10;
+    .suggestions {
         position: absolute;
-        top: 45px;
+        z-index: 10;
         width: 100%;
-        border: 1px solid black;
         background: white;
-        box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
-        .result {
-            padding: 0;
-            margin: 0;
-            .fa-icon {
-                margin-right: 10px;
-                width: 16px;
-                margin-bottom: -2px;
-            }
-            padding: 7px 15px;
-            border-bottom: 1px solid black;
-            transition: all 500ms;
-            &.active,
-            &:hover {
-                background: #8cf; // @todo change color to styleguide
-                display: block;
+        .suggestion {
+            & > section {
                 cursor: pointer;
+                padding: 7px;
+            }
+            &.selected {
+                background: #eee;
             }
         }
     }

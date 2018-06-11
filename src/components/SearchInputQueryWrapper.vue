@@ -1,15 +1,15 @@
 <template lang="html">
-    <search-bar
-    v-bind:query="query"
-    v-bind:results="results"
-    v-on:search="onSearch"
-    v-on:reset="onReset"
-    v-on:changeSearchQuery="onChangeSearchQuery"
-    v-on:clickResult="onClickResult"
-    />
+  <search-bar
+  v-model="query"
+  v-bind:suggestions="suggestions"
+  v-on:reset="reset"
+  v-on:submit="submit"
+  v-on:add="add"
+  />
 </template>
 
 <script>
+import Filter from '@/models/Filter';
 import SearchBar from './modules/SearchInputQuery';
 
 export default {
@@ -17,51 +17,50 @@ export default {
     query: '',
   }),
   computed: {
-    filters: {
+    suggestions: {
       get() {
-        return this.$store.state.search.search.filters;
-      },
-    },
-    results: {
-      get() {
-        return this.$store.state.autocomplete.results;
+        return this.$store.state.autocomplete.suggestions;
       },
     },
   },
   methods: {
-    onSearch() {
-      if (this.$store.state.search.search.filters.length) {
+    reset() {
+      this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
+      this.query = '';
+      this.$emit('reset');
+    },
+    submit(suggestion) {
+      if (this.suggestions.length > 0) {
+        this.$store.commit('search/CLEAR');
+        this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
         this.query = '';
-
-        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
-          paginationCurrentPage: 1,
-        });
-
-        this.$store.commit('search/STORE_SEARCH');
-        this.$store.dispatch('search/SEARCH');
-
-        this.$router.push({
-          name: 'search_results',
-        });
+        this.add(suggestion);
       }
     },
-    onChangeSearchQuery(query) {
-      if (query.length > 1) {
-        this.query = query;
-        this.$store.dispatch('autocomplete/SEARCH', {
-          query: query.trim(),
-        });
-      }
+    add(suggestion) {
+      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {});
+      this.$store.commit('search/ADD_FILTER', new Filter({
+        type: suggestion.type,
+        query: suggestion.query,
+        entity: suggestion.entity,
+      }));
+
+      this.$emit('add');
     },
-    onReset() {
-      this.$store.commit('search/CLEAR');
-      this.$store.commit('autocomplete/CLEAR_RESULTS');
-      this.query = '';
-    },
-    onClickResult(result) {
-      this.query = '';
-      this.$store.commit('autocomplete/CLEAR_RESULTS');
-      this.$store.commit('search/ADD_FILTER', result.filter);
+  },
+  watch: {
+    query: {
+      handler(val) {
+        if (val.trim().length > 1) {
+          this.query = val;
+          this.$store.dispatch('autocomplete/SEARCH', {
+            query: val.trim(),
+          });
+        } else {
+          // if length of the query is 0 then we clear the suggestions
+          this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
+        }
+      },
     },
   },
   components: {

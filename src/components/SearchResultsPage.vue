@@ -4,7 +4,7 @@
     <b-container>
       <b-row>
         <b-col md="6" offset-md="3">
-          <search-bar />
+          <search-bar v-on:reset="reset" v-on:add="search(true)" />
         </b-col>
       </b-row>
     </b-container>
@@ -16,10 +16,10 @@
       </b-col>
     </b-row>
   </b-container>
-  <b-container v-if="filters.length > 0">
+  <b-container v-else>
     <b-row>
       <b-col md="3">
-        <search-filter-wrapper />
+        <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
       </b-col>
       <b-col>
         <b-row>
@@ -53,7 +53,7 @@
           </b-col>
         </b-row>
         <hr>
-        <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" />
+        <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
       </b-col>
     </b-row>
   </b-container>
@@ -68,8 +68,6 @@ import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 
 export default {
-  name: 'HelloWorld',
-  props: ['uuid'],
   computed: {
     displaySortOrder: {
       get() {
@@ -141,20 +139,16 @@ export default {
         displaySortBy: sortBy,
         displaySortOrder: sortOrder,
       });
-      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
-        paginationCurrentPage: 1,
-      });
-      this.$store.dispatch('search/SEARCH');
+      this.search(true);
     },
     loadSearch(uuid) {
       this.$store.commit('search/LOAD_SEARCH', uuid);
-      this.$store.dispatch('search/SEARCH');
+      this.search(true);
     },
     onInputPagination(pageNumber) {
       this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
         paginationCurrentPage: pageNumber,
       });
-      this.$store.dispatch('search/SEARCH');
     },
     onClickResult(searchResult) {
       this.$router.push({
@@ -166,6 +160,20 @@ export default {
           article_uid: searchResult.uid,
         },
       });
+    },
+    search(startAtPageOne = false) {
+      if (startAtPageOne === true) {
+        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {});
+      }
+      this.$store.dispatch('search/SEARCH');
+    },
+    reset() {
+      this.$router.push(
+        {
+          name: 'home',
+        },
+        this.$store.commit('search/CLEAR'),
+      );
     },
   },
   components: {
@@ -179,6 +187,15 @@ export default {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
+  },
+  watch: {
+    filters: {
+      handler(val) {
+        if (val.length === 0) {
+          this.reset();
+        }
+      },
+    },
   },
 };
 </script>

@@ -4,7 +4,7 @@
     <b-container>
       <b-row>
         <b-col md="6" offset-md="3">
-          <SearchBar />
+          <SearchBar v-on:add="redirect" />
         </b-col>
       </b-row>
     </b-container>
@@ -27,6 +27,15 @@ export default {
   name: 'HelloWorld',
   components: {
     SearchBar,
+  },
+  methods: {
+    redirect() {
+      this.$router.push({
+        name: 'search',
+      }, () => {
+        this.$store.dispatch('search/SEARCH');
+      });
+    },
   },
 };
 </script>
