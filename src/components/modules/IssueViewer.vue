@@ -165,7 +165,7 @@ export default {
     .header {
         background: fade(@clr-grey-200, 90);
         position: absolute;
-        z-index: 1000;
+        z-index: 10;
         top: 0;
         width: 100%;
         height: 48px;
