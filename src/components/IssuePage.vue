@@ -112,15 +112,16 @@ export default {
 
 #IssuePage {
     background: @clr-grey-200;
-
-    display: flex;
+    display: grid;
+    grid-template-columns: 350px auto 52px;
+    grid-template-rows: auto;
+    grid-template-areas: "metadata viewer userdata";
     position: absolute;
     bottom: 0;
     top: 43px;
     width: 100%;
     .metadata {
-        width: 350px;
-        height: 100%;
+        grid-area: metadata;
         overflow-y: auto;
         background: @clr-grey-300;
         &::-webkit-scrollbar {
@@ -129,12 +130,11 @@ export default {
     }
 
     .viewer {
-        width: 500px;
-        flex: 1;
+      grid-area: viewer;
     }
 
     .userdata {
-        width: @width_sidebar_userdata_contracted;
+        grid-area: userdata;
         display: flex;
         .data {
             flex: 1;
