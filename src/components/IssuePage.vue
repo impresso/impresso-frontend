@@ -116,10 +116,7 @@ export default {
     grid-template-columns: 350px auto 52px;
     grid-template-rows: auto;
     grid-template-areas: "metadata viewer userdata";
-    position: absolute;
-    bottom: 0;
-    top: 43px;
-    width: 100%;
+    height: 100%;
     .metadata {
         grid-area: metadata;
         overflow-y: auto;
