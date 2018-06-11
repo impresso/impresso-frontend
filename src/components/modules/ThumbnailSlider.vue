@@ -69,12 +69,10 @@ export default {
 @import "./../../assets/less/style.less";
 
 #thumbnail-slider {
+  height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     white-space: nowrap;
-    position: absolute;
-    width: 100%;
-    height: 100%;
     &::-webkit-scrollbar {
         display: none;
     }

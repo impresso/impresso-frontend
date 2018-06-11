@@ -145,22 +145,25 @@ export default {
 @import "./../../assets/less/style.less";
 
 #issue-viewer {
-    display: flex;
-    height: 100%;
+    display: grid;
+    grid-template-columns: 120px auto;
+    grid-template-rows: auto;
+    grid-template-areas: "strip osviewer";
     background: @clr-grey-200;
-
+    height: 100%;
+    position: relative;
     .strip {
         background: fade(@clr-grey-200, 90);
-        width: 120px;
+        grid-area: strip;
+        position: absolute;
+        width: 100%;
         height: 100%;
-        position: relative;
     }
 
 }
 
 #os-viewer {
-    flex: 1;
-    height: 100%;
+    grid-area: osviewer;
     position: relative;
     .header {
         background: fade(@clr-grey-200, 90);
