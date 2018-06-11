@@ -73,8 +73,8 @@ export default {
   },
   watch: {
     collection: {
-      handler(val) {
-        console.log(val);
+      handler() {
+        // TODO: here we need to request the collection data from the server
       },
     },
   },
@@ -83,7 +83,6 @@ export default {
   },
   methods: {
     onClickCollection(collection) {
-      console.log(collection);
       this.collection = collection;
       this.$router.push({
         name: 'collection',
