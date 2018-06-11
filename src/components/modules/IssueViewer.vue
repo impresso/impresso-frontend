@@ -156,7 +156,7 @@ export default {
     display: grid;
     grid-template-columns: 120px auto 52px;
     grid-template-rows: 50px auto;
-    grid-template-areas: "strip header header" "strip osviewer controls";
+    grid-template-areas: "header header header" "strip osviewer controls";
     background: @clr-grey-200;
     height: 100%;
     position: relative;
@@ -182,7 +182,6 @@ export default {
         display: flex;
         justify-content: flex-end;
         font-size: 0.80em;
-        border-bottom: 0.05em solid @clr-grey-400;
 
         .articleMeta {
             opacity: 0.6;
