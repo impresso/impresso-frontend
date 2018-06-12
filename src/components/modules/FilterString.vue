@@ -29,7 +29,6 @@ export default {
   props: ['filter'],
   methods: {
     updateFilter() {
-      this.filter.title = this.filter.query;
       this.$emit('input', this.filter);
     },
     submitFilter() {

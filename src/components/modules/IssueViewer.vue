@@ -9,33 +9,34 @@
       v-bind:page="page"
       ></thumbnail-slider>
     </div>
-    <div id="os-viewer">
-      <div class="header">
-        <div class="page-tags">
-          Page Tags
+    <div id="os-viewer"></div>
+    <div class="header">
+      <div class="page-tags">
+        Page Tags
+      </div>
+      <div class="articleMeta">
+        <div class="title">
+          LOCAL
         </div>
-        <div class="articleMeta">
-          <div class="title">
-            LOCAL
-          </div>
-          <div class="description">
-            chronique locale
-          </div>
-        </div>
-          <div class="pagination">
-            <a v-on:click.prevent="goToPage('previous')" href="#" class="left">
-              <span class="arrow-left icon"></span>
-            </a>
-              <strong>{{page.num}}</strong> / <strong>{{issue.lastPageNumber}}</strong>
-              <a v-on:click.prevent="goToPage('next')" href="#" class="right">
-                <span class="arrow-right icon"></span>
-              </a>
-          </div>
-          <div class="ocr-qt">
-            OCR Quality <span class="qt">80%</span>
-          </div>
+        <div class="description">
+          chronique locale
         </div>
       </div>
+      <div class="pagination">
+        <a v-on:click.prevent="goToPage('previous')" href="#" class="left">
+          <span class="arrow-left icon"></span>
+        </a>
+          <strong>{{page.num}}</strong> / <strong>{{issue.lastPageNumber}}</strong>
+          <a v-on:click.prevent="goToPage('next')" href="#" class="right">
+            <span class="arrow-right icon"></span>
+          </a>
+      </div>
+      <div class="ocr-qt">
+        OCR Quality <span class="qt">80%</span>
+      </div>
+    </div>
+    <div class="controls">
+      <issue-viewer-zoom-slider v-model="zoomLevel" v-bind:domain="domain"></issue-viewer-zoom-slider>
     </div>
   </div>
 </template>
@@ -46,6 +47,7 @@ import ViewerOverlay from '@/d3-modules/ViewerOverlay';
 import Page from '@/models/Page';
 import Issue from '@/models/Issue';
 import ThumbnailSlider from './ThumbnailSlider';
+import IssueViewerZoomSlider from './IssueViewerZoomSlider';
 
 export default {
   model: {
@@ -72,6 +74,11 @@ export default {
     viewer: false,
     overlay: null,
   }),
+  computed: {
+    domain() {
+      return [this.minZoomLevel, this.maxZoomLevel];
+    },
+  },
   methods: {
     init() {
       if (!this.viewer) {
@@ -137,6 +144,7 @@ export default {
   mounted() {},
   components: {
     ThumbnailSlider,
+    IssueViewerZoomSlider,
   },
 };
 </script>
@@ -145,37 +153,35 @@ export default {
 @import "./../../assets/less/style.less";
 
 #issue-viewer {
-    display: flex;
-    height: 100%;
+    display: grid;
+    grid-template-columns: 120px auto 52px;
+    grid-template-rows: 50px auto;
+    grid-template-areas: "header header header" "strip osviewer controls";
     background: @clr-grey-200;
-
-    .strip {
-        background: fade(@clr-grey-200, 90);
-        width: 120px;
-        height: 100%;
-        position: relative;
-    }
-
-}
-
-#os-viewer {
-    flex: 1;
     height: 100%;
     position: relative;
-    .header {
+    .strip {
         background: fade(@clr-grey-200, 90);
+        grid-area: strip;
         position: absolute;
-        z-index: 1000;
-        top: 0;
         width: 100%;
-        height: 48px;
+        height: 100%;
+    }
+
+    .controls {
+        grid-area: controls;
+        padding-top: 15px;
+    }
+
+    .header {
+        grid-area: header;
+        background: fade(@clr-grey-200, 90);
         line-height: 36px;
         padding: 5px;
         transition: background 250ms;
         display: flex;
         justify-content: flex-end;
         font-size: 0.80em;
-        border-bottom: 0.05em solid @clr-grey-400;
 
         .articleMeta {
             opacity: 0.6;
@@ -230,7 +236,7 @@ export default {
             color: @clr-grey-800;
             font-style: italic;
             text-align: right;
-            margin-right: 15px;
+            margin-right: 10px;
             span.qt {
                 display: inline;
                 line-height: 1em;
@@ -246,6 +252,11 @@ export default {
             }
         }
     }
+
+}
+
+#os-viewer {
+    grid-area: osviewer;
 
     .openseadragon-canvas {
         outline: none;
@@ -322,14 +333,14 @@ export default {
         }
     }
 
-    #overlay-regions{
-      .region {
-          mix-blend-mode: multiply;
-          transition: background 200ms;
-          &:hover {
-              background: fade(@clr-yellow, 30);
-          }
-      }
+    #overlay-regions {
+        .region {
+            mix-blend-mode: multiply;
+            transition: background 200ms;
+            &:hover {
+                background: fade(@clr-yellow, 30);
+            }
+        }
     }
 
 }

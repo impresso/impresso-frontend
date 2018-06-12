@@ -21,15 +21,6 @@
         v-on:click="onClick"
         ></issue-viewer>
     </div>
-    <div class="userdata" v-bind:class="{active: userDataActive}">
-      <div class="controls">
-        <a href="#" class="toggle mb-4" v-on:click.prevent="toggleUserData()"><i class="icon" v-bind:class="[userDataActive ? 'close' : 'arrow-left']"></i></a>
-        <issue-viewer-zoom-slider v-model="zoomLevel" v-bind:domain="domain"></issue-viewer-zoom-slider>
-      </div>
-      <div class="data" v-show="userDataActive">
-          <h1>userdata</h1>
-      </div>
-    </div>
   </main>
 </template>
 
@@ -49,9 +40,6 @@ export default {
   computed: {
     userDataActive() {
       return this.$store.state.settings.sidebar_userdata_expanded;
-    },
-    domain() {
-      return [this.minZoomLevel, this.maxZoomLevel];
     },
     issue() {
       return this.$store.state.issue.issue;
@@ -112,15 +100,13 @@ export default {
 
 #IssuePage {
     background: @clr-grey-200;
-
-    display: flex;
-    position: absolute;
-    bottom: 0;
-    top: 43px;
-    width: 100%;
+    display: grid;
+    grid-template-columns: 350px auto;
+    grid-template-rows: auto;
+    grid-template-areas: "metadata viewer";
+    height: 100%;
     .metadata {
-        width: 350px;
-        height: 100%;
+        grid-area: metadata;
         overflow-y: auto;
         background: @clr-grey-300;
         &::-webkit-scrollbar {
@@ -129,44 +115,7 @@ export default {
     }
 
     .viewer {
-        width: 500px;
-        flex: 1;
-    }
-
-    .userdata {
-        width: @width_sidebar_userdata_contracted;
-        display: flex;
-        .data {
-            flex: 1;
-        }
-
-        &.active {
-            width: 300px;
-            background: @clr-white;
-            transition: background-color 200ms;
-        }
-
-        .controls {
-            width: @width_sidebar_userdata_contracted;
-
-            .toggle {
-                display: block;
-                margin: 5px;
-                width: @width_sidebar_userdata_contracted - 10px;
-                height: @width_sidebar_userdata_contracted - 10px;
-                .icon {
-                    transform: scale(1) translate(10px, 10px);
-                    color: @clr-black;
-                    transition: color 200ms;
-                }
-
-                &:hover {
-                    .icon {
-                        color: @clr-blue-grey-600;
-                    }
-                }
-            }
-        }
+        grid-area: viewer;
     }
 
 }

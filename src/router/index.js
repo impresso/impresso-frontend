@@ -5,6 +5,7 @@ import SearchPage from '../components/SearchResultsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
+import UserCollectionPage from '../components/UserCollectionPage';
 
 Vue.use(Router);
 
@@ -17,14 +18,8 @@ export default new Router({
     },
     {
       path: '/search',
-      name: 'search_results',
-      component: SearchPage,
-    },
-    {
-      path: '/search/:uuid',
       name: 'search',
       component: SearchPage,
-      props: true,
     },
     {
       path: '/user/login',
@@ -40,6 +35,12 @@ export default new Router({
       path: '/user/dashboard',
       name: 'dashboard',
       component: UserDashboardPage,
+    },
+    {
+      path: '/user/collection/:collection_uid',
+      name: 'collection',
+      component: UserCollectionPage,
+      props: true,
     },
     // {
     //   path: '/archive/:archive_id',

@@ -15,4 +15,7 @@ export default function Entity({
   this.labels = labels.map(label => String(label));
   this.name = String(name);
   this.uid = String(uid);
+
+  this.hasLabel = needle => this.labels.find(label => label === needle);
+  this.getLabel = index => this.labels[index];
 }

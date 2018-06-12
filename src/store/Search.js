@@ -1,19 +1,11 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
-
-const uuid = require('uuid');
-
-function Search({
-  filters = [],
-} = {}) {
-  this.filters = filters;
-  this.uuid = uuid.v4();
-}
+import SearchQuery from '@/models/SearchQuery';
 
 export default {
   namespaced: true,
   state: {
-    search: new Search(),
+    search: new SearchQuery(),
     searches: [],
     results: [],
     displaySortBy: 'relevance',
@@ -40,13 +32,19 @@ export default {
       state.displayStyle = payload.displayStyle;
     },
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
-      state.paginationCurrentPage = payload.paginationCurrentPage;
+      if (typeof payload.paginationCurrentPage === 'undefined') {
+        state.paginationCurrentPage = 1;
+      } else {
+        state.paginationCurrentPage = payload.paginationCurrentPage;
+      }
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     ADD_FILTER(state, payload) {
-      state.search.filters.push({ ...payload });
+      state.search.filters.push({
+        ...payload,
+      });
     },
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);
@@ -56,10 +54,12 @@ export default {
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
-      state.search = new Search(state.search);
+      state.search = new SearchQuery(state.search);
     },
     CLEAR(state) {
-      state.search = new Search();
+      state.search = new SearchQuery();
+      state.results = [];
+      state.paginationCurrentPage = 1;
     },
     LOAD_SEARCH(state, id) {
       if (state.searches.length) {
@@ -71,7 +71,7 @@ export default {
           searchData = state.searches.find(search => search.uuid === id);
         }
 
-        state.search = new Search(searchData);
+        state.search = new SearchQuery(searchData);
       }
     },
     CLEAR_RESULTS(state) {
@@ -83,11 +83,6 @@ export default {
   },
   actions: {
     SEARCH(context) {
-      context.commit('CLEAR_RESULTS');
-      this.commit('SET_PROCESSING', true);
-
-      const results = [];
-
       return new Promise(
         (resolve, reject) => {
           let sortOrder = '';
@@ -100,42 +95,40 @@ export default {
 
           services.articles.find({
             query: {
-              filters: context.state.search.filters,
+              filters: context.state.search.filters.map(filter => ({
+                context: filter.context,
+                type: filter.type,
+                q: filter.query,
+                uid: filter.entity.uid,
+              })),
               page: context.state.paginationCurrentPage,
               limit: context.state.paginationPerPage,
               order_by: sortOrder,
+              // TODO: group_by: 'article|issue|page';
             },
           }).then(
             (res) => {
-              this.commit('SET_PROCESSING', false);
+              context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
+                ...result,
+                issue: {
+                  ...result.issue,
+                  countArticles: result.issue.count_articles,
+                  countPages: result.issue.count_pages,
+                },
+                tags: result.tags.map((tag) => {
+                  tag.appliesTo = tag.applies_to;
+                  return tag;
+                }),
+                newspaperUid: result.newspaper_uid,
+              })));
 
-              if (res.data !== undefined) {
-                res.data.forEach((result) => {
-                  results.push(new Article({
-                    ...result,
-                    issue: {
-                      ...result.issue,
-                      countArticles: result.issue.count_articles,
-                      countPages: result.issue.count_pages,
-                    },
-                    tags: result.tags.map((tag) => {
-                      tag.appliesTo = tag.applies_to;
-                      return tag;
-                    }),
-                    newspaperUid: result.newspaper_uid,
-                  }));
-                });
-
-                context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-                  paginationTotalRows: res.total,
-                });
-                context.commit('UPDATE_RESULTS', results);
-              }
+              context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+                paginationTotalRows: res.total,
+              });
 
               resolve(res);
             },
             (err) => {
-              this.commit('SET_PROCESSING', false);
               reject(err);
             },
           );

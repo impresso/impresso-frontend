@@ -58,36 +58,38 @@
 
 
 // arrow icons
-
+.dropdown .dropbtn {
+  padding-right: 30px;
+}
 
 .dropdown .dropbtn:after,
 .arrow.icon:before {
     content: '';
     border: solid currentColor;
-    border-width: 0 2px 2px 0;
+    border-width: 0 1px 1px 0;
     display: inline-block;
     position:relative;
-    top:-2px;
-    left: 5px;
-    padding: 3px;
+    top:-3px;
+    left: 10px;
+    padding: .30em;
+    transition: top 0.2s ease-out;
 }
 
 .arrow.right.icon:before {
     transform: rotate(-45deg);
-    -webkit-transform: rotate(-45deg);
 }
 
 .arrow.left.icon:before {
     transform: rotate(135deg);
-    -webkit-transform: rotate(135deg);
 }
 
 .arrow.up.icon:before {
     transform: rotate(-135deg);
-    -webkit-transform: rotate(-135deg);
 }
 .dropdown .dropbtn:after,
 .arrow.down.icon:before {
     transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
+}
+.dropdown:hover .dropbtn:after {
+    top: 5px;
 }

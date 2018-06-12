@@ -1,21 +1,24 @@
 <template lang="html">
-  <filter-wrapper v-bind:title="$t(`label.${filter.label}`)" v-on:remove="remove">
+  <filter-wrapper v-bind:title="$t(`label.${filter.entity.getLabel(1)}`)" v-on:remove="remove">
     <div slot="context">
       <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
     </div>
     <div class="p-2">
-      <icon v-if="filter.label === 'person'" name="user-circle"></icon>
-      <icon v-if="filter.label === 'location'" name="map-marker"></icon>
-      {{filter.title}}
+      <icon v-if="filter.entity.hasLabel('person')" name="user-circle"></icon>
+      <icon v-if="filter.entity.hasLabel('location')" name="map-marker"></icon>
+      <icon v-if="filter.entity.hasLabel('test')" name="flash"></icon>
+      {{filter.entity.name}}
     </div>
   </filter-wrapper>
 </template>
 
 <script>
+import Filter from '@/models/Filter';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/user-circle';
 import 'vue-awesome/icons/map-marker';
+import 'vue-awesome/icons/flash';
 
 import FilterWrapper from './FilterWrapper';
 
@@ -30,16 +33,17 @@ export default {
       text: 'Exclude',
     }],
   }),
-  model: {
-    prop: 'filter',
+  props: ['value'],
+  computed: {
+    filter: {
+      get() {
+        return new Filter(this.value);
+      },
+    },
   },
-  props: ['filter'],
   methods: {
     updateFilter() {
       this.$emit('input', this.filter);
-    },
-    getLabel(label) {
-      return this.$t(`label.${label}`);
     },
     remove() {
       this.$emit('remove');
@@ -69,7 +73,8 @@ export default {
   "en": {
     "label": {
       "person": "Person",
-      "location": "Location"
+      "location": "Location",
+      "test": "Daniel and Paul sitting in a tree, Jay Es Sea Ar Eye Pee Tee"
     }
   },
   "fr": {
