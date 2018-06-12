@@ -53,25 +53,41 @@
           transform: rotate(-135deg);
 }
 
-.arrow-right.icon {
-  color: #000;
-  position: absolute;
-  margin-left: 2px;
-  margin-top: 10px;
-  width: 16px;
-  height: 1px;
-  background-color: currentColor;
+
+
+
+
+// arrow icons
+
+
+.dropdown .dropbtn:after,
+.arrow.icon:before {
+    content: '';
+    border: solid currentColor;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    position:relative;
+    top:-2px;
+    left: 5px;
+    padding: 3px;
 }
 
-.arrow-right.icon:before {
-  content: '';
-  position: absolute;
-  right: 1px;
-  top: -5px;
-  width: 10px;
-  height: 10px;
-  border-top: solid 1px currentColor;
-  border-right: solid 1px currentColor;
-  -webkit-transform: rotate(45deg);
-          transform: rotate(45deg);
+.arrow.right.icon:before {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.arrow.left.icon:before {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+}
+
+.arrow.up.icon:before {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+.dropdown .dropbtn:after,
+.arrow.down.icon:before {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
 }

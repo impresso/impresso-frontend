@@ -1,41 +1,54 @@
 <template lang="html">
   <header id="header" v-bind:class="{loading: showProgress}">
     <b-container fluid>
-      <b-row class="bb">
-        <b-col cols="9">
-          <div class="blocks">
-            <div class="block br">
-              <router-link :to="{name: 'home'}">
-                <img src="./../assets/img/impresso-logo.v4-1.jpg" class="logo" />
-              </router-link>
-            </div>
-            <div class="block">
-              <router-link :to="{name: 'home'}" class="link">Home</router-link>
-              <router-link :to="{name: 'dashboard'}" class="link">Newspapers</router-link>
-              <router-link :to="{name: 'named_entities'}" class="link">Named Entities</router-link>
-              <router-link :to="{name: 'about'}" class="link">About</router-link>
+          <router-link :to="{name: 'home'}">
+            <img src="./../assets/img/impresso-logo-h-i@2x.png" class="logo br" />
+          </router-link>
+          <!-- <router-link :to="{name: 'home'}" class="link bl br">{{$t("explore")}}</router-link> -->
+          <div class="dropdown">
+            <button class="dropbtn link">{{$t("explore")}}</button>
+            <div class="dropdown-content">
+              <a href="#" class="link bb">Link 1</a>
+              <a href="#" class="link bb">Link 2</a>
+              <a href="#" class="link">Link 3</a>
             </div>
           </div>
-        </b-col>
-        <b-col class="text-right">
+          <h1 class="text-serif">
+            <span>La Gazette de Lausanne / <strong>Lundi 16 Mai 2018</strong></span></h1>
+
           <!-- {{$t("language")}} -->
-          <b-button v-show="!userData" v-bind:to="{name: 'login'}" variant="link">Login</b-button>
 
-          <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
-            <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
-            <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
-          </b-dropdown>
 
-          <b-dropdown right variant="link" :text="languages[activeLanguageCode].name">
+          <!-- <b-dropdown right variant="link" :text="languages[activeLanguageCode].name">
             <b-dropdown-item
               v-for="language in languages"
               v-bind:active="activeLanguageCode === language.code"
               v-bind:key="language.code"
               @click.prevent="selectLanguage(language.code)"
               href="#">{{language.name}}</b-dropdown-item>
-          </b-dropdown>
-        </b-col>
-      </b-row>
+          </b-dropdown> -->
+          <div style="float:right">
+
+            <b-button v-show="!userData" v-bind:to="{name: 'login'}" variant="link">Login</b-button>
+
+            <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
+              <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
+              <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
+            </b-dropdown>
+
+            <div class="dropdown">
+              <button class="dropbtn link capital">{{languages[activeLanguageCode].code}}</button>
+              <div class="dropdown-content right">
+                <a
+                  v-for="language in languages"
+                  v-bind:active="activeLanguageCode === language.code"
+                  v-bind:key="language.code"
+                  @click.prevent="selectLanguage(language.code)"
+                  href="#" class="link">{{language.name}}</a>
+              </div>
+            </div>
+          </div>
+
     </b-container>
   </header>
 </template>
@@ -97,53 +110,125 @@ export default {
 @import "./../assets/less/style.less";
 
 header {
-    background: @clr-white;
+    //float: left;
+    //display: flex;
+    //align-items: center;
+    //justify-content: center;
+    background: @clr-black;
+    background: linear-gradient(to top, #f0f0f0 2px, #000 2px, #000 100%);
+    border-top: 2px solid @impresso-yellow;
+    //border-bottom: 2px solid @clr-grey-100;
+    border-bottom: 1px solid @clr-grey-400;
+    //box-shadow: 0 1px 0 0 @clr-grey-400;
+    position: fixed;
+    width: 100%;
+
     transition: background-color 100ms;
     &.loading {
-        background: @clr-yellow;
+        border-bottom-color: @clr-yellow;
     }
-
-    .br,
-    .bb,
-    .bt,
-    .bl{
-      border-color: @clr-black;
-      border-style: solid;
-      border-width: 0;
-    }
-
-    .br{ border-right-width: 1px; }
-    .bb{ border-bottom-width: 1px; }
-    .bl{ border-left-width: 1px; }
-    .bt{ border-top-width: 1px; }
 
     .logo {
-        height: 100%;
-        padding-right: 20px;
-    }
-
-    .link{
-      margin-right: 10px;
-      padding: 5px 7px;
-      color:black;
-      &.router-link-exact-active{
-        font-weight: bold;
-      }
-    }
-
-    .blocks{
-      width:100%;
-      height:32px;
-      margin-top: 5px;
-      margin-bottom: 5px;
-      .block{
         display: inline-block;
-        height: 100%;
-        margin-right: 20px;
-        a.link{
+        height: 50px;
+        padding: 10px 15px 10px 10px;
+    }
 
+    .link {
+        // margin-right: 10px;
+        // border-left: 1px solid @clr-grey-600;
+        height: 100%;
+        display: inline-block;
+        padding: 15px;
+        color: @clr-grey-400;
+        font-size: 0.75rem;
+        &.router-link-exact-active {
+            // font-weight: bold;
+            //background-color: @impresso-yellow;
+            //color: black;
         }
-      }
+        &:hover {
+            // background: fade(@impresso-yellow, 30%); // rgba(000,100,100,0.2);
+            text-decoration: none;
+            color: @clr-white;
+        }
+    }
+    h1 {
+        position: absolute;
+        z-index: -1;
+        left: 50%;
+        color: black;
+        font-size: 1rem;
+        top: 14px;
+        width: 100%;
+        text-align: center;
+        margin-left: -50%;
+        > span {
+            background: white;
+            padding: 2px 6px;
+        }
+    }
+
+    .capital {
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    /* The dropdown container */
+    .dropdown {
+        overflow: hidden;
+        display: unset;
+        position: relative;
+    }
+
+    /* Dropdown button */
+    .dropdown .dropbtn {
+        background: transparent;
+        border: 0;
+        margin: inherit;
+    }
+
+    /* Dropdown content (hidden by default) */
+    .dropdown-content {
+        display: none;
+        top: 31px;
+        left: 0;
+        position: absolute;
+        background-color: black;
+        min-width: 160px;
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        z-index: 1;
+        &.right {
+            left: inherit;
+            right: 0;
+        }
+    }
+
+    /* Links inside the dropdown */
+    .dropdown-content a {
+        float: none;
+        display: block;
+    }
+
+    /* Add a grey background color to dropdown links on hover */
+    .dropdown-content a:hover {
+        //background-color: #ddd;
+    }
+
+    /* Show the dropdown menu on hover */
+    .dropdown:hover .dropdown-content {
+        display: block;
     }
 }
 </style>
+
+<i18n>
+{
+  "en": {
+    "explore": "Explore"
+  },
+  "fr": {
+    "explore": "Découvrir"
+  }
+}
+</i18n>
