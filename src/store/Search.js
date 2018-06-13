@@ -99,7 +99,7 @@ export default {
                 context: filter.context,
                 type: filter.type,
                 q: filter.query,
-                uid: filter.entity.uid,
+                uid: filter.getUid(),
               })),
               page: context.state.paginationCurrentPage,
               limit: context.state.paginationPerPage,

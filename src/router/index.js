@@ -37,7 +37,7 @@ export default new Router({
       component: UserDashboardPage,
     },
     {
-      path: '/user/collection/:collection_uid',
+      path: '/user/collection/:collection_uid?',
       name: 'collection',
       component: UserCollectionPage,
       props: true,

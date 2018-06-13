@@ -35,6 +35,9 @@
                 <a href="#" class="link">{{$t("profile")}}</a>
                 <a href="#" class="link">{{$t("dashboard")}}</a>
                 <a href="#" class="link">{{$t("logout")}}</a>
+                <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
+                <b-dropdown-item v-bind:to="{name: 'collection'}">Collections</b-dropdown-item>
+                <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
               </div>
             </div>
             <!-- <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
