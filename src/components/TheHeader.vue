@@ -1,65 +1,51 @@
 <template lang="html">
   <header id="header" v-bind:class="{loading: showProgress}">
-          <router-link :to="{name: 'home'}">
-            <img src="./../assets/img/impresso-logo-h-i@2x.png" class="logo br" />
-          </router-link>
-          <div class="navigation-left">
-            <!-- <router-link :to="{name: 'home'}" class="link bl br">{{$t("explore")}}</router-link> -->
-            <div class="dropdown">
-              <button class="dropbtn link">{{$t("explore")}}</button>
-              <div class="dropdown-content">
-                <a href="#" class="link">Link 1</a>
-                <a href="#" class="link">Link 2</a>
-                <a href="#" class="link">Link 3</a>
-              </div>
-            </div>
+    <router-link :to="{name: 'home'}">
+      <img src="./../assets/img/impresso-logo-h-i@2x.png" class="logo br" />
+    </router-link>
+    <div class="navigation-left">
+
+      <div class="dropdown">
+        <button class="dropbtn link">{{$t("explore")}}</button>
+        <div class="dropdown-content">
+          <a href="#" class="link">Link 1</a>
+          <a href="#" class="link">Link 2</a>
+          <a href="#" class="link">Link 3</a>
+        </div>
+      </div>
+    </div>
+    <div class="navigation-center">
+      <h1 class="text-serif">
+        La Gazette de Lausanne / <strong>Lundi 16 Mai 2018</strong>
+      </h1>
+    </div>
+    <div class="navigation-right">
+      <div v-if="userData" class="dropdown">
+        <button class="dropbtn link">
+          <img src="http://via.placeholder.com/25&text=RA" alt="">
+          <div class="two-lines" >
+            <strong>Alba Rorwacher</strong>  Researcher
           </div>
-          <div class="navigation-center">
-            <h1 class="text-serif">
-              La Gazette de Lausanne / <strong>Lundi 16 Mai 2018</strong>
-            </h1>
-          </div>
-
-          <div class="navigation-right">
-
-            <!-- <b-button v-show="!userData" v-bind:to="{name: 'login'}" variant="link">Login</b-button> -->
-            <div class="dropdown">
-              <button class="dropbtn link">
-                <img src="http://via.placeholder.com/25&text=RA" alt="">
-                <div class="two-lines" >
-                    <strong>Alba Rorwacher</strong>
-                    Researcher
-                </div>
-              </button>
-              <div class="dropdown-content right">
-                <a href="#" class="link">{{$t("profile")}}</a>
-                <a href="#" class="link">{{$t("dashboard")}}</a>
-                <a href="#" class="link">{{$t("logout")}}</a>
-                <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
-                <b-dropdown-item v-bind:to="{name: 'collection'}">Collections</b-dropdown-item>
-                <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
-              </div>
-            </div>
-            <!-- <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
-              <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
-              <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
-            </b-dropdown> -->
-
-            <!-- <div class="bl" style="display: inline-block; height: 100%"> -->
-
-            <div class="dropdown">
-              <button class="dropbtn link capital">{{languages[activeLanguageCode].code}}</button>
-              <div class="dropdown-content right">
-                <a
-                  v-for="language in languages"
-                  v-bind:active="activeLanguageCode === language.code"
-                  v-bind:key="language.code"
-                  @click.prevent="selectLanguage(language.code)"
-                  href="#" class="link">{{language.name}}</a>
-              </div>
-            </div>
-          </div>
-
+        </button>
+        <div class="dropdown-content right">
+          <router-link class="link" v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</router-link>
+          <router-link class="link" v-bind:to="{ name: 'collection'}">{{$t("collections")}}</router-link>
+          <a v-on:click.prevent="logout" href="#" class="link" >{{$t("logout")}}</a>
+        </div>
+      </div>
+      <router-link v-else class="link" v-bind:to="{ name: 'login'}">{{$t("login")}}</router-link>
+      <div class="dropdown">
+        <button class="dropbtn link capital">{{languages[activeLanguageCode].code}}</button>
+        <div class="dropdown-content right">
+          <a
+            v-for="language in languages"
+            v-bind:active="activeLanguageCode === language.code"
+            v-bind:key="language.code"
+            @click.prevent="selectLanguage(language.code)"
+            href="#" class="link">{{language.name}}</a>
+        </div>
+      </div>
+    </div>
   </header>
 </template>
 
