@@ -3,30 +3,30 @@
     <h1 class="text-serif font-weight-bold font-size-lg">{{collection.name}}</h1>
     <div class="details two">
       <div class="detail">
-        Created:<br>
+        <span class="muted">Created</span><br>
         <strong>{{$d(collection.creationDate, 'short')}}</strong>
       </div>
       <div class="detail">
-        Edited:<br>
+        <span class="muted">Edited</span><br>
         <strong>{{$d(collection.lastModifiedDate, 'short')}}</strong>
       </div>
     </div>
     <hr>
     <div class="details four">
       <div class="detail">
-        Issues<br>
+        <span class="muted">Issues</span><br>
         <strong>{{collection.countIssues}}</strong>
       </div>
       <div class="detail">
-        Pages<br>
+        <span class="muted">Pages</span><br>
         <strong>{{collection.countPages}}</strong>
       </div>
       <div class="detail">
-        Articles<br>
+        <span class="muted">Articles</span><br>
         <strong>{{collection.countArticles}}</strong>
       </div>
       <div class="detail">
-        Entities<br>
+        <span class="muted">Entities</span><br>
         <strong>{{collection.countEntities}}</strong>
       </div>
     </div>
@@ -68,6 +68,11 @@ export default {
 
         &.two{
           grid-template-columns: repeat(2, 1fr);
+        }
+
+        .muted{
+          opacity: .5;
+          font-size: smaller;
         }
     }
 
