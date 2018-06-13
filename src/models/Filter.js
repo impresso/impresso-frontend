@@ -31,4 +31,11 @@ export default function Filter({
     }
     return this.query;
   };
+
+  this.getUid = () => {
+    if (this.entity.uid !== '') {
+      return this.entity.uid;
+    }
+    return undefined;
+  };
 }
