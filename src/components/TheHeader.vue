@@ -12,7 +12,7 @@
 
       <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
         <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
-        <b-dropdown-item v-bind:to="{name: 'collection', params: {collection_uid: 'all'}}">Collections</b-dropdown-item>
+        <b-dropdown-item v-bind:to="{name: 'collection'}">Collections</b-dropdown-item>
         <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
       </b-dropdown>
 
