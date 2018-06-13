@@ -119,6 +119,7 @@ export default {
 header {
     display: grid;
     height: 53px;
+    z-index: 1;
     grid-template-columns: max-content max-content auto max-content;
     grid-template-rows: 100%;
     grid-template-areas: "logo navigation-left navigation-center navigation-right";
@@ -188,63 +189,6 @@ header {
             color: @clr-white;
         }
     }
-
-    .capital {
-        text-transform: uppercase;
-        font-size: 90%;
-        font-weight: bold;
-    }
-
-    .dropdown {
-        overflow: hidden;
-        display: unset;
-        position: relative;
-        //background: green;
-        .dropbtn {
-            background: transparent;
-            border: 0;
-            margin: inherit;
-            height: 100%;
-            //background: red;
-            .two-lines {
-                position: relative;
-                top: -7px;
-                left: 3px;
-                text-align: left;
-                padding-right: 10px;
-                line-height: 16px;
-                display: inline-table;
-                strong {
-                    display: block;
-                }
-            }
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            left: 0;
-            top: 31px;
-            min-width: 160px;
-            background-color: black;
-            border: 1px solid @clr-grey-700;
-            text-align: left;
-            //box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-            z-index: 1;
-            &.right {
-                left: inherit;
-                right: 0;
-            }
-            a {
-                display: block;
-                padding: 15px 10px;
-            }
-            a:hover {}
-        }
-    }
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
-
 }
 </style>
 
