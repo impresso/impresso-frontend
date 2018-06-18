@@ -36,7 +36,7 @@
       </div>
     </div>
     <div class="controls">
-      <issue-viewer-zoom-slider v-model="zoomLevel" v-bind:domain="domain"></issue-viewer-zoom-slider>
+      <issue-viewer-zoom-slider v-model="zoom" v-bind:domain="domain"></issue-viewer-zoom-slider>
     </div>
   </div>
 </template>
@@ -77,6 +77,14 @@ export default {
   computed: {
     domain() {
       return [this.minZoomLevel, this.maxZoomLevel];
+    },
+    zoom: {
+      get() {
+        return this.zoomLevel;
+      },
+      set(val) {
+        this.$emit('zoom', val);
+      },
     },
   },
   methods: {
