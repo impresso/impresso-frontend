@@ -22,6 +22,9 @@ export default {
     getSearchesReversed(state) {
       return state.searches.slice().reverse();
     },
+    getSearch(state) {
+      return state.search instanceof SearchQuery ? state.search : new SearchQuery(state.search);
+    },
   },
   mutations: {
     UPDATE_SEARCH_DISPLAY_SORT(state, payload) {
@@ -93,14 +96,15 @@ export default {
 
           sortOrder += context.state.displaySortBy;
 
-          services.articles.find({
+          services.search.find({
             query: {
-              filters: context.state.search.filters.map(filter => ({
+              filters: context.getters.getSearch.filters.map(filter => ({
                 context: filter.context,
                 type: filter.type,
                 q: filter.query,
                 uid: filter.getUid(),
               })),
+              group_by: 'articles', // TODO: this can be pages at a later stage
               page: context.state.paginationCurrentPage,
               limit: context.state.paginationPerPage,
               order_by: sortOrder,
