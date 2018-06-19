@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import DateSlider from './NamedEntityExplorerDateSlider';
+import DateSlider from './modules/NamedEntityExplorerDateSlider';
 
 export default {
   model: {
@@ -80,7 +80,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "./../../assets/less/style.less";
+@import "./../assets/less/style.less";
 
 h1 {
     color: red;
