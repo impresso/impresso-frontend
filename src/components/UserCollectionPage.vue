@@ -4,6 +4,13 @@
     <b-input-group>
       <b-form-input v-model="search" placeholder="Search"></b-form-input>
         <button class="btn btn-info" v-on:click="add()">Add</button>
+        <select v-model="collectionsSortOrder">
+          <option value="name">A-Z</option>
+          <option value="-name">Z-A</option>
+          <option value="created">Oldest</option>
+          <option value="-created">Newest</option>
+          <option value="-modified">Last Edit</option>
+        </select>
     </b-input-group>
     <div class="collection-items">
       <collection-sidebar-item
@@ -43,8 +50,6 @@
 </template>
 
 <script>
-import * as services from '@/services';
-
 import Collection from '@/models/Collection';
 import CollectionSidebarItem from './modules/CollectionSidebarItem';
 
@@ -56,9 +61,19 @@ export default {
     collection_data: [],
   }),
   computed: {
+    collectionsSortOrder: {
+      get() {
+        return this.$store.getters['user/collectionsSortOrder'];
+      },
+      set(collectionsSortOrder) {
+        this.$store.commit('user/SET_COLLECTIONS_SORT_ORDER', {
+          collectionsSortOrder,
+        });
+      },
+    },
     collections: {
       get() {
-        return this.collection_data.filter(
+        return this.$store.getters['user/collections'].filter(
           c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
       },
     },
@@ -89,10 +104,8 @@ export default {
     },
   },
   mounted() {
-    this.fetch().then(() => {
-      this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
-        this.collectionAll);
-    });
+    this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
+      this.collectionAll);
   },
   watch: {
     collection: {
@@ -109,25 +122,7 @@ export default {
   },
   methods: {
     fetch() {
-      return new Promise((resolve) => {
-        services.collections.find().then((results) => {
-          this.sortBy(results.data, 'last_modified_time');
-
-          this.collection_data = results.data.map(result => new Collection({
-            countArticles: result.count_articles,
-            countEntities: result.count_entities,
-            countIssues: result.count_issues,
-            countPages: result.count_pages,
-            creationDate: result.creation_date,
-            creationTime: result.creation_time,
-            lastModifiedDate: result.last_modified_date,
-            lastModifiedTime: result.last_modified_time,
-            ...result,
-          }));
-
-          resolve(results);
-        });
-      });
+      return this.$store.dispatch('user/LOAD_COLLECTIONS');
     },
     select(collection) {
       this.editMode = false;
@@ -159,14 +154,17 @@ export default {
     remove(collection) {
       const sure = confirm(this.$t('confirm_delete'));
       if (sure) {
-        services.collections.remove(collection.uid).then(() => {
-          this.select(this.collectionAll);
+        this.$store.dispatch('user/DELETE_COLLECTION', collection.uid).then(() => {
+          this.fetch().then(() => {
+            this.select(this.collectionAll);
+          });
         });
       }
     },
     save(collection) {
       if (collection.uid) {
-        services.collections.patch(collection.uid, {
+        this.$store.dispatch('user/EDIT_COLLECTION', {
+          uid: collection.uid,
           name: collection.name,
           description: collection.description,
         }).then(() => {
@@ -175,7 +173,7 @@ export default {
           });
         });
       } else {
-        services.collections.create({
+        this.$store.dispatch('user/ADD_COLLECTION', {
           name: collection.name,
           description: collection.description,
         }).then((res) => {

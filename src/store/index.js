@@ -58,6 +58,8 @@ export default new Vuex.Store({
       'search.paginationTotalRows',
       'user.rememberCredetials',
       'user.userData',
+      'user.collections',
+      'user.collectionsSortOrder',
     ],
   })],
 });

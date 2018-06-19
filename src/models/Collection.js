@@ -1,9 +1,18 @@
 /**
  * Collection is an object representing a user generated collection of entityes, articles, etc.
- * @param {Integer} df Document Frequency
- * @param {Array} labels Array with labels as strings
- * @param {String} name Name of the Namend Entity
- * @param {String} uid Unique identifier for the Named Entity
+ * @param {Integer} countArticles Number of articles in the collection
+ * @param {Integer} countEntities Number of entities in the collection
+ * @param {Integer} countIssues Number of issues in the collection
+ * @param {Integer} countPages Number of pages in the collection
+ * @param {Date} creationDate Date object when the collection was created
+ * @param {Integer} creationTime Timestamp when the collection was created
+ * @param {String} description Textual description of the collection by the user
+ * @param {Array} items List of items in the collection of type Entity, Issue, Newspaper or Page
+ * @param {Array} labels List of strings describing the collection object, set by server ('bucket')
+ * @param {Date} lastModifiedDate Date object when the collection was last modified
+ * @param {Integer} lastModifiedTime Timestamp when the collection was last modified
+ * @param {String} name Name of collection set by the user
+ * @param {String} uid Unique identifier for the Collection
  */
 export default function Collection({
   countArticles = 0,

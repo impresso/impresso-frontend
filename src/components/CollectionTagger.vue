@@ -2,13 +2,20 @@
   <div class="collection-tagger">
     <a v-on:click.prevent="toggle" href="#">toggle</a>
     <div v-show="show">
+      <select v-model="collectionsSortOrder">
+        <option value="name">A-Z</option>
+        <option value="-name">Z-A</option>
+        <option value="created">Oldest</option>
+        <option value="-created">Newest</option>
+        <option value="-modified">Last Edit</option>
+      </select>
       <ul>
         <li v-for="collection in collections" class="form-check">
           <input
           class="form-check-input"
           type="checkbox"
-          v-bind:checked="isActive(collection.uid)"
-          v-on:click="toggleActive(collection.uid)"
+          v-bind:checked="isActive(collection)"
+          v-on:click="toggleActive(collection)"
            id="defaultCheck1">
           <label class="form-check-label" for="defaultCheck1">
             {{collection.name}}
@@ -28,6 +35,26 @@ export default {
   model: {
     prop: 'item',
   },
+  props: {
+    item: Object,
+  },
+  computed: {
+    collections: {
+      get() {
+        return this.$store.getters['user/collections'];
+      },
+    },
+    collectionsSortOrder: {
+      get() {
+        return this.$store.getters['user/collectionsSortOrder'];
+      },
+      set(collectionsSortOrder) {
+        this.$store.commit('user/SET_COLLECTIONS_SORT_ORDER', {
+          collectionsSortOrder,
+        });
+      },
+    },
+  },
   methods: {
     isActive(needle) {
       return this.item.collections.find(collection => needle === collection);
@@ -46,10 +73,6 @@ export default {
     toggle() {
       this.show = !this.show;
     },
-  },
-  props: {
-    item: Object,
-    collections: Array,
   },
 };
 </script>
