@@ -67,8 +67,6 @@ export default {
       } else {
         this.item.collections.push(collection);
       }
-
-      this.$emit('input', this.item);
     },
     toggle() {
       this.show = !this.show;
