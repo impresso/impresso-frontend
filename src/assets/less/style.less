@@ -1,61 +1,107 @@
 @import "./color.less";
 @import "./type.less";
 @import "./icons.less";
+
 /* COLOR */
 @clr-ui-border-dark: @clr-grey-500;
 
-body {
+body{
   background: white;
+  color:black;
+}
+
+a,
+.btn-link {
+    color: @clr-blue-500;
+    &:hover {
+      color: @clr-blue-300
+    }
 }
 
 /* TYPE */
-body {
-  font-family: OpenSans, "helvetica neue", Arial, sans-serif;
-  font-size: 0.78rem;
+body{
+  font-family:  SourceSansPro, "helvetica neue", Arial, sans-serif;
+  font-size: .78rem;
 }
 
-.text-serif {
-  font-family: PlayfairDisplay, Garamond, Baskerville, "Baskerville Old Face", "Hoefler Text", "Times New Roman", serif;
+main {
+}
 
-  &.font-weight-black {
+.text-serif{
+  font-family:  PlayfairDisplay, Garamond, Baskerville, "Baskerville Old Face", "Hoefler Text", "Times New Roman", serif;
+  &.font-weight-black{
     font-weight: 900;
   }
 }
 
-.font-size-sm {
-  font-size: 0.5em;
-}
-.font-size-md {
-  font-size: 1em;
-}
-.font-size-lg {
-  font-size: 2em;
-}
-.font-size-xl {
-  font-size: 4em;
-}
 /* UI */
-.bb,
-.bl,
 .br,
-.bt {
+.bb,
+.bt,
+.bl{
   border-color: @clr-ui-border-dark;
   border-style: solid;
   border-width: 0;
 }
 
-.br {
-  border-right-width: 1px;
+.br{ border-right-width: 1px; }
+.bb{ border-bottom-width: 1px; }
+.bl{ border-left-width: 1px; }
+.bt{ border-top-width: 1px; }
+
+.capital {
+    text-transform: uppercase;
+    font-size: 90%;
+    font-weight: bold;
 }
 
-.bb {
-  border-bottom-width: 1px;
-}
 
-.bl {
-  border-left-width: 1px;
-}
 
-.bt {
-  border-top-width: 1px;
+.dropdown {
+    overflow: hidden;
+    display: unset;
+    position: relative;
+    &:hover .dropdown-content {
+        display: block;
+    }
+    .dropbtn {
+        background: transparent;
+        border: 0;
+        margin: inherit;
+        height: 100%;
+        //background: red;
+        .two-lines {
+            position: relative;
+            top: -7px;
+            left: 3px;
+            text-align: left;
+            padding-right: 10px;
+            line-height: 16px;
+            display: inline-table;
+            strong {
+                display: block;
+            }
+        }
+    }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 31px;
+        min-width: 160px;
+        background-color: black;
+        border: 1px solid @clr-grey-500;
+        text-align: left;
+        //box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        z-index: 1;
+        &.right {
+            left: inherit;
+            right: 0;
+        }
+        a {
+            display: block;
+            padding: 15px 10px;
+        }
+        a:hover {}
+    }
 }

@@ -30,3 +30,13 @@ export const suggestions = app.service('suggestions');
 export const articles = app.service('articles');
 export const issues = app.service('issues');
 export const pages = app.service('pages');
+export const search = app.service('search');
+export const collections = app.service('buckets').hooks({
+  before: {
+    all: [
+      async () => {
+        await app.authenticate();
+      },
+    ],
+  },
+});
