@@ -6,6 +6,7 @@ import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
 import UserCollectionPage from '../components/UserCollectionPage';
+import TestPage from '../components/TestPage';
 
 Vue.use(Router);
 
@@ -83,6 +84,10 @@ export default new Router({
       component: IssuePage,
       name: 'article',
       props: true,
+    },
+    {
+      path: '/playground',
+      component: TestPage,
     },
   ],
 });
