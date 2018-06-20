@@ -63,17 +63,17 @@ export default {
   computed: {
     collectionsSortOrder: {
       get() {
-        return this.$store.getters['user/collectionsSortOrder'];
+        return this.$store.getters['collections/collectionsSortOrder'];
       },
       set(collectionsSortOrder) {
-        this.$store.commit('user/SET_COLLECTIONS_SORT_ORDER', {
+        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
           collectionsSortOrder,
         });
       },
     },
     collections: {
       get() {
-        return this.$store.getters['user/collections'].filter(
+        return this.$store.getters['collections/collections'].filter(
           c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
       },
     },
@@ -122,7 +122,7 @@ export default {
   },
   methods: {
     fetch() {
-      return this.$store.dispatch('user/LOAD_COLLECTIONS');
+      return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
     select(collection) {
       this.editMode = false;
@@ -154,7 +154,7 @@ export default {
     remove(collection) {
       const sure = confirm(this.$t('confirm_delete'));
       if (sure) {
-        this.$store.dispatch('user/DELETE_COLLECTION', collection.uid).then(() => {
+        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
           this.fetch().then(() => {
             this.select(this.collectionAll);
           });
@@ -163,7 +163,7 @@ export default {
     },
     save(collection) {
       if (collection.uid) {
-        this.$store.dispatch('user/EDIT_COLLECTION', {
+        this.$store.dispatch('collections/EDIT_COLLECTION', {
           uid: collection.uid,
           name: collection.name,
           description: collection.description,
@@ -173,7 +173,7 @@ export default {
           });
         });
       } else {
-        this.$store.dispatch('user/ADD_COLLECTION', {
+        this.$store.dispatch('collections/ADD_COLLECTION', {
           name: collection.name,
           description: collection.description,
         }).then((res) => {

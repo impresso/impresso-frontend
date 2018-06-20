@@ -41,15 +41,15 @@ export default {
   computed: {
     collections: {
       get() {
-        return this.$store.getters['user/collections'];
+        return this.$store.getters['collections/collections'];
       },
     },
     collectionsSortOrder: {
       get() {
-        return this.$store.getters['user/collectionsSortOrder'];
+        return this.$store.getters['collections/collectionsSortOrder'];
       },
       set(collectionsSortOrder) {
-        this.$store.commit('user/SET_COLLECTIONS_SORT_ORDER', {
+        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
           collectionsSortOrder,
         });
       },
@@ -67,6 +67,8 @@ export default {
       } else {
         this.item.collections.push(collection);
       }
+
+      console.log(collection, this.item);
     },
     toggle() {
       this.show = !this.show;
