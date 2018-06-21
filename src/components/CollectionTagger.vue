@@ -1,28 +1,34 @@
 <template lang="html">
   <div class="collection-tagger">
-    <a v-on:click.prevent="toggle" href="#">toggle</a>
-    <div v-show="show">
-      <select v-model="collectionsSortOrder">
-        <option value="name">A-Z</option>
-        <option value="-name">Z-A</option>
-        <option value="created">Oldest</option>
-        <option value="-created">Newest</option>
-        <option value="-modified">Last Edit</option>
-      </select>
-      <ul>
-        <li v-for="collection in collections" class="form-check">
-          <input
-          class="form-check-input"
-          type="checkbox"
-          v-bind:checked="isActive(collection)"
-          v-on:click="toggleActive(collection)"
-           id="defaultCheck1">
-          <label class="form-check-label" for="defaultCheck1">
-            {{collection.name}}
-          </label>
-        </li>
-      </ul>
-      {{item}}
+    <a v-on:click.prevent="toggle" href="#">Save</a>
+    <div class="overlay" v-show="show">
+      <div class="body">
+        <a v-on:click.prevent="toggle" href="#">Close</a>
+        <hr>
+        <select v-model="collectionsSortOrder">
+          <option value="name">A-Z</option>
+          <option value="-name">Z-A</option>
+          <option value="created">Oldest</option>
+          <option value="-created">Newest</option>
+          <option value="-modified">Last Edit</option>
+        </select>
+        <ul>
+          <li v-for="collection in collections" class="form-check">
+            <input
+            class="form-check-input"
+            type="checkbox"
+            v-bind:checked="isActive(collection)"
+            v-on:click="toggleActive(collection)"
+            v-bind:id="collection.uid">
+            <label class="form-check-label" v-bind:for="collection.uid">
+              {{collection.name}}
+            </label>
+          </li>
+        </ul>
+        <pre>
+        {{item}}
+        </pre>
+      </div>
     </div>
   </div>
 </template>
@@ -57,7 +63,8 @@ export default {
   },
   methods: {
     isActive(needle) {
-      return this.item.collections.find(collection => needle === collection);
+      console.log(this.item.collections);
+      return this.item.collections.find(collection => needle.uid === collection.uid);
     },
     toggleActive(collection) {
       const idx = this.item.collections.indexOf(collection);
@@ -68,7 +75,10 @@ export default {
         this.item.collections.push(collection);
       }
 
-      console.log(collection, this.item);
+      this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
+        collection,
+        item: this.item,
+      });
     },
     toggle() {
       this.show = !this.show;
@@ -79,10 +89,23 @@ export default {
 
 <style scoped lang="less">
 .collection-tagger {
-    width: 300px;
-    max-width: 100%;
-    background: #ccc;
-    border-radius: 3px;
-    padding: 5px 10px;
+    .overlay {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 10001;
+        .body {
+            width: 50%;
+            left: 25%;
+            position: absolute;
+            height: 50%;
+            top: 25%;
+            overflow-y: auto;
+            background: white;
+        }
+    }
 }
 </style>

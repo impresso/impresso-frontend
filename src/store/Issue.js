@@ -23,6 +23,7 @@ export default {
         services.issues.get(uid, {}).then((response) => {
           resolve(response);
           context.commit('UPDATE_ISSUE', {
+            collections: response.buckets,
             countArticles: response.count_articles,
             countPages: response.count_pages,
             date: response.date,

@@ -44,4 +44,4 @@ export const issues = app.service('issues');
 export const pages = app.service('pages');
 export const search = app.service('search');
 export const collections = app.service('buckets');
-export const collections2items = app.service('buckets-items');
+export const collectionsItems = app.service('buckets-items');

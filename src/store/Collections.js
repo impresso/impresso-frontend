@@ -1,5 +1,9 @@
 import * as services from '@/services';
 import Collection from '@/models/Collection';
+import Article from '@/models/Article';
+import Entity from '@/models/Entity';
+import Issue from '@/models/Issue';
+import Page from '@/models/Page';
 
 export default {
   namespaced: true,
@@ -9,7 +13,13 @@ export default {
   },
   getters: {
     collections(state) {
-      return state.collections.map(c => new Collection(c));
+      return state.collections.map((collection) => {
+        if (collection instanceof Collection) {
+          return collection;
+        }
+
+        return new Collection(collection);
+      });
     },
     collectionsSortOrder(state) {
       return state.collectionsSortOrder;
@@ -18,6 +28,10 @@ export default {
   mutations: {
     UPDATE_COLLECTIONS(state, collections) {
       state.collections = collections;
+    },
+    UPDATE_COLLECTION(state, payload) {
+      const index = state.collections.findIndex(collection => collection.uid === payload.uid);
+      state.collections.splice(index, 1, new Collection(payload));
     },
     SET_COLLECTIONS_SORT_ORDER(state, payload) {
       const collectionsSortOrder = payload.collectionsSortOrder || state.collectionsSortOrder;
@@ -61,6 +75,25 @@ export default {
     },
   },
   actions: {
+    LOAD_COLLECTION(context, collection) {
+      return new Promise((resolve) => {
+        services.collections.get(collection.uid, {}).then((result) => {
+          collection = new Collection({
+            countArticles: result.count_articles,
+            countEntities: result.count_entities,
+            countIssues: result.count_issues,
+            countPages: result.count_pages,
+            creationDate: result.creation_date,
+            creationTime: result.creation_time,
+            lastModifiedDate: result.last_modified_date,
+            lastModifiedTime: result.last_modified_time,
+            ...result,
+          });
+          context.commit('UPDATE_COLLECTION', collection);
+          resolve(collection);
+        });
+      });
+    },
     LOAD_COLLECTIONS(context) {
       return new Promise((resolve) => {
         services.collections.find({
@@ -104,6 +137,37 @@ export default {
       return new Promise((resolve) => {
         services.collections.remove(uid).then(res => resolve(res));
       });
+    },
+    ADD_COLLECTION_ITEM(context, payload) {
+      const collection = payload.collection;
+      const item = payload.item;
+
+      let label = false;
+
+      if (item instanceof Page) {
+        label = 'page';
+      } else if (item instanceof Article) {
+        label = 'article';
+      } else if (item instanceof Entity) {
+        label = 'entity';
+      } else if (item instanceof Issue) {
+        label = 'issue';
+      }
+
+      if (label && collection instanceof Collection) {
+        services.collectionsItems.create({
+          bucket_uid: collection.uid,
+          items: [{
+            label,
+            uid: item.uid,
+          }],
+        }).then((res) => {
+          console.log(res);
+        });
+      }
+
+
+      console.log(collection, item);
     },
   },
 };

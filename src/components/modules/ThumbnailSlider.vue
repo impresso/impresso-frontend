@@ -1,8 +1,8 @@
 <template lang="html">
-  <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
+  <div id="thumbnail-slider">
     <div class="tiles">
       <div
-        v-for="item in issue.pages"
+        v-for="(item, index) in issue.pages"
         class="tile"
         v-bind:class="{active: page.uid === item.uid}"
         v-on:click="onClickPage(item)">
@@ -22,8 +22,6 @@
 <script>
 import Page from '@/models/Page';
 import ThumbnailSliderItem from './ThumbnailSliderItem';
-
-require('dragscroll');
 
 export default {
   model: {
