@@ -63,7 +63,6 @@ export default {
   },
   methods: {
     isActive(needle) {
-      console.log(this.item.collections);
       return this.item.collections.find(collection => needle.uid === collection.uid);
     },
     toggleActive(collection) {
