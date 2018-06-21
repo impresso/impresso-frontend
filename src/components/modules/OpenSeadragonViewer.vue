@@ -8,14 +8,17 @@ import OpenSeadragon from 'openseadragon';
 const uuid = require('uuid');
 
 export default {
-  props: ['value'],
+  model: {
+    prop: 'tileSource',
+  },
+  props: ['tileSource'],
   data: () => ({
     id: `os-viewer-${uuid.v4()}`,
   }),
   mounted() {
     OpenSeadragon({
       id: this.id,
-      tileSources: [this.value],
+      tileSources: [this.tileSource],
       showNavigationControl: false,
       minZoomLevel: 0.5,
       defaultZoomLevel: 1,
