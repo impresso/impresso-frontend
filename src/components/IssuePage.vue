@@ -79,6 +79,11 @@ export default {
         pageUid = this.$route.params.page_uid;
       }
 
+      this.$store.commit('SET_HEADER_TITLE', {
+        subtitle: this.$d(this.issue.date, 'short'),
+        title: this.issue.newspaper.name,
+      });
+
       this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
         this.page = this.issue.pages.find(p => p.uid === page.uid);
       });
