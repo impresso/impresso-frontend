@@ -4,6 +4,7 @@
     <b-input-group>
       <b-form-input v-model="search" placeholder="Search"></b-form-input>
         <button class="btn btn-info" v-on:click="add()">Add</button>
+        <button class="btn btn-info" v-on:click="fetch()">Reload</button>
         <select v-model="collectionsSortOrder">
           <option value="name">A-Z</option>
           <option value="-name">Z-A</option>
@@ -36,7 +37,7 @@
     <div v-else>
       <h1>{{collection.name}}</h1>
       <p><strong>{{collection.description}}</strong></p>
-      <b-input-group v-show="collections.indexOf(collection) !== -1">
+      <b-input-group v-show="collection.uid !== 'all'">
         <button class="btn btn-primary" v-on:click="edit()">EDIT</button>
         <button class="btn btn-danger" v-on:click="remove(collection)">Delete</button>
       </b-input-group>
@@ -58,7 +59,6 @@ export default {
     search: '',
     editMode: false,
     collection: new Collection(),
-    collection_data: [],
   }),
   computed: {
     collectionsSortOrder: {
@@ -104,18 +104,10 @@ export default {
     },
   },
   mounted() {
-    this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
-      this.collectionAll);
-  },
-  watch: {
-    collection: {
-      handler() {
-        // TODO: here we fetch the collection details
-        // services.collections.get(val.uid).then((res) => {
-        //   console.log(res);
-        // });
-      },
-    },
+    this.fetch().then(() => {
+      this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
+        this.collectionAll);
+    });
   },
   components: {
     CollectionSidebarItem,
@@ -126,11 +118,6 @@ export default {
     },
     select(collection) {
       this.editMode = false;
-      if (collection instanceof Collection) {
-        this.collection = collection;
-      } else {
-        this.collection = this.collections.find(c => c.uid === collection);
-      }
 
       this.$router.push({
         name: 'collection',
@@ -138,6 +125,14 @@ export default {
           collection_uid: collection.uid !== '' ? collection.uid : undefined,
         },
       });
+
+      this.collection = collection;
+
+      if (collection.uid !== 'all') {
+        this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
+          this.collection = res;
+        });
+      }
     },
     cancel(collection) {
       this.fetch().then(() => {
