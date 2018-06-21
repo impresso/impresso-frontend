@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="collection-tagger">
+  <div v-if="isLoggedIn()" class="collection-tagger">
     <a v-on:click.prevent="toggle" href="#">Save</a>
     <div class="overlay" v-show="show">
       <div class="body">
@@ -66,21 +66,27 @@ export default {
       return this.item.collections.find(collection => needle.uid === collection.uid);
     },
     toggleActive(collection) {
-      const idx = this.item.collections.indexOf(collection);
+      const idx = this.item.collections.findIndex(c => (c.uid === collection.uid));
 
       if (idx >= 0) {
         this.item.collections.splice(idx, 1);
+        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+          collection,
+          item: this.item,
+        });
       } else {
         this.item.collections.push(collection);
+        this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
+          collection,
+          item: this.item,
+        });
       }
-
-      this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
-        collection,
-        item: this.item,
-      });
     },
     toggle() {
       this.show = !this.show;
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
     },
   },
 };

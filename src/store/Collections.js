@@ -165,9 +165,35 @@ export default {
           console.log(res);
         });
       }
+    },
+    REMOVE_COLLECTION_ITEM(context, payload) {
+      const collection = payload.collection;
+      const item = payload.item;
 
+      let label = false;
 
-      console.log(collection, item);
+      if (item instanceof Page) {
+        label = 'page';
+      } else if (item instanceof Article) {
+        label = 'article';
+      } else if (item instanceof Entity) {
+        label = 'entity';
+      } else if (item instanceof Issue) {
+        label = 'issue';
+      }
+
+      if (label && collection instanceof Collection) {
+        services.collectionsItems.remove(collection.uid, {
+          query: {
+            items: [{
+              label,
+              uid: item.uid,
+            }],
+          },
+        }).then((res) => {
+          console.log(res);
+        });
+      }
     },
   },
 };
