@@ -18,6 +18,13 @@ app.hooks({
       () => {
         window.app.$store.commit('SET_PROCESSING', true);
       },
+      async () => {
+        try {
+          await app.authenticate();
+        } catch (e) {
+          console.log(e);
+        }
+      },
     ],
   },
   after: {

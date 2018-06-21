@@ -23,7 +23,7 @@
         v-for="(c, index) in collections"
         v-model="collections[index]"
         v-on:click="select(c)"
-        v-bind:class="{active: c === collection}"
+        v-bind:class="{active: c.uid === collection.uid}"
         ></collection-sidebar-item>
     </div>
   </div>
@@ -43,9 +43,41 @@
       </b-input-group>
     </div>
     <hr>
-    <pre>
-    {{collection}}
-    </pre>
+    <div v-if="entities.length > 0" class="collection-group">
+      <h4>Entities</h4>
+      <div class="grid">
+        <div class="item" v-for="entity in entities">
+          {{entity}}
+        </div>
+      </div>
+    </div>
+
+    <div v-if="issues.length > 0" class="collection-group">
+      <h4>Issues</h4>
+      <div class="grid">
+        <div class="item" v-for="issue in issues">
+          {{issue}}
+        </div>
+      </div>
+    </div>
+
+    <div v-if="pages.length > 0" class="collection-group">
+      <h4>Pages</h4>
+      <div class="grid">
+        <div class="item" v-for="page in pages">
+          <open-seadragon-viewer v-model="page.iiif" />
+        </div>
+      </div>
+    </div>
+
+    <div v-if="articles.length > 0" class="collection-group">
+      <h4>Articles</h4>
+      <div class="grid">
+        <div class="item" v-for="article in articles">
+          {{article}}
+        </div>
+      </div>
+    </div>
   </div>
 </main>
 </template>
@@ -53,6 +85,7 @@
 <script>
 import Collection from '@/models/Collection';
 import CollectionSidebarItem from './modules/CollectionSidebarItem';
+import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 
 export default {
   data: () => ({
@@ -75,6 +108,26 @@ export default {
       get() {
         return this.$store.getters['collections/collections'].filter(
           c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
+      },
+    },
+    pages: {
+      get() {
+        return this.collection.items.filter(item => (item.labels[0] === 'page'));
+      },
+    },
+    entities: {
+      get() {
+        return this.collection.items.filter(item => (item.labels[0] === 'entity'));
+      },
+    },
+    articles: {
+      get() {
+        return this.collection.items.filter(item => (item.labels[0] === 'article'));
+      },
+    },
+    issues: {
+      get() {
+        return this.collection.items.filter(item => (item.labels[0] === 'issue'));
       },
     },
     collectionAll: {
@@ -111,6 +164,7 @@ export default {
   },
   components: {
     CollectionSidebarItem,
+    OpenSeadragonViewer,
   },
   methods: {
     fetch() {
@@ -214,6 +268,26 @@ export default {
         padding: 15px 30px;
         &::-webkit-scrollbar {
             display: none;
+        }
+    }
+
+    .collection-group {
+        margin-bottom: 45px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid black;
+
+        h4 {
+            }
+        .grid {
+            display: grid;
+            grid-gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
+            .item {
+                .os-viewer {
+                    height: 150px;
+                    width: 100%;
+                }
+            }
         }
     }
 }
