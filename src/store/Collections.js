@@ -38,9 +38,9 @@ export default {
 
       function sortBy(data, field, order) {
         data.sort((a, b) => {
-          if (a[field] < b[field]) {
+          if (a[field].toLowerCase() < b[field].toLowerCase()) {
             return order === 'asc' ? -1 : 1;
-          } else if (a[field] > b[field]) {
+          } else if (a[field].toLowerCase() > b[field].toLowerCase()) {
             return order === 'asc' ? 1 : -1;
           }
           return 0;
