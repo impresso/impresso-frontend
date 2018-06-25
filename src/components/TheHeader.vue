@@ -125,11 +125,7 @@ header {
     background: @clr-black;
     background: linear-gradient(to top, #f0f0f0 2px, #000 2px, #000 100%);
     border-top: 2px solid @impresso-yellow;
-    //border-bottom: 2px solid @clr-grey-100;
     border-bottom: 1px solid @clr-grey-400;
-    //box-shadow: 0 1px 0 0 @clr-grey-400;
-    //position: fixed;
-    //width: 100%;
 
     transition: background-color 100ms;
 
@@ -175,18 +171,11 @@ header {
     }
 
     .link {
-        // margin-right: 10px;
-        // border-left: 1px solid @clr-grey-600;
         height: 100%;
         display: inline-block;
-        // padding: 15px;
         color: @clr-grey-300;
         font-size: 0.75rem;
         outline: none;
-        &.router-link-exact-active {
-            //background-color: @impresso-yellow;
-            //color: black;
-        }
         &:hover {
             text-decoration: none;
             color: @clr-white;
