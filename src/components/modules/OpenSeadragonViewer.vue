@@ -16,13 +16,25 @@ export default {
     id: `os-viewer-${uuid.v4()}`,
   }),
   mounted() {
-    OpenSeadragon({
+    this.viewer = OpenSeadragon({
       id: this.id,
       tileSources: [this.tileSource],
       showNavigationControl: false,
       minZoomLevel: 0.5,
       defaultZoomLevel: 1,
     });
+  },
+  watch: {
+    tileSource: {
+      handler(val) {
+        console.log(val);
+        this.viewer.addTiledImage({
+          tileSource: val,
+          index: 0, // the index of the item. Added on top of all other items if not specified.
+          replace: true, // the item at index will be removed and the new item is added in its place
+        });
+      },
+    },
   },
 };
 </script>
