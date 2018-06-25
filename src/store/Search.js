@@ -104,6 +104,7 @@ export default {
                 q: filter.query,
                 uid: filter.getUid(),
               })),
+              facets: ['newspaper', 'year', 'language'],
               group_by: 'articles', // TODO: this can be pages at a later stage
               page: context.state.paginationCurrentPage,
               limit: context.state.paginationPerPage,
