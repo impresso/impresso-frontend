@@ -182,7 +182,7 @@ export default {
 
       this.collection = collection;
 
-      if (collection.uid !== 'all') {
+      if (collection.uid !== 'all' && collection.uid !== '') {
         this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
           this.collection = res;
         });
@@ -190,7 +190,7 @@ export default {
     },
     cancel(collection) {
       this.fetch().then(() => {
-        this.select(collection.uid); // select the newly created item
+        this.select(collection);
       });
     },
     add() {
@@ -218,7 +218,7 @@ export default {
           description: collection.description,
         }).then(() => {
           this.fetch().then(() => {
-            this.select(collection.uid); // select the edited item
+            this.select(collection); // select the edited item
           });
         });
       } else {
@@ -227,7 +227,7 @@ export default {
           description: collection.description,
         }).then((res) => {
           this.fetch().then(() => {
-            this.select(res.data.uid); // select the newly created item
+            this.select(new Collection(res.data)); // select the newly created item
           });
         });
       }

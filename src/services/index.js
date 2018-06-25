@@ -22,7 +22,7 @@ app.hooks({
         try {
           await app.authenticate();
         } catch (e) {
-          console.log(e);
+          //
         }
       },
     ],
