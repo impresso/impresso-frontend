@@ -37,15 +37,22 @@ export default {
       const collectionsSortOrder = payload.collectionsSortOrder || state.collectionsSortOrder;
 
       function sortBy(data, field, order) {
-        data.sort((a, b) => {
-          if (a[field].toLowerCase() < b[field].toLowerCase()) {
+        return data.sort((a, b) => {
+          if (typeof a[field] === 'string') {
+            if (a[field].toLowerCase() < b[field].toLowerCase()) {
+              return order === 'asc' ? -1 : 1;
+            } else if (a[field].toLowerCase() > b[field].toLowerCase()) {
+              return order === 'asc' ? 1 : -1;
+            }
+            return 0;
+          }
+          if (a[field] < b[field]) {
             return order === 'asc' ? -1 : 1;
-          } else if (a[field].toLowerCase() > b[field].toLowerCase()) {
+          } else if (a[field] > b[field]) {
             return order === 'asc' ? 1 : -1;
           }
           return 0;
         });
-        return data;
       }
 
       switch (collectionsSortOrder) {
