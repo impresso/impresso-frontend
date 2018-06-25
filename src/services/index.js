@@ -13,11 +13,26 @@ export const app = feathers()
   }));
 
 app.hooks({
-  before() {
-    window.app.$store.commit('SET_PROCESSING', true);
+  before: {
+    all: [
+      () => {
+        window.app.$store.commit('SET_PROCESSING', true);
+      },
+      async () => {
+        try {
+          await app.authenticate();
+        } catch (e) {
+          console.log(e);
+        }
+      },
+    ],
   },
-  after() {
-    window.app.$store.commit('SET_PROCESSING', false);
+  after: {
+    all: [
+      () => {
+        window.app.$store.commit('SET_PROCESSING', false);
+      },
+    ],
   },
 });
 
@@ -32,6 +47,15 @@ export const issues = app.service('issues');
 export const pages = app.service('pages');
 export const search = app.service('search');
 export const collections = app.service('buckets').hooks({
+  before: {
+    all: [
+      async () => {
+        await app.authenticate();
+      },
+    ],
+  },
+});
+export const collectionsItems = app.service('buckets-items').hooks({
   before: {
     all: [
       async () => {

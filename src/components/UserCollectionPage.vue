@@ -4,6 +4,14 @@
     <b-input-group>
       <b-form-input v-model="search" placeholder="Search"></b-form-input>
         <button class="btn btn-info" v-on:click="add()">Add</button>
+        <button class="btn btn-info" v-on:click="fetch()">Reload</button>
+        <select v-model="collectionsSortOrder">
+          <option value="name">A-Z</option>
+          <option value="-name">Z-A</option>
+          <option value="created">Oldest</option>
+          <option value="-created">Newest</option>
+          <option value="-modified">Last Edit</option>
+        </select>
     </b-input-group>
     <div class="collection-items">
       <collection-sidebar-item
@@ -15,7 +23,7 @@
         v-for="(c, index) in collections"
         v-model="collections[index]"
         v-on:click="select(c)"
-        v-bind:class="{active: c === collection}"
+        v-bind:class="{active: c.uid === collection.uid}"
         ></collection-sidebar-item>
     </div>
   </div>
@@ -29,37 +37,97 @@
     <div v-else>
       <h1>{{collection.name}}</h1>
       <p><strong>{{collection.description}}</strong></p>
-      <b-input-group v-show="collections.indexOf(collection) !== -1">
+      <b-input-group v-show="collection.uid !== 'all'">
         <button class="btn btn-primary" v-on:click="edit()">EDIT</button>
         <button class="btn btn-danger" v-on:click="remove(collection)">Delete</button>
       </b-input-group>
     </div>
     <hr>
-    <pre>
-    {{collection}}
-    </pre>
+    <div v-if="entities.length > 0" class="collection-group">
+      <h4>Entities</h4>
+      <div class="grid">
+        <div class="item" v-for="entity in entities">
+          {{entity}}
+        </div>
+      </div>
+    </div>
+
+    <div v-if="issues.length > 0" class="collection-group">
+      <h4>Issues</h4>
+      <div class="grid">
+        <div class="item" v-for="issue in issues">
+          {{issue}}
+        </div>
+      </div>
+    </div>
+
+    <div v-if="pages.length > 0" class="collection-group">
+      <h4>Pages</h4>
+      <div class="grid">
+        <div class="item" v-for="page in pages">
+          <open-seadragon-viewer v-model="page.iiif" />
+        </div>
+      </div>
+    </div>
+
+    <div v-if="articles.length > 0" class="collection-group">
+      <h4>Articles</h4>
+      <div class="grid">
+        <div class="item" v-for="article in articles">
+          {{article}}
+        </div>
+      </div>
+    </div>
   </div>
 </main>
 </template>
 
 <script>
-import * as services from '@/services';
-
 import Collection from '@/models/Collection';
 import CollectionSidebarItem from './modules/CollectionSidebarItem';
+import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 
 export default {
   data: () => ({
     search: '',
     editMode: false,
     collection: new Collection(),
-    collection_data: [],
   }),
   computed: {
+    collectionsSortOrder: {
+      get() {
+        return this.$store.getters['collections/collectionsSortOrder'];
+      },
+      set(collectionsSortOrder) {
+        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
+          collectionsSortOrder,
+        });
+      },
+    },
     collections: {
       get() {
-        return this.collection_data.filter(
+        return this.$store.getters['collections/collections'].filter(
           c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
+      },
+    },
+    pages: {
+      get() {
+        return this.collection.items.filter(item => (item.labels[0] === 'page'));
+      },
+    },
+    entities: {
+      get() {
+        return this.collection.items.filter(item => (item.labels[0] === 'entity'));
+      },
+    },
+    articles: {
+      get() {
+        return this.collection.items.filter(item => (item.labels[0] === 'article'));
+      },
+    },
+    issues: {
+      get() {
+        return this.collection.items.filter(item => (item.labels[0] === 'issue'));
       },
     },
     collectionAll: {
@@ -94,48 +162,16 @@ export default {
         this.collectionAll);
     });
   },
-  watch: {
-    collection: {
-      handler() {
-        // TODO: here we fetch the collection details
-        // services.collections.get(val.uid).then((res) => {
-        //   console.log(res);
-        // });
-      },
-    },
-  },
   components: {
     CollectionSidebarItem,
+    OpenSeadragonViewer,
   },
   methods: {
     fetch() {
-      return new Promise((resolve) => {
-        services.collections.find().then((results) => {
-          this.sortBy(results.data, 'last_modified_time');
-
-          this.collection_data = results.data.map(result => new Collection({
-            countArticles: result.count_articles,
-            countEntities: result.count_entities,
-            countIssues: result.count_issues,
-            countPages: result.count_pages,
-            creationDate: result.creation_date,
-            creationTime: result.creation_time,
-            lastModifiedDate: result.last_modified_date,
-            lastModifiedTime: result.last_modified_time,
-            ...result,
-          }));
-
-          resolve(results);
-        });
-      });
+      return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
     select(collection) {
       this.editMode = false;
-      if (collection instanceof Collection) {
-        this.collection = collection;
-      } else {
-        this.collection = this.collections.find(c => c.uid === collection);
-      }
 
       this.$router.push({
         name: 'collection',
@@ -143,6 +179,14 @@ export default {
           collection_uid: collection.uid !== '' ? collection.uid : undefined,
         },
       });
+
+      this.collection = collection;
+
+      if (collection.uid !== 'all') {
+        this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
+          this.collection = res;
+        });
+      }
     },
     cancel(collection) {
       this.fetch().then(() => {
@@ -159,14 +203,17 @@ export default {
     remove(collection) {
       const sure = confirm(this.$t('confirm_delete'));
       if (sure) {
-        services.collections.remove(collection.uid).then(() => {
-          this.select(this.collectionAll);
+        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
+          this.fetch().then(() => {
+            this.select(this.collectionAll);
+          });
         });
       }
     },
     save(collection) {
       if (collection.uid) {
-        services.collections.patch(collection.uid, {
+        this.$store.dispatch('collections/EDIT_COLLECTION', {
+          uid: collection.uid,
           name: collection.name,
           description: collection.description,
         }).then(() => {
@@ -175,7 +222,7 @@ export default {
           });
         });
       } else {
-        services.collections.create({
+        this.$store.dispatch('collections/ADD_COLLECTION', {
           name: collection.name,
           description: collection.description,
         }).then((res) => {
@@ -221,6 +268,26 @@ export default {
         padding: 15px 30px;
         &::-webkit-scrollbar {
             display: none;
+        }
+    }
+
+    .collection-group {
+        margin-bottom: 45px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid black;
+
+        h4 {
+            }
+        .grid {
+            display: grid;
+            grid-gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
+            .item {
+                .os-viewer {
+                    height: 150px;
+                    width: 100%;
+                }
+            }
         }
     }
 }

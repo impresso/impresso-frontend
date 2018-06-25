@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
 import settings from './Settings';
+import collections from './Collections';
 import user from './User';
 import search from './Search';
 import autocomplete from './Autocomplete';
@@ -20,11 +21,33 @@ export default new Vuex.Store({
     autocomplete,
     user,
     issue,
+    collections,
   },
   state: {
     processing_status: false,
+    header_title: '',
+    header_subtitle: '',
+  },
+  getters: {
+    headerTitle(state) {
+      let title = '';
+
+      if (state.header_title.length > 0 && state.header_subtitle.length > 0) {
+        title = `<span class="title">${state.header_title}</span> / <span class="subtitle">${state.header_subtitle}</span>`;
+      } else if (state.header_subtitle.length > 0) {
+        title = `<span class="subtitle">${state.header_subtitle}</span>`;
+      } else if (state.header_title.length > 0) {
+        title = `<span class="title">${state.header_title}</span>`;
+      }
+
+      return title;
+    },
   },
   mutations: {
+    SET_HEADER_TITLE(state, payload) {
+      state.header_title = String(payload.title || '');
+      state.header_subtitle = String(payload.subtitle || '');
+    },
     SET_PROCESSING(state, status) {
       if (status === true) {
         processings += 1;
@@ -58,6 +81,8 @@ export default new Vuex.Store({
       'search.paginationTotalRows',
       'user.rememberCredetials',
       'user.userData',
+      'collections.collections',
+      'collections.collectionsSortOrder',
     ],
   })],
 });

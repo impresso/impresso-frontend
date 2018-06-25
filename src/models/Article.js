@@ -1,8 +1,11 @@
+import Collection from './Collection';
 import Issue from './Issue';
 import Page from './Page';
 import Tag from './Tag';
+
 /**
  * @class Article is an object representing a newspaper article
+ * @param {Array} collections List of Collection objects the article belongs to
  * @param {Date} date Date of the article
  * @param {Integer} dl @todo describe parameter
  * @param {Issue} issue Issue object of the article
@@ -15,6 +18,7 @@ import Tag from './Tag';
  * @param {String} uid Unique identifier for the article
  */
 export default function Article({
+  collections = [],
   date = new Date(),
   dl = 0,
   issue = new Issue(),
@@ -26,6 +30,14 @@ export default function Article({
   title = '',
   uid = '',
 } = {}) {
+  this.collections = collections.map((collection) => {
+    if (collection instanceof Collection) {
+      return collection;
+    }
+
+    return new Collection(collection);
+  });
+
   this.date = new Date(date);
   this.dl = parseInt(dl, 10);
 

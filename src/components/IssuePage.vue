@@ -3,6 +3,7 @@
     <div class="metadata">
       <div class="px-3 py-4">
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
+        <collection-tagger v-model="issue"></collection-tagger>
         <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
         <p><strong><i>Le Temps</i> is a Swiss French-language daily newspaper published in Berliner format in Geneva by Le Temaps SA.</strong></p>
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
@@ -26,7 +27,8 @@
 
 <script>
 import Page from '@/models/Page';
-import NamedEntityExplorer from './modules/NamedEntityExplorer';
+import CollectionTagger from './CollectionTagger';
+import NamedEntityExplorer from './NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
 import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
 
@@ -49,6 +51,7 @@ export default {
     NamedEntityExplorer,
     IssueViewer,
     IssueViewerZoomSlider,
+    CollectionTagger,
   },
   methods: {
     toggleUserData() {
@@ -75,6 +78,11 @@ export default {
       if (typeof this.$route.params.page_uid !== 'undefined') {
         pageUid = this.$route.params.page_uid;
       }
+
+      this.$store.commit('SET_HEADER_TITLE', {
+        subtitle: this.$d(this.issue.date, 'short'),
+        title: this.issue.newspaper.name,
+      });
 
       this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
         this.page = this.issue.pages.find(p => p.uid === page.uid);

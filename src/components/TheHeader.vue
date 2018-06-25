@@ -3,8 +3,7 @@
     <router-link :to="{name: 'home'}">
       <img src="./../assets/img/impresso-logo-h-i@2x.png" class="logo br" />
     </router-link>
-    <div class="navigation-left">
-
+    <div class="navigation-left" v-show="false">
       <div class="dropdown">
         <button class="dropbtn link">{{$t("explore")}}</button>
         <div class="dropdown-content">
@@ -15,9 +14,7 @@
       </div>
     </div>
     <div class="navigation-center">
-      <h1 class="text-serif">
-        La Gazette de Lausanne / <strong>Lundi 16 Mai 2018</strong>
-      </h1>
+      <div v-html="headerTitle" v-show="headerTitle"></div>
     </div>
     <div class="navigation-right">
       <div v-if="userData" class="dropdown">
@@ -85,6 +82,9 @@ export default {
     userData() {
       return this.$store.state.user.userData;
     },
+    headerTitle() {
+      return this.$store.getters.headerTitle;
+    },
   },
   methods: {
     selectLanguage(languageCode) {
@@ -99,10 +99,19 @@ export default {
       });
     },
   },
+  watch: {
+    $route: {
+      handler(val, oldVal) {
+        if (val.meta.realm !== oldVal.meta.realm) {
+          this.$store.commit('SET_HEADER_TITLE', {});
+        }
+      },
+    },
+  },
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 @import "./../assets/less/style.less";
 
 header {
@@ -136,11 +145,16 @@ header {
         overflow: hidden;
         width: 100%;
         text-align: center;
-        h1 {
-            display: inline;
+        > div {
+            display: inline-block;
             font-size: 1rem;
             background: white;
             padding: 1px 6px;
+            .text-serif();
+            .title {}
+            .subtitle {
+                font-weight: bold;
+            }
         }
     }
     .navigation-right {

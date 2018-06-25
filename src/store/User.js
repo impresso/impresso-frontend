@@ -31,35 +31,34 @@ export default {
       });
     },
     LOGIN(context, payload) {
-      return new Promise(
-        (resolve, reject) => {
-          services.app.authenticate({
-            strategy: 'local',
-            email: payload.email,
-            password: payload.password,
-          })
+      return new Promise((resolve, reject) => {
+        const authSettings = {
+          strategy: 'local',
+          email: payload.email,
+          password: payload.password,
+        };
+
+        services.app.authenticate(authSettings)
           .then(res => services.app.passport.verifyJWT(res.accessToken))
           .then(res => services.app.service('users').get(res.userId))
-          .then(
-            (user) => {
-              services.app.set('user', user);
-
-              context.commit('SET_USER', new User({
-                uid: user.uid,
-                username: user.username,
-                isStaff: user.is_staff,
-              }));
-
-              resolve();
-            },
-          )
+          .then((user) => {
+            services.app.set('user', user);
+            context.commit('SET_USER', new User({
+              uid: user.uid,
+              username: user.username,
+              isStaff: user.is_staff,
+            }));
+            context.dispatch('collections/LOAD_COLLECTIONS', null, {
+              root: true,
+            });
+            resolve();
+          })
           .catch(
             (err) => {
               reject(err);
             },
           );
-        },
-      );
+      });
     },
   },
 };

@@ -1,5 +1,6 @@
 import Article from './Article';
 import ArticleEntity from './ArticleEntity';
+import Collection from './Collection';
 import Entity from './Entity';
 import Region from './Region';
 import ArticleTag from './ArticleTag';
@@ -9,6 +10,7 @@ import Tag from './Tag';
  * @param {Array} articles Array of Article objects
  * @param {Array} articlesEntities Array of ArticleEntity objects
  * @param {Array} articlesTags Array of ArticleTag objects
+ * @param {Array} collections List of Collection objects the page belongs to
  * @param {Array} entities Array of Entity objects
  * @param {Url} iiif Link to iiif resource
  * @param {Array} labels Array of Strings with labels describing the page
@@ -21,6 +23,7 @@ export default function Page({
   articles = [],
   articlesEntities = [],
   articlesTags = [],
+  collections = [],
   entities = [],
   iiif = '',
   labels = ['page'],
@@ -51,6 +54,14 @@ export default function Page({
     }
 
     return new ArticleTag(articleTag);
+  });
+
+  this.collections = collections.map((collection) => {
+    if (collection instanceof Collection) {
+      return collection;
+    }
+
+    return new Collection(collection);
   });
 
   this.entities = entities.map((entity) => {
