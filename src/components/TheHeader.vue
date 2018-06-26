@@ -181,6 +181,53 @@ header {
             color: @clr-white;
         }
     }
+
+    .dropdown {
+        overflow: hidden;
+        display: unset;
+        position: relative;
+        &:hover .dropdown-content {
+            display: block;
+        }
+        .dropbtn {
+            background: transparent;
+            border: 0;
+            margin: inherit;
+            height: 100%;
+            .two-lines {
+                position: relative;
+                top: -7px;
+                left: 3px;
+                text-align: left;
+                padding-right: 10px;
+                line-height: 16px;
+                display: inline-table;
+                strong {
+                    display: block;
+                }
+            }
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 31px;
+            min-width: 160px;
+            background-color: black;
+            border: 1px solid @clr-grey-500;
+            text-align: left;
+            z-index: 1;
+            &.right {
+                left: inherit;
+                right: 0;
+            }
+            a {
+                display: block;
+                padding: 15px 10px;
+            }
+            a:hover {}
+        }
+    }
 }
 </style>
 
