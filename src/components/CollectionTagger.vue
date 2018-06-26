@@ -94,6 +94,7 @@ export default {
 
 <style scoped lang="less">
 .collection-tagger {
+    display: inline-block;
     .overlay {
         position: fixed;
         left: 0;
