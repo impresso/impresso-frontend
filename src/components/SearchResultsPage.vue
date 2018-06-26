@@ -54,8 +54,8 @@
 import SearchBar from './SearchInputQueryWrapper';
 import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
-import SearchResultsListItem from './modules/SearchResultsListItem';
-import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
+import SearchResultsListItem from './SearchResultsListItem';
+import SearchResultsTilesItem from './SearchResultsTilesItem';
 
 export default {
   computed: {
