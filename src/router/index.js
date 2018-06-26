@@ -5,6 +5,8 @@ import SearchPage from '../components/SearchResultsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
+import UserCollectionPage from '../components/UserCollectionPage';
+import TestPage from '../components/TestPage';
 
 Vue.use(Router);
 
@@ -17,29 +19,41 @@ export default new Router({
     },
     {
       path: '/search',
-      name: 'search_results',
-      component: SearchPage,
-    },
-    {
-      path: '/search/:uuid',
       name: 'search',
       component: SearchPage,
-      props: true,
     },
     {
       path: '/user/login',
       name: 'login',
       component: UserLoginPage,
+      meta: {
+        realm: 'user',
+      },
     },
     {
       path: '/user/logout',
       name: 'logout',
       component: UserLoginPage,
+      meta: {
+        realm: 'user',
+      },
     },
     {
       path: '/user/dashboard',
       name: 'dashboard',
       component: UserDashboardPage,
+      meta: {
+        realm: 'user',
+      },
+    },
+    {
+      path: '/user/collection/:collection_uid?',
+      name: 'collection',
+      component: UserCollectionPage,
+      props: true,
+      meta: {
+        realm: 'user',
+      },
     },
     // {
     //   path: '/archive/:archive_id',
@@ -70,18 +84,31 @@ export default new Router({
       component: IssuePage,
       name: 'issue',
       props: true,
+      meta: {
+        realm: 'issueviewer',
+      },
     },
     {
-      path: '/issue/:issue_uid/page/:page_number',
+      path: '/issue/:issue_uid/page/:page_uid',
       component: IssuePage,
       name: 'page',
       props: true,
+      meta: {
+        realm: 'issueviewer',
+      },
     },
     {
-      path: '/issue/:issue_uid/page/:page_number/article/:article_uid',
+      path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
       component: IssuePage,
       name: 'article',
       props: true,
+      meta: {
+        realm: 'issueviewer',
+      },
+    },
+    {
+      path: '/playground',
+      component: TestPage,
     },
   ],
 });

@@ -1,42 +1,48 @@
 <template lang="html">
   <header id="header" v-bind:class="{loading: showProgress}">
-    <b-container fluid>
-      <b-row class="bb">
-        <b-col cols="9">
-          <div class="blocks">
-            <div class="block br">
-              <router-link :to="{name: 'home'}">
-                <img src="./../assets/img/impresso-logo.v4-1.jpg" class="logo" />
-              </router-link>
-            </div>
-            <div class="block">
-              <router-link :to="{name: 'home'}" class="link">Home</router-link>
-              <router-link :to="{name: 'dashboard'}" class="link">Newspapers</router-link>
-              <router-link :to="{name: 'named_entities'}" class="link">Named Entities</router-link>
-              <router-link :to="{name: 'about'}" class="link">About</router-link>
-            </div>
+    <router-link :to="{name: 'home'}">
+      <img src="./../assets/img/impresso-logo-h-i@2x.png" class="logo br" />
+    </router-link>
+    <div class="navigation-left" v-show="false">
+      <div class="dropdown">
+        <button class="dropbtn link">{{$t("explore")}}</button>
+        <div class="dropdown-content">
+          <a href="#" class="link">Link 1</a>
+          <a href="#" class="link">Link 2</a>
+          <a href="#" class="link">Link 3</a>
+        </div>
+      </div>
+    </div>
+    <div class="navigation-center">
+      <div v-html="headerTitle" v-show="headerTitle"></div>
+    </div>
+    <div class="navigation-right">
+      <div v-if="userData" class="dropdown">
+        <button class="dropbtn link">
+          <img src="http://via.placeholder.com/25&text=RA" alt="">
+          <div class="two-lines" >
+            <strong>Alba Rorwacher</strong>  Researcher
           </div>
-        </b-col>
-        <b-col class="text-right">
-          <!-- {{$t("language")}} -->
-          <b-button v-show="!userData" v-bind:to="{name: 'login'}" variant="link">Login</b-button>
-
-          <b-dropdown v-show="userData" right variant="link" :text="`${userData.username}`">
-            <b-dropdown-item v-bind:to="{name: 'dashboard'}">Dashboard</b-dropdown-item>
-            <b-dropdown-item v-on:click.prevent="logout">Logout</b-dropdown-item>
-          </b-dropdown>
-
-          <b-dropdown right variant="link" :text="languages[activeLanguageCode].name">
-            <b-dropdown-item
-              v-for="language in languages"
-              v-bind:active="activeLanguageCode === language.code"
-              v-bind:key="language.code"
-              @click.prevent="selectLanguage(language.code)"
-              href="#">{{language.name}}</b-dropdown-item>
-          </b-dropdown>
-        </b-col>
-      </b-row>
-    </b-container>
+        </button>
+        <div class="dropdown-content right">
+          <router-link class="link" v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</router-link>
+          <router-link class="link" v-bind:to="{ name: 'collection'}">{{$t("collections")}}</router-link>
+          <a v-on:click.prevent="logout" href="#" class="link" >{{$t("logout")}}</a>
+        </div>
+      </div>
+      <router-link v-else class="link" v-bind:to="{ name: 'login'}">{{$t("login")}}</router-link>
+      <div class="dropdown">
+        <button class="dropbtn link capital">{{languages[activeLanguageCode].code}}</button>
+        <div class="dropdown-content right">
+          <a
+            v-for="language in languages"
+            v-bind:active="activeLanguageCode === language.code"
+            v-bind:key="language.code"
+            @click.prevent="selectLanguage(language.code)"
+            href="#" class="link">{{language.name}}</a>
+        </div>
+      </div>
+    </div>
   </header>
 </template>
 
@@ -76,6 +82,9 @@ export default {
     userData() {
       return this.$store.state.user.userData;
     },
+    headerTitle() {
+      return this.$store.getters.headerTitle;
+    },
   },
   methods: {
     selectLanguage(languageCode) {
@@ -90,6 +99,15 @@ export default {
       });
     },
   },
+  watch: {
+    $route: {
+      handler(val, oldVal) {
+        if (val.meta.realm !== oldVal.meta.realm) {
+          this.$store.commit('SET_HEADER_TITLE', {});
+        }
+      },
+    },
+  },
 };
 </script>
 
@@ -97,53 +115,86 @@ export default {
 @import "./../assets/less/style.less";
 
 header {
-    background: @clr-white;
+    display: grid;
+    height: 53px;
+    z-index: 1;
+    grid-template-columns: max-content max-content auto max-content;
+    grid-template-rows: 100%;
+    grid-template-areas: "logo navigation-left navigation-center navigation-right";
+
+    background: @clr-black;
+    background: linear-gradient(to top, #f0f0f0 2px, #000 2px, #000 100%);
+    border-top: 2px solid @impresso-yellow;
+    border-bottom: 1px solid @clr-grey-400;
+
     transition: background-color 100ms;
+
+    .navigation-left {
+        grid-area: navigation-left;
+        display: table;
+        width: max-content;
+        height: 100%;
+    }
+    .navigation-center {
+        grid-area: navigation-center;
+        margin-top: 14px;
+        overflow: hidden;
+        width: 100%;
+        text-align: center;
+        > div {
+            display: inline-block;
+            font-size: 1rem;
+            background: white;
+            padding: 1px 6px;
+            .text-serif();
+            .title {}
+            .subtitle {
+                font-weight: bold;
+            }
+        }
+    }
+    .navigation-right {
+        grid-area: navigation-right;
+        text-align: right;
+    }
+
     &.loading {
-        background: @clr-yellow;
+        border-bottom-color: @clr-yellow;
     }
-
-    .br,
-    .bb,
-    .bt,
-    .bl{
-      border-color: @clr-black;
-      border-style: solid;
-      border-width: 0;
-    }
-
-    .br{ border-right-width: 1px; }
-    .bb{ border-bottom-width: 1px; }
-    .bl{ border-left-width: 1px; }
-    .bt{ border-top-width: 1px; }
 
     .logo {
-        height: 100%;
-        padding-right: 20px;
-    }
-
-    .link{
-      margin-right: 10px;
-      padding: 5px 7px;
-      color:black;
-      &.router-link-exact-active{
-        font-weight: bold;
-      }
-    }
-
-    .blocks{
-      width:100%;
-      height:32px;
-      margin-top: 5px;
-      margin-bottom: 5px;
-      .block{
+        grid-area: logo;
+        padding: 10px;
         display: inline-block;
-        height: 100%;
-        margin-right: 20px;
-        a.link{
+        height: 50px;
+        padding: 10px 15px 10px 10px;
+    }
 
+    .link {
+        height: 100%;
+        display: inline-block;
+        color: @clr-grey-300;
+        font-size: 0.75rem;
+        outline: none;
+        &:hover {
+            text-decoration: none;
+            color: @clr-white;
         }
-      }
     }
 }
 </style>
+
+<i18n>
+{
+  "en": {
+    "explore": "explore",
+    "login": "login",
+    "logout": "logout",
+    "profile": "profile",
+    "dashboard": "dashboard"
+  },
+  "fr": {
+    "explore": "découvrir"
+  }
+}
+</i18n>

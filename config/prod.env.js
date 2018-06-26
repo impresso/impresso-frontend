@@ -1,5 +1,6 @@
 'use strict'
 module.exports = {
   NODE_ENV: '"production"',
-  MIDDLELAYER_API: '"https://api-impresso.uni.lu"'
+  MIDDLELAYER_API: process.env.API_BASE_URL || '"https://api-impresso.uni.lu"',
+
 }

@@ -4,46 +4,50 @@
       <thumbnail-slider
       v-model="issue"
       v-bind:viewer="viewer"
-      v-bind:page_number="page_number"
       v-on:click="goToPage"
+      v-bind:page_uid="page.uid"
+      v-bind:page="page"
       ></thumbnail-slider>
     </div>
-    <div id="os-viewer">
-      <div class="header">
-        <div class="page-tags">
-          Page Tags
+    <div id="os-viewer"></div>
+    <div class="header">
+      <div class="page-tags">
+        Page Tags
+      </div>
+      <div class="articleMeta">
+        <div class="title">
+          LOCAL
         </div>
-        <div class="articleMeta">
-          <div class="title">
-            LOCAL
-          </div>
-          <div class="description">
-            chronique locale
-          </div>
-        </div>
-          <div class="pagination">
-            <a v-on:click="goToPage(page_number - 1)" href="#" class="left">
-              <span class="arrow-left icon"></span>
-            </a>
-              <strong>{{page_number + 1}}</strong> / <strong>{{page_length}}</strong>
-              <a v-on:click="goToPage(page_number + 1)" href="#" class="right">
-                <span class="arrow-right icon"></span>
-              </a>
-          </div>
-          <div class="ocr-qt">
-            OCR Quality <span class="qt">80%</span>
-          </div>
+        <div class="description">
+          chronique locale
         </div>
       </div>
+      <div class="pagination">
+        <a v-on:click.prevent="goToPage('previous')" href="#" class="left">
+          <span class="arrow-left icon"></span>
+        </a>
+          <strong>{{page.num}}</strong> / <strong>{{issue.lastPageNumber}}</strong>
+          <a v-on:click.prevent="goToPage('next')" href="#" class="right">
+            <span class="arrow-right icon"></span>
+          </a>
+      </div>
+      <div class="ocr-qt">
+        OCR Quality <span class="qt">80%</span>
+      </div>
+    </div>
+    <div class="controls">
+      <issue-viewer-zoom-slider v-model="zoom" v-bind:domain="domain"></issue-viewer-zoom-slider>
     </div>
   </div>
 </template>
 
 <script>
 import OpenSeadragon from 'openseadragon';
-
-import * as services from '../../services';
-import ThumbnailSlider from '../modules/ThumbnailSlider';
+import ViewerOverlay from '@/d3-modules/ViewerOverlay';
+import Page from '@/models/Page';
+import Issue from '@/models/Issue';
+import ThumbnailSlider from './ThumbnailSlider';
+import IssueViewerZoomSlider from './IssueViewerZoomSlider';
 
 export default {
   model: {
@@ -51,13 +55,7 @@ export default {
   },
   props: {
     issue: {
-      default: false,
-    },
-    page_number: {
-      default: 0,
-    },
-    page_length: {
-      default: 0,
+      default: new Issue(),
     },
     minZoomLevel: {
       default: 0.25,
@@ -68,21 +66,37 @@ export default {
     zoomLevel: {
       default: 0.5,
     },
+    page: {
+      default: new Page(),
+    },
   },
   data: () => ({
     viewer: false,
-    pagedata: {},
+    overlay: null,
   }),
+  computed: {
+    domain() {
+      return [this.minZoomLevel, this.maxZoomLevel];
+    },
+    zoom: {
+      get() {
+        return this.zoomLevel;
+      },
+      set(val) {
+        this.$emit('zoom', val);
+      },
+    },
+  },
   methods: {
     init() {
       if (!this.viewer) {
         this.viewer = OpenSeadragon({
           // debugMode: true,
-          sequenceMode: false,
+          sequenceMode: true,
           id: 'os-viewer',
           showNavigationControl: false,
           showSequenceControl: false,
-          initialPage: this.page_number,
+          initialPage: 0,
           minZoomLevel: this.minZoomLevel,
           maxZoomLevel: this.maxZoomLevel,
           defaultZoomLevel: this.zoomLevel,
@@ -95,36 +109,30 @@ export default {
           visibilityRatio: 0.1,
         });
 
+        this.overlay = new ViewerOverlay(this.viewer);
+
         this.viewer.addHandler('zoom', (event) => {
+          this.overlay.updateZoomLevel(event.zoom);
           this.$emit('zoom', event.zoom);
         });
-        this.page_length = this.issue.pages.length;
       }
     },
     goToPage(page) {
-      if (page >= 0 && page < this.issue.pages.length) {
+      const index = this.issue.pages.findIndex(p => p.uid === this.page.uid);
+
+      if (page instanceof Page) {
         this.$emit('click', page);
+      } else if (page === 'previous') {
+        this.$emit('click', this.issue.pages[Math.max(0, index - 1)]);
+      } else if (page === 'next') {
+        this.$emit('click', this.issue.pages[Math.min(this.issue.pages.length - 1, index + 1)]);
       }
-    },
-    getPageData() {
-      services.pages.get(this.issue.pages[this.page_number].uid, {}).then((res) => {
-        this.pagedata = res;
-      });
     },
   },
   watch: {
     issue: {
       handler() {
         this.init();
-        this.getPageData();
-      },
-    },
-    page_number: {
-      handler(page) {
-        if (this.viewer) {
-          this.viewer.goToPage(page);
-          this.getPageData();
-        }
       },
     },
     zoomLevel: {
@@ -132,10 +140,19 @@ export default {
         this.viewer.viewport.zoomTo(val);
       },
     },
+    page: {
+      handler(val) {
+        if (this.viewer) {
+          this.viewer.goToPage(this.issue.pages.indexOf(val));
+          this.overlay.update(val);
+        }
+      },
+    },
   },
   mounted() {},
   components: {
     ThumbnailSlider,
+    IssueViewerZoomSlider,
   },
 };
 </script>
@@ -144,35 +161,36 @@ export default {
 @import "./../../assets/less/style.less";
 
 #issue-viewer {
-    display: flex;
-    height: 100%;
+    display: grid;
+    grid-template-columns: 120px auto 52px;
+    grid-template-rows: 50px auto;
+    grid-template-areas: "header header header" "strip osviewer controls";
     background: @clr-grey-200;
-    .strip {
-        background: fade(@clr-grey-200, 90);
-        width: 120px;
-        height: 100%;
-        position: relative;
-    }
-}
-
-#os-viewer {
-    flex: 1;
     height: 100%;
     position: relative;
-    .header {
+    .strip {
         background: fade(@clr-grey-200, 90);
+        grid-area: strip;
         position: absolute;
-        z-index: 1000;
-        top: 0;
         width: 100%;
-        height: 48px;
+        height: 100%;
+    }
+
+    .controls {
+        grid-area: controls;
+        padding-top: 15px;
+    }
+
+    .header {
+        grid-area: header;
+        background: fade(@clr-grey-200, 90);
         line-height: 36px;
         padding: 5px;
         transition: background 250ms;
         display: flex;
         justify-content: flex-end;
         font-size: 0.80em;
-        border-bottom: 0.05em solid @clr-grey-400;
+
         .articleMeta {
             opacity: 0.6;
             margin-top: 0.4em;
@@ -181,8 +199,9 @@ export default {
                 font-weight: bold;
             }
         }
+
         .pagination {
-            width: 50%;
+            width: 40%;
             text-align: center;
             display: block;
 
@@ -193,7 +212,6 @@ export default {
                 height: 34px;
                 border-radius: 0.2em;
                 margin: 0 1em;
-                // outline: 1px solid red;
                 vertical-align: bottom;
                 transition: background 300ms;
                 .icon {
@@ -215,19 +233,18 @@ export default {
             }
         }
 
-        // &:hover {
-        //     background: fade(@clr-grey-200, 90);
-        // }
         .page-tags {
-            width: 15%;
+            flex: 1;
             color: @clr-grey-800;
             font-style: italic;
         }
+
         .ocr-qt {
-            width: 25%;
+            width: 30%;
             color: @clr-grey-800;
             font-style: italic;
             text-align: right;
+            margin-right: 10px;
             span.qt {
                 display: inline;
                 line-height: 1em;
@@ -239,29 +256,75 @@ export default {
                 font-weight: bold;
                 background: @clr-grey-400;
                 color: @clr-grey-100;
-                // border: 2px solid @clr-grey-800;
-                // padding: 3px 7px;
                 border-radius: 5px;
             }
         }
     }
 
+}
+
+#os-viewer {
+    grid-area: osviewer;
+
     .openseadragon-canvas {
         outline: none;
     }
 
-    #overlay-left {
-        font-size: 3em;
-
-        color: gray;
-        text-align: right;
+    #overlay-left,
+    #overlay-right {
+        color: @clr-grey-600;
         text-decoration: none;
         padding-top: 15px;
+        & > div:first-child {
+            &.loading {
+                opacity: 0;
+            }
+
+            &.loaded {
+                opacity: 1;
+                transition: opacity 250ms;
+                transition-delay: 250ms;
+            }
+        }
+    }
+
+    #overlay-left {
+        font-size: 3em;
+        text-align: right;
         .entity {
             border-right: 5px solid transparent;
             padding-top: 5px;
             padding-bottom: 5px;
-            padding-right: 10px;
+            padding-right: 50px;
+            &:hover {
+                border-color: teal;
+            }
+
+            .title {
+                font-weight: bold;
+            }
+        }
+
+        h3 {
+            font-weight: bold;
+            border-bottom: 1px solid lightgray;
+            padding-bottom: 0.5rem;
+            padding-right: 50px;
+            font-style: italic;
+            font-size: 1.3em;
+        }
+    }
+
+    #overlay-right {
+        font-size: 0.8em;
+        text-align: left;
+        text-decoration: none;
+
+        .entity {
+            border-left: 5px solid transparent;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 10px;
             &:hover {
                 border-color: teal;
             }
@@ -270,23 +333,23 @@ export default {
             }
         }
         h3 {
-            font-weight: bold;
-            padding-right: 15px;
             border-bottom: 1px solid lightgray;
             padding-bottom: 0.5rem;
+            padding-left: 10px;
             font-style: italic;
-            font-size: 1.3em;
+            font-size: 1em;
         }
     }
 
-    .region {
-
-        border: 6px solid @clr-teal-400;
-        mix-blend-mode: multiply;
-        transition: background 200ms;
-        &:hover {
-            background: fade(@clr-yellow, 50);
+    #overlay-regions {
+        .region {
+            mix-blend-mode: multiply;
+            transition: background 200ms;
+            &:hover {
+                background: fade(@clr-yellow, 30);
+            }
         }
     }
+
 }
 </style>

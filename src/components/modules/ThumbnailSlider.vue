@@ -1,27 +1,27 @@
 <template lang="html">
-  <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
+  <div id="thumbnail-slider">
     <div class="tiles">
-      <div class="tile"
-        v-for="(page, index) in issue.pages"
-        v-on:click="onClickPage(index)">
-        <div class="mini_viewer" v-bind:class="{selected: page_number === index}">
+      <div
+        v-for="(item, index) in issue.pages"
+        class="tile"
+        v-bind:class="{active: page.uid === item.uid}"
+        v-on:click="onClickPage(item)">
+        <div class="mini_viewer" v-bind:class="{selected: page.uid === item.uid}">
           <thumbnail-slider-item
-            v-bind:tileSources="page.iiif"
+            v-bind:tileSources="item.iiif"
             v-bind:bounds="bounds"
-            v-bind:active="page_number === index"
-            v-on:mounted="onMountedTile"
+            v-bind:active="page.uid === item.uid"
             ></thumbnail-slider-item>
         </div>
-        <span class="page_number">{{page.num}}</span>
+        <span class="page_number">{{item.num}}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Page from '@/models/Page';
 import ThumbnailSliderItem from './ThumbnailSliderItem';
-
-require('dragscroll');
 
 export default {
   model: {
@@ -29,43 +29,19 @@ export default {
   },
   data: () => ({
     bounds: [],
-    scrollTop: 0,
-    center: false,
     mountedTiles: 0,
   }),
   props: {
     issue: {},
-    page_number: {
-      type: Number,
-      default: 1,
-    },
     viewer: {
       default: false,
     },
+    page: new Page(),
   },
   mounted() {},
   methods: {
-    onClickPage(page) {
-      this.center = false;
-      this.$emit('click', page);
-    },
-    centerActiveTile() {
-      if (this.center && this.viewer) {
-        const activeElement = this.$refs['thumbnail-slider'].getElementsByClassName('tile')[this.page_number];
-        const parentElement = this.$refs['thumbnail-slider'];
-
-        parentElement.scrollTop = activeElement.offsetTop + (
-          (activeElement.offsetHeight / 2) - (parentElement.offsetHeight / 2)
-        );
-      }
-    },
-    onMountedTile() {
-      this.mountedTiles += 1;
-
-      // if all tiles are mounted we want to center the slider
-      if (this.issue.pages.length === this.mountedTiles) {
-        this.centerActiveTile();
-      }
+    onClickPage(item) {
+      this.$emit('click', item);
     },
   },
   watch: {
@@ -80,12 +56,6 @@ export default {
         });
       },
     },
-    issue: {
-      handler() {
-        this.centerActiveTile();
-        this.center = true;
-      },
-    },
   },
   components: {
     ThumbnailSliderItem,
@@ -97,12 +67,10 @@ export default {
 @import "./../../assets/less/style.less";
 
 #thumbnail-slider {
+  height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     white-space: nowrap;
-    position: absolute;
-    width: 100%;
-    height: 100%;
     &::-webkit-scrollbar {
         display: none;
     }
@@ -128,8 +96,6 @@ export default {
                 padding-top: 0.2em;
                 border: 1px solid @clr-grey-300;
                 z-index: 1000;
-                // border-right-color: transparent !important;
-                // border-bottom-color: transparent !important;
             }
 
             .mini_viewer {

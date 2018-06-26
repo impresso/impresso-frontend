@@ -1,80 +1,57 @@
-import SearchResult from '../modules/AutocompleteSearchResult';
-import NamedEntityFilter from '../modules/filters/NamedEntity';
-import StringFilter from '../modules/filters/String';
+import Suggestion from '@/models/Suggestion';
+import Entity from '@/models/Entity';
 
-import * as services from '../services';
+import * as services from '@/services';
 
 export default {
   namespaced: true,
   state: {
-    results: [],
+    suggestions: [],
   },
   mutations: {
-    CLEAR_RESULTS(state) {
-      state.results = [];
+    CLEAR_SUGGESTIONS(state) {
+      state.suggestions = [];
     },
-    ADD_RESULT(state, result) {
-      state.results.push(result);
+    ADD_SUGGESTION(state, result) {
+      state.suggestions.push(result);
+    },
+    ADD_SUGGESTIONS(state, results) {
+      results.forEach((suggestion) => {
+        state.suggestions.push(suggestion);
+      });
     },
   },
   actions: {
     SEARCH(context, payload) {
-      context.commit('CLEAR_RESULTS');
-
-      if (payload.query.length < 1 || payload.query === undefined) {
-        return false;
-      }
-
-      context.commit('CLEAR_RESULTS');
-      this.commit('SET_PROCESSING', true);
-
-      // we commit now because we want to see the first result immediatly
-      context.commit('ADD_RESULT', new SearchResult({
-        title: payload.query,
-        filter: new StringFilter({
-          title: payload.query,
-          query: payload.query,
-        }),
-        label: 'string',
-      }));
-
       return new Promise(
         (resolve, reject) => {
           services.suggestions.find({
             query: {
               q: payload.query,
+              // we just want 9 results because we
+              // add the original string totalling 10 suggestions
+              limit: 9,
             },
           }).then(
-           (res) => {
-             this.commit('SET_PROCESSING', false);
-             if (res.data !== undefined) {
-               res.data.forEach((result) => {
-                 let filter = {};
+            (res) => {
+              context.commit('CLEAR_SUGGESTIONS');
+              context.commit('ADD_SUGGESTION', new Suggestion({
+                entity: new Entity(),
+                type: 'string',
+                query: payload.query,
+              }));
 
-                 if (result.type === 'entity') {
-                   filter = new NamedEntityFilter({
-                     title: result.entity.name,
-                     uid: result.entity.uid,
-                     label: result.entity.labels[1],
-                   });
-                 }
-
-                 context.commit('ADD_RESULT', new SearchResult({
-                   title: result.entity.name,
-                   data: result,
-                   filter,
-                   label: result.entity.labels[1],
-                 }));
-               });
-             }
-
-             resolve(res);
-           },
-           (err) => {
-             this.commit('SET_PROCESSING', false);
-             reject(err);
-           },
-         );
+              context.commit('ADD_SUGGESTIONS', res.data.map(suggestion => new Suggestion({
+                entity: new Entity(suggestion.entity),
+                type: suggestion.type,
+                query: payload.query,
+              })));
+              resolve(res);
+            },
+            (err) => {
+              reject(err);
+            },
+          );
         },
       );
     },

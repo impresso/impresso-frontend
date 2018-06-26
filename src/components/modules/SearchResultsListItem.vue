@@ -1,11 +1,12 @@
 <template lang="html">
   <b-media>
     <div class="thumbnail" slot="aside" >
-      <open-seadragon-viewer v-model="value.iiif"></open-seadragon-viewer>
+      <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
     </div>
-    <h2><a href="#" v-on:click.prevent="click">{{value.title}}</a></h2>
-    <p>{{value.extract}}</p>
-    <b-table small :items="value.details"></b-table>
+    <h2><a href="#" v-on:click.prevent="click">{{article.title}}</a></h2>
+    <div>
+      <b-badge pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
+    </div>
   </b-media>
 </template>
 
@@ -20,8 +21,11 @@ Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 
 export default {
+  model: {
+    prop: 'article',
+  },
   props: {
-    value: {
+    article: {
       required: true,
     },
   },

@@ -4,7 +4,7 @@
     <b-container>
       <b-row>
         <b-col md="6" offset-md="3">
-          <search-bar />
+          <search-bar v-on:reset="reset" v-on:add="search(true)" />
         </b-col>
       </b-row>
     </b-container>
@@ -16,10 +16,10 @@
       </b-col>
     </b-row>
   </b-container>
-  <b-container v-if="filters.length > 0">
+  <b-container v-else>
     <b-row>
       <b-col md="3">
-        <search-filter-wrapper />
+        <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
       </b-col>
       <b-col>
         <b-row>
@@ -43,21 +43,17 @@
         </b-row>
         <hr>
         <b-row v-if="displayStyle === 'list'">
-          <b-col cols="12" v-for="searchResult in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-list-item
-              v-bind:value="searchResult"
-              v-on:click="onClickResult(searchResult)" />
+          <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+            <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
-        <b-row v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="6" md="4" lg="4" v-for="searchResult in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-tiles-item
-              v-on:click="onClickResult(searchResult)"
-              v-bind:value="searchResult" />
+        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+          <b-col cols="6" sm="6" md="4" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+            <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
         <hr>
-        <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" />
+        <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
       </b-col>
     </b-row>
   </b-container>
@@ -72,8 +68,6 @@ import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 
 export default {
-  name: 'HelloWorld',
-  props: ['uuid'],
   computed: {
     displaySortOrder: {
       get() {
@@ -145,30 +139,41 @@ export default {
         displaySortBy: sortBy,
         displaySortOrder: sortOrder,
       });
-      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
-        paginationCurrentPage: 1,
-      });
-      this.$store.dispatch('search/SEARCH');
+      this.search(true);
     },
     loadSearch(uuid) {
       this.$store.commit('search/LOAD_SEARCH', uuid);
-      this.$store.dispatch('search/SEARCH');
+      this.search(true);
     },
     onInputPagination(pageNumber) {
       this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
         paginationCurrentPage: pageNumber,
       });
-      this.$store.dispatch('search/SEARCH');
     },
     onClickResult(searchResult) {
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: searchResult.issue_uid,
-          page_number: searchResult.page_number,
-          article_uid: searchResult.article_uid,
+          issue_uid: searchResult.issue.uid,
+          page_number: searchResult.pages[0].num,
+          page_uid: searchResult.pages[0].uid,
+          article_uid: searchResult.uid,
         },
       });
+    },
+    search(startAtPageOne = false) {
+      if (startAtPageOne === true) {
+        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {});
+      }
+      this.$store.dispatch('search/SEARCH');
+    },
+    reset() {
+      this.$router.push(
+        {
+          name: 'home',
+        },
+        this.$store.commit('search/CLEAR'),
+      );
     },
   },
   components: {
@@ -183,6 +188,15 @@ export default {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
   },
+  watch: {
+    filters: {
+      handler(val) {
+        if (val.length === 0) {
+          this.reset();
+        }
+      },
+    },
+  },
 };
 </script>
 
@@ -191,8 +205,8 @@ export default {
     margin: 15px 0;
 }
 
-.top{
-  background: #f4f5f6;
+.top {
+    background: #f4f5f6;
 }
 </style>
 

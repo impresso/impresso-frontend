@@ -1,5 +1,5 @@
-import * as services from '../services';
-import User from '../modules/User';
+import * as services from '@/services';
+import User from '@/models/User';
 
 export default {
   namespaced: true,
@@ -21,52 +21,44 @@ export default {
   },
   actions: {
     LOGOUT(context) {
-      this.commit('SET_PROCESSING', true);
       return new Promise((resolve, reject) => {
         services.app.logout().then((res) => {
           context.commit('CLEAR_USER');
-          this.commit('SET_PROCESSING', false);
           resolve(res);
         }, (err) => {
-          this.commit('SET_PROCESSING', false);
           reject(err);
         });
       });
     },
     LOGIN(context, payload) {
-      this.commit('SET_PROCESSING', true);
+      return new Promise((resolve, reject) => {
+        const authSettings = {
+          strategy: 'local',
+          email: payload.email,
+          password: payload.password,
+        };
 
-      return new Promise(
-        (resolve, reject) => {
-          services.app.authenticate({
-            strategy: 'local',
-            email: payload.email,
-            password: payload.password,
-          })
+        services.app.authenticate(authSettings)
           .then(res => services.app.passport.verifyJWT(res.accessToken))
           .then(res => services.app.service('users').get(res.userId))
-          .then(
-            (user) => {
-              services.app.set('user', user);
-
-              context.commit('SET_USER', new User({
-                uid: user.uid,
-                username: user.username,
-                isStaff: user.is_staff,
-              }));
-
-              this.commit('SET_PROCESSING', false);
-              resolve();
-            },
-          )
+          .then((user) => {
+            services.app.set('user', user);
+            context.commit('SET_USER', new User({
+              uid: user.uid,
+              username: user.username,
+              isStaff: user.is_staff,
+            }));
+            context.dispatch('collections/LOAD_COLLECTIONS', null, {
+              root: true,
+            });
+            resolve();
+          })
           .catch(
             (err) => {
-              this.commit('SET_PROCESSING', false);
               reject(err);
             },
           );
-        },
-      );
+      });
     },
   },
 };
