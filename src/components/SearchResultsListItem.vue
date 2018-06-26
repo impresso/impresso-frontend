@@ -4,7 +4,9 @@
       <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
     </div>
     <h2><a href="#" v-on:click.prevent="click">{{article.title}}</a></h2>
+    <p>{{$d(article.date, "long")}}</p>
     <collection-tagger v-model="article"></collection-tagger>
+
     <div>
       <b-badge pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
     </div>
