@@ -1,54 +1,31 @@
 <template lang="html">
 <main id="UserCollectionPage">
   <div class="sidebar br">
-    <div class="tabs">
-      <div class="tab">
-        <input id="tab-1" type="radio" name="tab-group" checked />
-        <label for="tab-1">My <br/>Collections</label>
-
-        <div class="tabcontent p-3">
-
-          <div class="select-wrapper right mb-3">
-            <select v-model="collectionsSortOrder">
-                <option value="name">A-Z</option>
-                <option value="-name">Z-A</option>
-                <option value="created">Oldest</option>
-                <option value="-created">Newest</option>
-                <option value="-modified">Last Edit</option>
-            </select>
-          </div>
-
-          <div class="searchbox-wrapper my-3">
-            <input v-model="search" placeholder="Filter by collection name" class="searchbox" />
-          </div>
-
-          </h3>
-
-          <div class="collection-items">
-            <collection-sidebar-item
-              v-model="collectionAll"
-              v-on:click="select(collectionAll)"
-              v-bind:class="{active: collectionAll === collection}"
-              ></collection-sidebar-item>
-              <collection-sidebar-item
-              v-for="(c, index) in collections"
-              v-model="collections[index]"
-              v-on:click="select(c)"
-              v-bind:class="{active: c.uid === collection.uid}"
-              ></collection-sidebar-item>
-          </div>
-
-        </div>
-
-      </div> <!-- /tabs -->
-
-      <div class="buttons">
+    <b-input-group>
+      <b-form-input v-model="search" placeholder="Search"></b-form-input>
         <button class="btn btn-info" v-on:click="add()">Add</button>
         <button class="btn btn-info" v-on:click="fetch()">Reload</button>
-      </div>
-
+        <select v-model="collectionsSortOrder">
+          <option value="name">A-Z</option>
+          <option value="-name">Z-A</option>
+          <option value="created">Oldest</option>
+          <option value="-created">Newest</option>
+          <option value="-modified">Last Edit</option>
+        </select>
+    </b-input-group>
+    <div class="collection-items">
+      <collection-sidebar-item
+        v-model="collectionAll"
+        v-on:click="select(collectionAll)"
+        v-bind:class="{active: collectionAll === collection}"
+        ></collection-sidebar-item>
+        <collection-sidebar-item
+        v-for="(c, index) in collections"
+        v-model="collections[index]"
+        v-on:click="select(c)"
+        v-bind:class="{active: c.uid === collection.uid}"
+        ></collection-sidebar-item>
     </div>
-
   </div>
   <div class="content">
     <div v-if="editMode">
@@ -61,7 +38,7 @@
       <h1>{{collection.name}}</h1>
       <p><strong>{{collection.description}}</strong></p>
       <b-input-group v-show="collection.uid !== 'all'">
-        <button class="btn btn-primary" v-on:click="edit()">EDIT</button> &nbsp;
+        <button class="btn btn-primary" v-on:click="edit()">EDIT</button>
         <button class="btn btn-danger" v-on:click="remove(collection)">Delete</button>
       </b-input-group>
     </div>
@@ -76,15 +53,10 @@
     </div>
 
     <div v-if="issues.length > 0" class="collection-group">
-      <h2 class="py-3">Issues</h2>
-      <hr>
-      <div class="grid py-2">
-        <div class="item py-3" v-for="issue in issues">
-          <!-- {{issue}} -->
-          <img v-bind:src="issue.cover" v-bind:alt="issue.uid"  v-on:click="onClickResult(issue)">
-          <h2>{{issue.uid}}</h2>
-          <h3>{{issue.date}}</h3>
-          <hr>
+      <h4>Issues</h4>
+      <div class="grid">
+        <div class="item" v-for="issue in issues">
+          {{issue}}
         </div>
       </div>
     </div>
@@ -210,7 +182,7 @@ export default {
 
       this.collection = collection;
 
-      if (collection.uid !== 'all') {
+      if (collection.uid !== 'all' && collection.uid !== '') {
         this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
           this.collection = res;
         });
@@ -218,7 +190,7 @@ export default {
     },
     cancel(collection) {
       this.fetch().then(() => {
-        this.select(collection.uid); // select the newly created item
+        this.select(collection);
       });
     },
     add() {
@@ -238,14 +210,6 @@ export default {
         });
       }
     },
-    onClickResult(issue) {
-      this.$router.push({
-        name: 'issue',
-        params: {
-          issue_uid: issue.uid,
-        },
-      });
-    },
     save(collection) {
       if (collection.uid) {
         this.$store.dispatch('collections/EDIT_COLLECTION', {
@@ -254,7 +218,7 @@ export default {
           description: collection.description,
         }).then(() => {
           this.fetch().then(() => {
-            this.select(collection.uid); // select the edited item
+            this.select(collection); // select the edited item
           });
         });
       } else {
@@ -263,7 +227,7 @@ export default {
           description: collection.description,
         }).then((res) => {
           this.fetch().then(() => {
-            this.select(res.data.uid); // select the newly created item
+            this.select(new Collection(res.data)); // select the newly created item
           });
         });
       }
@@ -284,18 +248,15 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "./../assets/less/style.less";
-
 #UserCollectionPage {
     height: 100%;
     display: grid;
-    grid-template-columns: 440px auto;
+    grid-template-columns: 400px auto;
     grid-template-rows: auto;
     grid-template-areas: "sidebar content";
     .sidebar {
         grid-area: sidebar;
         overflow-y: auto;
-        width: 440px;
         &::-webkit-scrollbar {
             display: none;
         }
@@ -319,7 +280,7 @@ export default {
             }
         .grid {
             display: grid;
-            //grid-gap: 15px;
+            grid-gap: 15px;
             grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
             .item {
                 .os-viewer {
@@ -329,20 +290,6 @@ export default {
             }
         }
     }
-}
-.select-wrapper {
-  position: relative;
-  margin-right: -8px;
-  select:extend(.button) {
-    box-shadow: none;
-    padding-right: 25px;
-  }
-}
-.select-wrapper:after:extend(.arrow.icon:before) {
-  left:-18px;
-  top:-2px;
-  transform: rotate(45deg);
-  pointer-events: none;
 }
 </style>
 
