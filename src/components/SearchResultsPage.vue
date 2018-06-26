@@ -96,7 +96,7 @@ export default {
     },
     searchResults: {
       get() {
-        return this.$store.state.search.results;
+        return this.$store.getters['search/results'];
       },
     },
     filters: {

@@ -25,6 +25,15 @@ export default {
     getSearch(state) {
       return state.search instanceof SearchQuery ? state.search : new SearchQuery(state.search);
     },
+    results(state) {
+      return state.results.map((result) => {
+        if (result instanceof Article) {
+          return result;
+        }
+
+        return new Article(result);
+      });
+    },
   },
   mutations: {
     UPDATE_SEARCH_DISPLAY_SORT(state, payload) {
