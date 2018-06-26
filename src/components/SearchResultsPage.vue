@@ -1,47 +1,36 @@
 <template>
 <main id="SearchResultsPage">
-  <div class="top mb-4 py-2">
-    <b-container>
-      <b-row>
-        <b-col md="6" offset-md="3">
-          <search-bar v-on:reset="reset" v-on:add="search(true)" />
-        </b-col>
-      </b-row>
-    </b-container>
+  <div class="sidebar">
+    <search-bar v-on:reset="reset" v-on:add="search(true)" />
+    <hr>
+    <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
   </div>
-  <b-container v-if="filters.length == 0">
-    <b-row>
-      <b-col>
-        <h1>No results</h1>
-      </b-col>
-    </b-row>
-  </b-container>
-  <b-container v-else>
-    <b-row>
-      <b-col md="3">
-        <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
-      </b-col>
-      <b-col>
-        <b-row>
-          <b-col xs="6">
-            {{$t("label_sort")}}
-            <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
-              <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
-              <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
-              <b-dropdown-divider></b-dropdown-divider>
-              <b-dropdown-item @click="setSort('date', 'asc')" :active="displaySortBy === 'date' && displaySortOrder === 'asc'" v-html="getSortByLabel('date', 'asc')"></b-dropdown-item>
-              <b-dropdown-item @click="setSort('date', 'desc')" :active="displaySortBy === 'date' && displaySortOrder === 'desc'" v-html="getSortByLabel('date', 'desc')"></b-dropdown-item>
-            </b-dropdown>
-          </b-col>
-          <b-col xs="6" class="text-right">
-            {{$t("label_display")}}
-            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
-              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-            </b-form-radio-group>
-          </b-col>
-        </b-row>
-        <hr>
+  <div class="content">
+    <div class="toolbar bb">
+      <div class="toolbox br">
+
+      </div>
+      <div class="toolbox br">
+        {{$t("label_sort")}}
+        <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
+          <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
+          <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+          <b-dropdown-item @click="setSort('date', 'asc')" :active="displaySortBy === 'date' && displaySortOrder === 'asc'" v-html="getSortByLabel('date', 'asc')"></b-dropdown-item>
+          <b-dropdown-item @click="setSort('date', 'desc')" :active="displaySortBy === 'date' && displaySortOrder === 'desc'" v-html="getSortByLabel('date', 'desc')"></b-dropdown-item>
+        </b-dropdown>
+      </div>
+      <div class="toolbox">
+        {{$t("label_display")}}
+        <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
+          <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+          <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+        </b-form-radio-group>
+      </div>
+    </div>
+
+    <div class="results">
+      <b-container>
         <b-row v-if="displayStyle === 'list'">
           <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
@@ -52,11 +41,12 @@
             <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
-        <hr>
-        <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
-      </b-col>
-    </b-row>
-  </b-container>
+      </b-container>
+      <hr>
+      <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
+    </div>
+  </div>
+
 </main>
 </template>
 
@@ -168,12 +158,10 @@ export default {
       this.$store.dispatch('search/SEARCH');
     },
     reset() {
-      this.$router.push(
-        {
-          name: 'home',
-        },
-        this.$store.commit('search/CLEAR'),
-      );
+      const data = {
+        name: 'home',
+      };
+      this.$router.push(data, this.$store.commit('search/CLEAR'));
     },
   },
   components: {
@@ -201,12 +189,38 @@ export default {
 </script>
 
 <style scoped lang="less">
-.search_wrapper {
-    margin: 15px 0;
-}
+@import "./../assets/less/style.less";
 
-.top {
-    background: #f4f5f6;
+#SearchResultsPage {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 400px auto;
+    grid-template-rows: auto;
+    grid-template-areas: "sidebar content";
+    .sidebar {
+        grid-area: sidebar;
+        overflow-y: auto;
+        padding: 20px;
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+    .content {
+        grid-area: content;
+        overflow-y: auto;
+        .results {
+            padding: 20px;
+        }
+    }
+
+    .toolbar {
+        background: @clr-grey-200;
+        display: grid;
+        grid-template-columns: auto max-content max-content;
+        .toolbox {
+            padding: 20px;
+        }
+    }
 }
 </style>
 
