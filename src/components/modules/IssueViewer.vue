@@ -342,14 +342,15 @@ export default {
     }
 
     #overlay-regions {
-        .region {
-            mix-blend-mode: multiply;
-            transition: background 200ms;
-            &:hover {
-                background: fade(@clr-yellow, 30);
-            }
-        }
+      .regions > .region {
+          mix-blend-mode: multiply;
+          border: 1px solid fade(@impresso-blue, 50);
+          transition: background 200ms;
+      }
+      .regions:hover > .region {
+          border-color: @impresso-blue;
+          background: fade(@impresso-blue, 40);
+      }
     }
-
 }
 </style>
