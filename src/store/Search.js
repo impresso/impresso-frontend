@@ -1,6 +1,9 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
+import Collection from '@/models/Collection';
+import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
+import Newspaper from '@/models/Newspaper';
 
 export default {
   namespaced: true,
@@ -133,7 +136,28 @@ export default {
                   tag.appliesTo = tag.applies_to;
                   return tag;
                 }),
-                newspaperUid: result.newspaper_uid,
+                collections: result.buckets.map(bucket => new Collection({
+                  ...bucket,
+                  countArticles: bucket.count_articles,
+                  countEntities: bucket.count_entities,
+                  countIssues: bucket.count_issues,
+                  countItems: bucket.count_items,
+                  countPages: bucket.count_pages,
+                  creationDate: bucket.creation_date,
+                  creationTime: bucket.creation_time,
+                  lastModifiedDate: bucket.last_modified_date,
+                  lastModifiedTime: bucket.last_modified_time,
+                })),
+                matches: result.matches.map(match => new Match(match)),
+                newspaper: new Newspaper({
+                  ...result.newspaper,
+                  countArticles: result.newspaper.count_articles,
+                  countIssues: result.newspaper.count_issues,
+                  countPages: result.newspaper.count_pages,
+                  deltaYear: result.newspaper.delta_year,
+                  endYear: result.newspaper.end_year,
+                  startYear: result.newspaper.start_year,
+                }),
               })));
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
