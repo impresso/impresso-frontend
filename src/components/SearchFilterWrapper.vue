@@ -14,7 +14,7 @@
           v-on:input="updateFilter"
           v-on:remove="removeFilter(index)"
         />
-        <filter-daterange
+        <filter-date-range
           v-if="filter.type.toLowerCase() === 'daterange'"
           v-model="search.filters[index]"
           v-on:input="updateFilter"
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import FilterDaterange from './modules/FilterDaterange';
+import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterString from './modules/FilterString';
 
@@ -61,7 +61,7 @@ export default {
   components: {
     'filter-string': FilterString,
     'filter-named-entity': FilterNamedEntity,
-    'filter-daterange': FilterDaterange,
+    'filter-date-range': FilterDateRange,
   },
 };
 </script>
