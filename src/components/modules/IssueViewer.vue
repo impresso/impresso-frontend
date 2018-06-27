@@ -356,9 +356,10 @@ export default {
         margin-top: -3.5rem;
         margin-left: -1rem;
         background: white;
-        opacity: 0;
-        transform-origin: bottom left;
-        transition: opacity .2s ease-out .2s;
+        // opacity: 0;
+        display: none;
+        // transform-origin: bottom left;
+        // transition: opacity .2s ease-out .2s;
         padding: 0.5rem;
         border: 2px solid black;
         box-shadow: 0 2px 5px rgba(0,0,0,0.4);
@@ -371,9 +372,6 @@ export default {
 
         div.actions {
           .link {
-              // display: flex;
-              // align-items: center;
-              // justify-content: center;
               height: 1.25rem;
               opacity: 0.6;
               font-size: 0.8em;
@@ -382,12 +380,8 @@ export default {
               padding: 0 30px 5px 10px;
               text-transform: uppercase;
               border-right: 1px solid @clr-teal-400;
-              //background: linear-gradient(to bottom, white 50%, @clr-teal-200 50%);
-              // background-size: 100% 200%;
-              // background-position: top;
               transition: color 0.16s ease-in;
               &:hover {
-                  // color: @clr-black;
                   opacity: 1;
                   text-decoration: none;
               }
@@ -411,8 +405,9 @@ export default {
       }
       .regions:hover {
           .action-overlay {
-            opacity: 1;
-            transition: opacity .16s ease-in;
+            display: block;
+            // opacity: 1;
+            // transition: opacity .16s ease-in;
           }
       }
     }
