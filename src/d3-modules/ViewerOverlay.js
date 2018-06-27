@@ -1,7 +1,6 @@
 /* eslint no-console: 0 */
 import * as d3 from 'd3';
 import Page from '@/models/Page';
-// import ActionOverlay from '@/modules/IssueViewerActionOverlay';
 
 class ViewerOverlay {
 
@@ -43,14 +42,14 @@ class ViewerOverlay {
       this.overlayRegions.actionOverlay
         .style('left', (d) => {
           let left = 0;
-          if (typeof (d.regions[0]) !== 'undefined') {
+          if (typeof d.regions[0] !== 'undefined') {
             left = d.regions[0].left * zoom;
           }
           return `${left}px`;
         })
         .style('top', (d) => {
           let top = 0;
-          if (typeof (d.regions[0]) !== 'undefined') {
+          if (typeof d.regions[0] !== 'undefined') {
             top = d.regions[0].top * zoom;
           }
           return `${top}px`;
@@ -166,15 +165,22 @@ class ViewerOverlay {
       .append('div')
       .classed('action-overlay', true)
       .attr('uid', d => d.articleUid)
-      .html(d => `
-        <div class="title">${d.articleUid}</div>
+      .html(d => `<div class="title">${d.articleUid}</div>
         <div class="actions">
           <a href="#" class="link" title="read"><span class="eye icon"></span></a>
-          <a href="#" class="link" title="add to ..."><span class="plus icon"></span></a>
+          <a href="#" class="link" title="add to ..." data-action="add" data-uid="${d.articleUid}"><span class="plus icon"></span></a>
           <a href="#" class="link" title="cite article"><span class="left-double-quote icon"><i></i></span></a>
           <a href="#" class="link" title="more actions"><span class="more icon"></span></a>
-        </div>
-      `);
+        </div>`)
+      .on('click', () => {
+        const elm = d3.select(d3.event.srcElement);
+        switch (elm.attr('data-action')) {
+          case 'add':
+            console.log(elm.attr('data-uid'));
+            break;
+          default:
+        }
+      });
   }
 
   update(page) {

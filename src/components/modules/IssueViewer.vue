@@ -48,7 +48,6 @@ import Page from '@/models/Page';
 import Issue from '@/models/Issue';
 import ThumbnailSlider from './ThumbnailSlider';
 import IssueViewerZoomSlider from './IssueViewerZoomSlider';
-import ActionOverlay from './IssueViewerActionOverlay';
 
 export default {
   model: {
@@ -154,7 +153,6 @@ export default {
   components: {
     ThumbnailSlider,
     IssueViewerZoomSlider,
-    ActionOverlay,
   },
 };
 </script>
@@ -356,10 +354,7 @@ export default {
         margin-top: -3.5rem;
         margin-left: -1rem;
         background: white;
-        // opacity: 0;
         display: none;
-        // transform-origin: bottom left;
-        // transition: opacity .2s ease-out .2s;
         padding: 0.5rem;
         border: 2px solid black;
         box-shadow: 0 2px 5px rgba(0,0,0,0.4);
@@ -385,8 +380,9 @@ export default {
                   opacity: 1;
                   text-decoration: none;
               }
-              span {
+              span.icon {
                   display: block;
+                  pointer-events: none;
               }
             }
             .link:first-child {
@@ -406,8 +402,6 @@ export default {
       .regions:hover {
           .action-overlay {
             display: block;
-            // opacity: 1;
-            // transition: opacity .16s ease-in;
           }
       }
     }
