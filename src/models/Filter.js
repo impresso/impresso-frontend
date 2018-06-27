@@ -1,9 +1,11 @@
+import Daterange from './Daterange';
 import Entity from './Entity';
 /**
  * Filter object
  * @param {String} context either 'include' or 'exclude'
  * @param {String} query The search query
  * @param {Entity} entity Entity object
+ * @param {Daterange} daterange Daterange object
  * @param {String} type The type of filter (entity, string)
  */
 
@@ -11,9 +13,16 @@ export default function Filter({
   context = 'include',
   query = '',
   entity = new Entity(),
+  daterange = new Daterange(),
   type = '',
 } = {}) {
   this.context = context;
+
+  if (daterange instanceof Daterange) {
+    this.daterange = daterange;
+  } else {
+    this.daterange = new Daterange(daterange);
+  }
 
   if (entity instanceof Entity) {
     this.entity = entity;

@@ -1,16 +1,22 @@
 <template lang="html">
   <div id="search-filter-wrapper">
-    <div ref="filters" v-for="(filter, index) in filters" v-bind:key="index">
+    <div ref="filters" v-for="(filter, index) in search.filters" v-bind:key="index">
         <filter-string
           v-if="filter.type.toLowerCase() === 'string'"
-          v-model="filters[index]"
+          v-model="search.filters[index]"
           v-on:input="updateFilter"
           v-on:submit="submitFilter"
           v-on:remove="removeFilter(index)"
         />
         <filter-named-entity
           v-if="filter.type.toLowerCase() === 'entity'"
-          v-model="filters[index]"
+          v-model="search.filters[index]"
+          v-on:input="updateFilter"
+          v-on:remove="removeFilter(index)"
+        />
+        <filter-daterange
+          v-if="filter.type.toLowerCase() === 'daterange'"
+          v-model="search.filters[index]"
           v-on:input="updateFilter"
           v-on:remove="removeFilter(index)"
         />
@@ -25,14 +31,15 @@
 </template>
 
 <script>
-import FilterString from './modules/FilterString';
+import FilterDaterange from './modules/FilterDaterange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
+import FilterString from './modules/FilterString';
 
 export default {
   computed: {
-    filters: {
+    search: {
       get() {
-        return this.$store.state.search.search.filters;
+        return this.$store.getters['search/getSearch'];
       },
     },
   },
@@ -54,6 +61,7 @@ export default {
   components: {
     'filter-string': FilterString,
     'filter-named-entity': FilterNamedEntity,
+    'filter-daterange': FilterDaterange,
   },
 };
 </script>
