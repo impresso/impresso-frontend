@@ -48,6 +48,7 @@ import Page from '@/models/Page';
 import Issue from '@/models/Issue';
 import ThumbnailSlider from './ThumbnailSlider';
 import IssueViewerZoomSlider from './IssueViewerZoomSlider';
+import ActionOverlay from './IssueViewerActionOverlay';
 
 export default {
   model: {
@@ -153,6 +154,7 @@ export default {
   components: {
     ThumbnailSlider,
     IssueViewerZoomSlider,
+    ActionOverlay,
   },
 };
 </script>
@@ -347,10 +349,73 @@ export default {
           border: 1px solid fade(@impresso-blue, 50);
           transition: background 200ms;
       }
+      .action-overlay {
+        display: block;
+        position:absolute;
+        z-index: 1;
+        margin-top: -3.5rem;
+        margin-left: -1rem;
+        background: white;
+        opacity: 0;
+        transform-origin: bottom left;
+        transition: opacity .4s ease-out .4s;
+        padding: 0.5rem;
+        border: 2px solid black;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+
+        .title {
+          font-size: 12px;
+          font-weight: bold;
+          margin-bottom: 0.5rem;
+        }
+
+        div.actions {
+          a {
+              // display: flex;
+              // align-items: center;
+              // justify-content: center;
+              height: 2rem;
+              opacity: 0.6;
+              font-size: 0.8em;
+              display: table-cell;
+              color: @clr-black;
+              padding: 0 30px 5px 10px;
+              text-transform: uppercase;
+              border-right: 1px solid @clr-teal-400;
+              //background: linear-gradient(to bottom, white 50%, @clr-teal-200 50%);
+              // background-size: 100% 200%;
+              // background-position: top;
+              transition: color 0.16s ease-in;
+              &:hover {
+                  // color: @clr-black;
+                  opacity: 1;
+                  text-decoration: none;
+              }
+              span {
+                  display: block;
+              }
+            }
+            a:first-child {
+                padding-left: 0;
+                margin: 0;
+            }
+            a:last-child {
+                border-right: none;
+                padding-right: 20px;
+            }
+          }
+      }
       .regions:hover > .region {
           border-color: @impresso-blue;
           background: fade(@impresso-blue, 40);
       }
+      .regions:hover {
+          .action-overlay {
+            opacity: 1;
+            transition: opacity .2s ease-out 0s;
+          }
+      }
     }
 }
+
 </style>

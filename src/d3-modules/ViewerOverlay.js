@@ -1,6 +1,7 @@
 /* eslint no-console: 0 */
 import * as d3 from 'd3';
 import Page from '@/models/Page';
+// import ActionOverlay from '@/modules/IssueViewerActionOverlay';
 
 class ViewerOverlay {
 
@@ -38,6 +39,22 @@ class ViewerOverlay {
         .style('top', d => `${d.top * zoom}px`)
         .style('width', d => `${d.width * zoom}px`)
         .style('height', d => `${d.height * zoom}px`);
+
+      this.overlayRegions.actionOverlay
+        .style('left', (d) => {
+          let left = 0;
+          if (typeof (d.regions[0]) !== 'undefined') {
+            left = d.regions[0].left * zoom;
+          }
+          return `${left}px`;
+        })
+        .style('top', (d) => {
+          let top = 0;
+          if (typeof (d.regions[0]) !== 'undefined') {
+            top = d.regions[0].top * zoom;
+          }
+          return `${top}px`;
+        });
     }
   }
 
@@ -120,6 +137,7 @@ class ViewerOverlay {
   //
   updateOverlayRegions() {
     const overlayRegions = document.createElement('div');
+
     overlayRegions.setAttribute('id', 'overlay-regions');
 
     this.viewer.addOverlay({
@@ -143,6 +161,20 @@ class ViewerOverlay {
       .append('div')
       .classed('region', true)
       .style('position', 'absolute');
+
+    this.overlayRegions.actionOverlay = this.overlayRegions.selectAll('div.regions')
+      .append('div')
+      .classed('action-overlay', true)
+      .attr('uid', d => d.articleUid)
+      .html(d => `
+        <div class="title">${d.articleUid}</div>
+        <div class="actions">
+          <a href="#" title="read"><span class="eye icon"></span></a>
+          <a href="#" title="add to ..."><span class="plus icon"></span></a>
+          <a href="#" title="cite article"><span class="left-double-quote icon"><i></i></span></a>
+          <a href="#" title="more actions"><span class="more icon"></span></a>
+        </div>
+      `);
   }
 
   update(page) {
