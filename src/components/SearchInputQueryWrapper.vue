@@ -43,6 +43,7 @@ export default {
         type: suggestion.type,
         query: suggestion.query,
         entity: suggestion.entity,
+        daterange: suggestion.daterange,
       }));
 
       this.$emit('add');
