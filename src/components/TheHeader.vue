@@ -117,7 +117,7 @@ export default {
 header {
     display: grid;
     height: 53px;
-    z-index: 1;
+    z-index: 100;
     grid-template-columns: max-content max-content auto max-content;
     grid-template-rows: 100%;
     grid-template-areas: "logo navigation-left navigation-center navigation-right";
