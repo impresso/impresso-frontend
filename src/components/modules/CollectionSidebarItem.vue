@@ -1,10 +1,10 @@
 <template lang="html">
-  <div class="collection-sidebar-item py-2 px-3 bb" v-on:click="click">
-    <h1 class="text-serif font-weight-bold font-size-lg">{{collection.name}}</h1>
+  <div class="collection-sidebar-item py-3 px-3 bt" v-on:click="click">
+    <h2 class="title">{{collection.name}}</h2>
     <div class="details two">
       <div class="detail">
         <span class="muted">Created</span><br>
-        <strong>{{$d(collection.creationDate, 'short')}}</strong>
+        <strong>{{collection.creationDate}}</strong>
       </div>
       <div class="detail">
         <span class="muted">Edited</span><br>
@@ -56,9 +56,13 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import "./../../assets/less/color.less";
+
 .collection-sidebar-item {
     transition: background-color 500ms;
-
+    float:left;
+    width: 100%;
+    border-bottom: 5px solid transparent;
     .details {
         display: grid;
         grid-template-rows: auto;
@@ -75,9 +79,10 @@ export default {
           font-size: smaller;
         }
     }
-
     &:hover, &.active {
         background-color: #eee;
+        border-bottom: 5px solid @impresso-yellow;
+        //box-shadow: inset 0 -5px 0px 5px @impresso-yellow;
         cursor: pointer;
     }
 }

@@ -342,14 +342,69 @@ export default {
     }
 
     #overlay-regions {
-        .region {
-            mix-blend-mode: multiply;
-            transition: background 200ms;
-            &:hover {
-                background: fade(@clr-yellow, 30);
-            }
-        }
-    }
+      .regions > .region {
+          mix-blend-mode: multiply;
+          border: 1px solid fade(@impresso-blue, 50);
+          transition: background 200ms;
+      }
+      .action-overlay {
+        display: block;
+        position:absolute;
+        z-index: 1;
+        margin-top: -3.5rem;
+        margin-left: -1rem;
+        background: white;
+        display: none;
+        padding: 0.5rem;
+        border: 2px solid black;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
 
+        .title {
+          font-size: 12px;
+          font-weight: bold;
+          margin-bottom: 0.5rem;
+        }
+
+        div.actions {
+          .link {
+              height: 1.25rem;
+              opacity: 0.6;
+              font-size: 0.8em;
+              display: table-cell;
+              color: @clr-black;
+              padding: 0 30px 5px 10px;
+              text-transform: uppercase;
+              border-right: 1px solid @clr-teal-400;
+              transition: color 0.16s ease-in;
+              &:hover {
+                  opacity: 1;
+                  text-decoration: none;
+              }
+              span.icon {
+                  display: block;
+                  pointer-events: none;
+              }
+            }
+            .link:first-child {
+                padding-left: 0;
+                margin: 0;
+            }
+            .link:last-child {
+                border-right: none;
+                padding-right: 20px;
+            }
+          }
+      }
+      .regions:hover > .region {
+          border-color: @impresso-blue;
+          background: fade(@impresso-blue, 40);
+      }
+      .regions:hover {
+          .action-overlay {
+            display: block;
+          }
+      }
+    }
 }
+
 </style>

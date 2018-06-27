@@ -38,6 +38,22 @@ class ViewerOverlay {
         .style('top', d => `${d.top * zoom}px`)
         .style('width', d => `${d.width * zoom}px`)
         .style('height', d => `${d.height * zoom}px`);
+
+      this.overlayRegions.actionOverlay
+        .style('left', (d) => {
+          let left = 0;
+          if (typeof d.regions[0] !== 'undefined') {
+            left = d.regions[0].left * zoom;
+          }
+          return `${left}px`;
+        })
+        .style('top', (d) => {
+          let top = 0;
+          if (typeof d.regions[0] !== 'undefined') {
+            top = d.regions[0].top * zoom;
+          }
+          return `${top}px`;
+        });
     }
   }
 
@@ -120,6 +136,7 @@ class ViewerOverlay {
   //
   updateOverlayRegions() {
     const overlayRegions = document.createElement('div');
+
     overlayRegions.setAttribute('id', 'overlay-regions');
 
     this.viewer.addOverlay({
@@ -143,6 +160,27 @@ class ViewerOverlay {
       .append('div')
       .classed('region', true)
       .style('position', 'absolute');
+
+    this.overlayRegions.actionOverlay = this.overlayRegions.selectAll('div.regions')
+      .append('div')
+      .classed('action-overlay', true)
+      .attr('uid', d => d.articleUid)
+      .html(d => `<div class="title">${d.articleUid}</div>
+        <div class="actions">
+          <a href="#" class="link" title="read"><span class="eye icon"></span></a>
+          <a href="#" class="link" title="add to ..." data-action="add" data-uid="${d.articleUid}"><span class="plus icon"></span></a>
+          <a href="#" class="link" title="cite article"><span class="left-double-quote icon"><i></i></span></a>
+          <a href="#" class="link" title="more actions"><span class="more icon"></span></a>
+        </div>`)
+      .on('click', () => {
+        const elm = d3.select(d3.event.srcElement);
+        switch (elm.attr('data-action')) {
+          case 'add':
+            console.log(elm.attr('data-uid'));
+            break;
+          default:
+        }
+      });
   }
 
   update(page) {
