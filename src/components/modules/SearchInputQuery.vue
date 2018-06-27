@@ -111,13 +111,14 @@ export default {
     },
     hideSuggestions() {
       this.showSuggestions = false;
+      this.select(this.suggestions[0]);
     },
     keyup(event) {
       const index = this.suggestions.indexOf(this.suggestion);
 
       switch (event.key) {
         case 'Escape':
-          this.showSuggestions = !this.showSuggestions; // toggle
+          this.hideSuggestions();
           break;
         case 'Enter':
           if (event.altKey === true) {
