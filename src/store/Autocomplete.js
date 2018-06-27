@@ -1,5 +1,6 @@
-import Suggestion from '@/models/Suggestion';
+import Daterange from '@/models/Daterange';
 import Entity from '@/models/Entity';
+import Suggestion from '@/models/Suggestion';
 
 import * as services from '@/services';
 
@@ -43,6 +44,9 @@ export default {
 
               context.commit('ADD_SUGGESTIONS', res.data.map(suggestion => new Suggestion({
                 entity: new Entity(suggestion.entity),
+                daterange: new Daterange({
+                  daterange: suggestion.daterange,
+                }),
                 type: suggestion.type,
                 query: payload.query,
               })));
