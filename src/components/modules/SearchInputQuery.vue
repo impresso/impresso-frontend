@@ -35,6 +35,11 @@
           v-model="suggestions[index]"
           v-on:add="add"
           v-on:submit="submit" />
+        <suggestion-daterange
+          v-if="elm.type === 'daterange'"
+          v-model="suggestions[index]"
+          v-on:add="add"
+          v-on:submit="submit" />
         <suggestion-test
           v-if="elm.entity.hasLabel('test')"
           v-model="suggestions[index]"
@@ -59,6 +64,7 @@ import Suggestion from '@/models/Suggestion';
 import SuggestionLocation from './SearchInputQuerySuggestionLocation';
 import SuggestionPerson from './SearchInputQuerySuggestionPerson';
 import SuggestionString from './SearchInputQuerySuggestionString';
+import SuggestionDaterange from './SearchInputQuerySuggestionDaterange';
 import SuggestionTest from './SearchInputQuerySuggestionTest';
 
 Vue.use(BootstrapVue);
@@ -169,6 +175,7 @@ export default {
     SuggestionLocation,
     SuggestionPerson,
     SuggestionString,
+    SuggestionDaterange,
     SuggestionTest,
   },
 };
