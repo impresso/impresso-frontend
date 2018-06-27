@@ -46,11 +46,14 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import "./../assets/less/style.less";
+
 .thumbnail {
     width: 240px;
     height: 180px;
     position: relative;
     cursor: move;
+    border:1px solid @clr-grey;
 }
 </style>
 
