@@ -358,7 +358,7 @@ export default {
         background: white;
         opacity: 0;
         transform-origin: bottom left;
-        transition: opacity .4s ease-out .4s;
+        transition: opacity .2s ease-out .2s;
         padding: 0.5rem;
         border: 2px solid black;
         box-shadow: 0 2px 5px rgba(0,0,0,0.4);
@@ -370,11 +370,11 @@ export default {
         }
 
         div.actions {
-          a {
+          .link {
               // display: flex;
               // align-items: center;
               // justify-content: center;
-              height: 2rem;
+              height: 1.25rem;
               opacity: 0.6;
               font-size: 0.8em;
               display: table-cell;
@@ -395,11 +395,11 @@ export default {
                   display: block;
               }
             }
-            a:first-child {
+            .link:first-child {
                 padding-left: 0;
                 margin: 0;
             }
-            a:last-child {
+            .link:last-child {
                 border-right: none;
                 padding-right: 20px;
             }
@@ -412,7 +412,7 @@ export default {
       .regions:hover {
           .action-overlay {
             opacity: 1;
-            transition: opacity .2s ease-out 0s;
+            transition: opacity .16s ease-in;
           }
       }
     }

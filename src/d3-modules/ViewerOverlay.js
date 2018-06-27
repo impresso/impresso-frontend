@@ -169,10 +169,10 @@ class ViewerOverlay {
       .html(d => `
         <div class="title">${d.articleUid}</div>
         <div class="actions">
-          <a href="#" title="read"><span class="eye icon"></span></a>
-          <a href="#" title="add to ..."><span class="plus icon"></span></a>
-          <a href="#" title="cite article"><span class="left-double-quote icon"><i></i></span></a>
-          <a href="#" title="more actions"><span class="more icon"></span></a>
+          <a href="#" class="link" title="read"><span class="eye icon"></span></a>
+          <a href="#" class="link" title="add to ..."><span class="plus icon"></span></a>
+          <a href="#" class="link" title="cite article"><span class="left-double-quote icon"><i></i></span></a>
+          <a href="#" class="link" title="more actions"><span class="more icon"></span></a>
         </div>
       `);
   }
