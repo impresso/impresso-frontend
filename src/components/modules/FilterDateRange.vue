@@ -5,37 +5,48 @@
     </div>
     <div class="p-2">
       <div class="body">
-        <div class="row">
-          <div class="col">
-            <b-form-group label="Start">
-              <b-form-input type="text" id="y1" v-model="filter.daterange.start" v-on:input="updateFilter"></b-form-input>
-            </b-form-group>
-          </div>
-          <div class="col">
-            <b-form-group label="End">
-              <b-form-input type="text" id="y2" v-model="filter.daterange.end" v-on:input="updateFilter"></b-form-input>
-            </b-form-group>
-          </div>
-        </div>
+        <v-date-picker
+          mode="range"
+          v-model="selectedDate"
+          show-caps>
+            <b-form-input
+              slot-scope='props'
+              v-on:change.native='props.updateValue($event.target.value)'
+              v-bind:value="props.inputValue"
+              type="text"
+              placeholder="Enter your name"></b-form-input>
+        </v-date-picker>
       </div>
     </div>
-    <pre>{{filter}}</pre>
   </filter-wrapper>
 </template>
 
 <script>
+import Vue from 'vue';
+import VCalendar from 'v-calendar';
+import 'v-calendar/lib/v-calendar.min.css';
+
+import Daterange from '@/models/Daterange';
+
 import FilterWrapper from './FilterWrapper';
+
+// Use v-calendar, v-date-picker & v-popover components
+Vue.use(VCalendar, {
+  firstDayOfWeek: 2, // Monday
+});
 
 export default {
   data: () => ({
-    options: [{
-      value: 'include',
-      text: 'Include',
-    },
-    {
-      value: 'exclude',
-      text: 'Exclude',
-    }],
+    options: [
+      {
+        value: 'include',
+        text: 'Include',
+      },
+      {
+        value: 'exclude',
+        text: 'Exclude',
+      },
+    ],
   }),
   model: {
     prop: 'filter',
@@ -50,6 +61,17 @@ export default {
     },
     remove() {
       this.$emit('remove');
+    },
+  },
+  computed: {
+    selectedDate: {
+      get() {
+        return new Daterange(this.filter.daterange);
+      },
+      set(daterange) {
+        this.filter.daterange = new Daterange(daterange);
+        this.updateFilter();
+      },
     },
   },
   components: {

@@ -23,6 +23,7 @@
     "openseadragon": "^2.3.1",
     "svg-overlay": "github:openseadragon/svg-overlay",
     "uuid": "^3.2.1",
+    "v-calendar": "^0.9.7",
     "vue": "^2.5.16",
     "vue-awesome": "^2.3.7",
     "vue-click-outside": "^1.0.7",

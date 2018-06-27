@@ -37,10 +37,8 @@ import FilterString from './modules/FilterString';
 
 export default {
   computed: {
-    search: {
-      get() {
-        return this.$store.getters['search/getSearch'];
-      },
+    search() {
+      return this.$store.state.search.search;
     },
   },
   methods: {

@@ -115,6 +115,7 @@ export default {
                 type: filter.type,
                 q: filter.query,
                 uid: filter.getUid(),
+                daterange: filter.getDaterange(),
               })),
               facets: ['newspaper', 'year', 'language'],
               group_by: 'articles', // TODO: this can be pages at a later stage

@@ -47,4 +47,12 @@ export default function Filter({
     }
     return undefined;
   };
+
+  this.getDaterange = () => {
+    if (this.type === 'daterange') {
+      const string = `${this.daterange.start.toISOString().replace('.000Z', 'Z')} TO ${this.daterange.end.toISOString().replace('.000Z', 'Z')}`;
+      return string;
+    }
+    return undefined;
+  };
 }
