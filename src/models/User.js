@@ -14,6 +14,7 @@ export default function User({
   uid = '',
   username = '',
   isStaff = false,
+  group = '',
 } = {}) {
   this.nameFirst = nameFirst;
   this.nameLast = nameLast;
@@ -21,4 +22,5 @@ export default function User({
   this.uid = uid;
   this.username = username;
   this.isStaff = isStaff;
+  this.group = group;
 }
