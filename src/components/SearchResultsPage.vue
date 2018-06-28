@@ -27,27 +27,33 @@
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
-  </div>
-  <div class="results">
-    <div class="summary">
-      <search-result-summary v-bind:components="queryComponents" v-bind:totalRows="paginationTotalRows"/>
-    </div>
-    <b-container fluid>
-      <b-row v-if="displayStyle === 'list'">
-        <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-          <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
-        </b-col>
-      </b-row>
-      <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-        <b-col cols="6" sm="12" md="6" lg="4" xl="3" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-          <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
-        </b-col>
-      </b-row>
-    </b-container>
     <hr>
-    <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
+    <div v-for="(group, index) in facets" class="facets">
+      <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
+    </div>
   </div>
 
+
+    <div class="results">
+      <div class="summary text-center">
+        <search-result-summary v-bind:components="queryComponents" v-bind:totalRows="paginationTotalRows"/>
+        <hr>
+      </div>
+      <b-container>
+        <b-row v-if="displayStyle === 'list'">
+          <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+            <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+          </b-col>
+        </b-row>
+        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+          <b-col cols="6" sm="6" md="4" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+            <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+          </b-col>
+        </b-row>
+      </b-container>
+      <hr>
+      <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
+    </div>
 </main>
 </template>
 
@@ -111,8 +117,35 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    facets: {
+      get() {
+        return this.$store.getters['search/facets'];
+      },
+    },
   },
   methods: {
+    getFields(group, label) {
+      return [
+        {
+          key: 'val',
+          label,
+          sortable: true,
+          class: 'text-left',
+        },
+        {
+          key: 'count',
+          sortable: true,
+          class: 'text-right',
+        },
+      ];
+    },
+    getItems(group) {
+      return group.map(item => ({
+        isActive: true,
+        val: item.val,
+        count: item.count,
+      }));
+    },
     getSortByLabel(sortBy, sortOrder) {
       let label = '';
       if (sortBy === 'date') {
@@ -196,7 +229,7 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 @import "./../assets/less/style.less";
 
 #SearchResultsPage {
@@ -228,6 +261,17 @@ export default {
             height: 50px;
             padding: 10px;
         }
+    }
+
+    .facets{
+      tr{
+        td, th{
+          text-transform: capitalize;
+          &:last-child{
+              width:100%;
+          }
+        }
+      }
     }
 }
 </style>
