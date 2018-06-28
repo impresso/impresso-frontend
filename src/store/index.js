@@ -79,6 +79,7 @@ export default new Vuex.Store({
       'search.paginationPerPage',
       'search.paginationCurrentPage',
       'search.paginationTotalRows',
+      'search.queryComponents',
       'user.rememberCredetials',
       'user.userData',
       'collections.collections',
