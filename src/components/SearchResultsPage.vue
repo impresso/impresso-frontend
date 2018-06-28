@@ -28,8 +28,10 @@
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
   </div>
-
   <div class="results">
+    <div class="summary">
+      <search-result-summary v-bind:components="queryComponents" v-bind:totalRows="paginationTotalRows"/>
+    </div>
     <b-container fluid>
       <b-row v-if="displayStyle === 'list'">
         <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
@@ -55,6 +57,7 @@ import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
+import SearchResultsSummary from './modules/SearchResultsSummary';
 
 export default {
   computed: {
@@ -81,6 +84,11 @@ export default {
     paginationTotalRows: {
       get() {
         return this.$store.state.search.paginationTotalRows;
+      },
+    },
+    queryComponents: {
+      get() {
+        return this.$store.state.search.queryComponents;
       },
     },
     displayStyle: {
@@ -169,6 +177,7 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filter-wrapper': SearchFilterWrapper,
+    'search-result-summary': SearchResultsSummary,
   },
   mounted() {
     if (this.uuid !== undefined) {
