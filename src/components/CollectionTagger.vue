@@ -4,12 +4,11 @@
     <div class="overlay" v-show="show">
       <div class="panel">
         <div class="header">
-          <router-link class="btn btn-sm btn-primary" v-bind:to="{ name: 'collection'}">Manage collections</router-link>
           <a v-on:click.prevent="toggle" href="#" class='btn btn-sm btn-dark'><icon name="times"/></a>
         </div>
         <div class="body">
           <label for="">Order by</label>
-          <select v-model="collectionsSortOrder">
+          <select v-model="collectionsSortOrder" class="form-control">
             <option value="name">A-Z</option>
             <option value="-name">Z-A</option>
             <option value="created">Oldest</option>
@@ -28,8 +27,11 @@
               <label class="form-check-label" v-bind:for="collection.uid">
                 {{collection.name}}
               </label>
+              <p>{{collection.description}}</p>
             </li>
           </ul>
+          <hr>
+          <router-link class="link" v-bind:to="{ name: 'collection'}">Manage collections</router-link>
         </div>
       </div>
     </div>
@@ -128,7 +130,6 @@ export default {
             .body {
                 padding: 20px;
                 overflow-y: auto;
-                height: 100%;
             }
 
             .header {
