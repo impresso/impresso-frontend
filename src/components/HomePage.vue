@@ -1,22 +1,6 @@
 <template>
 <main id="HomePage">
-  <div class="search_wrapper">
-    <b-container>
-      <b-row>
-        <b-col md="6" offset-md="3">
-          <SearchBar v-on:add="redirect" />
-        </b-col>
-      </b-row>
-    </b-container>
-  </div>
-  <b-container>
-    <b-row>
-      <b-col>
-        <h1 class="text-serif font-weight-bold">{{$t("welcome.title")}}</h1>
-        <p>{{$t("welcome.body")}}</p>
-      </b-col>
-    </b-row>
-  </b-container>
+  <SearchBar class="searchbar" v-on:add="redirect" />
 </main>
 </template>
 
@@ -41,10 +25,21 @@ export default {
 </script>
 
 <style scoped lang="less">
-.search_wrapper {
-    background: #d460ff;
-    padding: 70px 0;
-    margin-bottom: 50px;
+#HomePage {
+    background: url("../assets/img/matterhorn_custom.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+    display: grid;
+    grid-template-columns: auto minmax(250px 400px) auto;
+    grid-template-rows: auto min-content auto;
+    grid-template-areas: ' . . .' '. searchbar .' ' . . .';
+    .searchbar {
+        grid-area: searchbar;
+        box-shadow: 0 0px 60px rgba(0,0,0,.8);
+        background: rgba(0,0,0,.4);
+    }
 }
 </style>
 
