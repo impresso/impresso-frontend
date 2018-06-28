@@ -57,7 +57,7 @@ import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
-import SearchResultsSummary from './SearchResultsSummary';
+import SearchResultsSummary from './modules/SearchResultsSummary';
 
 export default {
   computed: {

@@ -4,6 +4,7 @@ import Collection from '@/models/Collection';
 import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
+import Filter from '@/models/Filter';
 
 export default {
   namespaced: true,
@@ -58,7 +59,6 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_QUERY_COMPONENTS(state, payload) {
-      // console.log('UPDATE_QUERY_COMPONENTS', payload);
       state.queryComponents = payload.components;
     },
     ADD_FILTER(state, payload) {
@@ -131,6 +131,7 @@ export default {
             },
           }).then(
             (res) => {
+              console.log(res);
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
                 ...result,
                 issue: {
@@ -171,7 +172,7 @@ export default {
               });
 
               context.commit('UPDATE_QUERY_COMPONENTS', {
-                components: res.info.toSq,
+                components: res.info.toSq.map(el => new Filter(el)),
               });
               resolve(res);
             },
