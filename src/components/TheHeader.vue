@@ -17,11 +17,11 @@
       <div v-html="headerTitle" v-show="headerTitle"></div>
     </div>
     <div class="navigation-right">
-      <div v-if="userData" class="dropdown">
+      <div v-if="user" class="dropdown">
         <button class="dropbtn link">
           <img src="http://via.placeholder.com/25&text=RA" alt="">
           <div class="two-lines" >
-            <strong>Alba Rorwacher</strong>  Researcher
+            <strong>{{userFullName}}</strong>  {{user.group}}
           </div>
         </button>
         <div class="dropdown-content right">
@@ -79,11 +79,20 @@ export default {
     showProgress() {
       return this.$store.state.processing_status;
     },
-    userData() {
-      return this.$store.state.user.userData;
+    user() {
+      return this.$store.getters['user/user'];
     },
     headerTitle() {
       return this.$store.getters.headerTitle;
+    },
+    userFullName() {
+      const name = (`${this.user.nameFirst} ${this.user.nameLast}`).trim();
+
+      if (name !== '') {
+        return name;
+      }
+
+      return 'John Doe';
     },
   },
   methods: {
@@ -195,6 +204,7 @@ header {
             margin: inherit;
             height: 100%;
             .two-lines {
+                text-transform: capitalize;
                 position: relative;
                 top: -7px;
                 left: 3px;
