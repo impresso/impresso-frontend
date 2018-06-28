@@ -7,7 +7,11 @@ export default {
     rememberCredetials: false,
     userData: false,
   },
-  getters: {},
+  getters: {
+    user(state) {
+      return state.userData;
+    },
+  },
   mutations: {
     SET_REMEMBER_CREDENTIALS(state, payload) {
       state.rememberCredetials = payload.remember;
@@ -47,6 +51,7 @@ export default {
               uid: user.uid,
               username: user.username,
               isStaff: user.is_staff,
+              group: user.group,
             }));
             context.dispatch('collections/LOAD_COLLECTIONS', null, {
               root: true,

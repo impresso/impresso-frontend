@@ -1,54 +1,52 @@
 <template>
 <main id="SearchResultsPage">
-  <div class="sidebar">
+  <div class="toolbar bb">
+    <div class="toolbox br">
+
+    </div>
+    <div class="toolbox br">
+      {{$t("label_sort")}}
+      <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
+        <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
+        <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
+        <b-dropdown-divider></b-dropdown-divider>
+        <b-dropdown-item @click="setSort('date', 'asc')" :active="displaySortBy === 'date' && displaySortOrder === 'asc'" v-html="getSortByLabel('date', 'asc')"></b-dropdown-item>
+        <b-dropdown-item @click="setSort('date', 'desc')" :active="displaySortBy === 'date' && displaySortOrder === 'desc'" v-html="getSortByLabel('date', 'desc')"></b-dropdown-item>
+      </b-dropdown>
+    </div>
+    <div class="toolbox">
+      {{$t("label_display")}}
+      <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
+        <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+        <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+      </b-form-radio-group>
+    </div>
+  </div>
+
+  <div class="filters">
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
   </div>
-  <div class="content">
-    <div class="toolbar bb">
-      <div class="toolbox br">
 
-      </div>
-      <div class="toolbox br">
-        {{$t("label_sort")}}
-        <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
-          <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
-          <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="setSort('date', 'asc')" :active="displaySortBy === 'date' && displaySortOrder === 'asc'" v-html="getSortByLabel('date', 'asc')"></b-dropdown-item>
-          <b-dropdown-item @click="setSort('date', 'desc')" :active="displaySortBy === 'date' && displaySortOrder === 'desc'" v-html="getSortByLabel('date', 'desc')"></b-dropdown-item>
-        </b-dropdown>
-      </div>
-      <div class="toolbox">
-        {{$t("label_display")}}
-        <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
-          <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-          <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-        </b-form-radio-group>
-      </div>
-    </div>
-
-    <div class="summary">
-      <search-result-summary v-bind:components="queryComponents" v-bind:totalRows="paginationTotalRows"/>
-    </div>
-
-    <div class="results">
-      <b-container>
-        <b-row v-if="displayStyle === 'list'">
-          <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
-          </b-col>
-        </b-row>
-        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="6" md="4" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
-          </b-col>
-        </b-row>
-      </b-container>
-      <hr>
-      <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
-    </div>
+<div class="summary">
+  <search-result-summary v-bind:components="queryComponents" v-bind:totalRows="paginationTotalRows"/>
+</div>
+  <div class="results">
+    <b-container fluid>
+      <b-row v-if="displayStyle === 'list'">
+        <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+          <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+        </b-col>
+      </b-row>
+      <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+        <b-col cols="6" sm="12" md="6" lg="4" xl="3" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+          <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+        </b-col>
+      </b-row>
+    </b-container>
+    <hr>
+    <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
   </div>
 
 </main>
@@ -204,32 +202,32 @@ export default {
 
 #SearchResultsPage {
     height: 100%;
+    width: 100%;
     display: grid;
     grid-template-columns: 400px auto;
-    grid-template-rows: auto;
-    grid-template-areas: "sidebar content";
-    .sidebar {
-        grid-area: sidebar;
+    grid-template-rows: 50px auto;
+    grid-template-areas: "toolbar toolbar" "filters results";
+
+    .filters {
+        grid-area: filters;
+        padding: 20px 10px;
         overflow-y: auto;
-        padding: 20px;
-        &::-webkit-scrollbar {
-            display: none;
-        }
     }
-    .content {
-        grid-area: content;
+
+    .results {
+        grid-area: results;
+        padding: 20px 10px;
         overflow-y: auto;
-        .results {
-            padding: 20px;
-        }
     }
 
     .toolbar {
+        grid-area: toolbar;
         background: @clr-grey-200;
         display: grid;
         grid-template-columns: auto max-content max-content;
         .toolbox {
-            padding: 20px;
+            height: 50px;
+            padding: 10px;
         }
     }
 }
@@ -252,7 +250,7 @@ export default {
     "sort_asc": "Oplopend",
     "sort_desc": "Aflopend",
     "sort_date": "Datum",
-    "sort_relevance": "Relavantie",
+    "sort_relevance": "Relevantie",
     "label_sort": "Sorteer",
     "display_button_list": "Lijst",
     "display_button_tiles": "Tegels"

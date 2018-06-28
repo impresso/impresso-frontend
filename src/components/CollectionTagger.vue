@@ -2,38 +2,46 @@
   <div v-if="isLoggedIn()" class="collection-tagger">
     <a v-on:click.prevent="toggle" href="#">Save</a>
     <div class="overlay" v-show="show">
-      <div class="body">
-        <a v-on:click.prevent="toggle" href="#">Close</a>
-        <hr>
-        <select v-model="collectionsSortOrder">
-          <option value="name">A-Z</option>
-          <option value="-name">Z-A</option>
-          <option value="created">Oldest</option>
-          <option value="-created">Newest</option>
-          <option value="-modified">Last Edit</option>
-        </select>
-        <ul>
-          <li v-for="collection in collections" class="form-check">
-            <input
-            class="form-check-input"
-            type="checkbox"
-            v-bind:checked="isActive(collection)"
-            v-on:click="toggleActive(collection)"
-            v-bind:id="collection.uid">
-            <label class="form-check-label" v-bind:for="collection.uid">
-              {{collection.name}}
-            </label>
-          </li>
-        </ul>
-        <pre>
-        {{item}}
-        </pre>
+      <div class="panel">
+        <div class="header">
+          <a v-on:click.prevent="toggle" href="#" class='btn btn-sm btn-dark'><icon name="times"/></a>
+        </div>
+        <div class="body">
+          <label for="">Order by</label>
+          <select v-model="collectionsSortOrder" class="form-control">
+            <option value="name">A-Z</option>
+            <option value="-name">Z-A</option>
+            <option value="created">Oldest</option>
+            <option value="-created">Newest</option>
+            <option value="-modified">Last Edit</option>
+          </select>
+          <hr>
+          <ul class="list-unstyled">
+            <li v-for="collection in collections" class="form-check">
+              <input
+              class="form-check-input"
+              type="checkbox"
+              v-bind:checked="isActive(collection)"
+              v-on:click="toggleActive(collection)"
+              v-bind:id="collection.uid">
+              <label class="form-check-label" v-bind:for="collection.uid">
+                {{collection.name}}
+              </label>
+              <p>{{collection.description}}</p>
+            </li>
+          </ul>
+          <hr>
+          <router-link class="link" v-bind:to="{ name: 'collection'}">Manage collections</router-link>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
+import 'vue-awesome/icons/times';
+
 export default {
   data: () => ({
     show: false,
@@ -89,10 +97,15 @@ export default {
       return this.$store.state.user.userData;
     },
   },
+  components: {
+    Icon,
+  },
 };
 </script>
 
 <style scoped lang="less">
+@import "./../assets/less/style.less";
+
 .collection-tagger {
     display: inline-block;
     .overlay {
@@ -101,16 +114,29 @@ export default {
         top: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.4);
+        background: rgba(0,0,0,0.6);
         z-index: 10001;
-        .body {
-            width: 50%;
-            left: 25%;
+        .panel {
+            width: 400px;
             position: absolute;
+            margin-left: auto;
+            margin-right: auto;
+            left: 0;
+            right: 0;
             height: 50%;
             top: 25%;
-            overflow-y: auto;
+            overflow:hidden;
             background: white;
+            .body {
+                padding: 20px;
+                overflow-y: auto;
+            }
+
+            .header {
+                text-align: right;
+                padding: 10px 20px;
+                background: @clr-grey-200;
+            }
         }
     }
 }
