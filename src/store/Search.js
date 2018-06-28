@@ -17,6 +17,7 @@ export default {
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
+    queryComponents: [],
   },
   getters: {
     getSearches(state) {
@@ -55,6 +56,10 @@ export default {
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
+    },
+    UPDATE_QUERY_COMPONENTS(state, payload) {
+      // console.log('UPDATE_QUERY_COMPONENTS', payload);
+      state.queryComponents = payload.components;
     },
     ADD_FILTER(state, payload) {
       state.search.filters.push({
@@ -165,6 +170,9 @@ export default {
                 paginationTotalRows: res.total,
               });
 
+              context.commit('UPDATE_QUERY_COMPONENTS', {
+                components: res.info.toSq,
+              });
               resolve(res);
             },
             (err) => {

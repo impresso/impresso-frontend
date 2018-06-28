@@ -29,6 +29,10 @@
       </div>
     </div>
 
+    <div class="summary">
+      <search-result-summary v-bind:components="queryComponents" v-bind:totalRows="paginationTotalRows"/>
+    </div>
+
     <div class="results">
       <b-container>
         <b-row v-if="displayStyle === 'list'">
@@ -56,6 +60,7 @@ import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
+import SearchResultsSummary from './SearchResultsSummary';
 
 export default {
   computed: {
@@ -82,6 +87,11 @@ export default {
     paginationTotalRows: {
       get() {
         return this.$store.state.search.paginationTotalRows;
+      },
+    },
+    queryComponents: {
+      get() {
+        return this.$store.state.search.queryComponents;
       },
     },
     displayStyle: {
@@ -170,6 +180,7 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filter-wrapper': SearchFilterWrapper,
+    'search-result-summary': SearchResultsSummary,
   },
   mounted() {
     if (this.uuid !== undefined) {
