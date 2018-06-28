@@ -70,6 +70,7 @@ export default new Vuex.Store({
     paths: [
       'settings.language_code',
       'settings.sidebar_userdata_expanded',
+      'search.facets',
       'search.search',
       'search.results',
       'search.searches',
