@@ -1,6 +1,6 @@
 <template>
 <div id="app">
-  <the-header id="app-header"/>
+  <the-header id="app-header" />
   <div id="app-content">
     <router-view />
   </div>
@@ -20,22 +20,24 @@ export default {
 
 <style lang="less">
 @import "./assets/less/style.less";
-html, body{
-  height: 100%;
+body,
+html {
+    height: 100%;
 }
 #app {
-  display: grid;
-  grid-template-columns: auto;
-  grid-template-rows: 50px auto;
-  grid-template-areas: "appheader" "appcontent";
-  height: 100%;
-  #app-header{
-    grid-area: appheader;
-  }
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: 50px auto;
+    grid-template-areas: "appheader" "appcontent";
+    height: 100%;
+    #app-header {
+        grid-area: appheader;
+    }
 
-  #app-content{
-    grid-area: appcontent;
-    overflow-y: auto;
-  }
+    #app-content {
+        grid-area: appcontent;
+        overflow-y: auto;
+        position: relative;
+    }
 }
 </style>
