@@ -19,7 +19,7 @@
     <div class="navigation-right">
       <div v-if="user" class="dropdown">
         <button class="dropbtn link">
-          <img src="http://via.placeholder.com/25&text=RA" alt="">
+          <b-img class="avatar" slot="aside" blank blank-color="#b5daff" width="28" alt="placeholder" />
           <div class="two-lines" >
             <strong>{{userFullName}}</strong>  {{user.group}}
           </div>
@@ -208,6 +208,7 @@ header {
                 position: relative;
                 top: -7px;
                 left: 3px;
+                margin-left: 5px;
                 text-align: left;
                 padding-right: 10px;
                 line-height: 16px;
@@ -237,6 +238,10 @@ header {
             }
             a:hover {}
         }
+    }
+
+    .avatar{
+      border-radius: 50%;
     }
 }
 </style>
