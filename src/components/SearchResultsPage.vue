@@ -4,7 +4,12 @@
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
+    <hr>
+    <div v-for="(group, index) in facets" class="facets">
+      <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
+    </div>
   </div>
+
   <div class="content">
     <div class="toolbar bb">
       <div class="toolbox br">
@@ -104,8 +109,35 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    facets: {
+      get() {
+        return this.$store.getters['search/facets'];
+      },
+    },
   },
   methods: {
+    getFields(group, label) {
+      return [
+        {
+          key: 'val',
+          label,
+          sortable: true,
+          class: 'text-left',
+        },
+        {
+          key: 'count',
+          sortable: true,
+          class: 'text-right',
+        },
+      ];
+    },
+    getItems(group) {
+      return group.map(item => ({
+        isActive: true,
+        val: item.val,
+        count: item.count,
+      }));
+    },
     getSortByLabel(sortBy, sortOrder) {
       let label = '';
       if (sortBy === 'date') {
@@ -188,7 +220,7 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 @import "./../assets/less/style.less";
 
 #SearchResultsPage {
@@ -220,6 +252,17 @@ export default {
         .toolbox {
             padding: 20px;
         }
+    }
+
+    .facets{
+      tr{
+        td, th{
+          text-transform: capitalize;
+          &:last-child{
+              width:100%;
+          }
+        }
+      }
     }
 }
 </style>

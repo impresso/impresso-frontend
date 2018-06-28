@@ -11,6 +11,7 @@ export default {
     search: new SearchQuery(),
     searches: [],
     results: [],
+    facets: [],
     displaySortBy: 'relevance',
     displaySortOrder: 'asc',
     displayStyle: 'list',
@@ -36,6 +37,9 @@ export default {
 
         return new Article(result);
       });
+    },
+    facets(state) {
+      return state.facets;
     },
   },
   mutations: {
@@ -74,7 +78,9 @@ export default {
     CLEAR(state) {
       state.search = new SearchQuery();
       state.results = [];
+      state.facets = [];
       state.paginationCurrentPage = 1;
+      state.paginationTotalRows = 0;
     },
     LOAD_SEARCH(state, id) {
       if (state.searches.length) {
@@ -94,6 +100,10 @@ export default {
     },
     UPDATE_RESULTS(state, results) {
       state.results = results;
+    },
+    UPDATE_FACETS(state, facets) {
+      console.log(facets);
+      state.facets = facets;
     },
   },
   actions: {
@@ -159,6 +169,12 @@ export default {
                   startYear: result.newspaper.start_year,
                 }),
               })));
+
+              context.commit('UPDATE_FACETS', {
+                newspapers: res.info.facets.newspaper.buckets,
+                years: res.info.facets.year.buckets,
+                languages: res.info.facets.language.buckets,
+              });
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
