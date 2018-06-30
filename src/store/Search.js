@@ -5,6 +5,7 @@ import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
 import Filter from '@/models/Filter';
+import Daterange from '@/models/Daterange';
 
 export default {
   namespaced: true,
@@ -188,7 +189,27 @@ export default {
               });
 
               context.commit('UPDATE_QUERY_COMPONENTS', {
-                components: res.info.toSq.map(el => new Filter(el)),
+                components: res.info.toSq.map((el) => {
+                  let daterange;
+                  if (el.daterange) {
+                    daterange = el.daterange.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z TO \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/);
+                    if (daterange.length) {
+                      daterange = new Daterange({
+                        daterange: daterange[0],
+                      });
+                    }
+                  }
+                  console.log('UPDATE_QUERY_COMPONENTS', {
+                    ...el,
+                    query: el.q,
+                    daterange,
+                  });
+                  return new Filter({
+                    ...el,
+                    query: el.q,
+                    daterange,
+                  });
+                }),
               });
               resolve(res);
             },
