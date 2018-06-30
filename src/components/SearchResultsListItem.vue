@@ -1,13 +1,13 @@
 <template lang="html">
-  <b-media>
+  <b-media class="result">
     <div class="thumbnail" slot="aside" >
       <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
     </div>
-    <h2><a href="#" v-on:click.prevent="click" v-html="article.title"></a></h2>
+    <h2 class="text-serif"><a class="bb" href="#" v-on:click.prevent="click" v-html="article.title"></a></h2>
     <p>
-      <strong>{{article.newspaper.name}}</strong> |
-      {{$d(article.date, "long")}} |
-      page: <span>{{article.pages.map(page => page.num)}}</span> |
+      <strong>{{article.newspaper.name}}</strong>,
+      {{$d(article.date, "long")}},
+      {{article.pages.length > 1? 'pp.' : 'p.'}} <span>{{article.pages.map(page => page.num).join('-')}}</span>
       <collection-tagger v-model="article"></collection-tagger>
     </p>
     <p v-if="article.excerpt.length > 0">{{article.excerpt}}</p>
@@ -54,6 +54,22 @@ export default {
     position: relative;
     cursor: move;
     border:1px solid @clr-grey;
+}
+
+.result{
+  h2 {
+    font-size: 1.2em;
+    font-weight: bold;
+    line-height: 1.414em;
+
+    a{
+      color: @clr-grey-900;
+      &:hover{
+        border-color: @clr-black;
+        text-decoration: none;
+      }
+    }
+  }
 }
 </style>
 

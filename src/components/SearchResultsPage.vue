@@ -23,7 +23,7 @@
     </div>
   </div>
 
-  <div class="filters">
+  <div class="filters br">
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
@@ -34,12 +34,11 @@
   </div>
 
 
-    <div class="results">
-      <div class="summary text-center">
+    <div class="results bl">
+      <div class="results-summary bb">
         <search-result-summary v-bind:components="queryComponents" v-bind:totalRows="paginationTotalRows"/>
-        <hr>
       </div>
-      <b-container>
+      <b-container class="results-items bt">
         <b-row v-if="displayStyle === 'list'">
           <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
@@ -244,12 +243,33 @@ export default {
         grid-area: filters;
         padding: 20px 10px;
         overflow-y: auto;
+
+        &.br{
+          margin-right: 1px;
+          // border-right-color: red;
+        }
     }
 
     .results {
         grid-area: results;
-        padding: 20px 10px;
+        padding: 0px;
         overflow-y: auto;
+
+        background: @clr-white;
+        &.bl{
+          margin-left: 1px;
+          // border-left-color: red;
+        }
+    }
+    .results-summary{
+      background: @clr-grey-200;
+      padding: 10px;
+      margin-bottom: 1px;
+    }
+
+    .results-items{
+      padding: 10px;
+      margin-top: 1px;
     }
 
     .toolbar {
