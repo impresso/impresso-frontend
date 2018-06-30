@@ -1,40 +1,68 @@
 <template lang="html">
-  <div>{{$t("found")}} {{totalRows}} articles {{daterange}}</div>
+  <div>
+    <div class="subheading">{{$t("summary")}}</div>
+    <div class="heading text-serif">
+      {{$t("found")}}
+      <span class='hg'>{{totalRows}}</span> {{$t("articles")}}
+
+      <span v-html="fulltext"></span>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
   props: ['components', 'totalRows'],
   computed: {
-    daterange: {
+    dateranges: {
       get() {
-        const dateranges = this.components
+        const values = this.components
           .filter(d => d.type === 'daterange')
-          .map(d => d.daterange);
+          .map((d) => {
+            console.log(d);
+            return 'o';
+          });
 
-        if (!dateranges.length) {
-          return '';
-        }
-        return `between ${dateranges.join(' and ')}`;
+        return `${this.$t('between')} ${values.join(', ')}`;
       },
     },
     fulltext: {
       get() {
-        const dateranges = this.components
-          .filter(d => d.type === 'string')
-          .map(d => d.daterange);
-
-        if (!dateranges.length) {
-          return '';
-        }
-        return `between ${dateranges.join(' and ')}`;
+        const values = this.components
+          .filter(d => d.type === 'string').map((d) => {
+            console.log('hey, receinved', d);
+            if (d.context === 'exclude') {
+              return `${this.$t('excluding')} <strong>${d.query}</strong>`;
+            }
+            return `${this.$t('including')} <strong>${d.query}</strong>`;
+          });
+        return values.join(', ');
       },
     },
   },
 };
 </script>
 
-<style scoped lang="css">
+<style scoped lang="less">
+  @import "./../../assets/less/style.less";
+
+  .results-summary{
+    padding: 0px 15px;
+
+    .heading{
+      font-size: 1.2em;
+    }
+    .subheading{
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.8em;
+    }
+
+    .hg{
+      font-weight: bold;
+
+    }
+  }
 </style>
 <i18n>
 {
