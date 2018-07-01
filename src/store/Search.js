@@ -178,11 +178,12 @@ export default {
                 }),
               })));
 
-              context.commit('UPDATE_FACETS', {
+
+              context.commit('UPDATE_FACETS', res.info.facets ? {
                 newspapers: res.info.facets.newspaper.buckets,
                 years: res.info.facets.year.buckets,
                 languages: res.info.facets.language.buckets,
-              });
+              } : {});
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
