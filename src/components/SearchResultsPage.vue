@@ -1,7 +1,7 @@
 <template>
 <main id="SearchResultsPage">
   <div class="toolbar bb">
-    <div class="toolbox br">
+    <div class="toolbox bl br">
 
     </div>
     <div class="toolbox br">
@@ -237,7 +237,7 @@ export default {
     display: grid;
     grid-template-columns: 400px auto;
     grid-template-rows: 50px auto;
-    grid-template-areas: "toolbar toolbar" "filters results";
+    grid-template-areas: "filters toolbar" "filters results";
 
     .filters {
         grid-area: filters;
@@ -245,7 +245,7 @@ export default {
         overflow-y: auto;
 
         &.br{
-          margin-right: 1px;
+          margin-right: 2px;
           // border-right-color: red;
         }
     }
@@ -256,10 +256,7 @@ export default {
         overflow-y: auto;
 
         background: @clr-white;
-        &.bl{
-          margin-left: 1px;
-          // border-left-color: red;
-        }
+
     }
     .results-summary{
       background: @clr-grey-200;
