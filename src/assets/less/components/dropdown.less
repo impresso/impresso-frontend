@@ -1,0 +1,61 @@
+.dropdown {
+  .dropdown-toggle {
+    border: 1px solid @clr-black;
+    border-radius: 0;
+    color: @clr-black;
+    font-family:  inherit;
+    // font-size: 12px;
+    font-variant: small-caps;
+  }
+  .dropdown-item {
+    font-family:  inherit;
+    font-size: inherit;
+    }
+}
+
+
+
+.btn-outline-primary:hover {
+  background-color: @clr-grey-200;
+  // border-color: clr-black;
+}
+
+.dropdown-item.active, .dropdown-item:active,
+.btn-outline-primary:not(:disabled):not(.disabled):active, .btn-outline-primary:not(:disabled):not(.disabled).active, .show > .btn-outline-primary.dropdown-toggle {
+  background-color: @clr-black;
+  border-color: @clr-black;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+  outline: none;
+  :not(.active) {
+    background-color: @clr-grey-400;
+  }
+}
+
+
+
+
+.btn-outline-primary:focus, .btn-outline-primary.focus,
+.btn-outline-primary:not(:disabled):not(.disabled):active:focus, .btn-outline-primary:not(:disabled):not(.disabled).active:focus, .show > .btn-outline-primary.dropdown-toggle:focus {
+  box-shadow: 0 0 0 0.2rem fade(@clr-black, 20);
+}
+
+.btn-outline-primary {
+  color: @clr-black;
+  border-color: @clr-black;
+  border-radius: 0;
+}
+
+.btn-outline-primary:hover {
+  border-color: @clr-black;
+  color: @clr-black;
+}
+
+.btn-sm, .btn-group-sm > .btn {
+  border-radius: 0;
+  // font-family:  inherit;
+  // font-size: 12px;
+  letter-spacing: 0.05em;
+  font-variant: small-caps;
+}
