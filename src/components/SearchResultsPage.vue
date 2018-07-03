@@ -3,7 +3,7 @@
   <div class="toolbar bb">
     <div class="toolbox bl br">
       <label for="displayGroup">{{$t("label_group")}}</label>
-      <b-form-radio-group v-model="displayGroup" button-variant="outline-primary" size="sm" buttons>
+      <b-form-radio-group v-model="displayGroup" button-variant="outline-primary" size="sm" id="displayGroup" buttons>
         <b-form-radio value="issue">{{$t("group_issue")}}</b-form-radio>
         <b-form-radio value="page">{{$t("group_page")}}</b-form-radio>
         <b-form-radio value="article">{{$t("group_article")}}</b-form-radio>
@@ -12,7 +12,7 @@
     </div>
     <div class="toolbox br">
       <label for="displaySortOrder">{{$t("label_sort")}}</label>
-      <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
+      <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary" id="displaySortOrder">
         <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
         <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
         <b-dropdown-divider></b-dropdown-divider>
@@ -22,7 +22,7 @@
     </div>
     <div class="toolbox">
       <label for="displayStyle">{{$t("label_display")}}</label>
-      <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
+      <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="displayStyle" name="radioSubComponent">
         <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
         <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
       </b-form-radio-group>
@@ -288,13 +288,10 @@ export default {
             height: 50px;
             padding: 10px;
             > label {
-              // position: relative;
-              // top: 1px;
+              position: relative;
+              top: 1px;
               margin-right: 0.8em;
               font-variant: small-caps;
-              letter-spacing: 0.05em;
-              // font-size: 14px;
-              // font-weight: 400;
               letter-spacing: 0.05em;
               color: @clr-grey-700;
             }

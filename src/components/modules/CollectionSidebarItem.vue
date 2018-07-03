@@ -1,34 +1,15 @@
 <template lang="html">
-  <div class="collection-sidebar-item py-2 px-3 bb" v-on:click="click">
-    <h1 class="text-serif font-weight-bold font-size-lg">{{collection.name}}</h1>
-    <div class="details two">
-      <div class="detail">
-        <span class="muted">Created</span><br>
-        <strong>{{$d(collection.creationDate, 'short')}}</strong>
-      </div>
-      <div class="detail">
-        <span class="muted">Edited</span><br>
-        <strong>{{$d(collection.lastModifiedDate, 'short')}}</strong>
-      </div>
-    </div>
-    <hr>
-    <div class="details four">
-      <div class="detail">
-        <span class="muted">Issues</span><br>
-        <strong>{{collection.countIssues}}</strong>
-      </div>
-      <div class="detail">
-        <span class="muted">Pages</span><br>
-        <strong>{{collection.countPages}}</strong>
-      </div>
-      <div class="detail">
-        <span class="muted">Articles</span><br>
-        <strong>{{collection.countArticles}}</strong>
-      </div>
-      <div class="detail">
-        <span class="muted">Entities</span><br>
-        <strong>{{collection.countEntities}}</strong>
-      </div>
+  <div class="collection-sidebar-item py-3 px-3 bb" v-on:click="click">
+    <h1 class="collection-name">{{collection.name}}</h1>
+    <div class="collection-date">{{$d(collection.lastModifiedDate, 'numeric')}}</div>
+    <p class="collection-description">
+      {{collection.description}}
+    </p>
+    <div class="collection-meta">
+      <span v-if="collection.countIssues > 0">{{collection.countIssues}} <i>issues</i></span>
+      <span v-if="collection.countArticles > 0">{{collection.countArticles}} <i>articles</i></span>
+      <span v-if="collection.countPages > 0">{{collection.countPages}} <i>issues</i></span>
+      <span v-if="collection.countEntities > 0">{{collection.countEntities}} <i>issues</i></span>
     </div>
   </div>
 </template>
@@ -59,6 +40,49 @@ export default {
 .collection-sidebar-item {
     transition: background-color 500ms;
 
+    font-size: 12px;
+    color: rgba(0,0,0,0.8);
+
+    .collection-name {
+      float:left;
+      width:80%;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .collection-date {
+      float:right;
+      width:20%;
+      text-align: right;
+      color: rgba(0,0,0,0.3);
+      font-weight: bold;
+    }
+    .collection-description {
+      clear:both;
+    }
+    .collection-meta {
+      span {
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        font-size: 11px;
+        display: inline-block;
+        padding-right: 1em;
+        i {
+          color: rgba(0,0,0,0.3);
+          font-style: normal;
+        }
+      }
+    }
+    .collection-meta:before {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 1px;
+      background: rgba(0,0,0,0.2);
+      margin: 0.6rem 0;
+    }
+
     .details {
         display: grid;
         grid-template-rows: auto;
@@ -76,8 +100,9 @@ export default {
         }
     }
 
+    background-color: #f4f5f6;
     &:hover, &.active {
-        background-color: #eee;
+        background-color: white;
         cursor: pointer;
     }
 }
