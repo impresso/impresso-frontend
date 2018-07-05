@@ -16,6 +16,11 @@ export default {
       month: 'short',
       year: 'numeric',
     },
+    numeric: {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    },
   },
   fr: {
     long: {
@@ -32,6 +37,11 @@ export default {
     },
     month: {
       month: 'short',
+      year: 'numeric',
+    },
+    numeric: {
+      day: 'numeric',
+      month: 'numeric',
       year: 'numeric',
     },
   },
@@ -52,6 +62,11 @@ export default {
       month: 'short',
       year: 'numeric',
     },
+    numeric: {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    },
   },
   it: {
     long: {
@@ -68,6 +83,11 @@ export default {
     },
     month: {
       month: 'short',
+      year: 'numeric',
+    },
+    numeric: {
+      day: 'numeric',
+      month: 'numeric',
       year: 'numeric',
     },
   },

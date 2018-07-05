@@ -2,11 +2,17 @@
 <main id="SearchResultsPage">
   <div class="toolbar bb">
     <div class="toolbox bl br">
-
+      <label for="displayGroup">{{$t("label_group")}}</label>
+      <b-form-radio-group v-model="displayGroup" button-variant="outline-primary" size="sm" id="displayGroup" buttons>
+        <b-form-radio value="issue">{{$t("group_issue")}}</b-form-radio>
+        <b-form-radio value="page">{{$t("group_page")}}</b-form-radio>
+        <b-form-radio value="article">{{$t("group_article")}}</b-form-radio>
+        <b-form-radio value="sentence">{{$t("group_sentence")}}</b-form-radio>
+      </b-form-radio-group>
     </div>
     <div class="toolbox br">
-      {{$t("label_sort")}}
-      <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
+      <label for="displaySortOrder">{{$t("label_sort")}}</label>
+      <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary" id="displaySortOrder">
         <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
         <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
         <b-dropdown-divider></b-dropdown-divider>
@@ -15,8 +21,8 @@
       </b-dropdown>
     </div>
     <div class="toolbox">
-      {{$t("label_display")}}
-      <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
+      <label for="displayStyle">{{$t("label_display")}}</label>
+      <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="displayStyle" name="radioSubComponent">
         <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
         <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
       </b-form-radio-group>
@@ -215,6 +221,9 @@ export default {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
+    this.$store.commit('SET_HEADER_TITLE', {
+      title: this.$t('header_search'),
+    });
   },
   watch: {
     filters: {
@@ -230,6 +239,7 @@ export default {
 
 <style lang="less">
 @import "./../assets/less/style.less";
+@import "./../assets/less/components/dropdown.less";
 
 #SearchResultsPage {
     height: 100%;
@@ -277,6 +287,14 @@ export default {
         .toolbox {
             height: 50px;
             padding: 10px;
+            > label {
+              position: relative;
+              top: 1px;
+              margin-right: 0.8em;
+              font-variant: small-caps;
+              letter-spacing: 0.05em;
+              color: @clr-grey-700;
+            }
         }
     }
 
@@ -296,14 +314,20 @@ export default {
 <i18n>
 {
   "en": {
-    "label_display": "Display",
-    "sort_asc": "Ascending",
-    "sort_desc": "Descending",
-    "sort_date": "Date",
-    "sort_relevance": "Relevance",
-    "label_sort": "Sort",
-    "display_button_list": "List",
-    "display_button_tiles": "Tiles"
+    "label_display": "display",
+    "sort_asc": "ascending",
+    "sort_desc": "descending",
+    "sort_date": "date",
+    "sort_relevance": "relevance",
+    "label_sort": "sort",
+    "label_group": "group results by",
+    "group_issue": "issue",
+    "group_page": "page",
+    "group_article": "article",
+    "group_sentence": "sentence",
+    "display_button_list": "list",
+    "display_button_tiles": "tiles",
+    "header_search": "Search Results"
   },
   "nl": {
     "label_display": "Toon",

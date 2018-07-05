@@ -1,29 +1,36 @@
 <template lang="html">
 <main id="UserCollectionPage">
-  <div class="sidebar br">
-    <b-input-group>
-      <b-form-input v-model="search" placeholder="Search"></b-form-input>
-        <button class="btn btn-info" v-on:click="add()">Add</button>
-        <button class="btn btn-info" v-on:click="fetch()">Reload</button>
-        <select v-model="collectionsSortOrder">
-          <option value="name">A-Z</option>
-          <option value="-name">Z-A</option>
-          <option value="created">Oldest</option>
-          <option value="-created">Newest</option>
-          <option value="-modified">Last Edit</option>
+  <div class="sidebar p-3 br">
+    <h3>my collections</h3>
+    <b-input-group class="filters">
+      <b-form-input class="filter-input" v-model="search" placeholder="Filter by collection title"></b-form-input>
+        <!-- <button class="btn btn-info" v-on:click="fetch()">Reload</button> -->
+        <label for="collectionsSortOrder">order by</label>
+        <select v-model="collectionsSortOrder" class="dropdown">
+          <option value="name">NAME (A-Z)</option>
+          <option value="-name">NAME (Z-A)</option>
+          <option value="created">OLDEST</option>
+          <option value="-created">NEWEST</option>
+          <option value="-modified">LAST MODIFIED</option>
         </select>
     </b-input-group>
     <div class="collection-items">
-      <collection-sidebar-item
-        v-model="collectionAll"
-        v-on:click="select(collectionAll)"
-        v-bind:class="{active: collectionAll === collection}"
-        ></collection-sidebar-item>
         <collection-sidebar-item
         v-for="(c, index) in collections"
         v-model="collections[index]"
         v-on:click="select(c)"
         v-bind:class="{active: c.uid === collection.uid}"
+        ></collection-sidebar-item>
+    </div>
+    <div class="actions">
+      <button class="btn btn-info" v-on:click="add()">Add new empty collection</button>
+    </div>
+    <h3>collections summary</h3>
+    <div class="collection-items">
+      <collection-sidebar-item
+        v-model="collectionAll"
+        v-on:click="select(collectionAll)"
+        v-bind:class="{active: collectionAll === collection}"
         ></collection-sidebar-item>
     </div>
   </div>
@@ -38,7 +45,7 @@
       <h1>{{collection.name}}</h1>
       <p><strong>{{collection.description}}</strong></p>
       <b-input-group v-show="collection.uid !== 'all'">
-        <button class="btn btn-primary" v-on:click="edit()">EDIT</button>
+        <button class="btn btn-primary" v-on:click="edit()">EDIT</button> &nbsp;
         <button class="btn btn-danger" v-on:click="remove(collection)">Delete</button>
       </b-input-group>
     </div>
@@ -147,7 +154,7 @@ export default {
         return new Collection({
           uid: 'all',
           name: 'All Collections',
-          description: 'This shows a combination of all your custom collections',
+          description: 'This is a summary of all your custom collections',
           countArticles: articles,
           countEntities: entities,
           countPages: pages,
@@ -248,6 +255,9 @@ export default {
 </script>
 
 <style scoped lang="less">
+// @import "./../assets/less/style.less";
+// @import "./../assets/less/components/dropdown.less";
+
 #UserCollectionPage {
     height: 100%;
     display: grid;
@@ -259,6 +269,41 @@ export default {
         overflow-y: auto;
         &::-webkit-scrollbar {
             display: none;
+        }
+        label {
+          position: relative;
+          top: 3px;
+          margin-right: 0.8em;
+          font-variant: small-caps;
+          letter-spacing: 0.05em;
+        }
+        h3 {
+          padding-bottom: 15px;
+          margin-bottom: 0;
+          font-size: 1rem;
+          font-variant: small-caps;
+          color: rgba(0,0,0,0.6);
+          font-weight: bold;
+          border-bottom: 1px solid rgba(0,0,0,0.2);
+        }
+        .filters {
+          padding-bottom: 15px;
+          border-bottom: 1px solid rgba(0,0,0,0.2);
+          .filter-input {
+            width: 100%;
+            margin: 1em 0;
+          }
+          .filter-input::placeholder {
+            color: rgba(0,0,0,0.3);
+          }
+        }
+        .collection-items {
+          margin-top: 2px;
+          border-top: 1px solid black;
+        }
+        .actions {
+          margin: 2rem 0;
+          text-align: center;
         }
     }
     .content {
@@ -290,6 +335,27 @@ export default {
             }
         }
     }
+}
+select.dropdown {
+  border: none;
+  outline: 1px inset black;
+  outline-offset:-1px
+}
+input {
+  border: 1px solid black;
+  border-radius: 0;
+}
+.btn {
+  border: 1px solid black;
+  border-bottom-width: 2px;
+  BACKGROUND: WHITE;
+  text-transform: uppercase;
+  font-size: 100%;
+  color: black;
+  border-radius: 0;
+}
+.btn:hover {
+  background: rgba(0,0,0,0.1);
 }
 </style>
 
