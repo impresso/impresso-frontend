@@ -63,7 +63,7 @@
       <h4>Issues</h4>
       <div class="grid">
         <div class="item" v-for="issue in issues">
-          {{issue}}
+          <open-seadragon-viewer v-model="issue.iiif" />
         </div>
       </div>
     </div>
@@ -81,7 +81,8 @@
       <h4>Articles</h4>
       <div class="grid">
         <div class="item" v-for="article in articles">
-          {{article}}
+          <h5 v-html="article.title"></h5>
+          <p>{{$d(new Date(article.date), 'long')}}</p>
         </div>
       </div>
     </div>
@@ -271,39 +272,39 @@ export default {
             display: none;
         }
         label {
-          position: relative;
-          top: 3px;
-          margin-right: 0.8em;
-          font-variant: small-caps;
-          letter-spacing: 0.05em;
+            position: relative;
+            top: 3px;
+            margin-right: 0.8em;
+            font-variant: small-caps;
+            letter-spacing: 0.05em;
         }
         h3 {
-          padding-bottom: 15px;
-          margin-bottom: 0;
-          font-size: 1rem;
-          font-variant: small-caps;
-          color: rgba(0,0,0,0.6);
-          font-weight: bold;
-          border-bottom: 1px solid rgba(0,0,0,0.2);
+            padding-bottom: 15px;
+            margin-bottom: 0;
+            font-size: 1rem;
+            font-variant: small-caps;
+            color: rgba(0,0,0,0.6);
+            font-weight: bold;
+            border-bottom: 1px solid rgba(0,0,0,0.2);
         }
         .filters {
-          padding-bottom: 15px;
-          border-bottom: 1px solid rgba(0,0,0,0.2);
-          .filter-input {
-            width: 100%;
-            margin: 1em 0;
-          }
-          .filter-input::placeholder {
-            color: rgba(0,0,0,0.3);
-          }
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.2);
+            .filter-input {
+                width: 100%;
+                margin: 1em 0;
+            }
+            .filter-input::placeholder {
+                color: rgba(0,0,0,0.3);
+            }
         }
         .collection-items {
-          margin-top: 2px;
-          border-top: 1px solid black;
+            margin-top: 2px;
+            border-top: 1px solid black;
         }
         .actions {
-          margin: 2rem 0;
-          text-align: center;
+            margin: 2rem 0;
+            text-align: center;
         }
     }
     .content {
@@ -321,15 +322,14 @@ export default {
         padding-bottom: 15px;
         border-bottom: 1px solid black;
 
-        h4 {
-            }
+        h4 {}
         .grid {
             display: grid;
             grid-gap: 15px;
             grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
             .item {
                 .os-viewer {
-                    height: 150px;
+                    height: 250px;
                     width: 100%;
                 }
             }
@@ -337,25 +337,25 @@ export default {
     }
 }
 select.dropdown {
-  border: none;
-  outline: 1px inset black;
-  outline-offset:-1px
+    border: none;
+    outline: 1px inset black;
+    outline-offset: -1px;
 }
 input {
-  border: 1px solid black;
-  border-radius: 0;
+    border: 1px solid black;
+    border-radius: 0;
 }
 .btn {
-  border: 1px solid black;
-  border-bottom-width: 2px;
-  BACKGROUND: WHITE;
-  text-transform: uppercase;
-  font-size: 100%;
-  color: black;
-  border-radius: 0;
+    border: 1px solid black;
+    border-bottom-width: 2px;
+    BACKGROUND: WHITE;
+    text-transform: uppercase;
+    font-size: 100%;
+    color: black;
+    border-radius: 0;
 }
 .btn:hover {
-  background: rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.1);
 }
 </style>
 

@@ -6,10 +6,10 @@
       {{collection.description}}
     </p>
     <div class="collection-meta">
-      <span v-if="collection.countIssues > 0">{{collection.countIssues}} <i>issues</i></span>
-      <span v-if="collection.countArticles > 0">{{collection.countArticles}} <i>articles</i></span>
-      <span v-if="collection.countPages > 0">{{collection.countPages}} <i>issues</i></span>
-      <span v-if="collection.countEntities > 0">{{collection.countEntities}} <i>issues</i></span>
+      <span v-bind:class="{muted: collection.countIssues === 0}">{{collection.countIssues}} <i>issues</i></span>
+      <span v-bind:class="{muted: collection.countArticles === 0}">{{collection.countArticles}} <i>articles</i></span>
+      <span v-bind:class="{muted: collection.countPages === 0}">{{collection.countPages}} <i>pages</i></span>
+      <span v-bind:class="{muted: collection.countEntities === 0}">{{collection.countEntities}} <i>entities</i></span>
     </div>
   </div>
 </template>
@@ -72,6 +72,9 @@ export default {
           color: rgba(0,0,0,0.3);
           font-style: normal;
         }
+      }
+      .muted{
+        opacity: 0.2;
       }
     }
     .collection-meta:before {
