@@ -329,7 +329,7 @@ export default {
             grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
             .item {
                 .os-viewer {
-                    height: 150px;
+                    height: 250px;
                     width: 100%;
                 }
             }
