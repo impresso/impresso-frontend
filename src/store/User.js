@@ -48,6 +48,8 @@ export default {
           .then((user) => {
             services.app.set('user', user);
             context.commit('SET_USER', new User({
+              nameFirst: user.firstname,
+              nameLast: user.lastname,
               uid: user.uid,
               username: user.username,
               isStaff: user.is_staff,
