@@ -1,7 +1,7 @@
 <template lang="html">
   <main id="UserLoginPage">
     <form v-on:submit.prevent="authenticate" class="form-signin mt-5">
-      <h1>Please sign in</h1>
+      <h1>{{$t("login_title")}}</h1>
       <div class="alert alert-danger" v-show="error" role="alert">
         {{error}}
       </div>
@@ -93,10 +93,12 @@ export default {
 <i18n>
 {
   "en": {
-    "Invalid login": "Invalid login"
+    "Invalid login": "Invalid login",
+    "login_title": "Please sign in"
   },
   "nl": {
-    "Invalid login": "Onjuiste login"
+    "Invalid login": "Onjuiste login",
+    "login_title": "Inloggen"
   }
 }
 </i18n>
