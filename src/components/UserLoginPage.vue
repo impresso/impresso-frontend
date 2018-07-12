@@ -23,10 +23,10 @@
         v-bind:autocomplete="autocomplete()">
       <div class="checkbox mb-3">
         <label>
-          <input type="checkbox" value="remember-me" v-model="rememberCredetials"> Remember me
+          <input type="checkbox" value="remember-me" v-model="rememberCredetials"> {{$t("login_remember")}}
         </label>
       </div>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">{{$t("login_button")}}</button>
     </form>
   </main>
 </template>
@@ -94,11 +94,15 @@ export default {
 {
   "en": {
     "Invalid login": "Invalid login",
-    "login_title": "Please sign in"
+    "login_title": "Please sign in",
+    "login_remember": "Remember me",
+    "login_button": "Sign in"
   },
   "nl": {
     "Invalid login": "Onjuiste login",
-    "login_title": "Inloggen"
+    "login_title": "Inloggen",
+    "login_remember": "Onthouden",
+    "login_button": "Inloggen"
   }
 }
 </i18n>
