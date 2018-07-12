@@ -60,7 +60,7 @@ export default {
           })
           .catch(
             (err) => {
-              reject(err);
+              reject(err.data);
             },
           );
       });

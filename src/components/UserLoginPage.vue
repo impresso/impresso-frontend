@@ -1,7 +1,10 @@
 <template lang="html">
   <main id="UserLoginPage">
     <form v-on:submit.prevent="authenticate" class="form-signin mt-5">
-      <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+      <h1>Please sign in</h1>
+      <div class="alert alert-danger" v-show="error" role="alert">
+        {{error}}
+      </div>
       <label for="inputEmail" class="sr-only">Email address</label>
       <input
         v-model="email"
@@ -33,17 +36,23 @@ export default {
   data: () => ({
     email: '',
     password: '',
+    error: false,
   }),
   methods: {
     autocomplete() {
       return this.rememberCredetials === true ? 'on' : 'off';
     },
     authenticate() {
+      this.error = false;
       this.$store.dispatch('user/LOGIN', {
         email: this.email,
         password: this.password,
       }).then(() => {
-        this.$router.push({ path: 'dashboard' });
+        this.$router.push({
+          path: 'dashboard',
+        });
+      }, (err) => {
+        this.error = this.$t(err.message);
       });
     },
   },
@@ -80,3 +89,14 @@ export default {
     margin-bottom: 10px;
 }
 </style>
+
+<i18n>
+{
+  "en": {
+    "Invalid login": "Invalid login"
+  },
+  "nl": {
+    "Invalid login": "Onjuiste login"
+  }
+}
+</i18n>
