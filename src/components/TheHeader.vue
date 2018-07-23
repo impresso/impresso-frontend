@@ -1,47 +1,36 @@
 <template lang="html">
-  <header id="header" v-bind:class="{loading: showProgress}">
-    <router-link :to="{name: 'home'}">
-      <img src="./../assets/img/impresso-logo-h-i@2x.png" class="logo br" />
-    </router-link>
-    <div class="navigation-left" v-show="false">
-      <div class="dropdown">
-        <button class="dropbtn link">{{$t("explore")}}</button>
-        <div class="dropdown-content">
-          <a href="#" class="link">Link 1</a>
-          <a href="#" class="link">Link 2</a>
-          <a href="#" class="link">Link 3</a>
-        </div>
-      </div>
+  <header id="TheHeader" v-bind:class="{loading: showProgress}">
+    <div class="header-logo">
+      <router-link :to="{name: 'home'}">
+        <img src="./../assets/img/impresso-logo-h-i@2x.png"  />
+      </router-link>
     </div>
-    <div class="navigation-center">
+    <div class="header-left">
+      <router-link v-bind:to="{ name: 'home'}">{{$t("home")}}</router-link> >
+      <router-link v-bind:to="{ name: 'search'}">{{$t("search")}}</router-link>
+    </div>
+    <div class="header-center">
       <div v-html="headerTitle" v-show="headerTitle"></div>
     </div>
-    <div class="navigation-right">
-      <div v-if="user" class="dropdown">
-        <button class="dropbtn link">
+    <div class="header-right">
+      <b-dropdown v-if="user" right no-caret>
+        <template slot="button-content">
           <img src="http://via.placeholder.com/25&text=RA" alt="">
-          <div class="two-lines" >
-            <strong>{{userFullName}}</strong>  {{user.group}}
+          <div>
+            <strong>{{userFullName}}</strong><br>{{user.group}}
           </div>
-        </button>
-        <div class="dropdown-content right">
-          <router-link class="link" v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</router-link>
-          <router-link class="link" v-bind:to="{ name: 'collection'}">{{$t("collections")}}</router-link>
-          <a v-on:click.prevent="logout" href="#" class="link" >{{$t("logout")}}</a>
-        </div>
-      </div>
-      <router-link v-else class="link" v-bind:to="{ name: 'login'}">{{$t("login")}}</router-link>
-      <div class="dropdown">
-        <button class="dropbtn link capital">{{languages[activeLanguageCode].code}}</button>
-        <div class="dropdown-content right">
-          <a
-            v-for="language in languages"
-            v-bind:active="activeLanguageCode === language.code"
-            v-bind:key="language.code"
-            @click.prevent="selectLanguage(language.code)"
-            href="#" class="link">{{language.name}}</a>
-        </div>
-      </div>
+        </template>
+        <b-dropdown-item v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
+        <b-dropdown-item v-bind:to="{ name: 'collection'}">{{$t("collections")}}</b-dropdown-item>
+        <b-dropdown-item v-on:click.prevent="logout">{{$t("logout")}}</b-dropdown-item>
+      </b-dropdown>
+      <b-link v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-link >
+      <b-dropdown v-bind:text="languages[activeLanguageCode].name" right>
+        <b-dropdown-item v-for="language in languages"
+        v-bind:active="activeLanguageCode === language.code"
+        v-bind:key="language.code"
+        v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
+      </b-dropdown>
     </div>
   </header>
 </template>
@@ -97,7 +86,7 @@ export default {
   },
   methods: {
     selectLanguage(languageCode) {
-      this.$i18n.locale = languageCode;
+      window.app.$i18n.locale = languageCode;
       this.$store.commit('settings/SET_LANGUAGE', {
         language_code: languageCode,
       });
@@ -123,32 +112,36 @@ export default {
 <style lang="less">
 @import "./../assets/less/style.less";
 
-header {
+#TheHeader {
     display: grid;
-    height: 53px;
+    height: 50px;
     z-index: 100;
-    grid-template-columns: max-content max-content auto max-content;
-    grid-template-rows: 100%;
-    grid-template-areas: "logo navigation-left navigation-center navigation-right";
+    grid-template-columns: 180px max-content auto max-content;
+    grid-template-rows: auto;
+    grid-template-areas: "header-logo header-left header-center header-right";
 
     background: @clr-black;
-    background: linear-gradient(to top, #f0f0f0 2px, #000 2px, #000 100%);
     border-top: 2px solid @impresso-yellow;
-    border-bottom: 1px solid @clr-grey-400;
-
     transition: background-color 100ms;
 
-    .navigation-left {
-        grid-area: navigation-left;
-        display: table;
-        width: max-content;
+    .header-logo {
+        grid-area: header-logo;
+        padding: 10px;
+        display: inline-block;
+        height: 50px;
+        padding: 10px 15px 10px 10px;
+        img{
+          width: 100%;
+        }
+    }
+
+    .header-left {
+        grid-area: header-left;
         height: 100%;
     }
-    .navigation-center {
-        grid-area: navigation-center;
-        margin-top: 14px;
+    .header-center {
+        grid-area: header-center;
         overflow: hidden;
-        width: 100%;
         text-align: center;
         > div {
             display: inline-block;
@@ -162,81 +155,13 @@ header {
             }
         }
     }
-    .navigation-right {
-        grid-area: navigation-right;
+    .header-right {
+        grid-area: header-right;
         text-align: right;
     }
 
     &.loading {
-        border-bottom-color: @clr-yellow;
-    }
-
-    .logo {
-        grid-area: logo;
-        padding: 10px;
-        display: inline-block;
-        height: 50px;
-        padding: 10px 15px 10px 10px;
-    }
-
-    .link {
-        height: 100%;
-        display: inline-block;
-        color: @clr-grey-300;
-        font-size: 0.75rem;
-        outline: none;
-        &:hover {
-            text-decoration: none;
-            color: @clr-white;
-        }
-    }
-
-    .dropdown {
-        overflow: hidden;
-        display: unset;
-        position: relative;
-        &:hover .dropdown-content {
-            display: block;
-        }
-        .dropbtn {
-            background: transparent;
-            border: 0;
-            margin: inherit;
-            height: 100%;
-            .two-lines {
-                text-transform: capitalize;
-                position: relative;
-                top: -7px;
-                left: 3px;
-                text-align: left;
-                padding-right: 10px;
-                line-height: 16px;
-                display: inline-table;
-                strong {
-                    display: block;
-                }
-            }
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            left: 0;
-            top: 31px;
-            min-width: 160px;
-            background-color: black;
-            border: 1px solid @clr-grey-500;
-            text-align: left;
-            z-index: 1;
-            &.right {
-                left: inherit;
-                right: 0;
-            }
-            a {
-                display: block;
-                padding: 15px 10px;
-            }
-            a:hover {}
-        }
+        background: @clr-yellow;
     }
 }
 </style>
@@ -244,14 +169,9 @@ header {
 <i18n>
 {
   "en": {
-    "explore": "explore",
     "login": "login",
     "logout": "logout",
-    "profile": "profile",
     "dashboard": "dashboard"
-  },
-  "fr": {
-    "explore": "découvrir"
   }
 }
 </i18n>
