@@ -28,7 +28,7 @@ html {
 #app {
     display: grid;
     grid-template-columns: auto;
-    grid-template-rows: 50px auto;
+    grid-template-rows: min-content auto;
     grid-template-areas: "appheader" "appcontent";
     height: 100%;
     #app-header {
