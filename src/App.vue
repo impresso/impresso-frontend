@@ -1,6 +1,8 @@
 <template>
 <div id="app">
-  <the-header id="app-header" />
+  <div id="app-header">
+    <the-header />
+  </div>
   <div id="app-content">
     <router-view />
   </div>
@@ -13,13 +15,12 @@ import TheHeader from './components/TheHeader';
 export default {
   name: 'app',
   components: {
-    theHeader: TheHeader,
+    TheHeader,
   },
 };
 </script>
 
 <style lang="less">
-@import "./assets/less/style.less";
 body,
 html {
     height: 100%;
