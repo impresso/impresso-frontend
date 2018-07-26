@@ -63,15 +63,34 @@ import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
 
 export default {
-  computed: {
-    displaySortOrder: {
-      get() {
-        return this.$store.state.search.displaySortOrder;
+  data: () => ({
+    orderByOptions: [
+      {
+        value: 'relevance',
+        text: 'Relevance Ascending',
       },
-    },
-    displaySortBy: {
+      {
+        value: '-relevance',
+        text: 'Relevance Descending',
+      },
+      {
+        value: 'date',
+        text: 'Date Ascending',
+      },
+      {
+        value: '-date',
+        text: 'Date Descending',
+      },
+    ],
+  }),
+  computed: {
+    orderBy: {
       get() {
-        return this.$store.state.search.displaySortBy;
+        return this.$store.state.search.orderBy;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
+        this.search(true);
       },
     },
     paginationPerPage: {
