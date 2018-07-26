@@ -1,11 +1,8 @@
 <template>
 <main id="SearchResultsPage">
-  <div class="sidebar">
-    <div class="toolbar">
-      <div class="toolbox">
-        <search-bar v-on:reset="reset" v-on:add="search(true)" />
-      </div>
-    </div>
+  <div class="sidebar p-2">
+    <search-bar v-on:reset="reset" v-on:add="search(true)" />
+    <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
     <hr>
     <div v-for="(group, index) in facets" class="facets">
@@ -249,9 +246,6 @@ export default {
     .content {
         grid-area: content;
         overflow-y: auto;
-        .results {
-            padding: 20px;
-        }
     }
 
     .facets {
