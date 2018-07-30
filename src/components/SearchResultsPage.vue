@@ -1,6 +1,6 @@
 <template>
 <i-layout>
-  <i-section width="400px">
+  <i-section width="400px" class="p-2 br">
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
@@ -23,7 +23,7 @@
         </b-nav-form>
       </b-navbar-nav>
     </b-navbar>
-    <div class="results">
+    <div class="p-2">
       <b-container>
         <b-row v-if="displayStyle === 'list'">
           <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
