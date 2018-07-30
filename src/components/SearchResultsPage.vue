@@ -1,6 +1,6 @@
 <template>
 <main id="SearchResultsPage">
-  <div class="sidebar">
+  <div class="sidebar p-2">
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
@@ -9,31 +9,20 @@
       <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
     </div>
   </div>
-
   <div class="content">
-    <div class="toolbar bb">
-      <div class="toolbox br">
-
-      </div>
-      <div class="toolbox br">
-        {{$t("label_sort")}}
-        <b-dropdown :text="getSortByLabel(displaySortBy, displaySortOrder)" size="sm" variant="outline-primary">
-          <b-dropdown-item @click="setSort('relevance', 'asc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'asc'" v-html="getSortByLabel('relevance', 'asc')"></b-dropdown-item>
-          <b-dropdown-item @click="setSort('relevance', 'desc')" :active="displaySortBy === 'relevance' && displaySortOrder === 'desc'" v-html="getSortByLabel('relevance', 'desc')"></b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item @click="setSort('date', 'asc')" :active="displaySortBy === 'date' && displaySortOrder === 'asc'" v-html="getSortByLabel('date', 'asc')"></b-dropdown-item>
-          <b-dropdown-item @click="setSort('date', 'desc')" :active="displaySortBy === 'date' && displaySortOrder === 'desc'" v-html="getSortByLabel('date', 'desc')"></b-dropdown-item>
-        </b-dropdown>
-      </div>
-      <div class="toolbox">
-        {{$t("label_display")}}
-        <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons id="radios2" name="radioSubComponent">
-          <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-          <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-        </b-form-radio-group>
-      </div>
-    </div>
-
+    <b-navbar type="light" variant="light">
+      <b-navbar-nav class="ml-auto">
+        <b-form-select v-model="orderBy" v-bind:options="orderByOptions" size="sm"></b-form-select>
+      </b-navbar-nav>
+      <b-navbar-nav class="ml-2">
+        <b-nav-form>
+          <b-form-radio-group v-model="displayStyle" size="sm" buttons>
+            <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+            <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+          </b-form-radio-group>
+        </b-nav-form>
+      </b-navbar-nav>
+    </b-navbar>
     <div class="results">
       <b-container>
         <b-row v-if="displayStyle === 'list'">
@@ -51,7 +40,6 @@
       <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
     </div>
   </div>
-
 </main>
 </template>
 
@@ -63,15 +51,34 @@ import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
 
 export default {
-  computed: {
-    displaySortOrder: {
-      get() {
-        return this.$store.state.search.displaySortOrder;
+  data: () => ({
+    orderByOptions: [
+      {
+        value: 'relevance',
+        text: 'Relevance Ascending',
       },
-    },
-    displaySortBy: {
+      {
+        value: '-relevance',
+        text: 'Relevance Descending',
+      },
+      {
+        value: 'date',
+        text: 'Date Ascending',
+      },
+      {
+        value: '-date',
+        text: 'Date Descending',
+      },
+    ],
+  }),
+  computed: {
+    orderBy: {
       get() {
-        return this.$store.state.search.displaySortBy;
+        return this.$store.state.search.orderBy;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
+        this.search(true);
       },
     },
     paginationPerPage: {
@@ -232,7 +239,6 @@ export default {
     .sidebar {
         grid-area: sidebar;
         overflow-y: auto;
-        padding: 20px;
         &::-webkit-scrollbar {
             display: none;
         }
@@ -240,29 +246,18 @@ export default {
     .content {
         grid-area: content;
         overflow-y: auto;
-        .results {
-            padding: 20px;
-        }
     }
 
-    .toolbar {
-        background: @clr-grey-200;
-        display: grid;
-        grid-template-columns: auto max-content max-content;
-        .toolbox {
-            padding: 20px;
+    .facets {
+        tr {
+            td,
+            th {
+                text-transform: capitalize;
+                &:last-child {
+                    width: 100%;
+                }
+            }
         }
-    }
-
-    .facets{
-      tr{
-        td, th{
-          text-transform: capitalize;
-          &:last-child{
-              width:100%;
-          }
-        }
-      }
     }
 }
 </style>

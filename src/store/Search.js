@@ -12,8 +12,7 @@ export default {
     searches: [],
     results: [],
     facets: [],
-    displaySortBy: 'relevance',
-    displaySortOrder: 'asc',
+    orderBy: 'relevance',
     displayStyle: 'list',
     paginationPerPage: 12,
     paginationCurrentPage: 1,
@@ -43,9 +42,8 @@ export default {
     },
   },
   mutations: {
-    UPDATE_SEARCH_DISPLAY_SORT(state, payload) {
-      state.displaySortOrder = payload.displaySortOrder;
-      state.displaySortBy = payload.displaySortBy;
+    UPDATE_SEARCH_ORDER_BY(state, orderBy) {
+      state.orderBy = orderBy;
     },
     UPDATE_SEARCH_DISPLAY_STYLE(state, payload) {
       state.displayStyle = payload.displayStyle;
@@ -110,14 +108,6 @@ export default {
     SEARCH(context) {
       return new Promise(
         (resolve, reject) => {
-          let sortOrder = '';
-
-          if (context.state.displaySortOrder === 'desc') {
-            sortOrder += '-';
-          }
-
-          sortOrder += context.state.displaySortBy;
-
           services.search.find({
             query: {
               filters: context.getters.getSearch.filters.map(filter => ({
@@ -130,7 +120,7 @@ export default {
               group_by: 'articles', // TODO: this can be pages at a later stage
               page: context.state.paginationCurrentPage,
               limit: context.state.paginationPerPage,
-              order_by: sortOrder,
+              order_by: context.state.orderBy,
               // TODO: group_by: 'article|issue|page';
             },
           }).then(
