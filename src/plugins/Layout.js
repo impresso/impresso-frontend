@@ -4,7 +4,7 @@ import Section from '@/components/layout/Section';
 const ImpressoLayout = {
   install(Vue) {
     Vue.component('iLayout', Layout);
-    Vue.component('iSection', Section);
+    Vue.component('iLayoutSection', Section);
   },
 };
 

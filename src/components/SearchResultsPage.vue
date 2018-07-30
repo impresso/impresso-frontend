@@ -1,6 +1,6 @@
 <template>
 <i-layout>
-  <i-section width="400px" class="p-2 br">
+  <i-layout-section width="400px" class="p-2 br">
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
@@ -8,8 +8,8 @@
     <div v-for="(group, index) in facets" class="facets">
       <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
     </div>
-  </i-section>
-  <i-section>
+  </i-layout-section>
+  <i-layout-section>
     <b-navbar type="light" variant="light">
       <b-navbar-nav class="ml-auto">
         <b-form-select v-model="orderBy" v-bind:options="orderByOptions" size="sm"></b-form-select>
@@ -39,7 +39,7 @@
       <hr>
       <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
     </div>
-  </i-section>
+  </i-layout-section>
 </i-layout>
 </template>
 
