@@ -1,5 +1,5 @@
 <template>
-<i-layout>
+<i-layout id="SearchResultsPage">
   <i-layout-section width="400px" class="p-2 br">
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
