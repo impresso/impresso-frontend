@@ -1,6 +1,6 @@
 <template lang='html'>
-  <main id='IssuePage'>
-    <div class="metadata">
+    <i-layout id="IssuePage">
+    <i-layout-section width="400px" class="metadata">
       <div class="px-3 py-4">
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
         <collection-tagger v-model="issue"></collection-tagger>
@@ -10,8 +10,8 @@
         <hr>
         <named-entity-explorer v-model="issue"></named-entity-explorer>
       </div>
-    </div>
-    <div class="viewer">
+    </i-layout-section>
+    <i-layout-section>
       <issue-viewer
         v-model="issue"
         v-bind:minZoomLevel="minZoomLevel"
@@ -21,8 +21,8 @@
         v-on:zoom="onZoom"
         v-on:click="onClick"
         ></issue-viewer>
-    </div>
-  </main>
+      </i-layout-section>
+    </i-layout>
 </template>
 
 <script>
@@ -104,27 +104,10 @@ export default {
 <style scoped lang='less'>
 @import "./../assets/less/style.less";
 
-@width_sidebar_userdata_contracted: 52px;
-
 #IssuePage {
     background: @clr-grey-200;
-    display: grid;
-    grid-template-columns: 350px auto;
-    grid-template-rows: auto;
-    grid-template-areas: "metadata viewer";
-    height: 100%;
     .metadata {
-        grid-area: metadata;
-        overflow-y: auto;
         background: @clr-grey-300;
-        &::-webkit-scrollbar {
-            display: none;
-        }
     }
-
-    .viewer {
-        grid-area: viewer;
-    }
-
 }
 </style>
