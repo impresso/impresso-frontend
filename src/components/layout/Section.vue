@@ -13,8 +13,13 @@ export default {
   },
   computed: {
     style() {
+      if (this.width === 'auto') {
+        return {
+          flex: 'auto',
+        };
+      }
       return {
-        width: this.width,
+        flex: `0 0 ${this.width}`,
       };
     },
   },
@@ -22,10 +27,10 @@ export default {
 </script>
 
 <style scoped lang="less">
-section{
-  overflow-y: auto;
-  &::-webkit-scrollbar {
-      display: none;
-  }
+section {
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 </style>

@@ -11,8 +11,6 @@ export default {};
 <style scoped lang="less">
 main {
   height: 100%;
-  display: grid;
-  grid-template-columns: max-content auto max-content ;
-  grid-template-rows: auto;
+  display: flex;
 }
 </style>
