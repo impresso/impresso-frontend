@@ -1,31 +1,30 @@
 <template lang="html">
   <div id="issue-viewer">
-    <div class="strip">
       <thumbnail-slider
       v-model="issue"
       v-bind:viewer="viewer"
       v-on:click="goToPage"
       v-bind:page_uid="page.uid"
       v-bind:page="page"
+      class="strip"
       ></thumbnail-slider>
-    </div>
     <div id="os-viewer"></div>
     <b-navbar class="header" type="light" variant="light">
       <b-button-toolbar class="mx-auto">
-        <b-button-group class="mx-1">
+        <b-button-group class="mx-1" size="sm">
           <b-btn v-on:click.prevent="goToPage('first')">&laquo;</b-btn>
           <b-btn v-on:click.prevent="goToPage('previous')">&lsaquo;</b-btn>
         </b-button-group>
         <b-navbar-nav>
           <b-nav-text>{{page.num}} / {{issue.lastPageNumber}}</b-nav-text>
         </b-navbar-nav>
-        <b-button-group class="mx-1">
+        <b-button-group class="mx-1" size="sm">
           <b-btn v-on:click.prevent="goToPage('next')">&rsaquo;</b-btn>
           <b-btn v-on:click.prevent="goToPage('last')">&raquo;</b-btn>
         </b-button-group>
       </b-button-toolbar>
     </b-navbar>
-    <div class="controls">
+    <div class="controls pt-4">
       <issue-viewer-zoom-slider v-model="zoom" v-bind:domain="domain"></issue-viewer-zoom-slider>
     </div>
   </div>
@@ -159,11 +158,9 @@ export default {
     grid-template-columns: 120px auto 52px;
     grid-template-rows: 50px auto;
     grid-template-areas: "header header header" "strip osviewer controls";
-    background: @clr-grey-200;
     height: 100%;
     position: relative;
     .strip {
-        background: fade(@clr-grey-200, 90);
         grid-area: strip;
         position: absolute;
         width: 100%;
@@ -172,13 +169,11 @@ export default {
 
     .controls {
         grid-area: controls;
-        padding-top: 15px;
     }
 
     .header {
         grid-area: header;
     }
-
 }
 
 #os-viewer {
