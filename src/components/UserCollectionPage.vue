@@ -1,6 +1,6 @@
 <template lang="html">
-<main id="UserCollectionPage">
-  <div class="sidebar br">
+<i-layout id="UserCollectionPage">
+  <i-layout-section width="400px" class="br">
     <b-input-group>
       <b-form-input v-model="search" placeholder="Search"></b-form-input>
         <button class="btn btn-info" v-on:click="add()">Add</button>
@@ -26,8 +26,8 @@
         v-bind:class="{active: c.uid === collection.uid}"
         ></collection-sidebar-item>
     </div>
-  </div>
-  <div class="content">
+  </i-layout-section>
+  <i-layout-section class="p-2">
     <div v-if="editMode">
         <input type="text" class="form-control" v-model="collection.name" />
         <textarea v-model="collection.description" class="form-control"></textarea>
@@ -78,8 +78,8 @@
         </div>
       </div>
     </div>
-  </div>
-</main>
+  </i-layout-section>
+</i-layout>
 </template>
 
 <script>
@@ -249,28 +249,6 @@ export default {
 
 <style scoped lang="less">
 #UserCollectionPage {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 400px auto;
-    grid-template-rows: auto;
-    grid-template-areas: "sidebar content";
-    .sidebar {
-        grid-area: sidebar;
-        overflow-y: auto;
-        &::-webkit-scrollbar {
-            display: none;
-        }
-    }
-    .content {
-        grid-area: content;
-        background: #f4f5f6;
-        overflow-y: auto;
-        padding: 15px 30px;
-        &::-webkit-scrollbar {
-            display: none;
-        }
-    }
-
     .collection-group {
         margin-bottom: 45px;
         padding-bottom: 15px;

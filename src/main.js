@@ -4,6 +4,8 @@ import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
 
+import ImpressoLayout from '@/plugins/Layout';
+
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -15,6 +17,7 @@ import dateTimeFormats from './i18n/dateTimeFormats';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
+Vue.use(ImpressoLayout);
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
 
