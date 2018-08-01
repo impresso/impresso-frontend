@@ -1,6 +1,6 @@
 <template lang='html'>
     <i-layout id="IssuePage">
-    <i-layout-section width="400px" class="metadata">
+    <i-layout-section width="400px">
       <div class="px-3 py-4">
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
         <collection-tagger v-model="issue"></collection-tagger>
@@ -102,11 +102,4 @@ export default {
 </script>
 
 <style scoped lang='less'>
-@import "./../assets/less/style.less";
-
-#IssuePage {
-    .viewer {
-        background: @clr-grey-200;    
-    }
-}
 </style>

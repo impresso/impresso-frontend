@@ -154,6 +154,7 @@ export default {
 @import "./../../assets/less/style.less";
 
 #issue-viewer {
+    background: @clr-grey-200;
     display: grid;
     grid-template-columns: 120px auto 52px;
     grid-template-rows: 50px auto;
