@@ -107,7 +107,6 @@ export default {
 @width_sidebar_userdata_contracted: 52px;
 
 #IssuePage {
-    background: @clr-grey-200;
     display: grid;
     grid-template-columns: 350px auto;
     grid-template-rows: auto;
@@ -116,7 +115,6 @@ export default {
     .metadata {
         grid-area: metadata;
         overflow-y: auto;
-        background: @clr-grey-300;
         &::-webkit-scrollbar {
             display: none;
         }
@@ -124,6 +122,7 @@ export default {
 
     .viewer {
         grid-area: viewer;
+        background: @clr-grey-200;
     }
 
 }
