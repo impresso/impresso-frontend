@@ -10,31 +10,21 @@
       ></thumbnail-slider>
     </div>
     <div id="os-viewer"></div>
-    <div class="header">
-      <div class="page-tags">
-        Page Tags
-      </div>
-      <div class="articleMeta">
-        <div class="title">
-          LOCAL
-        </div>
-        <div class="description">
-          chronique locale
-        </div>
-      </div>
-      <div class="pagination">
-        <a v-on:click.prevent="goToPage('previous')" href="#" class="left">
-          <span class="arrow-left icon"></span>
-        </a>
-          <strong>{{page.num}}</strong> / <strong>{{issue.lastPageNumber}}</strong>
-          <a v-on:click.prevent="goToPage('next')" href="#" class="right">
-            <span class="arrow-right icon"></span>
-          </a>
-      </div>
-      <div class="ocr-qt">
-        OCR Quality <span class="qt">80%</span>
-      </div>
-    </div>
+    <b-navbar class="header" type="light" variant="light">
+      <b-button-toolbar class="mx-auto">
+        <b-button-group class="mx-1">
+          <b-btn v-on:click.prevent="goToPage('first')">&laquo;</b-btn>
+          <b-btn v-on:click.prevent="goToPage('previous')">&lsaquo;</b-btn>
+        </b-button-group>
+        <b-navbar-nav>
+          <b-nav-text>{{page.num}} / {{issue.lastPageNumber}}</b-nav-text>
+        </b-navbar-nav>
+        <b-button-group class="mx-1">
+          <b-btn v-on:click.prevent="goToPage('next')">&rsaquo;</b-btn>
+          <b-btn v-on:click.prevent="goToPage('last')">&raquo;</b-btn>
+        </b-button-group>
+      </b-button-toolbar>
+    </b-navbar>
     <div class="controls">
       <issue-viewer-zoom-slider v-model="zoom" v-bind:domain="domain"></issue-viewer-zoom-slider>
     </div>
@@ -187,82 +177,6 @@ export default {
 
     .header {
         grid-area: header;
-        background: fade(@clr-grey-200, 90);
-        line-height: 36px;
-        padding: 5px;
-        transition: background 250ms;
-        display: flex;
-        justify-content: flex-end;
-        font-size: 0.80em;
-
-        .articleMeta {
-            opacity: 0.6;
-            margin-top: 0.4em;
-            line-height: 1.7;
-            .title {
-                font-weight: bold;
-            }
-        }
-
-        .pagination {
-            width: 40%;
-            text-align: center;
-            display: block;
-
-            a {
-                display: inline-block;
-                box-sizing: border-box;
-                width: 34px;
-                height: 34px;
-                border-radius: 0.2em;
-                margin: 0 1em;
-                vertical-align: bottom;
-                transition: background 300ms;
-                .icon {
-                    margin-left: -8px;
-                    transform: scale(0.5);
-                    margin-top: 17px;
-                    transition: margin 150ms 300ms;
-                }
-                &:hover {
-                    background: fade(@clr-grey-400, 40);
-                }
-                &:hover .arrow-left {
-                    margin-left: -12px;
-                }
-                &:hover .arrow-right {
-                    margin-left: -4px;
-                }
-
-            }
-        }
-
-        .page-tags {
-            flex: 1;
-            color: @clr-grey-800;
-            font-style: italic;
-        }
-
-        .ocr-qt {
-            width: 30%;
-            color: @clr-grey-800;
-            font-style: italic;
-            text-align: right;
-            margin-right: 10px;
-            span.qt {
-                display: inline;
-                line-height: 1em;
-                padding: 3px 5px;
-                font-size: 1.2em;
-                margin-left: 10px;
-                font-style: normal;
-                .text-serif();
-                font-weight: bold;
-                background: @clr-grey-400;
-                color: @clr-grey-100;
-                border-radius: 5px;
-            }
-        }
     }
 
 }
