@@ -1,41 +1,30 @@
 <template lang="html">
   <div id="issue-viewer">
-    <div class="strip">
       <thumbnail-slider
       v-model="issue"
       v-bind:viewer="viewer"
       v-on:click="goToPage"
       v-bind:page_uid="page.uid"
       v-bind:page="page"
+      class="strip"
       ></thumbnail-slider>
-    </div>
     <div id="os-viewer"></div>
-    <div class="header">
-      <div class="page-tags">
-        Page Tags
-      </div>
-      <div class="articleMeta">
-        <div class="title">
-          LOCAL
-        </div>
-        <div class="description">
-          chronique locale
-        </div>
-      </div>
-      <div class="pagination">
-        <a v-on:click.prevent="goToPage('previous')" href="#" class="left">
-          <span class="arrow-left icon"></span>
-        </a>
-          <strong>{{page.num}}</strong> / <strong>{{issue.lastPageNumber}}</strong>
-          <a v-on:click.prevent="goToPage('next')" href="#" class="right">
-            <span class="arrow-right icon"></span>
-          </a>
-      </div>
-      <div class="ocr-qt">
-        OCR Quality <span class="qt">80%</span>
-      </div>
-    </div>
-    <div class="controls">
+    <b-navbar class="header" type="light" variant="light">
+      <b-button-toolbar class="mx-auto">
+        <b-button-group class="mx-1" size="sm">
+          <b-btn v-on:click.prevent="goToPage('first')">&laquo;</b-btn>
+          <b-btn v-on:click.prevent="goToPage('previous')">&lsaquo;</b-btn>
+        </b-button-group>
+        <b-navbar-nav>
+          <b-nav-text>{{page.num}} / {{issue.lastPageNumber}}</b-nav-text>
+        </b-navbar-nav>
+        <b-button-group class="mx-1" size="sm">
+          <b-btn v-on:click.prevent="goToPage('next')">&rsaquo;</b-btn>
+          <b-btn v-on:click.prevent="goToPage('last')">&raquo;</b-btn>
+        </b-button-group>
+      </b-button-toolbar>
+    </b-navbar>
+    <div class="controls pt-4">
       <issue-viewer-zoom-slider v-model="zoom" v-bind:domain="domain"></issue-viewer-zoom-slider>
     </div>
   </div>
@@ -126,6 +115,10 @@ export default {
         this.$emit('click', this.issue.pages[Math.max(0, index - 1)]);
       } else if (page === 'next') {
         this.$emit('click', this.issue.pages[Math.min(this.issue.pages.length - 1, index + 1)]);
+      } else if (page === 'first') {
+        this.$emit('click', this.issue.pages[0]);
+      } else if (page === 'last') {
+        this.$emit('click', this.issue.pages[this.issue.pages.length - 1]);
       }
     },
   },
@@ -165,11 +158,9 @@ export default {
     grid-template-columns: 120px auto 52px;
     grid-template-rows: 50px auto;
     grid-template-areas: "header header header" "strip osviewer controls";
-    background: @clr-grey-200;
     height: 100%;
     position: relative;
     .strip {
-        background: fade(@clr-grey-200, 90);
         grid-area: strip;
         position: absolute;
         width: 100%;
@@ -178,89 +169,11 @@ export default {
 
     .controls {
         grid-area: controls;
-        padding-top: 15px;
     }
 
     .header {
         grid-area: header;
-        background: fade(@clr-grey-200, 90);
-        line-height: 36px;
-        padding: 5px;
-        transition: background 250ms;
-        display: flex;
-        justify-content: flex-end;
-        font-size: 0.80em;
-
-        .articleMeta {
-            opacity: 0.6;
-            margin-top: 0.4em;
-            line-height: 1.7;
-            .title {
-                font-weight: bold;
-            }
-        }
-
-        .pagination {
-            width: 40%;
-            text-align: center;
-            display: block;
-
-            a {
-                display: inline-block;
-                box-sizing: border-box;
-                width: 34px;
-                height: 34px;
-                border-radius: 0.2em;
-                margin: 0 1em;
-                vertical-align: bottom;
-                transition: background 300ms;
-                .icon {
-                    margin-left: -8px;
-                    transform: scale(0.5);
-                    margin-top: 17px;
-                    transition: margin 150ms 300ms;
-                }
-                &:hover {
-                    background: fade(@clr-grey-400, 40);
-                }
-                &:hover .arrow-left {
-                    margin-left: -12px;
-                }
-                &:hover .arrow-right {
-                    margin-left: -4px;
-                }
-
-            }
-        }
-
-        .page-tags {
-            flex: 1;
-            color: @clr-grey-800;
-            font-style: italic;
-        }
-
-        .ocr-qt {
-            width: 30%;
-            color: @clr-grey-800;
-            font-style: italic;
-            text-align: right;
-            margin-right: 10px;
-            span.qt {
-                display: inline;
-                line-height: 1em;
-                padding: 3px 5px;
-                font-size: 1.2em;
-                margin-left: 10px;
-                font-style: normal;
-                .text-serif();
-                font-weight: bold;
-                background: @clr-grey-400;
-                color: @clr-grey-100;
-                border-radius: 5px;
-            }
-        }
     }
-
 }
 
 #os-viewer {

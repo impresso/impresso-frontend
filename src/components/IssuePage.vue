@@ -105,9 +105,8 @@ export default {
 @import "./../assets/less/style.less";
 
 #IssuePage {
-    background: @clr-grey-200;
-    .metadata {
-        background: @clr-grey-300;
+    .viewer {
+        background: @clr-grey-200;    
     }
 }
 </style>
