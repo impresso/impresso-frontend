@@ -126,6 +126,10 @@ export default {
         this.$emit('click', this.issue.pages[Math.max(0, index - 1)]);
       } else if (page === 'next') {
         this.$emit('click', this.issue.pages[Math.min(this.issue.pages.length - 1, index + 1)]);
+      } else if (page === 'first') {
+        this.$emit('click', this.issue.pages[0]);
+      } else if (page === 'last') {
+        this.$emit('click', this.issue.pages[this.issue.pages.length - 1]);
       }
     },
   },
