@@ -1,6 +1,6 @@
 <template>
-<main id="SearchResultsPage">
-  <div class="sidebar p-2">
+<i-layout id="SearchResultsPage">
+  <i-layout-section width="400px" class="p-2 br">
     <search-bar v-on:reset="reset" v-on:add="search(true)" />
     <hr>
     <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
@@ -8,8 +8,8 @@
     <div v-for="(group, index) in facets" class="facets">
       <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
     </div>
-  </div>
-  <div class="content">
+  </i-layout-section>
+  <i-layout-section>
     <b-navbar type="light" variant="light">
       <b-navbar-nav class="ml-auto">
         <b-form-select v-model="orderBy" v-bind:options="orderByOptions" size="sm"></b-form-select>
@@ -23,7 +23,7 @@
         </b-nav-form>
       </b-navbar-nav>
     </b-navbar>
-    <div class="results">
+    <div class="p-2">
       <b-container>
         <b-row v-if="displayStyle === 'list'">
           <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
@@ -39,8 +39,8 @@
       <hr>
       <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
     </div>
-  </div>
-</main>
+  </i-layout-section>
+</i-layout>
 </template>
 
 <script>
@@ -231,23 +231,6 @@ export default {
 @import "./../assets/less/style.less";
 
 #SearchResultsPage {
-    height: 100%;
-    display: grid;
-    grid-template-columns: 400px auto;
-    grid-template-rows: auto;
-    grid-template-areas: "sidebar content";
-    .sidebar {
-        grid-area: sidebar;
-        overflow-y: auto;
-        &::-webkit-scrollbar {
-            display: none;
-        }
-    }
-    .content {
-        grid-area: content;
-        overflow-y: auto;
-    }
-
     .facets {
         tr {
             td,
