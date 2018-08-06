@@ -1,12 +1,16 @@
 <template>
 <i-layout id="SearchResultsPage">
-  <i-layout-section width="400px" class="p-2 br">
-    <search-bar v-on:reset="reset" v-on:add="search(true)" />
-    <hr>
-    <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
-    <hr>
-    <div v-for="(group, index) in facets" class="facets">
-      <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
+  <i-layout-section width="400px" class="br">
+    <div class="px-2 py-4 bb">
+      <search-bar v-on:reset="reset" v-on:add="search(true)" />
+    </div>
+    <div class="px-2 py-4 bb">
+      <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
+    </div>
+    <div class="p-2">
+      <div v-for="(group, index) in facets" class="facets">
+        <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
+      </div>
     </div>
   </i-layout-section>
   <i-layout-section>
