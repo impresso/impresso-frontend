@@ -14,11 +14,24 @@
     </div>
   </i-layout-section>
   <i-layout-section>
-    <b-navbar type="light" variant="light">
-      <b-navbar-nav class="ml-auto">
+    <b-navbar type="light" variant="light" class="bb">
+      <b-navbar-nav class="pr-3 section">
+        <label>{{$t("label_group")}}</label>
+        <b-nav-form>
+          <b-form-radio-group size="sm" buttons>
+            <b-form-radio>Issue</b-form-radio>
+            <b-form-radio>Page</b-form-radio>
+            <b-form-radio>Article</b-form-radio>
+            <b-form-radio>Sentences</b-form-radio>
+          </b-form-radio-group>
+        </b-nav-form>
+      </b-navbar-nav>
+      <b-navbar-nav class="ml-auto px-3 section br bl">
+        <label>{{$t("label_order")}}</label>
         <b-form-select v-model="orderBy" v-bind:options="orderByOptions" size="sm"></b-form-select>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-2">
+      <b-navbar-nav class="pl-3 section">
+        <label>{{$t("label_display")}}</label>
         <b-nav-form>
           <b-form-radio-group v-model="displayStyle" size="sm" buttons>
             <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -247,12 +260,27 @@ export default {
         }
     }
 }
+
+.navbar-nav{
+  &.section{
+    margin: -0.5rem 0;
+    padding: 0.5rem 0;
+     > label{
+      font-size: smaller;
+      padding: 0;
+      margin: 0 0 0.25em;
+      opacity: 0.5;
+    }
+  }
+}
 </style>
 
 <i18n>
 {
   "en": {
-    "label_display": "Display",
+    "label_display": "Display As",
+    "label_order": "Order By",
+    "label_group": "Group By",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
     "sort_date": "Date",
@@ -262,7 +290,9 @@ export default {
     "display_button_tiles": "Tiles"
   },
   "nl": {
-    "label_display": "Toon",
+    "label_display": "Toon Als",
+    "label_order": "Sorteer Op",
+    "label_group": "Rangschikken Per",
     "sort_asc": "Oplopend",
     "sort_desc": "Aflopend",
     "sort_date": "Datum",
