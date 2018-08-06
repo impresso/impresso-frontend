@@ -24,14 +24,14 @@
       </b-navbar-nav>
     </b-navbar>
     <div class="p-2">
-      <b-container>
+      <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
           <b-col class="pb-5" cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
         <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="6" md="4" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+          <b-col cols="6" sm="12" md="6" lg="3" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
