@@ -51,25 +51,25 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import "./../../assets/less/style.less";
+
 .filter {
     .header {
-      background: #ccc;
+      background: @clr-grey-800;
       .title{
-        margin-top: 5px;
+        color: @clr-white;
+        margin-top: 8px;
         text-transform: capitalize;
-        font-weight: bold;
       }
     }
 
     .context{
-      background: #eee;
+      background: @clr-grey-100;
     }
 
     .context,
     .body {
-      border: 1px solid #ccc;
+      border: 1px solid @clr-grey-500;
     }
-
-    .body {}
 }
 </style>
