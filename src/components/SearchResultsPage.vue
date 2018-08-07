@@ -18,12 +18,7 @@
       <b-navbar-nav class="pr-3 section">
         <label>{{$t("label_group")}}</label>
         <b-nav-form>
-          <b-form-radio-group size="sm" buttons>
-            <b-form-radio>Issue</b-form-radio>
-            <b-form-radio>Page</b-form-radio>
-            <b-form-radio>Article</b-form-radio>
-            <b-form-radio>Sentences</b-form-radio>
-          </b-form-radio-group>
+          <b-form-select v-model="groupBy" v-bind:options="groupByOptions" size="sm"></b-form-select>
         </b-nav-form>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto px-3 section br bl">
@@ -87,6 +82,24 @@ export default {
         text: 'Date Descending',
       },
     ],
+    groupByOptions: [
+      {
+        value: 'issues',
+        text: 'Issue',
+      },
+      {
+        value: 'pages',
+        text: 'Page',
+      },
+      {
+        value: 'articles',
+        text: 'Article',
+      },
+      {
+        value: 'sentences',
+        text: 'Sentence',
+      },
+    ],
   }),
   computed: {
     orderBy: {
@@ -95,6 +108,15 @@ export default {
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
+        this.search(true);
+      },
+    },
+    groupBy: {
+      get() {
+        return this.$store.state.search.groupBy;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_SEARCH_GROUP_BY', val);
         this.search(true);
       },
     },
