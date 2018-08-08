@@ -7,11 +7,12 @@
       v-model="query"
       v-on:keyup="keyup"
       v-bind:placeholder="$t('search.query_placeholder')"
+      autofocus
       />
-      <b-input-group-button slot="right">
+      <b-input-group-append>
         <b-btn variant="danger" v-on:click="reset"><icon name="times" /></b-btn>
-        <b-btn variant="success" v-on:click="submit()">{{$t("search.query_button")}}</b-btn>
-      </b-input-group-button>
+        <b-btn variant="success" v-on:click="submit"><icon name="search" /></b-btn>
+      </b-input-group-append>
     </b-input-group>
     <div class="suggestions" v-show="(suggestions.length > 0) && showSuggestions">
       <div
@@ -23,42 +24,34 @@
         <suggestion-location
           v-if="elm.entity.hasLabel('location')"
           v-model="suggestions[index]"
-          v-on:add="add"
-          v-on:submit="submit" />
+          v-on:click="submit" />
         <suggestion-person
           v-if="elm.entity.hasLabel('person')"
           v-model="suggestions[index]"
-          v-on:add="add"
-          v-on:submit="submit" />
+          v-on:click="submit" />
         <suggestion-string
           v-if="elm.type === 'string'"
           v-model="suggestions[index]"
-          v-on:add="add"
-          v-on:submit="submit" />
+          v-on:click="submit" />
         <suggestion-daterange
           v-if="elm.type === 'daterange'"
           v-model="suggestions[index]"
-          v-on:add="add"
-          v-on:submit="submit" />
+          v-on:click="submit" />
         <suggestion-test
           v-if="elm.entity.hasLabel('test')"
           v-model="suggestions[index]"
-          v-on:add="add"
-          v-on:submit="submit" />
+          v-on:click="submit" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import VueI18n from 'vue-i18n';
 import ClickOutside from 'vue-click-outside';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/times';
-import 'vue-awesome/icons/plus';
+import 'vue-awesome/icons/search';
 
 import Suggestion from '@/models/Suggestion';
 import SuggestionLocation from './SearchInputQuerySuggestionLocation';
@@ -67,8 +60,6 @@ import SuggestionString from './SearchInputQuerySuggestionString';
 import SuggestionDaterange from './SearchInputQuerySuggestionDaterange';
 import SuggestionTest from './SearchInputQuerySuggestionTest';
 
-Vue.use(BootstrapVue);
-Vue.use(VueI18n);
 
 export default {
   data: () => ({
@@ -82,6 +73,9 @@ export default {
     },
     suggestions: {
       type: Array,
+    },
+    action: {
+      default: 'submit', // either 'add' or 'submit'
     },
   },
   computed: {
@@ -98,18 +92,15 @@ export default {
     reset() {
       this.$emit('reset');
     },
-    submit(suggestion) {
-      if (suggestion instanceof Suggestion) {
-        this.$emit('submit', suggestion);
-      } else {
-        this.$emit('submit', this.suggestion);
-      }
+    clear() {
+      this.$emit('input', '');
     },
-    add(suggestion) {
+    submit(suggestion) {
+      this.clear();
       if (suggestion instanceof Suggestion) {
-        this.$emit('add', suggestion);
+        this.$emit(this.action, suggestion);
       } else {
-        this.$emit('add', this.suggestion);
+        this.$emit(this.action, this.suggestion);
       }
     },
     select(suggestion) {
@@ -127,11 +118,7 @@ export default {
           this.hideSuggestions();
           break;
         case 'Enter':
-          if (event.altKey === true) {
-            this.$emit('add', this.suggestion);
-          } else {
-            this.$emit('submit', this.suggestion);
-          }
+          this.submit(this.suggestion);
           break;
         case 'ArrowDown':
           event.preventDefault();

@@ -2,7 +2,7 @@
 <i-layout id="SearchResultsPage">
   <i-layout-section width="400px" class="br">
     <div class="px-2 py-4 bb">
-      <search-bar v-on:reset="reset" v-on:add="search(true)" />
+      <search-bar v-on:reset="reset" v-on:add="search(true)" action="add" />
     </div>
     <div class="px-2 py-4 bb">
       <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
