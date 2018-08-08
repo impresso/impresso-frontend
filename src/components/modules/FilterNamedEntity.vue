@@ -1,7 +1,11 @@
 <template lang="html">
   <filter-wrapper v-bind:title="$t(`label.${filter.entity.getLabel(1)}`)" v-on:remove="remove">
     <div slot="context">
-      <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
+      <i-dropdown
+      v-model="filter.context"
+      v-bind:options="options"
+      v-on:input="updateFilter"
+      size="sm" />
     </div>
     <div class="p-2">
       <icon v-if="filter.entity.hasLabel('person')" name="user-circle"></icon>
@@ -57,15 +61,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-  .filter{
-    .body{
-      padding: 5px 10px;
-      .fa-icon{
-        width: 12px;
-        margin-bottom: -2px;
-      }
-    }
-  }
 </style>
 
 <i18n>
