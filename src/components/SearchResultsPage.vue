@@ -1,20 +1,30 @@
 <template>
 <i-layout id="SearchResultsPage">
-  <i-layout-section width="400px" class="p-2 br">
-    <search-bar v-on:reset="reset" v-on:add="search(true)" />
-    <hr>
-    <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
-    <hr>
-    <div v-for="(group, index) in facets" class="facets">
-      <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
+  <i-layout-section width="400px" class="br">
+    <div class="px-2 py-4 bb">
+      <search-bar v-on:reset="reset" v-on:add="search(true)" />
+    </div>
+    <div class="px-2 py-4 bb">
+      <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
+    </div>
+    <div class="p-2">
+      <div v-for="(group, index) in facets" class="facets">
+        <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
+      </div>
     </div>
   </i-layout-section>
   <i-layout-section>
-    <b-navbar type="light" variant="light">
-      <b-navbar-nav class="ml-auto">
-        <b-form-select v-model="orderBy" v-bind:options="orderByOptions" size="sm"></b-form-select>
+    <b-navbar type="light" variant="light" class="bb">
+      <b-navbar-nav class="pr-3 section">
+        <label>{{$t("label_group")}}</label>
+        <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm"></i-dropdown>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-2">
+      <b-navbar-nav class="ml-auto px-3 section br bl">
+        <label>{{$t("label_order")}}</label>
+        <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm"></i-dropdown>
+      </b-navbar-nav>
+      <b-navbar-nav class="pl-3 section">
+        <label>{{$t("label_display")}}</label>
         <b-nav-form>
           <b-form-radio-group v-model="displayStyle" size="sm" buttons>
             <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -70,6 +80,24 @@ export default {
         text: 'Date Descending',
       },
     ],
+    groupByOptions: [
+      {
+        value: 'issues',
+        text: 'Issue',
+      },
+      {
+        value: 'pages',
+        text: 'Page',
+      },
+      {
+        value: 'articles',
+        text: 'Article',
+      },
+      {
+        value: 'sentences',
+        text: 'Sentence',
+      },
+    ],
   }),
   computed: {
     orderBy: {
@@ -78,6 +106,15 @@ export default {
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
+        this.search(true);
+      },
+    },
+    groupBy: {
+      get() {
+        return this.$store.state.search.groupBy;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_SEARCH_GROUP_BY', val);
         this.search(true);
       },
     },
@@ -243,12 +280,27 @@ export default {
         }
     }
 }
+
+.navbar-nav{
+  &.section{
+    margin: -0.5rem 0;
+    padding: 0.5rem 0;
+     > label{
+      font-size: smaller;
+      padding: 0;
+      margin: 0 0 0.25em;
+      opacity: 0.5;
+    }
+  }
+}
 </style>
 
 <i18n>
 {
   "en": {
-    "label_display": "Display",
+    "label_display": "Display As",
+    "label_order": "Order By",
+    "label_group": "Group By",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
     "sort_date": "Date",
@@ -258,7 +310,9 @@ export default {
     "display_button_tiles": "Tiles"
   },
   "nl": {
-    "label_display": "Toon",
+    "label_display": "Toon Als",
+    "label_order": "Sorteer Op",
+    "label_group": "Rangschikken Per",
     "sort_asc": "Oplopend",
     "sort_desc": "Aflopend",
     "sort_date": "Datum",

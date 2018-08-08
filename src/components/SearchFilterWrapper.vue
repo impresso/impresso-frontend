@@ -23,7 +23,6 @@
     </div>
     <b-button
       id="button-filter"
-      class="mb-4"
       block
       variant="success"
       v-on:click="submitFilter">Filter</b-button>

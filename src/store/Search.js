@@ -12,7 +12,8 @@ export default {
     searches: [],
     results: [],
     facets: [],
-    orderBy: 'relevance',
+    orderBy: 'relevance', // relevance, -relevance, date, -date
+    groupBy: 'articles', // issues, pages, articles, sentences
     displayStyle: 'list',
     paginationPerPage: 12,
     paginationCurrentPage: 1,
@@ -44,6 +45,9 @@ export default {
   mutations: {
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
+    },
+    UPDATE_SEARCH_GROUP_BY(state, groupBy) {
+      state.groupBy = groupBy;
     },
     UPDATE_SEARCH_DISPLAY_STYLE(state, payload) {
       state.displayStyle = payload.displayStyle;
@@ -100,7 +104,6 @@ export default {
       state.results = results;
     },
     UPDATE_FACETS(state, facets) {
-      console.log(facets);
       state.facets = facets;
     },
   },
@@ -117,11 +120,10 @@ export default {
                 uid: filter.getUid(),
               })),
               facets: ['newspaper', 'year', 'language'],
-              group_by: 'articles', // TODO: this can be pages at a later stage
+              group_by: context.state.groupBy,
               page: context.state.paginationCurrentPage,
               limit: context.state.paginationPerPage,
               order_by: context.state.orderBy,
-              // TODO: group_by: 'article|issue|page';
             },
           }).then(
             (res) => {

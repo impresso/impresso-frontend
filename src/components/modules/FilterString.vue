@@ -4,7 +4,13 @@
       <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
     </div>
     <div class="p-2">
-      <b-input type="text" v-model="filter.query" v-on:input="updateFilter" v-on:keyup.enter.native="submitFilter" />
+      <b-input-group>
+       <b-input ref="filter" type="text" v-model="filter.query" v-on:input="updateFilter" v-on:keyup.enter.native="submitFilter" v-bind:disabled="disabled" />
+       <b-input-group-append>
+         <b-btn v-on:click="toggleFilter" variant="info" v-show="disabled">{{$t('edit')}}</b-btn>
+         <b-btn v-on:click="toggleFilter" variant="success" v-show="!disabled">{{$t('save')}}</b-btn>
+       </b-input-group-append>
+     </b-input-group>
     </div>
   </filter-wrapper>
 </template>
@@ -22,6 +28,7 @@ export default {
       value: 'exclude',
       text: 'Exclude',
     }],
+    disabled: true,
   }),
   model: {
     prop: 'filter',
@@ -37,6 +44,9 @@ export default {
     remove() {
       this.$emit('remove');
     },
+    toggleFilter() {
+      this.disabled = !this.disabled;
+    },
   },
   components: {
     FilterWrapper,
@@ -50,13 +60,17 @@ export default {
 <i18n>
 {
   "en": {
-    "query": "Text"
+    "query": "Text",
+    "edit": "Edit",
+    "save": "Save"
   },
   "fr": {
     "query": "Texte"
   },
   "nl": {
-    "query": "Tekst"
+    "query": "Tekst",
+    "edit": "Bewerken",
+    "save": "Opslaan"
   }
 }
 </i18n>
