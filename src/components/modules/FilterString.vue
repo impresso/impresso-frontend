@@ -1,7 +1,7 @@
 <template lang="html">
   <filter-wrapper v-bind:title="$t('query')" v-on:remove="remove">
     <div slot="context">
-      <i-dropdown v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" size="sm" />
+      <i-dropdown v-model="filter.context" v-bind:options="options" v-on:input="submitFilter" size="sm" />
     </div>
     <b-input
       ref="filter"

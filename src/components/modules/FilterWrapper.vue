@@ -33,15 +33,11 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "./../../assets/less/style.less";
-
 .filter {
     display: grid;
     grid-template-columns: max-content auto max-content;
     grid-template-rows: auto;
     grid-template-areas: 'context content controls';
-
-    background: @clr-grey-200;
 
     .context{
       grid-area: context;
@@ -54,6 +50,5 @@ export default {
     .controls{
       grid-area: controls;
     }
-
 }
 </style>
