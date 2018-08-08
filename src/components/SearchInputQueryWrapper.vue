@@ -5,6 +5,7 @@
   v-on:reset="reset"
   v-on:submit="submit"
   v-on:add="add"
+  v-bind:action="action"
   />
 </template>
 
@@ -16,6 +17,11 @@ export default {
   data: () => ({
     query: '',
   }),
+  props: {
+    action: {
+      default: 'submit', // either 'add' or 'submit'
+    },
+  },
   computed: {
     suggestions: {
       get() {

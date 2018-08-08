@@ -1,21 +1,30 @@
 <template lang="html">
   <filter-wrapper v-bind:title="$t('query')" v-on:remove="remove">
     <div slot="context">
-      <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
+      <i-dropdown v-model="filter.context" v-bind:options="options" v-on:input="submitFilter" size="sm" />
     </div>
-    <div class="p-2">
-      <b-input-group>
-       <b-input ref="filter" type="text" v-model="filter.query" v-on:input="updateFilter" v-on:keyup.enter.native="submitFilter" v-bind:disabled="disabled" />
-       <b-input-group-append>
-         <b-btn v-on:click="toggleFilter" variant="info" v-show="disabled">{{$t('edit')}}</b-btn>
-         <b-btn v-on:click="toggleFilter" variant="success" v-show="!disabled">{{$t('save')}}</b-btn>
-       </b-input-group-append>
-     </b-input-group>
+    <b-input
+      ref="filter"
+      type="text"
+      v-model="filter.query"
+      v-on:input="updateFilter"
+      v-on:keyup.enter.native="submitFilter"
+      v-bind:disabled="disabled"
+      size="sm"
+    />
+    <div slot="controls">
+      <b-button v-on:click="editFilter" variant="link" v-show="disabled" size="sm"><icon name="edit" /></b-button>
+      <b-button v-on:click="submitFilter" variant="link" v-show="!disabled" size="sm"><icon name="check" /></b-button>
     </div>
   </filter-wrapper>
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
+
+import 'vue-awesome/icons/edit';
+import 'vue-awesome/icons/check';
+
 import FilterWrapper from './FilterWrapper';
 
 export default {
@@ -40,16 +49,18 @@ export default {
     },
     submitFilter() {
       this.$emit('submit');
+      this.disabled = true;
     },
     remove() {
       this.$emit('remove');
     },
-    toggleFilter() {
-      this.disabled = !this.disabled;
+    editFilter() {
+      this.disabled = false;
     },
   },
   components: {
     FilterWrapper,
+    Icon,
   },
 };
 </script>

@@ -1,11 +1,7 @@
 <template lang="html">
-  <section>
+  <section v-on:click.prevent="click">
     <icon name="flash"/>
     {{suggestion.entity.name}}
-    <span class="float-right">
-      <a href="#" v-on:click.prevent="add">add</a>
-      <a href="#" v-on:click.prevent="submit">submit</a>
-    </span>
   </section>
 </template>
 
@@ -22,11 +18,8 @@ export default {
     Icon,
   },
   methods: {
-    add() {
-      this.$emit('add', this.suggestion);
-    },
-    submit() {
-      this.$emit('submit', this.suggestion);
+    click() {
+      this.$emit('click', this.suggestion);
     },
   },
 };
