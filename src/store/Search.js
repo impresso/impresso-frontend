@@ -1,6 +1,8 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
 import Collection from '@/models/Collection';
+import Daterange from '@/models/Daterange';
+import Filter from '@/models/Filter';
 import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
@@ -18,6 +20,7 @@ export default {
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
+    queryComponents: [],
   },
   getters: {
     getSearches(state) {
@@ -61,6 +64,9 @@ export default {
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
+    },
+    UPDATE_QUERY_COMPONENTS(state, payload) {
+      state.queryComponents = payload.queryComponents;
     },
     ADD_FILTER(state, payload) {
       state.search.filters.push({
@@ -170,6 +176,31 @@ export default {
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
+              });
+
+              context.commit('UPDATE_QUERY_COMPONENTS', {
+                queryComponents: res.info.toSq.map((el) => {
+                  let daterange;
+                  if (el.daterange) {
+                    debugger;
+                    daterange = el.daterange.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z TO \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/);
+                    if (daterange.length) {
+                      daterange = new Daterange({
+                        daterange: daterange[0],
+                      });
+                    }
+                  }
+                  // console.log('UPDATE_QUERY_COMPONENTS', {
+                  //   ...el,
+                  //   query: el.q,
+                  //   daterange,
+                  // });
+                  return new Filter({
+                    ...el,
+                    query: el.q,
+                    daterange,
+                  });
+                }),
               });
 
               resolve(res);
