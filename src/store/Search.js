@@ -176,8 +176,8 @@ export default {
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
-              
-              context.commit('UPDATE_QUERY_COMPONENTS', res.info.toSq.map(d => new QueryComponent(d)));
+
+              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents.map(d => new QueryComponent(d)));
 
               resolve(res);
             },
