@@ -182,7 +182,6 @@ export default {
                 queryComponents: res.info.toSq.map((el) => {
                   let daterange;
                   if (el.daterange) {
-                    debugger;
                     daterange = el.daterange.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z TO \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/);
                     if (daterange.length) {
                       daterange = new Daterange({
@@ -190,11 +189,6 @@ export default {
                       });
                     }
                   }
-                  // console.log('UPDATE_QUERY_COMPONENTS', {
-                  //   ...el,
-                  //   query: el.q,
-                  //   daterange,
-                  // });
                   return new Filter({
                     ...el,
                     query: el.q,
