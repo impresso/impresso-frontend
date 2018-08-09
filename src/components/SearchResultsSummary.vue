@@ -1,79 +1,53 @@
 <template lang="html">
-  <div>
-    <div class="subheading">{{$t("summary")}}</div>
-    <div class="heading text-serif">
-      {{$t("found")}}
-      <span class='hg'>{{totalRows}}</span> {{$t("articles")}}
-
-      <span v-html="fulltext"></span>
-    </div>
-  </div>
+  <section class="search-results-summary">
+    <span class="label">{{$t("summary")}}</span>
+    <p class="text-serif" v-html="getMessage"></p>
+  </section>
 </template>
 
 <script>
 export default {
   props: ['queryComponents', 'totalRows'],
   computed: {
-    dateranges: {
+    getMessage: {
       get() {
-        const values = this.queryComponents
-          .filter(d => d.type === 'daterange')
-          .map((d) => {
-            console.log(d);
-            return 'o';
-          });
-        return `${this.$t('between')} ${values.join(', ')}`;
+        return this.$t('message', { count: this.totalRows, terms: this.getTerms() });
       },
     },
-    fulltext: {
-      get() {
-        const values = this.queryComponents
-          .filter(d => d.type === 'string').map((d) => {
-            console.log('SearchResultsSummary', d);
-            if (d.context === 'exclude') {
-              return `${this.$t('excluding')} <strong>${d.query}</strong>`;
-            }
-            return `${this.$t('including')} <strong>${d.query}</strong>`;
-          });
-        return values.join(', ');
-      },
+  },
+  methods: {
+    getTerms() {
+      return this.queryComponents.filter(d => d.type === 'string').map((d) => {
+        if (d.context === 'exclude') {
+          return `${this.$t('excluding')} <strong>${d.query}</strong>`;
+        }
+        return `${this.$t('including')} <strong>${d.query}</strong>`;
+      }).join(', ');
     },
   },
 };
 </script>
 
 <style scoped lang="less">
-
-  .results-summary{
-    padding: 0px 15px;
-    .heading{
-      font-size: 1.2em;
-    }
-    .subheading{
-      font-weight: bold;
-      text-transform: uppercase;
-      font-size: 0.8em;
-    }
-    .hg{
-      font-weight: bold;
-    }
-  }
 </style>
+
 <i18n>
 {
   "en": {
     "summary": "summary",
-    "found": "Found"
+    "including": "including",
+    "excluding": "excluding",
+    "message": "Found <strong>{count}</strong> articles {terms}"
   },
   "fr": {
-    "summary": "resumé"
   },
   "it": {
-
   },
   "nl": {
-    "summary": "summary",
-    "found": "Gevonden"
+    "summary": "SAMENVATTING",
+    "including": "inclusief",
+    "excluding": "exclusief",
+    "message": "<strong>{count}</strong> artikelen gevonden {terms}"
   }
 }
 </i18n>
