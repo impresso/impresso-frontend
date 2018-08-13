@@ -167,12 +167,19 @@ export default {
                 }),
               })));
 
-              context.commit('UPDATE_FACETS', {
-                newspapers: res.info.facets.newspaper.buckets,
-                years: res.info.facets.year.buckets,
-                languages: res.info.facets.language.buckets,
-              });
-
+              if (res.info.facets) {
+                context.commit('UPDATE_FACETS', {
+                  newspapers: res.info.facets.newspaper.buckets,
+                  years: res.info.facets.year.buckets,
+                  languages: res.info.facets.language.buckets,
+                });
+              } else {
+                context.commit('UPDATE_FACETS', {
+                  newspapers: [],
+                  years: [],
+                  languages: [],
+                });
+              }
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
