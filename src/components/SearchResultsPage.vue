@@ -8,8 +8,8 @@
       <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
     </div>
     <div class="p-2">
-      <div v-for="(group, index) in facets" class="facets">
-        <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
+      <div v-for="facet in facets" class="facets">
+        <b-table small hover :items="getItems(facet)" :fields="getFields(facet)"></b-table>
       </div>
     </div>
   </i-layout-section>
@@ -160,11 +160,11 @@ export default {
     },
   },
   methods: {
-    getFields(group, label) {
+    getFields(facet) {
       return [
         {
           key: 'val',
-          label,
+          label: facet.type,
           sortable: true,
           class: 'text-left',
         },
@@ -175,11 +175,11 @@ export default {
         },
       ];
     },
-    getItems(group) {
-      return group.map(item => ({
+    getItems(facet) {
+      return facet.buckets.map(bucket => ({
         isActive: true,
-        val: item.val,
-        count: item.count,
+        val: bucket.val,
+        count: bucket.count,
       }));
     },
     getSortByLabel(sortBy, sortOrder) {
