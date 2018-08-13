@@ -33,6 +33,11 @@
         </b-nav-form>
       </b-navbar-nav>
     </b-navbar>
+
+    <b-navbar type="light" variant="light" class="bb">
+      <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows"/>
+    </b-navbar>
+
     <div class="p-2">
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
@@ -59,6 +64,7 @@ import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
+import SearchResultsSummary from './SearchResultsSummary';
 
 export default {
   data: () => ({
@@ -131,6 +137,11 @@ export default {
     paginationTotalRows: {
       get() {
         return this.$store.state.search.paginationTotalRows;
+      },
+    },
+    queryComponents: {
+      get() {
+        return this.$store.state.search.queryComponents;
       },
     },
     displayStyle: {
@@ -246,6 +257,7 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filter-wrapper': SearchFilterWrapper,
+    'search-result-summary': SearchResultsSummary,
   },
   mounted() {
     if (this.uuid !== undefined) {

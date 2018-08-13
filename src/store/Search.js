@@ -1,6 +1,7 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
 import Collection from '@/models/Collection';
+import QueryComponent from '@/models/QueryComponent';
 import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
@@ -19,6 +20,7 @@ export default {
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
+    queryComponents: [],
   },
   getters: {
     getSearches(state) {
@@ -62,6 +64,9 @@ export default {
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
+    },
+    UPDATE_QUERY_COMPONENTS(state, queryComponents) {
+      state.queryComponents = queryComponents;
     },
     ADD_FILTER(state, payload) {
       state.search.filters.push({
@@ -187,6 +192,8 @@ export default {
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
+
+              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents.map(d => new QueryComponent(d)));
 
               resolve(res);
             },
