@@ -4,6 +4,7 @@ import Collection from '@/models/Collection';
 import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
+import Facet from '@/models/Facet';
 
 export default {
   namespaced: true,
@@ -103,8 +104,8 @@ export default {
     UPDATE_RESULTS(state, results) {
       state.results = results;
     },
-    UPDATE_FACETS(state, facets) {
-      state.facets = facets;
+    ADD_FACET(state, facet) {
+      state.facets.push(facet);
     },
   },
   actions: {
@@ -162,11 +163,26 @@ export default {
                 }),
               })));
 
-              context.commit('UPDATE_FACETS', {
-                newspapers: res.info.facets.newspaper.buckets,
-                years: res.info.facets.year.buckets,
-                languages: res.info.facets.language.buckets,
-              });
+              if (res.info.facets && res.info.facets.newspaper) {
+                context.commit('ADD_FACET', new Facet({
+                  type: 'newspaper',
+                  buckets: res.info.facets.newspaper.buckets,
+                }));
+              }
+
+              if (res.info.facets && res.info.facets.year) {
+                context.commit('ADD_FACET', new Facet({
+                  type: 'year',
+                  buckets: res.info.facets.year.buckets,
+                }));
+              }
+
+              if (res.info.facets && res.info.facets.language) {
+                context.commit('ADD_FACET', new Facet({
+                  type: 'language',
+                  buckets: res.info.facets.language.buckets,
+                }));
+              }
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
