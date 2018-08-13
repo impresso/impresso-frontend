@@ -13,15 +13,20 @@ export default function QueryComponent({
   context = 'include',
   q = '',
   entity = new Entity(),
-  daterange = new Daterange(),
+  daterange = null,
   type = '',
 } = {}) {
+  const daterangeRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z TO \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/;
+
   this.context = context;
+  this.query = String(q);
 
   if (daterange instanceof Daterange) {
     this.daterange = daterange;
-  } else {
-    this.daterange = new Daterange(daterange);
+  } else if (typeof daterange === 'string' && daterange.test(daterangeRegex)) {
+    this.daterange = new Daterange({
+      daterange,
+    });
   }
 
   if (entity instanceof Entity) {
@@ -29,8 +34,6 @@ export default function QueryComponent({
   } else {
     this.entity = new Entity(entity);
   }
-
-  this.query = String(q);
 
   this.type = type;
 
@@ -52,7 +55,7 @@ export default function QueryComponent({
 // queryComponents: res.info.toSq.map((el) => {
 //   let daterange;
 //   if (el.daterange) {
-//     daterange = el.daterange.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z TO \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/);
+// daterange = el.daterange.match(/\d{4}-\d{2}-\d{2}T\{2}T\d{2}:\d{2}:\d{2}Z/);
 //     if (daterange.length) {
 //       daterange = new Daterange({
 //         daterange: daterange[0],
