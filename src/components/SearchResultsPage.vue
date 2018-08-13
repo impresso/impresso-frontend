@@ -8,8 +8,8 @@
       <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
     </div>
     <div class="p-2">
-      <div v-for="(group, index) in facets" class="facets">
-        <b-table small hover :items="getItems(group)" :fields="getFields(group, index)"></b-table>
+      <div v-for="facet in facets" class="facets">
+        <b-table small hover :items="getItems(facet)" :fields="getFields(facet)"></b-table>
       </div>
     </div>
   </i-layout-section>
@@ -33,6 +33,11 @@
         </b-nav-form>
       </b-navbar-nav>
     </b-navbar>
+
+    <b-navbar type="light" variant="light" class="bb">
+      <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows"/>
+    </b-navbar>
+
     <div class="p-2">
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
@@ -59,6 +64,7 @@ import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
+import SearchResultsSummary from './SearchResultsSummary';
 
 export default {
   data: () => ({
@@ -133,6 +139,11 @@ export default {
         return this.$store.state.search.paginationTotalRows;
       },
     },
+    queryComponents: {
+      get() {
+        return this.$store.state.search.queryComponents;
+      },
+    },
     displayStyle: {
       get() {
         return this.$store.state.search.displayStyle;
@@ -160,11 +171,11 @@ export default {
     },
   },
   methods: {
-    getFields(group, label) {
+    getFields(facet) {
       return [
         {
           key: 'val',
-          label,
+          label: facet.type,
           sortable: true,
           class: 'text-left',
         },
@@ -175,11 +186,11 @@ export default {
         },
       ];
     },
-    getItems(group) {
-      return group.map(item => ({
+    getItems(facet) {
+      return facet.buckets.map(bucket => ({
         isActive: true,
-        val: item.val,
-        count: item.count,
+        val: bucket.val,
+        count: bucket.count,
       }));
     },
     getSortByLabel(sortBy, sortOrder) {
@@ -246,6 +257,7 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filter-wrapper': SearchFilterWrapper,
+    'search-result-summary': SearchResultsSummary,
   },
   mounted() {
     if (this.uuid !== undefined) {

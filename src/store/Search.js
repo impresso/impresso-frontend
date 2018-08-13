@@ -1,9 +1,11 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
 import Collection from '@/models/Collection';
+import QueryComponent from '@/models/QueryComponent';
 import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
+import Facet from '@/models/Facet';
 
 export default {
   namespaced: true,
@@ -18,6 +20,7 @@ export default {
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
+    queryComponents: [],
   },
   getters: {
     getSearches(state) {
@@ -62,6 +65,9 @@ export default {
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
+    UPDATE_QUERY_COMPONENTS(state, queryComponents) {
+      state.queryComponents = queryComponents;
+    },
     ADD_FILTER(state, payload) {
       state.search.filters.push({
         ...payload,
@@ -103,8 +109,8 @@ export default {
     UPDATE_RESULTS(state, results) {
       state.results = results;
     },
-    UPDATE_FACETS(state, facets) {
-      state.facets = facets;
+    ADD_FACET(state, facet) {
+      state.facets.push(facet);
     },
   },
   actions: {
@@ -162,15 +168,32 @@ export default {
                 }),
               })));
 
-              context.commit('UPDATE_FACETS', {
-                newspapers: res.info.facets.newspaper.buckets,
-                years: res.info.facets.year.buckets,
-                languages: res.info.facets.language.buckets,
-              });
+              if (res.info.facets && res.info.facets.newspaper) {
+                context.commit('ADD_FACET', new Facet({
+                  type: 'newspaper',
+                  buckets: res.info.facets.newspaper.buckets,
+                }));
+              }
+
+              if (res.info.facets && res.info.facets.year) {
+                context.commit('ADD_FACET', new Facet({
+                  type: 'year',
+                  buckets: res.info.facets.year.buckets,
+                }));
+              }
+
+              if (res.info.facets && res.info.facets.language) {
+                context.commit('ADD_FACET', new Facet({
+                  type: 'language',
+                  buckets: res.info.facets.language.buckets,
+                }));
+              }
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
+
+              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents.map(d => new QueryComponent(d)));
 
               resolve(res);
             },
