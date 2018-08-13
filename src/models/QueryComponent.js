@@ -1,9 +1,9 @@
 import Daterange from './Daterange';
 import Entity from './Entity';
 /**
- * Filter object
+ * Query Component object
  * @param {String} context either 'include' or 'exclude'
- * @param {String} query The search query
+ * @param {String} q The search query
  * @param {Entity} entity Entity object
  * @param {Daterange} daterange Daterange object
  * @param {String} type The type of filter (entity, string)
@@ -51,20 +51,3 @@ export default function QueryComponent({
     return undefined;
   };
 }
-
-// queryComponents: res.info.toSq.map((el) => {
-//   let daterange;
-//   if (el.daterange) {
-// daterange = el.daterange.match(/\d{4}-\d{2}-\d{2}T\{2}T\d{2}:\d{2}:\d{2}Z/);
-//     if (daterange.length) {
-//       daterange = new Daterange({
-//         daterange: daterange[0],
-//       });
-//     }
-//   }
-//   return new Filter({
-//     ...el,
-//     query: el.q,
-//     daterange,
-//   });
-// }),
