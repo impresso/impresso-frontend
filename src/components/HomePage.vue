@@ -32,8 +32,6 @@ export default {
     redirect() {
       this.$router.push({
         name: 'search',
-      }, () => {
-        this.$store.dispatch('search/SEARCH');
       });
     },
   },

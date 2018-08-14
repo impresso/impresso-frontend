@@ -263,6 +263,7 @@ export default {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
+    this.search(true);
   },
   watch: {
     filters: {
