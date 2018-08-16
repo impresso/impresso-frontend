@@ -17,7 +17,7 @@ export default {
     orderBy: 'relevance', // relevance, -relevance, date, -date
     groupBy: 'articles', // issues, pages, articles, sentences
     displayStyle: 'list',
-    paginationPerPage: 12,
+    paginationPerPage: 12, // TODO: make getter/setter and UI
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
@@ -54,6 +54,9 @@ export default {
     },
     UPDATE_SEARCH_DISPLAY_STYLE(state, payload) {
       state.displayStyle = payload.displayStyle;
+    },
+    UPDATE_PAGINATION_PER_PAGE(state, paginationPerPage) {
+      state.paginationPerPage = parseInt(paginationPerPage, 10);
     },
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
       if (typeof payload.paginationCurrentPage === 'undefined') {
