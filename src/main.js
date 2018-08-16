@@ -6,7 +6,7 @@ import VueI18n from 'vue-i18n';
 
 import ImpressoLayout from '@/plugins/Layout';
 
-import 'bootstrap/dist/css/bootstrap.css';
+import 'impresso-theme/dist/css/bootpresso.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 import App from './App';
