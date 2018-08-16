@@ -10,12 +10,21 @@
 </template>
 
 <script>
+import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
 
 export default {
   name: 'app',
   components: {
     TheHeader,
+  },
+  created() {
+    // load typekit
+    WebFontLoader.load({
+      typekit: {
+        id: 'gfc0vge',
+      },
+    });
   },
 };
 </script>
