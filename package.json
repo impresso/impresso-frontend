@@ -29,7 +29,8 @@
     "vue-router": "^3.0.1",
     "vue2-leaflet": "0.0.57",
     "vuex": "^3.0.1",
-    "vuex-persistedstate": "^2.5.4"
+    "vuex-persistedstate": "^2.5.4",
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@feathersjs/authentication": "^2.1.7",
