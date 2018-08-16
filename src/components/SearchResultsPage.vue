@@ -148,10 +148,8 @@ export default {
       get() {
         return this.$store.state.search.displayStyle;
       },
-      set(val) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', {
-          displayStyle: val,
-        });
+      set(displayStyle) {
+        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
     searchResults: {

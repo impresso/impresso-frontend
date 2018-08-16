@@ -52,8 +52,8 @@ export default {
     UPDATE_SEARCH_GROUP_BY(state, groupBy) {
       state.groupBy = groupBy;
     },
-    UPDATE_SEARCH_DISPLAY_STYLE(state, payload) {
-      state.displayStyle = payload.displayStyle;
+    UPDATE_SEARCH_DISPLAY_STYLE(state, displayStyle) {
+      state.displayStyle = displayStyle;
     },
     UPDATE_PAGINATION_PER_PAGE(state, paginationPerPage) {
       state.paginationPerPage = parseInt(paginationPerPage, 10);
