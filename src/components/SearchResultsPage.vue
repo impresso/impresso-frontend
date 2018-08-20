@@ -7,6 +7,9 @@
     <div class="px-2 py-4 bb">
       <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
     </div>
+    <div class="px-2 py-4 bb">
+      <skyline :date-start="1949" :date-end="1960" :height="100" :data="skylineData" />
+    </div>
     <div class="p-2">
       <div v-for="facet in facets" class="facets">
         <b-table small hover :items="getItems(facet)" :fields="getFields(facet)"></b-table>
@@ -35,7 +38,7 @@
     </b-navbar>
 
     <b-navbar type="light" variant="light" class="bb">
-      <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows"/>
+      <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
     </b-navbar>
 
     <div class="p-2">
@@ -65,6 +68,7 @@ import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
 import SearchResultsTilesItem from './SearchResultsTilesItem';
 import SearchResultsSummary from './SearchResultsSummary';
+import Skyline from './d3/Skyline';
 
 export default {
   data: () => ({
@@ -142,6 +146,18 @@ export default {
     queryComponents: {
       get() {
         return this.$store.state.search.queryComponents;
+      },
+    },
+    skylineData: {
+      get() {
+        const yearFacets = this.$store.getters['search/facets'].filter(d => d.type === 'year');
+        if (yearFacets.length === 0) {
+          return [];
+        }
+        return yearFacets[0].buckets.map(d => ({
+          t: parseInt(d.val, 10),
+          w: d.count,
+        })).sort((a, b) => a.t - b.t);
       },
     },
     displayStyle: {
@@ -254,6 +270,7 @@ export default {
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filter-wrapper': SearchFilterWrapper,
     'search-result-summary': SearchResultsSummary,
+    Skyline,
   },
   mounted() {
     if (this.uuid !== undefined) {
@@ -281,17 +298,17 @@ export default {
     }
 }
 
-.navbar-nav{
-  &.section{
-    margin: -0.5rem 0;
-    padding: 0.5rem 0;
-     > label{
-      font-size: smaller;
-      padding: 0;
-      margin: 0 0 0.25em;
-      opacity: 0.5;
+.navbar-nav {
+    &.section {
+        margin: -0.5rem 0;
+        padding: 0.5rem 0;
+        > label {
+            font-size: smaller;
+            padding: 0;
+            margin: 0 0 0.25em;
+            opacity: 0.5;
+        }
     }
-  }
 }
 </style>
 
