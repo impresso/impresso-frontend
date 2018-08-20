@@ -114,6 +114,9 @@ export default {
     UPDATE_RESULTS(state, results) {
       state.results = results;
     },
+    CLEAR_FACETS(state) {
+      state.facets = [];
+    },
     ADD_FACET(state, facet) {
       state.facets.push(facet);
     },
@@ -133,6 +136,7 @@ export default {
             },
           }).then(
             (res) => {
+              context.commit('CLEAR_FACETS');
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
                 ...result,
                 issue: {
