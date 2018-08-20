@@ -45,17 +45,17 @@ export default {
   },
   methods: {
     updateFilter() {
-      this.$emit('update');
       this.$store.commit('search/UPDATE_FILTER', {});
+      this.$emit('update');
     },
     submitFilter() {
       this.$emit('submit');
     },
     removeFilter(index) {
-      this.$emit('remove');
       this.$store.commit('search/REMOVE_FILTER', {
         index,
       });
+      this.$emit('remove');
     },
   },
   components: {
