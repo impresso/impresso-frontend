@@ -7,11 +7,6 @@
     <div class="px-2 py-4 bb">
       <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
     </div>
-    <div class="p-2">
-      <div v-for="facet in facets" class="facets">
-        <b-table small hover :items="getItems(facet)" :fields="getFields(facet)"></b-table>
-      </div>
-    </div>
   </i-layout-section>
   <i-layout-section>
     <b-navbar type="light" variant="light" class="bb">
@@ -162,35 +157,8 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
-    facets: {
-      get() {
-        return this.$store.getters['search/facets'];
-      },
-    },
   },
   methods: {
-    getFields(facet) {
-      return [
-        {
-          key: 'val',
-          label: facet.type,
-          sortable: true,
-          class: 'text-left',
-        },
-        {
-          key: 'count',
-          sortable: true,
-          class: 'text-right',
-        },
-      ];
-    },
-    getItems(facet) {
-      return facet.buckets.map(bucket => ({
-        isActive: true,
-        val: bucket.val,
-        count: bucket.count,
-      }));
-    },
     getSortByLabel(sortBy, sortOrder) {
       let label = '';
       if (sortBy === 'date') {
