@@ -11,7 +11,7 @@
       />
       <b-input-group-append>
         <b-btn variant="danger" v-on:click="reset"><icon name="times" /></b-btn>
-        <b-btn variant="success" v-on:click="submit"><icon name="search" /></b-btn>
+        <b-btn variant="success" v-on:click="search"><icon name="search" /></b-btn>
       </b-input-group-append>
     </b-input-group>
     <div class="suggestions" v-show="(suggestions.length > 0) && showSuggestions">
@@ -91,6 +91,13 @@ export default {
   methods: {
     reset() {
       this.$emit('reset');
+    },
+    search() {
+      if (this.suggestion !== undefined && this.suggestion.type !== '') {
+        this.submit(this.suggestion);
+      } else {
+        this.$emit('search');
+      }
     },
     clear() {
       this.$emit('input', '');
