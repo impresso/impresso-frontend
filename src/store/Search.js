@@ -46,6 +46,7 @@ export default {
     },
   },
   mutations: {
+    // general settings
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
     },
@@ -58,6 +59,7 @@ export default {
     UPDATE_PAGINATION_PER_PAGE(state, paginationPerPage) {
       state.paginationPerPage = parseInt(paginationPerPage, 10);
     },
+    // pagination
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
       if (typeof payload.paginationCurrentPage === 'undefined') {
         state.paginationCurrentPage = 1;
