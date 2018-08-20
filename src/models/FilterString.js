@@ -11,4 +11,12 @@ export default function FilterString({
   this.type = 'string';
   this.context = context;
   this.query = String(query);
+
+  this.getName = () => this.query;
+
+  this.getQuery = () => ({
+    context: this.context,
+    type: this.type,
+    q: this.query,
+  });
 }
