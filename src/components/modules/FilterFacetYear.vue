@@ -1,19 +1,24 @@
 <template lang="html">
   <section class="filter-facet-year">
-    <p>Put here the skyline component with v-model="data" </p>
+    <!-- uncomment this -->
     <!-- <skyline v-model="data"></skyline> -->
-    <pre>{{data}}</pre>
   </section>
 </template>
 
 <script>
 import Facet from '@/models/Facet';
+// uncomment this
+// import Skyline from '@/models/Skyline';
 
 export default {
   props: {
     data: {
       type: Facet,
     },
+  },
+  components: {
+    // uncomment this
+    // Skyline,
   },
 };
 </script>
