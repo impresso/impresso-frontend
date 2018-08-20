@@ -17,7 +17,7 @@ export default {
     orderBy: 'relevance', // relevance, -relevance, date, -date
     groupBy: 'articles', // issues, pages, articles, sentences
     displayStyle: 'list',
-    paginationPerPage: 12, // TODO: make getter/setter and UI
+    paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
