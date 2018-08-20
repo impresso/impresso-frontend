@@ -243,10 +243,8 @@ export default {
       this.$store.dispatch('search/SEARCH');
     },
     reset() {
-      const data = {
-        name: 'home',
-      };
-      this.$router.push(data, this.$store.commit('search/CLEAR'));
+      this.$store.commit('search/CLEAR');
+      this.search(true); // we do a search so we display all results in the corpus
     },
   },
   components: {
@@ -262,15 +260,6 @@ export default {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
     this.search(true);
-  },
-  watch: {
-    filters: {
-      handler(val) {
-        if (val.length === 0) {
-          this.reset();
-        }
-      },
-    },
   },
 };
 </script>
