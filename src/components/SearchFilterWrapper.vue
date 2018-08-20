@@ -21,7 +21,6 @@
           v-on:remove="removeFilter(index)"
         />
     </div>
-    <pre></pre>
     <filter-facet-year v-bind:data="getFacet('year')"></filter-facet-year>
   </div>
 </template>
