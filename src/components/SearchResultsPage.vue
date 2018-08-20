@@ -265,34 +265,6 @@ export default {
 </script>
 
 <style lang="less">
-@import "./../assets/less/style.less";
-
-#SearchResultsPage {
-    .facets {
-        tr {
-            td,
-            th {
-                text-transform: capitalize;
-                &:last-child {
-                    width: 100%;
-                }
-            }
-        }
-    }
-}
-
-.navbar-nav{
-  &.section{
-    margin: -0.5rem 0;
-    padding: 0.5rem 0;
-     > label{
-      font-size: smaller;
-      padding: 0;
-      margin: 0 0 0.25em;
-      opacity: 0.5;
-    }
-  }
-}
 </style>
 
 <i18n>
