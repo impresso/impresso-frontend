@@ -8,7 +8,7 @@
 <script>
 import Facet from '@/models/Facet';
 // uncomment this
-// import Skyline from '@/models/Skyline';
+// import Skyline from './Skyline';
 
 export default {
   props: {
