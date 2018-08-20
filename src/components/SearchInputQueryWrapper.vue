@@ -5,12 +5,13 @@
   v-on:reset="reset"
   v-on:submit="submit"
   v-on:add="add"
+  v-on:search="search"
   v-bind:action="action"
   />
 </template>
 
 <script>
-import Filter from '@/models/Filter';
+import FilterFactory from '@/models/FilterFactory';
 import SearchBar from './modules/SearchInputQuery';
 
 export default {
@@ -45,14 +46,12 @@ export default {
     },
     add(suggestion) {
       this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {});
-      this.$store.commit('search/ADD_FILTER', new Filter({
-        type: suggestion.type,
-        query: suggestion.query,
-        entity: suggestion.entity,
-        daterange: suggestion.daterange,
-      }));
+      this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
 
-      this.$emit('add');
+      this.$emit('search');
+    },
+    search() {
+      this.$emit('search');
     },
   },
   watch: {

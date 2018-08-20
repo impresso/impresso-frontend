@@ -46,15 +46,20 @@ export default {
     },
   },
   mutations: {
+    // general settings
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
     },
     UPDATE_SEARCH_GROUP_BY(state, groupBy) {
       state.groupBy = groupBy;
     },
-    UPDATE_SEARCH_DISPLAY_STYLE(state, payload) {
-      state.displayStyle = payload.displayStyle;
+    UPDATE_SEARCH_DISPLAY_STYLE(state, displayStyle) {
+      state.displayStyle = displayStyle;
     },
+    UPDATE_PAGINATION_PER_PAGE(state, paginationPerPage) {
+      state.paginationPerPage = parseInt(paginationPerPage, 10);
+    },
+    // pagination
     UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
       if (typeof payload.paginationCurrentPage === 'undefined') {
         state.paginationCurrentPage = 1;
@@ -109,6 +114,9 @@ export default {
     UPDATE_RESULTS(state, results) {
       state.results = results;
     },
+    CLEAR_FACETS(state) {
+      state.facets = [];
+    },
     ADD_FACET(state, facet) {
       state.facets.push(facet);
     },
@@ -119,12 +127,7 @@ export default {
         (resolve, reject) => {
           services.search.find({
             query: {
-              filters: context.getters.getSearch.filters.map(filter => ({
-                context: filter.context,
-                type: filter.type,
-                q: filter.query,
-                uid: filter.getUid(),
-              })),
+              filters: context.getters.getSearch.filters.map(filter => filter.getQuery()),
               facets: ['newspaper', 'year', 'language'],
               group_by: context.state.groupBy,
               page: context.state.paginationCurrentPage,
@@ -133,6 +136,7 @@ export default {
             },
           }).then(
             (res) => {
+              context.commit('CLEAR_FACETS');
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
                 ...result,
                 issue: {

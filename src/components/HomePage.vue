@@ -4,7 +4,7 @@
     <b-container>
       <b-row>
         <b-col md="6" offset-md="3">
-          <SearchBar v-on:add="redirect" />
+          <SearchBar v-on:search="redirect" />
         </b-col>
       </b-row>
     </b-container>
@@ -32,8 +32,6 @@ export default {
     redirect() {
       this.$router.push({
         name: 'search',
-      }, () => {
-        this.$store.dispatch('search/SEARCH');
       });
     },
   },

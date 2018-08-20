@@ -2,7 +2,7 @@
 <i-layout id="SearchResultsPage">
   <i-layout-section width="400px" class="br">
     <div class="px-2 py-4 bb">
-      <search-bar v-on:reset="reset" v-on:add="search(true)" action="add" />
+      <search-bar v-on:reset="reset" v-on:search="search(true)" action="add" />
     </div>
     <div class="px-2 py-4 bb">
       <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
@@ -148,10 +148,8 @@ export default {
       get() {
         return this.$store.state.search.displayStyle;
       },
-      set(val) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', {
-          displayStyle: val,
-        });
+      set(displayStyle) {
+        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
     searchResults: {
@@ -245,10 +243,8 @@ export default {
       this.$store.dispatch('search/SEARCH');
     },
     reset() {
-      const data = {
-        name: 'home',
-      };
-      this.$router.push(data, this.$store.commit('search/CLEAR'));
+      this.$store.commit('search/CLEAR');
+      this.search(true); // we do a search so we display all results in the corpus
     },
   },
   components: {
@@ -263,15 +259,7 @@ export default {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
-  },
-  watch: {
-    filters: {
-      handler(val) {
-        if (val.length === 0) {
-          this.reset();
-        }
-      },
-    },
+    this.search(true);
   },
 };
 </script>
