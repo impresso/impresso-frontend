@@ -124,12 +124,7 @@ export default {
         (resolve, reject) => {
           services.search.find({
             query: {
-              filters: context.getters.getSearch.filters.map(filter => ({
-                context: filter.context,
-                type: filter.type,
-                q: filter.query,
-                uid: filter.getUid(),
-              })),
+              filters: context.getters.getSearch.filters.map(filter => filter.getQuery()),
               facets: ['newspaper', 'year', 'language'],
               group_by: context.state.groupBy,
               page: context.state.paginationCurrentPage,
