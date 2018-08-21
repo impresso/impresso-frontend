@@ -12,11 +12,11 @@
     <b-navbar type="light" variant="light" class="bb">
       <b-navbar-nav class="pr-3 section">
         <label>{{$t("label_group")}}</label>
-        <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm"></i-dropdown>
+        <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm" variant="outline-primary"></i-dropdown>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto px-3 section br bl">
         <label>{{$t("label_order")}}</label>
-        <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm"></i-dropdown>
+        <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
       </b-navbar-nav>
       <b-navbar-nav class="pl-3 section">
         <label>{{$t("label_display")}}</label>

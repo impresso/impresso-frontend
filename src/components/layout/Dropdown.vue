@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-dropdown v-bind:text="selected.text" v-bind:size="size">
+  <b-dropdown v-bind:text="selected.text" v-bind:size="size" v-bind:variant="variant">
     <b-dropdown-item
       v-for="option in options"
       v-bind:active="value === option.value"
@@ -23,6 +23,9 @@ export default {
     },
     size: {
       default: 'md',
+    },
+    variant: {
+      default: 'primary',
     },
   },
   computed: {
