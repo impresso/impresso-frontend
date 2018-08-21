@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-dropdown v-bind:text="selected.text" v-bind:size="size">
+  <b-dropdown v-bind:text="selected.text" v-bind:size="size" variant="outline-primary">
     <b-dropdown-item
       v-for="option in options"
       v-bind:active="value === option.value"
