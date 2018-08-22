@@ -53,6 +53,7 @@
     "cross-env": "^5.2.0",
     "cross-spawn": "^5.0.1",
     "css-loader": "^0.28.11",
+    "dripicons": "^2.0.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.3.0",
     "eslint-friendly-formatter": "^3.0.0",
