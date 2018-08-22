@@ -1,35 +1,44 @@
 <template lang="html">
-  <main id="TestPage">
-      <h1>Playground for whatever</h1>
-      <ul>
-        <li v-for="(element, key) in elements">{{element.name}}
-        <collection-tagger v-model="elements[key]"></collection-tagger>
-        </li>
-      </ul>
-  </main>
+  <i-layout id="TestPage">
+    <i-layout-section width="400px" class="br">
+      <search-bar v-on:submit="search" />
+    </i-layout-section>
+    <i-layout-section>
+      <h1>results</h1>
+      <pre>{{searchResults}}</pre>
+    </i-layout-section>
+  </i-layout>
 </template>
 
 <script>
-import CollectionTagger from './CollectionTagger';
+import FilterFactory from '@/models/FilterFactory';
+import Suggestion from '@/models/Suggestion';
+
+import SearchBar from './SearchBar';
 
 export default {
   data: () => ({
-    elements: [{
-      name: 'test element 1',
-      uid: 'dtuhg33',
-      collections: [],
-    }, {
-      name: 'test element 2',
-      uid: 'asadqd',
-      collections: [],
-    }, {
-      name: 'test element 3',
-      uid: '34sdf',
-      collections: [],
-    }],
   }),
+  computed: {
+    searchResults: {
+      get() {
+        return this.$store.getters['search/results'];
+      },
+    },
+  },
+  methods: {
+    search(suggestion = false) {
+      if (suggestion instanceof Suggestion) {
+        this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
+      }
+
+      this.$store.dispatch('search/SEARCH', {
+        page: 1,
+      });
+    },
+  },
   components: {
-    CollectionTagger,
+    SearchBar,
   },
 };
 </script>
