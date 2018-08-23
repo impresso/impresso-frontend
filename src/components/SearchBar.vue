@@ -85,7 +85,7 @@ export default {
       this.$store.dispatch('search/SEARCH', {
         page: 1,
       }).then(() => {
-        this.$emit('submit', this.suggestion);
+        this.$emit('submit');
       });
 
       this.query = '';
