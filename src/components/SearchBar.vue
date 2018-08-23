@@ -1,25 +1,60 @@
 <template lang="html">
-  <div class="">
+  <section class="search-bar" v-ClickOutside="hideSuggestions">
     <b-input-group prepend="Search">
       <b-form-input
       v-model="query"
-      v-on:input="search"
+      v-on:input.native="search"
       v-on:keyup.native="keyup"></b-form-input>
       <b-input-group-append>
         <b-btn variant="outline-success" v-on:click="submit">Go</b-btn>
       </b-input-group-append>
     </b-input-group>
+    <div class="suggestions" v-show="(suggestions.length > 0) && showSuggestions">
+      <div
+        v-for="(elm, index) in suggestions"
+        v-on:mouseover="select(elm)"
+        class="suggestion"
+        v-bind:class="{selected: elm === suggestion}"
+        >
+        <suggestion-location
+          v-if="elm.entity.hasLabel('location')"
+          v-model="suggestions[index]"
+          v-on:click="submit" />
+        <suggestion-person
+          v-if="elm.entity.hasLabel('person')"
+          v-model="suggestions[index]"
+          v-on:click="submit" />
+        <suggestion-string
+          v-if="elm.type === 'string'"
+          v-model="suggestions[index]"
+          v-on:click="submit" />
+        <suggestion-daterange
+          v-if="elm.type === 'daterange'"
+          v-model="suggestions[index]"
+          v-on:click="submit" />
+        <suggestion-test
+          v-if="elm.entity.hasLabel('test')"
+          v-model="suggestions[index]"
+          v-on:click="submit" />
+      </div>
+    </div>
     <pre>{{suggestion}}</pre>
     <pre>{{suggestions}}</pre>
-  </div>
+  </section>
 </template>
 
 <script>
+import ClickOutside from 'vue-click-outside';
 import Suggestion from '@/models/Suggestion';
+import SuggestionLocation from './modules/SearchInputQuerySuggestionLocation';
+import SuggestionPerson from './modules/SearchInputQuerySuggestionPerson';
+import SuggestionString from './modules/SearchInputQuerySuggestionString';
+import SuggestionDaterange from './modules/SearchInputQuerySuggestionDaterange';
 
 export default {
   data: () => ({
     query: '',
+    showSuggestions: false,
     suggestion: new Suggestion(),
   }),
   computed: {
@@ -30,10 +65,15 @@ export default {
     },
   },
   methods: {
+    hideSuggestions() {
+      this.showSuggestions = false;
+    },
     search() {
       if (this.query.trim().length > 1) {
         this.$store.dispatch('autocomplete/SEARCH', {
           query: this.query.trim(),
+        }).then(() => {
+          this.showSuggestions = true;
         });
       } else {
         // if length of the query is 0 then we clear the suggestions
@@ -42,31 +82,34 @@ export default {
     },
     submit() {
       this.$emit('submit', this.suggestion);
+      this.query = '';
+      this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
+    },
+    select(suggestion) {
+      this.suggestion = suggestion;
     },
     keyup(event) {
       const index = this.suggestions.indexOf(this.suggestion);
 
       switch (event.key) {
         case 'Escape':
-          // this.hideSuggestions();
+          this.hideSuggestions();
           break;
         case 'Enter':
           this.submit();
           break;
         case 'ArrowDown':
-          event.preventDefault();
           if (this.suggestions[index + 1]) {
-            this.suggestion = this.suggestions[index + 1];
+            this.select(this.suggestions[index + 1]);
           } else {
-            this.suggestion = this.suggestions[0];
+            this.select(this.suggestions[0]);
           }
           break;
         case 'ArrowUp':
-          event.preventDefault();
           if (this.suggestions[index - 1]) {
-            this.suggestion = this.suggestions[index - 1];
+            this.select(this.suggestions[index - 1]);
           } else {
-            this.suggestion = this.suggestions[this.suggestions.length - 1];
+            this.select(this.suggestions[this.suggestions.length - 1]);
           }
           break;
         default:
@@ -78,15 +121,42 @@ export default {
     suggestions: {
       handler(val) {
         if (val[0] instanceof Suggestion) {
-          this.suggestion = val[0];
+          this.select(val[0]);
         } else {
-          this.suggestion = new Suggestion();
+          this.select(new Suggestion());
         }
       },
     },
+  },
+  directives: {
+    ClickOutside,
+  },
+  components: {
+    SuggestionLocation,
+    SuggestionPerson,
+    SuggestionString,
+    SuggestionDaterange,
   },
 };
 </script>
 
 <style lang="less">
+.search-bar {
+    position: relative;
+    .suggestions {
+        position: absolute;
+        z-index: 10;
+        width: 100%;
+        background: white;
+        .suggestion {
+            & > section {
+                cursor: pointer;
+                padding: 7px;
+            }
+            &.selected {
+                background: #eee;
+            }
+        }
+    }
+}
 </style>
