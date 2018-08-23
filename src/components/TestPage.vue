@@ -11,9 +11,6 @@
 </template>
 
 <script>
-import FilterFactory from '@/models/FilterFactory';
-import Suggestion from '@/models/Suggestion';
-
 import SearchBar from './SearchBar';
 
 export default {
@@ -27,15 +24,6 @@ export default {
     },
   },
   methods: {
-    search(suggestion = false) {
-      if (suggestion instanceof Suggestion) {
-        this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
-      }
-
-      this.$store.dispatch('search/SEARCH', {
-        page: 1,
-      });
-    },
   },
   components: {
     SearchBar,

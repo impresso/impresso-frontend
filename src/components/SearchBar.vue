@@ -38,13 +38,12 @@
           v-on:click="submit" />
       </div>
     </div>
-    <pre>{{suggestion}}</pre>
-    <pre>{{suggestions}}</pre>
   </section>
 </template>
 
 <script>
 import ClickOutside from 'vue-click-outside';
+import FilterFactory from '@/models/FilterFactory';
 import Suggestion from '@/models/Suggestion';
 import SuggestionLocation from './modules/SearchInputQuerySuggestionLocation';
 import SuggestionPerson from './modules/SearchInputQuerySuggestionPerson';
@@ -81,7 +80,14 @@ export default {
       }
     },
     submit() {
-      this.$emit('submit', this.suggestion);
+      this.$store.commit('search/ADD_FILTER', FilterFactory.create(this.suggestion));
+
+      this.$store.dispatch('search/SEARCH', {
+        page: 1,
+      }).then(() => {
+        this.$emit('submit', this.suggestion);
+      });
+
       this.query = '';
       this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
     },
