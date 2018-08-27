@@ -25,12 +25,3 @@ export default {
   },
 };
 </script>
-
-<style scoped lang="less">
-section {
-    overflow-y: auto;
-    &::-webkit-scrollbar {
-        display: none;
-    }
-}
-</style>
