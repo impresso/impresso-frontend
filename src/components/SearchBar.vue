@@ -73,9 +73,7 @@ export default {
     submit() {
       this.$store.commit('search/ADD_FILTER', FilterFactory.create(this.suggestion));
 
-      this.$store.dispatch('search/SEARCH', {
-        page: 1,
-      }).then(() => {
+      this.$store.dispatch('search/SEARCH').then(() => {
         this.$emit('submit');
       });
 

@@ -122,7 +122,9 @@ export default {
     },
   },
   actions: {
-    SEARCH(context) {
+    SEARCH(context, paginationCurrentPage = 1) {
+      context.commit('UPDATE_PAGINATION_CURRENT_PAGE', { paginationCurrentPage });
+
       return new Promise(
         (resolve, reject) => {
           services.search.find({

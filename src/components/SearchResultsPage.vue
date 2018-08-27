@@ -2,10 +2,10 @@
 <i-layout id="SearchResultsPage">
   <i-layout-section width="400px" class="br">
     <div class="px-2 py-4 bb">
-      <search-bar v-on:reset="reset" v-on:search="search(true)" />
+      <search-bar v-on:reset="reset" v-on:search="search()" />
     </div>
     <div class="px-2 py-4 bb">
-      <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
+      <search-filter-wrapper v-on:remove="search()" v-on:submit="search()" />
     </div>
   </i-layout-section>
   <i-layout-section>
@@ -47,7 +47,11 @@
         </b-row>
       </b-container>
       <hr>
-      <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
+      <pagination
+        v-bind:perPage="paginationPerPage"
+        v-bind:currentPage="paginationCurrentPage"
+        v-bind:totalRows="paginationTotalRows"
+        v-on:input="onInputPagination" v-on:change="search" />
     </div>
   </i-layout-section>
 </i-layout>
@@ -113,7 +117,7 @@ export default {
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
-        this.search(true);
+        this.search();
       },
     },
     groupBy: {
@@ -122,7 +126,15 @@ export default {
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_GROUP_BY', val);
-        this.search(true);
+        this.search();
+      },
+    },
+    displayStyle: {
+      get() {
+        return this.$store.state.search.displayStyle;
+      },
+      set(displayStyle) {
+        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
     paginationPerPage: {
@@ -145,14 +157,6 @@ export default {
         return this.$store.state.search.queryComponents;
       },
     },
-    displayStyle: {
-      get() {
-        return this.$store.state.search.displayStyle;
-      },
-      set(displayStyle) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
-      },
-    },
     searchResults: {
       get() {
         return this.$store.getters['search/results'];
@@ -165,13 +169,8 @@ export default {
     },
   },
   methods: {
-    getTrans() {
-      return 'yoyoyo 123';
-    },
-    onInputPagination(pageNumber) {
-      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
-        paginationCurrentPage: pageNumber,
-      });
+    onInputPagination(page = 1) {
+      this.search(page);
     },
     onClickResult(searchResult) {
       this.$router.push({
@@ -184,15 +183,12 @@ export default {
         },
       });
     },
-    search(startAtPageOne = false) {
-      if (startAtPageOne === true) {
-        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {});
-      }
-      this.$store.dispatch('search/SEARCH');
+    search(page = 1) {
+      this.$store.dispatch('search/SEARCH', page);
     },
     reset() {
       this.$store.commit('search/CLEAR');
-      this.search(true); // we do a search so we display all results in the corpus
+      this.search(); // we do a search so we display all results in the corpus
     },
   },
   components: {
@@ -207,7 +203,7 @@ export default {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
-    this.search(true);
+    this.search();
   },
   beforeDestroy() {
     this.$store.commit('search/CLEAR');
