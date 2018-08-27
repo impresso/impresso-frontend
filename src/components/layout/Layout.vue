@@ -44,5 +44,11 @@ main {
     height: 100%;
     display: flex;
     margin: 0 auto;
+    > section{
+      overflow-y: auto;
+      &::-webkit-scrollbar {
+          display: none;
+      }
+    }
 }
 </style>
