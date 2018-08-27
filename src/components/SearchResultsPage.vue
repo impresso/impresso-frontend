@@ -159,24 +159,6 @@ export default {
     },
   },
   methods: {
-    getSortByLabel(sortBy, sortOrder) {
-      let label = '';
-      if (sortBy === 'date') {
-        label += this.$t('sort_date');
-      } else if (sortBy === 'relevance') {
-        label += this.$t('sort_relevance');
-      }
-
-      label += ' ';
-
-      if (sortOrder === 'asc') {
-        label += this.$t('sort_asc');
-      } else if (sortOrder === 'desc') {
-        label += this.$t('sort_desc');
-      }
-
-      return label;
-    },
     setSort(sortBy, sortOrder) {
       this.$store.commit('search/UPDATE_SEARCH_DISPLAY_SORT', {
         displaySortBy: sortBy,
