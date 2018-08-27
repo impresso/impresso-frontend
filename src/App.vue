@@ -22,7 +22,7 @@ export default {
     // load typekit
     WebFontLoader.load({
       typekit: {
-        id: 'gfc0vge',
+        id: process.env.TYPEKIT_ID,
       },
     });
   },
