@@ -4,7 +4,7 @@
     <b-container>
       <b-row>
         <b-col md="6" offset-md="3">
-          <SearchBar v-on:search="redirect" />
+          <SearchBar v-on:submit="redirect" />
         </b-col>
       </b-row>
     </b-container>
@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import SearchBar from './SearchInputQueryWrapper';
+import SearchBar from './SearchBar';
 
 export default {
   name: 'HelloWorld',

@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import SearchBar from './SearchInputQueryWrapper';
+import SearchBar from './SearchBar';
 import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './SearchResultsListItem';
