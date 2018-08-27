@@ -27,7 +27,6 @@ export default {
   watch: {
     tileSource: {
       handler(val) {
-        console.log(val);
         this.viewer.addTiledImage({
           tileSource: val,
           index: 0, // the index of the item. Added on top of all other items if not specified.
