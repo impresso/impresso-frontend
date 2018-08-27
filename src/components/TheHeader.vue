@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-navbar id="TheHeader" toggleable="md" type="dark" v-bind:variant="navbarVariant">
+  <b-navbar id="TheHeader" toggleable="md" type="dark" v-bind:variant="navbarVariant" class="py-0 pr-1">
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
     <b-navbar-brand :to="{name: 'home'}">
       <img src="./../assets/img/impresso-logo-h-i@2x.png"  />
@@ -14,13 +14,13 @@
         </li>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto">
-        <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].name" right>
+        <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2 border-secondary" right>
           <b-dropdown-item v-for="language in languages"
           v-bind:active="activeLanguageCode === language.code"
           v-bind:key="language.code"
           v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
         </b-nav-item-dropdown>
-        <b-nav-item-dropdown v-if="user" right>
+        <b-nav-item-dropdown v-if="user" class="p-2 small-caps border-left border-secondary" right>
           <template slot="button-content">
             <em>{{userFullName}}</em>
           </template>
@@ -28,7 +28,7 @@
           <b-dropdown-item v-bind:to="{ name: 'collection'}">{{$t("collections")}}</b-dropdown-item>
           <b-dropdown-item v-on:click.prevent="logout">{{$t("logout")}}</b-dropdown-item>
         </b-nav-item-dropdown>
-        <b-nav-item v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
+        <b-nav-item class="p-2 small-caps border-left border-secondary" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
@@ -111,11 +111,49 @@ export default {
 <style lang="less">
 #TheHeader {
     .navbar-brand {
-        padding: 0;
         img {
             height: 30px;
         }
     }
+    em {
+      font-variant: normal;
+      font-style: normal;
+    }
+}
+//
+//  Colors
+//
+@clr-bg-primary: #fff;
+@clr-bg-secondary: darken(@clr-bg-primary, 5);
+
+@clr-primary: #111;
+@clr-secondary: lighten(@clr-primary, 25);
+@clr-tertiary: lighten(@clr-primary, 60);
+@clr-quaternary: lighten(@clr-primary, 80);
+
+@clr-accent: #F4D062;
+@clr-accent-light: #FFEB78;
+@clr-accent-secondary: #56CCF2;
+
+#app-header {
+  background: @clr-bg-secondary;
+  border-bottom: 1px solid @clr-tertiary;
+  nav {
+    border-top: 2px solid @clr-accent-light;
+    margin-bottom: 2px;
+  }
+}
+
+.bg-dark {
+  background-color: @clr-primary !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: #ddd;
+}
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+  color: @clr-bg-primary;
 }
 </style>
 
