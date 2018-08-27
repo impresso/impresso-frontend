@@ -16,12 +16,8 @@
         class="suggestion"
         v-bind:class="{selected: elm === suggestion}"
         >
-        <suggestion-location
-          v-if="elm.entity.hasLabel('location')"
-          v-model="suggestions[index]"
-          v-on:click="submit" />
-        <suggestion-person
-          v-if="elm.entity.hasLabel('person')"
+        <suggestion-entity
+          v-if="elm.entity.hasLabel('person') || elm.entity.hasLabel('location')"
           v-model="suggestions[index]"
           v-on:click="submit" />
         <suggestion-string
@@ -41,8 +37,7 @@
 import ClickOutside from 'vue-click-outside';
 import FilterFactory from '@/models/FilterFactory';
 import Suggestion from '@/models/Suggestion';
-import SuggestionLocation from './modules/SearchInputQuerySuggestionLocation';
-import SuggestionPerson from './modules/SearchInputQuerySuggestionPerson';
+import SuggestionEntity from './modules/SearchInputQuerySuggestionEntity';
 import SuggestionString from './modules/SearchInputQuerySuggestionString';
 import SuggestionDaterange from './modules/SearchInputQuerySuggestionDaterange';
 
@@ -134,8 +129,7 @@ export default {
     ClickOutside,
   },
   components: {
-    SuggestionLocation,
-    SuggestionPerson,
+    SuggestionEntity,
     SuggestionString,
     SuggestionDaterange,
   },
