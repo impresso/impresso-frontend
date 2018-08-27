@@ -62,45 +62,51 @@ import SearchResultsTilesItem from './SearchResultsTilesItem';
 import SearchResultsSummary from './SearchResultsSummary';
 
 export default {
-  data: () => ({
-    orderByOptions: [
-      {
-        value: 'relevance',
-        text: 'Relevance Ascending',
-      },
-      {
-        value: '-relevance',
-        text: 'Relevance Descending',
-      },
-      {
-        value: 'date',
-        text: 'Date Ascending',
-      },
-      {
-        value: '-date',
-        text: 'Date Descending',
-      },
-    ],
-    groupByOptions: [
-      {
-        value: 'issues',
-        text: 'Issue',
-      },
-      {
-        value: 'pages',
-        text: 'Page',
-      },
-      {
-        value: 'articles',
-        text: 'Article',
-      },
-      {
-        value: 'sentences',
-        text: 'Sentence',
-      },
-    ],
-  }),
   computed: {
+    groupByOptions: {
+      get() {
+        return [
+          {
+            value: 'issues',
+            text: this.$t('order_issues'),
+          },
+          {
+            value: 'pages',
+            text: this.$t('order_pages'),
+          },
+          {
+            value: 'articles',
+            text: this.$t('order_articles'),
+          },
+          {
+            value: 'sentences',
+            text: this.$t('order_sentences'),
+          },
+        ];
+      },
+    },
+    orderByOptions: {
+      get() {
+        return [
+          {
+            value: 'relevance',
+            text: `${this.$t('sort_relevance')} ${this.$t('sort_asc')}`,
+          },
+          {
+            value: '-relevance',
+            text: `${this.$t('sort_relevance')} ${this.$t('sort_desc')}`,
+          },
+          {
+            value: 'date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+          },
+          {
+            value: '-date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+          },
+        ];
+      },
+    },
     orderBy: {
       get() {
         return this.$store.state.search.orderBy;
@@ -159,6 +165,9 @@ export default {
     },
   },
   methods: {
+    getTrans() {
+      return 'yoyoyo 123';
+    },
     onInputPagination(pageNumber) {
       this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
         paginationCurrentPage: pageNumber,
@@ -219,9 +228,12 @@ export default {
     "sort_desc": "Descending",
     "sort_date": "Date",
     "sort_relevance": "Relevance",
-    "label_sort": "Sort",
     "display_button_list": "List",
-    "display_button_tiles": "Tiles"
+    "display_button_tiles": "Tiles",
+    "order_issues": "Issue",
+    "order_pages": "Page",
+    "order_articles": "Article",
+    "order_sentences": "Sentence"
   },
   "nl": {
     "label_display": "Toon Als",
@@ -231,9 +243,12 @@ export default {
     "sort_desc": "Aflopend",
     "sort_date": "Datum",
     "sort_relevance": "Relavantie",
-    "label_sort": "Sorteer",
     "display_button_list": "Lijst",
-    "display_button_tiles": "Tegels"
+    "display_button_tiles": "Tegels",
+    "order_issues": "Uitgave",
+    "order_pages": "Pagina",
+    "order_articles": "Artikel",
+    "order_sentences": "Zin"
   }
 }
 </i18n>
