@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import '@/assets/less/style.less';
+// import '@/assets/less/style.less';
 import Collection from '@/models/Collection';
 
 export default {
@@ -62,21 +62,22 @@ export default {
     .details {
         display: grid;
         grid-template-rows: auto;
-        &.four{
-          grid-template-columns: repeat(4, 1fr);
+        &.four {
+            grid-template-columns: repeat(4, 1fr);
         }
 
-        &.two{
-          grid-template-columns: repeat(2, 1fr);
+        &.two {
+            grid-template-columns: repeat(2, 1fr);
         }
 
-        .muted{
-          opacity: .5;
-          font-size: smaller;
+        .muted {
+            opacity: 0.5;
+            font-size: smaller;
         }
     }
 
-    &:hover, &.active {
+    &.active,
+    &:hover {
         background-color: #eee;
         cursor: pointer;
     }

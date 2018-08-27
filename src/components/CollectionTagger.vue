@@ -102,7 +102,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "./../assets/less/style.less";
+// @import "./../assets/less/style.less";
 
 .collection-tagger {
     display: inline-block;

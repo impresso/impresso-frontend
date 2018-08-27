@@ -279,7 +279,7 @@ export default {
 </script>
 
 <style lang="less">
-@import "./../../assets/less/style.less";
+// @import "./../../assets/less/style.less";
 
 .app {
     position: relative;
@@ -305,7 +305,7 @@ export default {
         position: absolute;
 
         &.start {
-            border-left: 1px solid @clr-grey-400;
+            border-left: 1px solid #BDBDBD;
 
             .value {
                 left: 0;
@@ -314,7 +314,7 @@ export default {
 
         &.end {
             right: 0;
-            border-right: 1px solid @clr-grey-400;
+            border-right: 1px solid #BDBDBD;
 
             .value {
                 right: 0;
@@ -323,13 +323,13 @@ export default {
 
         .value {
             position: absolute;
-            color: @clr-grey-600;
+            color: #757575;
             line-height: 18px;
             padding: 0 5px;
             white-space: nowrap;
 
             > span {
-                color: @clr-grey-400;
+                color: #BDBDBD;
             }
         }
     }
@@ -343,22 +343,20 @@ export default {
         position: absolute;
         top: 83px; // at the bottom of the svg slider
 
-
         &.start {
-           .value {
-              left:auto;
-              border: 1px solid;
-              right: 0;
-           }
+            .value {
+                left: auto;
+                border: 1px solid;
                 right: 0;
+            }
         }
 
         &.end {
-           .value {
-              border: 1px solid;
-              left: 0;
-              right:auto;
-           }
+            .value {
+                border: 1px solid;
+                left: 0;
+                right: auto;
+            }
         }
     }
 
@@ -377,31 +375,31 @@ export default {
         .period {
             pointer-events: none;
             .interval {
-                fill: @impresso-yellow;
+                fill: #ffeb78;
                 stroke-width: 1px;
-                stroke: @impresso-yellow;
+                stroke: #ffeb78;
             }
 
             .block {
                 fill: none;
                 stroke-width: 1px;
-                stroke: @clr-black;
+                stroke: #000000;
             }
 
-            line{
-              stroke: black;
+            line {
+                stroke: black;
             }
         }
 
         .tick {
-          text {
-            font-family: OpenSans, "helvetica neue", Arial, sans-serif;
-            fill: @clr-grey-600;
-            text-anchor: start;
-          }
-          line{
-            stroke: @clr-grey-400;
-          }
+            text {
+                font-family: OpenSans, "helvetica neue", Arial, sans-serif;
+                fill: #757575;
+                text-anchor: start;
+            }
+            line {
+                stroke: #BDBDBD;
+            }
         }
     }
 }

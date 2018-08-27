@@ -108,12 +108,12 @@ export default {
 </script>
 
 <style lang="less">
-@import "./../../assets/less/style.less";
+// @import "./../../assets/less/style.less";
 
 .issue-viewer-zoom-slider {
     .indicator {
         .line {
-            fill: @clr-grey-800;
+            fill: #424242;
         }
 
         .area {
@@ -124,12 +124,12 @@ export default {
     .slider {
         pointer-events: none;
         .dot {
-            stroke: @clr-grey-800;
-            fill: @clr-yellow;
+            stroke: #424242;
+            fill: #FFEB3B;
         }
 
         .inner {
-            fill: @clr-grey-800;
+            fill: #424242;
         }
     }
 }

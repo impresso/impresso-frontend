@@ -233,9 +233,6 @@ export default {
 </script>
 
 <style lang="less">
-.navbar {
-  padding: 0 1em;
-}
 .navbar-nav {
     flex-direction: row;
     align-items: center;
