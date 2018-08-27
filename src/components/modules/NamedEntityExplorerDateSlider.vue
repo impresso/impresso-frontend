@@ -133,8 +133,10 @@ export default {
       // const startposy = startposx === this.dateFieldWidth ? 25 : 0;
 
       const endposx = Math.min(
-        Math.max(this.dateFieldWidth - this.width, this.app.selection[1] - this.width),
-        -this.dateFieldWidth);
+        Math.max(
+          this.dateFieldWidth - this.width,
+          this.app.selection[1] - this.width),
+          -this.dateFieldWidth);
       // const endposy = endposx === -100 ? 25 : 0;
       // console.log('updateTimeSelection > startposx', startposx);
       this.app.selectionStartDateFieldValue
@@ -290,22 +292,23 @@ export default {
         margin-left: -50px;
         text-align: center;
 
-        .value{
-          display: inline-block;
-          background: white;
-          line-height: 18px;
-          padding: 0 5px;
-          white-space: nowrap;
+        .value {
+            display: inline-block;
+            background: white;
+            line-height: 18px;
+            padding: 0 5px;
+            white-space: nowrap;
         }
     }
-    .edge, .selection {
+    .edge,
+    .selection {
         position: absolute;
 
         &.start {
             border-left: 1px solid @clr-grey-400;
 
             .value {
-                left:0;
+                left: 0;
             }
         }
 
@@ -347,6 +350,7 @@ export default {
               border: 1px solid;
               right: 0;
            }
+                right: 0;
         }
 
         &.end {

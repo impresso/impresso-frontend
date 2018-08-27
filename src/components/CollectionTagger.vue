@@ -123,7 +123,7 @@ export default {
             right: 0;
             height: 50%;
             top: 25%;
-            overflow:hidden;
+            overflow: hidden;
             background: white;
             .body {
                 padding: 20px;
@@ -134,7 +134,7 @@ export default {
             .header {
                 text-align: right;
                 padding: 10px 20px;
-                background: @clr-grey-200;
+                background: #eeeeee;
             }
         }
     }
