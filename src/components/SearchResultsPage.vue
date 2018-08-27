@@ -229,6 +229,9 @@ export default {
     }
     this.search(true);
   },
+  beforeDestroy() {
+    this.$store.commit('search/CLEAR');
+  },
 };
 </script>
 
