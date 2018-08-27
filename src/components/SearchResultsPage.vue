@@ -159,17 +159,6 @@ export default {
     },
   },
   methods: {
-    setSort(sortBy, sortOrder) {
-      this.$store.commit('search/UPDATE_SEARCH_DISPLAY_SORT', {
-        displaySortBy: sortBy,
-        displaySortOrder: sortOrder,
-      });
-      this.search(true);
-    },
-    loadSearch(uuid) {
-      this.$store.commit('search/LOAD_SEARCH', uuid);
-      this.search(true);
-    },
     onInputPagination(pageNumber) {
       this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
         paginationCurrentPage: pageNumber,
