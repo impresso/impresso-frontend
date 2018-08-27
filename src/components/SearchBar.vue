@@ -32,10 +32,6 @@
           v-if="elm.type === 'daterange'"
           v-model="suggestions[index]"
           v-on:click="submit" />
-        <suggestion-test
-          v-if="elm.entity.hasLabel('test')"
-          v-model="suggestions[index]"
-          v-on:click="submit" />
       </div>
     </div>
   </section>
