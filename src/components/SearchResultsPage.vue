@@ -4,7 +4,7 @@
     <div class="px-2 py-4 bb">
       <search-bar v-on:reset="reset" v-on:search="search()" />
     </div>
-    <div class="px-2 py-4 bb">
+    <div class="px-2 py-4 pt-0 bb" v-if="filters.length > 0">
       <search-filter-wrapper v-on:remove="search()" v-on:submit="search()" />
     </div>
   </i-layout-section>
