@@ -5,7 +5,7 @@
       <search-bar v-on:reset="reset" v-on:search="search()" />
     </div>
     <div class="px-2 py-4 pt-0 bb" v-if="filters.length > 0">
-      <search-filter-wrapper v-on:remove="search()" v-on:submit="search()" />
+      <search-filters v-on:remove="search()" v-on:submit="search()" />
     </div>
   </i-layout-section>
   <i-layout-section>
@@ -60,7 +60,7 @@
 <script>
 import SearchBar from './SearchBar';
 import Pagination from './modules/Pagination';
-import SearchFilterWrapper from './SearchFilterWrapper';
+import SearchFilters from './SearchFilters';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
@@ -196,7 +196,7 @@ export default {
     'search-bar': SearchBar,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
-    'search-filter-wrapper': SearchFilterWrapper,
+    'search-filters': SearchFilters,
     'search-result-summary': SearchResultsSummary,
   },
   mounted() {
