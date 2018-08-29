@@ -82,7 +82,8 @@ export default {
       state.search.filters.splice(payload.index, 1);
     },
     UPDATE_FILTER(state, payload) {
-      state.search.filters[payload.key] = payload.filter;
+      const index = state.search.filters.findIndex(filter => filter.key === payload.key);
+      state.search.filters[index] = payload;
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);

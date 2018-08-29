@@ -11,13 +11,13 @@
         <filter-named-entity
           v-if="filter.type.toLowerCase() === 'entity'"
           v-model="filters[index]"
-          v-on:input="updateFilter"
+          v-on:submit="submitFilter"
           v-on:remove="removeFilter(index)"
         />
         <filter-date-range
           v-if="filter.type.toLowerCase() === 'daterange'"
           v-model="filters[index]"
-          v-on:input="updateFilter"
+          v-on:submit="submitFilter"
           v-on:remove="removeFilter(index)"
         />
     </div>
@@ -49,9 +49,9 @@ export default {
     getFacet(type) {
       return this.$store.getters['search/facets'].find(facet => facet.type === type);
     },
-    updateFilter() {
-      this.$store.commit('search/UPDATE_FILTER', {});
-      this.$emit('update');
+    updateFilter(filter) {
+      this.$store.commit('search/UPDATE_FILTER', filter);
+      this.$emit('input', filter);
     },
     submitFilter() {
       this.$emit('submit');

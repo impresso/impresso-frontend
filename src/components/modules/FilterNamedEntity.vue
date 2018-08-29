@@ -4,7 +4,7 @@
       <i-dropdown
       v-model="filter.context"
       v-bind:options="options"
-      v-on:input="updateFilter"
+      v-on:input="submitFilter"
       size="sm" />
     </div>
     <div class="p-2">
@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import Filter from '@/models/Filter';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/user-circle';
@@ -37,17 +36,13 @@ export default {
       text: 'Exclude',
     }],
   }),
-  props: ['value'],
-  computed: {
-    filter: {
-      get() {
-        return new Filter(this.value);
-      },
-    },
+  model: {
+    prop: 'filter',
   },
+  props: ['filter'],
   methods: {
-    updateFilter() {
-      this.$emit('input', this.filter);
+    submitFilter() {
+      this.$emit('submit');
     },
     remove() {
       this.$emit('remove');
