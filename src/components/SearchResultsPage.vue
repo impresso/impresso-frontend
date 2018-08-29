@@ -63,7 +63,7 @@ import Pagination from './modules/Pagination';
 import SearchFilterWrapper from './SearchFilterWrapper';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
-import SearchResultsSummary from './SearchResultsSummary';
+import SearchResultsSummary from './modules/SearchResultsSummary';
 
 export default {
   computed: {
