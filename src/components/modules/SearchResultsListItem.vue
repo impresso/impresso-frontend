@@ -8,7 +8,6 @@
       <strong>{{article.newspaper.name}}</strong> |
       {{$d(article.date, "long")}} |
       page: <span>{{article.pages.map(page => page.num)}}</span> |
-      <collection-tagger v-model="article"></collection-tagger>
     </p>
     <p v-if="article.excerpt.length > 0">{{article.excerpt}}</p>
     <ul>
@@ -21,8 +20,7 @@
 </template>
 
 <script>
-import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
-import CollectionTagger from './CollectionTagger';
+import OpenSeadragonViewer from './OpenSeadragonViewer';
 
 export default {
   model: {
@@ -40,20 +38,17 @@ export default {
   },
   components: {
     OpenSeadragonViewer,
-    CollectionTagger,
   },
 };
 </script>
 
 <style scoped lang="less">
-@import "./../assets/less/style.less";
-
 .thumbnail {
     width: 240px;
     height: 180px;
     position: relative;
     cursor: move;
-    border:1px solid @clr-grey;
+    border:1px solid grey;
 }
 </style>
 
