@@ -108,52 +108,32 @@ export default {
 };
 </script>
 
-<style lang="less">
-#TheHeader {
-    .navbar-brand {
-        img {
-            height: 30px;
-        }
-    }
-    em {
-      font-variant: normal;
-      font-style: normal;
-    }
-}
-//
-//  Colors
-//
-@clr-bg-primary: #fff;
-@clr-bg-secondary: darken(@clr-bg-primary, 5);
+<style lang="scss">
 
-@clr-primary: #111;
-@clr-secondary: lighten(@clr-primary, 25);
-@clr-tertiary: lighten(@clr-primary, 60);
-@clr-quaternary: lighten(@clr-primary, 80);
-
-@clr-accent: #F4D062;
-@clr-accent-light: #FFEB78;
-@clr-accent-secondary: #56CCF2;
+@import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
-  background: @clr-bg-secondary;
-  border-bottom: 1px solid @clr-tertiary;
+  .navbar-brand {
+      img {
+          height: 30px;
+      }
+  }
+  background: $clr-bg-secondary;
+  border-bottom: 1px solid $clr-tertiary;
   nav {
-    border-top: 2px solid @clr-accent-light;
+    border-top: 2px solid $clr-accent-light;
     margin-bottom: 2px;
   }
-}
-
-.bg-dark {
-  background-color: @clr-primary !important;
-}
-
-.navbar-dark .navbar-nav .nav-link {
-  color: #ddd;
-}
-.navbar-dark .navbar-nav .nav-link:hover,
-.navbar-dark .navbar-nav .nav-link:focus {
-  color: @clr-bg-primary;
+  .bg-dark {
+    background-color: $clr-primary;
+  }
+  .navbar-dark .navbar-nav .nav-link {
+    color: $clr-bg-secondary;
+  }
+  .navbar-dark .navbar-nav .nav-link:hover,
+  .navbar-dark .navbar-nav .nav-link:focus {
+    color: $clr-bg-primary;
+  }
 }
 </style>
 
