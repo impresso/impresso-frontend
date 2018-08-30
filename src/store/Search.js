@@ -82,7 +82,8 @@ export default {
       state.search.filters.splice(payload.index, 1);
     },
     UPDATE_FILTER(state, payload) {
-      state.search.filters[payload.key] = payload.filter;
+      const index = state.search.filters.findIndex(filter => filter.key === payload.key);
+      state.search.filters[index] = payload;
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
@@ -122,7 +123,9 @@ export default {
     },
   },
   actions: {
-    SEARCH(context) {
+    SEARCH(context, paginationCurrentPage = 1) {
+      context.commit('UPDATE_PAGINATION_CURRENT_PAGE', { paginationCurrentPage });
+
       return new Promise(
         (resolve, reject) => {
           services.search.find({

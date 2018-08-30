@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
+import OpenSeadragonViewer from './OpenSeadragonViewer';
 
 export default {
   model: {
@@ -27,13 +27,11 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "./../assets/less/style.less";
-
 .thumbnail {
     width: 100%;
     height: 180px;
     cursor: move;
-    border:1px solid @clr-grey;
+    border:1px solid grey;
     margin-bottom: 10px;
 }
 </style>

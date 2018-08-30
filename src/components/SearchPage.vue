@@ -1,11 +1,11 @@
 <template>
-<i-layout id="SearchResultsPage">
+<i-layout id="SearchPage">
   <i-layout-section width="400px" class="br">
     <div class="px-2 py-4 bb">
-      <search-bar v-on:reset="reset" v-on:search="search(true)" action="add" />
+      <search-bar />
     </div>
-    <div class="px-2 py-4 bb">
-      <search-filter-wrapper v-on:remove="search(true)" v-on:submit="search(true)" />
+    <div class="px-2 py-4 pt-0 bb" v-if="filters.length > 0">
+      <search-filters v-on:remove="search()" v-on:submit="search()" />
     </div>
   </i-layout-section>
   <i-layout-section>
@@ -47,67 +47,77 @@
         </b-row>
       </b-container>
       <hr>
-      <pagination v-bind:perPage="paginationPerPage" v-bind:currentPage="paginationCurrentPage" v-bind:totalRows="paginationTotalRows" v-on:input="onInputPagination" v-on:change="search" />
+      <pagination
+        v-bind:perPage="paginationPerPage"
+        v-bind:currentPage="paginationCurrentPage"
+        v-bind:totalRows="paginationTotalRows"
+        v-on:input="onInputPagination" v-on:change="search" />
     </div>
   </i-layout-section>
 </i-layout>
 </template>
 
 <script>
-import SearchBar from './SearchInputQueryWrapper';
+import SearchBar from './SearchBar';
 import Pagination from './modules/Pagination';
-import SearchFilterWrapper from './SearchFilterWrapper';
-import SearchResultsListItem from './SearchResultsListItem';
-import SearchResultsTilesItem from './SearchResultsTilesItem';
-import SearchResultsSummary from './SearchResultsSummary';
+import SearchFilters from './SearchFilters';
+import SearchResultsListItem from './modules/SearchResultsListItem';
+import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
+import SearchResultsSummary from './modules/SearchResultsSummary';
 
 export default {
-  data: () => ({
-    orderByOptions: [
-      {
-        value: 'relevance',
-        text: 'Relevance Ascending',
-      },
-      {
-        value: '-relevance',
-        text: 'Relevance Descending',
-      },
-      {
-        value: 'date',
-        text: 'Date Ascending',
-      },
-      {
-        value: '-date',
-        text: 'Date Descending',
-      },
-    ],
-    groupByOptions: [
-      {
-        value: 'issues',
-        text: 'Issue',
-      },
-      {
-        value: 'pages',
-        text: 'Page',
-      },
-      {
-        value: 'articles',
-        text: 'Article',
-      },
-      {
-        value: 'sentences',
-        text: 'Sentence',
-      },
-    ],
-  }),
   computed: {
+    groupByOptions: {
+      get() {
+        return [
+          {
+            value: 'issues',
+            text: this.$t('order_issues'),
+          },
+          {
+            value: 'pages',
+            text: this.$t('order_pages'),
+          },
+          {
+            value: 'articles',
+            text: this.$t('order_articles'),
+          },
+          {
+            value: 'sentences',
+            text: this.$t('order_sentences'),
+          },
+        ];
+      },
+    },
+    orderByOptions: {
+      get() {
+        return [
+          {
+            value: 'relevance',
+            text: `${this.$t('sort_relevance')} ${this.$t('sort_asc')}`,
+          },
+          {
+            value: '-relevance',
+            text: `${this.$t('sort_relevance')} ${this.$t('sort_desc')}`,
+          },
+          {
+            value: 'date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+          },
+          {
+            value: '-date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+          },
+        ];
+      },
+    },
     orderBy: {
       get() {
         return this.$store.state.search.orderBy;
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
-        this.search(true);
+        this.search();
       },
     },
     groupBy: {
@@ -116,7 +126,15 @@ export default {
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_GROUP_BY', val);
-        this.search(true);
+        this.search();
+      },
+    },
+    displayStyle: {
+      get() {
+        return this.$store.state.search.displayStyle;
+      },
+      set(displayStyle) {
+        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
     paginationPerPage: {
@@ -139,14 +157,6 @@ export default {
         return this.$store.state.search.queryComponents;
       },
     },
-    displayStyle: {
-      get() {
-        return this.$store.state.search.displayStyle;
-      },
-      set(displayStyle) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
-      },
-    },
     searchResults: {
       get() {
         return this.$store.getters['search/results'];
@@ -159,39 +169,8 @@ export default {
     },
   },
   methods: {
-    getSortByLabel(sortBy, sortOrder) {
-      let label = '';
-      if (sortBy === 'date') {
-        label += this.$t('sort_date');
-      } else if (sortBy === 'relevance') {
-        label += this.$t('sort_relevance');
-      }
-
-      label += ' ';
-
-      if (sortOrder === 'asc') {
-        label += this.$t('sort_asc');
-      } else if (sortOrder === 'desc') {
-        label += this.$t('sort_desc');
-      }
-
-      return label;
-    },
-    setSort(sortBy, sortOrder) {
-      this.$store.commit('search/UPDATE_SEARCH_DISPLAY_SORT', {
-        displaySortBy: sortBy,
-        displaySortOrder: sortOrder,
-      });
-      this.search(true);
-    },
-    loadSearch(uuid) {
-      this.$store.commit('search/LOAD_SEARCH', uuid);
-      this.search(true);
-    },
-    onInputPagination(pageNumber) {
-      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {
-        paginationCurrentPage: pageNumber,
-      });
+    onInputPagination(page = 1) {
+      this.search(page);
     },
     onClickResult(searchResult) {
       this.$router.push({
@@ -204,15 +183,12 @@ export default {
         },
       });
     },
-    search(startAtPageOne = false) {
-      if (startAtPageOne === true) {
-        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', {});
-      }
-      this.$store.dispatch('search/SEARCH');
+    search(page = 1) {
+      this.$store.dispatch('search/SEARCH', page);
     },
     reset() {
       this.$store.commit('search/CLEAR');
-      this.search(true); // we do a search so we display all results in the corpus
+      this.search(); // we do a search so we display all results in the corpus
     },
   },
   components: {
@@ -220,14 +196,21 @@ export default {
     'search-bar': SearchBar,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
-    'search-filter-wrapper': SearchFilterWrapper,
+    'search-filters': SearchFilters,
     'search-result-summary': SearchResultsSummary,
   },
   mounted() {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
-    this.search(true);
+    this.search();
+  },
+  beforeDestroy() {
+    // TODO: need to use the url to reflect the search, this way we can use back
+    // button and keep the search AND go to home and start a new search
+    // if(nextpage !=== "issue || article"){
+    //     this.$store.commit('search/CLEAR');
+    // }
   },
 };
 </script>
@@ -245,9 +228,12 @@ export default {
     "sort_desc": "Descending",
     "sort_date": "Date",
     "sort_relevance": "Relevance",
-    "label_sort": "Sort",
     "display_button_list": "List",
-    "display_button_tiles": "Tiles"
+    "display_button_tiles": "Tiles",
+    "order_issues": "Issue",
+    "order_pages": "Page",
+    "order_articles": "Article",
+    "order_sentences": "Sentence"
   },
   "nl": {
     "label_display": "Toon Als",
@@ -257,9 +243,12 @@ export default {
     "sort_desc": "Aflopend",
     "sort_date": "Datum",
     "sort_relevance": "Relavantie",
-    "label_sort": "Sorteer",
     "display_button_list": "Lijst",
-    "display_button_tiles": "Tegels"
+    "display_button_tiles": "Tegels",
+    "order_issues": "Uitgave",
+    "order_pages": "Pagina",
+    "order_articles": "Artikel",
+    "order_sentences": "Zin"
   }
 }
 </i18n>
