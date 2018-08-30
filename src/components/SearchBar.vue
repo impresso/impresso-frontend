@@ -75,9 +75,9 @@ export default {
 
       this.$store.dispatch('search/SEARCH').then(() => {
         this.$emit('submit');
+        this.query = '';
       });
 
-      this.query = '';
       this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
     },
     select(suggestion) {
