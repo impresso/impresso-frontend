@@ -206,7 +206,11 @@ export default {
     this.search();
   },
   beforeDestroy() {
-    this.$store.commit('search/CLEAR');
+    // TODO: need to use the url to reflect the search, this way we can use back
+    // button and keep the search AND go to home and start a new search
+    // if(nextpage !=== "issue || article"){
+    //     this.$store.commit('search/CLEAR');
+    // }
   },
 };
 </script>
