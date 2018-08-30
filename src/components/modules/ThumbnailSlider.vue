@@ -64,10 +64,10 @@ export default {
 </script>
 
 <style lang="less">
-@import "./../../assets/less/style.less";
+// @import "./../../assets/less/style.less";
 
 #thumbnail-slider {
-  height: 100%;
+    height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     white-space: nowrap;
@@ -88,30 +88,30 @@ export default {
                 position: absolute;
                 right: 10px;
                 bottom: 10px;
-                background: fade(@clr-grey-200, 90);
+                background: fade(#eeeeee, 90);
                 color: #424242;
                 width: 2em;
                 height: 2em;
                 text-align: center;
                 padding-top: 0.2em;
-                border: 1px solid @clr-grey-300;
+                border: 1px solid #E0E0E0;
                 z-index: 1000;
             }
 
             .mini_viewer {
                 background: white;
-                border: 1px solid @clr-grey-300;
+                border: 1px solid #E0E0E0;
                 width: 100px;
                 height: 100%;
                 float: right;
                 overflow: hidden;
                 padding: 5px;
                 &.selected {
-                    border-color: @clr-grey-500;
+                    border-color: #9E9E9E;
                 }
                 &.selected + .page_number {
-                    border: 1px solid @clr-grey-500;
-                    background: fade(@clr-grey-400, 90);
+                    border: 1px solid #9E9E9E;
+                    background: fade(#BDBDBD, 90);
                     color: white;
                 }
             }

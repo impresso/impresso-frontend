@@ -1,27 +1,27 @@
 <template>
 <i-layout id="SearchPage">
-  <i-layout-section width="400px" class="br">
-    <div class="px-2 py-4 bb">
+  <i-layout-section width="400px" class="border-right">
+    <div class="px-2 py-4 border-bottom">
       <search-bar />
     </div>
-    <div class="px-2 py-4 pt-0 bb" v-if="filters.length > 0">
+    <div class="px-2 py-4 pt-0 border-bottom" v-if="filters.length > 0">
       <search-filters v-on:remove="search()" v-on:submit="search()" />
     </div>
   </i-layout-section>
   <i-layout-section>
-    <b-navbar type="light" variant="light" class="bb">
-      <b-navbar-nav class="pr-3 section">
-        <label>{{$t("label_group")}}</label>
+    <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+      <b-navbar-nav class="section px-3 py-3 pr-auto border-right">
+        <label class="mr-1">{{$t("label_group")}}</label>
         <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm" variant="outline-primary"></i-dropdown>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-auto px-3 section br bl">
-        <label>{{$t("label_order")}}</label>
+      <b-navbar-nav class="px-3 py-3 section border-right">
+        <label class="mr-1">{{$t("label_order")}}</label>
         <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
       </b-navbar-nav>
-      <b-navbar-nav class="pl-3 section">
-        <label>{{$t("label_display")}}</label>
+      <b-navbar-nav class="px-3 py-3 section">
+        <label class="mr-1">{{$t("label_display")}}</label>
         <b-nav-form>
-          <b-form-radio-group v-model="displayStyle" size="sm" buttons>
+          <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
             <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
             <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
           </b-form-radio-group>
@@ -29,8 +29,8 @@
       </b-navbar-nav>
     </b-navbar>
 
-    <b-navbar type="light" variant="light" class="bb">
-      <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows"/>
+    <b-navbar type="light" variant="light" class="border-bottom">
+      <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
     </b-navbar>
 
     <div class="p-2">
@@ -216,6 +216,14 @@ export default {
 </script>
 
 <style lang="less">
+.navbar-nav {
+    flex-direction: row;
+    align-items: center;
+    label {
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+}
 </style>
 
 <i18n>

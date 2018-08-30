@@ -31,7 +31,7 @@ export default {
     width: 100%;
     height: 180px;
     cursor: move;
-    border:1px solid grey;
+    border:1px solid #ccc;
     margin-bottom: 10px;
 }
 </style>

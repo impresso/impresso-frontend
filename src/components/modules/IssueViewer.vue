@@ -151,10 +151,8 @@ export default {
 </script>
 
 <style lang="less">
-@import "./../../assets/less/style.less";
-
 #issue-viewer {
-    background: @clr-grey-200;
+    background: #eeeeee;
     display: grid;
     grid-template-columns: 120px auto 52px;
     grid-template-rows: 50px auto;
@@ -186,7 +184,7 @@ export default {
 
     #overlay-left,
     #overlay-right {
-        color: @clr-grey-600;
+        color: #757575;
         text-decoration: none;
         padding-top: 15px;
         & > div:first-child {
@@ -260,7 +258,7 @@ export default {
             mix-blend-mode: multiply;
             transition: background 200ms;
             &:hover {
-                background: fade(@clr-yellow, 30);
+                background: fade(#FFEB3B, 30);
             }
         }
     }

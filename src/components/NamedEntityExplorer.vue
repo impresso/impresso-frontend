@@ -80,7 +80,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-@import "./../assets/less/style.less";
+// @import "./../assets/less/style.less";
 
 h1 {
     color: red;
@@ -100,10 +100,10 @@ h1 {
             transition: all 400ms;
             font-size: smaller;
             &:hover {
-                background: @clr-grey-200;
+                background: #eeeeee;
             }
             &.active {
-                background: @clr-yellow-500;
+                background: #FFEB3B;
             }
         }
     }
@@ -132,12 +132,12 @@ h1 {
 }
 
 .badge.location {
-    background: @clr-yellow;
-    color: @clr-black;
+    background: #FFEB3B;
+    color: #000000;
 }
 
 .badge.person {
-    background: @clr-blue;
-    color: @clr-white;
+    background: #2196F3;
+    color: #FFFFFF;
 }
 </style>

@@ -48,7 +48,7 @@ export default {
     height: 180px;
     position: relative;
     cursor: move;
-    border:1px solid grey;
+    border:1px solid #ccc;
 }
 </style>
 
