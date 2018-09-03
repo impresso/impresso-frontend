@@ -1,7 +1,7 @@
 <template lang="html">
   <section class="search-results-summary textbox-fancy">
     <span class="label">{{$t("summary")}}</span>
-    <p class="text-serif" v-html="getMessage"></p>
+    <div class="text-serif" v-html="getMessage"></div>
   </section>
 </template>
 
