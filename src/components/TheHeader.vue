@@ -13,7 +13,10 @@
           <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link">{{$t("search")}}</router-link>
         </li>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-auto">
+      <b-navbar-nav class="nav-title mx-auto">
+        <h1 class="nav-title tk-questa-grande">{{ headerTitle }}</h1>
+      </b-navbar-nav>
+      <b-navbar-nav>
         <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2 border-secondary" right>
           <b-dropdown-item v-for="language in languages"
           v-bind:active="activeLanguageCode === language.code"
@@ -71,6 +74,9 @@ export default {
       return this.$store.getters['user/user'];
     },
     headerTitle() {
+      if (this.$store.getters.headerTitle === '') {
+        return 'Title not defined';
+      }
       return this.$store.getters.headerTitle;
     },
     userFullName() {
@@ -113,6 +119,16 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
+  .nav-title {
+    margin: auto;
+    h1 {
+      background: $clr-bg-primary;
+      font-size: 1em;
+      font-weight: 500;
+      text-align: center;
+      padding: 1px 4px;
+    }
+  }
   .navbar-brand {
       img {
           height: 30px;
