@@ -1,14 +1,19 @@
 <template lang="html">
   <section v-on:click.prevent="click">
-    <icon v-bind:name="icon"/>
-    {{suggestion.entity.name}}
+    <div class="suggestion-icon text-accent-secondary" v-bind:class="[icon]" />
+    <div class="suggestion-text">
+      {{suggestion.entity.name}}<br>
+      <small class="text-muted">this is a description</small>
+    </div>
+    <div class="text-right text-accent-secondary font-weight-bold">
+      {{ Math.round(Math.random(1) * 28) }}<br>
+      <small class="text-accent-secondary">occurrences</small>
+    </div>
   </section>
 </template>
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
-import 'vue-awesome/icons/map-marker';
-import 'vue-awesome/icons/user-circle';
 
 export default {
   model: {
@@ -19,9 +24,9 @@ export default {
     icon: {
       get() {
         if (this.suggestion.entity.hasLabel('location')) {
-          return 'map-marker';
+          return 'dripicons-location';
         }
-        return 'user-circle';
+        return 'dripicons-user';
       },
     },
   },

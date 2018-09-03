@@ -1,15 +1,19 @@
 <template lang="html">
   <section class="search-bar" v-ClickOutside="hideSuggestions">
-    <b-input-group prepend="Search">
+    <b-input-group>
       <b-form-input
+      class="border-primary"
+      placeholder="search for ..."
       v-model="query"
       v-on:input.native="search"
       v-on:keyup.native="keyup"></b-form-input>
       <b-input-group-append>
-        <b-btn variant="outline-success" v-on:click="submit">Go</b-btn>
+        <b-btn variant="outline-primary" class="px-2" v-on:click="submit">
+          <div class="search-submit dripicons-search"></div>
+        </b-btn>
       </b-input-group-append>
     </b-input-group>
-    <div class="suggestions" v-show="(suggestions.length > 0) && showSuggestions">
+    <div class="suggestions border-left border-right border-bottom border-primary" v-show="(suggestions.length > 0) && showSuggestions">
       <div
         v-for="(elm, index) in suggestions"
         v-on:mouseover="select(elm)"
@@ -134,21 +138,51 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
+
+@import "impresso-theme/src/scss/variables.sass";
+
 .search-bar {
     position: relative;
+    input {
+      font-style: italic;
+    }
+    .search-submit {
+      font-size: 1.2em;
+      line-height: 1;
+      padding-top: 0.1em;
+    }
     .suggestions {
         position: absolute;
         z-index: 10;
         width: 100%;
-        background: white;
+        background: $clr-bg-primary;
+        box-shadow: 0.3em 0.3em 0 fade-out($clr-primary, 0.8);
         .suggestion {
             & > section {
                 cursor: pointer;
-                padding: 7px;
+                padding: 0.6em;
             }
             &.selected {
-                background: #eee;
+              background: $link-hover-bg;
+              &:active {
+                background: $link-active-bg;
+                .text-right,
+                .suggestion-icon {
+                  color: white;
+                }
+              }
+            }
+            .suggestion-icon {
+              float: left;
+              width: 1.6em;
+            }
+            .suggestion-text {
+              float: left;
+              line-height: 1;
+            }
+            .text-right {
+              line-height: 1;
             }
         }
     }
