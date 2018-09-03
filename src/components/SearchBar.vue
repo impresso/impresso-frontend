@@ -1,13 +1,16 @@
 <template lang="html">
   <section class="search-bar" v-ClickOutside="hideSuggestions">
-    <b-input-group prepend="Search">
+    <b-input-group>
       <b-form-input
       class="border-primary"
+      placeholder="search for ..."
       v-model="query"
       v-on:input.native="search"
       v-on:keyup.native="keyup"></b-form-input>
       <b-input-group-append>
-        <b-btn variant="outline-success" v-on:click="submit">Go</b-btn>
+        <b-btn variant="primary" class="px-2" v-on:click="submit">
+          <div class="search-submit dripicons-search"></div>
+        </b-btn>
       </b-input-group-append>
     </b-input-group>
     <div class="suggestions border-left border-right border-bottom border-primary" v-show="(suggestions.length > 0) && showSuggestions">
@@ -141,6 +144,14 @@ export default {
 
 .search-bar {
     position: relative;
+    input {
+      font-style: italic;
+    }
+    .search-submit {
+      font-size: 1.2em;
+      line-height: 1;
+      padding-top: 0.1em;
+    }
     .suggestions {
         position: absolute;
         z-index: 10;
