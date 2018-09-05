@@ -5,6 +5,7 @@
       v-model="filter.context"
       v-bind:options="options"
       v-on:input="submitFilter"
+      variant="outline-primary"
       size="sm" />
     </div>
     <b-input
@@ -16,18 +17,16 @@
       size="sm"
     />
     <div slot="controls">
-      <b-button v-on:click="editFilter" variant="link" v-show="disabled" size="sm"><icon name="edit" /></b-button>
-      <b-button v-on:click="submitFilter" variant="link" v-show="!disabled" size="sm"><icon name="check" /></b-button>
+      <b-button v-on:click="editFilter" variant="link" v-show="disabled" size="sm">
+      <span class="dripicons-pencil"></span>
+    </b-button>
+      <b-button v-on:click="submitFilter" variant="link" v-show="!disabled" size="sm"><div class="dripicons-checkmark"></div></b-button>
     </div>
   </filter-wrapper>
 </template>
 
 <script>
 import FilterFactory from '@/models/FilterFactory';
-import Icon from 'vue-awesome/components/Icon';
-
-import 'vue-awesome/icons/edit';
-import 'vue-awesome/icons/check';
 
 import FilterWrapper from './FilterWrapper';
 
@@ -64,12 +63,18 @@ export default {
   },
   components: {
     FilterWrapper,
-    Icon,
   },
 };
 </script>
 
-<style lang="css">
+<style scoped lang="sass">
+  .form-control-sm
+    height: 2em
+    &:disabled,
+    &:read-only
+      border-color: transparent
+      background: transparent
+      font-weight: bold
 </style>
 
 <i18n>

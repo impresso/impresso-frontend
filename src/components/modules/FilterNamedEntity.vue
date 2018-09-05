@@ -5,21 +5,18 @@
       v-model="filter.context"
       v-bind:options="options"
       v-on:input="submitFilter"
+      variant="outline-primary"
       size="sm" />
     </div>
     <div class="p-2">
-      <icon v-if="filter.entity.hasLabel('person')" name="user-circle"></icon>
-      <icon v-if="filter.entity.hasLabel('location')" name="map-marker"></icon>
+      <span v-if="filter.entity.hasLabel('person')" class="dripicons-user"></span>
+      <span v-if="filter.entity.hasLabel('location')" class="dripicons-location"></span>
       {{filter.entity.name}}
     </div>
   </filter-wrapper>
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
-
-import 'vue-awesome/icons/user-circle';
-import 'vue-awesome/icons/map-marker';
 
 import FilterWrapper from './FilterWrapper';
 
@@ -47,7 +44,6 @@ export default {
     },
   },
   components: {
-    Icon,
     FilterWrapper,
   },
 };
