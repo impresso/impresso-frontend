@@ -21,6 +21,14 @@
           v-on:remove="removeFilter(index)"
         />
     </div>
+    <div class="px-2 py-4 border-bottom">
+      <div class="titlebar pb-2 mb-3">
+        <div class="titlebar-title">SKYLINE</div>
+      </div>
+      <skyline :date-start="1900" :date-end="2000" :height="80" :data="skylineData" />
+      <br>
+      <skyline :height="120" :data="skylineData" />
+    </div>
     <filter-facet-year v-bind:data="getFacet('year')"></filter-facet-year>
   </div>
 </template>
@@ -30,6 +38,7 @@ import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterString from './modules/FilterString';
 import FilterFacetYear from './modules/FilterFacetYear';
+import Skyline from './d3/Skyline';
 
 export default {
   computed: {
@@ -42,6 +51,18 @@ export default {
       get() {
         // TODO: here we can sort the filters in order of type text/entity etc to group them
         return this.search.filters;
+      },
+    },
+    skylineData: {
+      get() {
+        const yearFacets = this.$store.getters['search/facets'].filter(d => d.type === 'year');
+        if (yearFacets.length === 0) {
+          return [];
+        }
+        return yearFacets[0].buckets.map(d => ({
+          t: parseInt(d.val, 10),
+          w: d.count,
+        })).sort((a, b) => a.t - b.t);
       },
     },
   },
@@ -68,6 +89,7 @@ export default {
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
     'filter-facet-year': FilterFacetYear,
+    Skyline,
   },
 };
 </script>
