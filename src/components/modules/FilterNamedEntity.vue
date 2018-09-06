@@ -8,11 +8,11 @@
       variant="outline-primary"
       size="sm" />
     </div>
-    <div class="p-2">
-      <span v-if="filter.entity.hasLabel('person')" class="dripicons-user"></span>
-      <span v-if="filter.entity.hasLabel('location')" class="dripicons-location"></span>
-      {{filter.entity.name}}
-    </div>
+      <b-badge variant="secondary">
+        <span v-if="filter.entity.hasLabel('person')" class="dripicons-user"></span>
+        <span v-if="filter.entity.hasLabel('location')" class="dripicons-location"></span>
+        {{filter.entity.name}}
+    </b-badge>
   </filter-wrapper>
 </template>
 
@@ -49,7 +49,11 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style scoped lang="css">
+.badge {
+  margin-top:2px;
+  padding: 0.38em 0.5em;
+}
 </style>
 
 <i18n>
@@ -63,7 +67,13 @@ export default {
   "fr": {
     "label": {
       "person": "Personne",
-      "location": "Localisation"
+      "location": "Lieu"
+    }
+  },
+  "de": {
+    "label": {
+      "person": "Person",
+      "location": "Ort"
     }
   },
   "nl": {
