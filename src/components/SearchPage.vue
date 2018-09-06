@@ -1,18 +1,20 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
-    <div class="px-2 py-3">
-      <div class="titlebar pb-3 mb-2">
+    <div class="px-3 py-3">
+      <div class="titlebar pb-2 mb-3">
         <div class="titlebar-title">
-          Full text search
+          String search
         </div>
         <div class="titlebar-actions">
-          <b-button variant="outline-primary" size="sm">Clear Search</b-button>
+          <b-button
+            v-on:click="reset"
+            variant="outline-primary" size="sm">Clear Search</b-button>
         </div>
       </div>
       <search-bar />
     </div>
-    <div class="px-2 pb-4 border-bottom" v-if="filters.length > 0">
+    <div class="px-3 pb-3 border-bottom" v-if="filters.length > 0">
       <search-filters class="border-bottom" v-on:remove="search()" v-on:submit="search()" />
     </div>
   </i-layout-section>
