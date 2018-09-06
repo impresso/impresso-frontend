@@ -1,10 +1,18 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
-    <div class="px-2 py-4 border-bottom">
+    <div class="px-2 py-3">
+      <div class="titlebar pb-3 mb-2">
+        <div class="titlebar-title">
+          Full text search
+        </div>
+        <div class="titlebar-actions">
+          <b-button variant="outline-primary" size="sm">Clear Search</b-button>
+        </div>
+      </div>
       <search-bar />
     </div>
-    <div class="px-2 py-4 pt-0 border-bottom" v-if="filters.length > 0">
+    <div class="px-2 pb-4 border-bottom" v-if="filters.length > 0">
       <search-filters class="border-bottom" v-on:remove="search()" v-on:submit="search()" />
     </div>
   </i-layout-section>
@@ -215,7 +223,10 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
+
+@import "impresso-theme/src/scss/variables.sass";
+
 .navbar-nav {
     flex-direction: row;
     align-items: center;
@@ -223,6 +234,22 @@ export default {
       margin-bottom: 0;
       line-height: 1.5;
     }
+}
+.titlebar {
+  float: none;
+  border-bottom: 1px solid $clr-secondary;
+  box-shadow: inset 0 -1px 0 0 white, inset 0 -2px 0 0 $clr-tertiary;
+  .titlebar-title {
+    float: left;
+    padding-top: 0.2em;
+    color: $clr-secondary;
+    font-variant: all-small-caps;
+    font-weight: bold;
+    font-size: 0.9em;
+  }
+  .titlebar-actions {
+    text-align: right;
+  }
 }
 </style>
 
