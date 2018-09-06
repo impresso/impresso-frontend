@@ -17,13 +17,13 @@
         <h1 class="nav-title" v-html="headerTitle"></h1>
       </b-navbar-nav>
       <b-navbar-nav>
-        <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2 border-secondary" right>
+        <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
           <b-dropdown-item v-for="language in languages"
           v-bind:active="activeLanguageCode === language.code"
           v-bind:key="language.code"
           v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
         </b-nav-item-dropdown>
-        <b-nav-item-dropdown v-if="user" class="p-2 small-caps border-left border-secondary" right>
+        <b-nav-item-dropdown v-if="user" class="p-2 small-caps border-left" right>
           <template slot="button-content">
             <em>{{userFullName}}</em>
           </template>
@@ -31,7 +31,7 @@
           <b-dropdown-item v-bind:to="{ name: 'collection'}">{{$t("collections")}}</b-dropdown-item>
           <b-dropdown-item v-on:click.prevent="logout">{{$t("logout")}}</b-dropdown-item>
         </b-nav-item-dropdown>
-        <b-nav-item class="p-2 small-caps border-left border-secondary" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
+        <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
@@ -119,6 +119,22 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
+  border-bottom: 1px solid $clr-tertiary;
+  nav {
+    border-top: 2px solid $clr-accent-light;
+    margin-bottom: 2px;
+    .navbar-collapse {
+      height: 44px;
+    }
+    .border-left {
+      border-color: $clr-tertiary !important;
+    }
+  }
+  .navbar-brand {
+      img {
+          height: 30px;
+      }
+  }
   .nav-title {
     margin: auto;
     h1 {
@@ -135,22 +151,13 @@ export default {
       }
     }
   }
-  .navbar-brand {
-      img {
-          height: 30px;
-      }
-  }
-  border-bottom: 1px solid $clr-tertiary;
-  nav {
-    border-top: 2px solid $clr-accent-light;
-    margin-bottom: 2px;
-  }
   .navbar-dark .navbar-nav .nav-link {
     color: $clr-bg-secondary;
   }
   .navbar-dark .navbar-nav .nav-link:hover,
   .navbar-dark .navbar-nav .nav-link:focus {
     color: $clr-bg-primary;
+    background: $clr-primary;
   }
 }
 </style>
