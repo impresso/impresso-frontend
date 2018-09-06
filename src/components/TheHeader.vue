@@ -14,7 +14,7 @@
         </li>
       </b-navbar-nav>
       <b-navbar-nav class="nav-title mx-auto">
-        <h1 class="nav-title tk-questa-grande">{{ headerTitle }}</h1>
+        <h1 class="nav-title" v-html="headerTitle"></h1>
       </b-navbar-nav>
       <b-navbar-nav>
         <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2 border-secondary" right>
@@ -123,10 +123,16 @@ export default {
     margin: auto;
     h1 {
       background: $clr-bg-primary;
+      font-family: questa-grande;
       font-size: 1em;
-      font-weight: 500;
       text-align: center;
       padding: 1px 4px;
+      .title {
+        font-weight: normal;
+      }
+      .subtitle {
+        font-weight: bold;
+      }
     }
   }
   .navbar-brand {
