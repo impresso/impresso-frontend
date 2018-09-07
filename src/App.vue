@@ -50,7 +50,7 @@ html {
           left: 0;
           right: 0;
           z-index: 1;
-          height: 1px;
+          height: 2px;
           background-color: $clr-accent-light;
           content: '';
         }

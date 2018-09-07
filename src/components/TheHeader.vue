@@ -121,7 +121,7 @@ export default {
 #app-header {
   border-bottom: 1px solid $clr-tertiary;
   nav {
-    margin-top: 1px;
+    margin-top: 0;
     margin-bottom: 1px;
     .navbar-collapse {
       height: 44px;
