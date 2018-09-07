@@ -29,7 +29,9 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
 body,
 html {
     height: 100%;
@@ -42,6 +44,16 @@ html {
     height: 100%;
     #app-header {
         grid-area: appheader;
+        &::before{
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1;
+          height: 1px;
+          background-color: $clr-accent-light;
+          content: '';
+        }
     }
 
     #app-content {
