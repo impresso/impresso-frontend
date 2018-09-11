@@ -1,6 +1,6 @@
 <template id="skyline">
 <main>
-  <svg @mousemove="onMousemove" @mouseleave="onMouseleave" :width="width" :height="height" class="skyline">
+  <svg @mousemove="onMousemove" @mouseenter="onMouseenter" @mouseleave="onMouseleave" :width="width" :height="height" class="skyline">
     <g class="background">
       <g ref="axisX" class="axisX" />
       <g ref="axisXlabels" class="axisXlabels" />
@@ -8,29 +8,31 @@
       <line :x1="margin.left" :y1="margin.bottom - padding.bottom" :x2="margin.left" :y2="margin.bottom" class="axes" />
       <line :x1="margin.right" :y1="margin.bottom - padding.bottom" :x2="margin.right" :y2="margin.bottom" class="axes" />
       <line x1="0" :y1="margin.bottom" :x2="width" :y2="margin.bottom" class="axes" />
-      <text :x="margin.left" :y="margin.bottom" class="start date" text-anchor="end" dx="-6" dy="-6">{{ dateRange.start }}</text>
-      <text :x="margin.right" :y="margin.bottom" class="end date" dx="6" dy="-6">{{ dateRange.end }}</text>
-      <g class="boundsX">
-        <line :x1="boundsXscaled.min - 2" :y1="0" :x2="boundsXscaled.min -2" :y2="height" class="axes dark" />
-        <line :x1="boundsXscaled.max + 2" :y1="0" :x2="boundsXscaled.max + 2" :y2="height" class="axes dark" />
-        <text :x="boundsXscaled.min" :y="height" class="start date" text-anchor="end" dx="-6" dy="-8">{{ boundsX.min }}</text>
-        <text :x="boundsXscaled.max" :y="height" class="end date" dx="6" dy="-8">{{ boundsX.max }}</text>
-      </g>
+      <text :x="margin.left" :y="margin.bottom" class="start date" text-anchor="end" dx="-6" dy="-6">{{ dateRangeLabels.start }}</text>
+      <text :x="margin.right" :y="margin.bottom" class="end date" dx="6" dy="-6">{{ dateRangeLabels.end }}</text>
+
 
     </g>
     <path class="trendline" :d="paths.line" />
-    <line :x1="mouse.x" y1="0" :x2="mouse.x" :y2="height" class="pointer" />
+    <g v-if='pointer.show' :style='pointer.pointStyle'><circle r="3"></circle></g>
+    <!-- d3 brush -->
+    <g ref="brush" class="brush" />
   </svg>
 
-  <div ref="tooltipb" class="tooltip fade bs-tooltip-bottom" role="tooltip">
-    <div class="arrow " style="left: 0px; "></div>
-    <div class="tooltip-inner ">{{value.x}}<br /><strong class="small-caps">{{value.y}}</strong></div>
+  <div ref="tooltip" role="tooltip" :style="pointer.style" :class="pointerClass">
+    <div class="arrow" style="left: 0px; "></div>
+
+    <div class="tooltip-inner">
+      <div class='d-inline-block px-1 tooltip-inner-wrapper'>
+        <div class='border-right d-inline-block px-1 my-1'>{{value.x}}</div>
+        <div class='d-inline-block px-1 my-1'>
+          <strong>{{value.y}}</strong>
+          <span class="small-caps">articles</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div ref="tooltipt" class="tooltip fade bs-tooltip-top" role="tooltip">
-    <div class="arrow " style="left: 0px; "></div>
-    <div class="tooltip-inner ">{{value.x}}<br /><strong>{{value.y}}</strong></div>
-  </div>
 </main>
 </template>
 
@@ -42,21 +44,34 @@ export default {
   props: {
     dateStart: Number,
     dateEnd: Number,
+    timeDetail: {
+      type: String,
+      default: 'year',
+    },
     height: {
       type: Number,
       default: 300,
     },
-    data: Array,
+    data: {
+      type: Array,
+      default: [{
+        t: 1950,
+        w: 130,
+      }, {
+        t: 1970,
+        w: 180,
+      }],
+    },
   },
   data() {
     return {
+      axisX: null,
       width: 0,
+      bisectLeft: null,
+      brush: null,
       value: {
         x: null,
         y: null,
-      },
-      mouse: {
-        x: 0,
       },
       padding: {
         left: 50,
@@ -67,14 +82,21 @@ export default {
       paths: {
         line: '',
       },
+      timeParse: null,
       scaled: {
         x: null,
         y: null,
+      },
+      pointer: {
+        pointStyle: '',
+        style: '',
+        show: false,
       },
       boundsXscaled: {
         min: 0,
         max: 0,
       },
+      values: [],
       // dateRange: {
       //   start: 1222,
       //   end: 1999,
@@ -82,11 +104,12 @@ export default {
     };
   },
   mounted() {
-    console.clear();
-    this.onResize();
+    // console.clear();
     this.init();
     window.addEventListener('resize', this.onResize);
-    // this.update();
+    this.onResize();
+
+    this.update();
   },
   computed: {
     margin() {
@@ -99,14 +122,26 @@ export default {
     },
     boundsX() {
       return {
-        min: d3.min(this.data, d => d.t),
-        max: d3.max(this.data, d => d.t),
+        min: d3.min(this.values, d => d.t),
+        max: d3.max(this.values, d => d.t),
+      };
+    },
+    boundsLabels() {
+      return {
+        min: this.timeFormat(this.boundsX.min, this.timeDetail),
+        max: this.timeFormat(this.boundsX.max, this.timeDetail),
       };
     },
     boundsY() {
       return {
-        min: d3.min(this.data, d => d.w),
-        max: d3.max(this.data, d => d.w),
+        min: d3.min(this.values, d => d.w),
+        max: d3.max(this.values, d => d.w),
+      };
+    },
+    pointerClass() {
+      return {
+        show: this.pointer.show,
+        'tooltip fade bs-tooltip-bottom no': true,
       };
     },
     // boundsXscaled() {
@@ -118,9 +153,24 @@ export default {
     dateRange() {
       // use min and max values from data if date-start / date-end props are set
       return {
-        start: this.dateStart !== undefined ? this.dateStart : this.boundsX.min,
-        end: this.dateEnd !== undefined ? this.dateEnd : this.boundsX.max,
+        start: this.dateStart !== undefined ? new Date(String(this.dateStart)) : this.boundsX.min,
+        end: this.dateEnd !== undefined ? new Date(String(this.dateEnd)) : this.boundsX.max,
       };
+    },
+
+    dateRangeLabels() {
+      return {
+        start: this.timeFormat(this.dateRange.start, this.timeDetail),
+        end: this.timeFormat(this.dateRange.end, this.timeDetail),
+      };
+    },
+
+    dateValues() {
+      return this.data.map(d => ({
+        ...d,
+        // v: d.t, // keep the original value
+        t: this.scaled.timeParse(d.t),
+      }));
     },
   },
   // directives: {
@@ -138,85 +188,106 @@ export default {
   methods: {
     init() {
       // console.log('init', this.timeFormat(new Date()));
+      this.scaled.x = d3.scaleTime();
+      this.scaled.timeParse = d3.timeParse('%Y');
+      this.scaled.y = d3.scaleLinear();
 
+      this.axisX = d3.axisBottom();
+      // initialize bisector
+      this.bisectLeft = d3.bisector(d => d.t).left;
 
+      // initialize brush
+      this.brush = d3.brushX()
+        .on('brush end', () => {
+          console.log('@brushend');
+        });
+
+      d3.select(this.$refs.brush)
+        .call(this.brush);
+
+      console.log('init!', this.dateValues);
     },
+
+
     onResize() {
       if (this.width !== this.$el.offsetWidth) {
         // console.log('res', this.width, this.$el.offsetWidth);
         this.width = this.$el.offsetWidth;
-        this.update();
+
+        console.log('@resize - margin:', this.margin);
+
+        // update ranges of functions.
+        this.scaled.x.range([this.margin.left, this.margin.right]);
+        this.scaled.y.range([this.margin.bottom, this.margin.top]);
+
+        // update brush
+        this.updateBrush();
+        // update axis
+        this.updateAxis();
       }
     },
 
     onMousemove({
       offsetX,
     }) {
-      const x = this.scaled.x.invert(offsetX);
-      this.value.x = Math.floor(x);
+      if (!this.values.length) {
+        return;
+      }
+      // scaled offsetX, in order to calculate the nearest value in data
+      const osx = this.scaled.x.invert(offsetX);
 
-      const bisect = d3.bisector(d => d.t).left;
-      const idx = bisect(this.data, this.value.x);
-      console.log(x, idx, this.data[idx]);
+      // get leftmost data index, plus one.
+      const idx = this.bisectLeft(this.values, osx, 1);
 
-      d3.select(this.$refs.tooltipb)
-        .attr('style', `transform: translateX(${offsetX}px)`)
-        .classed('show', true);
+      // nearest value candidates
+      // See 'X-Value Mouseover' https://bl.ocks.org/mbostock/3902569
+      const d0 = this.values[idx - 1];
+      const d1 = this.values[idx];
 
-      // const bisect = d3.bisector(d => d.t).left;
-      // const n = bisect(this.data, this.value.x) - 1;
-      //
-      // if (n >= 0 && n < this.data.length - 1) {
-      //   this.value.y = this.data[n].w;
-      //   d3.select(this.$refs.tooltipb)
-      //     .attr('style', `left: ${offsetX}px`)
-      //     .classed('show', true);
-      // } else {
-      //   d3.select(this.$refs.tooltipb)
-      //     .classed('show', false);
-      // }
+      // nearest data row to be written in the tooltip
+      let d;
+
+      if (idx < this.values.length) {
+        d = osx - d0.t > d1.t - osx ? d1 : d0;
+      } else {
+        d = d0;
+      }
+
+      this.value.x = this.timeFormat(d.t, this.timeDetail);
+      this.value.y = d.w;
+
+      const pointX = this.scaled.x(d.t);
+      const pointY = this.scaled.y(d.w);
+
+      this.pointer.style = `transform: translateX(${pointX}px)`;
+      this.pointer.pointStyle = `transform: translate(${pointX}px, ${pointY}px)`;
     },
 
     onMouseleave() {
-      d3.select(this.$refs.tooltipb)
-        .classed('show', false);
+      this.pointer.show = false;
+    },
+
+    onMouseenter() {
+      this.pointer.show = true;
     },
 
     timeFormat(value, format = 'short') {
       return this.$d(value, format);
     },
 
+    // update function watches data changes only.
+    // Ranges should be updated on resize.
     update() {
-      // update scaling
-      this.scaled.x = d3.scaleLinear()
-        .domain([this.dateRange.start, this.dateRange.end])
-        .range([this.margin.left, this.margin.right]);
+      console.log('@updated - daterange:', this.dateRange);
+      // update scaling, fn have bbenn initialized in init ;)
+      this.scaled.x.domain([this.dateRange.start, this.dateRange.end]);
+      this.scaled.y.domain([this.boundsY.min, this.boundsY.max]);
 
-      this.scaled.y = d3.scaleLinear()
-        .domain([this.boundsY.min, this.boundsY.max])
-        .range([this.margin.bottom, this.margin.top]);
-
-      this.boundsXscaled.min = this.scaled.x(this.boundsX.min);
-      this.boundsXscaled.max = this.scaled.x(this.boundsX.max);
-
-      const ticks = Math.round(this.width / 200);
-      // draw x-axis
-      d3.select(this.$refs.axisX)
-        .call(d3
-          .axisBottom(this.scaled.x)
-          .ticks(ticks)
-          .tickPadding(this.margin.top)
-          .tickSize(this.margin.bottom)
-          .tickFormat(''),
-        );
-      // draw x-axis labels
-      d3.select(this.$refs.axisXlabels)
-        .call(d3
-          .axisBottom(this.scaled.x)
-          .ticks(ticks)
-          .tickSize(0)
-          .tickFormat(d3.format('d')),
-        );
+      // // recalculate boundaries
+      // this.boundsXscaled.min = this.scaled.x(this.boundsX.min);
+      // this.boundsXscaled.max = this.scaled.x(this.boundsX.max);
+      // update axis
+      this.updateAxis();
 
       // draw the trendline
       this.path = d3.line()
@@ -226,13 +297,42 @@ export default {
         .y(d => this.scaled.y(d.w));
 
       // console.log(this.data);
-      this.paths.line = this.path(this.data);
+      this.paths.line = this.path(this.values);
+    },
+
+    updateAxis() {
+      this.axisX
+        .scale(this.scaled.x)
+        .ticks(3)
+        .tickFormat(d3.timeFormat('%Y'))
+        .tickPadding(this.margin.top + 10)
+        .tickSize(this.margin.bottom);
+
+      d3.select(this.$refs.axisX)
+        .call((g) => {
+          g.call(this.axisX);
+          g.selectAll('.tick text').attr('dy', -65);
+        });
+    },
+
+    updateBrush() {
+      // update range of brush
+      // this.brush.extent([
+      //   [this.margin.left, -this.margin.top],
+      //   [this.margin.right, 200],
+      // ]);
+      // d3.select(this.$refs.brush)
+      //   .call(this.brush);
     },
   },
   watch: {
-    data(value) {
-      this.data = value;
-      console.log('@update', this.data);
+    data(values) {
+      this.values = values.map(d => ({
+        ...d,
+        bt: d.t, // original t, for bisect function
+        t: this.scaled.timeParse(d.t),
+      }));
+      console.log('@data changed:', this.values.length);
       this.update();
     },
   },
@@ -241,9 +341,10 @@ export default {
 
 <style lang="less">
 svg.skyline {
-    shape-rendering: crispEdges;
-    background: #eee;
-    font: normal 13px source-sans-pro;
+    // shape-rendering: crispEdges;
+    background: transparent;
+    font-size: 0.8em;
+    // font: normal 13px source-sans-pro;
     fill: #333;
 
     cursor: crosshair;
@@ -279,8 +380,9 @@ svg.skyline {
         }
         text {
             text-anchor: start;
-            fill: #ccc;
-            font: normal 13px source-sans-pro;
+            fill: #333;
+            font-family: 'questa-sans';
+            font-size: 1.25em;
         }
     }
     text {}
@@ -292,9 +394,34 @@ svg.skyline {
         top: -0.4em;
         margin-left: -0.5em;
     }
+
+    .v-line{
+      position: absolute;
+      content: '';
+      background: black;
+      height: 82px;
+      top: -80px;
+      width: 1px;
+      margin-left: -1px;
+      left: 0;
+      pointer-events: none;
+    }
+
     .tooltip-inner {
-        width: 50px;
-        margin-left: -25px;
+        width: 200px;
+        margin-left: -100px;
+        background: transparent;
+        padding: 0;
+        color: #ccc;
+
+        strong{
+          color: white;
+
+        }
+    }
+
+    .tooltip-inner-wrapper{
+      background: black;
     }
 }
 </style>
