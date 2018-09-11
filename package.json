@@ -17,7 +17,7 @@
     "@feathersjs/authentication-client": "^1.0.2",
     "@feathersjs/socketio-client": "^1.1.0",
     "bootstrap-vue": "^2.0.0-rc.11",
-    "d3": "^4.13.0",
+    "d3": "^5.7.0",
     "dragscroll": "0.0.8",
     "openseadragon": "^2.4.0",
     "svg-overlay": "github:openseadragon/svg-overlay",
