@@ -21,15 +21,18 @@
           v-on:remove="removeFilter(index)"
         />
     </div>
-    <div class="px-2 py-4 border-bottom">
-      <div class="titlebar pb-2 mb-3">
-        <div class="titlebar-title">SKYLINE</div>
+    <div class="px-2 pb-2  ">
+      <div class="titlebar pb-2 mb-3 border-bottom">
+        <div class="titlebar-title">timeline</div>
       </div>
-      <skyline :date-start="1900" :date-end="2000" :height="80" :data="skylineData" />
-      <br>
-      <skyline :height="120" :data="skylineData" />
+      <!--
+        TODO load min date and max date from config ?
+        Or we always provide an extent from the IML?
+      -->
+      <skyline :height="80" :data="timelineData" />
+
     </div>
-    <filter-facet-year v-bind:data="getFacet('year')"></filter-facet-year>
+    <!-- <filter-facet-year v-bind:data="getFacet('year')"></filter-facet-year> -->
   </div>
 </template>
 
@@ -53,13 +56,12 @@ export default {
         return this.search.filters;
       },
     },
-    skylineData: {
+    timelineData: {
       get() {
-        const yearFacets = this.$store.getters['search/facets'].filter(d => d.type === 'year');
-        if (yearFacets.length === 0) {
-          return [];
-        }
-        return yearFacets[0].buckets.map(d => ({
+        const yearFacets = this.getFacet('year') || {
+          buckets: [],
+        };
+        return yearFacets.buckets.map(d => ({
           t: parseInt(d.val, 10),
           w: d.count,
         })).sort((a, b) => a.t - b.t);
