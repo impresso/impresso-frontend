@@ -1,5 +1,8 @@
 export default {
   en: {
+    year: {
+      year: 'numeric',
+    },
     long: {
       year: 'numeric',
       month: 'long',
@@ -18,6 +21,9 @@ export default {
     },
   },
   fr: {
+    year: {
+      year: 'numeric',
+    },
     long: {
       year: 'numeric',
       month: 'long',
@@ -36,6 +42,9 @@ export default {
     },
   },
   nl: {
+    year: {
+      year: 'numeric',
+    },
     long: {
       year: 'numeric',
       month: 'long',
@@ -54,6 +63,9 @@ export default {
     },
   },
   it: {
+    year: {
+      year: 'numeric',
+    },
     long: {
       year: 'numeric',
       month: 'long',

@@ -21,7 +21,18 @@
           v-on:remove="removeFilter(index)"
         />
     </div>
-    <filter-facet-year v-bind:data="getFacet('year')"></filter-facet-year>
+    <div class="px-2 pb-2  ">
+      <div class="titlebar pb-2 mb-3 border-bottom">
+        <div class="titlebar-title">timeline</div>
+      </div>
+      <!--
+        TODO load min date and max date from config ?
+        Or we always provide an extent from the IML?
+      -->
+      <skyline :height="80" :data="timelineData" />
+
+    </div>
+    <!-- <filter-facet-year v-bind:data="getFacet('year')"></filter-facet-year> -->
   </div>
 </template>
 
@@ -30,6 +41,7 @@ import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterString from './modules/FilterString';
 import FilterFacetYear from './modules/FilterFacetYear';
+import Skyline from './d3/Skyline';
 
 export default {
   computed: {
@@ -42,6 +54,17 @@ export default {
       get() {
         // TODO: here we can sort the filters in order of type text/entity etc to group them
         return this.search.filters;
+      },
+    },
+    timelineData: {
+      get() {
+        const yearFacets = this.getFacet('year') || {
+          buckets: [],
+        };
+        return yearFacets.buckets.map(d => ({
+          t: parseInt(d.val, 10),
+          w: d.count,
+        })).sort((a, b) => a.t - b.t);
       },
     },
   },
@@ -68,6 +91,7 @@ export default {
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
     'filter-facet-year': FilterFacetYear,
+    Skyline,
   },
 };
 </script>
