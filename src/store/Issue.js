@@ -1,6 +1,7 @@
 import * as services from '@/services';
 import Issue from '@/models/Issue';
 import Page from '@/models/Page';
+import Article from '@/models/Article';
 
 export default {
   namespaced: true,
@@ -15,6 +16,10 @@ export default {
     UPDATE_PAGE(state, payload) {
       const index = state.issue.pages.findIndex(page => page.uid === payload.uid);
       state.issue.pages[index] = new Page(payload);
+    },
+    UPDATE_ARTICLE(state, payload) {
+      const index = state.issue.articles.findIndex(article => article.uid === payload.uid);
+      state.issue.articles[index] = new Article(payload);
     },
   },
   actions: {
@@ -51,6 +56,7 @@ export default {
         services.pages.get(uid, {}).then((response) => {
           resolve(response);
           context.commit('UPDATE_PAGE', {
+            ...response,
             articles: response.articles.map((article) => {
               article.newspaperUid = article.newspaper_uid;
               return article;
@@ -68,10 +74,6 @@ export default {
               tag.properties.lastModifiedTime = tag.properties.last_modified_time;
               return tag;
             }),
-            entities: response.entities,
-            iiif: response.iiif,
-            labels: response.labels,
-            num: response.num,
             regions: response.regions.map((region) => {
               region.articleUid = region.article_uid;
               return region;
@@ -80,7 +82,18 @@ export default {
               tag.appliesTo = tag.applies_to;
               return tag;
             }),
-            uid: response.uid,
+          });
+        }, (error) => {
+          reject(error);
+        });
+      });
+    },
+    LOAD_ARTICLE(context, uid) {
+      return new Promise((resolve, reject) => {
+        services.articles.get(uid, {}).then((response) => {
+          resolve(response);
+          context.commit('UPDATE_ARTICLE', {
+            ...response,
           });
         }, (error) => {
           reject(error);
