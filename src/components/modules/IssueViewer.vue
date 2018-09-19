@@ -24,9 +24,6 @@
         </b-button-group>
       </b-button-toolbar>
     </b-navbar>
-    <div class="controls pt-4">
-      <issue-viewer-zoom-slider v-model="zoom" v-bind:domain="domain"></issue-viewer-zoom-slider>
-    </div>
   </div>
 </template>
 
@@ -36,7 +33,6 @@ import ViewerOverlay from '@/d3-modules/ViewerOverlay';
 import Page from '@/models/Page';
 import Issue from '@/models/Issue';
 import ThumbnailSlider from './ThumbnailSlider';
-import IssueViewerZoomSlider from './IssueViewerZoomSlider';
 
 export default {
   model: {
@@ -145,7 +141,6 @@ export default {
   mounted() {},
   components: {
     ThumbnailSlider,
-    IssueViewerZoomSlider,
   },
 };
 </script>
@@ -154,9 +149,9 @@ export default {
 #issue-viewer {
     background: #eeeeee;
     display: grid;
-    grid-template-columns: 120px auto 52px;
+    grid-template-columns: 120px auto;
     grid-template-rows: 50px auto;
-    grid-template-areas: "header header header" "strip osviewer controls";
+    grid-template-areas: "header header" "strip osviewer";
     height: 100%;
     position: relative;
     .strip {
@@ -164,10 +159,6 @@ export default {
         position: absolute;
         width: 100%;
         height: 100%;
-    }
-
-    .controls {
-        grid-area: controls;
     }
 
     .header {
