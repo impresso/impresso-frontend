@@ -11,12 +11,15 @@
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
           nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit
           esse cillum dolore eu fugiat nulla pariatur.</p>
+          <button type="button" name="button" v-on:click="toggleMode('text')">Text</button>
+          <button type="button" name="button" v-on:click="toggleMode('image')">Image</button>
         <hr>
         <named-entity-explorer v-model="issue"></named-entity-explorer>
       </div>
     </i-layout-section>
     <i-layout-section>
       <issue-viewer
+        v-show="mode === 'image'"
         v-model="issue"
         v-bind:minZoomLevel="minZoomLevel"
         v-bind:maxZoomLevel="maxZoomLevel"
@@ -25,16 +28,21 @@
         v-on:zoom="onZoom"
         v-on:click="onClick"
         ></issue-viewer>
+        <article-viewer
+        v-model="article" />
       </i-layout-section>
     </i-layout>
 </template>
 
 <script>
+import Article from '@/models/Article';
 import Page from '@/models/Page';
+
+import ArticleViewer from './modules/ArticleViewer';
 import CollectionTagger from './CollectionTagger';
-import NamedEntityExplorer from './NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
 import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
+import NamedEntityExplorer from './NamedEntityExplorer';
 
 export default {
   data: () => ({
@@ -42,6 +50,8 @@ export default {
     minZoomLevel: 0.25,
     maxZoomLevel: 4,
     page: new Page(),
+    mode: 'image',
+    article: new Article(),
   }),
   computed: {
     userDataActive() {
@@ -56,10 +66,14 @@ export default {
     IssueViewer,
     IssueViewerZoomSlider,
     CollectionTagger,
+    ArticleViewer,
   },
   methods: {
     toggleUserData() {
       this.$store.commit('settings/TOGGLE_USERDATA_EXPANDED');
+    },
+    toggleMode(mode) {
+      this.mode = mode;
     },
     onZoom(zoom) {
       this.zoomLevel = zoom;
@@ -74,6 +88,16 @@ export default {
         },
       });
     },
+    loadArticle(articleUid) {
+      this.$store.dispatch('issue/LOAD_ARTICLE', articleUid).then((article) => {
+        this.article = article;
+      });
+    },
+    loadPage(pageUid) {
+      this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
+        this.page = this.issue.pages.find(p => p.uid === page.uid);
+      });
+    },
   },
   mounted() {
     this.$store.dispatch('issue/LOAD_ISSUE', this.$route.params.issue_uid).then((issue) => {
@@ -83,22 +107,31 @@ export default {
         pageUid = this.$route.params.page_uid;
       }
 
+      if (typeof this.$route.params.article_uid !== 'undefined') {
+        const articleUid = this.$route.params.article_uid;
+        this.loadArticle(articleUid);
+      }
+
       this.$store.commit('SET_HEADER_TITLE', {
         subtitle: this.$d(this.issue.date, 'short'),
         title: this.issue.newspaper.name,
       });
 
-      this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
-        this.page = this.issue.pages.find(p => p.uid === page.uid);
-      });
+      this.loadPage(pageUid);
     });
   },
   watch: {
     '$route.params.page_uid': {
       handler(pageUid) {
-        this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
-          this.page = this.issue.pages.find(p => p.uid === page.uid);
-        });
+        this.loadPage(pageUid);
+      },
+    },
+    '$route.params.article_uid': {
+      handler(articleUid) {
+        this.loadArticle(articleUid);
+        // this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
+        //   this.page = this.issue.pages.find(p => p.uid === page.uid);
+        // });
       },
     },
   },
