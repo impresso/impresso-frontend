@@ -1,5 +1,5 @@
 <template lang="html">
-  <div id="search-filter-wrapper">
+  <div id="search-filters">
       <div v-for="(filter, index) in filters" v-bind:key="index">
         <filter-string
           v-if="filter.type.toLowerCase() === 'string'"
