@@ -3,11 +3,14 @@
  * @param {String} val The value of the dimenions, for instance a specific year,
  * language or newspaper title
  * @param {Number} count Number of matched results for this value
+ * @param {Object} item Optional object of for instance type Newspaper or Entity
  */
 export default function Bucket({
   val = '',
   count = 0,
+  item = {},
 } = {}) {
   this.val = String(val);
   this.count = parseInt(count, 10);
+  this.item = item;
 }

@@ -73,10 +73,12 @@ export default {
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
       state.queryComponents = queryComponents;
     },
-    ADD_FILTER(state, payload) {
-      state.search.filters.push({
-        ...payload,
-      });
+    ADD_FILTER(state, filter) {
+      if (filter) {
+        state.search.filters.push({
+          ...filter,
+        });
+      }
     },
     REMOVE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1);
@@ -178,7 +180,19 @@ export default {
               if (res.info.facets && res.info.facets.newspaper) {
                 context.commit('ADD_FACET', new Facet({
                   type: 'newspaper',
-                  buckets: res.info.facets.newspaper.buckets,
+                  buckets: res.info.facets.newspaper.buckets.map(bucket => ({
+                    ...bucket,
+                    item: new Newspaper({
+                      ...bucket.item,
+                      name: bucket.item.title,
+                      countArticles: bucket.item.count_articles,
+                      countIssues: bucket.item.count_issues,
+                      countPages: bucket.item.count_pages,
+                      deltaYear: bucket.item.delta_year,
+                      endYear: bucket.item.end_year,
+                      startYear: bucket.item.start_year,
+                    }),
+                  })),
                 }));
               }
 

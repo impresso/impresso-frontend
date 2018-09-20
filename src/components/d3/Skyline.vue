@@ -4,14 +4,11 @@
     <g class="background">
       <g ref="axisX" class="axisX" />
       <g ref="axisXlabels" class="axisXlabels" />
-      <!-- <g v-axis:x="scale"></g> -->
       <line :x1="margin.left" :y1="margin.bottom - padding.bottom" :x2="margin.left" :y2="margin.bottom" class="axes" />
       <line :x1="margin.right" :y1="margin.bottom - padding.bottom" :x2="margin.right" :y2="margin.bottom" class="axes" />
       <line x1="0" :y1="margin.bottom" :x2="width" :y2="margin.bottom" class="axes" />
       <text :x="margin.left" :y="margin.bottom" class="start date" text-anchor="end" dx="-6" dy="-6">{{ dateRangeLabels.start }}</text>
       <text :x="margin.right" :y="margin.bottom" class="end date" dx="6" dy="-6">{{ dateRangeLabels.end }}</text>
-
-
     </g>
     <path class="trendline" :d="paths.line" />
     <g v-if='pointer.show' :style='pointer.pointStyle'><circle r="3"></circle></g>
@@ -97,14 +94,9 @@ export default {
         max: 0,
       },
       values: [],
-      // dateRange: {
-      //   start: 1222,
-      //   end: 1999,
-      // },
     };
   },
   mounted() {
-    // console.clear();
     this.init();
     window.addEventListener('resize', this.onResize);
     this.onResize();
@@ -144,12 +136,6 @@ export default {
         'tooltip fade bs-tooltip-bottom no': true,
       };
     },
-    // boundsXscaled() {
-    //   return {
-    //     min: this.scaled.x(this.boundsX.min),
-    //     max: this.scaled.x(this.boundsX.max),
-    //   };
-    // },
     dateRange() {
       // use min and max values from data if date-start / date-end props are set
       return {
@@ -173,18 +159,6 @@ export default {
       }));
     },
   },
-  // directives: {
-  //   axis(el, binding) {
-  //     const axis = binding.arg;
-  //     const axisMethod = {
-  //       x: 'axisBottom',
-  //       y: 'axisLeft',
-  //     }[axis];
-  //     const methodArg = binding.value[axis];
-  //
-  //     d3.select(el).call(d3[axisMethod](methodArg));
-  //   },
-  // },
   methods: {
     init() {
       // console.log('init', this.timeFormat(new Date()));
@@ -197,36 +171,24 @@ export default {
       this.bisectLeft = d3.bisector(d => d.t).left;
 
       // initialize brush
-      this.brush = d3.brushX()
-        .on('brush end', () => {
-          console.log('@brushend');
-        });
+      this.brush = d3.brushX();
 
       d3.select(this.$refs.brush)
         .call(this.brush);
-
-      console.log('init!', this.dateValues);
     },
-
-
     onResize() {
       if (this.width !== this.$el.offsetWidth) {
         // console.log('res', this.width, this.$el.offsetWidth);
         this.width = this.$el.offsetWidth;
 
-        console.log('@resize - margin:', this.margin);
-
         // update ranges of functions.
         this.scaled.x.range([this.margin.left, this.margin.right]);
         this.scaled.y.range([this.margin.bottom, this.margin.top]);
 
-        // update brush
-        this.updateBrush();
         // update axis
         this.updateAxis();
       }
     },
-
     onMousemove({
       offsetX,
     }) {
@@ -278,14 +240,10 @@ export default {
     // update function watches data changes only.
     // Ranges should be updated on resize.
     update() {
-      console.log('@updated - daterange:', this.dateRange);
       // update scaling, fn have bbenn initialized in init ;)
       this.scaled.x.domain([this.dateRange.start, this.dateRange.end]);
       this.scaled.y.domain([this.boundsY.min, this.boundsY.max]);
 
-      // // recalculate boundaries
-      // this.boundsXscaled.min = this.scaled.x(this.boundsX.min);
-      // this.boundsXscaled.max = this.scaled.x(this.boundsX.max);
       // update axis
       this.updateAxis();
 
@@ -314,16 +272,6 @@ export default {
           g.selectAll('.tick text').attr('dy', -65);
         });
     },
-
-    updateBrush() {
-      // update range of brush
-      // this.brush.extent([
-      //   [this.margin.left, -this.margin.top],
-      //   [this.margin.right, 200],
-      // ]);
-      // d3.select(this.$refs.brush)
-      //   .call(this.brush);
-    },
   },
   watch: {
     data(values) {
@@ -332,7 +280,6 @@ export default {
         bt: d.t, // original t, for bisect function
         t: this.scaled.timeParse(d.t),
       }));
-      console.log('@data changed:', this.values.length);
       this.update();
     },
   },

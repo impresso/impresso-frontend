@@ -1,11 +1,12 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
-    <div class="px-2 py-4 border-bottom">
+    <div class="px-4 py-4 border-bottom">
       <search-bar />
     </div>
-    <div class="px-2 py-4 pt-0 border-bottom">
+    <div class="py-4 border-bottom">
       <search-filters v-on:remove="search()" v-on:submit="search()" />
+      <search-facets v-on:submit="search()" />
     </div>
   </i-layout-section>
   <i-layout-section>
@@ -61,6 +62,7 @@
 import SearchBar from './SearchBar';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
+import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
@@ -197,6 +199,7 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filters': SearchFilters,
+    'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
   },
   mounted() {
