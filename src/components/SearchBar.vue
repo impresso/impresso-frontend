@@ -95,7 +95,9 @@ export default {
           this.hideSuggestions();
           break;
         case 'Enter':
-          this.submit();
+          if (this.suggestions.length > 0) {
+            this.submit();
+          }
           break;
         case 'ArrowDown':
           if (this.suggestions[index + 1]) {
