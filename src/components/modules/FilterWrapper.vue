@@ -1,5 +1,6 @@
 <template lang="html">
   <div class="filter py-1 bb">
+    <h1 v-if="title" class="title">{{title}}</h1>
     <div class="context pr-2">
       <slot name="context"/>
     </div>
@@ -26,6 +27,7 @@ export default {
       this.$emit('remove');
     },
   },
+  props: ['title'],
   components: {
     Icon,
   },
@@ -37,7 +39,11 @@ export default {
     display: grid;
     grid-template-columns: max-content auto max-content;
     grid-template-rows: auto;
-    grid-template-areas: 'context content controls';
+    grid-template-areas: 'title title title' 'context content controls';
+
+    .title{
+      grid-area: title;
+    }
 
     .context{
       grid-area: context;
