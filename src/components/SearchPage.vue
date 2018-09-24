@@ -14,7 +14,7 @@
       </div>
       <search-bar />
     </div>
-    <div class="px-3 pb-3 border-bottom" v-if="filters.length > 0">
+    <div class="px-3 pb-3 border-bottom">
       <search-filters class="border-bottom" v-on:remove="search()" v-on:submit="search()" />
       <search-facets v-on:submit="search()" />
     </div>
