@@ -5,7 +5,7 @@ import Entity from './Entity';
  * @param {Entity} entity Entity object
  */
 
-export default function Filter({
+export default function FilterEntity({
   context = 'include',
   entity = new Entity(),
 } = {}) {

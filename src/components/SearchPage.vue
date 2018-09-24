@@ -71,6 +71,7 @@
 import SearchBar from './SearchBar';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
+import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
@@ -207,6 +208,7 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filters': SearchFilters,
+    'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
   },
   mounted() {
