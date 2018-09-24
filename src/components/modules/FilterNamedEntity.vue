@@ -5,18 +5,21 @@
       v-model="filter.context"
       v-bind:options="options"
       v-on:input="submitFilter"
-      variant="outline-primary"
       size="sm" />
     </div>
-      <b-badge variant="secondary">
-        <span v-if="filter.entity.hasLabel('person')" class="dripicons-user"></span>
-        <span v-if="filter.entity.hasLabel('location')" class="dripicons-location"></span>
-        {{filter.entity.name}}
-    </b-badge>
+    <div class="p-2">
+      <icon v-if="filter.entity.hasLabel('person')" name="user-circle"></icon>
+      <icon v-if="filter.entity.hasLabel('location')" name="map-marker"></icon>
+      {{filter.entity.name}}
+    </div>
   </filter-wrapper>
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
+
+import 'vue-awesome/icons/user-circle';
+import 'vue-awesome/icons/map-marker';
 
 import FilterWrapper from './FilterWrapper';
 
@@ -44,16 +47,13 @@ export default {
     },
   },
   components: {
+    Icon,
     FilterWrapper,
   },
 };
 </script>
 
-<style scoped lang="css">
-.badge {
-  margin-top:2px;
-  padding: 0.38em 0.5em;
-}
+<style scoped lang="less">
 </style>
 
 <i18n>
@@ -67,13 +67,7 @@ export default {
   "fr": {
     "label": {
       "person": "Personne",
-      "location": "Lieu"
-    }
-  },
-  "de": {
-    "label": {
-      "person": "Person",
-      "location": "Ort"
+      "location": "Localisation"
     }
   },
   "nl": {
