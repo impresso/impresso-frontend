@@ -1,8 +1,6 @@
 <template lang="html">
   <div id="search-filters" class="px-4">
-    <div class="titlebar pb-2 mb-3 border-bottom">
-      <div class="titlebar-title">Filters</div>
-    </div>
+    <base-title-bar>Filters</base-title-bar>
       <div
         v-for="(filter, index) in filters"
         v-bind:key="index">
@@ -27,9 +25,7 @@
         />
     </div>
     <div class="pb-2">
-      <div class="titlebar pb-2 mb-3 border-bottom">
-        <div class="titlebar-title">timeline</div>
-      </div>
+      <base-title-bar>Timeline</base-title-bar>
       <!--
         TODO load min date and max date from config ?
         Or we always provide an extent from the IML?
@@ -42,6 +38,7 @@
 </template>
 
 <script>
+import BaseTitleBar from './base/BaseTitleBar';
 import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterString from './modules/FilterString';
@@ -97,6 +94,7 @@ export default {
     'filter-date-range': FilterDateRange,
     'filter-facet-year': FilterFacetYear,
     Skyline,
+    BaseTitleBar,
   },
 };
 </script>
