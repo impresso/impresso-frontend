@@ -2,9 +2,7 @@
   <div id="search-facets">
     <div v-for="facet in facets">
       <div class="px-4 pb-2">
-        <div class="titlebar pb-2 mb-3 border-bottom">
-          <div class="titlebar-title">{{$t(`label_${facet.type}`)}}</div>
-        </div>
+        <base-title-bar>{{$t(`label_${facet.type}`)}}</base-title-bar>
         <b-form-group>
           <b-form-checkbox-group
             stacked
@@ -24,6 +22,7 @@
 
 <script>
 import FilterFactory from '@/models/FilterFactory';
+import BaseTitleBar from './base/BaseTitleBar';
 
 export default {
   data: () => ({
@@ -52,6 +51,9 @@ export default {
       });
       this.$emit('submit');
     },
+  },
+  components: {
+    BaseTitleBar,
   },
 };
 </script>
