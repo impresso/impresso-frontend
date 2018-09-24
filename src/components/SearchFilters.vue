@@ -1,6 +1,11 @@
 <template lang="html">
-  <div id="search-filter-wrapper">
-      <div v-for="(filter, index) in filters" v-bind:key="index">
+  <div id="search-filters" class="px-4">
+    <div class="titlebar pb-2 mb-3 border-bottom">
+      <div class="titlebar-title">Filters</div>
+    </div>
+      <div
+        v-for="(filter, index) in filters"
+        v-bind:key="index">
         <filter-string
           v-if="filter.type.toLowerCase() === 'string'"
           v-model="filters[index]"
@@ -21,7 +26,7 @@
           v-on:remove="removeFilter(index)"
         />
     </div>
-    <div class="px-2 pb-2  ">
+    <div class="pb-2">
       <div class="titlebar pb-2 mb-3 border-bottom">
         <div class="titlebar-title">timeline</div>
       </div>
