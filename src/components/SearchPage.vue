@@ -1,21 +1,19 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
-    <div class="px-3 py-3">
-      <div class="titlebar pb-2 mb-3">
-        <div class="titlebar-title">
-          String search
-        </div>
-        <div class="titlebar-actions">
-          <b-button
-            v-on:click="reset"
-            variant="outline-primary" size="sm">Clear Search</b-button>
-        </div>
+      <div class="px-3 py-3">
+        <base-title-bar>String search
+          <template slot="actions">
+            <b-button
+              v-on:click="reset"
+              variant="outline-primary" size="sm">Clear Search</b-button>
+          </template>
+        </base-title-bar>
+        <search-bar />
       </div>
-      <search-bar />
     </div>
-    <div class="px-3 pb-3 border-bottom">
-      <search-filters class="border-bottom" v-on:remove="search()" v-on:submit="search()" />
+    <div class="px-3 mb-2 border-bottom">
+      <search-filters v-on:remove="search()" v-on:submit="search()" />
       <search-facets v-on:submit="search()" />
     </div>
   </i-layout-section>
@@ -70,6 +68,7 @@
 
 <script>
 import SearchBar from './SearchBar';
+import BaseTitleBar from './base/BaseTitleBar';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
 import SearchFacets from './SearchFacets';
@@ -205,6 +204,7 @@ export default {
   },
   components: {
     Pagination,
+    BaseTitleBar,
     'search-bar': SearchBar,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
@@ -230,8 +230,6 @@ export default {
 
 <style lang="scss">
 
-@import "impresso-theme/src/scss/variables.sass";
-
 .navbar-nav {
     flex-direction: row;
     align-items: center;
@@ -240,22 +238,7 @@ export default {
       line-height: 1.5;
     }
 }
-.titlebar {
-  float: none;
-  border-bottom: 1px solid $clr-secondary;
-  box-shadow: inset 0 -1px 0 0 white, inset 0 -2px 0 0 $clr-tertiary;
-  .titlebar-title {
-    float: left;
-    padding-top: 0.2em;
-    color: $clr-secondary;
-    font-variant: all-small-caps;
-    font-weight: bold;
-    font-size: 0.9em;
-  }
-  .titlebar-actions {
-    text-align: right;
-  }
-}
+
 </style>
 
 <i18n>

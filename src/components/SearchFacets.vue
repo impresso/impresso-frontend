@@ -1,8 +1,14 @@
 <template lang="html">
   <div id="search-facets">
     <div v-for="facet in facets">
-      <div class="px-4 pb-2">
-        <base-title-bar>{{$t(`label_${facet.type}`)}}</base-title-bar>
+      <div class="pb-4">
+        <base-title-bar>{{$t(`label_${facet.type}`)}}
+          <template slot="actions">
+            <b-button class="float-right" size="sm" variant="outline-secondary" v-on:click="submit">
+              Apply
+            </b-button>
+          </template>
+        </base-title-bar>
         <b-form-group>
           <b-form-checkbox-group
             stacked
@@ -11,11 +17,7 @@
             v-bind:options="transform(facet.buckets)">
           </b-form-checkbox-group>
         </b-form-group>
-        <b-button size="sm" v-on:click="submit">
-          Apply
-        </b-button>
       </div>
-      <hr>
     </div>
   </div>
 </template>
