@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="filter py-1 bb">
+  <div class="filter border-top border-left border-right bg-light p-2">
     <div class="context pr-2">
       <slot name="context"/>
     </div>
@@ -9,25 +9,19 @@
     <div class="controls">
       <b-button-group>
         <slot name="controls"></slot>
-        <b-button v-on:click="remove" variant="link" size="sm"><icon name="times" /></b-button>
+        <b-button v-on:click="remove" variant="link" size="sm"><div class="dripicons-cross icon-link"></div></b-button>
       </b-button-group>
     </div>
   </div>
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
-
-import 'vue-awesome/icons/times';
 
 export default {
   methods: {
     remove() {
       this.$emit('remove');
     },
-  },
-  components: {
-    Icon,
   },
 };
 </script>
@@ -49,6 +43,25 @@ export default {
 
     .controls{
       grid-area: controls;
+    }
+
+    .btn-link {
+      &:hover {
+        text-decoration: none;
+        background: #ddd;
+      }
+      width: 2em;
+      height: 2em;
+      margin: 0;
+      padding: 0.3em;
+      div {
+        // display: inline-block;
+        font-size: 1.3em;
+        padding: 0;
+        margin: 0;
+        vertical-align: bottom;
+        text-decoration: none;
+      }
     }
 }
 </style>
