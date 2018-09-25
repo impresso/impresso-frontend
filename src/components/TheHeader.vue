@@ -115,7 +115,6 @@ export default {
 </script>
 
 <style lang="scss">
-
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
@@ -158,6 +157,16 @@ export default {
   .navbar-dark .navbar-nav .nav-link:focus {
     color: $clr-bg-primary;
     background: $clr-primary;
+  }
+  &::before{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    height: 2px;
+    background-color: $clr-accent-light;
+    content: '';
   }
 }
 </style>
