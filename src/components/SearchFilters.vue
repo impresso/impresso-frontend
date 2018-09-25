@@ -23,6 +23,10 @@
           v-on:submit="submitFilter"
           v-on:remove="removeFilter(index)"
         />
+        <filter-facet
+          v-if="['year', 'newspaper', 'language'].includes(filter.type.toLowerCase())"
+          v-model="filters[index]"
+         />
     </div>
     <div class="pb-2">
       <base-title-bar>Timeline</base-title-bar>
@@ -39,6 +43,7 @@
 
 <script>
 import BaseTitleBar from './base/BaseTitleBar';
+import FilterFacet from './modules/FilterFacet';
 import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterString from './modules/FilterString';
@@ -93,6 +98,7 @@ export default {
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
     'filter-facet-year': FilterFacetYear,
+    'filter-facet': FilterFacet,
     Skyline,
     BaseTitleBar,
   },
