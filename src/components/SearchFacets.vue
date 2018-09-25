@@ -4,7 +4,7 @@
       <div class="pb-4">
         <base-title-bar>{{$t(`label_${facet.type}`)}}
           <template slot="actions">
-            <b-button class="float-right" size="sm" variant="outline-secondary" v-on:click="submit">
+            <b-button size="sm" variant="outline-secondary" v-on:click="submit">
               Apply
             </b-button>
           </template>
