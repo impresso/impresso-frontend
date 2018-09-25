@@ -73,7 +73,7 @@ export default {
       padding: {
         left: 50,
         right: 50,
-        top: 20,
+        top: 15,
         bottom: 25,
       },
       paths: {
@@ -126,7 +126,7 @@ export default {
     },
     boundsY() {
       return {
-        min: d3.min(this.values, d => d.w),
+        min: 0,
         max: d3.max(this.values, d => d.w),
       };
     },
@@ -263,13 +263,15 @@ export default {
         .scale(this.scaled.x)
         .ticks(3)
         .tickFormat(d3.timeFormat('%Y'))
-        .tickPadding(this.margin.top + 10)
+        .tickPadding(this.margin.top + 20)
         .tickSize(this.margin.bottom);
 
       d3.select(this.$refs.axisX)
         .call((g) => {
           g.call(this.axisX);
-          g.selectAll('.tick text').attr('dy', -65);
+          g.selectAll('.tick text')
+            .attr('dx', 5)
+            .attr('dy', -this.height);
         });
     },
   },
