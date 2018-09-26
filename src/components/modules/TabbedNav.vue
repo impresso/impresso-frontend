@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-nav tabs class="tabbed-nav bg-light pl-2 pt-1 align-items-end">
+  <b-nav tabs class="tabbed-nav pl-2 pt-1 align-items-end">
     <b-nav-item v-for="t in tabs"
       class="small-caps"
       v-on:click="setActiveTab(t)"

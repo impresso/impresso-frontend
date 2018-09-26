@@ -2,16 +2,7 @@
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
 
-      <tabbed-nav v-model="tabs"></tabbed-nav>
-      <!-- Tab panes -->
-      <div class="tab-content py-3">
-        <div class="tab-pane active" id="tab-1" role="tabpanel"
-          aria-labelledby="home-tab">home</div>
-        <div class="tab-pane" id="tab-2" role="tabpanel"
-          aria-labelledby="profile-tab">Profile</div>
-        <div class="tab-pane" id="tab-3" role="tabpanel"
-          aria-labelledby="messages-tab">Messages</div>
-      </div>
+      <tabbed-nav v-model="tabs" class="bg-light"></tabbed-nav>
 
     </i-layout-section>
     <i-layout-section>
