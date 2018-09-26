@@ -1,34 +1,33 @@
 <template lang="html">
   <div id="search-filters" class="px-4">
-    <base-title-bar>Filters</base-title-bar>
-      <div
-        v-for="(filter, index) in filters"
-        v-bind:key="index">
-        <filter-string
-          v-if="filter.type.toLowerCase() === 'string'"
-          v-model="filters[index]"
-          v-on:input="updateFilter"
-          v-on:submit="submitFilter"
-          v-on:remove="removeFilter(index)"
+    <div
+      v-for="(filter, index) in filters"
+      v-bind:key="index">
+      <filter-string
+        v-if="filter.type.toLowerCase() === 'string'"
+        v-model="filters[index]"
+        v-on:input="updateFilter"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)"
         />
-        <filter-named-entity
-          v-if="filter.type.toLowerCase() === 'entity'"
-          v-model="filters[index]"
-          v-on:submit="submitFilter"
-          v-on:remove="removeFilter(index)"
+      <filter-named-entity
+        v-if="filter.type.toLowerCase() === 'entity'"
+        v-model="filters[index]"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)"
         />
-        <filter-date-range
-          v-if="filter.type.toLowerCase() === 'daterange'"
-          v-model="filters[index]"
-          v-on:submit="submitFilter"
-          v-on:remove="removeFilter(index)"
+      <filter-date-range
+        v-if="filter.type.toLowerCase() === 'daterange'"
+        v-model="filters[index]"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)"
         />
-        <filter-facet
-          v-if="facetTypes.includes(filter.type.toLowerCase())"
-          v-model="filters[index]"
-          v-on:input="updateFilter"
-          v-on:remove="removeFilter(index)"
-         />
+      <filter-facet
+        v-if="facetTypes.includes(filter.type.toLowerCase())"
+        v-model="filters[index]"
+        v-on:input="updateFilter"
+        v-on:remove="removeFilter(index)"
+        />
     </div>
     <div class="pb-2">
       <base-title-bar>Timeline</base-title-bar>
@@ -37,7 +36,6 @@
         Or we always provide an extent from the IML?
       -->
       <skyline :height="80" :data="timelineData" />
-
     </div>
     <!-- <filter-facet-year v-bind:data="getFacet('year')"></filter-facet-year> -->
   </div>

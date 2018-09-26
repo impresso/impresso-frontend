@@ -4,7 +4,7 @@
     <div class="px-4 py-4 border-bottom">
       <search-bar />
     </div>
-    <div class="py-4 border-bottom">
+    <div class="py-4">
       <search-filters v-on:remove="search()" v-on:submit="search()" />
     </div>
     <div slot="footer">
