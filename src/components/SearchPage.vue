@@ -6,7 +6,12 @@
     </div>
     <div class="py-4 border-bottom">
       <search-filters v-on:remove="search()" v-on:submit="search()" />
-      <search-facets v-on:submit="search()" />
+    </div>
+    <div slot="footer">
+      <b-button-group class="d-flex bg-white">
+        <b-button class="w-100" v-on:click="search()">Search</b-button>
+        <b-button class="w-100" v-on:click="reset">Clear</b-button>
+      </b-button-group>
     </div>
   </i-layout-section>
   <i-layout-section>
@@ -62,7 +67,6 @@
 import SearchBar from './SearchBar';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
-import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
@@ -199,7 +203,6 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filters': SearchFilters,
-    'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
   },
   mounted() {
