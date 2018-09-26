@@ -38,6 +38,9 @@
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+            <div class="font-weight-bold text-tertiary mt-1 pb-2">
+              {{ (paginationCurrentPage - 1) * paginationPerPage + index + 1 }} / {{ paginationTotalRows }}
+            </div>
             <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
