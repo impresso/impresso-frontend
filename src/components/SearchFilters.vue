@@ -1,8 +1,6 @@
 <template lang="html">
   <div id="search-filters" class="px-4">
-    <div
-      v-for="(filter, index) in filters"
-      v-bind:key="index">
+    <div v-for="(filter, index) in filters">
       <filter-string
         v-if="filter.type.toLowerCase() === 'string'"
         v-model="filters[index]"
@@ -22,12 +20,6 @@
         v-on:submit="submitFilter"
         v-on:remove="removeFilter(index)"
         />
-      <filter-facet
-        v-if="facetTypes.includes(filter.type.toLowerCase())"
-        v-model="filters[index]"
-        v-on:input="updateFilter"
-        v-on:remove="removeFilter(index)"
-        />
     </div>
     <div class="pb-2">
       <base-title-bar>Timeline</base-title-bar>
@@ -37,7 +29,22 @@
       -->
       <skyline :height="80" :data="timelineData" />
     </div>
-    <!-- <filter-facet-year v-bind:data="getFacet('year')"></filter-facet-year> -->
+    <div v-for="(filter, index) in filters">
+      <filter-date-range
+        v-if="filter.type.toLowerCase() === 'daterange'"
+        v-model="filters[index]"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)"
+        />
+    </div>
+    <div v-for="(filter, index) in filters">
+      <filter-facet
+        v-if="facetTypes.includes(filter.type.toLowerCase())"
+        v-model="filters[index]"
+        v-on:input="updateFilter"
+        v-on:remove="removeFilter(index)"
+        />
+    </div>
   </div>
 </template>
 
