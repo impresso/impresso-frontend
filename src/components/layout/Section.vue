@@ -1,8 +1,6 @@
 <template lang="html">
   <section v-bind:style="style">
-    <div class="content" v-bind:class="{'pb-4': this.$slots.footer}">
-      <slot></slot>
-    </div>
+    <slot></slot>
     <div v-if="this.$slots.footer" class="footer">
       <slot name="footer">
       </slot>
@@ -34,13 +32,10 @@ export default {
 
 <style scoped lang="less">
 section{
-  .content{
-      height:100%;
-  }
   .footer{
-    position: sticky;
-    width: 100%;
-    bottom: 0;
+      position: sticky;
+      width: 100%;
+      bottom: 0;
   }
 }
 </style>
