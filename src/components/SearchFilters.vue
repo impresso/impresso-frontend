@@ -24,8 +24,10 @@
           v-on:remove="removeFilter(index)"
         />
         <filter-facet
-          v-if="['year', 'newspaper', 'language'].includes(filter.type.toLowerCase())"
+          v-if="facetTypes.includes(filter.type.toLowerCase())"
           v-model="filters[index]"
+          v-on:input="updateFilter"
+          v-on:remove="removeFilter(index)"
          />
     </div>
     <div class="pb-2">
@@ -55,6 +57,11 @@ export default {
     search: {
       get() {
         return this.$store.getters['search/getSearch'];
+      },
+    },
+    facetTypes: {
+      get() {
+        return this.$store.state.search.facetTypes;
       },
     },
     filters: {
@@ -87,9 +94,7 @@ export default {
       this.$emit('submit');
     },
     removeFilter(index) {
-      this.$store.commit('search/REMOVE_FILTER', {
-        index,
-      });
+      this.$store.commit('search/REMOVE_FILTER', index);
       this.$emit('remove');
     },
   },
