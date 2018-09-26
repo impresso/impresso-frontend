@@ -6,6 +6,7 @@ import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
 import Facet from '@/models/Facet';
+import FilterFactory from '@/models/FilterFactory';
 
 export default {
   namespaced: true,
@@ -21,6 +22,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
+    facetTypes: ['newspaper', 'year', 'language'],
   },
   getters: {
     getSearches(state) {
@@ -74,14 +76,14 @@ export default {
       state.queryComponents = queryComponents;
     },
     ADD_FILTER(state, filter) {
-      if (filter) {
-        state.search.filters.push({
-          ...filter,
-        });
-      }
+      state.search.filters.push({
+        ...filter,
+      });
     },
-    REMOVE_FILTER(state, payload) {
-      state.search.filters.splice(payload.index, 1);
+    REMOVE_FILTER(state, index) {
+      if (index > -1) {
+        state.search.filters.splice(index, 1);
+      }
     },
     UPDATE_FILTER(state, payload) {
       const index = state.search.filters.findIndex(filter => filter.key === payload.key);
@@ -125,15 +127,23 @@ export default {
     },
   },
   actions: {
+    ADD_OR_REPLACE_FILTER(context, filter) {
+      const index = context.state.search.filters.findIndex(item => item.type === filter.type);
+      context.commit('REMOVE_FILTER', index);
+      context.commit('ADD_FILTER', filter);
+    },
     SEARCH(context, paginationCurrentPage = 1) {
-      context.commit('UPDATE_PAGINATION_CURRENT_PAGE', { paginationCurrentPage });
+      context.commit('UPDATE_PAGINATION_CURRENT_PAGE', {
+        paginationCurrentPage,
+      });
 
       return new Promise(
         (resolve, reject) => {
           services.search.find({
             query: {
-              filters: context.getters.getSearch.filters.map(filter => filter.getQuery()),
-              facets: ['newspaper', 'year', 'language'],
+              filters: context.getters.getSearch.filters.map(
+                filter => filter.getQuery()).filter(i => i),
+              facets: context.state.facetTypes,
               group_by: context.state.groupBy,
               page: context.state.paginationCurrentPage,
               limit: context.state.paginationPerPage,
@@ -178,7 +188,7 @@ export default {
               })));
 
               if (res.info.facets && res.info.facets.newspaper) {
-                context.commit('ADD_FACET', new Facet({
+                const facet = new Facet({
                   type: 'newspaper',
                   buckets: res.info.facets.newspaper.buckets.map(bucket => ({
                     ...bucket,
@@ -193,21 +203,30 @@ export default {
                       startYear: bucket.item.start_year,
                     }),
                   })),
-                }));
+                });
+
+                context.commit('ADD_FACET', facet);
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet), true);
               }
 
               if (res.info.facets && res.info.facets.year) {
-                context.commit('ADD_FACET', new Facet({
+                const facet = new Facet({
                   type: 'year',
                   buckets: res.info.facets.year.buckets,
-                }));
+                });
+
+                context.commit('ADD_FACET', facet);
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet), true);
               }
 
               if (res.info.facets && res.info.facets.language) {
-                context.commit('ADD_FACET', new Facet({
+                const facet = new Facet({
                   type: 'language',
                   buckets: res.info.facets.language.buckets,
-                }));
+                });
+
+                context.commit('ADD_FACET', facet);
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet), true);
               }
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
