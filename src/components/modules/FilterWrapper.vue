@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="filter py-1 bb">
-    <h1 v-if="title" class="title">{{title}}</h1>
+    <base-title-bar v-if="title" class="title">{{title}}</base-title-bar>
     <div class="context pr-2">
       <slot name="context"/>
     </div>
@@ -17,9 +17,10 @@
 </template>
 
 <script>
+import 'vue-awesome/icons/times';
 import Icon from 'vue-awesome/components/Icon';
 
-import 'vue-awesome/icons/times';
+import BaseTitleBar from './../base/BaseTitleBar';
 
 export default {
   methods: {
@@ -30,6 +31,7 @@ export default {
   props: ['title'],
   components: {
     Icon,
+    BaseTitleBar,
   },
 };
 </script>

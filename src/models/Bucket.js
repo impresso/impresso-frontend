@@ -9,8 +9,10 @@ export default function Bucket({
   val = '',
   count = 0,
   item = {},
+  included = true,
 } = {}) {
   this.val = String(val);
   this.count = parseInt(count, 10);
   this.item = item;
+  this.included = included;
 }
