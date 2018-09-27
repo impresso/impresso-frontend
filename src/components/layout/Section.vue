@@ -1,8 +1,6 @@
 <template lang="html">
   <section v-bind:style="style">
-    <div v-bind:class="{'pb-4': this.$slots.footer}">
-      <slot></slot>
-    </div>
+    <slot></slot>
     <div v-if="this.$slots.footer" class="footer">
       <slot name="footer">
       </slot>

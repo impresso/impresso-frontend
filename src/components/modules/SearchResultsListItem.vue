@@ -3,7 +3,6 @@
     <div class="thumbnail" slot="aside" >
       <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
     </div>
-    <div class="font-weight-bold text-tertiary mb-1">1 / 234</div>
     <h2><a href="#" v-on:click.prevent="click" v-html="article.title"></a></h2>
     <div class="article-meta mb-1">
       <strong>{{article.newspaper.name}}</strong>,
