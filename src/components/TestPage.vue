@@ -1,35 +1,34 @@
 <template lang="html">
-  <i-layout id="TestPage">
-    <i-layout-section width="400px" class="br">
-      <search-bar v-on:submit="search" />
-    </i-layout-section>
-    <i-layout-section>
-      <h1>results</h1>
-      <pre>{{searchResults}}</pre>
-    </i-layout-section>
-  </i-layout>
+  <div class="container">
+    <base-tabs v-model="tab" v-bind:tabs="tabs"></base-tabs>
+    <div v-for="t in tabs" v-show="t === tab">
+      {{t}}
+    </div>
+  </div>
 </template>
 
 <script>
-import SearchBar from './SearchBar';
+import BaseTabs from './base/BaseTabs';
 
 export default {
   data: () => ({
-  }),
-  computed: {
-    searchResults: {
-      get() {
-        return this.$store.getters['search/results'];
+    tab: {},
+    tabs: [
+      {
+        label: 'thijs',
       },
-    },
-  },
-  methods: {
-  },
+      {
+        label: 'daniele',
+        disabled: true,
+      },
+      {
+        label: 'paul',
+        active: true,
+      },
+    ],
+  }),
   components: {
-    SearchBar,
+    BaseTabs,
   },
 };
 </script>
-
-<style scoped lang="less">
-</style>
