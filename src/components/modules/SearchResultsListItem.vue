@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-media class="pb-3 border-bottom">
+  <b-media class="py-3 border-bottom">
     <div class="thumbnail" slot="aside" >
       <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
     </div>
