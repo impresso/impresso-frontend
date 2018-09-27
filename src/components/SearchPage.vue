@@ -34,7 +34,7 @@
       <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
     </b-navbar>
 
-    <div class="p-2">
+    <div class="p-1">
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
