@@ -30,14 +30,6 @@
       <skyline :height="80" :data="timelineData" />
     </div>
     <div v-for="(filter, index) in filters">
-      <filter-date-range
-        v-if="filter.type.toLowerCase() === 'daterange'"
-        v-model="filters[index]"
-        v-on:submit="submitFilter"
-        v-on:remove="removeFilter(index)"
-        />
-    </div>
-    <div v-for="(filter, index) in filters">
       <filter-facet
         v-if="facetTypes.includes(filter.type.toLowerCase())"
         v-model="filters[index]"
