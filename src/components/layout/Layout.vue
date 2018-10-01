@@ -5,6 +5,10 @@
 </template>
 
 <script>
+/*
+<i-layout id="SearchPage" width="800px" />
+<i-layout id="SearchPage" min-width="500px" max-width="800px" />
+*/
 export default {
   props: {
     width: {
@@ -43,12 +47,6 @@ export default {
 main {
     height: 100%;
     display: flex;
-    margin: 0 auto;
-    > section{
-      overflow-y: auto;
-      &::-webkit-scrollbar {
-          display: none;
-      }
-    }
+    margin: 0 auto; // center if width is not 100% of viewport
 }
 </style>
