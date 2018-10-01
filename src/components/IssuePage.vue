@@ -11,8 +11,14 @@
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
           nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit
           esse cillum dolore eu fugiat nulla pariatur.</p>
-          <button type="button" name="button" v-on:click="toggleMode('text')">Text</button>
-          <button type="button" name="button" v-on:click="toggleMode('image')">Image</button>
+          <hr>
+
+            <label class="mr-2">{{$t("label_display")}}</label>
+            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="image">{{$t("display_button_image")}}</b-form-radio>
+              <b-form-radio value="text">{{$t("display_button_text")}}</b-form-radio>
+            </b-form-radio-group>
+
         <hr>
         <named-entity-explorer v-model="issue"></named-entity-explorer>
       </div>
@@ -140,3 +146,13 @@ export default {
 
 <style scoped lang='less'>
 </style>
+
+<i18n>
+{
+  "en": {
+    "label_display": "Display as",
+    "display_button_image": "Newspaper Page",
+    "display_button_text": "Article List"
+  }
+}
+</i18n>
