@@ -1,7 +1,7 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
-    <div class="px-4 py-4 border-bottom">
+    <div slot="header" class="px-4 py-4 border-bottom">
       <search-bar />
     </div>
     <div class="py-4">
