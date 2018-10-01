@@ -6,21 +6,21 @@
       v-on:click="goToPage"
       v-bind:page_uid="page.uid"
       v-bind:page="page"
-      class="strip"
+      class="strip border-left"
       ></thumbnail-slider>
     <div id="os-viewer"></div>
-    <b-navbar class="header" type="light" variant="light">
+    <b-navbar class="header bg-white border-bottom" type="light" variant="light">
       <b-button-toolbar class="mx-auto">
-        <b-button-group class="mx-1" size="sm">
-          <b-btn v-on:click.prevent="goToPage('first')">&laquo;</b-btn>
-          <b-btn v-on:click.prevent="goToPage('previous')">&lsaquo;</b-btn>
+        <b-button-group class="mx-1 my-2" size="sm">
+          <b-btn v-on:click.prevent="goToPage('first')" variant="outline-primary">&laquo;</b-btn>
+          <b-btn v-on:click.prevent="goToPage('previous')" variant="outline-primary">&lsaquo;</b-btn>
         </b-button-group>
         <b-navbar-nav>
-          <b-nav-text>{{page.num}} / {{issue.lastPageNumber}}</b-nav-text>
+          <b-nav-text class="sans px-2"><strong>{{page.num}}</strong> / <strong>{{issue.lastPageNumber}}</strong></b-nav-text>
         </b-navbar-nav>
-        <b-button-group class="mx-1" size="sm">
-          <b-btn v-on:click.prevent="goToPage('next')">&rsaquo;</b-btn>
-          <b-btn v-on:click.prevent="goToPage('last')">&raquo;</b-btn>
+        <b-button-group class="mx-1 my-2" size="sm">
+          <b-btn v-on:click.prevent="goToPage('next')" variant="outline-primary">&rsaquo;</b-btn>
+          <b-btn v-on:click.prevent="goToPage('last')" variant="outline-primary">&raquo;</b-btn>
         </b-button-group>
       </b-button-toolbar>
     </b-navbar>
