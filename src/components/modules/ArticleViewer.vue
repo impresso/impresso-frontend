@@ -1,11 +1,11 @@
 <template lang="html">
   <div class="article m-2">
-
     <div class="regions">
-
       <div class="region">
         <div class="page">
-          <p class="text-tertiary">p. {{article.pages[0].num}}</p>
+          <p class="text-tertiary">p.
+            <span v-if="typeof article.pages[0] !== 'undefined'">{{article.pages[0].num}}</span>
+          </p>
         </div>
         <div class="context">
           <img src="https://dummyimage.com/300x320/eee/ccc" width="100%" />
@@ -20,7 +20,9 @@
 
       <div class="region">
         <div class="page">
-          <p class="text-tertiary">p. {{article.pages[0].num}}</p>
+          <p class="text-tertiary">p. 
+            <span v-if="typeof article.pages[0] !== 'undefined'">{{article.pages[0].num}}</span>
+          </p>
         </div>
         <div class="context">
           <img src="https://dummyimage.com/300x420/eee/ccc" width="100%" />
