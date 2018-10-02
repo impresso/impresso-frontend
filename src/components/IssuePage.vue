@@ -1,7 +1,10 @@
 <template lang='html'>
     <i-layout id="IssuePage">
     <i-layout-section width="400px">
-      <div class="px-3 py-4">
+      <div slot="header" class="pt-2">
+        <base-tabs v-model="tab" v-bind:tabs="tabs"></base-tabs>
+      </div>
+      <div class="px-3 py-4" v-show="tab.name == 'overview'">
         <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
         <collection-tagger v-model="issue"></collection-tagger>
         <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
@@ -13,6 +16,12 @@
           esse cillum dolore eu fugiat nulla pariatur.</p>
         <hr>
         <named-entity-explorer v-model="issue"></named-entity-explorer>
+      </div>
+      <div v-show="tab.name === 'toc'">
+        <h4>table of contents</h4>
+      </div>
+      <div v-show="tab.name === 'search'">
+        <h4>search</h4>
       </div>
     </i-layout-section>
     <i-layout-section>
@@ -35,6 +44,7 @@ import CollectionTagger from './CollectionTagger';
 import NamedEntityExplorer from './NamedEntityExplorer';
 import IssueViewer from './modules/IssueViewer';
 import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
+import BaseTabs from './base/BaseTabs';
 
 export default {
   data: () => ({
@@ -42,6 +52,7 @@ export default {
     minZoomLevel: 0.25,
     maxZoomLevel: 4,
     page: new Page(),
+    tab: {},
   }),
   computed: {
     userDataActive() {
@@ -50,12 +61,30 @@ export default {
     issue() {
       return this.$store.state.issue.issue;
     },
+    tabs() {
+      return [
+        {
+          label: this.$t('tabs.overview'),
+          name: 'overview',
+          active: true,
+        },
+        {
+          label: this.$t('tabs.toc'),
+          name: 'toc',
+        },
+        {
+          label: this.$t('tabs.search'),
+          name: 'search',
+        },
+      ];
+    },
   },
   components: {
     NamedEntityExplorer,
     IssueViewer,
     IssueViewerZoomSlider,
     CollectionTagger,
+    BaseTabs,
   },
   methods: {
     toggleUserData() {
@@ -76,6 +105,7 @@ export default {
     },
   },
   mounted() {
+    console.log(this.$t('tabs.toc'));
     this.$store.dispatch('issue/LOAD_ISSUE', this.$route.params.issue_uid).then((issue) => {
       let pageUid = issue.pages[0].uid;
 
@@ -107,3 +137,22 @@ export default {
 
 <style scoped lang='less'>
 </style>
+
+<i18n>
+{
+  "en": {
+    "tabs": {
+        "overview": "Overview",
+        "toc": "Table of Contents",
+        "search": "Search"
+    }
+  },
+  "nl": {
+    "tabs": {
+        "overview": "Overzicht",
+        "toc": "Inhoudsopgave",
+        "search": "Zoek"
+    }
+  }
+}
+</i18n>
