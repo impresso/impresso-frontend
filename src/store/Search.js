@@ -159,11 +159,11 @@ export default {
                   countArticles: result.issue.count_articles,
                   countPages: result.issue.count_pages,
                 },
-                tags: result.tags.map((tag) => {
+                tags: result.tags ? result.tags.map((tag) => {
                   tag.appliesTo = tag.applies_to;
                   return tag;
-                }),
-                collections: result.buckets.map(bucket => new Collection({
+                }) : [],
+                collections: result.buckets ? result.buckets.map(bucket => new Collection({
                   ...bucket,
                   countArticles: bucket.count_articles,
                   countEntities: bucket.count_entities,
@@ -174,7 +174,7 @@ export default {
                   creationTime: bucket.creation_time,
                   lastModifiedDate: bucket.last_modified_date,
                   lastModifiedTime: bucket.last_modified_time,
-                })),
+                })) : [],
                 matches: result.matches.map(match => new Match(match)),
                 newspaper: new Newspaper({
                   ...result.newspaper,
