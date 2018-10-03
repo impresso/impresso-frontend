@@ -8,38 +8,50 @@ import Tag from './Tag';
 
 /**
  * @class Article is an object representing a newspaper article
+ * @param {String} country Country Code
  * @param {Array} collections List of Collection objects the article belongs to
  * @param {Date} date Date of the article
  * @param {String} excerpt First 20 or so words of an article
  * @param {Integer} dl number of entities (Document Length)
+ * @param {Boolean} isCC ???
+ * @param {Boolean} isFront ???
  * @param {Issue} issue Issue object of the article
  * @param {Array} labels Array of Strings with labels for the article
  * @param {String} language The language of the article
  * @param {Array} matches Array of Matches objects
+ * @param {Interger} nbPages ???
  * @param {Newspaper} newspaper Newspaper object
  * @param {Array} pages Array of Page objects
  * @param {Array} regions Array of Region objects
+ * @param {Integer} size ???
  * @param {Array} tags Array of Tag objects
  * @param {Interger} time Unix timestamp of the article
  * @param {String} title Title of the article
+ * @param {String} type ???
  * @param {String} uid Unique identifier for the article
  * @param {Number} year Year of the article
  */
 export default function Article({
+  country = '',
   collections = [],
   date = new Date(),
   excerpt = '',
   dl = 0,
+  isCC = false,
+  isFront = false,
   issue = new Issue(),
   labels = [],
   language = '',
   matches = [],
+  nbPages = 0,
   newspaper = new Newspaper(),
   pages = [],
   regions = [],
+  size = 0,
   tags = [],
   time = 0,
   title = '',
+  type = '',
   uid = '',
   year = 0,
 } = {}) {
@@ -51,9 +63,12 @@ export default function Article({
     return new Collection(collection);
   });
 
+  this.country = String(country);
   this.date = new Date(date);
   this.excerpt = String(excerpt);
   this.dl = parseInt(dl, 10);
+  this.isCC = Boolean(isCC);
+  this.isFront = Boolean(isFront);
 
   if (issue instanceof Issue) {
     this.issue = issue;
@@ -73,6 +88,8 @@ export default function Article({
     return new Match(match);
   });
 
+  this.nbPages = parseInt(nbPages, 10);
+
   if (newspaper instanceof Newspaper) {
     this.newspaper = newspaper;
   } else {
@@ -86,6 +103,8 @@ export default function Article({
 
     return new Page(page);
   });
+
+  this.size = parseInt(size, 10);
 
   this.regions = regions.map((region) => {
     if (region instanceof Region) {
@@ -105,6 +124,7 @@ export default function Article({
 
   this.time = parseInt(time, 10);
   this.title = String(title);
+  this.type = String(type);
   this.uid = String(uid);
   this.year = parseInt(year, 10);
 }
