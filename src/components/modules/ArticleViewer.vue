@@ -1,43 +1,22 @@
 <template lang="html">
   <div class="article m-2">
-    <div class="regions">
-      <div class="region">
+    <ul class="regions">
+
+      <li v-for="region in article.regions" class="region py-4">
         <div class="page">
-          <p class="text-tertiary">p.
-            <span v-if="typeof article.pages[0] !== 'undefined'">{{article.pages[0].num}}</span>
-          </p>
+          <p class="text-tertiary">p. {{ region.pageUid .slice(-2) }}</p>
         </div>
         <div class="context">
-          <img src="https://dummyimage.com/300x320/eee/ccc" width="100%" />
+          <img v-bind:src="region.iiif_fragment" width="100%" />
         </div>
-        <div class="richtext">
-          <h5 v-html="article.title"></h5>
-          <p v-html="article.excerpt" class="text-tertiary"></p>
+        <div class="richtext text-tertiary">
+          <p v-for="line in region.g" v-html="line" class="mb-0"></p>
         </div>
-      </div>
+      </li>
 
-      <hr>
-
-      <div class="region">
-        <div class="page">
-          <p class="text-tertiary">p. 
-            <span v-if="typeof article.pages[0] !== 'undefined'">{{article.pages[0].num}}</span>
-          </p>
-        </div>
-        <div class="context">
-          <img src="https://dummyimage.com/300x420/eee/ccc" width="100%" />
-        </div>
-        <div class="richtext">
-          <h5 v-html="article.title"></h5>
-          <p v-html="article.excerpt" class="text-tertiary"></p>
-        </div>
-      </div>
-
-      <hr>
-
-    </div>
-
+    </ul>
     <div class="controls text-right">
+      <h5>{{ article.title }}</h5>
       <b-button-group>
         <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
       </b-button-group>
@@ -89,10 +68,10 @@ export default {
 }
 .region {
     display: grid;
-    grid-template-columns: 40px 1fr 2fr;
+    grid-template-columns: 40px 1fr 1fr;
     grid-template-rows: auto;
     grid-template-areas: 'page context richtext';
-    column-gap: 1rem;
+    column-gap: 2em;
 
     .page{
       grid-area: page;
