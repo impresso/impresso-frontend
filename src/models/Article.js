@@ -13,21 +13,21 @@ import Tag from './Tag';
  * @param {Date} date Date of the article
  * @param {String} excerpt First 20 or so words of an article
  * @param {Integer} dl number of entities (Document Length)
- * @param {Boolean} isCC ???
- * @param {Boolean} isFront ???
+ * @param {Boolean} isCC wether the article regions are corrected
+ * @param {Boolean} isFront appears on the frontpage
  * @param {Issue} issue Issue object of the article
  * @param {Array} labels Array of Strings with labels for the article
  * @param {String} language The language of the article
  * @param {Array} matches Array of Matches objects
- * @param {Interger} nbPages ???
+ * @param {Interger} nbPages article page spread
  * @param {Newspaper} newspaper Newspaper object
  * @param {Array} pages Array of Page objects
  * @param {Array} regions Array of Region objects
- * @param {Integer} size ???
+ * @param {Integer} size character count
  * @param {Array} tags Array of Tag objects
  * @param {Interger} time Unix timestamp of the article
  * @param {String} title Title of the article
- * @param {String} type ???
+ * @param {String} type type of article 'ad' = advertisement, 'ar' = article
  * @param {String} uid Unique identifier for the article
  * @param {Number} year Year of the article
  */
