@@ -4,7 +4,7 @@
 
       <li v-for="region in article.regions" class="region py-4">
         <div class="page">
-          <p class="text-tertiary">p. {{ region.pageUid .slice(-2) }}</p>
+          <p class="text-tertiary">p. {{ region.pageUid.slice(-2) }}</p>
         </div>
         <div class="context">
           <img v-bind:src="region.iiif_fragment" width="100%" />
