@@ -21,27 +21,25 @@
 
 <script>
 import Page from '@/models/Page';
+import Issue from '@/models/Issue';
 import ThumbnailSliderItem from './ThumbnailSliderItem';
 
 export default {
   model: {
-    prop: 'issue',
+    prop: 'page',
   },
   data: () => ({
     bounds: [],
-    mountedTiles: 0,
   }),
   props: {
-    issue: {},
-    viewer: {
-      default: false,
-    },
+    issue: new Issue(),
+    viewer: false,
     page: new Page(),
   },
   mounted() {},
   methods: {
     onClickPage(item) {
-      this.$emit('click', item);
+      this.$emit('input', item);
     },
   },
   watch: {
@@ -64,8 +62,6 @@ export default {
 </script>
 
 <style lang="less">
-// @import "./../../assets/less/style.less";
-
 #thumbnail-slider {
     height: 100%;
     overflow-x: hidden;

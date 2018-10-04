@@ -1,33 +1,5 @@
 <template lang="html">
-  <div id="issue-viewer">
-      <thumbnail-slider
-      v-model="issue"
-      v-bind:viewer="viewer"
-      v-on:click="goToPage"
-      v-bind:page_uid="page.uid"
-      v-bind:page="page"
-      class="strip"
-      ></thumbnail-slider>
-    <div id="os-viewer"></div>
-    <b-navbar class="header" type="light" variant="light">
-      <b-button-toolbar class="mx-auto">
-        <b-button-group class="mx-1" size="sm">
-          <b-btn v-on:click.prevent="goToPage('first')">&laquo;</b-btn>
-          <b-btn v-on:click.prevent="goToPage('previous')">&lsaquo;</b-btn>
-        </b-button-group>
-        <b-navbar-nav>
-          <b-nav-text>{{page.num}} / {{issue.lastPageNumber}}</b-nav-text>
-        </b-navbar-nav>
-        <b-button-group class="mx-1" size="sm">
-          <b-btn v-on:click.prevent="goToPage('next')">&rsaquo;</b-btn>
-          <b-btn v-on:click.prevent="goToPage('last')">&raquo;</b-btn>
-        </b-button-group>
-      </b-button-toolbar>
-    </b-navbar>
-    <div class="controls pt-4">
-      <issue-viewer-zoom-slider v-model="zoom" v-bind:domain="domain"></issue-viewer-zoom-slider>
-    </div>
-  </div>
+  <div id="os-viewer"></div>
 </template>
 
 <script>
@@ -35,12 +7,10 @@ import OpenSeadragon from 'openseadragon';
 import ViewerOverlay from '@/d3-modules/ViewerOverlay';
 import Page from '@/models/Page';
 import Issue from '@/models/Issue';
-import ThumbnailSlider from './ThumbnailSlider';
-import IssueViewerZoomSlider from './IssueViewerZoomSlider';
 
 export default {
   model: {
-    prop: 'issue',
+    prop: 'viewer',
   },
   props: {
     issue: {
@@ -58,28 +28,15 @@ export default {
     page: {
       default: new Page(),
     },
+    viewer: false,
   },
   data: () => ({
-    viewer: false,
     overlay: null,
   }),
-  computed: {
-    domain() {
-      return [this.minZoomLevel, this.maxZoomLevel];
-    },
-    zoom: {
-      get() {
-        return this.zoomLevel;
-      },
-      set(val) {
-        this.$emit('zoom', val);
-      },
-    },
-  },
   methods: {
     init() {
       if (!this.viewer) {
-        this.viewer = OpenSeadragon({
+        const viewer = OpenSeadragon({
           // debugMode: true,
           sequenceMode: true,
           id: 'os-viewer',
@@ -98,27 +55,14 @@ export default {
           visibilityRatio: 0.1,
         });
 
-        this.overlay = new ViewerOverlay(this.viewer);
+        this.overlay = new ViewerOverlay(viewer);
 
-        this.viewer.addHandler('zoom', (event) => {
+        viewer.addHandler('zoom', (event) => {
           this.overlay.updateZoomLevel(event.zoom);
           this.$emit('zoom', event.zoom);
         });
-      }
-    },
-    goToPage(page) {
-      const index = this.issue.pages.findIndex(p => p.uid === this.page.uid);
 
-      if (page instanceof Page) {
-        this.$emit('click', page);
-      } else if (page === 'previous') {
-        this.$emit('click', this.issue.pages[Math.max(0, index - 1)]);
-      } else if (page === 'next') {
-        this.$emit('click', this.issue.pages[Math.min(this.issue.pages.length - 1, index + 1)]);
-      } else if (page === 'first') {
-        this.$emit('click', this.issue.pages[0]);
-      } else if (page === 'last') {
-        this.$emit('click', this.issue.pages[this.issue.pages.length - 1]);
+        this.$emit('input', viewer);
       }
     },
   },
@@ -126,11 +70,6 @@ export default {
     issue: {
       handler() {
         this.init();
-      },
-    },
-    zoomLevel: {
-      handler(val) {
-        this.viewer.viewport.zoomTo(val);
       },
     },
     page: {
@@ -142,41 +81,12 @@ export default {
       },
     },
   },
-  mounted() {},
-  components: {
-    ThumbnailSlider,
-    IssueViewerZoomSlider,
-  },
 };
 </script>
 
 <style lang="less">
-#issue-viewer {
-    background: #eeeeee;
-    display: grid;
-    grid-template-columns: 120px auto 52px;
-    grid-template-rows: 50px auto;
-    grid-template-areas: "header header header" "strip osviewer controls";
-    height: 100%;
-    position: relative;
-    .strip {
-        grid-area: strip;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-    }
-
-    .controls {
-        grid-area: controls;
-    }
-
-    .header {
-        grid-area: header;
-    }
-}
-
 #os-viewer {
-    grid-area: osviewer;
+  height: 100%;
 
     .openseadragon-canvas {
         outline: none;

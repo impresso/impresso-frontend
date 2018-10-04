@@ -1,63 +1,63 @@
 <template lang='html'>
     <i-layout id="IssuePage">
-    <i-layout-section width="400px">
-      <div slot="header" class="pt-2">
-        <base-tabs v-model="tab" v-bind:tabs="tabs"></base-tabs>
-      </div>
-      <div class="px-3 py-4" v-show="tab.name == 'overview'">
-        <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
-        <collection-tagger v-model="issue"></collection-tagger>
-        <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
-        <p><strong><i>Le Temps</i> is a Swiss French-language daily newspaper published in Berliner
-          format in Geneva by Le Temaps SA.</strong></p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-          nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit
-          esse cillum dolore eu fugiat nulla pariatur.</p>
-        <hr>
-        <named-entity-explorer v-model="issue"></named-entity-explorer>
-      </div>
-      <div v-show="tab.name === 'toc'">
-        <h4>table of contents</h4>
-      </div>
-      <div v-show="tab.name === 'search'">
-        <h4>search</h4>
-      </div>
-    </i-layout-section>
-    <i-layout-section>
-      <issue-viewer
-        v-model="issue"
-        v-bind:minZoomLevel="minZoomLevel"
-        v-bind:maxZoomLevel="maxZoomLevel"
-        v-bind:zoomLevel="zoomLevel"
-        v-bind:page="page"
-        v-on:zoom="onZoom"
-        v-on:click="onClick"
-        ></issue-viewer>
+      <i-layout-section width="400px" class="border-right">
+        <div slot="header" class="pt-2">
+          <base-tabs v-model="tab" v-bind:tabs="tabs"></base-tabs>
+        </div>
+        <div class="px-3 py-4" v-show="tab.name == 'overview'">
+          <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
+          <collection-tagger v-model="issue"></collection-tagger>
+          <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
+          <p>{{issue.newspaper}}</p>
+        </div>
+        <div v-show="tab.name === 'toc'">
+          <h4>table of contents</h4>
+        </div>
+        <div v-show="tab.name === 'search'">
+          <h4>search</h4>
+        </div>
+      </i-layout-section>
+      <i-layout-section>
+        <div class="main">
+          <div class="header border-bottom p-2">
+            <pagination
+            v-model="currentPage"
+            v-bind:totalRows="totalRows"
+            v-bind:size="'sm'"
+            v-bind:align="'left'" />
+          </div>
+          <div class="strip">
+            <thumbnail-slider
+              v-bind:issue="issue"
+              v-model="page"
+              v-bind:viewer="viewer" />
+          </div>
+          <div class="viewer">
+            <issue-viewer
+            v-model="viewer"
+            v-bind:issue="issue"
+            v-bind:page="page" />
+          </div>
+        </div>
       </i-layout-section>
     </i-layout>
 </template>
 
 <script>
 import Page from '@/models/Page';
+import Pagination from './modules/Pagination';
 import CollectionTagger from './CollectionTagger';
-import NamedEntityExplorer from './NamedEntityExplorer';
-import IssueViewer from './modules/IssueViewer';
-import IssueViewerZoomSlider from './modules/IssueViewerZoomSlider';
 import BaseTabs from './base/BaseTabs';
+import ThumbnailSlider from './modules/ThumbnailSlider';
+import IssueViewer from './modules/IssueViewer';
 
 export default {
   data: () => ({
-    zoomLevel: 0.5,
-    minZoomLevel: 0.25,
-    maxZoomLevel: 4,
     page: new Page(),
+    viewer: false,
     tab: {},
   }),
   computed: {
-    userDataActive() {
-      return this.$store.state.settings.sidebar_userdata_expanded;
-    },
     issue() {
       return this.$store.state.issue.issue;
     },
@@ -78,34 +78,28 @@ export default {
         },
       ];
     },
+    totalRows: {
+      get() {
+        return this.issue.pages.length;
+      },
+    },
+    currentPage: {
+      get() {
+        return this.issue.pages.indexOf(this.page) + 1 || 1;
+      },
+      set(val) {
+        this.page = this.issue.pages[val - 1];
+      },
+    },
   },
   components: {
-    NamedEntityExplorer,
-    IssueViewer,
-    IssueViewerZoomSlider,
     CollectionTagger,
     BaseTabs,
-  },
-  methods: {
-    toggleUserData() {
-      this.$store.commit('settings/TOGGLE_USERDATA_EXPANDED');
-    },
-    onZoom(zoom) {
-      this.zoomLevel = zoom;
-    },
-    onClick(page) {
-      // TODO: name: 'article' when there is an article_uid
-      this.$router.push({
-        name: 'page',
-        params: {
-          issue_uid: this.issue.uid,
-          page_uid: page.uid,
-        },
-      });
-    },
+    ThumbnailSlider,
+    IssueViewer,
+    Pagination,
   },
   mounted() {
-    console.log(this.$t('tabs.toc'));
     this.$store.dispatch('issue/LOAD_ISSUE', this.$route.params.issue_uid).then((issue) => {
       let pageUid = issue.pages[0].uid;
 
@@ -131,11 +125,43 @@ export default {
         });
       },
     },
+    page() {
+      this.$router.push({
+        name: 'page',
+        params: {
+          issue_uid: this.issue.uid,
+          page_uid: this.page.uid,
+        },
+      });
+    },
   },
 };
 </script>
 
 <style scoped lang='less'>
+.main{
+  background: #eeeeee;
+  display: grid;
+  grid-template-columns: 120px auto;
+  grid-template-rows: min-content auto;
+  grid-template-areas: "header header" "strip viewer";
+  height: 100%;
+  position: relative;
+  .strip {
+      grid-area: strip;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+  }
+
+  .header {
+      grid-area: header;
+  }
+
+  .viewer{
+    grid-area: viewer;
+  }
+}
 </style>
 
 <i18n>

@@ -1,19 +1,23 @@
 <template lang="html">
 <div class="">
   <b-pagination
-    size="md"
+    v-bind:size="size"
     v-bind:value="currentPage"
     v-bind:total-rows="totalRows"
     v-bind:per-page="perPage"
     v-on:change="onChange"
     v-on:input="onInput"
+    v-bind:align="align"
+    class="m-0"
   ></b-pagination>
-  {{$t("description", {
-    firstResult: firstResult,
-    lastResult: lastResult,
-    totalRows: totalRows,
-    totalPages: totalPages
-  })}}
+  <div v-if="showDescription">
+    {{$t("description", {
+      firstResult: firstResult,
+      lastResult: lastResult,
+      totalRows: totalRows,
+      totalPages: totalPages
+    })}}
+  </div>
 </div>
 </template>
 
@@ -26,10 +30,13 @@ Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 
 export default {
+  model: {
+    prop: 'currentPage',
+  },
   props: {
     perPage: {
       type: Number,
-      default: 10,
+      default: 1,
     },
     currentPage: {
       type: Number,
@@ -37,7 +44,16 @@ export default {
     },
     totalRows: {
       type: Number,
-      default: 70,
+      default: 1,
+    },
+    align: {
+      default: 'left',
+    },
+    showDescription: {
+      default: false,
+    },
+    size: {
+      default: 'md',
     },
   },
   computed: {
