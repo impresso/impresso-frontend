@@ -1,17 +1,22 @@
 <template lang="html">
   <div class="article m-2">
+    <ul class="regions">
 
-    <div class="page">
-      <p class="text-tertiary">p. {{article.pages[0].num}}</p>
-    </div>
-    <div class="context">
-      <img src="https://dummyimage.com/300x420/eee/ccc" width="100%" />
-    </div>
-    <div class="text">
-      <h5 v-html="article.title"></h5>
-      <p v-html="article.contents" class="text-tertiary"></p>
-    </div>
+      <li v-for="region in article.regions" class="region py-4">
+        <div class="page">
+          <p class="text-tertiary">p. {{ region.pageUid.slice(-2) }}</p>
+        </div>
+        <div class="context">
+          <img v-bind:src="region.iiif_fragment" width="100%" />
+        </div>
+        <div class="richtext text-tertiary">
+          <p v-for="line in region.g" v-html="line" class="mb-0"></p>
+        </div>
+      </li>
+
+    </ul>
     <div class="controls text-right">
+      <h5>{{ article.title }}</h5>
       <b-button-group>
         <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
       </b-button-group>
@@ -48,25 +53,37 @@ export default {
 <style scoped lang="less">
 .article {
     display: grid;
-    grid-template-columns: 40px 1fr 2fr 220px;
+    grid-template-columns: 1fr 220px;
     grid-template-rows: auto;
-    grid-template-areas: 'page richtext context controls';
+    grid-template-areas: 'regions controls';
     column-gap: 1rem;
+
+    .regions {
+      grid-area: regions;
+    }
+
+    .controls{
+      grid-area: controls;
+    }
+}
+.region {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: 'page context richtext';
+    column-gap: 2em;
 
     .page{
       grid-area: page;
     }
 
     .context{
-      grid-area: richtext;
-    }
-
-    .content{
       grid-area: context;
     }
 
-    .controls{
-      grid-area: controls;
+    .richtext {
+      grid-area: richtext;
     }
+
 }
 </style>
