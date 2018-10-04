@@ -20,9 +20,17 @@ export default function FilterYear({
     return new Bucket(bucket);
   });
 
-  this.getQuery = () => ({
-    context: this.context,
-    type: this.type,
-    q: this.buckets.map(bucket => bucket.val),
-  });
+  this.getQuery = function () {
+    const filters = this.buckets.filter(bucket => bucket.included);
+
+    if (filters.length > 0) {
+      return {
+        context: this.context,
+        type: this.type,
+        q: filters.map(bucket => bucket.val),
+      };
+    }
+
+    return null;
+  };
 }

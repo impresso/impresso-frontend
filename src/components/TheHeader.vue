@@ -2,7 +2,7 @@
   <b-navbar id="TheHeader" toggleable="md" type="dark" v-bind:variant="navbarVariant" class="py-0 pr-1">
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
     <b-navbar-brand :to="{name: 'home'}">
-      <img src="./../assets/img/impresso-logo-h-i@2x.png"  />
+      <img src="./../assets/img/impresso-logo-h-i@2x.png" />
     </b-navbar-brand>
     <b-collapse is-nav id="nav_collapse">
       <b-navbar-nav>
@@ -115,7 +115,6 @@ export default {
 </script>
 
 <style lang="scss">
-
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
@@ -139,7 +138,6 @@ export default {
     margin: auto;
     h1 {
       background: $clr-bg-primary;
-      font-family: questa-grande;
       font-size: 1em;
       text-align: center;
       padding: 1px 4px;
@@ -158,6 +156,16 @@ export default {
   .navbar-dark .navbar-nav .nav-link:focus {
     color: $clr-bg-primary;
     background: $clr-primary;
+  }
+  &::before{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    height: 2px;
+    background-color: $clr-accent-light;
+    content: '';
   }
 }
 </style>

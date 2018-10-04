@@ -1,5 +1,6 @@
 <template lang="html">
   <div class="filter py-1 bb">
+    <base-title-bar v-if="title" class="title">{{title}}</base-title-bar>
     <div class="context pr-2">
       <slot name="context"/>
     </div>
@@ -16,9 +17,10 @@
 </template>
 
 <script>
+import 'vue-awesome/icons/times';
 import Icon from 'vue-awesome/components/Icon';
 
-import 'vue-awesome/icons/times';
+import BaseTitleBar from './../base/BaseTitleBar';
 
 export default {
   methods: {
@@ -26,8 +28,10 @@ export default {
       this.$emit('remove');
     },
   },
+  props: ['title'],
   components: {
     Icon,
+    BaseTitleBar,
   },
 };
 </script>
@@ -37,7 +41,11 @@ export default {
     display: grid;
     grid-template-columns: max-content auto max-content;
     grid-template-rows: auto;
-    grid-template-areas: 'context content controls';
+    grid-template-areas: 'title title title' 'context content controls';
+
+    .title{
+      grid-area: title;
+    }
 
     .context{
       grid-area: context;

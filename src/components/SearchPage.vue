@@ -1,12 +1,17 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
-    <div class="px-4 py-4 border-bottom">
+    <div slot="header" class="px-4 py-4 border-bottom">
       <search-bar />
     </div>
-    <div class="py-4 border-bottom">
+    <div class="py-4">
       <search-filters v-on:remove="search()" v-on:submit="search()" />
-      <search-facets v-on:submit="search()" />
+    </div>
+    <div slot="footer">
+      <b-button-group class="d-flex bg-white">
+        <b-button class="w-100" v-on:click="search()">Search</b-button>
+        <b-button class="w-100" v-on:click="reset">Clear</b-button>
+      </b-button-group>
     </div>
   </i-layout-section>
   <i-layout-section>
@@ -34,7 +39,7 @@
       <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
     </b-navbar>
 
-    <div class="p-2">
+    <div class="p-1">
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
@@ -52,7 +57,8 @@
         v-bind:perPage="paginationPerPage"
         v-bind:currentPage="paginationCurrentPage"
         v-bind:totalRows="paginationTotalRows"
-        v-on:input="onInputPagination" v-on:change="search" />
+        v-on:input="onInputPagination" v-on:change="search"
+        v-bind:showDescription="true" />
     </div>
   </i-layout-section>
 </i-layout>
@@ -62,7 +68,6 @@
 import SearchBar from './SearchBar';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
-import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
@@ -199,7 +204,6 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filters': SearchFilters,
-    'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
   },
   mounted() {

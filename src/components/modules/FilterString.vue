@@ -1,5 +1,5 @@
 <template lang="html">
-  <filter-wrapper v-bind:title="$t('query')" v-on:remove="remove">
+  <filter-wrapper v-on:remove="remove">
     <div slot="context">
       <i-dropdown
       v-model="filter.context"
