@@ -17,6 +17,10 @@ export default {
       const index = state.issue.pages.findIndex(page => page.uid === payload.uid);
       state.issue.pages[index] = new Page(payload);
     },
+    UPDATE_ARTICLES(state, payload) {
+      const pageIndex = state.issue.pages.findIndex(page => page.uid === payload.uid);
+      state.issue.pages[pageIndex].articles = payload.articles;
+    },
     UPDATE_ARTICLE(state, payload) {
       const index = state.issue.articles.findIndex(article => article.uid === payload.uid);
       state.issue.articles[index] = new Article(payload);
@@ -59,7 +63,7 @@ export default {
             ...response,
             articles: response.articles.map((article) => {
               article.newspaperUid = article.newspaper_uid;
-              return article;
+              return new Article(article);
             }),
             articlesEntities: response.articles_entities.map((item) => {
               item.articleUid = item.article_uid;
@@ -88,13 +92,26 @@ export default {
         });
       });
     },
-    LOAD_ARTICLE(context, uid) {
+    LOAD_ARTICLES(context, uid) {
       return new Promise((resolve, reject) => {
-        services.articles.get(uid, {}).then((response) => {
-          resolve(response);
-          context.commit('UPDATE_ARTICLE', {
-            ...response,
+        const q = {
+          query: {
+            filters: [{
+              type: 'page',
+              q: uid,
+            }],
+            limit: 500,
+          },
+        };
+        services.articles.find(q)
+        .then((response) => {
+          context.commit('UPDATE_ARTICLES', {
+            articles: response.data.map(article => new Article({
+              ...article,
+            })),
+            uid,
           });
+          resolve(response);
         }, (error) => {
           reject(error);
         });

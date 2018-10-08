@@ -8,7 +8,6 @@
           <h1 class="text-serif font-weight-bold">{{issue.newspaper['name']}}</h1>
           <collection-tagger v-model="issue"></collection-tagger>
           <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
-          <p>{{issue.newspaper}}</p>
         </div>
         <div v-show="tab.name === 'toc'">
           <h4>table of contents</h4>
@@ -18,37 +17,54 @@
         </div>
       </i-layout-section>
       <i-layout-section>
-        <div class="main">
-          <div class="header border-bottom p-2">
-            <pagination
-            v-model="currentPage"
-            v-bind:totalRows="totalRows"
-            v-bind:size="'sm'"
-            v-bind:align="'left'" />
-          </div>
-          <div class="strip">
-            <thumbnail-slider
-              v-bind:issue="issue"
-              v-model="page"
-              v-bind:viewer="viewer" />
-          </div>
-          <div class="viewer">
-            <issue-viewer
-            v-model="viewer"
-            v-bind:issue="issue"
-            v-bind:page="page" />
-          </div>
+        <div slot="header" class="border-bottom">
+          <b-navbar type="light" variant="light" class="px-0 py-0">
+            <b-navbar-nav class="px-2 py-2">
+              <pagination
+              v-model="currentPage"
+              v-bind:totalRows="totalRows"
+              v-bind:size="'sm'"
+              v-bind:align="'left'" />
+            </b-navbar-nav>
+            <b-navbar-nav class="px-2 py-2">
+              <div>
+                <label class="mr-2">{{$t("label_display")}}</label>
+                <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" v-on:input="loadArticles" buttons>
+                  <b-form-radio value="image">{{$t("display_button_image")}}</b-form-radio>
+                  <b-form-radio value="text">{{$t("display_button_text")}}</b-form-radio>
+                </b-form-radio-group>
+              </div>
+            </b-navbar-nav>
+          </b-navbar>
         </div>
+        <i-layout class="bg-light">
+            <i-layout-section width="120px">
+              <thumbnail-slider
+                v-bind:issue="issue"
+                v-model="page"
+                v-bind:viewer="viewer" />
+            </i-layout-section>
+            <i-layout-section>
+              <issue-viewer-image
+                v-show="mode === 'image'"
+                v-model="viewer"
+                v-bind:issue="issue"
+                v-bind:page="page" />
+              <issue-viewer-text
+                v-model="page"
+                v-show="mode === 'text'" />
+            </i-layout-section>
+        </i-layout>
+
       </i-layout-section>
     </i-layout>
 </template>
 
 <script>
-import Article from '@/models/Article';
 import Page from '@/models/Page';
-import ArticleViewer from './modules/ArticleViewer';
 import CollectionTagger from './CollectionTagger';
-import IssueViewer from './modules/IssueViewer';
+import IssueViewerText from './modules/IssueViewerText';
+import IssueViewerImage from './modules/IssueViewerImage';
 import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
 import ThumbnailSlider from './modules/ThumbnailSlider';
@@ -56,8 +72,7 @@ import ThumbnailSlider from './modules/ThumbnailSlider';
 export default {
   data: () => ({
     page: new Page(),
-    mode: 'image',
-    article: new Article(),
+    mode: 'text',
     viewer: false,
     tab: {},
   }),
@@ -97,27 +112,25 @@ export default {
     },
   },
   methods: {
-    toggleMode(mode) {
-      this.mode = mode;
-    },
-    loadArticle(articleUid) {
-      this.$store.dispatch('issue/LOAD_ARTICLE', articleUid).then((article) => {
-        this.article = article;
-      });
-    },
     loadPage(pageUid) {
       this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
         this.page = this.issue.pages.find(p => p.uid === page.uid);
+        this.loadArticles();
       });
+    },
+    loadArticles() {
+      if (this.mode === 'text') {
+        this.$store.dispatch('issue/LOAD_ARTICLES', this.page.uid);
+      }
     },
   },
   components: {
-    CollectionTagger,
     BaseTabs,
-    ThumbnailSlider,
-    IssueViewer,
+    CollectionTagger,
+    IssueViewerImage,
+    IssueViewerText,
     Pagination,
-    ArticleViewer,
+    ThumbnailSlider,
   },
   mounted() {
     this.$store.dispatch('issue/LOAD_ISSUE', this.$route.params.issue_uid).then((issue) => {
@@ -125,11 +138,6 @@ export default {
 
       if (typeof this.$route.params.page_uid !== 'undefined') {
         pageUid = this.$route.params.page_uid;
-      }
-
-      if (typeof this.$route.params.article_uid !== 'undefined') {
-        const articleUid = this.$route.params.article_uid;
-        this.loadArticle(articleUid);
       }
 
       this.$store.commit('SET_HEADER_TITLE', {
@@ -146,14 +154,6 @@ export default {
         this.loadPage(pageUid);
       },
     },
-    '$route.params.article_uid': {
-      handler(articleUid) {
-        this.loadArticle(articleUid);
-        // this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
-        //   this.page = this.issue.pages.find(p => p.uid === page.uid);
-        // });
-      },
-    },
     page() {
       this.$router.push({
         name: 'page',
@@ -168,37 +168,14 @@ export default {
 </script>
 
 <style scoped lang='less'>
-.main{
-  background: #eeeeee;
-  display: grid;
-  grid-template-columns: 120px auto;
-  grid-template-rows: min-content auto;
-  grid-template-areas: "header header" "strip viewer";
-  height: 100%;
-  position: relative;
-  .strip {
-      grid-area: strip;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-  }
-
-  .header {
-      grid-area: header;
-  }
-
-  .viewer{
-    grid-area: viewer;
-  }
-}
 </style>
 
 <i18n>
 {
   "en": {
     "label_display": "Display as",
-    "display_button_image": "Newspaper Page",
-    "display_button_text": "Article List",
+    "display_button_image": "Image",
+    "display_button_text": "Text",
     "tabs": {
         "overview": "Overview",
         "toc": "Table of Contents",

@@ -1,22 +1,18 @@
 <template lang="html">
-  <div class="">
-    <pre>{{page.articles[0]}}</pre>
-    <div v-for="article in page.articles" class="article m-2">
-      <ul class="regions">
-        <li v-for="region in article.regions" class="region py-4">
-          <div class="page">
-            <p class="text-tertiary">p. {{ region.pageUid.slice(-2) }}</p>
-          </div>
+  <div id="IssueViewerText">
+    <div v-for="article in page.articles" class="article p-2 border-bottom">
+      <div class="regions">
+        <div v-for="region in article.regions" class="region py-4">
           <div class="context">
             <img v-bind:src="region.iiif_fragment" width="100%" />
           </div>
           <div class="richtext text-tertiary">
             <p v-for="line in region.g" v-html="line" class="mb-0"></p>
           </div>
-        </li>
-      </ul>
+        </div>
+      </div>
       <div class="controls text-right">
-        <h5>{{ article.title }}</h5>
+        <h5>{{article.title}}</h5>
         <b-button-group>
           <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
         </b-button-group>
@@ -35,7 +31,6 @@
           <b-dropdown-item>First Action</b-dropdown-item>
         </b-dropdown>
       </div>
-
     </div>
   </div>
 </template>
@@ -72,14 +67,10 @@ export default {
 }
 .region {
     display: grid;
-    grid-template-columns: 40px 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
-    grid-template-areas: 'page context richtext';
+    grid-template-areas: 'context richtext';
     column-gap: 2em;
-
-    .page{
-      grid-area: page;
-    }
 
     .context{
       grid-area: context;
