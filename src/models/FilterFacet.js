@@ -24,7 +24,7 @@ export default function FilterYear({
     return new Bucket(bucket);
   });
 
-  this.getQuery = function () {
+  this.getQuery = () => {
     const filters = this.buckets.filter(bucket => bucket.included);
 
     if (filters.length > 0 && this.touched) {
@@ -38,11 +38,11 @@ export default function FilterYear({
     return null;
   };
 
-  this.touch = function () {
+  this.touch = () => {
     this.touched = true;
   };
 
-  this.untouch = function () {
+  this.untouch = () => {
     this.touched = false;
   };
 }
