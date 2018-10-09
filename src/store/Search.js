@@ -22,7 +22,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['newspaper', 'year', 'language'],
+    facetTypes: ['newspaper', 'language', 'year'], // this also sets the order of the filters
   },
   getters: {
     getSearches(state) {
@@ -76,7 +76,8 @@ export default {
       state.queryComponents = queryComponents;
     },
     ADD_FILTER(state, filter) {
-      state.search.filters.push({
+      const index = state.facetTypes.findIndex(facet => facet === filter.type);
+      state.search.filters[index] = ({
         ...filter,
       });
     },
@@ -224,7 +225,6 @@ export default {
                 });
 
                 context.commit('ADD_FACET', facet);
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet));
               }
 
               if (res.info.facets && res.info.facets.language) {
