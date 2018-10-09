@@ -1,6 +1,7 @@
 import * as services from '@/services';
 import Issue from '@/models/Issue';
 import Page from '@/models/Page';
+import Article from '@/models/Article';
 
 export default {
   namespaced: true,
@@ -15,6 +16,14 @@ export default {
     UPDATE_PAGE(state, payload) {
       const index = state.issue.pages.findIndex(page => page.uid === payload.uid);
       state.issue.pages[index] = new Page(payload);
+    },
+    UPDATE_ARTICLES(state, payload) {
+      const pageIndex = state.issue.pages.findIndex(page => page.uid === payload.uid);
+      state.issue.pages[pageIndex].articles = payload.articles;
+    },
+    UPDATE_ARTICLE(state, payload) {
+      const index = state.issue.articles.findIndex(article => article.uid === payload.uid);
+      state.issue.articles[index] = new Article(payload);
     },
   },
   actions: {
@@ -51,9 +60,10 @@ export default {
         services.pages.get(uid, {}).then((response) => {
           resolve(response);
           context.commit('UPDATE_PAGE', {
+            ...response,
             articles: response.articles.map((article) => {
               article.newspaperUid = article.newspaper_uid;
-              return article;
+              return new Article(article);
             }),
             articlesEntities: response.articles_entities.map((item) => {
               item.articleUid = item.article_uid;
@@ -68,10 +78,6 @@ export default {
               tag.properties.lastModifiedTime = tag.properties.last_modified_time;
               return tag;
             }),
-            entities: response.entities,
-            iiif: response.iiif,
-            labels: response.labels,
-            num: response.num,
             regions: response.regions.map((region) => {
               region.articleUid = region.article_uid;
               return region;
@@ -80,8 +86,32 @@ export default {
               tag.appliesTo = tag.applies_to;
               return tag;
             }),
-            uid: response.uid,
           });
+        }, (error) => {
+          reject(error);
+        });
+      });
+    },
+    LOAD_ARTICLES(context, uid) {
+      return new Promise((resolve, reject) => {
+        const q = {
+          query: {
+            filters: [{
+              type: 'page',
+              q: uid,
+            }],
+            limit: 500,
+          },
+        };
+        services.articles.find(q)
+        .then((response) => {
+          context.commit('UPDATE_ARTICLES', {
+            articles: response.data.map(article => new Article({
+              ...article,
+            })),
+            uid,
+          });
+          resolve(response);
         }, (error) => {
           reject(error);
         });

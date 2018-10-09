@@ -16,15 +16,15 @@
   </i-layout-section>
   <i-layout-section>
     <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-      <b-navbar-nav class="section px-3 py-3 pr-auto border-right">
+      <b-navbar-nav class="px-3 py-3 pr-auto border-right">
         <label class="mr-1">{{$t("label_group")}}</label>
         <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm" variant="outline-primary"></i-dropdown>
       </b-navbar-nav>
-      <b-navbar-nav class="px-3 py-3 section border-right">
+      <b-navbar-nav class="px-3 py-3 border-right">
         <label class="mr-1">{{$t("label_order")}}</label>
         <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
       </b-navbar-nav>
-      <b-navbar-nav class="px-3 py-3 section">
+      <b-navbar-nav class="px-3 py-3">
         <label class="mr-1">{{$t("label_display")}}</label>
         <b-nav-form>
           <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>

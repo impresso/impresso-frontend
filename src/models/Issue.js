@@ -2,6 +2,7 @@ import Collection from './Collection';
 import Entity from './Entity';
 import Newspaper from './Newspaper';
 import Page from './Page';
+import Article from './Article';
 
 /**
  * @class Issue is an object representing a newspaper issue
@@ -12,6 +13,7 @@ import Page from './Page';
  * @param {Array} entities Array of Entity objects
  * @param {Newspaper} newspaper Newspaper object
  * @param {Array} pages Array of Page objects
+ * @param {Array} articles Array of Article objects
  * @param {String} uid Unique identifier for the newspaper
  * @param {Integer} year Full year of issue
  */
@@ -23,6 +25,7 @@ export default function Issue({
   entities = [],
   newspaper = new Newspaper(),
   pages = [],
+  articles = [],
   uid = '',
   year = 0,
 } = {}) {
@@ -65,6 +68,14 @@ export default function Issue({
   } else {
     this.lastPageNumber = 0;
   }
+
+  this.articles = articles.map((article) => {
+    if (article instanceof Article) {
+      return article;
+    }
+
+    return new Article(article);
+  });
 
 
   this.uid = String(uid);
