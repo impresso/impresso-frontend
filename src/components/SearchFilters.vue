@@ -63,7 +63,6 @@ export default {
     },
     filters: {
       get() {
-        // TODO: here we can sort the filters in order of type text/entity etc to group them
         return this.search.filters;
       },
     },
