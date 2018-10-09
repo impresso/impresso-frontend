@@ -86,8 +86,7 @@ export default {
       }
     },
     UPDATE_FILTER(state, payload) {
-      const index = state.search.filters.findIndex(filter => filter.key === payload.key);
-      state.search.filters[index] = payload;
+      state.search.filters[payload.index] = payload.filter;
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
@@ -129,8 +128,17 @@ export default {
   actions: {
     ADD_OR_REPLACE_FILTER(context, filter) {
       const index = context.state.search.filters.findIndex(item => item.type === filter.type);
-      context.commit('REMOVE_FILTER', index);
-      context.commit('ADD_FILTER', filter);
+      if (index > -1) {
+        context.commit('UPDATE_FILTER', {
+          index,
+          filter: {
+            ...filter,
+            touched: context.state.search.filters[index].touched,
+          },
+        });
+      } else {
+        context.commit('ADD_FILTER', filter);
+      }
     },
     SEARCH(context, paginationCurrentPage = 1) {
       context.commit('UPDATE_PAGINATION_CURRENT_PAGE', {
@@ -206,7 +214,7 @@ export default {
                 });
 
                 context.commit('ADD_FACET', facet);
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet), true);
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet));
               }
 
               if (res.info.facets && res.info.facets.year) {
@@ -216,7 +224,7 @@ export default {
                 });
 
                 context.commit('ADD_FACET', facet);
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet), true);
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet));
               }
 
               if (res.info.facets && res.info.facets.language) {
@@ -226,7 +234,7 @@ export default {
                 });
 
                 context.commit('ADD_FACET', facet);
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet), true);
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet));
               }
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {

@@ -2,7 +2,7 @@
   <div class="mb-4">
     <base-title-bar>
     {{$t(`label.${filter.type}`)}}
-      <b-button v-on:click="removeFilter" class="float-right" variant="link" size="sm">
+      <b-button v-on:click="removeFilter" class="float-right" variant="link" size="sm" v-show="filter.touched">
         <icon name="times" />
       </b-button>
     </base-title-bar>
@@ -28,9 +28,11 @@ export default {
   methods: {
     toggleBucket(bucket) {
       bucket.included = !bucket.included;
+      this.filter.touch();
     },
     removeFilter() {
       this.$emit('remove');
+      this.filter.untouch();
     },
   },
   components: {
