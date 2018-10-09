@@ -76,10 +76,7 @@ export default {
       state.queryComponents = queryComponents;
     },
     ADD_FILTER(state, filter) {
-      const index = state.facetTypes.findIndex(facet => facet === filter.type);
-      state.search.filters[index] = ({
-        ...filter,
-      });
+      state.search.filters.push(filter);
     },
     REMOVE_FILTER(state, index) {
       if (index > -1) {
