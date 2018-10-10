@@ -46,7 +46,6 @@ import FilterFacet from './modules/FilterFacet';
 import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterString from './modules/FilterString';
-import FilterFacetYear from './modules/FilterFacetYear';
 import Skyline from './d3/Skyline';
 
 export default {
@@ -98,7 +97,6 @@ export default {
     'filter-string': FilterString,
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
-    'filter-facet-year': FilterFacetYear,
     'filter-facet': FilterFacet,
     Skyline,
     BaseTitleBar,
