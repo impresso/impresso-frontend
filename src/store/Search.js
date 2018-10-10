@@ -129,10 +129,7 @@ export default {
       if (index > -1) {
         context.commit('UPDATE_FILTER', {
           index,
-          filter: {
-            ...filter,
-            touched: context.state.search.filters[index].touched,
-          },
+          filter,
         });
       } else {
         context.commit('ADD_FILTER', filter);
@@ -212,7 +209,16 @@ export default {
                 });
 
                 context.commit('ADD_FACET', facet);
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet));
+
+                const FilterFacet = FilterFactory.create(facet);
+
+                if (res.info.filters.findIndex(filter => filter.type === 'newspaper') === -1) {
+                  FilterFacet.untouch();
+                } else {
+                  FilterFacet.touch();
+                }
+
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
               }
 
               if (res.info.facets && res.info.facets.year) {
