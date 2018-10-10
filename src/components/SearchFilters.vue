@@ -34,7 +34,7 @@
         v-if="facetTypes.includes(filter.type.toLowerCase())"
         v-model="filters[index]"
         v-on:input="updateFilter"
-        v-on:remove="removeFilter(index)"
+        v-on:remove="submitFilter"
         />
     </div>
   </div>
@@ -46,7 +46,6 @@ import FilterFacet from './modules/FilterFacet';
 import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterString from './modules/FilterString';
-import FilterFacetYear from './modules/FilterFacetYear';
 import Skyline from './d3/Skyline';
 
 export default {
@@ -63,7 +62,6 @@ export default {
     },
     filters: {
       get() {
-        // TODO: here we can sort the filters in order of type text/entity etc to group them
         return this.search.filters;
       },
     },
@@ -99,7 +97,6 @@ export default {
     'filter-string': FilterString,
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
-    'filter-facet-year': FilterFacetYear,
     'filter-facet': FilterFacet,
     Skyline,
     BaseTitleBar,

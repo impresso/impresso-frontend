@@ -76,10 +76,7 @@ export default {
       state.queryComponents = queryComponents;
     },
     ADD_FILTER(state, filter) {
-      const index = state.facetTypes.findIndex(facet => facet === filter.type);
-      state.search.filters[index] = ({
-        ...filter,
-      });
+      state.search.filters.push(filter);
     },
     REMOVE_FILTER(state, index) {
       if (index > -1) {
@@ -87,7 +84,7 @@ export default {
       }
     },
     UPDATE_FILTER(state, payload) {
-      state.search.filters[payload.index] = payload.filter;
+      state.search.filters.splice(payload.index, 1, payload.filter);
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
@@ -132,10 +129,7 @@ export default {
       if (index > -1) {
         context.commit('UPDATE_FILTER', {
           index,
-          filter: {
-            ...filter,
-            touched: context.state.search.filters[index].touched,
-          },
+          filter,
         });
       } else {
         context.commit('ADD_FILTER', filter);
@@ -215,7 +209,16 @@ export default {
                 });
 
                 context.commit('ADD_FACET', facet);
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet));
+
+                const FilterFacet = FilterFactory.create(facet);
+
+                if (res.info.filters.findIndex(filter => filter.type === 'newspaper') === -1) {
+                  FilterFacet.untouch();
+                } else {
+                  FilterFacet.touch();
+                }
+
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
               }
 
               if (res.info.facets && res.info.facets.year) {
