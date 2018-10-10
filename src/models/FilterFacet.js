@@ -7,7 +7,7 @@ import Bucket from './Bucket';
  * @param {Boolean} touched wether the user has interacted with the filter
  */
 
-export default function FilterYear({
+export default function FilterFacet({
   buckets = {},
   type = '',
   touched = false,
