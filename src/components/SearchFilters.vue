@@ -34,7 +34,7 @@
         v-if="facetTypes.includes(filter.type.toLowerCase())"
         v-model="filters[index]"
         v-on:input="updateFilter"
-        v-on:remove="removeFilter(index)"
+        v-on:remove="submitFilter"
         />
     </div>
   </div>

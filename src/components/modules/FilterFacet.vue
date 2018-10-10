@@ -31,8 +31,10 @@ export default {
       this.filter.touch();
     },
     removeFilter() {
+      this.filter.buckets.forEach((bucket) => {
+        bucket.included = false;
+      });
       this.$emit('remove');
-      this.filter.untouch();
     },
   },
   components: {
