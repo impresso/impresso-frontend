@@ -338,6 +338,7 @@ svg.skyline {
 }
 
 .bs-tooltip-bottom {
+    pointer-events: none;
     padding-top: 0;
     .arrow {
         top: -0.4em;
