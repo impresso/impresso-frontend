@@ -156,6 +156,7 @@ export default {
     }
     .suggestions {
         position: absolute;
+        top: 100%;
         z-index: 10;
         width: 100%;
         background: $clr-bg-primary;
