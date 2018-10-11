@@ -51,14 +51,12 @@ export default {
 {
   "en": {
     "label": {
-      "year": "Year",
       "newspaper": "Newspaper Title",
       "language": "Language"
     }
   },
   "nl": {
     "label": {
-      "year": "Jaar",
       "newspaper": "Krant",
       "language": "Taal"
     }

@@ -190,6 +190,27 @@ export default {
                 }),
               })));
 
+              // add language facet/filter
+              if (res.info.facets && res.info.facets.language) {
+                const facet = new Facet({
+                  type: 'language',
+                  buckets: res.info.facets.language.buckets,
+                });
+
+                context.commit('ADD_FACET', facet);
+
+                const FilterFacet = FilterFactory.create(facet);
+
+                if (res.info.filters.findIndex(filter => filter.type === 'language') === -1) {
+                  FilterFacet.untouch();
+                } else {
+                  FilterFacet.touch();
+                }
+
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
+              }
+
+              // add newspaper facet/filter
               if (res.info.facets && res.info.facets.newspaper) {
                 const facet = new Facet({
                   type: 'newspaper',
@@ -221,6 +242,7 @@ export default {
                 context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
               }
 
+              // add year facet/filter
               if (res.info.facets && res.info.facets.year) {
                 const facet = new Facet({
                   type: 'year',
@@ -228,16 +250,16 @@ export default {
                 });
 
                 context.commit('ADD_FACET', facet);
-              }
 
-              if (res.info.facets && res.info.facets.language) {
-                const facet = new Facet({
-                  type: 'language',
-                  buckets: res.info.facets.language.buckets,
-                });
+                const FilterFacet = FilterFactory.create(facet);
 
-                context.commit('ADD_FACET', facet);
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet));
+                if (res.info.filters.findIndex(filter => filter.type === 'year') === -1) {
+                  FilterFacet.untouch();
+                } else {
+                  FilterFacet.touch();
+                }
+
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
               }
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
