@@ -77,6 +77,7 @@ export default new Vuex.Store({
       'user.rememberCredetials',
       'user.userData',
       'collections.collectionsSortOrder',
+      'issue.viewerMode',
     ],
   })],
 });
