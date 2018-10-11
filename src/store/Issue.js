@@ -7,6 +7,7 @@ export default {
   namespaced: true,
   state: {
     issue: new Issue(),
+    viewerMode: 'image', // text or image
   },
   getters: {},
   mutations: {
@@ -24,6 +25,9 @@ export default {
     UPDATE_ARTICLE(state, payload) {
       const index = state.issue.articles.findIndex(article => article.uid === payload.uid);
       state.issue.articles[index] = new Article(payload);
+    },
+    UPDATE_VIEWER_MODE(state, viewerMode) {
+      state.viewerMode = viewerMode;
     },
   },
   actions: {

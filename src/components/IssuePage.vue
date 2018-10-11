@@ -72,13 +72,20 @@ import ThumbnailSlider from './modules/ThumbnailSlider';
 export default {
   data: () => ({
     page: new Page(),
-    mode: 'text',
     viewer: false,
     tab: {},
   }),
   computed: {
     issue() {
       return this.$store.state.issue.issue;
+    },
+    mode: {
+      get() {
+        return this.$store.state.issue.viewerMode;
+      },
+      set(mode) {
+        this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
+      },
     },
     tabs() {
       return [
