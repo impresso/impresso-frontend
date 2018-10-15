@@ -47,7 +47,7 @@ export default {
 
 <style scoped lang="less">
 .thumbnail {
-    width: 185px;
+    width: 215px;
     height: 240px;
     position: relative;
     cursor: move;

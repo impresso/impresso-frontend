@@ -20,18 +20,17 @@ export default {
       id: this.id,
       tileSources: [this.tileSource],
       showNavigationControl: false,
-      minZoomLevel: 0.5,
-      defaultZoomLevel: 1,
+      minZoomLevel: 1,
+      fitBoundsPlacement: OpenSeadragon.Placement.CENTER,
     });
     this.viewer.addHandler('open', () => {
       const dw = this.viewer.world.getItemAt(0).getContentSize().x;
       const dh = this.viewer.world.getItemAt(0).getContentSize().y;
       const rect = new OpenSeadragon.Rect(
-        this.bbox[0] / dw,
-        this.bbox[1] / dh,
-        this.bbox[2] / dw,
-        this.bbox[3] / dh,
-        0,
+        (this.bbox[0] / dw) - 0.02,
+        (this.bbox[1] / dh) - 0.02,
+        (this.bbox[2] / dw) + 0.04,
+        (this.bbox[3] / dh) + 0.04,
       );
       this.viewer.viewport.fitBounds(rect, true);
     });
