@@ -1,9 +1,12 @@
 <template lang="html">
-  <div class="mb-4">
+  <div class="my-3">
     <div class="thumbnail">
-      <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
+      <open-seadragon-viewer
+        v-model="article.pages[0].iiif"
+        v-bind:bbox="article.regions[0].coords">
+      </open-seadragon-viewer>
     </div>
-    <a href="#" class="btn btn-primary btn-sm btn-block" v-on:click.prevent="click">View</a>
+    <a href="#" class="btn btn-outline-primary btn-sm btn-block" v-on:click.prevent="click">View</a>
   </div>
 </template>
 
@@ -29,10 +32,11 @@ export default {
 <style scoped lang="less">
 .thumbnail {
     width: 100%;
-    height: 180px;
+    height: 280px;
     cursor: move;
-    border:1px solid #ccc;
-    margin-bottom: 10px;
+    border-top:1px solid black;
+    border-left:1px solid black;
+    border-right:1px solid black;
 }
 </style>
 

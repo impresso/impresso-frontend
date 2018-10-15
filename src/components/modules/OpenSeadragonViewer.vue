@@ -23,7 +23,15 @@ export default {
       minZoomLevel: 1,
       fitBoundsPlacement: OpenSeadragon.Placement.CENTER,
     });
+    this.viewer.addHandler('animation-start', () => {
+      this.fitThumb();
+    });
     this.viewer.addHandler('open', () => {
+      this.fitThumb();
+    });
+  },
+  methods: {
+    fitThumb() {
       const dw = this.viewer.world.getItemAt(0).getContentSize().x;
       const dh = this.viewer.world.getItemAt(0).getContentSize().y;
       const rect = new OpenSeadragon.Rect(
@@ -33,7 +41,7 @@ export default {
         (this.bbox[3] / dh) + 0.04,
       );
       this.viewer.viewport.fitBounds(rect, true);
-    });
+    },
   },
   watch: {
     tileSource: {
