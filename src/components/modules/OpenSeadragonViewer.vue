@@ -1,5 +1,5 @@
 <template lang="html">
-    <div v-bind:id="id" class="os-viewer"></div>
+    <div v-bind:id="id" v-bind:bbox="bbox" class="os-viewer"></div>
 </template>
 
 <script>
@@ -11,7 +11,8 @@ export default {
   model: {
     prop: 'tileSource',
   },
-  props: ['tileSource'],
+  props: ['tileSource', 'bbox'],
+
   data: () => ({
     id: `os-viewer-${uuid.v4()}`,
   }),
@@ -22,6 +23,19 @@ export default {
       showNavigationControl: false,
       minZoomLevel: 0.5,
       defaultZoomLevel: 1,
+    });
+    this.viewer.addHandler('open', () => {
+      const dw = this.viewer.world.getItemAt(0).getContentSize().x;
+      const dh = this.viewer.world.getItemAt(0).getContentSize().y;
+      const rect = new OpenSeadragon.Rect(
+        this.bbox[0] / dw,
+        this.bbox[1] / dh,
+        this.bbox[2] / dw,
+        this.bbox[3] / dh,
+        0,
+      );
+      // console.log(rect);
+      this.viewer.viewport.fitBounds(rect, true);
     });
   },
   watch: {

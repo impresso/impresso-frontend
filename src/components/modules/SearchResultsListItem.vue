@@ -1,7 +1,10 @@
 <template lang="html">
   <b-media class="py-3 border-bottom">
     <div class="thumbnail" slot="aside" >
-      <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
+      <open-seadragon-viewer
+        v-model="article.pages[0].iiif"
+        v-bind:bbox="article.regions[0].coords">
+      </open-seadragon-viewer>
     </div>
     <h2><a href="#" v-on:click.prevent="click" v-html="article.title"></a></h2>
     <div class="article-meta mb-1">
@@ -9,6 +12,7 @@
       <span class="small-caps">{{$d(article.date, "long")}}</span>
       (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
     </div>
+    <pre style="color:red">{{article.regions[0].coords}}</pre>
     <div v-if="article.excerpt.length > 0" class="article-excerpt">{{article.excerpt}}</div>
     <ul class="article-matches">
       <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
