@@ -1,13 +1,20 @@
 <template lang="html">
-  <div class="mb-4">
+  <div v-bind:class="{'mb-4': expanded}">
     <base-title-bar>
-    {{$t(`label.${filter.type}`)}}
-      <b-button v-on:click="removeFilter" class="float-right" variant="link" size="sm" v-show="filter.touched">
+      {{$t(`label.${filter.type}`)}}
+      <b-button v-on:click="toggleExpanded" class="float-right" variant="link" size="sm">
+        <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
+      </b-button>
+      <b-button v-bind:disabled="!filter.touched" v-on:click="removeFilter" class="float-right" variant="link" size="sm">
         <icon name="times" />
       </b-button>
     </base-title-bar>
-    <vue-c3 v-bind:handler="handler"></vue-c3>
-    <div class="row">
+    <div style="overflow:hidden;">
+      <div v-bind:style="chartClass">
+        <vue-c3 v-bind:handler="handler"></vue-c3>
+      </div>
+    </div>
+    <div class="row" v-show="expanded">
       <b-input-group size="sm" v-bind:append="$t('label.start')" class="col">
         <flat-pickr v-model="start" v-on:on-close="setStart" class="form-control"></flat-pickr>
       </b-input-group>
@@ -21,6 +28,8 @@
 
 <script>
 import 'vue-awesome/icons/times';
+import 'vue-awesome/icons/chevron-down';
+import 'vue-awesome/icons/chevron-up';
 import Icon from 'vue-awesome/components/Icon';
 import Vue from 'vue';
 
@@ -37,6 +46,7 @@ export default {
     handler: new Vue(),
     start: new Date(),
     end: new Date(),
+    chartHeight: 350,
   }),
   model: {
     prop: 'filter',
@@ -44,7 +54,10 @@ export default {
   props: ['filter'],
   methods: {
     removeFilter() {
-
+      this.$emit('remove');
+    },
+    toggleExpanded() {
+      this.expanded = !this.expanded;
     },
     updateChart() {
       this.handler.$emit('dispatch', (chart) => {
@@ -55,12 +68,15 @@ export default {
             ['counts'].concat(this.counts),
           ],
         });
-        this.setDomain(chart.zoom());
+        this.setDomain();
       });
     },
-    setDomain(domain) {
-      this.start = new Date(domain[0]);
-      this.end = new Date(domain[1]);
+    setDomain() {
+      this.handler.$emit('dispatch', (chart) => {
+        const domain = chart.zoom();
+        this.start = new Date(domain[0]);
+        this.end = new Date(domain[1]);
+      });
     },
     setZoom() {
       this.handler.$emit('dispatch', (chart) => {
@@ -75,8 +91,22 @@ export default {
       this.end = new Date(end);
       this.setZoom();
     },
+    zoom() {
+      this.filter.touch();
+      this.setDomain();
+    },
+    touch() {
+      this.filter.touch();
+    },
   },
   computed: {
+    chartClass: {
+      get() {
+        return {
+          'margin-top': this.expanded ? 0 : `-${this.chartHeight - 110}px`,
+        };
+      },
+    },
     columns: {
       get() {
         return this.filter.buckets.map(bucket => new Date(bucket.val));
@@ -87,9 +117,18 @@ export default {
         return this.filter.buckets.map(bucket => bucket.count);
       },
     },
+    expanded: {
+      get() {
+        return this.$store.state.search.filterFacetYearExpanded;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_FILTER_FACET_YEAR_EXPANDED', val);
+      },
+    },
   },
   mounted() {
     const options = {
+      onrendered: this.setDomain,
       data: {
         x: 'x',
         columns: [
@@ -97,10 +136,14 @@ export default {
           ['counts'],
         ],
       },
+      subchart: {
+        show: true,
+        onbrush: this.touch,
+      },
       zoom: {
         enabled: true,
-        onzoom: this.setDomain,
         rescale: true,
+        onzoom: this.touch,
       },
       axis: {
         x: {
@@ -114,13 +157,10 @@ export default {
         },
       },
       size: {
-        height: 150,
+        height: this.chartHeight,
       },
       legend: {
         hide: true,
-      },
-      padding: {
-        bottom: -20,
       },
       color: {
         pattern: ['#000'],

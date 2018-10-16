@@ -23,6 +23,7 @@ export default {
     paginationTotalRows: 0,
     queryComponents: [],
     facetTypes: ['newspaper', 'language', 'year'], // this also sets the order of the filters
+    filterFacetYearExpanded: false,
   },
   getters: {
     getSearches(state) {
@@ -74,6 +75,9 @@ export default {
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
       state.queryComponents = queryComponents;
+    },
+    UPDATE_FILTER_FACET_YEAR_EXPANDED(state, expanded) {
+      state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
       state.search.filters.push(filter);
