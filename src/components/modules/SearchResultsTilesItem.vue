@@ -1,12 +1,20 @@
 <template lang="html">
-  <div class="my-3">
+  <div href="#" class="tile my-3 border">
     <div class="thumbnail">
       <open-seadragon-viewer
         v-model="article.pages[0].iiif"
         v-bind:bbox="article.regions[0].coords">
       </open-seadragon-viewer>
     </div>
-    <a href="#" class="btn btn-outline-primary btn-sm btn-block" v-on:click.prevent="click">View</a>
+      <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
+        <h2 v-show="article.title != ''" v-html="article.title" />
+        <div class="small-caps">
+          {{article.newspaper.name}}
+        </div>
+        <div class="small-caps">
+          {{$d(article.date, "long")}} (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+        </div>
+      </a>
   </div>
 </template>
 
@@ -30,14 +38,29 @@ export default {
 </script>
 
 <style scoped lang="less">
-.thumbnail {
-    width: 100%;
-    height: 280px;
-    cursor: move;
-    border-top:1px solid black;
-    border-left:1px solid black;
-    border-right:1px solid black;
+.tile {
+  &:hover {
+    transition: 0.2s;
+    border-color: black !important;
+  }
+  .titleblock {
+    display:block;
+    &:hover {
+      text-decoration: none;
+      border-color: black !important;
+    }
+  }
+  .thumbnail {
+      width: 100%;
+      height: 250px;
+      cursor: move;
+  }
+  h2 {
+    font-size: 1em;
+    font-weight: 500;
+  }
 }
+
 </style>
 
 <i18n>
