@@ -1,6 +1,6 @@
 <template lang="html">
   <b-media class="py-3 border-bottom">
-    <div class="thumbnail" slot="aside" >
+    <div class="thumbnail border" slot="aside" >
       <open-seadragon-viewer
         v-model="article.pages[0].iiif"
         v-bind:bbox="article.regions[0].coords">
@@ -51,7 +51,6 @@ export default {
     height: 240px;
     position: relative;
     cursor: move;
-    border:1px solid #ccc;
 }
 h2 {
   font-size: 1em;

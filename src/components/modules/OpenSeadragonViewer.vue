@@ -32,6 +32,7 @@ export default {
   },
   methods: {
     fitThumb() {
+      // create crop rect based on first article region, enlarged by 0.04%
       const dw = this.viewer.world.getItemAt(0).getContentSize().x;
       const dh = this.viewer.world.getItemAt(0).getContentSize().y;
       const rect = new OpenSeadragon.Rect(
