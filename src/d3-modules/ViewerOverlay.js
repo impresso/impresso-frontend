@@ -143,6 +143,54 @@ class ViewerOverlay {
       .append('div')
       .classed('region', true)
       .style('position', 'absolute');
+
+
+    // ///////
+
+    function handleRegionClick(article) {
+      console.log('active:', article.uid, ` (${article.title})`);
+      // d3.select('.action-overlay').remove();
+      // d3.select('body')
+      //   .append('div')
+      //   .classed('action-overlay', true)
+      //   .style('left', `${d3.event.pageX}px`)
+      //   .style('top', `${d3.event.pageY + 10}px`)
+      //   .html(`${article.title}`);
+      d3.select('body').selectAll('.active').classed('active', false);
+      d3.select(this).classed('active', true);
+    }
+
+    function handleRegionEnter() {
+      d3.select(this).classed('highlight', true);
+      d3.select('.action-overlay').remove();
+    }
+
+    function handleRegionLeave() {
+      d3.select(this).classed('highlight', false);
+    }
+
+    this.overlayRegions.articles = this.overlayRegions.selectAll('div.articleOverlay')
+      .data(this.page.articles)
+      .enter()
+      .append('div')
+      .attr('title', d => d.title)
+      .attr('class', d => d.labels.join(' '))
+      .classed('articleOverlay', true)
+      .on('click', handleRegionClick)
+      .on('mouseenter', handleRegionEnter)
+      .on('mouseleave', handleRegionLeave);
+
+    this.overlayRegions.regions = this.overlayRegions.articles.selectAll('div.region')
+      .data((article) => {
+        article.regions = this.page.regions
+          .filter(region => region.articleUid === article.uid)
+          .reduce((arr, d) => arr.concat(d.regions), []);
+        // console.log('hey', article.uid, article.regions);
+        return article.regions;
+      })
+      .enter()
+      .append('div')
+      .classed('region', true);
   }
 
   update(page) {

@@ -85,6 +85,7 @@ export default {
 </script>
 
 <style lang="less">
+
 #os-viewer {
   height: 100%;
 
@@ -163,15 +164,27 @@ export default {
         }
     }
 
-    #overlay-regions {
+    .articleOverlay {
+        position: relative;
         .region {
+            position: absolute;
+            border: 1px solid rgb(255, 225, 49);
             mix-blend-mode: multiply;
-            transition: background 200ms;
-            &:hover {
-                background: fade(#FFEB3B, 30);
-            }
+            transition: 200ms;
         }
     }
-
+    .articleOverlay.highlight {
+        .region {
+            background: rgba(255, 225, 49, 0.3);
+            border-width: 0.2em;
+        }
+    }
+    .articleOverlay.active {
+        .region {
+          background: rgba(49, 225, 255, 0.3);
+          border-color: rgb(49, 225, 255);
+          border-width: 0.2em;
+        }
+    }
 }
 </style>
