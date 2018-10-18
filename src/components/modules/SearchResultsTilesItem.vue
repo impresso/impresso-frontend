@@ -6,15 +6,15 @@
         v-bind:bbox="article.regions[0].coords">
       </open-seadragon-viewer>
     </div>
-      <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
-        <h2 v-show="article.title != ''" v-html="article.title" />
-        <div class="small-caps">
-          {{article.newspaper.name}}
-        </div>
-        <div class="small-caps">
-          {{$d(article.date, "long")}} (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
-        </div>
-      </a>
+    <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
+      <h2 v-show="article.title != ''" v-html="article.title" />
+      <div class="small-caps">
+        {{article.newspaper.name}}
+      </div>
+      <div class="small-caps">
+        {{$d(article.date, "long")}} (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+      </div>
+    </a>
   </div>
 </template>
 
