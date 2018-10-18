@@ -166,24 +166,25 @@ export default {
 
     .articleOverlay {
         position: relative;
+        cursor: pointer;
         .region {
             position: absolute;
             border: 1px solid rgb(255, 225, 49);
             mix-blend-mode: multiply;
             transition: 200ms;
         }
-    }
-    .articleOverlay.highlight {
-        .region {
-            background: rgba(255, 225, 49, 0.3);
-            border-width: 0.2em;
+        &.highlight {
+          .region {
+              background: rgba(255, 225, 49, 0.3);
+              border-width: 0.2em;
+          }
         }
-    }
-    .articleOverlay.active {
-        .region {
-          background: rgba(49, 225, 255, 0.3);
-          border-color: rgb(49, 225, 255);
-          border-width: 0.2em;
+        &.active {
+          .region {
+            background: rgba(49, 225, 255, 0.3);
+            border-color: rgb(49, 225, 255);
+            border-width: 0.2em;
+          }
         }
     }
 }
