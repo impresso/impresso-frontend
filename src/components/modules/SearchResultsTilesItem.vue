@@ -1,5 +1,5 @@
 <template lang="html">
-  <div href="#" class="tile my-3 border">
+  <div class="tile my-3 border">
     <div class="thumbnail">
       <open-seadragon-viewer
         v-model="article.pages[0].iiif"
