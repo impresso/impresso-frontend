@@ -9,8 +9,10 @@
           <collection-tagger v-model="issue"></collection-tagger>
           <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
         </div>
-        <div v-show="tab.name === 'toc'">
-          <h4>table of contents</h4>
+        <div class="px-3 py-4" v-show="tab.name === 'toc'">
+          <table-of-contents
+          v-model="toc"
+          v-on:click="loadArticle" />
         </div>
         <div v-show="tab.name === 'search'">
           <h4>search</h4>
@@ -67,6 +69,7 @@ import IssueViewerText from './modules/IssueViewerText';
 import IssueViewerImage from './modules/IssueViewerImage';
 import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
+import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
 export default {
@@ -78,6 +81,9 @@ export default {
   computed: {
     issue() {
       return this.$store.state.issue.issue;
+    },
+    toc() {
+      return this.$store.state.issue.toc;
     },
     mode: {
       get() {
@@ -130,6 +136,9 @@ export default {
         this.$store.dispatch('issue/LOAD_ARTICLES', this.page.uid);
       }
     },
+    loadArticle(articleUid) {
+      this.$store.dispatch('issue/LOAD_ARTICLE', articleUid);
+    },
   },
   components: {
     BaseTabs,
@@ -138,6 +147,7 @@ export default {
     IssueViewerText,
     Pagination,
     ThumbnailSlider,
+    TableOfContents,
   },
   mounted() {
     this.$store.dispatch('issue/LOAD_ISSUE', this.$route.params.issue_uid).then((issue) => {
@@ -154,6 +164,8 @@ export default {
 
       this.loadPage(pageUid);
     });
+
+    this.$store.dispatch('issue/LOAD_TOC', this.$route.params.issue_uid);
   },
   watch: {
     '$route.params.page_uid': {

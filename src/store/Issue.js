@@ -8,6 +8,8 @@ export default {
   state: {
     issue: new Issue(),
     viewerMode: 'image', // text or image
+    toc: [], // array of Article objects
+    article: new Article(),
   },
   getters: {},
   mutations: {
@@ -21,6 +23,9 @@ export default {
     UPDATE_ARTICLES(state, payload) {
       const pageIndex = state.issue.pages.findIndex(page => page.uid === payload.uid);
       state.issue.pages[pageIndex].articles = payload.articles;
+    },
+    UPDATE_TOC(state, payload) {
+      state.toc = payload.articles;
     },
     UPDATE_ARTICLE(state, payload) {
       const index = state.issue.articles.findIndex(article => article.uid === payload.uid);
@@ -119,6 +124,41 @@ export default {
         }, (error) => {
           reject(error);
         });
+      });
+    },
+    LOAD_ARTICLE(context, uid) {
+      return new Promise((resolve, reject) => {
+        services.articles.get(uid, {}).then((response) => {
+          this.article = new Article(response);
+          resolve(response);
+        }, (error) => {
+          reject(error);
+        });
+      });
+    },
+    LOAD_TOC(context, uid) {
+      return new Promise((resolve, reject) => {
+        const q = {
+          query: {
+            filters: [{
+              type: 'issue',
+              q: uid,
+            }],
+            limit: 500,
+          },
+        };
+        services.articles.find(q)
+          .then((response) => {
+            context.commit('UPDATE_TOC', {
+              articles: response.data.map(article => new Article({
+                ...article,
+              })),
+              uid,
+            });
+            resolve(response);
+          }, (error) => {
+            reject(error);
+          });
       });
     },
   },
