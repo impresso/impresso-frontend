@@ -1,66 +1,88 @@
 <template lang="html">
-  <div v-bind:id="id" v-bind:bbox="bbox" class="os-viewer"></div>
+  <div class="os-viewer"></div>
 </template>
 
 <script>
 import OpenSeadragon from 'openseadragon';
 
-const uuid = require('uuid');
-
 export default {
-  model: {
-    prop: 'tileSource',
+  props: {
+    handler: {
+      required: true,
+      type: Object,
+    },
   },
-  props: ['tileSource', 'bbox'],
   data: () => ({
-    id: `os-viewer-${uuid.v4()}`,
+    viewer: null,
   }),
   mounted() {
-    this.viewer = OpenSeadragon({
-      id: this.id,
-      tileSources: [this.tileSource],
-      showNavigationControl: false,
-      minZoomLevel: 1,
-      fitBoundsPlacement: OpenSeadragon.Placement.CENTER,
-    });
-    this.viewer.addHandler('animation-start', () => {
-      this.fitThumb();
-    });
-    this.viewer.addHandler('open', () => {
-      this.fitThumb();
-    });
+    if (this.handler) {
+      this.handler.$on('init', (options = {}) => {
+        this.viewer = OpenSeadragon({
+          element: this.$el,
+          showNavigationControl: false,
+          ...options,
+        });
+
+        this.viewer.addOnceHandler('tile-loaded', () => {
+          this.handler.$emit('tile-loaded', this.$el);
+        });
+      });
+
+      this.handler.$on('dispatch', (cb) => {
+        if (cb && this.viewer) {
+          cb.call(null, this.viewer);
+        }
+      });
+
+      this.handler.$on('destroy', () => {
+        this.destroy();
+      });
+
+      this.handler.$on('fit-bounds', (options) => {
+        const rect = this.viewer.viewport.imageToViewportRectangle(
+          options.x,
+          options.y,
+          options.w,
+          options.h);
+        this.viewer.viewport.fitBounds(rect, true);
+      });
+
+      this.handler.$on('add-overlay', (options = {}) => {
+        const rect = this.viewer.viewport.imageToViewportRectangle(
+          options.x,
+          options.y,
+          options.w,
+          options.h);
+
+        const overlay = window.document.createElement('div');
+        overlay.setAttribute('class', 'overlay-region');
+
+        this.viewer.addOverlay(overlay, rect);
+      });
+    }
   },
   methods: {
-    fitThumb() {
-      // create crop rect based on first article region, enlarged by 0.04%
-      const dw = this.viewer.world.getItemAt(0).getContentSize().x;
-      const dh = this.viewer.world.getItemAt(0).getContentSize().y;
-      const rect = new OpenSeadragon.Rect(
-        (this.bbox[0] / dw) - 0.02,
-        (this.bbox[1] / dh) - 0.02,
-        (this.bbox[2] / dw) + 0.04,
-        (this.bbox[3] / dh) + 0.04,
-      );
-      this.viewer.viewport.fitBounds(rect, true);
+    destroy() {
+      if (this.viewer) {
+        this.viewer = this.viewer.destroy();
+      }
     },
   },
-  watch: {
-    tileSource: {
-      handler(val) {
-        this.viewer.addTiledImage({
-          tileSource: val,
-          index: 0, // the index of the item. Added on top of all other items if not specified.
-          replace: true, // the item at index will be removed and the new item is added in its place
-        });
-      },
-    },
+  beforeDestroy() {
+    this.destroy();
   },
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 .os-viewer {
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
+
+  .overlay-region{
+    background: red;
+    opacity: 0.25;
+  }
 }
 </style>

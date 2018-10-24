@@ -57,7 +57,7 @@
         v-bind:perPage="paginationPerPage"
         v-bind:currentPage="paginationCurrentPage"
         v-bind:totalRows="paginationTotalRows"
-        v-on:input="onInputPagination" v-on:change="search"
+        v-on:change="onInputPagination"
         v-bind:showDescription="true" />
     </div>
   </i-layout-section>
