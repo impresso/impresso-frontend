@@ -42,18 +42,12 @@ export default {
     },
   },
   methods: {
-    // isHighlight(pages) {
-    //   pages.forEach( p => p.num)
-    //   for (const p of pages) {
-    //     console.log(p, p.num, this.currentPage);
-    //   }
-    // },
     setActiveArticle(article) {
       this.active = article.uid;
     },
     loadArticle(article) {
       this.setActiveArticle(article);
-      this.$emit('click', article.uid);
+      this.$emit('click', article.pages[0].uid);
     },
     theHeader(article) {
       if (article.title === '') {

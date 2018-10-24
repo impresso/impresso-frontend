@@ -13,7 +13,7 @@
           <table-of-contents
           v-model="toc"
           v-bind:currentPage="currentPage"
-          v-on:click="loadArticle" />
+          v-on:click="loadPage" />
         </div>
         <div v-show="tab.name === 'search'">
           <h4>search</h4>
@@ -138,6 +138,7 @@ export default {
       }
     },
     loadArticle(articleUid) {
+      // console.log('load', this.page.uid);
       this.$store.dispatch('issue/LOAD_ARTICLE', articleUid);
     },
   },
