@@ -12,6 +12,7 @@
         <div class="px-3 py-4" v-show="tab.name === 'toc'">
           <table-of-contents
           v-model="toc"
+          v-bind:currentPage="currentPage"
           v-on:click="loadArticle" />
         </div>
         <div v-show="tab.name === 'search'">

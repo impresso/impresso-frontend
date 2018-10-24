@@ -6,8 +6,8 @@
       v-on:click="setActiveArticle(article)"
       v-bind:class="{
         'active': article.uid === active,
-        'highlight': highlight.includes(article.uid) }">
-      <strong class="float-left w-75">{{ theHeader(article) }}</strong>
+        'highlight': article.pages.find( page => page.num === currentPage) != undefined }">
+      <strong class="title float-left w-75">{{ theHeader(article) }}</strong>
       <b-button
         class="btn btn-sm btn-secondary float-right"
         variant="outline-primary"
@@ -16,8 +16,9 @@
       <label class="w-100">pp. {{selected}}
         <b-badge variant="light" v-for="(page, index) in article.pages">{{page.num}}</b-badge>
       </label>
-      <p class="teaser mt-0 mb-1">
+      <p class="excerpt mt-0 mb-1">
         {{ theTeaser(article.excerpt, 120) }}
+
       </p>
       <!-- <pre>{{article}}</pre> -->
     </div>
@@ -33,14 +34,20 @@ export default {
     toc: {
       default: [],
     },
+    currentPage: {
+      default: 1,
+    },
     active: {
       default: '',
     },
-    highlight: {
-      default: [],
-    },
   },
   methods: {
+    // isHighlight(pages) {
+    //   pages.forEach( p => p.num)
+    //   for (const p of pages) {
+    //     console.log(p, p.num, this.currentPage);
+    //   }
+    // },
     setActiveArticle(article) {
       this.active = article.uid;
     },
@@ -50,9 +57,9 @@ export default {
     },
     theHeader(article) {
       if (article.title === '') {
-        return this.theTeaser(article.excerpt, 20);
+        return this.theTeaser(article.excerpt, 40);
       }
-      return article.title;
+      return this.theTeaser(article.title, 100);
     },
     theTeaser(excerpt, length) {
       if (excerpt.length > length) { return `${excerpt.substring(0, length)} ...`; }
@@ -64,17 +71,24 @@ export default {
 
 <style scoped lang="less">
 .listArticle {
-  border-left: 0.1em solid white;
-  cursor: grab;
+  border-left: 1px solid #e7e7e7;
+  cursor: pointer;
+  opacity: 0.6;
 }
 .highlight {
   background: white !important;
   border-color: lightblue;
+  outline: none;
+  opacity: 1;
 }
 .active {
   background: lightblue !important;
+  opacity: 1;
 }
-.teaser {
+.title {
+  font-size: smaller;
+}
+.excerpt {
   font-size: smaller;
 }
 </style>
