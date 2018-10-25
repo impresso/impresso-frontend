@@ -14,6 +14,7 @@ export default {
   },
   data: () => ({
     viewer: null,
+    overlays: [],
   }),
   mounted() {
     if (this.handler) {
@@ -48,12 +49,26 @@ export default {
         this.viewer.viewport.fitBounds(rect, true);
       });
 
+      this.handler.$on('fit-bounds-to-overlays', () => {
+        if (this.overlays.length) {
+          let rect = this.overlays.pop();
+
+          this.overlays.forEach((region) => {
+            rect = rect.union(region);
+          });
+
+          this.viewer.viewport.fitBounds(rect, true);
+        }
+      });
+
       this.handler.$on('add-overlay', (options = {}) => {
         const rect = this.viewer.viewport.imageToViewportRectangle(
           options.x,
           options.y,
           options.w,
           options.h);
+
+        this.overlays.push(rect);
 
         const overlay = window.document.createElement('div');
         overlay.setAttribute('class', 'overlay-region');
@@ -64,6 +79,8 @@ export default {
   },
   methods: {
     destroy() {
+      this.overlays = [];
+
       if (this.viewer) {
         this.viewer = this.viewer.destroy();
       }
