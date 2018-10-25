@@ -28,31 +28,16 @@ export default {
   model: {
     prop: 'page',
   },
-  data: () => ({
-    bounds: [],
-  }),
   props: {
     issue: new Issue(),
-    viewer: false,
+    bounds: false,
     page: new Page(),
   },
-  mounted() {},
+  mounted() {
+  },
   methods: {
     onClickPage(item) {
       this.$emit('input', item);
-    },
-  },
-  watch: {
-    viewer: {
-      handler() {
-        this.viewer.addHandler('animation', () => {
-          this.bounds = this.viewer.viewport.getBoundsNoRotate();
-        });
-
-        this.viewer.addHandler('update-viewport', () => {
-          this.bounds = this.viewer.viewport.getBoundsNoRotate();
-        });
-      },
     },
   },
   components: {
