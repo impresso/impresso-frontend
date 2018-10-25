@@ -111,7 +111,7 @@ export default function Article({
       return region;
     }
 
-    return region;
+    return new Region(region);
   });
 
   this.tags = tags.map((tag) => {

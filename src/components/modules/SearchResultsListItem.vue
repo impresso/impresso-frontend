@@ -52,18 +52,21 @@ export default {
     this.init();
 
     this.handler.$on('tile-loaded', () => {
-      const coords = this.article.regions[0] ? this.article.regions[0].coords : false;
+      if (this.article.isCC) {
+        this.article.regions.forEach((region) => {
+          if (region.pageUid === this.article.pages[0].uid) {
+            const overlay = {
+              x: region.coords.x,
+              y: region.coords.y,
+              w: region.coords.w,
+              h: region.coords.h,
+            };
 
-      if (coords && this.article.isCC) {
-        const overlay = {
-          x: coords[0],
-          y: coords[1],
-          w: coords[2],
-          h: coords[3],
-        };
+            this.handler.$emit('add-overlay', overlay);
+          }
+        });
 
-        this.handler.$emit('add-overlay', overlay);
-        this.handler.$emit('fit-bounds', overlay);
+        this.handler.$emit('fit-bounds-to-overlays');
       }
     });
   },
