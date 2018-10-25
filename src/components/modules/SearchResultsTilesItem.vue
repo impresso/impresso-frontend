@@ -50,7 +50,7 @@ export default {
     this.handler.$on('tile-loaded', () => {
       const coords = this.article.regions[0] ? this.article.regions[0].coords : false;
 
-      if (coords) {
+      if (coords && this.article.isCC) {
         const overlay = {
           x: coords[0],
           y: coords[1],
