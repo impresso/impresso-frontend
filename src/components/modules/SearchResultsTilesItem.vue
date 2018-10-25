@@ -1,16 +1,30 @@
-<template lang="html">
-  <div class="mb-4">
+'<template lang="html">
+  <div class="tile my-3 border">
     <div class="thumbnail">
-      <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
+      <open-seadragon-viewer
+        v-bind:handler="handler">
+      </open-seadragon-viewer>
     </div>
-    <a href="#" class="btn btn-primary btn-sm btn-block" v-on:click.prevent="click">View</a>
+    <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
+      <h2 v-show="article.title != ''" v-html="article.title" />
+      <div class="small-caps">
+        {{article.newspaper.name}}
+      </div>
+      <div class="small-caps">
+        {{$d(article.date, "long")}} (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+      </div>
+    </a>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
 import OpenSeadragonViewer from './OpenSeadragonViewer';
 
 export default {
+  data: () => ({
+    handler: new Vue(),
+  }),
   model: {
     prop: 'article',
   },
@@ -19,21 +33,71 @@ export default {
     click() {
       this.$emit('click');
     },
+    init() {
+      const options = {
+        tileSources: [this.article.pages[0].iiif],
+      };
+
+      this.handler.$emit('init', options);
+    },
   },
   components: {
     OpenSeadragonViewer,
+  },
+  mounted() {
+    this.init();
+
+    this.handler.$on('tile-loaded', () => {
+      const coords = this.article.regions[0] ? this.article.regions[0].coords : false;
+
+      if (coords) {
+        const overlay = {
+          x: coords[0],
+          y: coords[1],
+          w: coords[2],
+          h: coords[3],
+        };
+
+        this.handler.$emit('add-overlay', overlay);
+        this.handler.$emit('fit-bounds', overlay);
+      }
+    });
+  },
+  watch: {
+    article: {
+      handler() {
+        this.handler.$emit('destroy');
+        this.init();
+      },
+    },
   },
 };
 </script>
 
 <style scoped lang="less">
-.thumbnail {
-    width: 100%;
-    height: 180px;
-    cursor: move;
-    border:1px solid #ccc;
-    margin-bottom: 10px;
+.tile {
+  &:hover {
+    transition: 0.2s;
+    border-color: black !important;
+  }
+  .titleblock {
+    display:block;
+    &:hover {
+      text-decoration: none;
+      border-color: black !important;
+    }
+  }
+  .thumbnail {
+      width: 100%;
+      height: 250px;
+      cursor: move;
+  }
+  h2 {
+    font-size: 1em;
+    font-weight: 500;
+  }
 }
+
 </style>
 
 <i18n>

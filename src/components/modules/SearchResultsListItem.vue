@@ -1,7 +1,9 @@
 <template lang="html">
   <b-media class="py-3 border-bottom">
-    <div class="thumbnail" slot="aside" >
-      <open-seadragon-viewer v-model="article.pages[0].iiif"></open-seadragon-viewer>
+    <div class="thumbnail border" slot="aside" >
+      <open-seadragon-viewer
+        v-bind:handler="handler">
+      </open-seadragon-viewer>
     </div>
     <h2><a href="#" v-on:click.prevent="click" v-html="article.title"></a></h2>
     <div class="article-meta mb-1">
@@ -20,35 +22,68 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import OpenSeadragonViewer from './OpenSeadragonViewer';
 
 export default {
+  data: () => ({
+    handler: new Vue(),
+  }),
   model: {
     prop: 'article',
   },
-  props: {
-    article: {
-      required: true,
-    },
-  },
+  props: ['article'],
   methods: {
     click() {
       this.$emit('click');
     },
+    init() {
+      const options = {
+        tileSources: [this.article.pages[0].iiif],
+      };
+
+      this.handler.$emit('init', options);
+    },
   },
   components: {
     OpenSeadragonViewer,
+  },
+  mounted() {
+    this.init();
+
+    this.handler.$on('tile-loaded', () => {
+      const coords = this.article.regions[0] ? this.article.regions[0].coords : false;
+
+      if (coords) {
+        const overlay = {
+          x: coords[0],
+          y: coords[1],
+          w: coords[2],
+          h: coords[3],
+        };
+
+        this.handler.$emit('add-overlay', overlay);
+        this.handler.$emit('fit-bounds', overlay);
+      }
+    });
+  },
+  watch: {
+    article: {
+      handler() {
+        this.handler.$emit('destroy');
+        this.init();
+      },
+    },
   },
 };
 </script>
 
 <style scoped lang="less">
 .thumbnail {
-    width: 185px;
+    width: 215px;
     height: 240px;
     position: relative;
     cursor: move;
-    border:1px solid #ccc;
 }
 h2 {
   font-size: 1em;

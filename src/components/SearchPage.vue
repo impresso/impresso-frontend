@@ -47,7 +47,7 @@
           </b-col>
         </b-row>
         <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="12" md="6" lg="3" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+          <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
           </b-col>
         </b-row>
@@ -57,7 +57,7 @@
         v-bind:perPage="paginationPerPage"
         v-bind:currentPage="paginationCurrentPage"
         v-bind:totalRows="paginationTotalRows"
-        v-on:input="onInputPagination" v-on:change="search"
+        v-on:change="onInputPagination"
         v-bind:showDescription="true" />
     </div>
   </i-layout-section>
