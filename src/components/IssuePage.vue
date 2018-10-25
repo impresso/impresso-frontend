@@ -44,14 +44,13 @@
               <thumbnail-slider
                 v-bind:issue="issue"
                 v-model="page"
-                v-bind:viewer="viewer" />
+                v-bind:bounds="bounds" />
             </i-layout-section>
             <i-layout-section>
-              <issue-viewer-image
+              <open-seadragon-viewer
                 v-show="mode === 'image'"
-                v-model="viewer"
-                v-bind:issue="issue"
-                v-bind:page="page" />
+                v-bind:handler="handler">
+              </open-seadragon-viewer>
               <issue-viewer-text
                 v-model="page"
                 v-show="mode === 'text'" />
@@ -63,10 +62,12 @@
 </template>
 
 <script>
+import Vue from 'vue';
+
 import Page from '@/models/Page';
 import CollectionTagger from './CollectionTagger';
 import IssueViewerText from './modules/IssueViewerText';
-import IssueViewerImage from './modules/IssueViewerImage';
+import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
 import TableOfContents from './modules/TableOfContents';
@@ -75,7 +76,8 @@ import ThumbnailSlider from './modules/ThumbnailSlider';
 export default {
   data: () => ({
     page: new Page(),
-    viewer: false,
+    handler: new Vue(),
+    bounds: {},
     tab: {},
   }),
   computed: {
@@ -143,7 +145,7 @@ export default {
   components: {
     BaseTabs,
     CollectionTagger,
-    IssueViewerImage,
+    OpenSeadragonViewer,
     IssueViewerText,
     Pagination,
     ThumbnailSlider,
@@ -162,6 +164,33 @@ export default {
         title: this.issue.newspaper.name,
       });
 
+      const options = {
+        // debugMode: true,
+        sequenceMode: true,
+        showNavigationControl: false,
+        showSequenceControl: false,
+        initialPage: 0,
+        tileSources: this.issue.pages.map(elm => elm.iiif),
+        animationTime: 0,
+        gestureSettingsMouse: {
+          clickToZoom: false,
+          dblClickToZoom: true,
+        },
+        visibilityRatio: 0.1,
+      };
+
+      this.handler.$emit('init', options);
+
+      this.handler.$emit('dispatch', (viewer) => {
+        viewer.addHandler('animation', () => {
+          this.bounds = viewer.viewport.getBoundsNoRotate();
+        });
+
+        viewer.addHandler('update-viewport', () => {
+          this.bounds = viewer.viewport.getBoundsNoRotate();
+        });
+      });
+
       this.loadPage(pageUid);
     });
 
@@ -174,6 +203,10 @@ export default {
       },
     },
     page() {
+      this.handler.$emit('dispatch', (viewer) => {
+        viewer.goToPage(this.currentPage - 1);
+      });
+
       this.$router.push({
         name: 'page',
         params: {
