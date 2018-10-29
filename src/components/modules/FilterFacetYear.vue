@@ -5,9 +5,6 @@
       <b-button v-on:click="toggleExpanded" class="float-right" variant="link" size="sm">
         <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
       </b-button>
-      <b-button v-bind:disabled="!filter.touched" v-on:click="removeFilter" class="float-right" variant="link" size="sm">
-        <icon name="times" />
-      </b-button>
     </base-title-bar>
     <div style="overflow:hidden;">
       <div v-bind:style="chartClass">
@@ -16,10 +13,10 @@
     </div>
     <div class="row" v-show="expanded">
       <b-input-group size="sm" v-bind:append="$t('label.start')" class="col">
-        <flat-pickr v-model="start" v-on:on-close="setStart" class="form-control"></flat-pickr>
+        <flat-pickr v-model="filter.start" v-on:on-close="setStart" class="form-control"></flat-pickr>
       </b-input-group>
       <b-input-group size="sm" v-bind:append="$t('label.end')" class="col">
-        <flat-pickr v-model="end" v-on:on-close="setEnd" class="form-control"></flat-pickr>
+        <flat-pickr v-model="filter.end" v-on:on-close="setEnd" class="form-control"></flat-pickr>
       </b-input-group>
       </div>
     </div>
@@ -44,8 +41,6 @@ import BaseTitleBar from './../base/BaseTitleBar';
 export default {
   data: () => ({
     handler: new Vue(),
-    start: new Date(),
-    end: new Date(),
     chartHeight: 350,
   }),
   model: {
@@ -53,9 +48,6 @@ export default {
   },
   props: ['filter'],
   methods: {
-    removeFilter() {
-      this.$emit('remove');
-    },
     toggleExpanded() {
       this.expanded = !this.expanded;
     },
@@ -74,21 +66,21 @@ export default {
     setDomain() {
       this.handler.$emit('dispatch', (chart) => {
         const domain = chart.zoom();
-        this.start = new Date(domain[0]);
-        this.end = new Date(domain[1]);
+        this.filter.start = new Date(domain[0]);
+        this.filter.end = new Date(domain[1]);
       });
     },
     setZoom() {
       this.handler.$emit('dispatch', (chart) => {
-        chart.zoom([new Date(this.start), new Date(this.end)]);
+        chart.zoom([new Date(this.filter.start), new Date(this.filter.end)]);
       });
     },
     setStart(start) {
-      this.start = new Date(start);
+      this.filter.start = new Date(start);
       this.setZoom();
     },
     setEnd(end) {
-      this.end = new Date(end);
+      this.filter.end = new Date(end);
       this.setZoom();
     },
     zoom() {

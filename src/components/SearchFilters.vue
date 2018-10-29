@@ -63,14 +63,14 @@ export default {
   methods: {
     updateFilter(filter) {
       this.$store.commit('search/UPDATE_FILTER', filter);
-      this.$emit('input', filter);
+      this.$emit('update-filter', filter);
     },
-    submitFilter() {
-      this.$emit('submit');
+    submitFilter(filter) {
+      this.$emit('submit-filter', filter);
     },
     removeFilter(index) {
       this.$store.commit('search/REMOVE_FILTER', index);
-      this.$emit('remove');
+      this.$emit('remove-filter');
     },
   },
   components: {

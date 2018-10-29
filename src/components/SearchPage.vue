@@ -5,7 +5,7 @@
       <search-bar />
     </div>
     <div class="py-4">
-      <search-filters v-on:remove="search()" v-on:submit="search()" />
+      <search-filters v-on:remove-filter="search" v-on:submit-filter="search" />
     </div>
     <div slot="footer">
       <b-button-group class="d-flex bg-white">

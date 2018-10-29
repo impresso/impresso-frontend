@@ -1,6 +1,8 @@
 import FilterEntity from '@/models/FilterEntity';
 import FilterString from '@/models/FilterString';
 import FilterFacet from '@/models/FilterFacet';
+import FilterFacetYear from '@/models/FilterFacetYear';
+
 import uuid from 'uuid';
 
 export default {
@@ -15,8 +17,12 @@ export default {
       filter = new FilterEntity(filterData);
     }
 
-    if (filterData.type === 'year' || filterData.type === 'language' || filterData.type === 'newspaper') {
+    if (filterData.type === 'language' || filterData.type === 'newspaper') {
       filter = new FilterFacet(filterData);
+    }
+
+    if (filterData.type === 'year') {
+      filter = new FilterFacetYear(filterData);
     }
 
     if (filter) {
