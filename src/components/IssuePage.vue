@@ -9,8 +9,10 @@
           <collection-tagger v-model="issue"></collection-tagger>
           <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
         </div>
-        <div v-show="tab.name === 'toc'">
-          <h4>table of contents</h4>
+        <div class="px-3 py-4" v-show="tab.name === 'toc'">
+          <table-of-contents
+          v-model="toc"
+          v-on:click="loadArticle" />
         </div>
         <div v-show="tab.name === 'search'">
           <h4>search</h4>
@@ -42,14 +44,13 @@
               <thumbnail-slider
                 v-bind:issue="issue"
                 v-model="page"
-                v-bind:viewer="viewer" />
+                v-bind:bounds="bounds" />
             </i-layout-section>
             <i-layout-section>
-              <issue-viewer-image
+              <open-seadragon-viewer
                 v-show="mode === 'image'"
-                v-model="viewer"
-                v-bind:issue="issue"
-                v-bind:page="page" />
+                v-bind:handler="handler">
+              </open-seadragon-viewer>
               <issue-viewer-text
                 v-model="page"
                 v-show="mode === 'text'" />
@@ -61,23 +62,30 @@
 </template>
 
 <script>
+import Vue from 'vue';
+
 import Page from '@/models/Page';
 import CollectionTagger from './CollectionTagger';
 import IssueViewerText from './modules/IssueViewerText';
-import IssueViewerImage from './modules/IssueViewerImage';
+import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
+import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
 export default {
   data: () => ({
     page: new Page(),
-    viewer: false,
+    handler: new Vue(),
+    bounds: {},
     tab: {},
   }),
   computed: {
     issue() {
       return this.$store.state.issue.issue;
+    },
+    toc() {
+      return this.$store.state.issue.toc;
     },
     mode: {
       get() {
@@ -130,14 +138,18 @@ export default {
         this.$store.dispatch('issue/LOAD_ARTICLES', this.page.uid);
       }
     },
+    loadArticle(articleUid) {
+      this.$store.dispatch('issue/LOAD_ARTICLE', articleUid);
+    },
   },
   components: {
     BaseTabs,
     CollectionTagger,
-    IssueViewerImage,
+    OpenSeadragonViewer,
     IssueViewerText,
     Pagination,
     ThumbnailSlider,
+    TableOfContents,
   },
   mounted() {
     this.$store.dispatch('issue/LOAD_ISSUE', this.$route.params.issue_uid).then((issue) => {
@@ -152,8 +164,37 @@ export default {
         title: this.issue.newspaper.name,
       });
 
+      const options = {
+        // debugMode: true,
+        sequenceMode: true,
+        showNavigationControl: false,
+        showSequenceControl: false,
+        initialPage: 0,
+        tileSources: this.issue.pages.map(elm => elm.iiif),
+        animationTime: 0,
+        gestureSettingsMouse: {
+          clickToZoom: false,
+          dblClickToZoom: true,
+        },
+        visibilityRatio: 0.1,
+      };
+
+      this.handler.$emit('init', options);
+
+      this.handler.$emit('dispatch', (viewer) => {
+        viewer.addHandler('animation', () => {
+          this.bounds = viewer.viewport.getBoundsNoRotate();
+        });
+
+        viewer.addHandler('update-viewport', () => {
+          this.bounds = viewer.viewport.getBoundsNoRotate();
+        });
+      });
+
       this.loadPage(pageUid);
     });
+
+    this.$store.dispatch('issue/LOAD_TOC', this.$route.params.issue_uid);
   },
   watch: {
     '$route.params.page_uid': {
@@ -162,6 +203,10 @@ export default {
       },
     },
     page() {
+      this.handler.$emit('dispatch', (viewer) => {
+        viewer.goToPage(this.currentPage - 1);
+      });
+
       this.$router.push({
         name: 'page',
         params: {
