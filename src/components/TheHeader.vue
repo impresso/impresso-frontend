@@ -1,20 +1,15 @@
 <template lang="html">
   <b-navbar id="TheHeader" toggleable="md" type="dark" v-bind:variant="navbarVariant" class="py-0 pr-1">
-    <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
     <b-navbar-brand :to="{name: 'home'}">
       <img src="./../assets/img/impresso-logo-h-i@2x.png" />
     </b-navbar-brand>
-    <b-collapse is-nav id="nav_collapse">
       <b-navbar-nav>
         <li class="nav-item">
-          <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link">{{$t("home")}}</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link">{{$t("search")}}</router-link>
+          <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
         </li>
       </b-navbar-nav>
       <b-navbar-nav class="nav-title mx-auto">
-        <h1 class="nav-title" v-html="headerTitle"></h1>
+        <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
       </b-navbar-nav>
       <b-navbar-nav>
         <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
@@ -33,7 +28,6 @@
         </b-nav-item-dropdown>
         <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
       </b-navbar-nav>
-    </b-collapse>
   </b-navbar>
 </template>
 
@@ -74,9 +68,6 @@ export default {
       return this.$store.getters['user/user'];
     },
     headerTitle() {
-      if (this.$store.getters.headerTitle === '') {
-        return 'Title not defined';
-      }
       return this.$store.getters.headerTitle;
     },
     userFullName() {
@@ -175,7 +166,8 @@ export default {
   "en": {
     "login": "Login",
     "logout": "Logout",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "label_home": "Home"
   }
 }
 </i18n>

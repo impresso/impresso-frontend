@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import HomePage from '../components/HomePage';
 import SearchPage from '../components/SearchPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
@@ -15,11 +14,6 @@ export default new Router({
     {
       path: '/',
       name: 'home',
-      component: HomePage,
-    },
-    {
-      path: '/search',
-      name: 'search',
       component: SearchPage,
     },
     {
