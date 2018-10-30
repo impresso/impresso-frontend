@@ -22,7 +22,8 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['newspaper', 'language', 'year'], // this also sets the order of the filters
+    facetTypes: ['newspaper', 'language'], // this also sets the order of the filters
+    filterFacetYearExpanded: false,
   },
   getters: {
     getSearches(state) {
@@ -74,6 +75,9 @@ export default {
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
       state.queryComponents = queryComponents;
+    },
+    UPDATE_FILTER_FACET_YEAR_EXPANDED(state, expanded) {
+      state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
       state.search.filters.push(filter);
@@ -140,7 +144,7 @@ export default {
         paginationCurrentPage,
       });
 
-      return new Promise(
+      const search = new Promise(
         (resolve, reject) => {
           services.search.find({
             query: {
@@ -190,6 +194,27 @@ export default {
                 }),
               })));
 
+              // add language facet/filter
+              if (res.info.facets && res.info.facets.language) {
+                const facet = new Facet({
+                  type: 'language',
+                  buckets: res.info.facets.language.buckets,
+                });
+
+                context.commit('ADD_FACET', facet);
+
+                const FilterFacet = FilterFactory.create(facet);
+
+                if (res.info.filters.findIndex(filter => filter.type === 'language') === -1) {
+                  FilterFacet.untouch();
+                } else {
+                  FilterFacet.touch();
+                }
+
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
+              }
+
+              // add newspaper facet/filter
               if (res.info.facets && res.info.facets.newspaper) {
                 const facet = new Facet({
                   type: 'newspaper',
@@ -221,25 +246,6 @@ export default {
                 context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
               }
 
-              if (res.info.facets && res.info.facets.year) {
-                const facet = new Facet({
-                  type: 'year',
-                  buckets: res.info.facets.year.buckets,
-                });
-
-                context.commit('ADD_FACET', facet);
-              }
-
-              if (res.info.facets && res.info.facets.language) {
-                const facet = new Facet({
-                  type: 'language',
-                  buckets: res.info.facets.language.buckets,
-                });
-
-                context.commit('ADD_FACET', facet);
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFactory.create(facet));
-              }
-
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
@@ -254,6 +260,44 @@ export default {
           );
         },
       );
+
+      const timeline = new Promise(
+        (resolve, reject) => {
+          services.search.find({
+            query: {
+              filters: context.getters.getSearch.filters.map(
+                filter => filter.getQuery()).filter(i => i && i.type !== 'daterange'),
+              facets: ['year'],
+              group_by: context.state.groupBy,
+              page: context.state.paginationCurrentPage,
+              limit: context.state.paginationPerPage,
+              order_by: context.state.orderBy,
+            },
+          }).then(
+            (res) => {
+              // add year facet/filter
+              if (res.info.facets && res.info.facets.year) {
+                const facet = new Facet({
+                  type: 'year',
+                  buckets: res.info.facets.year.buckets,
+                });
+
+                context.commit('ADD_FACET', facet);
+
+                const FilterFacetYear = FilterFactory.create(facet);
+
+                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacetYear);
+              }
+              resolve(res);
+            },
+            (err) => {
+              reject(err);
+            },
+          );
+        },
+      );
+
+      return Promise.all([search, timeline]);
     },
   },
 };

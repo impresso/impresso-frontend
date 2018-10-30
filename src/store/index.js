@@ -73,7 +73,7 @@ export default new Vuex.Store({
       'search.displaySortBy',
       'search.displaySortOrder',
       'search.displayStyle',
-      'search.paginationPerPage',
+      'search.filterFacetYearExpanded',
       'user.rememberCredetials',
       'user.userData',
       'collections.collectionsSortOrder',
