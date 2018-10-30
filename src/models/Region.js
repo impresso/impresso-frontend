@@ -7,6 +7,8 @@ export default function Region({
   articleUid = '',
   pageUid = '',
   coords = false,
+  g = [],
+  iiifFragment = '',
 } = {}) {
   this.articleUid = String(articleUid);
   this.pageUid = String(pageUid);
@@ -21,4 +23,8 @@ export default function Region({
   } else {
     this.coords = false;
   }
+
+  this.g = g.map(line => String(line));
+
+  this.iiifFragment = String(iiifFragment);
 }

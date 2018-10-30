@@ -117,6 +117,10 @@ export default {
           context.commit('UPDATE_ARTICLES', {
             articles: response.data.map(article => new Article({
               ...article,
+              regions: article.regions.map(region => ({
+                ...region,
+                iiifFragment: region.iiif_fragment,
+              })),
             })),
             uid,
           });

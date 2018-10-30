@@ -14,8 +14,8 @@
           v-model="toc"
           v-on:click="loadArticle" />
         </div>
-        <div v-show="tab.name === 'search'">
-          <h4>search</h4>
+        <div class="px-3 py-4" v-show="tab.name === 'search'">
+          <h4>@todo: search</h4>
         </div>
       </i-layout-section>
       <i-layout-section>

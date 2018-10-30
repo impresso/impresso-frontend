@@ -4,7 +4,7 @@
       <div class="regions">
         <div v-for="region in article.regions" class="region py-4">
           <div class="context">
-            <img v-bind:src="region.iiif_fragment" width="100%" />
+            <img v-bind:src="region.iiifFragment" width="100%" />
           </div>
           <div class="richtext text-tertiary">
             <p v-for="line in region.g" v-html="line" class="mb-0"></p>
