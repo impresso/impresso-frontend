@@ -5,7 +5,7 @@
     </b-navbar-brand>
       <b-navbar-nav>
         <li class="nav-item">
-          <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
+          <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
         </li>
       </b-navbar-nav>
       <b-navbar-nav class="nav-title mx-auto">
