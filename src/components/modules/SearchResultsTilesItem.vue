@@ -36,6 +36,15 @@ export default {
     init() {
       const options = {
         tileSources: [this.article.pages[0].iiif],
+        showNavigator: true,
+        navigatorAutoFade: false,
+        navigatorBackground: '#dee2e6',
+        navigatorBottom: 0,
+        navigatorRight: 0,
+        navigatorSizeRatio: 0.25,
+        navigatorDisplayRegionColor: 'black',
+        navigatorBorderColor: '#dee2e6',
+        navigatorOpacity: 1,
       };
 
       this.handler.$emit('init', options);
@@ -56,6 +65,21 @@ export default {
               y: region.coords.y,
               w: region.coords.w,
               h: region.coords.h,
+              class: 'overlay-region',
+            };
+
+            this.handler.$emit('add-overlay', overlay);
+          }
+        });
+
+        this.article.matches.forEach((match) => {
+          if (match.pageUid === this.article.pages[0].uid) {
+            const overlay = {
+              x: match.coords[0],
+              y: match.coords[1],
+              w: match.coords[2],
+              h: match.coords[3],
+              class: 'overlay-match',
             };
 
             this.handler.$emit('add-overlay', overlay);

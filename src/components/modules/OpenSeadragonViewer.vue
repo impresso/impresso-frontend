@@ -22,6 +22,9 @@ export default {
         this.viewer = OpenSeadragon({
           element: this.$el,
           showNavigationControl: false,
+          animationTime: 0,
+          minZoomLevel: 1,
+          defaultZoomLevel: 1,
           ...options,
         });
 
@@ -71,7 +74,11 @@ export default {
         this.overlays.push(rect);
 
         const overlay = window.document.createElement('div');
-        overlay.setAttribute('class', 'overlay-region');
+        overlay.setAttribute('class', 'overlay');
+
+        if (options.class !== undefined) {
+          overlay.setAttribute('class', options.class);
+        }
 
         this.viewer.addOverlay(overlay, rect);
       });
@@ -96,10 +103,5 @@ export default {
 .os-viewer {
   height: 100%;
   width: 100%;
-
-  .overlay-region{
-    background: red;
-    opacity: 0.25;
-  }
 }
 </style>
