@@ -1,37 +1,33 @@
 <template lang="html">
   <div id="search-filters" class="px-4">
     <div v-for="(filter, index) in filters">
+      <filter-facet-year
+        v-if="filter.type === 'year'"
+        v-model="filters[index]"
+        v-on:input="updateFilter"
+        v-on:remove="submitFilter" />
+    </div>
+    <div v-for="(filter, index) in filters">
       <filter-string
         v-if="filter.type.toLowerCase() === 'string'"
         v-model="filters[index]"
         v-on:input="updateFilter(index, filter)"
         v-on:submit="submitFilter"
-        v-on:remove="removeFilter(index)"
-        />
+        v-on:remove="removeFilter(index)" />
       <filter-named-entity
         v-if="filter.type.toLowerCase() === 'entity'"
         v-model="filters[index]"
         v-on:submit="submitFilter"
-        v-on:remove="removeFilter(index)"
-        />
+        v-on:remove="removeFilter(index)" />
       <filter-date-range
         v-if="filter.type.toLowerCase() === 'daterange'"
         v-model="filters[index]"
         v-on:submit="submitFilter"
-        v-on:remove="removeFilter(index)"
-        />
-    </div>
-    <div class="pb-2">
-      <base-title-bar>Timeline</base-title-bar>
-      <!--
-        TODO load min date and max date from config ?
-        Or we always provide an extent from the IML?
-      -->
-      <skyline :height="80" :data="timelineData" />
+        v-on:remove="removeFilter(index)" />
     </div>
     <div v-for="(filter, index) in filters">
       <filter-facet
-        v-if="facetTypes.includes(filter.type.toLowerCase())"
+        v-if="facetTypes.includes(filter.type.toLowerCase()) && filter.type !== 'year'"
         v-model="filters[index]"
         v-on:input="updateFilter(index, filter)"
         v-on:remove="submitFilter"
@@ -41,12 +37,11 @@
 </template>
 
 <script>
-import BaseTitleBar from './base/BaseTitleBar';
 import FilterFacet from './modules/FilterFacet';
+import FilterFacetYear from './modules/FilterFacetYear';
 import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterString from './modules/FilterString';
-import Skyline from './d3/Skyline';
 
 export default {
   computed: {
@@ -65,17 +60,6 @@ export default {
         return this.search.filters;
       },
     },
-    timelineData: {
-      get() {
-        const yearFacets = this.getFacet('year') || {
-          buckets: [],
-        };
-        return yearFacets.buckets.map(d => ({
-          t: parseInt(d.val, 10),
-          w: d.count,
-        })).sort((a, b) => a.t - b.t);
-      },
-    },
   },
   methods: {
     getFacet(type) {
@@ -88,12 +72,12 @@ export default {
       });
       this.$emit('input', filter);
     },
-    submitFilter() {
-      this.$emit('submit');
+    submitFilter(filter) {
+      this.$emit('submit-filter', filter);
     },
     removeFilter(index) {
       this.$store.commit('search/REMOVE_FILTER', index);
-      this.$emit('remove');
+      this.$emit('remove-filter');
     },
   },
   components: {
@@ -101,8 +85,7 @@ export default {
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
     'filter-facet': FilterFacet,
-    Skyline,
-    BaseTitleBar,
+    'filter-facet-year': FilterFacetYear,
   },
 };
 </script>
