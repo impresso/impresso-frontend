@@ -1,6 +1,6 @@
 <template lang="html">
   <b-media class="py-3 border-bottom">
-    <div class="thumbnail border" slot="aside" >
+    <div class="thumbnail bg-light border" slot="aside" >
       <open-seadragon-viewer
         v-bind:handler="handler">
       </open-seadragon-viewer>
@@ -42,7 +42,7 @@ export default {
         tileSources: [this.article.pages[0].iiif],
         showNavigator: true,
         navigatorAutoFade: false,
-        navigatorBackground: '#dee2e6',
+        navigatorBackground: '#f8f9fa',
         navigatorBottom: 0,
         navigatorRight: 0,
         navigatorSizeRatio: 0.25,

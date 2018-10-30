@@ -233,14 +233,22 @@ export default {
 }
 
 .overlay-region{
-  background: yellow;
-  opacity: 0.1;
+  background: rgba(49, 255, 255, 0.1) !important;
 }
 
 .overlay-match{
-  background: blue;
-  opacity: 0.5;
-  border: 1pt blue solid;
+  background: rgba(49, 100, 255, 0.6);
+  outline: 2px solid rgba(49, 100, 255, 0.6);
+}
+
+.navigator{
+  border-width: 0 0 1px 1px !important;
+
+  .displayregion{
+    border: 1px solid rgb(255, 225, 49) !important;
+    background-color: rgba(255, 225, 49, 0.3) !important;
+  }
+
 }
 </style>
 
