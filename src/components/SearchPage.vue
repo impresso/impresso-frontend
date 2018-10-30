@@ -231,6 +231,17 @@ export default {
       line-height: 1.5;
     }
 }
+
+.overlay-region{
+  background: yellow;
+  opacity: 0.1;
+}
+
+.overlay-match{
+  background: blue;
+  opacity: 0.5;
+  border: 1pt blue solid;
+}
 </style>
 
 <i18n>
