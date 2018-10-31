@@ -80,10 +80,12 @@ export default {
           {
             value: 'issues',
             text: this.$t('order_issues'),
+            disabled: true,
           },
           {
             value: 'pages',
             text: this.$t('order_pages'),
+            disabled: true,
           },
           {
             value: 'articles',
@@ -92,6 +94,7 @@ export default {
           {
             value: 'sentences',
             text: this.$t('order_sentences'),
+            disabled: true,
           },
         ];
       },
