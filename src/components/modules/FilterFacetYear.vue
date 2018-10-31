@@ -12,10 +12,12 @@
       </div>
     </div>
     <div class="row" v-show="expanded">
-      <b-input-group size="sm" v-bind:append="$t('label.start')" class="col">
+      <b-input-group size="sm" class="col">
+        <label class="pt-2 pr-2">{{$t('label.start')}}</label>
         <flat-pickr v-model="filter.start" v-on:on-close="setStart" class="form-control"></flat-pickr>
       </b-input-group>
-      <b-input-group size="sm" v-bind:append="$t('label.end')" class="col">
+      <b-input-group size="sm" class="col">
+        <label class="pt-2 pr-2">{{$t('label.end')}}</label>
         <flat-pickr v-model="filter.end" v-on:on-close="setEnd" class="form-control"></flat-pickr>
       </b-input-group>
       </div>
