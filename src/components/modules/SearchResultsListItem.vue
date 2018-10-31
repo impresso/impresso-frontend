@@ -7,7 +7,7 @@
     </div>
     <h2><a href="#" v-on:click.prevent="click" v-html="article.title"></a></h2>
     <div class="article-meta mb-1">
-      <strong>{{article.newspaper.name}}</strong>,
+      <strong v-show="article.newspaper.name">{{article.newspaper.name}}, </strong>
       <span class="small-caps">{{$d(article.date, "long")}}</span>
       (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
     </div>
