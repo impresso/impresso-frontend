@@ -6,7 +6,7 @@
         <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
       </b-button>
     </base-title-bar>
-    <div style="overflow:hidden;">
+    <div>
       <div v-bind:style="chartClass">
         <vue-c3 v-bind:handler="handler"></vue-c3>
       </div>
@@ -188,6 +188,9 @@ export default {
 </script>
 
 <style lang="less">
+  .c3 svg {
+    overflow:visible !important;
+  }
 </style>
 
 <i18n>
