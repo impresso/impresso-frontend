@@ -6,7 +6,7 @@
           <div class="context">
             <img v-bind:src="region.iiifFragment" width="100%" />
           </div>
-          <div class="richtext text-tertiary">
+          <div class="richtext text-secondary">
             <p v-for="line in region.g" v-html="line" class="mb-0"></p>
           </div>
         </div>
