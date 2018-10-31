@@ -5,6 +5,7 @@
       v-bind:active="value === option.value"
       v-bind:key="option.value"
       v-on:click="select(option.value)"
+      v-bind:disabled="option.disabled"
     >{{option.text}}</b-dropdown-item>
   </b-dropdown>
 </template>

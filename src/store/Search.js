@@ -15,7 +15,7 @@ export default {
     searches: [],
     results: [],
     facets: [],
-    orderBy: 'relevance', // relevance, -relevance, date, -date
+    orderBy: '-relevance', // relevance, -relevance, date, -date
     groupBy: 'articles', // issues, pages, articles, sentences
     displayStyle: 'list',
     paginationPerPage: 12,

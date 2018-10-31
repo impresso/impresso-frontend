@@ -63,6 +63,7 @@ export default {
 
     .controls{
       grid-area: controls;
+      opacity: 0.2;
     }
 }
 .region {
