@@ -1,9 +1,6 @@
 <template lang="html">
   <div class="filter py-1 bb">
     <base-title-bar v-if="title" class="title">{{title}}</base-title-bar>
-    <div class="context pr-2">
-      <slot name="context"/>
-    </div>
     <div class="content">
       <slot></slot>
     </div>
@@ -11,7 +8,14 @@
       <b-button-group>
         <slot name="controls"></slot>
         <b-button v-on:click="remove" variant="link" size="sm"><icon name="times" /></b-button>
+        <b-button v-on:click="toggleExpanded" variant="link" size="sm">
+          <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
+        </b-button>
       </b-button-group>
+    </div>
+    <div v-show="expanded" class="settings py-2">
+      <slot name="settings"></slot>
+      <hr>
     </div>
   </div>
 </template>
@@ -23,7 +27,13 @@ import Icon from 'vue-awesome/components/Icon';
 import BaseTitleBar from './../base/BaseTitleBar';
 
 export default {
+  data: () => ({
+    expanded: false,
+  }),
   methods: {
+    toggleExpanded() {
+      this.expanded = !this.expanded;
+    },
     remove() {
       this.$emit('remove');
     },
@@ -38,17 +48,14 @@ export default {
 
 <style scoped lang="less">
 .filter {
+    width: 100%;
     display: grid;
-    grid-template-columns: max-content auto max-content;
+    grid-template-columns: auto min-content;
     grid-template-rows: auto;
-    grid-template-areas: 'title title title' 'context content controls';
+    grid-template-areas: 'title title' 'content controls' 'settings settings';
 
     .title{
       grid-area: title;
-    }
-
-    .context{
-      grid-area: context;
     }
 
     .content{
@@ -57,6 +64,11 @@ export default {
 
     .controls{
       grid-area: controls;
+      white-space: nowrap
+    }
+
+    .settings{
+      grid-area: settings;
     }
 }
 </style>
