@@ -7,23 +7,33 @@ import * as services from '@/services';
 export default {
   namespaced: true,
   state: {
-    suggestions: [],
+    suggestions: [], // list of search results
+    suggestion: new Suggestion(), // the first sugestion ie. type string or regex
+  },
+  getters: {
+    suggestions(state) {
+      return new Array(state.suggestion).concat(state.suggestions);
+    },
   },
   mutations: {
     CLEAR_SUGGESTIONS(state) {
       state.suggestions = [];
+      state.suggestion = new Suggestion();
     },
-    ADD_SUGGESTION(state, result) {
-      state.suggestions.push(result);
+    SET_SUGGESTION(state, suggestion) {
+      state.suggestion = suggestion;
     },
-    ADD_SUGGESTIONS(state, results) {
-      results.forEach((suggestion) => {
-        state.suggestions.push(suggestion);
-      });
+    SET_SUGGESTIONS(state, suggestions) {
+      state.suggestions = suggestions;
     },
   },
   actions: {
     SEARCH(context, payload) {
+      context.commit('SET_SUGGESTION', new Suggestion({
+        type: 'string',
+        query: payload.query,
+      }));
+
       return new Promise(
         (resolve, reject) => {
           services.suggestions.find({
@@ -35,14 +45,7 @@ export default {
             },
           }).then(
             (res) => {
-              context.commit('CLEAR_SUGGESTIONS');
-              context.commit('ADD_SUGGESTION', new Suggestion({
-                entity: new Entity(),
-                type: 'string',
-                query: payload.query,
-              }));
-
-              context.commit('ADD_SUGGESTIONS', res.data.map(suggestion => new Suggestion({
+              context.commit('SET_SUGGESTIONS', res.data.map(suggestion => new Suggestion({
                 entity: new Entity(suggestion.entity),
                 daterange: new Daterange({
                   daterange: suggestion.daterange,

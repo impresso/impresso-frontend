@@ -14,6 +14,12 @@
         v-on:input="updateFilter(index, filter)"
         v-on:submit="submitFilter"
         v-on:remove="removeFilter(index)" />
+      <filter-regex
+        v-if="filter.type.toLowerCase() === 'regex'"
+        v-model="filters[index]"
+        v-on:input="updateFilter(index, filter)"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)" />
       <filter-named-entity
         v-if="filter.type.toLowerCase() === 'entity'"
         v-model="filters[index]"
@@ -41,6 +47,7 @@ import FilterFacet from './modules/FilterFacet';
 import FilterFacetYear from './modules/FilterFacetYear';
 import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
+import FilterRegex from './modules/FilterRegex';
 import FilterString from './modules/FilterString';
 
 export default {
@@ -82,6 +89,7 @@ export default {
   },
   components: {
     'filter-string': FilterString,
+    'filter-regex': FilterRegex,
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
     'filter-facet': FilterFacet,

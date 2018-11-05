@@ -13,7 +13,8 @@
         </b-btn>
       </b-input-group-append>
     </b-input-group>
-    <div class="suggestions border-left border-right border-bottom border-primary" v-show="(suggestions.length > 0) && showSuggestions">
+    <div class="suggestions border-left border-right border-bottom border-primary"
+      v-show="(suggestions.length > 0) && showSuggestions">
       <div
         v-for="(elm, index) in suggestions"
         v-on:mouseover="select(elm)"
@@ -26,6 +27,10 @@
           v-on:click="submit" />
         <suggestion-string
           v-if="elm.type === 'string'"
+          v-model="suggestions[index]"
+          v-on:click="submit" />
+        <suggestion-regex
+          v-if="elm.type === 'regex'"
           v-model="suggestions[index]"
           v-on:click="submit" />
         <suggestion-daterange
@@ -42,6 +47,7 @@ import ClickOutside from 'vue-click-outside';
 import FilterFactory from '@/models/FilterFactory';
 import Suggestion from '@/models/Suggestion';
 import SuggestionEntity from './modules/SearchInputQuerySuggestionEntity';
+import SuggestionRegex from './modules/SearchInputQuerySuggestionRegex';
 import SuggestionString from './modules/SearchInputQuerySuggestionString';
 import SuggestionDaterange from './modules/SearchInputQuerySuggestionDaterange';
 
@@ -54,7 +60,7 @@ export default {
   computed: {
     suggestions: {
       get() {
-        return this.$store.state.autocomplete.suggestions;
+        return this.$store.getters['autocomplete/suggestions'];
       },
     },
   },
@@ -63,7 +69,13 @@ export default {
       this.showSuggestions = false;
     },
     search() {
-      if (this.query.trim().length > 1) {
+      if (this.query.trim().charAt(0) === '/') {
+        this.showSuggestions = true;
+        this.$store.commit('autocomplete/SET_SUGGESTION', new Suggestion({
+          type: 'regex',
+          query: this.query.trim(),
+        }));
+      } else if (this.query.trim().length > 1) {
         this.$store.dispatch('autocomplete/SEARCH', {
           query: this.query.trim(),
         }).then(() => {
@@ -72,6 +84,7 @@ export default {
       } else {
         // if length of the query is 0 then we clear the suggestions
         this.$store.commit('autocomplete/CLEAR_SUGGESTIONS');
+        this.hideSuggestions();
       }
     },
     submit() {
@@ -134,6 +147,7 @@ export default {
   },
   components: {
     SuggestionEntity,
+    SuggestionRegex,
     SuggestionString,
     SuggestionDaterange,
   },
