@@ -1,11 +1,7 @@
 <template lang="html">
   <filter-wrapper v-on:remove="remove">
-    <div slot="context">
-      <i-dropdown
-      v-model="filter.context"
-      v-bind:options="options"
-      v-on:input="submitFilter"
-      size="sm" />
+    <div slot="settings">
+      <filter-setting-context v-model="filter" />
     </div>
     <div class="p-2">
       <icon v-if="filter.entity.hasLabel('person')" name="user-circle"></icon>
@@ -21,19 +17,10 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/user-circle';
 import 'vue-awesome/icons/map-marker';
 
+import FilterSettingContext from './FilterSettingContext';
 import FilterWrapper from './FilterWrapper';
 
 export default {
-  data: () => ({
-    options: [{
-      value: 'include',
-      text: 'Include',
-    },
-    {
-      value: 'exclude',
-      text: 'Exclude',
-    }],
-  }),
   model: {
     prop: 'filter',
   },
@@ -48,13 +35,11 @@ export default {
   },
   components: {
     Icon,
+    FilterSettingContext,
     FilterWrapper,
   },
 };
 </script>
-
-<style scoped lang="less">
-</style>
 
 <i18n>
 {

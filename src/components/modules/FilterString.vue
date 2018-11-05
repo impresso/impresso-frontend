@@ -1,11 +1,14 @@
 <template lang="html">
   <filter-wrapper v-on:remove="remove">
-    <div slot="context">
-      <i-dropdown
-      v-model="filter.context"
-      v-bind:options="options"
-      v-on:input="submitFilter"
-      size="sm" />
+    <div slot="settings">
+      <i-layout>
+        <i-layout-section width="50%">
+          <filter-setting-context v-model="filter" />
+        </i-layout-section>
+        <i-layout-section>
+          <filter-setting-precision v-model="filter" />
+        </i-layout-section>
+      </i-layout>
     </div>
     <b-input
       type="text"
@@ -29,18 +32,12 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/edit';
 import 'vue-awesome/icons/check';
 
+import FilterSettingContext from './FilterSettingContext';
+import FilterSettingPrecision from './FilterSettingPrecision';
 import FilterWrapper from './FilterWrapper';
 
 export default {
   data: () => ({
-    options: [{
-      value: 'include',
-      text: 'Include',
-    },
-    {
-      value: 'exclude',
-      text: 'Exclude',
-    }],
     disabled: true,
   }),
   model: {
@@ -64,13 +61,12 @@ export default {
   },
   components: {
     FilterWrapper,
+    FilterSettingContext,
+    FilterSettingPrecision,
     Icon,
   },
 };
 </script>
-
-<style lang="css">
-</style>
 
 <i18n>
 {
