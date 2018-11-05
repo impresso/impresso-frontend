@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-form-group label="Inclusion">
+  <b-form-group v-bind:label="$t('title')">
     <b-form-radio-group
       stacked
       v-model="filter.context"
@@ -30,10 +30,12 @@ export default {
 <i18n>
 {
   "en": {
+    "title": "Context",
     "include": "Include",
     "exclude": "Exclude"
   },
   "nl": {
+    "title": "Context",
     "include": "Inclusief",
     "exclude": "Exclusief"
   }

@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-form-group label="Precision">
+  <b-form-group v-bind:label="$t('title')">
     <b-form-radio-group
       stacked
       v-model="filter.precision"
@@ -30,13 +30,15 @@ export default {
 <i18n>
 {
   "en": {
+    "title": "Precision",
     "regular": "Regular",
     "case_sensitive": "Case Sensitive",
     "fuzzy": "Fuzzy"
   },
   "nl": {
-    "regular": "Regular",
-    "case_sensitive": "Case Sensitive",
+    "title": "Nauwkeurigheid",
+    "regular": "Normaal",
+    "case_sensitive": "Hoofdlettergevoelig",
     "fuzzy": "Fuzzy"
   }
 }
