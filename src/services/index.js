@@ -6,11 +6,18 @@ import auth from '@feathersjs/authentication-client';
 
 const socket = io(`${process.env.MIDDLELAYER_API}`);
 
-export const app = feathers()
-  .configure(socketio(socket))
-  .configure(auth({
-    storage: window.localStorage,
-  }));
+export const app = feathers();
+
+app.configure(socketio(socket));
+app.configure(auth({
+  storage: window.localStorage,
+}));
+
+app.authenticate();
+
+socket.on('reconnect', () => {
+  app.authenticate();
+}); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
 app.hooks({
   before: {
@@ -35,10 +42,6 @@ app.hooks({
     ],
   },
 });
-
-socket.on('reconnect', () => {
-  app.authenticate();
-}); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
 // repeat this line for every service in our backend
 export const suggestions = app.service('suggestions');
