@@ -6,7 +6,7 @@
       </open-seadragon-viewer>
     </div>
     <h2 v-if="article.title" class="mb-0">
-      <a href="#" v-on:click.prevent="click" v-html="article.title"></a>
+      <a href="#" v-on:click.prevent="click" v-html="article.title" />
     </h2>
     <div class="article-meta mb-2">
       <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
@@ -19,11 +19,8 @@
     <ul v-if="article.matches.length > 0" class="article-matches mb-2">
       <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
     </ul>
-    <div v-if="article.tags.length > 0" class="mb-2">
-      <b-badge pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
-    </div>
-    
-    <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">View in Context</b-button>
+    <b-badge class="mb-2" pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
+    <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
   </b-media>
 </template>
 
@@ -121,7 +118,6 @@ export default {
 h2 {
   font-size: 1.2em;
   font-weight: 500;
-  // font-family: questa-grande;
   a {
     text-decoration: underline;
     text-decoration-color:#ccc;
@@ -149,8 +145,10 @@ ul.article-matches {
 <i18n>
 {
   "en": {
+    "view": "View"
   },
   "nl": {
+    "view": "Bekijk"
   }
 }
 </i18n>
