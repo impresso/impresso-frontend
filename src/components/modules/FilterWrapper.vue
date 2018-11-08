@@ -8,7 +8,7 @@
       <b-button-group>
         <slot name="controls"></slot>
         <b-button v-on:click="remove" variant="link" size="sm"><icon name="times" /></b-button>
-        <b-button v-on:click="toggleExpanded" variant="link" size="sm">
+        <b-button v-if="this.$slots.settings" v-on:click="toggleExpanded" variant="link" size="sm">
           <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
         </b-button>
       </b-button-group>

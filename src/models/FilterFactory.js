@@ -1,5 +1,6 @@
 import FilterEntity from '@/models/FilterEntity';
 import FilterString from '@/models/FilterString';
+import FilterRegex from '@/models/FilterRegex';
 import FilterFacet from '@/models/FilterFacet';
 import FilterFacetYear from '@/models/FilterFacetYear';
 
@@ -11,6 +12,10 @@ export default {
 
     if (filterData.type === 'string') {
       filter = new FilterString(filterData);
+    }
+
+    if (filterData.type === 'regex') {
+      filter = new FilterRegex(filterData);
     }
 
     if (filterData.type === 'entity') {
