@@ -22,7 +22,8 @@ export default function FilterEntity({
 
   this.getQuery = () => ({
     context: this.context,
-    type: this.type,
+    type: 'string', // type: this.type,
+    q: this.entity.name, // remove this line
     uid: this.entity.uid,
   });
 }
