@@ -5,19 +5,22 @@
         v-bind:handler="handler">
       </open-seadragon-viewer>
     </div>
-    <h2><a href="#" v-on:click.prevent="click" v-html="article.title"></a></h2>
-    <div class="article-meta mb-1">
-      <strong v-show="article.newspaper.name">{{article.newspaper.name}}, </strong>
+    <h2 v-if="article.title" class="mb-0">
+      <a href="#" v-on:click.prevent="click" v-html="article.title" />
+    </h2>
+    <div class="article-meta mb-2">
+      <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
       <span class="small-caps">{{$d(article.date, "long")}}</span>
       (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
     </div>
-    <div v-if="article.excerpt.length > 0" class="article-excerpt">{{article.excerpt}}</div>
-    <ul class="article-matches">
+
+    <div v-if="article.excerpt.length > 0" class="article-excerpt mb-2">{{article.excerpt}}</div>
+
+    <ul v-if="article.matches.length > 0" class="article-matches mb-2">
       <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
     </ul>
-    <div>
-      <b-badge pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
-    </div>
+    <b-badge class="mb-2" pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
+    <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
   </b-media>
 </template>
 
@@ -113,9 +116,8 @@ export default {
     cursor: move;
 }
 h2 {
-  font-size: 1em;
+  font-size: 1.2em;
   font-weight: 500;
-  font-family: questa-grande;
   a {
     text-decoration: underline;
     text-decoration-color:#ccc;
@@ -143,8 +145,10 @@ ul.article-matches {
 <i18n>
 {
   "en": {
+    "view": "View"
   },
   "nl": {
+    "view": "Bekijk"
   }
 }
 </i18n>
