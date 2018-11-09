@@ -225,7 +225,9 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
 .navbar-nav {
     flex-direction: row;
     align-items: center;
@@ -236,12 +238,14 @@ export default {
 }
 
 .overlay-region{
-  background: rgba(49, 255, 255, 0.1) !important;
+  background: $clr-accent-secondary;
+  opacity: 0.25;
 }
 
 .overlay-match{
-  background: rgba(49, 100, 255, 0.6);
-  outline: 2px solid rgba(49, 100, 255, 0.6);
+  background: $clr-accent;
+  outline: 2px solid $clr-accent;
+  opacity: 0.5;
 }
 
 .navigator{
