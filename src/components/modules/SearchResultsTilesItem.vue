@@ -65,7 +65,7 @@ export default {
               y: region.coords.y,
               w: region.coords.w,
               h: region.coords.h,
-              class: 'overlay-region',
+              class: 'overlay-region selected',
             };
 
             this.handler.$emit('add-overlay', overlay);

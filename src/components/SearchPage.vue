@@ -237,9 +237,17 @@ export default {
     }
 }
 
-.overlay-region{
+// TODO: we have this classblock twice, also on IssuePage.vue
+// block is not scoped so these two interfere with eachother so they interfere
+// to be the exact same
+/// Maybe we can move this to bootpresso?
+div.overlay-region{
   background: $clr-accent-secondary;
-  opacity: 0.25;
+  opacity: 0;
+  transition: opacity 300ms;
+  &.selected{
+    opacity: 0.25;
+  }
 }
 
 .overlay-match{
