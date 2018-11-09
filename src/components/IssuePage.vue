@@ -255,6 +255,10 @@ export default {
 <style lang='scss'>
 @import "impresso-theme/src/scss/variables.sass";
 
+// TODO: we have this classblock twice, also on SearchPage.vue
+// block is not scoped so these two interfere with eachother so they interfere
+// to be the exact same
+/// Maybe we can move this to bootpresso?
 div.overlay-region{
   background: $clr-accent-secondary;
   opacity: 0;
