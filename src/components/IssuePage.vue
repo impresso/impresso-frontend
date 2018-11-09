@@ -134,9 +134,42 @@ export default {
       });
     },
     loadArticles() {
-      if (this.mode === 'text') {
-        this.$store.dispatch('issue/LOAD_ARTICLES', this.page.uid);
-      }
+      this.$store.dispatch('issue/LOAD_ARTICLES', this.page.uid).then((res) => {
+        this.handler.$emit('dispatch', (viewer) => {
+          res.data.forEach((article) => {
+            article.regions.forEach((region) => {
+              const overlay = window.document.createElement('div');
+
+              overlay.setAttribute('class', 'overlay-region');
+              overlay.dataset.articleUid = article.uid;
+
+              overlay.addEventListener('mouseenter', (event) => {
+                const articleUid = event.target.dataset.articleUid;
+
+                event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+                  item.classList.add('selected');
+                });
+              });
+
+              overlay.addEventListener('mouseleave', (event) => {
+                const articleUid = event.target.dataset.articleUid;
+
+                event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+                  item.classList.remove('selected');
+                });
+              });
+
+              const rect = viewer.viewport.imageToViewportRectangle(
+                region.coords[0],
+                region.coords[1],
+                region.coords[2],
+                region.coords[3]);
+
+              viewer.addOverlay(overlay, rect);
+            });
+          });
+        });
+      });
     },
     loadArticle(articleUid) {
       this.$store.dispatch('issue/LOAD_ARTICLE', articleUid);
@@ -219,7 +252,17 @@ export default {
 };
 </script>
 
-<style scoped lang='less'>
+<style lang='scss'>
+@import "impresso-theme/src/scss/variables.sass";
+
+div.overlay-region{
+  background: $clr-accent-secondary;
+  opacity: 0;
+  transition: opacity 300ms;
+  &.selected{
+    opacity: 0.25;
+  }
+}
 </style>
 
 <i18n>
