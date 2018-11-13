@@ -17,12 +17,27 @@ export default {
   },
   methods: {
     getTerms() {
-      return this.queryComponents.filter(d => d.type === 'string').map((d) => {
-        if (d.context === 'exclude') {
-          return `${this.$t('excluding')} <strong>${d.query}</strong>`;
+      // regroup querycomponents based on include / exclude
+      const strings = {
+        include: [],
+        exclude: [],
+      };
+      const terms = [];
+
+      this.queryComponents.filter(d => d.type === 'string').forEach((d) => {
+        strings[d.context].push(d);
+      });
+
+      const m = d => `<strong>"${d.query}"</strong>`;
+
+      // maintain the order of include/exclude
+      ['include', 'exclude'].forEach((d) => {
+        if (strings[d].length) {
+          terms.push(`${this.$t(d)} ${strings[d].map(m).join(' <span class="operator">and</span> ')}`);
         }
-        return `${this.$t('including')} <strong>${d.query}</strong>`;
-      }).join(', ');
+      });
+
+      return terms.join('; ');
     },
   },
 };
@@ -35,8 +50,8 @@ export default {
 {
   "en": {
     "summary": "summary",
-    "including": "including",
-    "excluding": "excluding",
+    "include": "include",
+    "exclude": "exclude",
     "message": "Found <strong>{count}</strong> articles {terms}"
   },
   "fr": {
@@ -45,8 +60,8 @@ export default {
   },
   "nl": {
     "summary": "SAMENVATTING",
-    "including": "inclusief",
-    "excluding": "exclusief",
+    "include": "inclusief",
+    "exclude": "exclusief",
     "message": "<strong>{count}</strong> artikelen gevonden {terms}"
   }
 }
