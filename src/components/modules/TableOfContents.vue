@@ -10,7 +10,7 @@
       <strong class="title float-left w-75">{{ theHeader(article) }}</strong>
       <div class="dot-selected mt-1 float-right" />
       <br>
-      <label class="w-100">pp. {{selected}}
+      <label class="w-100">pp.
         <b-badge variant="light" v-for="(page, index) in article.pages">{{page.num}}</b-badge>
       </label>
       <p class="excerpt mt-0 mb-1">
@@ -84,12 +84,13 @@ export default {
       height: 10px;
       border-radius: 50%;
       border: 1px solid $clr-quaternary;
+      transition: background 200ms;
     }
     &.active {
       border-color: $clr-accent-secondary;
       .dot-selected {
         background: $clr-accent-secondary;
-        border-color: transparent;
+        border-color: $clr-accent-secondary;
       }
     }
 
