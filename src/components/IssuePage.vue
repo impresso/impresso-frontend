@@ -12,7 +12,8 @@
         <div class="px-3 py-4" v-show="tab.name === 'toc'">
           <table-of-contents
           v-model="toc"
-          v-on:click="loadArticle" />
+          v-bind:currentPage="currentPage"
+          v-on:click="loadPage" />
         </div>
         <div class="px-3 py-4" v-show="tab.name === 'search'">
           <h4>@todo: search</h4>
@@ -159,6 +160,17 @@ export default {
                 });
               });
 
+              overlay.addEventListener('click', (event) => {
+                const articleUid = event.target.dataset.articleUid;
+
+                document.querySelectorAll(`:not([data-article-uid=${articleUid}]) .active`).forEach((item) => {
+                  item.classList.remove('active');
+                });
+                document.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+                  item.classList.add('active');
+                });
+              });
+
               const rect = viewer.viewport.imageToViewportRectangle(
                 region.coords[0],
                 region.coords[1],
@@ -260,11 +272,14 @@ export default {
 // to be the exact same
 /// Maybe we can move this to bootpresso?
 div.overlay-region{
-  background: $clr-accent-secondary;
-  opacity: 0;
   transition: opacity 300ms;
+  mix-blend-mode: multiply;
   &.selected{
-    opacity: 0.25;
+    background: rgba($clr-accent-secondary, 0.20);
+  }
+  &.active{
+    border: 1px solid $clr-accent-secondary;
+    background: rgba($clr-accent-secondary, 0.30);
   }
 }
 </style>
