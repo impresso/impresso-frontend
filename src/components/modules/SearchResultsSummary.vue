@@ -11,33 +11,65 @@ export default {
   computed: {
     getMessage: {
       get() {
-        return this.$t('message', { count: this.totalRows, terms: this.getTerms() });
+        return this.$t('message', {
+          count: this.totalRows,
+          terms: this.getStrings(),
+          ranges: this.getDateranges(),
+        });
       },
     },
   },
   methods: {
-    getTerms() {
+    getSections(type) {
       // regroup querycomponents based on include / exclude
-      const strings = {
+      const sections = {
         include: [],
         exclude: [],
+        sequence: ['include', 'exclude'],
       };
-      const terms = [];
 
-      this.queryComponents.filter(d => d.type === 'string').forEach((d) => {
-        strings[d.context].push(d);
+      this.queryComponents.filter(d => d.type === type).forEach((d) => {
+        sections[d.context].push(d);
       });
 
-      const m = d => `<strong>"${d.query}"</strong>`;
+      return sections;
+    },
 
-      // maintain the order of include/exclude
-      ['include', 'exclude'].forEach((d) => {
-        if (strings[d].length) {
-          terms.push(`${this.$t(d)} ${strings[d].map(m).join(' <span class="operator">and</span> ')}`);
+    getFormattedSection(type, mapper) {
+      const sections = this.getSections(type);
+      const results = [];
+
+      sections.sequence.forEach((d) => {
+        if (sections[d].length) {
+          results.push(`${this.$t(d)} ${sections[d].map(mapper).join(' <span class="operator">and</span> ')}`);
         }
       });
 
-      return terms.join('; ');
+      return results.join('; ');
+    },
+
+    getDateranges() {
+      const sections = this.getSections('daterange');
+      const mapper = d => this.$t('daterange', {
+        start: this.$d(d.daterange.start, 'short'),
+        end: this.$d(d.daterange.end, 'short'),
+      });
+      const results = [];
+
+      sections.sequence.forEach((d) => {
+        if (sections[d].length) {
+          results.push(`${sections[d].map(mapper).join(' <span class="operator">and</span> ')}`);
+        }
+      });
+
+      return results.join('; ');
+    },
+
+    getStrings() {
+      // later, this mapper will take into account
+      // the property `precision`
+      const mapper = d => `<strong>"${d.query}"</strong>`;
+      return this.getFormattedSection('string', mapper);
     },
   },
 };
@@ -50,9 +82,10 @@ export default {
 {
   "en": {
     "summary": "summary",
-    "include": "include",
-    "exclude": "exclude",
-    "message": "Found <strong>{count}</strong> articles {terms}"
+    "include": "including",
+    "exclude": "excluding",
+    "message": "Found <strong class='number'>{count}</strong> articles {terms} {ranges}",
+    "daterange": "from <strong class='date'>{start}</strong> to <strong class='date'>{end}</strong>"
   },
   "fr": {
   },
@@ -62,7 +95,7 @@ export default {
     "summary": "SAMENVATTING",
     "include": "inclusief",
     "exclude": "exclusief",
-    "message": "<strong>{count}</strong> artikelen gevonden {terms}"
+    "message": "<strong class='number'>{count}</strong> artikelen gevonden {terms} {ranges}"
   }
 }
 </i18n>
