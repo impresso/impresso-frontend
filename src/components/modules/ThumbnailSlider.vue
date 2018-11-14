@@ -2,6 +2,7 @@
   <div id="thumbnail-slider">
     <div class="tiles">
       <div
+        v-if="page && issue"
         v-for="(item, index) in issue.pages"
         class="tile"
         v-bind:class="{active: page.uid === item.uid}"
@@ -25,9 +26,6 @@ import Issue from '@/models/Issue';
 import ThumbnailSliderItem from './ThumbnailSliderItem';
 
 export default {
-  model: {
-    prop: 'page',
-  },
   props: {
     issue: new Issue(),
     bounds: false,
@@ -36,8 +34,8 @@ export default {
   mounted() {
   },
   methods: {
-    onClickPage(item) {
-      this.$emit('input', item);
+    onClickPage(page) {
+      this.$emit('click', page);
     },
   },
   components: {

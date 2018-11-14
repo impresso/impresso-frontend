@@ -1,6 +1,6 @@
 <template lang="html">
   <div>
-    <div v-for="article in toc">
+    <div v-for="article in toc.articles">
       <h4 v-html="article.title || '<i>Title Unavailable</i>'"></h4>
       <button class="btn btn-sm btn-secondary" type="button" name="button" v-on:click="onClick(article)">Load</button>
       <!-- <pre>{{article}}</pre> -->
@@ -11,9 +11,6 @@
 
 <script>
 export default {
-  model: {
-    prop: 'toc',
-  },
   props: {
     toc: {
       default: [],
@@ -21,7 +18,7 @@ export default {
   },
   methods: {
     onClick(article) {
-      this.$emit('click', article.uid);
+      this.$emit('click', article);
     },
   },
 };
