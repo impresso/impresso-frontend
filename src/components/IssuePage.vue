@@ -290,8 +290,12 @@ div.overlay-region{
   background: $clr-accent-secondary;
   opacity: 0;
   transition: opacity 300ms;
-  &.selected, &.active{
-    opacity: 0.25;
+  mix-blend-mode: multiply;
+  &.selected{
+    opacity: 0.20;
+  }
+  &.active{
+    opacity: 0.35;
   }
 }
 </style>
