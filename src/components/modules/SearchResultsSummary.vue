@@ -11,18 +11,65 @@ export default {
   computed: {
     getMessage: {
       get() {
-        return this.$t('message', { count: this.totalRows, terms: this.getTerms() });
+        return this.$t('message', {
+          count: this.totalRows,
+          terms: this.getStrings(),
+          ranges: this.getDateranges(),
+        });
       },
     },
   },
   methods: {
-    getTerms() {
-      return this.queryComponents.filter(d => d.type === 'string').map((d) => {
-        if (d.context === 'exclude') {
-          return `${this.$t('excluding')} <strong>${d.query}</strong>`;
+    getSections(type) {
+      // regroup querycomponents based on include / exclude
+      const sections = {
+        include: [],
+        exclude: [],
+        sequence: ['include', 'exclude'],
+      };
+
+      this.queryComponents.filter(d => d.type === type).forEach((d) => {
+        sections[d.context].push(d);
+      });
+
+      return sections;
+    },
+
+    getFormattedSection(type, mapper) {
+      const sections = this.getSections(type);
+      const results = [];
+
+      sections.sequence.forEach((d) => {
+        if (sections[d].length) {
+          results.push(`${this.$t(d)} ${sections[d].map(mapper).join(' <span class="operator">and</span> ')}`);
         }
-        return `${this.$t('including')} <strong>${d.query}</strong>`;
-      }).join(', ');
+      });
+
+      return results.join('; ');
+    },
+
+    getDateranges() {
+      const sections = this.getSections('daterange');
+      const mapper = d => this.$t('daterange', {
+        start: this.$d(d.daterange.start, 'short'),
+        end: this.$d(d.daterange.end, 'short'),
+      });
+      const results = [];
+
+      sections.sequence.forEach((d) => {
+        if (sections[d].length) {
+          results.push(`${sections[d].map(mapper).join(' <span class="operator">and</span> ')}`);
+        }
+      });
+
+      return results.join('; ');
+    },
+
+    getStrings() {
+      // later, this mapper will take into account
+      // the property `precision`
+      const mapper = d => `<strong>"${d.query}"</strong>`;
+      return this.getFormattedSection('string', mapper);
     },
   },
 };
@@ -35,9 +82,10 @@ export default {
 {
   "en": {
     "summary": "summary",
-    "including": "including",
-    "excluding": "excluding",
-    "message": "Found <strong>{count}</strong> articles {terms}"
+    "include": "including",
+    "exclude": "excluding",
+    "message": "Found <strong class='number'>{count}</strong> articles {terms} {ranges}",
+    "daterange": "from <strong class='date'>{start}</strong> to <strong class='date'>{end}</strong>"
   },
   "fr": {
   },
@@ -45,9 +93,9 @@ export default {
   },
   "nl": {
     "summary": "SAMENVATTING",
-    "including": "inclusief",
-    "excluding": "exclusief",
-    "message": "<strong>{count}</strong> artikelen gevonden {terms}"
+    "include": "inclusief",
+    "exclude": "exclusief",
+    "message": "<strong class='number'>{count}</strong> artikelen gevonden {terms} {ranges}"
   }
 }
 </i18n>
