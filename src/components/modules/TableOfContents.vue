@@ -23,9 +23,6 @@
 
 <script>
 export default {
-  model: {
-    prop: 'toc',
-  },
   props: {
     toc: {
       default: [],

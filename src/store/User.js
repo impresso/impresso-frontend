@@ -43,8 +43,8 @@ export default {
         };
 
         services.app.authenticate(authSettings)
-          .then(res => services.app.passport.verifyJWT(res.accessToken))
-          .then(res => services.app.service('users').get(res.userId))
+          .then(res => services.app.passport.verifyJWT(res.accessToken), reject)
+          .then(res => services.app.service('users').get(res.userId), reject)
           .then((user) => {
             services.app.set('user', user);
             context.commit('SET_USER', new User({
@@ -57,7 +57,7 @@ export default {
               root: true,
             });
             resolve();
-          })
+          }, reject)
           .catch(
             (err) => {
               reject(err.data);

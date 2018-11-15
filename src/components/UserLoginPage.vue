@@ -1,37 +1,49 @@
 <template lang="html">
-  <main id="UserLoginPage">
-    <form v-on:submit.prevent="authenticate" class="form-signin mt-5">
-      <h1>{{$t("login_title")}}</h1>
-      <div class="alert alert-danger" v-show="error" role="alert">
-        {{error}}
+  <i-layout id="UserLoginPage">
+    <i-layout-section class="section">
+      <div class="login-form">
+        <form v-on:submit.prevent="authenticate" class="form-signin">
+          <div class="header p-3">
+            {{$t("login_title")}}
+          </div>
+          <div class="body py-4 px-3">
+            <div class="alert alert-danger" v-show="error" role="alert">
+              {{error}}
+            </div>
+            <label for="inputEmail" class="sr-only">Email address</label>
+            <input
+              v-model="email"
+              type="email"
+              class="form-control"
+              required
+              autofocus
+              v-bind:autocomplete="autocomplete()">
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input
+              v-model="password"
+              type="password"
+              class="form-control"
+              placeholder="Password"
+              required
+              v-bind:autocomplete="autocomplete()">
+            <div class="checkbox mb-3">
+              <label>
+                <input type="checkbox" value="remember-me" v-model="rememberCredetials"> {{$t("login_remember")}}
+              </label>
+            </div>
+          </div>
+          <div class="footer p-3">
+            <button class="btn btn-lg btn-primary btn-block" type="submit">{{$t("login_button")}}</button>
+          </div>
+        </form>
       </div>
-      <label for="inputEmail" class="sr-only">Email address</label>
-      <input
-        v-model="email"
-        type="email"
-        class="form-control"
-        required
-        autofocus
-        v-bind:autocomplete="autocomplete()">
-      <label for="inputPassword" class="sr-only">Password</label>
-      <input
-        v-model="password"
-        type="password"
-        class="form-control"
-        placeholder="Password"
-        required
-        v-bind:autocomplete="autocomplete()">
-      <div class="checkbox mb-3">
-        <label>
-          <input type="checkbox" value="remember-me" v-model="rememberCredetials"> {{$t("login_remember")}}
-        </label>
-      </div>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">{{$t("login_button")}}</button>
-    </form>
-  </main>
+    </i-layout-section>
+  </i-layout>
 </template>
 
 <script>
+import BaseTitleBar from './base/BaseTitleBar';
+
 export default {
   data: () => ({
     email: '',
@@ -68,25 +80,61 @@ export default {
       },
     },
   },
+  components: {
+    BaseTitleBar,
+  },
 };
 </script>
 
-<style scoped lang="less">
-.form-signin {
-    width: 100%;
-    max-width: 330px;
-    margin: auto;
-    text-align: center;
+<style scoped lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
+#UserLoginPage{
+  height: 100%;
+  background: url(./../assets/img/desk_still_life.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-color: rgb(81, 218, 237);
+  background-blend-mode:soft-light;
+  .section{
+    align-items: center;
+  }
+};
+
+.login-form{
+  background: white;
+  width: 100%;
+  max-width: 330px;
+  margin: 40px auto;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+  .header{
+    background: $clr-accent-light;
+    font-weight: bold;
+    font-size: larger;
+  }
+
+  .body{
+
+  }
+
+  .footer{
+    background: #f4f5f6;
+  }
 }
-.form-signin .form-control:focus {
+
+.form-signin {
+  .form-control:focus {
     position: relative;
     z-index: 2;
-}
-.form-signin input[type="email"] {
+  }
+  input[type="email"] {
     margin-bottom: -1px;
-}
-.form-signin input[type="password"] {
+  }
+  input[type="password"] {
     margin-bottom: 10px;
+  }
 }
 </style>
 

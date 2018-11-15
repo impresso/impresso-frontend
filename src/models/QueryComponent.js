@@ -23,7 +23,7 @@ export default function QueryComponent({
 
   if (daterange instanceof Daterange) {
     this.daterange = daterange;
-  } else if (typeof daterange === 'string' && daterange.test(daterangeRegex)) {
+  } else if (typeof daterange === 'string' && daterangeRegex.test(daterange)) {
     this.daterange = new Daterange({
       daterange,
     });
