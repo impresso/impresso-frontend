@@ -219,6 +219,10 @@ export default {
                   overlay.setAttribute('class', 'overlay-region');
                   overlay.dataset.articleUid = article.uid;
 
+                  overlay.addEventListener('click', () => {
+                    this.loadArticle(article);
+                  });
+
                   overlay.addEventListener('mouseenter', (event) => {
                     const articleUid = event.target.dataset.articleUid;
 
