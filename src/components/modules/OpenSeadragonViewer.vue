@@ -20,10 +20,10 @@ export default {
     if (this.handler) {
       this.handler.$on('init', (options = {}) => {
         this.viewer = OpenSeadragon({
+          immediateRender: true,
           element: this.$el,
           showNavigationControl: false,
           animationTime: 0,
-          minZoomLevel: 1,
           defaultZoomLevel: 1,
           ...options,
         });

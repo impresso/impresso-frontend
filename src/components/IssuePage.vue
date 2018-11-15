@@ -188,16 +188,15 @@ export default {
 
           const options = {
             sequenceMode: true,
-            showNavigationControl: false,
             showSequenceControl: false,
             initialPage: 0,
             tileSources: this.issue.pages.map(elm => elm.iiif),
-            animationTime: 0,
+            minZoomImageRatio: 0.5,
             gestureSettingsMouse: {
               clickToZoom: false,
               dblClickToZoom: true,
             },
-            visibilityRatio: 0.1,
+            visibilityRatio: 0.5,
           };
 
           this.handler.$emit('init', options);
