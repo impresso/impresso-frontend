@@ -11,7 +11,9 @@
         <div class="px-3 py-4" v-show="tab.name === 'toc'">
           <table-of-contents
           v-bind:toc="toc"
-          v-on:click="loadArticle" />
+          v-bind:pageUid="pageUid"
+          v-bind:articleUid="articleUid"
+          v-on:click="loadArticlePage" />
         </div>
         <div class="px-3 py-4" v-show="tab.name === 'search'">
           <h4>@todo: search</h4>
@@ -138,6 +140,15 @@ export default {
         name: 'page',
         params: {
           page_uid: page.uid,
+        },
+      });
+    },
+    loadArticlePage(data) {
+      this.$router.push({
+        name: 'article',
+        params: {
+          article_uid: data.article.uid,
+          page_uid: data.page.uid,
         },
       });
     },
@@ -272,6 +283,8 @@ export default {
 // to be the exact same
 /// Maybe we can move this to bootpresso?
 div.overlay-region{
+  background: $clr-accent-secondary;
+  opacity: 0;
   transition: opacity 300ms;
   &.selected, &.active{
     opacity: 0.25;

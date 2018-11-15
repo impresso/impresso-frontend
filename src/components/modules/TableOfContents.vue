@@ -1,60 +1,37 @@
 <template lang="html">
-  <div class="border-top">
-    <div
-      v-for="article in toc"
-      class="listArticle border-bottom p-2 bg-light"
-      v-bind:data-article-uid=article.uid
-      v-on:click="setActiveArticle(article)"
-      v-bind:class="{
-        'currentPage': article.pages.find( page => page.num === currentPage) != undefined }">
-      <strong class="title float-left w-75">{{ theHeader(article) }}</strong>
-      <div class="dot-selected mt-1 float-right" />
-      <br>
-      <label class="w-100">pp.
-        <b-badge variant="light" v-for="(page, index) in article.pages">{{page.num}}</b-badge>
-      </label>
-      <p class="excerpt mt-0 mb-1">
-        {{ theTeaser(article.excerpt, 120) }}
-      </p>
-      <!-- <pre>{{article}}</pre> -->
-    </div>
+  <div id="TableOfContents">
+    <ul class="page" v-for="page in toc.pages" v-bind:class="{active: page.uid === pageUid}">
+      <li class="article" v-for="article in page.articles" v-bind:class="{active: article.uid === articleUid}">
+        <a href="#" v-on:click.prevent="onClick(article, page)">
+          <span v-html="article.title || $t('no_title')"></span>
+          <span class="float-right">{{page.num}}</span>
+        </a>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
+import Issue from '@/models/Issue';
+
 export default {
   props: {
     toc: {
-      default: [],
+      default: new Issue(),
     },
-    currentPage: {
-      default: 1,
+    pageUid: {
+      default: '',
     },
-    active: {
+    articleUid: {
       default: '',
     },
   },
   methods: {
-    setActiveArticle(article) {
-      //
-      // TODO: change page url if article is on different page
-      //
-      document.querySelectorAll(`:not([data-article-uid=${article.uid}]) .active`).forEach((item) => {
-        item.classList.remove('active');
+    onClick(article, page) {
+      this.$emit('click', {
+        article,
+        page,
       });
-      document.querySelectorAll(`[data-article-uid=${article.uid}]`).forEach((item) => {
-        item.classList.add('active');
-      });
-    },
-    theHeader(article) {
-      if (article.title === '') {
-        return this.theTeaser(article.excerpt, 40);
-      }
-      return this.theTeaser(article.title, 100);
-    },
-    theTeaser(excerpt, length) {
-      if (excerpt.length > length) { return `${excerpt.substring(0, length)} ...`; }
-      return excerpt;
     },
   },
 };
@@ -63,40 +40,38 @@ export default {
 <style scoped lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-.listArticle {
-  border-left: 1px solid transparent;
-  display: block;
-  cursor: pointer;
-  background: white !important;
-  color: $clr-tertiary;
-
-  &.currentPage {
-    color: $clr-primary;
-    border-color: $clr-quaternary;
-    outline: none;
-    opacity: 1;
-
-    .dot-selected {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 1px solid $clr-quaternary;
-      transition: background 200ms;
+#TableOfContents{
+  ul.page{
+    margin-bottom: 0;
+    padding: 0;
+    border-left: 2px solid rgba(0,0,0,0);
+    list-style: none;
+    &.active{
+      border-left-color: rgba(0,0,0,0.5);
     }
-    &.active {
-      border-color: $clr-accent-secondary;
-      .dot-selected {
-        background: $clr-accent-secondary;
-        border-color: $clr-accent-secondary;
+
+    li.article{
+      &.active{
+        font-weight: bold;
+      }
+      a{
+        padding: 0 15px;
+        display: block;
       }
     }
-
   }
 }
-.title {
-  font-size: smaller;
-}
-.excerpt {
-  font-size: smaller;
-}
 </style>
+
+<i18n>
+{
+  "en": {
+    "page": "Page",
+    "no_title": "No title"
+  },
+  "nl": {
+    "page": "Pagina",
+    "no_title": "Zonder titel"
+  }
+}
+</i18n>

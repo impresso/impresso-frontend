@@ -2,7 +2,6 @@ import * as services from '@/services';
 import Issue from '@/models/Issue';
 import Page from '@/models/Page';
 import Article from '@/models/Article';
-import Toc from '@/models/TableOfContents';
 
 export default {
   namespaced: true,
@@ -108,12 +107,38 @@ export default {
         };
         services.articles.find(q)
           .then((response) => {
-            resolve(new Toc({
-              articles: response.data.map(article => new Article({
-                ...article,
-              })),
-              uid,
+            const issue = new Issue();
+            const articles = response.data.map(article => new Article({
+              ...article,
             }));
+
+            articles.forEach((article) => {
+              article.pages.forEach((p1) => {
+                const page = issue.pages.find(p2 => p1.uid === p2.uid);
+                if (!page) {
+                  issue.pages.push(new Page({
+                    ...p1,
+                    articles: [article],
+                  }));
+                } else {
+                  page.articles.push(article);
+                }
+              });
+            });
+
+            // sort by page number
+            issue.pages.sort((pageA, pageB) => {
+              if (pageA.num < pageB.num) {
+                return -1;
+              }
+              if (pageA.num > pageB.num) {
+                return 1;
+              }
+
+              return 0;
+            });
+
+            resolve(issue);
           }, (error) => {
             reject(error);
           });
