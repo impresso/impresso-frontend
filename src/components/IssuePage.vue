@@ -195,7 +195,7 @@ export default {
             animationTime: 0,
             gestureSettingsMouse: {
               clickToZoom: false,
-              dblClickToZoom: true,
+              dblClickToZoom: false,
             },
             visibilityRatio: 0.1,
           };
@@ -222,6 +222,14 @@ export default {
                   overlay.addEventListener('click', () => {
                     this.loadArticle(article);
                   });
+
+                  overlay.addEventListener('dblclick', () => {
+                    this.handler.$emit('fit-bounds-to-regions', article.regions);
+                  });
+
+                  // overlay.addEventListener('contextmenu', (event) => {
+                  //   // event.preventDefault();
+                  // });
 
                   overlay.addEventListener('mouseenter', (event) => {
                     const articleUid = event.target.dataset.articleUid;
