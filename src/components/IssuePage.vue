@@ -194,7 +194,7 @@ export default {
             minZoomImageRatio: 0.5,
             gestureSettingsMouse: {
               clickToZoom: false,
-              dblClickToZoom: true,
+              dblClickToZoom: false,
             },
             visibilityRatio: 0.5,
           };
@@ -217,6 +217,18 @@ export default {
 
                   overlay.setAttribute('class', 'overlay-region');
                   overlay.dataset.articleUid = article.uid;
+
+                  overlay.addEventListener('click', () => {
+                    this.loadArticle(article);
+                  });
+
+                  overlay.addEventListener('dblclick', () => {
+                    this.handler.$emit('fit-bounds-to-regions', article.regions);
+                  });
+
+                  // overlay.addEventListener('contextmenu', (event) => {
+                  //   // event.preventDefault();
+                  // });
 
                   overlay.addEventListener('mouseenter', (event) => {
                     const articleUid = event.target.dataset.articleUid;
@@ -285,8 +297,12 @@ div.overlay-region{
   background: $clr-accent-secondary;
   opacity: 0;
   transition: opacity 300ms;
-  &.selected, &.active{
-    opacity: 0.25;
+  mix-blend-mode: multiply;
+  &.selected{
+    opacity: 0.20;
+  }
+  &.active{
+    opacity: 0.35;
   }
 }
 </style>
