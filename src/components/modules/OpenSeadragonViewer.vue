@@ -64,22 +64,6 @@ export default {
         }
       });
 
-      this.handler.$on('fit-bounds-to-regions', (regions) => {
-        if (regions.length) {
-          let rect = new OpenSeadragon.Rect(1, 1, 0, 0);
-
-          regions.forEach((region) => {
-            const coords = this.viewer.viewport.imageToViewportRectangle(
-              region.coords.x,
-              region.coords.y,
-              region.coords.w,
-              region.coords.h);
-            rect = rect.union(coords);
-          });
-          this.viewer.viewport.fitBounds(rect, false);
-        }
-      });
-
       this.handler.$on('add-overlay', (options = {}) => {
         const rect = this.viewer.viewport.imageToViewportRectangle(
           options.x,
