@@ -64,27 +64,8 @@ export default {
                   iiifFragment: region.iiif_fragment,
                 })),
               })),
-              articlesEntities: page.articles_entities.map((item) => {
-                item.articleUid = item.article_uid;
-                item.entityUid = item.entity_uid;
-                return item;
-              }),
-              articlesTags: page.articles_tags.map((tag) => {
-                tag.articleUid = tag.article_uid;
-                tag.properties.creationDate = tag.properties.creation_date;
-                tag.properties.creationTime = tag.properties.creation_time;
-                tag.properties.lastModifiedDate = tag.properties.last_modified_date;
-                tag.properties.lastModifiedTime = tag.properties.last_modified_time;
-                return tag;
-              }),
-              regions: page.regions.map((region) => {
-                region.articleUid = region.article_uid;
-                return region;
-              }),
-              tags: page.tags.map((tag) => {
-                tag.appliesTo = tag.applies_to;
-                return tag;
-              }),
+              articlesEntities: page.articlesEntities,
+              articlesTags: page.articlesTags,
             }));
           }, (error) => {
             reject(error);
