@@ -17,7 +17,10 @@
           <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
         </b-button-group>
         <hr>
-        <b-button size="sm" variant="outline-primary">Add to Collection ...</b-button><br>
+        <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
+          <collection-add-to style="margin: -0.5em 0 -0.5em 0" />
+        </b-dropdown>
+        <br>
         <span class="badge badge-secondary">Novels</span>
         <span class="badge badge-secondary">Poems</span>
         <hr>
@@ -37,6 +40,7 @@
 
 <script>
 import BaseTitleBar from './../base/BaseTitleBar';
+import CollectionAddTo from './CollectionAddTo';
 
 export default {
   model: {
@@ -45,6 +49,7 @@ export default {
   props: ['page'],
   components: {
     BaseTitleBar,
+    CollectionAddTo,
   },
 };
 </script>
@@ -63,7 +68,7 @@ export default {
 
     .controls{
       grid-area: controls;
-      opacity: 0.2;
+      // opacity: 0.2;
     }
 }
 .region {
