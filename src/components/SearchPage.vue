@@ -37,28 +37,57 @@
 
     <b-navbar type="light" variant="light" class="border-bottom">
       <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
+      <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary">
+        <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+        <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+      </b-dropdown>
     </b-navbar>
 
-    <div class="p-1">
-      <b-container fluid>
-        <b-row v-if="displayStyle === 'list'">
-          <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
-          </b-col>
-        </b-row>
-        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
-          </b-col>
-        </b-row>
-      </b-container>
-      <hr>
+    <b-container fluid class="p-1">
+      <b-row v-if="displayStyle === 'list'">
+        <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+          <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+        </b-col>
+      </b-row>
+      <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+        <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
+          <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+        </b-col>
+      </b-row>
+    </b-container>
+
+    <div slot="footer" class="border-top p-3 bg-light">
       <pagination
+        class="float-left"
+        size="sm"
         v-bind:perPage="paginationPerPage"
         v-bind:currentPage="paginationCurrentPage"
         v-bind:totalRows="paginationTotalRows"
         v-on:change="onInputPagination"
         v-bind:showDescription="true" />
+      <div class="float-right">
+        <!-- <b-button variant="outline-primary" size="sm">
+          <div class="dripicons-archive pt-1"></div>
+        </b-button> -->
+        <b-dropdown size="sm" variant="outline-primary" no-caret>
+          <template slot="button-content">
+            <div class="dripicons-archive pt-1" v-bind:title="$t('query_add_to_collection')"></div>
+            <span class="sr-only">{{$t("query_add_to_collection")}}</span>
+          </template>
+          <b-dropdown-item>
+            [add to collection module]
+          </b-dropdown-item>
+        </b-dropdown>
+        <b-dropdown size="sm" variant="outline-primary" no-caret>
+          <template slot="button-content">
+            <div class="dripicons-export pt-1" v-bind:title="$t('query_export')"></div>
+            <span class="sr-only">{{$t("query_export")}}</span>
+          </template>
+          <b-dropdown-item>
+            {{$t("query_export_csv")}}
+          </b-dropdown-item>
+        </b-dropdown>
+      </div>
     </div>
   </i-layout-section>
 </i-layout>
@@ -282,7 +311,11 @@ div.overlay-region{
     "order_issues": "Issue",
     "order_pages": "Page",
     "order_articles": "Article",
-    "order_sentences": "Sentence"
+    "order_sentences": "Sentence",
+    "query_actions": "Save / Export",
+    "query_add_to_collection": "Add query to collection",
+    "query_export": "Export result list as ...",
+    "query_export_csv": "Export result list as CSV"
   },
   "nl": {
     "label_display": "Toon Als",
@@ -297,7 +330,10 @@ div.overlay-region{
     "order_issues": "Uitgave",
     "order_pages": "Pagina",
     "order_articles": "Artikel",
-    "order_sentences": "Zin"
+    "order_sentences": "Zin",
+    "query_actions": "Opslaan / exporteren",
+    "query_add_to_collection": "Add query to collection NL",
+    "query_export_csv": "Export results as CSV NL"
   }
 }
 </i18n>
