@@ -10,7 +10,7 @@
     v-bind:align="align"
     class="m-0"
   ></b-pagination>
-  <div v-if="showDescription">
+  <div v-if="showDescription" class="small text-muted pt-1 pb-2">
     {{$t("description", {
       firstResult: firstResult,
       lastResult: lastResult,
