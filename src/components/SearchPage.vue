@@ -43,7 +43,7 @@
       </b-dropdown>
     </b-navbar>
 
-    <b-container fluid class="p-1">
+    <b-container fluid class="p-3">
       <b-row v-if="displayStyle === 'list'">
         <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
           <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
@@ -56,39 +56,42 @@
       </b-row>
     </b-container>
 
-    <div slot="footer" class="border-top p-3 bg-light">
-      <pagination
-        class="float-left"
-        size="sm"
-        v-bind:perPage="paginationPerPage"
-        v-bind:currentPage="paginationCurrentPage"
-        v-bind:totalRows="paginationTotalRows"
-        v-on:change="onInputPagination"
-        v-bind:showDescription="true" />
-      <div class="float-right">
-        <!-- <b-button variant="outline-primary" size="sm">
-          <div class="dripicons-archive pt-1"></div>
-        </b-button> -->
-        <b-dropdown size="sm" variant="outline-primary" no-caret>
-          <template slot="button-content">
-            <div class="dripicons-archive pt-1" v-bind:title="$t('query_add_to_collection')"></div>
-            <span class="sr-only">{{$t("query_add_to_collection")}}</span>
-          </template>
-          <b-dropdown-item>
-            [add to collection module]
-          </b-dropdown-item>
-        </b-dropdown>
-        <b-dropdown size="sm" variant="outline-primary" no-caret>
-          <template slot="button-content">
-            <div class="dripicons-export pt-1" v-bind:title="$t('query_export')"></div>
-            <span class="sr-only">{{$t("query_export")}}</span>
-          </template>
-          <b-dropdown-item>
-            {{$t("query_export_csv")}}
-          </b-dropdown-item>
-        </b-dropdown>
-      </div>
-    </div>
+    <b-container slot="footer" class="border-top bg-light pt-3" fluid>
+      <b-row>
+        <b-col cols="10">
+          <pagination
+            size="sm"
+            v-bind:perPage="paginationPerPage"
+            v-bind:currentPage="paginationCurrentPage"
+            v-bind:totalRows="paginationTotalRows"
+            v-on:change="onInputPagination"
+            v-bind:showDescription="true" />
+        </b-col>
+        <b-col cols="2" class="text-right">
+          <!-- <b-button variant="outline-primary" size="sm">
+            <div class="dripicons-archive pt-1"></div>
+          </b-button> -->
+          <b-dropdown size="sm" variant="outline-primary" no-caret>
+            <template slot="button-content">
+              <div class="dripicons-archive pt-1" v-bind:title="$t('query_add_to_collection')"></div>
+              <span class="sr-only">{{$t("query_add_to_collection")}}</span>
+            </template>
+            <b-dropdown-item>
+              [add to collection module]
+            </b-dropdown-item>
+          </b-dropdown>
+          <b-dropdown size="sm" variant="outline-primary" no-caret>
+            <template slot="button-content">
+              <div class="dripicons-export pt-1" v-bind:title="$t('query_export')"></div>
+              <span class="sr-only">{{$t("query_export")}}</span>
+            </template>
+            <b-dropdown-item>
+              {{$t("query_export_csv")}}
+            </b-dropdown-item>
+          </b-dropdown>
+        </b-col>
+      </b-row>
+    </b-container>
   </i-layout-section>
 </i-layout>
 </template>

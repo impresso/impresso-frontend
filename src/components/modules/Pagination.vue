@@ -1,5 +1,5 @@
 <template lang="html">
-<div class="">
+<div>
   <b-pagination
     v-bind:size="size"
     v-bind:value="currentPage"
@@ -8,9 +8,11 @@
     v-on:change="onChange"
     v-on:input="onInput"
     v-bind:align="align"
-    class="m-0"
+    class="float-left pr-2"
   ></b-pagination>
-  <div v-if="showDescription" class="small text-muted pt-1 pb-2">
+  <div
+    v-if="showDescription"
+    class="small text-muted float-left pt-1">
     {{$t("description", {
       firstResult: firstResult,
       lastResult: lastResult,
