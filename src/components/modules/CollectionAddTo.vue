@@ -1,91 +1,97 @@
 <template lang="html">
   <div class="collection-add-to">
     <div class="header bg-light p-2 border-bottom">
-      <label>Add to collection</label><br>
-      <input type="text" name="" value="" class="w-100 p-1" v-bind:placeholder="$t('placeholder')" />
+      <input type="text" name="" value="" class="w-100 p-1"
+        v-bind:placeholder="$t('placeholder')"
+        v-on:input="onInput"
+        v-model="inputString"
+        />
     </div>
-    <div class="inputList">
+    <b-container fluid class="inputList p-0">
       <ul>
-        <li class="form-check">
-          <input class="form-check-input" type="checkbox" id="collection.uid" />
+        <li v-for="collection in filteredCollections" class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            v-bind:id="collection.uid"
+            />
+            <!-- v-bind:checked="isActive(collection)" -->
+            <!-- v-on:click="toggleActive(collection)" -->
+
           <span class="checkmark dripicons-checkmark" />
           <label class="form-check-label py-3" for="collection.uid">
-            collection.name 2
-            <div class="description small text-muted">This is another description.</div>
-          </label>
-        </li>
-        <li class="form-check">
-          <input class="form-check-input" type="checkbox" id="collection.2" />
-          <span class="checkmark dripicons-checkmark" />
-          <label class="form-check-label py-3" for="collection.2">
-            This is just a very very long title. Some people like to put a whole sentence.
-          </label>
-        </li>
-        <li class="form-check">
-          <input class="form-check-input" type="checkbox" id="collection.3" />
-          <span class="checkmark dripicons-checkmark" />
-          <label class="form-check-label py-3" for="collection.3">
-            collection.name 3
-            <div class="description small text-muted">This is just a very very long description.
-              Some people like to put a whole sentence. Or two. Some people like to put a whole sentence. Or two.
-</div>
-          </label>
-        </li>
-        <li class="form-check">
-          <input class="form-check-input" type="checkbox" id="collection.4" />
-          <span class="checkmark dripicons-checkmark" />
-          <label class="form-check-label py-3" for="collection.4">
-            This one has no description.
+            {{collection.name}}
+            <div class="description small text-muted">{{collection.description}}</div>
           </label>
         </li>
       </ul>
-      <!-- <div class="overlay" v-show="show">
-        <div class="panel">
-          <div class="header">
-            <router-link class="btn btn-sm btn-primary" v-bind:to="{ name: 'collection'}">Manage collections</router-link>
-            <a v-on:click.prevent="toggle" href="#" class='btn btn-sm btn-dark'><icon name="times"/></a>
-          </div>
-          <div class="body">
-            <label for="">Order by</label>
-            <select v-model="collectionsSortOrder">
-              <option value="name">A-Z</option>
-              <option value="-name">Z-A</option>
-              <option value="created">Oldest</option>
-              <option value="-created">Newest</option>
-              <option value="-modified">Last Edit</option>
-            </select>
-            <hr>
-            <ul class="list-unstyled">
-              <li v-for="collection in collections" class="form-check">
-                <input
-                class="form-check-input"
-                type="checkbox"
-                v-bind:checked="isActive(collection)"
-                v-on:click="toggleActive(collection)"
-                v-bind:id="collection.uid">
-                <label class="form-check-label" v-bind:for="collection.uid">
-                  {{collection.name}}
-                </label>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div> -->
-    </div>
+    </b-container>
     <div class="footer bg-light p-2 border-top">
-        <b-button size="sm" variant="outline-primary" disabled>Create New</b-button>
-        <b-button size="sm" variant="outline-primary" class="float-right">Manage my Collections</b-button>
+        <b-button size="sm" variant="primary"
+          :disabled="isDisabled == 0"
+          >
+          {{$t('create_new')}}
+        </b-button>
+        <router-link class="btn btn-sm btn-outline-primary float-right" v-bind:to="{ name: 'collection'}">{{ $t('manage_collections') }}</router-link>
     </div>
   </div>
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
-import 'vue-awesome/icons/times';
+// import Icon from 'vue-awesome/components/Icon';
+// import 'vue-awesome/icons/times';
+// import Collection from '@/models/Collection';
+//
+// export default {
+//   model: {
+//     prop: 'collection',
+//   },
+//   props: {
+//     collection: {
+//       type: Collection,
+//       default: new Collection(),
+//     },
+//   },
+//   methods: {
+//     click() {
+//       this.$emit('click');
+//     },
+//   },
+// };
+
 
 export default {
   data: () => ({
+    ccollections: [
+      {
+        name: 'Collection Name',
+        description: 'Collection Desc',
+        uid: 'C.uid',
+      },
+      {
+        name: 'Another Name',
+        description: 'Crocodile in the nile',
+        uid: 'C.uid',
+      },
+      {
+        name: 'Yet another Name',
+        description: 'Chillies and hamsters and papaya',
+        uid: 'C.uid',
+      },
+      {
+        name: 'Serpentine anytime',
+        description: 'I am being slightly annoyed by this',
+        uid: 'C.uid',
+      },
+      {
+        name: 'Collection in Serpentine anytime',
+        description: 'I am being slightly annoyed by this. no Way! and a very long description',
+        uid: 'C.uid',
+      },
+    ],
     show: false,
+    isDisabled: false,
+    inputString: '',
   }),
   model: {
     prop: 'item',
@@ -94,6 +100,13 @@ export default {
     item: Object,
   },
   computed: {
+    filteredCollections() {
+      return this.ccollections.filter((collection) => {
+        const searchRegex = new RegExp(this.inputString, 'i');
+        return searchRegex.test(collection.name) ||
+          searchRegex.test(collection.description);
+      });
+    },
     collections: {
       get() {
         return this.$store.getters['collections/collections'];
@@ -111,6 +124,10 @@ export default {
     },
   },
   methods: {
+    onInput() {
+      // console.log(evt, this.inputString);
+      this.isDisabled = (this.inputString.trim().length > 1);
+    },
     isActive(needle) {
       return this.item.collections.find(collection => needle.uid === collection.uid);
     },
@@ -138,9 +155,9 @@ export default {
       return this.$store.state.user.userData;
     },
   },
-  components: {
-    Icon,
-  },
+  // components: {
+  //   Icon,
+  // },
 };
 </script>
 
@@ -152,15 +169,18 @@ export default {
   input {
     font-style: italic;
     &:focus {
+      border-color: black;
     }
   }
   .inputList {
-    height: 25vh;
+    max-height: 250px;
+    overflow: scroll;
     ul {
       overflow-y: auto;
       height: 100%;
       list-style: none;
       padding: 0;
+      margin-bottom: -1px;
       li {
         padding: 0;
         input {
@@ -206,7 +226,9 @@ export default {
 <i18n>
 {
   "en": {
-    "placeholder": "filter or create new collection"
+    "placeholder": "filter or create new collection",
+    "create_new": "Create New Collection",
+    "manage_collections": "Manage my Collections"
   },
   "de": {
     "placeholder": "Filtern oder neuen Ordner erstellen"
