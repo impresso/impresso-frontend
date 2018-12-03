@@ -56,22 +56,27 @@
       </b-row>
     </b-container>
 
-    <b-container slot="footer" class="border-top bg-light pt-3" fluid>
-      <b-row>
-        <b-col cols="10">
-          <pagination
-            size="sm"
-            v-bind:perPage="paginationPerPage"
-            v-bind:currentPage="paginationCurrentPage"
-            v-bind:totalRows="paginationTotalRows"
-            v-on:change="onInputPagination"
-            v-bind:showDescription="true" />
-        </b-col>
-        <b-col cols="2" class="text-right">
-          <!-- <b-button variant="outline-primary" size="sm">
-            <div class="dripicons-archive pt-1"></div>
-          </b-button> -->
-          <b-dropdown size="sm" variant="outline-primary" no-caret>
+    <div class="search-results-footer p-1 mr-3 mb-0">
+      <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="float-right bg-white">
+        <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+        <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+      </b-dropdown>
+
+      <pagination
+        size="sm"
+        v-bind:perPage="paginationPerPage"
+        v-bind:currentPage="paginationCurrentPage"
+        v-bind:totalRows="paginationTotalRows"
+        v-on:change="onInputPagination"
+        class="float-right"
+        v-bind:showDescription="false" />
+
+          <!-- <b-navbar type="light" variant="light" class="border-bottom"> -->
+            <!-- <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" /> -->
+
+          <!-- </b-navbar> -->
+
+          <!-- <b-dropdown size="sm" variant="outline-primary" no-caret>
             <template slot="button-content">
               <div class="dripicons-archive pt-1" v-bind:title="$t('query_add_to_collection')"></div>
               <span class="sr-only">{{$t("query_add_to_collection")}}</span>
@@ -88,10 +93,9 @@
             <b-dropdown-item>
               {{$t("query_export_csv")}}
             </b-dropdown-item>
-          </b-dropdown>
-        </b-col>
-      </b-row>
-    </b-container>
+          </b-dropdown> -->
+
+      </div>
   </i-layout-section>
 </i-layout>
 </template>
@@ -297,6 +301,41 @@ div.overlay-region{
   }
 
 }
+
+.search-results-footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 2em;
+
+  background: rgba($clr-primary, 0.25);
+
+  .b-dropdown {
+    // float:right;
+    // line-height: 1;
+    white-space: nowrap;
+    .btn.dropdown-toggle[aria-expanded=true] {
+      border-bottom-color: black;
+      border-top-color: white;
+    }
+    .dropdown-menu {
+      top:1px !important;
+    }
+
+  }
+
+
+  .pagination {
+    white-space:nowrap;
+    li.page-item > a,
+    li.page-item > span.page-link {
+      border-color: $clr-secondary;
+      padding: 0 0.5em;
+    }
+  }
+
+}
+
 </style>
 
 <i18n>
