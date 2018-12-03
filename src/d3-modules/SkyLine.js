@@ -37,7 +37,7 @@ export default class SkyLine extends EventEmitter {
       .translateExtent([[0, 0], [this.width, this.height]])
       .extent([[0, 0], [this.width, this.height]])
       .on('start', () => {
-        this.hideSelectionLine();
+        this.hideSelectionLines();
       })
       .on('zoom', (e) => {
         this.zoomed(e);
@@ -82,10 +82,18 @@ export default class SkyLine extends EventEmitter {
       .attr('class', 'axis axis--y');
 
     this.focusSelected = this.svg.append('line')
-      .attr('x1', 0)
-      .attr('x2', 0)
+      .attr('x1', -1)
+      .attr('x2', -1)
       .attr('y1', 0)
       .attr('y2', this.height)
+      .attr('stroke', 'red')
+      .attr('stroke-width', 1);
+
+    this.contextSelected = this.svg.append('line')
+      .attr('x1', -1)
+      .attr('x2', -1)
+      .attr('y1', this.margin2.top)
+      .attr('y2', this.margin2.top + this.height2)
       .attr('stroke', 'red')
       .attr('stroke-width', 1);
 
@@ -105,19 +113,22 @@ export default class SkyLine extends EventEmitter {
       .attr('width', this.width)
       .attr('height', this.height)
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
-      .on('mousemove', this.handleSelectionLine.bind(this))
-      .on('mouseout', this.hideSelectionLine.bind(this))
+      .on('mousemove', this.handleSelectionLines.bind(this))
+      .on('mouseout', this.hideSelectionLines.bind(this))
       .call(this.zoom);
 
     this.setTimeFormat(config.timeFormat || '%Y');
   }
 
-  hideSelectionLine() {
+  hideSelectionLines() {
     this.focusSelected
+      .attr('transform', 'translate(-20, 0)');
+
+    this.contextSelected
       .attr('transform', 'translate(-20, 0)');
   }
 
-  handleSelectionLine(a, b, c) {
+  handleSelectionLines(a, b, c) {
     const date = new Date(this.x.invert(d3.mouse(c[0])[0]));
     // we add six months so the selection goes from -6 to +6 months over the Year
     // instead of 0 to 12 months
@@ -129,10 +140,14 @@ export default class SkyLine extends EventEmitter {
       .find(d => d.year.getFullYear() === year);
 
     const x = this.x(closest.year);
+    const x2 = this.x2(closest.year);
     const y = this.y(closest.count);
 
     this.focusSelected
       .attr('transform', `translate(${x}, 0)`);
+
+    this.contextSelected
+      .attr('transform', `translate(${x2}, 0)`);
 
     this.emit('mouseover', { ...closest, x, y });
   }
