@@ -70,31 +70,6 @@
         v-on:change="onInputPagination"
         class="float-right"
         v-bind:showDescription="false" />
-
-          <!-- <b-navbar type="light" variant="light" class="border-bottom"> -->
-            <!-- <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" /> -->
-
-          <!-- </b-navbar> -->
-
-          <!-- <b-dropdown size="sm" variant="outline-primary" no-caret>
-            <template slot="button-content">
-              <div class="dripicons-archive pt-1" v-bind:title="$t('query_add_to_collection')"></div>
-              <span class="sr-only">{{$t("query_add_to_collection")}}</span>
-            </template>
-            <b-dropdown-item>
-              [add to collection module]
-            </b-dropdown-item>
-          </b-dropdown>
-          <b-dropdown size="sm" variant="outline-primary" no-caret>
-            <template slot="button-content">
-              <div class="dripicons-export pt-1" v-bind:title="$t('query_export')"></div>
-              <span class="sr-only">{{$t("query_export")}}</span>
-            </template>
-            <b-dropdown-item>
-              {{$t("query_export_csv")}}
-            </b-dropdown-item>
-          </b-dropdown> -->
-
       </div>
   </i-layout-section>
 </i-layout>
