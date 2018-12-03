@@ -36,7 +36,12 @@ export default class SkyLine extends EventEmitter {
       .scaleExtent([1, Infinity])
       .translateExtent([[0, 0], [this.width, this.height]])
       .extent([[0, 0], [this.width, this.height]])
-      .on('zoom', this.zoomed.bind(this))
+      .on('start', () => {
+        this.hideSelectionLine();
+      })
+      .on('zoom', (e) => {
+        this.zoomed(e);
+      })
       .on('end', () => {
         this.emit('zoomEnd', this.x.domain());
       });
@@ -76,6 +81,14 @@ export default class SkyLine extends EventEmitter {
     this.focusAxisY = this.focus.append('g')
       .attr('class', 'axis axis--y');
 
+    this.focusSelected = this.svg.append('line')
+      .attr('x1', 0)
+      .attr('x2', 0)
+      .attr('y1', 0)
+      .attr('y2', this.height)
+      .attr('stroke', 'red')
+      .attr('stroke-width', 1);
+
     this.contextArea = this.context.append('path')
       .attr('class', 'area');
 
@@ -92,13 +105,36 @@ export default class SkyLine extends EventEmitter {
       .attr('width', this.width)
       .attr('height', this.height)
       .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`)
+      .on('mousemove', this.handleSelectionLine.bind(this))
+      .on('mouseout', this.hideSelectionLine.bind(this))
       .call(this.zoom);
 
-    this.focusPoints = this.svg.append('g')
-      .attr('class', 'points')
-      .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
-
     this.setTimeFormat(config.timeFormat || '%Y');
+  }
+
+  hideSelectionLine() {
+    this.focusSelected
+      .attr('transform', 'translate(-20, 0)');
+  }
+
+  handleSelectionLine(a, b, c) {
+    const date = new Date(this.x.invert(d3.mouse(c[0])[0]));
+    // we add six months so the selection goes from -6 to +6 months over the Year
+    // instead of 0 to 12 months
+    date.setMonth(date.getMonth() + 6);
+    const year = date.getFullYear();
+    // const x = this.x(new Date(year, 0, 1));
+
+    const closest = this.focusArea.datum()
+      .find(d => d.year.getFullYear() === year);
+
+    const x = this.x(closest.year);
+    const y = this.y(closest.count);
+
+    this.focusSelected
+      .attr('transform', `translate(${x}, 0)`);
+
+    this.emit('mouseover', { ...closest, x, y });
   }
 
   // call this function to change the time format
@@ -120,10 +156,6 @@ export default class SkyLine extends EventEmitter {
       d3.zoomIdentity
         .scale(this.width / (s[1] - s[0]))
         .translate(-s[0], 0));
-
-    this.focusPoints.selectAll('circle.point')
-      .attr('cx', d => this.x(d.year))
-      .attr('cy', d => this.y(d.count));
   }
 
   zoomed() {
@@ -133,10 +165,6 @@ export default class SkyLine extends EventEmitter {
     this.focusArea.attr('d', this.area);
     this.focusAxisX.call(this.xAxis);
     this.contextBrush.call(this.brush.move, this.x.range().map(t.invertX, t));
-
-    this.focusPoints.selectAll('circle.point')
-      .attr('cx', d => this.x(d.year))
-      .attr('cy', d => this.y(d.count));
   }
 
   zoomTo(startDate, endDate) {
@@ -153,21 +181,6 @@ export default class SkyLine extends EventEmitter {
     this.y2.domain(this.y.domain());
 
     this.focusArea.datum(data).attr('d', this.area);
-
-    this.focusPoints.selectAll('circle.point')
-      .data(data)
-      .enter()
-      .append('circle')
-      .attr('class', 'point')
-      .attr('cx', d => this.x(d.year))
-      .attr('cy', d => this.y(d.count))
-      .attr('r', '3')
-      .on('mouseover', (d, i) => {
-        this.emit('mouseover', d, i);
-      })
-      .on('click', (d, i) => {
-        this.emit('mousedown', d, i);
-      });
 
     this.focusAxisX
       .call(this.xAxis)
