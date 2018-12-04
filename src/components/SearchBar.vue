@@ -18,9 +18,17 @@
       <div
         v-for="(elm, index) in suggestions"
         v-on:mouseover="select(elm)"
-        class="suggestion"
+        class="suggestion border-bottom"
         v-bind:class="{selected: elm === suggestion}"
         >
+        <suggestion-newspaper
+          v-if="elm.type === 'newspaper'"
+          v-model="suggestions[index]"
+          v-on:click="submit" />
+        <suggestion-mention
+          v-if="elm.type === 'mention'"
+          v-model="suggestions[index]"
+          v-on:click="submit" />
         <suggestion-entity
           v-if="elm.entity.hasLabel('person') || elm.entity.hasLabel('location')"
           v-model="suggestions[index]"
@@ -46,6 +54,9 @@
 import ClickOutside from 'vue-click-outside';
 import FilterFactory from '@/models/FilterFactory';
 import Suggestion from '@/models/Suggestion';
+
+import SuggestionMention from './modules/SearchInputQuerySuggestionMention';
+import SuggestionNewspaper from './modules/SearchInputQuerySuggestionNewspaper';
 import SuggestionEntity from './modules/SearchInputQuerySuggestionEntity';
 import SuggestionRegex from './modules/SearchInputQuerySuggestionRegex';
 import SuggestionString from './modules/SearchInputQuerySuggestionString';
@@ -150,6 +161,8 @@ export default {
     SuggestionRegex,
     SuggestionString,
     SuggestionDaterange,
+    SuggestionMention,
+    SuggestionNewspaper,
   },
 };
 </script>
@@ -169,6 +182,7 @@ export default {
       padding-top: 0.1em;
     }
     .suggestions {
+
         position: absolute;
         top: 100%;
         z-index: 10;
@@ -176,6 +190,7 @@ export default {
         background: $clr-bg-primary;
         box-shadow: 0.3em 0.3em 0 fade-out($clr-primary, 0.8);
         .suggestion {
+
             & > section {
                 cursor: pointer;
                 padding: 0.6em;
