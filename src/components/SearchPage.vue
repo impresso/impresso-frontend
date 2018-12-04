@@ -57,19 +57,18 @@
     </b-container>
 
     <div class="search-results-footer p-1 mr-3 mb-0">
-      <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="float-right bg-white">
-        <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
-        <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
-      </b-dropdown>
-
       <pagination
         size="sm"
         v-bind:perPage="paginationPerPage"
         v-bind:currentPage="paginationCurrentPage"
         v-bind:totalRows="paginationTotalRows"
         v-on:change="onInputPagination"
-        class="float-right"
+        class="float-left"
         v-bind:showDescription="false" />
+      <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-left">
+        <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+        <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+      </b-dropdown>
       </div>
   </i-layout-section>
 </i-layout>
@@ -278,27 +277,15 @@ div.overlay-region{
 }
 
 .search-results-footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  right: 0;
   height: 2em;
-
+  left: 50%;
+  // margin-left: 400px;
+  transform: translateX(calc(200px - 50%));
   background: rgba($clr-primary, 0.25);
-
-  .b-dropdown {
-    // float:right;
-    // line-height: 1;
-    white-space: nowrap;
-    .btn.dropdown-toggle[aria-expanded=true] {
-      border-bottom-color: black;
-      border-top-color: white;
-    }
-    .dropdown-menu {
-      top:1px !important;
-    }
-
-  }
-
+  max-width: calc(100% - 400px);
+  overflow: hidden;
 
   .pagination {
     white-space:nowrap;
