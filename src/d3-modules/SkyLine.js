@@ -126,6 +126,8 @@ export default class SkyLine extends EventEmitter {
 
     this.contextSelected
       .attr('transform', 'translate(-20, 0)');
+
+    this.emit('mouseover', { x: -1000, y: -1000, year: new Date() });
   }
 
   handleSelectionLines(a, b, c) {
@@ -134,7 +136,6 @@ export default class SkyLine extends EventEmitter {
     // instead of 0 to 12 months
     date.setMonth(date.getMonth() + 6);
     const year = date.getFullYear();
-    // const x = this.x(new Date(year, 0, 1));
 
     const closest = this.focusArea.datum()
       .find(d => d.year.getFullYear() === year);

@@ -6,8 +6,12 @@
         <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
       </b-button>
     </base-title-bar>
-    <div class="skyline-wrapper" v-bind:class="{expanded: expanded}">
-      <div id="skyline"></div>
+    <div class="skyline-outer-wrapper" v-bind:class="{expanded: expanded}">
+      <tooltip v-model="tooltip" />
+      <div class="skyline-inner-wrapper" >
+        <div id="skyline">
+        </div>
+      </div>
     </div>
     <div class="row" v-show="expanded">
       <b-input-group size="sm" v-bind:append="$t('label.start')" class="col">
@@ -32,6 +36,7 @@ import flatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 
 import BaseTitleBar from './../base/BaseTitleBar';
+import Tooltip from './FilterFacetYearTooltip';
 
 export default {
   data: () => ({
@@ -39,6 +44,12 @@ export default {
       element: '#skyline',
       height: 300,
       timeFormat: '%Y',
+    },
+    tooltip: {
+      x: 0,
+      y: 0,
+      year: new Date(),
+      count: 0,
     },
     skyline: false,
   }),
@@ -76,11 +87,6 @@ export default {
     },
   },
   computed: {
-    tooltip() {
-      return {
-        background: 'orange',
-      };
-    },
     columns: {
       get() {
         return this.filter.buckets.map(bucket => new Date(bucket.val));
@@ -108,9 +114,8 @@ export default {
       this.filter.end = new Date(domain[1]);
     });
 
-    this.skyline.on('mouseover', (d, i) => {
-      // tooltip here?
-      console.log(d, i);
+    this.skyline.on('mouseover', (d) => {
+      this.tooltip = d;
     });
 
     this.skyline.on('mousedown', (d) => {
@@ -130,6 +135,7 @@ export default {
   },
   components: {
     BaseTitleBar,
+    Tooltip,
     Icon,
     flatPickr,
   },
@@ -138,19 +144,23 @@ export default {
 
 <style lang="less">
 
-.skyline-wrapper{
-  overflow: hidden;
-  height: 80px;
-  // top:-230px;
-  &.expanded{
-    height: auto;
+.skyline-outer-wrapper{
+  position: relative;
+  .skyline-inner-wrapper{
+    overflow: hidden;
+    height: 80px;
+    position: relative;
     #skyline{
-      top:0;
+      top:-230px;
     }
   }
-
-  #skyline{
-    top:-230px;
+  &.expanded{
+    .skyline-inner-wrapper{
+      height: auto;
+      #skyline{
+        top:0;
+      }
+    }
   }
 }
 
@@ -161,17 +171,6 @@ export default {
     stroke: black;
     fill: none;
     clip-path: url(#clip);
-  }
-
-  .points {
-    clip-path: url(#clip);
-    .point{
-      opacity: 0;
-      cursor: pointer;
-      &:hover{
-        opacity: 1;
-      }
-    }
   }
 
   .zoom {
