@@ -1,4 +1,5 @@
 import Entity from './Entity';
+import Newspaper from './Newspaper';
 import Daterange from './Daterange';
 /**
  * @class Suggestion is an object representing an autocomplete query Suggestion
@@ -9,16 +10,25 @@ import Daterange from './Daterange';
  */
 
 export default function Suggestion({
+  newspaper = new Newspaper(),
   entity = new Entity(),
   daterange = new Daterange(),
   query = '',
+  q = '',
+  uid = '',
   type = '',
 } = {}) {
   if (entity instanceof Entity) {
     this.entity = entity;
-  } else {
+  } else if (entity) {
     this.entity = new Entity(entity);
   }
+
+  if (newspaper instanceof Newspaper) {
+    this.newspaper = newspaper;
+  } else if (newspaper) {
+    this.newspaper = new Newspaper(newspaper);
+  } // else ignore
 
   if (daterange instanceof Daterange) {
     this.daterange = daterange;
@@ -26,7 +36,8 @@ export default function Suggestion({
     this.daterange = new Daterange(daterange);
   }
 
-  this.query = String(query);
+  this.query = String(query || q);
+  this.uid = String(uid);
 
   this.type = type;
 }
