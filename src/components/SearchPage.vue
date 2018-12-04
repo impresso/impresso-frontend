@@ -285,7 +285,7 @@ div.overlay-region{
   transform: translateX(calc(200px - 50%));
   background: rgba($clr-primary, 0.25);
   max-width: calc(100% - 400px);
-  overflow: hidden;
+  // overflow: hidden;
 
   .pagination {
     white-space:nowrap;
