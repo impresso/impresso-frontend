@@ -1,6 +1,5 @@
-import Daterange from '@/models/Daterange';
-import Entity from '@/models/Entity';
 import Suggestion from '@/models/Suggestion';
+import SuggestionFactory from '@/models/SuggestionFactory';
 
 import * as services from '@/services';
 
@@ -45,14 +44,8 @@ export default {
             },
           }).then(
             (res) => {
-              context.commit('SET_SUGGESTIONS', res.data.map(suggestion => new Suggestion({
-                entity: new Entity(suggestion.entity),
-                daterange: new Daterange({
-                  daterange: suggestion.daterange,
-                }),
-                type: suggestion.type,
-                query: payload.query,
-              })));
+              console.log('res', res);
+              context.commit('SET_SUGGESTIONS', res.data.map(SuggestionFactory.create));
               resolve(res);
             },
             (err) => {
