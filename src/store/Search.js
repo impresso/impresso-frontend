@@ -1,5 +1,6 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
+import Bucket from '@/models/Bucket';
 import Collection from '@/models/Collection';
 import QueryComponent from '@/models/QueryComponent';
 import Match from '@/models/Match';
@@ -279,12 +280,35 @@ export default {
               if (res.info.facets && res.info.facets.year) {
                 const facet = new Facet({
                   type: 'year',
-                  buckets: res.info.facets.year.buckets,
+                  buckets: res.info.facets.year.buckets.map((bucket) => {
+                    if (bucket instanceof Bucket) {
+                      return bucket;
+                    }
+
+                    return new Bucket(bucket);
+                  }).sort((a, b) => {
+                    // order from first year to last year (1798 - 1997)
+                    const yearA = parseInt(a.val, 10);
+                    const yearB = parseInt(b.val, 10);
+
+                    if (yearA < yearB) {
+                      return -1;
+                    }
+
+                    if (yearA > yearB) {
+                      return 1;
+                    }
+
+                    return 0;
+                  }),
                 });
 
                 context.commit('ADD_FACET', facet);
 
-                const FilterFacetYear = FilterFactory.create(facet);
+                const FilterFacetYear = FilterFactory.create({
+                  ...context.getters.getSearch.filters.find(filter => filter.type === 'year'),
+                  ...facet,
+                });
 
                 context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacetYear);
               }
