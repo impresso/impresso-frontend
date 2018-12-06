@@ -6,6 +6,7 @@
         v-on:input="onInput"
         v-model="inputString"
         />
+        {{ item.collections }}
     </div>
     <b-container fluid class="inputList p-0">
       <ul>
@@ -14,14 +15,15 @@
             class="form-check-input"
             type="checkbox"
             v-bind:id="collection.uid"
+            v-bind:checked="isActive(collection)"
             />
-            <!-- v-bind:checked="isActive(collection)" -->
-            <!-- v-on:click="toggleActive(collection)" -->
-
           <span class="checkmark dripicons-checkmark" />
-          <label class="form-check-label py-3" for="collection.uid">
+          <label
+            class="form-check-label py-3"
+            v-on:click="toggleActive(collection)"
+            for="collection.uid">
             {{collection.name}}
-            <div class="description small text-muted">{{collection.description}}</div>
+            <div class="description small text-muted">{{isActive(collection)}} {{collection.uid}}</div>
           </label>
         </li>
       </ul>
@@ -62,6 +64,7 @@
 
 export default {
   data: () => ({
+    // collection: new Collection(),
     ccollections: [
       {
         name: 'Collection Name',
@@ -101,7 +104,7 @@ export default {
   },
   computed: {
     filteredCollections() {
-      return this.ccollections.filter((collection) => {
+      return this.collections.filter((collection) => {
         const searchRegex = new RegExp(this.inputString, 'i');
         return searchRegex.test(collection.name) ||
           searchRegex.test(collection.description);
@@ -112,29 +115,28 @@ export default {
         return this.$store.getters['collections/collections'];
       },
     },
-    collectionsSortOrder: {
-      get() {
-        return this.$store.getters['collections/collectionsSortOrder'];
-      },
-      set(collectionsSortOrder) {
-        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
-          collectionsSortOrder,
-        });
-      },
-    },
   },
   methods: {
+    fetch() {
+      return this.$store.dispatch('collections/LOAD_COLLECTIONS');
+    },
     onInput() {
-      // console.log(evt, this.inputString);
       this.isDisabled = (this.inputString.trim().length > 1);
     },
     isActive(needle) {
+      // console.log(this.item, needle.uid);
+      if (!this.item.collections) {
+        return false;
+      }
       return this.item.collections.find(collection => needle.uid === collection.uid);
     },
     toggleActive(collection) {
+      if (!this.item.collections) {
+        this.item.collections = [];
+      }
       const idx = this.item.collections.findIndex(c => (c.uid === collection.uid));
-
       if (idx >= 0) {
+        // console.log('rem', idx, collection, this.item.collections);
         this.item.collections.splice(idx, 1);
         this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
           collection,
@@ -142,6 +144,7 @@ export default {
         });
       } else {
         this.item.collections.push(collection);
+        // console.log('add', idx, collection, this.item.collections);
         this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
           collection,
           item: this.item,
@@ -154,6 +157,13 @@ export default {
     isLoggedIn() {
       return this.$store.state.user.userData;
     },
+  },
+  mounted() {
+    this.fetch();
+    // this.fetch().then(() => {
+    //   this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
+    //     this.collectionAll);
+    // });
   },
   // components: {
   //   Icon,
@@ -173,7 +183,7 @@ export default {
     }
   }
   .inputList {
-    max-height: 250px;
+    max-height: 300px;
     overflow: scroll;
     ul {
       overflow-y: auto;
