@@ -6,7 +6,6 @@
         v-on:input="onInput"
         v-model="inputString"
         />
-        {{ item.collections }}
     </div>
     <b-container fluid class="inputList p-0">
       <ul>
@@ -23,14 +22,15 @@
             v-on:click="toggleActive(collection)"
             for="collection.uid">
             {{collection.name}}
-            <div class="description small text-muted">{{isActive(collection)}} {{collection.uid}}</div>
+            <div class="description small text-muted">{{collection.description}} ({{collection.uid}})</div>
           </label>
         </li>
       </ul>
     </b-container>
     <div class="footer bg-light p-2 border-top">
         <b-button size="sm" variant="primary"
-          :disabled="isDisabled == 0"
+          v-bind:disabled="isDisabled == 0"
+          v-on:click="addCollection(inputString.trim())"
           >
           {{$t('create_new')}}
         </b-button>
@@ -151,6 +151,16 @@ export default {
         });
       }
     },
+    addCollection(collectionName) {
+      this.$store.dispatch('collections/ADD_COLLECTION', {
+        name: collectionName,
+      }).then((res) => {
+        console.log(res);
+        this.inputString = '';
+        this.fetch();
+        // TODO: add item to ne collection
+      });
+    },
     toggle() {
       this.show = !this.show;
     },
@@ -183,7 +193,7 @@ export default {
     }
   }
   .inputList {
-    max-height: 300px;
+    max-height: 70vh;
     overflow: scroll;
     ul {
       overflow-y: auto;

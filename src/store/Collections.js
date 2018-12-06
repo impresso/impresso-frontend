@@ -83,6 +83,7 @@ export default {
   },
   actions: {
     LOAD_COLLECTION(context, collection) {
+      console.log(collection.uid);
       return new Promise((resolve) => {
         services.collections.get(collection.uid, {}).then((result) => {
           collection = new Collection({
@@ -164,7 +165,7 @@ export default {
 
       if (label && collection instanceof Collection) {
         services.collectionsItems.create({
-          buckets_uid: collection.uid,
+          collections_uid: collection.uid,
           items: [{
             label,
             uid: item.uid,
