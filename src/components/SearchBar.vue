@@ -46,10 +46,10 @@
 import ClickOutside from 'vue-click-outside';
 import FilterFactory from '@/models/FilterFactory';
 import Suggestion from '@/models/Suggestion';
-import SuggestionEntity from './modules/SearchInputQuerySuggestionEntity';
-import SuggestionRegex from './modules/SearchInputQuerySuggestionRegex';
-import SuggestionString from './modules/SearchInputQuerySuggestionString';
-import SuggestionDaterange from './modules/SearchInputQuerySuggestionDaterange';
+// import SuggestionEntity from './modules/SearchInputQuerySuggestionEntity';
+// import SuggestionRegex from './modules/SearchInputQuerySuggestionRegex';
+// import SuggestionString from './modules/SearchInputQuerySuggestionString';
+// import SuggestionDaterange from './modules/SearchInputQuerySuggestionDaterange';
 
 export default {
   data: () => ({
@@ -146,62 +146,10 @@ export default {
     ClickOutside,
   },
   components: {
-    SuggestionEntity,
-    SuggestionRegex,
-    SuggestionString,
-    SuggestionDaterange,
+    // SuggestionEntity,
+    // SuggestionRegex,
+    // SuggestionString,
+    // SuggestionDaterange,
   },
 };
 </script>
-
-<style lang="scss">
-
-@import "impresso-theme/src/scss/variables.sass";
-
-.search-bar {
-    position: relative;
-    input {
-      font-style: italic;
-    }
-    .search-submit {
-      font-size: 1.2em;
-      line-height: 1;
-      padding-top: 0.1em;
-    }
-    .suggestions {
-        position: absolute;
-        top: 100%;
-        z-index: 10;
-        width: 100%;
-        background: $clr-bg-primary;
-        box-shadow: 0.3em 0.3em 0 fade-out($clr-primary, 0.8);
-        .suggestion {
-            & > section {
-                cursor: pointer;
-                padding: 0.6em;
-            }
-            &.selected {
-              background: $link-hover-bg;
-              &:active {
-                background: $link-active-bg;
-                .text-right,
-                .suggestion-icon {
-                  color: white;
-                }
-              }
-            }
-            .suggestion-icon {
-              float: left;
-              width: 1.6em;
-            }
-            .suggestion-text {
-              float: left;
-              line-height: 1;
-            }
-            .text-right {
-              line-height: 1;
-            }
-        }
-    }
-}
-</style>
