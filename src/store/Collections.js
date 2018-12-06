@@ -163,7 +163,7 @@ export default {
 
       if (label && collection instanceof Collection) {
         services.collectionsItems.create({
-          bucket_uid: collection.uid,
+          collections_uid: collection.uid,
           items: [{
             label,
             uid: item.uid,
