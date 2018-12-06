@@ -153,17 +153,18 @@ export default {
 
       if (item instanceof Page) {
         label = 'page';
-      } else if (item instanceof Article) {
+      } else if (item.article) {
         label = 'article';
       } else if (item instanceof Entity) {
         label = 'entity';
       } else if (item instanceof Issue) {
         label = 'issue';
       }
+      // console.log('>>>', item.article);
 
       if (label && collection instanceof Collection) {
         services.collectionsItems.create({
-          collections_uid: collection.uid,
+          buckets_uid: collection.uid,
           items: [{
             label,
             uid: item.uid,
