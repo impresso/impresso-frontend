@@ -15,7 +15,8 @@ export default function FilterString({
   this.type = 'string';
   this.context = context;
   this.query = String(query);
-  this.precision = precision;
+
+  this.precision = precisions[precision.toUpperCase()];
 
   this.getName = () => this.query;
 
