@@ -1,5 +1,5 @@
 <template lang="html">
-  <section class="search-bar">
+  <section class="search-bar" v-ClickOutside="hideSuggestions">
     <b-input-group>
       <b-form-input
       class="border-primary"
@@ -13,13 +13,13 @@
         </b-btn>
       </b-input-group-append>
     </b-input-group>
-    <div class="suggestions border-left border-right border-bottom border-primary">
-      <div v-if="suggestion" v-on:click="submit(suggestion)" class="suggestion" v-bind:class="{selected: selected === suggestion}">
+    <div class="suggestions border-left border-right border-bottom border-primary" v-show="showSuggestions">
+      <div v-if="suggestion" v-on:click="submit(suggestion)" v-on:mouseover="select(suggestion)" class="suggestion" v-bind:class="{selected: selected === suggestion}">
         <div class="suggestion-string">
           {{suggestion.query}}
         </div>
       </div>
-      <div v-for="s in suggestions" v-on:click="submit(s)" class="suggestion" v-bind:class="{selected: selected === s}">
+      <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion" v-bind:class="{selected: selected === s}">
         <div v-if="s.type === 'regex'" class="sugggestion-regex">
           <b-badge>{{$t('regex')}}</b-badge> {{s.query}}
         </div>
@@ -34,15 +34,11 @@
         </div>
       </div>
     </div>
-    <hr>
-    <pre>
-      {{selected}}
-      {{query}}
-    </pre>
   </section>
 </template>
 
 <script>
+import ClickOutside from 'vue-click-outside';
 import SuggestionFactory from '@/models/SuggestionFactory';
 
 export default {
@@ -51,10 +47,16 @@ export default {
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
+    showSuggestions: false,
   }),
   methods: {
+    hideSuggestions() {
+      this.selected = this.suggestion;
+      this.showSuggestions = false;
+    },
     search() {
       if (this.query.trim().length > 1) {
+        this.showSuggestions = true;
         this.suggestion = SuggestionFactory.create({
           type: 'string',
           query: this.query.trim(),
@@ -70,6 +72,7 @@ export default {
         this.suggestions = [];
         this.suggestion = false;
         this.selected = false;
+        this.showSuggestions = false;
       }
     },
     submit(suggestion) {
@@ -79,7 +82,11 @@ export default {
       this.suggestions = [];
       this.suggestion = false;
       this.selected = false;
+      this.showSuggestions = false;
       this.query = '';
+    },
+    select(suggestion) {
+      this.selected = suggestion;
     },
     keyup(event) {
       const index = this.suggestions.indexOf(this.selected);
@@ -117,22 +124,34 @@ export default {
   },
   components: {
   },
+  directives: {
+    ClickOutside,
+  },
 };
 </script>
 
 <style lang="less">
-.suggestions {
-  .suggestion {
-    display: block;
-    padding: 3px 3px 3px 12px;
-    cursor: pointer;
-    .badge {
-      float: right;
-      margin-top: 3px;
-    }
-    &:hover,
-    &.selected {
-      background: rgba(0, 0, 0, 0.2);
+.search-bar{
+  position: relative;
+  .suggestions {
+    position: absolute;
+    top:38px;
+    width: 100%;
+    background: white;
+    z-index: 10;
+    box-shadow: 0 10px 10px rgba(0,0,0,0.25);
+    .suggestion {
+      display: block;
+      padding: 3px 3px 3px 12px;
+      cursor: pointer;
+      .badge {
+        float: right;
+        margin-top: 3px;
+      }
+      &:hover,
+      &.selected {
+        background: rgba(0, 0, 0, 0.1);
+      }
     }
   }
 }
