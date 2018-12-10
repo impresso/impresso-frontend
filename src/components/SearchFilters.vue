@@ -51,6 +51,9 @@ import FilterRegex from './modules/FilterRegex';
 import FilterString from './modules/FilterString';
 
 export default {
+  data: () => ({
+    filtersOrder: ['string', 'regex', 'entity', 'daterange'],
+  }),
   computed: {
     search: {
       get() {
@@ -64,7 +67,20 @@ export default {
     },
     filters: {
       get() {
-        return this.search.filters;
+        return this.search.filters.sort((a, b) => {
+          const indexA = this.filtersOrder.indexOf(a.type);
+          const indexB = this.filtersOrder.indexOf(b.type);
+
+          if (indexA < indexB) {
+            return -1;
+          }
+
+          if (indexA > indexB) {
+            return 1;
+          }
+
+          return 0;
+        });
       },
     },
   },
