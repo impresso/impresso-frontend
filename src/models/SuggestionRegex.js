@@ -1,4 +1,4 @@
-import Suggestion from '@/models/Suggestion';
+import Suggestion from '@/models/SuggestionBase';
 
 export default class SuggestionRegex extends Suggestion {
   constructor(args) {

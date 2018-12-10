@@ -1,4 +1,4 @@
-import Suggestion from '@/models/Suggestion';
+import Suggestion from '@/models/SuggestionBase';
 
 export default class SuggestionMention extends Suggestion {
   constructor(args) {
