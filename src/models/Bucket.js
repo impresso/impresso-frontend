@@ -5,14 +5,16 @@
  * @param {Number} count Number of matched results for this value
  * @param {Object} item Optional object of for instance type Newspaper or Entity
  */
-export default function Bucket({
-  val = '',
-  count = 0,
-  item = {},
-  included = true,
-} = {}) {
-  this.val = String(val);
-  this.count = parseInt(count, 10);
-  this.item = item;
-  this.included = included;
+export default class Bucket {
+  constructor({
+    val = '',
+    count = 0,
+    item = {},
+    included = true,
+  } = {}) {
+    this.val = String(val);
+    this.count = parseInt(count, 10);
+    this.item = item;
+    this.included = included;
+  }
 }

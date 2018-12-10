@@ -5,9 +5,11 @@ import FilterFactory from './FilterFactory';
 
 const uuid = require('uuid');
 
-export default function SearchQuery({
-  filters = [],
-} = {}) {
-  this.filters = filters.map(filter => FilterFactory.create(filter));
-  this.uuid = uuid.v4();
+export default class SearchQuery {
+  constructor({
+    filters = [],
+  } = {}) {
+    this.filters = filters.map(filter => FilterFactory.create(filter));
+    this.uuid = uuid.v4();
+  }
 }

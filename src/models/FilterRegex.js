@@ -4,18 +4,24 @@
  */
 import * as contexts from './Contexts';
 
-export default function FilterRegex({
-  query = '',
-} = {}) {
-  this.type = 'regex';
-  this.query = String(query);
-  this.context = contexts.INCLUDE;
+export default class FilterRegex {
+  constructor({
+    query = '',
+  } = {}) {
+    this.type = 'regex';
+    this.query = String(query);
+    this.context = contexts.INCLUDE;
+  }
 
-  this.getName = () => this.query;
+  getName() {
+    return this.query;
+  }
 
-  this.getQuery = () => ({
-    type: this.type,
-    q: this.query,
-    context: this.context,
-  });
+  getQuery() {
+    return {
+      type: this.type,
+      q: this.query,
+      context: this.context,
+    };
+  }
 }

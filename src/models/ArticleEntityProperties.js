@@ -6,12 +6,14 @@
  * @param {Integer} tf ??Term Frequency??
 
  */
-export default function ArticleEntityProperties({
-  ntf = 0,
-  splitpoints = [],
-  tf = 0,
-} = {}) {
-  this.ntf = parseFloat(ntf);
-  this.splitpoints = splitpoints.map(splitpoint => parseInt(splitpoint, 10));
-  this.tf = parseInt(tf, 10);
+export default class ArticleEntityProperties {
+  constructor({
+    ntf = 0,
+    splitpoints = [],
+    tf = 0,
+  } = {}) {
+    this.ntf = parseFloat(ntf);
+    this.splitpoints = splitpoints.map(splitpoint => parseInt(splitpoint, 10));
+    this.tf = parseInt(tf, 10);
+  }
 }

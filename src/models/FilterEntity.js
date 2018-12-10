@@ -5,25 +5,31 @@ import Entity from './Entity';
  * @param {Entity} entity Entity object
  */
 
-export default function FilterEntity({
-  context = 'include',
-  entity = new Entity(),
-} = {}) {
-  this.type = 'entity';
-  this.context = context;
+export default class FilterEntity {
+  constructor({
+    context = 'include',
+    entity = new Entity(),
+  } = {}) {
+    this.type = 'entity';
+    this.context = context;
 
-  if (entity instanceof Entity) {
-    this.entity = entity;
-  } else {
-    this.entity = new Entity(entity);
+    if (entity instanceof Entity) {
+      this.entity = entity;
+    } else {
+      this.entity = new Entity(entity);
+    }
   }
 
-  this.getName = () => this.entity.name;
+  getName() {
+    return this.entity.name;
+  }
 
-  this.getQuery = () => ({
-    context: this.context,
-    type: 'string', // type: this.type,
-    q: this.entity.name, // remove this line
-    uid: this.entity.uid,
-  });
+  getQuery() {
+    return {
+      context: this.context,
+      type: 'string', // type: this.type,
+      q: this.entity.name, // remove this line
+      uid: this.entity.uid,
+    };
+  }
 }

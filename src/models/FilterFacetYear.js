@@ -6,28 +6,30 @@ import Bucket from './Bucket';
  * @param {Boolean} touched wether the user has interacted with the filter
  */
 
-export default function FilterFacetYear({
-  buckets = {},
-  touched = false,
-  start = false,
-  end = false,
-} = {}) {
-  this.type = 'year';
-  this.context = 'include';
-  this.touched = touched;
+export default class FilterFacetYear {
+  constructor({
+    buckets = {},
+    touched = false,
+    start = false,
+    end = false,
+  } = {}) {
+    this.type = 'year';
+    this.context = 'include';
+    this.touched = touched;
 
-  this.buckets = buckets.map((bucket) => {
-    if (bucket instanceof Bucket) {
-      return bucket;
-    }
+    this.buckets = buckets.map((bucket) => {
+      if (bucket instanceof Bucket) {
+        return bucket;
+      }
 
-    return new Bucket(bucket);
-  });
+      return new Bucket(bucket);
+    });
 
-  this.start = new Date(start || this.buckets[0].val);
-  this.end = new Date(end || this.buckets[this.buckets.length - 1].val);
+    this.start = new Date(start || this.buckets[0].val);
+    this.end = new Date(end || this.buckets[this.buckets.length - 1].val);
+  }
 
-  this.getQuery = function () {
+  getQuery() {
     this.start.setHours(0, 0, 0, 0); // make sure we only use dates, not times
     this.end.setHours(0, 0, 0, 0);
     const daterange = `${this.start.toISOString().replace('.000Z', 'Z')} TO ${this.end.toISOString().replace('.000Z', 'Z')}`;
@@ -37,9 +39,9 @@ export default function FilterFacetYear({
       type: 'daterange',
       daterange,
     };
-  };
+  }
 
-  this.touch = function () {
+  touch() {
     this.touched = true;
-  };
+  }
 }
