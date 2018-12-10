@@ -56,6 +56,7 @@ export default {
 
     .title{
       grid-area: title;
+      text-transform: capitalize;
     }
 
     .content{
