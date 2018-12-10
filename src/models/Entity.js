@@ -8,26 +8,33 @@ import Collection from './Collection';
  * @param {String} name Name of the Namend Entity
  * @param {String} uid Unique identifier for the Named Entity
  */
-export default function Entity({
-  collections = [],
-  df = 0,
-  labels = [],
-  name = '',
-  uid = '',
-} = {}) {
-  this.collections = collections.map((collection) => {
-    if (collection instanceof Collection) {
-      return collection;
-    }
+export default class Entity {
+  constructor({
+    collections = [],
+    df = 0,
+    labels = [],
+    name = '',
+    uid = '',
+  } = {}) {
+    this.collections = collections.map((collection) => {
+      if (collection instanceof Collection) {
+        return collection;
+      }
 
-    return new Collection(collection);
-  });
+      return new Collection(collection);
+    });
 
-  this.df = parseInt(df, 10);
-  this.labels = labels.map(label => String(label));
-  this.name = String(name);
-  this.uid = String(uid);
+    this.df = parseInt(df, 10);
+    this.labels = labels.map(label => String(label));
+    this.name = String(name);
+    this.uid = String(uid);
+  }
 
-  this.hasLabel = needle => this.labels.find(label => label === needle);
-  this.getLabel = index => this.labels[index];
+  hasLabel(needle) {
+    return this.labels.find(label => label === needle);
+  }
+
+  getLabel(index) {
+    return this.labels[index];
+  }
 }
