@@ -18,11 +18,17 @@
             />
           <span class="checkmark dripicons-checkmark" />
           <label
-            class="form-check-label py-3"
+            class="form-check-label py-2 pr-2"
             v-on:click="toggleActive(collection)"
             for="collection.uid">
             {{collection.name}}
-            <div class="description small text-muted">{{collection.description}} ({{collection.uid}})</div>
+            <div class="description small text-muted">
+              {{collection.countEntities}} {{$t('items')}}
+              <div class="dates hidden float-right">
+                {{$t('created')}} <b>{{$d(collection.creationDate, 'compact')}}</b>
+                {{$t('last_edited')}} <b>{{$d(collection.lastEditedDate, 'compact')}}</b>
+              </div>
+            </div>
           </label>
         </li>
       </ul>
@@ -40,58 +46,8 @@
 </template>
 
 <script>
-// import Icon from 'vue-awesome/components/Icon';
-// import 'vue-awesome/icons/times';
-// import Collection from '@/models/Collection';
-//
-// export default {
-//   model: {
-//     prop: 'collection',
-//   },
-//   props: {
-//     collection: {
-//       type: Collection,
-//       default: new Collection(),
-//     },
-//   },
-//   methods: {
-//     click() {
-//       this.$emit('click');
-//     },
-//   },
-// };
-
-
 export default {
   data: () => ({
-    // collection: new Collection(),
-    ccollections: [
-      {
-        name: 'Collection Name',
-        description: 'Collection Desc',
-        uid: 'C.uid',
-      },
-      {
-        name: 'Another Name',
-        description: 'Crocodile in the nile',
-        uid: 'C.uid',
-      },
-      {
-        name: 'Yet another Name',
-        description: 'Chillies and hamsters and papaya',
-        uid: 'C.uid',
-      },
-      {
-        name: 'Serpentine anytime',
-        description: 'I am being slightly annoyed by this',
-        uid: 'C.uid',
-      },
-      {
-        name: 'Collection in Serpentine anytime',
-        description: 'I am being slightly annoyed by this. no Way! and a very long description',
-        uid: 'C.uid',
-      },
-    ],
     show: false,
     isDisabled: false,
     inputString: '',
@@ -121,7 +77,7 @@ export default {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
     onInput() {
-      this.isDisabled = (this.inputString.trim().length > 1);
+      this.isDisabled = (this.inputString.trim().length > 4);
     },
     isActive(needle) {
       // console.log(this.item, needle.uid);
@@ -193,7 +149,7 @@ export default {
     }
   }
   .inputList {
-    max-height: 70vh;
+    max-height: 50vh;
     overflow: scroll;
     ul {
       overflow-y: auto;
@@ -230,8 +186,14 @@ export default {
           font-variant: normal;
           font-size: 1em;
           padding-left: 3em;
+          .dates {
+            display: none;
+          }
           &:hover {
             background: $clr-bg-secondary;
+            .dates {
+              display: block;
+            }
           }
           &:active {
             background: $clr-accent-secondary;
@@ -248,10 +210,18 @@ export default {
   "en": {
     "placeholder": "filter or create new collection",
     "create_new": "Create New Collection",
-    "manage_collections": "Manage my Collections"
+    "manage_collections": "Manage my Collections",
+    "created": "Created:",
+    "last_edited": "Last edited:",
+    "items": "items"
   },
   "de": {
-    "placeholder": "Filtern oder neuen Ordner erstellen"
+    "placeholder": "Filtern oder neue Sammlung erstellen",
+    "create_new": "Sammlung erstellen",
+    "manage_collections": "Sammlungen verwalten",
+    "created": "Erstellt:",
+    "last_edited": "Zuletzt bearbeitet:",
+    "items": " Artikel"
   }
 }
 </i18n>
