@@ -8,7 +8,7 @@
       </div>
     </i-layout-section>
     <i-layout-section class="pt-2">
-
+      {{submitted}}
     </i-layout-section>
   </i-layout>
 </template>
@@ -18,10 +18,11 @@ import Autocomplete from './Autocomplete';
 
 export default {
   data: () => ({
+    submitted: false,
   }),
   methods: {
     submit(suggestion) {
-      console.log(suggestion);
+      this.submitted = suggestion;
     },
   },
   components: {
