@@ -4,24 +4,14 @@
  * @param {String} query The search query
  */
 
+import Filter from '@/models/FilterBase';
 import * as precisions from './Precisions';
-import * as contexts from './Contexts';
 
-export default class FilterString {
-  constructor({
-    context = contexts.INCLUDE,
-    precision = precisions.REGULAR,
-    query = '',
-  } = {}) {
-    this.type = 'string';
-    this.context = context;
-    this.query = String(query);
-
-    this.precision = precisions[precision.toUpperCase()];
-  }
-
-  getName() {
-    return this.query;
+export default class FilterString extends Filter {
+  constructor(args) {
+    super(args);
+    this.query = String(args.query);
+    this.precision = precisions[(args.precision || 'regular').toUpperCase()];
   }
 
   getQuery() {

@@ -13,10 +13,6 @@ export default class FilterDaterange extends Filter {
     this.daterange = new Daterange(args.daterange);
   }
 
-  getName() {
-    return this.type;
-  }
-
   getQuery() {
     this.daterange.start.setHours(0, 0, 0, 0); // make sure we only use dates, not times
     this.daterange.end.setHours(0, 0, 0, 0);

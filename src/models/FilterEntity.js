@@ -1,22 +1,19 @@
-import Entity from './Entity';
+import Entity from '@/models/Entity';
+import Filter from '@/models/FilterBase';
 /**
  * FilterEntity object
  * @param {String} context either 'include' or 'exclude'
  * @param {Entity} entity Entity object
  */
 
-export default class FilterEntity {
-  constructor({
-    context = 'include',
-    entity = new Entity(),
-  } = {}) {
-    this.type = 'entity';
-    this.context = context;
+export default class FilterEntity extends Filter {
+  constructor(args) {
+    super(args);
 
-    if (entity instanceof Entity) {
-      this.entity = entity;
+    if (args.entity instanceof Entity) {
+      this.entity = args.entity;
     } else {
-      this.entity = new Entity(entity);
+      this.entity = new Entity(args.entity);
     }
   }
 
