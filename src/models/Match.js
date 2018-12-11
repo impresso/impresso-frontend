@@ -5,17 +5,16 @@
  * @param {String} pageUid Uid of the page of the fragment
  * @param {String} iiif Image of the fragment
  */
-export default function Match({
-  coords = [],
-  fragment = '',
-  pageUid = '',
-  iiif = '',
-} = {}) {
-  this.coords = coords.map(coord => parseInt(coord, 10));
-
-  this.fragment = String(fragment);
-
-  this.pageUid = String(pageUid);
-
-  this.iiif = String(iiif);
+export default class Match {
+  constructor({
+    coords = [],
+    fragment = '',
+    pageUid = '',
+    iiif = '',
+  } = {}) {
+    this.coords = coords.map(coord => parseInt(coord, 10));
+    this.fragment = String(fragment);
+    this.pageUid = String(pageUid);
+    this.iiif = String(iiif);
+  }
 }

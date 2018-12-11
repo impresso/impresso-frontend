@@ -2,20 +2,20 @@
  * FilterRegex object
  * @param {String} query The search query
  */
-import * as contexts from './Contexts';
 
-export default function FilterRegex({
-  query = '',
-} = {}) {
-  this.type = 'regex';
-  this.query = String(query);
-  this.context = contexts.INCLUDE;
+import Filter from '@/models/FilterBase';
 
-  this.getName = () => this.query;
+export default class FilterRegex extends Filter {
+  constructor(args) {
+    super(args);
+    this.query = String(args.query);
+  }
 
-  this.getQuery = () => ({
-    type: this.type,
-    q: this.query,
-    context: this.context,
-  });
+  getQuery() {
+    return {
+      type: this.type,
+      q: this.query,
+      context: this.context,
+    };
+  }
 }

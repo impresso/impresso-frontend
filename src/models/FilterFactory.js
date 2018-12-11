@@ -14,6 +14,7 @@ export default {
     if (filterData.type === 'mention') {
       filter = new FilterString({
         ...filterData,
+        type: 'string', // we force string filter
         precision: 'EXACT',
         query: filterData.item.name,
       });

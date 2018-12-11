@@ -7,20 +7,22 @@
  * @param {String} username Unique username
  * @param {Boolean} isStaff
  */
-export default function User({
-  nameFirst = '',
-  nameLast = '',
-  email = '',
-  uid = '',
-  username = '',
-  isStaff = false,
-  group = '',
-} = {}) {
-  this.nameFirst = nameFirst;
-  this.nameLast = nameLast;
-  this.email = email;
-  this.uid = uid;
-  this.username = username;
-  this.isStaff = isStaff;
-  this.group = group;
+export default class User {
+  constructor({
+    nameFirst = '',
+    nameLast = '',
+    email = '',
+    uid = '',
+    username = '',
+    isStaff = false,
+    group = '',
+  } = {}) {
+    this.nameFirst = nameFirst;
+    this.nameLast = nameLast;
+    this.email = email;
+    this.uid = uid;
+    this.username = username;
+    this.isStaff = isStaff;
+    this.group = group;
+  }
 }

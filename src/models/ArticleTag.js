@@ -7,20 +7,22 @@ import ArticleTagProperties from './ArticleTagProperties';
  * @param {String} type String describing the type of link
 
  */
-export default function ArticleTag({
-  articleUid = '',
-  properties = new ArticleTagProperties(),
-  tagUid = '',
-  type = '',
-} = {}) {
-  this.articleUid = String(articleUid);
-  this.tagUid = String(tagUid);
+export default class ArticleTag {
+  constructor({
+    articleUid = '',
+    properties = new ArticleTagProperties(),
+    tagUid = '',
+    type = '',
+  } = {}) {
+    this.articleUid = String(articleUid);
+    this.tagUid = String(tagUid);
 
-  if (properties instanceof ArticleTagProperties) {
-    this.properties = properties;
-  } else {
-    this.properties = new ArticleTagProperties(properties);
+    if (properties instanceof ArticleTagProperties) {
+      this.properties = properties;
+    } else {
+      this.properties = new ArticleTagProperties(properties);
+    }
+
+    this.type = String(type);
   }
-
-  this.type = String(type);
 }

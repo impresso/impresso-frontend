@@ -1,20 +1,22 @@
+import * as contexts from './Contexts';
+
 export default class Filter {
   constructor({
-    context = 'include',
+    context = contexts.INCLUDE,
     type = '',
     touched = false,
   } = {}) {
-    this.context = String(context);
+    this.context = String(contexts[context.toUpperCase()]);
     this.type = String(type);
     this.touched = touched;
-
-    if (this.getName === undefined && typeof this.getName !== 'function') {
-      throw new TypeError('Subclass must implement getName() method');
-    }
 
     if (this.getQuery === undefined && typeof this.getQuery !== 'function') {
       throw new TypeError('Subclass must implement getQuery() method');
     }
+  }
+
+  getName() {
+    return this.type;
   }
 
   touch() {
