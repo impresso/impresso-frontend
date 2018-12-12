@@ -4,6 +4,7 @@
       <input type="text" name="" value="" class="w-100 p-1"
         v-bind:placeholder="$t('placeholder')"
         v-on:input="onInput"
+        v-on:keyup.enter="addCollection(inputString.trim())"
         v-model="inputString"
         />
     </div>
@@ -79,7 +80,8 @@ export default {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
     onInput() {
-      this.isDisabled = (this.inputString.trim().length > 4);
+      const len = this.inputString.trim().length;
+      this.isDisabled = (len >= 3 && len <= 50);
     },
     isActive(needle) {
       // console.log(this.item, needle.uid);
@@ -111,6 +113,9 @@ export default {
       }
     },
     addCollection(collectionName) {
+      if (!this.isDisabled) {
+        return;
+      }
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
       }).then((res) => {
