@@ -6,14 +6,16 @@
  * @param {Object} data The raw data returned from the search
  * @param {String} label String representing the type of result (person, location, etc.)
  */
-export default function AutocompleteSearchResult({
-  title = '',
-  filter = {},
-  data = {},
-  label, // single type of the result
-} = {}) {
-  this.title = title;
-  this.filter = filter;
-  this.data = data;
-  this.label = label;
+export default class AutocompleteSearchResult {
+  constructor({
+    title = '',
+    filter = {},
+    data = {},
+    label, // single type of the result
+  } = {}) {
+    this.title = title;
+    this.filter = filter;
+    this.data = data;
+    this.label = label;
+  }
 }

@@ -3,12 +3,22 @@ import FilterString from '@/models/FilterString';
 import FilterRegex from '@/models/FilterRegex';
 import FilterFacet from '@/models/FilterFacet';
 import FilterFacetYear from '@/models/FilterFacetYear';
+import FilterDaterange from '@/models/FilterDaterange';
 
 import uuid from 'uuid';
 
 export default {
   create: (filterData) => {
     let filter = false;
+
+    if (filterData.type === 'mention') {
+      filter = new FilterString({
+        ...filterData,
+        type: 'string', // we force string filter
+        precision: 'EXACT',
+        query: filterData.item.name,
+      });
+    }
 
     if (filterData.type === 'string') {
       filter = new FilterString(filterData);
@@ -28,6 +38,10 @@ export default {
 
     if (filterData.type === 'year') {
       filter = new FilterFacetYear(filterData);
+    }
+
+    if (filterData.type === 'daterange') {
+      filter = new FilterDaterange(filterData);
     }
 
     if (filter) {

@@ -6,17 +6,19 @@ import Bucket from './Bucket';
  * for instance: year/language/newspaper
  * @param {Array} buckets Array with Buckets objects
  */
-export default function Facet({
-  type = '',
-  buckets = [],
-} = {}) {
-  this.type = String(type);
+export default class Facet {
+  constructor({
+    type = '',
+    buckets = [],
+  } = {}) {
+    this.type = String(type);
 
-  this.buckets = buckets.map((bucket) => {
-    if (bucket instanceof Bucket) {
-      return bucket;
-    }
+    this.buckets = buckets.map((bucket) => {
+      if (bucket instanceof Bucket) {
+        return bucket;
+      }
 
-    return new Bucket(bucket);
-  });
+      return new Bucket(bucket);
+    });
+  }
 }

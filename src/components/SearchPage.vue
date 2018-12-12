@@ -2,7 +2,7 @@
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
     <div slot="header" class="px-4 py-4 border-bottom">
-      <search-bar />
+      <autocomplete v-on:submit="onSuggestion" />
     </div>
     <div class="py-4">
       <search-filters v-on:remove-filter="search" v-on:submit-filter="search" />
@@ -65,7 +65,9 @@
 </template>
 
 <script>
-import SearchBar from './SearchBar';
+import FilterFactory from '@/models/FilterFactory';
+
+import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
 import SearchResultsListItem from './modules/SearchResultsListItem';
@@ -179,6 +181,10 @@ export default {
     },
   },
   methods: {
+    onSuggestion(suggestion) {
+      this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
+      this.search();
+    },
     onInputPagination(page = 1) {
       this.search(page);
     },
@@ -202,8 +208,8 @@ export default {
     },
   },
   components: {
+    Autocomplete,
     Pagination,
-    'search-bar': SearchBar,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filters': SearchFilters,
