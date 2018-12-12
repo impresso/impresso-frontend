@@ -58,7 +58,7 @@ export const collections = app.service('collections').hooks({
     ],
   },
 });
-export const collectionsItems = app.service('collections-items').hooks({
+export const collectionsItems = app.service('collectable-items').hooks({
   before: {
     all: [
       async () => {

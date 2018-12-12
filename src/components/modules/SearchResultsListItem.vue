@@ -22,7 +22,7 @@
     <b-badge class="mb-2" pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
     <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
     <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
-      <collection-add-to style="margin: -0.5em 0 -0.5em 0" :item="{article}" />
+      <collection-add-to style="margin: -0.5em 0 -0.5em 0" :item="article" />
     </b-dropdown>
 
   </b-media>

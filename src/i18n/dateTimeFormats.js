@@ -11,8 +11,8 @@ export default {
     },
     compact: {
       day: 'numeric',
-      month: 'numeric',
-      year: '2-digit',
+      month: 'short',
+      year: 'numeric',
     },
     short: {
       weekday: 'short',

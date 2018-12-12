@@ -19,16 +19,18 @@
           <span class="checkmark dripicons-checkmark" />
           <label
             class="form-check-label py-2 pr-2"
-            v-on:click="toggleActive(collection)"
+            v-on:click="toggleActive(collection, $event)"
             for="collection.uid">
-            {{collection.name}}
-            <div class="description small text-muted">
+            <span>{{collection.name}}</span>
+
+            <span class="description text-muted small-caps">
+              &mdash;
               {{collection.countEntities}} {{$t('items')}}
-              <div class="dates hidden float-right">
-                {{$t('created')}} <b>{{$d(collection.creationDate, 'compact')}}</b>
-                {{$t('last_edited')}} <b>{{$d(collection.lastEditedDate, 'compact')}}</b>
-              </div>
-            </div>
+            </span>
+            &middot;
+            <span
+              class="description text-muted small-caps"
+              :title="$t('last_edited')">{{$d(collection.lastEditedDate, 'compact')}}</span>
           </label>
         </li>
       </ul>
@@ -86,24 +88,25 @@ export default {
       }
       return this.item.collections.find(collection => needle.uid === collection.uid);
     },
-    toggleActive(collection) {
-      if (!this.item.collections) {
-        this.item.collections = [];
-      }
+    toggleActive(collection, event) {
+      event.target.classList.add('loading');
       const idx = this.item.collections.findIndex(c => (c.uid === collection.uid));
-      if (idx >= 0) {
-        // console.log('rem', idx, collection, this.item.collections);
-        this.item.collections.splice(idx, 1);
+      if (idx !== -1) {
         this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
           collection,
           item: this.item,
+        }).then(() => {
+          // remove the collection at index.
+          this.item.collections.splice(idx, 1);
+          event.target.classList.remove('loading');
         });
       } else {
-        this.item.collections.push(collection);
-        // console.log('add', idx, collection, this.item.collections);
         this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
           collection,
           item: this.item,
+        }).then(() => {
+          this.item.collections.push(collection);
+          event.target.classList.remove('loading');
         });
       }
     },
@@ -165,7 +168,7 @@ export default {
         .checkmark {
           display: none;
           position: absolute;
-          font-size: larger;
+          pointer-events: none;
           height: 1em;
           margin: auto;
           top: 0;
@@ -182,18 +185,9 @@ export default {
           display: block;
           cursor: pointer;
           border-bottom: 1px solid $clr-bg-secondary;
-          text-transform: none;
-          font-variant: normal;
-          font-size: 1em;
           padding-left: 3em;
-          .dates {
-            display: none;
-          }
-          &:hover {
-            background: $clr-bg-secondary;
-            .dates {
-              display: block;
-            }
+          &.loading {
+            background: $clr-accent-secondary;
           }
           &:active {
             background: $clr-accent-secondary;
@@ -212,7 +206,7 @@ export default {
     "create_new": "Create New Collection",
     "manage_collections": "Manage my Collections",
     "created": "Created:",
-    "last_edited": "Last edited:",
+    "last_edited": "Last edited",
     "items": "items"
   },
   "de": {
@@ -220,7 +214,7 @@ export default {
     "create_new": "Sammlung erstellen",
     "manage_collections": "Sammlungen verwalten",
     "created": "Erstellt:",
-    "last_edited": "Zuletzt bearbeitet:",
+    "last_edited": "Zuletzt bearbeitet",
     "items": " Artikel"
   }
 }
