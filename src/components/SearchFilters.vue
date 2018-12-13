@@ -6,10 +6,14 @@
         v-model="filters[index]"
         v-on:input="updateFilter"
         v-on:remove="submitFilter" />
-    </div>
-    <div v-for="(filter, index) in filters">
       <filter-string
         v-if="filter.type.toLowerCase() === 'string'"
+        v-model="filters[index]"
+        v-on:input="updateFilter(index, filter)"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)" />
+      <filter-topic
+        v-if="filter.type.toLowerCase() === 'topic'"
         v-model="filters[index]"
         v-on:input="updateFilter(index, filter)"
         v-on:submit="submitFilter"
@@ -30,14 +34,13 @@
         v-model="filters[index]"
         v-on:submit="submitFilter"
         v-on:remove="removeFilter(index)" />
-    </div>
-    <div v-for="(filter, index) in filters">
       <filter-facet
         v-if="facetTypes.includes(filter.type.toLowerCase()) && filter.type !== 'year'"
         v-model="filters[index]"
         v-on:input="updateFilter(index, filter)"
         v-on:remove="submitFilter"
         />
+        <hr>
     </div>
   </div>
 </template>
@@ -48,11 +51,12 @@ import FilterFacetYear from './modules/FilterFacetYear';
 import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterRegex from './modules/FilterRegex';
+import FilterTopic from './modules/FilterTopic';
 import FilterString from './modules/FilterString';
 
 export default {
   data: () => ({
-    filtersOrder: ['string', 'regex', 'entity', 'daterange'],
+    filtersOrder: ['year', 'string', 'regex', 'entity', 'topic', 'daterange', 'newspaper', 'language'],
   }),
   computed: {
     search: {
@@ -105,6 +109,7 @@ export default {
   },
   components: {
     'filter-string': FilterString,
+    'filter-topic': FilterTopic,
     'filter-regex': FilterRegex,
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
