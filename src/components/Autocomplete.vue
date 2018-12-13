@@ -26,6 +26,9 @@
         <div href="#" v-if="s.type === 'mention'" class="sugggestion-mention">
           <b-badge>{{$t(s.item.type)}}</b-badge> <span v-html="s.h" />
         </div>
+        <div href="#" v-if="s.type === 'topic'" class="sugggestion-mention">
+          <b-badge>{{$t('topic')}}</b-badge> <span v-html="s.h" />
+        </div>
         <div href="#" v-if="s.type === 'entity'" class="sugggestion-entity">
           <b-badge>{{$t(s.item.type)}}</b-badge> <span v-html="s.h" />
         </div>
@@ -147,6 +150,7 @@ export default {
       .badge {
         float: right;
         margin-top: 3px;
+        margin-left: 7px;
       }
       &:hover,
       &.selected {
@@ -163,12 +167,14 @@ export default {
       "person": "Person",
       "location": "Location",
       "regex": "Regex",
-      "daterange": "Date Range"
+      "daterange": "Date Range",
+      "topic": "Topic"
     },
     "nl": {
       "person": "Persoon",
       "location": "Locatie",
-      "daterange": "Periode"
+      "daterange": "Periode",
+      "topic": "Onderwerp"
     }
   }
 </i18n>

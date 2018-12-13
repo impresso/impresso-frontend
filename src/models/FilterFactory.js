@@ -4,6 +4,7 @@ import FilterRegex from '@/models/FilterRegex';
 import FilterFacet from '@/models/FilterFacet';
 import FilterFacetYear from '@/models/FilterFacetYear';
 import FilterDaterange from '@/models/FilterDaterange';
+import FilterTopic from '@/models/FilterTopic';
 
 import uuid from 'uuid';
 
@@ -42,6 +43,10 @@ export default {
 
     if (filterData.type === 'daterange') {
       filter = new FilterDaterange(filterData);
+    }
+
+    if (filterData.type === 'topic') {
+      filter = new FilterTopic(filterData);
     }
 
     if (filter) {
