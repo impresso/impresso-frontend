@@ -1,10 +1,15 @@
 <template lang="html">
 <i-layout id="UserCollectionPage">
   <i-layout-section width="400px" class="border-right">
-    <collection-list></collection-list>
+    <collection-list v-model="collection"></collection-list>
   </i-layout-section>
-  <i-layout-section class="p-2">
-    <h1 contenteditable="true">{{collection.name}}</h1>
+  <i-layout-section class="p-3">
+
+    <pre>
+      {{ collection }}
+    </pre>
+
+    <!-- <h1 contenteditable="true">{{collection.name}}</h1>
 
     {{ this.collection.name }}
     {{ this.collection.description }}
@@ -21,7 +26,7 @@
         <button class="btn btn-primary" v-on:click="edit()">EDIT</button>
         <button class="btn btn-danger" v-on:click="remove(collection)">Delete</button>
       </b-input-group>
-    </div>
+    </div> -->
     <hr>
     <div v-if="entities.length > 0" class="collection-group">
       <h4>Entities</h4>
@@ -74,16 +79,16 @@ export default {
     collection: new Collection(),
   }),
   computed: {
-    collectionsSortOrder: {
-      get() {
-        return this.$store.getters['collections/collectionsSortOrder'];
-      },
-      set(collectionsSortOrder) {
-        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
-          collectionsSortOrder,
-        });
-      },
-    },
+    // collectionsSortOrder: {
+    //   get() {
+    //     return this.$store.getters['collections/collectionsSortOrder'];
+    //   },
+    //   set(collectionsSortOrder) {
+    //     this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
+    //       collectionsSortOrder,
+    //     });
+    //   },
+    // },
     collections: {
       get() {
         return this.$store.getters['collections/collections'].filter(
@@ -138,13 +143,14 @@ export default {
   },
   mounted() {
     this.fetch().then(() => {
-      // this.collection = this.$store;
-      // console.log(this.collection);
-      // this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
-      //   this.collection = res;
-      // });
-      // this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
-      //   this.collectionAll);
+      // return this.$store.dispatch('collections/LOAD_COLLECTION');
+    //   this.collection = this.$store;
+    //   console.log(this.collection);
+    //   this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
+    //     this.collection = res;
+    //   });
+    //   this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
+    //     this.collectionAll);
     });
   },
   components: {
@@ -152,6 +158,10 @@ export default {
     OpenSeadragonViewer,
   },
   methods: {
+    setCollection(c) {
+      this.collection = c;
+      console.log('das', c);
+    },
     fetch() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
@@ -190,20 +200,22 @@ export default {
       if (sure) {
         this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
           this.fetch().then(() => {
-            this.select(this.collectionAll);
+            // this.select(this.collectionAll);
           });
         });
       }
     },
     save(collection) {
       if (collection.uid) {
+        // console.log(collection);
         this.$store.dispatch('collections/EDIT_COLLECTION', {
           uid: collection.uid,
           name: collection.name,
           description: collection.description,
-        }).then(() => {
+        }).then((res) => {
+          console.log(res);
           this.fetch().then(() => {
-            this.select(collection); // select the edited item
+            // this.select(collection); // select the edited item
           });
         });
       } else {

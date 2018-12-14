@@ -24,8 +24,8 @@
           <li v-for="collection in filteredCollections">
             <label
               class="m-0 px-3 py-2 border-bottom"
-              v-on:click="openCollection(collection, $event)"
-              v-bind:class="{ 'bg-accent-secondary': collection.uid === $route.params.collection_uid }"
+              v-on:click="select(collection, $event)"
+              v-bind:class="{ 'bg-accent': collection.uid === $route.params.collection_uid }"
               for="collection.uid">
               <div class="clearfix">
                 <div class="float-left">
@@ -128,28 +128,23 @@ export default {
         },
       });
 
-      this.$parent.collection = collection;
-
       this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
-        this.$parent.collection = res;
+        this.$emit('input', res);
       });
     },
     onInput() {
       const len = this.inputString.trim().length;
       this.isDisabled = (len >= 3 && len <= 50);
     },
-    openCollection(collection) {
-      // console.log(collection);
-      this.select(collection);
-      // event.target.classList.add('bg-accent');
-    },
     addCollection(collectionName) {
+      this.inputString = '';
+      this.onInput();
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
       }).then((res) => {
-        console.log(res);
-        this.inputString = '';
+        // console.log(res);
         this.fetch();
+        this.select(res);
       });
     },
     toggle() {
@@ -160,7 +155,17 @@ export default {
     },
   },
   mounted() {
-    this.fetch();
+    this.fetch().then(() => {
+      const collection = {
+        uid: this.$route.params.collection_uid,
+      };
+      this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
+        this.$emit('input', res);
+      });
+
+      // this.select();
+      // this.$emit('input', res);
+    });
   },
 };
 </script>
