@@ -53,16 +53,16 @@ export default {
 
       switch (collectionsSortOrder) {
         case '-created':
-          sortBy(state.collections, 'creationTime', 'desc');
+          sortBy(state.collections, 'creationDate', 'desc');
           break;
         case 'created':
-          sortBy(state.collections, 'creationTime', 'asc');
+          sortBy(state.collections, 'creationDate', 'asc');
           break;
         case '-modified':
-          sortBy(state.collections, 'lastModifiedTime', 'desc');
+          sortBy(state.collections, 'lastModifiedDate', 'desc');
           break;
         case 'modified':
-          sortBy(state.collections, 'lastModifiedTime', 'asc');
+          sortBy(state.collections, 'lastModifiedDate', 'asc');
           break;
         case '-name':
           sortBy(state.collections, 'name', 'desc');
@@ -79,7 +79,6 @@ export default {
   },
   actions: {
     LOAD_COLLECTION(context, collection) {
-      console.log(collection.uid);
       return new Promise((resolve) => {
         services.collections.get(collection.uid, {}).then((result) => {
           collection = new Collection({
@@ -88,9 +87,7 @@ export default {
             countIssues: result.count_issues,
             countPages: result.count_pages,
             creationDate: result.creation_date,
-            creationTime: result.creation_time,
             lastModifiedDate: result.last_modified_date,
-            lastModifiedTime: result.last_modified_time,
             ...result,
           });
           context.commit('UPDATE_COLLECTION', collection);
@@ -111,9 +108,7 @@ export default {
             countIssues: result.count_issues,
             countPages: result.count_pages,
             creationDate: result.creation_date,
-            creationTime: result.creation_time,
             lastModifiedDate: result.last_modified_date,
-            lastModifiedTime: result.last_modified_time,
             ...result,
           })));
           context.commit('SET_COLLECTIONS_SORT_ORDER', {});
