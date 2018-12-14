@@ -197,6 +197,9 @@ export default {
           &:active {
             background: $clr-accent-secondary;
           }
+          div, span {
+            pointer-events: none;
+          }
         }
       }
     }
