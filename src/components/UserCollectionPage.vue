@@ -1,33 +1,13 @@
 <template lang="html">
 <i-layout id="UserCollectionPage">
-  <i-layout-section width="400px" class="br">
-    <b-input-group>
-      <b-form-input v-model="search" placeholder="Search"></b-form-input>
-        <button class="btn btn-info" v-on:click="add()">Add</button>
-        <button class="btn btn-info" v-on:click="fetch()">Reload</button>
-        <select v-model="collectionsSortOrder">
-          <option value="name">A-Z</option>
-          <option value="-name">Z-A</option>
-          <option value="created">Oldest</option>
-          <option value="-created">Newest</option>
-          <option value="-modified">Last Edit</option>
-        </select>
-    </b-input-group>
-    <div class="collection-items">
-      <collection-sidebar-item
-        v-model="collectionAll"
-        v-on:click="select(collectionAll)"
-        v-bind:class="{active: collectionAll === collection}"
-        ></collection-sidebar-item>
-        <collection-sidebar-item
-        v-for="(c, index) in collections"
-        v-model="collections[index]"
-        v-on:click="select(c)"
-        v-bind:class="{active: c.uid === collection.uid}"
-        ></collection-sidebar-item>
-    </div>
+  <i-layout-section width="400px" class="border-right">
+    <collection-list></collection-list>
   </i-layout-section>
   <i-layout-section class="p-2">
+    <h1 contenteditable="true">{{collection.name}}</h1>
+
+    {{ this.collection.name }}
+    {{ this.collection.description }}
     <div v-if="editMode">
         <input type="text" class="form-control" v-model="collection.name" />
         <textarea v-model="collection.description" class="form-control"></textarea>
@@ -84,7 +64,7 @@
 
 <script>
 import Collection from '@/models/Collection';
-import CollectionSidebarItem from './modules/CollectionSidebarItem';
+import CollectionList from './modules/CollectionList';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 
 export default {
@@ -158,36 +138,41 @@ export default {
   },
   mounted() {
     this.fetch().then(() => {
-      this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
-        this.collectionAll);
+      // this.collection = this.$store;
+      // console.log(this.collection);
+      // this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
+      //   this.collection = res;
+      // });
+      // this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
+      //   this.collectionAll);
     });
   },
   components: {
-    CollectionSidebarItem,
+    CollectionList,
     OpenSeadragonViewer,
   },
   methods: {
     fetch() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
-    select(collection) {
-      this.editMode = false;
-
-      this.$router.push({
-        name: 'collection',
-        params: {
-          collection_uid: collection.uid !== '' ? collection.uid : undefined,
-        },
-      });
-
-      this.collection = collection;
-
-      if (collection.uid !== 'all' && collection.uid !== '') {
-        this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
-          this.collection = res;
-        });
-      }
-    },
+    // select(collection) {
+    //   this.editMode = false;
+    //
+    //   this.$router.push({
+    //     name: 'collection',
+    //     params: {
+    //       collection_uid: collection.uid !== '' ? collection.uid : undefined,
+    //     },
+    //   });
+    //
+    //   this.collection = collection;
+    //
+    //   if (collection.uid !== 'all' && collection.uid !== '') {
+    //     this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
+    //       this.collection = res;
+    //     });
+    //   }
+    // },
     cancel(collection) {
       this.fetch().then(() => {
         this.select(collection);
