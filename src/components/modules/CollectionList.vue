@@ -1,34 +1,29 @@
 <template lang="html">
   <i-layout class="collection-list">
     <i-layout-section>
-      <div slot="header" class="header bg-light p-2 border-bottom">
+      <div slot="header" class="header px-3 py-2 border-bottom">
         <div class="input-group input-group-sm">
         <input type="text" name="" value="" class="form-control"
           v-bind:placeholder="$t('placeholder')"
           v-on:input="onInput"
-          v-on:keyup.enter="addCollection(inputString.trim())"
           v-model="inputString"
           />
           <div class="input-group-append">
-            <b-button variant="success"
-              v-bind:disabled="isDisabled == 0"
-              v-on:click="addCollection(inputString.trim())"
-              >
-              {{$t('create_new')}}
-            </b-button>
+            <label class="ml-2 mr-1" style="padding-top: 0.5em">{{$t("label_order")}}</label>
+            <i-dropdown v-model="collectionsSortOrder" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </div>
         </div>
       </div>
-      <b-container fluid class="inputList p-0">
+      <b-container fluid class="inputList p-0 bg-light">
         <ul>
           <li v-for="collection in filteredCollections">
             <label
               class="m-0 px-3 py-2 border-bottom"
               v-on:click="select(collection, $event)"
-              v-bind:class="{ 'bg-accent': collection.uid === $route.params.collection_uid }"
+              v-bind:class="{ 'selected': collection.uid === $route.params.collection_uid }"
               for="collection.uid">
               <div class="clearfix">
-                <div class="float-left">
+                <div class="float-left bold">
                   {{collection.name}}
                 </div>
                 <div class="float-right">
@@ -47,10 +42,24 @@
           </li>
         </ul>
       </b-container>
-      <div slot="footer" class="bg-light p-3 border-top">
-        <label class="mr-1">{{$t("label_order")}}</label>
-        <i-dropdown v-model="collectionsSortOrder" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-
+      <div slot="footer" class="p-3 border-top">
+        <div class="input-group input-group-sm">
+        <input type="text" name="" value="" class="form-control"
+          v-bind:placeholder="$t('inputNewPlaceholder')"
+          v-on:input="onInputNew"
+          v-on:keyup.enter="addCollection(inputNew)"
+          v-model="inputNew"
+          />
+          <div class="input-group-append">
+            <b-button variant="outline-primary"
+              size="sm"
+              v-bind:disabled="isDisabled == 0"
+              v-on:click="addCollection(inputNew)"
+              >
+              {{$t('create_new')}}
+            </b-button>
+          </div>
+        </div>
       </div>
     </i-layout-section>
   </i-layout>
@@ -119,8 +128,6 @@ export default {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
     select(collection) {
-      // this.editMode = false;
-
       this.$router.push({
         name: 'collection',
         params: {
@@ -132,26 +139,20 @@ export default {
         this.$emit('input', res);
       });
     },
-    onInput() {
-      const len = this.inputString.trim().length;
+    onInputNew() {
+      const len = this.inputNew.trim().length;
       this.isDisabled = (len >= 3 && len <= 50);
     },
     addCollection(collectionName) {
-      this.inputString = '';
-      this.onInput();
+      this.inputNew = '';
+      this.onInputNew();
       this.$store.dispatch('collections/ADD_COLLECTION', {
-        name: collectionName,
+        name: collectionName.trim(),
       }).then((res) => {
         // console.log(res);
         this.fetch();
         this.select(res);
       });
-    },
-    toggle() {
-      this.show = !this.show;
-    },
-    isLoggedIn() {
-      return this.$store.state.user.userData;
     },
   },
   mounted() {
@@ -162,9 +163,6 @@ export default {
       this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
         this.$emit('input', res);
       });
-
-      // this.select();
-      // this.$emit('input', res);
     });
   },
 };
@@ -192,14 +190,23 @@ export default {
 
         label {
           display: block;
+          background: $clr-bg-primary;
           cursor: pointer;
 
           &.loading {
-            background: $clr-accent-secondary;
+            background: rgba($clr-accent-secondary, 0.5);
+          }
+          &:hover {
+            background: $clr-bg-secondary;
           }
           &:active {
-            background: $clr-accent-secondary;
+            background: rgba($clr-accent-secondary, 0.5);
           }
+          &.selected {
+            background: $clr-accent-secondary;
+            color: white;
+          }
+
           span, div {
             pointer-events: none;
             cursor: pointer;
@@ -214,7 +221,8 @@ export default {
 <i18n>
 {
   "en": {
-    "placeholder": "Filter collections or create new",
+    "placeholder": "Filter",
+    "inputNewPlaceholder": "Collection Name",
     "label_order": "Order By",
     "create_new": "Create Collection",
     "created": "Created:",
@@ -222,8 +230,8 @@ export default {
     "items": "items"
   },
   "de": {
-    "placeholder": "Filtern oder neue Sammlung erstellen",
-    "label_order": "Order By",
+    "placeholder": "Filtern",
+    "label_order": "Sortieren nach",
     "create_new": "Sammlung erstellen",
     "created": "Erstellt:",
     "last_edited": "Zuletzt bearbeitet",
