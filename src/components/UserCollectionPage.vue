@@ -1,22 +1,53 @@
 <template lang="html">
 <i-layout id="UserCollectionPage">
   <i-layout-section width="400px" class="border-right">
-    <collection-list v-model="collection"></collection-list>
+    <div slot="header" class="pt-1 bg-light">
+      <base-tabs v-model="tab" class="pl-3" v-bind:tabs="tabs"></base-tabs>
+    </div>
+    <collection-list v-show="tab.name === 'collections'" v-model="collection"/>
   </i-layout-section>
-  <i-layout-section class="p-3">
+  <i-layout-section class="p-3" v-if="$route.params.collection_uid">
+
+    <label class="px-2" for="collectionName">Name</label>
+    <div class="input-group input-group-sm px-2 mb-3">
+      <input type="text" name="collectionName" class="form-control" v-bind:value="collection.name">
+      <div class="input-group-append">
+        <b-button variant="outline-primary" size="sm"
+          v-on:click="save(collection)"
+          >
+          {{ $t('update') }}
+        </b-button>
+      </div>
+    </div>
+
+    <label class="px-2" for="collectionDesc">Description</label>
+    <div class="input-group input-group-sm px-2 mb-3">
+      <input type="text" name="collectionDesc" class="form-control" v-bind:value="collection.description">
+      <div class="input-group-append">
+        <b-button variant="outline-primary" size="sm"
+          v-on:click="save(collection)"
+          >
+          {{ $t('update') }}
+        </b-button>
+      </div>
+    </div>
+
+
+    <p>
+      <label for="collectionDescription">Description</label>
+      <input type="text" class="w-100" name="collectionDescription" v-bind:value="collection.description">
+    </p>
 
     <pre>
       {{ collection }}
+      {{user}}
     </pre>
 
-    <!-- <h1 contenteditable="true">{{collection.name}}</h1>
 
-    {{ this.collection.name }}
-    {{ this.collection.description }}
     <div v-if="editMode">
         <input type="text" class="form-control" v-model="collection.name" />
         <textarea v-model="collection.description" class="form-control"></textarea>
-        <button class="btn btn-success" v-on:click="save(collection)">Save</button>
+        <button class="btn btn-success" v-on:click="save(collection)">Save Changes</button>
         <button class="btn btn-danger" v-on:click="cancel(collection)">Cancel</button>
     </div>
     <div v-else>
@@ -26,7 +57,9 @@
         <button class="btn btn-primary" v-on:click="edit()">EDIT</button>
         <button class="btn btn-danger" v-on:click="remove(collection)">Delete</button>
       </b-input-group>
-    </div> -->
+    </div>
+
+
     <hr>
     <div v-if="entities.length > 0" class="collection-group">
       <h4>Entities</h4>
@@ -71,10 +104,12 @@
 import Collection from '@/models/Collection';
 import CollectionList from './modules/CollectionList';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
+import BaseTabs from './base/BaseTabs';
 
 export default {
   data: () => ({
     search: '',
+    tab: {},
     editMode: false,
     collection: new Collection(),
   }),
@@ -89,6 +124,26 @@ export default {
     //     });
     //   },
     // },
+    tabs() {
+      return [
+        {
+          label: this.$t('tabs.collections'),
+          name: 'collections',
+          active: true,
+        },
+        {
+          label: this.$t('tabs.searches'),
+          name: 'searches',
+        },
+        {
+          label: this.$t('tabs.labels'),
+          name: 'labels',
+        },
+      ];
+    },
+    user() {
+      return this.$store.getters['user/user'];
+    },
     collections: {
       get() {
         return this.$store.getters['collections/collections'].filter(
@@ -142,6 +197,14 @@ export default {
     },
   },
   mounted() {
+    // if (!this.user()) {
+    //   console.log('no user!');
+    //   this.$router.push({ name: 'user', params: 'login' });
+    // }
+    this.$store.commit('SET_HEADER_TITLE', {
+      subtitle: this.$t('collections'),
+      title: `@${this.user.username}`,
+    });
     this.fetch().then(() => {
       // return this.$store.dispatch('collections/LOAD_COLLECTION');
     //   this.collection = this.$store;
@@ -154,6 +217,7 @@ export default {
     });
   },
   components: {
+    BaseTabs,
     CollectionList,
     OpenSeadragonViewer,
   },
@@ -183,9 +247,10 @@ export default {
     //     });
     //   }
     // },
-    cancel(collection) {
+    cancel() {
       this.fetch().then(() => {
-        this.select(collection);
+        // this.select(collection);
+        this.editMode = false;
       });
     },
     add() {
@@ -271,9 +336,16 @@ export default {
 <i18n>
 {
   "en": {
-    "confirm_delete": "Are you sure you want to delete?"
+    "collections": "collections",
+    "confirm_delete": "Are you sure you want to delete?",
+    "tabs": {
+        "collections": "My Collections",
+        "searches": "My Searches",
+        "labels": "My Labels"
+    }
   },
   "nl": {
+    "collections": "Sammelingen",
     "confirm_delete": "Weet je zeker dat je wilt verwijderen?"
   }
 }
