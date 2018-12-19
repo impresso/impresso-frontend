@@ -11,7 +11,7 @@
         {{article.newspaper.name}}
       </div>
       <div class="small-caps">
-        {{$d(article.date, "long")}} (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+        {{article.date}} (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
       </div>
     </a>
   </div>
@@ -46,7 +46,6 @@ export default {
         navigatorBorderColor: '#dee2e6',
         navigatorOpacity: 1,
       };
-
       this.handler.$emit('init', options);
     },
   },

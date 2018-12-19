@@ -8,9 +8,11 @@
   </i-layout-section>
   <i-layout-section class="p-3" v-if="$route.params.collection_uid">
 
-    <label class="px-2" for="collectionName">Name</label>
-    <div class="input-group input-group-sm px-2 mb-3">
-      <input type="text" name="collectionName" class="form-control" v-bind:value="collection.name">
+    <label class="px-3" for="collectionName">Name</label>
+    <div  class="input-group input-group-sm px-3 mb-3">
+      <input type="text" name="collectionName" class="form-control"
+        v-bind:value="collection.name"
+        >
       <div class="input-group-append">
         <b-button variant="outline-primary" size="sm"
           v-on:click="save(collection)"
@@ -20,9 +22,11 @@
       </div>
     </div>
 
-    <label class="px-2" for="collectionDesc">Description</label>
-    <div class="input-group input-group-sm px-2 mb-3">
-      <input type="text" name="collectionDesc" class="form-control" v-bind:value="collection.description">
+    <label class="px-3" for="collectionDesc">Description</label>
+    <div class="input-group input-group-sm px-3 mb-3">
+      <input type="text" name="collectionDesc" class="form-control"
+        v-bind:value="collection.description"
+        >
       <div class="input-group-append">
         <b-button variant="outline-primary" size="sm"
           v-on:click="save(collection)"
@@ -33,10 +37,19 @@
     </div>
 
 
-    <p>
-      <label for="collectionDescription">Description</label>
-      <input type="text" class="w-100" name="collectionDescription" v-bind:value="collection.description">
-    </p>
+    <div v-if="articles.length > 0" class="collection-group">
+      <h4 class="p-3">Articles</h4>
+      <b-container fluid>
+        <b-row class="pb-5">
+          <b-col cols="6" sm="12" md="6" lg="4" v-for="(article, index) in articles" v-bind:key="article.uid">
+            <search-results-tiles-item v-on:click="onClickResult(article)" v-model="articles[index]" />
+            {{ article }}
+          </b-col>
+        </b-row>
+      </b-container>
+    </div>
+
+
 
     <pre>
       {{ collection }}
@@ -44,7 +57,7 @@
     </pre>
 
 
-    <div v-if="editMode">
+    <!-- <div v-if="editMode && collection">
         <input type="text" class="form-control" v-model="collection.name" />
         <textarea v-model="collection.description" class="form-control"></textarea>
         <button class="btn btn-success" v-on:click="save(collection)">Save Changes</button>
@@ -57,7 +70,7 @@
         <button class="btn btn-primary" v-on:click="edit()">EDIT</button>
         <button class="btn btn-danger" v-on:click="remove(collection)">Delete</button>
       </b-input-group>
-    </div>
+    </div> -->
 
 
     <hr>
@@ -88,14 +101,6 @@
       </div>
     </div>
 
-    <div v-if="articles.length > 0" class="collection-group">
-      <h4>Articles</h4>
-      <div class="grid">
-        <div class="item" v-for="article in articles">
-          {{article}}
-        </div>
-      </div>
-    </div>
   </i-layout-section>
 </i-layout>
 </template>
@@ -103,7 +108,8 @@
 <script>
 import Collection from '@/models/Collection';
 import CollectionList from './modules/CollectionList';
-import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
+import SearchResultsListItem from './modules/SearchResultsListItem';
+import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import BaseTabs from './base/BaseTabs';
 
 export default {
@@ -114,6 +120,9 @@ export default {
     collection: new Collection(),
   }),
   computed: {
+    // collectionName() {
+    //   return this.collection.name;
+    // },
     // collectionsSortOrder: {
     //   get() {
     //     return this.$store.getters['collections/collectionsSortOrder'];
@@ -152,22 +161,22 @@ export default {
     },
     pages: {
       get() {
-        return this.collection.items.filter(item => (item.labels[0] === 'page'));
+        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'page'));
       },
     },
     entities: {
       get() {
-        return this.collection.items.filter(item => (item.labels[0] === 'entity'));
+        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'entity'));
       },
     },
     articles: {
       get() {
-        return this.collection.items.filter(item => (item.labels[0] === 'article'));
+        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'article'));
       },
     },
     issues: {
       get() {
-        return this.collection.items.filter(item => (item.labels[0] === 'issue'));
+        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
       },
     },
     collectionAll: {
@@ -206,6 +215,7 @@ export default {
       title: `@${this.user.username}`,
     });
     this.fetch().then(() => {
+      // console.log('fetched', res);
       // return this.$store.dispatch('collections/LOAD_COLLECTION');
     //   this.collection = this.$store;
     //   console.log(this.collection);
@@ -219,13 +229,10 @@ export default {
   components: {
     BaseTabs,
     CollectionList,
-    OpenSeadragonViewer,
+    SearchResultsTilesItem,
+    SearchResultsListItem,
   },
   methods: {
-    setCollection(c) {
-      this.collection = c;
-      console.log('das', c);
-    },
     fetch() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },

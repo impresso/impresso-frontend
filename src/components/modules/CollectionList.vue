@@ -5,7 +5,6 @@
         <div class="input-group input-group-sm">
         <input type="text" name="" value="" class="form-control"
           v-bind:placeholder="$t('placeholder')"
-          v-on:input="onInput"
           v-model="inputString"
           />
           <div class="input-group-append">
@@ -71,6 +70,7 @@ export default {
     show: false,
     isDisabled: false,
     inputString: '',
+    inputNew: '',
   }),
   computed: {
     orderByOptions: {
@@ -136,6 +136,7 @@ export default {
       });
 
       this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
+        // console.log('ohohohoohoohooh', res);
         this.$emit('input', res);
       });
     },
@@ -160,6 +161,7 @@ export default {
       const collection = {
         uid: this.$route.params.collection_uid,
       };
+
       this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
         this.$emit('input', res);
       });
