@@ -148,7 +148,6 @@ export default {
   input {
     font-style: italic;
     &:focus {
-      border-color: black;
     }
   }
   .inputList {
