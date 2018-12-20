@@ -23,6 +23,14 @@
         <div v-if="s.type === 'regex'" class="sugggestion-regex">
           <b-badge>{{$t('regex')}}</b-badge> {{s.query}}
         </div>
+        <div href="#" v-if="s.type === 'collection'" class="sugggestion-collection">
+          <b-badge>{{$t('collection')}}</b-badge>
+          <div>{{s.item.name}} &mdash; by @{{s.item.creator.username}}</div>
+        </div>
+        <div href="#" v-if="s.type === 'topic'" class="sugggestion-topic">
+          <b-badge>{{$t('topic')}}</b-badge>
+          <span v-html='s.item.excerpt.map(d => d.w || d).join(", ")' />
+        </div>
         <div href="#" v-if="s.type === 'mention'" class="sugggestion-mention">
           <b-badge>{{$t(s.item.type)}}</b-badge> <span v-html="s.h" />
         </div>
@@ -65,6 +73,7 @@ export default {
         this.$store.dispatch('autocomplete/SEARCH', {
           query: this.query.trim(),
         }).then((res) => {
+          console.log('suggestions', res);
           this.suggestions = res;
         });
       } else {
