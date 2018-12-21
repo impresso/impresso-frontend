@@ -8,6 +8,7 @@ import user from './User';
 import search from './Search';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
+import topics from './Topics';
 
 Vue.use(Vuex);
 
@@ -22,6 +23,7 @@ export default new Vuex.Store({
     user,
     issue,
     collections,
+    topics,
   },
   state: {
     processing_status: false,
