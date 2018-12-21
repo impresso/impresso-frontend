@@ -7,6 +7,8 @@ import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
 import UserCollectionPage from '../components/UserCollectionPage';
 import TestPage from '../components/TestPage';
+import TopicExplorerPage from '../components/TopicExplorerPage';
+
 
 Vue.use(Router);
 
@@ -104,6 +106,11 @@ export default new Router({
     {
       path: '/playground',
       component: TestPage,
+    },
+    {
+      path: '/topic/:topic_model/:topic_uid',
+      component: TopicExplorerPage,
+      name: 'topicexplorer',
     },
     {
       path: '/article/:article_uid',
