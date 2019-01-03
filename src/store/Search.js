@@ -64,12 +64,8 @@ export default {
       state.paginationPerPage = parseInt(paginationPerPage, 10);
     },
     // pagination
-    UPDATE_PAGINATION_CURRENT_PAGE(state, payload) {
-      if (typeof payload.paginationCurrentPage === 'undefined') {
-        state.paginationCurrentPage = 1;
-      } else {
-        state.paginationCurrentPage = payload.paginationCurrentPage;
-      }
+    UPDATE_PAGINATION_CURRENT_PAGE(state, page) {
+      state.paginationCurrentPage = parseInt(page, 10);
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
@@ -140,11 +136,7 @@ export default {
         context.commit('ADD_FILTER', filter);
       }
     },
-    SEARCH(context, paginationCurrentPage = 1) {
-      context.commit('UPDATE_PAGINATION_CURRENT_PAGE', {
-        paginationCurrentPage,
-      });
-
+    SEARCH(context) {
       const search = new Promise(
         (resolve, reject) => {
           services.search.find({
