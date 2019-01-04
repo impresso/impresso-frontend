@@ -7,7 +7,9 @@ import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
 import UserCollectionPage from '../components/UserCollectionPage';
 import TestPage from '../components/TestPage';
-import TopicExplorerPage from '../components/TopicExplorerPage';
+import TopicsPage from '../components/TopicsPage';
+import TopicsExplorerPage from '../components/TopicsExplorerPage';
+import TopicDetailPage from '../components/TopicDetailPage';
 
 
 Vue.use(Router);
@@ -108,9 +110,22 @@ export default new Router({
       component: TestPage,
     },
     {
-      path: '/topic/:topic_model/:topic_uid',
-      component: TopicExplorerPage,
-      name: 'topicexplorer',
+      path: '/topics',
+      component: TopicsPage,
+      name: 'topics',
+
+      children: [
+        {
+          path: '',
+          component: TopicsExplorerPage,
+          name: 'topicsExplorer',
+        },
+        {
+          path: ':topic_uid',
+          component: TopicDetailPage,
+          name: 'topic',
+        },
+      ],
     },
     {
       path: '/article/:article_uid',
