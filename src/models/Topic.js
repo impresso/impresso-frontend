@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import TopicWord from '@/models/TopicWord';
 
 export default class Topic {
@@ -8,6 +9,8 @@ export default class Topic {
     // array of topicWords
     words = [],
     excerpt = [],
+  } = {}, {
+    quantizeRange = [0.25, 0.5, 1, 1],
   } = {}) {
     this.uid = String(uid);
     this.language = String(language);
@@ -15,13 +18,21 @@ export default class Topic {
     this.words = words;
     this.excerpt = excerpt;
 
+
     if (words.length && !(words[0] instanceof TopicWord)) {
-      this.words.map(d => new TopicWord(d));
-      this.excerpt.map(d => new TopicWord(d));
+      const normalize = d3.scaleQuantize()
+        .domain(d3.extent(this.words, d => d.p))
+        .range(quantizeRange);
+
+      this.words = this.words.map(d => new TopicWord({
+        ...d,
+        l: normalize(d.p),
+      }));
+      this.excerpt = this.excerpt.map(d => new TopicWord(d));
     }
   }
 
   getHtmlExcerpt() {
-    return this.excerpt.map(d => d.w).join(', ');
+    return this.excerpt.map(d => d.w).join(' · ');
   }
 }
