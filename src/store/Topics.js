@@ -8,6 +8,41 @@ export default {
     collectionsSortOrder: '-modified',
   },
   actions: {
+    LOAD_TOPICS() {
+      return new Promise((resolve) => {
+        services.topics.find({
+          query: {
+            limit: 150,
+          },
+        }).then((results) => {
+          resolve(results.data.map(result => new Topic(result)));
+        });
+      });
+    },
+    LOAD_ARTICLES(context, uid) {
+      return new Promise((resolve) => {
+        services.search.find({
+          query: {
+            group_by: 'articles',
+            limit: 10,
+            facets: ['year', 'topic'],
+            // filters: [
+            //   {
+            //     type: 'topic',
+            //     context: 'include',
+            //     q: uid,
+            //   },
+            // ],
+          },
+        }).then((results) => {
+          // wrap articles
+          console.log('REULTTTTTT', uid, results);
+          resolve([]);
+        }).catch((err) => {
+          console.log('error', uid, err);
+        });
+      });
+    },
     LOAD_TOPIC(context, uid) {
       return new Promise((resolve) => {
         services.topics.get(uid, {
