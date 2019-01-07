@@ -14,8 +14,8 @@
     {{$t("description", {
       firstResult: firstResult,
       lastResult: lastResult,
-      totalRows: totalRows,
-      totalPages: totalPages
+      totalRows: $n(totalRows),
+      totalPages: $n(totalPages)
     })}}
   </div>
 </div>
