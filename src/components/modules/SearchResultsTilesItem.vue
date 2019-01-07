@@ -11,7 +11,8 @@
         {{article.newspaper.name}}
       </div>
       <div class="small-caps">
-        {{article.date}} (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+        {{$d(new Date(article.date), 'short')}}
+        (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
       </div>
     </a>
   </div>
