@@ -47,6 +47,7 @@
               v-bind:issue="issue"
               v-on:click="loadPage"
               v-bind:bounds="bounds"
+              v-bind:displayMode="mode"
               v-bind:page="issue.pages.find((p) => p.uid === page.uid)" />
           </i-layout-section>
           <i-layout-section>
