@@ -8,7 +8,9 @@
       </section>
     </b-navbar>
 
-
+    <div class="d3-graph-wrapper small-caps">
+      <div id="d3-graph" class="border-bottom" ></div>
+    </div>
     <!--  -->
     <div class="p-3 pt-2">
       <div style="height: 7.5rem; overflow: hidden">
@@ -24,6 +26,7 @@
 
 <script>
 import Topic from '@/models/Topic';
+import Graph from '@/d3-modules/Graph';
 
 export default {
   data: () => ({
@@ -38,19 +41,74 @@ export default {
       return this.$route.params.topic_uid;
     },
   },
+  mounted() {
+    this.$store.commit('SET_HEADER_TITLE', {
+      title: 'topics',
+    });
+
+    this.graph = new Graph({
+      element: '#d3-graph',
+    });
+
+    this.graph
+      .on('node.mouseleave', (d) => {
+        console.log('node.mouseleave', d);
+      })
+      .on('node.mouseenter', (d) => {
+        console.log('node.mouseenter', d);
+      });
+
+    this.graph.update({
+      nodes: [
+        {
+          id: 'Agricultural \'waste\'',
+          w: 10,
+        },
+        {
+          id: 'Bio-conversion',
+          w: 9,
+        },
+        {
+          id: 'Liquid',
+          w: 7,
+        },
+        {
+          id: 'Biofuel imports',
+          w: 1,
+        },
+      ],
+      links: [
+        {
+          source: 0,
+          target: 1,
+          w: 2,
+        },
+        {
+          source: 1,
+          target: 2,
+          w: 1,
+        },
+        {
+          source: 1,
+          target: 3,
+          w: 3,
+        },
+        {
+          source: 0,
+          target: 3,
+          w: 2,
+        },
+      ],
+    });
+  },
   watch: {
     '$route.params.topic_uid': {
       immediate: true,
       async handler(topicUid) {
         // load single topic data
-        this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', topicUid);
-
-        this.$store.commit('SET_HEADER_TITLE', {
-          subtitle: 'topic',
-          title: 'topics',
-        });
-
-        // load all topic given a
+        if (topicUid) {
+          this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', topicUid);
+        }
       },
     },
   },
@@ -65,14 +123,16 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-.word-probability{
-  color: lightgrey;
+<style  lang="scss">
+.d3-graph-wrapper{
+  height: 60%;
 }
-.word:hover{
-  .word-probability{
-    color: darkgrey;
+
+#d3-graph{
+  height: 100%;
+
+  line {
+    stroke: darkgrey;
   }
-  box-shadow: 0 1px black;
 }
 </style>
