@@ -224,7 +224,7 @@ export default {
 {
   "en": {
     "placeholder": "Filter",
-    "inputNewPlaceholder": "Collection Name",
+    "inputNewPlaceholder": "New Collection Name",
     "label_order": "Order By",
     "create_new": "Create Collection",
     "created": "Created:",
