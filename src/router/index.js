@@ -7,6 +7,7 @@ import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
 import UserCollectionPage from '../components/UserCollectionPage';
 import TestPage from '../components/TestPage';
+import TitlesPage from '../components/TitlesPage';
 
 Vue.use(Router);
 
@@ -108,6 +109,14 @@ export default new Router({
       props: true,
       meta: {
         realm: 'issueviewer',
+      },
+    },
+    {
+      path: '/titles/:title_uid?',
+      component: TitlesPage,
+      name: 'titles',
+      meta: {
+        realm: 'titles',
       },
     },
     {

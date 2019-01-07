@@ -8,6 +8,7 @@ import user from './User';
 import search from './Search';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
+import titles from './Titles';
 
 Vue.use(Vuex);
 
@@ -22,6 +23,7 @@ export default new Vuex.Store({
     user,
     issue,
     collections,
+    titles,
   },
   state: {
     processing_status: false,
@@ -78,6 +80,7 @@ export default new Vuex.Store({
       'user.userData',
       'collections.collectionsSortOrder',
       'issue.viewerMode',
+      'titles.orderBy',
     ],
   })],
 });
