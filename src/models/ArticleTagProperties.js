@@ -7,16 +7,18 @@
  * @param {Date} lastModifiedDate Date object when ArticleTag object is modified
  * @param {Int} lastModifiedTime Timestamp when ArticleTag object is modified
  */
-export default function ArticleTagProperties({
-  creationDate = new Date(),
-  creationTime = 0,
-  creator = '',
-  lastModifiedDate = new Date(),
-  lastModifiedTime = 0,
-} = {}) {
-  this.creationDate = new Date(creationDate);
-  this.creationTime = parseInt(creationTime, 10);
-  this.creator = String(creator);
-  this.lastModifiedDate = new Date(lastModifiedDate);
-  this.lastModifiedTime = parseInt(lastModifiedTime, 10);
+export default class ArticleTagProperties {
+  constructor({
+    creationDate = new Date(),
+    creationTime = 0,
+    creator = '',
+    lastModifiedDate = new Date(),
+    lastModifiedTime = 0,
+  } = {}) {
+    this.creationDate = new Date(creationDate);
+    this.creationTime = parseInt(creationTime, 10);
+    this.creator = String(creator);
+    this.lastModifiedDate = new Date(lastModifiedDate);
+    this.lastModifiedTime = parseInt(lastModifiedTime, 10);
+  }
 }

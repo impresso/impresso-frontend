@@ -1,3 +1,4 @@
+import * as services from '@/services';
 import Vue from 'vue';
 import Router from 'vue-router';
 import SearchPage from '../components/SearchPage';
@@ -14,6 +15,15 @@ export default new Router({
     {
       path: '/',
       name: 'home',
+      beforeEnter: (to, from, next) => {
+        next({
+          name: 'search',
+        });
+      },
+    },
+    {
+      path: '/search',
+      name: 'search',
       component: SearchPage,
     },
     {
@@ -103,6 +113,21 @@ export default new Router({
     {
       path: '/playground',
       component: TestPage,
+    },
+    {
+      path: '/article/:article_uid',
+      beforeEnter: (to, from, next) => {
+        services.articles.get(to.params.article_uid).then((res) => {
+          next({
+            name: 'article',
+            params: {
+              issue_uid: res.issue.uid,
+              page_uid: res.pages[0].uid,
+              article_uid: res.uid,
+            },
+          });
+        });
+      },
     },
   ],
 });

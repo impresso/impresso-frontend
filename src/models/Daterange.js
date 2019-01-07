@@ -5,17 +5,19 @@
  * @param {Date} start Date object start op of the range
  * @param {Date} end Date object end op of the range
  */
-export default function Daterange({
-  daterange = '',
-  start = new Date(),
-  end = new Date(),
-} = {}) {
-  this.start = new Date(start);
-  this.end = new Date(end);
+export default class Daterange {
+  constructor({
+    daterange = '',
+    start = new Date(),
+    end = new Date(),
+  } = {}) {
+    this.start = new Date(start);
+    this.end = new Date(end);
 
-  if (daterange.length > 0) {
-    const range = daterange.split(' TO ');
-    this.start = new Date(range[0]);
-    this.end = new Date(range[1]);
+    if (daterange.length > 0) {
+      const range = daterange.split(' TO ');
+      this.start = new Date(range[0]);
+      this.end = new Date(range[1]);
+    }
   }
 }

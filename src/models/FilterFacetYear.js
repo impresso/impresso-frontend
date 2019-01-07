@@ -1,4 +1,6 @@
-import Bucket from './Bucket';
+import Bucket from '@/models/Bucket';
+import Filter from '@/models/FilterBase';
+
 /**
  * FilterEntity object
  * @param {Object} buckets Array with Bucket objects
@@ -6,38 +8,31 @@ import Bucket from './Bucket';
  * @param {Boolean} touched wether the user has interacted with the filter
  */
 
-export default function FilterFacetYear({
-  buckets = {},
-  touched = false,
-} = {}) {
-  this.type = 'year';
-  this.context = 'include';
-  this.touched = touched;
+export default class FilterFacetYear extends Filter {
+  constructor(args) {
+    super(args);
 
-  this.end = new Date(buckets[0].val);
-  this.start = new Date(buckets[buckets.length - 1].val);
+    this.buckets = args.buckets.map((bucket) => {
+      if (bucket instanceof Bucket) {
+        return bucket;
+      }
 
-  this.buckets = buckets.map((bucket) => {
-    if (bucket instanceof Bucket) {
-      return bucket;
-    }
+      return new Bucket(bucket);
+    });
 
-    return new Bucket(bucket);
-  });
+    this.start = new Date(args.start || this.buckets[0].val);
+    this.end = new Date(args.end || this.buckets[this.buckets.length - 1].val);
+  }
 
-  this.getQuery = function () {
-    const start = new Date(this.start);
-    const end = new Date(this.end);
-    const daterange = `${start.toISOString().replace('.000Z', 'Z')} TO ${end.toISOString().replace('.000Z', 'Z')}`;
+  getQuery() {
+    this.start.setHours(0, 0, 0, 0); // make sure we only use dates, not times
+    this.end.setHours(0, 0, 0, 0);
+    const daterange = `${this.start.toISOString().replace('.000Z', 'Z')} TO ${this.end.toISOString().replace('.000Z', 'Z')}`;
 
     return {
       context: this.context,
       type: 'daterange',
       daterange,
     };
-  };
-
-  this.touch = function () {
-    this.touched = true;
-  };
+  }
 }

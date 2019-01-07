@@ -31,100 +31,102 @@ import Tag from './Tag';
  * @param {String} uid Unique identifier for the article
  * @param {Number} year Year of the article
  */
-export default function Article({
-  country = '',
-  collections = [],
-  date = new Date(),
-  excerpt = '',
-  dl = 0,
-  isCC = false,
-  isFront = false,
-  issue = new Issue(),
-  labels = [],
-  language = '',
-  matches = [],
-  nbPages = 0,
-  newspaper = new Newspaper(),
-  pages = [],
-  regions = [],
-  size = 0,
-  tags = [],
-  time = 0,
-  title = '',
-  type = '',
-  uid = '',
-  year = 0,
-} = {}) {
-  this.collections = collections.map((collection) => {
-    if (collection instanceof Collection) {
-      return collection;
+export default class Article {
+  constructor({
+    country = '',
+    collections = [],
+    date = new Date(),
+    excerpt = '',
+    dl = 0,
+    isCC = false,
+    isFront = false,
+    issue = new Issue(),
+    labels = [],
+    language = '',
+    matches = [],
+    nbPages = 0,
+    newspaper = new Newspaper(),
+    pages = [],
+    regions = [],
+    size = 0,
+    tags = [],
+    time = 0,
+    title = '',
+    type = '',
+    uid = '',
+    year = 0,
+  } = {}) {
+    this.collections = collections.map((collection) => {
+      if (collection instanceof Collection) {
+        return collection;
+      }
+
+      return new Collection(collection);
+    });
+
+    this.country = String(country);
+    this.date = new Date(date);
+    this.excerpt = String(excerpt);
+    this.dl = parseInt(dl, 10);
+    this.isCC = Boolean(isCC);
+    this.isFront = Boolean(isFront);
+
+    if (issue instanceof Issue) {
+      this.issue = issue;
+    } else {
+      this.issue = new Issue(issue);
     }
 
-    return new Collection(collection);
-  });
+    this.labels = labels.map(label => String(label));
 
-  this.country = String(country);
-  this.date = new Date(date);
-  this.excerpt = String(excerpt);
-  this.dl = parseInt(dl, 10);
-  this.isCC = Boolean(isCC);
-  this.isFront = Boolean(isFront);
+    this.language = String(language);
 
-  if (issue instanceof Issue) {
-    this.issue = issue;
-  } else {
-    this.issue = new Issue(issue);
+    this.matches = matches.map((match) => {
+      if (match instanceof Match) {
+        return match;
+      }
+
+      return new Match(match);
+    });
+
+    this.nbPages = parseInt(nbPages, 10);
+
+    if (newspaper instanceof Newspaper) {
+      this.newspaper = newspaper;
+    } else {
+      this.newspaper = new Newspaper(newspaper);
+    }
+
+    this.pages = pages.map((page) => {
+      if (page instanceof Page) {
+        return page;
+      }
+
+      return new Page(page);
+    });
+
+    this.size = parseInt(size, 10);
+
+    this.regions = regions.map((region) => {
+      if (region instanceof Region) {
+        return region;
+      }
+
+      return new Region(region);
+    });
+
+    this.tags = tags.map((tag) => {
+      if (tag instanceof Tag) {
+        return tag;
+      }
+
+      return new Tag(tag);
+    });
+
+    this.time = parseInt(time, 10);
+    this.title = String(title);
+    this.type = String(type);
+    this.uid = String(uid);
+    this.year = parseInt(year, 10);
   }
-
-  this.labels = labels.map(label => String(label));
-
-  this.language = String(language);
-
-  this.matches = matches.map((match) => {
-    if (match instanceof Match) {
-      return match;
-    }
-
-    return new Match(match);
-  });
-
-  this.nbPages = parseInt(nbPages, 10);
-
-  if (newspaper instanceof Newspaper) {
-    this.newspaper = newspaper;
-  } else {
-    this.newspaper = new Newspaper(newspaper);
-  }
-
-  this.pages = pages.map((page) => {
-    if (page instanceof Page) {
-      return page;
-    }
-
-    return new Page(page);
-  });
-
-  this.size = parseInt(size, 10);
-
-  this.regions = regions.map((region) => {
-    if (region instanceof Region) {
-      return region;
-    }
-
-    return new Region(region);
-  });
-
-  this.tags = tags.map((tag) => {
-    if (tag instanceof Tag) {
-      return tag;
-    }
-
-    return new Tag(tag);
-  });
-
-  this.time = parseInt(time, 10);
-  this.title = String(title);
-  this.type = String(type);
-  this.uid = String(uid);
-  this.year = parseInt(year, 10);
 }

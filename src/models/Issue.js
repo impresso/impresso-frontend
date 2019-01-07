@@ -17,67 +17,69 @@ import Article from './Article';
  * @param {String} uid Unique identifier for the newspaper
  * @param {Integer} year Full year of issue
  */
-export default function Issue({
-  collections = [],
-  countArticles = 0,
-  countPages = 0,
-  date = new Date(),
-  entities = [],
-  newspaper = new Newspaper(),
-  pages = [],
-  articles = [],
-  uid = '',
-  year = 0,
-} = {}) {
-  this.collections = collections.map((collection) => {
-    if (collection instanceof Collection) {
-      return collection;
+export default class Issue {
+  constructor({
+    collections = [],
+    countArticles = 0,
+    countPages = 0,
+    date = new Date(),
+    entities = [],
+    newspaper = new Newspaper(),
+    pages = [],
+    articles = [],
+    uid = '',
+    year = 0,
+  } = {}) {
+    this.collections = collections.map((collection) => {
+      if (collection instanceof Collection) {
+        return collection;
+      }
+
+      return new Collection(collection);
+    });
+
+    this.countArticles = countArticles;
+    this.countPages = countPages;
+    this.date = new Date(date);
+
+    this.entities = entities.map((entity) => {
+      if (entity instanceof Entity) {
+        return entity;
+      }
+
+      return new Entity(entity);
+    });
+
+    if (newspaper instanceof Newspaper) {
+      this.newspaper = newspaper;
+    } else {
+      this.newspaper = new Newspaper(newspaper);
     }
 
-    return new Collection(collection);
-  });
+    this.pages = pages.map((page) => {
+      if (page instanceof Page) {
+        return page;
+      }
 
-  this.countArticles = countArticles;
-  this.countPages = countPages;
-  this.date = new Date(date);
+      return new Page(page);
+    });
 
-  this.entities = entities.map((entity) => {
-    if (entity instanceof Entity) {
-      return entity;
+    if (this.pages.length > 0) {
+      this.lastPageNumber = this.pages[this.pages.length - 1].num;
+    } else {
+      this.lastPageNumber = 0;
     }
 
-    return new Entity(entity);
-  });
+    this.articles = articles.map((article) => {
+      if (article instanceof Article) {
+        return article;
+      }
 
-  if (newspaper instanceof Newspaper) {
-    this.newspaper = newspaper;
-  } else {
-    this.newspaper = new Newspaper(newspaper);
+      return new Article(article);
+    });
+
+
+    this.uid = String(uid);
+    this.year = parseInt(year, 10);
   }
-
-  this.pages = pages.map((page) => {
-    if (page instanceof Page) {
-      return page;
-    }
-
-    return new Page(page);
-  });
-
-  if (this.pages.length > 0) {
-    this.lastPageNumber = this.pages[this.pages.length - 1].num;
-  } else {
-    this.lastPageNumber = 0;
-  }
-
-  this.articles = articles.map((article) => {
-    if (article instanceof Article) {
-      return article;
-    }
-
-    return new Article(article);
-  });
-
-
-  this.uid = String(uid);
-  this.year = parseInt(year, 10);
 }

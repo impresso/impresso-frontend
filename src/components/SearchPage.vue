@@ -2,14 +2,14 @@
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right">
     <div slot="header" class="px-4 py-4 border-bottom">
-      <search-bar />
+      <autocomplete v-on:submit="onSuggestion" />
     </div>
     <div class="py-4">
-      <search-filters v-on:remove-filter="search" v-on:submit-filter="search" />
+      <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
     </div>
     <div slot="footer">
       <b-button-group class="d-flex bg-white">
-        <b-button class="w-100" v-on:click="search()">Search</b-button>
+        <b-button class="w-100" v-on:click="search(1)">Search</b-button>
         <b-button class="w-100" v-on:click="reset">Clear</b-button>
       </b-button-group>
     </div>
@@ -65,7 +65,9 @@
 </template>
 
 <script>
-import SearchBar from './SearchBar';
+import FilterFactory from '@/models/FilterFactory';
+
+import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
 import SearchResultsListItem from './modules/SearchResultsListItem';
@@ -127,7 +129,7 @@ export default {
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
-        this.search();
+        this.search(1);
       },
     },
     groupBy: {
@@ -136,7 +138,7 @@ export default {
       },
       set(val) {
         this.$store.commit('search/UPDATE_SEARCH_GROUP_BY', val);
-        this.search();
+        this.search(1);
       },
     },
     displayStyle: {
@@ -179,6 +181,10 @@ export default {
     },
   },
   methods: {
+    onSuggestion(suggestion) {
+      this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
+      this.search(1);
+    },
     onInputPagination(page = 1) {
       this.search(page);
     },
@@ -193,8 +199,12 @@ export default {
         },
       });
     },
-    search(page = 1) {
-      this.$store.dispatch('search/SEARCH', page);
+    search(page) {
+      if (page !== undefined) {
+        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      }
+
+      this.$store.dispatch('search/SEARCH');
     },
     reset() {
       this.$store.commit('search/CLEAR');
@@ -202,8 +212,8 @@ export default {
     },
   },
   components: {
+    Autocomplete,
     Pagination,
-    'search-bar': SearchBar,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filters': SearchFilters,

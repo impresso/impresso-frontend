@@ -19,7 +19,6 @@
         </div>
       </div>
     </div>
-    <pre>{{filter}}</pre>
   </filter-wrapper>
 </template>
 

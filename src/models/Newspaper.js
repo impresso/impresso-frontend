@@ -9,24 +9,26 @@
   * @param {Integer} startYear year of first issue
   * @param {String} uid Unique identifier for the newspaper
   */
- export default function Newspaper({
-   acronym = '',
-   countArticles = 0,
-   countIssues = 0,
-   countPages = 0,
-   deltaYear = 0,
-   endYear = 0,
-   name = '',
-   startYear = 0,
-   uid = '',
- } = {}) {
-   this.acronym = String(acronym);
-   this.countArticles = parseInt(countArticles, 10);
-   this.countIssues = parseInt(countIssues, 10);
-   this.countPages = parseInt(countPages, 10);
-   this.deltaYear = parseInt(deltaYear, 10);
-   this.endYear = parseInt(endYear, 10);
-   this.name = String(name);
-   this.startYear = parseInt(startYear, 10);
-   this.uid = String(uid);
+ export default class Newspaper {
+   constructor({
+     acronym = '',
+     countArticles = 0,
+     countIssues = 0,
+     countPages = 0,
+     deltaYear = 0,
+     endYear = 0,
+     name = '',
+     startYear = 0,
+     uid = '',
+   } = {}) {
+     this.acronym = String(acronym);
+     this.countArticles = parseInt(countArticles, 10);
+     this.countIssues = parseInt(countIssues, 10);
+     this.countPages = parseInt(countPages, 10);
+     this.deltaYear = parseInt(deltaYear, 10);
+     this.endYear = parseInt(endYear, 10);
+     this.name = String(name);
+     this.startYear = parseInt(startYear, 10);
+     this.uid = String(uid);
+   }
  }

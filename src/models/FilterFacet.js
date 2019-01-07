@@ -1,4 +1,5 @@
-import Bucket from './Bucket';
+import Bucket from '@/models/Bucket';
+import Filter from '@/models/FilterBase';
 /**
  * FilterEntity object
  * @param {Object} buckets Array with Bucket objects
@@ -7,24 +8,19 @@ import Bucket from './Bucket';
  * @param {Boolean} touched wether the user has interacted with the filter
  */
 
-export default function FilterFacet({
-  buckets = {},
-  type = '',
-  touched = false,
-} = {}) {
-  this.type = type;
-  this.context = 'include';
-  this.touched = touched;
+export default class FilterFacet extends Filter {
+  constructor(args) {
+    super(args);
+    this.buckets = args.buckets.map((bucket) => {
+      if (bucket instanceof Bucket) {
+        return bucket;
+      }
 
-  this.buckets = buckets.map((bucket) => {
-    if (bucket instanceof Bucket) {
-      return bucket;
-    }
+      return new Bucket(bucket);
+    });
+  }
 
-    return new Bucket(bucket);
-  });
-
-  this.getQuery = function () {
+  getQuery() {
     const filters = this.buckets.filter(bucket => bucket.included);
 
     if (filters.length > 0 && this.touched) {
@@ -36,13 +32,5 @@ export default function FilterFacet({
     }
 
     return null;
-  };
-
-  this.touch = function () {
-    this.touched = true;
-  };
-
-  this.untouch = function () {
-    this.touched = false;
-  };
+  }
 }

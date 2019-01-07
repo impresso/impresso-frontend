@@ -6,16 +6,18 @@
  * @param {String} name Name of the tag
  * @param {String} uid Unique identifier for the Named Entity
  */
-export default function Tag({
-  appliesTo = [],
-  description = '',
-  labels = [],
-  name = '',
-  uid = '',
-} = {}) {
-  this.appliesTo = appliesTo.map(label => String(label));
-  this.description = String(description);
-  this.labels = labels.map(label => String(label));
-  this.name = String(name);
-  this.uid = String(uid);
+export default class Tag {
+  constructor({
+    appliesTo = [],
+    description = '',
+    labels = [],
+    name = '',
+    uid = '',
+  } = {}) {
+    this.appliesTo = appliesTo.map(label => String(label));
+    this.description = String(description);
+    this.labels = labels.map(label => String(label));
+    this.name = String(name);
+    this.uid = String(uid);
+  }
 }
