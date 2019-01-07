@@ -3,8 +3,8 @@
 
     <b-navbar type="light" variant="light" class="border-bottom">
       <section>
-        <span class="label">{{$t("topic")}} {{ topic.model }} - {{ topic.language }}</span>
-        <h3>"{{ topic.getHtmlExcerpt() }} ..."</h3>
+        <span class="label small-caps">{{$t('summary')}}</span>
+        <h3>{{ $t('topics_cooccurrence_graph') }}</h3>
       </section>
     </b-navbar>
 
@@ -136,3 +136,11 @@ export default {
   }
 }
 </style>
+<i18n>
+{
+  "en": {
+    "summary": "Explore the list of topics",
+    "topics_cooccurrence_graph": "Visualise the topics and how they co-occur"
+  }
+}
+</i18n>
