@@ -89,11 +89,11 @@ export default {
       ]).then((results) => {
         // console.log(' collection loaded', results);
         const loadedCollection = new Collection(results[0]);
-        loadedCollection.items = results[1].map(d => ({
+        loadedCollection.items = results[1].data.map(d => ({
           ...d.item,
           dateAdded: d.dateAdded,
         }));
-        context.commit('UPDATE_COLLECTION', loadedCollection);
+        // context.commit('UPDATE_COLLECTION', loadedCollection);
         return loadedCollection;
       });
 
