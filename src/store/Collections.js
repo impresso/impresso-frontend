@@ -140,6 +140,7 @@ export default {
       });
     },
     EDIT_COLLECTION(context, payload) {
+      console.log('edit', payload);
       return new Promise((resolve) => {
         services.collections.patch(payload.uid, {
           name: payload.name,

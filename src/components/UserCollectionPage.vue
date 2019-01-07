@@ -11,7 +11,7 @@
     <label class="px-3" for="collectionName">Name</label>
     <div  class="input-group input-group-sm px-3 mb-3">
       <input type="text" name="collectionName" class="form-control"
-        v-bind:value="collection.name"
+        v-model="collection.name"
         >
       <div class="input-group-append">
         <b-button variant="outline-primary" size="sm"
@@ -24,9 +24,9 @@
 
     <label class="px-3" for="collectionDesc">Description</label>
     <div class="input-group input-group-sm px-3 mb-3">
-      <input type="text" name="collectionDesc" class="form-control"
-        v-bind:value="collection.description"
-        >
+      <textarea type="text" name="collectionDesc" class="form-control"
+        v-model="collection.description"
+        />
       <div class="input-group-append">
         <b-button variant="outline-primary" size="sm"
           v-on:click="save(collection)"
@@ -36,24 +36,28 @@
       </div>
     </div>
 
+    <b-button variant="outline-danger" size="sm" class="p-2 m-3 float-right"
+      v-on:click="remove(collection)">{{ $t('delete_collection') }}
+    </b-button>
+
 
     <div v-if="articles.length > 0" class="collection-group">
       <h4 class="p-3">Articles</h4>
       <b-container fluid>
         <b-row class="pb-5">
-          <b-col cols="6" sm="12" md="6" lg="4" v-for="(article, index) in articles" v-bind:key="article.uid">
-            <search-results-tiles-item v-on:click="onClickResult(article)" v-model="articles[index]" />
-            {{ article }}
+          <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, index) in articles" v-bind:key="article.uid">
+
+            <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
+            <!-- {{ article }} -->
           </b-col>
         </b-row>
       </b-container>
     </div>
 
 
-
     <pre>
-      {{ collection }}
-      {{user}}
+      <!-- {{ collection }}
+      {{user}} -->
     </pre>
 
 
@@ -231,8 +235,8 @@ export default {
   components: {
     BaseTabs,
     CollectionList,
-    SearchResultsTilesItem,
     SearchResultsListItem,
+    SearchResultsTilesItem,
   },
   methods: {
     fetch() {
@@ -256,23 +260,35 @@ export default {
     //     });
     //   }
     // },
-    cancel() {
-      this.fetch().then(() => {
-        // this.select(collection);
-        this.editMode = false;
+    gotoArticle(article) {
+      this.$router.push({
+        name: 'article',
+        params: {
+          issue_uid: article.issue.uid,
+          page_number: article.pages[0].num,
+          page_uid: article.pages[0].uid,
+          article_uid: article.uid,
+        },
       });
     },
-    add() {
-      this.select(new Collection());
-      this.editMode = true;
-    },
-    edit() {
-      this.editMode = true;
-    },
+    // cancel() {
+    //   this.fetch().then(() => {
+    //     // this.select(collection);
+    //     this.editMode = false;
+    //   });
+    // },
+    // add() {
+    //   this.select(new Collection());
+    //   this.editMode = true;
+    // },
+    // edit() {
+    //   this.editMode = true;
+    // },
     remove(collection) {
       const sure = confirm(this.$t('confirm_delete'));
       if (sure) {
-        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
+        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then((res) => {
+          console.log(`Collection "${collection.name}" deleted. `, res);
           this.fetch().then(() => {
             // this.select(this.collectionAll);
           });
@@ -281,7 +297,7 @@ export default {
     },
     save(collection) {
       if (collection.uid) {
-        // console.log(collection);
+        console.log(collection);
         this.$store.dispatch('collections/EDIT_COLLECTION', {
           uid: collection.uid,
           name: collection.name,
@@ -346,7 +362,8 @@ export default {
 {
   "en": {
     "collections": "collections",
-    "confirm_delete": "Are you sure you want to delete?",
+    "delete_collection": "Delete Collection",
+    "confirm_delete": "Are you sure you want to delete {collection.name}?",
     "tabs": {
         "collections": "My Collections",
         "searches": "My Searches",
