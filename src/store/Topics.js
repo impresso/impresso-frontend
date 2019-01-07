@@ -4,8 +4,12 @@ import Topic from '@/models/Topic';
 export default {
   namespaced: true,
   state: {
-    collections: [],
-    collectionsSortOrder: '-modified',
+    orderBy: '-name',
+  },
+  mutations: {
+    UPDATE_ORDER_BY(state, orderBy) {
+      state.orderBy = orderBy;
+    },
   },
   actions: {
     LOAD_TOPICS() {
