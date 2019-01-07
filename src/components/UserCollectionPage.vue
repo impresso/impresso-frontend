@@ -143,10 +143,12 @@ export default {
         {
           label: this.$t('tabs.searches'),
           name: 'searches',
+          disabled: true,
         },
         {
           label: this.$t('tabs.labels'),
           name: 'labels',
+          disabled: true,
         },
       ];
     },
