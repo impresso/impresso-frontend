@@ -10,7 +10,7 @@
     </h2>
     <div class="article-meta mb-2">
       <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
-      <span class="small-caps">{{$d(article.date, "long")}}</span>
+      <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
       (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
     </div>
 
@@ -78,11 +78,15 @@ export default {
       if (this.article.isCC) {
         this.article.regions.forEach((region) => {
           if (region.pageUid === this.article.pages[0].uid) {
+            if (region.coords.x) region.coords[0] = region.coords.x;
+            if (region.coords.y) region.coords[1] = region.coords.y;
+            if (region.coords.w) region.coords[2] = region.coords.w;
+            if (region.coords.h) region.coords[3] = region.coords.h;
             const overlay = {
-              x: region.coords.x,
-              y: region.coords.y,
-              w: region.coords.w,
-              h: region.coords.h,
+              x: region.coords[0],
+              y: region.coords[1],
+              w: region.coords[2],
+              h: region.coords[3],
               class: 'overlay-region selected',
             };
 
@@ -119,7 +123,13 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
+div.overlay-region{
+  background: $clr-accent-secondary;
+  opacity: 0.25;
+}
 .thumbnail {
     width: 215px;
     height: 240px;
