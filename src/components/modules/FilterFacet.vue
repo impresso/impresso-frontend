@@ -8,7 +8,7 @@
     </base-title-bar>
     <div v-for="bucket in filter.buckets">
       <b-form-checkbox v-bind:checked="bucket.included" v-on:change="toggleBucket(bucket)">
-        {{bucket.item.name || bucket.val}} ({{bucket.count}})
+        {{bucket.item.name || bucket.val}} ({{$n(bucket.count)}})
       </b-form-checkbox>
     </div>
   </div>
