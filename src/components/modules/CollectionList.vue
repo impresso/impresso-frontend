@@ -134,11 +134,6 @@ export default {
           collection_uid: collection.uid !== '' ? collection.uid : undefined,
         },
       });
-
-      this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
-        // console.log('ohohohoohoohooh', res);
-        this.$emit('input', res);
-      });
     },
     onInputNew() {
       const len = this.inputNew.trim().length;
@@ -158,13 +153,6 @@ export default {
   },
   mounted() {
     this.fetch().then(() => {
-      const collection = {
-        uid: this.$route.params.collection_uid,
-      };
-
-      this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
-        this.$emit('input', res);
-      });
     });
   },
 };
@@ -183,10 +171,8 @@ export default {
     height: 100%;
     overflow: scroll;
     ul {
-      // overflow-y: auto;
       list-style: none;
       padding: 0;
-      // margin-bottom: -1px;
       li {
         padding: 0;
 
