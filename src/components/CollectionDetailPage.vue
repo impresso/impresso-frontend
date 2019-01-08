@@ -1,11 +1,4 @@
-<template lang="html">
-<i-layout id="UserCollectionPage">
-  <i-layout-section width="400px" class="border-right">
-    <div slot="header" class="pt-1 bg-light">
-      <base-tabs v-model="tab" class="pl-3" v-bind:tabs="tabs"></base-tabs>
-    </div>
-    <collection-list v-show="tab.name === 'collections'" v-model="collection"/>
-  </i-layout-section>
+<template lang="">
   <i-layout-section class="p-3" v-if="$route.params.collection_uid">
 
     <label class="px-3" for="collectionName">Name</label>
@@ -40,13 +33,30 @@
       v-on:click="remove(collection)">{{ $t('delete_collection') }}
     </b-button>
 
-
     <div v-if="articles.length > 0" class="collection-group">
-      <h4 class="p-3">Articles</h4>
-      <b-container fluid>
-        <b-row class="pb-5">
-          <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, index) in articles" v-bind:key="article.uid">
+      <h4 class="p-3">{{ $tc('articles_in', articles.length) }} <em>{{collection.name}}</em></h4>
 
+      <b-navbar>
+        <b-navbar-nav>
+          <label class="mr-2">{{$t("label_display")}}</label>
+          <b-nav-form>
+            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+            </b-form-radio-group>
+          </b-nav-form>
+        </b-navbar-nav>
+      </b-navbar>
+
+      <b-container fluid>
+        <b-row v-if="displayStyle === 'list'">
+          <b-col cols="12" v-for="(article, index) in articles" v-bind:key="article.uid">
+            <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
+          </b-col>
+        </b-row>
+
+        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+          <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, index) in articles" v-bind:key="article.uid">
             <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
             <!-- {{ article }} -->
           </b-col>
@@ -54,30 +64,8 @@
       </b-container>
     </div>
 
-
-    <pre>
-      <!-- {{ collection }}
-      {{user}} -->
-    </pre>
-
-
-    <!-- <div v-if="editMode && collection">
-        <input type="text" class="form-control" v-model="collection.name" />
-        <textarea v-model="collection.description" class="form-control"></textarea>
-        <button class="btn btn-success" v-on:click="save(collection)">Save Changes</button>
-        <button class="btn btn-danger" v-on:click="cancel(collection)">Cancel</button>
-    </div>
-    <div v-else>
-      <h1>{{collection.name}}</h1>
-      <p><strong>{{collection.description}}</strong></p>
-      <b-input-group v-show="collection.uid !== 'all'">
-        <button class="btn btn-primary" v-on:click="edit()">EDIT</button>
-        <button class="btn btn-danger" v-on:click="remove(collection)">Delete</button>
-      </b-input-group>
-    </div> -->
-
-
     <hr>
+
     <div v-if="entities.length > 0" class="collection-group">
       <h4>Entities</h4>
       <div class="grid">
@@ -106,37 +94,24 @@
     </div>
 
   </i-layout-section>
-</i-layout>
 </template>
 
 <script>
 import Collection from '@/models/Collection';
-import CollectionList from './modules/CollectionList';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
-import BaseTabs from './base/BaseTabs';
 
 export default {
   data: () => ({
-    search: '',
     tab: {},
     editMode: false,
     collection: new Collection(),
   }),
+  components: {
+    SearchResultsListItem,
+    SearchResultsTilesItem,
+  },
   computed: {
-    // collectionName() {
-    //   return this.collection.name;
-    // },
-    // collectionsSortOrder: {
-    //   get() {
-    //     return this.$store.getters['collections/collectionsSortOrder'];
-    //   },
-    //   set(collectionsSortOrder) {
-    //     this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
-    //       collectionsSortOrder,
-    //     });
-    //   },
-    // },
     tabs() {
       return [
         {
@@ -156,13 +131,12 @@ export default {
         },
       ];
     },
-    user() {
-      return this.$store.getters['user/user'];
-    },
-    collections: {
+    displayStyle: {
       get() {
-        return this.$store.getters['collections/collections'].filter(
-          c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
+        return this.$store.state.search.displayStyle;
+      },
+      set(displayStyle) {
+        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
     pages: {
@@ -185,81 +159,30 @@ export default {
         return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
       },
     },
-    collectionAll: {
-      get() {
-        let articles = 0;
-        let entities = 0;
-        let issues = 0;
-        let pages = 0;
-
-        this.collections.forEach((item) => {
-          articles += item.countArticles;
-          entities += item.countEntities;
-          issues += item.countIssues;
-          pages += item.countPages;
-        });
-
-        return new Collection({
-          uid: 'all',
-          name: 'All Collections',
-          description: 'This shows a combination of all your custom collections',
-          countArticles: articles,
-          countEntities: entities,
-          countPages: pages,
-          countIssues: issues,
-        });
-      },
-    },
   },
   mounted() {
-    // if (!this.user()) {
-    //   console.log('no user!');
-    //   this.$router.push({ name: 'user', params: 'login' });
-    // }
-    this.$store.commit('SET_HEADER_TITLE', {
-      subtitle: this.$t('collections'),
-      title: `@${this.user.username}`,
-    });
-    this.fetch().then(() => {
-      // console.log('fetched', res);
-      // return this.$store.dispatch('collections/LOAD_COLLECTION');
-    //   this.collection = this.$store;
-    //   console.log(this.collection);
-    //   this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
-    //     this.collection = res;
-    //   });
-    //   this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
-    //     this.collectionAll);
-    });
+    this.getCollection();
   },
-  components: {
-    BaseTabs,
-    CollectionList,
-    SearchResultsListItem,
-    SearchResultsTilesItem,
+  watch: {
+    $route() {
+      this.getCollection();
+    },
   },
   methods: {
-    fetch() {
-      return this.$store.dispatch('collections/LOAD_COLLECTIONS');
+    getCollection() {
+      this.collection = {
+        uid: this.$route.params.collection_uid,
+        items: [],
+      };
+
+      this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
+        this.collection = res;
+        this.$store.commit('SET_HEADER_TITLE', {
+          subtitle: this.collection.name,
+          title: this.$t('Collection'),
+        });
+      });
     },
-    // select(collection) {
-    //   this.editMode = false;
-    //
-    //   this.$router.push({
-    //     name: 'collection',
-    //     params: {
-    //       collection_uid: collection.uid !== '' ? collection.uid : undefined,
-    //     },
-    //   });
-    //
-    //   this.collection = collection;
-    //
-    //   if (collection.uid !== 'all' && collection.uid !== '') {
-    //     this.$store.dispatch('collections/LOAD_COLLECTION', collection).then((res) => {
-    //       this.collection = res;
-    //     });
-    //   }
-    // },
     gotoArticle(article) {
       this.$router.push({
         name: 'article',
@@ -271,21 +194,8 @@ export default {
         },
       });
     },
-    // cancel() {
-    //   this.fetch().then(() => {
-    //     // this.select(collection);
-    //     this.editMode = false;
-    //   });
-    // },
-    // add() {
-    //   this.select(new Collection());
-    //   this.editMode = true;
-    // },
-    // edit() {
-    //   this.editMode = true;
-    // },
     remove(collection) {
-      const sure = confirm(this.$t('confirm_delete'));
+      const sure = confirm(this.$t('confirm_delete', [collection.name]));
       if (sure) {
         this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then((res) => {
           console.log(`Collection "${collection.name}" deleted. `, res);
@@ -334,26 +244,13 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
-#UserCollectionPage {
-    .collection-group {
-        margin-bottom: 45px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid black;
-
-        h4 {
-            }
-        .grid {
-            display: grid;
-            grid-gap: 15px;
-            grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
-            .item {
-                .os-viewer {
-                    height: 150px;
-                    width: 100%;
-                }
-            }
-        }
+<style lang="scss">
+.navbar-nav {
+    flex-direction: row;
+    align-items: center;
+    label {
+      margin-bottom: 0;
+      line-height: 1.5;
     }
 }
 </style>
@@ -362,13 +259,12 @@ export default {
 {
   "en": {
     "collections": "collections",
+    "label_display": "Display As",
+    "display_button_list": "List",
+    "display_button_tiles": "Tiles",
+    "articles_in": "No articles in | One article in | {n} articles in",
     "delete_collection": "Delete Collection",
-    "confirm_delete": "Are you sure you want to delete {collection.name}?",
-    "tabs": {
-        "collections": "My Collections",
-        "searches": "My Searches",
-        "labels": "My Labels"
-    }
+    "confirm_delete": "Are you sure you want to delete collection '{0}'?"
   },
   "nl": {
     "collections": "Sammelingen",
