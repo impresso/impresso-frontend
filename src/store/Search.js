@@ -1,6 +1,7 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
 import Bucket from '@/models/Bucket';
+import Topic from '@/models/Topic';
 import Collection from '@/models/Collection';
 import QueryComponent from '@/models/QueryComponent';
 import Match from '@/models/Match';
@@ -23,7 +24,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['newspaper', 'language'], // this also sets the order of the filters
+    facetTypes: ['newspaper', 'language', 'topic'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
   },
   getters: {
@@ -191,20 +192,32 @@ export default {
               if (res.info.facets && res.info.facets.language) {
                 const facet = new Facet({
                   type: 'language',
-                  buckets: res.info.facets.language.buckets,
+                  buckets: res.info.facets.language.buckets.map(bucket => ({
+                    ...bucket,
+                    item: {
+                      ...bucket.item,
+                      uid: bucket.val,
+                    },
+                  })),
                 });
 
                 context.commit('ADD_FACET', facet);
+              }
 
-                const FilterFacet = FilterFactory.create(facet);
+              // add topic facet/filter
+              if (res.info.facets && res.info.facets.topic) {
+                const facet = new Facet({
+                  type: 'topic',
+                  buckets: res.info.facets.topic.buckets.map(bucket => ({
+                    ...bucket,
+                    item: new Topic({
+                      ...bucket.item,
+                      uid: bucket.val,
+                    }),
+                  })),
+                });
 
-                if (res.info.filters.findIndex(filter => filter.type === 'language') === -1) {
-                  FilterFacet.untouch();
-                } else {
-                  FilterFacet.touch();
-                }
-
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
+                context.commit('ADD_FACET', facet);
               }
 
               // add newspaper facet/filter
@@ -227,16 +240,6 @@ export default {
                 });
 
                 context.commit('ADD_FACET', facet);
-
-                const FilterFacet = FilterFactory.create(facet);
-
-                if (res.info.filters.findIndex(filter => filter.type === 'newspaper') === -1) {
-                  FilterFacet.untouch();
-                } else {
-                  FilterFacet.touch();
-                }
-
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacet);
               }
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
@@ -295,7 +298,7 @@ export default {
                   }),
                 });
 
-                context.commit('ADD_FACET', facet);
+                // context.commit('ADD_FACET', facet);
 
                 const FilterFacetYear = FilterFactory.create({
                   ...context.getters.getSearch.filters.find(filter => filter.type === 'year'),
