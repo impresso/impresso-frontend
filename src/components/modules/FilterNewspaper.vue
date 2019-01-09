@@ -3,7 +3,7 @@
     <div slot="settings">
       <filter-setting-context v-model="filter" />
     </div>
-    <span v-html="filter.newspaper.uid" />
+    <span v-html="filter.newspaper.name" />
   </filter-wrapper>
 </template>
 
