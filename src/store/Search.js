@@ -226,16 +226,7 @@ export default {
                   type: 'newspaper',
                   buckets: res.info.facets.newspaper.buckets.map(bucket => ({
                     ...bucket,
-                    item: new Newspaper({
-                      ...bucket.item,
-                      name: bucket.item.title,
-                      countArticles: bucket.item.count_articles,
-                      countIssues: bucket.item.count_issues,
-                      countPages: bucket.item.count_pages,
-                      deltaYear: bucket.item.delta_year,
-                      endYear: bucket.item.end_year,
-                      startYear: bucket.item.start_year,
-                    }),
+                    item: new Newspaper(bucket.item),
                   })),
                 });
 
