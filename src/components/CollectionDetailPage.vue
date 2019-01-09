@@ -1,37 +1,31 @@
 <template lang="">
   <i-layout-section class="p-3" v-if="$route.params.collection_uid">
 
-    <label class="px-3" for="collectionName">Name</label>
-    <div  class="input-group input-group-sm px-3 mb-3">
-      <input type="text" name="collectionName" class="form-control"
-        v-model="collection.name"
-        >
-      <div class="input-group-append">
-        <b-button variant="outline-primary" size="sm"
-          v-on:click="save(collection)"
-          >
-          {{ $t('update') }}
-        </b-button>
-      </div>
-    </div>
+    <b-dropdown right class="float-right m-3" size="sm" variant="outline-primary" text="Edit / Delete Collection">
 
-    <label class="px-3" for="collectionDesc">Description</label>
-    <div class="input-group input-group-sm px-3 mb-3">
-      <textarea type="text" name="collectionDesc" class="form-control"
-        v-model="collection.description"
-        />
-      <div class="input-group-append">
-        <b-button variant="outline-primary" size="sm"
-          v-on:click="save(collection)"
-          >
-          {{ $t('update') }}
-        </b-button>
-      </div>
-    </div>
+      <div class="modal-edit px-3 background-light">
 
-    <b-button variant="outline-danger" size="sm" class="p-2 m-3 float-right"
-      v-on:click="remove(collection)">{{ $t('delete_collection') }}
-    </b-button>
+        <label for="collectionName">Name</label>
+        <input type="text" name="collectionName" class="form-control mb-3"
+          v-model="collection.name">
+
+        <label for="collectionDesc">Description</label>
+        <textarea type="text" name="collectionDesc" class="form-control"
+          v-model="collection.description" />
+
+        <b-button variant="outline-primary" size="sm" class="form-control mt-3"
+          v-on:click="save(collection)">{{ $t('edit_collection') }}
+        </b-button>
+
+        <b-button variant="outline-danger" size="sm" class="form-control mt-3"
+          v-on:click="remove(collection)">{{ $t('delete_collection') }}
+        </b-button>
+
+      </div>
+
+    </b-dropdown>
+
+
 
     <div v-if="articles.length > 0" class="collection-group">
       <h4 class="p-3">{{ $tc('articles_in', articles.length) }} <em>{{collection.name}}</em></h4>
@@ -64,9 +58,8 @@
       </b-container>
     </div>
 
-    <hr>
-
     <div v-if="entities.length > 0" class="collection-group">
+      <hr>
       <h4>Entities</h4>
       <div class="grid">
         <div class="item" v-for="entity in entities">
@@ -104,7 +97,6 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 export default {
   data: () => ({
     tab: {},
-    editMode: false,
     collection: new Collection(),
   }),
   components: {
@@ -112,25 +104,6 @@ export default {
     SearchResultsTilesItem,
   },
   computed: {
-    tabs() {
-      return [
-        {
-          label: this.$t('tabs.collections'),
-          name: 'collections',
-          active: true,
-        },
-        {
-          label: this.$t('tabs.searches'),
-          name: 'searches',
-          disabled: true,
-        },
-        {
-          label: this.$t('tabs.labels'),
-          name: 'labels',
-          disabled: true,
-        },
-      ];
-    },
     displayStyle: {
       get() {
         return this.$store.state.search.displayStyle;
@@ -245,6 +218,9 @@ export default {
 </script>
 
 <style lang="scss">
+.modal-edit {
+  width: 400px;
+}
 .navbar-nav {
     flex-direction: row;
     align-items: center;
@@ -263,6 +239,7 @@ export default {
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "articles_in": "No articles in | One article in | {n} articles in",
+    "edit_collection": "Update Collection",
     "delete_collection": "Delete Collection",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?"
   },
