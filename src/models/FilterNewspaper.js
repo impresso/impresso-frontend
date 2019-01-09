@@ -1,5 +1,5 @@
-import Bucket from '@/models/Bucket';
 import Filter from '@/models/FilterBase';
+import Newspaper from '@/models/Newspaper';
 /**
  * FilterEntity object
  * @param {Object} bucket The bucket
@@ -8,22 +8,17 @@ import Filter from '@/models/FilterBase';
  * @param {Boolean} touched wether the user has interacted with the filter
  */
 
-export default class FilterFacet extends Filter {
+export default class FilterNewspaper extends Filter {
   constructor(args) {
     super(args);
-
-    if (args.bucket instanceof Bucket) {
-      this.bucket = args.bucket;
-    } else {
-      this.bucket = new Bucket(args.bucket);
-    }
+    this.newspaper = new Newspaper(args.item);
   }
 
   getQuery() {
     return {
       context: this.context,
       type: this.type,
-      q: this.bucket.val,
+      q: this.newspaper.uid,
     };
   }
 }

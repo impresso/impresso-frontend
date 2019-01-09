@@ -1,7 +1,9 @@
 import FilterEntity from '@/models/FilterEntity';
 import FilterString from '@/models/FilterString';
 import FilterRegex from '@/models/FilterRegex';
-import FilterFacet from '@/models/FilterFacet';
+import FilterNewspaper from '@/models/FilterNewspaper';
+import FilterTopic from '@/models/FilterTopic';
+import FilterLanguage from '@/models/FilterLanguage';
 import FilterFacetYear from '@/models/FilterFacetYear';
 import FilterDaterange from '@/models/FilterDaterange';
 
@@ -32,8 +34,16 @@ export default {
       filter = new FilterEntity(filterData);
     }
 
-    if (filterData.type === 'language' || filterData.type === 'newspaper') {
-      filter = new FilterFacet(filterData);
+    if (filterData.type === 'language') {
+      filter = new FilterLanguage(filterData);
+    }
+
+    if (filterData.type === 'newspaper') {
+      filter = new FilterNewspaper(filterData);
+    }
+
+    if (filterData.type === 'topic') {
+      filter = new FilterTopic(filterData);
     }
 
     if (filterData.type === 'year') {
