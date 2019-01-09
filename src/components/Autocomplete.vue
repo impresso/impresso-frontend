@@ -20,13 +20,16 @@
         </div>
       </div>
       <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion" v-bind:class="{selected: selected === s}">
-        <div v-if="s.type === 'regex'" class="sugggestion-regex">
+        <div v-if="s.type === 'regex'" class="suggestion-regex">
           <b-badge>{{$t('regex')}}</b-badge> {{s.query}}
         </div>
-        <div href="#" v-if="s.type === 'mention'" class="sugggestion-mention">
+        <div href="#" v-if="s.type === 'mention'" class="suggestion-mention">
           <b-badge>{{$t(s.item.type)}}</b-badge> <span v-html="s.h" />
         </div>
-        <div href="#" v-if="s.type === 'entity'" class="sugggestion-entity">
+        <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
+          <b-badge>{{$t('topic')}}</b-badge> <span v-html="s.h" />
+        </div>
+        <div href="#" v-if="s.type === 'entity'" class="suggestion-entity">
           <b-badge>{{$t(s.item.type)}}</b-badge> <span v-html="s.h" />
         </div>
         <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
@@ -147,6 +150,7 @@ export default {
       .badge {
         float: right;
         margin-top: 3px;
+        margin-left: 7px;
       }
       &:hover,
       &.selected {
@@ -163,12 +167,14 @@ export default {
       "person": "Person",
       "location": "Location",
       "regex": "Regex",
-      "daterange": "Date Range"
+      "daterange": "Date Range",
+      "topic": "Topic"
     },
     "nl": {
       "person": "Persoon",
       "location": "Locatie",
-      "daterange": "Periode"
+      "daterange": "Periode",
+      "topic": "Onderwerp"
     }
   }
 </i18n>
