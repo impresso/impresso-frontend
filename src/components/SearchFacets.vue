@@ -1,19 +1,32 @@
 <template lang="html">
   <div id="search-facets" class="px-4">
-    <div v-for="facet in facets">
+    <div v-for="(facet, index) in facets">
       <base-title-bar>{{facet.type}}</base-title-bar>
-      <b-button
-        v-on:click="submitFacet(facet, bucket)"
-        class="mr-2 mb-2"
-        v-for="bucket in facet.buckets"
-        variant="secondary"
-        size="sm">{{bucket.val}} ({{$n(bucket.count)}})</b-button>
+      <facet-language
+        v-if="facet.type === 'language'"
+        v-model="facets[index]"
+        v-on:submit="submitFacet"
+      />
+      <facet-topic
+        v-else-if="facet.type === 'topic'"
+        v-model="facets[index]"
+        v-on:submit="submitFacet"
+      />
+      <facet-newspaper
+        v-else-if="facet.type === 'newspaper'"
+        v-model="facets[index]"
+        v-on:submit="submitFacet"
+      />
     </div>
   </div>
 </template>
 
 <script>
+
 import SuggestionFactory from '@/models/SuggestionFactory';
+import FacetLanguage from './modules/FacetLanguage';
+import FacetTopic from './modules/FacetTopic';
+import FacetNewspaper from './modules/FacetNewspaper';
 import BaseTitleBar from './base/BaseTitleBar';
 
 export default {
@@ -64,6 +77,9 @@ export default {
   },
   components: {
     BaseTitleBar,
+    FacetLanguage,
+    FacetNewspaper,
+    FacetTopic,
   },
 };
 </script>
