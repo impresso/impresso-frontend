@@ -6,6 +6,7 @@
     </div>
     <div class="py-4">
       <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
+      <search-facets v-on:submit-facet="onFacet" />
     </div>
     <div slot="footer">
       <b-button-group class="d-flex bg-white">
@@ -70,6 +71,7 @@ import FilterFactory from '@/models/FilterFactory';
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
+import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
@@ -185,6 +187,10 @@ export default {
       this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
       this.search(1);
     },
+    onFacet(facet) {
+      this.$store.commit('search/ADD_FILTER', FilterFactory.create(facet));
+      this.search(1);
+    },
     onInputPagination(page = 1) {
       this.search(page);
     },
@@ -217,6 +223,7 @@ export default {
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-filters': SearchFilters,
+    'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
   },
   mounted() {
