@@ -3,7 +3,7 @@
     <div slot="settings">
       <filter-setting-context v-model="filter" />
     </div>
-    <span v-html="filter.language.uid" />
+    {{$t(`languages.${filter.language.uid}`)}}
   </filter-wrapper>
 </template>
 
