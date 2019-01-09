@@ -26,7 +26,7 @@
         <div href="#" v-if="s.type === 'mention'" class="sugggestion-mention">
           <b-badge>{{$t(s.item.type)}}</b-badge> <span v-html="s.h" />
         </div>
-        <div href="#" v-if="s.type === 'topic'" class="sugggestion-mention">
+        <div href="#" v-if="s.type === 'topic'" class="sugggestion-topic">
           <b-badge>{{$t('topic')}}</b-badge> <span v-html="s.h" />
         </div>
         <div href="#" v-if="s.type === 'entity'" class="sugggestion-entity">
