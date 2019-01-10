@@ -1,30 +1,36 @@
 <template lang="">
   <i-layout-section class="p-3" v-if="$route.params.collection_uid">
 
-    <b-dropdown right class="float-right m-3" size="sm" variant="outline-primary" text="Edit / Delete Collection">
+    <div class="float-right m-3">
 
-      <div class="modal-edit px-3 background-light">
+      <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
 
-        <label for="collectionName">Name</label>
-        <input type="text" name="collectionName" class="form-control mb-3"
-          v-model="collection.name">
+        <div class="modal-edit px-3 background-light">
 
-        <label for="collectionDesc">Description</label>
-        <textarea type="text" name="collectionDesc" class="form-control"
-          v-model="collection.description" />
+          <label for="collectionName">Name</label>
+          <input type="text" name="collectionName" class="form-control mb-3"
+            v-model="collection.name">
 
-        <b-button variant="outline-primary" size="sm" class="form-control mt-3"
-          v-on:click="save(collection)">{{ $t('edit_collection') }}
-        </b-button>
+          <label for="collectionDesc">Description</label>
+          <textarea type="text" name="collectionDesc" class="form-control"
+            v-model="collection.description" />
 
-        <b-button variant="outline-danger" size="sm" class="form-control mt-3"
-          v-on:click="remove(collection)">{{ $t('delete_collection') }}
-        </b-button>
+          <b-button variant="outline-primary" size="sm" class="form-control mt-3"
+            v-on:click="save(collection)">{{ $t('edit_collection') }}
+          </b-button>
 
-      </div>
+        </div>
 
-    </b-dropdown>
+      </b-dropdown>
 
+      <b-button variant="outline-danger" size="sm"
+        v-on:click="remove(collection)">{{ $t('delete_collection') }}
+      </b-button>
+
+    </div>
+
+    <div class="clearfix">
+    </div>
 
 
     <div v-if="articles.length > 0" class="collection-group">
