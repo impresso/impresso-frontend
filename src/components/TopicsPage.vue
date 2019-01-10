@@ -2,7 +2,7 @@
   <i-layout id="TopicsPage">
     <i-layout-section width="400px" class="border-right ">
       <div slot="header">
-        <div class='p-3 border-bottom'>
+        <div class='p-3 border-bottom bg-light'>
           <b-input placeholder="filter topics ..." v-model.trim='q' class='my-3'></b-input>
 
           <label>{{ $t('select model') }}</label>
