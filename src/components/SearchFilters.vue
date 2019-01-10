@@ -6,8 +6,6 @@
         v-model="filters[index]"
         v-on:input="updateFilter"
         v-on:remove="submitFilter" />
-    </div>
-    <div v-for="(filter, index) in filters">
       <filter-string
         v-if="filter.type.toLowerCase() === 'string'"
         v-model="filters[index]"
@@ -16,6 +14,24 @@
         v-on:remove="removeFilter(index)" />
       <filter-regex
         v-if="filter.type.toLowerCase() === 'regex'"
+        v-model="filters[index]"
+        v-on:input="updateFilter(index, filter)"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)" />
+      <filter-topic
+        v-if="filter.type.toLowerCase() === 'topic'"
+        v-model="filters[index]"
+        v-on:input="updateFilter(index, filter)"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)" />
+      <filter-language
+        v-if="filter.type.toLowerCase() === 'language'"
+        v-model="filters[index]"
+        v-on:input="updateFilter(index, filter)"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)" />
+      <filter-newspaper
+        v-if="filter.type.toLowerCase() === 'newspaper'"
         v-model="filters[index]"
         v-on:input="updateFilter(index, filter)"
         v-on:submit="submitFilter"
@@ -31,38 +47,27 @@
         v-on:submit="submitFilter"
         v-on:remove="removeFilter(index)" />
     </div>
-    <div v-for="(filter, index) in filters">
-      <filter-facet
-        v-if="facetTypes.includes(filter.type.toLowerCase()) && filter.type !== 'year'"
-        v-model="filters[index]"
-        v-on:input="updateFilter(index, filter)"
-        v-on:remove="submitFilter"
-        />
-    </div>
   </div>
 </template>
 
 <script>
-import FilterFacet from './modules/FilterFacet';
 import FilterFacetYear from './modules/FilterFacetYear';
 import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterRegex from './modules/FilterRegex';
+import FilterTopic from './modules/FilterTopic';
+import FilterLanguage from './modules/FilterLanguage';
+import FilterNewspaper from './modules/FilterNewspaper';
 import FilterString from './modules/FilterString';
 
 export default {
   data: () => ({
-    filtersOrder: ['string', 'regex', 'entity', 'daterange'],
+    filtersOrder: ['year', 'string', 'regex', 'entity', 'topic', 'daterange', 'newspaper', 'language'],
   }),
   computed: {
     search: {
       get() {
         return this.$store.getters['search/getSearch'];
-      },
-    },
-    facetTypes: {
-      get() {
-        return this.$store.state.search.facetTypes;
       },
     },
     filters: {
@@ -85,9 +90,6 @@ export default {
     },
   },
   methods: {
-    getFacet(type) {
-      return this.$store.getters['search/facets'].find(facet => facet.type === type);
-    },
     updateFilter(index, filter) {
       this.$store.commit('search/UPDATE_FILTER', {
         index,
@@ -108,8 +110,10 @@ export default {
     'filter-regex': FilterRegex,
     'filter-named-entity': FilterNamedEntity,
     'filter-date-range': FilterDateRange,
-    'filter-facet': FilterFacet,
     'filter-facet-year': FilterFacetYear,
+    'filter-topic': FilterTopic,
+    'filter-newspaper': FilterNewspaper,
+    'filter-language': FilterLanguage,
   },
 };
 </script>
