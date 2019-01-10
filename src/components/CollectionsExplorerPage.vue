@@ -14,7 +14,7 @@
           <b-col class="text-right">
             <label class="mr-2">{{$t("label_display")}}</label>
             <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+              <b-form-radio disabled value="list">{{$t("display_button_list")}}</b-form-radio>
               <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
             </b-form-radio-group>
           </b-col>
@@ -22,13 +22,13 @@
       </b-container>
 
       <b-container fluid>
-        <b-row v-if="displayStyle === 'list'">
+        <b-row v-if="displayStyle === 'list-not-implemented-because-buggy'">
           <b-col cols="12" v-for="(article, index) in articles">
             <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
           </b-col>
         </b-row>
 
-        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+        <b-row class="pb-5">
           <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, index) in articles">
             <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
             <!-- {{ article }} -->
