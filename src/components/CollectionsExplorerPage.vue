@@ -3,7 +3,6 @@
     <div class="mx-3">
       <h1>Collected items</h1>
       <p>List all items in all collections. (Currently limited to articles)</p>
-      <!-- <pre>{{ this.collectionAll.items.filter(item => (item.labels && item.labels[0] === 'article')) }}</pre> -->
     </div>
 
     <div class="collection-group">
@@ -70,12 +69,6 @@ export default {
         return this.$store.getters['collections/collections'];
       },
     },
-    // collections: {
-    //   get() {
-    //     return this.$store.getters['collections/collections'].filter(
-    //       c => c.name.toLowerCase().indexOf(this.search.toLowerCase()) !== -1);
-    //   },
-    // },
     collectionAll: {
       get() {
         let articles = 0;

@@ -50,10 +50,6 @@ export default {
     },
   },
   mounted() {
-    // if (!this.user()) {
-    //   console.log('no user!');
-    //   this.$router.push({ name: 'user', params: 'login' });
-    // }
     this.$store.commit('SET_HEADER_TITLE', {
       subtitle: this.$t('collections'),
       title: `@${this.user.username}`,

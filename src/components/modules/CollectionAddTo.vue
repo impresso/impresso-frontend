@@ -82,7 +82,6 @@ export default {
       this.isDisabled = (this.inputString.trim().length > 4);
     },
     isActive(needle) {
-      // console.log(this.item, needle.uid);
       if (!this.item.collections) {
         return false;
       }
@@ -129,14 +128,7 @@ export default {
   },
   mounted() {
     this.fetch();
-    // this.fetch().then(() => {
-    //   this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
-    //     this.collectionAll);
-    // });
   },
-  // components: {
-  //   Icon,
-  // },
 };
 </script>
 

@@ -185,9 +185,7 @@ export default {
       if (sure) {
         this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then((res) => {
           console.log(`Collection "${collection.name}" deleted. `, res);
-          this.fetch().then(() => {
-            // this.select(this.collectionAll);
-          });
+          this.fetch();
         });
       }
     },
@@ -199,10 +197,7 @@ export default {
           name: collection.name,
           description: collection.description,
         }).then((res) => {
-          console.log(res);
-          this.fetch().then(() => {
-            // this.select(collection); // select the edited item
-          });
+          this.fetch();
         });
       } else {
         this.$store.dispatch('collections/ADD_COLLECTION', {
