@@ -10,7 +10,7 @@ export default class Graph extends EventEmitter {
       bottom: 10,
       left: 10,
     },
-    nodeRadius = 4,
+    nodeRadius = 6,
     delay = 15000,
     nodeLabel = d => d.id,
   } = {}) {
@@ -108,12 +108,6 @@ export default class Graph extends EventEmitter {
     this.nodesLayer.exit().remove();
     this.nodesLayer = this.nodesLayer.enter().append('g')
       .attr('class', d => d.type)
-      .on('mouseenter', (datum) => {
-        this.emit('node.mouseenter', datum);
-      })
-      .on('mouseleave', (datum) => {
-        this.emit('node.mouseleave', datum);
-      })
       .call(d3.drag()
         .on('start', datum => this.onDragStarted(datum))
         .on('drag', datum => this.onDragged(datum))
@@ -126,7 +120,13 @@ export default class Graph extends EventEmitter {
       .text(this.nodeLabel);
 
     this.nodesLayer.append('circle')
-      .attr('r', d => d.r);
+      .attr('r', d => d.r)
+      .on('mouseenter', (datum) => {
+        this.emit('node.mouseenter', datum);
+      })
+      .on('mouseleave', (datum) => {
+        this.emit('node.mouseleave', datum);
+      });
 
 
     this.linksLayer = this.linksLayer.data(this.links); // , d => `${d.source.id}-${d.target.id}`);
