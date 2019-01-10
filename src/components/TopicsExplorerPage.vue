@@ -10,6 +10,7 @@
 
     <div class="d3-graph-wrapper small-caps">
       <div id="d3-graph" class="border-bottom" ></div>
+      <tooltip v-model="tooltip" />
     </div>
     <!--  -->
     <div class="p-3 pt-2">
@@ -27,11 +28,18 @@
 <script>
 import Topic from '@/models/Topic';
 import Graph from '@/d3-modules/Graph';
+import Tooltip from './modules/tooltips/TopicsExplorerTooltip';
 
 export default {
   data: () => ({
     submitted: false,
     topic: new Topic(),
+    tooltip: {
+      x: 0,
+      y: 0,
+      count: 0,
+      isActive: false,
+    },
   }),
   computed: {
     topicModel() {
@@ -41,64 +49,39 @@ export default {
       return this.$route.params.topic_uid;
     },
   },
-  mounted() {
+  async mounted() {
     this.$store.commit('SET_HEADER_TITLE', {
       title: 'topics',
     });
+
+    const topicsGraph = await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH');
 
     this.graph = new Graph({
       element: '#d3-graph',
     });
 
     this.graph
+
       .on('node.mouseleave', (d) => {
         console.log('node.mouseleave', d);
+        this.tooltip = {
+          ...d,
+          isActive: false,
+        };
       })
       .on('node.mouseenter', (d) => {
         console.log('node.mouseenter', d);
+        this.tooltip = {
+          x: d.x,
+          y: d.y,
+          item: d,
+          isActive: true,
+        };
       });
 
     this.graph.update({
-      nodes: [
-        {
-          id: 'Agricultural \'waste\'',
-          w: 10,
-        },
-        {
-          id: 'Bio-conversion',
-          w: 9,
-        },
-        {
-          id: 'Liquid',
-          w: 7,
-        },
-        {
-          id: 'Biofuel imports',
-          w: 1,
-        },
-      ],
-      links: [
-        {
-          source: 0,
-          target: 1,
-          w: 2,
-        },
-        {
-          source: 1,
-          target: 2,
-          w: 1,
-        },
-        {
-          source: 1,
-          target: 3,
-          w: 3,
-        },
-        {
-          source: 0,
-          target: 3,
-          w: 2,
-        },
-      ],
+      nodes: topicsGraph.nodes,
+      links: topicsGraph.links,
     });
   },
   watch: {
@@ -118,14 +101,15 @@ export default {
     // },
   },
   components: {
-    // Autocomplete,
+    Tooltip,
   },
 };
 </script>
 
 <style  lang="scss">
 .d3-graph-wrapper{
-  height: 60%;
+  height: 90%;
+  position: relative;
 }
 
 #d3-graph{
@@ -133,6 +117,9 @@ export default {
 
   line {
     stroke: darkgrey;
+  }
+  text{
+    pointer-events: none;
   }
 }
 </style>
