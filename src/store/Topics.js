@@ -89,30 +89,36 @@ export default {
         });
       });
     },
-    LOAD_ARTICLES(context, uid, params = {}) {
+    LOAD_ARTICLES(context, {
+      topicUid,
+      page,
+      limit,
+      filters = [],
+    } = {}) {
       return new Promise((resolve) => {
+        const query = {
+          group_by: 'articles',
+          page,
+          limit,
+          facets: ['topic', 'newspaper'],
+          filters: [
+            {
+              type: 'topic',
+              context: 'include',
+              q: topicUid,
+            },
+          ].concat(filters),
+        };
+
         services.search.find({
-          query: {
-            group_by: 'articles',
-            page: params.page || 1,
-            facets: ['year', 'topic'],
-            filters: [
-              {
-                type: 'topic',
-                context: 'include',
-                q: uid,
-              },
-            ],
-          },
+          query,
         }).then((res) => {
-          // wrap articles
-          console.log('REULTTTTTT', uid, res);
           resolve({
             ...res,
             data: res.data.map(d => new Article(d)),
           });
         }).catch((err) => {
-          console.log('error', uid, err);
+          console.log('error', topicUid, err);
         });
       });
     },
