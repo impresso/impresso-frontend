@@ -1,6 +1,11 @@
 <template lang="">
   <i-layout-section class="p-3" v-if="$route.params.collection_uid">
 
+    <div class="float-left mx-3">
+      <h1>{{collection.name}}</h1>
+      <p>{{collection.description}}</p>
+    </div>
+
     <div class="float-right m-3">
 
       <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
@@ -34,19 +39,21 @@
 
 
     <div v-if="articles.length > 0" class="collection-group">
-      <h4 class="p-3">{{ $tc('articles_in', articles.length) }} <em>{{collection.name}}</em></h4>
 
-      <b-navbar>
-        <b-navbar-nav>
-          <label class="mr-2">{{$t("label_display")}}</label>
-          <b-nav-form>
+      <b-container class="p-3 border-bottom border-top">
+        <b-row>
+          <b-col class="text-muted mt-1">
+            <b>{{ $tc('articles', articles.length) }}</b>
+          </b-col>
+          <b-col class="text-right">
+            <label class="mr-2">{{$t("label_display")}}</label>
             <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
               <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
               <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
             </b-form-radio-group>
-          </b-nav-form>
-        </b-navbar-nav>
-      </b-navbar>
+          </b-col>
+        </b-row>
+      </b-container>
 
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
@@ -244,7 +251,7 @@ export default {
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
-    "articles_in": "No articles in | One article in | {n} articles in",
+    "articles": "No articles | One article | {n} articles",
     "edit_collection": "Update Collection",
     "delete_collection": "Delete Collection",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?"
