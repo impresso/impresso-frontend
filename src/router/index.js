@@ -45,6 +45,7 @@ export default new Router({
   },
   {
     path: '/user/dashboard',
+    redirect: '/collections',
     name: 'dashboard',
     component: UserDashboardPage,
     meta: {
