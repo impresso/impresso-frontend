@@ -196,7 +196,7 @@ export default {
           uid: collection.uid,
           name: collection.name,
           description: collection.description,
-        }).then((res) => {
+        }).then(() => {
           this.fetch();
         });
       } else {
