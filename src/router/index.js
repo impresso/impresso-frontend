@@ -56,10 +56,10 @@ export default new Router({
     path: '/collections',
     component: CollectionsPage,
     name: 'collections',
-      // props: true,
-      // meta: {
-      //   realm: 'user',
-      // },
+    props: true,
+    meta: {
+      realm: 'user',
+    },
     children: [{
       path: '',
       component: CollectionsExplorerPage,
@@ -71,38 +71,7 @@ export default new Router({
       name: 'collection',
     },
     ],
-      // path: '/user/collection/:collection_uid?',
-      // name: 'collection',
-      // component: UserCollectionPage,
-      // props: true,
-      // meta: {
-      //   realm: 'user',
-      // },
   },
-    // {
-    //   path: '/archive/:archive_id',
-    //   component: ArchivePage,
-    //   name: 'archive',
-    //   props: true,
-    // },
-    // {
-    //   path: '/title/:title_id',
-    //   component: TitlePage,
-    //   name: 'title',
-    //   props: true,
-    // },
-    // {
-    //   path: '/issue/:issue_id',
-    //   component: IssuePage,
-    //   name: 'issue',
-    //   props: true,
-    // },
-    // {
-    //   path: '/page/:page_id',
-    //   component: PagePage,
-    //   name: 'page',
-    //   props: true,
-    // },
   {
     path: '/issue/:issue_uid',
     component: IssuePage,
