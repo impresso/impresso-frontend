@@ -19,6 +19,15 @@ export default new Router({
     {
       path: '/',
       name: 'home',
+      beforeEnter: (to, from, next) => {
+        next({
+          name: 'search',
+        });
+      },
+    },
+    {
+      path: '/search',
+      name: 'search',
       component: SearchPage,
     },
     {

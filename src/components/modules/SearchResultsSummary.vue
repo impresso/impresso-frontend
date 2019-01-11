@@ -12,7 +12,7 @@ export default {
     getMessage: {
       get() {
         return this.$t('message', {
-          count: this.totalRows,
+          count: this.$n(this.totalRows),
           terms: this.getStrings(),
           ranges: this.getDateranges(),
         });

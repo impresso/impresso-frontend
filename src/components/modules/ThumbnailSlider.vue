@@ -11,7 +11,7 @@
           <thumbnail-slider-item
             v-bind:tileSources="item.iiif"
             v-bind:bounds="bounds"
-            v-bind:active="page.uid === item.uid"
+            v-bind:active="page.uid === item.uid && displayMode === 'image'"
             ></thumbnail-slider-item>
         </div>
         <span class="page_number">{{item.num}}</span>
@@ -30,6 +30,9 @@ export default {
     issue: new Issue(),
     bounds: false,
     page: new Page(),
+    displayMode: {
+      default: 'image',
+    },
   },
   mounted() {
   },
