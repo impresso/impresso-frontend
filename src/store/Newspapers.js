@@ -6,7 +6,7 @@ export default {
   state: {
     list: {
       orderBy: 'alphabetical',
-      titles: [],
+      newspapers: [],
       query: '',
       pagination: {
         perPage: 100,
@@ -17,7 +17,7 @@ export default {
     detail: {
       orderBy: 'alphabetical',
       issues: [],
-      title: false,
+      newspaper: false,
       pagination: {
         perPage: 12,
         currentPage: 1,
@@ -31,8 +31,8 @@ export default {
     UPDATE_LIST_ORDER_BY(state, orderBy) {
       state.list.orderBy = orderBy;
     },
-    UPDATE_LIST_TITLES(state, titles) {
-      state.list.titles = titles;
+    UPDATE_LIST_NEWSPAPERS(state, newspapers) {
+      state.list.newspapers = newspapers;
     },
     UPDATE_LIST_QUERY(state, query) {
       state.list.query = query;
@@ -53,8 +53,8 @@ export default {
     UPDATE_DETAIL_ISSUES(state, issues) {
       state.detail.issues = issues;
     },
-    UPDATE_DETAIL_TITLE(state, title) {
-      state.detail.title = title;
+    UPDATE_DETAIL_NEWSPAPER(state, newspaper) {
+      state.detail.newspaper = newspaper;
     },
     UPDATE_DETAIL_PAGINATION_PER_PAGE(state, perPage) {
       state.detail.pagination.perPage = parseInt(perPage, 10);
@@ -76,14 +76,14 @@ export default {
       };
 
       return new Promise((resolve, reject) => {
-        services.titles.find({
+        services.newspapers.find({
           query,
         }).then(
           (res) => {
             context.commit('UPDATE_LIST_PAGINATION_TOTAL_ROWS', res.total);
-            context.commit('UPDATE_LIST_TITLES', res.data.map(title => new Newspaper({
-              ...title,
-              properties: title.properties.map((property) => {
+            context.commit('UPDATE_LIST_NEWSPAPERS', res.data.map(newspaper => new Newspaper({
+              ...newspaper,
+              properties: newspaper.properties.map((property) => {
                 const keys = Object.keys(property);
                 property.name = keys[0];
                 return property[keys[0]];
@@ -95,11 +95,11 @@ export default {
         );
       });
     },
-    LOAD_TITLE_ISSUES(context) {
+    LOAD_NEWSPAPER_ISSUES(context) {
       const query = {
         filters: [{
           type: 'newspaper',
-          q: context.state.detail.title.uid,
+          q: context.state.detail.newspaper.uid,
           context: 'include',
         }],
         limit: context.state.detail.pagination.perPage,

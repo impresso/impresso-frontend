@@ -19,14 +19,14 @@
             v-on:keyup.enter="loadList(1)" />
         </div>
       </div>
-      <div v-for="t in titles" class="border-bottom">
+      <div v-for="n in newspapers" class="border-bottom">
         <router-link
           class="px-3 py-2 d-block"
-          v-bind:class="{active: t.uid === titleUid}"
-          v-bind:to="{name: 'titles', params: {title_uid: t.uid}}">
-          <strong>{{t.name}}</strong>
+          v-bind:class="{active: n.uid === newspaperUid}"
+          v-bind:to="{name: 'newspapers', params: {newspaper_uid: n.uid}}">
+          <strong>{{n.name}}</strong>
           <br>
-          ({{t.startYear}} - {{t.endYear}})
+          ({{n.startYear}} - {{n.endYear}})
         </router-link>
       </div>
       <div slot="footer" class="p-2 border-top">
@@ -41,7 +41,7 @@
     <i-layout-section>
       <div slot="header" class="border-bottom">
         <b-navbar type="light" variant="light">
-          {{title.name}}
+          {{newspaper.name}}
         </b-navbar>
       </div>
       <div class="p-4">
@@ -75,16 +75,16 @@
         </b-navbar>
       </div>
       <div class="p-4 border-bottom">
-        <p>Year of first issue<br>{{title.startYear}}</p>
-        <p>Year of last issue<br>{{title.endYear}}</p>
-        <p>Years running<br>{{title.deltaYear}}</p>
+        <p>Year of first issue<br>{{newspaper.startYear}}</p>
+        <p>Year of last issue<br>{{newspaper.endYear}}</p>
+        <p>Years running<br>{{newspaper.deltaYear}}</p>
 
-        <p v-show="title.countArticles">Articles<br>{{title.countArticles}}</p>
-        <p v-show="title.countIssues">Issues<br>{{title.countIssues}}</p>
-        <p v-show="title.countPages">Pages<br>{{title.countPages}}</p>
+        <p v-show="newspaper.countArticles">Articles<br>{{newspaper.countArticles}}</p>
+        <p v-show="newspaper.countIssues">Issues<br>{{newspaper.countIssues}}</p>
+        <p v-show="newspaper.countPages">Pages<br>{{newspaper.countPages}}</p>
       </div>
       <div class="p-4">
-        <p v-for="property in title.properties">{{property.name}}<br>{{property.newspapers_metadata.value}}</p>
+        <p v-for="property in newspaper.properties">{{property.name}}<br>{{property.newspapers_metadata.value}}</p>
       </div>
     </i-layout-section>
   </i-layout>
@@ -99,35 +99,35 @@ export default {
   }),
   computed: {
     paginationList() {
-      return this.$store.state.titles.list.pagination;
+      return this.$store.state.newspapers.list.pagination;
     },
     paginationDetail() {
-      return this.$store.state.titles.detail.pagination;
+      return this.$store.state.newspapers.detail.pagination;
     },
-    titles() {
-      return this.$store.state.titles.list.titles;
+    newspapers() {
+      return this.$store.state.newspapers.list.newspapers;
     },
-    title: {
+    newspaper: {
       get() {
-        return this.$store.state.titles.detail.title;
+        return this.$store.state.newspapers.detail.newspaper;
       },
-      set(title) {
-        this.$store.commit('titles/UPDATE_DETAIL_TITLE', title);
-        this.$store.dispatch('titles/LOAD_TITLE_ISSUES');
+      set(newspaper) {
+        this.$store.commit('newspapers/UPDATE_DETAIL_NEWSPAPER', newspaper);
+        this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
       },
     },
-    titleUid() {
-      return this.$route.params.title_uid;
+    newspaperUid() {
+      return this.$route.params.newspaper_uid;
     },
     issues() {
-      return this.$store.state.titles.detail.issues;
+      return this.$store.state.newspapers.detail.issues;
     },
     query: {
       get() {
-        return this.$store.state.titles.list.query;
+        return this.$store.state.newspapers.list.query;
       },
       set(val) {
-        this.$store.commit('titles/UPDATE_LIST_QUERY', val);
+        this.$store.commit('newspapers/UPDATE_LIST_QUERY', val);
       },
     },
     orderByOptions: {
@@ -155,10 +155,10 @@ export default {
     orderBy: {
       get() {
         // return 'date';
-        return this.$store.state.titles.list.orderBy;
+        return this.$store.state.newspapers.list.orderBy;
       },
       set(val) {
-        this.$store.commit('titles/UPDATE_LIST_ORDER_BY', val);
+        this.$store.commit('newspapers/UPDATE_LIST_ORDER_BY', val);
         this.loadList(1);
       },
     },
@@ -166,20 +166,20 @@ export default {
   methods: {
     loadList(page) {
       if (page !== undefined) {
-        this.$store.commit('titles/UPDATE_LIST_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+        this.$store.commit('newspapers/UPDATE_LIST_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
 
-      return this.$store.dispatch('titles/LOAD_LIST');
+      return this.$store.dispatch('newspapers/LOAD_LIST');
     },
     onInputPaginationList(page = 1) {
       this.loadList(page);
     },
     loadIssues(page) {
       if (page !== undefined) {
-        this.$store.commit('titles/UPDATE_DETAIL_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+        this.$store.commit('newspapers/UPDATE_DETAIL_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
 
-      return this.$store.dispatch('titles/LOAD_TITLE_ISSUES');
+      return this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
     },
     onInputPaginationDetail(page = 1) {
       this.loadIssues(page);
@@ -187,10 +187,10 @@ export default {
   },
   mounted() {
     this.loadList().then((res) => {
-      if (this.$route.params.title_uid === undefined) {
+      if (this.$route.params.newspaper_uid === undefined) {
         this.$router.push({
           params: {
-            title_uid: res.data[0].uid,
+            newspaper_uid: res.data[0].uid,
           },
         });
       }
@@ -202,11 +202,11 @@ export default {
     IssueViewer,
   },
   watch: {
-    titleUid: {
+    newspaperUid: {
       immediate: true,
       handler(val) {
         if (val !== undefined) {
-          this.title = this.titles.find(title => title.uid === this.titleUid);
+          this.newspaper = this.newspapers.find(newspaper => newspaper.uid === this.newspaperUid);
         }
       },
     },
