@@ -25,26 +25,24 @@ export default {
             limit: 500,
           },
         }).then((results) => {
-          // enrich with id
-          const nodes = results.data.map((result) => {
-            const t = new Topic(result);
-            t.id = result.uid;
-            return t;
-          });
-
-          // temporary hack: random connections between nodes
+          // temporary hack: random connections between nodes...
           const links = [];
 
-          nodes.forEach((t, k) => {
-            // number of connections, 1 to 5:
-            const degree = 1 + Math.round(Math.random() * 4);
+          // enrich with id
+          const nodes = results.data.map((result, k) => {
+            const t = new Topic(result);
+            const degree = 1 + Math.round(Math.random() * 3);
             for (let i = 0; i < degree; i += 1) {
-              const idx = Math.round(Math.random() * (nodes.length - 1));
+              const idx = Math.round(Math.random() * (results.data.length - 1));
               links.push({
                 source: k,
                 target: idx,
               });
             }
+            // add vars for graph here
+            t.id = result.uid;
+            t.degree = degree;
+            return t;
           });
 
           resolve({
