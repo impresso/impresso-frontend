@@ -1,6 +1,8 @@
 import * as d3 from 'd3';
 import EventEmitter from 'events';
+import Dimension from './Dimension';
 
+const TYPE_ORDINAL = 'ordinal';
 
 export default class Graph extends EventEmitter {
   constructor({
@@ -13,6 +15,8 @@ export default class Graph extends EventEmitter {
     nodeRadius = 6,
     delay = 15000,
     nodeLabel = d => d.id,
+    // override current behaviour if needed,
+    dimensions = {},
   } = {}) {
     super();
 
@@ -51,8 +55,33 @@ export default class Graph extends EventEmitter {
       .alphaTarget(0.5)
       .on('tick', () => this.tick());
 
-    console.log('init ...');
+    // dimensions dict
+    this.dimensions = {
+      nodeColor: new Dimension({
+        property: 'id',
+        type: Dimension.TYPE_ORDINAL,
+        scale: d3.scaleOrdinal,
+        range: d3.schemeRdYlGn[2],
+      }),
+      ...dimensions,
+    };
+
+    console.log('init ...', this.dimensions.nodeColor.property);
     this.stopSimulation();
+  }
+
+  /**
+   * Set the appropriate property and updete function range.
+   * @param  {String} name key for this.dimensions object
+   * @param  {String} property
+   * @return {null}
+   */
+  updateDimension({ name, property }) {
+    console.log('update dimension', name, property, this.dimensions[name].type, TYPE_ORDINAL);
+    if (this.dimensions[name].type === TYPE_ORDINAL) {
+      const groups = d3.group(this.data, d => d[property]);
+      console.log(groups);
+    }
   }
 
   /**
@@ -84,7 +113,7 @@ export default class Graph extends EventEmitter {
   }
 
   onDragged(datum) {
-    console.log(this.nodes);
+    console.log(this.height);
     datum.fx = d3.event.x;
     datum.fy = d3.event.y;
   }
@@ -102,7 +131,7 @@ export default class Graph extends EventEmitter {
 
   // normally called by this.update
   draw() {
-    console.log('draw', this.nodes);
+    console.log('draw nodes:', this.nodes.length);
 
     this.nodesLayer = this.nodesLayer.data(this.nodes);
     this.nodesLayer.exit().remove();
@@ -113,6 +142,13 @@ export default class Graph extends EventEmitter {
         .on('drag', datum => this.onDragged(datum))
         .on('end', datum => this.onDragEnded(datum)));
 
+    this.nodesLayer.on('mouseenter', (datum) => {
+      this.emit('node.mouseenter', datum);
+    })
+      .on('mouseleave', (datum) => {
+        this.emit('node.mouseleave', datum);
+      });
+
     // add text
     this.nodesLayer.append('text')
       .attr('dx', 25)
@@ -121,13 +157,12 @@ export default class Graph extends EventEmitter {
 
     this.nodesLayer.append('circle')
       .attr('r', d => d.r)
-      .on('mouseenter', (datum) => {
-        this.emit('node.mouseenter', datum);
-      })
-      .on('mouseleave', (datum) => {
-        this.emit('node.mouseleave', datum);
-      });
+      .attr('fill', this.dimensions.nodeColor.accessor());
 
+    this.nodesLayer.append('circle')
+        .attr('class', 'whoosh')
+        // .attr("fill", function(d,i){ return i==0?'magenta':'cyan'})
+        .attr('r', 2);
 
     this.linksLayer = this.linksLayer.data(this.links); // , d => `${d.source.id}-${d.target.id}`);
     this.linksLayer.exit().remove();
@@ -147,7 +182,7 @@ export default class Graph extends EventEmitter {
     links = [],
     nodes = [],
   } = {}) {
-    console.log('graph.update', links, nodes);
+    console.log('graph update. links:', links.length, 'nodes', nodes.length);
     this.links = links;
     // make sure it has all the required properties
     this.nodes = nodes.map(d => ({
@@ -157,6 +192,12 @@ export default class Graph extends EventEmitter {
     }));
     this.draw();
   }
+  //
+  // setDimension(key, dimension) {
+  //
+  //   console.log('setDimension', name, property, this);
+  //   this.draw();
+  // }
 
   /**
    * Set this.with and this.height;
