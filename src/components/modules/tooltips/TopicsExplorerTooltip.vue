@@ -1,17 +1,18 @@
 <template lang="html">
   <div class="tooltip" v-bind:class='{active: tooltip.isActive}' v-bind:style="style">
-    <div class="tooltip-inner p-3 m-2">
+    <div v-if='tooltip.item' class="tooltip-inner p-3 m-2">
       <label>{{ $t('topic')}} &mdash; {{tooltip.item.model}}</label>
       <div>
         <span class='badge'> {{tooltip.item.language}}</span>
-        <b class='sans-serif'>{{tooltip.item.excerpt}}</b></div>
+        <b class='sans-serif'>{{excerpt}} ...</b></div>
     </div>
   </div>
 </template>
 
 <script>
-export default {
+import Topic from '@/models/Topic';
 
+export default {
   model: {
     prop: 'tooltip',
     default: {
@@ -19,7 +20,7 @@ export default {
       y: 0,
       count: 0,
       isActive: false,
-      item: {},
+      item: new Topic(),
     },
   },
   props: ['tooltip', 'isActive'],
@@ -28,6 +29,9 @@ export default {
       return {
         transform: `translate(${this.tooltip.x}px,${this.tooltip.y}px`,
       };
+    },
+    excerpt() {
+      return this.tooltip.item ? this.tooltip.item.excerpt.map(d => d.w).join(' · ') : '';
     },
   },
 };

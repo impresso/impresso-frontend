@@ -93,7 +93,6 @@ export default class Graph extends EventEmitter {
    * @return {null}
    */
   updateDimension({ name, property, values }) {
-    console.log('updateDimension', name, property, values);
     this.dimensions[name].update({
       property,
       values,

@@ -37,8 +37,6 @@ class Dimension {
    * @return {[type]}          [description]
    */
   update({ property, values }) {
-    console.log('dimension update', property, values);
-
     this.property = property;
     this.domain = [];
     // recalculate cat according to type

@@ -191,8 +191,7 @@ export default {
   height: 100%;
 
   line {
-    stroke: darkgrey;
-    opacity: 0;
+    stroke: #f0f0f0;
   }
   text{
     pointer-events: none;
