@@ -18,7 +18,6 @@ export default class Topic {
     this.words = words;
     this.excerpt = excerpt;
 
-
     if (words.length && !(words[0] instanceof TopicWord)) {
       const normalize = d3.scaleQuantize()
         .domain(d3.extent(this.words, d => d.p))
@@ -29,6 +28,7 @@ export default class Topic {
         l: normalize(d.p),
       }));
       this.excerpt = this.excerpt.map(d => new TopicWord(d));
+      this.hwp = words[0].p;
     }
   }
 
