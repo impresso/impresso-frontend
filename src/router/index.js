@@ -7,7 +7,7 @@ import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
 import UserCollectionPage from '../components/UserCollectionPage';
 import TestPage from '../components/TestPage';
-import TitlesPage from '../components/TitlesPage';
+import NewspapersPage from '../components/NewspapersPage';
 
 Vue.use(Router);
 
@@ -112,11 +112,11 @@ export default new Router({
       },
     },
     {
-      path: '/titles/:title_uid?',
-      component: TitlesPage,
-      name: 'titles',
+      path: '/newspapers/:newspaper_uid?',
+      component: NewspapersPage,
+      name: 'newspapers',
       meta: {
-        realm: 'titles',
+        realm: 'newspapers',
       },
     },
     {
