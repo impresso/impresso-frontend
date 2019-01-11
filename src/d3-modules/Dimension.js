@@ -1,27 +1,68 @@
 import * as d3 from 'd3';
 
-const TYPE_ORDINAL = 'ordinal';
+const TYPE_DISCRETE = 'TYPE_DISCRETE';
+const TYPE_CONTINUOUS = 'TYPE_CONTINUOUS';
 
-export default class Dimension {
+class Dimension {
   constructor({
-    property = null,
+    type = '',
+    property,
+    scaleFn,
     domain = [0, 1],
     range = [0, 1],
-    scale = d3.scaleOrdinal,
-    type = TYPE_ORDINAL, // or numerical
   } = {}) {
-    console.log('CONSTRUCTOR FOR DIMENSION', property);
     this.property = property;
     this.type = type;
-    this.scale = scale()
-      .domain(domain)
-      .range(range);
+    // if(this.type === )
+    this.scaleFn = scaleFn;
+    this.domain = domain;
+    this.range = range;
+
+    if (this.type === TYPE_DISCRETE) {
+      this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length])
+        .domain(this.domain);
+    } else {
+      this.scale = this.scaleFn()
+        .domain(this.domain)
+        .range(this.range);
+    }
   }
+
   /**
-   * [groupBy description]
+   * If type is TYPE_CONTINUOUS, values should be a flattened array of values
+   * so that the min/max extent for the domain can easily be computated.
+   *
+   * @param  {[type]} property [description]
+   * @param  {[type]} values   [description]
+   * @return {[type]}          [description]
+   */
+  update({ property, values }) {
+    console.log('dimension update', property, values);
+
+    this.property = property;
+    this.domain = [];
+    // recalculate cat according to type
+    if (this.type === TYPE_DISCRETE) {
+      this.domain = Object.keys(Dimension.groupBy(values, this.property));
+      this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length])
+        .domain(this.domain);
+    } else {
+      this.domain = d3.extent(values, d => d[this.property]);
+      this.scale = this.scale
+        .domain(this.domain);
+    }
+  }
+
+  accessor() {
+    console.log('accessor', this.property);
+    return d => this.scale(d[this.property]);
+  }
+
+  /**
+   * Group cateogories
    * @param  {Array} arr      [description]
    * @param  {String} property [description]
-   * @return {Object}          groups 
+   * @return {Object} groups
    */
   static groupBy(arr, property) {
     return arr.reduce((acc, obj) => {
@@ -33,20 +74,8 @@ export default class Dimension {
       return acc;
     }, {});
   }
-
-  update({ property }) {
-    this.property = property;
-    // recalculate cat according to type
-
-    return this;
-  }
-
-  setDomain(domain) {
-    this.scale = this.scale.domain(domain);
-  }
-
-  accessor() {
-    console.log('accessor', this.property);
-    return d => this.scale(d[this.property]);
-  }
 }
+Dimension.TYPE_DISCRETE = TYPE_DISCRETE;
+Dimension.TYPE_CONTINUOUS = TYPE_CONTINUOUS;
+
+export default Dimension;

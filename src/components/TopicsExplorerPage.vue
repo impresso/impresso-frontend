@@ -10,8 +10,13 @@
     <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
       <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
         <li><label >{{ $t('color by') }}</label>
-        <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
-      </li>
+          <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </li>
+      </b-navbar-nav>
+      <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
+        <li><label >{{ $t('size by') }}</label>
+          <i-dropdown v-model="sizeBy" v-bind:options="sizeByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </li>
       </b-navbar-nav>
     </b-navbar>
 
@@ -37,6 +42,7 @@ import Topic from '@/models/Topic';
 import Graph from '@/d3-modules/Graph';
 import Tooltip from './modules/tooltips/TopicsExplorerTooltip';
 
+
 export default {
   data: () => ({
     submitted: false,
@@ -48,19 +54,32 @@ export default {
       isActive: false,
     },
 
-    colorBy: 'topicmodel',
-
+    // visual dimensions
+    colorBy: 'model',
+    sizeBy: 'degree',
   }),
   computed: {
     colorByOptions() {
       return [
         {
-          value: 'topicmodel',
+          value: 'model',
           text: this.$t('topicmodel'),
         },
         {
           value: 'language',
           text: this.$t('language'),
+        },
+      ];
+    },
+    sizeByOptions() {
+      return [
+        {
+          value: 'degree',
+          text: this.$t('degree'),
+        },
+        {
+          value: 'hwp',
+          text: this.$t('highest word probability'),
         },
       ];
     },
@@ -84,7 +103,6 @@ export default {
     });
 
     this.graph
-
       .on('node.mouseleave', (d) => {
         console.log('node.mouseleave', d);
         this.tooltip = {
@@ -101,6 +119,18 @@ export default {
           isActive: true,
         };
       });
+
+    this.graph.updateDimension({
+      name: 'nodeColor',
+      property: this.colorBy,
+      values: topicsGraph.nodes,
+    });
+
+    this.graph.updateDimension({
+      name: 'nodeSize',
+      property: this.sizeBy,
+      values: topicsGraph.nodes,
+    });
 
     this.graph.update({
       nodes: topicsGraph.nodes,
@@ -123,7 +153,20 @@ export default {
         this.graph.updateDimension({
           name: 'nodeColor',
           property,
+          values: this.graph.nodes,
         });
+        this.graph.applyDimensions();
+      },
+    },
+    sizeBy: {
+      handler(property) {
+        console.log('change sizeby', property);
+        this.graph.updateDimension({
+          name: 'nodeSize',
+          property,
+          values: this.graph.nodes,
+        });
+        this.graph.applyDimensions();
       },
     },
   },
@@ -149,9 +192,11 @@ export default {
 
   line {
     stroke: darkgrey;
+    opacity: 0;
   }
   text{
     pointer-events: none;
+    display: none;
   }
 }
 </style>
