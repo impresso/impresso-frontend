@@ -2,8 +2,6 @@ import * as d3 from 'd3';
 import EventEmitter from 'events';
 import Dimension from './Dimension';
 
-const TYPE_ORDINAL = 'ordinal';
-
 export default class Graph extends EventEmitter {
   constructor({
     element = null,
@@ -12,9 +10,11 @@ export default class Graph extends EventEmitter {
       bottom: 10,
       left: 10,
     },
-    nodeRadius = 6,
+    maxNodeRadius = 12,
+    maxDistance = 50,
     delay = 15000,
     nodeLabel = d => d.id,
+    identity = d => d.id,
     // override current behaviour if needed,
     dimensions = {},
   } = {}) {
@@ -26,10 +26,12 @@ export default class Graph extends EventEmitter {
       .attr('preserveAspectRatio', 'none');
 
     this.margin = margin;
-    this.nodeRadius = parseInt(nodeRadius, 10);
+    this.maxNodeRadius = parseInt(maxNodeRadius, 10);
+    this.maxDistance = parseInt(maxDistance, 10);
     this.delay = parseInt(delay, 10);
 
     this.nodeLabel = nodeLabel;
+    this.identity = identity;
     // set initial widh and height
     this.resize();
     // initialize graphic elements
@@ -46,12 +48,12 @@ export default class Graph extends EventEmitter {
     this.simulation = d3.forceSimulation()
       .force('link', d3.forceLink()
         // .id(d => d.id)
-        .distance(120))
+        .distance(this.maxDistance))
       .force('center', d3.forceCenter(
         this.width / 2,
         this.height / 2))
       .force('charge', d3.forceManyBody()
-        .distanceMin(this.nodeRadius))
+        .distanceMin(this.maxNodeRadius))
       .alphaTarget(0.5)
       .on('tick', () => this.tick());
 
@@ -59,9 +61,14 @@ export default class Graph extends EventEmitter {
     this.dimensions = {
       nodeColor: new Dimension({
         property: 'id',
-        type: Dimension.TYPE_ORDINAL,
-        scale: d3.scaleOrdinal,
-        range: d3.schemeRdYlGn[2],
+        type: Dimension.TYPE_DISCRETE,
+        scaleFn: d3.scaleOrdinal,
+      }),
+      nodeSize: new Dimension({
+        property: 'degree',
+        type: Dimension.TYPE_CONTINUOUS,
+        scaleFn: d3.scaleLinear,
+        range: [4, this.maxNodeRadius],
       }),
       ...dimensions,
     };
@@ -70,18 +77,27 @@ export default class Graph extends EventEmitter {
     this.stopSimulation();
   }
 
+  applyDimensions() {
+    this.nodesLayer
+      .selectAll('.n')
+      .transition()
+      .attr('fill', this.dimensions.nodeColor.accessor())
+      .attr('r', this.dimensions.nodeSize.accessor());
+  }
+
   /**
    * Set the appropriate property and updete function range.
    * @param  {String} name key for this.dimensions object
    * @param  {String} property
+   * @param  {Array|Object} values Array or Object, according to Dimension type
    * @return {null}
    */
-  updateDimension({ name, property }) {
-    console.log('update dimension', name, property, this.dimensions[name].type, TYPE_ORDINAL);
-    if (this.dimensions[name].type === TYPE_ORDINAL) {
-      const groups = d3.group(this.data, d => d[property]);
-      console.log(groups);
-    }
+  updateDimension({ name, property, values }) {
+    console.log('updateDimension', name, property, values);
+    this.dimensions[name].update({
+      property,
+      values,
+    });
   }
 
   /**
@@ -133,7 +149,7 @@ export default class Graph extends EventEmitter {
   draw() {
     console.log('draw nodes:', this.nodes.length);
 
-    this.nodesLayer = this.nodesLayer.data(this.nodes);
+    this.nodesLayer = this.nodesLayer.data(this.nodes, this.identity);
     this.nodesLayer.exit().remove();
     this.nodesLayer = this.nodesLayer.enter().append('g')
       .attr('class', d => d.type)
@@ -149,20 +165,19 @@ export default class Graph extends EventEmitter {
         this.emit('node.mouseleave', datum);
       });
 
-    // add text
-    this.nodesLayer.append('text')
-      .attr('dx', 25)
-      .attr('dy', '.35em')
-      .text(this.nodeLabel);
-
     this.nodesLayer.append('circle')
-      .attr('r', d => d.r)
-      .attr('fill', this.dimensions.nodeColor.accessor());
+      .classed('n', true);
 
     this.nodesLayer.append('circle')
         .attr('class', 'whoosh')
         // .attr("fill", function(d,i){ return i==0?'magenta':'cyan'})
         .attr('r', 2);
+
+    // add text
+    this.nodesLayer.append('text')
+      .attr('dx', 25)
+      .attr('dy', '.35em')
+      .text(this.nodeLabel);
 
     this.linksLayer = this.linksLayer.data(this.links); // , d => `${d.source.id}-${d.target.id}`);
     this.linksLayer.exit().remove();
@@ -176,6 +191,7 @@ export default class Graph extends EventEmitter {
 
     this.simulation.restart();
     this.stopSimulation();
+    this.applyDimensions();
   }
 
   update({
@@ -187,7 +203,7 @@ export default class Graph extends EventEmitter {
     // make sure it has all the required properties
     this.nodes = nodes.map(d => ({
       ...d,
-      r: d.r || this.nodeRadius,
+      r: d.r || this.maxNodeRadius,
       type: d.type || 'n',
     }));
     this.draw();
