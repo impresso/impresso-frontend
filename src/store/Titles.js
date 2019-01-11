@@ -1,65 +1,121 @@
 import * as services from '@/services';
+import Newspaper from '@/models/Newspaper';
 
 export default {
   namespaced: true,
   state: {
-    orderBy: 'alphabetical', // relevance, -relevance, date, -date
-    titles: [],
-    title: {},
-    query: '',
-    pagination: {
-      perPage: 100,
-      currentPage: 1,
-      totalRows: 0,
+    list: {
+      orderBy: 'alphabetical',
+      titles: [],
+      query: '',
+      pagination: {
+        perPage: 100,
+        currentPage: 1,
+        totalRows: 0,
+      },
+    },
+    detail: {
+      orderBy: 'alphabetical',
+      issues: [],
+      title: false,
+      pagination: {
+        perPage: 12,
+        currentPage: 1,
+        totalRows: 0,
+      },
     },
   },
   getters: {},
   mutations: {
-    UPDATE_ORDER_BY(state, orderBy) {
-      state.orderBy = orderBy;
+    // list
+    UPDATE_LIST_ORDER_BY(state, orderBy) {
+      state.list.orderBy = orderBy;
     },
-    UPDATE_PAGINATION_TOTAL_ROWS(state, totalRows) {
-      state.pagination.totalRows = totalRows;
+    UPDATE_LIST_TITLES(state, titles) {
+      state.list.titles = titles;
     },
-    UPDATE_PAGINATION_CURRENT_PAGE(state, page) {
-      state.pagination.currentPage = parseInt(page, 10);
+    UPDATE_LIST_QUERY(state, query) {
+      state.list.query = query;
     },
-    UPDATE_TITLES(state, titles) {
-      state.titles = titles;
+    UPDATE_LIST_PAGINATION_PER_PAGE(state, perPage) {
+      state.list.pagination.perPage = parseInt(perPage, 10);
     },
-    UPDATE_TITLE(state, title) {
-      state.title = title;
+    UPDATE_LIST_PAGINATION_CURRENT_PAGE(state, currentPage) {
+      state.list.pagination.currentPage = parseInt(currentPage, 10);
     },
-    UPDATE_QUERY(state, query) {
-      state.query = query;
+    UPDATE_LIST_PAGINATION_TOTAL_ROWS(state, totalRows) {
+      state.list.pagination.totalRows = totalRows;
+    },
+    // detail
+    UPDATE_DETAIL_ORDER_BY(state, orderBy) {
+      state.detail.orderBy = orderBy;
+    },
+    UPDATE_DETAIL_ISSUES(state, issues) {
+      state.detail.issues = issues;
+    },
+    UPDATE_DETAIL_TITLE(state, title) {
+      state.detail.title = title;
+    },
+    UPDATE_DETAIL_PAGINATION_PER_PAGE(state, perPage) {
+      state.detail.pagination.perPage = parseInt(perPage, 10);
+    },
+    UPDATE_DETAIL_PAGINATION_CURRENT_PAGE(state, currentPage) {
+      state.detail.pagination.currentPage = parseInt(currentPage, 10);
+    },
+    UPDATE_DETAIL_PAGINATION_TOTAL_ROWS(state, totalRows) {
+      state.detail.pagination.totalRows = totalRows;
     },
   },
   actions: {
-    LOAD_TITLES(context) {
-      return new Promise((resolve) => {
+    LOAD_LIST(context) {
+      const query = {
+        q: context.state.list.query,
+        limit: context.state.list.pagination.perPage,
+        group_by: context.state.list.groupBy,
+        page: context.state.list.pagination.currentPage,
+      };
+
+      return new Promise((resolve, reject) => {
         services.titles.find({
-          query: {
-            page: context.state.pagination.currentPage,
-            limit: context.state.pagination.perPage,
-            orderBy: context.state.orderBy,
-            q: context.state.query,
+          query,
+        }).then(
+          (res) => {
+            context.commit('UPDATE_LIST_PAGINATION_TOTAL_ROWS', res.total);
+            context.commit('UPDATE_LIST_TITLES', res.data.map(title => new Newspaper({
+              ...title,
+              properties: title.properties.map((property) => {
+                const keys = Object.keys(property);
+                property.name = keys[0];
+                return property[keys[0]];
+              }),
+            })));
+            resolve(res);
           },
-        }).then((res) => {
-          console.log(res);
-          context.commit('UPDATE_PAGINATION_TOTAL_ROWS', res.total);
-          context.commit('UPDATE_TITLES', res.data);
-          resolve(res.data);
-        });
+          reject,
+        );
       });
     },
-    LOAD_TITLE(context, uid) {
-      return new Promise(() => {
-        services.titles.get(uid, {}).then((res) => {
-          context.commit('UPDATE_TITLE', res.data);
-        },
-        (error) => {
-          console.log(error);
-        });
+    LOAD_TITLE_ISSUES(context) {
+      const query = {
+        filters: [{
+          type: 'newspaper',
+          q: context.state.detail.title.uid,
+          context: 'include',
+        }],
+        limit: context.state.detail.pagination.perPage,
+        page: context.state.detail.pagination.currentPage,
+      };
+      return new Promise((resolve, reject) => {
+        services.issues.find({
+          query,
+        }).then(
+          (res) => {
+            context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
+            context.commit('UPDATE_DETAIL_ISSUES', res.data);
+            resolve(res);
+          },
+          reject,
+        );
       });
     },
   },
