@@ -2,10 +2,17 @@
   <i-layout-section>
 
     <b-navbar type="light" variant="light" class="border-bottom">
-      <section>
+      <section class='pt-2 pb-1'>
         <span class="label small-caps">{{$t('summary')}}</span>
-        <h3>{{ $t('topics_cooccurrence_graph') }}</h3>
+        <h3 class='mb-1'>{{ $t('topics_cooccurrence_graph') }}</h3>
       </section>
+    </b-navbar>
+    <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+      <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
+        <li><label >{{ $t('color by') }}</label>
+        <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
+      </li>
+      </b-navbar-nav>
     </b-navbar>
 
     <div class="d3-graph-wrapper small-caps">
@@ -40,8 +47,24 @@ export default {
       count: 0,
       isActive: false,
     },
+
+    colorBy: 'topicmodel',
+
   }),
   computed: {
+    colorByOptions() {
+      return [
+        {
+          value: 'topicmodel',
+          text: this.$t('topicmodel'),
+        },
+        {
+          value: 'language',
+          text: this.$t('language'),
+        },
+      ];
+    },
+
     topicModel() {
       return this.$route.params.topic_model;
     },
@@ -92,6 +115,15 @@ export default {
         if (topicUid) {
           this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', topicUid);
         }
+      },
+    },
+    colorBy: {
+      handler(property) {
+        console.log('change colorby', property);
+        this.graph.updateDimension({
+          name: 'nodeColor',
+          property,
+        });
       },
     },
   },
