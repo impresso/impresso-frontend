@@ -7,6 +7,7 @@ import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
 import UserCollectionPage from '../components/UserCollectionPage';
 import TestPage from '../components/TestPage';
+import NewspapersPage from '../components/NewspapersPage';
 
 Vue.use(Router);
 
@@ -108,6 +109,14 @@ export default new Router({
       props: true,
       meta: {
         realm: 'issueviewer',
+      },
+    },
+    {
+      path: '/newspapers/:newspaper_uid?',
+      component: NewspapersPage,
+      name: 'newspapers',
+      meta: {
+        realm: 'newspapers',
       },
     },
     {

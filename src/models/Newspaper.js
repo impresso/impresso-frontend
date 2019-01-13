@@ -20,6 +20,7 @@
      name = '',
      startYear = 0,
      uid = '',
+     properties = [],
    } = {}) {
      this.acronym = String(acronym);
      this.countArticles = parseInt(countArticles, 10);
@@ -30,5 +31,6 @@
      this.name = String(name);
      this.startYear = parseInt(startYear, 10);
      this.uid = String(uid);
+     this.properties = properties;
    }
  }

@@ -7,6 +7,9 @@
         <li class="nav-item">
           <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
         </li>
+        <li class="nav-item">
+          <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
+        </li>
       </b-navbar-nav>
       <b-navbar-nav class="nav-title mx-auto">
         <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
@@ -167,7 +170,8 @@ export default {
     "login": "Login",
     "logout": "Logout",
     "dashboard": "Dashboard",
-    "label_home": "Home"
+    "label_home": "Home",
+    "label_newspapers": "Newspaper Titles"
   }
 }
 </i18n>
