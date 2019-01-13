@@ -8,6 +8,7 @@ import user from './User';
 import search from './Search';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
+import newspapers from './Newspapers';
 import topics from './Topics';
 
 Vue.use(Vuex);
@@ -24,6 +25,7 @@ export default new Vuex.Store({
     issue,
     collections,
     topics,
+    newspapers,
   },
   state: {
     processing_status: false,
@@ -80,6 +82,7 @@ export default new Vuex.Store({
       'user.userData',
       'collections.collectionsSortOrder',
       'issue.viewerMode',
+      'newspapers.orderBy',
     ],
   })],
 });
