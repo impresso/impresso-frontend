@@ -12,7 +12,7 @@ export default class Graph extends EventEmitter {
     },
     maxNodeRadius = 12,
     maxDistance = 50,
-    delay = 15000,
+    delay = 30000,
     nodeLabel = d => d.id,
     identity = d => d.id,
     // override current behaviour if needed,
@@ -73,7 +73,6 @@ export default class Graph extends EventEmitter {
       ...dimensions,
     };
 
-    console.log('init ...', this.dimensions.nodeColor.property);
     this.stopSimulation();
   }
 
