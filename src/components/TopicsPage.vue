@@ -50,7 +50,6 @@ export default {
   }),
   computed: {
     topicModelOptions() {
-      console.log('HEYEYEY ', this.topicModels);
       return [{
         value: '*',
         text: this.$t('all topic models'),
@@ -91,7 +90,6 @@ export default {
 
     orderBy: {
       get() {
-        console.log('orderby:', this.$store.state.topics.orderBy);
         return this.$store.state.topics.orderBy;
       },
       set(val) {
@@ -106,16 +104,12 @@ export default {
         page,
       });
     },
-    onInputChange() {
-      console.log('changed babe....');
-    },
     async getTopics({
       page = 1,
       q = null,
       facets = 'topicmodel',
       filters = [],
     } = {}) {
-      console.log('get topics', filters);
       const response = await this.$store.dispatch('topics/LOAD_TOPICS', {
         limit: this.limit,
         page,
