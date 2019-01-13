@@ -10,6 +10,9 @@
         <li class="nav-item">
           <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
         </li>
+        <li class="nav-item">
+          <router-link v-bind:to="{ name: 'topicsExplorer'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
+        </li>
       </b-navbar-nav>
       <b-navbar-nav class="nav-title mx-auto">
         <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
@@ -131,8 +134,9 @@ export default {
   .nav-title {
     margin: auto;
     h1 {
-      background: $clr-bg-primary;
-      font-size: 1em;
+      background: transparent;//$clr-bg-primary;
+      color: white;
+      font-size: 1.1em;
       text-align: center;
       padding: 1px 4px;
       .title {
@@ -171,7 +175,8 @@ export default {
     "logout": "Logout",
     "dashboard": "Dashboard",
     "label_home": "Home",
-    "label_newspapers": "Newspaper Titles"
+    "label_newspapers": "Newspaper Titles",
+    "label_topics": "Topics"
   }
 }
 </i18n>

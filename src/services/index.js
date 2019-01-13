@@ -68,3 +68,5 @@ export const collectionsItems = app.service('buckets-items').hooks({
     ],
   },
 });
+
+export const topics = app.service('topics');
