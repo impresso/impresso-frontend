@@ -1,59 +1,54 @@
 <template lang="">
-  <i-layout-section class="p-3" v-if="$route.params.collection_uid">
+  <i-layout-section class="" v-if="$route.params.collection_uid">
 
-    <div class="float-left mx-3">
-      <h1>{{collection.name}}</h1>
-      <p>{{collection.description}}</p>
-    </div>
+    <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+      <b-navbar-nav class="px-3 py-3 pr-auto">
+        <strong>{{collection.name}}</strong>
+        <p>{{collection.description}}</p>
+      </b-navbar-nav>
+      <b-navbar-nav class="px-3 py-3 border-left">
+        <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
 
-    <div class="float-right m-3">
+          <div class="modal-edit px-3 background-light">
 
-      <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
+            <label for="collectionName">Name</label>
+            <input type="text" name="collectionName" class="form-control mb-3"
+              v-model="collection.name">
 
-        <div class="modal-edit px-3 background-light">
+            <label for="collectionDesc">Description</label>
+            <textarea type="text" name="collectionDesc" class="form-control"
+              v-model="collection.description" />
 
-          <label for="collectionName">Name</label>
-          <input type="text" name="collectionName" class="form-control mb-3"
-            v-model="collection.name">
+            <b-button variant="outline-primary" size="sm" class="form-control mt-3"
+              v-on:click="save(collection)">{{ $t('edit_collection') }}
+            </b-button>
 
-          <label for="collectionDesc">Description</label>
-          <textarea type="text" name="collectionDesc" class="form-control"
-            v-model="collection.description" />
+          </div>
 
-          <b-button variant="outline-primary" size="sm" class="form-control mt-3"
-            v-on:click="save(collection)">{{ $t('edit_collection') }}
-          </b-button>
+        </b-dropdown>
 
-        </div>
+        <b-button variant="outline-danger" size="sm" class="ml-1"
+          v-on:click="remove(collection)">{{ $t('delete_collection') }}
+        </b-button>
+      </b-navbar-nav>
+    </b-navbar>
 
-      </b-dropdown>
+    <div class="collection-group">
 
-      <b-button variant="outline-danger" size="sm"
-        v-on:click="remove(collection)">{{ $t('delete_collection') }}
-      </b-button>
+      <b-navbar type="light" variant="light" class="border-bottom py-0">
+        <b-navbar-nav class="pr-auto">
+          <span>{{ $tc('articles', articles.length) }}</span>
+        </b-navbar-nav>
+        <b-navbar-nav class="pl-3 py-3 border-left">
+          <label class="mr-2">{{$t("label_display")}}</label>
+          <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+            <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+            <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+          </b-form-radio-group>
+        </b-navbar-nav>
+      </b-navbar>
 
-    </div>
 
-    <div class="clearfix">
-    </div>
-
-
-    <div v-if="articles.length > 0" class="collection-group">
-
-      <b-container class="p-3 border-bottom border-top">
-        <b-row>
-          <b-col class="text-muted mt-1">
-            <b>{{ $tc('articles', articles.length) }}</b>
-          </b-col>
-          <b-col class="text-right">
-            <label class="mr-2">{{$t("label_display")}}</label>
-            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-            </b-form-radio-group>
-          </b-col>
-        </b-row>
-      </b-container>
 
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
@@ -246,7 +241,7 @@ export default {
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
-    "articles": "No articles | One article | {n} articles",
+    "articles": "Contains no articles | Contains one article | Contains {n} articles",
     "edit_collection": "Update Collection",
     "delete_collection": "Delete Collection",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?"
