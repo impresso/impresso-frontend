@@ -22,8 +22,6 @@
 </template>
 
 <script>
-
-import SuggestionFactory from '@/models/SuggestionFactory';
 import FacetLanguage from './modules/FacetLanguage';
 import FacetTopic from './modules/FacetTopic';
 import FacetNewspaper from './modules/FacetNewspaper';
@@ -56,12 +54,12 @@ export default {
   methods: {
     submitFacet(facet, bucket) {
       if (facet.type === 'topic') {
-        this.$emit('submit-facet', SuggestionFactory.create({
+        this.$emit('submit-facet', {
           type: facet.type,
           item: bucket.item,
           h: bucket.val,
           q: bucket.val,
-        }));
+        });
       } else if (facet.type === 'newspaper') {
         this.$emit('submit-facet', {
           type: facet.type,
