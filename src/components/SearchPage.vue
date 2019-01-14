@@ -60,8 +60,7 @@
           v-bind:currentPage="paginationCurrentPage"
           v-bind:totalRows="paginationTotalRows"
           v-on:change="onInputPagination"
-          class="float-left small-caps"
-          v-bind:showDescription="true" />
+          class="float-left small-caps" />
           <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
             <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
             <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
