@@ -3,7 +3,7 @@
     <div slot="settings">
       <filter-setting-context v-model="filter" />
     </div>
-    <span v-html="filter.h" />
+    <span v-html="filter.item.getHtmlExcerpt()" />
   </filter-wrapper>
 </template>
 
