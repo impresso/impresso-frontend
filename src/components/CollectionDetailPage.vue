@@ -2,11 +2,13 @@
   <i-layout-section class="" v-if="$route.params.collection_uid">
 
     <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-      <b-navbar-nav class="px-3 py-3 pr-auto">
+
+      <b-navbar-nav class="px-3 pr-auto">
         <strong>{{collection.name}}</strong>
-        <p>{{collection.description}}</p>
+        {{collection.description}}This is a description.
       </b-navbar-nav>
-      <b-navbar-nav class="px-3 py-3 border-left">
+
+      <b-navbar-nav class="p-3 border-left flex-row">
         <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
 
           <div class="modal-edit px-3 background-light">
@@ -39,7 +41,7 @@
         <b-navbar-nav class="pr-auto">
           <span>{{ $tc('articles', articles.length) }}</span>
         </b-navbar-nav>
-        <b-navbar-nav class="pl-3 py-3 border-left">
+        <b-navbar-nav class="pl-3 py-3 border-left flex-row">
           <label class="mr-2">{{$t("label_display")}}</label>
           <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
             <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -222,9 +224,9 @@ export default {
 
 <style lang="scss">
 .modal-edit {
-  width: 400px;
+  min-width: 400px;
 }
-.navbar-nav {
+.navbar-nav.flex-row {
     flex-direction: row;
     align-items: center;
     label {

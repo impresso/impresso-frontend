@@ -1,25 +1,29 @@
 <template lang="html">
-  <i-layout-section class="p-3">
-    <div class="mx-3">
-      <h1>Collected items</h1>
-      <p>List all items in all collections. (Currently limited to articles)</p>
-    </div>
+  <i-layout-section>
+    <b-navbar type="light" variant="light" class="border-bottom py-0">
+      <b-navbar-nav class="py-3 pr-auto">
+        <strong>Collected items</strong> – List all items in all collections. (Currently limited to articles)
+      </b-navbar-nav>
+    </b-navbar>
+
+    <b-navbar type="light" variant="light" class="border-bottom py-0">
+      <b-navbar-nav class="pr-auto">
+        <span>{{ $tc('articles', articles.length) }}</span>
+      </b-navbar-nav>
+      <b-navbar-nav class="pl-3 py-3 border-left">
+        <label class="mr-2">{{$t("label_display")}}</label>
+        <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+          <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+          <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+        </b-form-radio-group>
+      </b-navbar-nav>
+    </b-navbar>
+
+
 
     <div class="collection-group">
-      <b-container class="px-3 py-2 border-bottom border-top">
-        <b-row>
-          <b-col class="text-muted">
-            <b>{{ $tc('articles', articles.length) }}</b>
-          </b-col>
-          <b-col class="text-right">
-            <label class="mr-2">{{$t("label_display")}}</label>
-            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio disabled value="list">{{$t("display_button_list")}}</b-form-radio>
-              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-            </b-form-radio-group>
-          </b-col>
-        </b-row>
-      </b-container>
+
+
 
       <b-container fluid>
         <b-row v-if="displayStyle === 'list-not-implemented-because-buggy'">
