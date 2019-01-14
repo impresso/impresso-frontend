@@ -7,6 +7,7 @@
         <div class="px-3 py-4" v-show="tab.name == 'overview'">
           <h4 v-html="issue.newspaper.name"></h4>
           <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
+          <b-table stacked :items="newspaperTableData"></b-table>
         </div>
         <div class="px-3 py-4" v-show="tab.name === 'toc'">
           <table-of-contents
@@ -104,6 +105,17 @@ export default {
     },
     articleUid() {
       return this.$route.params.article_uid;
+    },
+    newspaperTableData() {
+      return [{
+        acronym: this.issue.newspaper.acronym,
+        startYear: this.issue.newspaper.startYear,
+        endYear: this.issue.newspaper.endYear,
+        deltaYear: this.$n(this.issue.newspaper.deltaYear),
+        countIssues: this.$n(this.issue.newspaper.countIssues),
+        countPages: this.$n(this.issue.newspaper.countPages),
+        countArticles: this.$n(this.issue.newspaper.countArticles),
+      }];
     },
     tabs() {
       return [
