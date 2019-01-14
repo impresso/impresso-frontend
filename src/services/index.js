@@ -49,6 +49,7 @@ export const articles = app.service('articles');
 export const issues = app.service('issues');
 export const pages = app.service('pages');
 export const search = app.service('search');
+export const newspapers = app.service('newspapers');
 export const collections = app.service('buckets').hooks({
   before: {
     all: [
@@ -67,3 +68,5 @@ export const collectionsItems = app.service('buckets-items').hooks({
     ],
   },
 });
+
+export const topics = app.service('topics');

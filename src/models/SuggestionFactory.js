@@ -3,6 +3,8 @@ import SuggestionDaterange from '@/models/SuggestionDaterange';
 import SuggestionString from '@/models/SuggestionString';
 import SuggestionRegex from '@/models/SuggestionRegex';
 import SuggestionTopic from '@/models/SuggestionTopic';
+// import SuggestionItem from '@/models/SuggestionItem';
+
 
 export default {
   create: (data) => {
@@ -20,7 +22,9 @@ export default {
     } else if (data.type === 'topic') {
       return new SuggestionTopic(data);
     }
-
+    // else if (data.item) {
+    //   return new SuggestionItem(data);
+    // }
     return null;
   },
 };
