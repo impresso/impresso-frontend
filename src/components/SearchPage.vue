@@ -53,7 +53,6 @@
           </b-col>
         </b-row>
       </b-container>
-      <hr>
       <div class="search-results-footer p-1 m-0">
         <pagination
           v-bind:perPage="paginationPerPage"
