@@ -10,7 +10,7 @@
       <b-navbar-nav class="pr-auto">
         <span>{{ $tc('articles', articles.length) }}</span>
       </b-navbar-nav>
-      <b-navbar-nav class="pl-3 py-3 border-left">
+      <b-navbar-nav class="pl-3 py-3 border-left flex-row">
         <label class="mr-2">{{$t("label_display")}}</label>
         <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
           <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -127,6 +127,14 @@ export default {
 </script>
 
 <style lang="css">
+.navbar-nav.flex-row {
+    flex-direction: row;
+    align-items: center;
+    label {
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+}
 </style>
 
 <i18n>
