@@ -1,4 +1,4 @@
-'<template lang="html">
+<template lang="html">
   <div class="tile my-3 border">
     <div class="thumbnail bg-light">
       <open-seadragon-viewer

@@ -9,6 +9,10 @@ import CollectionsPage from '../components/CollectionsPage';
 import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
+import NewspapersPage from '../components/NewspapersPage';
+import TopicsPage from '../components/TopicsPage';
+import TopicsExplorerPage from '../components/TopicsExplorerPage';
+import TopicDetailPage from '../components/TopicDetailPage';
 
 Vue.use(Router);
 
@@ -89,6 +93,35 @@ export default new Router({
     meta: {
       realm: 'issueviewer',
     },
+  },
+  {
+    path: '/newspapers/:newspaper_uid?',
+    component: NewspapersPage,
+    name: 'newspapers',
+    meta: {
+      realm: 'newspapers',
+    },
+  },
+  {
+    path: '/playground',
+    component: TestPage,
+  },
+  {
+    path: '/topics',
+    component: TopicsPage,
+    name: 'topics',
+
+    children: [{
+      path: '',
+      component: TopicsExplorerPage,
+      name: 'topicsExplorer',
+    },
+    {
+      path: ':topic_uid',
+      component: TopicDetailPage,
+      name: 'topic',
+    },
+    ],
   },
   {
     path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
