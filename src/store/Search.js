@@ -289,8 +289,6 @@ export default {
                   }),
                 });
 
-                // context.commit('ADD_FACET', facet);
-
                 const FilterFacetYear = FilterFactory.create({
                   ...context.getters.getSearch.filters.find(filter => filter.type === 'year'),
                   ...facet,

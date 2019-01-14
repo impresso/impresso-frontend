@@ -5,7 +5,7 @@
       v-on:click="onClick(bucket)"
       v-for="bucket in facet.buckets"
       variant="secondary"
-      size="sm">{{bucket.item.uid}} ({{$n(bucket.count)}})</b-button>
+      size="sm">{{bucket.item.getHtmlExcerpt()}} ({{$n(bucket.count)}})</b-button>
   </div>
 </template>
 
