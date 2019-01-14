@@ -54,12 +54,14 @@
         </b-row>
       </b-container>
       <hr>
-      <pagination
-        v-bind:perPage="paginationPerPage"
-        v-bind:currentPage="paginationCurrentPage"
-        v-bind:totalRows="paginationTotalRows"
-        v-on:change="onInputPagination"
-        v-bind:showDescription="true" />
+      <div class="search-results-footer p-1 m-0">
+        <pagination
+          v-bind:perPage="paginationPerPage"
+          v-bind:currentPage="paginationCurrentPage"
+          v-bind:totalRows="paginationTotalRows"
+          v-on:change="onInputPagination"
+          v-bind:showDescription="true" />
+      </div>
     </div>
   </i-layout-section>
 </i-layout>
@@ -281,6 +283,26 @@ div.overlay-region{
     background-color: rgba(255, 225, 49, 0.3) !important;
   }
 
+}
+
+.search-results-footer {
+  position: fixed;
+  bottom: 0;
+  height: 2em;
+  left: 50%;
+  // margin-left: 400px;
+  transform: translateX(calc(200px - 50%));
+  background: rgba($clr-primary, 0.1);
+  max-width: calc(100% - 400px);
+  // overflow: hidden;
+  .pagination {
+    white-space:nowrap;
+    li.page-item > a,
+    li.page-item > span.page-link {
+      border-color: $clr-secondary;
+      padding: 0 0.5em;
+    }
+  }
 }
 </style>
 
