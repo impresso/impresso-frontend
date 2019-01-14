@@ -54,12 +54,18 @@
         </b-row>
       </b-container>
       <hr>
-      <pagination
-        v-bind:perPage="paginationPerPage"
-        v-bind:currentPage="paginationCurrentPage"
-        v-bind:totalRows="paginationTotalRows"
-        v-on:change="onInputPagination"
-        v-bind:showDescription="true" />
+      <div class="search-results-footer p-1 m-0">
+        <pagination
+          v-bind:perPage="paginationPerPage"
+          v-bind:currentPage="paginationCurrentPage"
+          v-bind:totalRows="paginationTotalRows"
+          v-on:change="onInputPagination"
+          class="float-left small-caps" />
+          <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
+            <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+            <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+          </b-dropdown>
+      </div>
     </div>
   </i-layout-section>
 </i-layout>
@@ -280,7 +286,22 @@ div.overlay-region{
     border: 1px solid rgb(255, 225, 49) !important;
     background-color: rgba(255, 225, 49, 0.3) !important;
   }
+}
 
+.search-results-footer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(calc(200px - 50%));
+  background: rgba($clr-primary, 0.1);
+  max-width: calc(100% - 400px);
+  .pagination {
+    li.page-item > a,
+    li.page-item > span.page-link {
+      border-color: $clr-secondary;
+      padding: 0.15em 0.6em 0.15em 0.6em;
+    }
+  }
 }
 </style>
 
@@ -299,7 +320,12 @@ div.overlay-region{
     "order_issues": "Issue",
     "order_pages": "Page",
     "order_articles": "Article",
-    "order_sentences": "Sentence"
+    "order_sentences": "Sentence",
+    "order_sentences": "Sentence",
+    "query_actions": "Save / Export",
+    "query_add_to_collection": "Add query to collection",
+    "query_export": "Export result list as ...",
+    "query_export_csv": "Export result list as CSV"
   },
   "nl": {
     "label_display": "Toon Als",
