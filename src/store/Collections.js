@@ -166,6 +166,7 @@ export default {
       collection,
     }) {
       const contentType = item.constructor.name.toLowerCase();
+      console.log(item, collection, contentType);
 
       return services.collectionsItems.create({
         collection_uid: collection.uid,
