@@ -60,7 +60,12 @@
           v-bind:currentPage="paginationCurrentPage"
           v-bind:totalRows="paginationTotalRows"
           v-on:change="onInputPagination"
+          class="float-left small-caps"
           v-bind:showDescription="true" />
+          <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
+            <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+            <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+          </b-dropdown>
       </div>
     </div>
   </i-layout-section>
@@ -300,7 +305,7 @@ div.overlay-region{
     li.page-item > a,
     li.page-item > span.page-link {
       border-color: $clr-secondary;
-      padding: 0 0.5em;
+      padding: 0.15em 0.6em 0.15em 0.6em;
     }
   }
 }
@@ -321,7 +326,12 @@ div.overlay-region{
     "order_issues": "Issue",
     "order_pages": "Page",
     "order_articles": "Article",
-    "order_sentences": "Sentence"
+    "order_sentences": "Sentence",
+    "order_sentences": "Sentence",
+    "query_actions": "Save / Export",
+    "query_add_to_collection": "Add query to collection",
+    "query_export": "Export result list as ...",
+    "query_export_csv": "Export result list as CSV"
   },
   "nl": {
     "label_display": "Toon Als",
