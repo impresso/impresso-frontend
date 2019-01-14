@@ -8,8 +8,14 @@
       </section>
     </b-navbar>
     <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-      <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
-        <li><label >{{ $t('color by') }}</label>
+      <b-navbar-nav class="px-1">
+        <li class='p-2 border-right'>
+          <b>{{$n(this.totalNodes)}}</b>
+          <label>{{$t('topics')}}</label>
+        </li>
+      </b-navbar-nav>
+      <b-navbar-nav class="px-1 ">
+        <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
           <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
         </li>
       </b-navbar-nav>
@@ -24,6 +30,18 @@
       <div id="d3-graph" class="border-bottom" ></div>
       <tooltip v-model="tooltip" />
     </div>
+
+    <b-navbar>
+      <b-navbar-nav>
+      <li>
+        <label>{{$t('legend')}}</label>
+        <div class="d-inline-block pl-2" v-for="item in legend.nodeColor">
+          <div class='legend-node' v-bind:style="{backgroundColor: item.color}"></div>
+          <span>{{item.name}} ({{$n(item.count)}})</span>
+        </div>
+      </li>
+      </b-navbar-nav>
+    </b-navbar>
     <!--  -->
     <div class="p-3 pt-2">
       <div style="height: 7.5rem; overflow: hidden">
@@ -53,10 +71,16 @@ export default {
       count: 0,
       isActive: false,
     },
-
+    // count
+    totalNodes: 0,
+    totalLinks: 0,
     // visual dimensions
     colorBy: 'model',
     sizeBy: 'degree',
+    // legend
+    legend: {
+      nodeColor: [],
+    },
   }),
   computed: {
     colorByOptions() {
@@ -98,6 +122,9 @@ export default {
 
     const topicsGraph = await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH');
 
+    this.totalNodes = topicsGraph.nodes.length;
+    this.totalLinks = topicsGraph.links.length;
+
     this.graph = new Graph({
       element: '#d3-graph',
     });
@@ -118,6 +145,12 @@ export default {
           item: d,
           isActive: true,
         };
+      })
+      .on('dimension.updated', (dimension) => {
+        console.log('@dimension.updated', dimension);
+        if (this.legend[dimension.name]) {
+          this.legend[dimension.name] = dimension.legend;
+        }
       });
 
     this.graph.updateDimension({
@@ -183,8 +216,18 @@ export default {
 
 <style  lang="scss">
 .d3-graph-wrapper{
-  height: 90%;
+  height: 80%;
   position: relative;
+}
+.legend-item{
+
+}
+.legend-node{
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+  border-radius: 1rem;
+  border: 1px solid black;
 }
 
 #d3-graph{
@@ -198,12 +241,15 @@ export default {
     display: none;
   }
 }
+
 </style>
 <i18n>
 {
   "en": {
     "summary": "Explore the list of topics",
-    "topics_cooccurrence_graph": "Visualise the topics and how they co-occur"
+    "topics_cooccurrence_graph": "Visualise the topics and how they co-occur",
+    "color by": "colored by",
+    "topic model": "{item.name}"
   }
 }
 </i18n>
