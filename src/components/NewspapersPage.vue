@@ -194,7 +194,7 @@ export default {
           },
         });
       }
-      this.loadIssues(1);
+      this.newspaper = this.newspapers.find(newspaper => newspaper.uid === this.newspaperUid);
     });
   },
   components: {
@@ -203,7 +203,7 @@ export default {
   },
   watch: {
     newspaperUid: {
-      immediate: true,
+      immediate: false,
       handler(val) {
         if (val !== undefined) {
           this.newspaper = this.newspapers.find(newspaper => newspaper.uid === this.newspaperUid);
