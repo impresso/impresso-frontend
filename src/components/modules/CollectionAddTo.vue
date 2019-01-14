@@ -103,6 +103,7 @@ export default {
         this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
           collection,
           item: this.item,
+          contentType: 'article',
         }).then(() => {
           this.item.collections.push(collection);
           event.target.classList.remove('loading');

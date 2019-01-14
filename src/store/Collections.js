@@ -164,10 +164,8 @@ export default {
     ADD_COLLECTION_ITEM(context, {
       item,
       collection,
+      contentType,
     }) {
-      const contentType = item.constructor.name.toLowerCase();
-      console.log(item, collection, contentType);
-
       return services.collectionsItems.create({
         collection_uid: collection.uid,
         items: [{
