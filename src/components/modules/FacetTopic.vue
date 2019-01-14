@@ -5,7 +5,7 @@
       v-on:click="onClick(bucket)"
       v-for="bucket in facet.buckets"
       variant="secondary"
-      size="sm">{{bucket.item.uid}} ({{$n(bucket.count)}})</b-button>
+      size="sm">{{getLabel(bucket)}} ({{$n(bucket.count)}})</b-button>
   </div>
 </template>
 
@@ -18,6 +18,9 @@ export default {
   methods: {
     onClick(bucket) {
       this.$emit('submit', this.facet, bucket);
+    },
+    getLabel(bucket) {
+      return bucket.item.excerpt.map(topicWord => topicWord.w).join(', ') || bucket.item.uid;
     },
   },
 };
