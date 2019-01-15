@@ -1,22 +1,24 @@
 <template lang="html">
-  <div id="search-facets" class="px-4">
-    <div v-for="(facet, index) in facets">
-      <base-title-bar>{{facet.type}}</base-title-bar>
-      <facet-language
-        v-if="facet.type === 'language'"
-        v-model="facets[index]"
-        v-on:submit="submitFacet"
-      />
-      <facet-topic
-        v-else-if="facet.type === 'topic'"
-        v-model="facets[index]"
-        v-on:submit="submitFacet"
-      />
-      <facet-newspaper
-        v-else-if="facet.type === 'newspaper'"
-        v-model="facets[index]"
-        v-on:submit="submitFacet"
-      />
+  <div id="search-facets">
+    <div v-for="(facet, index) in facets" class="border-top">
+      <div class="p-4">
+        <base-title-bar>{{facet.type}}</base-title-bar>
+        <facet-language
+          v-if="facet.type === 'language'"
+          v-model="facets[index]"
+          v-on:submit="submitFacet"
+        />
+        <facet-topic
+          v-else-if="facet.type === 'topic'"
+          v-model="facets[index]"
+          v-on:submit="submitFacet"
+        />
+        <facet-newspaper
+          v-else-if="facet.type === 'newspaper'"
+          v-model="facets[index]"
+          v-on:submit="submitFacet"
+        />
+      </div>
     </div>
   </div>
 </template>
