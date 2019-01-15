@@ -3,30 +3,30 @@ import Filter from '@/models/FilterBase';
 /**
  * FilterEntity object
  * @param {String} context either 'include' or 'exclude'
- * @param {Entity} entity Entity object
+ * @param {Entity} item Entity object
  */
 
 export default class FilterEntity extends Filter {
   constructor(args) {
     super(args);
 
-    if (args.entity instanceof Entity) {
-      this.entity = args.entity;
+    if (args.item instanceof Entity) {
+      this.item = args.item;
     } else {
-      this.entity = new Entity(args.entity);
+      this.item = new Entity(args.item);
     }
   }
 
   getName() {
-    return this.entity.name;
+    return this.item.name;
   }
 
   getQuery() {
     return {
       context: this.context,
       type: 'string', // type: this.type,
-      q: this.entity.name, // remove this line
-      uid: this.entity.uid,
+      precision: 'regular',
+      q: this.item.name, // remove this line
     };
   }
 }
