@@ -1,7 +1,7 @@
 <template lang="html">
   <ul class="list-unstyled">
     <li v-for="bucket in facet.buckets">
-      <a href="#">{{bucket.item.getHtmlExcerpt()}} ({{$n(bucket.count)}})</a>
+      <a href="#" v-on:click.prevent="onClick(bucket)">{{bucket.item.getHtmlExcerpt()}} ({{$n(bucket.count)}})</a>
     </li>
   </ul>
 </template>
