@@ -1,36 +1,37 @@
 <template lang="html">
   <i-layout-section>
-
-    <b-navbar type="light" variant="light" class="border-bottom">
-      <section class='pt-2 pb-1'>
-        <span class="label small-caps">{{$t('summary')}}</span>
-        <h3 class='mb-1'>{{ $t('topics_cooccurrence_graph') }}</h3>
-      </section>
-    </b-navbar>
-    <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-      <b-navbar-nav class="px-1">
-        <li class='p-2 border-right'>
-          <b>{{$n(this.totalNodes)}}</b>
-          <label>{{$t('topics')}}</label>
-        </li>
-      </b-navbar-nav>
-      <b-navbar-nav class="px-1 ">
-        <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
-          <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
-        </li>
-      </b-navbar-nav>
-      <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
-        <li><label >{{ $t('size by') }}</label>
-          <i-dropdown v-model="sizeBy" v-bind:options="sizeByOptions" size="sm" variant="outline-primary"></i-dropdown>
-        </li>
-      </b-navbar-nav>
-    </b-navbar>
-
+    <div slot="header">
+      <b-navbar  type="light" variant="light" class="border-bottom">
+        <section class='pt-2 pb-1'>
+          <span class="label small-caps">{{$t('summary')}}</span>
+          <h3 class='mb-1'>{{ $t('topics_cooccurrence_graph') }}</h3>
+        </section>
+      </b-navbar>
+      <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+        <b-navbar-nav class="px-1">
+          <li class='p-2 border-right'>
+            <b>{{$n(this.totalNodes)}}</b>
+            <label>{{$t('topics')}}</label>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="px-1 ">
+          <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
+            <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
+          <li><label >{{ $t('size by') }}</label>
+            <i-dropdown v-model="sizeBy" v-bind:options="sizeByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+      </b-navbar>
+    </div>
     <div class="d3-graph-wrapper small-caps">
       <div id="d3-graph" class="border-bottom" ></div>
       <tooltip v-model="tooltip" />
     </div>
 
+<div slot="footer">
     <b-navbar>
       <b-navbar-nav>
       <li>
@@ -42,15 +43,6 @@
       </li>
       </b-navbar-nav>
     </b-navbar>
-    <!--  -->
-    <div class="p-3 pt-2">
-      <div style="height: 7.5rem; overflow: hidden">
-      <div class="d-inline-block word" v-for="(word, idx) in topic.words">
-        <span :style='{opacity: word.l}'>{{ word.w }}</span>
-        <span class="word-probability">{{word.p}}</span>
-        <span v-if="idx < topic.words.length - 1">&middot;&nbsp;</span>
-      </div>
-    </div>
     </div>
   </i-layout-section>
 </template>
@@ -216,7 +208,7 @@ export default {
 
 <style  lang="scss">
 .d3-graph-wrapper{
-  height: 80%;
+  height: 100%;
   position: relative;
 }
 .legend-item{
