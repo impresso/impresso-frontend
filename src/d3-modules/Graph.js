@@ -46,9 +46,11 @@ export default class Graph extends EventEmitter {
 
     // initialize force!
     this.simulation = d3.forceSimulation()
-      .force('link', d3.forceLink()
-        // .id(d => d.id)
-        .distance(this.maxDistance))
+      .force('link',
+        d3.forceLink()
+          .id((d, k) => k)
+          .distance(maxDistance)
+          .strength(0.5))
       .force('center', d3.forceCenter(
         this.width / 2,
         this.height / 2))
@@ -72,6 +74,13 @@ export default class Graph extends EventEmitter {
         scaleFn: d3.scaleLinear,
         range: [4, this.maxNodeRadius],
       }),
+      linkDistance: new Dimension({
+        name: 'linkDistance',
+        property: 'w',
+        type: Dimension.TYPE_CONTINUOUS,
+        scaleFn: d3.scaleSqrt,
+        range: [10, 200],
+      }),
       ...dimensions,
     };
 
@@ -84,6 +93,12 @@ export default class Graph extends EventEmitter {
       .transition()
       .attr('fill', this.dimensions.nodeColor.accessor())
       .attr('r', this.dimensions.nodeSize.accessor());
+
+    // apply force
+    this.simulation.force('link')
+      .distance(this.dimensions.linkDistance.accessor());
+      // strength(+this.value);
+    this.simulation.alpha(1).restart();
   }
 
   /**
@@ -207,6 +222,13 @@ export default class Graph extends EventEmitter {
       r: d.r || this.maxNodeRadius,
       type: d.type || 'n',
     }));
+
+    this.updateDimension({
+      name: 'linkDistance',
+      property: 'w',
+      values: this.links,
+    });
+
     this.draw();
   }
   //

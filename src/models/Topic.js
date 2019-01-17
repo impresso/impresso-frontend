@@ -15,7 +15,7 @@ export default class Topic {
     this.uid = String(uid);
     this.language = String(language);
     this.model = String(model);
-    this.words = words;
+    this.words = words.filter(d => d.p > 0.0);
     this.excerpt = excerpt;
 
     if (words.length && !(words[0] instanceof TopicWord)) {
