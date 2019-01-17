@@ -12,11 +12,18 @@
           <li class='p-2 border-right'>
             <b>{{$n(this.totalNodes)}}</b>
             <label>{{$t('topics')}}</label>
+            <b>{{$n(this.totalLinks)}}</b>
+            <label>{{$t('connections')}}</label>
           </li>
         </b-navbar-nav>
         <b-navbar-nav class="px-1 ">
           <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
             <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="px-1 ">
+          <li class="p-2 border-right"><label >{{ $t('connected if') }}</label>
+            <i-dropdown v-model="linkBy" v-bind:options="linkByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
         <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
@@ -67,6 +74,7 @@ export default {
     totalNodes: 0,
     totalLinks: 0,
     // visual dimensions
+    linkBy: 'wordInCommon',
     colorBy: 'model',
     sizeBy: 'degree',
     // legend
@@ -75,6 +83,14 @@ export default {
     },
   }),
   computed: {
+    linkByOptions() {
+      return [
+        {
+          value: 'wordInCommon',
+          text: this.$t('wordInCommon'),
+        },
+      ];
+    },
     colorByOptions() {
       return [
         {
