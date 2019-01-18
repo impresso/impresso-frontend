@@ -23,7 +23,11 @@ export default class Graph extends EventEmitter {
     this.svg = d3.select(element).append('svg')
       .attr('width', '100%')
       .attr('height', '100%')
-      .attr('preserveAspectRatio', 'none');
+      .attr('preserveAspectRatio', 'none')
+      .on('click', () => {
+        this.selected = null;
+        this.emit('svg.click');
+      });
 
     this.margin = margin;
     this.maxNodeRadius = parseInt(maxNodeRadius, 10);
@@ -132,6 +136,10 @@ export default class Graph extends EventEmitter {
       .attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x)
       .attr('y2', d => d.target.y);
+
+    if (this.selected) {
+      this.emit('node.tick', this.selected);
+    }
   }
 
   onDragStarted(datum) {
@@ -163,6 +171,9 @@ export default class Graph extends EventEmitter {
 
   // normally called by this.update
   draw() {
+    // I know I know...
+    const self = this;
+
     console.log('draw nodes:', this.nodes.length);
 
     this.nodesLayer = this.nodesLayer.data(this.nodes, this.identity);
@@ -174,11 +185,18 @@ export default class Graph extends EventEmitter {
         .on('drag', datum => this.onDragged(datum))
         .on('end', datum => this.onDragEnded(datum)));
 
-    this.nodesLayer.on('mouseenter', (datum) => {
-      this.emit('node.mouseenter', datum);
-    })
+    this.nodesLayer
+      .on('mouseenter', function (datum) {
+        d3.select(this).raise();
+        self.emit('node.mouseenter', datum);
+      })
       .on('mouseleave', (datum) => {
         this.emit('node.mouseleave', datum);
+      })
+      .on('click', (datum) => {
+        d3.event.stopPropagation();
+        self.selected = datum;
+        self.emit('node.click', datum);
       });
 
     this.nodesLayer.append('circle')
@@ -186,7 +204,6 @@ export default class Graph extends EventEmitter {
 
     this.nodesLayer.append('circle')
         .attr('class', 'whoosh')
-        // .attr("fill", function(d,i){ return i==0?'magenta':'cyan'})
         .attr('r', 2);
 
     // add text
