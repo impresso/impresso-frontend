@@ -1,40 +1,43 @@
 <template lang="html">
-  <b-navbar id="TheHeader" toggleable="md" type="dark" v-bind:variant="navbarVariant" class="py-0 pr-1">
-    <b-navbar-brand :to="{name: 'home'}">
-      <img src="./../assets/img/impresso-logo-h-i@2x.png" />
-    </b-navbar-brand>
-      <b-navbar-nav>
-        <li class="nav-item">
-          <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link v-bind:to="{ name: 'topicsExplorer'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
-        </li>
-      </b-navbar-nav>
-      <b-navbar-nav class="nav-title mx-auto">
-        <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
-      </b-navbar-nav>
-      <b-navbar-nav>
-        <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
-          <b-dropdown-item v-for="language in languages"
-          v-bind:active="activeLanguageCode === language.code"
-          v-bind:key="language.code"
-          v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
-        </b-nav-item-dropdown>
-        <b-nav-item-dropdown v-if="user" class="p-2 small-caps border-left" right>
-          <template slot="button-content">
-            <em>{{userFullName}}</em>
-          </template>
-          <b-dropdown-item v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
-          <b-dropdown-item v-bind:to="{ name: 'collection'}">{{$t("collections")}}</b-dropdown-item>
-          <b-dropdown-item v-on:click.prevent="logout">{{$t("logout")}}</b-dropdown-item>
-        </b-nav-item-dropdown>
-        <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
-      </b-navbar-nav>
-  </b-navbar>
+  <div id="TheHeader">
+    <b-navbar toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
+      <b-navbar-brand :to="{name: 'home'}">
+        <img src="./../assets/img/impresso-logo-h-i@2x.png" />
+      </b-navbar-brand>
+        <b-navbar-nav>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'topicsExplorer'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="nav-title mx-auto">
+          <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
+        </b-navbar-nav>
+        <b-navbar-nav>
+          <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
+            <b-dropdown-item v-for="language in languages"
+            v-bind:active="activeLanguageCode === language.code"
+            v-bind:key="language.code"
+            v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
+          </b-nav-item-dropdown>
+          <b-nav-item-dropdown v-if="user" class="p-2 small-caps border-left" right>
+            <template slot="button-content">
+              <em>{{userFullName}}</em>
+            </template>
+            <b-dropdown-item v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
+            <b-dropdown-item v-bind:to="{ name: 'collection'}">{{$t("collections")}}</b-dropdown-item>
+            <b-dropdown-item v-on:click.prevent="logout">{{$t("logout")}}</b-dropdown-item>
+          </b-nav-item-dropdown>
+          <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
+        </b-navbar-nav>
+    </b-navbar>
+    <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
+  </div>
 </template>
 
 <script>
@@ -67,8 +70,8 @@ export default {
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
-    navbarVariant() {
-      return this.$store.state.processing_status ? 'warning' : 'dark';
+    progressBarHeight() {
+      return this.$store.state.processing_status ? '4px' : '0';
     },
     user() {
       return this.$store.getters['user/user'];
@@ -116,6 +119,13 @@ export default {
 
 #app-header {
   border-bottom: 1px solid $clr-tertiary;
+  .progress {
+    // position: absolute;
+    // z-index: 1;
+    // top: 0;
+    // width: 100%;
+    transition: height 400ms;
+  }
   nav {
     margin-top: 0;
     margin-bottom: 1px;
