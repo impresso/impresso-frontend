@@ -38,13 +38,22 @@
 
     <b-navbar type="light" variant="light" class="border-bottom">
       <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
+      <b-navbar-nav>
+          <b-form-checkbox
+            class="mr-0"
+            v-on:change="onSelectAll">
+          </b-form-checkbox>
+      </b-navbar-nav>
     </b-navbar>
 
     <div class="p-1">
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+            <search-results-list-item
+              v-on:selected="onSelectResult"
+              v-on:click="onClickResult(searchResult)"
+              v-model="searchResults[index]" />
           </b-col>
         </b-row>
         <b-row class="pb-5" v-if="displayStyle === 'tiles'">
@@ -60,10 +69,15 @@
           v-bind:totalRows="paginationTotalRows"
           v-on:change="onInputPagination"
           class="float-left small-caps" />
-          <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
-            <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
-            <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
-          </b-dropdown>
+          <div v-if="selectedItems.length > 0" class="float-right">
+            <span class="ml-2 small-caps">
+              {{ $tc('items_selected', selectedItems.length) }}
+            </span>
+            <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
+              <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+              <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+            </b-dropdown>
+          </div>
       </div>
     </div>
   </i-layout-section>
@@ -82,6 +96,9 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 
 export default {
+  data: () => ({
+    selectedItems: [],
+  }),
   computed: {
     groupByOptions: {
       get() {
@@ -198,6 +215,22 @@ export default {
     },
     onInputPagination(page = 1) {
       this.search(page);
+    },
+    onSelectAll(e) {
+      this.selectedItems = [];
+      this.searchResults.forEach((item) => {
+        if (e) {
+          this.selectedItems.push(item.uid);
+          document.querySelector(`input[value='${item.uid}']`).checked = true;
+        } else {
+          document.querySelector(`input[value='${item.uid}']`).checked = false;
+        }
+      });
+    },
+    onSelectResult(e) {
+      console.log(e);
+      if (e && !this.selectedItems.includes(e)) this.selectedItems.push(e);
+      else this.selectedItems.pop(e);
     },
     onClickResult(searchResult) {
       this.$router.push({
@@ -321,6 +354,7 @@ div.overlay-region{
     "order_articles": "Article",
     "order_sentences": "Sentence",
     "order_sentences": "Sentence",
+    "items_selected": "One item selected | {count} items selected",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Add query to collection",
     "query_export": "Export result list as ...",
