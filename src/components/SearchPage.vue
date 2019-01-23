@@ -228,7 +228,6 @@ export default {
       });
     },
     onSelectResult(e) {
-      console.log(e);
       if (e && !this.selectedItems.includes(e)) this.selectedItems.push(e);
       else this.selectedItems.pop(e);
     },
