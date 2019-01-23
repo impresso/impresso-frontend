@@ -36,6 +36,7 @@
           <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
+    <b-alert :show="showAlert" dismissible v-html="alertMessage" variant="warning" class="m-0 px-3"></b-alert>
     <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
   </div>
 </template>
@@ -69,6 +70,12 @@ export default {
   computed: {
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
+    },
+    showAlert() {
+      return this.$store.state.alert_message !== '';
+    },
+    alertMessage() {
+      return this.$store.state.alert_message;
     },
     progressBarHeight() {
       return this.$store.state.processing_status ? '4px' : '0';

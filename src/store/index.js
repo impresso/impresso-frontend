@@ -29,6 +29,7 @@ export default new Vuex.Store({
   },
   state: {
     processing_status: false,
+    error_message: '',
     header_title: '',
     header_subtitle: '',
   },
