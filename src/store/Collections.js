@@ -1,9 +1,5 @@
 import * as services from '@/services';
 import Collection from '@/models/Collection';
-import Article from '@/models/Article';
-import Entity from '@/models/Entity';
-import Issue from '@/models/Issue';
-import Page from '@/models/Page';
 
 export default {
   namespaced: true,
@@ -83,6 +79,7 @@ export default {
   },
   actions: {
     LOAD_COLLECTION(context, collection) {
+      console.log(collection.uid);
       return new Promise((resolve) => {
         services.collections.get(collection.uid, {}).then((result) => {
           collection = new Collection({
@@ -145,62 +142,35 @@ export default {
         services.collections.remove(uid).then(res => resolve(res));
       });
     },
-    ADD_COLLECTION_ITEM(context, payload) {
-      const collection = payload.collection;
-      const item = payload.item;
+    ADD_COLLECTION_ITEM(context, {
+      item,
+      collection,
+    }) {
+      const contentType = item.constructor.name.toLowerCase();
 
-      let label = false;
+      return services.collectionsItems.create({
+        collection_uid: collection.uid,
+        items: [{
+          content_type: contentType,
+          uid: item.uid,
+        }],
+      });
+    },
+    REMOVE_COLLECTION_ITEM(context, {
+      item,
+      collection,
+    }) {
+      const contentType = item.constructor.name.toLowerCase();
 
-      if (item instanceof Page) {
-        label = 'page';
-      } else if (item instanceof Article) {
-        label = 'article';
-      } else if (item instanceof Entity) {
-        label = 'entity';
-      } else if (item instanceof Issue) {
-        label = 'issue';
-      }
-
-      if (label && collection instanceof Collection) {
-        services.collectionsItems.create({
-          bucket_uid: collection.uid,
+      return services.collectionsItems.remove(null, {
+        query: {
+          collection_uid: collection.uid,
           items: [{
-            label,
+            content_type: contentType,
             uid: item.uid,
           }],
-        }).then((res) => {
-          console.log(res);
-        });
-      }
-    },
-    REMOVE_COLLECTION_ITEM(context, payload) {
-      const collection = payload.collection;
-      const item = payload.item;
-
-      let label = false;
-
-      if (item instanceof Page) {
-        label = 'page';
-      } else if (item instanceof Article) {
-        label = 'article';
-      } else if (item instanceof Entity) {
-        label = 'entity';
-      } else if (item instanceof Issue) {
-        label = 'issue';
-      }
-
-      if (label && collection instanceof Collection) {
-        services.collectionsItems.remove(collection.uid, {
-          query: {
-            items: [{
-              label,
-              uid: item.uid,
-            }],
-          },
-        }).then((res) => {
-          console.log(res);
-        });
-      }
+        },
+      });
     },
   },
 };
