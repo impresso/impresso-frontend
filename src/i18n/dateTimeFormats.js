@@ -9,6 +9,11 @@ export default {
       day: 'numeric',
       weekday: 'long',
     },
+    compact: {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    },
     short: {
       weekday: 'short',
       day: 'numeric',

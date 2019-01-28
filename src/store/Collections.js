@@ -1,9 +1,5 @@
 import * as services from '@/services';
 import Collection from '@/models/Collection';
-import Article from '@/models/Article';
-import Entity from '@/models/Entity';
-import Issue from '@/models/Issue';
-import Page from '@/models/Page';
 
 export default {
   namespaced: true,
@@ -29,10 +25,6 @@ export default {
     UPDATE_COLLECTIONS(state, collections) {
       state.collections = collections;
     },
-    UPDATE_COLLECTION(state, payload) {
-      const index = state.collections.findIndex(collection => collection.uid === payload.uid);
-      state.collections.splice(index, 1, new Collection(payload));
-    },
     SET_COLLECTIONS_SORT_ORDER(state, payload) {
       const collectionsSortOrder = payload.collectionsSortOrder || state.collectionsSortOrder;
 
@@ -57,16 +49,16 @@ export default {
 
       switch (collectionsSortOrder) {
         case '-created':
-          sortBy(state.collections, 'creationTime', 'desc');
+          sortBy(state.collections, 'creationDate', 'desc');
           break;
         case 'created':
-          sortBy(state.collections, 'creationTime', 'asc');
+          sortBy(state.collections, 'creationDate', 'asc');
           break;
         case '-modified':
-          sortBy(state.collections, 'lastModifiedTime', 'desc');
+          sortBy(state.collections, 'lastModifiedDate', 'desc');
           break;
         case 'modified':
-          sortBy(state.collections, 'lastModifiedTime', 'asc');
+          sortBy(state.collections, 'lastModifiedDate', 'asc');
           break;
         case '-name':
           sortBy(state.collections, 'name', 'desc');
@@ -83,22 +75,21 @@ export default {
   },
   actions: {
     LOAD_COLLECTION(context, collection) {
-      return new Promise((resolve) => {
-        services.collections.get(collection.uid, {}).then((result) => {
-          collection = new Collection({
-            countArticles: result.count_articles,
-            countEntities: result.count_entities,
-            countIssues: result.count_issues,
-            countPages: result.count_pages,
-            creationDate: result.creation_date,
-            creationTime: result.creation_time,
-            lastModifiedDate: result.last_modified_date,
-            lastModifiedTime: result.last_modified_time,
-            ...result,
-          });
-          context.commit('UPDATE_COLLECTION', collection);
-          resolve(collection);
-        });
+      return Promise.all([
+        services.collections.get(collection.uid, {}),
+        services.collectionsItems.find({
+          query: {
+            collection_uid: collection.uid,
+          },
+        }),
+      ]).then((results) => {
+        const loadedCollection = new Collection(results[0]);
+        loadedCollection.items = results[1].data.map(d => ({
+          ...d.item,
+          dateAdded: d.dateAdded,
+        }));
+
+        return loadedCollection;
       });
     },
     LOAD_COLLECTIONS(context) {
@@ -114,9 +105,7 @@ export default {
             countIssues: result.count_issues,
             countPages: result.count_pages,
             creationDate: result.creation_date,
-            creationTime: result.creation_time,
             lastModifiedDate: result.last_modified_date,
-            lastModifiedTime: result.last_modified_time,
             ...result,
           })));
           context.commit('SET_COLLECTIONS_SORT_ORDER', {});
@@ -145,62 +134,34 @@ export default {
         services.collections.remove(uid).then(res => resolve(res));
       });
     },
-    ADD_COLLECTION_ITEM(context, payload) {
-      const collection = payload.collection;
-      const item = payload.item;
+    ADD_COLLECTION_ITEM(context, {
+      item,
+      collection,
+      contentType,
+    }) {
+      return services.collectionsItems.create({
+        collection_uid: collection.uid,
+        items: [{
+          content_type: contentType,
+          uid: item.uid,
+        }],
+      });
+    },
+    REMOVE_COLLECTION_ITEM(context, {
+      item,
+      collection,
+    }) {
+      const contentType = item.constructor.name.toLowerCase();
 
-      let label = false;
-
-      if (item instanceof Page) {
-        label = 'page';
-      } else if (item instanceof Article) {
-        label = 'article';
-      } else if (item instanceof Entity) {
-        label = 'entity';
-      } else if (item instanceof Issue) {
-        label = 'issue';
-      }
-
-      if (label && collection instanceof Collection) {
-        services.collectionsItems.create({
-          bucket_uid: collection.uid,
+      return services.collectionsItems.remove(null, {
+        query: {
+          collection_uid: collection.uid,
           items: [{
-            label,
+            content_type: contentType,
             uid: item.uid,
           }],
-        }).then((res) => {
-          console.log(res);
-        });
-      }
-    },
-    REMOVE_COLLECTION_ITEM(context, payload) {
-      const collection = payload.collection;
-      const item = payload.item;
-
-      let label = false;
-
-      if (item instanceof Page) {
-        label = 'page';
-      } else if (item instanceof Article) {
-        label = 'article';
-      } else if (item instanceof Entity) {
-        label = 'entity';
-      } else if (item instanceof Issue) {
-        label = 'issue';
-      }
-
-      if (label && collection instanceof Collection) {
-        services.collectionsItems.remove(collection.uid, {
-          query: {
-            items: [{
-              label,
-              uid: item.uid,
-            }],
-          },
-        }).then((res) => {
-          console.log(res);
-        });
-      }
+        },
+      });
     },
   },
 };
