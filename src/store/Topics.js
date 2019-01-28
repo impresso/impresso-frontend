@@ -18,9 +18,7 @@ export default {
     },
   },
   actions: {
-    LOAD_TOPICS_GRAPH(context, {
-      linkType = 'wordInCommon',
-    } = {}) {
+    LOAD_TOPICS_GRAPH() {
       return new Promise((resolve) => {
         services.topics.find({
           query: {
@@ -32,7 +30,7 @@ export default {
           const links = [];
           const nodes = [];
 
-          console.log('link type', linkType, results.data.length);
+          // console.log('link type', linkType, results.data.length);
 
           for (let i = 0, l = results.data.length; i < l; i += 1) {
             const t = new Topic(results.data[i]);
@@ -60,7 +58,7 @@ export default {
 
             nodes.push(t);
           }
-          console.log('links', links);
+          // console.log('links', links);
 
           resolve({
             nodes,
@@ -92,7 +90,7 @@ export default {
         if (facets) {
           query.facets = facets;
         }
-        console.log('topics to load', query);
+        // console.log('topics to load', query);
 
         services.topics.find({
           query,
