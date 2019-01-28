@@ -12,11 +12,18 @@
           <li class='p-2 border-right'>
             <b>{{$n(this.totalNodes)}}</b>
             <label>{{$t('topics')}}</label>
+            <b>{{$n(this.totalLinks)}}</b>
+            <label>{{$t('connections')}}</label>
           </li>
         </b-navbar-nav>
         <b-navbar-nav class="px-1 ">
           <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
             <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="px-1 ">
+          <li class="p-2 border-right"><label >{{ $t('connected if') }}</label>
+            <i-dropdown v-model="linkBy" v-bind:options="linkByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
         <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
@@ -67,6 +74,7 @@ export default {
     totalNodes: 0,
     totalLinks: 0,
     // visual dimensions
+    linkBy: 'wordInCommon',
     colorBy: 'model',
     sizeBy: 'degree',
     // legend
@@ -75,6 +83,14 @@ export default {
     },
   }),
   computed: {
+    linkByOptions() {
+      return [
+        {
+          value: 'wordInCommon',
+          text: this.$t('wordInCommon'),
+        },
+      ];
+    },
     colorByOptions() {
       return [
         {
@@ -119,18 +135,23 @@ export default {
 
     this.graph = new Graph({
       element: '#d3-graph',
+      nodeLabel: d => d.excerpt.map(w => w.w).join('-'),
     });
 
     this.graph
-      .on('node.mouseleave', (d) => {
-        console.log('node.mouseleave', d);
+      .on('svg.click', (d) => {
+        console.log('svg.click', d);
         this.tooltip = {
           ...d,
           isActive: false,
         };
       })
-      .on('node.mouseenter', (d) => {
-        console.log('node.mouseenter', d);
+      .on('node.tick', (d) => {
+        this.tooltip.x = d.x;
+        this.tooltip.y = d.y;
+      })
+      .on('node.click', (d) => {
+        console.log('node.click', d);
         this.tooltip = {
           x: d.x,
           y: d.y,
@@ -231,6 +252,16 @@ export default {
   text{
     pointer-events: none;
     display: none;
+  }
+
+  .nodes > g:hover {
+    .whoosh{
+      transform: scale(5);
+    }
+
+    text{
+      display: block;
+    }
   }
 }
 
