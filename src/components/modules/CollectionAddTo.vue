@@ -113,8 +113,7 @@ export default {
     addCollection(collectionName) {
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
-      }).then((res) => {
-        console.log(res);
+      }).then(() => {
         this.inputString = '';
         this.fetch();
         // TODO: add item to ne collection

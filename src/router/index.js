@@ -73,8 +73,7 @@ export default new Router({
       path: ':collection_uid',
       component: CollectionDetailPage,
       name: 'collection',
-    },
-    ],
+    }],
   },
   {
     path: '/issue/:issue_uid',
@@ -120,8 +119,7 @@ export default new Router({
       path: ':topic_uid',
       component: TopicDetailPage,
       name: 'topic',
-    },
-    ],
+    }],
   },
   {
     path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
@@ -150,6 +148,5 @@ export default new Router({
         });
       });
     },
-  },
-  ],
+  }],
 });
