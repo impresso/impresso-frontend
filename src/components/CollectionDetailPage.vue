@@ -180,15 +180,13 @@ export default {
     remove(collection) {
       const sure = confirm(this.$t('confirm_delete', [collection.name]));
       if (sure) {
-        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then((res) => {
-          console.log(`Collection "${collection.name}" deleted. `, res);
+        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
           this.fetch();
         });
       }
     },
     save(collection) {
       if (collection.uid) {
-        console.log(collection);
         this.$store.dispatch('collections/EDIT_COLLECTION', {
           uid: collection.uid,
           name: collection.name,

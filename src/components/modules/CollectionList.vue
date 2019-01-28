@@ -107,7 +107,6 @@ export default {
         this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
           collectionsSortOrder,
         });
-        // console.log('set', collectionsSortOrder);
       },
     },
     filteredCollections() {
@@ -145,7 +144,6 @@ export default {
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName.trim(),
       }).then((res) => {
-        // console.log(res);
         this.fetch();
         this.select(res);
       });
