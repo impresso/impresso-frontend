@@ -25,10 +25,6 @@ export default {
     UPDATE_COLLECTIONS(state, collections) {
       state.collections = collections;
     },
-    UPDATE_COLLECTION(state, collection) {
-      const index = state.collections.findIndex(d => d.uid === collection.uid);
-      state.collections.splice(index, 1, collection);
-    },
     SET_COLLECTIONS_SORT_ORDER(state, payload) {
       const collectionsSortOrder = payload.collectionsSortOrder || state.collectionsSortOrder;
 
@@ -87,36 +83,14 @@ export default {
           },
         }),
       ]).then((results) => {
-        // console.log(' collection loaded', results);
         const loadedCollection = new Collection(results[0]);
         loadedCollection.items = results[1].data.map(d => ({
           ...d.item,
           dateAdded: d.dateAdded,
         }));
-        // context.commit('UPDATE_COLLECTION', loadedCollection);
+
         return loadedCollection;
       });
-
-      // ((resolve) => {
-      //   services.collections.get(collection.uid, {}).then((result) => {
-      //     collection = new Collection({
-      //       countArticles: result.count_articles,
-      //       countEntities: result.count_entities,
-      //       countIssues: result.count_issues,
-      //       countPages: result.count_pages,
-      //       creationDate: result.creation_date,
-      //       lastModifiedDate: result.last_modified_date,
-      //       ...result,
-      //     });
-      //     console.log('TESTTTTT', collection);
-      //     .then((res) => {
-      //       console.log('hohohoh', res);
-      //     });
-      //
-      //
-      //     resolve(collection);
-      //   });
-      // });
     },
     LOAD_COLLECTIONS(context) {
       return new Promise((resolve) => {
