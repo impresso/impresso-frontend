@@ -120,17 +120,9 @@ export default {
     tabs() {
       return [
         {
-          label: this.$t('tabs.overview'),
-          name: 'overview',
-          active: true,
-        },
-        {
           label: this.$t('tabs.toc'),
           name: 'toc',
-        },
-        {
-          label: this.$t('tabs.search'),
-          name: 'search',
+          active: true,
         },
       ];
     },
