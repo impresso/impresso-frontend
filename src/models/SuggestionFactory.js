@@ -11,7 +11,7 @@ export default {
     if (data.type === 'person' || data.type === 'location') {
       return new SuggestionMention({
         ...data,
-        type: 'mention',
+        type: 'entity',
       });
     } else if (data.type === 'daterange') {
       return new SuggestionDaterange(data);

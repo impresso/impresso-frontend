@@ -279,7 +279,6 @@ export default {
 </script>
 
 <style lang="less">
-// @import "./../../assets/less/style.less";
 
 .app {
     position: relative;
@@ -393,7 +392,6 @@ export default {
 
         .tick {
             text {
-                font-family: OpenSans, "helvetica neue", Arial, sans-serif;
                 fill: #757575;
                 text-anchor: start;
             }

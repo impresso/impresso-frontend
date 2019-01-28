@@ -4,9 +4,9 @@
       <filter-setting-context v-model="filter" />
     </div>
     <div class="p-2">
-      <icon v-if="filter.entity.hasLabel('person')" name="user-circle"></icon>
-      <icon v-if="filter.entity.hasLabel('location')" name="map-marker"></icon>
-      {{filter.entity.name}}
+      <icon v-if="filter.item.hasLabel('person')" name="user-circle"></icon>
+      <icon v-if="filter.item.hasLabel('location')" name="map-marker"></icon>
+      {{filter.item.name}}
     </div>
   </filter-wrapper>
 </template>
