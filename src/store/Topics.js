@@ -18,9 +18,7 @@ export default {
     },
   },
   actions: {
-    LOAD_TOPICS_GRAPH(context, {
-      linkType = 'wordInCommon',
-    } = {}) {
+    LOAD_TOPICS_GRAPH() {
       return new Promise((resolve) => {
         services.topics.find({
           query: {
