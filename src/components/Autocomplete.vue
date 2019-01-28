@@ -69,7 +69,6 @@ export default {
         this.$store.dispatch('autocomplete/SEARCH', {
           query: this.query.trim(),
         }).then((res) => {
-          console.log('suggestions', res);
           this.suggestions = res;
         });
       } else {

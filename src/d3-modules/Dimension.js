@@ -5,12 +5,14 @@ const TYPE_CONTINUOUS = 'TYPE_CONTINUOUS';
 
 class Dimension {
   constructor({
+    name = '',
     type = '',
     property,
     scaleFn,
     domain = [0, 1],
     range = [0, 1],
   } = {}) {
+    this.name = name;
     this.property = property;
     this.type = type;
     // if(this.type === )
@@ -39,11 +41,20 @@ class Dimension {
   update({ property, values }) {
     this.property = property;
     this.domain = [];
+    this.legend = [];
     // recalculate cat according to type
     if (this.type === TYPE_DISCRETE) {
-      this.domain = Object.keys(Dimension.groupBy(values, this.property));
+      const groups = Dimension.groupBy(values, this.property);
+      this.domain = Object.keys(groups);
       this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length])
         .domain(this.domain);
+      this.domain.forEach((key) => {
+        this.legend.push({
+          name: key,
+          count: groups[key].length,
+          color: this.scale(key),
+        });
+      });
     } else {
       this.domain = d3.extent(values, d => d[this.property]);
       this.scale = this.scale

@@ -60,11 +60,13 @@ export default class Graph extends EventEmitter {
     // dimensions dict
     this.dimensions = {
       nodeColor: new Dimension({
+        name: 'nodeColor',
         property: 'id',
         type: Dimension.TYPE_DISCRETE,
         scaleFn: d3.scaleOrdinal,
       }),
       nodeSize: new Dimension({
+        name: 'nodeSize',
         property: 'degree',
         type: Dimension.TYPE_CONTINUOUS,
         scaleFn: d3.scaleLinear,
@@ -96,6 +98,7 @@ export default class Graph extends EventEmitter {
       property,
       values,
     });
+    this.emit('dimension.updated', this.dimensions[name]);
   }
 
   /**
