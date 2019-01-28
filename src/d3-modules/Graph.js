@@ -13,6 +13,7 @@ export default class Graph extends EventEmitter {
     maxNodeRadius = 12,
     maxDistance = 50,
     delay = 30000,
+    fixAfterDrag = true,
     nodeLabel = d => d.id,
     identity = d => d.id,
     // override current behaviour if needed,
@@ -30,6 +31,7 @@ export default class Graph extends EventEmitter {
       });
 
     this.margin = margin;
+    this.fixAfterDrag = fixAfterDrag;
     this.maxNodeRadius = parseInt(maxNodeRadius, 10);
     this.maxDistance = parseInt(maxDistance, 10);
     this.delay = parseInt(delay, 10);
@@ -163,9 +165,15 @@ export default class Graph extends EventEmitter {
     if (!d3.event.active) {
       this.simulation.alphaTarget(0);
     }
+    if (this.fixAfterDrag) {
+      datum.fixed = true;
+      datum.fx = d3.event.x;
+      datum.fy = d3.event.y;
+    } else {
+      datum.fx = null;
+      datum.fy = null;
+    }
     // if autostop
-    datum.fx = null;
-    datum.fy = null;
     this.stopSimulation();
   }
 
