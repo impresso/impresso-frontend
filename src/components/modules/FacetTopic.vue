@@ -1,12 +1,9 @@
 <template lang="html">
-  <div>
-    <b-button
-      class="mr-2 mb-2"
-      v-on:click="onClick(bucket)"
-      v-for="bucket in facet.buckets"
-      variant="secondary"
-      size="sm">{{bucket.item.uid}} ({{$n(bucket.count)}})</b-button>
-  </div>
+  <ul class="list-unstyled">
+    <li v-for="bucket in facet.buckets">
+      <a href="#" v-on:click.prevent="onClick(bucket)">{{bucket.item.getHtmlExcerpt()}} ({{$n(bucket.count)}})</a>
+    </li>
+  </ul>
 </template>
 
 <script>

@@ -1,29 +1,29 @@
 <template lang="html">
-  <div id="search-facets" class="px-4">
-    <div v-for="(facet, index) in facets">
-      <base-title-bar>{{facet.type}}</base-title-bar>
-      <facet-language
-        v-if="facet.type === 'language'"
-        v-model="facets[index]"
-        v-on:submit="submitFacet"
-      />
-      <facet-topic
-        v-else-if="facet.type === 'topic'"
-        v-model="facets[index]"
-        v-on:submit="submitFacet"
-      />
-      <facet-newspaper
-        v-else-if="facet.type === 'newspaper'"
-        v-model="facets[index]"
-        v-on:submit="submitFacet"
-      />
+  <div id="search-facets">
+    <div v-for="(facet, index) in facets" class="border-top">
+      <div class="p-4">
+        <base-title-bar>{{facet.type}}</base-title-bar>
+        <facet-language
+          v-if="facet.type === 'language'"
+          v-model="facets[index]"
+          v-on:submit="submitFacet"
+        />
+        <facet-topic
+          v-else-if="facet.type === 'topic'"
+          v-model="facets[index]"
+          v-on:submit="submitFacet"
+        />
+        <facet-newspaper
+          v-else-if="facet.type === 'newspaper'"
+          v-model="facets[index]"
+          v-on:submit="submitFacet"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-
-import SuggestionFactory from '@/models/SuggestionFactory';
 import FacetLanguage from './modules/FacetLanguage';
 import FacetTopic from './modules/FacetTopic';
 import FacetNewspaper from './modules/FacetNewspaper';
@@ -56,12 +56,12 @@ export default {
   methods: {
     submitFacet(facet, bucket) {
       if (facet.type === 'topic') {
-        this.$emit('submit-facet', SuggestionFactory.create({
+        this.$emit('submit-facet', {
           type: facet.type,
           item: bucket.item,
           h: bucket.val,
           q: bucket.val,
-        }));
+        });
       } else if (facet.type === 'newspaper') {
         this.$emit('submit-facet', {
           type: facet.type,

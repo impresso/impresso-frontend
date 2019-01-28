@@ -34,7 +34,6 @@
 </template>
 
 <script>
-// import '@/assets/less/style.less';
 import Collection from '@/models/Collection';
 
 export default {

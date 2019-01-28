@@ -176,7 +176,7 @@ export default {
                   lastModifiedDate: bucket.last_modified_date,
                   lastModifiedTime: bucket.last_modified_time,
                 })) : [],
-                matches: result.matches.map(match => new Match(match)),
+                matches: result.matches ? result.matches.map(match => new Match(match)) : [],
                 newspaper: new Newspaper({
                   ...result.newspaper,
                   countArticles: result.newspaper.count_articles,
@@ -288,8 +288,6 @@ export default {
                     return 0;
                   }),
                 });
-
-                // context.commit('ADD_FACET', facet);
 
                 const FilterFacetYear = FilterFactory.create({
                   ...context.getters.getSearch.filters.find(filter => filter.type === 'year'),

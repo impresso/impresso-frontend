@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="tooltip" v-bind:class='{active: tooltip.isActive}' v-bind:style="style">
     <div v-if='tooltip.item' class="tooltip-inner p-3 m-2">
-      <label>{{ $t('topic')}} &mdash; {{tooltip.item.model}}</label>
+      <label>{{ $t('topic')}} &mdash; {{tooltip.item.model}} / {{tooltip.item.degree}}</label>
       <div>
         <span class='badge'> {{tooltip.item.language}}</span>
         <b class='sans-serif'>{{excerpt}} ...</b></div>
