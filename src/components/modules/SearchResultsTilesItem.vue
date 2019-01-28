@@ -7,11 +7,12 @@
     </div>
     <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
       <h2 v-show="article.title != ''" v-html="article.title" />
-      <div class="small-caps">
+      <div v-show="article.newspaper.name != ''" class="small-caps">
         {{article.newspaper.name}}
       </div>
       <div class="small-caps">
-        {{$d(article.date, "long")}} (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+        {{$d(new Date(article.date), 'short')}}
+        (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
       </div>
     </a>
   </div>
@@ -46,7 +47,6 @@ export default {
         navigatorBorderColor: '#dee2e6',
         navigatorOpacity: 1,
       };
-
       this.handler.$emit('init', options);
     },
   },
@@ -60,11 +60,15 @@ export default {
       if (this.article.isCC) {
         this.article.regions.forEach((region) => {
           if (region.pageUid === this.article.pages[0].uid) {
+            if (region.coords.x) region.coords[0] = region.coords.x;
+            if (region.coords.y) region.coords[1] = region.coords.y;
+            if (region.coords.w) region.coords[2] = region.coords.w;
+            if (region.coords.h) region.coords[3] = region.coords.h;
             const overlay = {
-              x: region.coords.x,
-              y: region.coords.y,
-              w: region.coords.w,
-              h: region.coords.h,
+              x: region.coords[0],
+              y: region.coords[1],
+              w: region.coords[2],
+              h: region.coords[3],
               class: 'overlay-region selected',
             };
 
@@ -101,8 +105,14 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
 .tile {
+  div.overlay-region{
+    background: $clr-accent-secondary;
+    opacity: 0.25;
+  }
   &:hover {
     transition: 0.2s;
     border-color: black !important;

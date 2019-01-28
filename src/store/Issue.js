@@ -19,7 +19,7 @@ export default {
       return new Promise((resolve, reject) => {
         services.issues.get(uid, {}).then((response) => {
           resolve(new Issue({
-            collections: response.buckets,
+            collections: response.collections,
             countArticles: response.count_articles,
             countPages: response.count_pages,
             date: response.date,
