@@ -12,7 +12,7 @@
       </h2>
       <div class="article-meta mb-2">
         <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
-        <span class="small-caps">{{$d(article.date, "long")}}</span>
+        <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
         (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
       </div>
 
