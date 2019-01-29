@@ -84,7 +84,7 @@ export default {
       this.isDisabled = (len >= 3 && len <= 50);
     },
     isActive(needle) {
-      if (!this.item.collections) {
+      if (!this.item || !this.item.collections) {
         return false;
       }
       return this.item.collections.find(collection => needle.uid === collection.uid);
