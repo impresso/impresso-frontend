@@ -73,6 +73,9 @@
             <span class="ml-2 small-caps">
               {{ $tc('items_selected', selectedItems.length) }}
             </span>
+            <b-dropdown size="sm" variant="outline-secondary" text="Add to Collection ..." class="bg-white float-right ml-1">
+              <collection-add-to :items="selectedItems" />
+            </b-dropdown>
             <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
               <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
               <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
@@ -94,6 +97,7 @@ import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
+import CollectionAddTo from './modules/CollectionAddTo';
 
 export default {
   data: () => ({
@@ -262,6 +266,7 @@ export default {
     'search-filters': SearchFilters,
     'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
+    CollectionAddTo,
   },
   mounted() {
     if (this.uuid !== undefined) {
