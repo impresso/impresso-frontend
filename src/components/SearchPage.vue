@@ -73,7 +73,7 @@
             <span class="ml-2 small-caps">
               {{ $tc('items_selected', selectedItems.length) }}
             </span>
-            <b-dropdown size="sm" variant="outline-secondary" text="Add to Collection ..." class="bg-white float-right ml-1">
+            <b-dropdown size="sm" variant="outline-secondary" :text="$tc('add_n_to_collection', selectedItems.length)" class="bg-white float-right ml-1">
               <collection-add-to :items="selectedItems" />
             </b-dropdown>
             <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
@@ -357,8 +357,8 @@ div.overlay-region{
     "order_pages": "Page",
     "order_articles": "Article",
     "order_sentences": "Sentence",
-    "order_sentences": "Sentence",
     "items_selected": "One item selected | {count} items selected",
+    "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Add query to collection",
     "query_export": "Export result list as ...",
