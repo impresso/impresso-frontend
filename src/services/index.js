@@ -41,6 +41,14 @@ app.hooks({
       },
     ],
   },
+  error: {
+    all: [
+      (error) => {
+        console.log('ERROR: ', error);
+        window.app.$store.commit('SET_PROCESSING', false);
+      },
+    ],
+  },
 });
 
 // repeat this line for every service in our backend
