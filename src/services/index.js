@@ -4,7 +4,9 @@ import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio-client';
 import auth from '@feathersjs/authentication-client';
 
-const socket = io(`${process.env.MIDDLELAYER_API}`);
+const socket = io(`${process.env.MIDDLELAYER_API}`, {
+  path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
+});
 
 export const app = feathers();
 
