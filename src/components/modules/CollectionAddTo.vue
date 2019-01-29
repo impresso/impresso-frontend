@@ -56,10 +56,11 @@ export default {
     inputString: '',
   }),
   model: {
-    prop: 'item',
+    prop: ['item', 'items'],
   },
   props: {
     item: Object,
+    items: Array,
   },
   computed: {
     filteredCollections() {
@@ -84,6 +85,17 @@ export default {
       this.isDisabled = (len >= 3 && len <= 50);
     },
     isActive(needle) {
+      if (this.items) {
+        let matches = 0;
+        this.items.forEach((itemUid) => {
+          if (needle.items.includes(itemUid)) {
+            matches += 1;
+          }
+        });
+        if (matches === 0) return false;
+        else if (matches === this.items.length) return true;
+        return 'partial';
+      }
       if (!this.item || !this.item.collections) {
         return false;
       }
