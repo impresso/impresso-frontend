@@ -55,7 +55,7 @@ section{
         display: none;
       }
   }
-  > .footer{
+  >.footer{
       grid-area: footer;
   }
 }

@@ -13,6 +13,7 @@ export default class Graph extends EventEmitter {
     maxNodeRadius = 12,
     maxDistance = 50,
     delay = 30000,
+    fixAfterDrag = true,
     nodeLabel = d => d.id,
     identity = d => d.id,
     // override current behaviour if needed,
@@ -23,9 +24,14 @@ export default class Graph extends EventEmitter {
     this.svg = d3.select(element).append('svg')
       .attr('width', '100%')
       .attr('height', '100%')
-      .attr('preserveAspectRatio', 'none');
+      .attr('preserveAspectRatio', 'none')
+      .on('click', () => {
+        this.selected = null;
+        this.emit('svg.click');
+      });
 
     this.margin = margin;
+    this.fixAfterDrag = fixAfterDrag;
     this.maxNodeRadius = parseInt(maxNodeRadius, 10);
     this.maxDistance = parseInt(maxDistance, 10);
     this.delay = parseInt(delay, 10);
@@ -46,9 +52,11 @@ export default class Graph extends EventEmitter {
 
     // initialize force!
     this.simulation = d3.forceSimulation()
-      .force('link', d3.forceLink()
-        // .id(d => d.id)
-        .distance(this.maxDistance))
+      .force('link',
+        d3.forceLink()
+          .id((d, k) => k)
+          .distance(maxDistance)
+          .strength(0.5))
       .force('center', d3.forceCenter(
         this.width / 2,
         this.height / 2))
@@ -72,6 +80,13 @@ export default class Graph extends EventEmitter {
         scaleFn: d3.scaleLinear,
         range: [4, this.maxNodeRadius],
       }),
+      linkDistance: new Dimension({
+        name: 'linkDistance',
+        property: 'w',
+        type: Dimension.TYPE_CONTINUOUS,
+        scaleFn: d3.scaleSqrt,
+        range: [10, 200],
+      }),
       ...dimensions,
     };
 
@@ -84,6 +99,12 @@ export default class Graph extends EventEmitter {
       .transition()
       .attr('fill', this.dimensions.nodeColor.accessor())
       .attr('r', this.dimensions.nodeSize.accessor());
+
+    // apply force
+    this.simulation.force('link')
+      .distance(this.dimensions.linkDistance.accessor());
+      // strength(+this.value);
+    this.simulation.alpha(1).restart();
   }
 
   /**
@@ -117,6 +138,10 @@ export default class Graph extends EventEmitter {
       .attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x)
       .attr('y2', d => d.target.y);
+
+    if (this.selected) {
+      this.emit('node.tick', this.selected);
+    }
   }
 
   onDragStarted(datum) {
@@ -140,14 +165,23 @@ export default class Graph extends EventEmitter {
     if (!d3.event.active) {
       this.simulation.alphaTarget(0);
     }
+    if (this.fixAfterDrag) {
+      datum.fixed = true;
+      datum.fx = d3.event.x;
+      datum.fy = d3.event.y;
+    } else {
+      datum.fx = null;
+      datum.fy = null;
+    }
     // if autostop
-    datum.fx = null;
-    datum.fy = null;
     this.stopSimulation();
   }
 
   // normally called by this.update
   draw() {
+    // I know I know...
+    const self = this;
+
     console.log('draw nodes:', this.nodes.length);
 
     this.nodesLayer = this.nodesLayer.data(this.nodes, this.identity);
@@ -159,11 +193,18 @@ export default class Graph extends EventEmitter {
         .on('drag', datum => this.onDragged(datum))
         .on('end', datum => this.onDragEnded(datum)));
 
-    this.nodesLayer.on('mouseenter', (datum) => {
-      this.emit('node.mouseenter', datum);
-    })
+    this.nodesLayer
+      .on('mouseenter', function (datum) {
+        d3.select(this).raise();
+        self.emit('node.mouseenter', datum);
+      })
       .on('mouseleave', (datum) => {
         this.emit('node.mouseleave', datum);
+      })
+      .on('click', (datum) => {
+        d3.event.stopPropagation();
+        self.selected = datum;
+        self.emit('node.click', datum);
       });
 
     this.nodesLayer.append('circle')
@@ -171,7 +212,6 @@ export default class Graph extends EventEmitter {
 
     this.nodesLayer.append('circle')
         .attr('class', 'whoosh')
-        // .attr("fill", function(d,i){ return i==0?'magenta':'cyan'})
         .attr('r', 2);
 
     // add text
@@ -207,6 +247,13 @@ export default class Graph extends EventEmitter {
       r: d.r || this.maxNodeRadius,
       type: d.type || 'n',
     }));
+
+    this.updateDimension({
+      name: 'linkDistance',
+      property: 'w',
+      values: this.links,
+    });
+
     this.draw();
   }
   //

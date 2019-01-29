@@ -25,25 +25,40 @@ export default {
             limit: 500,
           },
         }).then((results) => {
+          // temporary hack
           // temporary hack: random connections between nodes...
           const links = [];
+          const nodes = [];
 
-          // enrich with id
-          const nodes = results.data.map((result, k) => {
-            const t = new Topic(result);
-            const degree = 1 + Math.round(Math.random() * 3);
-            for (let i = 0; i < degree; i += 1) {
-              const idx = Math.round(Math.random() * (results.data.length - 1));
-              links.push({
-                source: k,
-                target: idx,
-              });
+          // console.log('link type', linkType, results.data.length);
+
+          for (let i = 0, l = results.data.length; i < l; i += 1) {
+            const t = new Topic(results.data[i]);
+
+            t.id = t.uid;
+            t.degree = 0;
+
+            for (let j = i + 1; j < l; j += 1) {
+              const common = results.data[i].words
+                .filter((wi, k) => k < 6 && results.data[j].words
+                  .filter((wj, kj) => kj < 6)
+                  .find(wj => wi.w === wj.w));
+              if (common.length > 1) {
+                // console.log('combine', i, j, common);
+                links.push({
+                  id: [i, j].join('-'),
+                  source: i,
+                  target: j,
+                  w: common.length,
+                  c: common,
+                });
+                t.degree += 1;
+              }
             }
-            // add vars for graph here
-            t.id = result.uid;
-            t.degree = degree;
-            return t;
-          });
+
+            nodes.push(t);
+          }
+          // console.log('links', links);
 
           resolve({
             nodes,
@@ -75,7 +90,7 @@ export default {
         if (facets) {
           query.facets = facets;
         }
-        console.log('topics to load', query);
+        // console.log('topics to load', query);
 
         services.topics.find({
           query,

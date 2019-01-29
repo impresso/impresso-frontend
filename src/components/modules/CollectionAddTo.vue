@@ -84,7 +84,6 @@ export default {
       this.isDisabled = (len >= 3 && len <= 50);
     },
     isActive(needle) {
-      // console.log(this.item, needle.uid);
       if (!this.item.collections) {
         return false;
       }
@@ -106,6 +105,7 @@ export default {
         this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
           collection,
           item: this.item,
+          contentType: 'article',
         }).then(() => {
           this.item.collections.push(collection);
           event.target.classList.remove('loading');
@@ -118,8 +118,7 @@ export default {
       }
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
-      }).then((res) => {
-        console.log(res);
+      }).then(() => {
         this.inputString = '';
         this.fetch();
         // TODO: add item to ne collection
@@ -134,14 +133,7 @@ export default {
   },
   mounted() {
     this.fetch();
-    // this.fetch().then(() => {
-    //   this.select(this.collections.find(c => c.uid === this.$route.params.collection_uid) ||
-    //     this.collectionAll);
-    // });
   },
-  // components: {
-  //   Icon,
-  // },
 };
 </script>
 
@@ -153,7 +145,6 @@ export default {
   input {
     font-style: italic;
     &:focus {
-      border-color: black;
     }
   }
   .inputList {
