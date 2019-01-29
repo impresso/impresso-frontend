@@ -29,7 +29,6 @@ app.hooks({
         try {
           await app.authenticate();
         } catch (e) {
-          // console.log(e);
           window.app.$store.state.alert_message = `<b>${e.name}</b> - ${e.message}`;
           window.app.$store.commit('SET_PROCESSING', false);
           //
