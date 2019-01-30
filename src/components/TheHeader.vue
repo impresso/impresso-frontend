@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-navbar id="TheHeader" toggleable="md" type="dark" v-bind:variant="navbarVariant" class="py-0 pr-1">
+  <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
     <b-navbar-brand :to="{name: 'home'}">
       <img src="./../assets/img/impresso-logo-h-i@2x.png" />
     </b-navbar-brand>
@@ -40,6 +40,8 @@
         </b-nav-item-dropdown>
         <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
       </b-navbar-nav>
+      <b-alert :show="showAlert" dismissible v-html="alertMessage" variant="warning" class="m-0 px-3"></b-alert>
+      <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
   </b-navbar>
 </template>
 
@@ -73,8 +75,14 @@ export default {
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
-    navbarVariant() {
-      return this.$store.state.processing_status ? 'warning' : 'dark';
+    showAlert() {
+      return this.$store.state.alert_message !== '';
+    },
+    alertMessage() {
+      return this.$store.state.alert_message;
+    },
+    progressBarHeight() {
+      return this.$store.state.processing_status ? '4px' : '0';
     },
     user() {
       return this.$store.getters['user/user'];
@@ -138,6 +146,9 @@ export default {
 
 #app-header {
   border-bottom: 1px solid $clr-tertiary;
+  .progress {
+    transition: height 400ms;
+  }
   nav {
     margin-top: 0;
     margin-bottom: 1px;

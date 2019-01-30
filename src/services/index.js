@@ -40,6 +40,7 @@ app.hooks({
     all: [
       (error) => {
         console.log('ERROR: ', error);
+        window.app.$store.state.alert_message = `<b>${error.name}</b> - ${error.message}`;
         window.app.$store.commit('SET_PROCESSING', false);
       },
     ],
