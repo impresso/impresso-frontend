@@ -26,12 +26,12 @@
         <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
       </ul>
       <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
-      <b-dropdown v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
+      <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
         <collection-add-to style="margin: -0.5em 0 -0.5em 0" :item="article" />
       </b-dropdown>
     </div>
 
-    <div class="float-right">
+    <div v-if="isLoggedIn()" class="float-right">
       <b-form-checkbox
         class="mr-0"
         v-bind:value="article.uid"
@@ -82,6 +82,9 @@ export default {
       };
 
       this.handler.$emit('init', options);
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
     },
   },
   components: {
