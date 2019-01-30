@@ -59,7 +59,7 @@ export default new Vuex.Store({
         if (processings === 1) {
           processing = setTimeout(() => {
             state.processing_status = true;
-          }, 500);
+          }, 100);
         }
       } else {
         processings -= 1;

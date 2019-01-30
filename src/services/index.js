@@ -25,6 +25,7 @@ app.hooks({
   before: {
     all: [
       () => {
+        window.app.$store.state.error_message = '';
         window.app.$store.commit('SET_PROCESSING', true);
       },
     ],
@@ -40,7 +41,7 @@ app.hooks({
     all: [
       (error) => {
         console.log('ERROR: ', error);
-        window.app.$store.state.alert_message = `<b>${error.name}</b> - ${error.message}`;
+        window.app.$store.state.error_message = 'API Error : See Console for details.';
         window.app.$store.commit('SET_PROCESSING', false);
       },
     ],
