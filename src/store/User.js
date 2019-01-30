@@ -47,7 +47,6 @@ export default {
           .then(res => services.app.service('users').get(res.userId), reject)
           .then((user) => {
             services.app.set('user', user);
-            console.log('impresso', 'store', user);
             context.commit('SET_USER', new User({
               ...user,
               picture: user.profile.picture,
