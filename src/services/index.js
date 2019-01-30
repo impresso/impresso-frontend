@@ -27,13 +27,6 @@ app.hooks({
       () => {
         window.app.$store.commit('SET_PROCESSING', true);
       },
-      async () => {
-        try {
-          await app.authenticate();
-        } catch (e) {
-          //
-        }
-      },
     ],
   },
   after: {
@@ -60,23 +53,6 @@ export const issues = app.service('issues');
 export const pages = app.service('pages');
 export const search = app.service('search');
 export const newspapers = app.service('newspapers');
-export const collections = app.service('collections').hooks({
-  before: {
-    all: [
-      async () => {
-        await app.authenticate();
-      },
-    ],
-  },
-});
-export const collectionsItems = app.service('collectable-items').hooks({
-  before: {
-    all: [
-      async () => {
-        await app.authenticate();
-      },
-    ],
-  },
-});
-
+export const collections = app.service('collections');
+export const collectionsItems = app.service('collectable-items');
 export const topics = app.service('topics');
