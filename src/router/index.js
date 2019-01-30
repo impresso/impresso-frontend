@@ -16,7 +16,7 @@ import TopicDetailPage from '../components/TopicDetailPage';
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   routes: [{
     path: '/',
     name: 'home',
@@ -150,3 +150,17 @@ export default new Router({
     },
   }],
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.name === 'login') {
+    next();
+  } else {
+    services.app.authenticate().then(next).catch(() => {
+      next({
+        name: 'login',
+      });
+    });
+  }
+});
+
+export default router;
