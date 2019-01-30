@@ -54,6 +54,7 @@
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item
+              checkbox=true
               v-on:selected="onSelectResult"
               v-on:click="onClickResult(searchResult)"
               v-model="searchResults[index]" />

@@ -30,7 +30,7 @@
           <collection-add-to style="margin: -0.5em 0 -0.5em 0" :item="article" />
         </b-dropdown>
       </div>
-      <div v-if="isLoggedIn()" class="flex-shrink-1 pl-2">
+      <div v-if="isLoggedIn() && this.checkbox" class="flex-shrink-1 pl-2">
         <b-form-checkbox
           class="mr-0"
           v-bind:value="article.uid"
@@ -54,7 +54,7 @@ export default {
   model: {
     prop: 'article',
   },
-  props: ['article'],
+  props: ['article', 'checkbox'],
   methods: {
     onChange(e) {
       this.$emit('selected', e);
