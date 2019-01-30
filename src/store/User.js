@@ -47,11 +47,11 @@ export default {
           .then(res => services.app.service('users').get(res.userId), reject)
           .then((user) => {
             services.app.set('user', user);
+            console.log('impresso', 'store', user);
             context.commit('SET_USER', new User({
-              uid: user.uid,
-              username: user.username,
-              isStaff: user.is_staff,
-              group: user.group,
+              ...user,
+              picture: user.profile.picture,
+              pattern: user.profile.pattern,
             }));
             context.dispatch('collections/LOAD_COLLECTIONS', null, {
               root: true,
