@@ -5,38 +5,38 @@
         v-bind:handler="handler">
       </open-seadragon-viewer>
     </div>
+    <div class="d-flex  w-100">
+      <div>
+        <h2 v-if="article.title" class="mb-0">
+          <a href="#" v-on:click.prevent="click" v-html="article.title" />
+        </h2>
+        <div class="article-meta mb-2">
+          <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
+          <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
+          (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+        </div>
 
-    <div class="float-left">
-      <h2 v-if="article.title" class="mb-0">
-        <a href="#" v-on:click.prevent="click" v-html="article.title" />
-      </h2>
-      <div class="article-meta mb-2">
-        <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
-        <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
-        (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+        <div v-if="article.excerpt.length > 0" class="article-excerpt mb-2">{{article.excerpt}}</div>
+
+        <ul v-if="article.matches.length > 0" class="article-matches mb-2">
+          <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
+        </ul>
+        <b-badge class="mb-2" pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
+        <ul v-if="article.matches.length > 0" class="article-matches mb-2">
+          <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
+        </ul>
+        <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
+        <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
+          <collection-add-to style="margin: -0.5em 0 -0.5em 0" :item="article" />
+        </b-dropdown>
       </div>
-
-      <div v-if="article.excerpt.length > 0" class="article-excerpt mb-2">{{article.excerpt}}</div>
-
-      <ul v-if="article.matches.length > 0" class="article-matches mb-2">
-        <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
-      </ul>
-      <b-badge class="mb-2" pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
-      <ul v-if="article.matches.length > 0" class="article-matches mb-2">
-        <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
-      </ul>
-      <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
-      <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
-        <collection-add-to style="margin: -0.5em 0 -0.5em 0" :item="article" />
-      </b-dropdown>
-    </div>
-
-    <div v-if="isLoggedIn()" class="float-right">
-      <b-form-checkbox
-        class="mr-0"
-        v-bind:value="article.uid"
-        v-on:change="onChange">
-      </b-form-checkbox>
+      <div v-if="isLoggedIn()" class="flex-shrink-1 pl-2">
+        <b-form-checkbox
+          class="mr-0"
+          v-bind:value="article.uid"
+          v-on:change="onChange">
+        </b-form-checkbox>
+      </div>
     </div>
 
   </b-media>

@@ -36,16 +36,18 @@
       </b-navbar-nav>
     </b-navbar>
 
-    <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-      <b-navbar-nav class="px-3 py-2  border-right">
-        <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
-      </b-navbar-nav>
-      <b-navbar-nav v-if="isLoggedIn()" class="pl-4 py-3">
+    <div class="d-flex w-100 border-bottom bg-light">
+      <div class="flex-grow-1 p-3 border-right">
+          <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
+      </div>
+      <div class="flex-shrink-1">
+        <b-navbar-nav v-if="isLoggedIn()" class="pl-4 py-4">
           <b-form-checkbox
             v-on:change="onSelectAll">
           </b-form-checkbox>
-      </b-navbar-nav>
-    </b-navbar>
+        </b-navbar-nav>
+      </div>
+    </div>
 
     <div class="p-1">
       <b-container fluid>
