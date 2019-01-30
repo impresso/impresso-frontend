@@ -48,10 +48,9 @@ export default {
           .then((user) => {
             services.app.set('user', user);
             context.commit('SET_USER', new User({
-              uid: user.uid,
-              username: user.username,
-              isStaff: user.is_staff,
-              group: user.group,
+              ...user,
+              picture: user.profile.picture,
+              pattern: user.profile.pattern,
             }));
             context.dispatch('collections/LOAD_COLLECTIONS', null, {
               root: true,
