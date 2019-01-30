@@ -24,9 +24,15 @@
           v-bind:key="language.code"
           v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
         </b-nav-item-dropdown>
-        <b-nav-item-dropdown v-if="user" class="p-2 small-caps border-left" right>
+        <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 border-left" right>
           <template slot="button-content">
-            <em>{{userFullName}}</em>
+            <div class='d-inline-block'>
+              <div class='user-picture mt-1 float-left' :style='userPicture'></div>
+              <div class='user-label pt-2'>
+                <div class='user-fullname'>{{userFullName}}</div>
+                <div class='user-role small-caps'>{{userRole}}</div>
+              </div>
+            </div>
           </template>
           <b-dropdown-item v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
           <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
@@ -77,13 +83,29 @@ export default {
       return this.$store.getters.headerTitle;
     },
     userFullName() {
-      const name = (`${this.user.nameFirst} ${this.user.nameLast}`).trim();
+      const name = (`${this.user.firstname} ${this.user.lastname}`).trim();
+      return name === '' ? this.user.username : name;
+    },
+    userRole() {
+      return this.user.isStaff ? this.$t('staff') : this.$t('researcher');
+    },
+    userPicture() {
+      const style = {
+        backgroundColor: 'black',
+      };
 
-      if (name !== '') {
-        return name;
+      if (this.user.pattern) {
+        const gradient = [];
+
+        this.user.pattern.forEach((color, i) => {
+          const start = Math.round((100 * i) / this.user.pattern.length);
+          const stop = Math.round((100 * (i + 1)) / this.user.pattern.length);
+          gradient.push(`${color} ${start}%, ${color} ${stop}%`);
+        });
+
+        style.backgroundImage = `linear-gradient(90deg,${gradient.join(',')})`;
       }
-
-      return 'John Doe';
+      return style;
     },
   },
   methods: {
@@ -153,7 +175,7 @@ export default {
   .navbar-dark .navbar-nav .nav-link:hover,
   .navbar-dark .navbar-nav .nav-link:focus {
     color: $clr-bg-primary;
-    background: $clr-primary;
+    background: transparent;
   }
   &::before{
     position: absolute;
@@ -164,6 +186,50 @@ export default {
     height: 2px;
     background-color: $clr-accent-light;
     content: '';
+  }
+
+  .dropdown-toggle{
+    padding-right: 1.25rem;
+
+    &::after {
+      position: absolute;
+      top: 50%;
+      right: 0.75rem;
+      line-height: 2rem;
+      margin-top: -1rem;
+    }
+  }
+
+  .user-space > a.dropdown-toggle{
+    padding: 0.25rem 1.5rem 0.125rem 0.5rem;
+    &::after {
+      font-size: .75em;
+    }
+  }
+
+  .user-picture{
+    background: $clr-primary;
+    width: 2em;
+    height: 2em;
+    border-radius: 2em;
+    border: 1px solid $clr-accent-light;
+  }
+
+  .user-label {
+    margin-left: 2.5em;
+  }
+
+  .user-fullname {
+    padding-bottom: 0.125rem;
+    font-size: 0.8em;
+    line-height: 1em;
+    font-weight: bold;
+    color: white;
+  }
+
+  .user-role {
+    line-height: 1;
+    font-size: 0.8em;
   }
 }
 </style>
