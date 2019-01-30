@@ -83,7 +83,6 @@ export default {
       return this.$store.getters.headerTitle;
     },
     userFullName() {
-      console.log('impresso', this.user);
       const name = (`${this.user.firstname} ${this.user.lastname}`).trim();
       return name === '' ? this.user.username : name;
     },
