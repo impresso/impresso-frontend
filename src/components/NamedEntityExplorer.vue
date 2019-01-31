@@ -80,7 +80,6 @@ export default {
 </script>
 
 <style scoped lang="less">
-// @import "./../assets/less/style.less";
 
 h1 {
     color: red;

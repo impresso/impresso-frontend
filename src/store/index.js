@@ -29,6 +29,7 @@ export default new Vuex.Store({
   },
   state: {
     processing_status: false,
+    error_message: '',
     header_title: '',
     header_subtitle: '',
   },
@@ -58,7 +59,7 @@ export default new Vuex.Store({
         if (processings === 1) {
           processing = setTimeout(() => {
             state.processing_status = true;
-          }, 500);
+          }, 100);
         }
       } else {
         processings -= 1;
