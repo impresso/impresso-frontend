@@ -5,7 +5,7 @@
         v-bind:handler="handler">
       </open-seadragon-viewer>
     </div>
-    <div class="d-flex  w-100">
+    <div class="d-flex">
       <div>
         <h2 v-if="article.title" class="mb-0">
           <a href="#" v-on:click.prevent="click" v-html="article.title" />
@@ -25,12 +25,15 @@
         <ul v-if="article.matches.length > 0" class="article-matches mb-2">
           <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
         </ul>
+        <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
+          <b-badge class="mr-1" v-for="collection in article.collections">{{ collection.name }}</b-badge>
+        </div>
         <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
         <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
           <collection-add-to style="margin: -0.5em 0 -0.5em 0" :item="article" />
         </b-dropdown>
       </div>
-      <div v-if="isLoggedIn() && this.checkbox" class="flex-shrink-1 pl-2">
+      <div v-if="isLoggedIn() && this.checkbox" class="ml-auto pl-2">
         <b-form-checkbox
           class="mr-0"
           v-bind:value="article.uid"

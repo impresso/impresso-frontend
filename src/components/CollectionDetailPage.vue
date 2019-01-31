@@ -1,39 +1,37 @@
 <template lang="">
   <i-layout-section class="" v-if="$route.params.collection_uid">
 
-    <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+    <div class="d-flex align-items-stretch border-bottom px-0 py-0 bg-light">
 
-      <b-navbar-nav class="px-3 pr-auto">
-        <strong>{{collection.name}}</strong>
-        {{collection.description}}This is a description.
-      </b-navbar-nav>
+      <div class="p-3 mr-auto align-self-center">
+        <div class="">
+          <strong>{{collection.name}}</strong>
+        </div>
+        <div>
+          {{collection.description}}
+        </div>
+      </div>
 
-      <b-navbar-nav class="p-3 border-left flex-row">
+      <div class="p-3 ml-auto text-right border-left">
         <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
-
           <div class="modal-edit px-3 background-light">
-
             <label for="collectionName">Name</label>
             <input type="text" name="collectionName" class="form-control mb-3"
               v-model="collection.name">
-
             <label for="collectionDesc">Description</label>
             <textarea type="text" name="collectionDesc" class="form-control"
               v-model="collection.description" />
-
             <b-button variant="outline-primary" size="sm" class="form-control mt-3"
               v-on:click="save(collection)">{{ $t('edit_collection') }}
             </b-button>
-
+            <b-button variant="outline-danger" size="sm" class="form-control mt-3"
+              v-on:click="remove(collection)">{{ $t('delete_collection') }}
+            </b-button>
           </div>
-
         </b-dropdown>
+      </div>
 
-        <b-button variant="outline-danger" size="sm" class="ml-1"
-          v-on:click="remove(collection)">{{ $t('delete_collection') }}
-        </b-button>
-      </b-navbar-nav>
-    </b-navbar>
+    </div>
 
     <div class="collection-group">
 
@@ -41,7 +39,7 @@
         <b-navbar-nav class="pr-auto">
           <span>{{ $tc('articles', articles.length) }}</span>
         </b-navbar-nav>
-        <b-navbar-nav class="pl-3 py-3 border-left flex-row">
+        <b-navbar-nav class="pl-3 py-2 border-left flex-row">
           <label class="mr-2">{{$t("label_display")}}</label>
           <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
             <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -100,6 +98,7 @@
 </template>
 
 <script>
+import Article from '@/models/Article';
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
@@ -134,7 +133,10 @@ export default {
     },
     articles: {
       get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'article'));
+        console.log('items', this.collection.items);
+        return this.collection.items
+          .filter(d => d.contentType === 'A')
+          .map(d => new Article(d.item));
       },
     },
     issues: {
@@ -223,14 +225,6 @@ export default {
 <style lang="scss">
 .modal-edit {
   min-width: 400px;
-}
-.navbar-nav.flex-row {
-    flex-direction: row;
-    align-items: center;
-    label {
-      margin-bottom: 0;
-      line-height: 1.5;
-    }
 }
 </style>
 
