@@ -100,6 +100,7 @@
 </template>
 
 <script>
+import Article from '@/models/Article';
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
@@ -134,7 +135,10 @@ export default {
     },
     articles: {
       get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'article'));
+        console.log('items', this.collection.items);
+        return this.collection.items
+          .filter(d => d.contentType === 'A')
+          .map(d => new Article(d.item));
       },
     },
     issues: {
