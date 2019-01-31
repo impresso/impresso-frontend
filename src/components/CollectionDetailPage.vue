@@ -1,9 +1,9 @@
 <template lang="">
   <i-layout-section class="" v-if="$route.params.collection_uid">
 
-    <div class="d-flex border-bottom px-0 py-0 bg-light">
+    <div class="d-flex align-items-stretch border-bottom px-0 py-0 bg-light">
 
-      <div class="p-3 mr-auto border-right align-self-center">
+      <div class="p-3 mr-auto align-self-center">
         <div class="">
           <strong>{{collection.name}}</strong>
         </div>
@@ -12,7 +12,7 @@
         </div>
       </div>
 
-      <div class="px-3 ml-auto text-right align-self-center">
+      <div class="p-3 ml-auto text-right border-left">
         <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
           <div class="modal-edit px-3 background-light">
             <label for="collectionName">Name</label>
