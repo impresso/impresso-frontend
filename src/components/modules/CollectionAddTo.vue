@@ -87,14 +87,15 @@ export default {
     isActive(needle) {
       if (this.items) {
         let matches = 0;
-        this.items.forEach((itemUid) => {
-          if (needle.items.includes(itemUid)) {
-            matches += 1;
-          }
+        this.items.forEach((item) => {
+          if (item.collections
+            && item.collections.find(collection => needle.uid === collection.uid)) matches += 1;
         });
+        const el = document.querySelector(`.addbulk #${needle.uid}`);
+        if (el) el.indeterminate = false;
         if (matches === 0) return false;
         else if (matches === this.items.length) return true;
-        return 'partial';
+        if (el) el.indeterminate = true;
       }
       if (!this.item || !this.item.collections) {
         return false;
@@ -185,6 +186,9 @@ export default {
         }
         input:checked ~ .checkmark {
           display: block;
+        }
+        input:indeterminate ~ label {
+          background: rgba($clr-accent-secondary, 0.25);
         }
         input:checked ~ label {
           background: rgba($clr-accent-secondary, 0.5);

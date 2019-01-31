@@ -30,7 +30,7 @@
         </div>
         <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
         <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
-          <collection-add-to style="margin: -0.5em 0 -0.5em 0" :item="article" />
+          <collection-add-to :item="article" />
         </b-dropdown>
       </div>
       <div v-if="isLoggedIn() && this.checkbox" class="ml-auto pl-2">
