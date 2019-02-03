@@ -10,6 +10,8 @@ import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
+import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
+import NewspapersDetailPage from '../components/NewspapersDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
@@ -94,12 +96,22 @@ const router = new Router({
     },
   },
   {
-    path: '/newspapers/:newspaper_uid?',
+    path: '/newspapers',
     component: NewspapersPage,
     name: 'newspapers',
     meta: {
       realm: 'newspapers',
     },
+    children: [{
+      path: '',
+      component: NewspapersExplorerPage,
+      name: 'newspapersExplorer',
+    },
+    {
+      path: ':newspaper_uid',
+      component: NewspapersDetailPage,
+      name: 'newspaper',
+    }],
   },
   {
     path: '/playground',

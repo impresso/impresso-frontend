@@ -23,7 +23,7 @@
         <router-link
           class="px-3 py-2 d-block"
           v-bind:class="{active: n.uid === newspaperUid}"
-          v-bind:to="{name: 'newspapers', params: {newspaper_uid: n.uid}}">
+          v-bind:to="{name: 'newspaper', params: {newspaper_uid: n.uid}}">
           <strong>{{n.name}}</strong>
           <br>
           ({{n.startYear}} - {{n.endYear}})
@@ -38,61 +38,12 @@
           v-bind:showDescription="true" />
       </div>
     </i-layout-section>
-    <i-layout-section>
-      <div slot="header" class="border-bottom">
-        <b-navbar type="light" variant="light">
-          {{newspaper.name}}
-        </b-navbar>
-      </div>
-      <div class="p-4">
-        <b-row>
-          <b-col
-            sm="12" lg="6"
-            v-for="(issue, index) in issues"
-            class="mb-4">
-            <div class="border">
-              <div class="p-3 border-bottom">
-                {{issue.uid}}
-              </div>
-              <issue-viewer v-model="issues[index]" />
-            </div>
-          </b-col>
-        </b-row>
-      </div>
-      <div slot="footer" class="p-2 border-top">
-        <pagination
-          v-bind:perPage="paginationDetail.perPage"
-          v-bind:currentPage="paginationDetail.currentPage"
-          v-bind:totalRows="paginationDetail.totalRows"
-          v-on:change="onInputPaginationDetail"
-          v-bind:showDescription="true" />
-      </div>
-    </i-layout-section>
-    <i-layout-section width="250px" class="border-left">
-      <div slot="header" class="border-bottom">
-        <b-navbar type="light" variant="light" >
-          metadata
-        </b-navbar>
-      </div>
-      <div class="p-4 border-bottom">
-        <p>Year of first issue<br>{{newspaper.startYear}}</p>
-        <p>Year of last issue<br>{{newspaper.endYear}}</p>
-        <p>Years running<br>{{newspaper.deltaYear}}</p>
-
-        <p v-show="newspaper.countArticles">Articles<br>{{newspaper.countArticles}}</p>
-        <p v-show="newspaper.countIssues">Issues<br>{{newspaper.countIssues}}</p>
-        <p v-show="newspaper.countPages">Pages<br>{{newspaper.countPages}}</p>
-      </div>
-      <div class="p-4">
-        <p v-for="property in newspaper.properties">{{property.name}}<br>{{property.newspapers_metadata.value}}</p>
-      </div>
-    </i-layout-section>
+    <router-view></router-view>
   </i-layout>
 </template>
 
 <script>
 import Pagination from './modules/Pagination';
-import IssueViewer from './modules/IssueViewer';
 
 export default {
   data: () => ({
@@ -113,7 +64,7 @@ export default {
       },
       set(newspaper) {
         this.$store.commit('newspapers/UPDATE_DETAIL_NEWSPAPER', newspaper);
-        this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
+        // this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
       },
     },
     newspaperUid() {
@@ -124,7 +75,7 @@ export default {
     },
     query: {
       get() {
-        return this.$store.state.newspapers.list.query;
+        return ''; // this.$store.state.newspapers.list.query;
       },
       set(val) {
         this.$store.commit('newspapers/UPDATE_LIST_QUERY', val);
@@ -174,16 +125,17 @@ export default {
     onInputPaginationList(page = 1) {
       this.loadList(page);
     },
-    loadIssues(page) {
-      if (page !== undefined) {
-        this.$store.commit('newspapers/UPDATE_DETAIL_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
-
-      return this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
-    },
-    onInputPaginationDetail(page = 1) {
-      this.loadIssues(page);
-    },
+    // loadIssues(page) {
+    //   if (page !== undefined) {
+    //     this.$store.commit('newspapers/UPDATE_DETAIL_PAGINATION_CURRENT_PAGE',
+    //     parseInt(page, 10));
+    //   }
+    //
+    //   return this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
+    // },
+    // onInputPaginationDetail(page = 1) {
+    //   this.loadIssues(page);
+    // },
   },
   mounted() {
     this.loadList().then((res) => {
@@ -199,7 +151,7 @@ export default {
   },
   components: {
     Pagination,
-    IssueViewer,
+
   },
   watch: {
     newspaperUid: {
