@@ -79,7 +79,6 @@ export default {
   },
   methods: {
     async onInputPagination(page) {
-      console.log('page', page);
       this.issues = await this.getIssues({
         page,
       });
