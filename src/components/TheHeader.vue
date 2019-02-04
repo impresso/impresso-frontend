@@ -12,6 +12,9 @@
             <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
           </li>
           <li class="nav-item">
+            <router-link v-bind:to="{ name: 'inventory'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_inventory")}}</router-link>
+          </li>
+          <li class="nav-item">
             <router-link v-bind:to="{ name: 'topicsExplorer'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
           </li>
         </b-navbar-nav>
@@ -255,7 +258,8 @@ export default {
     "dashboard": "Dashboard",
     "label_home": "Home",
     "label_newspapers": "Newspaper Titles",
-    "label_topics": "Topics"
+    "label_topics": "Topics",
+    "label_inventory": "Corpus Inventory"
   }
 }
 </i18n>

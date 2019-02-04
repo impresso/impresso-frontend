@@ -10,6 +10,7 @@ import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
+import InventoryPage from '../components/InventoryPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
@@ -100,6 +101,11 @@ const router = new Router({
     meta: {
       realm: 'newspapers',
     },
+  },
+  {
+    path: '/inventory',
+    component: InventoryPage,
+    name: 'inventory',
   },
   {
     path: '/playground',
