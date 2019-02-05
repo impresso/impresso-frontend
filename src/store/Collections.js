@@ -79,7 +79,7 @@ export default {
         services.collections.get(collection.uid, {}),
         services.collectionsItems.find({
           query: {
-            collection_uid: collection.uid,
+            collection_uids: [collection.uid],
             resolve: 'item',
           },
         }),

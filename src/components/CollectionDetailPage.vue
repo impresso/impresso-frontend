@@ -133,7 +133,6 @@ export default {
     },
     articles: {
       get() {
-        console.log('items', this.collection.items);
         return this.collection.items
           .filter(d => d.contentType === 'A')
           .map(d => new Article(d.item));
