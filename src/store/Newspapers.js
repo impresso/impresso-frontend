@@ -120,7 +120,6 @@ export default {
         })
         .then((res) => {
           context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
-          // context.commit('UPDATE_DETAIL_ISSUES', res.data);
           resolve(res);
         })
         .catch(reject);
