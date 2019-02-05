@@ -1,5 +1,7 @@
 <template lang="html">
   <div>
+    <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
+
     <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
@@ -43,7 +45,6 @@
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
-    <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
   </div>
 </template>
 
@@ -84,7 +85,7 @@ export default {
       return this.$store.state.error_message;
     },
     progressBarHeight() {
-      return this.$store.state.processing_status ? '4px' : '0';
+      return this.$store.state.processing_status ? '2px' : '0';
     },
     user() {
       return this.$store.getters['user/user'];
@@ -149,7 +150,11 @@ export default {
 #app-header {
   border-bottom: 1px solid $clr-tertiary;
   .progress {
-    transition: height 400ms;
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+    top: 0;
+    left: 0;
   }
   nav {
     margin-top: 0;
