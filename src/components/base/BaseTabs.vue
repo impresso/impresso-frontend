@@ -1,6 +1,7 @@
 <template lang="html">
   <b-nav tabs class="tabbed-nav pl-2 pt-1 align-items-end">
-    <b-nav-item v-for="t in tabs"
+    <b-nav-item v-for="(t, i) in tabs"
+      v-bind:key="i"
       class="small-caps"
       v-on:click="toggle(t)"
       v-bind:active="t === tab"

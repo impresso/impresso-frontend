@@ -21,13 +21,14 @@
         <b-row>
           <b-col
             sm="12" lg="3"
-            v-for="(issue, index) in issues"
+            v-for="(issue, i) in issues"
+            v-bind:key="i"
             class="mb-4">
             <div class="border">
               <div class="p-3 border-bottom">
                 {{issue.uid}}
               </div>
-              <issue-viewer v-model="issues[index]" />
+              <issue-viewer v-model="issues[i]" />
             </div>
           </b-col>
         </b-row>

@@ -19,14 +19,26 @@
         <div v-if="article.excerpt.length > 0" class="article-excerpt mb-2">{{article.excerpt}}</div>
 
         <ul v-if="article.matches.length > 0" class="article-matches mb-2">
-          <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
+          <li
+            v-for="(match, i) in article.matches"
+            v-bind:key="i"
+            v-html="match.fragment"
+            v-show="match.fragment.trim().length > 0" />
         </ul>
-        <b-badge class="mb-2" pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
+        <b-badge
+          class="mb-2"
+          pill
+          v-for="tag in article.tags"
+          variant="secondary"
+          v-bind:key="tag.uid">{{tag.name}}</b-badge>
         <ul v-if="article.matches.length > 0" class="article-matches mb-2">
           <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
         </ul>
         <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
-          <b-badge class="mr-1" v-for="collection in article.collections">{{ collection.name }}</b-badge>
+          <b-badge
+            v-for="(collection, i) in article.collections"
+            v-bind:key="i"
+            class="mr-1">{{ collection.name }}</b-badge>
         </div>
         <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
         <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
