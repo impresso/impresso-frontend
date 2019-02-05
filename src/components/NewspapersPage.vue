@@ -64,7 +64,6 @@ export default {
       },
       set(newspaper) {
         this.$store.commit('newspapers/UPDATE_DETAIL_NEWSPAPER', newspaper);
-        // this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
       },
     },
     newspaperUid() {
@@ -75,7 +74,7 @@ export default {
     },
     query: {
       get() {
-        return ''; // this.$store.state.newspapers.list.query;
+        return '';
       },
       set(val) {
         this.$store.commit('newspapers/UPDATE_LIST_QUERY', val);
@@ -105,7 +104,6 @@ export default {
     },
     orderBy: {
       get() {
-        // return 'date';
         return this.$store.state.newspapers.list.orderBy;
       },
       set(val) {
@@ -125,17 +123,6 @@ export default {
     onInputPaginationList(page = 1) {
       this.loadList(page);
     },
-    // loadIssues(page) {
-    //   if (page !== undefined) {
-    //     this.$store.commit('newspapers/UPDATE_DETAIL_PAGINATION_CURRENT_PAGE',
-    //     parseInt(page, 10));
-    //   }
-    //
-    //   return this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
-    // },
-    // onInputPaginationDetail(page = 1) {
-    //   this.loadIssues(page);
-    // },
   },
   mounted() {
     this.loadList().then((res) => {
