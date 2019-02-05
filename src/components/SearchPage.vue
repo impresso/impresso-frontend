@@ -36,15 +36,28 @@
       </b-navbar-nav>
     </b-navbar>
 
-    <b-navbar type="light" variant="light" class="border-bottom">
-      <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
-    </b-navbar>
+    <div class="d-flex w-100 border-bottom bg-light">
+      <div class="flex-grow-1 p-3 border-right">
+          <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
+      </div>
+      <div class="flex-shrink-1">
+        <b-navbar-nav v-if="isLoggedIn()" class="pl-4 py-4">
+          <b-form-checkbox
+            v-on:change="onSelectAll">
+          </b-form-checkbox>
+        </b-navbar-nav>
+      </div>
+    </div>
 
     <div class="p-1">
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-list-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+            <search-results-list-item
+              checkbox=true
+              v-on:selected="onSelectResult(searchResult)"
+              v-on:click="onClickResult(searchResult)"
+              v-model="searchResults[index]" />
           </b-col>
         </b-row>
         <b-row class="pb-5" v-if="displayStyle === 'tiles'">
@@ -60,10 +73,18 @@
           v-bind:totalRows="paginationTotalRows"
           v-on:change="onInputPagination"
           class="float-left small-caps" />
-          <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
-            <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
-            <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
-          </b-dropdown>
+          <div v-if="selectedItems.length > 0" class="float-right">
+            <span class="ml-2 small-caps">
+              {{ $tc('items_selected', selectedItems.length) }}
+            </span>
+            <b-dropdown size="sm" variant="outline-secondary" :text="$tc('add_n_to_collection', selectedItems.length)" class="bg-white float-right ml-1">
+              <collection-add-to :items="selectedItems" class="addbulk" />
+            </b-dropdown>
+            <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-secondary" class="bg-white float-right ml-1">
+              <b-dropdown-item><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+              <b-dropdown-item><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+            </b-dropdown>
+          </div>
       </div>
     </div>
   </i-layout-section>
@@ -80,8 +101,12 @@ import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
+import CollectionAddTo from './modules/CollectionAddTo';
 
 export default {
+  data: () => ({
+    selectedItems: [],
+  }),
   computed: {
     groupByOptions: {
       get() {
@@ -199,6 +224,21 @@ export default {
     onInputPagination(page = 1) {
       this.search(page);
     },
+    onSelectAll(e) {
+      this.selectedItems = [];
+      this.searchResults.forEach((item) => {
+        if (e) {
+          this.selectedItems.push(item);
+          document.querySelector(`input[value='${item.uid}']`).checked = true;
+        } else {
+          document.querySelector(`input[value='${item.uid}']`).checked = false;
+        }
+      });
+    },
+    onSelectResult(e) {
+      if (e && !this.selectedItems.includes(e)) this.selectedItems.push(e);
+      else this.selectedItems.pop(e);
+    },
     onClickResult(searchResult) {
       this.$router.push({
         name: 'article',
@@ -221,6 +261,9 @@ export default {
       this.$store.commit('search/CLEAR');
       this.search(); // we do a search so we display all results in the corpus
     },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
   },
   components: {
     Autocomplete,
@@ -230,6 +273,7 @@ export default {
     'search-filters': SearchFilters,
     'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
+    CollectionAddTo,
   },
   mounted() {
     if (this.uuid !== undefined) {
@@ -292,7 +336,7 @@ div.overlay-region{
   bottom: 0;
   left: 50%;
   transform: translateX(calc(200px - 50%));
-  background: rgba($clr-primary, 0.1);
+  background: $clr-bg-secondary;
   max-width: calc(100% - 400px);
   .pagination {
     li.page-item > a,
@@ -320,7 +364,8 @@ div.overlay-region{
     "order_pages": "Page",
     "order_articles": "Article",
     "order_sentences": "Sentence",
-    "order_sentences": "Sentence",
+    "items_selected": "One item selected | {count} items selected",
+    "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Add query to collection",
     "query_export": "Export result list as ...",
