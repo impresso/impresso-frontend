@@ -9,7 +9,7 @@
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
           </li>
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
+            <router-link v-bind:to="{ name: 'newspapersExplorer'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
           </li>
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topicsExplorer'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
