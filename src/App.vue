@@ -6,7 +6,7 @@
   <div id="app-content">
     <router-view />
   </div>
-  <tawk-to :site_id="siteId" />
+  <tawk-to v-if="siteId" :site_id="siteId" />
 </div>
 </template>
 
