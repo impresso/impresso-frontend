@@ -102,28 +102,30 @@ export default {
       }
       return this.item.collections.find(collection => needle.uid === collection.uid);
     },
-    toggleActive(collection, event) {
-      event.target.classList.add('loading');
-      const idx = this.item.collections.findIndex(c => (c.uid === collection.uid));
-      if (idx !== -1) {
-        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
-          collection,
-          item: this.item,
-        }).then(() => {
-          // remove the collection at index.
-          this.item.collections.splice(idx, 1);
-          event.target.classList.remove('loading');
-        });
-      } else {
-        this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
-          collection,
-          item: this.item,
-          contentType: 'article',
-        }).then(() => {
-          this.item.collections.push(collection);
-          event.target.classList.remove('loading');
-        });
-      }
+    toggleActive(collection) {
+      const items = this.items ? this.items : [this.item];
+      const id0 = items[0].collections.findIndex(c => (c.uid === collection.uid));
+
+      items.forEach((item) => {
+        if (id0 !== -1) {
+          this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+            collection,
+            item,
+          }).then(() => {
+            const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+            // remove the collection at index.
+            item.collections.splice(idx, 1);
+          });
+        } else {
+          this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
+            collection,
+            item,
+            contentType: 'article',
+          }).then(() => {
+            item.collections.push(collection);
+          });
+        }
+      });
     },
     addCollection(collectionName) {
       if (!this.isDisabled) {
@@ -201,7 +203,7 @@ export default {
           &.loading {
             background: $clr-accent-secondary;
           }
-          &:active {
+          &:hover {
             background: $clr-accent-secondary;
           }
           div, span {
