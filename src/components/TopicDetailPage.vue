@@ -4,7 +4,7 @@
     <b-navbar type="light" variant="light" class="border-bottom">
       <section>
         <span class="label small-caps">
-          <router-link v-bind:to="{ name: 'topicsExplorer'}">&larr; {{$t("topics")}}</router-link>
+          <router-link v-bind:to="{ name: 'topics' }">&larr; {{$t("topics")}}</router-link>
 
         </span>
         <h3>{{ topic.language }} "{{ topic.getHtmlExcerpt() }} ..."</h3>

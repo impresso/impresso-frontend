@@ -98,14 +98,13 @@ const router = new Router({
   {
     path: '/newspapers',
     component: NewspapersPage,
-    name: 'newspapers',
     meta: {
       realm: 'newspapers',
     },
     children: [{
       path: '',
       component: NewspapersExplorerPage,
-      name: 'newspapersExplorer',
+      name: 'newspapers',
     },
     {
       path: ':newspaper_uid',
@@ -120,12 +119,10 @@ const router = new Router({
   {
     path: '/topics',
     component: TopicsPage,
-    name: 'topics',
-
     children: [{
       path: '',
       component: TopicsExplorerPage,
-      name: 'topicsExplorer',
+      name: 'topics',
     },
     {
       path: ':topic_uid',
