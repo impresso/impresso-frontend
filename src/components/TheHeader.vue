@@ -1,7 +1,6 @@
 <template lang="html">
   <div>
     <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
-
     <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
@@ -21,6 +20,10 @@
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
         </b-navbar-nav>
         <b-navbar-nav>
+        <b-nav-item
+          class="p-2 small-caps border-left"
+          v-b-tooltip.hover.bottom.html.o100.d250 v-bind:title="$t('join_slack_channel')"
+          href="slack://channel?team=T6VCN22P8&id=CFP3PNS9M"><icon name="slack"/></b-nav-item>
           <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
             <b-dropdown-item v-for="language in languages"
             v-bind:active="activeLanguageCode === language.code"
@@ -49,6 +52,9 @@
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
+import 'vue-awesome/icons/slack';
+
 export default {
   data: () => ({
     languages: {
@@ -140,6 +146,9 @@ export default {
         }
       },
     },
+  },
+  components: {
+    Icon,
   },
 };
 </script>
@@ -260,7 +269,8 @@ export default {
     "dashboard": "Dashboard",
     "label_home": "Home",
     "label_newspapers": "Newspaper Titles",
-    "label_topics": "Topics"
+    "label_topics": "Topics",
+    "join_slack_channel": "Join us on <b>Slack!</b>"
   }
 }
 </i18n>
