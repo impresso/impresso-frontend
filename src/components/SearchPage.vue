@@ -43,6 +43,7 @@
       <div class="flex-shrink-1">
         <b-navbar-nav v-if="isLoggedIn()" class="pl-4 py-4">
           <b-form-checkbox
+            v-b-tooltip.hover.topleft.html.o100.d250 v-bind:title="$t('select_all')"
             v-on:change="onSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
@@ -364,6 +365,7 @@ div.overlay-region{
     "order_pages": "Page",
     "order_articles": "Article",
     "order_sentences": "Sentence",
+    "select_all": "Select All",
     "items_selected": "One item selected | {count} items selected",
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
