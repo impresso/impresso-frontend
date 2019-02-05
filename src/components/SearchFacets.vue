@@ -1,7 +1,7 @@
 <template lang="html">
   <div id="search-facets">
-    <div v-for="(facet, index) in facets" class="border-top">
-      <div class="p-4">
+    <div v-for="(facet, index) in facets" class="facet border-top border-tertiary">
+      <div class="px-3 py-2 border-top small">
         <base-title-bar>{{facet.type}}</base-title-bar>
         <facet-language
           v-if="facet.type === 'language'"
@@ -84,5 +84,10 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
+.facet {
+  padding-top:1px;
+}
 </style>
