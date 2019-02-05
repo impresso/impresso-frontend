@@ -127,6 +127,7 @@ export default {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
     select(collection) {
+      console.log(collection);
       this.$router.push({
         name: 'collection',
         params: {

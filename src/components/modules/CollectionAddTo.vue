@@ -4,6 +4,7 @@
       <input type="text" name="" value="" class="w-100 p-1"
         v-bind:placeholder="$t('placeholder')"
         v-on:input="onInput"
+        v-on:keyup.enter="addCollection(inputString.trim())"
         v-model="inputString"
         />
     </div>
@@ -55,10 +56,11 @@ export default {
     inputString: '',
   }),
   model: {
-    prop: 'item',
+    prop: ['item', 'items'],
   },
   props: {
     item: Object,
+    items: Array,
   },
   computed: {
     filteredCollections() {
@@ -79,10 +81,23 @@ export default {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
     onInput() {
-      this.isDisabled = (this.inputString.trim().length > 4);
+      const len = this.inputString.trim().length;
+      this.isDisabled = (len >= 3 && len <= 50);
     },
     isActive(needle) {
-      if (!this.item.collections) {
+      if (this.items) {
+        let matches = 0;
+        this.items.forEach((item) => {
+          if (item.collections
+            && item.collections.find(collection => needle.uid === collection.uid)) matches += 1;
+        });
+        const el = document.querySelector(`.addbulk #${needle.uid}`);
+        if (el) el.indeterminate = false;
+        if (matches === 0) return false;
+        else if (matches === this.items.length) return true;
+        if (el) el.indeterminate = true;
+      }
+      if (!this.item || !this.item.collections) {
         return false;
       }
       return this.item.collections.find(collection => needle.uid === collection.uid);
@@ -111,6 +126,9 @@ export default {
       }
     },
     addCollection(collectionName) {
+      if (!this.isDisabled) {
+        return;
+      }
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
       }).then(() => {
@@ -169,6 +187,9 @@ export default {
         input:checked ~ .checkmark {
           display: block;
         }
+        input:indeterminate ~ label {
+          background: rgba($clr-accent-secondary, 0.25);
+        }
         input:checked ~ label {
           background: rgba($clr-accent-secondary, 0.5);
         }
@@ -182,6 +203,9 @@ export default {
           }
           &:active {
             background: $clr-accent-secondary;
+          }
+          div, span {
+            pointer-events: none;
           }
         }
       }

@@ -2,9 +2,7 @@ import * as services from '@/services';
 import Article from '@/models/Article';
 import Bucket from '@/models/Bucket';
 import Topic from '@/models/Topic';
-import Collection from '@/models/Collection';
 import QueryComponent from '@/models/QueryComponent';
-import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
 import Facet from '@/models/Facet';
@@ -153,6 +151,7 @@ export default {
           }).then(
             (res) => {
               context.commit('CLEAR_FACETS');
+
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
                 ...result,
                 issue: {
@@ -164,19 +163,8 @@ export default {
                   tag.appliesTo = tag.applies_to;
                   return tag;
                 }) : [],
-                collections: result.buckets ? result.buckets.map(bucket => new Collection({
-                  ...bucket,
-                  countArticles: bucket.count_articles,
-                  countEntities: bucket.count_entities,
-                  countIssues: bucket.count_issues,
-                  countItems: bucket.count_items,
-                  countPages: bucket.count_pages,
-                  creationDate: bucket.creation_date,
-                  creationTime: bucket.creation_time,
-                  lastModifiedDate: bucket.last_modified_date,
-                  lastModifiedTime: bucket.last_modified_time,
-                })) : [],
-                matches: result.matches ? result.matches.map(match => new Match(match)) : [],
+                collections: result.collections,
+                matches: result.matches || [],
                 newspaper: new Newspaper({
                   ...result.newspaper,
                   countArticles: result.newspaper.count_articles,
