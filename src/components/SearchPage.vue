@@ -236,8 +236,11 @@ export default {
       });
     },
     onSelectResult(e) {
-      if (e && !this.selectedItems.includes(e)) this.selectedItems.push(e);
-      else this.selectedItems.pop(e);
+      if (e && this.selectedItems) {
+        const idx = this.selectedItems.findIndex(c => (c.uid === e.uid));
+        if (idx === -1) this.selectedItems.push(e);
+        else this.selectedItems.splice(idx, 1);
+      }
     },
     onClickResult(searchResult) {
       this.$router.push({
