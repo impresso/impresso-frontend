@@ -259,8 +259,12 @@ export default {
   }
 }
 
+// extend application styles
 .border-tertiary {
   border-color: $clr-tertiary !important;
+}
+.pt-1px {
+  padding-top:1px;
 }
 </style>
 
