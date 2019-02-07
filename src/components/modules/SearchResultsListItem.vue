@@ -38,8 +38,14 @@
           <b-badge
             v-for="(collection, i) in article.collections"
             v-bind:key="i"
-            class="mr-1">{{ collection.name }}
-            <a class="dripicons-cross" v-on:click="onRemoveCollection(collection, article)"></a>
+            variant="info"
+            class="mr-1">
+            <router-link
+              class="text-white"
+              v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+              {{ collection.name }}
+            </router-link>
+            <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
           </b-badge>
         </div>
         <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
