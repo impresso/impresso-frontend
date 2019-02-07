@@ -37,13 +37,20 @@
       </ul>
     </b-container>
     <div class="footer bg-light p-2 border-top">
-        <b-button size="sm" variant="primary"
+        <b-button
+          size="sm"
+          variant="outline-primary"
           v-bind:disabled="isDisabled == 0"
           v-on:click="addCollection(inputString.trim())"
           >
           {{$t('create_new')}}
         </b-button>
-        <router-link class="btn btn-sm btn-outline-primary float-right" v-bind:to="{ name: 'collection'}">{{ $t('manage_collections') }}</router-link>
+        <router-link
+          size="sm"
+          class="btn btn-sm btn-outline-primary float-right"
+          v-bind:to="{ name: 'collection'}">
+          {{ $t('manage_collections') }}
+        </router-link>
     </div>
   </div>
 </template>

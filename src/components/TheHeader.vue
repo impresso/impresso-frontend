@@ -1,5 +1,5 @@
 <template lang="html">
-  <div>
+  <div class="border-bottom border-tertiary">
     <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
     <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
       <b-navbar-brand :to="{name: 'home'}">
@@ -157,7 +157,6 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
-  border-bottom: 1px solid $clr-tertiary;
   .progress {
     position: absolute;
     width: 100%;
@@ -258,6 +257,14 @@ export default {
     line-height: 1;
     font-size: 0.8em;
   }
+}
+
+// extend application styles
+.border-tertiary {
+  border-color: $clr-tertiary !important;
+}
+.pt-1px {
+  padding-top:1px;
 }
 </style>
 

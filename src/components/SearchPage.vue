@@ -1,17 +1,17 @@
 <template>
 <i-layout id="SearchPage">
-  <i-layout-section width="400px" class="border-right">
-    <div slot="header" class="px-4 py-4 border-bottom">
+  <i-layout-section width="400px" class="border-right border-tertiary">
+    <div slot="header" class="p-3 border-bottom border-tertiary">
       <autocomplete v-on:submit="onSuggestion" />
     </div>
-    <div class="py-4">
-      <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
+    <div class="pt-1px">
+      <search-filters class="border-top pt-2 px-0" v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
       <search-facets v-on:submit-facet="onFacet" />
     </div>
     <div slot="footer">
-      <b-button-group class="d-flex bg-white">
-        <b-button class="w-100" v-on:click="search(1)">Search</b-button>
-        <b-button class="w-100" v-on:click="reset">Clear</b-button>
+      <b-button-group class="d-flex bg-white p-3 border-top border-tertiary">
+        <b-button class="small-caps mr-2 w-75" variant="outline-primary" size="md" v-on:click="search(1)">Search</b-button>
+        <b-button class="small-caps w-25" variant="outline-danger" size="md" v-on:click="reset">Clear</b-button>
       </b-button-group>
     </div>
   </i-layout-section>
@@ -43,6 +43,7 @@
       <div class="flex-shrink-1">
         <b-navbar-nav v-if="isLoggedIn()" class="pl-4 py-4">
           <b-form-checkbox
+            v-b-tooltip.hover.topleft.html.o100.d250 v-bind:title="$t('select_all')"
             v-on:change="onSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
@@ -367,6 +368,7 @@ div.overlay-region{
     "order_pages": "Page",
     "order_articles": "Article",
     "order_sentences": "Sentence",
+    "select_all": "Select All",
     "items_selected": "One item selected | {count} items selected",
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",

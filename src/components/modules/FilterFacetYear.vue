@@ -1,9 +1,9 @@
 <template lang="html">
-  <div v-bind:class="{'mb-4': expanded}">
+  <div v-bind:class="{'mb-3': expanded}">
     <base-title-bar>
       {{$t(`label.${filter.type}`)}}
       <b-button v-on:click="toggleExpanded" class="float-right" variant="link" size="sm">
-        <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
+        <span v-bind:class="expanded ? 'dripicons-chevron-up' : 'dripicons-chevron-down'" />
       </b-button>
     </base-title-bar>
     <div class="skyline-outer-wrapper" v-bind:class="{expanded: expanded}">
@@ -25,10 +25,6 @@
 </template>
 
 <script>
-import 'vue-awesome/icons/times';
-import 'vue-awesome/icons/chevron-down';
-import 'vue-awesome/icons/chevron-up';
-import Icon from 'vue-awesome/components/Icon';
 
 import SkyLine from '@/d3-modules/SkyLine';
 
@@ -136,7 +132,6 @@ export default {
   components: {
     BaseTitleBar,
     Tooltip,
-    Icon,
     flatPickr,
   },
 };
