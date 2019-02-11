@@ -33,6 +33,8 @@ export default {
         id: process.env.TYPEKIT_ID,
       },
     });
+    // login the user
+    this.$store.dispatch('user/login');
   },
 };
 </script>

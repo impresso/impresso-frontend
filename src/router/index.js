@@ -32,6 +32,9 @@ const router = new Router({
     path: '/search',
     name: 'search',
     component: SearchPage,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/user/login',
@@ -39,6 +42,7 @@ const router = new Router({
     component: UserLoginPage,
     meta: {
       realm: 'user',
+      requiresAuth: false,
     },
   },
   {
@@ -47,6 +51,7 @@ const router = new Router({
     component: UserLoginPage,
     meta: {
       realm: 'user',
+      requiresAuth: true,
     },
   },
   {
@@ -56,6 +61,7 @@ const router = new Router({
     component: UserDashboardPage,
     meta: {
       realm: 'user',
+      requiresAuth: true,
     },
   },
   {
@@ -65,6 +71,7 @@ const router = new Router({
     props: true,
     meta: {
       realm: 'user',
+      requiresAuth: true,
     },
     children: [{
       path: '',
@@ -83,6 +90,7 @@ const router = new Router({
     name: 'issue',
     props: true,
     meta: {
+      requiresAuth: true,
       realm: 'issueviewer',
     },
   },
@@ -92,29 +100,38 @@ const router = new Router({
     name: 'page',
     props: true,
     meta: {
+      requiresAuth: true,
       realm: 'issueviewer',
     },
   },
   {
     path: '/newspapers',
     component: NewspapersPage,
-    meta: {
-      realm: 'newspapers',
-    },
     children: [{
       path: '',
       component: NewspapersExplorerPage,
       name: 'newspapers',
+      meta: {
+        requiresAuth: true,
+        realm: 'newspapers',
+      },
     },
     {
       path: ':newspaper_uid',
       component: NewspapersDetailPage,
       name: 'newspaper',
+      meta: {
+        requiresAuth: true,
+        realm: 'newspapers',
+      },
     }],
   },
   {
     path: '/playground',
     component: TestPage,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/topics',
@@ -123,11 +140,17 @@ const router = new Router({
       path: '',
       component: TopicsExplorerPage,
       name: 'topics',
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: ':topic_uid',
       component: TopicDetailPage,
       name: 'topic',
+      meta: {
+        requiresAuth: true,
+      },
     }],
   },
   {
@@ -161,14 +184,22 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.name === 'login') {
-    next();
-  } else {
-    services.app.authenticate().then(next).catch(() => {
+  if (to.meta.requiresAuth) {
+    services.app.passport.getJWT().then((jwt) => {
+      if (services.app.passport.payloadIsValid(jwt)) {
+        next();
+      } else {
+        next({
+          name: 'login',
+        });
+      }
+    }).catch(() => {
       next({
         name: 'login',
       });
     });
+  } else {
+    next();
   }
 });
 
