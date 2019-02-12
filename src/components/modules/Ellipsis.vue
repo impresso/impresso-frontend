@@ -1,0 +1,95 @@
+<template lang="html">
+  <div class='ellipsis'>
+    <div class='contents' ref='contents' :style='{ height: height + "px" }'>
+      <slot></slot>
+    </div>
+    <div class='more' v-bind:style="gradientStyle">
+      <b-button size="sm" variant="outline-primary" v-on:click="onClick">
+        {{$t(this.isCollapsed ? 'more' : 'less')}}</b-button>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data: () => ({
+    isCollapsed: true,
+    height: 0,
+    collapsedHeight: 0,
+  }),
+  props: {
+    initialHeight: {
+      type: Number,
+      default: 50,
+    },
+    backgroundColor: {
+      type: String,
+      default: '#f8f9fa',
+    },
+  },
+  mounted() {
+    this.height = +this.initialHeight;
+  },
+  computed: {
+    gradientStyle() {
+      if (!this.isCollapsed) {
+        return {
+          background: 'transparent',
+        };
+      }
+      return {
+        background: `linear-gradient(${this.backgroundColor}00 20%, ${this.backgroundColor})`,
+      };
+    },
+  },
+  methods: {
+    onClick() {
+      this.isCollapsed = !this.isCollapsed;
+      console.log('CLICKED fuck', this.$refs.contents);
+
+      if (!this.collapsedHeight) {
+        this.collapsedHeight = this.$refs.contents.clientHeight;
+      }
+      if (this.isCollapsed) {
+        this.height = +this.collapsedHeight;
+      } else {
+        this.height = +this.$refs.contents.scrollHeight;
+      }
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+  .ellipsis{
+    position: relative;
+
+    .contents {
+      height: 100%;
+      overflow: hidden;
+    }
+  }
+
+  .ellipsis > .more{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 150px;
+    text-align: right;
+    background: linear-gradient(#f8f9fa00 20%, #f8f9fa);
+  }
+
+</style>
+
+<i18n>
+{
+  "en": {
+    "more": "more ...",
+    "less": "less ..."
+  },
+  "it": {
+    "more": "espandi ...",
+    "less": "less ..."
+  }
+}
+</i18n>
