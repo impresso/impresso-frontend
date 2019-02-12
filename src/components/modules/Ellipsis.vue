@@ -45,8 +45,7 @@ export default {
   methods: {
     onClick() {
       this.isCollapsed = !this.isCollapsed;
-      console.log('CLICKED fuck', this.$refs.contents);
-
+      
       if (!this.collapsedHeight) {
         this.collapsedHeight = this.$refs.contents.clientHeight;
       }
