@@ -1,38 +1,61 @@
 <template lang="html">
   <i-layout-section>
+    <div slot="header" class="border-bottom border-tertiary">
+      <b-navbar type="light" variant="light" class="border-bottom">
+        <section>
+          <span class="label small-caps">
+            <router-link v-bind:to="{ name: 'topics' }">&larr; {{$t("topics")}}</router-link>
 
-    <b-navbar type="light" variant="light" class="border-bottom">
-      <section>
-        <span class="label small-caps">
-          <router-link v-bind:to="{ name: 'topics' }">&larr; {{$t("topics")}}</router-link>
+          </span>
+          <h3>{{ topic.language }} "{{ topic.getHtmlExcerpt() }} ..."</h3>
 
-        </span>
-        <h3>{{ topic.language }} "{{ topic.getHtmlExcerpt() }} ..."</h3>
-        <span class="label small-caps">
-          {{$t("model")}} {{ topic.model }}
-        </span>
-      </section>
-    </b-navbar>
+          <ellipsis>
+            <div class="d-inline-block word"  v-for="(word, idx) in topic.words">
+              <span :style='{opacity: word.l}'>{{ word.w }}</span>
+              <!-- <span :style='{fontSize: (word.l + 0.5) + "em"}'>{{ word.w }}</span> -->
+              <!-- <span class="word-probability">{{word.p}}</span> -->
+              <span v-if="idx < topic.words.length - 1">&middot;&nbsp;</span>
+            </div>
 
+            <span class="label small-caps">
+              {{$t("model")}} {{ topic.model }}
+            </span>
+          </ellipsis>
+        </section>
+      </b-navbar>
 
-    <!--  -->
-    <div class="p-3 pt-2 border-bottom">
-      <div class="d-inline-block word" v-for="(word, idx) in topic.words">
-        <span :style='{opacity: word.l}'>{{ word.w }}</span>
-        <span class="word-probability">{{word.p}}</span>
-        <span v-if="idx < topic.words.length - 1">&middot;&nbsp;</span>
-      </div>
+      <b-navbar type="light" variant="light" class="px-0 py-0">
+        <b-navbar-nav class="px-2">
+          <li class='p-2 border-right'>
+            <b>{{$n(this.total)}}</b>
+            <label>{{$t('articles')}}</label>
+          </li>
+
+        </b-navbar-nav>
+        <b-navbar-nav class="px-1 ">
+          <li class="p-2"><label >{{ $t('order by') }}</label>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+      </b-navbar>
     </div>
-    <div class="p-3 pt-2">
-      <div>
-        <span class='number'>{{ $n(total) }}</span>
-        <span class='text-serif'>{{$t('articles in total')}}</span>
-      </div>
+
+
+
+    </div>
+    <div class='m-3'>
       <div class="article border-bottom" v-for="(article, idx) in articles">
         {{article.newspaper.name}}
         <h4>{{article.title}}</h4>
         <blockquote>{{article.excerpt}}</blockquote>
       </div>
+    </div>
+    <div slot="footer" class="border-bottom">
+      <div>
+        <span class='number'>{{ $n(total) }}</span>
+        <span class='text-serif'>{{$t('articles in total')}}</span>
+      </div>
+
       <pagination
         v-bind:perPage="limit"
         v-bind:currentPage="page"
@@ -46,6 +69,7 @@
 <script>
 import Topic from '@/models/Topic';
 import Pagination from './modules/Pagination';
+import Ellipsis from './modules/Ellipsis';
 
 export default {
   data: () => ({
@@ -55,9 +79,25 @@ export default {
     total: 0,
     page: 1,
     limit: 10,
+    orderBy: 'relevance',
     timeline: [],
   }),
   computed: {
+    orderByOptions() {
+      return [
+        {
+          value: 'relevance',
+          text: this.$t('relevance'),
+        },
+        {
+          value: 'language',
+          text: this.$t('language'),
+        },
+      ];
+    },
+    topicWord(word) {
+      return `ciao ${word.w}`;
+    },
     topicModel() {
       return this.$route.params.topic_model;
     },
@@ -107,18 +147,14 @@ export default {
   },
   components: {
     Pagination,
+    Ellipsis,
   },
 };
 </script>
 
 <style scoped lang="scss">
-.word-probability {
-  color: lightgrey;
+.word {
+  line-height: 1.25em;
 }
-.word:hover{
-  .word-probability {
-    color: darkgrey;
-  }
-  box-shadow: 0 1px black;
-}
+
 </style>
