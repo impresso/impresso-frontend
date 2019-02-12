@@ -38,7 +38,15 @@
           <b-badge
             v-for="(collection, i) in article.collections"
             v-bind:key="i"
-            class="mr-1">{{ collection.name }}</b-badge>
+            variant="info"
+            class="mr-1">
+            <router-link
+              class="text-white"
+              v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+              {{ collection.name }}
+            </router-link>
+            <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+          </b-badge>
         </div>
         <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
         <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
@@ -71,6 +79,17 @@ export default {
   },
   props: ['article', 'checkbox'],
   methods: {
+    onRemoveCollection(collection, item) {
+      const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+      if (idx !== -1) {
+        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+          collection,
+          item,
+        }).then(() => {
+          item.collections.splice(idx, 1);
+        });
+      }
+    },
     onChange(e) {
       this.$emit('selected', e);
     },
