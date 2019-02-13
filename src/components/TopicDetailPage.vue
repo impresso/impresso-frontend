@@ -87,16 +87,17 @@ export default {
       return [
         {
           value: 'relevance',
-          text: this.$t('relevance'),
+          text: this.$t('topic.relevance'),
         },
         {
-          value: 'language',
-          text: this.$t('language'),
+          value: 'date',
+          text: this.$t('article.dateASC'),
+        },
+        {
+          value: '-date',
+          text: this.$t('article.dateDESC'),
         },
       ];
-    },
-    topicWord(word) {
-      return `ciao ${word.w}`;
     },
     topicModel() {
       return this.$route.params.topic_model;
@@ -158,3 +159,17 @@ export default {
 }
 
 </style>
+
+<i18n>
+  {
+    "en": {
+      "topic": {
+        "relevance": "topic relevance"
+      },
+      "article": {
+        "dateASC": "article date",
+        "dateDESC": "article date, latest first"
+      }
+    }
+  }
+</i18n>
