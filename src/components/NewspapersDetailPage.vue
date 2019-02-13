@@ -29,8 +29,8 @@
         </b-navbar-nav>
         </b-navbar>
       </div>
-      <div class='p-3' v-if='$route.name == "newspaper_metadata"'>
-        <b-table :striped="true" :items="newspaper.properties"
+      <div class='p-2' v-if='$route.name == "newspaper_metadata"'>
+        <b-table :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="name" slot-scope="row">{{row.item.name}}</template>
           <template slot="property" slot-scope="row">{{row.item.newspapers_metadata.value}}</template>
