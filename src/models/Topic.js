@@ -10,7 +10,7 @@ export default class Topic {
     words = [],
     excerpt = [],
   } = {}, {
-    quantizeRange = [0.25, 0.5, 1, 1],
+    quantizeRange = [0.4, 0.7, 1, 1],
   } = {}) {
     this.uid = String(uid);
     this.language = String(language);
