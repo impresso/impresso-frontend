@@ -34,7 +34,7 @@ export default {
       },
     });
     // login the user
-    this.$store.dispatch('user/login');
+    this.$store.dispatch('user/LOGIN');
   },
 };
 </script>
