@@ -42,7 +42,7 @@
             </template>
             <b-dropdown-item v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
-            <b-dropdown-item v-on:click.prevent="logout">{{$t("logout")}}</b-dropdown-item>
+            <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
@@ -130,11 +130,6 @@ export default {
       window.app.$i18n.locale = languageCode;
       this.$store.commit('settings/SET_LANGUAGE', {
         language_code: languageCode,
-      });
-    },
-    logout() {
-      this.$store.dispatch('user/LOGOUT').then(() => {
-        this.$router.push('/');
       });
     },
   },
