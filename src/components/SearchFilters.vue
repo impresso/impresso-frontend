@@ -1,6 +1,6 @@
 <template lang="html">
   <div id="search-filters" class="px-4">
-    <div v-for="(filter, index) in filters">
+    <div class="filter-wrapper" v-for="(filter, index) in filters">
       <filter-facet-year
         v-if="filter.type === 'year'"
         v-model="filters[index]"
@@ -62,7 +62,7 @@ import FilterString from './modules/FilterString';
 
 export default {
   data: () => ({
-    filtersOrder: ['year', 'string', 'regex', 'entity', 'topic', 'daterange', 'newspaper', 'language'],
+    filtersOrder: ['string', 'regex', 'entity', 'topic', 'daterange', 'newspaper', 'language', 'year'],
   }),
   computed: {
     search: {
@@ -118,5 +118,10 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
+#search-filters{
+  .filter-wrapper{
+    display: inline-block;
+  }
+}
 </style>

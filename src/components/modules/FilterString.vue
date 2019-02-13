@@ -1,6 +1,18 @@
 <template lang="html">
-  <filter-wrapper v-on:remove="remove">
+  <filter-wrapper v-on:remove="remove" v-bind:title="filter.query">
     <div slot="settings">
+      <b-input-group class="mb-3">
+        <b-input
+          type="text"
+          v-model="filter.query"
+          v-on:input.native="updateFilter"
+          v-on:keyup.enter.native="submitFilter"
+          v-bind:disabled="disabled"
+          size="sm"
+        />
+        <b-button v-on:click="editFilter" v-show="disabled" size="sm"><icon name="edit" /></b-button>
+        <b-button v-on:click="submitFilter" v-show="!disabled" size="sm"><icon name="check" /></b-button>
+      </b-input-group>
       <i-layout>
         <i-layout-section width="50%">
           <filter-setting-context v-model="filter" />
@@ -9,18 +21,6 @@
           <filter-setting-precision v-model="filter" />
         </i-layout-section>
       </i-layout>
-    </div>
-    <b-input
-      type="text"
-      v-model="filter.query"
-      v-on:input.native="updateFilter"
-      v-on:keyup.enter.native="submitFilter"
-      v-bind:disabled="disabled"
-      size="sm"
-    />
-    <div slot="controls">
-      <b-button v-on:click="editFilter" variant="link" v-show="disabled" size="sm"><icon name="edit" /></b-button>
-      <b-button v-on:click="submitFilter" variant="link" v-show="!disabled" size="sm"><icon name="check" /></b-button>
     </div>
   </filter-wrapper>
 </template>
