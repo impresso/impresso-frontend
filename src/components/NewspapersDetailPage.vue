@@ -4,7 +4,9 @@
       <div slot="header" class="border-bottom border-tertiary">
         <b-navbar type="light" variant="light" class='border-bottom'>
           <section class='pt-2'>
-            <span class="label small-caps">{{$t('newspaper')}}</span>
+            <span class="label small-caps">
+              <router-link :to="{ name: 'newspapers' }">&larr; {{$t("newspapers")}}</router-link>
+            </span>
             <h3 class='mb-1'>
               {{newspaper.name}}
               ({{newspaper.startYear}} - {{newspaper.endYear}})</h3>
@@ -20,8 +22,8 @@
           <b-tabs pills>
             <!-- Add your b-tab components here-->
             <template slot="tabs">
-              <b-nav-item :to="{ name:'newspaper'}" exact >{{$t('show list')}}</b-nav-item>
-              <b-nav-item :to="{ name:'newspaper_metadata'}" exact >{{$t('list of metadata')}}</b-nav-item>
+              <b-nav-item :to="{ name:'newspaper'}" exact >{{$t('route.newspaper')}}</b-nav-item>
+              <b-nav-item :to="{ name:'newspaper_metadata'}" exact >{{$t('route.newspaper_metadata')}}</b-nav-item>
             </template>
           </b-tabs>
         </b-navbar-nav>
@@ -153,7 +155,10 @@ export default {
 <i18n>
 {
   "en": {
-    "label_display": "show"
+    "route": {
+      "newspaper": "show all first pages",
+      "newspaper_metadata": "show newspaper metadata"
+    }
   }
 }
 </i18n>
