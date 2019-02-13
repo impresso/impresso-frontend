@@ -10,9 +10,12 @@ import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
+import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
+import NewspapersDetailPage from '../components/NewspapersDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
+import store from '../store';
 
 Vue.use(Router);
 
@@ -25,11 +28,17 @@ const router = new Router({
         name: 'search',
       });
     },
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/search',
     name: 'search',
     component: SearchPage,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/user/login',
@@ -37,14 +46,21 @@ const router = new Router({
     component: UserLoginPage,
     meta: {
       realm: 'user',
+      requiresAuth: false,
     },
   },
   {
     path: '/user/logout',
     name: 'logout',
     component: UserLoginPage,
+    beforeEnter: (to, from, next) => {
+      store.dispatch('user/LOGOUT').then(() => {
+        next();
+      });
+    },
     meta: {
       realm: 'user',
+      requiresAuth: true,
     },
   },
   {
@@ -54,6 +70,7 @@ const router = new Router({
     component: UserDashboardPage,
     meta: {
       realm: 'user',
+      requiresAuth: true,
     },
   },
   {
@@ -61,18 +78,23 @@ const router = new Router({
     component: CollectionsPage,
     name: 'collections',
     props: true,
-    meta: {
-      realm: 'user',
-    },
     children: [{
       path: '',
       component: CollectionsExplorerPage,
       name: 'collectionsExplorer',
+      meta: {
+        requiresAuth: true,
+        realm: 'user',
+      },
     },
     {
       path: ':collection_uid',
       component: CollectionDetailPage,
       name: 'collection',
+      meta: {
+        requiresAuth: true,
+        realm: 'user',
+      },
     }],
   },
   {
@@ -81,6 +103,7 @@ const router = new Router({
     name: 'issue',
     props: true,
     meta: {
+      requiresAuth: true,
       realm: 'issueviewer',
     },
   },
@@ -90,35 +113,57 @@ const router = new Router({
     name: 'page',
     props: true,
     meta: {
+      requiresAuth: true,
       realm: 'issueviewer',
     },
   },
   {
-    path: '/newspapers/:newspaper_uid?',
+    path: '/newspapers',
     component: NewspapersPage,
-    name: 'newspapers',
-    meta: {
-      realm: 'newspapers',
+    children: [{
+      path: '',
+      component: NewspapersExplorerPage,
+      name: 'newspapers',
+      meta: {
+        requiresAuth: true,
+        realm: 'newspapers',
+      },
     },
+    {
+      path: ':newspaper_uid',
+      component: NewspapersDetailPage,
+      name: 'newspaper',
+      meta: {
+        requiresAuth: true,
+        realm: 'newspapers',
+      },
+    }],
   },
   {
     path: '/playground',
     component: TestPage,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/topics',
     component: TopicsPage,
-    name: 'topics',
-
     children: [{
       path: '',
       component: TopicsExplorerPage,
-      name: 'topicsExplorer',
+      name: 'topics',
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: ':topic_uid',
       component: TopicDetailPage,
       name: 'topic',
+      meta: {
+        requiresAuth: true,
+      },
     }],
   },
   {
@@ -128,11 +173,15 @@ const router = new Router({
     props: true,
     meta: {
       realm: 'issueviewer',
+      requiresAuth: true,
     },
   },
   {
     path: '/playground',
     component: TestPage,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/article/:article_uid',
@@ -152,10 +201,18 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.name === 'login') {
+  if (to.meta.requiresAuth === false) {
     next();
   } else {
-    services.app.authenticate().then(next).catch(() => {
+    services.app.passport.getJWT().then((jwt) => {
+      if (services.app.passport.payloadIsValid(jwt)) {
+        next();
+      } else {
+        next({
+          name: 'login',
+        });
+      }
+    }).catch(() => {
       next({
         name: 'login',
       });

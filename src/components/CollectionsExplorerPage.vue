@@ -18,23 +18,26 @@
         </b-form-radio-group>
       </b-navbar-nav>
     </b-navbar>
-
-
-
     <div class="collection-group">
-
-
-
       <b-container fluid>
         <b-row v-if="displayStyle === 'list-not-implemented-because-buggy'">
-          <b-col cols="12" v-for="(article, index) in articles">
-            <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
+          <b-col
+            cols="12"
+            v-for="(article, i) in articles"
+            v-bind:key="i">
+            <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[i]" />
           </b-col>
         </b-row>
 
         <b-row class="pb-5">
-          <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, index) in articles">
-            <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
+          <b-col
+            cols="6"
+            sm="12"
+            md="4"
+            lg="3"
+            v-for="(article, i) in articles"
+            v-bind:key="i">
+            <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[i]" />
             <!-- {{ article }} -->
           </b-col>
         </b-row>

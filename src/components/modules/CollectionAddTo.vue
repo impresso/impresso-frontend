@@ -4,6 +4,7 @@
       <input type="text" name="" value="" class="w-100 p-1"
         v-bind:placeholder="$t('placeholder')"
         v-on:input="onInput"
+        v-on:keyup.enter="addCollection(inputString.trim())"
         v-model="inputString"
         />
     </div>
@@ -36,13 +37,20 @@
       </ul>
     </b-container>
     <div class="footer bg-light p-2 border-top">
-        <b-button size="sm" variant="primary"
+        <b-button
+          size="sm"
+          variant="outline-primary"
           v-bind:disabled="isDisabled == 0"
           v-on:click="addCollection(inputString.trim())"
           >
           {{$t('create_new')}}
         </b-button>
-        <router-link class="btn btn-sm btn-outline-primary float-right" v-bind:to="{ name: 'collection'}">{{ $t('manage_collections') }}</router-link>
+        <router-link
+          size="sm"
+          class="btn btn-sm btn-outline-primary float-right"
+          v-bind:to="{ name: 'collection'}">
+          {{ $t('manage_collections') }}
+        </router-link>
     </div>
   </div>
 </template>
@@ -55,10 +63,11 @@ export default {
     inputString: '',
   }),
   model: {
-    prop: 'item',
+    prop: ['item', 'items'],
   },
   props: {
     item: Object,
+    items: Array,
   },
   computed: {
     filteredCollections() {
@@ -79,38 +88,56 @@ export default {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
     onInput() {
-      this.isDisabled = (this.inputString.trim().length > 4);
+      const len = this.inputString.trim().length;
+      this.isDisabled = (len >= 3 && len <= 50);
     },
     isActive(needle) {
-      if (!this.item.collections) {
+      if (this.items) {
+        let matches = 0;
+        this.items.forEach((item) => {
+          if (item.collections
+            && item.collections.find(collection => needle.uid === collection.uid)) matches += 1;
+        });
+        const el = document.querySelector(`.addbulk #${needle.uid}`);
+        if (el) el.indeterminate = false;
+        if (matches === 0) return false;
+        else if (matches === this.items.length) return true;
+        if (el) el.indeterminate = true;
+      }
+      if (!this.item || !this.item.collections) {
         return false;
       }
       return this.item.collections.find(collection => needle.uid === collection.uid);
     },
-    toggleActive(collection, event) {
-      event.target.classList.add('loading');
-      const idx = this.item.collections.findIndex(c => (c.uid === collection.uid));
-      if (idx !== -1) {
-        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
-          collection,
-          item: this.item,
-        }).then(() => {
-          // remove the collection at index.
-          this.item.collections.splice(idx, 1);
-          event.target.classList.remove('loading');
-        });
-      } else {
-        this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
-          collection,
-          item: this.item,
-          contentType: 'article',
-        }).then(() => {
-          this.item.collections.push(collection);
-          event.target.classList.remove('loading');
-        });
-      }
+    toggleActive(collection) {
+      const items = this.items ? this.items : [this.item];
+      const id0 = items[0].collections.findIndex(c => (c.uid === collection.uid));
+
+      items.forEach((item) => {
+        if (id0 !== -1) {
+          this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+            collection,
+            item,
+          }).then(() => {
+            const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+            // remove the collection at index.
+            item.collections.splice(idx, 1);
+          });
+        } else {
+          this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
+            collection,
+            item,
+            contentType: 'article',
+          }).then(() => {
+            item.collections.push(collection);
+          });
+        }
+      });
     },
     addCollection(collectionName) {
+      if (!this.isDisabled) {
+        return;
+      }
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
       }).then(() => {
@@ -169,6 +196,9 @@ export default {
         input:checked ~ .checkmark {
           display: block;
         }
+        input:indeterminate ~ label {
+          background: rgba($clr-accent-secondary, 0.25);
+        }
         input:checked ~ label {
           background: rgba($clr-accent-secondary, 0.5);
         }
@@ -180,8 +210,11 @@ export default {
           &.loading {
             background: $clr-accent-secondary;
           }
-          &:active {
+          &:hover {
             background: $clr-accent-secondary;
+          }
+          div, span {
+            pointer-events: none;
           }
         }
       }

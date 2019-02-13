@@ -1,5 +1,6 @@
 <template lang="html">
-  <div>
+  <div class="border-bottom border-tertiary">
+    <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
     <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
@@ -12,13 +13,17 @@
             <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
           </li>
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'topicsExplorer'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
+            <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
           </li>
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
         </b-navbar-nav>
         <b-navbar-nav>
+        <b-nav-item
+          class="p-2 small-caps border-left"
+          v-b-tooltip.hover.bottom.html.o100.d250 v-bind:title="$t('join_slack_channel')"
+          href="slack://channel?team=T6VCN22P8&id=CFP3PNS9M"><icon name="slack"/></b-nav-item>
           <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
             <b-dropdown-item v-for="language in languages"
             v-bind:active="activeLanguageCode === language.code"
@@ -37,17 +42,19 @@
             </template>
             <b-dropdown-item v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
-            <b-dropdown-item v-on:click.prevent="logout">{{$t("logout")}}</b-dropdown-item>
+            <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
-    <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
   </div>
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
+import 'vue-awesome/icons/slack';
+
 export default {
   data: () => ({
     languages: {
@@ -84,7 +91,7 @@ export default {
       return this.$store.state.error_message;
     },
     progressBarHeight() {
-      return this.$store.state.processing_status ? '4px' : '0';
+      return this.$store.state.processing_status ? '2px' : '0';
     },
     user() {
       return this.$store.getters['user/user'];
@@ -125,11 +132,6 @@ export default {
         language_code: languageCode,
       });
     },
-    logout() {
-      this.$store.dispatch('user/LOGOUT').then(() => {
-        this.$router.push('/');
-      });
-    },
   },
   watch: {
     $route: {
@@ -140,6 +142,9 @@ export default {
       },
     },
   },
+  components: {
+    Icon,
+  },
 };
 </script>
 
@@ -147,9 +152,12 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
-  border-bottom: 1px solid $clr-tertiary;
   .progress {
-    transition: height 400ms;
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+    top: 0;
+    left: 0;
   }
   nav {
     margin-top: 0;
@@ -245,6 +253,14 @@ export default {
     font-size: 0.8em;
   }
 }
+
+// extend application styles
+.border-tertiary {
+  border-color: $clr-tertiary !important;
+}
+.pt-1px {
+  padding-top:1px;
+}
 </style>
 
 <i18n>
@@ -255,7 +271,8 @@ export default {
     "dashboard": "Dashboard",
     "label_home": "Home",
     "label_newspapers": "Newspaper Titles",
-    "label_topics": "Topics"
+    "label_topics": "Topics",
+    "join_slack_channel": "Join us on <b>Slack!</b>"
   }
 }
 </i18n>

@@ -79,15 +79,13 @@ export default {
         services.collections.get(collection.uid, {}),
         services.collectionsItems.find({
           query: {
-            collection_uid: collection.uid,
+            collection_uids: [collection.uid],
+            resolve: 'item',
           },
         }),
       ]).then((results) => {
         const loadedCollection = new Collection(results[0]);
-        loadedCollection.items = results[1].data.map(d => ({
-          ...d.item,
-          dateAdded: d.dateAdded,
-        }));
+        loadedCollection.items = results[1].data;
 
         return loadedCollection;
       });

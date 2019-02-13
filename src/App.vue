@@ -6,17 +6,25 @@
   <div id="app-content">
     <router-view />
   </div>
+  <tawk-to v-if="siteId" :site_id="siteId" />
 </div>
 </template>
 
 <script>
 import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
+import TawkTo from './components/modules/TawkTo';
 
 export default {
   name: 'app',
+  data() {
+    return {
+      siteId: process.env.TAWK_TO_SITE_ID,
+    };
+  },
   components: {
     TheHeader,
+    TawkTo,
   },
   created() {
     // load typekit
@@ -25,6 +33,8 @@ export default {
         id: process.env.TYPEKIT_ID,
       },
     });
+    // login the user
+    this.$store.dispatch('user/LOGIN');
   },
 };
 </script>

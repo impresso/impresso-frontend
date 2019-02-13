@@ -1,5 +1,6 @@
 import * as services from '@/services';
 import User from '@/models/User';
+import router from '@/router';
 
 export default {
   namespaced: true,
@@ -34,15 +35,13 @@ export default {
         });
       });
     },
-    LOGIN(context, payload) {
+    LOGIN(context, credentials) {
       return new Promise((resolve, reject) => {
-        const authSettings = {
-          strategy: 'local',
-          email: payload.email,
-          password: payload.password,
-        };
-
-        services.app.authenticate(authSettings)
+        services.app
+          .authenticate(credentials ? {
+            strategy: 'local',
+            ...credentials,
+          } : undefined)
           .then(res => services.app.passport.verifyJWT(res.accessToken), reject)
           .then(res => services.app.service('users').get(res.userId), reject)
           .then((user) => {
@@ -55,13 +54,11 @@ export default {
             context.dispatch('collections/LOAD_COLLECTIONS', null, {
               root: true,
             });
-            resolve();
+            resolve(user);
           }, reject)
-          .catch(
-            (err) => {
-              reject(err.data);
-            },
-          );
+          .catch(() => {
+            router.push({ name: 'login' });
+          });
       });
     },
   },
