@@ -15,8 +15,6 @@ app.configure(auth({
   storage: window.localStorage,
 }));
 
-app.authenticate();
-
 socket.on('reconnect', () => {
   app.authenticate();
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
