@@ -124,6 +124,15 @@ const router = new Router({
         requiresAuth: true,
         realm: 'newspapers',
       },
+    },
+    {
+      path: ':newspaper_uid/metadata',
+      component: NewspapersDetailPage,
+      name: 'newspaper_metadata',
+      meta: {
+        requiresAuth: true,
+        realm: 'newspapers',
+      },
     }],
   },
   {
