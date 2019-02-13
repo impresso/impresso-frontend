@@ -201,7 +201,9 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth) {
+  if (to.meta.requiresAuth === false) {
+    next();
+  } else {
     services.app.passport.getJWT().then((jwt) => {
       if (services.app.passport.payloadIsValid(jwt)) {
         next();
@@ -215,8 +217,6 @@ router.beforeEach((to, from, next) => {
         name: 'login',
       });
     });
-  } else {
-    next();
   }
 });
 
