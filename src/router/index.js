@@ -15,6 +15,7 @@ import NewspapersDetailPage from '../components/NewspapersDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
+import store from '../store';
 
 Vue.use(Router);
 
@@ -49,6 +50,11 @@ const router = new Router({
     path: '/user/logout',
     name: 'logout',
     component: UserLoginPage,
+    beforeEnter: (to, from, next) => {
+      store.dispatch('user/LOGOUT').then(() => {
+        next();
+      });
+    },
     meta: {
       realm: 'user',
       requiresAuth: true,
