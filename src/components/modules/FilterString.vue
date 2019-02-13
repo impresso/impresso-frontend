@@ -1,5 +1,5 @@
 <template lang="html">
-  <filter-wrapper v-on:remove="remove" v-bind:title="filter.query">
+  <filter-wrapper v-on:remove="remove" v-bind:title="filter.query" :id="filter.key">
     <div slot="settings">
       <b-input-group class="mb-3">
         <b-input

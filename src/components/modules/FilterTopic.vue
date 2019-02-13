@@ -1,5 +1,6 @@
 <template lang="html">
   <filter-wrapper
+    v-bind:id="filter.key"
     v-on:remove="remove"
     v-bind:title="filter.item.getHtmlExcerpt()">
     <div slot="settings">

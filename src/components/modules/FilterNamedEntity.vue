@@ -1,5 +1,5 @@
 <template lang="html">
-  <filter-wrapper v-on:remove="remove" v-bind:title="filter.item.name">
+  <filter-wrapper v-on:remove="remove" v-bind:title="filter.item.name" :id="filter.key">
     <div slot="settings">
       <filter-setting-context v-model="filter" />
     </div>
