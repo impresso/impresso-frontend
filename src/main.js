@@ -6,8 +6,6 @@ import VueI18n from 'vue-i18n';
 
 import ImpressoLayout from '@/plugins/Layout';
 
-import * as services from '@/services';
-
 import 'dripicons/webfont/webfont.css';
 import 'impresso-theme/dist/css/bootpresso.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -33,15 +31,13 @@ const i18n = new VueI18n({
 });
 
 /* eslint-disable no-new */
-services.app.authenticate().then(() => {
-  window.app = new Vue({
-    el: '#app',
-    i18n,
-    router,
-    store,
-    template: '<App/>',
-    components: {
-      App,
-    },
-  });
+window.app = new Vue({
+  el: '#app',
+  i18n,
+  router,
+  store,
+  template: '<App/>',
+  components: {
+    App,
+  },
 });
