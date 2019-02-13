@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout-section>
-    <div slot="header" class="border-bottom border-tertiary">
+    <div slot="header">
       <b-navbar type="light" variant="light" class="border-bottom">
         <section>
           <span class="label small-caps">
@@ -24,7 +24,7 @@
         </section>
       </b-navbar>
 
-      <b-navbar type="light" variant="light" class="px-0 py-0">
+      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom border-tertiary">
         <b-navbar-nav class="px-2">
           <li class='p-2 border-right'>
             <b>{{$n(this.total)}}</b>
@@ -40,9 +40,6 @@
       </b-navbar>
     </div>
 
-
-
-    </div>
     <div class='m-3'>
       <div class="article border-bottom" v-for="(article, idx) in articles">
         {{article.newspaper.name}}
@@ -116,7 +113,7 @@ export default {
     async getArticles({
       page = 1,
     } = {}) {
-      console.log('getArticles page', page);
+      // console.log('getArticles page', page);
       const response = await this.$store.dispatch('topics/LOAD_ARTICLES', {
         topicUid: this.topic.uid,
         limit: this.limit,
@@ -126,7 +123,7 @@ export default {
       this.articles = response.data;
       // set other data
       this.total = response.total;
-      console.log('articles', this.articles, 'page', page);
+      // console.log('articles', this.articles, 'page', page);
       return response;
     },
   },
