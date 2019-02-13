@@ -1,5 +1,6 @@
 import * as services from '@/services';
 import User from '@/models/User';
+import router from '@/router';
 
 export default {
   namespaced: true,
@@ -55,11 +56,9 @@ export default {
             });
             resolve(user);
           }, reject)
-          .catch(
-            (err) => {
-              reject(err.data);
-            },
-          );
+          .catch(() => {
+            router.push({ name: 'login' });
+          });
       });
     },
   },
