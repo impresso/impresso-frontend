@@ -8,7 +8,7 @@
       <a v-on:click="remove" class="filter-btn dripicons-cross" />
     </b-btn>
 
-    <b-tooltip :target="id" triggers="click">
+    <b-tooltip :target="id" triggers="click blur">
       <b-button-group>
         <slot name="controls"></slot>
       </b-button-group>
