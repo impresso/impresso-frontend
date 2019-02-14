@@ -23,7 +23,8 @@
         <b-nav-item
           class="p-2 small-caps border-left"
           v-b-tooltip.hover.bottom.html.o100.d250 v-bind:title="$t('join_slack_channel')"
-          href="slack://channel?team=T6VCN22P8&id=CFP3PNS9M"><icon name="slack"/></b-nav-item>
+          target="_blank"
+          href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTQ5MzEzNTk3MTY5LWM5NDMxOTFiOWM2OTAzY2ZjYmM2MjQ2YzU5OTkwN2Y0NWRmNDRjY2UxMzcyYTVmOWRjN2RiMGM3OWQ2NmZmMjQ"><icon name="slack"/></b-nav-item>
           <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
             <b-dropdown-item v-for="language in languages"
             v-bind:active="activeLanguageCode === language.code"

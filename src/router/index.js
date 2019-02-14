@@ -28,6 +28,9 @@ const router = new Router({
         name: 'search',
       });
     },
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/search',
@@ -75,19 +78,23 @@ const router = new Router({
     component: CollectionsPage,
     name: 'collections',
     props: true,
-    meta: {
-      realm: 'user',
-      requiresAuth: true,
-    },
     children: [{
       path: '',
       component: CollectionsExplorerPage,
       name: 'collectionsExplorer',
+      meta: {
+        requiresAuth: true,
+        realm: 'user',
+      },
     },
     {
       path: ':collection_uid',
       component: CollectionDetailPage,
       name: 'collection',
+      meta: {
+        requiresAuth: true,
+        realm: 'user',
+      },
     }],
   },
   {
@@ -175,11 +182,15 @@ const router = new Router({
     props: true,
     meta: {
       realm: 'issueviewer',
+      requiresAuth: true,
     },
   },
   {
     path: '/playground',
     component: TestPage,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/article/:article_uid',
@@ -199,7 +210,9 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.requiresAuth) {
+  if (to.meta.requiresAuth === false) {
+    next();
+  } else {
     services.app.passport.getJWT().then((jwt) => {
       if (services.app.passport.payloadIsValid(jwt)) {
         next();
@@ -213,8 +226,6 @@ router.beforeEach((to, from, next) => {
         name: 'login',
       });
     });
-  } else {
-    next();
   }
 });
 
