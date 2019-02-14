@@ -1,11 +1,15 @@
 <template lang="html">
   <div id="TableOfContents">
-    <ul class="page p-0 my-1 border-top" v-for="page in toc.pages" v-bind:class="{active: page.uid === pageUid}">
+    <ul class="list-unstyled page border-bottom" v-for="page in toc.pages" v-bind:class="{active: page.uid === pageUid}">
       <li class="article border-bottom" v-for="article in page.articles" v-bind:class="{active: article.uid === articleUid}">
-        <a href="#" v-on:click.prevent="onClick(article, page)" class="bg-light p-2">
-          <span v-html="article.title || `${article.excerpt.substring(0, 35)} ... (${$t('no_title')})`"></span>
-          <span class="float-right">{{page.num}}</span>
-        </a>
+          <a href="#" v-on:click.prevent="onClick(article, page)" class="p-3">
+            <div class="title">
+              <span v-html="article.title || `${article.excerpt.substring(0, 35)} ... (${$t('no_title')})`"></span>
+            </div>
+            <div class="page">
+              {{page.num}}
+            </div>
+          </a>
       </li>
     </ul>
   </div>
@@ -44,27 +48,26 @@ export default {
   ul.page{
     list-style: none;
     font-size: smaller;
-    border-left: 2px solid $clr-quaternary;
-    &.active{
-      border-left-color: $clr-accent-secondary;
-      li.article{
-        a{
-          background: white !important;
+    margin-bottom: 0;
+
+    .article {
+      a{
+        display: flex;
+        .title{
+          flex: auto;
+        }
+        .page{
+          flex: min-content;
         }
       }
-    }
-    li.article{
       &.active{
         a {
-          color: white;
-          background: $clr-accent-secondary !important;
+          background: lighten($clr-primary, 88);
+          font-weight: bold;
         }
       }
       a{
-        padding: 0 15px;
-        display: block;
-        text-decoration: none;
-        background: gray;
+        // text-decoration: none;
       }
     }
 

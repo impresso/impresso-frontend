@@ -9,7 +9,7 @@
           <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
           <b-table stacked :items="newspaperTableData"></b-table>
         </div>
-        <div class="px-3 py-4" v-show="tab.name === 'toc'">
+        <div v-show="tab.name === 'toc'">
           <table-of-contents
           v-bind:toc="toc"
           v-bind:pageUid="pageUid"
