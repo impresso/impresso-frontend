@@ -1,16 +1,14 @@
 <template lang="html">
   <i-layout id="TopicsPage">
-    <i-layout-section width="400px" class="border-right ">
+    <i-layout-section width="400px" class="border-right border-tertiary">
       <div slot="header">
         <div class='p-3 border-bottom'>
-          <b-input placeholder="filter topics ..." v-model.trim='q' class='my-3'></b-input>
-
+          <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
           <label>{{ $t('select model') }}</label>
           <i-dropdown v-model="topicModel" v-bind:options="topicModelOptions" size="sm" variant="outline-primary"></i-dropdown>
           <br/>
           <label>{{ $t('order_by') }}</label>
           <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-
         </div>
       </div>
       <div class="p-3">
@@ -25,8 +23,7 @@
           v-bind:perPage="limit"
           v-bind:currentPage="page"
           v-bind:totalRows="total"
-          v-on:change="onInputPagination"
-           />
+          v-on:change="onInputPagination" />
       </div>
     </i-layout-section>
     <router-view></router-view>
@@ -154,7 +151,7 @@ export default {
             },
           ];
         }
-        console.log('query', query);
+        // console.log('query', query);
         await this.getTopics(query);
       },
     },

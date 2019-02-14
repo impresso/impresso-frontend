@@ -1,5 +1,5 @@
 <template lang="html">
-  <div id="search-filters" class="px-4">
+  <div id="search-filters" class="px-3">
     <div v-for="(filter, index) in filters">
       <filter-facet-year
         v-if="filter.type === 'year'"

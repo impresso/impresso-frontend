@@ -95,27 +95,34 @@ export default {
         );
       });
     },
-    LOAD_NEWSPAPER_ISSUES(context) {
-      const query = {
-        filters: [{
-          type: 'newspaper',
-          q: context.state.detail.newspaper.uid,
-          context: 'include',
-        }],
-        limit: context.state.detail.pagination.perPage,
-        page: context.state.detail.pagination.currentPage,
-      };
+    LOAD_PAGES_TIMELINE() {
+      return new Promise((resolve, reject) => {
+        services.pagesTimelines.get('stats', {})
+          .then(res => resolve(res))
+          .catch(reject);
+      });
+    },
+    LOAD_DETAIL(context, newspaperUid) {
+      return new Promise((resolve, reject) => {
+        services.newspapers.get(newspaperUid, {})
+          .then(res => resolve(res))
+          .catch(reject);
+      });
+    },
+    LOAD_ISSUES(context, {
+      page = 1,
+      limit,
+      filters = [],
+    } = {}) {
       return new Promise((resolve, reject) => {
         services.issues.find({
-          query,
-        }).then(
-          (res) => {
-            context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
-            context.commit('UPDATE_DETAIL_ISSUES', res.data);
-            resolve(res);
-          },
-          reject,
-        );
+          query: { filters, page, limit },
+        })
+        .then((res) => {
+          context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
+          resolve(res);
+        })
+        .catch(reject);
       });
     },
   },
