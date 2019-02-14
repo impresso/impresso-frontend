@@ -14,6 +14,7 @@
       </b-button-group>
       <slot name="settings"></slot>
     </b-tooltip>
+
   </div>
 </template>
 

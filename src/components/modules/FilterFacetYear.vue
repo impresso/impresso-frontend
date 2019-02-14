@@ -1,12 +1,16 @@
 <template lang="html">
   <div v-bind:class="{'mb-3': expanded}">
-    <base-title-bar>
+    <div
+      class="border-top border-tertiary pt-1px" style="margin:auto -1em">
+      <div class="border-top" />
+    </div>
+    <base-title-bar class="pt-2 w-100">
       {{$t(`label.${filter.type}`)}}
       <b-button v-on:click="toggleExpanded" class="float-right" variant="link" size="sm">
         <span v-bind:class="expanded ? 'dripicons-chevron-up' : 'dripicons-chevron-down'" />
       </b-button>
     </base-title-bar>
-    <div class="skyline-outer-wrapper" v-bind:class="{expanded: expanded}">
+    <div class="skyline-outer-wrapper w-100" v-bind:class="{expanded: expanded}">
       <tooltip v-model="tooltip" />
       <div class="skyline-inner-wrapper" >
         <div id="skyline">
