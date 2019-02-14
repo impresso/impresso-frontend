@@ -3,8 +3,8 @@
 
     <b-btn size="sm" variant="outline-primary" :id="id" class="pr-1">
       <span v-if="icon" :class="'filter-icon dripicons-'+icon"></span>
-        {{title}}
       <span class="filter-btn dripicons-chevron-down" />
+      <span v-html="title"></span>
       <a v-on:click="remove" class="filter-btn dripicons-cross" />
     </b-btn>
 
