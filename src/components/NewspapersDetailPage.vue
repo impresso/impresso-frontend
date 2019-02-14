@@ -128,10 +128,14 @@ export default {
       return this.$store.dispatch('newspapers/LOAD_DETAIL', this.$route.params.newspaper_uid);
     },
   },
-  async mounted() {
-    // get newspaper data;
-    this.issues = await this.getIssues();
-    this.newspaper = await this.getNewspaper();
+  watch: {
+    '$route.params.newspaper_uid': {
+      immediate: true,
+      async handler() {
+        this.issues = await this.getIssues();
+        this.newspaper = await this.getNewspaper();
+      },
+    },
   },
   components: {
     Pagination,
