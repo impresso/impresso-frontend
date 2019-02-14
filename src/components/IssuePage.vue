@@ -124,6 +124,12 @@ export default {
           name: 'toc',
           active: true,
         },
+        {
+          label: this.$t('tabs.overview'),
+          name: 'overview',
+          active: false,
+          disabled: true,
+        },
       ];
     },
   },
