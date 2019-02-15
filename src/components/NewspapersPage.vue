@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="300px" class="border-right">
+    <i-layout-section width="300px" class="border-right border-tertiary">
       <div slot="header" class="border-bottom">
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="px-3 py-3">
