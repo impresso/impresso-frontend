@@ -10,7 +10,9 @@ const socket = io(`${process.env.MIDDLELAYER_API}`, {
 
 export const app = feathers();
 
-app.configure(socketio(socket));
+app.configure(socketio(socket, {
+  timeout: 12000,
+}));
 app.configure(auth({
   storage: window.localStorage,
 }));
@@ -44,6 +46,14 @@ app.hooks({
       },
     ],
   },
+});
+
+app.service('logs').on('created', (payload) => {
+  if (payload.job && payload.job.status === 'RUN') {
+    console.log(`... task "${payload.task}" progress: "`, payload.job.progress);
+  } else {
+    console.log(`💥 received: "${payload.msg}" with payload:`, payload);
+  }
 });
 
 // repeat this line for every service in our backend
