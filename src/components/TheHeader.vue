@@ -262,6 +262,9 @@ export default {
 .pt-1px {
   padding-top:1px;
 }
+.dropdown-menu {
+  padding: 0;
+}
 </style>
 
 <i18n>
