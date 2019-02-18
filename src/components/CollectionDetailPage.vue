@@ -14,7 +14,7 @@
 
       <div class="p-3 ml-auto text-right border-left">
         <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
-          <div class="modal-edit px-3 background-light">
+          <div class="modal-edit p-3 background-light">
             <label for="collectionName">Name</label>
             <input type="text" name="collectionName" class="form-control mb-3"
               v-model="collection.name">
@@ -24,7 +24,7 @@
             <b-button variant="outline-primary" size="sm" class="form-control mt-3"
               v-on:click="save(collection)">{{ $t('edit_collection') }}
             </b-button>
-            <b-button variant="outline-danger" size="sm" class="form-control mt-3"
+            <b-button variant="outline-danger" size="sm" class="form-control my-3"
               v-on:click="remove(collection)">{{ $t('delete_collection') }}
             </b-button>
           </div>
