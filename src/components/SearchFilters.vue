@@ -3,6 +3,7 @@
     <div v-for="(filter, index) in filters">
       <filter-facet-year
         v-if="filter.type === 'year'"
+        class="mt-2"
         v-model="filters[index]"
         v-on:input="updateFilter"
         v-on:remove="submitFilter" />
