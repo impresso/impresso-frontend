@@ -37,7 +37,7 @@
 
       <b-navbar type="light" variant="light" class="border-bottom py-0">
         <b-navbar-nav class="pr-auto">
-          <span>{{ $tc('articles', articles.length) }}</span>
+          <span>{{ $tc('articles', paginationTotalRows) }}</span>
         </b-navbar-nav>
         <b-navbar-nav class="pl-3 py-2 border-left flex-row">
           <label class="mr-2">{{$t("label_display")}}</label>
@@ -64,7 +64,17 @@
           </b-col>
         </b-row>
       </b-container>
+      <div class="fixed-pagination-footer p-1 m-0">
+        <pagination
+          size="sm"
+          v-bind:perPage="paginationPerPage"
+          v-bind:currentPage="paginationCurrentPage"
+          v-bind:totalRows="paginationTotalRows"
+          v-on:change="onInputPagination"
+          class="float-left small-caps" />
+      </div>
     </div>
+
 
     <div v-if="entities.length > 0" class="collection-group">
       <hr>
@@ -102,6 +112,7 @@ import Article from '@/models/Article';
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
+import Pagination from './modules/Pagination';
 
 export default {
   data: () => ({
@@ -111,6 +122,7 @@ export default {
   components: {
     SearchResultsListItem,
     SearchResultsTilesItem,
+    Pagination,
   },
   computed: {
     displayStyle: {
@@ -143,6 +155,21 @@ export default {
         return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
       },
     },
+    paginationPerPage: {
+      get() {
+        return this.$store.state.collections.paginationPerPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.collections.paginationCurrentPage;
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.collections.paginationTotalRows;
+      },
+    },
   },
   mounted() {
     this.getCollection();
@@ -153,12 +180,10 @@ export default {
     },
   },
   methods: {
-    getCollection() {
-      this.collection = {
-        uid: this.$route.params.collection_uid,
-        items: [],
-      };
-
+    getCollectionItems(page) {
+      if (page !== undefined) {
+        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      }
       this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
         this.collection = res;
         this.$store.commit('SET_HEADER_TITLE', {
@@ -166,6 +191,13 @@ export default {
           title: this.$t('Collection'),
         });
       });
+    },
+    getCollection() {
+      this.collection = {
+        uid: this.$route.params.collection_uid,
+        items: [],
+      };
+      this.getCollectionItems();
     },
     gotoArticle(article) {
       this.$router.push({
@@ -216,6 +248,9 @@ export default {
         return 0;
       });
       return data;
+    },
+    onInputPagination(page = 1) {
+      this.getCollectionItems(page);
     },
   },
 };

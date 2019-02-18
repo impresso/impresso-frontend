@@ -265,6 +265,21 @@ export default {
 .dropdown-menu {
   padding: 0;
 }
+.fixed-pagination-footer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(calc(200px - 50%));
+  background: $clr-bg-secondary;
+  max-width: calc(100% - 400px);
+  .pagination {
+    li.page-item > a,
+    li.page-item > span.page-link {
+      border-color: $clr-secondary;
+      padding: 0.15em 0.6em 0.15em 0.6em;
+    }
+  }
+}
 </style>
 
 <i18n>

@@ -6,6 +6,9 @@ export default {
   state: {
     collections: [],
     collectionsSortOrder: '-modified',
+    paginationPerPage: 12,
+    paginationCurrentPage: 1,
+    paginationTotalRows: 0,
   },
   getters: {
     collections(state) {
@@ -24,6 +27,12 @@ export default {
   mutations: {
     UPDATE_COLLECTIONS(state, collections) {
       state.collections = collections;
+    },
+    UPDATE_PAGINATION_CURRENT_PAGE(state, page) {
+      state.paginationCurrentPage = parseInt(page, 10);
+    },
+    UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
+      state.paginationTotalRows = payload.paginationTotalRows;
     },
     SET_COLLECTIONS_SORT_ORDER(state, payload) {
       const collectionsSortOrder = payload.collectionsSortOrder || state.collectionsSortOrder;
@@ -81,11 +90,16 @@ export default {
           query: {
             collection_uids: [collection.uid],
             resolve: 'item',
+            page: context.state.paginationCurrentPage,
+            limit: context.state.paginationPerPage,
           },
         }),
       ]).then((results) => {
         const loadedCollection = new Collection(results[0]);
         loadedCollection.items = results[1].data;
+        context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+          paginationTotalRows: results[1].total,
+        });
 
         return loadedCollection;
       });
