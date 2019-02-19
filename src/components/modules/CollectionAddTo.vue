@@ -138,10 +138,10 @@ export default {
       }
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
-      }).then(() => {
+      }).then((collection) => {
+        this.toggleActive(collection);
         this.inputString = '';
         this.fetch();
-        // TODO: add item to ne collection
       });
     },
     toggle() {
