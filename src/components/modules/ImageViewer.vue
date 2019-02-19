@@ -14,17 +14,17 @@ export default {
   data: () => ({
     handler: new Vue(),
   }),
-  model: {
-    prop: 'issue',
+  props: {
+    image: false,
+    options: {},
   },
-  props: ['issue'],
   components: {
     OpenSeadragonViewer,
   },
   methods: {
     init() {
       const options = {
-        tileSources: [this.issue.iiif],
+
         showNavigator: true,
         navigatorAutoFade: false,
         navigatorBackground: '#f8f9fa',
@@ -35,6 +35,8 @@ export default {
         navigatorDisplayRegionColor: 'black',
         navigatorBorderColor: '#dee2e6',
         navigatorOpacity: 1,
+        tileSources: [this.image],
+        ...this.options,
       };
 
       this.handler.$emit('init', options);
@@ -44,7 +46,7 @@ export default {
     this.init();
   },
   watch: {
-    issue: {
+    image: {
       handler() {
         this.handler.$emit('destroy');
         this.init();
