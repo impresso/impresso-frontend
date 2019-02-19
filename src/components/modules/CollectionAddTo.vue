@@ -1,12 +1,26 @@
 <template lang="html">
   <div class="collection-add-to">
     <div class="header bg-light p-2 border-bottom">
-      <input type="text" name="" value="" class="w-100 p-1"
-        v-bind:placeholder="$t('placeholder')"
-        v-on:input="onInput"
-        v-on:keyup.enter="addCollection(inputString.trim())"
-        v-model="inputString"
-        />
+      <div class="input-group w-100">
+        <input type="text"
+          class="form-control"
+          v-bind:placeholder="$t('placeholder')"
+          v-on:input="onInput"
+          v-on:keyup.enter="addCollection(inputString.trim())"
+          v-model="inputString"
+          />
+          <div class="input-group-append">
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              class="float-right"
+              v-bind:disabled="isDisabled == 0"
+              v-on:click="addCollection(inputString.trim())"
+              >
+              {{$t('create_new')}}
+            </b-button>
+          </div>
+      </div>
     </div>
     <b-container fluid class="inputList p-0">
       <ul>
@@ -36,22 +50,6 @@
         </li>
       </ul>
     </b-container>
-    <div class="footer bg-light p-2 border-top">
-        <b-button
-          size="sm"
-          variant="outline-primary"
-          v-bind:disabled="isDisabled == 0"
-          v-on:click="addCollection(inputString.trim())"
-          >
-          {{$t('create_new')}}
-        </b-button>
-        <router-link
-          size="sm"
-          class="btn btn-sm btn-outline-primary float-right"
-          v-bind:to="{ name: 'collection'}">
-          {{ $t('manage_collections') }}
-        </router-link>
-    </div>
   </div>
 </template>
 
@@ -227,7 +225,7 @@ export default {
 {
   "en": {
     "placeholder": "filter or create new collection",
-    "create_new": "Create New Collection",
+    "create_new": "Create New",
     "manage_collections": "Manage my Collections",
     "created": "Created:",
     "last_edited": "Last edited",
