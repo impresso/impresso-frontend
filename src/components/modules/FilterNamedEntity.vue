@@ -1,5 +1,9 @@
 <template lang="html">
-  <filter-wrapper v-on:remove="remove">
+  <filter-wrapper
+    v-on:remove="remove"
+    icon="network-1"
+    v-bind:title="filter.item.name"
+    v-bind:id="filter.key">
     <div slot="settings">
       <filter-setting-context v-model="filter" />
     </div>

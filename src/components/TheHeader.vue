@@ -178,7 +178,7 @@ export default {
   .nav-title {
     margin: auto;
     h1 {
-      background: transparent;//$clr-bg-primary;
+      background: transparent;
       color: white;
       font-size: 1.1em;
       text-align: center;
@@ -261,6 +261,18 @@ export default {
 }
 .pt-1px {
   padding-top:1px;
+}
+.custom-radio > .custom-control-label::before {
+  border: inherit;
+  outline: inherit;
+}
+.tooltip-inner {
+  max-width: auto;
+  color: $clr-primary;
+  text-align: left;
+  background-color: $clr-bg-primary;
+  border: 1px solid $clr-primary;
+  box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 }
 .dropdown-menu {
   padding: 0;
