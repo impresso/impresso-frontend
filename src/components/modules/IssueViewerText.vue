@@ -1,17 +1,20 @@
 <template lang="html">
-  <div id="IssueViewerText">
-    <div v-for="article in page.articles" class="article p-2 border-bottom">
-      <div class="regions">
-        <div v-for="region in article.regions" class="region py-4">
-          <div class="context">
+  <div id="IssueViewerText" class="container-fluid py-3">
+    <i-layout>
+      <i-layout-section>
+        <div
+          class="row mb-3"
+          v-for="(region, i) in article.regions"
+          v-bind:key="i">
+          <div class="col col-sm-8">
+            <p v-html="region.g.join('<br>')" />
+          </div>
+          <div class="col">
             <img v-bind:src="region.iiifFragment" width="100%" />
           </div>
-          <div class="richtext text-secondary">
-            <p v-for="line in region.g" v-html="line" class="mb-0"></p>
-          </div>
         </div>
-      </div>
-      <div class="controls text-right">
+      </i-layout-section>
+      <i-layout-section width="200px" class="text-right">
         <h5>{{article.title}}</h5>
         <b-button-group>
           <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
@@ -33,28 +36,53 @@
         <b-dropdown id="eorderby" variant="outline-primary" size="sm" text="relevance" class="">
           <b-dropdown-item>First Action</b-dropdown-item>
         </b-dropdown>
-      </div>
-    </div>
+      </i-layout-section>
+    </i-layout>
   </div>
 </template>
 
 <script>
+import * as services from '@/services';
+import Article from '@/models/Article';
 import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
 
 export default {
-  model: {
-    prop: 'page',
+  data() {
+    return {
+      article: new Article(),
+    };
   },
-  props: ['page'],
+  props: ['article_uid'],
   components: {
     BaseTitleBar,
     CollectionAddTo,
+  },
+  watch: {
+    article_uid: {
+      immediate: true,
+      handler(val) {
+        this.article = new Article();
+        services.articles.get(val).then((res) => {
+          this.article = new Article({
+            ...res,
+            regions: res.regions.map(region => ({
+              ...region,
+              iiifFragment: region.iiif_fragment,
+            })),
+          });
+        });
+      },
+    },
   },
 };
 </script>
 
 <style scoped lang="less">
+#IssueViewerText{
+  overflow: none;
+  height: 100%;
+}
 .article {
     display: grid;
     grid-template-columns: 1fr 220px;
