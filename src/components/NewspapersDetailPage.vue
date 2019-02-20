@@ -49,7 +49,7 @@
                 <div class="p-3 border-bottom">
                   {{issue.uid}}
                 </div>
-                <issue-viewer v-model="issues[i]" />
+                <image-viewer v-bind:image="issues[i].iiif" />
               </div>
             </b-col>
           </b-row>
@@ -69,8 +69,7 @@
 <script>
 import Newspaper from '@/models/Newspaper';
 import Pagination from './modules/Pagination';
-import IssueViewer from './modules/IssueViewer';
-
+import ImageViewer from './modules/ImageViewer';
 
 export default {
   data: () => ({
@@ -139,7 +138,7 @@ export default {
   },
   components: {
     Pagination,
-    IssueViewer,
+    ImageViewer,
   },
 };
 </script>
