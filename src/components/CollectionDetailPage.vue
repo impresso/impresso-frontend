@@ -35,15 +35,15 @@
 
     <div class="collection-group">
 
-      <b-navbar type="light" variant="light" class="border-bottom py-0">
-        <b-navbar-nav class="flex-grow-1">
+      <b-navbar type="light" variant="light" class="border-bottom p-0">
+        <b-navbar-nav class="flex-grow-1 p-3">
           <span>{{ $tc('articles', paginationTotalRows) }}</span>
         </b-navbar-nav>
-        <b-navbar-nav class="pt-2 border-left flex-row align-items-baseline">
+        <b-navbar-nav class="border-left flex-row align-items-baseline p-3">
           <label class="mr-2">{{$t("label_order")}}</label>
           <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
         </b-navbar-nav>
-        <b-navbar-nav class="pl-2 pt-2 border-left flex-row align-items-baseline">
+        <b-navbar-nav class="pl-2 border-left flex-row align-items-baseline p-3">
           <label class="mr-2">{{$t("label_display")}}</label>
           <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
             <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
