@@ -6,6 +6,7 @@ export default {
   state: {
     collections: [],
     collectionsSortOrder: '-modified',
+    orderBy: '-date', // date, -date
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
@@ -25,6 +26,9 @@ export default {
     },
   },
   mutations: {
+    UPDATE_ITEMS_ORDER_BY(state, orderBy) {
+      state.orderBy = orderBy;
+    },
     UPDATE_COLLECTIONS(state, collections) {
       state.collections = collections;
     },
@@ -92,6 +96,7 @@ export default {
             resolve: 'item',
             page: context.state.paginationCurrentPage,
             limit: context.state.paginationPerPage,
+            order_by: context.state.orderBy,
           },
         }),
       ]).then((results) => {
