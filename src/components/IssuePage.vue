@@ -269,8 +269,11 @@ export default {
     '$route.params.page_uid': {
       immediate: true,
       handler(pageUid) {
-        this.handler.$emit('dispatch', (viewer) => {
-          viewer.goToPage(this.issue.pages.findIndex(p => p.uid === pageUid));
+        this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
+          this.issue.pages.find(p => p.uid === page.uid).articles = page.articles;
+          this.handler.$emit('dispatch', (viewer) => {
+            viewer.goToPage(this.issue.pages.findIndex(p => p.uid === pageUid));
+          });
         });
       },
     },
