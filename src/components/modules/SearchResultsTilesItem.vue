@@ -1,9 +1,16 @@
 <template lang="html">
   <div class="tile my-3 border">
-    <div class="thumbnail bg-light">
+    <div class="thumbnail bg-light clearfix">
       <open-seadragon-viewer
         v-bind:handler="handler">
       </open-seadragon-viewer>
+      <div v-if="isLoggedIn() && this.checkbox" class="float-right pt-1 pl-1">
+        <b-form-checkbox
+          class="m-0"
+          v-bind:value="article.uid"
+          v-on:change="onChange">
+        </b-form-checkbox>
+      </div>
     </div>
     <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
       <h2 v-show="article.title != ''" v-html="article.title" />
@@ -29,10 +36,13 @@ export default {
   model: {
     prop: 'article',
   },
-  props: ['article'],
+  props: ['article', 'checkbox'],
   methods: {
     click() {
       this.$emit('click');
+    },
+    onChange(e) {
+      this.$emit('selected', e);
     },
     init() {
       const options = {
@@ -48,6 +58,9 @@ export default {
         navigatorOpacity: 1,
       };
       this.handler.$emit('init', options);
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
     },
   },
   components: {
