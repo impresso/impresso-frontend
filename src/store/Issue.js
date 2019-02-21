@@ -6,7 +6,7 @@ import Article from '@/models/Article';
 export default {
   namespaced: true,
   state: {
-    viewerMode: 'image', // text or image
+    viewerMode: 'text', // text or image
   },
   getters: {},
   mutations: {

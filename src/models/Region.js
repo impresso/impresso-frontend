@@ -1,7 +1,6 @@
 /**
  * @class Article is an object representing a newspaper article
  * @param {String} articleUid Unique identifier for the article
- * @param {Array} regions Array of region objects
  */
 export default class Region {
   constructor({

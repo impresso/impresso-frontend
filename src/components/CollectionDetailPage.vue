@@ -14,7 +14,7 @@
 
       <div class="p-3 ml-auto text-right border-left">
         <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
-          <div class="modal-edit px-3 background-light">
+          <div class="modal-edit p-3 background-light">
             <label for="collectionName">Name</label>
             <input type="text" name="collectionName" class="form-control mb-3"
               v-model="collection.name">
@@ -24,7 +24,7 @@
             <b-button variant="outline-primary" size="sm" class="form-control mt-3"
               v-on:click="save(collection)">{{ $t('edit_collection') }}
             </b-button>
-            <b-button variant="outline-danger" size="sm" class="form-control mt-3"
+            <b-button variant="outline-danger" size="sm" class="form-control my-3"
               v-on:click="remove(collection)">{{ $t('delete_collection') }}
             </b-button>
           </div>
@@ -35,11 +35,15 @@
 
     <div class="collection-group">
 
-      <b-navbar type="light" variant="light" class="border-bottom py-0">
-        <b-navbar-nav class="pr-auto">
-          <span>{{ $tc('articles', articles.length) }}</span>
+      <b-navbar type="light" variant="light" class="border-bottom p-0">
+        <b-navbar-nav class="flex-grow-1 p-3">
+          <span>{{ $tc('articles', paginationTotalRows) }}</span>
         </b-navbar-nav>
-        <b-navbar-nav class="pl-3 py-2 border-left flex-row">
+        <b-navbar-nav class="border-left flex-row align-items-baseline p-3">
+          <label class="mr-2">{{$t("label_order")}}</label>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </b-navbar-nav>
+        <b-navbar-nav class="pl-2 border-left flex-row align-items-baseline p-3">
           <label class="mr-2">{{$t("label_display")}}</label>
           <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
             <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -64,7 +68,17 @@
           </b-col>
         </b-row>
       </b-container>
+      <div class="fixed-pagination-footer p-1 m-0">
+        <pagination
+          size="sm"
+          v-bind:perPage="paginationPerPage"
+          v-bind:currentPage="paginationCurrentPage"
+          v-bind:totalRows="paginationTotalRows"
+          v-on:change="onInputPagination"
+          class="float-left small-caps" />
+      </div>
     </div>
+
 
     <div v-if="entities.length > 0" class="collection-group">
       <hr>
@@ -102,6 +116,7 @@ import Article from '@/models/Article';
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
+import Pagination from './modules/Pagination';
 
 export default {
   data: () => ({
@@ -111,6 +126,7 @@ export default {
   components: {
     SearchResultsListItem,
     SearchResultsTilesItem,
+    Pagination,
   },
   computed: {
     displayStyle: {
@@ -143,6 +159,46 @@ export default {
         return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
       },
     },
+    paginationPerPage: {
+      get() {
+        return this.$store.state.collections.paginationPerPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.collections.paginationCurrentPage;
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.collections.paginationTotalRows;
+      },
+    },
+    orderByOptions: {
+      get() {
+        return [
+          {
+            value: 'date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+            disabled: true,
+          },
+          {
+            value: '-date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            disabled: true,
+          },
+        ];
+      },
+    },
+    orderBy: {
+      get() {
+        return this.$store.state.collections.orderBy;
+      },
+      set(val) {
+        this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
+        this.getCollectionItems(1);
+      },
+    },
   },
   mounted() {
     this.getCollection();
@@ -153,12 +209,10 @@ export default {
     },
   },
   methods: {
-    getCollection() {
-      this.collection = {
-        uid: this.$route.params.collection_uid,
-        items: [],
-      };
-
+    getCollectionItems(page) {
+      if (page !== undefined) {
+        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      }
       this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
         this.collection = res;
         this.$store.commit('SET_HEADER_TITLE', {
@@ -166,6 +220,13 @@ export default {
           title: this.$t('Collection'),
         });
       });
+    },
+    getCollection() {
+      this.collection = {
+        uid: this.$route.params.collection_uid,
+        items: [],
+      };
+      this.getCollectionItems();
     },
     gotoArticle(article) {
       this.$router.push({
@@ -217,6 +278,9 @@ export default {
       });
       return data;
     },
+    onInputPagination(page = 1) {
+      this.getCollectionItems(page);
+    },
   },
 };
 </script>
@@ -231,6 +295,10 @@ export default {
 {
   "en": {
     "collections": "collections",
+    "label_order": "Order By",
+    "sort_date": "Date",
+    "sort_asc": "Ascending",
+    "sort_desc": "Descending",
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",

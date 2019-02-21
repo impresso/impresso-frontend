@@ -38,6 +38,7 @@
         <b-navbar-nav v-if="isLoggedIn()" class="pl-4">
           <b-form-checkbox
             v-b-tooltip.hover.topleft.html.o100.d250 v-bind:title="$t('select_all')"
+            v-bind:indeterminate="selectedItems.length > 0 && selectedItems.length < searchResults.length"
             v-on:change="onSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
@@ -84,7 +85,7 @@
           </b-col>
         </b-row>
       </b-container>
-      <div class="search-results-footer p-1 m-0">
+      <div class="fixed-pagination-footer p-1 m-0">
         <pagination
           v-bind:perPage="paginationPerPage"
           v-bind:currentPage="paginationCurrentPage"
@@ -337,22 +338,6 @@ div.overlay-region{
   .displayregion{
     border: 1px solid rgb(255, 225, 49) !important;
     background-color: rgba(255, 225, 49, 0.3) !important;
-  }
-}
-
-.search-results-footer {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(calc(200px - 50%));
-  background: $clr-bg-secondary;
-  max-width: calc(100% - 400px);
-  .pagination {
-    li.page-item > a,
-    li.page-item > span.page-link {
-      border-color: $clr-secondary;
-      padding: 0.15em 0.6em 0.15em 0.6em;
-    }
   }
 }
 </style>

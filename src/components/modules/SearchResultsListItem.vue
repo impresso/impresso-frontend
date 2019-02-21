@@ -87,6 +87,7 @@ export default {
           item,
         }).then(() => {
           item.collections.splice(idx, 1);
+          this.$forceUpdate();
         });
       }
     },
