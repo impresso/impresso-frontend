@@ -29,6 +29,7 @@
             <b-dropdown-item v-for="language in languages"
             v-bind:active="activeLanguageCode === language.code"
             v-bind:key="language.code"
+            v-bind:disabled="language.disabled"
             v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 border-left" right>
@@ -41,7 +42,7 @@
                 </div>
               </div>
             </template>
-            <b-dropdown-item v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
+            <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
           </b-nav-item-dropdown>
@@ -62,6 +63,7 @@ export default {
       de: {
         code: 'de',
         name: 'Deutsch',
+        disabled: true,
       },
       en: {
         code: 'en',
@@ -70,14 +72,17 @@ export default {
       fr: {
         code: 'fr',
         name: 'Français',
+        disabled: true,
       },
       it: {
         code: 'it',
         name: 'Italiano',
+        disabled: true,
       },
       nl: {
         code: 'nl',
         name: 'Nederlands',
+        disabled: true,
       },
     },
   }),
@@ -300,6 +305,7 @@ export default {
     "login": "Login",
     "logout": "Logout",
     "dashboard": "Dashboard",
+    "collections": "Collections",
     "label_home": "Home",
     "label_newspapers": "Newspaper Titles",
     "label_topics": "Topics",
