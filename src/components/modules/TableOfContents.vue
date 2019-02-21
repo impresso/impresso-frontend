@@ -1,7 +1,7 @@
 <template lang="html">
   <div id="TableOfContents">
-    <div v-for="page in toc.pages">
-      <span class="pt-5 pb-3 px-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
+    <div v-for="page in toc.pages" class="mb-5">
+      <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
       <ul class="list-unstyled page border-bottom border-top" v-bind:class="{active: page.uid === pageUid}">
         <li class="article border-bottom" v-for="article in page.articles" v-bind:class="{active: article.uid === articleUid}">
             <a href="#" v-on:click.prevent="onClick(article, page)" class="p-3">

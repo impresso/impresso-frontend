@@ -1,31 +1,18 @@
 <template lang='html'>
     <i-layout id="IssuePage">
       <i-layout-section width="400px" class="border-right">
-        <div slot="header" class="pt-2">
-          <base-tabs v-model="tab" v-bind:tabs="tabs"></base-tabs>
-        </div>
-        <div class="px-3 py-4" v-show="tab.name == 'overview'">
-          <h4 v-html="issue.newspaper.name"></h4>
-          <p class="text-muted text-capitalize" v-if="issue.date">{{$d(new Date(issue.date), 'long')}}</p>
-          <b-table stacked :items="newspaperTableData"></b-table>
-        </div>
-        <div v-show="tab.name === 'toc'">
-          <table-of-contents
+        <table-of-contents
           v-bind:toc="toc"
           v-bind:pageUid="pageUid"
           v-bind:articleUid="articleUid"
           v-on:click="loadArticlePage" />
-        </div>
-        <div class="px-3 py-4" v-show="tab.name === 'search'">
-          <h4>@todo: search</h4>
-        </div>
       </i-layout-section>
       <i-layout-section>
         <div slot="header" class="border-bottom">
           <b-navbar type="light" variant="light" class="px-0 py-0">
             <b-navbar-nav class="px-2 py-2">
               <pagination
-              v-bind:currentPage="issue.pages.findIndex((p) => p.uid === page.uid) + 1"
+              v-bind:currentPage="issue.pages.findIndex((p) => p.uid === this.$route.params.page_uid) + 1"
               v-on:change="onPaginate"
               v-bind:totalRows="issue.pages.length"
               v-bind:size="'sm'"
@@ -36,7 +23,7 @@
                 <label class="mr-2">{{$t("label_display")}}</label>
                 <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
                   <b-form-radio value="image">{{$t("display_button_image")}}</b-form-radio>
-                  <b-form-radio value="text">{{$t("display_button_text")}}</b-form-radio>
+                  <b-form-radio value="text" v-bind:disabled="!articleUid">{{$t("display_button_text")}}</b-form-radio>
                 </b-form-radio-group>
               </div>
             </b-navbar-nav>
@@ -49,7 +36,7 @@
               v-on:click="loadPage"
               v-bind:bounds="bounds"
               v-bind:displayMode="mode"
-              v-bind:page="issue.pages.find((p) => p.uid === page.uid)" />
+              v-bind:page="page" />
           </i-layout-section>
           <i-layout-section>
             <open-seadragon-viewer
@@ -57,8 +44,8 @@
               v-bind:handler="handler">
             </open-seadragon-viewer>
             <issue-viewer-text
-              v-model="page"
-              v-show="mode === 'text'" />
+              v-bind:article_uid="articleUid"
+              v-if="articleUid && mode === 'text'" />
           </i-layout-section>
         </i-layout>
       </i-layout-section>
@@ -69,7 +56,6 @@
 import Vue from 'vue';
 
 import Issue from '@/models/Issue';
-import Page from '@/models/Page';
 
 import CollectionTagger from './CollectionTagger';
 import IssueViewerText from './modules/IssueViewerText';
@@ -85,13 +71,19 @@ export default {
     bounds: {},
     tab: {},
     issue: new Issue(),
-    page: new Page(),
     toc: {},
   }),
   computed: {
+    page() {
+      if (this.$route.params.page_uid) {
+        return this.issue.pages.find(p => p.uid === this.$route.params.page_uid);
+      }
+
+      return this.issue.pages[0];
+    },
     mode: {
       get() {
-        return this.$store.state.issue.viewerMode;
+        return this.articleUid ? this.$store.state.issue.viewerMode : 'image';
       },
       set(mode) {
         this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
@@ -104,7 +96,17 @@ export default {
       return this.$route.params.page_uid;
     },
     articleUid() {
-      return this.$route.params.article_uid;
+      return this.$route.params.article_uid || this.firstArticleFromCurrentPage;
+    },
+    firstArticleFromCurrentPage() {
+      if (this.toc.pages) {
+        for (let i = 0; i < this.toc.pages.length; i += 1) {
+          if (this.toc.pages[i].uid === this.pageUid) {
+            return this.toc.pages[i].articles[0].uid;
+          }
+        }
+      }
+      return false;
     },
     newspaperTableData() {
       return [{
@@ -237,6 +239,19 @@ export default {
                     });
                   });
 
+                  overlay.addEventListener('click', (event) => {
+                    const articleUid = event.target.dataset.articleUid;
+
+                    this.$router.push({
+                      name: 'article',
+                      params: {
+                        article_uid: articleUid,
+                      },
+                    });
+
+                    this.mode = 'text';
+                  });
+
                   overlay.addEventListener('mouseleave', (event) => {
                     const articleUid = event.target.dataset.articleUid;
 
@@ -268,8 +283,7 @@ export default {
       immediate: true,
       handler(pageUid) {
         this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
-          this.page = page;
-
+          this.issue.pages.find(p => p.uid === page.uid).articles = page.articles;
           this.handler.$emit('dispatch', (viewer) => {
             viewer.goToPage(this.issue.pages.findIndex(p => p.uid === pageUid));
           });
@@ -296,6 +310,7 @@ div.overlay-region{
   background: $clr-accent-secondary;
   opacity: 0;
   transition: opacity 300ms;
+  cursor: pointer;
   &.selected, &.active{
     opacity: 0.25;
   }
