@@ -1,11 +1,11 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right border-tertiary">
-    <div slot="header" class="p-3 border-bottom border-tertiary">
+    <div slot="header" class="p-3">
       <autocomplete v-on:submit="onSuggestion" />
     </div>
-    <div class="pt-1px">
-      <search-filters class="border-top pt-2 px-0" v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
+    <div>
+      <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
       <search-facets v-on:submit-facet="onFacet" />
     </div>
     <div slot="footer">

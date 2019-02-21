@@ -1,9 +1,11 @@
 <template lang="html">
-  <filter-wrapper v-on:remove="remove">
+  <filter-wrapper
+    v-bind:id="filter.key"
+    v-on:remove="remove"
+    v-bind:title="filter.item.getHtmlExcerpt()">
     <div slot="settings">
       <filter-setting-context v-model="filter" />
     </div>
-    <span v-html="filter.item.getHtmlExcerpt()" />
   </filter-wrapper>
 </template>
 
