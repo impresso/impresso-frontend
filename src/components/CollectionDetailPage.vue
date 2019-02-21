@@ -180,10 +180,12 @@ export default {
           {
             value: 'date',
             text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+            disabled: true,
           },
           {
             value: '-date',
             text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            disabled: true,
           },
         ];
       },
