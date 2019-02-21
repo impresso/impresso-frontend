@@ -239,6 +239,19 @@ export default {
                     });
                   });
 
+                  overlay.addEventListener('click', (event) => {
+                    const articleUid = event.target.dataset.articleUid;
+
+                    this.$router.push({
+                      name: 'article',
+                      params: {
+                        article_uid: articleUid,
+                      },
+                    });
+
+                    this.mode = 'text';
+                  });
+
                   overlay.addEventListener('mouseleave', (event) => {
                     const articleUid = event.target.dataset.articleUid;
 
@@ -297,6 +310,7 @@ div.overlay-region{
   background: $clr-accent-secondary;
   opacity: 0;
   transition: opacity 300ms;
+  cursor: pointer;
   &.selected, &.active{
     opacity: 0.25;
   }
