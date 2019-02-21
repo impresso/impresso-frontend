@@ -38,7 +38,7 @@
         <b-navbar-nav v-if="isLoggedIn()" class="pl-4">
           <b-form-checkbox
             v-b-tooltip.hover.topleft.html.o100.d250 v-bind:title="$t('select_all')"
-            v-bind:indeterminate="selectedItems.length > 0 && selectedItems.length < searchResults.length"
+            v-bind:indeterminate="isIndeterminate"
             v-on:change="onSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
@@ -81,7 +81,11 @@
         </b-row>
         <b-row class="pb-5" v-if="displayStyle === 'tiles'">
           <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
-            <search-results-tiles-item v-on:click="onClickResult(searchResult)" v-model="searchResults[index]" />
+            <search-results-tiles-item
+              checkbox=true
+              v-on:selected="onSelectResult(searchResult)"
+              v-on:click="onClickResult(searchResult)"
+              v-model="searchResults[index]" />
           </b-col>
         </b-row>
       </b-container>
@@ -231,6 +235,12 @@ export default {
     onInputPagination(page = 1) {
       this.search(page);
     },
+    isIndeterminate() {
+      if (this.selectedItems.length > 0 && this.selectedItems.length < this.searchResults.length) {
+        return true;
+      }
+      return false;
+    },
     onSelectAll(e) {
       this.selectedItems = [];
       this.searchResults.forEach((item) => {
@@ -358,7 +368,7 @@ div.overlay-region{
     "order_pages": "Page",
     "order_articles": "Article",
     "order_sentences": "Sentence",
-    "select_all": "Select All",
+    "select_all": "Select all items on this page",
     "items_selected": "One item selected | {count} items selected",
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
