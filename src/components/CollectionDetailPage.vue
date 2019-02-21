@@ -35,11 +35,15 @@
 
     <div class="collection-group">
 
-      <b-navbar type="light" variant="light" class="border-bottom py-0">
-        <b-navbar-nav class="pr-auto">
+      <b-navbar type="light" variant="light" class="border-bottom p-0">
+        <b-navbar-nav class="flex-grow-1 p-3">
           <span>{{ $tc('articles', paginationTotalRows) }}</span>
         </b-navbar-nav>
-        <b-navbar-nav class="pl-3 py-2 border-left flex-row">
+        <b-navbar-nav class="border-left flex-row align-items-baseline p-3">
+          <label class="mr-2">{{$t("label_order")}}</label>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </b-navbar-nav>
+        <b-navbar-nav class="pl-2 border-left flex-row align-items-baseline p-3">
           <label class="mr-2">{{$t("label_display")}}</label>
           <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
             <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -170,6 +174,31 @@ export default {
         return this.$store.state.collections.paginationTotalRows;
       },
     },
+    orderByOptions: {
+      get() {
+        return [
+          {
+            value: 'date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+            disabled: true,
+          },
+          {
+            value: '-date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            disabled: true,
+          },
+        ];
+      },
+    },
+    orderBy: {
+      get() {
+        return this.$store.state.collections.orderBy;
+      },
+      set(val) {
+        this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
+        this.getCollectionItems(1);
+      },
+    },
   },
   mounted() {
     this.getCollection();
@@ -266,6 +295,10 @@ export default {
 {
   "en": {
     "collections": "collections",
+    "label_order": "Order By",
+    "sort_date": "Date",
+    "sort_asc": "Ascending",
+    "sort_desc": "Descending",
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",

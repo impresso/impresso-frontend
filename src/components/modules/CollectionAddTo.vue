@@ -118,8 +118,8 @@ export default {
             item,
           }).then(() => {
             const idx = item.collections.findIndex(c => (c.uid === collection.uid));
-            // remove the collection at index.
             item.collections.splice(idx, 1);
+            this.$forceUpdate();
           });
         } else {
           this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
@@ -128,6 +128,7 @@ export default {
             contentType: 'article',
           }).then(() => {
             item.collections.push(collection);
+            this.$forceUpdate();
           });
         }
       });
