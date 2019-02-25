@@ -1,9 +1,9 @@
 <template lang="html">
-  <div id="TableOfContents">
+  <div id="TableOfContents" ref="TableOfContents">
     <div v-for="page in toc.pages" class="mb-5">
       <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
       <ul class="list-unstyled page border-bottom border-top" v-bind:class="{active: page.uid === pageUid}">
-        <li class="article border-bottom" v-for="article in page.articles" v-bind:class="{active: article.uid === articleUid}">
+        <li :ref="`article-${article.uid}`" class="article border-bottom" v-for="article in page.articles" v-bind:class="{active: article.uid === articleUid}">
             <a href="#" v-on:click.prevent="onClick(article, page)" class="p-3">
               <div class="info">
                 <span class="d-block title" v-html="article.title || $t('no_title')"></span>
@@ -41,6 +41,14 @@ export default {
         page,
       });
     },
+    scrollToActiveArticle() {
+      const elm = this.$refs[`article-${this.articleUid}`][0];
+      const parent = this.$refs.TableOfContents.parentNode;
+      if (parent.scrollTop > elm.offsetTop ||
+        (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
+        parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+      }
+    },
   },
   filters: {
     substring: (val, count = 10) => {
@@ -49,6 +57,18 @@ export default {
         return `${val.substring(0, count)}...`;
       }
       return val;
+    },
+  },
+  watch: {
+    articleUid() {
+      this.scrollToActiveArticle();
+    },
+    toc: {
+      handler() {
+        window.setTimeout(() => {
+          this.scrollToActiveArticle();
+        }, 500);
+      },
     },
   },
 };
