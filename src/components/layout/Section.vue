@@ -50,7 +50,6 @@ section{
   }
   >.body{
       grid-area: body;
-      overflow-y: auto;
       &::-webkit-scrollbar {
         display: none;
       }
