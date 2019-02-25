@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="filter pr-1 mb-2">
 
-    <b-btn size="sm" variant="outline-primary" :id="id" class="pr-1">
+    <b-btn size="sm" variant="secondary" :id="id" class="pr-1">
       <span v-if="icon" :class="'filter-icon dripicons-'+icon"></span>
       <span class="filter-text" v-html="title"></span>
       <span class="filter-btn dripicons-chevron-down" />
