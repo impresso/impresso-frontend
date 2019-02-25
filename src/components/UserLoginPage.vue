@@ -91,15 +91,16 @@ export default {
 
 #UserLoginPage{
   height: 100%;
-  background: url(./../assets/img/desk_still_life.jpg) no-repeat center center fixed;
+  background: url(./../assets/img/login_bg.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  background-color: rgb(81, 218, 237);
-  background-blend-mode:soft-light;
+  background-color: rgba(0, 0, 0, 0.3);
+  background-blend-mode: multiply;
   .section{
     align-items: center;
+    background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAG0lEQVQYV2NkYGD4z8DAwMgABXAGNgGwSgwVAFbmAgXQdISfAAAAAElFTkSuQmCC) repeat;
   }
 };
 

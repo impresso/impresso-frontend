@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="border-bottom border-tertiary">
+  <div style="margin-bottom: -1px;">
     <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
     <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
       <b-navbar-brand :to="{name: 'home'}">
