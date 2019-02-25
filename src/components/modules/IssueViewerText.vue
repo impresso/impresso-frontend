@@ -17,7 +17,7 @@
       <i-layout-section width="200px" class="text-right">
         <h5>{{article.title}}</h5>
         <b-button-group>
-          <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
+          <b-button size="sm" disabled variant="outline-primary">Add Tag ...</b-button>
         </b-button-group>
         <hr>
         <b-badge
@@ -34,19 +34,17 @@
         </b-badge>
         <div class="my-2" />
         <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
-          <collection-add-to style="margin: -0.5em 0 -0.5em 0" />
+          <collection-add-to />
         </b-dropdown>
         <br>
-        <span class="badge badge-secondary">Novels</span>
-        <span class="badge badge-secondary">Poems</span>
         <hr>
-        <b-button size="sm" variant="outline-primary">Export Citations ...</b-button><br>
-        <b-button size="sm" variant="outline-primary">Download as ...</b-button>
+        <b-button size="sm" disabled variant="outline-primary">Export Citations ...</b-button><br>
+        <div class="my-2" />
+        <b-button size="sm" disabled variant="outline-primary">Download as ...</b-button>
         <hr>
         <base-title-bar>Entities in Article</base-title-bar>
-        <br>
         <label class="mr-1" for="eorderby">Order by</label>
-        <b-dropdown id="eorderby" variant="outline-primary" size="sm" text="relevance" class="">
+        <b-dropdown id="eorderby" disabled variant="outline-primary" size="sm" text="relevance" class="">
           <b-dropdown-item>First Action</b-dropdown-item>
         </b-dropdown>
       </i-layout-section>
@@ -123,7 +121,6 @@ export default {
 
     .controls{
       grid-area: controls;
-      // opacity: 0.2;
     }
 }
 .region {
