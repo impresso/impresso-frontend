@@ -34,7 +34,7 @@
         </b-badge>
         <div class="my-2" />
         <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
-          <collection-add-to />
+          <collection-add-to :item="article" />
         </b-dropdown>
         <br>
         <hr>
