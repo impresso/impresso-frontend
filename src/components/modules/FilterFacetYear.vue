@@ -6,7 +6,7 @@
     </div>
     <base-title-bar class="pt-2 w-100">
       {{$t(`label.${filter.type}`)}}
-      <b-button v-on:click="toggleExpanded" class="float-right" variant="link" size="sm">
+      <b-button v-on:click="toggleExpanded" class="float-right d-none" variant="link" size="sm">
         <span v-bind:class="expanded ? 'dripicons-chevron-up' : 'dripicons-chevron-down'" />
       </b-button>
     </base-title-bar>
@@ -42,7 +42,7 @@ export default {
   data: () => ({
     config: {
       element: '#skyline',
-      height: 300,
+      height: 220,
       timeFormat: '%Y',
     },
     tooltip: {
@@ -99,7 +99,8 @@ export default {
     },
     expanded: {
       get() {
-        return this.$store.state.search.filterFacetYearExpanded;
+        return true;
+        // return this.$store.state.search.filterFacetYearExpanded;
       },
       set(val) {
         this.$store.commit('search/UPDATE_FILTER_FACET_YEAR_EXPANDED', val);
@@ -150,7 +151,7 @@ export default {
     height: 80px;
     position: relative;
     #skyline{
-      top:-230px;
+      top:-150px;
     }
   }
   &.expanded{
