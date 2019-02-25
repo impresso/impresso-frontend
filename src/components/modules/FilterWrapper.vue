@@ -3,7 +3,7 @@
 
     <b-btn size="sm" variant="outline-primary" :id="id" class="pr-1">
       <span v-if="icon" :class="'filter-icon dripicons-'+icon"></span>
-      <span v-html="title"></span>
+      <span class="filter-text" v-html="title"></span>
       <span class="filter-btn dripicons-chevron-down" />
       <a v-on:click="remove" class="filter-btn dripicons-cross" />
     </b-btn>
@@ -30,10 +30,17 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .filter {
   .filter-icon {
     opacity: 0.5;
+  }
+  .filter-text {
+    max-width: 312px;
+    display: inline-block;
+    vertical-align: bottom;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
   .filter-btn {
     background: rgba(200, 200, 200, 0.2);
