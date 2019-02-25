@@ -20,6 +20,19 @@
           <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
         </b-button-group>
         <hr>
+        <b-badge
+          v-for="(collection, i) in article.collections"
+          v-bind:key="i"
+          variant="info"
+          class="mr-1">
+          <router-link
+            class="text-white"
+            v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+            {{ collection.name }}
+          </router-link>
+          <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+        </b-badge>
+        <div class="my-2" />
         <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
           <collection-add-to style="margin: -0.5em 0 -0.5em 0" />
         </b-dropdown>
@@ -57,6 +70,20 @@ export default {
   components: {
     BaseTitleBar,
     CollectionAddTo,
+  },
+  methods: {
+    onRemoveCollection(collection, item) {
+      const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+      if (idx !== -1) {
+        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+          collection,
+          item,
+        }).then(() => {
+          item.collections.splice(idx, 1);
+          this.$forceUpdate();
+        });
+      }
+    },
   },
   watch: {
     article_uid: {
