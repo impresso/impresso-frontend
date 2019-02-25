@@ -1,7 +1,7 @@
 <template lang="html">
     <i-layout-section>
-
-      <div slot="header" class="border-bottom border-tertiary">
+      <!-- slot:header  -->
+      <div slot="header" >
         <b-navbar type="light" variant="light" >
           <section class='pt-2'>
             <span class="label small-caps">
@@ -17,22 +17,31 @@
           </section>
 
         </b-navbar>
-        <b-navbar type="light" variant="light" class="p-0">
-
-        <b-navbar-nav class="px-2 pt-2 small-caps">
-
-          <b-tabs pills>
-            <!-- Add your b-tab components here-->
-            <template slot="tabs">
-              <b-nav-item :to="{ name:'newspaper'}" exact >{{$t('route.newspaper', { total: $n(total) })}}</b-nav-item>
-              <b-nav-item :to="{ name:'newspaper_metadata'}" exact >{{$t('route.newspaper_metadata')}}</b-nav-item>
-            </template>
-          </b-tabs>
-        </b-navbar-nav>
+        <b-navbar type="light" variant="light" class="p-0 border-bottom ">
+          <b-navbar-nav class="px-2 pt-2 small-caps">
+            <b-tabs pills>
+              <template slot="tabs">
+                <b-nav-item :to="{ name:'newspaper_metadata'}" exact >{{$t('route.newspaper_metadata')}}</b-nav-item>
+                <b-nav-item :to="{ name:'newspaper'}" exact >{{$t('route.newspaper', { total: $n(total) })}}</b-nav-item>
+              </template>
+            </b-tabs>
+          </b-navbar-nav>
+        </b-navbar>
+        <!--  order by -->
+        <b-navbar type="light" variant="light"
+          v-if="$route.name != 'newspaper_metadata'"
+          class="border-bottom p-0">
+          <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto">
+            <li><label >{{ $t('order by') }}</label>
+              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+            </li>
+          </b-navbar-nav>
         </b-navbar>
       </div>
+      <!-- eof:header  -->
+
       <div class='px-3 py-2 ' v-if='$route.name == "newspaper_metadata"'>
-      <b-table bordered borderless caption-top :items="newspaper.properties"
+        <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="table-caption">List of known metadata for this newspaper</template>
           <template slot="name" slot-scope="row" class="small-caps">{{row.item.name}}</template>
@@ -45,10 +54,9 @@
             </div>
           </template>
         </b-table>
-
       </div>
       <div v-else>
-        <div class="p-4">
+        <div class="p-4 bg-light">
           <b-row>
             <b-col
               sm="12" md="4" lg="3"
@@ -60,13 +68,16 @@
                 :img-src="issue.iiifThumbnail"
                 :img-alt="$d(new Date(issue.date), 'long')"
                 img-top
-                class="mb-2 border-bottom"
+                class="mb-2"
               >
 
-              <b-card-text class="p-0">
-                <div class=''>{{$d(new Date(issue.date), "long")}}</div>
-                <router-link class='small-caps' :to="{ name: 'issue', params: { issue_uid:issue.uid } }">{{$t("view issue")}}</router-link>
-              </b-card-text>
+              <div class="card-text p-0">
+                <router-link
+                  class='small-caps'
+                  v-bind:to="{ name: 'issue', params: { issue_uid:issue.uid } }">
+                    {{$d(new Date(issue.date), "long")}}
+                </router-link>
+              </div>
               </b-card>
             </b-col>
           </b-row>
@@ -97,9 +108,21 @@ export default {
     issues: [],
     newspaper: new Newspaper(),
     tab: 'issues',
-
+    orderBy: '-date',
   }),
   computed: {
+    orderByOptions() {
+      return [
+        {
+          value: '-date',
+          text: this.$t('order by date - most recent first'),
+        },
+        {
+          value: 'date',
+          text: this.$t('order by date'),
+        },
+      ];
+    },
     genealogy: {
       get() {
         const noteGenealogy = this.newspaper.properties.find(d => d.name === 'noteGenealogy');
@@ -130,6 +153,7 @@ export default {
     } = {}) {
       const response = await this.$store.dispatch('newspapers/LOAD_ISSUES', {
         page,
+        orderBy: this.orderBy,
         limit: this.limit,
         filters: [{
           type: 'newspaper',
@@ -154,6 +178,12 @@ export default {
         this.newspaper = await this.getNewspaper();
       },
     },
+    orderBy: {
+      async handler(property) {
+        console.log('change orderBy', property);
+        this.issues = await this.getIssues();
+      },
+    },
   },
   components: {
     Pagination,
@@ -168,15 +198,23 @@ export default {
 .tabs{
   margin-bottom: -1px;
 }
+.card {
+  border: 0px solid;
+  background: transparent;
+}
+
+.card-body {
+  padding: 0;
+}
+
 .navbar-light .navbar-nav .nav-link{
   padding: 0.125rem 0.5rem 0.25rem;
-  border: 1px solid $clr-primary;
-  border-color: transparent;
+  border: 1px solid transparent;
   &.active {
-    border-color: $clr-primary;
+    border-color: #dee2e6;
     border-bottom-color: white;
 
-    background-color: white;
+    background-color: transparent;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section>
+  <i-layout-section class="bg-light">
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
@@ -8,11 +8,18 @@
         </section>
       </b-navbar>
     </div>
-    <div id="d3-small-multiples" class="border-bottom"></div>
+
+    <!--  newspqper lifespans -->
+
+    <!--  newspqper lifespans -->
+    <newspapers-lines class="mx-5" v-model="newspapers"/>
+
+
     <pre>{{ pagesTimeline }}</pre>
   </i-layout-section>
 </template>
 <script>
+import NewspapersLines from './NewspapersLines';
 
 export default {
   data: () => ({
@@ -21,20 +28,30 @@ export default {
       values: [],
     },
   }),
+  computed: {
+    newspapers() {
+      return this.$store.state.newspapers.list.newspapers;
+    },
+  },
   async mounted() {
     // global timeline per year, with n. of pages, n. of empty pages, n.of corrupted pages.
     this.pagesTimeline = await this.$store.dispatch('newspapers/LOAD_PAGES_TIMELINE');
   },
   components: {
     // Tooltip,
+    NewspapersLines,
   },
 };
 </script>
 
 <style lang="scss">
+
   #d3-small-multiples{
     background-color: darkgrey;
   }
+
+
+
 </style>
 
 <i18n>

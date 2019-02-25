@@ -1,9 +1,11 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="300px" class="border-right border-tertiary">
+    <i-layout-section width="300px" class="border-right">
       <div slot="header" class="border-bottom">
+
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="px-3 py-3">
+            <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
             <label class="mr-1">{{$t("label_order")}}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </b-navbar-nav>
@@ -23,13 +25,13 @@
         <router-link
           class="px-3 py-2 d-block"
           v-bind:class="{active: n.uid === newspaperUid}"
-          v-bind:to="{name: 'newspaper', params: {newspaper_uid: n.uid}}">
+          v-bind:to="{name: 'newspaper_metadata', params: {newspaper_uid: n.uid}}">
           <strong>{{n.name}}</strong>
           <br>
           ({{n.startYear}} - {{n.endYear}})
         </router-link>
       </div>
-      <div slot="footer" class="p-2 border-top">
+      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top">
         <pagination
           v-bind:perPage="paginationList.perPage"
           v-bind:currentPage="paginationList.currentPage"
@@ -47,6 +49,7 @@ import Pagination from './modules/Pagination';
 
 export default {
   data: () => ({
+
   }),
   computed: {
     paginationList() {
@@ -164,6 +167,7 @@ export default {
 <i18n>
 {
   "en": {
+    "label_list": "List of newspapers ({total})",
     "label_order": "Order By",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",

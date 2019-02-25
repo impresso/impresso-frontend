@@ -83,11 +83,6 @@ export default {
             context.commit('UPDATE_LIST_PAGINATION_TOTAL_ROWS', res.total);
             context.commit('UPDATE_LIST_NEWSPAPERS', res.data.map(newspaper => new Newspaper({
               ...newspaper,
-              properties: newspaper.properties.map((property) => {
-                const keys = Object.keys(property);
-                property.name = keys[0];
-                return property[keys[0]];
-              }),
             })));
             resolve(res);
           },
@@ -111,12 +106,13 @@ export default {
     },
     LOAD_ISSUES(context, {
       page = 1,
+      orderBy = '-date',
       limit,
       filters = [],
     } = {}) {
       return new Promise((resolve, reject) => {
         services.issues.find({
-          query: { filters, page, limit },
+          query: { filters, page, limit, order_by: orderBy },
         })
         .then((res) => {
           context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
