@@ -178,12 +178,22 @@ export default {
       get() {
         return [
           {
-            value: 'date',
+            value: 'dateAdded',
+            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_asc')}`,
+            disabled: true,
+          },
+          {
+            value: '-dateAdded',
+            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_desc')}`,
+            disabled: true,
+          },
+          {
+            value: 'itemDate',
             text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
             disabled: true,
           },
           {
-            value: '-date',
+            value: '-itemDate',
             text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
             disabled: true,
           },
@@ -296,7 +306,8 @@ export default {
   "en": {
     "collections": "collections",
     "label_order": "Order By",
-    "sort_date": "Date",
+    "sort_date": "Item Date",
+    "sort_dateAdded": "Date Added",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
     "label_display": "Display As",

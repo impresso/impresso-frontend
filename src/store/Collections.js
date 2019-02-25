@@ -6,7 +6,7 @@ export default {
   state: {
     collections: [],
     collectionsSortOrder: '-modified',
-    orderBy: '-date', // date, -date
+    orderBy: '-dateAdded', // dateAdded, itemDate, -itemDate
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
@@ -96,7 +96,8 @@ export default {
             resolve: 'item',
             page: context.state.paginationCurrentPage,
             limit: context.state.paginationPerPage,
-            order_by: context.state.orderBy,
+            // TODO Uncomment the following line when service is ready
+            // order_by: context.state.orderBy,
           },
         }),
       ]).then((results) => {
