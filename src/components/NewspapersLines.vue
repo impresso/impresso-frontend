@@ -1,5 +1,5 @@
 <template lang="html">
-  <div v-on:mousemove="onMousemove" ref="lines" class="lines small">
+  <div v-on:mousemove="onMousemove" v-on:mouseout="onMouseout" ref="lines" class="lines small">
     <tooltip v-bind:tooltip="tooltip">
 
       <div v-if="tooltip.item">
@@ -32,7 +32,7 @@
             {{ newspaper.endYear}}
           </div>
       </div>
-      <div class="more" v-if="newspaper.isSelected">oh my it is selected!</div>
+      <div class="more" v-if="newspaper.isSelected">...</div>
     </div>
   </div>
 </template>
@@ -50,7 +50,7 @@ export default {
     tooltip: {
       x: 0,
       y: 0,
-      isActive: true,
+      isActive: false,
       item: {},
     },
     point: {
@@ -68,7 +68,7 @@ export default {
       //
       // console.log('toyear:', x, this.scale.invert(x), year);
       this.tooltip.x = x;
-      this.tooltip.y = y - 60;
+      this.tooltip.y = y - 40;
       console.log(screenY, y, localY);
 
       this.point = {
@@ -76,16 +76,26 @@ export default {
         y,
       };
     },
+    onMouseout() {
+      this.tooltip.isActive = false;
+    },
     onClick(newspaper) {
       console.log('@click', newspaper);
-      newspaper.isSelected = !newspaper.isSelected;
+      // newspaper.isSelected = !newspaper.isSelected;
       // force the instance to be re-rendered
-      this.$forceUpdate();
+      // this.$forceUpdate();
+      this.$router.push({
+        name: 'newspaper_metadata',
+        params: {
+          newspaper_uid: newspaper.uid,
+        },
+      });
     },
     onMouseover(newspaper, event) {
       console.log('@mouseover', event);
       this.point.y = event.target.offsetTop;
       this.tooltip.item = newspaper;
+      this.tooltip.isActive = true;
       event.stopPropagation();
     },
     onResize() {
@@ -171,18 +181,17 @@ export default {
     margin-top: 1px;
     margin-bottom: 1px;
 
-
     &.selected {
       height: 4rem;
     }
 
-    &.selected .line {
+    &:hover .line, &.selected .line {
       background-color: $clr-primary;
       border: 1px solid $clr-primary;
     }
 
-    &.selected .label-start,
-    &.selected .label-end {
+    &:hover .line, &.selected .label-start,
+    &:hover .line, &.selected .label-end {
       color: $clr-primary;
     }
   }
@@ -190,9 +199,10 @@ export default {
   .line{
     position: absolute;
     z-index: 1;
-    top: 0.5rem;
-    height: 2px;
-    border: 2px solid;
+    top: 0.25rem;
+    height: 0.5rem;
+    border: 1px solid #a0a0a0;
+    border-radius: 0.25rem;
     background-color: #a0a0a0;
   }
 
@@ -201,8 +211,8 @@ export default {
     padding: 0 .25rem;
     position: absolute;
     top: -0.5rem;
-    height: 1rem;
-    line-height: 0.9rem;
+    height: 1.25rem;
+    line-height: 1.25rem;
   }
 
   .line > .label-start {
