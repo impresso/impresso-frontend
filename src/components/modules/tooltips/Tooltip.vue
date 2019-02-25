@@ -67,7 +67,7 @@ export default {
     color: white;
     font-size: 1rem;
     font-weight: bold;
-    border-bottom: 1px solid;
+    border-bottom: 1px solid #999;
     padding-bottom: .75rem;
   }
 
