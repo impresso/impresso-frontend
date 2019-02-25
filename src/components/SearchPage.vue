@@ -38,7 +38,7 @@
         <b-navbar-nav v-if="isLoggedIn()" class="pl-4">
           <b-form-checkbox
             v-b-tooltip.hover.topleft.html.o100.d250 v-bind:title="$t('select_all')"
-            v-bind:indeterminate="isIndeterminate"
+            v-bind:indeterminate="isIndeterminate()"
             v-on:change="onSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
