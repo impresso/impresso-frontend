@@ -38,10 +38,10 @@
             for="collection.uid">
             <span>{{collection.name}}</span>
 
-            <span class="description text-muted small-caps">
+            <!-- <span class="description text-muted small-caps">
               &mdash;
               {{collection.countEntities}} {{$t('items')}}
-            </span>
+            </span> -->
             &middot;
             <span
               class="description text-muted small-caps"

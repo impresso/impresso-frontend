@@ -26,7 +26,7 @@
                   {{collection.name}}
                 </div>
                 <div class="float-right">
-                  {{collection.countEntities}} {{$t('items')}}
+                  <!-- {{collection.countEntities}} {{$t('items')}} -->
                 </div>
               </div>
               <div class="clearfix">
