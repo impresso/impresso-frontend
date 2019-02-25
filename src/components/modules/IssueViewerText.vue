@@ -24,7 +24,7 @@
           v-for="(collection, i) in article.collections"
           v-bind:key="i"
           variant="info"
-          class="mr-1">
+          class="ml-1">
           <router-link
             class="text-white"
             v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
@@ -33,7 +33,9 @@
           <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
         </b-badge>
         <div class="my-2" />
-        <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
+        <b-dropdown size="sm" variant="outline-primary"
+          style="margin-right:-0.25em" 
+          text="Add to Collection ...">
           <collection-add-to :item="article" />
         </b-dropdown>
         <br>
