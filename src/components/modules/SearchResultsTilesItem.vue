@@ -6,7 +6,7 @@
       </open-seadragon-viewer>
       <div v-if="isLoggedIn() && this.checkbox" class="float-right pt-1 pl-1">
         <b-form-checkbox
-          class="m-0"
+          class="m-0 select-item"
           v-bind:value="article.uid"
           v-on:change="onChange">
         </b-form-checkbox>

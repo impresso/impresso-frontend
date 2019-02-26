@@ -55,7 +55,7 @@
       </div>
       <div v-if="isLoggedIn() && this.checkbox" class="ml-auto pl-2">
         <b-form-checkbox
-          class="mr-0"
+          class="mr-0 select-item"
           v-bind:value="article.uid"
           v-on:change="onChange">
         </b-form-checkbox>
