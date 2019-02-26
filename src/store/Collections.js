@@ -114,7 +114,7 @@ export default {
       return new Promise((resolve) => {
         services.collections.find({
           query: {
-            limit: 0,
+            limit: 128,
           },
         }).then((results) => {
           context.commit('UPDATE_COLLECTIONS', results.data.map(result => new Collection({
