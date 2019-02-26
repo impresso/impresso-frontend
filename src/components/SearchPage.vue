@@ -50,6 +50,9 @@
         <span class="small-caps">
           {{ $tc('items_selected', selectedItems.length) }}
         </span>
+        <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
+          {{ $t('Clear Selection') }}
+        </b-button>
         <b-dropdown size="sm" variant="outline-secondary" :text="$tc('add_n_to_collection', selectedItems.length)" class="bg-white float-right">
           <collection-add-to :items="selectedItems" class="addbulk" />
         </b-dropdown>
@@ -242,7 +245,6 @@ export default {
       return false;
     },
     onSelectAll(e) {
-      this.selectedItems = [];
       this.searchResults.forEach((item) => {
         if (e) {
           this.selectedItems.push(item);
@@ -258,6 +260,12 @@ export default {
         if (idx === -1) this.selectedItems.push(e);
         else this.selectedItems.splice(idx, 1);
       }
+    },
+    onClearSelection() {
+      this.selectedItems = [];
+      this.searchResults.forEach((item) => {
+        document.querySelector(`input[value='${item.uid}']`).checked = false;
+      });
     },
     onClickResult(searchResult) {
       this.$router.push({
@@ -370,6 +378,7 @@ div.overlay-region{
     "order_sentences": "Sentence",
     "select_all": "Select all items on this page",
     "items_selected": "One item selected | {count} items selected",
+    "Clear Selection": "Clear Selection",
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Add query to collection",
