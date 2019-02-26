@@ -38,7 +38,8 @@
         <b-navbar-nav v-if="isLoggedIn()" class="pl-4">
           <b-form-checkbox
             v-b-tooltip.hover.topleft.html.o100.d250 v-bind:title="$t('select_all')"
-            v-bind:indeterminate="isIndeterminate()"
+            v-bind:indeterminate="selectedOnPage() > 0 && selectedOnPage() < searchResults.length"
+            v-bind:checked="selectedOnPage() === this.searchResults.length"
             v-on:change="onSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
@@ -238,18 +239,26 @@ export default {
     onInputPagination(page = 1) {
       this.search(page);
     },
-    isIndeterminate() {
-      if (this.selectedItems.length > 0 && this.selectedItems.length < this.searchResults.length) {
-        return true;
-      }
-      return false;
+    selectedOnPage() {
+      let selected = 0;
+      this.searchResults.forEach((item) => {
+        if (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1) {
+          selected += 1;
+        }
+      });
+      return selected;
     },
     onSelectAll(e) {
       this.searchResults.forEach((item) => {
+        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
         if (e) {
-          this.selectedItems.push(item);
-          document.querySelector(`input[value='${item.uid}']`).checked = true;
-        } else {
+          if (idx === -1) {
+            this.selectedItems.push(item);
+            document.querySelector(`input[value='${item.uid}']`).checked = true;
+          }
+        } else
+        if (idx !== -1) {
+          this.selectedItems.splice(idx, 1);
           document.querySelector(`input[value='${item.uid}']`).checked = false;
         }
       });
