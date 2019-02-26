@@ -2,19 +2,27 @@
   <div id="IssueViewerText" class="container-fluid py-3">
     <i-layout>
       <i-layout-section>
+        <h5>{{article.title}}</h5>
+        <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
+          <collection-add-to style="margin: -0.5em 0 -0.5em 0" />
+        </b-dropdown>
         <div
-          class="row mb-3"
+          class="row mt-3 mb-3"
           v-for="(region, i) in article.regions"
           v-bind:key="i">
-          <div class="col col-sm-8">
-            <p v-html="region.g.join('<br>')" />
+          <div class="col col-sm-7">
+            <div class='region serif'>
+              <p v-for="contents in region.g" >
+                <span v-html="contents"></span>
+              </p>
+            </div>
           </div>
           <div class="col">
             <img v-bind:src="region.iiifFragment" width="100%" />
           </div>
         </div>
       </i-layout-section>
-      <i-layout-section width="200px" class="text-right">
+      <!-- <i-layout-section width="200px" class="text-right">
         <h5>{{article.title}}</h5>
         <b-button-group>
           <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
@@ -36,7 +44,7 @@
         <b-dropdown id="eorderby" variant="outline-primary" size="sm" text="relevance" class="">
           <b-dropdown-item>First Action</b-dropdown-item>
         </b-dropdown>
-      </i-layout-section>
+      </i-layout-section> -->
     </i-layout>
   </div>
 </template>
@@ -78,41 +86,22 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 #IssueViewerText{
   overflow: none;
   height: 100%;
-}
-.article {
-    display: grid;
-    grid-template-columns: 1fr 220px;
-    grid-template-rows: auto;
-    grid-template-areas: 'regions controls';
-    column-gap: 1rem;
 
-    .regions {
-      grid-area: regions;
+  span.location{
+    border-bottom: 1px solid cyan;
+  }
+
+  .region{
+    padding: 0.125rem 0.25rem;
+    background: white;
+
+    p {
+      margin-bottom: 0;
     }
-
-    .controls{
-      grid-area: controls;
-      // opacity: 0.2;
-    }
-}
-.region {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
-    grid-template-areas: 'context richtext';
-    column-gap: 2em;
-
-    .context{
-      grid-area: context;
-    }
-
-    .richtext {
-      grid-area: richtext;
-    }
-
+  }
 }
 </style>
