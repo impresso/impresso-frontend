@@ -61,7 +61,7 @@ export default {
         password: this.password,
       }).then(() => {
         this.$router.push({
-          path: 'dashboard',
+          name: 'home',
         });
       }, (err) => {
         this.error = this.$t(err.message);
