@@ -12,7 +12,7 @@
           v-for="(collection, i) in article.collections"
           v-bind:key="i"
           variant="info"
-          class="ml-1">
+          class="mt-1 mr-1">
           <router-link
             class="text-white"
             v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
