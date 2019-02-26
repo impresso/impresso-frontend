@@ -3,9 +3,23 @@
     <i-layout>
       <i-layout-section>
         <h5>{{article.title}}</h5>
-        <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
-          <collection-add-to style="margin: -0.5em 0 -0.5em 0" />
+        <div class="my-2" />
+        <b-dropdown size="sm" variant="outline-primary"
+          v-bind:text="$t('add_to_collection')">
+          <collection-add-to :item="article" />
         </b-dropdown>
+        <b-badge
+          v-for="(collection, i) in article.collections"
+          v-bind:key="i"
+          variant="info"
+          class="ml-1">
+          <router-link
+            class="text-white"
+            v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+            {{ collection.name }}
+          </router-link>
+          <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+        </b-badge>
         <div
           class="row mt-3 mb-3"
           v-for="(region, i) in article.regions"
@@ -66,6 +80,20 @@ export default {
     BaseTitleBar,
     CollectionAddTo,
   },
+  methods: {
+    onRemoveCollection(collection, item) {
+      const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+      if (idx !== -1) {
+        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+          collection,
+          item,
+        }).then(() => {
+          item.collections.splice(idx, 1);
+          this.$forceUpdate();
+        });
+      }
+    },
+  },
   watch: {
     article_uid: {
       immediate: true,
@@ -105,3 +133,11 @@ export default {
   }
 }
 </style>
+
+<i18n>
+{
+  "en": {
+    "add_to_collection": "Add to Collection ..."
+  }
+}
+</i18n>
