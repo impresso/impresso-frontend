@@ -177,6 +177,9 @@ export default {
         });
       });
     },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
   },
   components: {
     BaseTabs,
@@ -186,6 +189,11 @@ export default {
     Pagination,
     ThumbnailSlider,
     TableOfContents,
+  },
+  mounted() {
+    if (this.isLoggedIn() && !this.collections) {
+      this.$store.dispatch('collections/LOAD_COLLECTIONS');
+    }
   },
   watch: {
     '$route.params.issue_uid': {
