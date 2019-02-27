@@ -10,6 +10,9 @@
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
           </li>
           <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_search")}}</router-link>
+          </li>
+          <li class="nav-item">
             <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
           </li>
           <li class="nav-item">
@@ -307,6 +310,7 @@ export default {
     "dashboard": "Dashboard",
     "collections": "Collections",
     "label_home": "Home",
+    "label_search": "Search",
     "label_newspapers": "Newspaper Titles",
     "label_topics": "Topics",
     "join_slack_channel": "Join us on <b>Slack!</b>"

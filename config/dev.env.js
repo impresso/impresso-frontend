@@ -8,4 +8,5 @@ module.exports = merge(prodEnv, {
   MIDDLELAYER_API: '"https://impresso-project.ch"',
   MIDDLELAYER_API_SOCKET_PATH: '"/alpha/api/socket.io/"',
   TAWK_TO_SITE_ID: false, // if false then wont show
+  GITHUB_WIKI_HOME: '"https://raw.githubusercontent.com/wiki/impresso/impresso-frontend/Home.md"',
 });
