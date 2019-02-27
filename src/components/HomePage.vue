@@ -1,19 +1,12 @@
 <template>
-<main id="HomePage" class="py-3">
-  <b-container>
-      <vue-simple-markdown :source="markdown" />
-  </b-container>
+<main id="HomePage" class="py-3 bg-light">
+  <b-container v-html="$options.filters.markdown(markdown)" />
 </main>
 </template>
 
 <script>
-import Vue from 'vue';
-import VueSimpleMarkdown from 'vue-simple-markdown';
+import markdown from '@/filters/markdown';
 import axios from 'axios';
-
-require('github-markdown-css/github-markdown.css');
-
-Vue.use(VueSimpleMarkdown);
 
 export default {
   name: 'HomePage',
@@ -24,8 +17,10 @@ export default {
   mounted() {
     axios.get(this.resource).then((res) => {
       this.markdown = res.data;
-      console.log(res.data);
     });
+  },
+  filters: {
+    markdown,
   },
   methods: {
   },
