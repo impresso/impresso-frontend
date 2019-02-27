@@ -300,6 +300,9 @@ export default {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
     this.search();
+    if (this.isLoggedIn() && !this.collections) {
+      this.$store.dispatch('collections/LOAD_COLLECTIONS');
+    }
   },
   beforeDestroy() {
     // TODO: need to use the url to reflect the search, this way we can use back
