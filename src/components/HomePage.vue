@@ -1,49 +1,38 @@
 <template>
-<main id="HomePage">
-  <div class="search_wrapper">
-    <b-container>
-      <b-row>
-        <b-col md="6" offset-md="3">
-          <SearchBar v-on:submit="redirect" />
-        </b-col>
-      </b-row>
-    </b-container>
-  </div>
+<main id="HomePage" class="py-3">
   <b-container>
-    <b-row>
-      <b-col>
-        <h1 class="text-serif font-weight-bold">{{$t("welcome.title")}}</h1>
-        <p>{{$t("welcome.body")}}</p>
-      </b-col>
-    </b-row>
+      <vue-simple-markdown :source="markdown" />
   </b-container>
 </main>
 </template>
 
 <script>
-import SearchBar from './SearchBar';
+import Vue from 'vue';
+import VueSimpleMarkdown from 'vue-simple-markdown';
+import axios from 'axios';
+
+require('github-markdown-css/github-markdown.css');
+
+Vue.use(VueSimpleMarkdown);
 
 export default {
-  name: 'HelloWorld',
-  components: {
-    SearchBar,
+  name: 'HomePage',
+  data: () => ({
+    markdown: '',
+    resource: process.env.GITHUB_WIKI_HOME,
+  }),
+  mounted() {
+    axios.get(this.resource).then((res) => {
+      this.markdown = res.data;
+      console.log(res.data);
+    });
   },
   methods: {
-    redirect() {
-      this.$router.push({
-        name: 'search',
-      });
-    },
   },
 };
 </script>
 
-<style scoped lang="less">
-.search_wrapper {
-    background: #d460ff;
-    padding: 70px 0;
-    margin-bottom: 50px;
-}
+<style lang="scss">
 </style>
 
 <i18n>
