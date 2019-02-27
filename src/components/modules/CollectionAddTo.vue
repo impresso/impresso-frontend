@@ -145,15 +145,6 @@ export default {
         this.fetch();
       });
     },
-    toggle() {
-      this.show = !this.show;
-    },
-    isLoggedIn() {
-      return this.$store.state.user.userData;
-    },
-  },
-  mounted() {
-    this.fetch();
   },
 };
 </script>
