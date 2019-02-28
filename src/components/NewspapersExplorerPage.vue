@@ -3,8 +3,8 @@
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
-          <span class="label small-caps">{{$t('summary')}}</span>
-          <h3 class='mb-1'>{{ $t('list_of_newspapers') }}</h3>
+          <span class="label small-caps">{{$t('list_of_newspapers')}}</span>
+          <h3 class='mb-1'>{{ $t('newspapers_lines') }}</h3>
         </section>
       </b-navbar>
       <!-- <b-navbar  type="light" variant="light" class="border-bottom">
@@ -84,7 +84,8 @@ export default {
 {
   "en": {
     "label_order": "Order By",
-    "list_of_newspapers": "Newspapers"
+    "list_of_newspapers": "Newspapers",
+    "newspapers_lines": "List of newspapers timelines"
   },
   "nl": {
     "label_order": "Sorteer Op",
