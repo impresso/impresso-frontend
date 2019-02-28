@@ -271,19 +271,6 @@ export default {
         },
       });
     },
-    createQueryCollection() {
-      const collectionName =
-        Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      this.$store.dispatch('collections/ADD_COLLECTION', {
-        name: collectionName,
-        description: 'Collection generated from Search Query',
-      }).then((collection) => {
-        // console.log(collection);
-        this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid).then((res) => {
-          console.log(res);
-        });
-      });
-    },
     search(page) {
       if (page !== undefined) {
         this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
