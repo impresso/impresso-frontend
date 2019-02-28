@@ -122,6 +122,12 @@ export default {
     ADD_FACET(state, facet) {
       state.facets.push(facet);
     },
+    UPDATE_FILTER_IS_FRONTPAGE(state, value) {
+      state.search.isFront = value;
+    },
+    UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
+      state.search.hasTextContents = value;
+    },
   },
   actions: {
     ADD_OR_REPLACE_FILTER(context, filter) {
@@ -140,8 +146,7 @@ export default {
         (resolve, reject) => {
           services.search.find({
             query: {
-              filters: context.getters.getSearch.filters.map(
-                filter => filter.getQuery()).filter(i => i),
+              filters: context.getters.getSearch.getFilters(),
               facets: context.state.facetTypes,
               group_by: context.state.groupBy,
               page: context.state.paginationCurrentPage,
@@ -240,8 +245,7 @@ export default {
         (resolve, reject) => {
           services.search.find({
             query: {
-              filters: context.getters.getSearch.filters.map(
-                filter => filter.getQuery()).filter(i => i && i.type !== 'daterange'),
+              filters: context.getters.getSearch.getFilters(['daterange']),
               facets: ['year'],
               group_by: context.state.groupBy,
               page: context.state.paginationCurrentPage,
