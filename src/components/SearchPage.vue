@@ -62,7 +62,11 @@
       </b-navbar-nav>
       <b-navbar-nav class="flex-shrink-1 pl-3 pr-3">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
-          <b-dropdown-item disabled><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+          <b-dropdown-item
+            v-on:click="createQueryCollection()">
+            <span class="dripicons-archive pr-3"></span>
+            {{$t("query_add_to_collection")}}
+          </b-dropdown-item>
           <b-dropdown-item disabled><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
         </b-dropdown>
       </b-navbar-nav>
@@ -270,6 +274,19 @@ export default {
         },
       });
     },
+    createQueryCollection() {
+      const collectionName =
+        Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      this.$store.dispatch('collections/ADD_COLLECTION', {
+        name: collectionName,
+        description: 'Collection generated from Search Query',
+      }).then((collection) => {
+        // console.log(collection);
+        this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid).then((res) => {
+          console.log(res);
+        });
+      });
+    },
     search(page) {
       if (page !== undefined) {
         this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
@@ -372,7 +389,7 @@ div.overlay-region{
     "items_selected": "One item selected | {count} items selected",
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
-    "query_add_to_collection": "Add query to collection",
+    "query_add_to_collection": "Create Collection from Search Results",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV"
   },
