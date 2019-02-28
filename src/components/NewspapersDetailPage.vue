@@ -1,5 +1,5 @@
 <template lang="html">
-    <i-layout-section>
+    <i-layout-section class="bg-light">
       <!-- slot:header  -->
       <div slot="header" >
         <b-navbar type="light" variant="light" >
@@ -56,7 +56,7 @@
         </b-table>
       </div>
       <div v-else>
-        <div class="p-4 bg-light">
+        <div class="p-4">
           <b-row>
             <b-col
               sm="12" md="4" lg="3"
@@ -210,9 +210,17 @@ export default {
   border: 1px solid transparent;
   &.active {
     border-color: #dee2e6;
-    border-bottom-color: white;
+    border-bottom-color: #f8f9fa;
+    border-top-color: $clr-primary;
 
     background-color: transparent;
+  }
+}
+
+.b-table{
+  background-color: white;
+  th{
+    background-color: red;
   }
 }
 </style>
