@@ -49,9 +49,10 @@
           </b-badge>
         </div>
         <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
-        <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
-          <collection-add-to :item="article" />
-        </b-dropdown>
+        <collection-add-to
+          v-if="isLoggedIn()"
+          v-bind:item="article"
+          v-bind:text="$t('add_to_collection')" />
       </div>
       <div v-if="isLoggedIn() && this.checkbox" class="ml-auto pl-2">
         <b-form-checkbox
@@ -96,11 +97,6 @@ export default {
     },
     click() {
       this.$emit('click');
-    },
-    setFocus(event) {
-      this.$nextTick(() => {
-        event.target.querySelector('input').focus();
-      });
     },
     init() {
       const options = {

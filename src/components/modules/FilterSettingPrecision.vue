@@ -31,14 +31,14 @@ export default {
 {
   "en": {
     "title": "Precision",
-    "regular": "Regular",
-    "case_sensitive": "Case Sensitive",
+    "soft": "Regular",
+    "exact": "Exact",
     "fuzzy": "Fuzzy"
   },
   "nl": {
     "title": "Nauwkeurigheid",
-    "regular": "Normaal",
-    "case_sensitive": "Hoofdlettergevoelig",
+    "soft": "Normaal",
+    "exact": "Precies",
     "fuzzy": "Fuzzy"
   }
 }

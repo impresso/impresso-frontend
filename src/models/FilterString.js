@@ -11,7 +11,7 @@ export default class FilterString extends Filter {
   constructor(args) {
     super(args);
     this.query = String(args.query);
-    this.precision = precisions[(args.precision || 'regular').toUpperCase()];
+    this.precision = precisions[(args.precision || 'exact').toUpperCase()];
   }
 
   getQuery() {

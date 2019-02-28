@@ -1,4 +1,3 @@
-export const REGULAR = 'regular';
-export const CASE_SENSITIVE = 'case_sensitive';
-export const FUZZY = 'fuzzy';
 export const EXACT = 'exact';
+export const SOFT = 'soft';
+export const FUZZY = 'fuzzy';

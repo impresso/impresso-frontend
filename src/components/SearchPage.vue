@@ -5,6 +5,15 @@
       <autocomplete v-on:submit="onSuggestion" />
     </div>
     <div class="pt-2">
+      <b-form-group class="px-3 py-1">
+        <b-form-checkbox v-model="hasTextContents" switch v-bind:value="true"
+        v-bind:unchecked-value="false">
+          {{$t('label_hasTextContents')}}
+        </b-form-checkbox>
+        <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+          {{$t('label_isFront')}}
+        </b-form-checkbox>
+      </b-form-group>
       <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
       <search-facets v-on:submit-facet="onFacet" />
     </div>
@@ -50,9 +59,10 @@
         <span class="small-caps">
           {{ $tc('items_selected', selectedItems.length) }}
         </span>
-        <b-dropdown size="sm" variant="outline-secondary" :text="$tc('add_n_to_collection', selectedItems.length)" class="bg-white float-right">
-          <collection-add-to :items="selectedItems" class="addbulk" />
-        </b-dropdown>
+        <collection-add-to
+          :items="selectedItems"
+          :text="$tc('add_n_to_collection', selectedItems.length)"
+          class="addbulk float-right bg-light" />
       </div>
     </b-navbar>
 
@@ -62,7 +72,11 @@
       </b-navbar-nav>
       <b-navbar-nav class="flex-shrink-1 pl-3 pr-3">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
-          <b-dropdown-item disabled><span class="dripicons-archive pr-3"></span>{{$t("query_add_to_collection")}}</b-dropdown-item>
+          <b-dropdown-item
+            v-on:click="createQueryCollection()">
+            <span class="dripicons-archive pr-3"></span>
+            {{$t("query_add_to_collection")}}
+          </b-dropdown-item>
           <b-dropdown-item disabled><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
         </b-dropdown>
       </b-navbar-nav>
@@ -104,7 +118,6 @@
 
 <script>
 import FilterFactory from '@/models/FilterFactory';
-
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
@@ -114,11 +127,31 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
 
+const uuid = require('uuid');
+
 export default {
   data: () => ({
     selectedItems: [],
   }),
   computed: {
+    isFront: {
+      get() {
+        return this.$store.state.search.search.isFront;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_FILTER_IS_FRONT', val);
+        this.search(1);
+      },
+    },
+    hasTextContents: {
+      get() {
+        return this.$store.state.search.search.hasTextContents;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_FILTER_HAS_TEXT_CONTENTS', val);
+        this.search(1);
+      },
+    },
     groupByOptions: {
       get() {
         return [
@@ -270,6 +303,18 @@ export default {
         },
       });
     },
+    createQueryCollection() {
+      const collectionName = uuid.v4();
+      this.$store.dispatch('collections/ADD_COLLECTION', {
+        name: collectionName,
+        description: 'Collection generated from Search Query',
+      }).then((collection) => {
+        // console.log(collection);
+        this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid).then((res) => {
+          console.log(res);
+        });
+      });
+    },
     search(page) {
       if (page !== undefined) {
         this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
@@ -358,6 +403,8 @@ div.overlay-region{
     "label_display": "Display As",
     "label_order": "Order By",
     "label_group": "Group By",
+    "label_isFront": "Frontpage",
+    "label_hasTextContents": "Contains Text",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
     "sort_date": "Date",
@@ -372,7 +419,7 @@ div.overlay-region{
     "items_selected": "One item selected | {count} items selected",
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
-    "query_add_to_collection": "Add query to collection",
+    "query_add_to_collection": "Create Collection from Search Results",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV"
   },
@@ -380,6 +427,8 @@ div.overlay-region{
     "label_display": "Toon Als",
     "label_order": "Sorteer Op",
     "label_group": "Rangschikken Per",
+    "label_isFront": "Voorpagina",
+    "label_hasTextContents": "Bevat tekst",
     "sort_asc": "Oplopend",
     "sort_desc": "Aflopend",
     "sort_date": "Datum",
