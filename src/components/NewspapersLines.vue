@@ -4,12 +4,15 @@
 
       <div v-if="tooltip.item">
         <h1>{{tooltip.item.name}}</h1>
-
-        <p v-if="tooltip.item.startYear != tooltip.item.endYear">
-          {{tooltip.item.startYear}} - {{tooltip.item.endYear}}
-        </p>
-        <p v-else>
-          {{tooltip.item.startYear}}
+        <p>
+          <span v-if="tooltip.item.startYear != tooltip.item.endYear">
+            {{tooltip.item.startYear}} - {{tooltip.item.endYear}}
+          </span>
+          <span v-else>
+            {{tooltip.item.startYear}}
+          </span>
+           &mdash;
+          <span>{{tooltipProperties}}</span>
         </p>
       </div>
     </tooltip>
@@ -121,6 +124,23 @@ export default {
     this.onResize();
   },
   computed: {
+    tooltipProperties() {
+      if (!this.tooltip.item || !this.tooltip.item.properties) {
+        return '';
+      }
+      const place = {};
+      this.tooltip.item.properties.forEach((d) => {
+        if (d.name === 'countryCode') {
+          place.country = this.$t(`countryCode.${d.value}`);
+        } else if (d.name === 'provinceCode') {
+          place.province = this.$t(`provinceCode.${d.value}`);
+        }
+      });
+      if (!place.province && !place.country) {
+        return '';
+      }
+      return [place.province, place.country].filter(d => !!d).join(', ');
+    },
     values() {
       return Object.keys(this.newspapers.reduce((obj, d) => {
         obj[d.startYear] = true;
@@ -177,22 +197,33 @@ export default {
 
   .n{
     position: relative;
-    height: 1rem;
-    border-bottom: 1px solid #eee;
-    margin-top: 1px;
-    margin-bottom: 1px;
+    height: 15px;
 
+    &::after{
+      content: "";
+      position: absolute;
+      height: 1px;
+      background-color: #ededed;
+      top: 5px;
+      left:0;
+      right: 0;
+    }
     &.selected {
       height: 4rem;
     }
 
-    &:hover .line, &.selected .line {
-      background-color: $clr-primary;
-      border: 1px solid $clr-primary;
+    &:hover {
+      &::after{
+        background-color: #a0a0a0;
+      }
     }
 
-    &:hover .line, &.selected .label-start,
-    &:hover .line, &.selected .label-end {
+    &:hover .line, &.selected .line {
+      background-color: $clr-primary;
+    }
+
+    &:hover .label-start, &.selected .label-start,
+    &:hover .label-end, &.selected .label-end {
       color: $clr-primary;
     }
   }
@@ -200,10 +231,9 @@ export default {
   .line{
     position: absolute;
     z-index: 1;
-    top: 0.25rem;
-    height: 0.5rem;
-    border: 1px solid #a0a0a0;
-    border-radius: 0.25rem;
+    top: 3px;
+    height: 6px;
+    border-radius: 6px;
     background-color: #a0a0a0;
   }
 
@@ -214,6 +244,7 @@ export default {
     top: -0.5rem;
     height: 1.25rem;
     line-height: 1.25rem;
+    background-color: #f8f9fa;
   }
 
   .line > .label-start {
@@ -240,3 +271,40 @@ export default {
 
   }
 </style>
+<i18n>
+  {
+    "en": {
+      "provinceCode": {
+        "AG": "Canton of Aargau",
+        "AR": "Canton of Appenzell Ausserrhoden",
+        "AI": "Canton of Appenzell Innerrhoden",
+        "BL": "Canton of Basel-Landschaft",
+        "BS": "Canton of Basel-Stadt",
+        "BE": "Canton of Bern",
+        "FR":	"Canton of Fribourg",
+        "GE": "Canton of Geneva",
+        "GL": "Canton of Glarus",
+        "GR":	"Canton of Grisons",
+        "JU":	"Canton of Jura",
+        "LU": "Canton of Luzern",
+        "NE":	"Canton of Neuchâtel",
+        "OW": "Canton of Obwalden",
+        "NW": "Canton of Nidwalden",
+        "SH":	"Canton of Schaffhausen",
+        "SZ": "Canton of Schwytz",
+        "SO": "Canton of Solothurn",
+        "SG": "Canton of St. Gallen",
+        "TG": "Canton of Thurgau",
+        "TI": "Canton of Ticino",
+        "UR": "Canton of Uri",
+        "VS": "Canton of Valais",
+        "VD": "Canton of Vaud",
+        "ZG": "Canton of Zug",
+        "ZH": "Canton of Zürich"
+      },
+      "countryCode": {
+        "CH": "Switzerland"
+      }
+    }
+  }
+</i18n>
