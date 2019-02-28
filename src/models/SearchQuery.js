@@ -8,7 +8,7 @@ const uuid = require('uuid');
 export default class SearchQuery {
   constructor({
     filters = [],
-    isFront = true,
+    isFront = false,
     hasTextContents = true,
   } = {}) {
     this.filters = filters.map(filter => FilterFactory.create(filter));
