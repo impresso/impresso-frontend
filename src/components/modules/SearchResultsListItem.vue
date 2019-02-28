@@ -53,7 +53,6 @@
           v-if="isLoggedIn()"
           v-bind:item="article"
           v-bind:text="$t('add_to_collection')" />
-        </b-dropdown>
       </div>
       <div v-if="isLoggedIn() && this.checkbox" class="ml-auto pl-2">
         <b-form-checkbox
