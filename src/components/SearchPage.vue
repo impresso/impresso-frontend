@@ -118,6 +118,8 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
 
+const uuid = require('uuid');
+
 export default {
   data: () => ({
     selectedItems: [],
@@ -275,8 +277,7 @@ export default {
       });
     },
     createQueryCollection() {
-      const collectionName =
-        Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const collectionName = uuid.v4();
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
         description: 'Collection generated from Search Query',
