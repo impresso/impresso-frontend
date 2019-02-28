@@ -5,6 +5,15 @@
       <autocomplete v-on:submit="onSuggestion" />
     </div>
     <div class="pt-2">
+      <b-form-group class="px-3 py-1">
+        <b-form-checkbox v-model="hasTextContents" switch v-bind:value="true"
+        v-bind:unchecked-value="false">
+          {{$t('label_hasTextContents')}}
+        </b-form-checkbox>
+        <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+          {{$t('label_isFront')}}
+        </b-form-checkbox>
+      </b-form-group>
       <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
       <search-facets v-on:submit-facet="onFacet" />
     </div>
@@ -104,7 +113,6 @@
 
 <script>
 import FilterFactory from '@/models/FilterFactory';
-
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchFilters from './SearchFilters';
@@ -119,6 +127,24 @@ export default {
     selectedItems: [],
   }),
   computed: {
+    isFront: {
+      get() {
+        return this.$store.state.search.search.isFront;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_FILTER_IS_FRONT', val);
+        this.search(1);
+      },
+    },
+    hasTextContents: {
+      get() {
+        return this.$store.state.search.search.hasTextContents;
+      },
+      set(val) {
+        this.$store.commit('search/UPDATE_FILTER_HAS_TEXT_CONTENTS', val);
+        this.search(1);
+      },
+    },
     groupByOptions: {
       get() {
         return [
@@ -358,6 +384,8 @@ div.overlay-region{
     "label_display": "Display As",
     "label_order": "Order By",
     "label_group": "Group By",
+    "label_isFront": "Frontpage",
+    "label_hasTextContents": "Contains Text",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
     "sort_date": "Date",
@@ -380,6 +408,8 @@ div.overlay-region{
     "label_display": "Toon Als",
     "label_order": "Sorteer Op",
     "label_group": "Rangschikken Per",
+    "label_isFront": "Voorpagina",
+    "label_hasTextContents": "Bevat tekst",
     "sort_asc": "Oplopend",
     "sort_desc": "Aflopend",
     "sort_date": "Datum",
