@@ -1,56 +1,61 @@
 <template lang="html">
-  <div class="collection-add-to">
-    <div class="header bg-light p-2 border-bottom">
-      <div class="input-group w-100">
-        <input type="text"
-          class="form-control"
-          v-bind:placeholder="$t('placeholder')"
-          v-on:input="onInput"
-          v-on:keyup.enter="addCollection(inputString.trim())"
-          v-model="inputString"
-          />
-          <div class="input-group-append">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              class="float-right"
-              v-bind:disabled="isDisabled == 0"
-              v-on:click="addCollection(inputString.trim())"
-              >
-              {{$t('create_new')}}
-            </b-button>
-          </div>
-      </div>
-    </div>
-    <b-container fluid class="inputList p-0">
-      <ul>
-        <li v-for="collection in filteredCollections" class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            v-bind:id="collection.uid"
-            v-bind:checked="isActive(collection)"
+  <b-dropdown
+      size="sm" variant="outline-secondary"
+      v-on:show="fetch"
+      v-bind:text="text">
+    <div class="collection-add-to">
+      <div class="header bg-light p-2 border-bottom">
+        <div class="input-group w-100">
+          <input type="text"
+            class="form-control"
+            v-bind:placeholder="$t('placeholder')"
+            v-on:input="onInput"
+            v-on:keyup.enter="addCollection(inputString.trim())"
+            v-model="inputString"
             />
-          <span class="checkmark dripicons-checkmark" />
-          <label
-            class="form-check-label py-2 pr-2"
-            v-on:click="toggleActive(collection, $event)"
-            for="collection.uid">
-            <span>{{collection.name}}</span>
+            <div class="input-group-append">
+              <b-button
+                size="sm"
+                variant="outline-primary"
+                class="float-right"
+                v-bind:disabled="isDisabled == 0"
+                v-on:click="addCollection(inputString.trim())"
+                >
+                {{$t('create_new')}}
+              </b-button>
+            </div>
+        </div>
+      </div>
+      <b-container fluid class="inputList p-0">
+        <ul>
+          <li v-for="collection in filteredCollections" class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              v-bind:id="collection.uid"
+              v-bind:checked="isActive(collection)"
+              />
+            <span class="checkmark dripicons-checkmark" />
+            <label
+              class="form-check-label py-2 pr-2"
+              v-on:click="toggleActive(collection, $event)"
+              for="collection.uid">
+              <span>{{collection.name}}</span>
 
-            <!-- <span class="description text-muted small-caps">
-              &mdash;
-              {{collection.countEntities}} {{$t('items')}}
-            </span> -->
-            &middot;
-            <span
-              class="description text-muted small-caps"
-              :title="$t('last_edited')">{{$d(collection.lastEditedDate, 'compact')}}</span>
-          </label>
-        </li>
-      </ul>
-    </b-container>
-  </div>
+              <!-- <span class="description text-muted small-caps">
+                &mdash;
+                {{collection.countEntities}} {{$t('items')}}
+              </span> -->
+              &middot;
+              <span
+                class="description text-muted small-caps"
+                :title="$t('last_edited')">{{$d(collection.lastEditedDate, 'compact')}}</span>
+            </label>
+          </li>
+        </ul>
+      </b-container>
+    </div>
+  </b-dropdown>
 </template>
 
 <script>
@@ -61,11 +66,12 @@ export default {
     inputString: '',
   }),
   model: {
-    prop: ['item', 'items'],
+    prop: ['item', 'items', 'text'],
   },
   props: {
     item: Object,
     items: Array,
+    text: String,
   },
   computed: {
     filteredCollections() {
@@ -145,15 +151,11 @@ export default {
         this.fetch();
       });
     },
-    toggle() {
-      this.show = !this.show;
-    },
     isLoggedIn() {
       return this.$store.state.user.userData;
     },
   },
   mounted() {
-    this.fetch();
   },
 };
 </script>
