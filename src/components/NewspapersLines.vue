@@ -15,10 +15,11 @@
     </tooltip>
     <div class='cursor' :style="{
       transform: `translate(${point.x}px, 0)`,
+      opacity: tooltip.isActive ? 1 : 0,
     }"></div>
-    <div class="point" :style="{
+    <!-- <div class="point" :style="{
       transform: `translate(${point.x}px, ${point.y}px)`,
-    }"></div>
+    }"></div> -->
     <div v-for="newspaper in newspapers" :key="newspaper.uid" class="n"
       v-on:click="onClick(newspaper)"
       v-on:mouseover="onMouseover(newspaper, $event)"

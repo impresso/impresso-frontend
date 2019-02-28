@@ -47,7 +47,7 @@
           <template slot="name" slot-scope="row" class="small-caps">{{row.item.name}}</template>
           <template slot="property" slot-scope="row">
             <div v-if="row.item.isUrl">
-              <a href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
+              <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
             </div>
             <div v-else class="bold">
               {{row.item.value}}
@@ -174,13 +174,11 @@ export default {
       immediate: true,
       async handler() {
         this.issues = await this.getIssues();
-        console.log('newpspaperDetailpage', this.issues);
         this.newspaper = await this.getNewspaper();
       },
     },
     orderBy: {
-      async handler(property) {
-        console.log('change orderBy', property);
+      async handler() {
         this.issues = await this.getIssues();
       },
     },

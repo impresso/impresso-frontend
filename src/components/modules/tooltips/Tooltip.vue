@@ -75,14 +75,14 @@ export default {
     opacity: 1;
   }
 }
-.tooltip::after {
-  content: " ";
-  position: absolute;
-  top: 100%; /* At the bottom of the tooltip */
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: black transparent transparent transparent;
-}
+// .tooltip::after {
+//   content: " ";
+//   position: absolute;
+//   top: 100%; /* At the bottom of the tooltip */
+//   left: 50%;
+//   margin-left: -5px;
+//   border-width: 10px;
+//   border-style: solid;
+//   border-color: black transparent transparent transparent;
+// }
 </style>

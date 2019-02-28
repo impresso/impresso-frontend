@@ -7,6 +7,15 @@
           <h3 class='mb-1'>{{ $t('list_of_newspapers') }}</h3>
         </section>
       </b-navbar>
+      <!-- <b-navbar  type="light" variant="light" class="border-bottom">
+        <b-input-group class="mini" :prepend="$t('from')">
+          <b-form-input  v-model='start' />
+        </b-input-group>
+
+        <b-input-group class="mini" prepend="to">
+          <b-form-input v-model='end' />
+        </b-input-group>
+      </b-navbar> -->
     </div>
 
     <!--  newspqper lifespans -->
@@ -15,7 +24,7 @@
     <newspapers-lines class="mx-5" v-model="newspapers"/>
 
 
-    <pre>{{ pagesTimeline }}</pre>
+
   </i-layout-section>
 </template>
 <script>
@@ -27,6 +36,8 @@ export default {
       name: '',
       values: [],
     },
+    start: 1870,
+    end: 2018,
   }),
   computed: {
     newspapers() {
@@ -44,13 +55,28 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 
   #d3-small-multiples{
     background-color: darkgrey;
   }
 
+  .mini {
+    width: 120px;
+  }
 
+  input.form-control{
+    width: 50px;
+  }
+
+  .input-group-text{
+    background: transparent;
+    border: 0px solid transparent;
+    font-variant: small-caps;
+    font-size: 0.9rem;
+    width: 50px;
+    text-align: right;
+  }
 
 </style>
 
