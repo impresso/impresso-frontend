@@ -47,7 +47,7 @@
           <template slot="name" slot-scope="row" class="small-caps">{{row.item.name}}</template>
           <template slot="property" slot-scope="row">
             <div v-if="row.item.isUrl">
-              <a href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
+              <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
             </div>
             <div v-else class="bold">
               {{row.item.value}}
