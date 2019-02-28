@@ -4,10 +4,7 @@
       <i-layout-section>
         <h5>{{article.title}}</h5>
         <div class="my-2" />
-        <b-dropdown size="sm" variant="outline-primary"
-          v-bind:text="$t('add_to_collection')">
-          <collection-add-to :item="article" />
-        </b-dropdown>
+        <collection-add-to :item="article" :text="$t('add_to_collection')" />
         <b-badge
           v-for="(collection, i) in article.collections"
           v-bind:key="i"
