@@ -141,6 +141,17 @@ export default {
         context.commit('ADD_FILTER', filter);
       }
     },
+    CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
+      return new Promise((resolve) => {
+        services.search.create({}, {
+          query: {
+            collection_uid: collectionUid,
+            group_by: 'articles',
+            filters: context.getters.getSearch.getFilters(),
+          },
+        }).then(res => resolve(res));
+      });
+    },
     SEARCH(context) {
       const search = new Promise(
         (resolve, reject) => {
