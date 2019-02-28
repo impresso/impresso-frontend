@@ -50,9 +50,10 @@
         <span class="small-caps">
           {{ $tc('items_selected', selectedItems.length) }}
         </span>
-        <b-dropdown size="sm" variant="outline-secondary" :text="$tc('add_n_to_collection', selectedItems.length)" class="bg-white float-right">
-          <collection-add-to :items="selectedItems" class="addbulk" />
-        </b-dropdown>
+        <collection-add-to
+          :items="selectedItems"
+          :text="$tc('add_n_to_collection', selectedItems.length)"
+          class="addbulk float-right bg-light" />
       </div>
     </b-navbar>
 
@@ -300,9 +301,6 @@ export default {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
     this.search();
-    if (this.isLoggedIn() && !this.collections) {
-      this.$store.dispatch('collections/LOAD_COLLECTIONS');
-    }
   },
   beforeDestroy() {
     // TODO: need to use the url to reflect the search, this way we can use back
