@@ -141,8 +141,7 @@ export default {
           query: {
             collection_uid: collectionUid,
             group_by: 'articles',
-            filters: context.getters.getSearch.filters.map(
-              filter => filter.getQuery()).filter(i => i),
+            filters: context.getters.getSearch.filters.getFilters(),
           },
         }).then(res => resolve(res));
       });
