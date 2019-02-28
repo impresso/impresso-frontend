@@ -7,6 +7,7 @@
     </div>
     <div class="d-flex">
       <div>
+        {{ selectedItems }}
         <h2 v-if="article.title" class="mb-0">
           <a href="#" v-on:click.prevent="click" v-html="article.title" />
         </h2>
@@ -57,6 +58,7 @@
         <b-form-checkbox
           class="mr-0 select-item"
           v-bind:value="article.uid"
+          v-bind:checked="isChecked()"
           v-on:change="onChange">
         </b-form-checkbox>
       </div>
@@ -120,6 +122,13 @@ export default {
     },
     isLoggedIn() {
       return this.$store.state.user.userData;
+    },
+    isChecked() {
+      // console.log(this.selectedItems);
+      // if (this.selectedItems.findIndex(c => (c.uid === this.article.uid)) !== -1) {
+      //   return true;
+      // }
+      return false;
     },
   },
   components: {
