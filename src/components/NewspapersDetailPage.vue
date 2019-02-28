@@ -174,13 +174,11 @@ export default {
       immediate: true,
       async handler() {
         this.issues = await this.getIssues();
-        console.log('newpspaperDetailpage', this.issues);
         this.newspaper = await this.getNewspaper();
       },
     },
     orderBy: {
-      async handler(property) {
-        console.log('change orderBy', property);
+      async handler() {
         this.issues = await this.getIssues();
       },
     },
