@@ -1,10 +1,12 @@
 <template lang="html">
   <div class="tooltip" v-bind:class='{active: tooltip.isActive}' v-bind:style="style">
     <div v-if='tooltip.item' class="tooltip-inner p-3 m-2">
-      <label>{{ $t('topic')}} &mdash; {{tooltip.item.model}} / {{tooltip.item.degree}}</label>
+      <label>{{ $t('topic')}} &mdash; {{tooltip.item.model}}</label>
       <div>
         <span class='badge'> {{tooltip.item.language}}</span>
-        <b class='sans-serif'>{{excerpt}} ...</b></div>
+        <b class='sans-serif'>{{excerpt}} ...</b>
+        <router-link :to="{ name: 'topic', params: { topic_uid: tooltip.item.uid} }" class="mt-3 btn-block btn btn-outline-primary btn-sm">related articles</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -43,6 +45,16 @@ export default {
   top: 0;
   pointer-events: none;
 
+  a.btn{
+    border-color: white;
+    pointer-events: auto;
+    color: white;
+
+    &:hover{
+      background-color: white;
+      color: black;
+    }
+  }
   .tooltip-inner{
     background: black;
     color: white;
