@@ -1,8 +1,8 @@
 <template lang="html">
   <i-layout id="TopicsPage">
-    <i-layout-section width="400px" class="border-right border-tertiary">
+    <i-layout-section width="300px" class="border-right">
       <div slot="header">
-        <div class='p-3 border-bottom'>
+        <div class='p-3 border-bottom bg-light'>
           <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
           <label>{{ $t('select model') }}</label>
           <i-dropdown v-model="topicModel" v-bind:options="topicModelOptions" size="sm" variant="outline-primary"></i-dropdown>
@@ -11,12 +11,13 @@
           <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
         </div>
       </div>
-      <div class="p-3">
-        <div class='topic border-bottom py-2' v-for="topic in topics">
+      <div>
+        <div class='topic p-2 border-bottom' v-for="topic in topics">
           <div class='badge small-caps'>{{topic.language}}</div>
-          <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}">{{topic.getHtmlExcerpt()}}</router-link>
+          <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}" v-html="topic.getHtmlExcerpt({ token: q })" />
           <div class='small-caps'>{{topic.model}}</div>
         </div>
+
       </div>
       <div slot="footer">
         <pagination
@@ -129,10 +130,10 @@ export default {
   },
   watch: {
     q: {
-      async handler() {
+      async handler(val) {
         await this.getTopics({
           page: 1,
-          q: this.q,
+          q: val,
         });
       },
     },
@@ -193,6 +194,15 @@ export default {
     color: darkgrey;
   }
   box-shadow: 0 1px black;
+}
+.badge {
+  background: #e0e0e0;
+  line-height: .5rem;
+  padding-bottom: .4rem;
+  display: inline-block;
+}
+a >>> .h{
+  background: red;
 }
 </style>
 

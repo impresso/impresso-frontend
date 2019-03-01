@@ -4,18 +4,14 @@
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
           <span class="label small-caps">{{$t('summary')}}</span>
-          <h3 class='mb-1'>{{ $t('topics_cooccurrence_graph') }}</h3>
+          <h3 class='mb-1' v-html="$t('topics_cooccurrence_graph', {
+            nodes: $n(this.totalNodes),
+            links: $n(this.totalLinks),
+          })" />
         </section>
       </b-navbar>
       <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-        <b-navbar-nav class="px-1">
-          <li class='p-2 border-right'>
-            <b>{{$n(this.totalNodes)}}</b>
-            <label>{{$t('topics')}}</label>
-            <b>{{$n(this.totalLinks)}}</b>
-            <label>{{$t('connections')}}</label>
-          </li>
-        </b-navbar-nav>
+
         <b-navbar-nav class="px-1 ">
           <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
             <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
@@ -33,13 +29,13 @@
         </b-navbar-nav>
       </b-navbar>
     </div>
-    <div class="d3-graph-wrapper small-caps">
-      <div id="d3-graph" class="border-bottom" ></div>
+    <div class="d3-graph-wrapper small-caps bg-light">
+      <div id="d3-graph"></div>
       <tooltip v-model="tooltip" />
     </div>
 
 <div slot="footer">
-    <b-navbar>
+    <b-navbar class="bg-light">
       <b-navbar-nav>
       <li>
         <label>{{$t('legend')}}</label>
@@ -159,6 +155,15 @@ export default {
           isActive: true,
         };
       })
+      .on('node.click', (d) => {
+        console.log('node.click', d);
+        this.tooltip = {
+          x: d.x,
+          y: d.y,
+          item: d,
+          isActive: true,
+        };
+      })
       .on('dimension.updated', (dimension) => {
         console.log('@dimension.updated', dimension);
         if (this.legend[dimension.name]) {
@@ -247,7 +252,7 @@ export default {
   height: 100%;
 
   line {
-    stroke: #f0f0f0;
+    stroke: #e0e0e0;
   }
   text{
     pointer-events: none;
@@ -263,14 +268,20 @@ export default {
       display: block;
     }
   }
-}
 
+  .nodes > g.fix text{
+    display: block;
+  }
+}
+span.number {
+  font-family: "questa-sans", sans-serif;
+}
 </style>
 <i18n>
 {
   "en": {
     "summary": "Explore the list of topics",
-    "topics_cooccurrence_graph": "Visualise the topics and how they co-occur",
+    "topics_cooccurrence_graph": "Visualise <span class=\"number\">{nodes}</span> topics and their <span class=\"number\">{links}</span> co-occurrences",
     "color by": "colored by",
     "topic model": "{item.name}"
   }

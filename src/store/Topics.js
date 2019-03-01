@@ -31,6 +31,8 @@ export default {
           const nodes = [];
 
           // console.log('link type', linkType, results.data.length);
+          const limit = 25;
+          const minWordsIncommon = 2;
 
           for (let i = 0, l = results.data.length; i < l; i += 1) {
             const t = new Topic(results.data[i]);
@@ -40,10 +42,10 @@ export default {
 
             for (let j = i + 1; j < l; j += 1) {
               const common = results.data[i].words
-                .filter((wi, k) => k < 6 && results.data[j].words
-                  .filter((wj, kj) => kj < 6)
+                .filter((wi, k) => k < limit && results.data[j].words
+                  .filter((wj, kj) => kj < limit)
                   .find(wj => wi.w === wj.w));
-              if (common.length > 1) {
+              if (common.length > minWordsIncommon - 1) {
                 // console.log('combine', i, j, common);
                 links.push({
                   id: [i, j].join('-'),
@@ -84,8 +86,8 @@ export default {
         if (filters.length) {
           query.filters = filters;
         }
-        if (q) {
-          query.q = q;
+        if (q && q.length > 1) {
+          query.q = `${q.split('*').join('')}*`;
         }
         if (facets) {
           query.facets = facets;
@@ -97,7 +99,9 @@ export default {
         }).then((res) => {
           resolve({
             ...res,
-            data: res.data.map(d => new Topic(d)),
+            data: res.data.map(d => new Topic(d, {
+              highlight: query.q ? q.split('*').join('') : '',
+            })),
           });
         });
       });
