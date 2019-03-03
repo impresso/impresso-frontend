@@ -9,6 +9,7 @@ import search from './Search';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
 import newspapers from './Newspapers';
+import articles from './Articles';
 import topics from './Topics';
 
 Vue.use(Vuex);
@@ -18,6 +19,7 @@ let processings = 0; // counter for the amount of async processes
 
 export default new Vuex.Store({
   modules: {
+    articles,
     settings,
     search,
     autocomplete,
