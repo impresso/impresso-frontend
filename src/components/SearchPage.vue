@@ -67,10 +67,10 @@
     </b-navbar>
 
     <b-navbar class="d-flex p-0 border-bottom bg-light">
-      <b-navbar-nav class="flex-grow-1 px-3 py-2 border-right">
+      <b-navbar-nav class="flex-fill px-3 py-2 border-right">
           <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
       </b-navbar-nav>
-      <b-navbar-nav class="flex-shrink-1 pl-3 pr-3">
+      <b-navbar-nav class="ml-auto p-3">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
           <b-dropdown-item
             v-b-modal.nameCollection>
