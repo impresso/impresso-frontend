@@ -15,7 +15,7 @@
       </div>
       <b-container fluid class="inputList p-0 bg-light">
         <ul>
-          <li v-for="collection in filteredCollections">
+          <li v-for="(collection, index) in filteredCollections">
             <label
               class="m-0 px-3 py-2 border-bottom"
               v-on:click="select(collection, $event)"
