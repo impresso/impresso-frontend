@@ -2,7 +2,13 @@
   <div id="IssueViewerText" class="container-fluid py-3">
     <i-layout>
       <i-layout-section>
-        <h5>{{article.title}}</h5>
+        <h3>{{article.title}}</h3>
+        <div>
+          <router-link :to="{ name: 'newspaper', params: {newspaper_uid: article.newspaper.uid} }">
+            {{ article.newspaper.name}}
+          </router-link> &mdash; {{ articlePages }}
+        </div>
+
         <div class="my-2" />
         <collection-add-to :item="article" :text="$t('add_to_collection')" />
         <b-badge
@@ -17,12 +23,20 @@
           </router-link>
           <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
         </b-badge>
+        <ellipsis class="my-3">
+          <span class="label small-caps">{{ $t("topics")}}</span>:
+          <span v-for="(rel, i) in article.topics" v-bind:key="i">
+            <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}">
+              {{ rel.topic.getHtmlExcerpt() }} ({{ $n(rel.relevance * 100) }} %)
+            </router-link> &mdash;
+          </span>
+        </ellipsis>
         <div
           class="row mt-3 mb-3"
           v-for="(region, i) in article.regions"
           v-bind:key="i">
           <div class="col col-sm-7">
-            <div class='region serif'>
+            <div class='region p-2'>
               <p v-for="contents in region.g" >
                 <span v-html="contents"></span>
               </p>
@@ -61,10 +75,10 @@
 </template>
 
 <script>
-import * as services from '@/services';
 import Article from '@/models/Article';
 import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
+import Ellipsis from './Ellipsis';
 
 export default {
   data() {
@@ -72,10 +86,22 @@ export default {
       article: new Article(),
     };
   },
+  computed: {
+    articlePages() {
+      if (!this.article.pages || !this.article.pages.length) {
+        return this.$t('no_page_info');
+      }
+      if (this.article.pages.length === 1) {
+        return this.$t('page', { num: this.article.pages[0].num });
+      }
+      return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') });
+    },
+  },
   props: ['article_uid'],
   components: {
     BaseTitleBar,
     CollectionAddTo,
+    Ellipsis,
   },
   methods: {
     onRemoveCollection(collection, item) {
@@ -94,17 +120,8 @@ export default {
   watch: {
     article_uid: {
       immediate: true,
-      handler(val) {
-        this.article = new Article();
-        services.articles.get(val).then((res) => {
-          this.article = new Article({
-            ...res,
-            regions: res.regions.map(region => ({
-              ...region,
-              iiifFragment: region.iiif_fragment,
-            })),
-          });
-        });
+      async handler(articleUid) {
+        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
       },
     },
   },
@@ -134,6 +151,8 @@ export default {
 <i18n>
 {
   "en": {
+    "page": "pag. {num}",
+    "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ..."
   }
 }
