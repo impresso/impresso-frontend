@@ -257,8 +257,10 @@ export default {
     remove(collection) {
       const sure = confirm(this.$t('confirm_delete', [collection.name]));
       if (sure) {
-        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
-          this.fetch();
+        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then((res) => {
+          const idx = this.collections.findIndex(c => c.uid === res.uid);
+          this.$delete(this.collections, idx);
+          this.$store.dispatch('collections/LOAD_COLLECTIONS');
         });
       }
     },
