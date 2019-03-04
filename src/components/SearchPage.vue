@@ -73,7 +73,7 @@
       <b-navbar-nav class="flex-shrink-1 pl-3 pr-3">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
           <b-dropdown-item
-            v-on:click="createQueryCollection()">
+            v-b-modal.nameCollection>
             <span class="dripicons-archive pr-3"></span>
             {{$t("query_add_to_collection")}}
           </b-dropdown-item>
@@ -81,6 +81,26 @@
         </b-dropdown>
       </b-navbar-nav>
     </b-navbar>
+    <b-modal
+      id="nameCollection"
+      v-bind:title="$t('query_add_to_collection')"
+      v-on:shown="focusName()"
+      v-on:ok="createQueryCollection(name, description)">
+      <form v-on:submit.stop.prevent="handleSubmit">
+        <b-form-input
+          v-on:focus="select(this)"
+          type="text"
+          v-bind:placeholder="$t('Collection_Name')"
+          v-model="name"
+          ref="name" />
+        <textarea
+          type="text" name="collectionDesc" class="form-control mt-3"
+          v-bind:placeholder="$t('Collection_Description')"
+          ref="description"
+          v-model="description" />
+      </form>
+    </b-modal>
+
 
     <div class="p-1">
       <b-container fluid>
@@ -127,7 +147,7 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
 
-const uuid = require('uuid');
+// const uuid = require('uuid');
 
 export default {
   data: () => ({
@@ -303,17 +323,16 @@ export default {
         },
       });
     },
-    createQueryCollection() {
-      const collectionName = uuid.v4();
+    createQueryCollection(name, description) {
       this.$store.dispatch('collections/ADD_COLLECTION', {
-        name: collectionName,
-        description: 'Collection generated from Search Query',
+        name,
+        description,
       }).then((collection) => {
-        // console.log(collection);
-        this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid).then((res) => {
-          console.log(res);
-        });
+        this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid);
       });
+    },
+    focusName() {
+      this.$refs.name.focus();
     },
     search(page) {
       if (page !== undefined) {
@@ -420,6 +439,8 @@ div.overlay-region{
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
+    "Collection_Name" : "Collection Name",
+    "Collection_Description" : "Collection Description",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV"
   },
