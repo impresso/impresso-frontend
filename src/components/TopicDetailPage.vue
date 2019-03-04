@@ -42,30 +42,26 @@
 
     <div class='m-3'>
       <div class="article border-bottom" v-for="(article, idx) in articles">
-        {{article.newspaper.name}}
-        <h4>{{article.title}}</h4>
-        <blockquote>{{article.excerpt}}</blockquote>
-      </div>
-    </div>
-    <div slot="footer" class="border-bottom">
-      <div>
-        <span class='number'>{{ $n(total) }}</span>
-        <span class='text-serif'>{{$t('articles in total')}}</span>
+        <search-results-list-item v-model="articles[idx]" />
       </div>
 
+    </div>
+    <div class="fixed-pagination-footer p-1 mb-2 m-0">
       <pagination
         v-bind:perPage="limit"
         v-bind:currentPage="page"
         v-bind:totalRows="total"
         v-on:change="onInputPagination"
-         />
+        v-bind:showDescription="false" />
     </div>
+
   </i-layout-section>
 </template>
 
 <script>
 import Topic from '@/models/Topic';
 import Pagination from './modules/Pagination';
+import SearchResultsListItem from './modules/SearchResultsListItem';
 import Ellipsis from './modules/Ellipsis';
 
 export default {
@@ -146,6 +142,7 @@ export default {
   components: {
     Pagination,
     Ellipsis,
+    SearchResultsListItem,
   },
 };
 </script>

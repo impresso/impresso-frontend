@@ -201,9 +201,6 @@ export default {
   padding-bottom: .4rem;
   display: inline-block;
 }
-a >>> .h{
-  background: red;
-}
 </style>
 
 <i18n>

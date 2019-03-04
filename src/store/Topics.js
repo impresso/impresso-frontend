@@ -111,12 +111,14 @@ export default {
       page,
       limit,
       filters = [],
+      orderBy = '-relevance',
     } = {}) {
       return new Promise((resolve) => {
         const query = {
           group_by: 'articles',
           page,
           limit,
+          order_by: orderBy,
           facets: ['topic', 'newspaper'],
           filters: [
             {
