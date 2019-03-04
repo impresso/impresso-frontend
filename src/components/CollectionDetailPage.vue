@@ -25,11 +25,15 @@
               v-on:click="save(collection)">{{ $t('edit_collection') }}
             </b-button>
             <b-button variant="outline-danger" size="sm" class="form-control my-3"
-              v-on:click="remove(collection)">{{ $t('delete_collection') }}
+              v-b-modal.confirmDelete>{{ $t('delete_collection') }}
             </b-button>
           </div>
         </b-dropdown>
       </div>
+
+      <b-modal id="confirmDelete" v-on:ok="remove(collection)">
+        {{this.$t('confirm_delete', [collection.name])}}
+      </b-modal>
 
     </div>
 
@@ -255,12 +259,9 @@ export default {
       });
     },
     remove(collection) {
-      const sure = confirm(this.$t('confirm_delete', [collection.name]));
-      if (sure) {
-          this.$store.dispatch('collections/LOAD_COLLECTIONS');
-        });
-      }
       this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
+        this.$store.dispatch('collections/LOAD_COLLECTIONS');
+      });
     },
     save(collection) {
       if (collection.uid) {
