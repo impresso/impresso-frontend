@@ -14,7 +14,7 @@
 
       <div class="p-3 ml-auto text-right border-left">
         <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
-          <div class="modal-edit p-3 background-light">
+          <div class="modal-edit pt-2 px-3 background-light">
             <label for="collectionName">Name</label>
             <input type="text" name="collectionName" class="form-control mb-3"
               v-model="collection.name">
@@ -25,11 +25,15 @@
               v-on:click="save(collection)">{{ $t('edit_collection') }}
             </b-button>
             <b-button variant="outline-danger" size="sm" class="form-control my-3"
-              v-on:click="remove(collection)">{{ $t('delete_collection') }}
+              v-b-modal.confirmDelete>{{ $t('delete_collection') }}
             </b-button>
           </div>
         </b-dropdown>
       </div>
+
+      <b-modal id="confirmDelete" v-on:ok="remove(collection)">
+        {{this.$t('confirm_delete', [collection.name])}}
+      </b-modal>
 
     </div>
 
@@ -129,6 +133,11 @@ export default {
     Pagination,
   },
   computed: {
+    collections: {
+      get() {
+        return this.$store.getters['collections/collections'];
+      },
+    },
     displayStyle: {
       get() {
         return this.$store.state.search.displayStyle;
@@ -250,12 +259,9 @@ export default {
       });
     },
     remove(collection) {
-      const sure = confirm(this.$t('confirm_delete', [collection.name]));
-      if (sure) {
-        this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
-          this.fetch();
-        });
-      }
+      this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
+        this.$store.dispatch('collections/LOAD_COLLECTIONS');
+      });
     },
     save(collection) {
       if (collection.uid) {
@@ -263,8 +269,10 @@ export default {
           uid: collection.uid,
           name: collection.name,
           description: collection.description,
-        }).then(() => {
-          this.fetch();
+        }).then((res) => {
+          const idx = this.collections.findIndex(c => c.uid === res.uid);
+          this.collections[idx].name = res.name;
+          this.collections[idx].description = res.description;
         });
       } else {
         this.$store.dispatch('collections/ADD_COLLECTION', {
