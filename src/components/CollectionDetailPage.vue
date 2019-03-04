@@ -129,6 +129,11 @@ export default {
     Pagination,
   },
   computed: {
+    collections: {
+      get() {
+        return this.$store.getters['collections/collections'];
+      },
+    },
     displayStyle: {
       get() {
         return this.$store.state.search.displayStyle;
@@ -263,8 +268,10 @@ export default {
           uid: collection.uid,
           name: collection.name,
           description: collection.description,
-        }).then(() => {
-          this.fetch();
+        }).then((res) => {
+          const idx = this.collections.findIndex(c => c.uid === res.uid);
+          this.collections[idx].name = res.name;
+          this.collections[idx].description = res.description;
         });
       } else {
         this.$store.dispatch('collections/ADD_COLLECTION', {
