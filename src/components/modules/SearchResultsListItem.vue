@@ -54,7 +54,16 @@
             <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
           </b-badge>
         </div>
-        <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
+        <router-link :to="{ name: 'article', params: {
+          issue_uid: article.issue.uid,
+          page_uid: article.pages[0].uid,
+          article_uid: article.uid,
+        } }" v-html="article.title">
+          <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">
+          {{$t('view')}}
+          </b-button>
+        </router-link>
+
         <collection-add-to
           v-if="isLoggedIn()"
           v-bind:item="article"
