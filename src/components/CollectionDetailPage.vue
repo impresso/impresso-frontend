@@ -14,7 +14,7 @@
 
       <div class="p-3 ml-auto text-right border-left">
         <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
-          <div class="modal-edit p-3 background-light">
+          <div class="modal-edit pt-2 px-3 background-light">
             <label for="collectionName">Name</label>
             <input type="text" name="collectionName" class="form-control mb-3"
               v-model="collection.name">
