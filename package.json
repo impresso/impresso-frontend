@@ -23,6 +23,7 @@
     "dragscroll": "0.0.8",
     "flatpickr": "^4.5.2",
     "markdown-it": "^8.4.2",
+    "markdown-it-decorate": "^1.2.2",
     "openseadragon": "^2.4.0",
     "svg-overlay": "github:openseadragon/svg-overlay",
     "uuid": "^3.3.2",

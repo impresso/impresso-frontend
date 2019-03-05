@@ -4,6 +4,7 @@ export default {
     languages: {
       de: 'German',
       fr: 'French',
+      en: 'English',
     },
   },
   nl: {
@@ -11,6 +12,7 @@ export default {
     languages: {
       de: 'Duits',
       fr: 'Frans',
+      en: 'Engels',
     },
   },
   fr: {
