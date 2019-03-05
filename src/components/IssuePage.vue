@@ -289,7 +289,7 @@ export default {
           if (pageIndex >= 0) {
             this.issue.pages[pageIndex].articles = page.articles;
           } else {
-            console.error('no pages for this issue');
+            window.app.$store.state.error_message = 'Warning: No pages found in this issue';
           }
 
           this.handler.$emit('dispatch', (viewer) => {
