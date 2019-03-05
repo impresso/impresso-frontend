@@ -11,7 +11,7 @@
       v-bind:disabled="disabled"
       size="sm"
     />
-    <div slot="controls">
+    <div slot="settings">
       <p><em>ToDo:</em> RegEx filter Settings</p>
     </div>
   </filter-wrapper>
