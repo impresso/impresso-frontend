@@ -2,6 +2,7 @@
   <filter-wrapper
     v-bind:id="filter.key"
     v-bind:title="filter.query"
+    icon="rocket"
     v-on:remove="remove">
     <b-input
       type="text"
