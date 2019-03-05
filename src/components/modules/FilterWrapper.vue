@@ -40,7 +40,7 @@ export default {
     vertical-align: sub;
   }
   .filter-text {
-    max-width: 312px;
+    max-width: 296px;
     display: inline-block;
     vertical-align: bottom;
     text-overflow: ellipsis;
