@@ -52,6 +52,9 @@
             <div v-if="row.item.isUrl">
               <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
             </div>
+            <div v-else-if="row.item.name === 'logoFilename'">
+              <img :src="`https://impresso-project.ch/assets/images/${row.item.value}`" />
+            </div>
             <div v-else class="bold">
               {{row.item.value}}
             </div>
