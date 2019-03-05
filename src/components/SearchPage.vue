@@ -84,20 +84,20 @@
     <b-modal
       id="nameCollection"
       v-bind:title="$t('query_add_to_collection')"
-      v-on:shown="focusName()"
-      v-on:ok="createQueryCollection(name, description)">
-      <form v-on:submit.stop.prevent="handleSubmit">
+      v-on:shown="nameCollectionOnShown()"
+      v-bind:ok-disabled="nameCollectionOkDisabled"
+      v-on:ok="createQueryCollection()">
+      <form v-on:submit.stop.prevent="createQueryCollection()">
         <b-form-input
-          v-on:focus="select(this)"
+          v-on:input="nameCollectionOnInput"
           type="text"
           v-bind:placeholder="$t('Collection_Name')"
-          v-model="name"
-          ref="name" />
+          ref="inputName"
+          v-model="inputName" />
         <textarea
           type="text" name="collectionDesc" class="form-control mt-3"
           v-bind:placeholder="$t('Collection_Description')"
-          ref="description"
-          v-model="description" />
+          v-model="inputDescription" />
       </form>
     </b-modal>
 
@@ -152,6 +152,9 @@ import CollectionAddTo from './modules/CollectionAddTo';
 export default {
   data: () => ({
     selectedItems: [],
+    inputName: '',
+    inputDescription: '',
+    nameCollectionOkDisabled: true,
   }),
   computed: {
     isFront: {
@@ -323,16 +326,23 @@ export default {
         },
       });
     },
-    createQueryCollection(name, description) {
-      this.$store.dispatch('collections/ADD_COLLECTION', {
-        name,
-        description,
-      }).then((collection) => {
-        this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid);
-      });
+    createQueryCollection() {
+      if (!this.nameCollectionOkDisabled) {
+        this.$store.dispatch('collections/ADD_COLLECTION', {
+          name: this.inputName,
+          description: this.inputDescription,
+        }).then((collection) => {
+          this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid);
+        });
+      }
     },
-    focusName() {
-      this.$refs.name.focus();
+    nameCollectionOnShown() {
+      this.inputName = '';
+      this.$refs.inputName.focus();
+    },
+    nameCollectionOnInput() {
+      this.inputName.trim();
+      this.nameCollectionOkDisabled = (this.inputName.length < 3 || this.inputName.length > 50);
     },
     search(page) {
       if (page !== undefined) {
