@@ -289,7 +289,7 @@ export default {
           if (pageIndex >= 0) {
             this.issue.pages[pageIndex].articles = page.articles;
           } else {
-            console.error('Matteo, check the data please: no pages for this issue');
+            console.error('no pages for this issue');
           }
 
           this.handler.$emit('dispatch', (viewer) => {
