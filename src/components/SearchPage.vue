@@ -67,13 +67,13 @@
     </b-navbar>
 
     <b-navbar class="d-flex p-0 border-bottom bg-light">
-      <b-navbar-nav class="flex-grow-1 px-3 py-2 border-right">
+      <b-navbar-nav class="flex-fill px-3 py-2 border-right">
           <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
       </b-navbar-nav>
-      <b-navbar-nav class="flex-shrink-1 pl-3 pr-3">
+      <b-navbar-nav class="ml-auto p-3">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
           <b-dropdown-item
-            v-on:click="createQueryCollection()">
+            v-b-modal.nameCollection>
             <span class="dripicons-archive pr-3"></span>
             {{$t("query_add_to_collection")}}
           </b-dropdown-item>
@@ -81,6 +81,26 @@
         </b-dropdown>
       </b-navbar-nav>
     </b-navbar>
+    <b-modal
+      id="nameCollection"
+      v-bind:title="$t('query_add_to_collection')"
+      v-on:shown="nameCollectionOnShown()"
+      v-bind:ok-disabled="nameCollectionOkDisabled"
+      v-on:ok="createQueryCollection()">
+      <form v-on:submit.stop.prevent="createQueryCollection()">
+        <b-form-input
+          v-on:input="nameCollectionOnInput"
+          type="text"
+          v-bind:placeholder="$t('Collection_Name')"
+          ref="inputName"
+          v-model="inputName" />
+        <textarea
+          type="text" name="collectionDesc" class="form-control mt-3"
+          v-bind:placeholder="$t('Collection_Description')"
+          v-model="inputDescription" />
+      </form>
+    </b-modal>
+
 
     <div class="p-1">
       <b-container fluid>
@@ -127,11 +147,14 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
 
-const uuid = require('uuid');
+// const uuid = require('uuid');
 
 export default {
   data: () => ({
     selectedItems: [],
+    inputName: '',
+    inputDescription: '',
+    nameCollectionOkDisabled: true,
   }),
   computed: {
     isFront: {
@@ -304,16 +327,22 @@ export default {
       });
     },
     createQueryCollection() {
-      const collectionName = uuid.v4();
-      this.$store.dispatch('collections/ADD_COLLECTION', {
-        name: collectionName,
-        description: 'Collection generated from Search Query',
-      }).then((collection) => {
-        // console.log(collection);
-        this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid).then((res) => {
-          console.log(res);
+      if (!this.nameCollectionOkDisabled) {
+        this.$store.dispatch('collections/ADD_COLLECTION', {
+          name: this.inputName,
+          description: this.inputDescription,
+        }).then((collection) => {
+          this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid);
         });
-      });
+      }
+    },
+    nameCollectionOnShown() {
+      this.inputName = '';
+      this.$refs.inputName.focus();
+    },
+    nameCollectionOnInput() {
+      this.inputName.trim();
+      this.nameCollectionOkDisabled = (this.inputName.length < 3 || this.inputName.length > 50);
     },
     search(page) {
       if (page !== undefined) {
@@ -420,6 +449,8 @@ div.overlay-region{
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
+    "Collection_Name" : "Collection Name",
+    "Collection_Description" : "Collection Description",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV"
   },
