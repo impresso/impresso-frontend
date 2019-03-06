@@ -4,8 +4,8 @@
     <b-badge size="sm" variant="secondary" class="pr-1">
       <span v-if="icon" :class="'filter-icon dripicons-'+icon"></span>
       <span class="filter-text" v-html="title"></span>
-      <a v-bind:id="id" class="filter-btn dripicons-chevron-down" />
-      <a v-on:click.prevent="remove" class="filter-btn dripicons-cross" />
+      <span v-bind:id="id" class="btn-pill btn-context dripicons-chevron-down" />
+      <span v-on:click="remove" class="btn-pill dripicons-cross" />
     </b-badge>
 
     <b-tooltip v-bind:target="id" triggers="click blur">
@@ -32,6 +32,7 @@ export default {
 
 <style scoped lang="scss">
 .filter {
+  cursor: default;
   .filter-icon {
     opacity: 0.5;
   }
@@ -42,7 +43,8 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
   }
-  .filter-btn {
+  .btn-pill {
+    cursor: pointer;
     background: rgba(200, 200, 200, 0.2);
     opacity: 0.5;
     border-radius: 50%;
@@ -51,6 +53,9 @@ export default {
     padding-top: 0.1em;
     display: inline-block;
     vertical-align: sub;
+  }
+  .btn-context {
+    cursor: context-menu;
   }
   .filter-btn:hover {
     opacity: 1;
