@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="filter pr-1 mb-2">
 
-    <b-badge size="sm" variant="secondary" class="pr-1">
+    <b-badge size="sm" variant="secondary" class="px-1">
       <span v-if="icon" :class="'filter-icon dripicons-'+icon"></span>
       <span class="filter-text" v-html="title"></span>
       <span v-bind:id="id" class="btn-pill btn-context dripicons-chevron-down" />
@@ -34,10 +34,14 @@ export default {
 .filter {
   cursor: default;
   .filter-icon {
-    opacity: 0.5;
+    opacity: 0.65;
+    display: inline-block;
+    height: 1.2em;
+    width: 1.2em;
+    vertical-align: sub;
   }
   .filter-text {
-    max-width: 312px;
+    max-width: 296px;
     display: inline-block;
     vertical-align: bottom;
     text-overflow: ellipsis;

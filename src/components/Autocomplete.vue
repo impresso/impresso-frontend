@@ -21,7 +21,9 @@
       </div>
       <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion p-2" v-bind:class="{selected: selected === s}">
         <div v-if="s.type === 'regex'" class="suggestion-regex">
-          <b-badge>{{$t('regex')}}</b-badge> {{s.query}}
+          <span class="icon dripicons-rocket" :title="$t('regex')"></span>
+          <span v-html="s.query" />
+          <b-badge>{{$t('regex')}}</b-badge>
         </div>
         <div href="#" v-if="s.type === 'collection'" class="suggestion-collection">
           <b-badge>{{$t('collection')}}</b-badge>
