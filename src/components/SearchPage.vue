@@ -37,10 +37,10 @@
       <div class="flex-shrink-1">
         <b-navbar-nav v-if="isLoggedIn()" class="pl-4">
           <b-form-checkbox
-            v-b-tooltip.hover.topleft.html.o100.d250 v-bind:title="$t('select_all')"
-            v-bind:indeterminate="selectedOnPage() > 0 && selectedOnPage() < searchResults.length"
-            v-bind:checked="selectedOnPage() === this.searchResults.length"
-            v-on:change="onSelectAll">
+            v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
+            v-bind:indeterminate="this.allIndeterminate"
+            v-bind:checked.native="this.allSelected"
+            v-on:change="toggleSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
       </div>
@@ -77,8 +77,9 @@
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item
-              checkbox=true
-              v-on:selected="onSelectResult(searchResult)"
+              v-bind:checkbox=true
+              v-on:toggleSelected="toggleSelected(searchResult)"
+              v-bind:checked="isChecked(searchResult)"
               v-on:click="onClickResult(searchResult)"
               v-model="searchResults[index]" />
           </b-col>
@@ -87,7 +88,8 @@
           <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-tiles-item
               checkbox=true
-              v-on:selected="onSelectResult(searchResult)"
+              v-on:toggleSelected="toggleSelected(searchResult)"
+              v-bind:checked="isChecked(searchResult)"
               v-on:click="onClickResult(searchResult)"
               v-model="searchResults[index]" />
           </b-col>
@@ -121,6 +123,8 @@ import CollectionAddTo from './modules/CollectionAddTo';
 export default {
   data: () => ({
     selectedItems: [],
+    allIndeterminate: false,
+    allSelected: false,
   }),
   computed: {
     groupByOptions: {
@@ -239,42 +243,44 @@ export default {
     onInputPagination(page = 1) {
       this.search(page);
     },
-    selectedOnPage() {
-      let selected = 0;
-      this.searchResults.forEach((item) => {
-        if (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1) {
-          selected += 1;
-        }
-      });
-      return selected;
+    itemSelected(item) {
+      return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
     },
-    onSelectAll(e) {
-      this.searchResults.forEach((item) => {
-        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
-        if (e) {
-          if (idx === -1) {
-            this.selectedItems.push(item);
-            document.querySelector(`input[value='${item.uid}']`).checked = true;
-          }
-        } else
-        if (idx !== -1) {
-          this.selectedItems.splice(idx, 1);
-          document.querySelector(`input[value='${item.uid}']`).checked = false;
-        }
-      });
-    },
-    onSelectResult(e) {
-      if (e && this.selectedItems) {
-        const idx = this.selectedItems.findIndex(c => (c.uid === e.uid));
-        if (idx === -1) this.selectedItems.push(e);
-        else this.selectedItems.splice(idx, 1);
+    addSelectedItem(item) {
+      if (!this.itemSelected(item)) {
+        this.selectedItems.push(item);
       }
+    },
+    removeSelectedItem(item) {
+      if (this.itemSelected(item)) {
+        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
+        this.selectedItems.splice(idx, 1);
+      }
+    },
+    toggleSelected(item) {
+      if (!this.itemSelected(item)) {
+        this.selectedItems.push(item);
+      } else {
+        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
+        this.selectedItems.splice(idx, 1);
+      }
+    },
+    toggleSelectAll(checked) {
+      if (checked) {
+        this.searchResults.forEach((item) => {
+          this.addSelectedItem(item);
+        });
+      } else {
+        this.searchResults.forEach((item) => {
+          this.removeSelectedItem(item);
+        });
+      }
+    },
+    isChecked(item) {
+      return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
     },
     onClearSelection() {
       this.selectedItems = [];
-      this.searchResults.forEach((item) => {
-        document.querySelector(`input[value='${item.uid}']`).checked = false;
-      });
     },
     onClickResult(searchResult) {
       this.$router.push({
@@ -300,6 +306,32 @@ export default {
     },
     isLoggedIn() {
       return this.$store.state.user.userData;
+    },
+    updateselectAll() {
+      let count = 0;
+      this.searchResults.forEach((item) => {
+        if (this.itemSelected(item)) {
+          count += 1;
+        }
+      });
+      if (count === 0) {
+        this.allSelected = false;
+        this.allIndeterminate = false;
+      } else if (count < this.searchResults.length) {
+        this.allSelected = false;
+        this.allIndeterminate = true;
+      } else {
+        this.allSelected = true;
+        this.allIndeterminate = false;
+      }
+    },
+  },
+  watch: {
+    searchResults() {
+      this.updateselectAll();
+    },
+    selectedItems() {
+      this.updateselectAll();
     },
   },
   components: {
