@@ -2,6 +2,7 @@
   <filter-wrapper
     v-bind:id="filter.key"
     v-on:remove="remove"
+    icon="message"
     v-bind:title="filter.item.getHtmlExcerpt()">
     <div slot="settings">
       <filter-setting-context v-model="filter" />

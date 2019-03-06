@@ -1,6 +1,8 @@
 <template lang="html">
   <filter-wrapper
     v-on:remove="remove"
+    v-bind:id="filter.key"
+    icon="web"
     v-bind:title="$t(`languages.${filter.language.uid}`)">
     <div slot="settings">
       <filter-setting-context v-model="filter" />

@@ -284,7 +284,14 @@ export default {
       immediate: true,
       handler(pageUid) {
         this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
-          this.issue.pages.find(p => p.uid === page.uid).articles = page.articles;
+          const pageIndex = this.issue.pages.findIndex(p => p.uid === page.uid);
+
+          if (pageIndex >= 0) {
+            this.issue.pages[pageIndex].articles = page.articles;
+          } else {
+            window.app.$store.state.error_message = 'Warning: No pages found in this issue';
+          }
+
           this.handler.$emit('dispatch', (viewer) => {
             viewer.goToPage(this.issue.pages.findIndex(p => p.uid === pageUid));
           });

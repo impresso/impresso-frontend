@@ -44,10 +44,16 @@
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="table-caption">List of known metadata for this newspaper</template>
-          <template slot="name" slot-scope="row" class="small-caps">{{row.item.name}}</template>
+          <template slot="name" slot-scope="row" class="small-caps">
+            <p>{{ $t(`metadata.property.${row.item.name}`) }}</p>
+            <!-- <p v-html="$t(`metadata.description.${row.item.name}`)" /> -->
+          </template>
           <template slot="property" slot-scope="row">
             <div v-if="row.item.isUrl">
               <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
+            </div>
+            <div v-else-if="row.item.name === 'logoFilename'">
+              <img :src="`https://impresso-project.ch/assets/images/${row.item.value}`" />
             </div>
             <div v-else class="bold">
               {{row.item.value}}
@@ -227,10 +233,32 @@ export default {
 <i18n>
 {
   "en": {
-
     "route": {
       "newspaper": "list of {total} first pages",
       "newspaper_metadata": "newspaper metadata"
+    },
+    "metadata": {
+      "property": {
+        "provenanceId": "Provenance identifier",
+        "provenanceSource": "Provenance",
+        "countryCode": "Country of publication",
+        "provinceCode": "Province of publication",
+        "periodicity": "Periodicity",
+        "provenanceUri": "Source permalink",
+        "longTitle": "Full title",
+        "noteGenealogy": "Related titles",
+        "notePublicationDates": "Remarks on publication dates",
+        "publicationPlace": "Publication place",
+        "publicationDates": "First publication",
+        "relatedUrl": "Other links",
+        "logoFilename": "Source logo",
+        "availabilityEta": "Publication date on impresso",
+        "variantTitle": "Alternative title",
+        "otherTitle": "Alternative title"
+      },
+      "description": {
+
+      }
     }
   }
 }

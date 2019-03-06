@@ -1,5 +1,9 @@
 <template lang="html">
-  <filter-wrapper v-on:remove="remove">
+  <filter-wrapper
+    v-bind:id="filter.key"
+    v-bind:title="filter.query"
+    icon="rocket"
+    v-on:remove="remove">
     <b-input
       type="text"
       v-model="filter.query"
@@ -8,9 +12,8 @@
       v-bind:disabled="disabled"
       size="sm"
     />
-    <div slot="controls">
-      <b-button v-on:click="editFilter" variant="link" v-show="disabled" size="sm"><icon name="edit" /></b-button>
-      <b-button v-on:click="submitFilter" variant="link" v-show="!disabled" size="sm"><icon name="check" /></b-button>
+    <div slot="settings">
+      <p><em>ToDo:</em> RegEx filter Settings</p>
     </div>
   </filter-wrapper>
 </template>
