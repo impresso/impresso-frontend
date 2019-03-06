@@ -1,6 +1,6 @@
 <template lang='html'>
     <i-layout id="IssuePage">
-      <i-layout-section width="400px" class="border-right">
+      <i-layout-section width="300px" class="border-right">
         <table-of-contents
           v-bind:toc="toc"
           v-bind:pageUid="pageUid"
@@ -30,14 +30,7 @@
           </b-navbar>
         </div>
         <i-layout class="bg-light">
-          <i-layout-section width="120px">
-            <thumbnail-slider
-              v-bind:issue="issue"
-              v-on:click="loadPage"
-              v-bind:bounds="bounds"
-              v-bind:displayMode="mode"
-              v-bind:page="page" />
-          </i-layout-section>
+
           <i-layout-section>
             <open-seadragon-viewer
               v-show="mode === 'image'"
@@ -46,6 +39,14 @@
             <issue-viewer-text
               v-bind:article_uid="articleUid"
               v-if="articleUid && mode === 'text'" />
+          </i-layout-section>
+          <i-layout-section width="120px">
+            <thumbnail-slider
+              v-bind:issue="issue"
+              v-on:click="loadPage"
+              v-bind:bounds="bounds"
+              v-bind:displayMode="mode"
+              v-bind:page="page" />
           </i-layout-section>
         </i-layout>
       </i-layout-section>
@@ -283,7 +284,14 @@ export default {
       immediate: true,
       handler(pageUid) {
         this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
-          this.issue.pages.find(p => p.uid === page.uid).articles = page.articles;
+          const pageIndex = this.issue.pages.findIndex(p => p.uid === page.uid);
+
+          if (pageIndex >= 0) {
+            this.issue.pages[pageIndex].articles = page.articles;
+          } else {
+            window.app.$store.state.error_message = 'Warning: No pages found in this issue';
+          }
+
           this.handler.$emit('dispatch', (viewer) => {
             viewer.goToPage(this.issue.pages.findIndex(p => p.uid === pageUid));
           });

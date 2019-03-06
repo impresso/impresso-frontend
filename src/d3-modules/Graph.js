@@ -87,6 +87,13 @@ export default class Graph extends EventEmitter {
         scaleFn: d3.scaleSqrt,
         range: [10, 200],
       }),
+      linkWeight: new Dimension({
+        name: 'linkWeight',
+        property: 'w',
+        type: Dimension.TYPE_CONTINUOUS,
+        scaleFn: d3.scaleSqrt,
+        range: [1, 10],
+      }),
       ...dimensions,
     };
 
@@ -104,7 +111,7 @@ export default class Graph extends EventEmitter {
     this.simulation.force('link')
       .distance(this.dimensions.linkDistance.accessor());
       // strength(+this.value);
-    this.simulation.alpha(1).restart();
+    // this.simulation.alpha(1).restart();
   }
 
   /**
@@ -152,6 +159,8 @@ export default class Graph extends EventEmitter {
     datum.fx = datum.x;
     datum.fy = datum.y;
     this.stopSimulation();
+    this.selected = datum;
+    this.emit('node.click', datum);
   }
 
   onDragged(datum) {
@@ -175,6 +184,8 @@ export default class Graph extends EventEmitter {
     }
     // if autostop
     this.stopSimulation();
+    //
+    this.nodesLayer.classed('fix', d => d.fixed);
   }
 
   // normally called by this.update
@@ -223,7 +234,8 @@ export default class Graph extends EventEmitter {
     this.linksLayer = this.linksLayer.data(this.links); // , d => `${d.source.id}-${d.target.id}`);
     this.linksLayer.exit().remove();
     this.linksLayer = this.linksLayer.enter()
-      .append('line');
+      .append('line')
+      .attr('stroke-width', this.dimensions.linkWeight.accessor());
 
     // Update and restart the simulation.
     this.simulation.force('center', d3.forceCenter(this.width / 2, this.height / 2));
@@ -250,6 +262,12 @@ export default class Graph extends EventEmitter {
 
     this.updateDimension({
       name: 'linkDistance',
+      property: 'w',
+      values: this.links,
+    });
+
+    this.updateDimension({
+      name: 'linkWeight',
       property: 'w',
       values: this.links,
     });

@@ -5,7 +5,7 @@ export default {
   namespaced: true,
   state: {
     list: {
-      orderBy: 'alphabetical',
+      orderBy: 'name',
       newspapers: [],
       query: '',
       pagination: {
@@ -15,7 +15,7 @@ export default {
       },
     },
     detail: {
-      orderBy: 'alphabetical',
+      orderBy: 'name',
       issues: [],
       newspaper: false,
       pagination: {
@@ -72,9 +72,10 @@ export default {
         q: context.state.list.query,
         limit: context.state.list.pagination.perPage,
         group_by: context.state.list.groupBy,
+        order_by: context.state.list.orderBy,
         page: context.state.list.pagination.currentPage,
       };
-
+      console.log('LOAD_LIST', query);
       return new Promise((resolve, reject) => {
         services.newspapers.find({
           query,

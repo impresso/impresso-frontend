@@ -46,7 +46,7 @@ class Dimension {
     if (this.type === TYPE_DISCRETE) {
       const groups = Dimension.groupBy(values, this.property);
       this.domain = Object.keys(groups);
-      this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length])
+      this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length + 2])
         .domain(this.domain);
       this.domain.forEach((key) => {
         this.legend.push({
@@ -63,7 +63,6 @@ class Dimension {
   }
 
   accessor() {
-    console.log('accessor', this.property);
     return d => this.scale(d[this.property]);
   }
 

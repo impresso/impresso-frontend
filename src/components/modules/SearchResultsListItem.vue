@@ -8,10 +8,16 @@
     <div class="d-flex">
       <div>
         <h2 v-if="article.title" class="mb-0">
-          <a href="#" v-on:click.prevent="click" v-html="article.title" />
+          <router-link :to="{ name: 'article', params: {
+            issue_uid: article.issue.uid,
+            page_uid: article.pages[0].uid,
+            article_uid: article.uid,
+          } }" v-html="article.title"></router-link>
         </h2>
         <div class="article-meta mb-2">
+          <router-link :to="{ name: 'newspaper', params: { newspaper_uid: article.newspaper.uid }}">
           <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
+          </router-link>
           <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
           (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
         </div>
@@ -48,10 +54,20 @@
             <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
           </b-badge>
         </div>
-        <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
-        <b-dropdown v-if="isLoggedIn()" v-on:show="setFocus" size="sm" variant="outline-primary" :text="$t('add_to_collection')">
-          <collection-add-to :item="article" />
-        </b-dropdown>
+
+        <router-link :to="{ name: 'article', params: {
+          issue_uid: article.issue.uid,
+          page_uid: article.pages[0].uid,
+          article_uid: article.uid,
+        } }" class="btn btn-sm btn-outline-primary">
+          {{$t('view')}}
+          
+        </router-link>
+
+        <collection-add-to
+          v-if="isLoggedIn()"
+          v-bind:item="article"
+          v-bind:text="$t('add_to_collection')" />
       </div>
       <div v-if="isLoggedIn() && checkbox" class="ml-auto pl-2">
         <b-checkbox
@@ -95,11 +111,6 @@ export default {
     },
     click() {
       this.$emit('click');
-    },
-    setFocus(event) {
-      this.$nextTick(() => {
-        event.target.querySelector('input').focus();
-      });
     },
     init() {
       const options = {

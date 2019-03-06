@@ -14,11 +14,10 @@
           <input
             type="text"
             class="form-control"
-            placeholder="Search"
+            placeholder="... name or description "
             name=""
             value=""
-            v-model="query"
-            v-on:keyup.enter="loadList(1)" />
+            v-model.trim="query"/>
         </div>
       </div>
       <div v-for="n in newspapers" class="border-bottom">
@@ -77,30 +76,39 @@ export default {
     },
     query: {
       get() {
-        return '';
+        return this.$store.state.newspapers.list.query || '';
       },
       set(val) {
         this.$store.commit('newspapers/UPDATE_LIST_QUERY', val);
+        this.loadList(1);
       },
     },
     orderByOptions: {
       get() {
         return [
           {
-            value: 'alphabetical',
-            text: `${this.$t('sort_alphabetical')} ${this.$t('sort_asc')}`,
+            value: 'name',
+            text: `${this.$t('sort_name')} ${this.$t('sort_asc')}`,
           },
           {
-            value: '-alphabetical',
-            text: `${this.$t('sort_alphabetical')} ${this.$t('sort_desc')}`,
+            value: '-name',
+            text: `${this.$t('sort_name')} ${this.$t('sort_desc')}`,
           },
           {
-            value: 'date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+            value: 'startYear',
+            text: `${this.$t('sort_start_date')} ${this.$t('sort_asc')}`,
           },
           {
-            value: '-date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            value: '-startYear',
+            text: `${this.$t('sort_start_date')} ${this.$t('sort_desc')}`,
+          },
+          {
+            value: 'endYear',
+            text: `${this.$t('sort_end_date')} ${this.$t('sort_asc')}`,
+          },
+          {
+            value: '-endYear',
+            text: `${this.$t('sort_end_date')} ${this.$t('sort_desc')}`,
           },
         ];
       },
@@ -171,15 +179,17 @@ export default {
     "label_order": "Order By",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
-    "sort_date": "Date",
-    "sort_alphabetical": "Alphabetical"
+    "sort_start_date": "Date of first issue",
+    "sort_end_date": "Date of last issue",
+    "sort_name": "Alphabetical"
   },
   "nl": {
     "label_order": "Sorteer Op",
     "sort_asc": "Oplopend",
     "sort_desc": "Aflopend",
-    "sort_date": "Datum",
-    "sort_alphabetical": "Alfabetisch"
+    "sort_start_date": "Datum",
+    "sort_end_date": "Datum",
+    "sort_name": "Alfabetisch"
   }
 }
 </i18n>

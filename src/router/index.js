@@ -1,6 +1,7 @@
 import * as services from '@/services';
 import Vue from 'vue';
 import Router from 'vue-router';
+import HomePage from '../components/HomePage';
 import SearchPage from '../components/SearchPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
@@ -23,13 +24,14 @@ const router = new Router({
   routes: [{
     path: '/',
     name: 'home',
-    beforeEnter: (to, from, next) => {
-      next({
-        name: 'search',
-      });
-    },
+    component: HomePage,
+    // beforeEnter: (to, from, next) => {
+    //   next({
+    //     name: 'search',
+    //   });
+    // },
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {

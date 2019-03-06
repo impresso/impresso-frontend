@@ -57,13 +57,7 @@ export default {
           .then((articles) => {
             resolve(new Page({
               ...page,
-              articles: articles.data.map(article => new Article({
-                ...article,
-                regions: article.regions.map(region => ({
-                  ...region,
-                  iiifFragment: region.iiif_fragment,
-                })),
-              })),
+              articles: articles.data.map(article => new Article(article)),
               articlesEntities: page.articlesEntities,
               articlesTags: page.articlesTags,
             }));
@@ -80,6 +74,8 @@ export default {
         const q = {
           query: {
             filters: [{
+              type: 'hasTextContents',
+            }, {
               type: 'issue',
               q: uid,
             }],

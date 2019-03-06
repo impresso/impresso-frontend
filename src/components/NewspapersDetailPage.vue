@@ -1,5 +1,5 @@
 <template lang="html">
-    <i-layout-section>
+    <i-layout-section class="bg-light">
       <!-- slot:header  -->
       <div slot="header" >
         <b-navbar type="light" variant="light" >
@@ -44,10 +44,16 @@
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="table-caption">List of known metadata for this newspaper</template>
-          <template slot="name" slot-scope="row" class="small-caps">{{row.item.name}}</template>
+          <template slot="name" slot-scope="row" class="small-caps">
+            <p>{{ $t(`metadata.property.${row.item.name}`) }}</p>
+            <!-- <p v-html="$t(`metadata.description.${row.item.name}`)" /> -->
+          </template>
           <template slot="property" slot-scope="row">
             <div v-if="row.item.isUrl">
-              <a href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
+              <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
+            </div>
+            <div v-else-if="row.item.name === 'logoFilename'">
+              <img :src="`https://impresso-project.ch/assets/images/${row.item.value}`" />
             </div>
             <div v-else class="bold">
               {{row.item.value}}
@@ -56,7 +62,7 @@
         </b-table>
       </div>
       <div v-else>
-        <div class="p-4 bg-light">
+        <div class="p-4">
           <b-row>
             <b-col
               sm="12" md="4" lg="3"
@@ -174,13 +180,11 @@ export default {
       immediate: true,
       async handler() {
         this.issues = await this.getIssues();
-        console.log('newpspaperDetailpage', this.issues);
         this.newspaper = await this.getNewspaper();
       },
     },
     orderBy: {
-      async handler(property) {
-        console.log('change orderBy', property);
+      async handler() {
         this.issues = await this.getIssues();
       },
     },
@@ -212,19 +216,49 @@ export default {
   border: 1px solid transparent;
   &.active {
     border-color: #dee2e6;
-    border-bottom-color: white;
+    border-bottom-color: #f8f9fa;
+    border-top-color: $clr-primary;
 
     background-color: transparent;
+  }
+}
+
+.b-table{
+  background-color: white;
+  th{
+    background-color: red;
   }
 }
 </style>
 <i18n>
 {
   "en": {
-
     "route": {
       "newspaper": "list of {total} first pages",
       "newspaper_metadata": "newspaper metadata"
+    },
+    "metadata": {
+      "property": {
+        "provenanceId": "Provenance identifier",
+        "provenanceSource": "Provenance",
+        "countryCode": "Country of publication",
+        "provinceCode": "Province of publication",
+        "periodicity": "Periodicity",
+        "provenanceUri": "Source permalink",
+        "longTitle": "Full title",
+        "noteGenealogy": "Related titles",
+        "notePublicationDates": "Remarks on publication dates",
+        "publicationPlace": "Publication place",
+        "publicationDates": "First publication",
+        "relatedUrl": "Other links",
+        "logoFilename": "Source logo",
+        "availabilityEta": "Publication date on impresso",
+        "variantTitle": "Alternative title",
+        "otherTitle": "Alternative title"
+      },
+      "description": {
+
+      }
     }
   }
 }
