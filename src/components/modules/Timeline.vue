@@ -33,6 +33,9 @@ export default {
         hspace: this.line.width,
       };
     },
+    onResize() {
+      this.line.resize();
+    },
   },
   mounted() {
     this.line = new Timeline({
@@ -62,12 +65,15 @@ export default {
         data: this.values,
       });
     }
+    window.addEventListener('resize', this.onResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
   },
   watch: {
     highlight: {
       immediate: false,
       handler(val) {
-        console.log('@highlight', val);
         this.line.highlight(val);
       },
     },
