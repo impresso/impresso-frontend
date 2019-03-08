@@ -39,10 +39,11 @@ export default class Basic extends EventEmitter {
    * @param  {Array|Object} values Array or Object, according to Dimension type
    * @return {null}
    */
-  updateDimension({ name, property, values }) {
+  updateDimension({ name, property, values, range }) {
     this.dimensions[name].update({
       property,
       values,
+      range,
     });
     this.emit('dimension.updated', this.dimensions[name]);
   }
