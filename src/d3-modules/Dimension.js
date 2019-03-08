@@ -75,7 +75,7 @@ class Dimension {
     if (property) {
       this.property = property;
     }
-    if (this.range) {
+    if (this.range && range) {
       this.range = range;
     }
     this.domain = [];
@@ -95,13 +95,9 @@ class Dimension {
       });
     } else {
       this.domain = d3.extent(values, d => d[this.property]);
-
       this.scale = this.scaleFn()
         .domain(this.domain)
         .range(this.range);
-
-      console.log('UPDATE dim', this.name, 'with', this.property, this.domain, this.range, values);
-      // console.log('UPDATE dim', values[0][this.property], this.scale(values[0][this.property]));
     }
   }
 
