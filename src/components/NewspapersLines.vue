@@ -100,14 +100,13 @@ export default {
       });
     },
     onMouseover(newspaper, event) {
-      console.log('@mouseover', event);
+      // console.log('@mouseover', event);
       this.point.y = event.target.offsetTop;
       this.tooltip.item = newspaper;
       this.tooltip.isActive = true;
       event.stopPropagation();
     },
     onResize() {
-      console.log('resized');
       this.width = this.$refs.lines.clientWidth;
       this.tooltip.hspace = this.width;
     },
@@ -140,8 +139,11 @@ export default {
     // },
   },
   mounted() {
-    window.addEventListener('resize', this.onResize);
     this.onResize();
+    window.addEventListener('resize', this.onResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
   },
   computed: {
     tooltipProperties() {
