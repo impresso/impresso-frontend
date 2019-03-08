@@ -136,7 +136,7 @@ export default {
 
     this.graph
       .on('svg.click', (d) => {
-        console.log('svg.click', d);
+        // console.log('svg.click', d);
         this.tooltip = {
           ...d,
           isActive: false,
@@ -147,7 +147,7 @@ export default {
         this.tooltip.y = d.y;
       })
       .on('node.click', (d) => {
-        console.log('node.click', d);
+        // console.log('node.click', d);
         this.tooltip = {
           x: d.x,
           y: d.y,
@@ -156,7 +156,7 @@ export default {
         };
       })
       .on('node.click', (d) => {
-        console.log('node.click', d);
+        // console.log('node.click', d);
         this.tooltip = {
           x: d.x,
           y: d.y,
@@ -165,7 +165,6 @@ export default {
         };
       })
       .on('dimension.updated', (dimension) => {
-        console.log('@dimension.updated', dimension);
         if (this.legend[dimension.name]) {
           this.legend[dimension.name] = dimension.legend;
         }
@@ -187,6 +186,16 @@ export default {
       nodes: topicsGraph.nodes,
       links: topicsGraph.links,
     });
+    window.addEventListener('resize', this.onResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
+  },
+  methods: {
+    onResize() {
+      console.log('TopicExplorer@resize');
+      this.graph.resize();
+    },
   },
   watch: {
     '$route.params.topic_uid': {
@@ -220,11 +229,6 @@ export default {
         this.graph.applyDimensions();
       },
     },
-  },
-  methods: {
-    // fetch() {
-    //   // return this.$store.dispatch('topics/LOAD_TOPICS');
-    // },
   },
   components: {
     Tooltip,
