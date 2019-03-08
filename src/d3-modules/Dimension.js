@@ -31,6 +31,38 @@ class Dimension {
   }
 
   /**
+   * getNearestValue
+   * @param  {Number} v [description]
+   * @return {Object}   [description]
+   */
+  getNearestValue(v) {
+    if (!this.values) {
+      throw new Error('this.values not set in dimension, do update() before calling getNearestValue');
+    }
+    const idx = d3.bisectLeft(this.values, v);
+
+    if (idx === 0) {
+      return {
+        index: 0,
+        nearest: this.values[0],
+      };
+    }
+
+    const d0 = this.values[idx - 1];
+    const d1 = this.values[idx];
+
+    if (Math.abs(v - d0) > Math.abs(v - d1)) {
+      return {
+        index: idx,
+        nearest: d1,
+      };
+    }
+    return {
+      index: idx - 1,
+      nearest: d0,
+    };
+  }
+  /**
    * If type is TYPE_CONTINUOUS, values should be a flattened array of values
    * so that the min/max extent for the domain can easily be computated.
    *
@@ -38,8 +70,14 @@ class Dimension {
    * @param  {[type]} values   [description]
    * @return {[type]}          [description]
    */
-  update({ property, values }) {
-    this.property = property;
+  update({ property, values, range }) {
+    this.values = values.map(d => d[this.property]);
+    if (property) {
+      this.property = property;
+    }
+    if (this.range) {
+      this.range = range;
+    }
     this.domain = [];
     this.legend = [];
     // recalculate cat according to type
@@ -57,8 +95,13 @@ class Dimension {
       });
     } else {
       this.domain = d3.extent(values, d => d[this.property]);
-      this.scale = this.scale
-        .domain(this.domain);
+
+      this.scale = this.scaleFn()
+        .domain(this.domain)
+        .range(this.range);
+
+      console.log('UPDATE dim', this.name, 'with', this.property, this.domain, this.range, values);
+      // console.log('UPDATE dim', values[0][this.property], this.scale(values[0][this.property]));
     }
   }
 
