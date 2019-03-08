@@ -72,7 +72,6 @@ export default class Timeline extends Line {
    * @return {[type]}       [description]
    */
   highlight(datum) {
-    console.log('Timeline@highlight', datum);
     if (datum) {
       super.highlight({
         ...datum,
