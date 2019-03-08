@@ -7,6 +7,12 @@
           <h3 class='mb-1'>{{ $t('newspapers_lines') }}</h3>
         </section>
       </b-navbar>
+      <b-navbar class='m-0 p-0'>
+        <timeline
+          :values="pagesTimeline.values"
+          :highlight="highlightA"
+          v-on:highlight="onHighlight($event, 'A')"/>
+      </b-navbar>
       <!-- <b-navbar  type="light" variant="light" class="border-bottom">
         <b-input-group class="mini" :prepend="$t('from')">
           <b-form-input  v-model='start' />
@@ -21,7 +27,7 @@
     <!--  newspqper lifespans -->
 
     <!--  newspqper lifespans -->
-    <newspapers-lines class="mx-5" v-model="newspapers"/>
+    <newspapers-lines class="mx-5" v-model="newspapers" v-on:highlight="onHighlight($event, 'B')"/>
 
 
 
@@ -29,6 +35,7 @@
 </template>
 <script>
 import NewspapersLines from './NewspapersLines';
+import Timeline from './modules/Timeline';
 
 export default {
   data: () => ({
@@ -38,6 +45,9 @@ export default {
     },
     start: 1870,
     end: 2018,
+    highlights: ['A', 'B'],
+    highlightA: null,
+    highlightB: null,
   }),
   computed: {
     newspapers() {
@@ -48,9 +58,20 @@ export default {
     // global timeline per year, with n. of pages, n. of empty pages, n.of corrupted pages.
     this.pagesTimeline = await this.$store.dispatch('newspapers/LOAD_PAGES_TIMELINE');
   },
+  methods: {
+    onHighlight(event, origin) {
+      // console.log(event, origin);
+      this.highlights.forEach((vis) => {
+        if (vis !== origin) {
+          this[`highlight${vis}`] = event.datum;
+        }
+      });
+    },
+  },
   components: {
     // Tooltip,
     NewspapersLines,
+    Timeline,
   },
 };
 </script>
