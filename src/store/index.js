@@ -11,6 +11,7 @@ import issue from './Issue';
 import newspapers from './Newspapers';
 import articles from './Articles';
 import topics from './Topics';
+import jobs from './Jobs';
 
 Vue.use(Vuex);
 
@@ -27,6 +28,7 @@ export default new Vuex.Store({
     issue,
     collections,
     topics,
+    jobs,
     newspapers,
   },
   state: {

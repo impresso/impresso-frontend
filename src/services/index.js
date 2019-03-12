@@ -49,10 +49,17 @@ app.hooks({
 });
 
 app.service('logs').on('created', (payload) => {
-  if (payload.job && payload.job.status === 'RUN') {
-    console.log(`... task "${payload.task}" progress: "`, payload.job.progress);
-  } else {
-    console.log(`💥 received: "${payload.msg}" with payload:`, payload);
+  if (payload.job) {
+    const idx = window.app.$store.state.jobs.data.findIndex(x => x.id === payload.job.id);
+    if (idx !== -1) {
+      window.app.$store.state.jobs.data[idx].status = payload.job.status;
+      window.app.$store.state.jobs.data[idx].task = payload.task;
+      window.app.$store.state.jobs.data[idx].progress = payload.job.progress;
+    } else {
+      payload.job.task = payload.task;
+      window.app.$store.state.jobs.data.push(payload.job);
+    }
+    // console.log(`logs.created: "${payload.msg}" with payload:`, payload);
   }
 });
 
@@ -67,3 +74,4 @@ export const newspapers = app.service('newspapers');
 export const collections = app.service('collections');
 export const collectionsItems = app.service('collectable-items');
 export const topics = app.service('topics');
+export const jobs = app.service('jobs');

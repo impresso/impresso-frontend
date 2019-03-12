@@ -6,6 +6,7 @@
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
         <b-navbar-nav>
+          <li class="nav-item small-caps text-white mr-4" v-on:click="test()">test</li>
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
           </li>
@@ -53,12 +54,20 @@
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
+    <div class="toaster">
+      <toast v-for="(job, i) in this.$store.state.jobs.data"
+        v-bind:job="job"
+        v-if="job.status == 'RUN'"
+        v-bind:key="job.id"
+        />
+    </div>
   </div>
 </template>
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
+import Toast from './modules/Toast';
 
 export default {
   data: () => ({
@@ -89,6 +98,10 @@ export default {
       },
     },
   }),
+  async mounted() {
+    this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
+    // console.log('"PENDING JOBS"', this.jobs);
+  },
   computed: {
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
@@ -105,6 +118,9 @@ export default {
     user() {
       return this.$store.getters['user/user'];
     },
+    // jobs() {
+    //   return this.$store.getters['jobs/jobs'];
+    // },
     headerTitle() {
       return this.$store.getters.headerTitle;
     },
@@ -135,6 +151,9 @@ export default {
     },
   },
   methods: {
+    async test() {
+      await this.$store.dispatch('jobs/TEST');
+    },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode;
       this.$store.commit('settings/SET_LANGUAGE', {
@@ -153,6 +172,7 @@ export default {
   },
   components: {
     Icon,
+    Toast,
   },
 };
 </script>
@@ -161,144 +181,150 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
-  .progress {
-    position: absolute;
-    width: 100%;
-    z-index: 100;
-    top: 0;
-    left: 0;
-  }
-  nav {
-    margin-top: 0;
-    margin-bottom: 1px;
-    .navbar-collapse {
-      height: 44px;
+    .progress {
+        position: absolute;
+        width: 100%;
+        z-index: 100;
+        top: 0;
+        left: 0;
     }
-    .border-left {
-      border-color: $clr-tertiary !important;
+    .toaster {
+      position:absolute;
+      bottom:0;
+      right:0;
+      z-index: 100;
     }
-  }
-  .navbar-brand {
-      img {
-          height: 30px;
-      }
-  }
-  .nav-title {
-    margin: auto;
-    h1 {
-      background: transparent;
-      color: white;
-      font-size: 1.1em;
-      text-align: center;
-      padding: 1px 4px;
-      .title {
-        font-weight: normal;
-      }
-      .subtitle {
+    nav {
+        margin-top: 0;
+        margin-bottom: 1px;
+        .navbar-collapse {
+            height: 44px;
+        }
+        .border-left {
+            border-color: $clr-tertiary !important;
+        }
+    }
+    .navbar-brand {
+        img {
+            height: 30px;
+        }
+    }
+    .nav-title {
+        margin: auto;
+        h1 {
+            background: transparent;
+            color: white;
+            font-size: 1.1em;
+            text-align: center;
+            padding: 1px 4px;
+            .title {
+                font-weight: normal;
+            }
+            .subtitle {
+                font-weight: bold;
+            }
+        }
+    }
+    .navbar-dark .navbar-nav .nav-link {
+        color: $clr-bg-secondary;
+    }
+    .navbar-dark .navbar-nav .nav-link:focus,
+    .navbar-dark .navbar-nav .nav-link:hover {
+        color: $clr-bg-primary;
+        background: transparent;
+    }
+    &::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        height: 2px;
+        background-color: $clr-accent-light;
+        content: '';
+    }
+
+    .dropdown-toggle {
+        padding-right: 1.25rem;
+
+        &::after {
+            position: absolute;
+            top: 50%;
+            right: 0.75rem;
+            line-height: 2rem;
+            margin-top: -1rem;
+        }
+    }
+
+    .user-space > a.dropdown-toggle {
+        padding: 0.25rem 1.5rem 0.125rem 0.5rem;
+        &::after {
+            font-size: 0.75em;
+        }
+    }
+
+    .user-picture {
+        background: $clr-primary;
+        width: 2em;
+        height: 2em;
+        border-radius: 2em;
+        border: 1px solid $clr-accent-light;
+    }
+
+    .user-label {
+        margin-left: 2.5em;
+    }
+
+    .user-fullname {
+        padding-bottom: 0.125rem;
+        font-size: 0.8em;
+        line-height: 1em;
         font-weight: bold;
-      }
+        color: white;
     }
-  }
-  .navbar-dark .navbar-nav .nav-link {
-    color: $clr-bg-secondary;
-  }
-  .navbar-dark .navbar-nav .nav-link:hover,
-  .navbar-dark .navbar-nav .nav-link:focus {
-    color: $clr-bg-primary;
-    background: transparent;
-  }
-  &::before{
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1;
-    height: 2px;
-    background-color: $clr-accent-light;
-    content: '';
-  }
 
-  .dropdown-toggle{
-    padding-right: 1.25rem;
-
-    &::after {
-      position: absolute;
-      top: 50%;
-      right: 0.75rem;
-      line-height: 2rem;
-      margin-top: -1rem;
+    .user-role {
+        line-height: 1;
+        font-size: 0.8em;
     }
-  }
-
-  .user-space > a.dropdown-toggle{
-    padding: 0.25rem 1.5rem 0.125rem 0.5rem;
-    &::after {
-      font-size: .75em;
-    }
-  }
-
-  .user-picture{
-    background: $clr-primary;
-    width: 2em;
-    height: 2em;
-    border-radius: 2em;
-    border: 1px solid $clr-accent-light;
-  }
-
-  .user-label {
-    margin-left: 2.5em;
-  }
-
-  .user-fullname {
-    padding-bottom: 0.125rem;
-    font-size: 0.8em;
-    line-height: 1em;
-    font-weight: bold;
-    color: white;
-  }
-
-  .user-role {
-    line-height: 1;
-    font-size: 0.8em;
-  }
 }
 
 // extend application styles
 .border-tertiary {
-  border-color: $clr-tertiary !important;
+    border-color: $clr-tertiary !important;
 }
 .pt-1px {
-  padding-top:1px;
+    padding-top: 1px;
 }
 .custom-radio > .custom-control-label::before {
-  border: inherit;
-  outline: inherit;
+    border: inherit;
+    outline: inherit;
 }
 .tooltip-inner {
-  max-width: auto;
-  color: $clr-primary;
-  text-align: left;
-  background-color: $clr-bg-primary;
-  border: 1px solid $clr-primary;
-  box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
+    max-width: auto;
+    color: $clr-primary;
+    text-align: left;
+    background-color: $clr-bg-primary;
+    border: 1px solid $clr-primary;
+    box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 }
 .dropdown-menu {
-  padding: 0;
+    padding: 0;
 }
 .fixed-pagination-footer {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(calc(200px - 50%));
-  background: $clr-bg-secondary;
-  max-width: calc(100% - 400px);
-  .pagination {
-    li.page-item > a,
-    li.page-item > span.page-link {
-      border-color: $clr-secondary;
-      padding: 0.15em 0.6em 0.15em 0.6em;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(calc(200px - 50%));
+    background: $clr-bg-secondary;
+    max-width: calc(100% - 400px);
+    .pagination {
+        li.page-item > a,
+        li.page-item > span.page-link {
+            border-color: $clr-secondary;
+            padding: 0.15em 0.6em;
+        }
     }
-  }
 }
 </style>
 
