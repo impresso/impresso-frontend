@@ -6,7 +6,6 @@
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
         <b-navbar-nav>
-          <li class="nav-item small-caps text-white mr-4" v-on:click="test()">test</li>
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
           </li>
@@ -19,6 +18,7 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
           </li>
+          <li class="nav-item small-caps text-white ml-2" v-on:click="test()">send test job</li>
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
