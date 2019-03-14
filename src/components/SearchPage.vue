@@ -71,7 +71,10 @@
 
     <b-navbar class="d-flex p-0 border-bottom bg-light">
       <b-navbar-nav class="flex-fill px-3 py-2 border-right">
-          <search-result-summary v-bind:queryComponents="queryComponents" v-bind:totalRows="paginationTotalRows" />
+          <search-result-summary
+            v-on:gotMessage="gotMessage"
+            v-bind:queryComponents="queryComponents"
+            v-bind:totalRows="paginationTotalRows" />
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto p-3">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
@@ -91,15 +94,15 @@
       v-bind:ok-disabled="nameCollectionOkDisabled"
       v-on:ok="createQueryCollection()">
       <form v-on:submit.stop.prevent="createQueryCollection()">
+        <label for="inputName">Name</label>
         <b-form-input
           v-on:input="nameCollectionOnInput"
           type="text"
           v-bind:placeholder="$t('Collection_Name')"
-          ref="inputName"
-          v-model="inputName" />
+          name="inputName" ref="inputName" v-model="inputName" />
+        <label for="inputDescription" class="mt-3">Description</label>
         <textarea
-          type="text" name="collectionDesc" class="form-control mt-3"
-          v-bind:placeholder="$t('Collection_Description')"
+          type="text" name="inputDescription" class="form-control"
           v-model="inputDescription" />
       </form>
       <div class="mt-3 small-caps">
@@ -165,7 +168,7 @@ export default {
     allIndeterminate: false,
     allSelected: false,
     inputName: '',
-    inputDescription: '',
+    inputDescription: 'All of Impresso',
     nameCollectionOkDisabled: true,
   }),
   computed: {
@@ -292,6 +295,11 @@ export default {
     },
   },
   methods: {
+    gotMessage(msg) {
+      this.inputDescription = msg
+        .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
+        .replace('Found', this.$t('Based on search query with'));
+    },
     onSuggestion(suggestion) {
       this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
       this.search(1);
@@ -506,7 +514,8 @@ div.overlay-region{
     "Collection_Name" : "Collection Name",
     "Collection_Description" : "Collection Description",
     "query_export": "Export result list as ...",
-    "query_export_csv": "Export result list as CSV"
+    "query_export_csv": "Export result list as CSV",
+    "Based on search query with": "Based on search query with"
   },
   "nl": {
     "label_display": "Toon Als",

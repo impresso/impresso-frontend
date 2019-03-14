@@ -72,6 +72,11 @@ export default {
       return this.getFormattedSection('string', mapper);
     },
   },
+  watch: {
+    getMessage(msg) {
+      this.$emit('gotMessage', msg);
+    },
+  },
 };
 </script>
 
