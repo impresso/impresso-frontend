@@ -102,6 +102,11 @@
           v-bind:placeholder="$t('Collection_Description')"
           v-model="inputDescription" />
       </form>
+      <div class="mt-3 small-caps">
+        <p>Please note: Collections are currently limited to 10.000 items.</p>
+        <p class="mb-0">If your search returned more results, only the 10.000 most relevant
+        items will be stored.</p>
+      </div>
     </b-modal>
 
 
