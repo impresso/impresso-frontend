@@ -191,7 +191,7 @@ export default {
     .toaster {
       position:absolute;
       bottom:0;
-      right:0;
+      left:0;
       z-index: 100;
     }
     nav {
