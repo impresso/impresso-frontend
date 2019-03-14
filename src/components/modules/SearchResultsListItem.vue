@@ -69,12 +69,11 @@
           v-bind:item="article"
           v-bind:text="$t('add_to_collection')" />
       </div>
-      <div v-if="isLoggedIn() && this.checkbox" class="ml-auto pl-2">
-        <b-form-checkbox
-          class="mr-0"
-          v-bind:value="article.uid"
-          v-on:change="onChange">
-        </b-form-checkbox>
+      <div v-if="isLoggedIn() && checkbox" class="ml-auto pl-2">
+        <b-checkbox
+          class="mr-0 select-item"
+          v-bind:checked.native="checked"
+          v-on:change="toggleSelected" />
       </div>
     </div>
 
@@ -93,7 +92,7 @@ export default {
   model: {
     prop: 'article',
   },
-  props: ['article', 'checkbox'],
+  props: ['article', 'checkbox', 'checked'],
   methods: {
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
@@ -107,8 +106,8 @@ export default {
         });
       }
     },
-    onChange(e) {
-      this.$emit('selected', e);
+    toggleSelected() {
+      this.$emit('toggleSelected');
     },
     click() {
       this.$emit('click');

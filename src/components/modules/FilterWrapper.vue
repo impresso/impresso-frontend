@@ -1,14 +1,14 @@
 <template lang="html">
   <div class="filter pr-1 mb-2">
 
-    <b-btn size="sm" variant="secondary" :id="id" class="px-1">
+    <b-badge size="sm" variant="secondary" class="px-1">
       <span v-if="icon" :class="'filter-icon dripicons-'+icon"></span>
       <span class="filter-text" v-html="title"></span>
-      <span class="filter-btn dripicons-chevron-down" />
-      <a v-on:click="remove" class="filter-btn dripicons-cross" />
-    </b-btn>
+      <span v-bind:id="id" class="btn-pill btn-context dripicons-chevron-down" />
+      <span v-on:click="remove" class="btn-pill dripicons-cross" />
+    </b-badge>
 
-    <b-tooltip :target="id" triggers="click blur">
+    <b-tooltip v-bind:target="id" triggers="click blur">
       <b-button-group>
         <slot name="controls"></slot>
       </b-button-group>
@@ -32,6 +32,7 @@ export default {
 
 <style scoped lang="scss">
 .filter {
+  cursor: default;
   .filter-icon {
     opacity: 0.65;
     display: inline-block;
@@ -46,7 +47,8 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
   }
-  .filter-btn {
+  .btn-pill {
+    cursor: pointer;
     background: rgba(200, 200, 200, 0.2);
     opacity: 0.5;
     border-radius: 50%;
@@ -56,7 +58,10 @@ export default {
     display: inline-block;
     vertical-align: sub;
   }
-  button:hover > .filter-btn {
+  .btn-context {
+    cursor: context-menu;
+  }
+  .filter-btn:hover {
     opacity: 1;
   }
 }

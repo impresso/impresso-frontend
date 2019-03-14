@@ -4,12 +4,11 @@
       <open-seadragon-viewer
         v-bind:handler="handler">
       </open-seadragon-viewer>
-      <div v-if="isLoggedIn() && this.checkbox" class="float-right pt-1 pl-1">
-        <b-form-checkbox
-          class="m-0"
-          v-bind:value="article.uid"
-          v-on:change="onChange">
-        </b-form-checkbox>
+      <div v-if="isLoggedIn() && checkbox" class="float-right pt-1 pl-1">
+        <b-checkbox
+          class="m-0 select-item"
+          v-bind:checked.native="checked"
+          v-on:change="toggleSelected" />
       </div>
     </div>
     <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
@@ -36,13 +35,13 @@ export default {
   model: {
     prop: 'article',
   },
-  props: ['article', 'checkbox'],
+  props: ['article', 'checkbox', 'checked'],
   methods: {
     click() {
       this.$emit('click');
     },
-    onChange(e) {
-      this.$emit('selected', e);
+    toggleSelected() {
+      this.$emit('toggleSelected');
     },
     init() {
       const options = {

@@ -46,9 +46,10 @@
       <div class="flex-shrink-1">
         <b-navbar-nav v-if="isLoggedIn()" class="pl-4">
           <b-form-checkbox
-            v-b-tooltip.hover.topleft.html.o100.d250 v-bind:title="$t('select_all')"
-            v-bind:indeterminate="isIndeterminate()"
-            v-on:change="onSelectAll">
+            v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
+            v-bind:indeterminate="this.allIndeterminate"
+            v-bind:checked.native="this.allSelected"
+            v-on:change="toggleSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
       </div>
@@ -59,10 +60,12 @@
         <span class="small-caps">
           {{ $tc('items_selected', selectedItems.length) }}
         </span>
-        <collection-add-to
-          :items="selectedItems"
-          :text="$tc('add_n_to_collection', selectedItems.length)"
-          class="addbulk float-right bg-light" />
+        <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
+          {{ $t('Clear Selection') }}
+        </b-button>
+        <b-dropdown size="sm" variant="outline-secondary" :text="$tc('add_n_to_collection', selectedItems.length)" class="bg-white float-right">
+          <collection-add-to :items="selectedItems" class="addbulk" />
+        </b-dropdown>
       </div>
     </b-navbar>
 
@@ -107,8 +110,9 @@
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item
-              checkbox=true
-              v-on:selected="onSelectResult(searchResult)"
+              v-bind:checkbox=true
+              v-on:toggleSelected="toggleSelected(searchResult)"
+              v-bind:checked="isChecked(searchResult)"
               v-on:click="onClickResult(searchResult)"
               v-model="searchResults[index]" />
           </b-col>
@@ -117,7 +121,8 @@
           <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-tiles-item
               checkbox=true
-              v-on:selected="onSelectResult(searchResult)"
+              v-on:toggleSelected="toggleSelected(searchResult)"
+              v-bind:checked="isChecked(searchResult)"
               v-on:click="onClickResult(searchResult)"
               v-model="searchResults[index]" />
           </b-col>
@@ -152,6 +157,8 @@ import CollectionAddTo from './modules/CollectionAddTo';
 export default {
   data: () => ({
     selectedItems: [],
+    allIndeterminate: false,
+    allSelected: false,
     inputName: '',
     inputDescription: '',
     nameCollectionOkDisabled: true,
@@ -291,29 +298,44 @@ export default {
     onInputPagination(page = 1) {
       this.search(page);
     },
-    isIndeterminate() {
-      if (this.selectedItems.length > 0 && this.selectedItems.length < this.searchResults.length) {
-        return true;
-      }
-      return false;
+    itemSelected(item) {
+      return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
     },
-    onSelectAll(e) {
+    addSelectedItem(item) {
+      if (!this.itemSelected(item)) {
+        this.selectedItems.push(item);
+      }
+    },
+    removeSelectedItem(item) {
+      if (this.itemSelected(item)) {
+        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
+        this.selectedItems.splice(idx, 1);
+      }
+    },
+    toggleSelected(item) {
+      if (!this.itemSelected(item)) {
+        this.selectedItems.push(item);
+      } else {
+        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
+        this.selectedItems.splice(idx, 1);
+      }
+    },
+    toggleSelectAll(checked) {
+      if (checked) {
+        this.searchResults.forEach((item) => {
+          this.addSelectedItem(item);
+        });
+      } else {
+        this.searchResults.forEach((item) => {
+          this.removeSelectedItem(item);
+        });
+      }
+    },
+    isChecked(item) {
+      return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
+    },
+    onClearSelection() {
       this.selectedItems = [];
-      this.searchResults.forEach((item) => {
-        if (e) {
-          this.selectedItems.push(item);
-          document.querySelector(`input[value='${item.uid}']`).checked = true;
-        } else {
-          document.querySelector(`input[value='${item.uid}']`).checked = false;
-        }
-      });
-    },
-    onSelectResult(e) {
-      if (e && this.selectedItems) {
-        const idx = this.selectedItems.findIndex(c => (c.uid === e.uid));
-        if (idx === -1) this.selectedItems.push(e);
-        else this.selectedItems.splice(idx, 1);
-      }
     },
     onClickResult(searchResult) {
       this.$router.push({
@@ -357,6 +379,32 @@ export default {
     },
     isLoggedIn() {
       return this.$store.state.user.userData;
+    },
+    updateselectAll() {
+      let count = 0;
+      this.searchResults.forEach((item) => {
+        if (this.itemSelected(item)) {
+          count += 1;
+        }
+      });
+      if (count === 0) {
+        this.allSelected = false;
+        this.allIndeterminate = false;
+      } else if (count < this.searchResults.length) {
+        this.allSelected = false;
+        this.allIndeterminate = true;
+      } else {
+        this.allSelected = true;
+        this.allIndeterminate = false;
+      }
+    },
+  },
+  watch: {
+    searchResults() {
+      this.updateselectAll();
+    },
+    selectedItems() {
+      this.updateselectAll();
     },
   },
   components: {
@@ -446,6 +494,7 @@ div.overlay-region{
     "order_sentences": "Sentence",
     "select_all": "Select all items on this page",
     "items_selected": "One item selected | {count} items selected",
+    "Clear Selection": "Clear Selection",
     "add_n_to_collection": "Add item to collection | Add {count} items to collection",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
