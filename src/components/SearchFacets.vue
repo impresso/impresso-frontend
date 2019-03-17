@@ -3,30 +3,42 @@
     <div v-for="(facet, index) in facets" class="pt-1px border-top border-tertiary">
       <div class="px-3 py-2 border-top small">
         <base-title-bar>{{facet.type}}</base-title-bar>
-        <facet-language
-          v-if="facet.type === 'language'"
-          v-model="facets[index]"
-          v-on:submit="submitFacet"
-        />
-        <facet-topic
-          v-else-if="facet.type === 'topic'"
-          v-model="facets[index]"
-          v-on:submit="submitFacet"
-        />
-        <facet-newspaper
-          v-else-if="facet.type === 'newspaper'"
-          v-model="facets[index]"
-          v-on:submit="submitFacet"
-        />
+        <ul v-if="facet.type === 'language'" class="list-unstyled">
+          <li v-for="bucket in facet.buckets" class="facet-filter">
+            <div class="left">
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{$t(`languages.${bucket.item.uid}`)}} ({{$n(bucket.count)}})</a>
+            </div>
+            <div class="right pl-1">
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
+            </div>
+          </li>
+        </ul>
+        <ul v-if="facet.type === 'topic'" class="list-unstyled">
+          <li v-for="bucket in facet.buckets" class="facet-filter">
+            <div class="left">
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{bucket.item.getHtmlExcerpt()}} ({{$n(bucket.count)}})</a>
+            </div>
+            <div class="right pl-1">
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
+            </div>
+          </li>
+        </ul>
+        <ul v-if="facet.type === 'newspaper'" class="list-unstyled">
+          <li v-for="bucket in facet.buckets" class="facet-filter">
+            <div class="left">
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{bucket.item.name}} ({{$n(bucket.count)}})</a>
+            </div>
+            <div class="right pl-1">
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import FacetLanguage from './modules/FacetLanguage';
-import FacetTopic from './modules/FacetTopic';
-import FacetNewspaper from './modules/FacetNewspaper';
 import BaseTitleBar from './base/BaseTitleBar';
 
 export default {
@@ -54,32 +66,52 @@ export default {
     },
   },
   methods: {
-    submitFacet(facet, bucket) {
+    submitFacet(facet, bucket, context = 'include') {
       if (facet.type === 'topic') {
         this.$emit('submit-facet', {
           type: facet.type,
           item: bucket.item,
           h: bucket.val,
           q: bucket.val,
+          context,
         });
       } else if (facet.type === 'newspaper') {
         this.$emit('submit-facet', {
           type: facet.type,
           item: bucket.item,
+          context,
         });
       } else if (facet.type === 'language') {
         this.$emit('submit-facet', {
           type: facet.type,
           item: bucket.item,
+          context,
         });
       }
     },
   },
   components: {
     BaseTitleBar,
-    FacetLanguage,
-    FacetNewspaper,
-    FacetTopic,
   },
 };
 </script>
+
+<style scoped lang="scss">
+.facet-filter{
+  display: grid;
+  grid-template-columns: auto min-content;
+  grid-template-areas: "left" "right";
+  .left{
+    grid-area: "left"
+  }
+  .right{
+    opacity: 0;
+    grid-area: "right"
+  }
+  &:hover{
+    .right{
+      opacity: 1;
+    }
+  }
+}
+</style>
