@@ -13,6 +13,7 @@ import Tooltip from './tooltips/Tooltip';
 export default {
   props: {
     values: Array,
+    domain: Array,
     highlight: Object,
   },
   data: () => ({
@@ -45,6 +46,7 @@ export default {
         right: 50,
         top: 30,
       },
+      domain: this.domain,
     });
 
     this.line.on('mouseleave', () => {
