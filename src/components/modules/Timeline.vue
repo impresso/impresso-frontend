@@ -1,7 +1,14 @@
 <template lang="html">
   <div id="d3-timeline">
     <tooltip v-bind:tooltip="tooltip">
-      <div v-if="tooltip.item">{{ $d(tooltip.item.t, 'year') }} &middot; <b>{{ tooltip.item.w }}</b> {{ $t('pages') }}</div>
+      <div v-if="tooltip.item">
+        {{ $d(tooltip.item.t, 'year') }} &middot;
+        <b>{{ tooltip.item.w }}</b> {{ $t('total pages') }}
+        <br />
+        &mdash; <b>{{ tooltip.item.w1 }}</b> {{ $t('empty') }}
+        <br />
+        &mdash; <b>{{ tooltip.item.w2 }}</b> {{ $t('corrupted') }}
+      </div>
     </tooltip>
   </div>
 </template>
@@ -30,7 +37,7 @@ export default {
         item: data.datum,
         isActive: true,
         x: data.pointer.x + 50,
-        y: data.pointer.y - 5,
+        y: data.pointer.y - 50,
         hspace: this.line.width,
       };
     },
