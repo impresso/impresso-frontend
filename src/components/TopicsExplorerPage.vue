@@ -277,9 +277,7 @@ export default {
     display: block;
   }
 }
-span.number {
-  font-family: "questa-sans", sans-serif;
-}
+
 </style>
 <i18n>
 {
