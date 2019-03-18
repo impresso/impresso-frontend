@@ -3,7 +3,7 @@
       transform: `translate(${x}px, ${this.tooltip.y}px`,
     }">
     <div class="tooltip-wrapper">
-      <div class="tooltip-inner p-2 m-2">
+      <div class="tooltip-inner">
         <slot></slot>
       </div>
     </div>
@@ -57,6 +57,7 @@ export default {
     background: black;
     color: white;
     text-align: left;
+    display: inline-block;
   }
 
   p{

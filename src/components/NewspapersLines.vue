@@ -65,20 +65,24 @@ export default {
   }),
   props: ['newspapers'],
   methods: {
-    onMousemove({ clientX, clientY, screenY, localY }) {
+    onMousemove({ clientX, clientY }) {
       const x = clientX - this.$refs.lines.offsetLeft;
       const y = clientY - this.$refs.lines.offsetTop;
-      // const year = this.getNearestValue(parseInt(this.scale.invert(x), 10));
-      //
-      // console.log('toyear:', x, this.scale.invert(x), year);
       this.tooltip.x = x;
       this.tooltip.y = y - 40;
-      console.log(screenY, y, localY);
-
       this.point = {
         x,
         y,
       };
+      this.$emit('highlight', {
+        mouse: {
+          x,
+          y,
+        },
+        datum: {
+          t: parseInt(this.scale.invert(x), 10),
+        },
+      });
     },
     onMouseout() {
       this.tooltip.isActive = false;
@@ -96,32 +100,50 @@ export default {
       });
     },
     onMouseover(newspaper, event) {
-      console.log('@mouseover', event);
+      // console.log('@mouseover', event);
       this.point.y = event.target.offsetTop;
       this.tooltip.item = newspaper;
       this.tooltip.isActive = true;
       event.stopPropagation();
     },
     onResize() {
-      console.log('resized');
       this.width = this.$refs.lines.clientWidth;
       this.tooltip.hspace = this.width;
     },
-    getNearestValue(year) {
-      const idx = d3.bisectLeft(this.values, year);
+    getNearestValue(v) {
+      const idx = d3.bisectLeft(this.values, v);
+
+      if (idx === 0) {
+        return {
+          index: 0,
+          nearest: this.values[0],
+        };
+      }
 
       const d0 = this.values[idx - 1];
       const d1 = this.values[idx];
 
-      return Math.abs(year - d0) > Math.abs(year - d1) ? d1 : d0;
+      if (Math.abs(v - d0) > Math.abs(v - d1)) {
+        return {
+          index: idx,
+          nearest: d1,
+        };
+      }
+      return {
+        index: idx - 1,
+        nearest: d0,
+      };
     },
     // onMousemove(evt) {
     //   console.log('mousemove babe', evt);
     // },
   },
   mounted() {
-    window.addEventListener('resize', this.onResize);
     this.onResize();
+    window.addEventListener('resize', this.onResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
   },
   computed: {
     tooltipProperties() {
