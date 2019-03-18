@@ -30,6 +30,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
 body,
 html {
     height: 100%;
@@ -49,5 +50,21 @@ html {
         overflow-y: auto;
         position: relative;
     }
+}
+
+span.number {
+  font-family: "questa-sans", sans-serif;
+}
+svg {
+  text {
+    font-family: "questa-sans", sans-serif;
+  }
+  // axis
+  g.tick > line{
+    stroke: $clr-tertiary;
+  }
+  path.domain {
+    stroke: $clr-quaternary;
+  }
 }
 </style>
