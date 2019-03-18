@@ -44,7 +44,7 @@ export default {
       name: '',
       values: [],
     },
-    start: 1870,
+    start: 1738,
     end: 2018,
     highlights: ['A', 'B'],
     highlightA: null,
