@@ -11,6 +11,7 @@ class Dimension {
     scaleFn,
     domain = [0, 1],
     range = [0, 1],
+    isRangeFixed = false,
   } = {}) {
     this.name = name;
     this.property = property;
@@ -19,6 +20,7 @@ class Dimension {
     this.scaleFn = scaleFn;
     this.domain = domain;
     this.range = range;
+    this.isRangeFixed = isRangeFixed;
 
     if (this.type === TYPE_DISCRETE) {
       this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length])
@@ -62,6 +64,20 @@ class Dimension {
       nearest: d0,
     };
   }
+
+  setDomain({
+    domain = [],
+    fixed = true,
+  } = {}) {
+    if (!domain.length) {
+      return;
+    }
+    this.domain = domain;
+    this.isDomainFixed = fixed;
+    this.scale = this.scaleFn()
+      .domain(this.domain)
+      .range(this.range);
+  }
   /**
    * If type is TYPE_CONTINUOUS, values should be a flattened array of values
    * so that the min/max extent for the domain can easily be computated.
@@ -78,7 +94,9 @@ class Dimension {
     if (this.range && range) {
       this.range = range;
     }
-    this.domain = [];
+    if (!this.isDomainFixed) {
+      this.domain = [];
+    }
     this.legend = [];
     // recalculate cat according to type
     if (this.type === TYPE_DISCRETE) {
@@ -94,7 +112,9 @@ class Dimension {
         });
       });
     } else {
-      this.domain = d3.extent(values, d => d[this.property]);
+      if (!this.isDomainFixed) {
+        this.domain = d3.extent(values, d => d[this.property]);
+      }
       this.scale = this.scaleFn()
         .domain(this.domain)
         .range(this.range);

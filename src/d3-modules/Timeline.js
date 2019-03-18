@@ -8,6 +8,7 @@ export default class Timeline extends Line {
     svg = null,
     margin = {},
     format = '%Y',
+    domain = [],
   } = {}) {
     super({
       element,
@@ -39,6 +40,11 @@ export default class Timeline extends Line {
     this.timeParse = d3.timeParse(format);
     this.contextAxisX = this.context.append('g')
       .attr('class', 'axis axis--x');
+    if (domain.length) {
+      this.dimensions.x.setDomain({
+        domain: domain.map(d => this.timeParse(d)),
+      });
+    }
   }
 
   draw() {
