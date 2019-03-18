@@ -54,7 +54,7 @@
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
-    <div class="toaster">
+    <div class="jobs">
       <toast v-for="(job, i) in this.$store.state.jobs.data"
         v-bind:job="job"
         v-if="job.status == 'RUN'"
