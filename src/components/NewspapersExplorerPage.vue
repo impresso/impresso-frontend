@@ -10,6 +10,7 @@
       <b-navbar class='m-0 p-0'>
         <timeline
           :values="pagesTimeline.values"
+          :domain="[start, end]"
           :highlight="highlightA"
           v-on:highlight="onHighlight($event, 'A')"/>
       </b-navbar>
