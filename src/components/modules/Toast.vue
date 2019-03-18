@@ -4,13 +4,13 @@
     <b-row align-v="center">
       <b-col cols="6">
         <div class="m-1">
-          <!-- {{job}} -->
+          {{job}}
           {{ job.task }} (id:{{job.id}})
         </div>
       </b-col>
       <b-col class="text-right">
         <b-button variant="outline-danger m-1" size="sm">Stop</b-button>
-        <b-button variant="outline-success m-1" size="sm">Export</b-button>
+        <b-button variant="outline-success m-1" size="sm" v-on:click="onExport()">Export</b-button>
       </b-col>
     </b-row>
   </b-alert>
@@ -19,6 +19,28 @@
 <script>
 export default {
   props: ['job'],
+  methods: {
+    onExport() {
+      const anchor = document.createElement('a');
+      document.body.appendChild(anchor);
+      const file = `/media/jobs/${this.job.id}.csv`;
+
+      const headers = new Headers();
+      headers.append('Authorization', 'Bearer MY-TOKEN');
+
+      fetch(file, { headers })
+        .then(response => response.blob())
+        .then((blobby) => {
+          const objectUrl = window.URL.createObjectURL(blobby);
+
+          anchor.href = objectUrl;
+          anchor.download = `${this.job.id}.csv`;
+          anchor.click();
+
+          window.URL.revokeObjectURL(objectUrl);
+        });
+    },
+  },
 };
 </script>
 
