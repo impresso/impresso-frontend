@@ -8,16 +8,6 @@ export default {
     data: [],
     jobs: [],
   },
-  // getters: {
-  //   jobs(state) {
-  //     return state.jobs;
-  //   },
-  // },
-  // mutations: {
-  //   ADD_JOB(state, job) {
-  //     state.jobs.push(job);
-  //   },
-  // },
   actions: {
     TEST() {
       return new Promise((resolve, reject) => {
