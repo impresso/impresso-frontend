@@ -71,7 +71,7 @@
     </b-navbar>
 
     <b-navbar class="d-flex p-0 border-bottom bg-light">
-      <b-navbar-nav class="flex-fill px-3 py-2 border-right">
+      <b-navbar-nav class="px-3 py-2 border-right" style="flex:1">
           <search-result-summary
             v-on:gotMessage="gotMessage"
             v-bind:queryComponents="queryComponents"
