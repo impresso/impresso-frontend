@@ -1,10 +1,9 @@
 <template lang="html">
-  <b-alert show fade variant="info" class="toast small-caps m-0 px-3 py-1 border-0 border-bottom-1">
-    <b-progress :value="job.progress * 100" variant="info" height="2px" />
+  <b-alert show fade variant="warning" class="toast small-caps m-0 pl-1 pr-1 py-1">
+    <b-progress :value="job.progress * 100" variant="warning" animated height="2px" />
     <b-row align-v="center">
       <b-col cols="6">
         <div class="m-1">
-          {{job}}
           {{ job.task }} (id:{{job.id}})
         </div>
       </b-col>

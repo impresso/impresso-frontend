@@ -39,13 +39,22 @@
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 border-left" right>
             <template slot="button-content">
               <div class='d-inline-block'>
-                <div class='user-picture mt-1 float-left' :style='userPicture'></div>
+                <div class='user-picture mt-1 float-left position-relative' :style='userPicture'>
+                </div>
                 <div class='user-label pt-2'>
                   <div class='user-fullname'>{{userFullName}}</div>
                   <div class='user-role small-caps'>{{userRole}}</div>
                 </div>
+                <b-badge v-if="runningJobs.length > 0" pill variant="danger">{{runningJobs.length}}</b-badge>
               </div>
             </template>
+            <div class="jobs">
+              <toast v-for="(job, i) in this.runningJobs"
+                v-bind:job="job"
+                v-bind:key="job.id"
+                style="min-width: 400px"
+                />
+            </div>
             <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
@@ -54,13 +63,6 @@
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
-    <div class="jobs">
-      <toast v-for="(job, i) in this.$store.state.jobs.data"
-        v-bind:job="job"
-        v-if="job.status == 'RUN'"
-        v-bind:key="job.id"
-        />
-    </div>
   </div>
 </template>
 
@@ -100,9 +102,11 @@ export default {
   }),
   async mounted() {
     this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
-    // console.log('"PENDING JOBS"', this.jobs);
   },
   computed: {
+    runningJobs() {
+      return this.$store.state.jobs.data.filter(job => job.status === 'RUN');
+    },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
@@ -118,9 +122,6 @@ export default {
     user() {
       return this.$store.getters['user/user'];
     },
-    // jobs() {
-    //   return this.$store.getters['jobs/jobs'];
-    // },
     headerTitle() {
       return this.$store.getters.headerTitle;
     },
@@ -187,6 +188,13 @@ export default {
         z-index: 100;
         top: 0;
         left: 0;
+    }
+    .badge-pill {
+      position:absolute;
+      top:0.5em;
+      left:0.5em;
+      border-radius:10px;
+      height:20px
     }
     .toaster {
       position:absolute;
