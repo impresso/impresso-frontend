@@ -71,11 +71,13 @@
     </b-navbar>
 
     <b-navbar class="d-flex p-0 border-bottom bg-light">
-      <b-navbar-nav class="flex-fill px-3 py-2 border-right">
+      <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
+        <ellipsis v-bind:initialHeight="88">
           <search-result-summary
             v-on:gotMessage="gotMessage"
             v-bind:queryComponents="queryComponents"
             v-bind:totalRows="paginationTotalRows" />
+        </ellipsis>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto p-3">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
@@ -160,6 +162,7 @@ import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
+import Ellipsis from './modules/Ellipsis';
 
 // const uuid = require('uuid');
 
@@ -430,6 +433,7 @@ export default {
     'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
     CollectionAddTo,
+    Ellipsis,
   },
   mounted() {
     if (this.uuid !== undefined) {
