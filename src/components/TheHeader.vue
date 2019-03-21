@@ -36,6 +36,24 @@
             v-bind:disabled="language.disabled"
             v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
           </b-nav-item-dropdown>
+          <b-nav-item-dropdown no-caret right class="small-caps border-left p-2">
+              <template slot="button-content">
+                <div class="dripicons-bell position-relative" style="top:0.25em" />
+                <transition name="bounce">
+                  <b-badge
+                    v-if="runningJobs.length > 0" pill variant="danger" class="border">
+                    {{runningJobs.length}}
+                  </b-badge>
+                </transition>
+              </template>
+              <div class="jobs">
+                <toast v-for="(job, i) in this.runningJobs"
+                  v-bind:job="job"
+                  v-bind:key="job.id"
+                  style="min-width: 400px"
+                  />
+              </div>
+          </b-nav-item-dropdown>
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 border-left" right>
             <template slot="button-content">
               <div class='d-inline-block'>
@@ -45,21 +63,8 @@
                   <div class='user-fullname'>{{userFullName}}</div>
                   <div class='user-role small-caps'>{{userRole}}</div>
                 </div>
-                <transition name="bounce">
-                  <b-badge
-                    v-if="runningJobs.length > 0" pill variant="danger">
-                    {{runningJobs.length}}
-                  </b-badge>
-                </transition>
               </div>
             </template>
-            <div class="jobs">
-              <toast v-for="(job, i) in this.runningJobs"
-                v-bind:job="job"
-                v-bind:key="job.id"
-                style="min-width: 400px"
-                />
-            </div>
             <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
@@ -195,11 +200,12 @@ export default {
         left: 0;
     }
     .badge-pill {
-      position:absolute;
+      position: absolute;
       top:0.5em;
-      left:0.5em;
+      right:0.3em;
       border-radius:10px;
-      height:20px
+      min-width:20px;
+      height:20px;
     }
     .toaster {
       position:absolute;
