@@ -83,6 +83,7 @@
     </b-navbar>
     <b-modal
       id="nameCollection"
+      ref="nameCollection"
       v-bind:title="$t('query_add_to_collection')"
       v-on:shown="nameCollectionOnShown()"
       v-bind:ok-disabled="nameCollectionOkDisabled"
@@ -328,6 +329,7 @@ export default {
     },
     createQueryCollection() {
       if (!this.nameCollectionOkDisabled) {
+        this.$refs.nameCollection.hide();
         this.$store.dispatch('collections/ADD_COLLECTION', {
           name: this.inputName,
           description: this.inputDescription,
