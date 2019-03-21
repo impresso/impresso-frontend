@@ -45,7 +45,12 @@
                   <div class='user-fullname'>{{userFullName}}</div>
                   <div class='user-role small-caps'>{{userRole}}</div>
                 </div>
-                <b-badge v-if="runningJobs.length > 0" pill variant="danger">{{runningJobs.length}}</b-badge>
+                <transition name="bounce">
+                  <b-badge
+                    v-if="runningJobs.length > 0" pill variant="danger">
+                    {{runningJobs.length}}
+                  </b-badge>
+                </transition>
               </div>
             </template>
             <div class="jobs">
@@ -333,6 +338,24 @@ export default {
             padding: 0.15em 0.6em;
         }
     }
+}
+/* bounce animation */
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-in .5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>
 
