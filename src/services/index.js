@@ -75,3 +75,4 @@ export const collections = app.service('collections');
 export const collectionsItems = app.service('collectable-items');
 export const topics = app.service('topics');
 export const jobs = app.service('jobs');
+export const exporter = app.service('search-exporter');
