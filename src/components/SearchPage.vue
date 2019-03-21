@@ -77,7 +77,10 @@
             <span class="dripicons-archive pr-3"></span>
             {{$t("query_add_to_collection")}}
           </b-dropdown-item>
-          <b-dropdown-item disabled><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+          <b-dropdown-item v-on:click="exportQueryCsv">
+            <span class="dripicons-export pr-3"></span>
+            {{$t("query_export_csv")}}
+          </b-dropdown-item>
         </b-dropdown>
       </b-navbar-nav>
     </b-navbar>
@@ -337,6 +340,9 @@ export default {
           this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid);
         });
       }
+    },
+    exportQueryCsv() {
+      this.$store.dispatch('search/EXPORT_FROM_QUERY');
     },
     nameCollectionOnShown() {
       this.inputName = '';
