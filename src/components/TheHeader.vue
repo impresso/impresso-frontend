@@ -36,18 +36,17 @@
             v-bind:disabled="language.disabled"
             v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
           </b-nav-item-dropdown>
-          <b-nav-item-dropdown no-caret right
-            v-bind:disabled="runningJobs.length < 1"
-            class="small-caps border-left p-2">
-              <template slot="button-content">
-                <div class="dripicons-bell position-relative" style="top:0.25em" />
-                <transition name="bounce">
-                  <b-badge
-                    v-if="runningJobs.length > 0" pill variant="danger" class="border">
-                    {{runningJobs.length}}
-                  </b-badge>
-                </transition>
-              </template>
+          <transition name="bounce">
+            <b-nav-item-dropdown right no-caret
+              v-if="runningJobs.length > 0"
+              class="small-caps border-left p-2 pr-4">
+                <template slot="button-content">
+                  <div class="dripicons-bell position-relative" style="top:0.25em" />
+                    <b-badge
+                      v-if="runningJobs.length > 0" pill variant="danger" class="border">
+                      {{runningJobs.length}}
+                    </b-badge>
+                </template>
               <div class="jobs">
                 <toast v-for="(job, i) in this.runningJobs"
                   v-bind:job="job"
@@ -55,7 +54,8 @@
                   style="min-width: 400px"
                   />
               </div>
-          </b-nav-item-dropdown>
+            </b-nav-item-dropdown>
+        </transition>
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 border-left" right>
             <template slot="button-content">
               <div class='d-inline-block'>
@@ -203,11 +203,12 @@ export default {
     }
     .badge-pill {
       position: absolute;
-      top:0.5em;
-      right:0.3em;
+      top:50%;
+      right:0.5em;
       border-radius:10px;
       min-width:20px;
       height:20px;
+      margin-top:-10px;
     }
     .toaster {
       position:absolute;
