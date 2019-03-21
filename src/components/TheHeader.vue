@@ -36,9 +36,13 @@
             v-bind:disabled="language.disabled"
             v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
           </b-nav-item-dropdown>
+<<<<<<< HEAD
           <b-nav-item-dropdown no-caret right
             v-bind:disabled="runningJobs.length < 1"
             class="small-caps border-left p-2">
+=======
+          <b-nav-item-dropdown no-caret right class="small-caps border-left p-2">
+>>>>>>> 3120e6aa9b3e5e96e8a4fe75bff66e764cbf428d
               <template slot="button-content">
                 <div class="dripicons-bell position-relative" style="top:0.25em" />
                 <transition name="bounce">
