@@ -36,26 +36,39 @@
             v-bind:disabled="language.disabled"
             v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
           </b-nav-item-dropdown>
-          <transition name="bounce">
-            <b-nav-item-dropdown right no-caret
-              v-if="runningJobs.length > 0"
-              class="small-caps border-left p-2 pr-4">
-                <template slot="button-content">
-                  <div class="dripicons-bell position-relative" style="top:0.25em" />
-                    <b-badge
-                      v-if="runningJobs.length > 0" pill variant="danger" class="border">
-                      {{runningJobs.length}}
-                    </b-badge>
-                </template>
-              <div class="jobs">
-                <toast v-for="(job, i) in this.runningJobs"
-                  v-bind:job="job"
-                  v-bind:key="job.id"
-                  style="min-width: 400px"
-                  />
+          <b-nav-item-dropdown right no-caret
+            ref="ddownJobs"
+            v-bind:disabled="jobs.length === 0"
+            class="border-left p-2">
+              <template slot="button-content">
+                <div class="dripicons-bell position-relative" style="top:0.25em" />
+                <transition name="bounce">
+                  <b-badge
+                    v-if="runningJobs.length > 0" pill variant="danger" class="border">
+                    {{runningJobs.length}}
+                  </b-badge>
+                </transition>
+              </template>
+            <div class="jobs">
+              <toast v-for="(job, i) in this.jobs"
+                v-bind:job="job"
+                v-bind:key="job.id"
+                style="min-width: 400px"
+                />
+              <div class="border-top border-primary text-center text-white p-0">
+                <b-button
+                  v-if="showLess"
+                  @click="showLess = false"
+                  class="border-0 w-100"
+                  size="sm">{{$t('show all')}}</b-button>
+                <b-button
+                  v-if="!showLess"
+                  @click="showLess = true"
+                  class="border-0 w-100"
+                  size="sm">{{$t('show less')}}</b-button>
               </div>
+            </div>
             </b-nav-item-dropdown>
-        </transition>
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 border-left" right>
             <template slot="button-content">
               <div class='d-inline-block'>
@@ -85,6 +98,7 @@ import Toast from './modules/Toast';
 
 export default {
   data: () => ({
+    showLess: true,
     languages: {
       de: {
         code: 'de',
@@ -116,6 +130,9 @@ export default {
     this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
   },
   computed: {
+    jobs() {
+      return this.showLess ? this.$store.state.jobs.data.slice(0, 4) : this.$store.state.jobs.data;
+    },
     runningJobs() {
       return this.$store.state.jobs.data.filter(job => job.status === 'RUN');
     },
@@ -175,6 +192,13 @@ export default {
     },
   },
   watch: {
+    runningJobs: {
+      handler(val) {
+        if (val.length > 0 && this.$refs.ddownJobs) {
+          this.$refs.ddownJobs.show();
+        }
+      },
+    },
     $route: {
       handler(val, oldVal) {
         if (val.meta.realm !== oldVal.meta.realm) {
@@ -203,12 +227,12 @@ export default {
     }
     .badge-pill {
       position: absolute;
-      top:50%;
+      line-height: 0.9;
+      top:0.5em;
       right:0.5em;
       border-radius:10px;
       min-width:20px;
       height:20px;
-      margin-top:-10px;
     }
     .toaster {
       position:absolute;
