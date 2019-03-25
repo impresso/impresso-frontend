@@ -1,8 +1,9 @@
 <template lang="html">
-  <div id="search-filters" class="px-4">
-    <div v-for="(filter, index) in filters">
+  <div id="search-filters" class="px-3">
+    <div v-bind:class="`filter-wrapper filter-${filter.type}`" v-for="(filter, index) in filters">
       <filter-facet-year
         v-if="filter.type === 'year'"
+        class="mt-2"
         v-model="filters[index]"
         v-on:input="updateFilter"
         v-on:remove="submitFilter" />
@@ -62,7 +63,7 @@ import FilterString from './modules/FilterString';
 
 export default {
   data: () => ({
-    filtersOrder: ['year', 'string', 'regex', 'entity', 'topic', 'daterange', 'newspaper', 'language'],
+    filtersOrder: ['string', 'regex', 'entity', 'topic', 'daterange', 'newspaper', 'language', 'year'],
   }),
   computed: {
     search: {
@@ -118,5 +119,10 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
+#search-filters{
+  .filter-wrapper:not(.filter-year){
+    display: inline-block;
+  }
+}
 </style>

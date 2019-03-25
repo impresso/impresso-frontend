@@ -13,28 +13,36 @@
         </b-btn>
       </b-input-group-append>
     </b-input-group>
-    <div class="suggestions border-left border-right border-bottom border-primary" v-show="showSuggestions">
-      <div v-if="suggestion" v-on:click="submit(suggestion)" v-on:mouseover="select(suggestion)" class="suggestion" v-bind:class="{selected: selected === suggestion}">
+    <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
+      <div v-if="suggestion" v-on:click="submit(suggestion)" v-on:mouseover="select(suggestion)" class="suggestion p-2" v-bind:class="{selected: selected === suggestion}">
         <div class="suggestion-string">
           {{suggestion.query}}
         </div>
       </div>
-      <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion" v-bind:class="{selected: selected === s}">
+      <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion p-2" v-bind:class="{selected: selected === s}">
         <div v-if="s.type === 'regex'" class="suggestion-regex">
-          <b-badge>{{$t('regex')}}</b-badge> {{s.query}}
+          <span class="icon dripicons-rocket" :title="$t('regex')"></span>
+          <span v-html="s.query" />
+          <b-badge>{{$t('regex')}}</b-badge>
         </div>
         <div href="#" v-if="s.type === 'collection'" class="suggestion-collection">
           <b-badge>{{$t('collection')}}</b-badge>
           <div>{{s.item.name}} &mdash; by @{{s.item.creator.username}}</div>
         </div>
         <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
-          <b-badge>{{$t('topic')}}</b-badge> <span v-html="s.h" />
+          <span class="icon dripicons-message" :title="$t('topic')"></span>
+          <span v-html="s.h" />
+          <b-badge>{{$t('topic')}}</b-badge>
         </div>
         <div href="#" v-if="s.type === 'entity'" class="suggestion-entity">
-          <b-badge>{{$t(s.item.type)}}</b-badge> <span v-html="s.h" />
+          <span v-if="s.item.type === 'person'" class="icon dripicons-user" :title="$t(s.item.type)"></span>
+          <span v-if="s.item.type === 'location'" class="icon dripicons-location" :title="$t(s.item.type)"></span>
+          <span v-html="s.h" />
+          <b-badge>{{$t(s.item.type)}}</b-badge>
         </div>
         <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
-          <b-badge>{{$t('daterange')}}</b-badge> {{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}
+          {{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}
+          <b-badge>{{$t('daterange')}}</b-badge>
         </div>
       </div>
     </div>
@@ -134,28 +142,45 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style scoped lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
 .search-bar{
   position: relative;
+  .search-submit {
+    line-height: 1;
+    padding: 0.1em;
+  }
   .suggestions {
     position: absolute;
     top:38px;
     width: 100%;
     background: white;
     z-index: 10;
-    box-shadow: 0 10px 10px rgba(0,0,0,0.25);
     .suggestion {
-      display: block;
-      padding: 3px 3px 3px 12px;
+      border: 1px solid transparent;
       cursor: pointer;
-      .badge {
-        float: right;
-        margin-top: 3px;
-        margin-left: 7px;
+      > div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        span {
+          flex: 1;
+          flex-grow: 8;
+        }
+        .icon {
+          flex: 1;
+          color: $clr-accent-secondary;
+          line-height: 1;
+        }
+        .badge {
+          flex: 1;
+        }
       }
       &:hover,
       &.selected {
-        background: rgba(0, 0, 0, 0.1);
+        background: rgba($clr-accent-secondary, 0.5);
+        border-color: rgba($clr-accent-secondary, 0.75);
       }
     }
   }

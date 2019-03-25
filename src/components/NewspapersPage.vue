@@ -2,8 +2,10 @@
   <i-layout id="SearchPage">
     <i-layout-section width="300px" class="border-right">
       <div slot="header" class="border-bottom">
+
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="px-3 py-3">
+            <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
             <label class="mr-1">{{$t("label_order")}}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </b-navbar-nav>
@@ -12,24 +14,23 @@
           <input
             type="text"
             class="form-control"
-            placeholder="Search"
+            placeholder="... name or description "
             name=""
             value=""
-            v-model="query"
-            v-on:keyup.enter="loadList(1)" />
+            v-model.trim="query"/>
         </div>
       </div>
       <div v-for="n in newspapers" class="border-bottom">
         <router-link
           class="px-3 py-2 d-block"
           v-bind:class="{active: n.uid === newspaperUid}"
-          v-bind:to="{name: 'newspapers', params: {newspaper_uid: n.uid}}">
+          v-bind:to="{name: 'newspaper_metadata', params: {newspaper_uid: n.uid}}">
           <strong>{{n.name}}</strong>
           <br>
           ({{n.startYear}} - {{n.endYear}})
         </router-link>
       </div>
-      <div slot="footer" class="p-2 border-top">
+      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top">
         <pagination
           v-bind:perPage="paginationList.perPage"
           v-bind:currentPage="paginationList.currentPage"
@@ -38,64 +39,16 @@
           v-bind:showDescription="true" />
       </div>
     </i-layout-section>
-    <i-layout-section>
-      <div slot="header" class="border-bottom">
-        <b-navbar type="light" variant="light">
-          {{newspaper.name}}
-        </b-navbar>
-      </div>
-      <div class="p-4">
-        <b-row>
-          <b-col
-            sm="12" lg="6"
-            v-for="(issue, index) in issues"
-            class="mb-4">
-            <div class="border">
-              <div class="p-3 border-bottom">
-                {{issue.uid}}
-              </div>
-              <issue-viewer v-model="issues[index]" />
-            </div>
-          </b-col>
-        </b-row>
-      </div>
-      <div slot="footer" class="p-2 border-top">
-        <pagination
-          v-bind:perPage="paginationDetail.perPage"
-          v-bind:currentPage="paginationDetail.currentPage"
-          v-bind:totalRows="paginationDetail.totalRows"
-          v-on:change="onInputPaginationDetail"
-          v-bind:showDescription="true" />
-      </div>
-    </i-layout-section>
-    <i-layout-section width="250px" class="border-left">
-      <div slot="header" class="border-bottom">
-        <b-navbar type="light" variant="light" >
-          metadata
-        </b-navbar>
-      </div>
-      <div class="p-4 border-bottom">
-        <p>Year of first issue<br>{{newspaper.startYear}}</p>
-        <p>Year of last issue<br>{{newspaper.endYear}}</p>
-        <p>Years running<br>{{newspaper.deltaYear}}</p>
-
-        <p v-show="newspaper.countArticles">Articles<br>{{newspaper.countArticles}}</p>
-        <p v-show="newspaper.countIssues">Issues<br>{{newspaper.countIssues}}</p>
-        <p v-show="newspaper.countPages">Pages<br>{{newspaper.countPages}}</p>
-      </div>
-      <div class="p-4">
-        <p v-for="property in newspaper.properties">{{property.name}}<br>{{property.newspapers_metadata.value}}</p>
-      </div>
-    </i-layout-section>
+    <router-view></router-view>
   </i-layout>
 </template>
 
 <script>
 import Pagination from './modules/Pagination';
-import IssueViewer from './modules/IssueViewer';
 
 export default {
   data: () => ({
+
   }),
   computed: {
     paginationList() {
@@ -113,7 +66,6 @@ export default {
       },
       set(newspaper) {
         this.$store.commit('newspapers/UPDATE_DETAIL_NEWSPAPER', newspaper);
-        this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
       },
     },
     newspaperUid() {
@@ -124,37 +76,45 @@ export default {
     },
     query: {
       get() {
-        return this.$store.state.newspapers.list.query;
+        return this.$store.state.newspapers.list.query || '';
       },
       set(val) {
         this.$store.commit('newspapers/UPDATE_LIST_QUERY', val);
+        this.loadList(1);
       },
     },
     orderByOptions: {
       get() {
         return [
           {
-            value: 'alphabetical',
-            text: `${this.$t('sort_alphabetical')} ${this.$t('sort_asc')}`,
+            value: 'name',
+            text: `${this.$t('sort_name')} ${this.$t('sort_asc')}`,
           },
           {
-            value: '-alphabetical',
-            text: `${this.$t('sort_alphabetical')} ${this.$t('sort_desc')}`,
+            value: '-name',
+            text: `${this.$t('sort_name')} ${this.$t('sort_desc')}`,
           },
           {
-            value: 'date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+            value: 'startYear',
+            text: `${this.$t('sort_start_date')} ${this.$t('sort_asc')}`,
           },
           {
-            value: '-date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            value: '-startYear',
+            text: `${this.$t('sort_start_date')} ${this.$t('sort_desc')}`,
+          },
+          {
+            value: 'endYear',
+            text: `${this.$t('sort_end_date')} ${this.$t('sort_asc')}`,
+          },
+          {
+            value: '-endYear',
+            text: `${this.$t('sort_end_date')} ${this.$t('sort_desc')}`,
           },
         ];
       },
     },
     orderBy: {
       get() {
-        // return 'date';
         return this.$store.state.newspapers.list.orderBy;
       },
       set(val) {
@@ -174,16 +134,6 @@ export default {
     onInputPaginationList(page = 1) {
       this.loadList(page);
     },
-    loadIssues(page) {
-      if (page !== undefined) {
-        this.$store.commit('newspapers/UPDATE_DETAIL_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
-
-      return this.$store.dispatch('newspapers/LOAD_NEWSPAPER_ISSUES');
-    },
-    onInputPaginationDetail(page = 1) {
-      this.loadIssues(page);
-    },
   },
   mounted() {
     this.loadList().then((res) => {
@@ -199,7 +149,7 @@ export default {
   },
   components: {
     Pagination,
-    IssueViewer,
+
   },
   watch: {
     newspaperUid: {
@@ -225,18 +175,21 @@ export default {
 <i18n>
 {
   "en": {
+    "label_list": "List of newspapers ({total})",
     "label_order": "Order By",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
-    "sort_date": "Date",
-    "sort_alphabetical": "Alphabetical"
+    "sort_start_date": "Date of first issue",
+    "sort_end_date": "Date of last issue",
+    "sort_name": "Alphabetical"
   },
   "nl": {
     "label_order": "Sorteer Op",
     "sort_asc": "Oplopend",
     "sort_desc": "Aflopend",
-    "sort_date": "Datum",
-    "sort_alphabetical": "Alfabetisch"
+    "sort_start_date": "Datum",
+    "sort_end_date": "Datum",
+    "sort_name": "Alfabetisch"
   }
 }
 </i18n>

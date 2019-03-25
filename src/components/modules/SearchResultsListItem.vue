@@ -5,28 +5,85 @@
         v-bind:handler="handler">
       </open-seadragon-viewer>
     </div>
-    <h2 v-if="article.title" class="mb-0">
-      <a href="#" v-on:click.prevent="click" v-html="article.title" />
-    </h2>
-    <div class="article-meta mb-2">
-      <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
-      <span class="small-caps">{{$d(article.date, "long")}}</span>
-      (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+    <div class="d-flex">
+      <div>
+        <h2 v-if="article.title" class="mb-0">
+          <router-link :to="{ name: 'article', params: {
+            issue_uid: article.issue.uid,
+            page_uid: article.pages[0].uid,
+            article_uid: article.uid,
+          } }" v-html="article.title"></router-link>
+        </h2>
+        <div class="article-meta mb-2">
+          <router-link :to="{ name: 'newspaper', params: { newspaper_uid: article.newspaper.uid }}">
+          <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
+          </router-link>
+          <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
+          (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
+        </div>
+
+        <div v-if="article.excerpt.length > 0" class="article-excerpt mb-2">{{article.excerpt}}</div>
+
+        <ul v-if="article.matches.length > 0" class="article-matches mb-2">
+          <li
+            v-for="(match, i) in article.matches"
+            v-bind:key="i"
+            v-html="match.fragment"
+            v-show="match.fragment.trim().length > 0" />
+        </ul>
+        <b-badge
+          class="mb-2"
+          pill
+          v-for="tag in article.tags"
+          variant="secondary"
+          v-bind:key="tag.uid">{{tag.name}}</b-badge>
+        <ul v-if="article.matches.length > 0" class="article-matches mb-2">
+          <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
+        </ul>
+        <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
+          <b-badge
+            v-for="(collection, i) in article.collections"
+            v-bind:key="i"
+            variant="info"
+            class="mr-1">
+            <router-link
+              class="text-white"
+              v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+              {{ collection.name }}
+            </router-link>
+            <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+          </b-badge>
+        </div>
+
+        <router-link :to="{ name: 'article', params: {
+          issue_uid: article.issue.uid,
+          page_uid: article.pages[0].uid,
+          article_uid: article.uid,
+        } }" class="btn btn-sm btn-outline-primary">
+          {{$t('view')}}
+          
+        </router-link>
+
+        <collection-add-to
+          v-if="isLoggedIn()"
+          v-bind:item="article"
+          v-bind:text="$t('add_to_collection')" />
+      </div>
+      <div v-if="isLoggedIn() && checkbox" class="ml-auto pl-2">
+        <b-checkbox
+          class="mr-0 select-item"
+          v-bind:checked.native="checked"
+          v-on:change="toggleSelected" />
+      </div>
     </div>
 
-    <div v-if="article.excerpt.length > 0" class="article-excerpt mb-2">{{article.excerpt}}</div>
-
-    <ul v-if="article.matches.length > 0" class="article-matches mb-2">
-      <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
-    </ul>
-    <b-badge class="mb-2" pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{tag.name}}</b-badge>
-    <b-button size="sm" variant="outline-primary" v-on:click.prevent="click">{{$t('view')}}</b-button>
   </b-media>
 </template>
 
 <script>
 import Vue from 'vue';
 import OpenSeadragonViewer from './OpenSeadragonViewer';
+import CollectionAddTo from './CollectionAddTo';
 
 export default {
   data: () => ({
@@ -35,8 +92,23 @@ export default {
   model: {
     prop: 'article',
   },
-  props: ['article'],
+  props: ['article', 'checkbox', 'checked'],
   methods: {
+    onRemoveCollection(collection, item) {
+      const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+      if (idx !== -1) {
+        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+          collection,
+          item,
+        }).then(() => {
+          item.collections.splice(idx, 1);
+          this.$forceUpdate();
+        });
+      }
+    },
+    toggleSelected() {
+      this.$emit('toggleSelected');
+    },
     click() {
       this.$emit('click');
     },
@@ -56,9 +128,13 @@ export default {
 
       this.handler.$emit('init', options);
     },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
   },
   components: {
     OpenSeadragonViewer,
+    CollectionAddTo,
   },
   mounted() {
     this.init();
@@ -67,11 +143,15 @@ export default {
       if (this.article.isCC) {
         this.article.regions.forEach((region) => {
           if (region.pageUid === this.article.pages[0].uid) {
+            if (region.coords.x) region.coords[0] = region.coords.x;
+            if (region.coords.y) region.coords[1] = region.coords.y;
+            if (region.coords.w) region.coords[2] = region.coords.w;
+            if (region.coords.h) region.coords[3] = region.coords.h;
             const overlay = {
-              x: region.coords.x,
-              y: region.coords.y,
-              w: region.coords.w,
-              h: region.coords.h,
+              x: region.coords[0],
+              y: region.coords[1],
+              w: region.coords[2],
+              h: region.coords[3],
               class: 'overlay-region selected',
             };
 
@@ -108,7 +188,13 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
+div.overlay-region{
+  background: $clr-accent-secondary;
+  opacity: 0.25;
+}
 .thumbnail {
     width: 215px;
     height: 240px;
@@ -145,7 +231,8 @@ ul.article-matches {
 <i18n>
 {
   "en": {
-    "view": "View"
+    "view": "View",
+    "add_to_collection": "Add to Collection ..."
   },
   "nl": {
     "view": "Bekijk"

@@ -2,9 +2,7 @@ import * as services from '@/services';
 import Article from '@/models/Article';
 import Bucket from '@/models/Bucket';
 import Topic from '@/models/Topic';
-import Collection from '@/models/Collection';
 import QueryComponent from '@/models/QueryComponent';
-import Match from '@/models/Match';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
 import Facet from '@/models/Facet';
@@ -124,6 +122,12 @@ export default {
     ADD_FACET(state, facet) {
       state.facets.push(facet);
     },
+    UPDATE_FILTER_IS_FRONT(state, value) {
+      state.search.isFront = value;
+    },
+    UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
+      state.search.hasTextContents = value;
+    },
   },
   actions: {
     ADD_OR_REPLACE_FILTER(context, filter) {
@@ -137,13 +141,23 @@ export default {
         context.commit('ADD_FILTER', filter);
       }
     },
+    CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
+      return new Promise((resolve) => {
+        services.search.create({}, {
+          query: {
+            collection_uid: collectionUid,
+            group_by: 'articles',
+            filters: context.getters.getSearch.getFilters(),
+          },
+        }).then(res => resolve(res));
+      });
+    },
     SEARCH(context) {
       const search = new Promise(
         (resolve, reject) => {
           services.search.find({
             query: {
-              filters: context.getters.getSearch.filters.map(
-                filter => filter.getQuery()).filter(i => i),
+              filters: context.getters.getSearch.getFilters(),
               facets: context.state.facetTypes,
               group_by: context.state.groupBy,
               page: context.state.paginationCurrentPage,
@@ -153,6 +167,7 @@ export default {
           }).then(
             (res) => {
               context.commit('CLEAR_FACETS');
+
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
                 ...result,
                 issue: {
@@ -164,19 +179,8 @@ export default {
                   tag.appliesTo = tag.applies_to;
                   return tag;
                 }) : [],
-                collections: result.buckets ? result.buckets.map(bucket => new Collection({
-                  ...bucket,
-                  countArticles: bucket.count_articles,
-                  countEntities: bucket.count_entities,
-                  countIssues: bucket.count_issues,
-                  countItems: bucket.count_items,
-                  countPages: bucket.count_pages,
-                  creationDate: bucket.creation_date,
-                  creationTime: bucket.creation_time,
-                  lastModifiedDate: bucket.last_modified_date,
-                  lastModifiedTime: bucket.last_modified_time,
-                })) : [],
-                matches: result.matches ? result.matches.map(match => new Match(match)) : [],
+                collections: result.collections,
+                matches: result.matches || [],
                 newspaper: new Newspaper({
                   ...result.newspaper,
                   countArticles: result.newspaper.count_articles,
@@ -252,8 +256,7 @@ export default {
         (resolve, reject) => {
           services.search.find({
             query: {
-              filters: context.getters.getSearch.filters.map(
-                filter => filter.getQuery()).filter(i => i && i.type !== 'daterange'),
+              filters: context.getters.getSearch.getFilters(['daterange']),
               facets: ['year'],
               group_by: context.state.groupBy,
               page: context.state.paginationCurrentPage,

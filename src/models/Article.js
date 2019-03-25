@@ -4,6 +4,7 @@ import Match from './Match';
 import Newspaper from './Newspaper';
 import Page from './Page';
 import Region from './Region';
+import ArticleTopic from './ArticleTopic';
 import Tag from './Tag';
 
 /**
@@ -55,6 +56,7 @@ export default class Article {
     type = '',
     uid = '',
     year = 0,
+    topics = [], // array of ArticleTopic instances
   } = {}) {
     this.collections = collections.map((collection) => {
       if (collection instanceof Collection) {
@@ -121,6 +123,14 @@ export default class Article {
       }
 
       return new Tag(tag);
+    });
+
+    this.topics = topics.map((topic) => {
+      if (topic instanceof ArticleTopic) {
+        return topic;
+      }
+
+      return new ArticleTopic(topic);
     });
 
     this.time = parseInt(time, 10);

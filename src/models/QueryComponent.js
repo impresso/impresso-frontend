@@ -1,5 +1,7 @@
 import Daterange from './Daterange';
 import Entity from './Entity';
+import Topic from './Topic';
+import Newspaper from './Newspaper';
 /**
  * Query Component object
  * @param {String} context either 'include' or 'exclude'
@@ -14,6 +16,7 @@ export default class QueryComponent {
     context = 'include',
     q = '',
     entity = new Entity(),
+    item = null,
     daterange = null,
     type = '',
   } = {}) {
@@ -21,6 +24,7 @@ export default class QueryComponent {
 
     this.context = context;
     this.query = String(q);
+    this.type = type;
 
     if (daterange instanceof Daterange) {
       this.daterange = daterange;
@@ -36,7 +40,12 @@ export default class QueryComponent {
       this.entity = new Entity(entity);
     }
 
-    this.type = type;
+    if (this.type === 'topic' && item) {
+      this.item = new Topic(item);
+    }
+    if (this.type === 'newspaper' && item) {
+      this.item = new Newspaper(item);
+    }
   }
 
   getName() {

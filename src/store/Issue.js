@@ -6,7 +6,7 @@ import Article from '@/models/Article';
 export default {
   namespaced: true,
   state: {
-    viewerMode: 'image', // text or image
+    viewerMode: 'text', // text or image
   },
   getters: {},
   mutations: {
@@ -19,7 +19,7 @@ export default {
       return new Promise((resolve, reject) => {
         services.issues.get(uid, {}).then((response) => {
           resolve(new Issue({
-            collections: response.buckets,
+            collections: response.collections,
             countArticles: response.count_articles,
             countPages: response.count_pages,
             date: response.date,
@@ -57,13 +57,7 @@ export default {
           .then((articles) => {
             resolve(new Page({
               ...page,
-              articles: articles.data.map(article => new Article({
-                ...article,
-                regions: article.regions.map(region => ({
-                  ...region,
-                  iiifFragment: region.iiif_fragment,
-                })),
-              })),
+              articles: articles.data.map(article => new Article(article)),
               articlesEntities: page.articlesEntities,
               articlesTags: page.articlesTags,
             }));
@@ -80,6 +74,8 @@ export default {
         const q = {
           query: {
             filters: [{
+              type: 'hasTextContents',
+            }, {
               type: 'issue',
               q: uid,
             }],

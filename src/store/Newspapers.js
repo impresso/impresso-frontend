@@ -5,7 +5,7 @@ export default {
   namespaced: true,
   state: {
     list: {
-      orderBy: 'alphabetical',
+      orderBy: 'name',
       newspapers: [],
       query: '',
       pagination: {
@@ -15,7 +15,7 @@ export default {
       },
     },
     detail: {
-      orderBy: 'alphabetical',
+      orderBy: 'name',
       issues: [],
       newspaper: false,
       pagination: {
@@ -72,9 +72,10 @@ export default {
         q: context.state.list.query,
         limit: context.state.list.pagination.perPage,
         group_by: context.state.list.groupBy,
+        order_by: context.state.list.orderBy,
         page: context.state.list.pagination.currentPage,
       };
-
+      console.log('LOAD_LIST', query);
       return new Promise((resolve, reject) => {
         services.newspapers.find({
           query,
@@ -83,11 +84,6 @@ export default {
             context.commit('UPDATE_LIST_PAGINATION_TOTAL_ROWS', res.total);
             context.commit('UPDATE_LIST_NEWSPAPERS', res.data.map(newspaper => new Newspaper({
               ...newspaper,
-              properties: newspaper.properties.map((property) => {
-                const keys = Object.keys(property);
-                property.name = keys[0];
-                return property[keys[0]];
-              }),
             })));
             resolve(res);
           },
@@ -95,27 +91,35 @@ export default {
         );
       });
     },
-    LOAD_NEWSPAPER_ISSUES(context) {
-      const query = {
-        filters: [{
-          type: 'newspaper',
-          q: context.state.detail.newspaper.uid,
-          context: 'include',
-        }],
-        limit: context.state.detail.pagination.perPage,
-        page: context.state.detail.pagination.currentPage,
-      };
+    LOAD_PAGES_TIMELINE() {
+      return new Promise((resolve, reject) => {
+        services.pagesTimelines.get('stats', {})
+          .then(res => resolve(res))
+          .catch(reject);
+      });
+    },
+    LOAD_DETAIL(context, newspaperUid) {
+      return new Promise((resolve, reject) => {
+        services.newspapers.get(newspaperUid, {})
+          .then(res => resolve(res))
+          .catch(reject);
+      });
+    },
+    LOAD_ISSUES(context, {
+      page = 1,
+      orderBy = '-date',
+      limit,
+      filters = [],
+    } = {}) {
       return new Promise((resolve, reject) => {
         services.issues.find({
-          query,
-        }).then(
-          (res) => {
-            context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
-            context.commit('UPDATE_DETAIL_ISSUES', res.data);
-            resolve(res);
-          },
-          reject,
-        );
+          query: { filters, page, limit, order_by: orderBy },
+        })
+        .then((res) => {
+          context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
+          resolve(res);
+        })
+        .catch(reject);
       });
     },
   },

@@ -1,12 +1,16 @@
 <template lang="html">
-  <div v-bind:class="{'mb-4': expanded}">
-    <base-title-bar>
+  <div v-bind:class="{'mb-3': expanded}">
+    <div
+      class="border-top border-tertiary pt-1px" style="margin:auto -1em">
+      <div class="border-top" />
+    </div>
+    <base-title-bar class="pt-2 w-100">
       {{$t(`label.${filter.type}`)}}
-      <b-button v-on:click="toggleExpanded" class="float-right" variant="link" size="sm">
-        <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
+      <b-button v-on:click="toggleExpanded" class="float-right d-none" variant="link" size="sm">
+        <span v-bind:class="expanded ? 'dripicons-chevron-up' : 'dripicons-chevron-down'" />
       </b-button>
     </base-title-bar>
-    <div class="skyline-outer-wrapper" v-bind:class="{expanded: expanded}">
+    <div class="skyline-outer-wrapper w-100" v-bind:class="{expanded: expanded}">
       <tooltip v-model="tooltip" />
       <div class="skyline-inner-wrapper" >
         <div id="skyline">
@@ -25,10 +29,6 @@
 </template>
 
 <script>
-import 'vue-awesome/icons/times';
-import 'vue-awesome/icons/chevron-down';
-import 'vue-awesome/icons/chevron-up';
-import Icon from 'vue-awesome/components/Icon';
 
 import SkyLine from '@/d3-modules/SkyLine';
 
@@ -42,7 +42,7 @@ export default {
   data: () => ({
     config: {
       element: '#skyline',
-      height: 300,
+      height: 220,
       timeFormat: '%Y',
     },
     tooltip: {
@@ -99,7 +99,8 @@ export default {
     },
     expanded: {
       get() {
-        return this.$store.state.search.filterFacetYearExpanded;
+        return true;
+        // return this.$store.state.search.filterFacetYearExpanded;
       },
       set(val) {
         this.$store.commit('search/UPDATE_FILTER_FACET_YEAR_EXPANDED', val);
@@ -136,7 +137,6 @@ export default {
   components: {
     BaseTitleBar,
     Tooltip,
-    Icon,
     flatPickr,
   },
 };
@@ -151,7 +151,7 @@ export default {
     height: 80px;
     position: relative;
     #skyline{
-      top:-230px;
+      top:-150px;
     }
   }
   &.expanded{

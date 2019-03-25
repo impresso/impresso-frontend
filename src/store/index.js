@@ -9,6 +9,7 @@ import search from './Search';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
 import newspapers from './Newspapers';
+import articles from './Articles';
 import topics from './Topics';
 
 Vue.use(Vuex);
@@ -18,6 +19,7 @@ let processings = 0; // counter for the amount of async processes
 
 export default new Vuex.Store({
   modules: {
+    articles,
     settings,
     search,
     autocomplete,
@@ -29,6 +31,7 @@ export default new Vuex.Store({
   },
   state: {
     processing_status: false,
+    error_message: '',
     header_title: '',
     header_subtitle: '',
   },
@@ -58,7 +61,7 @@ export default new Vuex.Store({
         if (processings === 1) {
           processing = setTimeout(() => {
             state.processing_status = true;
-          }, 500);
+          }, 100);
         }
       } else {
         processings -= 1;

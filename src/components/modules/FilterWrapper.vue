@@ -1,75 +1,68 @@
 <template lang="html">
-  <div class="filter py-1 bb">
-    <base-title-bar v-if="title" class="title">{{title}}</base-title-bar>
-    <div class="content">
-      <slot></slot>
-    </div>
-    <div class="controls">
+  <div class="filter pr-1 mb-2">
+
+    <b-badge size="sm" variant="secondary" class="px-1">
+      <span v-if="icon" :class="'filter-icon dripicons-'+icon"></span>
+      <span class="filter-text" v-html="title"></span>
+      <span v-bind:id="id" class="btn-pill btn-context dripicons-chevron-down" />
+      <span v-on:click="remove" class="btn-pill dripicons-cross" />
+    </b-badge>
+
+    <b-tooltip v-bind:target="id" triggers="click blur">
       <b-button-group>
         <slot name="controls"></slot>
-        <b-button v-on:click="remove" variant="link" size="sm"><icon name="times" /></b-button>
-        <b-button v-if="this.$slots.settings" v-on:click="toggleExpanded" variant="link" size="sm">
-          <icon v-bind:name="expanded ? 'chevron-up' : 'chevron-down'" />
-        </b-button>
       </b-button-group>
-    </div>
-    <div v-show="expanded" class="settings py-2">
       <slot name="settings"></slot>
-      <hr>
-    </div>
+    </b-tooltip>
+
   </div>
 </template>
 
 <script>
-import 'vue-awesome/icons/times';
-import Icon from 'vue-awesome/components/Icon';
-
-import BaseTitleBar from './../base/BaseTitleBar';
 
 export default {
-  data: () => ({
-    expanded: false,
-  }),
   methods: {
-    toggleExpanded() {
-      this.expanded = !this.expanded;
-    },
     remove() {
       this.$emit('remove');
     },
   },
-  props: ['title'],
-  components: {
-    Icon,
-    BaseTitleBar,
-  },
+  props: ['id', 'title', 'icon'],
 };
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .filter {
-    width: 100%;
-    display: grid;
-    grid-template-columns: auto min-content;
-    grid-template-rows: auto;
-    grid-template-areas: 'title title' 'content controls' 'settings settings';
-
-    .title{
-      grid-area: title;
-      text-transform: capitalize;
-    }
-
-    .content{
-      grid-area: content;
-    }
-
-    .controls{
-      grid-area: controls;
-      white-space: nowrap
-    }
-
-    .settings{
-      grid-area: settings;
-    }
+  cursor: default;
+  .filter-icon {
+    opacity: 0.65;
+    display: inline-block;
+    height: 1.2em;
+    width: 1.2em;
+    vertical-align: sub;
+  }
+  .filter-text {
+    max-width: 296px;
+    display: inline-block;
+    vertical-align: bottom;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  .btn-pill {
+    cursor: pointer;
+    background: rgba(200, 200, 200, 0.2);
+    opacity: 0.5;
+    border-radius: 50%;
+    width: 1.2em;
+    height: 1.2em;
+    padding-top: 0.1em;
+    display: inline-block;
+    vertical-align: sub;
+  }
+  .btn-context {
+    cursor: context-menu;
+  }
+  .filter-btn:hover {
+    opacity: 1;
+  }
 }
 </style>
