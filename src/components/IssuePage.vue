@@ -9,7 +9,6 @@
       </i-layout-section>
       <i-layout-section>
         <div slot="header" class="border-bottom">
-          <h1>{{isLoaded}}</h1>
           <b-navbar type="light" variant="light" class="px-0 py-0">
             <b-navbar-nav class="px-2 py-2">
               <pagination
