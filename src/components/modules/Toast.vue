@@ -12,9 +12,10 @@
         <div class="m-1">
           <div v-if="job.extra">
             {{ $t(job.extra.task) }} (id:{{job.id}})
+            <b-badge>{{job.extra.job_status}}</b-badge>
           </div>
           <div v-else>
-            {{ $t(job.task) }} (id:{{job.id}})
+            {{ $t(job.task) }} (id:{{job.id}}) <b-badge>{{job.status}}</b-badge>
           </div>
           <!-- {{job}} -->
           <div class="small-caps" v-if="job.creationDate">
