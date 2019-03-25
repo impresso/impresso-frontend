@@ -266,8 +266,6 @@ export default {
                             article_uid: articleUid,
                           },
                         });
-
-                        this.mode = 'text';
                       }
                     });
 
