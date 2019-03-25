@@ -57,7 +57,7 @@ app.service('logs').on('created', (payload) => {
       window.app.$store.state.jobs.data[idx].progress = payload.job.progress;
     } else {
       payload.job.task = payload.task;
-      window.app.$store.state.jobs.data.push(payload.job);
+      window.app.$store.state.jobs.data.unshift(payload.job);
     }
     // console.log(`logs.created: "${payload.msg}" with payload:`, payload);
   }
