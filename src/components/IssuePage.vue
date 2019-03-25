@@ -73,6 +73,8 @@ export default {
     tab: {},
     issue: new Issue(),
     toc: {},
+    isLoaded: false,
+    isDragging: false,
   }),
   computed: {
     page() {
@@ -205,6 +207,7 @@ export default {
             showSequenceControl: false,
             initialPage: 0,
             tileSources: this.issue.pages.map(elm => elm.iiif),
+            defaultZoomLevel: 0,
             minZoomImageRatio: 0.5,
             gestureSettingsMouse: {
               clickToZoom: false,
@@ -224,53 +227,68 @@ export default {
               this.bounds = viewer.viewport.getBoundsNoRotate();
             });
 
+            viewer.addHandler('canvas-drag', () => {
+              this.isDragging = true;
+            });
+
+            viewer.addHandler('canvas-drag-end', () => {
+              window.setTimeout(() => {
+                this.isDragging = false;
+              }, 100);
+            });
+
             viewer.addHandler('tile-loaded', () => {
-              this.page.articles.forEach((article) => {
-                article.regions.forEach((region) => {
-                  const overlay = window.document.createElement('div');
+              if (this.isLoaded === false) {
+                this.isLoaded = true;
 
-                  overlay.setAttribute('class', 'overlay-region');
-                  overlay.dataset.articleUid = article.uid;
+                this.page.articles.forEach((article) => {
+                  article.regions.forEach((region) => {
+                    const overlay = window.document.createElement('div');
 
-                  overlay.addEventListener('mouseenter', (event) => {
-                    const articleUid = event.target.dataset.articleUid;
+                    overlay.setAttribute('class', 'overlay-region');
+                    overlay.dataset.articleUid = article.uid;
 
-                    event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
-                      item.classList.add('selected');
-                    });
-                  });
+                    overlay.addEventListener('mouseenter', (event) => {
+                      const articleUid = event.target.dataset.articleUid;
 
-                  overlay.addEventListener('click', (event) => {
-                    const articleUid = event.target.dataset.articleUid;
-
-                    this.$router.push({
-                      name: 'article',
-                      params: {
-                        article_uid: articleUid,
-                      },
+                      event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+                        item.classList.add('selected');
+                      });
                     });
 
-                    this.mode = 'text';
-                  });
+                    overlay.addEventListener('click', (event) => {
+                      if (this.isDragging === false || this.isDragging === undefined) {
+                        const articleUid = event.target.dataset.articleUid;
 
-                  overlay.addEventListener('mouseleave', (event) => {
-                    const articleUid = event.target.dataset.articleUid;
-
-                    event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
-                      item.classList.remove('selected');
+                        this.$router.push({
+                          name: 'article',
+                          params: {
+                            article_uid: articleUid,
+                          },
+                        });
+                      }
                     });
+
+                    overlay.addEventListener('mouseleave', (event) => {
+                      const articleUid = event.target.dataset.articleUid;
+
+                      event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+                        item.classList.remove('selected');
+                      });
+                    });
+
+                    const rect = viewer.viewport.imageToViewportRectangle(
+                      region.coords.x,
+                      region.coords.y,
+                      region.coords.w,
+                      region.coords.h);
+
+                    viewer.addOverlay(overlay, rect);
                   });
-
-                  const rect = viewer.viewport.imageToViewportRectangle(
-                    region.coords.x,
-                    region.coords.y,
-                    region.coords.w,
-                    region.coords.h);
-
-                  viewer.addOverlay(overlay, rect);
                 });
-              });
-              this.selectArticle();
+
+                this.selectArticle();
+              }
             });
           });
         });
@@ -283,6 +301,8 @@ export default {
     '$route.params.page_uid': {
       immediate: true,
       handler(pageUid) {
+        this.isLoaded = false;
+
         this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
           const pageIndex = this.issue.pages.findIndex(p => p.uid === page.uid);
 
@@ -320,7 +340,7 @@ div.overlay-region{
   transition: opacity 300ms;
   cursor: pointer;
   &.selected, &.active{
-    opacity: 0.25;
+    opacity: 0.2;
   }
 }
 </style>
