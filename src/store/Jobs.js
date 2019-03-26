@@ -20,7 +20,7 @@ export default {
         });
       });
     },
-    LOAD_JOBS(context, uid) {
+    LOAD_JOBS(context) {
       return new Promise((resolve, reject) => {
         services.jobs.find({}).then((result) => {
           resolve(result);
@@ -29,6 +29,17 @@ export default {
         }).catch((err) => {
           reject(err);
         });
+      });
+    },
+    PATCH_JOB(context, job) {
+      console.log('PATCH_JOB', job.id);
+      return new Promise((resolve) => {
+        services.jobs.patch(job.id, job)
+          .then((res) => {
+            console.log(res);
+            return res;
+          })
+          .then(res => resolve(res));
       });
     },
   },

@@ -24,7 +24,11 @@
         </div>
       </b-col>
       <b-col class="text-right">
-        <b-button v-if="job.status === 'RUN'" variant="outline-danger m-1" size="sm">Stop</b-button>
+        <b-button
+          v-if="job.status === 'RUN'"
+          variant="outline-danger m-1" size="sm"
+          v-on:click="onStopJob(job.id)">Stop
+        </b-button>
         <b-button v-if="job.status === 'DON'" variant="outline-success m-1" size="sm" v-on:click="onExport()">Export</b-button>
       </b-col>
     </b-row>
@@ -37,6 +41,14 @@ import * as services from '@/services';
 export default {
   props: ['job'],
   methods: {
+    onStopJob(id) {
+      this.$store.dispatch('jobs/PATCH_JOB', {
+        id,
+        status: 'STOP',
+      }).then((res) => {
+        console.log('RECEIVED:', res);
+      });
+    },
     onExport() {
       const anchor = document.createElement('a');
       document.body.appendChild(anchor);
