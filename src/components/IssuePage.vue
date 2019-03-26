@@ -337,11 +337,23 @@ export default {
 div.overlay-region{
   background: $clr-accent-secondary;
   opacity: 0;
+
   transition: opacity 300ms;
   cursor: pointer;
   &.selected, &.active{
     opacity: 0.2;
   }
+}
+
+
+@supports (mix-blend-mode: multiply) {
+	div.overlay-region {
+    mix-blend-mode: multiply;
+    &.selected, &.active{
+      opacity: 0.5;
+    }
+  }
+
 }
 </style>
 
