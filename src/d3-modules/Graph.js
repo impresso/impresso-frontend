@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
-import EventEmitter from 'events';
+import Basic from './Basic';
 import Dimension from './Dimension';
 
-export default class Graph extends EventEmitter {
+export default class Graph extends Basic {
   constructor({
     element = null,
     margin = {
@@ -19,18 +19,46 @@ export default class Graph extends EventEmitter {
     // override current behaviour if needed,
     dimensions = {},
   } = {}) {
-    super();
+    super({
+      element,
+      margin,
+      dimensions: {
+        nodeColor: new Dimension({
+          name: 'nodeColor',
+          property: 'id',
+          type: Dimension.TYPE_DISCRETE,
+          scaleFn: d3.scaleOrdinal,
+        }),
+        nodeSize: new Dimension({
+          name: 'nodeSize',
+          property: 'degree',
+          type: Dimension.TYPE_CONTINUOUS,
+          scaleFn: d3.scaleLinear,
+          range: [4, maxNodeRadius],
+        }),
+        linkDistance: new Dimension({
+          name: 'linkDistance',
+          property: 'w',
+          type: Dimension.TYPE_CONTINUOUS,
+          scaleFn: d3.scaleSqrt,
+          range: [10, 200],
+        }),
+        linkWeight: new Dimension({
+          name: 'linkWeight',
+          property: 'w',
+          type: Dimension.TYPE_CONTINUOUS,
+          scaleFn: d3.scaleSqrt,
+          range: [1, 10],
+        }),
+        ...dimensions,
+      },
+    });
 
-    this.svg = d3.select(element).append('svg')
-      .attr('width', '100%')
-      .attr('height', '100%')
-      .attr('preserveAspectRatio', 'none')
-      .on('click', () => {
-        this.selected = null;
-        this.emit('svg.click');
-      });
+    this.svg.on('click', () => {
+      this.selected = null;
+      this.emit('svg.click');
+    });
 
-    this.margin = margin;
     this.fixAfterDrag = fixAfterDrag;
     this.maxNodeRadius = parseInt(maxNodeRadius, 10);
     this.maxDistance = parseInt(maxDistance, 10);
@@ -38,8 +66,7 @@ export default class Graph extends EventEmitter {
 
     this.nodeLabel = nodeLabel;
     this.identity = identity;
-    // set initial widh and height
-    this.resize();
+
     // initialize graphic elements
     // init link and node collections
     this.linksLayer = this.svg.append('g')
@@ -65,38 +92,6 @@ export default class Graph extends EventEmitter {
       .alphaTarget(0.5)
       .on('tick', () => this.tick());
 
-    // dimensions dict
-    this.dimensions = {
-      nodeColor: new Dimension({
-        name: 'nodeColor',
-        property: 'id',
-        type: Dimension.TYPE_DISCRETE,
-        scaleFn: d3.scaleOrdinal,
-      }),
-      nodeSize: new Dimension({
-        name: 'nodeSize',
-        property: 'degree',
-        type: Dimension.TYPE_CONTINUOUS,
-        scaleFn: d3.scaleLinear,
-        range: [4, this.maxNodeRadius],
-      }),
-      linkDistance: new Dimension({
-        name: 'linkDistance',
-        property: 'w',
-        type: Dimension.TYPE_CONTINUOUS,
-        scaleFn: d3.scaleSqrt,
-        range: [10, 200],
-      }),
-      linkWeight: new Dimension({
-        name: 'linkWeight',
-        property: 'w',
-        type: Dimension.TYPE_CONTINUOUS,
-        scaleFn: d3.scaleSqrt,
-        range: [1, 10],
-      }),
-      ...dimensions,
-    };
-
     this.stopSimulation();
   }
 
@@ -112,21 +107,6 @@ export default class Graph extends EventEmitter {
       .distance(this.dimensions.linkDistance.accessor());
       // strength(+this.value);
     // this.simulation.alpha(1).restart();
-  }
-
-  /**
-   * Set the appropriate property and updete function range.
-   * @param  {String} name key for this.dimensions object
-   * @param  {String} property
-   * @param  {Array|Object} values Array or Object, according to Dimension type
-   * @return {null}
-   */
-  updateDimension({ name, property, values }) {
-    this.dimensions[name].update({
-      property,
-      values,
-    });
-    this.emit('dimension.updated', this.dimensions[name]);
   }
 
   /**
@@ -152,7 +132,7 @@ export default class Graph extends EventEmitter {
   }
 
   onDragStarted(datum) {
-    console.log('ondragstarted', datum.id);
+    // console.log('ondragstarted', datum.id);
     if (!d3.event.active) {
       this.simulation.alphaTarget(0.3).restart();
     }
@@ -164,13 +144,14 @@ export default class Graph extends EventEmitter {
   }
 
   onDragged(datum) {
-    console.log(this.height);
+    // console.log(this.height);
+    this.dragged = datum;
     datum.fx = d3.event.x;
     datum.fy = d3.event.y;
   }
 
   onDragEnded(datum) {
-    console.log('ondragended', datum.id);
+    // console.log('ondragended', datum.id);
     if (!d3.event.active) {
       this.simulation.alphaTarget(0);
     }
@@ -193,7 +174,7 @@ export default class Graph extends EventEmitter {
     // I know I know...
     const self = this;
 
-    console.log('draw nodes:', this.nodes.length);
+    // console.log('draw nodes:', this.nodes.length);
 
     this.nodesLayer = this.nodesLayer.data(this.nodes, this.identity);
     this.nodesLayer.exit().remove();
@@ -280,22 +261,6 @@ export default class Graph extends EventEmitter {
   //   console.log('setDimension', name, property, this);
   //   this.draw();
   // }
-
-  /**
-   * Set this.with and this.height;
-   * then resize svg container.
-   * using the given margin
-   * @return {null}
-   */
-  resize() {
-    const svgDimensions = this.svg.node().getBoundingClientRect();
-    this.width = +svgDimensions.width - this.margin.left;
-    this.height = +svgDimensions.height - this.margin.bottom;
-    // set svg properties
-    this.svg
-      .attr('width', this.width)
-      .attr('height', this.height);
-  }
 
   /**
    * Stop running simulation after `this.delay` milliseconds.

@@ -1,9 +1,9 @@
 <template lang="html">
-  <div class='ellipsis'>
-    <div class='contents' ref='contents' :style='{ height: height + "px" }'>
+  <div class="ellipsis">
+    <div class="contents" ref="contents" v-bind:style="`max-height:${height}px`">
       <slot></slot>
     </div>
-    <div class='more' v-bind:style="gradientStyle">
+    <div class="more" v-bind:style="gradientStyle" v-if="$refs.contents && $refs.contents.scrollHeight > this.initialHeight">
       <b-button size="sm" variant="outline-primary" v-on:click="onClick">
         {{$t(this.isCollapsed ? 'more' : 'less')}}</b-button>
     </div>
