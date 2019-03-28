@@ -22,8 +22,8 @@
               <div>
                 <label class="mr-2">{{$t("label_display")}}</label>
                 <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-                  <b-form-radio value="image">{{$t("display_button_image")}}</b-form-radio>
-                  <b-form-radio value="text" v-bind:disabled="!articleUid">{{$t("display_button_text")}}</b-form-radio>
+                  <b-form-radio value="image"><icon name="image"/></b-form-radio>
+                  <b-form-radio value="text" v-bind:disabled="!articleUid"><icon name="align-left"/></b-form-radio>
                 </b-form-radio-group>
               </div>
             </b-navbar-nav>
@@ -55,6 +55,10 @@
 
 <script>
 import Vue from 'vue';
+import Icon from 'vue-awesome/components/Icon';
+
+import 'vue-awesome/icons/image';
+import 'vue-awesome/icons/align-left';
 
 import Issue from '@/models/Issue';
 
@@ -188,6 +192,7 @@ export default {
     Pagination,
     ThumbnailSlider,
     TableOfContents,
+    Icon,
   },
   watch: {
     '$route.params.issue_uid': {
@@ -361,8 +366,6 @@ div.overlay-region{
 {
   "en": {
     "label_display": "Display as",
-    "display_button_image": "Image",
-    "display_button_text": "Text",
     "tabs": {
         "overview": "Overview",
         "toc": "Table of Contents",
@@ -370,6 +373,7 @@ div.overlay-region{
     }
   },
   "nl": {
+    "label_display": "Toon als",
     "tabs": {
         "overview": "Overzicht",
         "toc": "Inhoudsopgave",
