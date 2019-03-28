@@ -1,10 +1,11 @@
 <template lang="html">
-  <div id="thumbnail-slider">
+  <div id="thumbnail-slider" ref="thumbnailSlider">
     <div class="tiles">
       <div
         v-if="page && issue"
         v-for="(item, index) in issue.pages"
         class="tile"
+        v-bind:ref="`page-${item.uid}`"
         v-bind:class="{active: page.uid === item.uid}"
         v-on:click="onClickPage(item)">
         <div class="mini_viewer" v-bind:class="{selected: page.uid === item.uid}">
@@ -40,22 +41,21 @@ export default {
     onClickPage(page) {
       this.$emit('click', page);
     },
-    scrollToActiveArticle() {
-      console.log('auid', this.articleUid);
-      // const elm = this.$refs[`article-${this.articleUid}`][0];
-      // const parent = this.$refs.TableOfContents.parentNode;
-      // if (parent.scrollTop > elm.offsetTop ||
-      //   (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
-      //   parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
-      // }
+    scrollToActivePage() {
+      const elm = this.$refs[`page-${this.page.uid}`][0];
+      const parent = this.$refs.thumbnailSlider;
+      if (parent.scrollTop > elm.offsetTop ||
+        ((elm.offsetTop + elm.offsetHeight) - parent.scrollTop) > parent.offsetHeight) {
+        parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+      }
     },
   },
   components: {
     ThumbnailSliderItem,
   },
   watch: {
-    articleUid() {
-      this.scrollToActiveArticle();
+    page() {
+      this.scrollToActivePage();
     },
   },
 };
