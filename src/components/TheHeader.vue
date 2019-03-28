@@ -27,7 +27,7 @@
           class="p-2 small-caps border-left"
           v-b-tooltip.hover.bottom.html.o100.d250 v-bind:title="$t('join_slack_channel')"
           target="_blank"
-          href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTQ5MzEzNTk3MTY5LWM5NDMxOTFiOWM2OTAzY2ZjYmM2MjQ2YzU5OTkwN2Y0NWRmNDRjY2UxMzcyYTVmOWRjN2RiMGM3OWQ2NmZmMjQ"><icon name="slack"/></b-nav-item>
+          href="https://impresso-community.slack.com/join/shared_invite/enQtNTg5MzY2NDg2NTAyLWJkNWI5ZTU3ZGI1ZGE1YTg2YmViOWQ1OWMyYTRkMDY1OGM0MWUwNGQzYjYxYTA4ZGU0YzBjMGU4ZmQxNmY5Njc"><icon name="slack"/></b-nav-item>
           <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
             <b-dropdown-item v-for="language in languages"
             v-bind:active="activeLanguageCode === language.code"
