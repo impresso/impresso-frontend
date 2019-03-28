@@ -6,15 +6,13 @@
         <b>{{ tooltip.item.w }}</b> {{ $t('total pages') }}
         <br />
         &mdash; <b>{{ tooltip.item.w1 }}</b> {{ $t('empty') }}
-        <br />
-        &mdash; <b>{{ tooltip.item.w2 }}</b> {{ $t('corrupted') }}
       </div>
     </tooltip>
   </div>
 </template>
 
 <script>
-import Timeline from '@/d3-modules/Timeline';
+import ContrastTimeline from '@/d3-modules/ContrastTimeline';
 import Tooltip from './tooltips/Tooltip';
 
 export default {
@@ -46,7 +44,7 @@ export default {
     },
   },
   mounted() {
-    this.line = new Timeline({
+    this.line = new ContrastTimeline({
       element: '#d3-timeline',
       margin: {
         left: 50,
@@ -73,6 +71,7 @@ export default {
       this.line.update({
         data: this.values,
       });
+      this.line.draw();
     }
     window.addEventListener('resize', this.onResize);
   },
@@ -93,6 +92,7 @@ export default {
           this.line.update({
             data: val,
           });
+          this.line.draw();
         }
       },
     },
@@ -104,6 +104,8 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "impresso-theme/src/scss/variables.sass";
+
   #d3-timeline{
     width: 100%;
     height: 80px;
@@ -112,7 +114,11 @@ export default {
     g.context path.area {
       stroke-width: 1px;
       stroke: black;
-      fill: transparent;
+      fill: lighten($clr-primary, 78);
+      &.contrast{
+        fill: orange;
+        stroke: red;
+      }
     }
     g.context rect{
       fill: transparent;
@@ -121,6 +127,9 @@ export default {
       opacity: 0;
       &.active{
         opacity: 1;
+      }
+      &.contrast{
+        fill: red;
       }
     }
   }
