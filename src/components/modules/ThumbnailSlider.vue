@@ -57,6 +57,13 @@ export default {
     page() {
       this.scrollToActivePage();
     },
+    issue: {
+      handler() {
+        window.setTimeout(() => {
+          this.scrollToActivePage();
+        }, 500);
+      },
+    },
   },
 };
 </script>
