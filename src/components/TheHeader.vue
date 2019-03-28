@@ -18,32 +18,19 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
           </li>
-          <li v-if="user && user.isStaff">
-            <a class="nav-item small-caps text-white ml-2" v-on:click="test()">send test job</a>
-          </li>
+
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
         </b-navbar-nav>
         <b-navbar-nav>
-        <b-nav-item
-          class="p-2 small-caps border-left"
-          v-b-tooltip.hover.bottom.html.o100.d250 v-bind:title="$t('join_slack_channel')"
-          target="_blank"
-          href="https://impresso-community.slack.com/join/shared_invite/enQtNTg5MzY2NDg2NTAyLWJkNWI5ZTU3ZGI1ZGE1YTg2YmViOWQ1OWMyYTRkMDY1OGM0MWUwNGQzYjYxYTA4ZGU0YzBjMGU4ZmQxNmY5Njc"><icon name="slack"/></b-nav-item>
-          <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps border-left p-2" right>
-            <b-dropdown-item v-for="language in languages"
-            v-bind:active="activeLanguageCode === language.code"
-            v-bind:key="language.code"
-            v-bind:disabled="language.disabled"
-            v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
-          </b-nav-item-dropdown>
+
           <b-nav-item-dropdown right no-caret
             ref="ddownJobs"
             v-bind:disabled="jobs.length === 0"
-            class="border-left p-2">
+            class="p-2">
               <template slot="button-content">
-                <div class="dripicons-bell position-relative" style="top:0.25em" />
+                <div class="dripicons-cloud-download position-relative" style="top:0.25em" />
                 <transition name="bounce">
                   <b-badge
                     v-if="runningJobs.length > 0" pill variant="danger" class="border">
@@ -71,7 +58,14 @@
               </div>
             </div>
             </b-nav-item-dropdown>
-          <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 border-left" right>
+            <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps p-2" right>
+              <b-dropdown-item v-for="language in languages"
+              v-bind:active="activeLanguageCode === language.code"
+              v-bind:key="language.code"
+              v-bind:disabled="language.disabled"
+              v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
+            </b-nav-item-dropdown>
+          <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 " right>
             <template slot="button-content">
               <div class='d-inline-block'>
                 <div class='user-picture mt-1 float-left position-relative' :style='userPicture'>
@@ -85,6 +79,14 @@
             <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
+            <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
+            <b-dropdown-item
+              target="_blank"
+              href="https://impresso-community.slack.com/join/shared_invite/enQtNTg5MzY2NDg2NTAyLWJkNWI5ZTU3ZGI1ZGE1YTg2YmViOWQ1OWMyYTRkMDY1OGM0MWUwNGQzYjYxYTA4ZGU0YzBjMGU4ZmQxNmY5Njc">
+              <icon name="slack"/>
+              <span v-html="$t('join_slack_channel')"></span>
+            </b-dropdown-item>
+
           </b-nav-item-dropdown>
           <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
