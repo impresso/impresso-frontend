@@ -15,9 +15,7 @@ export default {
     tileSources: {
       default: false,
     },
-    bounds: {
-      default: false,
-    },
+    bounds: false,
     active: {
       default: false,
     },
@@ -31,7 +29,9 @@ export default {
       width: 0,
       height: 0,
       position: 'absolute',
-      border: '2px solid red',
+      border: '1px solid rgb(255, 225, 49)',
+      background: 'rgba(255, 225, 49, 0.3)',
+      backgroundBlendMode: 'multiply',
       overflow: 'hidden',
       margin: 0,
       padding: 0,
@@ -98,9 +98,11 @@ export default {
 
 <style scoped lang="less">
 .ts-item {
-  pointer-events: none;
+    // pointer-events: none;
     height: 100%;
     width: 100%;
     position: relative;
+    cursor: pointer;
+    outline: none !important;
 }
 </style>

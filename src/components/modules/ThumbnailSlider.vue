@@ -1,134 +1,125 @@
 <template lang="html">
-  <div id="thumbnail-slider" class="dragscroll" ref="thumbnail-slider">
+  <div id="thumbnail-slider" ref="thumbnailSlider">
     <div class="tiles">
-      <div class="tile" v-bind:class="{selected: value === index}" v-for="(page, index) in pages" v-on:click="goToPage(index)">
-        <thumbnail-slider-item
-          v-bind:tileSources="page.iiif"
-          v-bind:bounds="bounds"
-          v-bind:active="value === index"
-          v-on:mounted="onMountedTile"
-          ></thumbnail-slider-item>
+      <div
+        v-if="page && issue"
+        v-for="(item, index) in issue.pages"
+        class="tile"
+        v-bind:ref="`page-${item.uid}`"
+        v-bind:class="{active: page.uid === item.uid}"
+        v-on:click="onClickPage(item)">
+        <div class="mini_viewer" v-bind:class="{selected: page.uid === item.uid}">
+          <thumbnail-slider-item
+            v-bind:tileSources="item.iiif"
+            v-bind:bounds="bounds"
+            v-bind:active="page.uid === item.uid && displayMode === 'image'"
+            ></thumbnail-slider-item>
+        </div>
+        <span class="page_number">{{item.num}}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Page from '@/models/Page';
+import Issue from '@/models/Issue';
 import ThumbnailSliderItem from './ThumbnailSliderItem';
 
-require('dragscroll');
-
 export default {
-  data: () => ({
-    bounds: [],
-    scrollLeft: 0,
-    center: true,
-    mountedTiles: 0,
-  }),
   props: {
-    height: {
-      type: Number,
-      default: 200,
-    },
-    pages: {
-      required: true,
-    },
-    value: {
-      type: Number,
-      default: 1,
-    },
-    viewer: {
-      default: false,
+    issue: new Issue(),
+    bounds: false,
+    page: new Page(),
+    displayMode: {
+      default: 'image',
     },
   },
-  mounted() {},
+  mounted() {
+  },
   methods: {
-    goToPage(page) {
-      this.center = false;
-
-      // only if no sroll took place we want to emit the click
-      if (this.scrollLeft === this.$refs['thumbnail-slider'].scrollLeft) {
-        this.$emit('input', page);
+    onClickPage(page) {
+      this.$emit('click', page);
+    },
+    scrollToActivePage() {
+      const elm = this.$refs[`page-${this.page.uid}`][0];
+      const parent = this.$refs.thumbnailSlider;
+      if (parent.scrollTop > elm.offsetTop ||
+        ((elm.offsetTop + elm.offsetHeight) - parent.scrollTop) > parent.offsetHeight) {
+        parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
       }
-
-      this.scrollLeft = this.$refs['thumbnail-slider'].scrollLeft;
-    },
-    centerActiveTile() {
-      if (this.center && this.viewer) {
-        const activeElement = this.$refs['thumbnail-slider'].getElementsByClassName('tile')[this.value];
-        const parentElement = this.$refs['thumbnail-slider'];
-
-        parentElement.scrollLeft = activeElement.offsetLeft + (
-          (activeElement.offsetWidth / 2) - (parentElement.offsetWidth / 2)
-        );
-      }
-    },
-    onMountedTile() {
-      this.mountedTiles += 1;
-
-      // if all tiles are mounted we want to center the slider
-      if (this.pages.length === this.mountedTiles) {
-        this.centerActiveTile();
-      }
-    },
-  },
-  watch: {
-    viewer: {
-      handler() {
-        this.viewer.addHandler('animation', () => {
-          this.bounds = this.viewer.viewport.getBoundsNoRotate();
-        });
-
-        this.viewer.addHandler('update-viewport', () => {
-          this.bounds = this.viewer.viewport.getBoundsNoRotate();
-        });
-      },
-    },
-    value: {
-      handler() {
-        this.centerActiveTile();
-        this.center = true;
-      },
     },
   },
   components: {
     ThumbnailSliderItem,
+  },
+  watch: {
+    page() {
+      this.scrollToActivePage();
+    },
+    issue: {
+      handler() {
+        window.setTimeout(() => {
+          this.scrollToActivePage();
+        }, 500);
+      },
+    },
   },
 };
 </script>
 
 <style lang="less">
 #thumbnail-slider {
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    position: absolute;
-    width: 100%;
     height: 100%;
-    background: #666;
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: nowrap;
+    &::-webkit-scrollbar {
+        display: none;
+    }
     .tiles {
-        text-align: center;
-        padding: 10px;
+        width: 100%;
+        position: relative;
         height: 100%;
         .tile {
-            display: inline-block;
-            border: 2px solid rgba(0,0,0,0);
-            border-radius: 5px;
-            width: 140px;
-            height: 100%;
-            padding: 5px;
-            overflow: hidden;
-            &.selected {
-                border-color: #ccc;
+            width: 100%;
+            height: 160px;
+            padding: 10px;
+            position: relative;
+            .page_number {
+                font-size: smaller;
+                position: absolute;
+                right: 10px;
+                bottom: 10px;
+                background: fade(#eeeeee, 90);
+                color: #424242;
+                width: 2em;
+                height: 2em;
+                text-align: center;
+                padding-top: 0.2em;
+                border: 1px solid #E0E0E0;
+                z-index: 1000;
             }
+
+            .mini_viewer {
+                background: white;
+                border: 1px solid #E0E0E0;
+                width: 100px;
+                height: 100%;
+                float: right;
+                overflow: hidden;
+                padding: 5px;
+                &.selected {
+                    border-color: #9E9E9E;
+                }
+                &.selected + .page_number {
+                    border: 1px solid #9E9E9E;
+                    background: fade(#BDBDBD, 90);
+                    color: white;
+                }
+            }
+
         }
-    }
-    .dragscroll {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        z-index: 999999;
-        background: rgba(255,100,0,0.8);
     }
 }
 </style>

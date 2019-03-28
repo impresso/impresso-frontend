@@ -1,27 +1,44 @@
 <template lang="html">
-  <filter-wrapper v-bind:title="$t('query')" v-on:remove="remove">
-    <div slot="context">
-      <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
-    </div>
-    <div class="p-2">
-      <b-input type="text" v-model="filter.query" v-on:input="updateFilter" v-on:keyup.enter.native="submitFilter" />
+  <filter-wrapper v-on:remove="remove" v-bind:title="filter.query" :id="filter.key">
+    <div slot="settings">
+      <b-input-group class="mb-3">
+        <b-input
+          type="text"
+          v-model="filter.query"
+          v-on:input.native="updateFilter"
+          v-on:keyup.enter.native="submitFilter"
+          v-bind:disabled="disabled"
+          size="sm"
+        />
+        <b-button v-on:click="editFilter" v-show="disabled" size="sm"><icon name="edit" /></b-button>
+        <b-button v-on:click="submitFilter" v-show="!disabled" size="sm"><icon name="check" /></b-button>
+      </b-input-group>
+      <i-layout>
+        <i-layout-section width="50%">
+          <filter-setting-context v-model="filter" />
+        </i-layout-section>
+        <i-layout-section>
+          <filter-setting-precision v-model="filter" />
+        </i-layout-section>
+      </i-layout>
     </div>
   </filter-wrapper>
 </template>
 
 <script>
+import FilterFactory from '@/models/FilterFactory';
+import Icon from 'vue-awesome/components/Icon';
+
+import 'vue-awesome/icons/edit';
+import 'vue-awesome/icons/check';
+
+import FilterSettingContext from './FilterSettingContext';
+import FilterSettingPrecision from './FilterSettingPrecision';
 import FilterWrapper from './FilterWrapper';
 
 export default {
   data: () => ({
-    options: [{
-      value: 'include',
-      text: 'Include',
-    },
-    {
-      value: 'exclude',
-      text: 'Exclude',
-    }],
+    disabled: true,
   }),
   model: {
     prop: 'filter',
@@ -29,35 +46,42 @@ export default {
   props: ['filter'],
   methods: {
     updateFilter() {
-      this.filter.title = this.filter.query;
-      this.$emit('input', this.filter);
+      this.$emit('input', FilterFactory.create(this.filter));
     },
     submitFilter() {
       this.$emit('submit');
+      this.disabled = true;
     },
     remove() {
       this.$emit('remove');
     },
+    editFilter() {
+      this.disabled = false;
+    },
   },
   components: {
     FilterWrapper,
+    FilterSettingContext,
+    FilterSettingPrecision,
+    Icon,
   },
 };
 </script>
 
-<style lang="css">
-</style>
-
 <i18n>
 {
   "en": {
-    "query": "Text"
+    "query": "Text",
+    "edit": "Edit",
+    "save": "Save"
   },
   "fr": {
     "query": "Texte"
   },
   "nl": {
-    "query": "Tekst"
+    "query": "Tekst",
+    "edit": "Bewerken",
+    "save": "Opslaan"
   }
 }
 </i18n>

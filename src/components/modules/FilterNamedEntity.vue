@@ -1,12 +1,16 @@
 <template lang="html">
-  <filter-wrapper v-bind:title="$t(`label.${filter.label}`)" v-on:remove="remove">
-    <div slot="context">
-      <b-form-select v-model="filter.context" v-bind:options="options" v-on:input="updateFilter" />
+  <filter-wrapper
+    v-on:remove="remove"
+    icon="network-1"
+    v-bind:title="filter.item.name"
+    v-bind:id="filter.key">
+    <div slot="settings">
+      <filter-setting-context v-model="filter" />
     </div>
     <div class="p-2">
-      <icon v-if="filter.label === 'person'" name="user-circle"></icon>
-      <icon v-if="filter.label === 'location'" name="map-marker"></icon>
-      {{filter.title}}
+      <icon v-if="filter.item.hasLabel('person')" name="user-circle"></icon>
+      <icon v-if="filter.item.hasLabel('location')" name="map-marker"></icon>
+      {{filter.item.name}}
     </div>
   </filter-wrapper>
 </template>
@@ -17,29 +21,17 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/user-circle';
 import 'vue-awesome/icons/map-marker';
 
+import FilterSettingContext from './FilterSettingContext';
 import FilterWrapper from './FilterWrapper';
 
 export default {
-  data: () => ({
-    options: [{
-      value: 'include',
-      text: 'Include',
-    },
-    {
-      value: 'exclude',
-      text: 'Exclude',
-    }],
-  }),
   model: {
     prop: 'filter',
   },
   props: ['filter'],
   methods: {
-    updateFilter() {
-      this.$emit('input', this.filter);
-    },
-    getLabel(label) {
-      return this.$t(`label.${label}`);
+    submitFilter() {
+      this.$emit('submit');
     },
     remove() {
       this.$emit('remove');
@@ -47,22 +39,11 @@ export default {
   },
   components: {
     Icon,
+    FilterSettingContext,
     FilterWrapper,
   },
 };
 </script>
-
-<style scoped lang="less">
-  .filter{
-    .body{
-      padding: 5px 10px;
-      .fa-icon{
-        width: 12px;
-        margin-bottom: -2px;
-      }
-    }
-  }
-</style>
 
 <i18n>
 {

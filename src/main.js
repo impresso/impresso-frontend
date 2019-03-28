@@ -4,16 +4,25 @@ import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
 
-import 'impresso-bootstrap/dist/css/bootstrap.css';
+import ImpressoLayout from '@/plugins/Layout';
+import TawkTo from '@/plugins/TawkTo';
+
+import * as services from '@/services';
+
+import 'dripicons/webfont/webfont.css';
+import 'impresso-theme/dist/css/bootpresso.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 import App from './App';
 import router from './router';
 import store from './store';
-import lang from './lang';
+import messages from './i18n/messages';
+import dateTimeFormats from './i18n/dateTimeFormats';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
+Vue.use(ImpressoLayout);
+Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
 
@@ -21,15 +30,20 @@ Vue.config.productionTip = process.env.NODE_ENV === 'production';
 const i18n = new VueI18n({
   fallbackLocale: 'en',
   locale: store.state.settings.language_code,
-  messages: lang,
+  messages,
+  dateTimeFormats,
 });
 
 /* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  i18n,
-  router,
-  store,
-  template: '<App/>',
-  components: { App },
+services.app.authenticate().finally(() => {
+  window.app = new Vue({
+    el: '#app',
+    i18n,
+    router,
+    store,
+    template: '<App/>',
+    components: {
+      App,
+    },
+  });
 });

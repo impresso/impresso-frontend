@@ -1,42 +1,33 @@
 <template>
-<main id="HomePage">
-  <div class="search_wrapper">
-    <b-container>
-      <b-row>
-        <b-col md="6" offset-md="3">
-          <SearchBar />
-        </b-col>
-      </b-row>
-    </b-container>
-  </div>
-  <b-container>
-    <b-row>
-      <b-col>
-        <h1>{{$t("welcome.title")}}</h1>
-        <p>{{$t("welcome.body")}}</p>
-      </b-col>
-    </b-row>
-  </b-container>
+<main id="HomePage" class="py-3 bg-light">
+  <b-container v-html="$options.filters.markdown(markdown)" />
 </main>
 </template>
 
 <script>
-import SearchBar from './SearchInputQueryWrapper';
+import markdown from '@/filters/markdown';
+import axios from 'axios';
 
 export default {
-  name: 'HelloWorld',
-  components: {
-    SearchBar,
+  name: 'HomePage',
+  data: () => ({
+    markdown: '',
+    resource: process.env.GITHUB_WIKI_HOME,
+  }),
+  mounted() {
+    axios.get(this.resource).then((res) => {
+      this.markdown = res.data;
+    });
+  },
+  filters: {
+    markdown,
+  },
+  methods: {
   },
 };
 </script>
 
-<style scoped lang="less">
-.search_wrapper {
-    background: #d460ff;
-    padding: 70px 0;
-    margin-bottom: 50px;
-}
+<style lang="scss">
 </style>
 
 <i18n>

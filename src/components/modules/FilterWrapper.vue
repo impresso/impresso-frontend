@@ -1,75 +1,68 @@
 <template lang="html">
-  <div class="filter mb-3">
-    <div class="header">
-      <div class="d-flex justify-content-end">
-        <div class="mr-auto title px-2">{{title}}</div>
-        <div>
-          <b-button-group size="sm">
-            <b-button v-on:click="toggle"><icon class="pt-1" name="bars" /></b-button>
-            <b-button v-on:click="remove" variant="danger"><icon class="pt-1" name="times" /></b-button>
-          </b-button-group>
-        </div>
-      </div>
-    </div>
-    <div v-show="expanded" class="context p-2">
-      <slot name="context"/>
-    </div>
-    <div class="body">
-      <slot></slot>
-    </div>
+  <div class="filter pr-1 mb-2">
+
+    <b-badge size="sm" variant="secondary" class="px-1">
+      <span v-if="icon" :class="'filter-icon dripicons-'+icon"></span>
+      <span class="filter-text" v-html="title"></span>
+      <span v-bind:id="id" class="btn-pill btn-context dripicons-chevron-down" />
+      <span v-on:click="remove" class="btn-pill dripicons-cross" />
+    </b-badge>
+
+    <b-tooltip v-bind:target="id" triggers="click blur">
+      <b-button-group>
+        <slot name="controls"></slot>
+      </b-button-group>
+      <slot name="settings"></slot>
+    </b-tooltip>
+
   </div>
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
-
-import 'vue-awesome/icons/bars';
-import 'vue-awesome/icons/times';
 
 export default {
-  data: () => ({
-    expanded: false,
-  }),
-  props: {
-    title: {
-      required: false,
-      type: String,
-    },
-  },
   methods: {
-    toggle() {
-      this.expanded = !this.expanded;
-    },
     remove() {
       this.$emit('remove');
     },
   },
-  components: {
-    Icon,
-  },
+  props: ['id', 'title', 'icon'],
 };
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .filter {
-    .header {
-      background: #ccc;
-      .title{
-        margin-top: 5px;
-        text-transform: capitalize;
-        font-weight: bold;
-      }
-    }
-
-    .context{
-      background: #eee;
-    }
-
-    .context,
-    .body {
-      border: 1px solid #ccc;
-    }
-
-    .body {}
+  cursor: default;
+  .filter-icon {
+    opacity: 0.65;
+    display: inline-block;
+    height: 1.2em;
+    width: 1.2em;
+    vertical-align: sub;
+  }
+  .filter-text {
+    max-width: 296px;
+    display: inline-block;
+    vertical-align: bottom;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  .btn-pill {
+    cursor: pointer;
+    background: rgba(200, 200, 200, 0.2);
+    opacity: 0.5;
+    border-radius: 50%;
+    width: 1.2em;
+    height: 1.2em;
+    padding-top: 0.1em;
+    display: inline-block;
+    vertical-align: sub;
+  }
+  .btn-context {
+    cursor: context-menu;
+  }
+  .filter-btn:hover {
+    opacity: 1;
+  }
 }
 </style>
