@@ -10,15 +10,7 @@
       <i-layout-section>
         <div slot="header" class="border-bottom">
           <b-navbar type="light" variant="light" class="px-0 py-0">
-            <b-navbar-nav class="px-2 py-2">
-              <pagination
-              v-bind:currentPage="issue.pages.findIndex((p) => p.uid === this.$route.params.page_uid) + 1"
-              v-on:change="onPaginate"
-              v-bind:totalRows="issue.pages.length"
-              v-bind:size="'sm'"
-              v-bind:align="'left'" />
-            </b-navbar-nav>
-            <b-navbar-nav class="px-2 py-2">
+            <b-navbar-nav class="px-2 py-2 mx-auto">
               <div>
                 <label class="mr-2">{{$t("label_display")}}</label>
                 <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
@@ -29,9 +21,6 @@
             </b-navbar-nav>
           </b-navbar>
         </div>
-        <i-layout class="bg-light">
-
-          <i-layout-section>
             <open-seadragon-viewer
               v-show="mode === 'image'"
               v-bind:handler="handler">
@@ -39,16 +28,14 @@
             <issue-viewer-text
               v-bind:article_uid="articleUid"
               v-if="articleUid && mode === 'text'" />
-          </i-layout-section>
-          <i-layout-section width="120px">
-            <thumbnail-slider
-              v-bind:issue="issue"
-              v-on:click="loadPage"
-              v-bind:bounds="bounds"
-              v-bind:displayMode="mode"
-              v-bind:page="page" />
-          </i-layout-section>
-        </i-layout>
+      </i-layout-section>
+      <i-layout-section width="120px" class="border-left">
+        <thumbnail-slider
+          v-bind:issue="issue"
+          v-on:click="loadPage"
+          v-bind:bounds="bounds"
+          v-bind:displayMode="mode"
+          v-bind:page="page" />
       </i-layout-section>
     </i-layout>
 </template>
@@ -65,7 +52,6 @@ import Issue from '@/models/Issue';
 import CollectionTagger from './CollectionTagger';
 import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
-import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
@@ -143,9 +129,6 @@ export default {
     },
   },
   methods: {
-    onPaginate(pageNumber) {
-      this.loadPage(this.issue.pages[pageNumber - 1]);
-    },
     loadArticle(article) {
       this.$router.push({
         name: 'article',
@@ -189,7 +172,6 @@ export default {
     CollectionTagger,
     OpenSeadragonViewer,
     IssueViewerText,
-    Pagination,
     ThumbnailSlider,
     TableOfContents,
     Icon,
