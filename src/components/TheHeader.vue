@@ -18,7 +18,9 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
           </li>
-          <li class="nav-item small-caps text-white ml-2" v-on:click="test()">send test job</li>
+          <li v-if="user && user.isStaff">
+            <a class="nav-item small-caps text-white ml-2" v-on:click="test()">send test job</a>
+          </li>
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
