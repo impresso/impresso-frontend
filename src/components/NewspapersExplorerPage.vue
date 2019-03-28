@@ -8,11 +8,17 @@
         </section>
       </b-navbar>
       <b-navbar class='m-0 p-0'>
-        <timeline
+        <!--
+          <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
+            <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li> -->
+
+        <timeline class='ml-4'
           :values="pagesTimeline.values"
           :domain="[start, end]"
           :highlight="highlightA"
           v-on:highlight="onHighlight($event, 'A')"/>
+
       </b-navbar>
       <!-- <b-navbar  type="light" variant="light" class="border-bottom">
         <b-input-group class="mini" :prepend="$t('from')">
@@ -49,10 +55,23 @@ export default {
     highlights: ['A', 'B'],
     highlightA: null,
     highlightB: null,
+    domainType: 'absolute',
   }),
   computed: {
     newspapers() {
       return this.$store.state.newspapers.list.newspapers;
+    },
+    domainTypeOptions() {
+      return [
+        {
+          value: 'absolute',
+          text: this.$t('topicmodel'),
+        },
+        {
+          value: 'relative',
+          text: this.$t('language'),
+        },
+      ];
     },
   },
   async mounted() {
