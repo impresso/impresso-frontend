@@ -381,7 +381,9 @@ export default {
       }
     },
     exportQueryCsv() {
-      this.$store.dispatch('search/EXPORT_FROM_QUERY');
+      this.$store.dispatch('search/EXPORT_FROM_QUERY').then((res) => {
+        console.log(res);
+      });
     },
     nameCollectionOnShown() {
       this.inputName = '';

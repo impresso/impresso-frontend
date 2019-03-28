@@ -159,7 +159,7 @@ export default {
           query: {
             group_by: 'articles',
             filters: context.getters.getSearch.getFilters(),
-            format: 'text/plain',
+            format: 'csv',
           },
         }).then(res => resolve(res));
       });
