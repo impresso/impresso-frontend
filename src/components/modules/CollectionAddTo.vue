@@ -65,9 +65,6 @@ export default {
     isDisabled: false,
     inputString: '',
   }),
-  model: {
-    prop: ['item', 'items', 'text'],
-  },
   props: {
     item: Object,
     items: Array,
