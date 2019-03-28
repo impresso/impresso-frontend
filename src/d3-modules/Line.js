@@ -134,7 +134,6 @@ export default class Line extends Basic {
       values: data,
       range: [this.height - this.margin.top - this.margin.bottom, 0],
     });
-    this.draw();
   }
 
   draw() {
