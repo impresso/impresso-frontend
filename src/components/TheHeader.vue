@@ -18,6 +18,7 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
           </li>
+          <li class="nav-item small-caps text-white ml-2" v-on:click="test()">send test job</li>
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
@@ -35,10 +36,44 @@
             v-bind:disabled="language.disabled"
             v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
           </b-nav-item-dropdown>
+          <b-nav-item-dropdown right no-caret
+            ref="ddownJobs"
+            v-bind:disabled="jobs.length === 0"
+            class="border-left p-2">
+              <template slot="button-content">
+                <div class="dripicons-bell position-relative" style="top:0.25em" />
+                <transition name="bounce">
+                  <b-badge
+                    v-if="runningJobs.length > 0" pill variant="danger" class="border">
+                    {{runningJobs.length}}
+                  </b-badge>
+                </transition>
+              </template>
+            <div class="jobs">
+              <toast v-for="(job, i) in this.jobs"
+                v-bind:job="job"
+                v-bind:key="job.id"
+                style="min-width: 400px"
+                />
+              <div class="border-top border-primary text-center text-white p-0">
+                <b-button
+                  v-if="showLess"
+                  @click="showLess = false"
+                  class="border-0 w-100"
+                  size="sm">{{$t('show all')}}</b-button>
+                <b-button
+                  v-if="!showLess"
+                  @click="showLess = true"
+                  class="border-0 w-100"
+                  size="sm">{{$t('show less')}}</b-button>
+              </div>
+            </div>
+            </b-nav-item-dropdown>
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 border-left" right>
             <template slot="button-content">
               <div class='d-inline-block'>
-                <div class='user-picture mt-1 float-left' :style='userPicture'></div>
+                <div class='user-picture mt-1 float-left position-relative' :style='userPicture'>
+                </div>
                 <div class='user-label pt-2'>
                   <div class='user-fullname'>{{userFullName}}</div>
                   <div class='user-role small-caps'>{{userRole}}</div>
@@ -59,9 +94,11 @@
 <script>
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
+import Toast from './modules/Toast';
 
 export default {
   data: () => ({
+    showLess: true,
     languages: {
       de: {
         code: 'de',
@@ -89,7 +126,16 @@ export default {
       },
     },
   }),
+  async mounted() {
+    this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
+  },
   computed: {
+    jobs() {
+      return this.showLess ? this.$store.state.jobs.data.slice(0, 4) : this.$store.state.jobs.data;
+    },
+    runningJobs() {
+      return this.$store.state.jobs.data.filter(job => job.status === 'RUN');
+    },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
@@ -135,6 +181,9 @@ export default {
     },
   },
   methods: {
+    async test() {
+      await this.$store.dispatch('jobs/TEST');
+    },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode;
       this.$store.commit('settings/SET_LANGUAGE', {
@@ -143,6 +192,13 @@ export default {
     },
   },
   watch: {
+    runningJobs: {
+      handler(val) {
+        if (val.length > 0 && this.$refs.ddownJobs) {
+          this.$refs.ddownJobs.show();
+        }
+      },
+    },
     $route: {
       handler(val, oldVal) {
         if (val.meta.realm !== oldVal.meta.realm) {
@@ -153,6 +209,7 @@ export default {
   },
   components: {
     Icon,
+    Toast,
   },
 };
 </script>
@@ -161,143 +218,176 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
-  .progress {
-    position: absolute;
-    width: 100%;
-    z-index: 100;
-    top: 0;
-    left: 0;
-  }
-  nav {
-    margin-top: 0;
-    margin-bottom: 1px;
-    .navbar-collapse {
-      height: 44px;
+    .progress {
+        position: absolute;
+        width: 100%;
+        z-index: 100;
+        top: 0;
+        left: 0;
     }
-    .border-left {
-      border-color: $clr-tertiary !important;
-    }
-  }
-  .navbar-brand {
-      img {
-          height: 30px;
-      }
-  }
-  .nav-title {
-    margin: auto;
-    h1 {
-      background: transparent;
-      color: white;
-      font-size: 1.1em;
-      text-align: center;
-      padding: 1px 4px;
-      .title {
-        font-weight: normal;
-      }
-      .subtitle {
-        font-weight: bold;
-      }
-    }
-  }
-  .navbar-dark .navbar-nav .nav-link {
-    color: $clr-bg-secondary;
-  }
-  .navbar-dark .navbar-nav .nav-link:hover,
-  .navbar-dark .navbar-nav .nav-link:focus {
-    color: $clr-bg-primary;
-    background: transparent;
-  }
-  &::before{
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1;
-    height: 2px;
-    background-color: $clr-accent-light;
-    content: '';
-  }
-
-  .dropdown-toggle{
-    padding-right: 1.25rem;
-
-    &::after {
+    .badge-pill {
       position: absolute;
-      top: 50%;
-      right: 0.75rem;
-      line-height: 2rem;
-      margin-top: -1rem;
+      line-height: 0.9;
+      top:0.5em;
+      right:0.5em;
+      border-radius:10px;
+      min-width:20px;
+      height:20px;
     }
-  }
-
-  .user-space > a.dropdown-toggle{
-    padding: 0.25rem 1.5rem 0.125rem 0.5rem;
-    &::after {
-      font-size: .75em;
+    .toaster {
+      position:absolute;
+      bottom:0;
+      left:0;
+      z-index: 100;
     }
-  }
+    nav {
+        margin-top: 0;
+        margin-bottom: 1px;
+        .navbar-collapse {
+            height: 44px;
+        }
+        .border-left {
+            border-color: $clr-tertiary !important;
+        }
+    }
+    .navbar-brand {
+        img {
+            height: 30px;
+        }
+    }
+    .nav-title {
+        margin: auto;
+        h1 {
+            background: transparent;
+            color: white;
+            font-size: 1.1em;
+            text-align: center;
+            padding: 1px 4px;
+            .title {
+                font-weight: normal;
+            }
+            .subtitle {
+                font-weight: bold;
+            }
+        }
+    }
+    .navbar-dark .navbar-nav .nav-link {
+        color: $clr-bg-secondary;
+    }
+    .navbar-dark .navbar-nav .nav-link:focus,
+    .navbar-dark .navbar-nav .nav-link:hover {
+        color: $clr-bg-primary;
+        background: transparent;
+    }
+    &::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        height: 2px;
+        background-color: $clr-accent-light;
+        content: '';
+    }
 
-  .user-picture{
-    background: $clr-primary;
-    width: 2em;
-    height: 2em;
-    border-radius: 2em;
-    border: 1px solid $clr-accent-light;
-  }
+    .dropdown-toggle {
+        padding-right: 1.25rem;
 
-  .user-label {
-    margin-left: 2.5em;
-  }
+        &::after {
+            position: absolute;
+            top: 50%;
+            right: 0.75rem;
+            line-height: 2rem;
+            margin-top: -1rem;
+        }
+    }
 
-  .user-fullname {
-    padding-bottom: 0.125rem;
-    font-size: 0.8em;
-    line-height: 1em;
-    font-weight: bold;
-    color: white;
-  }
+    .user-space > a.dropdown-toggle {
+        padding: 0.25rem 1.5rem 0.125rem 0.5rem;
+        &::after {
+            font-size: 0.75em;
+        }
+    }
 
-  .user-role {
-    line-height: 1;
-    font-size: 0.8em;
-  }
+    .user-picture {
+        background: $clr-primary;
+        width: 2em;
+        height: 2em;
+        border-radius: 2em;
+        border: 1px solid $clr-accent-light;
+    }
+
+    .user-label {
+        margin-left: 2.5em;
+    }
+
+    .user-fullname {
+        padding-bottom: 0.125rem;
+        font-size: 0.8em;
+        line-height: 1em;
+        font-weight: bold;
+        color: white;
+    }
+
+    .user-role {
+        line-height: 1;
+        font-size: 0.8em;
+    }
 }
 
 // extend application styles
 .border-tertiary {
-  border-color: $clr-tertiary !important;
+    border-color: $clr-tertiary !important;
 }
 .pt-1px {
-  padding-top:1px;
+    padding-top: 1px;
 }
 .custom-radio > .custom-control-label::before {
-  border: inherit;
-  outline: inherit;
+    border: inherit;
+    outline: inherit;
 }
 .tooltip-inner {
-  max-width: auto;
-  color: $clr-primary;
-  text-align: left;
-  background-color: $clr-bg-primary;
-  border: 1px solid $clr-primary;
-  box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
+    max-width: auto;
+    color: $clr-primary;
+    text-align: left;
+    background-color: $clr-bg-primary;
+    border: 1px solid $clr-primary;
+    box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 }
 .dropdown-menu {
-  padding: 0;
+    padding: 0;
 }
 .fixed-pagination-footer {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(calc(200px - 50%));
-  background: $clr-bg-secondary;
-  max-width: calc(100% - 400px);
-  .pagination {
-    li.page-item > a,
-    li.page-item > span.page-link {
-      border-color: $clr-secondary;
-      padding: 0.15em 0.6em 0.15em 0.6em;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(calc(200px - 50%));
+    background: $clr-bg-secondary;
+    max-width: calc(100% - 400px);
+    .pagination {
+        li.page-item > a,
+        li.page-item > span.page-link {
+            border-color: $clr-secondary;
+            padding: 0.15em 0.6em;
+        }
     }
+}
+/* bounce animation */
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-in .5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 </style>

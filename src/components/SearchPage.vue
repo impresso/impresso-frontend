@@ -86,12 +86,16 @@
             <span class="dripicons-archive pr-3"></span>
             {{$t("query_add_to_collection")}}
           </b-dropdown-item>
-          <b-dropdown-item disabled><span class="dripicons-export pr-3"></span>{{$t("query_export_csv")}}</b-dropdown-item>
+          <b-dropdown-item v-on:click="exportQueryCsv">
+            <span class="dripicons-export pr-3"></span>
+            {{$t("query_export_csv")}}
+          </b-dropdown-item>
         </b-dropdown>
       </b-navbar-nav>
     </b-navbar>
     <b-modal
       id="nameCollection"
+      ref="nameCollection"
       v-bind:title="$t('query_add_to_collection')"
       v-on:shown="nameCollectionOnShown()"
       v-bind:ok-disabled="nameCollectionOkDisabled"
@@ -367,6 +371,7 @@ export default {
     },
     createQueryCollection() {
       if (!this.nameCollectionOkDisabled) {
+        this.$refs.nameCollection.hide();
         this.$store.dispatch('collections/ADD_COLLECTION', {
           name: this.inputName,
           description: this.inputDescription,
@@ -374,6 +379,11 @@ export default {
           this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid);
         });
       }
+    },
+    exportQueryCsv() {
+      this.$store.dispatch('search/EXPORT_FROM_QUERY').then((res) => {
+        console.log(res);
+      });
     },
     nameCollectionOnShown() {
       this.inputName = '';
