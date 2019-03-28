@@ -40,9 +40,23 @@ export default {
     onClickPage(page) {
       this.$emit('click', page);
     },
+    scrollToActiveArticle() {
+      console.log('auid', this.articleUid);
+      // const elm = this.$refs[`article-${this.articleUid}`][0];
+      // const parent = this.$refs.TableOfContents.parentNode;
+      // if (parent.scrollTop > elm.offsetTop ||
+      //   (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
+      //   parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+      // }
+    },
   },
   components: {
     ThumbnailSliderItem,
+  },
+  watch: {
+    articleUid() {
+      this.scrollToActiveArticle();
+    },
   },
 };
 </script>
