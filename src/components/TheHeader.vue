@@ -133,6 +133,10 @@ export default {
   }),
   async mounted() {
     this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
+    this.$store.commit('SET_HEADER_TITLE', {
+      subtitle: this.$t('routes.search.subtitle.unfiltered'),
+      title: this.$t('routes.search.title'),
+    });
   },
   computed: {
     jobs() {
@@ -262,9 +266,11 @@ $clr-grey-800: #c6ccd2;
         }
     }
     .navbar-brand {
-        img {
-            height: 30px;
-        }
+      width: 60px;
+      overflow: hidden;
+      img {
+          height: 30px;
+      }
     }
     .nav-title {
         margin: auto;
@@ -284,6 +290,9 @@ $clr-grey-800: #c6ccd2;
     }
     .navbar-dark .navbar-nav .nav-link {
         color: $clr-grey-800;
+        &.active{
+            color: $clr-white;
+        }
     }
     .navbar-dark .navbar-nav .nav-link:focus,
     .navbar-dark .navbar-nav .nav-link:hover {
@@ -448,7 +457,15 @@ $clr-grey-800: #c6ccd2;
     "label_search": "Search",
     "label_newspapers": "Newspaper Titles",
     "label_topics": "Topics",
-    "join_slack_channel": "Join us on <b>Slack!</b>"
+    "join_slack_channel": "Join us on <b>Slack!</b>",
+    "routes": {
+      "search": {
+        "title": "search",
+        "subtitle": {
+          "unfiltered": "all articles"
+        }
+      }
+    }
   }
 }
 </i18n>
