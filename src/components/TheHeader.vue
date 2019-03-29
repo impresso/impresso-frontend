@@ -24,7 +24,6 @@
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
         </b-navbar-nav>
         <b-navbar-nav>
-
           <b-nav-item-dropdown right no-caret
             ref="ddownJobs"
             v-bind:disabled="jobs.length === 0"
@@ -57,14 +56,16 @@
                   size="sm">{{$t('show less')}}</b-button>
               </div>
             </div>
-            </b-nav-item-dropdown>
-            <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps p-2" right>
-              <b-dropdown-item v-for="language in languages"
-              v-bind:active="activeLanguageCode === language.code"
-              v-bind:key="language.code"
-              v-bind:disabled="language.disabled"
-              v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
-            </b-nav-item-dropdown>
+          </b-nav-item-dropdown>
+          <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
+            <b-dropdown-item v-for="language in languages"
+            v-bind:active="activeLanguageCode === language.code"
+            v-bind:key="language.code"
+            v-bind:disabled="language.disabled"
+            v-on:click="selectLanguage(language.code)">
+              <span>{{language.name}}</span>
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 " right>
             <template slot="button-content">
               <div class='d-inline-block'>
@@ -316,14 +317,22 @@ $clr-grey-800: #c6ccd2;
     }
     .navbar-dark .b-nav-dropdown .dropdown-menu {
       background: $clr-grey-300 !important;
-      padding: .5rem;
+      padding: .5rem 0;
       &.dropdown-menu-right{
         margin-right: -1px;
       }
       .dropdown-item{
-          color: $clr-grey-800;
-          font-size:0.9em;
-          padding: 0.5rem;
+        color: $clr-grey-800;
+        font-size:0.9em;
+        padding: .5rem 1rem;
+      }
+      .dropdown-item.disabled{
+        text-decoration: line-through;
+      }
+
+      .dropdown-item.active{
+        color: $clr-white;
+        background: $clr-grey-400;
       }
     }
 
@@ -334,17 +343,16 @@ $clr-grey-800: #c6ccd2;
             position: absolute;
             top: 50%;
             right: 0.75rem;
-            line-height: 2rem;
+            line-height: 2.25rem;
             margin-top: -1rem;
+            font-size: .8em;
         }
     }
 
-    .user-space > a.dropdown-toggle {
-        padding: 0.25rem 1.5rem 0.125rem 0.5rem;
-        &::after {
-            font-size: 0.75em;
-        }
-    }
+    // .user-space > a.dropdown-toggle {
+    //     padding: 0.25rem 1.5rem 0.125rem 0.5rem;
+    //
+    // }
 
     .user-picture {
         background: $clr-primary;
