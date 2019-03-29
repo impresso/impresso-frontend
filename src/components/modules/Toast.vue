@@ -1,6 +1,6 @@
 <template lang="html">
   <b-alert show fade variant="dark"
-    class="toast m-0 p-1 bg-dark text-white border-bottom-0 border-left-0 border-right-0 border-secondary">
+    class="toast m-0 py-0 px-2">
     <b-progress
       v-if="job.progress < 1"
       :value="(job.progress * 100) + 1"
@@ -17,7 +17,7 @@
           </div>
           <div v-if="job.extra">
             <span>{{ percent(job.extra.progress) }} &mdash; </span>
-            <span v-if="job.creationDate"> {{$d(new Date(job.creationDate), 'precise')}}</span>
+            <span class='date' v-if="job.creationDate"> {{$d(new Date(job.creationDate), 'precise')}}</span>
           </div>
           <div v-else>
             <span >{{ percent(job.progress) }}</span>
@@ -85,8 +85,19 @@ export default {
 </script>
 
 <style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
+$clr-grey-800: #c6ccd2;
+
 .toast {
 }
+
+.alert-dark{
+  color: $clr-grey-800;
+  background-color: transparent;
+  border-color: transparent;
+}
+
 </style>
 
 <i18n>

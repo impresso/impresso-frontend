@@ -221,6 +221,12 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
+$clr-white: #ffffff;
+$clr-grey-100: #17191c;
+$clr-grey-300: #424a52;
+$clr-grey-400: #5a6672;
+$clr-grey-800: #c6ccd2;
+
 #app-header {
     .progress {
         position: absolute;
@@ -276,11 +282,11 @@ export default {
         }
     }
     .navbar-dark .navbar-nav .nav-link {
-        color: $clr-bg-secondary;
+        color: $clr-grey-800;
     }
     .navbar-dark .navbar-nav .nav-link:focus,
     .navbar-dark .navbar-nav .nav-link:hover {
-        color: $clr-bg-primary;
+        color: $clr-white;
         background: transparent;
     }
     &::before {
@@ -292,6 +298,33 @@ export default {
         height: 2px;
         background-color: $clr-accent-light;
         content: '';
+    }
+
+    .navbar-dark .b-nav-dropdown {
+      border-left: 1px solid transparent;
+      border-right: 1px solid $clr-grey-400;
+
+      &.show{
+        background: $clr-grey-300 !important;
+        border-color: $clr-grey-100;
+        box-shadow: 1px 0px 0px $clr-grey-400;
+      }
+
+      &.show > a{
+        color: $clr-white;
+      }
+    }
+    .navbar-dark .b-nav-dropdown .dropdown-menu {
+      background: $clr-grey-300 !important;
+      padding: .5rem;
+      &.dropdown-menu-right{
+        margin-right: -1px;
+      }
+      .dropdown-item{
+          color: $clr-grey-800;
+          font-size:0.9em;
+          padding: 0.5rem;
+      }
     }
 
     .dropdown-toggle {
