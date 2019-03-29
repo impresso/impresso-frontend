@@ -57,8 +57,8 @@ export default {
     onExport() {
       const anchor = document.createElement('a');
       document.body.appendChild(anchor);
-      const file = `${services.MIDDLELAYER_API_URL}/media/jobs/${this.job.id}`;
-
+      const file = `${services.MIDDLELAYER_MEDIA_URL}/jobs/${this.job.id}`;
+      console.log('downloading:', file);
       const headers = new Headers();
       headers.append('Authorization', `Bearer ${services.app.passport.storage['feathers-jwt']}`);
 
