@@ -6,17 +6,17 @@
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
         <b-navbar-nav>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
+          </li> -->
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
           </li>
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_search")}}</router-link>
+            <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
           </li>
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
+            <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
 
         </b-navbar-nav>
@@ -24,7 +24,6 @@
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
         </b-navbar-nav>
         <b-navbar-nav>
-
           <b-nav-item-dropdown right no-caret
             ref="ddownJobs"
             v-bind:disabled="jobs.length === 0"
@@ -57,14 +56,16 @@
                   size="sm">{{$t('show less')}}</b-button>
               </div>
             </div>
-            </b-nav-item-dropdown>
-            <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="small-caps p-2" right>
-              <b-dropdown-item v-for="language in languages"
-              v-bind:active="activeLanguageCode === language.code"
-              v-bind:key="language.code"
-              v-bind:disabled="language.disabled"
-              v-on:click="selectLanguage(language.code)">{{language.name}}</b-dropdown-item>
-            </b-nav-item-dropdown>
+          </b-nav-item-dropdown>
+          <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
+            <b-dropdown-item v-for="language in languages"
+            v-bind:active="activeLanguageCode === language.code"
+            v-bind:key="language.code"
+            v-bind:disabled="language.disabled"
+            v-on:click="selectLanguage(language.code)">
+              <span>{{language.name}}</span>
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 " right>
             <template slot="button-content">
               <div class='d-inline-block'>
@@ -221,6 +222,12 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
+$clr-white: #ffffff;
+$clr-grey-100: #17191c;
+$clr-grey-300: #424a52;
+$clr-grey-400: #5a6672;
+$clr-grey-800: #c6ccd2;
+
 #app-header {
     .progress {
         position: absolute;
@@ -276,11 +283,11 @@ export default {
         }
     }
     .navbar-dark .navbar-nav .nav-link {
-        color: $clr-bg-secondary;
+        color: $clr-grey-800;
     }
     .navbar-dark .navbar-nav .nav-link:focus,
     .navbar-dark .navbar-nav .nav-link:hover {
-        color: $clr-bg-primary;
+        color: $clr-white;
         background: transparent;
     }
     &::before {
@@ -294,6 +301,41 @@ export default {
         content: '';
     }
 
+    .navbar-dark .b-nav-dropdown {
+      border-left: 1px solid transparent;
+      border-right: 1px solid $clr-grey-400;
+
+      &.show{
+        background: $clr-grey-300 !important;
+        border-color: $clr-grey-100;
+        box-shadow: 1px 0px 0px $clr-grey-400;
+      }
+
+      &.show > a{
+        color: $clr-white;
+      }
+    }
+    .navbar-dark .b-nav-dropdown .dropdown-menu {
+      background: $clr-grey-300 !important;
+      padding: .5rem 0;
+      &.dropdown-menu-right{
+        margin-right: -1px;
+      }
+      .dropdown-item{
+        color: $clr-grey-800;
+        font-size:0.9em;
+        padding: .5rem 1rem;
+      }
+      .dropdown-item.disabled{
+        text-decoration: line-through;
+      }
+
+      .dropdown-item.active{
+        color: $clr-white;
+        background: $clr-grey-400;
+      }
+    }
+
     .dropdown-toggle {
         padding-right: 1.25rem;
 
@@ -301,17 +343,16 @@ export default {
             position: absolute;
             top: 50%;
             right: 0.75rem;
-            line-height: 2rem;
+            line-height: 2.25rem;
             margin-top: -1rem;
+            font-size: .8em;
         }
     }
 
-    .user-space > a.dropdown-toggle {
-        padding: 0.25rem 1.5rem 0.125rem 0.5rem;
-        &::after {
-            font-size: 0.75em;
-        }
-    }
+    // .user-space > a.dropdown-toggle {
+    //     padding: 0.25rem 1.5rem 0.125rem 0.5rem;
+    //
+    // }
 
     .user-picture {
         background: $clr-primary;
