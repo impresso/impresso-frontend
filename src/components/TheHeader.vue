@@ -6,17 +6,17 @@
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
         <b-navbar-nav>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
+          </li> -->
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
           </li>
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_search")}}</router-link>
+            <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
           </li>
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_newspapers")}}</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_topics")}}</router-link>
+            <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
 
         </b-navbar-nav>
