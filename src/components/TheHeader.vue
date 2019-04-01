@@ -16,6 +16,9 @@
             <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
           </li>
           <li class="nav-item">
+            <router-link v-bind:to="{ name: 'entities'}" exact-active-class="active" class="nav-link">{{$t("label_entities")}}</router-link>
+          </li>
+          <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
 
@@ -447,6 +450,7 @@ $clr-grey-800: #c6ccd2;
     "label_home": "Home",
     "label_search": "Search",
     "label_newspapers": "Newspaper Titles",
+    "label_entities": "Named Entities",
     "label_topics": "Topics",
     "join_slack_channel": "Join us on <b>Slack!</b>"
   }

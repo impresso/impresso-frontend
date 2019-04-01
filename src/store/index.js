@@ -9,6 +9,7 @@ import search from './Search';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
 import newspapers from './Newspapers';
+import entities from './Entities';
 import articles from './Articles';
 import topics from './Topics';
 import jobs from './Jobs';
@@ -30,6 +31,7 @@ export default new Vuex.Store({
     topics,
     jobs,
     newspapers,
+    entities,
   },
   state: {
     processing_status: false,
@@ -88,6 +90,7 @@ export default new Vuex.Store({
       'collections.collectionsSortOrder',
       'issue.viewerMode',
       'newspapers.orderBy',
+      'entities.orderBy',
     ],
   })],
 });

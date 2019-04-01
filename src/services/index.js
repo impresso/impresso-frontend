@@ -71,6 +71,7 @@ export const pages = app.service('pages');
 export const pagesTimelines = app.service('pages-timelines');
 export const search = app.service('search');
 export const newspapers = app.service('newspapers');
+export const entities = app.service('entities');
 export const collections = app.service('collections');
 export const collectionsItems = app.service('collectable-items');
 export const topics = app.service('topics');

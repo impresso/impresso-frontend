@@ -13,6 +13,9 @@ import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
 import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
+import EntitiesPage from '../components/EntitiesPage';
+import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
+import EntityDetailPage from '../components/EntityDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
@@ -25,11 +28,11 @@ const router = new Router({
     path: '/',
     name: 'home',
     component: HomePage,
-    // beforeEnter: (to, from, next) => {
-    //   next({
-    //     name: 'search',
-    //   });
-    // },
+      // beforeEnter: (to, from, next) => {
+      //   next({
+      //     name: 'search',
+      //   });
+      // },
     meta: {
       requiresAuth: false,
     },
@@ -97,7 +100,8 @@ const router = new Router({
         requiresAuth: true,
         realm: 'user',
       },
-    }],
+    },
+    ],
   },
   {
     path: '/issue/:issue_uid',
@@ -140,15 +144,30 @@ const router = new Router({
         realm: 'newspapers',
       },
     },
-    {
-      path: ':newspaper_uid/metadata',
-      component: NewspapersDetailPage,
-      name: 'newspaper_metadata',
+    ],
+  },
+  {
+    path: '/entities',
+    component: EntitiesPage,
+    children: [{
+      path: '',
+      component: EntitiesExplorerPage,
+      name: 'entities',
       meta: {
         requiresAuth: true,
-        realm: 'newspapers',
+        realm: 'entities',
       },
-    }],
+    },
+    {
+      path: ':entity_uid',
+      component: EntityDetailPage,
+      name: 'entity',
+      meta: {
+        requiresAuth: true,
+        realm: 'entities',
+      },
+    },
+    ],
   },
   {
     path: '/playground',
@@ -175,7 +194,8 @@ const router = new Router({
       meta: {
         requiresAuth: true,
       },
-    }],
+    },
+    ],
   },
   {
     path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
@@ -208,7 +228,8 @@ const router = new Router({
         });
       });
     },
-  }],
+  },
+  ],
 });
 
 router.beforeEach((to, from, next) => {
