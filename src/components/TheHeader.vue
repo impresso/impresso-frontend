@@ -48,12 +48,12 @@
                   v-if="showLess"
                   @click="showLess = false"
                   class="border-0 w-100"
-                  size="sm">{{$t('show all')}}</b-button>
+                  size="sm">{{$t('show_all')}}</b-button>
                 <b-button
                   v-if="!showLess"
                   @click="showLess = true"
                   class="border-0 w-100"
-                  size="sm">{{$t('show less')}}</b-button>
+                  size="sm">{{$t('show_less')}}</b-button>
               </div>
             </div>
           </b-nav-item-dropdown>
@@ -448,7 +448,9 @@ $clr-grey-800: #c6ccd2;
     "label_search": "Search",
     "label_newspapers": "Newspaper Titles",
     "label_topics": "Topics",
-    "join_slack_channel": "Join us on <b>Slack!</b>"
+    "join_slack_channel": "Join us on <b>Slack!</b>",
+    "show_all": "Show All",
+    "show_less": "Show Less"
   }
 }
 </i18n>
