@@ -3,7 +3,7 @@ import SuggestionDaterange from '@/models/SuggestionDaterange';
 import SuggestionString from '@/models/SuggestionString';
 import SuggestionRegex from '@/models/SuggestionRegex';
 import SuggestionTopic from '@/models/SuggestionTopic';
-// import SuggestionItem from '@/models/SuggestionItem';
+import SuggestionCollection from '@/models/SuggestionCollection';
 
 
 export default {
@@ -21,6 +21,8 @@ export default {
       return new SuggestionRegex(data);
     } else if (data.type === 'topic') {
       return new SuggestionTopic(data);
+    } else if (data.type === 'collection') {
+      return new SuggestionCollection(data);
     }
     // else if (data.item) {
     //   return new SuggestionItem(data);
