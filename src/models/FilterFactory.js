@@ -6,6 +6,7 @@ import FilterTopic from '@/models/FilterTopic';
 import FilterLanguage from '@/models/FilterLanguage';
 import FilterFacetYear from '@/models/FilterFacetYear';
 import FilterDaterange from '@/models/FilterDaterange';
+import FilterCollection from '@/models/FilterCollection';
 
 import uuid from 'uuid';
 
@@ -52,6 +53,10 @@ export default {
 
     if (filterData.type === 'daterange') {
       filter = new FilterDaterange(filterData);
+    }
+
+    if (filterData.type === 'collection') {
+      filter = new FilterCollection(filterData);
     }
 
     if (filter) {
