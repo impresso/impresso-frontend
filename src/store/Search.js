@@ -5,6 +5,7 @@ import Topic from '@/models/Topic';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
+import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
 
@@ -22,7 +23,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['newspaper', 'language', 'topic'], // this also sets the order of the filters
+    facetTypes: ['newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
   },
   getters: {
@@ -153,7 +154,6 @@ export default {
       });
     },
     EXPORT_FROM_QUERY(context) {
-      // console.log(context, services.exporter.methods.create);
       return new Promise((resolve) => {
         services.exporter.create({}, {
           query: {
@@ -243,6 +243,22 @@ export default {
                   buckets: res.info.facets.newspaper.buckets.map(bucket => ({
                     ...bucket,
                     item: new Newspaper(bucket.item),
+                  })),
+                });
+
+                context.commit('ADD_FACET', facet);
+              }
+
+              // add collection facet/filter
+              if (res.info.facets && res.info.facets.collection) {
+                const facet = new Facet({
+                  type: 'collection',
+                  buckets: res.info.facets.collection.buckets.map(bucket => ({
+                    ...bucket,
+                    item: new Collection({
+                      ...bucket.item,
+                      uid: bucket.val,
+                    }),
                   })),
                 });
 

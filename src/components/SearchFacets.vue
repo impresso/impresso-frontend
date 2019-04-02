@@ -6,7 +6,7 @@
         <ul v-if="facet.type === 'collection'" class="list-unstyled">
           <li v-for="bucket in facet.buckets" class="facet-filter">
             <div class="left">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{$t(`languages.${bucket.item.uid}`)}} ({{$n(bucket.count)}})</a>
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{bucket.item.name}} ({{$n(bucket.count)}})</a>
             </div>
             <div class="right pl-1">
               <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
