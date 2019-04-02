@@ -1,11 +1,10 @@
-<template lang="html">
-  <i-layout id="SearchPage">
+:<template lang="html">
+  <i-layout id="EntitiesPage">
     <i-layout-section width="300px" class="border-right">
-      <div slot="header" class="border-bottom">
-
-        <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+      <div slot="header" class="border-bottom bg-light">
+        <base-tabs v-model="tab" class="pl-3" v-bind:tabs="tabs"></base-tabs>
+        <b-navbar class="border-bottom p-0 bg-white">
           <b-navbar-nav class="px-3 py-3">
-            <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
             <label class="mr-1">{{$t("label_order")}}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </b-navbar-nav>
@@ -22,12 +21,12 @@
       </div>
       <div v-for="n in entities" class="border-bottom">
         <router-link
-          class="px-3 py-2 d-block"
-          v-bind:class="{active: n.uid === entityUid}"
-          v-bind:to="{name: 'entity_metadata', params: {entity_uid: n.uid}}">
-          <strong>{{n.name}}</strong>
+          class="px-3 py-2 d-block small-caps"
+          v-bind:class="{active: n.id === entityUid}"
+          v-bind:to="{name: 'entity_metadata', params: {entity_uid: n.id}}">
+          <strong>{{n.wikidata.labels[activeLanguageCode]}}</strong>
           <br>
-          ({{n.startYear}} - {{n.endYear}})
+          {{n.wikidata.descriptions[activeLanguageCode]}}
         </router-link>
       </div>
       <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top">
@@ -44,11 +43,110 @@
 </template>
 
 <script>
+import BaseTabs from './base/BaseTabs';
 import Pagination from './modules/Pagination';
 
 export default {
-  data: () => ({}),
+  data: () => ({
+    tab: {},
+    entities: [
+      {
+        id: 1,
+        name: 'null',
+        type: 'entity',
+        wikidataId: 'Q159700',
+        dbpediaURL: null,
+        impressoId: null,
+        wikidata: {
+          id: 'Q159700',
+          type: 'human',
+          labels: {
+            fr: 'Jean Monnet',
+            it: 'Jean Monnet',
+            de: 'Jean Monnet',
+            en: 'Jean Monnet',
+          },
+          descriptions: {
+            it: 'politico francese',
+            fr: 'homme politique français',
+            de: 'französischer Staatsmann und Politiker',
+            en: 'French political economist regarded by many as a chief architect of European unity',
+          },
+          birthDate: '+1888-11-09T00:00:00Z',
+          deathDate: '+1979-03-16T00:00:00Z',
+          birthPlace: {
+            id: 'Q285',
+            type: 'location',
+            labels: {
+              fr: 'Cognac',
+              en: 'Cognac',
+              de: 'Cognac',
+              it: 'Cognac',
+            },
+            descriptions: {
+              fr: 'commune française du département de la Charente',
+              de: 'französische Stadt im Département Charente',
+              it: 'comune francese',
+              en: 'commune in Charente, France',
+            },
+            coordinates: {
+              latitude: 45.695833333333,
+              longitude: -0.32916666666667,
+              altitude: null,
+              precision: 0.00027777777777778,
+              globe: 'http://www.wikidata.org/entity/Q2',
+            },
+            country: {
+              'entity-type': 'item',
+              'numeric-id': 142,
+              id: 'Q142',
+            },
+          },
+          deathPlace: {
+            id: 'Q83447',
+            type: 'location',
+            labels: {
+              fr: 'Bazoches-sur-Guyonne',
+              en: 'Bazoches-sur-Guyonne',
+              it: 'Bazoches-sur-Guyonne',
+              de: 'Bazoches-sur-Guyonne',
+            },
+            descriptions: {
+              fr: 'commune française du département des Yvelines',
+              it: 'comune francese',
+              en: 'commune in Yvelines, France',
+              de: 'französische Gemeinde',
+            },
+            coordinates: {
+              latitude: 48.778333333333,
+              longitude: 1.8602777777778,
+              altitude: null,
+              precision: 0.00027777777777778,
+              globe: 'http://www.wikidata.org/entity/Q2',
+            },
+            country: {
+              'entity-type': 'item',
+              'numeric-id': 142,
+              id: 'Q142',
+            },
+          },
+        },
+      },
+    ],
+  }),
   computed: {
+    tabs() {
+      return [
+        {
+          label: this.$t('label_list', { total: this.paginationList.totalRows }),
+          name: 'list',
+          active: true,
+        },
+      ];
+    },
+    activeLanguageCode() {
+      return this.$store.state.settings.language_code;
+    },
     paginationList() {
       return this.$store.state.entities.list.pagination;
     },
@@ -133,9 +231,7 @@ export default {
     },
   },
   mounted() {
-    // this.$store.dispatch('entities/LOAD_LIST');
     this.loadList().then((res) => {
-      console.log('res', res);
       if (this.$route.params.entity_uid === undefined) {
         this.$router.push({
           params: {
@@ -148,6 +244,7 @@ export default {
   },
   components: {
     Pagination,
+    BaseTabs,
   },
   watch: {
     entityUid: {
@@ -173,7 +270,7 @@ export default {
 <i18n>
 {
   "en": {
-    "label_list": "List of named entities ({total})",
+    "label_list": "Explore ({total})",
     "label_order": "Order By",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
