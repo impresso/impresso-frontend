@@ -11,21 +11,21 @@ export default class FilterCollection extends Filter {
   constructor(args) {
     super(args);
     if (args.item instanceof Collection) {
-      this.collection = args.item;
+      this.item = args.item;
     } else {
-      this.collection = new Collection(args.item);
+      this.item = new Collection(args.item);
     }
   }
 
   getName() {
-    return this.collection.name;
+    return this.item.name;
   }
 
   getQuery() {
     return {
       context: this.context,
       type: this.type,
-      q: this.collection.uid,
+      q: this.item.uid,
     };
   }
 }

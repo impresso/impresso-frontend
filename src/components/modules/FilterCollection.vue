@@ -3,7 +3,7 @@
     v-bind:id="filter.key"
     v-on:remove="remove"
     icon="archive"
-    v-bind:title="filter.collection.name">
+    v-bind:title="filter.item.name">
     <div slot="settings">
       <filter-setting-context v-model="filter" />
     </div>
