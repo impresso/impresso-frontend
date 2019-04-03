@@ -35,7 +35,7 @@ export default {
       overflow: 'hidden',
       margin: 0,
       padding: 0,
-      'z-index': 1000,
+      zIndex: 10,
       transition: 'all 100ms',
       display: 'none',
     },

@@ -76,3 +76,7 @@ export const collectionsItems = app.service('collectable-items');
 export const topics = app.service('topics');
 export const jobs = app.service('jobs');
 export const exporter = app.service('search-exporter');
+
+export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
+export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;
+export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('');

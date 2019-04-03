@@ -98,7 +98,7 @@ export default {
                 text-align: center;
                 padding-top: 0.2em;
                 border: 1px solid #E0E0E0;
-                z-index: 1000;
+                z-index: 20;
             }
 
             .mini_viewer {
