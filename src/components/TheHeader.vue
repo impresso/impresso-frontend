@@ -25,9 +25,8 @@
         </b-navbar-nav>
         <b-navbar-nav>
           <b-nav-item-dropdown right no-caret
-            ref="ddownJobs"
-            v-bind:disabled="jobs.length === 0"
-            class="p-2">
+            v-if="user"
+            ref="ddownJobs" class="p-2">
               <template slot="button-content">
                 <div class="dripicons-cloud-download position-relative" style="top:0.25em" />
                 <transition name="bounce">
@@ -38,22 +37,26 @@
                 </transition>
               </template>
             <div class="jobs">
-              <toast v-for="(job, i) in this.jobs"
-                v-bind:job="job"
-                v-bind:key="job.id"
-                style="min-width: 400px"
-                />
-              <div class="border-top border-primary text-center text-white p-0">
-                <b-button
-                  v-if="showLess"
-                  @click="showLess = false"
-                  class="border-0 w-100"
-                  size="sm">{{$t('show all')}}</b-button>
-                <b-button
-                  v-if="!showLess"
-                  @click="showLess = true"
-                  class="border-0 w-100"
-                  size="sm">{{$t('show less')}}</b-button>
+              <div v-if="jobs.length === 0" class="text-center text-white p-4">
+                {{ $t('no-jobs-yet' )}}
+              </div>
+              <div v-else>
+                <toast v-for="(job, i) in this.jobs"
+                  v-bind:job="job"
+                  v-bind:key="job.id"
+                  />
+                <div class="text-center">
+                  <b-button
+                    v-if="showLess"
+                    @click="showLess = false"
+                    class="text-white border-white"
+                    size="sm">{{$t('show all')}}</b-button>
+                  <b-button
+                    v-if="!showLess"
+                    @click="showLess = true"
+                    class="text-white border-white"
+                    size="sm">{{$t('show less')}}</b-button>
+                </div>
               </div>
             </div>
           </b-nav-item-dropdown>
@@ -250,6 +253,9 @@ $clr-grey-800: #c6ccd2;
       bottom:0;
       left:0;
       z-index: 100;
+    }
+    .jobs {
+      min-width: 400px;
     }
     nav {
         margin-top: 0;
@@ -448,7 +454,8 @@ $clr-grey-800: #c6ccd2;
     "label_search": "Search",
     "label_newspapers": "Newspaper Titles",
     "label_topics": "Topics",
-    "join_slack_channel": "Join us on <b>Slack!</b>"
+    "join_slack_channel": "Join us on <b>Slack!</b>",
+    "no-jobs-yet": "Here you will find notifications about your collections and your downloads."
   }
 }
 </i18n>
