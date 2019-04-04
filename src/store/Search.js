@@ -152,11 +152,13 @@ export default {
         }).then(res => resolve(res));
       });
     },
-    EXPORT_FROM_QUERY(context, payload) {
+    EXPORT_FROM_QUERY(context, {
+      description,
+    }) {
       // console.log(context, services.exporter.methods.create);
       return new Promise((resolve) => {
         services.exporter.create({
-          description: payload.description,
+          description,
         }, {
           query: {
             group_by: 'articles',
