@@ -19,7 +19,7 @@
             v-model.trim="query"/>
         </div>
       </div>
-      <div v-for="n in entities" class="border-bottom">
+      <div v-for="n in entities_" class="border-bottom">
         <router-link
           class="px-3 py-2 d-block small-caps"
           v-bind:class="{active: n.id === entityUid}"
@@ -49,7 +49,7 @@ import Pagination from './modules/Pagination';
 export default {
   data: () => ({
     tab: {},
-    entities: [
+    entities_: [
       {
         id: 1,
         name: 'null',

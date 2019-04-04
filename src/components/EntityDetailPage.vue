@@ -43,7 +43,7 @@
             </a>
           </span>
           <br>
-          {{ info }}
+          {{entity.wikidata.descriptions[activeLanguageCode]}}
       </div>
     </div>
   </i-layout-section>
@@ -137,12 +137,10 @@ export default {
       },
     },
   }),
-  mounted: {
-  },
   methods: {
     getImage() {
-      fetch('https://api.coindesk.com/v1/bpi/currentprice.json')
-        .then((response) => { this.info = response; });
+      fetch(`https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=${this.entity.wikidataId}&property=P18`, { crossdomain: true })
+        .then((response) => { console.log(response); this.info = response; });
     },
   },
   computed: {
