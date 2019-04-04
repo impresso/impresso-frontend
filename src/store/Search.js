@@ -155,12 +155,13 @@ export default {
     EXPORT_FROM_QUERY(context, payload) {
       // console.log(context, services.exporter.methods.create);
       return new Promise((resolve) => {
-        services.exporter.create({}, {
+        services.exporter.create({
+          description: payload.description,
+        }, {
           query: {
             group_by: 'articles',
             filters: context.getters.getSearch.getFilters(),
             format: 'csv',
-            description: payload.description,
           },
         }).then(res => resolve(res));
       });
