@@ -74,7 +74,7 @@
       <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
         <ellipsis v-bind:initialHeight="88">
           <search-result-summary
-            v-on:gotMessage="gotMessage"
+            v-on:onSummary="onSummary"
             v-bind:queryComponents="queryComponents"
             v-bind:totalRows="paginationTotalRows" />
         </ellipsis>
@@ -303,7 +303,7 @@ export default {
     },
   },
   methods: {
-    gotMessage(msg) {
+    onSummary(msg) {
       this.inputDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
@@ -381,7 +381,9 @@ export default {
       }
     },
     exportQueryCsv() {
-      this.$store.dispatch('search/EXPORT_FROM_QUERY').then((res) => {
+      this.$store.dispatch('search/EXPORT_FROM_QUERY', {
+        description: this.inputDescription,
+      }).then((res) => {
         console.log(res);
       });
     },

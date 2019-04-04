@@ -118,7 +118,7 @@ export default {
           ranges: this.getDateranges(),
           topics: this.getTopics(),
         });
-        this.$emit('gotMessage', this.message);
+        this.$emit('onSummary', this.message);
       },
     },
   },
