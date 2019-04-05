@@ -30,7 +30,11 @@
           variant="outline-danger m-1" size="sm"
           v-on:click="onStopJob(job.id)">Stop
         </b-button>
-        <b-button v-if="job.status === 'DON' && job.type === 'EXP'" variant="outline-success m-1" size="sm" v-on:click="onExport()">{{ $t('download csv') }}</b-button>
+        <b-button
+          v-if="job.status === 'DON' && job.type === 'EXP'"
+          variant="outline-success m-1" size="sm"
+          v-on:click="onExport()">{{ $t('download csv') }}
+        </b-button>
       </b-col>
     </b-row>
   </b-alert>
@@ -115,7 +119,8 @@ $clr-grey-800: #c6ccd2;
       },
       "status": {
         "DON": "done",
-        "RUN": "progress"
+        "RUN": "progress",
+        "ERR": "error"
       }
     }
   }

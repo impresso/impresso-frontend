@@ -37,9 +37,6 @@
           v-for="tag in article.tags"
           variant="secondary"
           v-bind:key="tag.uid">{{tag.name}}</b-badge>
-        <ul v-if="article.matches.length > 0" class="article-matches mb-2">
-          <li v-for="match in article.matches" v-html="match.fragment" v-show="match.fragment.trim().length > 0"></li>
-        </ul>
         <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
           <b-badge
             v-for="(collection, i) in article.collections"
@@ -61,7 +58,6 @@
           article_uid: article.uid,
         } }" class="btn btn-sm btn-outline-primary">
           {{$t('view')}}
-          
         </router-link>
 
         <collection-add-to
