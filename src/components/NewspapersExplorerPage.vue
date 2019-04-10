@@ -7,17 +7,38 @@
           <h3 class='mb-1'>{{ $t('newspapers_lines') }}</h3>
         </section>
       </b-navbar>
-      <b-navbar class='m-0 p-0'>
+      <b-navbar class='m-0 px-3'>
+        <section class="d-flex w-100">
+          <b-navbar-nav class="px-0 py-0">
+            <label>timeline of:</label>
+            <i-dropdown v-model="valueType" v-bind:options="valueTypesOptions" size="sm" variant="outline-primary" />
+          </b-navbar-nav>
+          <b-navbar-nav class="flex-grow-1">
+              <timeline
+                    :values="values"
+                    :domain="[start, end]"
+                    :highlight="highlightA"
+                    v-on:highlight="onHighlight($event, 'A')">
+                <template scope="tooltipScope">
+                  <div v-if="tooltipScope.tooltip.item">
+                    {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+                    <b>{{ tooltipScope.tooltip.item.w }}</b> {{ totalLabel }}
+                    <br />
+                    <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b> ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
+                  </div>
+                </template>
+              </timeline>
+          </b-navbar-nav>
+
+      </section>
+
         <!--
           <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
             <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li> -->
 
-        <timeline class='ml-4'
-          :values="pagesTimeline.values"
-          :domain="[start, end]"
-          :highlight="highlightA"
-          v-on:highlight="onHighlight($event, 'A')"/>
+
+
 
       </b-navbar>
       <!-- <b-navbar  type="light" variant="light" class="border-bottom">
@@ -34,7 +55,7 @@
     <!--  newspqper lifespans -->
 
     <!--  newspqper lifespans -->
-    <newspapers-lines class="mx-5" v-model="newspapers" v-on:highlight="onHighlight($event, 'B')"/>
+    <newspapers-lines class="mx-5" v-model="newspapers" :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"/>
 
 
 
@@ -46,39 +67,51 @@ import Timeline from './modules/Timeline';
 
 export default {
   data: () => ({
-    pagesTimeline: {
-      name: '',
-      values: [],
-    },
+    values: [],
     start: 1738,
     end: 2018,
     highlights: ['A', 'B'],
     highlightA: null,
     highlightB: null,
-    domainType: 'absolute',
+    valueType: 'pages',
   }),
   computed: {
     newspapers() {
       return this.$store.state.newspapers.list.newspapers;
     },
-    domainTypeOptions() {
+    valueTypesOptions() {
       return [
         {
-          value: 'absolute',
-          text: this.$t('topicmodel'),
+          value: 'pages',
+          text: this.$t('pages.label'),
         },
         {
-          value: 'relative',
-          text: this.$t('language'),
+          value: 'issues',
+          text: this.$t('issues.label'),
         },
       ];
+    },
+    totalLabel() {
+      return this.$t(`${this.valueType}.total`);
+    },
+    contrastLabel() {
+      return this.$t(`${this.valueType}.contrast`);
     },
   },
   async mounted() {
     // global timeline per year, with n. of pages, n. of empty pages, n.of corrupted pages.
-    this.pagesTimeline = await this.$store.dispatch('newspapers/LOAD_PAGES_TIMELINE');
+    const timelines = await this.$store.dispatch('newspapers/LOAD_TIMELINES');
+    this.timelines = {
+      pages: timelines[0],
+      issues: timelines[1],
+    };
+    this.values = this.timelines[this.valueType].values;
+    // this.issuesTimeline = await this.$store.dispatch('newspapers/LOAD_ISSUES_TIMELINE');
   },
   methods: {
+    percent(a, t) {
+      return t > 0 ? Math.round(100 * (a / t)) : 0;
+    },
     onHighlight(event, origin) {
       // console.log(event, origin);
       this.highlights.forEach((vis) => {
@@ -87,6 +120,16 @@ export default {
         }
       });
     },
+  },
+  watch: {
+    valueType: {
+      immediate: true,
+      handler(val) {
+        console.log('VALUE ', val);
+        this.values = this.timelines[val].values;
+      },
+    },
+
   },
   components: {
     // Tooltip,
@@ -126,7 +169,17 @@ export default {
   "en": {
     "label_order": "Order By",
     "list_of_newspapers": "Newspapers",
-    "newspapers_lines": "List of newspapers timelines"
+    "newspapers_lines": "List of newspapers timelines",
+    "pages": {
+        "label": "pages per year",
+        "total": "pages in total",
+        "contrast": "not available"
+    },
+    "issues": {
+        "label": "issues per year",
+        "total": "issues in total",
+        "contrast": "available"
+    }
   },
   "nl": {
     "label_order": "Sorteer Op",
