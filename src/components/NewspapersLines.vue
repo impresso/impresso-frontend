@@ -18,8 +18,12 @@
     </tooltip>
     <div class='cursor' :style="{
       transform: `translate(${point.x}px, 0)`,
-      opacity: tooltip.isActive ? 1 : 0,
-    }"></div>
+      opacity: point.isActive ? 1 : 0,
+    }">
+      <label>
+        <span class='px-2 py-1'>{{point.year}}</span>
+      </label>
+    </div>
     <!-- <div class="point" :style="{
       transform: `translate(${point.x}px, ${point.y}px)`,
     }"></div> -->
@@ -49,6 +53,7 @@ export default {
   model: {
     prop: 'newspapers',
     default: [],
+
   },
   data: () => ({
     tooltip: {
@@ -60,10 +65,15 @@ export default {
     point: {
       x: 0,
       y: 0,
+      isActive: false,
+      year: 2019,
     },
     width: 0,
   }),
-  props: ['newspapers'],
+  props: {
+    newspapers: Array,
+    highlight: Object,
+  },
   methods: {
     onMousemove({ clientX, clientY }) {
       const x = clientX - this.$refs.lines.offsetLeft;
@@ -73,6 +83,8 @@ export default {
       this.point = {
         x,
         y,
+        isActive: true,
+        year: parseInt(this.scale.invert(x), 10),
       };
       this.$emit('highlight', {
         mouse: {
@@ -80,7 +92,7 @@ export default {
           y,
         },
         datum: {
-          t: parseInt(this.scale.invert(x), 10),
+          t: this.point.year,
         },
       });
     },
@@ -134,9 +146,6 @@ export default {
         nearest: d0,
       };
     },
-    // onMousemove(evt) {
-    //   console.log('mousemove babe', evt);
-    // },
   },
   mounted() {
     this.onResize();
@@ -181,8 +190,22 @@ export default {
           d3.max(this.newspapers, d => d.endYear),
         ]);
     },
-
-
+  },
+  watch: {
+    highlight: {
+      immediate: false,
+      handler(val) {
+        // console.log('@highlight', val, val.t.getFullYear());
+        // const highlighted = this.getNearestValue(val.t.getFullYear());
+        const year = val.t.getFullYear();
+        this.point = {
+          ...this.point,
+          x: this.scale(year),
+          isActive: true,
+          year,
+        };
+      },
+    },
   },
   components: {
     Tooltip,
@@ -206,6 +229,18 @@ export default {
     background: $clr-accent-secondary;
     pointer-events: none;
     z-index: 2;
+
+    label {
+      position: absolute;
+      margin-left: -25px;
+      width: 50px;
+      text-align: center;
+      font-size: 1.2em;
+      span {
+        background-color: #fafafa;
+        border-bottom: 1px solid $clr-accent-secondary;
+      }
+    }
   }
 
   .point {
