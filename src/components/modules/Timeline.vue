@@ -1,12 +1,11 @@
 <template lang="html">
   <div id="d3-timeline">
-    <tooltip v-bind:tooltip="tooltip">
-      <div v-if="tooltip.item">
-        {{ $d(tooltip.item.t, 'year') }} &middot;
-        <b>{{ tooltip.item.w }}</b> {{ $t('total pages') }}
-        <br />
-        &mdash; <b>{{ tooltip.item.w1 }}</b> {{ $t('empty') }}
-      </div>
+    <tooltip :tooltip="tooltip">
+      <slot :tooltip="tooltip">
+        <div v-if="tooltip.item">
+          {{tooltip.item}}
+        </div>
+      </slot>
     </tooltip>
   </div>
 </template>
@@ -47,9 +46,9 @@ export default {
     this.line = new ContrastTimeline({
       element: '#d3-timeline',
       margin: {
-        left: 50,
-        right: 50,
-        top: 30,
+        left: 10,
+        right: 10,
+        top: 10,
       },
       domain: this.domain,
     });
@@ -72,6 +71,7 @@ export default {
         data: this.values,
       });
       this.line.draw();
+      setTimeout(this.onChangeDomain, 5000);
     }
     window.addEventListener('resize', this.onResize);
   },
@@ -134,3 +134,13 @@ export default {
     }
   }
 </style>
+<i18n>
+{
+  "en": {
+    "pages": {
+      "total": "pages",
+      "empty": "not available"
+    }
+  }
+}
+</i18n>
