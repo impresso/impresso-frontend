@@ -139,7 +139,7 @@ export default class Line extends Basic {
   draw() {
     this.contextBackground
       .attr('width', this.width - this.margin.right - this.margin.left)
-      .attr('height', this.height - this.margin.bottom - this.margin.top);
+      .attr('height', this.height - this.margin.top);
 
     // setup curve
     this.curve = d3.line()
