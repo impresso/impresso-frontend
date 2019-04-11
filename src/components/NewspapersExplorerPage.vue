@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section class="bg-light">
+  <i-layout-section class="bg-light" v-on:scroll='onScroll'>
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
@@ -7,26 +7,29 @@
           <h3 class='mb-1'>{{ $t('newspapers_lines') }}</h3>
         </section>
       </b-navbar>
-      <b-navbar class='m-0 px-3'>
-        <section class="d-flex w-100">
-          <b-navbar-nav class="px-0 py-0">
-            <label>timeline of:</label>
+      <b-navbar class='m-0 px-3 border-bottom'>
+        <section class="d-flex w-100" style="position: relative; height: 80px;">
+          <b-navbar-nav style='width: 200px'>
+            <label>timeline of</label>
             <i-dropdown v-model="valueType" v-bind:options="valueTypesOptions" size="sm" variant="outline-primary" />
           </b-navbar-nav>
-          <b-navbar-nav class="flex-grow-1">
+          <b-navbar-nav style='position: absolute; left: 200px; right: 50px'>
               <timeline
                     :values="values"
                     :domain="[start, end]"
                     :highlight="highlightA"
                     v-on:highlight="onHighlight($event, 'A')">
-                <template scope="tooltipScope">
+                <div slot-scope="tooltipScope">
                   <div v-if="tooltipScope.tooltip.item">
                     {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
                     <b>{{ tooltipScope.tooltip.item.w }}</b> {{ totalLabel }}
                     <br />
-                    <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b> ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
+                    <span v-if="tooltipScope.tooltip.item.w1 > 0">
+                    &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
+                    ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
+                    </span>
                   </div>
-                </template>
+                </div>
               </timeline>
           </b-navbar-nav>
 
@@ -55,7 +58,7 @@
     <!--  newspqper lifespans -->
 
     <!--  newspqper lifespans -->
-    <newspapers-lines class="mx-5" v-model="newspapers" :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"/>
+    <newspapers-lines class="mx-5" v-model="newspapers" :scrollTop="scrollTop" :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"/>
 
 
 
@@ -74,6 +77,7 @@ export default {
     highlightA: null,
     highlightB: null,
     valueType: 'pages',
+    scrollTop: 0,
   }),
   computed: {
     newspapers() {
@@ -112,6 +116,9 @@ export default {
     percent(a, t) {
       return t > 0 ? Math.round(100 * (a / t)) : 0;
     },
+    onScroll(e) {
+      this.scrollTop = e.scrollTop;
+    },
     onHighlight(event, origin) {
       // console.log(event, origin);
       this.highlights.forEach((vis) => {
@@ -125,8 +132,9 @@ export default {
     valueType: {
       immediate: true,
       handler(val) {
-        console.log('VALUE ', val);
-        this.values = this.timelines[val].values;
+        if (this.timelines[val]) {
+          this.values = this.timelines[val].values;
+        }
       },
     },
 
@@ -173,12 +181,12 @@ export default {
     "pages": {
         "label": "pages per year",
         "total": "pages in total",
-        "contrast": "not available"
+        "contrast": "missing pages"
     },
     "issues": {
         "label": "issues per year",
         "total": "issues in total",
-        "contrast": "available"
+        "contrast": "missing issues"
     }
   },
   "nl": {
