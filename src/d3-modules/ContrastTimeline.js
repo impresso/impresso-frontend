@@ -22,7 +22,7 @@ export default class ContrastTimeline extends Timeline {
       name: 'contrast',
       property: 'w1',
       type: Dimension.TYPE_CONTINUOUS,
-      scaleFn: d3.scaleSqrt,
+      scaleFn: d3.scaleLinear,
     });
 
     this.contextAreaContrast = this.context.append('path')
