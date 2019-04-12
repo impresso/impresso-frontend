@@ -6,13 +6,23 @@ export default class Filter {
     type = '',
     touched = false,
   } = {}) {
-    this.context = String(contexts[context.toUpperCase()]);
+    if (context !== contexts.INCLUDE) {
+      this.context = String(contexts[context.toUpperCase()]);
+    }
     this.type = String(type);
     this.touched = touched;
 
     if (this.getQuery === undefined && typeof this.getQuery !== 'function') {
       throw new TypeError('Subclass must implement getQuery() method');
     }
+  }
+
+  getHash() {
+    return btoa(JSON.stringify(this.getQuery()));
+  }
+
+  getQuery() {
+    throw new TypeError(`Filter subclass for ${this.type} must implement getQuery() method`);
   }
 
   getName() {
