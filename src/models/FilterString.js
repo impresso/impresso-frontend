@@ -10,7 +10,7 @@ import * as precisions from './Precisions';
 export default class FilterString extends Filter {
   constructor(args) {
     super(args);
-    this.query = String(args.query);
+    this.q = String(args.q);
     this.precision = precisions[(args.precision || 'exact').toUpperCase()];
   }
 
@@ -19,7 +19,7 @@ export default class FilterString extends Filter {
       context: this.context,
       precision: this.precision,
       type: this.type,
-      q: this.query,
+      q: this.q,
     };
   }
 }
