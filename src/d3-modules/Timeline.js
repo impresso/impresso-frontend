@@ -31,7 +31,7 @@ export default class Timeline extends Line {
           name: 'y',
           property: 'w',
           type: Dimension.TYPE_CONTINUOUS,
-          scaleFn: d3.scaleSqrt,
+          scaleFn: d3.scaleLinear,
         }),
       },
     });

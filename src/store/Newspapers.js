@@ -91,12 +91,36 @@ export default {
         );
       });
     },
-    LOAD_PAGES_TIMELINE() {
-      return new Promise((resolve, reject) => {
-        services.pagesTimelines.get('stats', {})
+    LOAD_TIMELINES() {
+      return Promise.all(['pagesTimelines', 'issuesTimeline'].map(service => new Promise((resolve, reject) => {
+        services[service].get('stats', {})
+          .then((res) => {
+            if (!res.values.length) {
+              return res;
+            }
+            // add zeroes to values array. Use the current extent.
+            const values = [res.values[0]];
+
+            for (let i = 1, l = res.values.length; i < l; i += 1) {
+              // if year ...
+              const diff = res.values[i].t - res.values[i - 1].t;
+              for (let j = 1; j < diff; j += 1) {
+                values.push({
+                  t: res.values[i - 1].t + j,
+                  w: 0,
+                  w1: 0,
+                });
+              }
+              values.push(res.values[i]);
+            }
+            return {
+              ...res,
+              values,
+            };
+          })
           .then(res => resolve(res))
           .catch(reject);
-      });
+      })));
     },
     LOAD_DETAIL(context, newspaperUid) {
       return new Promise((resolve, reject) => {

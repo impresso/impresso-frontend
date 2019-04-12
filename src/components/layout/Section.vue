@@ -1,9 +1,9 @@
 <template lang="html">
   <section v-bind:style="style">
-    <div v-if="this.$slots.header" class="header">
+    <div v-if="this.$slots.header" class="header" :class="{'scroll' : scrollTop }">
       <slot name="header"></slot>
     </div>
-    <div class="body">
+    <div class="body" ref="body">
       <slot></slot>
     </div>
     <div v-if="this.$slots.footer" class="footer">
@@ -18,6 +18,9 @@
 <i-layout-section width="400px" />
 */
 export default {
+  data: () => ({
+    scrollTop: 0,
+  }),
   props: {
     width: {
       default: 'auto',
@@ -35,6 +38,18 @@ export default {
       };
     },
   },
+  methods: {
+    onScroll() {
+      this.scrollTop = this.$refs.body.scrollTop;
+      this.$emit('scroll', { scrollTop: this.scrollTop });
+    },
+  },
+  beforeDestroy() {
+    this.$refs.body.removeEventListener('scroll', this.onScroll);
+  },
+  mounted() {
+    this.$refs.body.addEventListener('scroll', this.onScroll);
+  },
 };
 </script>
 
@@ -47,6 +62,27 @@ section{
   height: 100%;
   >.header{
     grid-area: header;
+    position: relative;
+    &::after{
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      height: 5px;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      background: rgb(255,255,255);
+      background: -moz-linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(198,204,210,.41) 100%);
+      background: -webkit-linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(198,204,210,.41) 100%);
+      background: linear-gradient(0deg, rgba(255,255,255,0) 0%, rgba(198,204,210,.41) 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ffffff",endColorstr="#c6ccd2",GradientType=1);
+      border-top: 1px solid #c6ccd2;
+    }
+    &.scroll::after{
+      opacity: 1;
+    }
   }
   >.body{
       grid-area: body;
