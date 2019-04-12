@@ -26,8 +26,9 @@
           <b-badge>{{$t('regex')}}</b-badge>
         </div>
         <div href="#" v-if="s.type === 'collection'" class="suggestion-collection">
+          <span class="icon dripicons-archive" :title="$t(s.item.type)"></span>
+          <span v-html="s.item.name" />
           <b-badge>{{$t('collection')}}</b-badge>
-          <div>{{s.item.name}} &mdash; by @{{s.item.creator.username}}</div>
         </div>
         <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
           <span class="icon dripicons-message" :title="$t('topic')"></span>
@@ -194,13 +195,15 @@ export default {
       "location": "Location",
       "regex": "Regex",
       "daterange": "Date Range",
-      "topic": "Topic"
+      "topic": "Topic",
+      "collection": "Collection"
     },
     "nl": {
       "person": "Persoon",
       "location": "Locatie",
       "daterange": "Periode",
-      "topic": "Onderwerp"
+      "topic": "Onderwerp",
+      "collection": "Collectie"
     }
   }
 </i18n>

@@ -3,6 +3,16 @@
     <div v-for="(facet, index) in facets" class="pt-1px border-top border-tertiary">
       <div class="px-3 py-2 border-top small">
         <base-title-bar>{{facet.type}}</base-title-bar>
+        <ul v-if="facet.type === 'collection'" class="list-unstyled">
+          <li v-for="bucket in facet.buckets" class="facet-filter">
+            <div class="left">
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{bucket.item.name}} ({{$n(bucket.count)}})</a>
+            </div>
+            <div class="right pl-1">
+              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
+            </div>
+          </li>
+        </ul>
         <ul v-if="facet.type === 'language'" class="list-unstyled">
           <li v-for="bucket in facet.buckets" class="facet-filter">
             <div class="left">
@@ -82,6 +92,12 @@ export default {
           context,
         });
       } else if (facet.type === 'language') {
+        this.$emit('submit-facet', {
+          type: facet.type,
+          item: bucket.item,
+          context,
+        });
+      } else if (facet.type === 'collection') {
         this.$emit('submit-facet', {
           type: facet.type,
           item: bucket.item,

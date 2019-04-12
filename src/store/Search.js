@@ -5,6 +5,7 @@ import Topic from '@/models/Topic';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
+import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
 import router from '../router';
@@ -281,6 +282,22 @@ export default {
                   buckets: res.info.facets.newspaper.buckets.map(bucket => ({
                     ...bucket,
                     item: new Newspaper(bucket.item),
+                  })),
+                });
+
+                context.commit('ADD_FACET', facet);
+              }
+
+              // add collection facet/filter
+              if (res.info.facets && res.info.facets.collection) {
+                const facet = new Facet({
+                  type: 'collection',
+                  buckets: res.info.facets.collection.buckets.map(bucket => ({
+                    ...bucket,
+                    item: new Collection({
+                      ...bucket.item,
+                      uid: bucket.val,
+                    }),
                   })),
                 });
 
