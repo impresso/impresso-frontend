@@ -11,7 +11,10 @@ import Newspaper from '@/models/Newspaper';
 export default class FilterNewspaper extends Filter {
   constructor(args) {
     super(args);
-    this.newspaper = new Newspaper(args.item);
+    this.newspaper = new Newspaper({
+      uid: args.q,
+      ...args.item,
+    });
   }
 
   getQuery() {
