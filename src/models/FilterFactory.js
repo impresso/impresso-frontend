@@ -28,7 +28,7 @@ export default {
       filter = new FilterString(filterData);
     }
 
-    if (filterData.type === 'hasTextContents') {
+    if (['isFront', 'hasTextContents'].indexOf(filterData.type) > -1) {
       filter = new FilterBoolean(filterData);
     }
 
@@ -68,7 +68,6 @@ export default {
       filter.key = filterData.key || uuid.v4();
       return filter;
     }
-
-    return null;
+    throw new Error(`Cannot create filter for type: ${filterData.type}`);
   },
 };
