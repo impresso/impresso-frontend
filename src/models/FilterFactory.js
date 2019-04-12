@@ -1,3 +1,4 @@
+import FilterBoolean from '@/models/FilterBoolean';
 import FilterEntity from '@/models/FilterEntity';
 import FilterString from '@/models/FilterString';
 import FilterRegex from '@/models/FilterRegex';
@@ -24,6 +25,10 @@ export default {
 
     if (filterData.type === 'string') {
       filter = new FilterString(filterData);
+    }
+
+    if (filterData.type === 'hasTextContents') {
+      filter = new FilterBoolean(filterData);
     }
 
     if (filterData.type === 'regex') {
