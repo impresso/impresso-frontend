@@ -1,10 +1,27 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right border-tertiary">
-    <div slot="header" class="pt-3 px-3">
+    <div slot="header" class="py-3 px-3 border-bottom border-tertiary">
+
+      <b-dropdown :text="filter.q" class="mr-1" v-for="(filter, index) in filters">
+        <b-dropdown-form>
+          <b-form-group label="Email" label-for="dropdown-form-email">
+            <b-form-input
+              id="dropdown-form-email"
+              size="sm"
+              placeholder="email@example.com"
+              v-model="filter.q"
+            ></b-form-input>
+          </b-form-group>
+        </b-dropdown-form>
+      </b-dropdown>
+
+
+
       <autocomplete v-on:submit="onSuggestion" />
     </div>
     <div class="pt-2">
+
       <b-form-group class="px-3 py-1">
         <b-form-checkbox v-model="hasTextContents" switch v-bind:value="true"
         v-bind:unchecked-value="false">
@@ -14,7 +31,10 @@
           {{$t('label_isFront')}}
         </b-form-checkbox>
       </b-form-group>
-      <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
+
+
+
+      <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
       <search-facets v-on:submit-facet="onFacet" />
     </div>
     <div slot="footer">
@@ -301,6 +321,11 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    filtersIndex: {
+      get() {
+        return this.$store.state.search.search.filtersIndex;
+      },
+    },
   },
   methods: {
     onSummary(msg) {
@@ -399,8 +424,7 @@ export default {
       if (page !== undefined) {
         this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-
-      this.$store.dispatch('search/SEARCH');
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
     reset() {
       this.$store.commit('search/CLEAR');
@@ -435,6 +459,14 @@ export default {
     selectedItems() {
       this.updateselectAll();
     },
+    '$route.query': {
+      handler(val) {
+        console.log('@$route.query changed', val);
+        this.$store.dispatch('search/PULL_SEARCH_PARAMS', val);
+      },
+      deep: true,
+      immediate: true,
+    },
   },
   components: {
     Autocomplete,
@@ -451,7 +483,7 @@ export default {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
-    this.search();
+    // this.search();
   },
   beforeDestroy() {
     // TODO: need to use the url to reflect the search, this way we can use back
