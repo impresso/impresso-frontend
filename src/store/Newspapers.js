@@ -98,16 +98,13 @@ export default {
             if (!res.values.length) {
               return res;
             }
-            console.log('res', res);
+            // add zeroes to values array. Use the current extent.
             const values = [res.values[0]];
 
             for (let i = 1, l = res.values.length; i < l; i += 1) {
               // if year ...
               const diff = res.values[i].t - res.values[i - 1].t;
               for (let j = 1; j < diff; j += 1) {
-                console.log('diff', diff, res.values[i].t, 'to', res.values[i - 1].t, 'loop', j,
-                'push', res.values[i - 1].t + 1);
-
                 values.push({
                   t: res.values[i - 1].t + j,
                   w: 0,
