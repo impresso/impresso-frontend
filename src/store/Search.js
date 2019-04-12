@@ -7,6 +7,7 @@ import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
 import Facet from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
+import router from '../router';
 
 export default {
   namespaced: true,
@@ -130,6 +131,41 @@ export default {
     },
   },
   actions: {
+    PUSH_SEARCH_PARAMS(context) {
+      const query = JSON.stringify({
+        f: context.getters.getSearch.getFilters(),
+        // facets: context.state.facetTypes,
+        g: context.state.groupBy,
+        p: context.state.paginationCurrentPage,
+        // limit: context.state.paginationPerPage,
+        o: context.state.orderBy,
+      });
+      console.log('@PUSH_SEARCH_PARAMS', query);
+      router.push({ name: 'search', query: { q: query } });
+    },
+    PULL_SEARCH_PARAMS(context, query) {
+      const parsedQuery = JSON.parse(query);
+
+      if (parsedQuery.g && ['articles'].indexOf(parsedQuery.g) !== -1) {
+        context.commit('UPDATE_SEARCH_GROUP_BY', parsedQuery.g);
+      }
+      if (parsedQuery.o && ['-relevance', 'relevance', 'date', '-date'].indexOf(parsedQuery.o) !== -1) {
+        context.commit('UPDATE_SEARCH_ORDER_BY', parsedQuery.o);
+      }
+      if (parsedQuery.p) {
+        context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(parsedQuery.p, 10));
+      }
+      // TODO validate filters, if any
+      if (parsedQuery.f) {
+        console.log('filters: parsedQuery.f', parsedQuery.f);
+        const filters = [];
+        parsedQuery.f.forEach((filter) => {
+          filters.push(FilterFactory.create(filter));
+        });
+        context.commit('UPDATE_FILTERS', filters);
+      }
+      context.dispatch('SEARCH');
+    },
     ADD_OR_REPLACE_FILTER(context, filter) {
       const index = context.state.search.filters.findIndex(item => item.type === filter.type);
       if (index > -1) {
