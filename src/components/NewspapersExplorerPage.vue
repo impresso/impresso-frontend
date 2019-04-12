@@ -24,7 +24,7 @@
                     {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
                     <b>{{ tooltipScope.tooltip.item.w }}</b> {{ totalLabel }}
                     <br />
-                    <span v-if="tooltipScope.tooltip.item.w1 > 0">
+                    <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
                     &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
                     ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
                     </span>
@@ -34,14 +34,6 @@
           </b-navbar-nav>
 
       </section>
-
-        <!--
-          <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
-            <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li> -->
-
-
-
 
       </b-navbar>
       <!-- <b-navbar  type="light" variant="light" class="border-bottom">
@@ -55,13 +47,13 @@
       </b-navbar> -->
     </div>
 
-    <!--  newspqper lifespans -->
-
-    <!--  newspqper lifespans -->
-    <newspapers-lines class="mx-5" v-model="newspapers" :scrollTop="scrollTop" :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"/>
-
-
-
+    <!--  newspaper lifespans -->
+    <newspapers-lines class="m-3"
+      v-model="newspapers"
+      :margin="{left: 210, right:60}"
+      :scrollTop="scrollTop"
+      :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"
+    />
   </i-layout-section>
 </template>
 <script>
@@ -130,7 +122,7 @@ export default {
   },
   watch: {
     valueType: {
-      immediate: true,
+      immediate: false,
       handler(val) {
         if (this.timelines[val]) {
           this.values = this.timelines[val].values;
@@ -153,6 +145,9 @@ export default {
     background-color: darkgrey;
   }
 
+  .contrast{
+    color: coral;
+  }
   .mini {
     width: 120px;
   }
