@@ -116,7 +116,7 @@ export default {
       stroke: black;
       fill: lighten($clr-primary, 78);
       &.contrast{
-        fill: orange;
+        fill: coral;
         stroke: red;
       }
     }
