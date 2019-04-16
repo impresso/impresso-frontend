@@ -1,27 +1,19 @@
-import Filter from '@/models/FilterBase';
+import FilterItems from '@/models/FilterItems';
 import Newspaper from '@/models/Newspaper';
-/**
- * FilterEntity object
- * @param {Object} bucket The bucket
- * e.g.: { "language": [ "dutch", "french", "english" ] }
- * @param {String} type type of filter, eg, 'newspaper', 'language'...
- * @param {Boolean} touched wether the user has interacted with the filter
- */
 
-export default class FilterNewspaper extends Filter {
+/**
+ * FilterNewspaper object
+ * @param {Object} q A string. Translated to an array.
+ * @param {String} items if any
+ */
+export default class FilterNewspaper extends FilterItems {
   constructor(args) {
     super(args);
-    this.newspaper = new Newspaper({
-      uid: args.q,
-      ...args.item,
-    });
-  }
-
-  getQuery() {
-    return {
-      context: this.context,
-      type: this.type,
-      q: this.newspaper.uid,
-    };
+    // if there is no items, create them out of this.q array
+    if (!this.items.length) {
+      this.items = this.q.map(uid => new Newspaper({
+        uid,
+      }));
+    }
   }
 }
