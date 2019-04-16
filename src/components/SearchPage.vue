@@ -2,22 +2,7 @@
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right border-tertiary">
     <div slot="header" class="py-3 px-3 border-bottom border-tertiary">
-
-      <b-dropdown :text="filter.q" class="mr-1" v-for="(filter, index) in filters">
-        <b-dropdown-form>
-          <b-form-group label="Email" label-for="dropdown-form-email">
-            <b-form-input
-              id="dropdown-form-email"
-              size="sm"
-              placeholder="email@example.com"
-              v-model="filter.q"
-            ></b-form-input>
-          </b-form-group>
-        </b-dropdown-form>
-      </b-dropdown>
-
-
-
+      <search-pills v-on:remove="onRemoveFilter"/>
       <autocomplete v-on:submit="onSuggestion" />
     </div>
     <div class="pt-2">
@@ -177,17 +162,15 @@
 </template>
 
 <script>
-import FilterFactory from '@/models/FilterFactory';
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
-import SearchFilters from './SearchFilters';
 import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
 import Ellipsis from './modules/Ellipsis';
-
+import SearchPills from './SearchPills';
 // const uuid = require('uuid');
 
 export default {
@@ -202,20 +185,18 @@ export default {
   computed: {
     isFront: {
       get() {
-        return this.$store.state.search.search.isFront;
+        return this.getBooleanFilter({ type: 'isFront' });
       },
       set(val) {
-        this.$store.commit('search/UPDATE_FILTER_IS_FRONT', val);
-        this.search(1);
+        this.toggleBooleanFilter({ type: 'isFront' }, val);
       },
     },
     hasTextContents: {
       get() {
-        return this.$store.state.search.search.hasTextContents;
+        return this.getBooleanFilter({ type: 'hasTextContents' });
       },
       set(val) {
-        this.$store.commit('search/UPDATE_FILTER_HAS_TEXT_CONTENTS', val);
-        this.search(1);
+        this.toggleBooleanFilter({ type: 'hasTextContents' }, val);
       },
     },
     groupByOptions: {
@@ -328,21 +309,37 @@ export default {
     },
   },
   methods: {
+    getBooleanFilter(filter) {
+      return !!this.$store.state.search.search.getFilter(filter);
+    },
+    toggleBooleanFilter(filter, value = true) {
+      if (!value) {
+        this.$store.commit('search/REMOVE_FILTER', filter);
+      } else {
+        this.$store.commit('search/ADD_FILTER', filter);
+      }
+      this.search(1);
+    },
     onSummary(msg) {
       this.inputDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
     },
     onSuggestion(suggestion) {
-      this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
+      this.$store.commit('search/ADD_FILTER', suggestion);
       this.search(1);
     },
     onFacet(facet) {
-      this.$store.commit('search/ADD_FILTER', FilterFactory.create(facet));
+      console.log('@onFacet', facet);
+      this.$store.commit('search/ADD_FILTER', facet);
       this.search(1);
     },
     onInputPagination(page = 1) {
       this.search(page);
+    },
+    onRemoveFilter(filter) {
+      this.$store.commit('search/REMOVE_FILTER', filter);
+      this.search(1);
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -473,11 +470,11 @@ export default {
     Pagination,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
-    'search-filters': SearchFilters,
     'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
     CollectionAddTo,
     Ellipsis,
+    SearchPills,
   },
   mounted() {
     if (this.uuid !== undefined) {
@@ -534,6 +531,7 @@ div.overlay-region{
     background-color: rgba(255, 225, 49, 0.3) !important;
   }
 }
+
 </style>
 
 <i18n>
