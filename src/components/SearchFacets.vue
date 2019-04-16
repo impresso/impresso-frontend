@@ -4,7 +4,7 @@
       <base-title-bar>{{ groupByLabel }} per year
         <div slot="options">
           <b-dropdown size="sm" variant="outline-primary"  :text="$t('label.daterange.pick')" class="m-2 filter-options">
-            <b-item-dropdown right class="filter-opts">
+            <b-dropdown-item right class="filter-opts">
               <div class="p-2">
                 <label>{{$t('label.daterange.start')}}</label>
                 <flat-pickr :config="{minDate, maxDate, allowInput: true}"  v-bind:value="daterange.start"  class="form-control"></flat-pickr>
@@ -14,7 +14,7 @@
 
                 <b-button size="sm" variant="outline-primary">{{$t('actions.apply')}}</b-button>
               </div>
-            </b-item-dropdown>
+            </b-dropdown-item>
           </b-dropdown>
         </div>
         <div slot="description">
@@ -142,24 +142,35 @@ export default {
     },
     facets: {
       get() {
-        return this.$store.state.search.facets.sort((a, b) => {
-          const indexA = this.facetsOrder.indexOf(a.type);
-          const indexB = this.facetsOrder.indexOf(b.type);
+        return this.$store.state.search.facets
+          .filter(d => d.type !== 'year')
+          .sort((a, b) => {
+            const indexA = this.facetsOrder.indexOf(a.type);
+            const indexB = this.facetsOrder.indexOf(b.type);
 
-          if (indexA < indexB) {
-            return -1;
-          }
+            if (indexA < indexB) {
+              return -1;
+            }
 
-          if (indexA > indexB) {
-            return 1;
-          }
+            if (indexA > indexB) {
+              return 1;
+            }
 
-          return 0;
-        });
+            return 0;
+          });
       },
     },
   },
   methods: {
+    /**
+     * Add facet to data
+     * @param {[type]} facet               [description]
+     * @param {[type]} bucket              [description]
+     * @param {String} [context='include'] [description]
+     */
+    // addFacet(facet, bucket, context = 'include'){
+    //
+    // },
     submitFacet(facet, bucket, context = 'include') {
       if (facet.type === 'topic') {
         this.$emit('submit-facet', {
@@ -171,18 +182,21 @@ export default {
         });
       } else if (facet.type === 'newspaper') {
         this.$emit('submit-facet', {
+          q: bucket.val,
           type: facet.type,
           item: bucket.item,
           context,
         });
       } else if (facet.type === 'language') {
         this.$emit('submit-facet', {
+          q: bucket.val,
           type: facet.type,
           item: bucket.item,
           context,
         });
       } else if (facet.type === 'collection') {
         this.$emit('submit-facet', {
+          q: bucket.val,
           type: facet.type,
           item: bucket.item,
           context,
