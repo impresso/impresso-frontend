@@ -28,17 +28,46 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
+  getFilter(filter) {
+    const filterized = filterize(filter);
+    const idx = this.filtersIds.indexOf(filterized.getHash());
+    if (idx !== -1) {
+      return filterized;
+    }
+    return null;
+  }
+
   addFilter(filter) {
-    const filterItem = filterize(filter);
-    const hash = filterItem.getHash();
+    const filterized = filterize(filter);
+    const hash = filterized.getHash();
+    // check if the has exists.
     if (this.filtersIds.indexOf(hash) === -1) {
       this.filtersIds.push(hash);
-      this.filters.push(filterItem);
-      if (!Array.isArray(this.filtersIndex[filterItem.type])) {
-        this.filtersIndex[filterItem.type] = [];
+      this.filters.push(filterized);
+      // add to filter index dictionary (by filter type), create the index
+      // if it does not exist
+      if (!Array.isArray(this.filtersIndex[filterized.type])) {
+        this.filtersIndex[filterized.type] = [];
       }
-      this.filtersIndex[filterItem.type].push(filterItem);
+      this.filtersIndex[filterized.type].push(filterized);
     }
+  }
+
+  enrichFilters(filters) {
+    filters.forEach((d) => {
+      if ((d.items && d.items.length) || (d.item && d.item.uid)) {
+        const filterized = filterize(d);
+        const idx = this.filtersIds.indexOf(filterized.getHash());
+        if (idx !== -1) {
+          console.log('enrichFilters: found', d.type, d, filterized);
+          if (filterized.item) {
+            this.filters[idx].item = filterized.item;
+          } else if (filterized.items) {
+            this.filters[idx].items = filterized.items;
+          }
+        }
+      }
+    });
   }
 
   updateFilters(filters) {
@@ -49,13 +78,13 @@ export default class SearchQuery {
   }
 
   removeFilter(filter) {
-    const filterItem = filterize(filter);
-    const idx = this.filtersIds.indexOf(filterItem.getHash());
+    const filterized = filterize(filter);
+    const idx = this.filtersIds.indexOf(filterized.getHash());
 
     if (idx !== -1) {
       this.filtersIds.splice(idx, 1);
       this.filters.splice(idx, 1);
-      this.filtersIndex[filterItem.type].splice(idx, 1);
+      this.filtersIndex[filterized.type].splice(idx, 1);
     }
   }
 
