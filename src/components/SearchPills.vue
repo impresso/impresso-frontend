@@ -5,32 +5,44 @@
       <!--  button content -->
       <template slot="button-content">
         <!-- badge: initial type instead of icons -->
-        <span class="badge fp-type">{{ $t(`type.${filter.type}`) }}</span>
+        <span class="badge sp-type">{{ $t(`type.${filter.type}`) }}</span>
         <!--  type:string -->
-        <span class="label fp-string" v-if="filter.type === 'string'" :class="filter.precision">
+        <span class="label sp-string" v-if="filter.type === 'string'" :class="filter.precision">
           {{filter.q}}
         </span>
         <!--  type:topic -->
-        <span class="label fp-topic"
-          v-if="filter.type === 'topic'">
-          <span v-if="filter.item" v-html="filter.item.getHtmlExcerpt()"/>
-          <span v-else class="dripicons-dots-2" />
+        <span class="label sp-topic"
+          v-if="filter.type === 'topic'"
+          v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt' })"
+          :class="filter.context">
         </span>
         <!--  type:newspaper -->
-        <span class="label fp-newspaper"
+        <span class="label sp-newspaper"
           v-if="filter.type === 'newspaper'"
-          v-html="labelByItems({ items: filter.items, max: 2 })">
+          v-html="labelByItems({ items: filter.items, max: 2 })"
+          :class="filter.context">
         </span>
       </template>
 
-      <div class="p-2 pb-1">
-        <b-form-group :label="filter.type">
+      <div class="p-2 pb-1 sp-contents">
+        <div class="description">{{filter.type}}</div>
+        <ul v-if="filter.type === 'topic'">
+          <topic-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
+        </ul>
+        <ul v-if="filter.type === 'newspaper'">
+          <newspaper-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
+        </ul>
+        <b-form-group :label="filter.type" v-if="filter.type === 'string'">
           <b-form-input
             size="sm"
             placeholder=""
             v-model="filter.q"
           ></b-form-input>
+
         </b-form-group>
+      </div>
+
+      <div class="px-2 mt-1 mb-2">
         <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
       </div>
     </b-dropdown>
@@ -38,6 +50,9 @@
 </template>
 
 <script>
+import TopicListItem from './modules/TopicListItem';
+import NewspaperListItem from './modules/NewspaperListItem';
+
 export default {
   computed: {
     pills: {
@@ -71,6 +86,10 @@ export default {
       this.$emit('remove', filter);
     },
   },
+  components: {
+    TopicListItem,
+    NewspaperListItem,
+  },
 };
 </script>
 
@@ -80,20 +99,25 @@ export default {
 
   span.label{
     font-variant: normal;
-    &.fp-string{
+    &.sp-string{
       background-color: #FFEB78;
     }
-    &.fp-string.exact::before,
-    &.fp-string.exact::after{
+    &.sp-string.exact::before,
+    &.sp-string.exact::after{
       content: '"';
     }
+  }
+
+  span.label.exclude{
+    text-decoration: line-through;
+
   }
 
   button.dropdown-toggle{
     padding-left: 1.75em;
   }
 
-  span.badge.fp-type{
+  span.badge.sp-type{
     border: 1px solid;
     width: 1.5em;
     height: 1.5em;
@@ -106,7 +130,15 @@ export default {
     padding: 0 0.15rem;
   }
 }
-
+.sp-contents ul{
+  margin: 0;
+  padding:0;
+}
+.sp-contents ul > li {
+  margin: 0;
+  list-style: none;
+  background: #f0f0f0;
+}
 .op.or{
   font-variant: small-caps;
   font-weight: bold;
