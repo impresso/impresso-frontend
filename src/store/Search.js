@@ -2,7 +2,7 @@ import * as services from '@/services';
 import Article from '@/models/Article';
 import Bucket from '@/models/Bucket';
 import Topic from '@/models/Topic';
-// import QueryComponent from '@/models/QueryComponent';
+import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
 import Collection from '@/models/Collection';
@@ -76,15 +76,15 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
-      console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
+      // console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
       state.search.enrichFilters(queryComponents);
-      state.queryComponents = queryComponents; // .map(d => new QueryComponent(d));
+      state.queryComponents = queryComponents.map(d => new QueryComponent(d));
     },
     UPDATE_FILTER_FACET_YEAR_EXPANDED(state, expanded) {
       state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
-      console.log('#->ADD_FILTER', filter);
+      // console.log('#->ADD_FILTER', filter);
       state.search.addFilter(filter);
     },
     REMOVE_FILTER(state, filter) {
