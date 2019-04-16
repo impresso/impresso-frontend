@@ -83,7 +83,17 @@ export default {
     },
 
     getTopics() {
-      const mapper = d => `<span class="item">"${d.item.getHtmlExcerpt()}"</span>`;
+      const mapper = (d) => {
+        let results = [];
+        if (d.items) {
+          console.log('getTopics!', d.items);
+          // getHtmlExcerpt is not yet there
+          results = d.items.map(item => `<span class="item">"${item.getHtmlExcerpt()}"</span>`);
+        } else {
+          results = d.q.map(item => `<span class="item">"${item}"</span>`);
+        }
+        return results.join(`<span class="operator">${this.$t('or')}</span>`);
+      };
       return this.getFormattedSection({
         type: 'topic',
         mapper,
