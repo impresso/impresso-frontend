@@ -2,7 +2,7 @@ import * as services from '@/services';
 import Article from '@/models/Article';
 import Bucket from '@/models/Bucket';
 import Topic from '@/models/Topic';
-import QueryComponent from '@/models/QueryComponent';
+// import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
 import Collection from '@/models/Collection';
@@ -76,20 +76,21 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
-      state.queryComponents = queryComponents;
+      console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
+      state.search.enrichFilters(queryComponents);
+      state.queryComponents = queryComponents; // .map(d => new QueryComponent(d));
     },
     UPDATE_FILTER_FACET_YEAR_EXPANDED(state, expanded) {
       state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
+      console.log('#->ADD_FILTER', filter);
       state.search.addFilter(filter);
-      console.log('commit->ADD_FILTER, after:', state.search.filters);
     },
-    REMOVE_FILTER(state, index) {
-      if (index > -1) {
-        state.search.filters.splice(index, 1);
-      }
+    REMOVE_FILTER(state, filter) {
+      state.search.removeFilter(filter);
     },
+
     UPDATE_FILTER(state, payload) {
       state.search.filters.splice(payload.index, 1, payload.filter);
     },
@@ -228,29 +229,7 @@ export default {
             (res) => {
               context.commit('CLEAR_FACETS');
 
-              context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
-                ...result,
-                issue: {
-                  ...result.issue,
-                  countArticles: result.issue.count_articles,
-                  countPages: result.issue.count_pages,
-                },
-                tags: result.tags ? result.tags.map((tag) => {
-                  tag.appliesTo = tag.applies_to;
-                  return tag;
-                }) : [],
-                collections: result.collections,
-                matches: result.matches || [],
-                newspaper: new Newspaper({
-                  ...result.newspaper,
-                  countArticles: result.newspaper.count_articles,
-                  countIssues: result.newspaper.count_issues,
-                  countPages: result.newspaper.count_pages,
-                  deltaYear: result.newspaper.delta_year,
-                  endYear: result.newspaper.end_year,
-                  startYear: result.newspaper.start_year,
-                }),
-              })));
+              context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
 
               // add language facet/filter
               if (res.info.facets && res.info.facets.language) {
@@ -280,7 +259,7 @@ export default {
                     }),
                   })),
                 });
-
+                // enrich current fitler, if any, with one of the topics.
                 context.commit('ADD_FACET', facet);
               }
 
@@ -329,9 +308,7 @@ export default {
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
-
-              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents.map(d => new QueryComponent(d)));
-
+              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
               resolve(res);
             },
             (err) => {
@@ -341,63 +318,6 @@ export default {
         },
       );
 
-      // const timeline = new Promise(
-      //   (resolve, reject) => {
-      //     services.search.find({
-      //       query: {
-      //         filters: context.getters.getSearch.getFilters(['daterange']),
-      //         facets: ['year'],
-      //         group_by: context.state.groupBy,
-      //         page: context.state.paginationCurrentPage,
-      //         limit: context.state.paginationPerPage,
-      //         order_by: context.state.orderBy,
-      //       },
-      //     }).then(
-      //       (res) => {
-      //         // add year facet/filter
-      //         if (res.info.facets && res.info.facets.year) {
-      //           const facet = new Facet({
-      //             type: 'year',
-      //             buckets: res.info.facets.year.buckets.map((bucket) => {
-      //               if (bucket instanceof Bucket) {
-      //                 return bucket;
-      //               }
-      //
-      //               return new Bucket(bucket);
-      //             }).sort((a, b) => {
-      //               // order from first year to last year (1798 - 1997)
-      //               const yearA = parseInt(a.val, 10);
-      //               const yearB = parseInt(b.val, 10);
-      //
-      //               if (yearA < yearB) {
-      //                 return -1;
-      //               }
-      //
-      //               if (yearA > yearB) {
-      //                 return 1;
-      //               }
-      //
-      //               return 0;
-      //             }),
-      //           });
-      //
-      //           const FilterFacetYear = FilterFactory.create({
-      //             ...context.getters.getSearch.filters.find(filter => filter.type === 'year'),
-      //             ...facet,
-      //           });
-      //
-      //           context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacetYear);
-      //         }
-      //         resolve(res);
-      //       },
-      //       (err) => {
-      //         reject(err);
-      //       },
-      //     );
-      //   },
-      // );
-
-      // return Promise.all([search, timeline]);
       return search;
     },
   },
