@@ -9,7 +9,8 @@ export default class FilterTopic extends Filter {
   constructor(args) {
     super(args);
     this.h = String(args.h);
-    this.query = String(args.q);
+    this.q = String(args.q);
+    this.query = this.q;
     this.precision = String(args.precision);
     this.item = new Topic(args.item);
   }
