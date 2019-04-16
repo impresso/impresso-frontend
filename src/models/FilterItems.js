@@ -18,6 +18,10 @@ export default class FilterItems extends Filter {
     this.items = items;
   }
 
+  setItems() {
+    throw new TypeError(`Filter subclass for ${this.type} must implement setItems() method`);
+  }
+
   getQuery() {
     return {
       type: this.type,

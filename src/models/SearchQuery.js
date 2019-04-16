@@ -63,7 +63,7 @@ export default class SearchQuery {
           if (filterized.item) {
             this.filters[idx].item = filterized.item;
           } else if (filterized.items) {
-            this.filters[idx].items = filterized.items;
+            this.filters[idx].setItems(filterized.items);
           }
         }
       }
