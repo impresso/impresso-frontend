@@ -59,7 +59,17 @@ export default {
     },
 
     getNewspapers() {
-      const mapper = d => `<strong>"${d.item.name}"</strong>`;
+      // console.log('getNewspapers', this.queryComponents);
+      const mapper = (d) => {
+        let results = [];
+        if (d.items) {
+          results = d.items.map(item => `<strong>"${item.name}"</strong>`);
+        } else {
+          results = d.q.map(item => `<strong>"${item}"</strong>`);
+        }
+        return results.join(`<span class="operator">${this.$t('or')}</span>`);
+      };
+
       return this.getFormattedSection({
         type: 'newspaper',
         mapper,
@@ -99,7 +109,7 @@ export default {
     getStrings() {
       // later, this mapper will take into account
       // the property `precision`
-      const mapper = d => `<span>"${d.query}"</span>`;
+      const mapper = d => `<span>"${d.q}"</span>`;
       return this.getFormattedSection({
         type: 'string',
         mapper,
