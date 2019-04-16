@@ -186,6 +186,11 @@ export default {
     }
   }
 }
+
+.search-bar .input-group > .form-control{
+  border-top-width: 0;
+  border-left-width: 0;
+}
 </style>
 
 <i18n>
