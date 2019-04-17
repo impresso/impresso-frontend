@@ -12,6 +12,7 @@
 
 <script>
 import ContrastTimeline from '@/d3-modules/ContrastTimeline';
+import Timeline from '@/d3-modules/Timeline';
 import Tooltip from './tooltips/Tooltip';
 
 export default {
@@ -19,6 +20,7 @@ export default {
     values: Array,
     domain: Array,
     highlight: Object,
+    contrast: Boolean,
   },
   data: () => ({
     tooltip: {
@@ -43,16 +45,27 @@ export default {
     },
   },
   mounted() {
-    this.line = new ContrastTimeline({
-      element: '#d3-timeline',
-      margin: {
-        left: 10,
-        right: 10,
-        top: 10,
-      },
-      domain: this.domain,
-    });
-
+    if (this.contrast) {
+      this.line = new ContrastTimeline({
+        element: '#d3-timeline',
+        margin: {
+          left: 10,
+          right: 10,
+          top: 10,
+        },
+        domain: this.domain,
+      });
+    } else {
+      this.line = new Timeline({
+        element: '#d3-timeline',
+        margin: {
+          left: 10,
+          right: 10,
+          top: 10,
+        },
+        domain: this.domain,
+      });
+    }
     this.line.on('mouseleave', () => {
       this.tooltip.isActive = false;
     });
