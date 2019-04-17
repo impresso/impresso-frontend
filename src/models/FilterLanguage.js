@@ -7,16 +7,11 @@ import Filter from '@/models/FilterBase';
  */
 
 export default class FilterLanguage extends Filter {
-  constructor(args) {
-    super(args);
-    this.language = args.item;
-  }
-
   getQuery() {
     return {
       context: this.context,
       type: this.type,
-      q: this.language.uid,
+      q: this.q,
     };
   }
 }
