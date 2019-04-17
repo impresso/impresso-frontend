@@ -125,7 +125,7 @@ export default class Line extends Basic {
     data = [],
   } = {}) {
     this.data = data;
-    console.log('update line', data);
+    // console.log('update line', data);
     this.dimensions.x.update({
       values: data,
       range: [0, this.width - this.margin.left - this.margin.right],
