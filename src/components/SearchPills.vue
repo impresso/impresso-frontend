@@ -22,6 +22,13 @@
           v-html="labelByItems({ items: filter.items, max: 2 })"
           :class="filter.context">
         </span>
+
+        <!--  type:language -->
+        <span class="label sp-language"
+          v-if="filter.type === 'language'"
+          :class="filter.context">
+          {{$t(`language.${filter.q}`)}}
+        </span>
       </template>
 
       <div class="p-2 pb-1 sp-contents">
@@ -94,6 +101,8 @@ export default {
 </script>
 
 <style lang="scss">
+
+
 .search-pill{
   position: relative;
 
@@ -159,7 +168,14 @@ export default {
       },
       "type": {
         "string": "str",
-        "newspaper": "n."
+        "newspaper": "new",
+        "language": "lng",
+        "topic": "top"
+      },
+      "language": {
+        "de": "German (DE)",
+        "fr": "French (FR)",
+        "en": "Unclassified"
       }
     }
   }
