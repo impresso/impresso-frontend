@@ -15,6 +15,7 @@
           </b-navbar-nav>
           <b-navbar-nav style='position: absolute; left: 200px; right: 50px'>
               <timeline
+                    contrast="true"
                     :values="values"
                     :domain="[start, end]"
                     :highlight="highlightA"
