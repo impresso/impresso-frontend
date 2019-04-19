@@ -1,44 +1,52 @@
 <template lang="html">
   <div id="search-facets">
     <div class="m-2 p-2 border-top border-tertiary">
-      <base-title-bar>{{ groupByLabel }} per year
+      <!--  timeline title -->
+      <base-title-bar>{{$t(`label.timeline.${groupByLabel}`)}}
         <div slot="options">
-          <b-dropdown size="sm" variant="outline-primary"  :text="$t('label.daterange.pick')" class="m-2 filter-options">
-            <b-dropdown-item right class="filter-opts">
-              <div class="p-2">
-                <label>{{$t('label.daterange.start')}}</label>
-                <flat-pickr :config="{minDate, maxDate, allowInput: true}"  v-bind:value="daterange.start"  class="form-control"></flat-pickr>
-
-                <label>{{$t('label.daterange.end')}}</label>
-                <flat-pickr :config="{minDate, maxDate, allowInput: true}" v-bind:value="daterange.end" class="form-control"></flat-pickr>
-
-                <b-button size="sm" variant="outline-primary">{{$t('actions.apply')}}</b-button>
-              </div>
-            </b-dropdown-item>
-          </b-dropdown>
+          <b-button size="sm" variant="outline-primary" @click="toggleDaterange">
+          {{ $t('label.daterange.pick') }}
+          </b-button>
         </div>
         <div slot="description">
-          compared with average quality per year
+          {{$t(`label.timelineDescription.${groupByLabel}`)}}
         </div>
       </base-title-bar>
 
-    <timeline
-          class='bg-light pb-2'
-          :values="values"
-          :domain="[startYear, endYear]" >
-      <div slot-scope="tooltipScope">
-        <div v-if="tooltipScope.tooltip.item">
-          {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-          <b>{{ tooltipScope.tooltip.item.w }}</b> {{ groupByLabel }}
-          <!-- <br />
-          <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
-          &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
-          ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
-          </span> -->
+      <!--  timeline vis -->
+      <timeline class='bg-light pb-2' :values="values"
+      :brush="[daterange.start, daterange.end]" :domain="[startYear, endYear]" >
+        <div slot-scope="tooltipScope">
+          <div v-if="tooltipScope.tooltip.item">
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w }}</b> {{ groupByLabel }}
+            <!-- <br />
+            <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
+            &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
+            ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
+            </span> -->
+          </div>
+        </div>
+      </timeline>
+      <!--  daterange filters -->
+      <div v-if="daterange.isActive">
+        <div class="p-2">
+          <div class="row">
+            <div class="col-6">
+              <label>{{$t('label.daterange.start')}}</label>
+              <flat-pickr :config="{startDate, endDate, allowInput: true}"  v-model="daterange.start"  class="form-control"></flat-pickr>
+            </div>
+            <div class="col-6">
+              <label>{{$t('label.daterange.end')}}</label>
+              <flat-pickr :config="{startDate, endDate, allowInput: true}" v-model="daterange.end" class="form-control"></flat-pickr>
+            </div>
+            <div class="col-12 mt-2">
+              <b-button block size="sm" variant="outline-primary" @click="submitDaterange">{{$t('label.daterange.apply')}}</b-button>
+            </div>
+          </div>
         </div>
       </div>
-    </timeline>
-  </div>
+    </div>
     <div v-for="(facet, index) in facets" class="pt-1px border-top border-tertiary">
       <div class="px-3 py-2 border-top small">
         <base-title-bar>{{facet.type}}</base-title-bar>
@@ -94,6 +102,29 @@ import flatPickr from 'vue-flatpickr-component';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
 
+const fillYears = (initialValues = []) => {
+  if (!initialValues.length) {
+    return [];
+  }
+  // add zeroes to values array. Use the current extent.
+  const sorted = initialValues.sort((a, b) => a.t - b.t);
+
+  const values = [sorted[0]];
+
+  for (let i = 1, l = sorted.length; i < l; i += 1) {
+    // if year ...
+    const diff = sorted[i].t - sorted[i - 1].t;
+    for (let j = 1; j < diff; j += 1) {
+      values.push({
+        t: sorted[i - 1].t + j,
+        w: 0,
+        w1: 0,
+      });
+    }
+    values.push(sorted[i]);
+  }
+  return values;
+};
 
 export default {
   props: {
@@ -108,17 +139,32 @@ export default {
   },
   data: () => ({
     daterange: {
-      isActive: true,
-      start: new Date(),
-      end: new Date(),
+      context: 'include',
+      isActive: false,
+      start: null,
+      end: null,
     },
     facetsOrder: ['language', 'newspaper', 'topic'],
   }),
   computed: {
+    startDate() {
+      return new Date(`${this.startYear}-01-01`);
+    },
+    endDate() {
+      return new Date(`${this.endYear}-12-31`);
+    },
     minDate() {
+      if (this.values.length) {
+        const y = this.values.reduce((min, d) => (d.t < min ? d.t : min), this.values[0].t);
+        return new Date(`${y}-01-01`);
+      }
       return new Date(`${this.startYear}-01-01`);
     },
     maxDate() {
+      if (this.values.length) {
+        const y = this.values.reduce((max, d) => (d.t > max ? d.t : max), this.values[0].t);
+        return new Date(`${y}-12-31`);
+      }
       return new Date(`${this.endYear}-12-31`);
     },
     groupByLabel: {
@@ -132,12 +178,14 @@ export default {
         if (!facet) {
           return [];
         }
-        return facet.buckets.map(d => ({
+        const values = facet.buckets.map(d => ({
           ...d,
           w: d.count,
           w1: 0,
-          t: d.val,
+          t: parseInt(d.val, 10),
         }));
+        // add zeroes
+        return fillYears(values);
       },
     },
     facets: {
@@ -162,6 +210,20 @@ export default {
     },
   },
   methods: {
+    toggleDaterange() {
+      this.daterange.start = new Date(this.minDate);
+      this.daterange.end = new Date(this.maxDate);
+      this.daterange.isActive = !this.daterange.isActive;
+    },
+    submitDaterange() {
+      console.log('submit-facet', this.daterange.start, this.daterange.end);
+      this.$emit('submit-facet', {
+        type: 'daterange',
+        start: new Date(this.daterange.start),
+        end: new Date(this.daterange.end),
+        context: this.daterange.context,
+      });
+    },
     /**
      * Add facet to data
      * @param {[type]} facet               [description]
@@ -247,10 +309,17 @@ export default {
   {
     "en": {
       "label": {
+        "timeline": {
+          "articles": "publication date"
+        },
+        "timelineDescription": {
+          "articles": "Number of articles per year"
+        },
         "daterange": {
-          "pick": "choose dates ...",
+          "pick": "add filter ...",
           "start": "from",
-          "end": "to"
+          "end": "to",
+          "apply": "add as filter"
         }
       },
       "groupBy": {
