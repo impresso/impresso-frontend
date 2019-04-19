@@ -12,6 +12,9 @@ export default class Line extends Basic {
       left: 10,
       right: 10,
     },
+    ticks = {
+      offset: 3,
+    },
     dimensions = {},
   } = {}) {
     super({
@@ -34,7 +37,7 @@ export default class Line extends Basic {
         ...dimensions,
       },
     });
-
+    this.ticks = ticks;
     // setup main context
     this.context = this.g.append('g')
       .classed('context', true)
@@ -44,6 +47,8 @@ export default class Line extends Basic {
 
     this.contextArea = this.context.append('path')
       .attr('class', 'area');
+    this.contextCurve = this.context.append('path')
+      .attr('class', 'curve');
 
     this.contextPointer = this.context.append('circle')
       .attr('r', 3)
@@ -147,6 +152,13 @@ export default class Line extends Basic {
       .x(this.dimensions.x.accessor())
       .y(this.dimensions.y.accessor());
 
-    this.contextArea.datum(this.data).attr('d', this.curve);
+    // setup area
+    this.area = d3.area()
+      .x(this.dimensions.x.accessor())
+      .y0(this.height - this.margin.bottom - this.ticks.offset)
+      .y1(this.dimensions.y.accessor());
+
+    this.contextCurve.datum(this.data).attr('d', this.curve);
+    this.contextArea.datum(this.data).attr('d', this.area);
   }
 }
