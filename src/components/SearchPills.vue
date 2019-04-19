@@ -33,6 +33,18 @@
 
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{filter.type}}</div>
+
+        <!--  include / exclude toggler -->
+        {{ filter.touched }}
+        <b-form-group>
+          <b-form-radio-group
+            stacked
+            v-model="filter.context"
+            v-bind:options="filterContextOptions"
+            @change="onChangeFilter(filter)">
+          </b-form-radio-group>
+        </b-form-group>
+
         <ul v-if="filter.type === 'topic'">
           <topic-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
         </ul>
@@ -44,13 +56,23 @@
             size="sm"
             placeholder=""
             v-model="filter.q"
-          ></b-form-input>
-
+            @change="onChangeFilter(filter)">
+          </b-form-input>
         </b-form-group>
       </div>
 
       <div class="px-2 mt-1 mb-2">
-        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
+        <b-button-group>
+          <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
+            @click="onApplyFilter(filter)">
+            {{$t('action.apply')}}
+          </b-button>
+          <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
+            @click="onApplyFilter(filter)">
+            {{$t('action.undo')}}
+          </b-button>
+          <b-button  size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
+        </b-button-group>
       </div>
     </b-dropdown>
   </div>
@@ -66,11 +88,24 @@ export default {
       get() {
         // exclude boolean filters
         return this.$store.state.search.search.filters
-          .filter(d => ['hasTextContents', 'isFront'].indexOf(d.type) === -1)
-          .sort((a, b) => (a.type > b.type ? 1 : -1));
+          .filter(d => ['hasTextContents', 'isFront'].indexOf(d.type) === -1);
+          // .sort((a, b) => (a.type > b.type ? 1 : -1));
       },
     },
-
+    filterContextOptions: {
+      get() {
+        return [
+          {
+            value: 'include',
+            text: this.$t('context.include'),
+          },
+          {
+            value: 'exclude',
+            text: this.$t('context.exclude'),
+          },
+        ];
+      },
+    },
   },
   methods: {
     labelByItems({
@@ -78,7 +113,6 @@ export default {
       prop = 'name',
       max = 1,
     } = {}) {
-      console.log('labelByItems', items);
       let labels = items.slice(0, max)
         .map(d => d[prop] || '...').join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
       if (items.slice(max).length) {
@@ -91,6 +125,13 @@ export default {
     },
     onRemoveFilter(filter) {
       this.$emit('remove', filter);
+    },
+    onChangeFilter(filter) {
+      console.log('changed');
+      filter.touched = true;
+    },
+    onApplyFilter(filter) {
+      this.$emit('update', filter);
     },
   },
   components: {
@@ -157,8 +198,9 @@ export default {
   {
     "en": {
       "action": {
-        "remove": "remove",
-        "apply": "apply"
+        "remove": "remove filter",
+        "apply": "apply changes",
+        "undo": "undo changes"
       },
       "items": {
         "hidden": "({count} more)"
