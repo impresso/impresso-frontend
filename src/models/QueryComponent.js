@@ -20,7 +20,6 @@ export default class QueryComponent {
     daterange = null,
   } = {}) {
     const daterangeRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z TO \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/;
-    console.log('new QueryComponent', type, q, items);
     this.q = q;
     this.context = context;
     this.type = type;
