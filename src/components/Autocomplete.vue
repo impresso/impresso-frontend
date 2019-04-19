@@ -4,7 +4,7 @@
       <b-form-input
       class="border-primary"
       placeholder="search for ..."
-      v-model="query"
+      v-model.trim="q"
       v-on:input.native="search"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
@@ -16,13 +16,13 @@
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
       <div v-if="suggestion" v-on:click="submit(suggestion)" v-on:mouseover="select(suggestion)" class="suggestion p-2" v-bind:class="{selected: selected === suggestion}">
         <div class="suggestion-string">
-          {{suggestion.query}}
+          {{suggestion.q}}
         </div>
       </div>
       <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion p-2" v-bind:class="{selected: selected === s}">
         <div v-if="s.type === 'regex'" class="suggestion-regex">
           <span class="icon dripicons-rocket" :title="$t('regex')"></span>
-          <span v-html="s.query" />
+          <span v-html="s.q" />
           <b-badge>{{$t('regex')}}</b-badge>
         </div>
         <div href="#" v-if="s.type === 'collection'" class="suggestion-collection">
@@ -56,7 +56,7 @@ import SuggestionFactory from '@/models/SuggestionFactory';
 
 export default {
   data: () => ({
-    query: '',
+    q: '',
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
@@ -68,15 +68,15 @@ export default {
       this.showSuggestions = false;
     },
     search() {
-      if (this.query.trim().length > 1) {
+      if (this.q.length > 1) {
         this.showSuggestions = true;
         this.suggestion = SuggestionFactory.create({
           type: 'string',
-          query: this.query.trim(),
+          q: this.q.trim(),
         });
 
         this.$store.dispatch('autocomplete/SEARCH', {
-          query: this.query.trim(),
+          q: this.q.trim(),
         }).then((res) => {
           this.suggestions = res;
         });
