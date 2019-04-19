@@ -10,7 +10,7 @@
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
           </li> -->
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'search'}" exact-active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
+            <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
           </li>
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
@@ -290,6 +290,9 @@ $clr-grey-800: #c6ccd2;
     }
     .navbar-dark .navbar-nav .nav-link {
         color: $clr-grey-800;
+        &.active {
+          color: $clr-white;
+        }
     }
     .navbar-dark .navbar-nav .nav-link:focus,
     .navbar-dark .navbar-nav .nav-link:hover {
