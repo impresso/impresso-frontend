@@ -9,6 +9,7 @@ export default class Timeline extends Line {
     margin = {},
     format = '%Y',
     domain = [],
+    brushable = false,
   } = {}) {
     super({
       element,
@@ -45,6 +46,37 @@ export default class Timeline extends Line {
         domain: domain.map(d => this.timeParse(d)),
       });
     }
+
+    this.brushable = brushable;
+    if (brushable) {
+      this.brush = d3.brushX()
+        .extent([[0, 0], [
+          this.width - this.margin.right - this.margin.left,
+          this.height - this.margin.bottom - 3,
+        ]])
+        .on('brush end', this.brushed.bind(this));
+      this.contextBrush = this.context.append('g')
+        .attr('class', 'brush')
+        .call(this.brush);
+    }
+  }
+
+  brushed() {
+    if (d3.event.sourceEvent) {
+      console.log('@brushed', d3.event.sourceEvent.type);
+    }
+    console.log('@brushed. range:', d3.event.selection, this.dimensions.x);
+    // const s = d3.event.selection || this.dimensions.x.range;
+  }
+
+  brushTo({ min, max }) {
+    if (!min || !max) {
+      return;
+    }
+    this.contextBrush.call(this.brush.move, [
+      this.dimensions.x.scale(min),
+      this.dimensions.x.scale(max),
+    ]);
   }
 
   draw() {
