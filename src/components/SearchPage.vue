@@ -1,10 +1,21 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right border-tertiary">
-    <div slot="header" class="py-3 px-3 border-bottom border-tertiary">
-      <search-pills v-on:remove="onRemoveFilter"/>
-      <autocomplete v-on:submit="onSuggestion" />
+    <!--  header -->
+    <div slot="header" class="border-bottom border-tertiary bg-light">
+      <!-- <b-tabs pills class="border-bottom border-tertiary">
+        <template slot="tabs">
+          <b-nav-item :to="{ name:'search'}"  ><span v-html="$t('tabs.text')"/></b-nav-item>
+          <b-nav-item :to="{ name:'newspaper'}" exact><span v-html="$t('tabs.images')"/></b-nav-item>
+        </template>
+      </b-tabs> -->
+      <div class="py-3 px-3">
+        <search-pills v-on:remove="onRemoveFilter"/>
+        <autocomplete v-on:submit="onSuggestion" />
+      </div>
     </div>
+
+    <!--  body -->
     <div class="pt-2">
 
       <b-form-group class="px-3 py-1">
@@ -20,14 +31,14 @@
 
 
       <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
-      <search-facets v-on:submit-facet="onFacet" />
+      <search-facets @submit-facet="onFacet" />
     </div>
-    <div slot="footer">
+    <!-- <div slot="footer">
       <b-button-group class="d-flex bg-white p-3 border-top border-tertiary">
         <b-button class="small-caps mr-2 w-75" variant="outline-primary" size="md" v-on:click="search(1)">Search</b-button>
         <b-button class="small-caps w-25" variant="outline-danger" size="md" v-on:click="reset">Clear</b-button>
       </b-button-group>
-    </div>
+    </div> -->
   </i-layout-section>
   <i-layout-section>
     <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
@@ -532,11 +543,16 @@ div.overlay-region{
   }
 }
 
+
 </style>
 
 <i18n>
 {
   "en": {
+    "tabs": {
+      "text": "search articles",
+      "images": "search images"
+    },
     "label_display": "Display As",
     "label_order": "Order By",
     "label_group": "Group By",
