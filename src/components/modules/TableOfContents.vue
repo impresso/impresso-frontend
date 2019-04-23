@@ -43,10 +43,10 @@ export default {
     },
     scrollToActiveArticle() {
       const elm = this.$refs[`article-${this.articleUid}`][0];
-      const parent = this.$refs.TableOfContents.parentNode;
+      const parent = this.$refs.TableOfContents;
       if (parent.scrollTop > elm.offsetTop ||
         (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
-        parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+        parent.scrollTop = elm.offsetTop;
       }
     },
   },
@@ -78,6 +78,13 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #TableOfContents{
+  position: fixed;
+  width: 299px;
+  height: calc( 100% - 60px );
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+
   .pagenumber {
     font-size: 1.4em;
     color: lighten($clr-primary, 75);
@@ -112,8 +119,8 @@ export default {
       }
       &.active{
         a {
-          background: lighten($clr-primary, 88);
-          font-weight: bold;
+          background: lighten($clr-accent-secondary, 15);
+          // font-weight: bold;
         }
       }
     }
