@@ -46,7 +46,7 @@ export default {
       const parent = this.$refs.thumbnailSlider;
       if (parent.scrollTop > elm.offsetTop ||
         ((elm.offsetTop + elm.offsetHeight) - parent.scrollTop) > parent.offsetHeight) {
-        parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+        parent.scrollTop = elm.offsetTop;
       }
     },
   },
@@ -70,13 +70,13 @@ export default {
 
 <style lang="less">
 #thumbnail-slider {
-    height: 100%;
+    position: fixed;
+    scroll-behavior: smooth;
+    height: calc( 100% - 60px );
     overflow-x: hidden;
     overflow-y: auto;
     white-space: nowrap;
-    &::-webkit-scrollbar {
-        display: none;
-    }
+
     .tiles {
         width: 100%;
         position: relative;
