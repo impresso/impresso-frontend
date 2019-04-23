@@ -221,6 +221,9 @@ router.beforeEach((to, from, next) => {
       } else {
         next({
           name: 'login',
+          query: {
+            redirect: to.path,
+          },
         });
       }
     }).catch(() => {
