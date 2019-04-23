@@ -135,9 +135,7 @@ export default {
     },
   }),
   async mounted() {
-    if (this.user) {
-      this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
-    }
+    this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
   },
   computed: {
     jobs() {

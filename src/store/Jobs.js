@@ -24,7 +24,7 @@ export default {
       return new Promise((resolve, reject) => {
         services.jobs.find({}).then((result) => {
           resolve(result);
-          console.log('LOAD_JOBS', result);
+          // console.log('res', result);
           // context.commit('UPDATE_JOBS', result.data);
         }).catch((err) => {
           reject(err);
