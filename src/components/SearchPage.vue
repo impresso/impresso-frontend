@@ -44,7 +44,7 @@
         </b-nav-form>
       </b-navbar-nav>
       <div class="flex-shrink-1">
-        <b-navbar-nav v-if="isLoggedIn()" class="pl-4">
+        <b-navbar-nav v-if="isLoggedIn" class="pl-4">
           <b-form-checkbox
             v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
             v-bind:indeterminate="this.allIndeterminate"
@@ -79,7 +79,7 @@
             v-bind:totalRows="paginationTotalRows" />
         </ellipsis>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-auto p-3">
+      <b-navbar-nav class="ml-auto p-3" v-if="isLoggedIn">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
           <b-dropdown-item
             v-b-modal.nameCollection>
