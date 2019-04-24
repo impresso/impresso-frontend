@@ -14,8 +14,11 @@
       </base-title-bar>
 
       <!--  timeline vis -->
-      <timeline class='bg-light pb-2' :values="values"
-      :brush="[daterange.start, daterange.end]" :domain="[startYear, endYear]" >
+      <timeline class='bg-light pb-2'
+        :values="values"
+        :brush="[startDaterange, endDaterange]"
+        :domain="[startYear, endYear]"
+        @brushed="onTimelineBrushed">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
             {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
@@ -34,11 +37,13 @@
           <div class="row">
             <div class="col-6">
               <label>{{$t('label.daterange.start')}}</label>
-              <flat-pickr :config="{startDate, endDate, allowInput: true}"  v-model="daterange.start"  class="form-control"></flat-pickr>
+              <b-form-input v-model="startDaterange"></b-form-input>
+              <!-- <flat-pickr :config="{startDate, endDate, allowInput: true}"  v-model="daterange.start"  class="form-control"></flat-pickr> -->
             </div>
             <div class="col-6">
               <label>{{$t('label.daterange.end')}}</label>
-              <flat-pickr :config="{startDate, endDate, allowInput: true}" v-model="daterange.end" class="form-control"></flat-pickr>
+              <b-form-input v-model="endDaterange"></b-form-input>
+              <!-- <flat-pickr :config="{startDate, endDate, allowInput: true}" v-model="daterange.end" class="form-control"></flat-pickr> -->
             </div>
             <div class="col-12 mt-2">
               <b-button block size="sm" variant="outline-primary" @click="submitDaterange">{{$t('label.daterange.apply')}}</b-button>
@@ -153,6 +158,58 @@ export default {
     endDate() {
       return new Date(`${this.endYear}-12-31`);
     },
+    startDaterange: {
+      get() {
+        let d;
+        if (!this.daterange.start) {
+          d = this.minDate.toISOString();
+        } else {
+          d = this.daterange.start.toISOString();
+        }
+        return d.split('T').shift();
+      },
+      set(val) {
+        // if value is complete
+        if (!/^\d{4}-[0-1]\d-[0-3]\d$/.test(val)) {
+          // ignore non finished dates!
+          // YYYY-MM-dd
+          return;
+        }
+        const d = new Date(val);
+        // check that the date is valid
+        if (isNaN(d.valueOf())) {
+          // invalid date, just ignore
+          return;
+        }
+        this.daterange.start = d;
+      },
+    },
+    endDaterange: {
+      get() {
+        let d;
+        if (!this.daterange.end) {
+          d = this.maxDate.toISOString();
+        } else {
+          d = this.daterange.end.toISOString();
+        }
+        return d.split('T').shift();
+      },
+      set(val) {
+        // if value is complete
+        if (!/^\d{4}-[0-1]\d-[0-3]\d$/.test(val)) {
+          // ignore non finished dates!
+          // YYYY-MM-dd
+          return;
+        }
+        const d = new Date(val);
+        // check that the date is valid
+        if (isNaN(d.valueOf())) {
+          // invalid date, just ignore
+          return;
+        }
+        this.daterange.end = d;
+      },
+    },
     minDate() {
       if (this.values.length) {
         const y = this.values.reduce((min, d) => (d.t < min ? d.t : min), this.values[0].t);
@@ -210,6 +267,14 @@ export default {
     },
   },
   methods: {
+    onTimelineBrushed(data) {
+      if (this.startDaterange !== data.minValue) {
+        this.startDaterange = data.minValue;
+      }
+      if (this.endDaterange !== data.maxValue) {
+        this.endDaterange = data.maxValue;
+      }
+    },
     toggleDaterange() {
       this.daterange.start = new Date(this.minDate);
       this.daterange.end = new Date(this.maxDate);
