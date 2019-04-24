@@ -11,6 +11,22 @@
 </template>
 
 <script>
+/**
+
+ Usage with custom tooltip (local computed variable)
+ <timeline :values="values"
+   :brush="[startDaterange, endDaterange]"
+   :domain="[startYear, endYear]"
+   @brushed="afterBrush()">
+   <div slot-scope="tooltipScope">
+     <div v-if="tooltipScope.tooltip.item">
+       {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+       <b>{{ tooltipScope.tooltip.item.w }}</b> {{ localComputedVar }}
+     </div>
+   </div>
+ </timeline>
+*/
+
 import ContrastTimeline from '@/d3-modules/ContrastTimeline';
 import Timeline from '@/d3-modules/Timeline';
 import Tooltip from './tooltips/Tooltip';
@@ -38,11 +54,11 @@ export default {
         isActive: true,
         x: data.pointer.x + 50,
         y: data.pointer.y - 50,
-        hspace: this.line.width,
+        hspace: this.timeline.width,
       };
     },
     onResize() {
-      this.line.resize();
+      this.timeline.resize();
     },
     fillYears() {
       if (!this.values.length) {
@@ -68,7 +84,7 @@ export default {
   },
   mounted() {
     if (this.contrast) {
-      this.line = new ContrastTimeline({
+      this.timeline = new ContrastTimeline({
         element: '.d3-timeline',
         margin: {
           left: 10,
@@ -78,7 +94,7 @@ export default {
         domain: this.domain,
       });
     } else {
-      this.line = new Timeline({
+      this.timeline = new Timeline({
         element: '.d3-timeline',
         margin: {
           left: 10,
@@ -89,24 +105,28 @@ export default {
         brushable: true,
       });
     }
-    this.line.on('mouseleave', () => {
+    this.timeline.on('mouseleave', () => {
       this.tooltip.isActive = false;
     });
 
-    this.line.on('mousemove', (data) => {
+    this.timeline.on('mousemove', (data) => {
       this.moveTooltip(data);
       this.$emit('highlight', data);
     });
 
-    this.line.on('highlighted', (data) => {
+    this.timeline.on('brushed', (data) => {
+      this.$emit('brushed', data);
+    });
+
+    this.timeline.on('highlighted', (data) => {
       this.moveTooltip(data);
     });
 
     if (this.values && this.values.length) {
-      this.line.update({
+      this.timeline.update({
         data: this.fillYears(),
       });
-      this.line.draw();
+      this.timeline.draw();
       setTimeout(this.onChangeDomain, 5000);
     }
     window.addEventListener('resize', this.onResize);
@@ -118,30 +138,29 @@ export default {
     highlight: {
       immediate: false,
       handler(val) {
-        this.line.highlight(val);
+        this.timeline.highlight(val);
       },
     },
     brush: {
       immediate: false,
       handler(val) {
-        if (this.line && val.length) {
-          console.log('brush changed', val);
-          this.line.brushTo({
+        if (this.timeline && val.length) {
+          this.timeline.brushTo({
             min: val[0],
             max: val[1],
           });
-          // this.line.drawBrush();
+          // this.timeline.drawBrush();
         }
       },
     },
     values: {
       immediate: false,
       handler(val) {
-        if (this.line) {
-          this.line.update({
+        if (this.timeline) {
+          this.timeline.update({
             data: val,
           });
-          this.line.draw();
+          this.timeline.draw();
         }
       },
     },
