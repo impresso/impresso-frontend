@@ -15,7 +15,7 @@
         <collection-add-to :item="article" :text="$t('add_to_collection')" />
         <b-badge
           v-for="(collection, i) in article.collections"
-          v-bind:key="i"
+          v-bind:key="`${i}-badge`"
           variant="info"
           class="mt-1 mr-1">
           <router-link
@@ -27,7 +27,7 @@
         </b-badge>
         <ellipsis class="my-3">
           <span class="label small-caps">{{ $t("topics")}}</span>:
-          <span v-for="(rel, i) in article.topics" v-bind:key="i">
+          <span v-for="(rel, i) in article.topics" v-bind:key="`${i}-topic`">
             <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}">
               {{ rel.topic.getHtmlExcerpt() }} ({{ $n(rel.relevance * 100) }} %)
             </router-link> &mdash;
@@ -36,7 +36,7 @@
         <div
           class="row mt-3 mb-3"
           v-for="(region, i) in article.regions"
-          v-bind:key="i">
+          v-bind:key="`${i}-region`">
           <div class="col col-sm-7">
             <div class='region p-2'>
               <p v-for="contents in region.g" >
