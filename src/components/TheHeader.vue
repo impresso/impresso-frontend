@@ -50,7 +50,7 @@
                     v-if="showLess"
                     @click="showLess = false"
                     class="text-white border-white"
-                    size="sm">{{$t('show all')}}</b-button>
+                    size="sm">{{$t('show_all')}}</b-button>
                   <b-button
                     v-if="!showLess"
                     @click="showLess = true"
@@ -454,6 +454,7 @@ $clr-grey-800: #c6ccd2;
     "label_search": "Search",
     "label_newspapers": "Newspaper Titles",
     "label_topics": "Topics",
+    "show_all": "Show All",
     "join_slack_channel": "Join us on <b>Slack!</b>",
     "no-jobs-yet": "Here you will find notifications about your collections and your downloads."
   }
