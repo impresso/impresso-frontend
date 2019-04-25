@@ -2,6 +2,7 @@
     <i-layout id="IssuePage">
       <i-layout-section width="300px" class="border-right">
         <table-of-contents
+          style="width:300px"
           v-bind:toc="toc"
           v-bind:pageUid="pageUid"
           v-bind:articleUid="articleUid"
@@ -31,6 +32,7 @@
       </i-layout-section>
       <i-layout-section width="120px" class="border-left">
         <thumbnail-slider
+          style="width:120px"
           v-bind:issue="issue"
           v-on:click="loadPage"
           v-bind:bounds="bounds"
