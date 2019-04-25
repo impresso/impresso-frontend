@@ -70,16 +70,15 @@ export default {
 
 <style lang="less">
 #thumbnail-slider {
-    position: fixed;
+    position: absolute;
+    height: 100%;
     scroll-behavior: smooth;
-    height: calc( 100% - 60px );
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
     white-space: nowrap;
 
     .tiles {
         width: 100%;
-        position: relative;
         height: 100%;
         .tile {
             width: 100%;

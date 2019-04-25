@@ -78,9 +78,8 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #TableOfContents{
-  position: fixed;
-  width: 299px;
-  height: calc( 100% - 60px );
+  position: absolute;
+  height: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
   scroll-behavior: smooth;
