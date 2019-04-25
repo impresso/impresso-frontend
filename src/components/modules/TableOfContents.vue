@@ -42,11 +42,13 @@ export default {
       });
     },
     scrollToActiveArticle() {
-      const elm = this.$refs[`article-${this.articleUid}`][0];
-      const parent = this.$refs.TableOfContents;
-      if (parent.scrollTop > elm.offsetTop ||
-        (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
-        parent.scrollTop = elm.offsetTop;
+      if (this.articleUid) {
+        const elm = this.$refs[`article-${this.articleUid}`][0];
+        const parent = this.$refs.TableOfContents;
+        if (parent.scrollTop > elm.offsetTop ||
+          (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
+          parent.scrollTop = elm.offsetTop;
+        }
       }
     },
   },
