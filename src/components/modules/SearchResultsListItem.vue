@@ -15,8 +15,8 @@
           } }" v-html="article.title"></router-link>
         </h2>
         <div class="article-meta mb-2">
-          <router-link :to="{ name: 'newspaper', params: { newspaper_uid: article.newspaper.uid }}">
-          <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
+          <router-link v-if="article.newspaper" :to="{ name: 'newspaper', params: { newspaper_uid: article.newspaper.uid }}">
+            <strong>{{article.newspaper.name}}, </strong>
           </router-link>
           <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
           (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
