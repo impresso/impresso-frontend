@@ -4,7 +4,9 @@
       <i-layout-section>
         <h3>{{article.title}}</h3>
         <div>
-          <router-link :to="{ name: 'newspaper', params: {newspaper_uid: article.newspaper.uid} }">
+          <router-link
+            v-if="article.newspaper && article.newspaper.uid"
+            v-bind:to="{ name: 'newspaper', params: {newspaper_uid: article.newspaper.uid} }">
             {{ article.newspaper.name}}
           </router-link> &mdash; {{ articlePages }}
         </div>
