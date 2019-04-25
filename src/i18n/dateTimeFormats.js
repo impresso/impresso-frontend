@@ -43,6 +43,19 @@ export default {
       day: 'numeric',
       weekday: 'long',
     },
+    precise: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+    },
+    compact: {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    },
     short: {
       weekday: 'short',
       day: 'numeric',
@@ -64,6 +77,19 @@ export default {
       day: 'numeric',
       weekday: 'long',
     },
+    precise: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+    },
+    compact: {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    },
     short: {
       weekday: 'short',
       day: 'numeric',
@@ -84,6 +110,19 @@ export default {
       month: 'long',
       day: 'numeric',
       weekday: 'long',
+    },
+    precise: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+    },
+    compact: {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
     },
     short: {
       weekday: 'short',
