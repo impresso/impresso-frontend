@@ -22,7 +22,9 @@ import dateTimeFormats from './i18n/dateTimeFormats';
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 Vue.use(ImpressoLayout);
-Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
+Vue.use(TawkTo, {
+  siteId: process.env.TAWK_TO_SITE_ID,
+});
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
 
@@ -30,6 +32,7 @@ Vue.config.productionTip = process.env.NODE_ENV === 'production';
 const i18n = new VueI18n({
   fallbackLocale: 'en',
   locale: store.state.settings.language_code,
+  silentTranslationWarn: true,
   messages,
   dateTimeFormats,
 });
