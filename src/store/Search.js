@@ -84,15 +84,15 @@ export default {
       state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
-      // console.log('#->ADD_FILTER', filter);
+      console.log('#->ADD_FILTER', filter);
       state.search.addFilter(filter);
     },
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);
     },
 
-    UPDATE_FILTER(state, payload) {
-      state.search.filters.splice(payload.index, 1, payload.filter);
+    UPDATE_FILTER(state, filter) {
+      state.search.updateFilter(filter);
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
