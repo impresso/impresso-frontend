@@ -149,6 +149,11 @@ export default {
 
   span.label{
     font-variant: normal;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-flex;
+    
     &.sp-string{
       background-color: #FFEB78;
     }
