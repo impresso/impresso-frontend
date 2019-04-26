@@ -53,7 +53,10 @@
       </div>
     </div>
     <div v-for="(facet, index) in facets" class="pt-1px border-top border-tertiary">
-      <filter-facet :facet="facet" class="px-3 py-2" @submit-buckets="submitBuckets" @update-filter="updateFilter"/>
+      <filter-facet :facet="facet" class="px-3 py-2"
+        @submit-buckets="submitBuckets"
+        @update-filter="updateFilter"
+        @reset-filter="resetFilter"/>
     </div>
   </div>
 </template>
@@ -241,6 +244,9 @@ export default {
     },
     updateFilter(filter) {
       this.$emit('update-filter', filter);
+    },
+    resetFilter(type) {
+      this.$emit('reset-filter', type);
     },
     submitBuckets({ type, context, ids }) {
       this.$emit('submit-facet', {

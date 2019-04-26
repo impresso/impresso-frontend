@@ -90,7 +90,9 @@ export default {
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);
     },
-
+    RESET_FILTER(state, type) {
+      state.search.resetFilter(type);
+    },
     UPDATE_FILTER(state, filter) {
       state.search.updateFilter(filter);
     },

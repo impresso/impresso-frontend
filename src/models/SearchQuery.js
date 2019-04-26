@@ -86,6 +86,10 @@ export default class SearchQuery {
     }
   }
 
+  resetFilter(type) {
+    this.filters.filter(d => d.type === type).forEach(d => this.removeFilter(d));
+  }
+
   removeFilter(filter) {
     const filterized = filterize(filter);
     const idx = this.filtersIds.indexOf(filterized.getHash());

@@ -4,7 +4,7 @@
       {{$t(`label.${facet.type}.title`)}}
       <div slot="options">
 
-        <b-button v-show="filtered" size="sm" variant="outline-primary">
+        <b-button v-show="filtered" size="sm" variant="outline-primary" @click="resetFilterType">
           {{ $t(`label.${facet.type}.clear`) }}
         </b-button>
       </div>
@@ -163,6 +163,9 @@ export default {
     },
     updateFilter(filter) {
       this.$emit('update-filter', filter);
+    },
+    resetFilterType() {
+      this.$emit('reset-filter', this.facet.type);
     },
   },
   components: {

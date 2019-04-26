@@ -31,7 +31,7 @@
 
 
       <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
-      <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter"/>
+      <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
     </div>
     <!-- <div slot="footer">
       <b-button-group class="d-flex bg-white p-3 border-top border-tertiary">
@@ -343,6 +343,10 @@ export default {
     onFacet(facet) {
       console.log('@onFacet', facet);
       this.$store.commit('search/ADD_FILTER', facet);
+      this.search(1);
+    },
+    onResetFilter(type) {
+      this.$store.commit('search/RESET_FILTER', type);
       this.search(1);
     },
     onUpdateFilter(filter) {
