@@ -5,7 +5,14 @@
       <!--  button content -->
       <template slot="button-content">
         <!-- badge: initial type instead of icons -->
-        <span class="badge sp-type">{{ $t(`type.${filter.type}`) }}</span>
+        <span
+          class="filter-icon"
+          :class="[
+            {'dripicons-align-justify': filter.type === 'string'},
+            {'dripicons-message': filter.type === 'topic'},
+            {'dripicons-pamphlet': filter.type === 'newspaper'},
+            {'dripicons-web': filter.type === 'language'}
+          ]" />
         <!--  type:string -->
         <span class="label sp-string" v-if="filter.type === 'string'" :class="filter.precision">
           {{filter.q}}
@@ -169,21 +176,19 @@ export default {
   }
 
   button.dropdown-toggle{
-    padding-left: 1.75em;
+    padding-left: 0.15em;
+    .filter-icon {
+      font-size: 1em;
+      float: left;
+      width: 1.6em;
+      height: 1.6em;
+      padding-top: 0.2em;
+      margin-right: 0.2em;
+      opacity: 0.8;
+      // background: red;
+    }
   }
 
-  span.badge.sp-type{
-    border: 1px solid;
-    width: 1.5em;
-    height: 1.5em;
-    position: absolute;
-    left: 3px;
-    overflow: hidden;
-    top: 50%;
-    margin-top: -0.75em;
-    line-height: 1.2em;
-    padding: 0 0.15rem;
-  }
 }
 .sp-contents ul{
   margin: 0;
