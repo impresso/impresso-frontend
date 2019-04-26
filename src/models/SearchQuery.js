@@ -77,6 +77,15 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
+  updateFilter(filter, hash) {
+    const filterized = filterize(filter);
+    const idx = hash ? this.filtersIds.indexOf(hash) :
+      this.filtersIds.indexOf(filterized.getHash());
+    if (idx !== -1) {
+      this.filters[idx].q = this.filters[idx].q.concat(this.filters[idx].shadowQ);
+    }
+  }
+
   removeFilter(filter) {
     const filterized = filterize(filter);
     const idx = this.filtersIds.indexOf(filterized.getHash());
