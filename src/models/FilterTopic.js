@@ -26,6 +26,7 @@ export default class FilterTopic extends FilterItems {
       type: this.type,
       q: this.q,
       r: this.range,
+      op: this.op,
       context: this.context,
     };
   }
