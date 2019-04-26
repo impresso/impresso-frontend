@@ -53,57 +53,16 @@
       </div>
     </div>
     <div v-for="(facet, index) in facets" class="pt-1px border-top border-tertiary">
-      <div class="px-3 py-2 border-top small">
-        <base-title-bar>{{facet.type}}</base-title-bar>
-        <ul v-if="facet.type === 'collection'" class="list-unstyled">
-          <li v-for="bucket in facet.buckets" class="facet-filter">
-            <div class="left">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{bucket.item.name}} ({{$n(bucket.count)}})</a>
-            </div>
-            <div class="right pl-1">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
-            </div>
-          </li>
-        </ul>
-        <ul v-if="facet.type === 'language'" class="list-unstyled">
-          <li v-for="bucket in facet.buckets" class="facet-filter">
-            <div class="left">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{$t(`languages.${bucket.item.uid}`)}} ({{$n(bucket.count)}})</a>
-            </div>
-            <div class="right pl-1">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
-            </div>
-          </li>
-        </ul>
-        <ul v-if="facet.type === 'topic'" class="list-unstyled">
-          <li v-for="bucket in facet.buckets" class="facet-filter">
-            <div class="left">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{bucket.item.getHtmlExcerpt()}} ({{$n(bucket.count)}})</a>
-            </div>
-            <div class="right pl-1">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
-            </div>
-          </li>
-        </ul>
-        <ul v-if="facet.type === 'newspaper'" class="list-unstyled">
-          <li v-for="bucket in facet.buckets" class="facet-filter">
-            <div class="left">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'include')">{{bucket.item.name}} ({{$n(bucket.count)}})</a>
-            </div>
-            <div class="right pl-1">
-              <a href="#" v-on:click.prevent="submitFacet(facet, bucket, 'exclude')">Exclude</a>
-            </div>
-          </li>
-        </ul>
-      </div>
+      <filter-facet :facet="facet" class="px-3 py-2" @submit-buckets="submitBuckets" @update-filter="updateFilter"/>
     </div>
   </div>
 </template>
 
 <script>
-import 'flatpickr/dist/flatpickr.css';
-import flatPickr from 'vue-flatpickr-component';
+// import 'flatpickr/dist/flatpickr.css';
+// import flatPickr from 'vue-flatpickr-component';
 
+import FilterFacet from './modules/FilterFacet';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
 
@@ -280,6 +239,17 @@ export default {
       this.daterange.end = new Date(this.maxDate);
       this.daterange.isActive = !this.daterange.isActive;
     },
+    updateFilter(filter) {
+      this.$emit('update-filter', filter);
+    },
+    submitBuckets({ type, context, ids }) {
+      this.$emit('submit-facet', {
+        type,
+        context,
+        q: ids,
+        exclusive: true,
+      });
+    },
     submitDaterange() {
       console.log('submit-facet', this.daterange.start, this.daterange.end);
       this.$emit('submit-facet', {
@@ -334,7 +304,8 @@ export default {
   components: {
     BaseTitleBar,
     Timeline,
-    flatPickr,
+    // flatPickr,
+    FilterFacet,
   },
 };
 </script>
