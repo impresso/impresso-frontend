@@ -3,12 +3,12 @@
   <i-layout-section width="400px" class="border-right border-tertiary">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
-      <!-- <b-tabs pills class="border-bottom border-tertiary">
+      <b-tabs pills class="border-bottom border-tertiary">
         <template slot="tabs">
           <b-nav-item :to="{ name:'search'}"  ><span v-html="$t('tabs.text')"/></b-nav-item>
-          <b-nav-item :to="{ name:'newspaper'}" exact><span v-html="$t('tabs.images')"/></b-nav-item>
+          <b-nav-item :to="{ name:'searchImages'}" exact><span v-html="$t('tabs.images')"/></b-nav-item>
         </template>
-      </b-tabs> -->
+      </b-tabs>
       <div class="py-3 px-3">
         <search-pills v-on:remove="onRemoveFilter"/>
         <autocomplete v-on:submit="onSuggestion" />
