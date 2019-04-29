@@ -46,6 +46,10 @@ export default class Topic {
         }
         this.highlighted = highlighted;
       }
+
+      if (this.excerpt.length) {
+        this.htmlExcerpt = this.getHtmlExcerpt();
+      }
     }
   }
 

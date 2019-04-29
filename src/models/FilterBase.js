@@ -2,17 +2,28 @@ import * as contexts from './Contexts';
 
 export default class Filter {
   constructor({
+    q = '',
     context = contexts.INCLUDE,
     type = '',
     touched = false,
   } = {}) {
-    this.context = String(contexts[context.toUpperCase()]);
-    this.type = String(type);
-    this.touched = touched;
-
     if (this.getQuery === undefined && typeof this.getQuery !== 'function') {
       throw new TypeError('Subclass must implement getQuery() method');
     }
+    if (context !== contexts.INCLUDE) {
+      this.context = String(contexts[context.toUpperCase()]);
+    }
+    this.type = String(type);
+    this.touched = touched;
+    this.q = String(q);
+  }
+
+  getHash() {
+    return btoa(JSON.stringify(this.getQuery()));
+  }
+
+  getQuery() {
+    throw new TypeError(`Filter subclass for ${this.type} must implement getQuery() method`);
   }
 
   getName() {

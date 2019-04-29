@@ -8,9 +8,23 @@ import Daterange from '@/models/Daterange';
  */
 
 export default class FilterDaterange extends Filter {
-  constructor(args) {
-    super(args);
-    this.daterange = new Daterange(args.daterange);
+  constructor({
+    type = 'daterange',
+    context = 'include',
+    start = null,
+    end = null,
+    daterange = '',
+  } = {}) {
+    super({
+      type,
+      context,
+    });
+    this.daterange = new Daterange({
+      start,
+      end,
+      daterange,
+    });
+    console.log('FilterDaterange loaded daterange', this.daterange);
   }
 
   getQuery() {

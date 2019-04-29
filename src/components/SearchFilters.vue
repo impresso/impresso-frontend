@@ -25,6 +25,12 @@
         v-on:input="updateFilter(index, filter)"
         v-on:submit="submitFilter"
         v-on:remove="removeFilter(index)" />
+      <filter-collection
+        v-if="filter.type.toLowerCase() === 'collection'"
+        v-model="filters[index]"
+        v-on:input="updateFilter(index, filter)"
+        v-on:submit="submitFilter"
+        v-on:remove="removeFilter(index)" />
       <filter-language
         v-if="filter.type.toLowerCase() === 'language'"
         v-model="filters[index]"
@@ -57,6 +63,7 @@ import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterRegex from './modules/FilterRegex';
 import FilterTopic from './modules/FilterTopic';
+import FilterCollection from './modules/FilterCollection';
 import FilterLanguage from './modules/FilterLanguage';
 import FilterNewspaper from './modules/FilterNewspaper';
 import FilterString from './modules/FilterString';
@@ -115,6 +122,7 @@ export default {
     'filter-topic': FilterTopic,
     'filter-newspaper': FilterNewspaper,
     'filter-language': FilterLanguage,
+    'filter-collection': FilterCollection,
   },
 };
 </script>

@@ -59,7 +59,17 @@ export default {
     },
 
     getNewspapers() {
-      const mapper = d => `<strong>"${d.item.name}"</strong>`;
+      // console.log('getNewspapers', this.queryComponents);
+      const mapper = (d) => {
+        let results = [];
+        if (d.items) {
+          results = d.items.map(item => `<strong>"${item.name}"</strong>`);
+        } else {
+          results = d.q.map(item => `<strong>"${item}"</strong>`);
+        }
+        return results.join(`<span class="operator">${this.$t('or')}</span>`);
+      };
+
       return this.getFormattedSection({
         type: 'newspaper',
         mapper,
@@ -73,7 +83,17 @@ export default {
     },
 
     getTopics() {
-      const mapper = d => `<span class="item">"${d.item.getHtmlExcerpt()}"</span>`;
+      const mapper = (d) => {
+        let results = [];
+        if (d.items) {
+          console.log('getTopics!', d.items);
+          // getHtmlExcerpt is not yet there
+          results = d.items.map(item => `<span class="item">"${item.getHtmlExcerpt()}"</span>`);
+        } else {
+          results = d.q.map(item => `<span class="item">"${item}"</span>`);
+        }
+        return results.join(`<span class="operator">${this.$t('or')}</span>`);
+      };
       return this.getFormattedSection({
         type: 'topic',
         mapper,
@@ -99,7 +119,7 @@ export default {
     getStrings() {
       // later, this mapper will take into account
       // the property `precision`
-      const mapper = d => `<span>"${d.query}"</span>`;
+      const mapper = d => `<span>"${d.q}"</span>`;
       return this.getFormattedSection({
         type: 'string',
         mapper,

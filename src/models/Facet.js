@@ -10,9 +10,14 @@ export default class Facet {
   constructor({
     type = '',
     buckets = [],
+    operators = [],
   } = {}) {
     this.type = String(type);
-
+    if (!operators.length) {
+      this.operators = ['OR'];
+    } else {
+      this.operators = operators;
+    }
     this.buckets = buckets.map((bucket) => {
       if (bucket instanceof Bucket) {
         return bucket;

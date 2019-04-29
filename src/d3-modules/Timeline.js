@@ -9,6 +9,8 @@ export default class Timeline extends Line {
     margin = {},
     format = '%Y',
     domain = [],
+    brushable = false,
+    brushFormat = '%Y-%m-%d',
   } = {}) {
     super({
       element,
@@ -45,6 +47,64 @@ export default class Timeline extends Line {
         domain: domain.map(d => this.timeParse(d)),
       });
     }
+
+    this.brushable = brushable;
+    if (brushable) {
+      this.brushFormat = brushFormat;
+      this.brushTimeFormat = d3.timeFormat(brushFormat);
+      this.brushTimeParse = d3.timeParse(brushFormat);
+      this.brush = d3.brushX()
+        .extent([[0, 0], [
+          this.width - this.margin.right - this.margin.left,
+          this.height - this.margin.bottom - 3,
+        ]])
+        .on('brush end', this.brushed.bind(this));
+      this.contextBrush = this.context.append('g')
+        .attr('class', 'brush')
+        .call(this.brush);
+    }
+  }
+
+  brushed() {
+    if (d3.event.sourceEvent) {
+      const ordered = d3.event.selection;
+
+      this.brushedMinDate = this.dimensions.x.scale.invert(ordered[0]);
+      this.brushedMaxDate = this.dimensions.x.scale.invert(ordered[1]);
+      this.brushedMinValue = this.brushTimeFormat(this.brushedMinDate);
+      this.brushedMaxValue = this.brushTimeFormat(this.brushedMaxDate);
+
+      this.emit('brushed', {
+        brush: {
+          min: ordered[0],
+          max: ordered[1],
+        },
+        minDate: this.brushedMinDate,
+        maxDate: this.brushedMaxDate,
+        minValue: this.brushedMinValue,
+        maxValue: this.brushedMaxValue,
+      });
+    }
+    // else console.log('@brushed called from outside, no need to emit brushes');
+  }
+
+  brushTo({ min, max }) {
+    if (!min || !max) {
+      return;
+    }
+    if (this.brushedMinValue === min && this.brushedMaxValue === max) {
+      return;
+    }
+    if (this.brushDebounceTimer) {
+      clearTimeout(this.brushDebounceTimer);
+    }
+    this.brushDebounceTimer = setTimeout(() => {
+      const to = [this.brushTimeParse(min), this.brushTimeParse(max)];
+      this.contextBrush.call(this.brush.move, [
+        this.dimensions.x.scale(to[0]),
+        this.dimensions.x.scale(to[1]),
+      ]);
+    }, 150);
   }
 
   draw() {
