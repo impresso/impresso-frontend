@@ -93,8 +93,11 @@ export default {
     RESET_FILTER(state, type) {
       state.search.resetFilter(type);
     },
-    UPDATE_FILTER(state, filter) {
-      state.search.updateFilter(filter);
+    UPDATE_FILTER(state, { filter, q, op, context }) {
+      state.search.updateFilter({ filter, q, op, context });
+    },
+    UPDATE_FILTER_ITEM(state, { filter, item }) {
+      state.search.updateFilterItem({ filter, item });
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
@@ -253,6 +256,7 @@ export default {
               if (res.info.facets && res.info.facets.topic) {
                 const facet = new Facet({
                   type: 'topic',
+                  operators: ['OR', 'AND'],
                   buckets: res.info.facets.topic.buckets.map(bucket => ({
                     ...bucket,
                     item: new Topic({
