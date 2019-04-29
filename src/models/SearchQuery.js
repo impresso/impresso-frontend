@@ -30,7 +30,10 @@ export default class SearchQuery {
 
   getFilter(filter) {
     const filterized = filterize(filter);
-    const idx = this.filtersIds.indexOf(filterized.getHash());
+    if (!filterized.hash) {
+      filterized.hash = filterized.getHash();
+    }
+    const idx = this.filtersIds.indexOf(filterized.hash);
     if (idx !== -1) {
       return filterized;
     }
@@ -77,13 +80,39 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
-  updateFilter(filter, hash) {
-    const filterized = filterize(filter);
-    const idx = hash ? this.filtersIds.indexOf(hash) :
-      this.filtersIds.indexOf(filterized.getHash());
-    if (idx !== -1) {
-      this.filters[idx].q = this.filters[idx].q.concat(this.filters[idx].shadowQ);
+  updateFilter({ filter, q, op, items, context }) {
+    const fil = this.getFilter(filter);
+    if (!fil) {
+      return;
     }
+    if (q) {
+      fil.q = q;
+    }
+    if (op) {
+      fil.op = op;
+    }
+    if (context) {
+      fil.context = context;
+    }
+    if (items) {
+      fil.items = items;
+    }
+    fil.touched = fil.getHash() !== fil.hash;
+  }
+
+  updateFilterItem({ filter, item }) {
+    const fil = this.getFilter(filter);
+    if (!fil) {
+      return;
+    }
+    fil.items = fil.items.map((d) => {
+      if (d.uid === item.uid) {
+        return item;
+      }
+      return d;
+    });
+    fil.q = fil.items.filter(d => d.checked).map(d => d.uid);
+    fil.touched = fil.getHash() !== fil.hash;
   }
 
   resetFilter(type) {
@@ -91,13 +120,16 @@ export default class SearchQuery {
   }
 
   removeFilter(filter) {
-    const filterized = filterize(filter);
-    const idx = this.filtersIds.indexOf(filterized.getHash());
+    const fil = this.getFilter(filter);
+    if (!fil) {
+      return;
+    }
+    const idx = this.filtersIds.indexOf(fil.hash);
 
     if (idx !== -1) {
       this.filtersIds.splice(idx, 1);
       this.filters.splice(idx, 1);
-      this.filtersIndex[filterized.type].splice(idx, 1);
+      this.filtersIndex[fil.type].splice(idx, 1);
     }
   }
 
