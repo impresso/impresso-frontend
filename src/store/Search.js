@@ -76,7 +76,7 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
-      // console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
+      console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
       state.search.enrichFilters(queryComponents);
       state.queryComponents = queryComponents.map(d => new QueryComponent(d));
     },

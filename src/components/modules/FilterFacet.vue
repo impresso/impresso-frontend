@@ -97,7 +97,6 @@ export default {
       if (!this.filtered || !this.included) {
         return this.facet.buckets;
       }
-      console.log('unfiltered', this.includedIds);
       return this.facet.buckets.filter(b => this.includedIds.indexOf(b.val) === -1);
     },
   },
