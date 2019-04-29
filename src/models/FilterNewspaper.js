@@ -19,5 +19,8 @@ export default class FilterNewspaper extends FilterItems {
 
   setItems(items = []) {
     this.items = items.map(d => new Newspaper(d));
+    items.forEach((d, i) => {
+      this.items[i].checked = true;
+    });
   }
 }

@@ -19,6 +19,9 @@ export default class FilterTopic extends FilterItems {
 
   setItems(items = []) {
     this.items = items.map(d => new Topic(d));
+    items.forEach((d, i) => {
+      this.items[i].checked = true;
+    });
   }
 
   getQuery() {

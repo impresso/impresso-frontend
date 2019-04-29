@@ -12,11 +12,15 @@ export default class FilterLanguage extends FilterItems {
     if (!this.items.length) {
       this.items = this.q.map(d => ({
         uid: d,
+        checked: true,
       }));
     }
   }
 
   setItems(items = []) {
     this.items = items;
+    items.forEach((d, i) => {
+      this.items[i].checked = true;
+    });
   }
 }
