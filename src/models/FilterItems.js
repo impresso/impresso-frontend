@@ -15,33 +15,24 @@ export default class FilterItems extends Filter {
   } = {}) {
     super({ context, type, touched, q });
     this.q = String(q).split(',');
+    this.qh = this.q;
     this.op = 'OR';
     this.items = items;
-    this.shadowItems = [];
-    this.shadowQ = [];
+    this.context = context;
   }
 
   setItems() {
     throw new TypeError(`Filter subclass for ${this.type} must implement setItems() method`);
   }
 
-  addShadowItem(item) {
-    console.log('addShadowItem', item);
-    if (this.shadowQ.indexOf(item.uid) === -1) {
-      this.shadowQ.push(item.uid);
-      this.shadowItems.push(item);
-    }
-  }
-
-  removeShadowItem(item) {
-    const idx = this.shadowQ.indexOf(item.uid);
-    if (idx !== -1) {
-      this.shadowQ.splice(idx, 1);
-      this.shadowItems.splice(idx, 1);
-    }
-  }
-
   getQuery() {
+    if (this.context === contexts.INCLUDE) {
+      return {
+        type: this.type,
+        q: this.q,
+        op: this.op,
+      };
+    }
     return {
       type: this.type,
       q: this.q,
