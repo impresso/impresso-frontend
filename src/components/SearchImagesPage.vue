@@ -18,24 +18,64 @@
       </div>
     </i-layout-section>
     <i-layout-section>
+
+      <b-navbar slot="header" variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
+        <div class="flex-grow-1">
+          <span class="small-caps">
+            {{ $tc('items_selected', selectedItems.length) }}
+          </span>
+          <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
+            {{ $t('clear_selection') }}
+          </b-button>
+          <collection-add-to
+            :items="selectedItems"
+            :text="$tc('add_n_to_collection', selectedItems.length)"
+            class="addbulk bg-white float-right" />
+        </div>
+      </b-navbar>
+
       <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-        <b-navbar-nav class="px-3 pt-3 pb-2 border-right">
+        <b-navbar-nav class="p-3 border-right">
           <label class="mr-1">{{$t("label_order")}}
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" class="pl-1"></i-dropdown>
           </label>
         </b-navbar-nav>
+
+        <b-navbar-nav v-if="isLoggedIn" class="pl-4">
+          <b-form-checkbox
+            v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
+            v-bind:indeterminate="this.allIndeterminate"
+            v-bind:checked.native="this.allSelected"
+            v-on:change="toggleSelectAll">
+          </b-form-checkbox>
+        </b-navbar-nav>
+
       </b-navbar>
 
       <div class="p-1">
         <b-container fluid>
           <b-row class="pb-5">
-            <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResultsImages" v-bind:key="searchResult.uid">
+            <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.uid">
               <search-results-image-item
               v-bind:searchResult="searchResult"
-              checkbox=false />
+              v-bind:checkbox=true
+              v-on:toggleSelected="toggleSelected(searchResult)"
+              v-bind:checked="isChecked(searchResult)"
+              v-on:click="onClickResult(searchResult)"
+              />
             </b-col>
           </b-row>
         </b-container>
+        <div class="fixed-pagination-footer p-1 m-0">
+          <pagination
+            :perPage="3" :currentPage="1" :totalRows="10"
+            class="float-left small-caps" />
+            <!-- v-bind:perPage="paginationPerPage"
+            v-bind:currentPage="paginationCurrentPage"
+            v-bind:totalRows="paginationTotalRows"
+            v-on:change="onInputPagination" -->
+        </div>
+
       </div>
 
     </i-layout-section>
@@ -44,23 +84,29 @@
 
 <script>
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
+import CollectionAddTo from './modules/CollectionAddTo';
+import Pagination from './modules/Pagination';
 
 
 export default {
   components: {
     SearchResultsImageItem,
+    CollectionAddTo,
+    Pagination,
   },
   data: () => ({
-    searchResultsImages: [],
+    searchResults: [],
     dataURL: 'https://impresso-project.ch/api/images/',
+    selectedItems: [],
+    allIndeterminate: false,
+    allSelected: false,
   }),
   mounted() {
-    // this.searchResultsImages = JSON.stringify(this.dataURL);
-    // console.log(this.searchResultsImages);
+    // testing URL
     fetch(this.dataURL)
       .then(response => response.text())
       .then((data) => {
-        this.searchResultsImages = JSON.parse(data).data;
+        this.searchResults = JSON.parse(data).data;
       });
   },
   computed: {
@@ -91,12 +137,128 @@ export default {
         return this.$store.state.search.orderBy;
       },
       set(val) {
-        this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
+        this.$store.commit('searchImages/UPDATE_SEARCH_ORDER_BY', val);
         this.search(1);
       },
     },
   },
   methods: {
+    search(page) {
+      if (page !== undefined) {
+        this.$store.commit('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      }
+      this.$store.dispatch('searchImages/PUSH_SEARCH_PARAMS');
+    },
+    reset() {
+      this.$store.commit('searchImages/CLEAR');
+      this.search(); // we do a search so we display all results in the corpus
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
+    paginationPerPage: {
+      get() {
+        return this.$store.state.searchImages.paginationPerPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.searchImages.paginationCurrentPage;
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.searchImages.paginationTotalRows;
+      },
+    },
+    updateselectAll() {
+      let count = 0;
+      this.searchResults.forEach((item) => {
+        if (this.itemSelected(item)) {
+          count += 1;
+        }
+      });
+      if (count === 0) {
+        this.allSelected = false;
+        this.allIndeterminate = false;
+      } else if (count < this.searchResults.length) {
+        this.allSelected = false;
+        this.allIndeterminate = true;
+      } else {
+        this.allSelected = true;
+        this.allIndeterminate = false;
+      }
+      // console.log('selected items : ', this.selectedItems);
+    },
+    itemSelected(item) {
+      return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
+    },
+    addSelectedItem(item) {
+      if (!this.itemSelected(item)) {
+        this.selectedItems.push(item);
+      }
+    },
+    removeSelectedItem(item) {
+      if (this.itemSelected(item)) {
+        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
+        this.selectedItems.splice(idx, 1);
+      }
+    },
+    toggleSelected(item) {
+      if (!this.itemSelected(item)) {
+        this.selectedItems.push(item);
+      } else {
+        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
+        this.selectedItems.splice(idx, 1);
+      }
+    },
+    toggleSelectAll(checked) {
+      if (checked) {
+        this.searchResults.forEach((item) => {
+          this.addSelectedItem(item);
+        });
+      } else {
+        this.searchResults.forEach((item) => {
+          this.removeSelectedItem(item);
+        });
+      }
+    },
+    isChecked(item) {
+      return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
+    },
+    onInputPagination(page = 1) {
+      this.search(page);
+    },
+    onClearSelection() {
+      this.selectedItems = [];
+    },
+    onClickResult(searchResult) {
+      this.$router.push({
+        name: 'article',
+        params: {
+          issue_uid: searchResult.issue.uid,
+          page_number: searchResult.pages[0].num,
+          page_uid: searchResult.pages[0].uid,
+          article_uid: searchResult.uid,
+        },
+      });
+    },
+  },
+  watch: {
+    searchResults() {
+      this.updateselectAll();
+    },
+    selectedItems() {
+      this.updateselectAll();
+    },
+    '$route.query': {
+      handler(val) {
+        console.log('@$route.query changed', val);
+        this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
+      },
+      deep: true,
+      immediate: true,
+    },
   },
 };
 </script>
@@ -115,7 +277,11 @@ export default {
       "sort_asc": "Ascending",
       "sort_desc": "Descending",
       "sort_date": "Date",
-      "sort_relevance": "Relevance"
+      "sort_relevance": "Relevance",
+      "items_selected": "One item selected | {count} items selected",
+      "clear_selection": "Clear Selection",
+      "add_n_to_collection": "Add item to collection | Add {count} items to collection",
+      "select_all": "Select all items on this page"
     }
   }
 </i18n>
