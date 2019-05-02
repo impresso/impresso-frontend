@@ -68,14 +68,14 @@
         </b-container>
         <div class="fixed-pagination-footer p-1 m-0">
           <pagination
-            :perPage="3" :currentPage="1" :totalRows="10"
-            class="float-left small-caps" />
-            <!-- v-bind:perPage="paginationPerPage"
+            v-bind:perPage="paginationPerPage"
             v-bind:currentPage="paginationCurrentPage"
             v-bind:totalRows="paginationTotalRows"
-            v-on:change="onInputPagination" -->
+            v-on:change="onInputPagination"
+            class="float-left small-caps"
+            />
+            <!-- :perPage="10" :currentPage="1" :totalRows="12" -->
         </div>
-
       </div>
 
     </i-layout-section>
@@ -96,18 +96,22 @@ export default {
   },
   data: () => ({
     searchResults: [],
-    dataURL: 'https://impresso-project.ch/api/images/',
     selectedItems: [],
     allIndeterminate: false,
     allSelected: false,
   }),
   mounted() {
     // testing URL
-    fetch(this.dataURL)
+    fetch('https://impresso-project.ch/api/images/')
       .then(response => response.text())
       .then((data) => {
         this.searchResults = JSON.parse(data).data;
       });
+    // if (this.uuid !== undefined) {
+    //   this.$store.commit('searchImages/LOAD_SEARCH', this.uuid);
+    //   console.log('search');
+    // }
+    // this.search();
   },
   computed: {
     orderByOptions: {

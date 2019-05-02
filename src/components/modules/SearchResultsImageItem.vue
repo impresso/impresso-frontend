@@ -1,7 +1,8 @@
 <template lang="html">
   <div class="tile my-3 border">
-    <div class="thumbnail bg-light clearfix">
-      <img :src="searchResult.pages[0].iiifThumbnail" :alt="searchResult.uid" />
+    <div
+      class="thumbnail bg-light clearfix"
+      :style="`background-image: url(${searchResult.regions[0].iiifFragment})`">
       <div v-if="isLoggedIn() && checkbox" class="float-right pt-1 pl-1">
         <b-checkbox
           class="m-0 select-item"
@@ -64,12 +65,11 @@ export default {
     }
   }
   .thumbnail {
-      width: 100%;
-      height: 250px;
-      text-align: center;
-      img {
-        height: 100%;
-      }
+      background-position: center;
+      background-size: contain;
+      background-repeat: no-repeat;
+      height: 20em;
+      height: 30vh;
   }
   h2 {
     font-size: 1em;
