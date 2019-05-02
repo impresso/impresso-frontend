@@ -11,12 +11,13 @@ export default class FilterItems extends Filter {
     type = 'items',
     touched = false,
     q = '',
+    op = 'OR',
     items = [],
   } = {}) {
     super({ context, type, touched, q });
     this.q = String(q).split(',');
     this.qh = this.q;
-    this.op = 'OR';
+    this.op = op;
     this.items = items;
     this.context = context;
   }
