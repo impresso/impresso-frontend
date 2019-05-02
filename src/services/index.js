@@ -11,7 +11,7 @@ const socket = io(`${process.env.MIDDLELAYER_API}`, {
 export const app = feathers();
 
 app.configure(socketio(socket, {
-  timeout: 12000,
+  timeout: 30000,
 }));
 app.configure(auth({
   storage: window.localStorage,

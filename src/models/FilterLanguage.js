@@ -1,4 +1,4 @@
-import Filter from '@/models/FilterBase';
+import FilterItems from '@/models/FilterItems';
 /**
  * FilterEntity object
  * @param {Object} bucket The bucket
@@ -6,17 +6,21 @@ import Filter from '@/models/FilterBase';
  * @param {Boolean} touched wether the user has interacted with the filter
  */
 
-export default class FilterLanguage extends Filter {
+export default class FilterLanguage extends FilterItems {
   constructor(args) {
     super(args);
-    this.language = args.item;
+    if (!this.items.length) {
+      this.items = this.q.map(d => ({
+        uid: d,
+        checked: true,
+      }));
+    }
   }
 
-  getQuery() {
-    return {
-      context: this.context,
-      type: this.type,
-      q: this.language.uid,
-    };
+  setItems(items = []) {
+    this.items = items;
+    items.forEach((d, i) => {
+      this.items[i].checked = true;
+    });
   }
 }

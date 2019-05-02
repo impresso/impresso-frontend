@@ -5,8 +5,10 @@ import Topic from '@/models/Topic';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
+import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
-import FilterFactory from '@/models/FilterFactory';
+// import FilterFactory from '@/models/FilterFactory';
+import router from '../router';
 
 export default {
   namespaced: true,
@@ -22,7 +24,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['newspaper', 'language', 'topic'], // this also sets the order of the filters
+    facetTypes: ['year', 'newspaper', 'language', 'topic'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
   },
   getters: {
@@ -50,6 +52,10 @@ export default {
   },
   mutations: {
     // general settings
+    UPDATE_SEARCH_QUERY_FILTERS(state, filters) {
+      state.search.updateFilters(filters);
+      console.log('commit->UPDATE_SEARCH_QUERY_FILTERS, after:', state.search.filters);
+    },
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
     },
@@ -70,21 +76,28 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
-      state.queryComponents = queryComponents;
+      console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
+      state.search.enrichFilters(queryComponents);
+      state.queryComponents = queryComponents.map(d => new QueryComponent(d));
     },
     UPDATE_FILTER_FACET_YEAR_EXPANDED(state, expanded) {
       state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
-      state.search.filters.push(filter);
+      console.log('#->ADD_FILTER', filter);
+      state.search.addFilter(filter);
     },
-    REMOVE_FILTER(state, index) {
-      if (index > -1) {
-        state.search.filters.splice(index, 1);
-      }
+    REMOVE_FILTER(state, filter) {
+      state.search.removeFilter(filter);
     },
-    UPDATE_FILTER(state, payload) {
-      state.search.filters.splice(payload.index, 1, payload.filter);
+    RESET_FILTER(state, type) {
+      state.search.resetFilter(type);
+    },
+    UPDATE_FILTER(state, { filter, q, op, context }) {
+      state.search.updateFilter({ filter, q, op, context });
+    },
+    UPDATE_FILTER_ITEM(state, { filter, item }) {
+      state.search.updateFilterItem({ filter, item });
     },
     STORE_SEARCH(state) {
       state.searches.push(state.search);
@@ -130,16 +143,53 @@ export default {
     },
   },
   actions: {
-    ADD_OR_REPLACE_FILTER(context, filter) {
-      const index = context.state.search.filters.findIndex(item => item.type === filter.type);
-      if (index > -1) {
-        context.commit('UPDATE_FILTER', {
-          index,
-          filter,
-        });
-      } else {
-        context.commit('ADD_FILTER', filter);
+    /**
+     * Print search params to current URL
+     * @param {[type]} context [description]
+     */
+    PUSH_SEARCH_PARAMS(context) {
+      const query = {
+        f: JSON.stringify(context.state.search.getFilters()),
+        // facets: context.state.facetTypes,
+        g: context.state.groupBy,
+        p: context.state.paginationCurrentPage,
+        // limit: context.state.paginationPerPage,
+        o: context.state.orderBy,
+      };
+      console.log('@PUSH_SEARCH_PARAMS', query);
+      router.push({ name: 'search', query });
+    },
+    PULL_SEARCH_PARAMS(context, query) {
+      if (query.g && ['articles'].indexOf(query.g) !== -1) {
+        context.commit('UPDATE_SEARCH_GROUP_BY', query.g);
       }
+      if (query.o && ['-relevance', 'relevance', 'date', '-date'].indexOf(query.o) !== -1) {
+        context.commit('UPDATE_SEARCH_ORDER_BY', query.o);
+      }
+      if (query.p && !isNaN(query.p)) {
+        context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
+      }
+      console.log('@PULL_SEARCH_PARAMS', query);
+
+      // parse filters here.
+      try {
+        context.commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
+      } catch (err) {
+        console.log(err);
+      }
+      context.dispatch('SEARCH');
+    },
+    ADD_OR_REPLACE_FILTER(context, filter) {
+      console.log('ADD_OR_REPLACE_FILTER', 'deprecated', filter);
+      // const index = context.state.search.filters.findIndex(item => item.type === filter.type);
+      // if (index > -1) {
+      //   context.commit('UPDATE_FILTER', {
+      //     index,
+      //     filter,
+      //   });
+      // } else {
+      //   context.commit('ADD_FILTER', filter);
+      // }
     },
     CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
       return new Promise((resolve) => {
@@ -169,42 +219,22 @@ export default {
     SEARCH(context) {
       const search = new Promise(
         (resolve, reject) => {
+          const query = {
+            filters: context.getters.getSearch.getFilters(),
+            facets: context.state.facetTypes,
+            group_by: context.state.groupBy,
+            page: context.state.paginationCurrentPage,
+            limit: context.state.paginationPerPage,
+            order_by: context.state.orderBy,
+          };
+          console.log('->action:SEARCH', query);
           services.search.find({
-            query: {
-              filters: context.getters.getSearch.getFilters(),
-              facets: context.state.facetTypes,
-              group_by: context.state.groupBy,
-              page: context.state.paginationCurrentPage,
-              limit: context.state.paginationPerPage,
-              order_by: context.state.orderBy,
-            },
+            query,
           }).then(
             (res) => {
               context.commit('CLEAR_FACETS');
 
-              context.commit('UPDATE_RESULTS', res.data.map(result => new Article({
-                ...result,
-                issue: {
-                  ...result.issue,
-                  countArticles: result.issue.count_articles,
-                  countPages: result.issue.count_pages,
-                },
-                tags: result.tags ? result.tags.map((tag) => {
-                  tag.appliesTo = tag.applies_to;
-                  return tag;
-                }) : [],
-                collections: result.collections,
-                matches: result.matches || [],
-                newspaper: new Newspaper({
-                  ...result.newspaper,
-                  countArticles: result.newspaper.count_articles,
-                  countIssues: result.newspaper.count_issues,
-                  countPages: result.newspaper.count_pages,
-                  deltaYear: result.newspaper.delta_year,
-                  endYear: result.newspaper.end_year,
-                  startYear: result.newspaper.start_year,
-                }),
-              })));
+              context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
 
               // add language facet/filter
               if (res.info.facets && res.info.facets.language) {
@@ -226,6 +256,7 @@ export default {
               if (res.info.facets && res.info.facets.topic) {
                 const facet = new Facet({
                   type: 'topic',
+                  operators: ['OR', 'AND'],
                   buckets: res.info.facets.topic.buckets.map(bucket => ({
                     ...bucket,
                     item: new Topic({
@@ -234,7 +265,7 @@ export default {
                     }),
                   })),
                 });
-
+                // enrich current fitler, if any, with one of the topics.
                 context.commit('ADD_FACET', facet);
               }
 
@@ -251,35 +282,22 @@ export default {
                 context.commit('ADD_FACET', facet);
               }
 
-              context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-                paginationTotalRows: res.total,
-              });
+              // add collection facet/filter
+              if (res.info.facets && res.info.facets.collection) {
+                const facet = new Facet({
+                  type: 'collection',
+                  buckets: res.info.facets.collection.buckets.map(bucket => ({
+                    ...bucket,
+                    item: new Collection({
+                      ...bucket.item,
+                      uid: bucket.val,
+                    }),
+                  })),
+                });
 
-              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents.map(d => new QueryComponent(d)));
+                context.commit('ADD_FACET', facet);
+              }
 
-              resolve(res);
-            },
-            (err) => {
-              reject(err);
-            },
-          );
-        },
-      );
-
-      const timeline = new Promise(
-        (resolve, reject) => {
-          services.search.find({
-            query: {
-              filters: context.getters.getSearch.getFilters(['daterange']),
-              facets: ['year'],
-              group_by: context.state.groupBy,
-              page: context.state.paginationCurrentPage,
-              limit: context.state.paginationPerPage,
-              order_by: context.state.orderBy,
-            },
-          }).then(
-            (res) => {
-              // add year facet/filter
               if (res.info.facets && res.info.facets.year) {
                 const facet = new Facet({
                   type: 'year',
@@ -289,30 +307,14 @@ export default {
                     }
 
                     return new Bucket(bucket);
-                  }).sort((a, b) => {
-                    // order from first year to last year (1798 - 1997)
-                    const yearA = parseInt(a.val, 10);
-                    const yearB = parseInt(b.val, 10);
-
-                    if (yearA < yearB) {
-                      return -1;
-                    }
-
-                    if (yearA > yearB) {
-                      return 1;
-                    }
-
-                    return 0;
-                  }),
+                  }).sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10)),
                 });
-
-                const FilterFacetYear = FilterFactory.create({
-                  ...context.getters.getSearch.filters.find(filter => filter.type === 'year'),
-                  ...facet,
-                });
-
-                context.dispatch('ADD_OR_REPLACE_FILTER', FilterFacetYear);
+                context.commit('ADD_FACET', facet);
               }
+              context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+                paginationTotalRows: res.total,
+              });
+              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
               resolve(res);
             },
             (err) => {
@@ -322,7 +324,7 @@ export default {
         },
       );
 
-      return Promise.all([search, timeline]);
+      return search;
     },
   },
 };

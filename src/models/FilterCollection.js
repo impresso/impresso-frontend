@@ -5,21 +5,27 @@
  */
 
 import Filter from '@/models/FilterBase';
-import * as precisions from './Precisions';
+import Collection from '@/models/Collection';
 
-export default class FilterString extends Filter {
+export default class FilterCollection extends Filter {
   constructor(args) {
     super(args);
-    this.q = String(args.q || args.query);
-    this.precision = precisions[(args.precision || 'exact').toUpperCase()];
+    if (args.item instanceof Collection) {
+      this.item = args.item;
+    } else {
+      this.item = new Collection(args.item);
+    }
+  }
+
+  getName() {
+    return this.item.name;
   }
 
   getQuery() {
     return {
       context: this.context,
-      precision: this.precision,
       type: this.type,
-      q: this.q,
+      q: this.item.uid,
     };
   }
 }
