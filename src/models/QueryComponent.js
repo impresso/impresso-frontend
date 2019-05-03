@@ -2,6 +2,7 @@ import Daterange from './Daterange';
 import Entity from './Entity';
 import Topic from './Topic';
 import Newspaper from './Newspaper';
+import Collection from './Collection';
 /**
  * Query Component object
  * @param {String} context either 'include' or 'exclude'
@@ -38,6 +39,7 @@ export default class QueryComponent {
       entity: Entity,
       newspaper: Newspaper,
       daterange: Daterange,
+      collection: Collection,
     };
 
     if (KlassMapper[type] && items.length) {
@@ -46,44 +48,4 @@ export default class QueryComponent {
       this.items = [];
     }
   }
-  //
-  //   this.context = context;
-  //   this.query = String(q);
-  //   this.type = type;
-  //
-  //   if (daterange instanceof Daterange) {
-  //     this.daterange = daterange;
-  //   } else if (typeof daterange === 'string' && daterangeRegex.test(daterange)) {
-  //     this.daterange = new Daterange({
-  //       daterange,
-  //     });
-  //   }
-  //
-  //   if (entity instanceof Entity) {
-  //     this.entity = entity;
-  //   } else {
-  //     this.entity = new Entity(entity);
-  //   }
-  //
-  //   if (this.type === 'topic' && item) {
-  //     this.item = new Topic(item);
-  //   }
-  //   if (this.type === 'newspaper' && item) {
-  //     this.item = new Newspaper(item);
-  //   }
-  // }
-  //
-  // getName() {
-  //   if (this.type === 'entity') {
-  //     return this.entity.name;
-  //   }
-  //   return this.query;
-  // }
-  //
-  // getUid() {
-  //   if (this.entity.uid !== '') {
-  //     return this.entity.uid;
-  //   }
-  //   return undefined;
-  // }
 }
