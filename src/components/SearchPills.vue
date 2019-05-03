@@ -39,25 +39,10 @@
       </template>
 
       <div class="p-2 pb-1 sp-contents">
-        <div class="description">{{filter.type}}</div>
+        <div class="description">{{ $t(`label.${filter.type}`) }}</div>
+        <filter-monitor checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
 
-        <!--  include / exclude toggler -->
-        {{ filter.touched }}
-        <b-form-group>
-          <b-form-radio-group
-            stacked
-            v-model="filter.context"
-            v-bind:options="filterContextOptions"
-            @change="onChangeFilter(filter)">
-          </b-form-radio-group>
-        </b-form-group>
 
-        <ul v-if="filter.type === 'topic'">
-          <topic-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
-        </ul>
-        <ul v-if="filter.type === 'newspaper'">
-          <newspaper-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
-        </ul>
         <b-form-group :label="filter.type" v-if="filter.type === 'string'">
           <b-form-input
             size="sm"
@@ -68,7 +53,7 @@
         </b-form-group>
       </div>
 
-      <div class="px-2 mt-1 mb-2">
+      <div v-if="filter.type === 'string'" class="px-2 mt-1 mb-2">
         <b-button-group>
           <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
             @click="onApplyFilter(filter)">
@@ -88,6 +73,7 @@
 <script>
 import TopicListItem from './modules/TopicListItem';
 import NewspaperListItem from './modules/NewspaperListItem';
+import FilterMonitor from './modules/FilterMonitor';
 
 export default {
   computed: {
@@ -144,6 +130,7 @@ export default {
   components: {
     TopicListItem,
     NewspaperListItem,
+    FilterMonitor,
   },
 };
 </script>
@@ -160,7 +147,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-flex;
-    
+
     &.sp-string{
       background-color: #FFEB78;
     }
