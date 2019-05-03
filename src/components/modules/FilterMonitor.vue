@@ -1,6 +1,16 @@
 <template lang="html">
   <div class="filter-monitor">
-    <div>
+    <div v-if="checkbox">
+      <b-form-group>
+        <b-form-radio-group
+          stacked
+          v-model="filter.context"
+          v-bind:options="contexts"
+          @change="changeFilterContext($event)">
+        </b-form-radio-group>
+      </b-form-group>
+    </div>
+    <div v-else>
       <b-dropdown size="sm" variant="outline-primary">
         <template slot="button-content">
           <span v-html="$t(`label.${type}.context.${filter.context}`)"/>
@@ -64,6 +74,10 @@ export default {
       type: Array,
       default: () => ['include', 'exclude'],
     },
+    checkbox: {
+      type: Boolean,
+      default: false,
+    },
     filter: Object,
     itemsToAdd: {
       type: Array, // from outside
@@ -79,7 +93,7 @@ export default {
     },
     updateFilter({ op, context }) {
       const q = this.filter.items.concat(this.itemsToAdd).reduce((acc, d) => {
-        console.log('adding', d.uid, d.checked);
+        // console.log('methods.updateFilter: adding uid:', d.uid, d.checked);
         if (d.checked) {
           acc.push(d.uid);
         }
@@ -104,6 +118,7 @@ export default {
       this.updateFilter({ op });
     },
     changeFilterContext(context) {
+      // console.log('@changeFilterContext', context);
       this.updateFilter({ context });
     },
     toggleFilterItem(checked, item) {
