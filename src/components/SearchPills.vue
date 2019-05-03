@@ -39,7 +39,7 @@
       </template>
 
       <div class="p-2 pb-1 sp-contents">
-        <div class="description">{{ $t(`label.${filter.type}`) }}</div>
+        <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
         <filter-monitor checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
 
 
@@ -65,6 +65,10 @@
           </b-button>
           <b-button  size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
         </b-button-group>
+      </div>
+      <!-- type is not string, add Remove button -->
+      <div v-else class="px-2 mt-1 mb-2">
+        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
       </div>
     </b-dropdown>
   </div>
@@ -194,6 +198,14 @@ export default {
 <i18n>
   {
     "en": {
+      "label": {
+        "topic": {
+          "title": "filter by topic"
+        },
+        "newspaper": {
+          "title": "filter by newspaper"
+        }
+      },
       "action": {
         "remove": "remove filter",
         "apply": "apply changes",
