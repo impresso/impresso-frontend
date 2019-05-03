@@ -39,25 +39,10 @@
       </template>
 
       <div class="p-2 pb-1 sp-contents">
-        <div class="description">{{filter.type}}</div>
+        <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
+        <filter-monitor checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
 
-        <!--  include / exclude toggler -->
-        {{ filter.touched }}
-        <b-form-group>
-          <b-form-radio-group
-            stacked
-            v-model="filter.context"
-            v-bind:options="filterContextOptions"
-            @change="onChangeFilter(filter)">
-          </b-form-radio-group>
-        </b-form-group>
 
-        <ul v-if="filter.type === 'topic'">
-          <topic-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
-        </ul>
-        <ul v-if="filter.type === 'newspaper'">
-          <newspaper-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
-        </ul>
         <b-form-group :label="filter.type" v-if="filter.type === 'string'">
           <b-form-input
             size="sm"
@@ -68,7 +53,7 @@
         </b-form-group>
       </div>
 
-      <div class="px-2 mt-1 mb-2">
+      <div v-if="filter.type === 'string'" class="px-2 mt-1 mb-2">
         <b-button-group>
           <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
             @click="onApplyFilter(filter)">
@@ -81,6 +66,10 @@
           <b-button  size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
         </b-button-group>
       </div>
+      <!-- type is not string, add Remove button -->
+      <div v-else class="px-2 mt-1 mb-2">
+        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
+      </div>
     </b-dropdown>
   </div>
 </template>
@@ -88,6 +77,7 @@
 <script>
 import TopicListItem from './modules/TopicListItem';
 import NewspaperListItem from './modules/NewspaperListItem';
+import FilterMonitor from './modules/FilterMonitor';
 
 export default {
   computed: {
@@ -144,6 +134,7 @@ export default {
   components: {
     TopicListItem,
     NewspaperListItem,
+    FilterMonitor,
   },
 };
 </script>
@@ -160,7 +151,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-flex;
-    
+
     &.sp-string{
       background-color: #FFEB78;
     }
@@ -207,6 +198,14 @@ export default {
 <i18n>
   {
     "en": {
+      "label": {
+        "topic": {
+          "title": "filter by topic"
+        },
+        "newspaper": {
+          "title": "filter by newspaper"
+        }
+      },
       "action": {
         "remove": "remove filter",
         "apply": "apply changes",
