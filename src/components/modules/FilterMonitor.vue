@@ -11,7 +11,7 @@
         </b-form-radio-group>
       </b-form-group>
       <!--  operator -->
-      <b-form-group v-if="filter.context === 'include'">
+      <b-form-group v-if="filter.context === 'include' && filter.items.length > 1">
         <b-form-radio-group
           switches
           v-model="filter.op"
@@ -51,6 +51,10 @@
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="type === 'newspaper'">{{ item.name }}</span>
+        <span v-if="type === 'collection'">
+          <b>{{ item.name }}</b> @{{ item.creator.username }}
+          <br/>{{ item.countItems }} items &mdash; {{ $d(item.lastModifiedDate, 'long') }}
+        </span>
         <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
         <span v-if="item.count">({{ $n(item.count)}})</span>
       </b-form-checkbox>
@@ -167,6 +171,9 @@ export default {
 .items-to-add {
   background: yellow;
 }
+label.custom-control-label {
+    font-variant: none;
+}
 </style>
 <i18n>
 {
@@ -193,6 +200,18 @@ export default {
         "context": {
           "include": "Containing",
           "exclude": "<b>NOT</b> containing"
+        }
+      },
+      "collection": {
+        "title": "filter by collection",
+        "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
+        "description": "check one or more newspaper to filter results",
+        "clear": "reset",
+        "apply": "apply changes",
+        "update": "apply changes (added: {added}, removed: {removed})",
+        "context": {
+          "include": "Saved in",
+          "exclude": "<b>NOT</b> saved in"
         }
       },
       "newspaper": {
