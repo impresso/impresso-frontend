@@ -29,7 +29,6 @@
           v-html="labelByItems({ items: filter.items, max: 2 })"
           :class="filter.context">
         </span>
-
         <!--  type:language -->
         <span class="label sp-language"
           v-if="filter.type === 'language'"
@@ -42,6 +41,8 @@
           v-html="labelByItems({ items: filter.items, max: 2 })"
           :class="filter.context">
         </span>
+
+        <!-- <span class="filter-icon filter-remove dripicons-cross" @click="onRemoveFilter(filter)"></span> -->
       </template>
 
       <div class="p-2 pb-1 sp-contents">
@@ -183,6 +184,14 @@ export default {
       margin-right: 0.2em;
       opacity: 0.8;
       // background: red;
+    }
+    .filter-remove {
+      float: right;
+      padding-right: 0;
+      margin-right: -0.5em;
+      &:hover {
+        color: rgba(200,0,0,0.9);
+      }
     }
   }
 
