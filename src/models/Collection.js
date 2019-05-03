@@ -16,6 +16,7 @@
  */
 export default class Collection {
   constructor({
+    countItems = 0,
     countArticles = 0,
     countEntities = 0,
     countIssues = 0,
@@ -29,7 +30,9 @@ export default class Collection {
     lastModifiedTime = 0,
     name = '',
     uid = '',
+    creator = {},
   } = {}) {
+    this.countItems = parseInt(countItems, 10);
     this.countArticles = parseInt(countArticles, 10);
     this.countEntities = parseInt(countEntities, 10);
     this.countIssues = parseInt(countIssues, 10);
@@ -43,5 +46,6 @@ export default class Collection {
     this.lastModifiedTime = parseInt(lastModifiedTime, 10);
     this.name = String(name);
     this.uid = String(uid);
+    this.creator = creator;
   }
 }

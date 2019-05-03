@@ -35,8 +35,14 @@
           :class="filter.context">
           {{$t(`language.${filter.q}`)}}
         </span>
+        <!--  type:collections -->
+        <span class="label sp-collection"
+          v-if="filter.type === 'collection'"
+          v-html="labelByItems({ items: filter.items, max: 2 })"
+          :class="filter.context">
+        </span>
 
-        <span class="filter-icon filter-remove dripicons-cross" @click="onRemoveFilter(filter)"></span>
+        <!-- <span class="filter-icon filter-remove dripicons-cross" @click="onRemoveFilter(filter)"></span> -->
       </template>
 
       <div class="p-2 pb-1 sp-contents">
@@ -190,6 +196,10 @@ export default {
   }
 
 }
+.sp-contents {
+  width: 300px;
+}
+
 .sp-contents ul{
   margin: 0;
   padding:0;
@@ -210,6 +220,9 @@ export default {
       "label": {
         "topic": {
           "title": "filter by topic"
+        },
+        "collection": {
+          "title": "filter by collection"
         },
         "newspaper": {
           "title": "filter by newspaper"
