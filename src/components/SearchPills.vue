@@ -42,6 +42,11 @@
           :class="filter.context">
         </span>
 
+        <!--  type:daterange -->
+        <span class="label sp-daterange"
+          v-if="filter.type === 'daterange'"
+          :class="filter.context" v-html="labelByDaterangeItems({ items: filter.items, max: 2 })">
+        </span>
         <!-- <span class="filter-icon filter-remove dripicons-cross" @click="onRemoveFilter(filter)"></span> -->
       </template>
 
@@ -125,6 +130,21 @@ export default {
         });
       }
 
+      return labels;
+    },
+    labelByDaterangeItems({
+      items = [],
+      max = 1,
+    } = {}) {
+      let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
+        start: this.$d(d.start, 'compact'),
+        end: this.$d(d.end, 'compact'),
+      })).join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
+      if (items.slice(max).length) {
+        labels += this.$t('items.hidden', {
+          count: items.slice(max).length,
+        });
+      }
       return labels;
     },
     onRemoveFilter(filter) {
@@ -226,6 +246,10 @@ export default {
         },
         "newspaper": {
           "title": "filter by newspaper"
+        },
+        "daterange": {
+          "title": "filter by date of publication",
+          "item": "From {start} to {end}"
         }
       },
       "action": {
