@@ -31,7 +31,11 @@
           </div>
         </div>
       </timeline>
+      <div v-for="(filter, index) in daterangeFilters" :key="index" class="bg-light border p-2">
+        <filter-monitor :filter="filter" type="daterange" />
+      </div>
       <!--  daterange filters -->
+
       <div v-if="daterange.isActive">
         <div class="p-2">
           <div class="row">
@@ -66,6 +70,7 @@
 // import flatPickr from 'vue-flatpickr-component';
 
 import FilterFacet from './modules/FilterFacet';
+import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
 
@@ -114,6 +119,9 @@ export default {
     facetsOrder: ['language', 'newspaper', 'topic'],
   }),
   computed: {
+    daterangeFilters() {
+      return this.$store.state.search.search.filtersIndex.daterange;
+    },
     startDate() {
       return new Date(`${this.startYear}-01-01`);
     },
@@ -312,6 +320,7 @@ export default {
     Timeline,
     // flatPickr,
     FilterFacet,
+    FilterMonitor,
   },
 };
 </script>
