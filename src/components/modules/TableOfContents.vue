@@ -1,6 +1,6 @@
 <template lang="html">
   <div id="TableOfContents" ref="TableOfContents">
-    <div v-for="page in toc.pages" class="mb-5">
+    <div v-for="page in tableOfContents.pages" class="mb-5">
       <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
       <ul class="list-unstyled page border-bottom border-top" v-bind:class="{active: page.uid === pageUid}">
         <li :ref="`article-${article.uid}`" class="article border-bottom" v-for="article in page.articles" v-bind:class="{active: article.uid === articleUid}">
@@ -24,7 +24,7 @@ import Issue from '@/models/Issue';
 
 export default {
   props: {
-    toc: {
+    tableOfContents: {
       default: new Issue(),
     },
     pageUid: {
@@ -63,7 +63,7 @@ export default {
     articleUid() {
       this.scrollToActiveArticle();
     },
-    toc: {
+    tableOfContents: {
       handler() {
         window.setTimeout(() => {
           this.scrollToActiveArticle();

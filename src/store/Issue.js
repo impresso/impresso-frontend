@@ -69,7 +69,7 @@ export default {
         });
       });
     },
-    LOAD_TOC(context, uid) {
+    LOAD_TABLE_OF_CONTENTS(context, uid) {
       return new Promise((resolve, reject) => {
         const q = {
           query: {

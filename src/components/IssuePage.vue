@@ -1,11 +1,15 @@
 <template lang='html'>
     <i-layout id="IssuePage">
       <i-layout-section width="300px" class="border-right">
-        <table-of-contents
-          v-bind:toc="toc"
-          v-bind:pageUid="pageUid"
-          v-bind:articleUid="articleUid"
-          v-on:click="loadArticlePage" />
+        <b-tabs>
+          <b-tab v-bind:title="$t('tabs.table_of_contents')" active>
+            <table-of-contents
+              v-bind:tableOfContents="tableOfContents"
+              v-bind:pageUid="pageUid"
+              v-bind:articleUid="articleUid"
+              v-on:click="loadArticlePage" />
+          </b-tab>
+        </b-tabs>
       </i-layout-section>
       <i-layout-section>
         <div slot="header" class="border-bottom">
@@ -21,13 +25,12 @@
             </b-navbar-nav>
           </b-navbar>
         </div>
-            <open-seadragon-viewer
-              v-show="mode === 'image'"
-              v-bind:handler="handler">
-            </open-seadragon-viewer>
-            <issue-viewer-text
-              v-bind:article_uid="articleUid"
-              v-if="articleUid && mode === 'text'" />
+        <open-seadragon-viewer
+          v-show="mode === 'image'"
+          v-bind:handler="handler" />
+        <issue-viewer-text
+          v-bind:article_uid="articleUid"
+          v-if="articleUid && mode === 'text'" />
       </i-layout-section>
       <i-layout-section width="120px" class="border-left">
         <thumbnail-slider
@@ -62,7 +65,7 @@ export default {
     bounds: {},
     tab: {},
     issue: new Issue(),
-    toc: {},
+    tableOfContents: {},
     isLoaded: false,
     isDragging: false,
   }),
@@ -92,10 +95,10 @@ export default {
       return this.$route.params.article_uid || this.firstArticleFromCurrentPage;
     },
     firstArticleFromCurrentPage() {
-      if (this.toc.pages) {
-        for (let i = 0; i < this.toc.pages.length; i += 1) {
-          if (this.toc.pages[i].uid === this.pageUid) {
-            return this.toc.pages[i].articles[0].uid;
+      if (this.tableOfContents.pages) {
+        for (let i = 0; i < this.tableOfContents.pages.length; i += 1) {
+          if (this.tableOfContents.pages[i].uid === this.pageUid) {
+            return this.tableOfContents.pages[i].articles[0].uid;
           }
         }
       }
@@ -115,8 +118,8 @@ export default {
     tabs() {
       return [
         {
-          label: this.$t('tabs.toc'),
-          name: 'toc',
+          label: this.$t('tabs.table_of_contents'),
+          name: 'table_of_contents',
           active: true,
         },
         {
@@ -280,8 +283,8 @@ export default {
           });
         });
 
-        this.$store.dispatch('issue/LOAD_TOC', issueUid).then((toc) => {
-          this.toc = toc;
+        this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS', issueUid).then((tableOfContents) => {
+          this.tableOfContents = tableOfContents;
         });
       },
     },
@@ -350,7 +353,7 @@ div.overlay-region{
     "label_display": "Display as",
     "tabs": {
         "overview": "Overview",
-        "toc": "Table of Contents",
+        "table_of_contents": "Table of Contents",
         "search": "Search"
     }
   },
@@ -358,7 +361,7 @@ div.overlay-region{
     "label_display": "Toon als",
     "tabs": {
         "overview": "Overzicht",
-        "toc": "Inhoudsopgave",
+        "table_of_contents": "Inhoudsopgave",
         "search": "Zoek"
     }
   }
