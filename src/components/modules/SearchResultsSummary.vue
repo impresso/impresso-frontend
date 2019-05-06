@@ -32,12 +32,15 @@ export default {
       type = 'string',
       mapper = d => d,
       keyFn = (d, t) => [d, t],
+      onExist = null,
     } = {}) {
       const sections = this.getSections(type);
       const results = [];
+      let itExists = false;
 
       sections.sequence.forEach((d) => {
         if (sections[d].length) {
+          itExists = true;
           const mapped = sections[d].map(mapper);
           const key = keyFn(d, type).join('.');
           const last = mapped.pop();
@@ -50,6 +53,10 @@ export default {
           results.push(terms.join(' '));
         }
       });
+
+      if (itExists && onExist) {
+        onExist();
+      }
       return results;
     },
 
@@ -67,14 +74,14 @@ export default {
         } else {
           results = d.q.map(item => `<strong>"${item}"</strong>`);
         }
-        return results.join(`<span class="operator">${this.$t('or')}</span>`);
+        return results.join(`<span class="operator">${this.$t('op.or')}</span>`);
       };
 
       return this.getFormattedSection({
         type: 'newspaper',
         mapper,
         keyFn: (d, t) => {
-          if (this.isOnFront) {
+          if (this.isOnFront || this.hasDaterange) {
             return [d, 'pubof', t];
           }
           return [d, 'pub', t];
@@ -83,17 +90,10 @@ export default {
     },
 
     getTopics() {
-      const mapper = (d) => {
-        let results = [];
-        if (d.items) {
-          console.log('getTopics!', d.items);
-          // getHtmlExcerpt is not yet there
-          results = d.items.map(item => `<span class="item">"${item.getHtmlExcerpt()}"</span>`);
-        } else {
-          results = d.q.map(item => `<span class="item">"${item}"</span>`);
-        }
-        return results.join(`<span class="operator">${this.$t('or')}</span>`);
-      };
+      const mapper = d => d.items
+        .map(item => `<span class="item">"${item.getHtmlExcerpt()}"</span>`)
+        .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
+
       return this.getFormattedSection({
         type: 'topic',
         mapper,
@@ -101,19 +101,25 @@ export default {
     },
 
     getDateranges() {
-      const sections = this.getSections('daterange');
-      const mapper = d => this.$t('daterange', {
-        start: this.$d(d.daterange.start, 'short'),
-        end: this.$d(d.daterange.end, 'short'),
-      });
-      const results = [];
+      const mapper = d => d.items
+          .map((item) => {
+            const label = this.$t('filters.daterange.item', {
+              start: this.$d(item.start, 'compact'),
+              end: this.$d(item.end, 'compact'),
+            });
+            return `<span class="item">${label}</span>`;
+          })
+          .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
 
-      sections.sequence.forEach((d) => {
-        if (sections[d].length) {
-          results.push(`${sections[d].map(mapper).join(' <span class="operator">and</span> ')}`);
-        }
-      });
-      return results.join('; ');
+      this.hasDaterange = false;
+      return this.getFormattedSection({
+        type: 'daterange',
+        mapper,
+        onExist: () => {
+          debugger;
+          this.hasDaterange = true;
+        },
+      }).join('; ');
     },
 
     getStrings() {
@@ -133,9 +139,9 @@ export default {
         this.message = this.$t('message', {
           count: this.$n(this.totalRows),
           front: this.isFront(),
+          ranges: this.getDateranges(),
           newspapers: this.getNewspapers(),
           terms: this.getStrings(),
-          ranges: this.getDateranges(),
           topics: this.getTopics(),
         });
         this.$emit('onSummary', this.message);
@@ -164,7 +170,8 @@ export default {
       "pubof": {
         "newspaper": "of"
       },
-      "string": "containing"
+      "string": "containing",
+      "daterange": "published"
     },
     "exclude": {
       "topic": "without topic",
@@ -173,7 +180,8 @@ export default {
       },
       "pubof": {
         "newspaper": "not published in"
-      }
+      },
+      "daterange": "not published"
     },
     "isFront": "appearing on the <em>front page</em>",
     "message": "Found <span class='number'>{count}</span> articles {front} {newspapers} {ranges} {terms} {topics}",
