@@ -14,7 +14,7 @@ export default {
   namespaced: true,
   state: {
     search: new SearchQuery(),
-    searches: [],
+    imageSearches: [],
     results: [],
     facets: [],
     orderBy: '-relevance', // relevance, -relevance, date, -date
@@ -24,18 +24,19 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['year', 'newspaper', 'language', 'topic'], // this also sets the order of the filters
+    facetTypes: ['newspaper'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
   },
   getters: {
     getSearches(state) {
-      return state.searches;
+      return state.imageSearches;
     },
     getSearchesReversed(state) {
-      return state.searches.slice().reverse();
+      return state.imageSearches.slice().reverse();
     },
     getSearch(state) {
-      return state.search instanceof SearchQuery ? state.search : new SearchQuery(state.search);
+      return state.searchImages instanceof SearchQuery ?
+        state.searchImages : new SearchQuery(state.searchImages);
     },
     results(state) {
       return state.results.map((result) => {
@@ -53,8 +54,8 @@ export default {
   mutations: {
     // general settings
     UPDATE_SEARCH_QUERY_FILTERS(state, filters) {
-      state.search.updateFilters(filters);
-      console.log('commit->UPDATE_SEARCH_QUERY_FILTERS, after:', state.search.filters);
+      state.searchImages.updateFilters(filters);
+      console.log('commit->UPDATE_SEARCH_QUERY_FILTERS, after:', state.searchImages.filters);
     },
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
@@ -77,7 +78,7 @@ export default {
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
       console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
-      state.search.enrichFilters(queryComponents);
+      state.searchImages.enrichFilters(queryComponents);
       state.queryComponents = queryComponents.map(d => new QueryComponent(d));
     },
     UPDATE_FILTER_FACET_YEAR_EXPANDED(state, expanded) {
@@ -85,42 +86,42 @@ export default {
     },
     ADD_FILTER(state, filter) {
       console.log('#->ADD_FILTER', filter);
-      state.search.addFilter(filter);
+      state.searchImages.addFilter(filter);
     },
     REMOVE_FILTER(state, filter) {
-      state.search.removeFilter(filter);
+      state.searchImages.removeFilter(filter);
     },
     RESET_FILTER(state, type) {
-      state.search.resetFilter(type);
+      state.searchImages.resetFilter(type);
     },
     UPDATE_FILTER(state, { filter, q, op, context }) {
-      state.search.updateFilter({ filter, q, op, context });
+      state.searchImages.updateFilter({ filter, q, op, context });
     },
     UPDATE_FILTER_ITEM(state, { filter, item }) {
-      state.search.updateFilterItem({ filter, item });
+      state.searchImages.updateFilterItem({ filter, item });
     },
     STORE_SEARCH(state) {
-      state.searches.push(state.search);
-      state.search = new SearchQuery(state.search);
+      state.imageSearches.push(state.searchImages);
+      state.searchImages = new SearchQuery(state.searchImages);
     },
     CLEAR(state) {
-      state.search = new SearchQuery();
+      state.searchImages = new SearchQuery();
       state.results = [];
       state.facets = [];
       state.paginationCurrentPage = 1;
       state.paginationTotalRows = 0;
     },
     LOAD_SEARCH(state, id) {
-      if (state.searches.length) {
+      if (state.imageSearches.length) {
         // load last search
-        let searchData = state.searches[state.searches.length - 1];
+        let searchData = state.imageSearches[state.imageSearches.length - 1];
 
         // or if id is set then load search with specifici uuid
         if (id) {
-          searchData = state.searches.find(search => search.uuid === id);
+          searchData = state.imageSearches.find(search => search.uuid === id);
         }
 
-        state.search = new SearchQuery(searchData);
+        state.searchImages = new SearchQuery(searchData);
       }
     },
     CLEAR_RESULTS(state) {
@@ -136,10 +137,10 @@ export default {
       state.facets.push(facet);
     },
     UPDATE_FILTER_IS_FRONT(state, value) {
-      state.search.isFront = value;
+      state.searchImages.isFront = value;
     },
     UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
-      state.search.hasTextContents = value;
+      state.searchImages.hasTextContents = value;
     },
   },
   actions: {
@@ -148,8 +149,9 @@ export default {
      * @param {[type]} context [description]
      */
     PUSH_SEARCH_PARAMS(context) {
+      console.log('push it', context);
       const query = {
-        f: JSON.stringify(context.state.search.getFilters()),
+        f: JSON.stringify(context.state.searchImages.getFilters()),
         // facets: context.state.facetTypes,
         g: context.state.groupBy,
         p: context.state.paginationCurrentPage,
@@ -160,7 +162,7 @@ export default {
       router.push({ name: 'search', query });
     },
     PULL_SEARCH_PARAMS(context, query) {
-      if (query.g && ['articles'].indexOf(query.g) !== -1) {
+      if (query.g && ['images'].indexOf(query.g) !== -1) {
         context.commit('UPDATE_SEARCH_GROUP_BY', query.g);
       }
       if (query.o && ['-relevance', 'relevance', 'date', '-date'].indexOf(query.o) !== -1) {
@@ -181,15 +183,6 @@ export default {
     },
     ADD_OR_REPLACE_FILTER(context, filter) {
       console.log('ADD_OR_REPLACE_FILTER', 'deprecated', filter);
-      // const index = context.state.search.filters.findIndex(item => item.type === filter.type);
-      // if (index > -1) {
-      //   context.commit('UPDATE_FILTER', {
-      //     index,
-      //     filter,
-      //   });
-      // } else {
-      //   context.commit('ADD_FILTER', filter);
-      // }
     },
     CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
       return new Promise((resolve) => {
@@ -241,6 +234,22 @@ export default {
                 const facet = new Facet({
                   type: 'language',
                   buckets: res.info.facets.language.buckets.map(bucket => ({
+                    ...bucket,
+                    item: {
+                      ...bucket.item,
+                      uid: bucket.val,
+                    },
+                  })),
+                });
+
+                context.commit('ADD_FACET', facet);
+              }
+
+              // add article facet/filter
+              if (res.info.facets && res.info.facets.article) {
+                const facet = new Facet({
+                  type: 'article',
+                  buckets: res.info.facets.article.buckets.map(bucket => ({
                     ...bucket,
                     item: {
                       ...bucket.item,
@@ -314,8 +323,8 @@ export default {
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
-              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
-              resolve(res);
+              // context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
+              // resolve(res);
             },
             (err) => {
               reject(err);

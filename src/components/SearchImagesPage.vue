@@ -74,7 +74,7 @@
             v-on:change="onInputPagination"
             class="float-left small-caps"
             />
-            <!-- :perPage="10" :currentPage="1" :totalRows="12" -->
+
         </div>
       </div>
 
@@ -101,17 +101,22 @@ export default {
     allSelected: false,
   }),
   mounted() {
+    this.$store.state.paginationPerPage = 4;
+    this.$store.state.paginationCurrentPage = 1;
+    this.$store.state.paginationTotalRows = 0;
     // testing URL
     fetch('https://impresso-project.ch/api/images/')
       .then(response => response.text())
       .then((data) => {
         this.searchResults = JSON.parse(data).data;
+        this.$store.state.searchResults = this.searchResults;
+        this.$store.state.paginationTotalRows = this.searchResults.length;
       });
-    // if (this.uuid !== undefined) {
-    //   this.$store.commit('searchImages/LOAD_SEARCH', this.uuid);
-    //   console.log('search');
-    // }
-    // this.search();
+    if (this.uuid !== undefined) {
+      this.$store.commit('searchImages/LOAD_SEARCH', this.uuid);
+      console.log('search');
+    }
+    this.search();
   },
   computed: {
     orderByOptions: {
@@ -162,17 +167,17 @@ export default {
     },
     paginationPerPage: {
       get() {
-        return this.$store.state.searchImages.paginationPerPage;
+        return this.$store.state.paginationPerPage;
       },
     },
     paginationCurrentPage: {
       get() {
-        return this.$store.state.searchImages.paginationCurrentPage;
+        return this.$store.state.paginationCurrentPage;
       },
     },
     paginationTotalRows: {
       get() {
-        return this.$store.state.searchImages.paginationTotalRows;
+        return this.$store.state.paginationTotalRows;
       },
     },
     updateselectAll() {
@@ -256,9 +261,9 @@ export default {
       this.updateselectAll();
     },
     '$route.query': {
-      handler(val) {
-        console.log('@$route.query changed', val);
-        this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
+      handler() {
+        // console.log('@$route.query changed', val);
+        // this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
       },
       deep: true,
       immediate: true,
