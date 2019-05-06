@@ -55,6 +55,7 @@
           <b>{{ item.name }}</b> @{{ item.creator.username }}
           <br/>{{ item.countItems }} items &mdash; {{ $d(item.lastModifiedDate, 'long') }}
         </span>
+        <span v-if="type === 'daterange'">{{ $d(item.start, 'long') }} <br> &rarr; {{ $d(item.end, 'long') }}</span>
         <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
         <span v-if="item.count">({{ $n(item.count)}})</span>
       </b-form-checkbox>
@@ -87,7 +88,10 @@
 export default {
   props: {
     type: String, // being topic, newspaper, collection, language ...
-    operators: Array,
+    operators: {
+      type: Array,
+      default: () => ['OR'],
+    },
     contexts: {
       type: Array,
       default: () => ['include', 'exclude'],
@@ -231,6 +235,17 @@ label.custom-control-label {
         "description": "check one or more language to filter results",
         "apply": "apply changes",
         "clear": "reset"
+      },
+      "daterange": {
+        "title": "filter by date of publication",
+        "selected": "filter results if they are published between <b>one of {count} selected</b> languages",
+        "description": "check one or more language to filter results",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "Published between",
+          "exclude": "<b>NOT</b> published between"
+        }
       }
     }
   },
