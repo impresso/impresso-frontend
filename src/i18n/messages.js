@@ -10,6 +10,9 @@ export default {
       or: 'or',
       and: 'and',
     },
+    actions: {
+      reset: 'Reset',
+    },
     filters: {
       daterange: {
         item: 'from <b>{start}</b> to <b>{end}</b>',
