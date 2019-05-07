@@ -116,7 +116,6 @@ export default {
         type: 'daterange',
         mapper,
         onExist: () => {
-          debugger;
           this.hasDaterange = true;
         },
       }).join('; ');
