@@ -156,11 +156,13 @@ export default {
     },
     async getIssues({
       page = 1,
+      limit = this.limit,
+      orderBy = this.orderBy,
     } = {}) {
       const response = await this.$store.dispatch('newspapers/LOAD_ISSUES', {
         page,
-        orderBy: this.orderBy,
-        limit: this.limit,
+        orderBy,
+        limit,
         filters: [{
           type: 'newspaper',
           q: this.$route.params.newspaper_uid,
@@ -171,9 +173,24 @@ export default {
       return response.data;
     },
 
+    async getIssueDate(orderBy = 'date', page = 1, limit = 1) {
+      const response = await this.$store.dispatch('newspapers/LOAD_ISSUES', {
+        page,
+        orderBy,
+        limit,
+        filters: [{
+          type: 'newspaper',
+          q: this.$route.params.newspaper_uid,
+          context: 'include',
+        }],
+      });
+      return response.data[0].date;
+    },
+
     async getNewspaper() {
       return this.$store.dispatch('newspapers/LOAD_DETAIL', this.$route.params.newspaper_uid);
     },
+
   },
   watch: {
     '$route.params.newspaper_uid': {
@@ -181,6 +198,10 @@ export default {
       async handler() {
         this.issues = await this.getIssues();
         this.newspaper = await this.getNewspaper();
+        const firstIssueDate = this.$d(new Date(await this.getIssueDate('date')), 'long');
+        const lastIssueDate = this.$d(new Date(await this.getIssueDate('-date')), 'long');
+        this.newspaper.properties.push({ name: 'firstIssueDate', value: firstIssueDate });
+        this.newspaper.properties.push({ name: 'lastIssueDate', value: lastIssueDate });
       },
     },
     orderBy: {
@@ -254,7 +275,9 @@ export default {
         "logoFilename": "Source logo",
         "availabilityEta": "Publication date on impresso",
         "variantTitle": "Alternative title",
-        "otherTitle": "Alternative title"
+        "otherTitle": "Alternative title",
+        "firstIssueDate": "First issue on impresso",
+        "lastIssueDate": "Last issue on impresso"
       },
       "description": {
 
