@@ -100,13 +100,15 @@ export default class SearchQuery {
     fil.touched = fil.getHash() !== fil.hash;
   }
 
-  updateFilterItem({ filter, item }) {
+  updateFilterItem({ filter, item, uid }) {
     const fil = this.getFilter(filter);
     if (!fil) {
       return;
     }
     fil.items = fil.items.map((d) => {
-      if (d.uid === item.uid) {
+      if (uid && d.uid === uid) {
+        return item;
+      } else if (d.uid === item.uid) {
         return item;
       }
       return d;
