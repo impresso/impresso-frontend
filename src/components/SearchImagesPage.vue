@@ -4,8 +4,8 @@
       <div slot="header" class="border-bottom border-tertiary bg-light">
           <b-tabs pills class="border-bottom border-tertiary">
             <template slot="tabs">
-              <b-nav-item :to="{ name:'search'}"  ><span v-html="$t('tabs.text')"/></b-nav-item>
-              <b-nav-item :to="{ name:'searchImages'}" exact><span v-html="$t('tabs.images')"/></b-nav-item>
+              <b-nav-item :to="{ name:'search'}"><span v-html="$t('tabs.text')"/></b-nav-item>
+              <b-nav-item :to="{ name:'searchImages'}"><span v-html="$t('tabs.images')"/></b-nav-item>
             </template>
           </b-tabs>
           <div class="py-3 px-3">
@@ -95,30 +95,29 @@ export default {
     Pagination,
   },
   data: () => ({
-    searchResults: [],
     selectedItems: [],
     allIndeterminate: false,
     allSelected: false,
   }),
   mounted() {
-    this.$store.state.paginationPerPage = 4;
-    this.$store.state.paginationCurrentPage = 1;
-    this.$store.state.paginationTotalRows = 0;
     // testing URL
-    fetch('https://impresso-project.ch/api/images/')
-      .then(response => response.text())
-      .then((data) => {
-        this.searchResults = JSON.parse(data).data;
-        this.$store.state.searchResults = this.searchResults;
-        this.$store.state.paginationTotalRows = this.searchResults.length;
-      });
-    if (this.uuid !== undefined) {
-      this.$store.commit('searchImages/LOAD_SEARCH', this.uuid);
-      console.log('search');
-    }
+    // fetch('https://impresso-project.ch/api/images/')
+    //   .then(response => response.text())
+    //   .then((data) => {
+    //     this.searchResults = JSON.parse(data).data;
+    //   });
+    // if (this.uuid !== undefined) {
+    //   this.$store.commit('searchImages/LOAD_SEARCH', this.uuid);
+    //   console.log('search');
+    // }
     this.search();
   },
   computed: {
+    searchResults: {
+      get() {
+        return this.$store.getters['searchImages/results'];
+      },
+    },
     orderByOptions: {
       get() {
         return [
@@ -143,11 +142,26 @@ export default {
     },
     orderBy: {
       get() {
-        return this.$store.state.search.orderBy;
+        return this.$store.state.searchImages.orderBy;
       },
       set(val) {
         this.$store.commit('searchImages/UPDATE_SEARCH_ORDER_BY', val);
         this.search(1);
+      },
+    },
+    paginationPerPage: {
+      get() {
+        return this.$store.state.searchImages.paginationPerPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.searchImages.paginationCurrentPage;
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.searchImages.paginationTotalRows;
       },
     },
   },
@@ -164,21 +178,6 @@ export default {
     },
     isLoggedIn() {
       return this.$store.state.user.userData;
-    },
-    paginationPerPage: {
-      get() {
-        return this.$store.state.paginationPerPage;
-      },
-    },
-    paginationCurrentPage: {
-      get() {
-        return this.$store.state.paginationCurrentPage;
-      },
-    },
-    paginationTotalRows: {
-      get() {
-        return this.$store.state.paginationTotalRows;
-      },
     },
     updateselectAll() {
       let count = 0;
@@ -261,9 +260,9 @@ export default {
       this.updateselectAll();
     },
     '$route.query': {
-      handler() {
-        // console.log('@$route.query changed', val);
-        // this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
+      handler(val) {
+        console.log('@$route.query changed', val);
+        this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
       },
       deep: true,
       immediate: true,

@@ -1,11 +1,9 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
-import Bucket from '@/models/Bucket';
-import Topic from '@/models/Topic';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
-import Collection from '@/models/Collection';
+// import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
 // import FilterFactory from '@/models/FilterFactory';
 import router from '../router';
@@ -13,13 +11,13 @@ import router from '../router';
 export default {
   namespaced: true,
   state: {
-    search: new SearchQuery(),
+    searchImages: new SearchQuery({ filters: [] }),
     imageSearches: [],
     results: [],
     facets: [],
     orderBy: '-relevance', // relevance, -relevance, date, -date
     groupBy: 'articles', // issues, pages, articles, sentences
-    displayStyle: 'list',
+    displayStyle: 'tiles',
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
@@ -149,29 +147,23 @@ export default {
      * @param {[type]} context [description]
      */
     PUSH_SEARCH_PARAMS(context) {
-      console.log('push it', context);
       const query = {
         f: JSON.stringify(context.state.searchImages.getFilters()),
         // facets: context.state.facetTypes,
-        g: context.state.groupBy,
+        // g: context.state.groupBy,
         p: context.state.paginationCurrentPage,
-        // limit: context.state.paginationPerPage,
+        limit: context.state.paginationPerPage,
         o: context.state.orderBy,
       };
-      console.log('@PUSH_SEARCH_PARAMS', query);
-      router.push({ name: 'search', query });
+      router.push({ name: 'searchImages', query });
     },
     PULL_SEARCH_PARAMS(context, query) {
-      if (query.g && ['images'].indexOf(query.g) !== -1) {
-        context.commit('UPDATE_SEARCH_GROUP_BY', query.g);
-      }
       if (query.o && ['-relevance', 'relevance', 'date', '-date'].indexOf(query.o) !== -1) {
         context.commit('UPDATE_SEARCH_ORDER_BY', query.o);
       }
       if (query.p && !isNaN(query.p)) {
         context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
       }
-      console.log('@PULL_SEARCH_PARAMS', query);
 
       // parse filters here.
       try {
@@ -221,62 +213,32 @@ export default {
             order_by: context.state.orderBy,
           };
           console.log('->action:SEARCH', query);
-          services.search.find({
+          services.images.find({
             query,
           }).then(
             (res) => {
+              // console.log('SEARCH res:', res);
               context.commit('CLEAR_FACETS');
 
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
 
-              // add language facet/filter
-              if (res.info.facets && res.info.facets.language) {
-                const facet = new Facet({
-                  type: 'language',
-                  buckets: res.info.facets.language.buckets.map(bucket => ({
-                    ...bucket,
-                    item: {
-                      ...bucket.item,
-                      uid: bucket.val,
-                    },
-                  })),
-                });
-
-                context.commit('ADD_FACET', facet);
-              }
 
               // add article facet/filter
-              if (res.info.facets && res.info.facets.article) {
-                const facet = new Facet({
-                  type: 'article',
-                  buckets: res.info.facets.article.buckets.map(bucket => ({
-                    ...bucket,
-                    item: {
-                      ...bucket.item,
-                      uid: bucket.val,
-                    },
-                  })),
-                });
+              // if (res.info.facets && res.info.facets.article) {
+              //   const facet = new Facet({
+              //     type: 'article',
+              //     buckets: res.info.facets.article.buckets.map(bucket => ({
+              //       ...bucket,
+              //       item: {
+              //         ...bucket.item,
+              //         uid: bucket.val,
+              //       },
+              //     })),
+              //   });
+              //
+              //   context.commit('ADD_FACET', facet);
+              // }
 
-                context.commit('ADD_FACET', facet);
-              }
-
-              // add topic facet/filter
-              if (res.info.facets && res.info.facets.topic) {
-                const facet = new Facet({
-                  type: 'topic',
-                  operators: ['OR', 'AND'],
-                  buckets: res.info.facets.topic.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Topic({
-                      ...bucket.item,
-                      uid: bucket.val,
-                    }),
-                  })),
-                });
-                // enrich current fitler, if any, with one of the topics.
-                context.commit('ADD_FACET', facet);
-              }
 
               // add newspaper facet/filter
               if (res.info.facets && res.info.facets.newspaper) {
@@ -292,34 +254,22 @@ export default {
               }
 
               // add collection facet/filter
-              if (res.info.facets && res.info.facets.collection) {
-                const facet = new Facet({
-                  type: 'collection',
-                  buckets: res.info.facets.collection.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Collection({
-                      ...bucket.item,
-                      uid: bucket.val,
-                    }),
-                  })),
-                });
+              // if (res.info.facets && res.info.facets.collection) {
+              //   const facet = new Facet({
+              //     type: 'collection',
+              //     buckets: res.info.facets.collection.buckets.map(bucket => ({
+              //       ...bucket,
+              //       item: new Collection({
+              //         ...bucket.item,
+              //         uid: bucket.val,
+              //       }),
+              //     })),
+              //   });
+              //
+              //   context.commit('ADD_FACET', facet);
+              // }
 
-                context.commit('ADD_FACET', facet);
-              }
 
-              if (res.info.facets && res.info.facets.year) {
-                const facet = new Facet({
-                  type: 'year',
-                  buckets: res.info.facets.year.buckets.map((bucket) => {
-                    if (bucket instanceof Bucket) {
-                      return bucket;
-                    }
-
-                    return new Bucket(bucket);
-                  }).sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10)),
-                });
-                context.commit('ADD_FACET', facet);
-              }
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
