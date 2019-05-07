@@ -75,6 +75,7 @@ export default {
     font-size: 1em;
     font-weight: 500;
   }
+  overflow: hidden;
 }
 
 </style>
