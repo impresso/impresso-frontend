@@ -20,8 +20,8 @@ export default class Daterange {
       this.end = new Date(end);
     }
     // make sure we only use dates, not times
-    this.start.setHours(0, 0, 0, 0);
-    this.end.setHours(23, 59, 59, 0);
+    this.start.setUTCHours(0, 0, 0, 0);
+    this.end.setUTCHours(23, 59, 59, 0);
   }
 
   getValue() {
