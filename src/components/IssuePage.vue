@@ -1,15 +1,22 @@
 <template lang='html'>
     <i-layout id="IssuePage">
       <i-layout-section width="300px" class="border-right">
-        <b-tabs>
-          <b-tab v-bind:title="$t('tabs.table_of_contents')" active>
-            <table-of-contents
-              v-bind:tableOfContents="tableOfContents"
-              v-bind:pageUid="pageUid"
-              v-bind:articleUid="articleUid"
-              v-on:click="loadArticlePage" />
-          </b-tab>
+        <b-tabs v-model="tabIndex" slot="header" class="mt-1">
+          <b-tab v-bind:title="$t('tabs.table_of_contents')" active />
+          <b-tab v-bind:title="$t('tabs.table_of_images')" />
         </b-tabs>
+        <table-of-images
+          v-show="tabIndex === 1"
+          v-bind:tableOfContents="tableOfImages"
+          v-bind:pageUid="pageUid"
+          v-bind:articleUid="articleUid"
+          v-on:click="loadArticlePage" />
+        <table-of-contents
+          v-show="tabIndex === 0"
+          v-bind:tableOfContents="tableOfContents"
+          v-bind:pageUid="pageUid"
+          v-bind:articleUid="articleUid"
+          v-on:click="loadArticlePage" />
       </i-layout-section>
       <i-layout-section>
         <div slot="header" class="border-bottom">
@@ -57,6 +64,7 @@ import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 import BaseTabs from './base/BaseTabs';
 import TableOfContents from './modules/TableOfContents';
+import TableOfImages from './modules/TableOfImages';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
 export default {
@@ -66,8 +74,10 @@ export default {
     tab: {},
     issue: new Issue(),
     tableOfContents: {},
+    tableOfImages: {},
     isLoaded: false,
     isDragging: false,
+    tabIndex: 0,
   }),
   computed: {
     page() {
@@ -103,32 +113,6 @@ export default {
         }
       }
       return false;
-    },
-    newspaperTableData() {
-      return [{
-        acronym: this.issue.newspaper.acronym,
-        startYear: this.issue.newspaper.startYear,
-        endYear: this.issue.newspaper.endYear,
-        deltaYear: this.$n(this.issue.newspaper.deltaYear),
-        countIssues: this.$n(this.issue.newspaper.countIssues),
-        countPages: this.$n(this.issue.newspaper.countPages),
-        countArticles: this.$n(this.issue.newspaper.countArticles),
-      }];
-    },
-    tabs() {
-      return [
-        {
-          label: this.$t('tabs.table_of_contents'),
-          name: 'table_of_contents',
-          active: true,
-        },
-        {
-          label: this.$t('tabs.overview'),
-          name: 'overview',
-          active: false,
-          disabled: true,
-        },
-      ];
     },
   },
   methods: {
@@ -177,6 +161,7 @@ export default {
     IssueViewerText,
     ThumbnailSlider,
     TableOfContents,
+    TableOfImages,
     Icon,
   },
   watch: {
@@ -286,6 +271,10 @@ export default {
         this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS', issueUid).then((tableOfContents) => {
           this.tableOfContents = tableOfContents;
         });
+
+        this.$store.dispatch('issue/LOAD_TABLE_OF_IMAGES', issueUid).then((tableOfImages) => {
+          this.tableOfImages = tableOfImages;
+        });
       },
     },
     '$route.params.page_uid': {
@@ -354,6 +343,7 @@ div.overlay-region{
     "tabs": {
         "overview": "Overview",
         "table_of_contents": "Table of Contents",
+        "table_of_images": "Images",
         "search": "Search"
     }
   },
@@ -362,6 +352,7 @@ div.overlay-region{
     "tabs": {
         "overview": "Overzicht",
         "table_of_contents": "Inhoudsopgave",
+        "table_of_images": "Afbeeldingen",
         "search": "Zoek"
     }
   }

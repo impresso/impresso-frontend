@@ -121,5 +121,52 @@ export default {
           });
       });
     },
+    LOAD_TABLE_OF_IMAGES(context, uid) {
+      return new Promise((resolve, reject) => {
+        const query = {
+          filters: [{
+            type: 'issue',
+            q: uid,
+          }],
+          limit: 500,
+        };
+
+        services.images.find({ query }).then((response) => {
+          const issue = new Issue();
+          const articles = response.data.map(image => new Article({
+            ...image,
+          }));
+
+          articles.forEach((article) => {
+            article.pages.forEach((p1) => {
+              const page = issue.pages.find(p2 => p1.uid === p2.uid);
+              if (!page) {
+                issue.pages.push(new Page({
+                  ...p1,
+                  articles: [article],
+                }));
+              } else {
+                page.articles.push(article);
+              }
+            });
+          });
+
+          // sort by page number
+          issue.pages.sort((pageA, pageB) => {
+            if (pageA.num < pageB.num) {
+              return -1;
+            }
+            if (pageA.num > pageB.num) {
+              return 1;
+            }
+
+            return 0;
+          });
+          resolve(issue);
+        }, (error) => {
+          reject(error);
+        });
+      });
+    },
   },
 };
