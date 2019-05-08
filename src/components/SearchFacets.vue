@@ -4,12 +4,17 @@
       <!--  timeline title -->
       <base-title-bar>{{$t(`label.timeline.${groupByLabel}`)}}
         <div slot="options">
-          <b-button size="sm" variant="outline-primary" @click="toggleDaterange">
-          {{ $t('label.daterange.pick') }}
+          <b-button v-show="daterangeFilters.length" size="sm" variant="outline-primary" @click="resetFilter('daterange')">
+            {{ $t('actions.reset') }}
           </b-button>
         </div>
         <div slot="description">
-          {{$t(`label.timelineDescription.${groupByLabel}`)}}
+          <span v-if="daterangeFilters.length">
+            {{$t(`label.timelineDescription.filtered`)}}
+          </span>
+          <span v-else>
+              {{$t(`label.timelineDescription.description`)}}
+          </span>
         </div>
       </base-title-bar>
 
@@ -31,6 +36,15 @@
           </div>
         </div>
       </timeline>
+
+      <div v-for="(filter, index) in daterangeFilters" :key="index" class="bg-light border p-2 mt-2">
+        <filter-monitor :filter="filter" type="daterange" />
+      </div>
+      <div v-if="!daterangeFilters.length">
+        <b-button size="sm" variant="outline-primary" @click="addDaterangeFilter">
+        {{ $t('label.daterange.pick') }}
+        </b-button>
+      </div>
       <!--  daterange filters -->
       <div v-if="daterange.isActive">
         <div class="p-2">
@@ -64,8 +78,10 @@
 <script>
 // import 'flatpickr/dist/flatpickr.css';
 // import flatPickr from 'vue-flatpickr-component';
+import Daterange from '@/models/Daterange';
 
 import FilterFacet from './modules/FilterFacet';
+import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
 
@@ -114,6 +130,12 @@ export default {
     facetsOrder: ['language', 'newspaper', 'topic'],
   }),
   computed: {
+    daterangeFilters() {
+      return this.$store.state.search.search.filters.filter(d => d.type === 'daterange');
+    },
+    daterangeIncluded() {
+      return this.daterangeFilters.filter(d => d.context === 'include');
+    },
     startDate() {
       return new Date(`${this.startYear}-01-01`);
     },
@@ -237,10 +259,22 @@ export default {
         this.endDaterange = data.maxValue;
       }
     },
-    toggleDaterange() {
-      this.daterange.start = new Date(this.minDate);
-      this.daterange.end = new Date(this.maxDate);
-      this.daterange.isActive = !this.daterange.isActive;
+    addDaterangeFilter() {
+      // this.daterange.start = new Date(this.minDate);
+      // this.daterange.end = new Date(this.maxDate);
+      // this.daterange.isActive = !this.daterange.isActive;
+      // create new daterangefilter if theres none
+      if (!this.daterangeIncluded.length) {
+        const dr = new Daterange({
+          start: new Date(`${this.startYear}-01-01`),
+          end: new Date(`${this.endYear}-12-31`),
+        });
+
+        this.$store.commit('search/ADD_FILTER', {
+          type: 'daterange',
+          q: dr.getValue(),
+        });
+      }
     },
     updateFilter(filter) {
       this.$emit('update-filter', filter);
@@ -312,6 +346,7 @@ export default {
     Timeline,
     // flatPickr,
     FilterFacet,
+    FilterMonitor,
   },
 };
 </script>
@@ -355,7 +390,8 @@ export default {
           "articles": "publication date"
         },
         "timelineDescription": {
-          "articles": "Number of articles per year"
+          "articles": "Number of articles per year",
+          "description": "Number of articles per year"
         },
         "daterange": {
           "pick": "add filter ...",

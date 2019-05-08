@@ -47,7 +47,7 @@
         ><span class="small" v-html="$t(`op.${option}.${filter.context}`)"></span></b-dropdown-item>
       </b-dropdown>
     </div>
-    <div v-for="item in filter.items" :key="item.uid">
+    <div v-for="item in filter.items" :key="item.uid" class="mt-2">
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="type === 'newspaper'">{{ item.name }}</span>
@@ -55,6 +55,9 @@
           <b>{{ item.name }}</b> @{{ item.creator.username }}
           <br/>{{ item.countItems }} items &mdash; {{ $d(item.lastModifiedDate, 'long') }}
         </span>
+        <div v-if="type === 'daterange'">
+          <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
+        </div>
         <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
         <span v-if="item.count">({{ $n(item.count)}})</span>
       </b-form-checkbox>
@@ -84,10 +87,15 @@
 </template>
 
 <script>
+import FilterDaterange from './FilterDaterange';
+
 export default {
   props: {
     type: String, // being topic, newspaper, collection, language ...
-    operators: Array,
+    operators: {
+      type: Array,
+      default: () => ['OR'],
+    },
     contexts: {
       type: Array,
       default: () => ['include', 'exclude'],
@@ -158,11 +166,18 @@ export default {
     },
     toggleFilterItem(checked, item) {
       item.checked = checked;
+      this.updateFilterItem(item);
+    },
+    updateFilterItem(item, uid) {
       this.$store.commit('search/UPDATE_FILTER_ITEM', {
         filter: this.filter,
         item,
+        uid,
       });
     },
+  },
+  components: {
+    FilterDaterange,
   },
 };
 </script>
@@ -172,7 +187,7 @@ export default {
   background: yellow;
 }
 label.custom-control-label {
-    font-variant: none;
+  font-variant: none;
 }
 </style>
 <i18n>
@@ -231,6 +246,17 @@ label.custom-control-label {
         "description": "check one or more language to filter results",
         "apply": "apply changes",
         "clear": "reset"
+      },
+      "daterange": {
+        "title": "filter by date of publication",
+        "selected": "filter results if they are published between <b>one of {count} selected</b> languages",
+        "description": "check one or more language to filter results",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "Published between",
+          "exclude": "<b>NOT</b> published between"
+        }
       }
     }
   },

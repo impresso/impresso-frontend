@@ -27,18 +27,14 @@ export default class FilterItems extends Filter {
   }
 
   getQuery() {
-    if (this.context === contexts.INCLUDE) {
-      return {
-        type: this.type,
-        q: this.q,
-        op: this.op,
-      };
-    }
-    return {
+    const query = {
       type: this.type,
       q: this.q,
       op: this.op,
-      context: this.context,
     };
+    if (this.context !== contexts.INCLUDE) {
+      query.context = this.context;
+    }
+    return query;
   }
 }
