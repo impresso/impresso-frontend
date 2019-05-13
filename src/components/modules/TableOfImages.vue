@@ -43,7 +43,7 @@ export default {
         const parent = this.$refs.TableOfImages.parentNode;
         if (parent.scrollTop > elm.offsetTop ||
           (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
-          parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+          parent.scrollTo({ top: elm.offsetTop - 50, behavior: 'smooth' });
         }
       }
     },
