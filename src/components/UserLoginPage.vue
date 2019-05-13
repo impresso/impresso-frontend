@@ -61,7 +61,7 @@ export default {
         password: this.password,
       }).then(() => {
         this.$router.push({
-          name: 'home',
+          path: this.$route.query.redirect || '/',
         });
       }, (err) => {
         this.error = this.$t(err.message);

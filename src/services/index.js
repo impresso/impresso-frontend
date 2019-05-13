@@ -11,7 +11,7 @@ const socket = io(`${process.env.MIDDLELAYER_API}`, {
 export const app = feathers();
 
 app.configure(socketio(socket, {
-  timeout: 12000,
+  timeout: 30000,
 }));
 app.configure(auth({
   storage: window.localStorage,
@@ -67,6 +67,7 @@ app.service('logs').on('created', (payload) => {
 export const suggestions = app.service('suggestions');
 export const articles = app.service('articles');
 export const issues = app.service('issues');
+export const issuesTimeline = app.service('issues-timelines');
 export const pages = app.service('pages');
 export const pagesTimelines = app.service('pages-timelines');
 export const search = app.service('search');

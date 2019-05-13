@@ -1,10 +1,23 @@
 <template>
 <i-layout id="SearchPage">
   <i-layout-section width="400px" class="border-right border-tertiary">
-    <div slot="header" class="pt-3 px-3">
-      <autocomplete v-on:submit="onSuggestion" />
+    <!--  header -->
+    <div slot="header" class="border-bottom border-tertiary bg-light">
+      <!-- <b-tabs pills class="border-bottom border-tertiary">
+        <template slot="tabs">
+          <b-nav-item :to="{ name:'search'}"  ><span v-html="$t('tabs.text')"/></b-nav-item>
+          <b-nav-item :to="{ name:'newspaper'}" exact><span v-html="$t('tabs.images')"/></b-nav-item>
+        </template>
+      </b-tabs> -->
+      <div class="py-3 px-3">
+        <search-pills v-on:remove="onRemoveFilter"/>
+        <autocomplete v-on:submit="onSuggestion" />
+      </div>
     </div>
+
+    <!--  body -->
     <div class="pt-2">
+
       <b-form-group class="px-3 py-1">
         <b-form-checkbox v-model="hasTextContents" switch v-bind:value="true"
         v-bind:unchecked-value="false">
@@ -14,15 +27,18 @@
           {{$t('label_isFront')}}
         </b-form-checkbox>
       </b-form-group>
-      <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" />
-      <search-facets v-on:submit-facet="onFacet" />
+
+
+
+      <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
+      <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
     </div>
-    <div slot="footer">
+    <!-- <div slot="footer">
       <b-button-group class="d-flex bg-white p-3 border-top border-tertiary">
         <b-button class="small-caps mr-2 w-75" variant="outline-primary" size="md" v-on:click="search(1)">Search</b-button>
         <b-button class="small-caps w-25" variant="outline-danger" size="md" v-on:click="reset">Clear</b-button>
       </b-button-group>
-    </div>
+    </div> -->
   </i-layout-section>
   <i-layout-section>
     <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
@@ -44,7 +60,7 @@
         </b-nav-form>
       </b-navbar-nav>
       <div class="flex-shrink-1">
-        <b-navbar-nav v-if="isLoggedIn()" class="pl-4">
+        <b-navbar-nav v-if="isLoggedIn" class="pl-4">
           <b-form-checkbox
             v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
             v-bind:indeterminate="this.allIndeterminate"
@@ -74,12 +90,12 @@
       <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
         <ellipsis v-bind:initialHeight="88">
           <search-result-summary
-            v-on:gotMessage="gotMessage"
+            v-on:onSummary="onSummary"
             v-bind:queryComponents="queryComponents"
             v-bind:totalRows="paginationTotalRows" />
         </ellipsis>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-auto p-3">
+      <b-navbar-nav class="ml-auto p-3" v-if="isLoggedIn">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
           <b-dropdown-item
             v-b-modal.nameCollection>
@@ -157,17 +173,15 @@
 </template>
 
 <script>
-import FilterFactory from '@/models/FilterFactory';
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
-import SearchFilters from './SearchFilters';
 import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
 import Ellipsis from './modules/Ellipsis';
-
+import SearchPills from './SearchPills';
 // const uuid = require('uuid');
 
 export default {
@@ -182,20 +196,18 @@ export default {
   computed: {
     isFront: {
       get() {
-        return this.$store.state.search.search.isFront;
+        return this.getBooleanFilter({ type: 'isFront' });
       },
       set(val) {
-        this.$store.commit('search/UPDATE_FILTER_IS_FRONT', val);
-        this.search(1);
+        this.toggleBooleanFilter({ type: 'isFront' }, val);
       },
     },
     hasTextContents: {
       get() {
-        return this.$store.state.search.search.hasTextContents;
+        return this.getBooleanFilter({ type: 'hasTextContents' });
       },
       set(val) {
-        this.$store.commit('search/UPDATE_FILTER_HAS_TEXT_CONTENTS', val);
-        this.search(1);
+        this.toggleBooleanFilter({ type: 'hasTextContents' }, val);
       },
     },
     groupByOptions: {
@@ -301,23 +313,52 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    filtersIndex: {
+      get() {
+        return this.$store.state.search.search.filtersIndex;
+      },
+    },
   },
   methods: {
-    gotMessage(msg) {
+    getBooleanFilter(filter) {
+      return !!this.$store.state.search.search.getFilter(filter);
+    },
+    toggleBooleanFilter(filter, value = true) {
+      if (!value) {
+        this.$store.commit('search/REMOVE_FILTER', filter);
+      } else {
+        this.$store.commit('search/ADD_FILTER', filter);
+      }
+      this.search(1);
+    },
+    onSummary(msg) {
       this.inputDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
     },
     onSuggestion(suggestion) {
-      this.$store.commit('search/ADD_FILTER', FilterFactory.create(suggestion));
+      this.$store.commit('search/ADD_FILTER', suggestion);
       this.search(1);
     },
     onFacet(facet) {
-      this.$store.commit('search/ADD_FILTER', FilterFactory.create(facet));
+      console.log('@onFacet', facet);
+      this.$store.commit('search/ADD_FILTER', facet);
+      this.search(1);
+    },
+    onResetFilter(type) {
+      this.$store.commit('search/RESET_FILTER', type);
+      this.search(1);
+    },
+    onUpdateFilter(filter) {
+      this.$store.commit('search/UPDATE_FILTER', filter);
       this.search(1);
     },
     onInputPagination(page = 1) {
       this.search(page);
+    },
+    onRemoveFilter(filter) {
+      this.$store.commit('search/REMOVE_FILTER', filter);
+      this.search(1);
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -381,7 +422,9 @@ export default {
       }
     },
     exportQueryCsv() {
-      this.$store.dispatch('search/EXPORT_FROM_QUERY').then((res) => {
+      this.$store.dispatch('search/EXPORT_FROM_QUERY', {
+        description: this.inputDescription,
+      }).then((res) => {
         console.log(res);
       });
     },
@@ -397,8 +440,7 @@ export default {
       if (page !== undefined) {
         this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-
-      this.$store.dispatch('search/SEARCH');
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
     reset() {
       this.$store.commit('search/CLEAR');
@@ -433,23 +475,31 @@ export default {
     selectedItems() {
       this.updateselectAll();
     },
+    '$route.query': {
+      handler(val) {
+        console.log('@$route.query changed', val);
+        this.$store.dispatch('search/PULL_SEARCH_PARAMS', val);
+      },
+      deep: true,
+      immediate: true,
+    },
   },
   components: {
     Autocomplete,
     Pagination,
     'search-results-list-item': SearchResultsListItem,
     'search-results-tiles-item': SearchResultsTilesItem,
-    'search-filters': SearchFilters,
     'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
     CollectionAddTo,
     Ellipsis,
+    SearchPills,
   },
   mounted() {
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
-    this.search();
+    // this.search();
   },
   beforeDestroy() {
     // TODO: need to use the url to reflect the search, this way we can use back
@@ -500,11 +550,17 @@ div.overlay-region{
     background-color: rgba(255, 225, 49, 0.3) !important;
   }
 }
+
+
 </style>
 
 <i18n>
 {
   "en": {
+    "tabs": {
+      "text": "search articles",
+      "images": "search images"
+    },
     "label_display": "Display As",
     "label_order": "Order By",
     "label_group": "Group By",

@@ -1,4 +1,4 @@
-import Filter from '@/models/FilterBase';
+import FilterItems from '@/models/FilterItems';
 import Daterange from '@/models/Daterange';
 
 /**
@@ -7,21 +7,76 @@ import Daterange from '@/models/Daterange';
  * @param {Entity} entity Entity object
  */
 
-export default class FilterDaterange extends Filter {
+export default class FilterDaterange extends FilterItems {
   constructor(args) {
     super(args);
-    this.daterange = new Daterange(args.daterange);
+    if (!this.items.length) {
+      this.items = this.q.map((daterange) => {
+        console.log('creating', daterange);
+        const d = new Daterange({ daterange });
+        d.uid = d.getValue();
+        d.checked = true;
+        return d;
+      });
+    }
   }
 
-  getQuery() {
-    this.daterange.start.setHours(0, 0, 0, 0); // make sure we only use dates, not times
-    this.daterange.end.setHours(0, 0, 0, 0);
-    const daterange = `${this.daterange.start.toISOString().replace('.000Z', 'Z')} TO ${this.daterange.end.toISOString().replace('.000Z', 'Z')}`;
+  // getQuery() {
+  //   const query = {
+  //     type: this.type,
+  //     q: this.items.map(d => d.getValue()),
+  //   };
+  //   if (this.context !== 'include') {
+  //     query.context = this.context;
+  //   }
+  //   return query;
+  // }
 
-    return {
-      context: this.context,
-      type: this.type,
-      daterange,
-    };
+  setItems(items = []) {
+    console.log('daterange setItems', items);
+    this.items = items;
+    items.forEach((d, i) => {
+      this.items[i].checked = true;
+    });
   }
+
+
+  // constructor({
+  //   type = 'daterange',
+  //   context = 'include',
+  //   start = null,
+  //   end = null,
+  //   daterange = '',
+  //   items = [],
+  // } = {}) {
+  //   super({
+  //     type,
+  //     context,
+  //   });
+  //
+  //   if (!items.length) {
+  //     const dr = new Daterange({
+  //       start,
+  //       end,
+  //       daterange,
+  //     });
+  //     dr.checked = true;
+  //     this.items = [dr];
+  //     this.q = [dr.getValue()];
+  //   }
+  //   console.log('FilterDaterange loaded daterange', this.daterange);
+  // }
+  //
+  // setItems(items = []) {
+  //   console.log('FilterDaterange setItems', items);
+  //   this.q = [];
+  //   this.items = items.map((daterange) => {
+  //     const d = new Daterange({ daterange });
+  //     d.checked = true;
+  //     this.q.push(d.getValue());
+  //     return d;
+  //   });
+  // }
+  //
+  //
 }

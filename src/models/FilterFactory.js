@@ -1,3 +1,4 @@
+import FilterBoolean from '@/models/FilterBoolean';
 import FilterEntity from '@/models/FilterEntity';
 import FilterString from '@/models/FilterString';
 import FilterRegex from '@/models/FilterRegex';
@@ -6,6 +7,7 @@ import FilterTopic from '@/models/FilterTopic';
 import FilterLanguage from '@/models/FilterLanguage';
 import FilterFacetYear from '@/models/FilterFacetYear';
 import FilterDaterange from '@/models/FilterDaterange';
+import FilterCollection from '@/models/FilterCollection';
 
 import uuid from 'uuid';
 
@@ -24,6 +26,10 @@ export default {
 
     if (filterData.type === 'string') {
       filter = new FilterString(filterData);
+    }
+
+    if (['isFront', 'hasTextContents'].indexOf(filterData.type) > -1) {
+      filter = new FilterBoolean(filterData);
     }
 
     if (filterData.type === 'regex') {
@@ -54,11 +60,14 @@ export default {
       filter = new FilterDaterange(filterData);
     }
 
+    if (filterData.type === 'collection') {
+      filter = new FilterCollection(filterData);
+    }
+
     if (filter) {
       filter.key = filterData.key || uuid.v4();
       return filter;
     }
-
-    return null;
+    throw new Error(`Cannot create filter for type: ${filterData.type}`);
   },
 };
