@@ -8,7 +8,6 @@
             {{ article.newspaper.name}}
           </router-link> &mdash; {{ articlePages }}
         </div>
-
         <div class="my-2" />
         <collection-add-to :item="article" :text="$t('add_to_collection')" />
         <b-badge
@@ -23,15 +22,19 @@
           </router-link>
           <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
         </b-badge>
-        <ellipsis class="my-3">
+        <div class="my-3">
           <span class="label small-caps">{{ $t("topics")}}</span>:
-          <span v-for="(rel, i) in article.topics" v-bind:key="i">
+          <span v-for="(rel, i) in topics" v-bind:key="i">
             <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}">
               {{ rel.topic.getHtmlExcerpt() }} ({{ $n(rel.relevance * 100) }} %)
             </router-link> &mdash;
           </span>
-        </ellipsis>
+        </div>
+        <div v-if="hasValidRegions === false">
+          <p>{{article.excerpt}}</p>
+        </div>
         <div
+          v-else
           class="row mt-3 mb-3"
           v-for="(region, i) in article.regions"
           v-bind:key="i">
@@ -95,6 +98,12 @@ export default {
         return this.$t('page', { num: this.article.pages[0].num });
       }
       return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') });
+    },
+    topics() {
+      return this.article.topics.filter(rel => rel.topic);
+    },
+    hasValidRegions() {
+      return !!this.article.regions.filter(region => region.g.length).length;
     },
   },
   props: ['article_uid'],

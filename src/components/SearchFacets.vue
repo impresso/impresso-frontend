@@ -66,8 +66,8 @@
         </div>
       </div>
     </div>
-    <div v-for="(facet, index) in facets" class="pt-1px border-top border-tertiary">
-      <filter-facet :facet="facet" class="px-3 py-2"
+    <div v-for="(facet, index) in facets" class="border-top m-2 p-2">
+      <filter-facet :facet="facet"
         @submit-buckets="submitBuckets"
         @update-filter="updateFilter"
         @reset-filter="resetFilter"/>
