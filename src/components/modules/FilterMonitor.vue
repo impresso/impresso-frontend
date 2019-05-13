@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import FilterDaterange from './FilterDaterange';
+import FilterDaterange from './FilterDateRange';
 
 export default {
   props: {
