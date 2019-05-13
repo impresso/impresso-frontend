@@ -9,7 +9,7 @@
           v-show="tabIndex === 1"
           v-bind:tableOfContents="tableOfImages"
           v-bind:pageUid="pageUid"
-          v-bind:articleUid="articleUid"
+          v-bind:articleUid="imageUid"
           v-on:click="loadArticlePage" />
         <table-of-contents
           v-show="tabIndex === 0"
@@ -102,13 +102,26 @@ export default {
       return this.$route.params.page_uid;
     },
     articleUid() {
-      return this.$route.params.article_uid || this.firstArticleFromCurrentPage;
+      return this.$route.params.article_uid || this.firstArticleFromCurrentPage.uid;
+    },
+    imageUid() {
+      return this.$route.params.article_uid || this.firstImageFromCurrentPage.uid;
     },
     firstArticleFromCurrentPage() {
       if (this.tableOfContents.pages) {
         for (let i = 0; i < this.tableOfContents.pages.length; i += 1) {
           if (this.tableOfContents.pages[i].uid === this.pageUid) {
-            return this.tableOfContents.pages[i].articles[0].uid;
+            return this.tableOfContents.pages[i].articles[0];
+          }
+        }
+      }
+      return false;
+    },
+    firstImageFromCurrentPage() {
+      if (this.tableOfImages.pages) {
+        for (let i = 0; i < this.tableOfImages.pages.length; i += 1) {
+          if (this.tableOfImages.pages[i].uid === this.pageUid) {
+            return this.tableOfImages.pages[i].articles[0];
           }
         }
       }

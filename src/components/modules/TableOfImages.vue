@@ -38,11 +38,13 @@ export default {
       });
     },
     scrollToActiveArticle() {
-      const elm = this.$refs[`article-${this.articleUid}`][0];
-      const parent = this.$refs.TableOfImages.parentNode;
-      if (parent.scrollTop > elm.offsetTop ||
-        (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
-        parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+      if (this.articleUid !== '') {
+        const elm = this.$refs[`article-${this.articleUid}`][0];
+        const parent = this.$refs.TableOfImages.parentNode;
+        if (parent.scrollTop > elm.offsetTop ||
+          (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
+          parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+        }
       }
     },
   },
@@ -56,7 +58,7 @@ export default {
     },
   },
   watch: {
-    articleUid() {
+    pageUid() {
       this.scrollToActiveArticle();
     },
     tableOfContents: {
