@@ -4,16 +4,25 @@
       <div slot="header" class="border-bottom border-tertiary bg-light">
           <b-tabs pills class="border-bottom border-tertiary">
             <template slot="tabs">
-              <b-nav-item :to="{ name:'search'}"><span v-html="$t('tabs.text')"/></b-nav-item>
-              <b-nav-item :to="{ name:'searchImages'}"><span v-html="$t('tabs.images')"/></b-nav-item>
+              <b-nav-item
+                :to="{ name:'search'}">
+                <span v-html="$t('tabs.text')" />
+              </b-nav-item>
+              <b-nav-item
+                :to="{ name:'searchImages'}">
+                <span v-html="$t('tabs.images')" />
+              </b-nav-item>
             </template>
           </b-tabs>
           <div class="py-3 px-3">
-            [IMAGES-AUTOCOMPLETE]
+            <search-pills v-on:remove="onRemoveFilter"/>
+
           </div>
         </div>
         <div class="p-3">
-          [IMAGES-FILTERS]
+
+          <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
+
         </div>
       </div>
     </i-layout-section>
@@ -35,7 +44,17 @@
       </b-navbar>
 
       <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-        <b-navbar-nav class="p-3 border-right">
+
+        <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
+          <ellipsis v-bind:initialHeight="88">
+            <search-result-summary
+              v-on:onSummary="onSummary"
+              v-bind:queryComponents="queryComponents"
+              v-bind:totalRows="paginationTotalRows" />
+          </ellipsis>
+        </b-navbar-nav>
+
+        <b-navbar-nav class="p-3 pt-4 border-right">
           <label class="mr-1">{{$t("label_order")}}
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" class="pl-1"></i-dropdown>
           </label>
@@ -86,6 +105,10 @@
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import CollectionAddTo from './modules/CollectionAddTo';
 import Pagination from './modules/Pagination';
+import SearchFacets from './SearchFacets';
+import SearchResultsSummary from './modules/SearchResultsSummary';
+import Ellipsis from './modules/Ellipsis';
+import SearchPills from './SearchPills';
 
 
 export default {
@@ -93,6 +116,10 @@ export default {
     SearchResultsImageItem,
     CollectionAddTo,
     Pagination,
+    SearchFacets,
+    'search-result-summary': SearchResultsSummary,
+    Ellipsis,
+    SearchPills,
   },
   data: () => ({
     selectedItems: [],
@@ -116,6 +143,11 @@ export default {
     searchResults: {
       get() {
         return this.$store.getters['searchImages/results'];
+      },
+    },
+    queryComponents: {
+      get() {
+        return this.$store.state.searchImages.queryComponents;
       },
     },
     orderByOptions: {
@@ -178,6 +210,43 @@ export default {
     },
     isLoggedIn() {
       return this.$store.state.user.userData;
+    },
+    getBooleanFilter(filter) {
+      return !!this.$store.state.search.search.getFilter(filter);
+    },
+    toggleBooleanFilter(filter, value = true) {
+      if (!value) {
+        this.$store.commit('search/REMOVE_FILTER', filter);
+      } else {
+        this.$store.commit('search/ADD_FILTER', filter);
+      }
+      this.search(1);
+    },
+    onSummary(msg) {
+      this.inputDescription = msg
+        .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
+        .replace('Found', this.$t('Based on search query with'));
+    },
+    onSuggestion(suggestion) {
+      this.$store.commit('search/ADD_FILTER', suggestion);
+      this.search(1);
+    },
+    onFacet(facet) {
+      console.log('@onFacet', facet);
+      this.$store.commit('search/ADD_FILTER', facet);
+      this.search(1);
+    },
+    onResetFilter(type) {
+      this.$store.commit('search/RESET_FILTER', type);
+      this.search(1);
+    },
+    onUpdateFilter(filter) {
+      this.$store.commit('search/UPDATE_FILTER', filter);
+      this.search(1);
+    },
+    onRemoveFilter(filter) {
+      this.$store.commit('search/REMOVE_FILTER', filter);
+      this.search(1);
     },
     updateselectAll() {
       let count = 0;
