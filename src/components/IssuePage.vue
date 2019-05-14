@@ -1,7 +1,7 @@
 <template lang='html'>
     <i-layout id="IssuePage">
       <i-layout-section width="300px" class="border-right">
-        <b-tabs v-model="tabIndex" slot="header" class="mt-1">
+        <b-tabs v-model="tabIndex" slot="header" class="mt-2">
           <b-tab v-bind:title="$t('tabs.table_of_contents')" active />
           <b-tab v-bind:title="$t('tabs.table_of_images')" />
         </b-tabs>
