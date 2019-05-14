@@ -3,7 +3,7 @@ import Article from '@/models/Article';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 import Newspaper from '@/models/Newspaper';
-import Collection from '@/models/Collection';
+// import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
 // import FilterFactory from '@/models/FilterFactory';
 import router from '../router';
@@ -254,20 +254,20 @@ export default {
               }
 
               // add collection facet/filter
-              if (res.info.facets && res.info.facets.collection) {
-                const facet = new Facet({
-                  type: 'collection',
-                  buckets: res.info.facets.collection.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Collection({
-                      ...bucket.item,
-                      uid: bucket.val,
-                    }),
-                  })),
-                });
-
-                context.commit('ADD_FACET', facet);
-              }
+              // if (res.info.facets && res.info.facets.collection) {
+              //   const facet = new Facet({
+              //     type: 'collection',
+              //     buckets: res.info.facets.collection.buckets.map(bucket => ({
+              //       ...bucket,
+              //       item: new Collection({
+              //         ...bucket.item,
+              //         uid: bucket.val,
+              //       }),
+              //     })),
+              //   });
+              //
+              //   context.commit('ADD_FACET', facet);
+              // }
 
 
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
