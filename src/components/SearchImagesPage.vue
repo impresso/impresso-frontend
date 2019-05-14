@@ -16,7 +16,7 @@
           </b-tabs>
           <div class="py-3 px-3">
             <search-pills v-on:remove="onRemoveFilter"/>
-
+            <!-- <autocomplete v-on:submit="onSuggestion" /> -->
           </div>
         </div>
         <div class="p-3">
@@ -102,6 +102,7 @@
 </template>
 
 <script>
+import Autocomplete from './Autocomplete';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import CollectionAddTo from './modules/CollectionAddTo';
 import Pagination from './modules/Pagination';
@@ -113,6 +114,7 @@ import SearchPills from './SearchPills';
 
 export default {
   components: {
+    Autocomplete,
     SearchResultsImageItem,
     CollectionAddTo,
     Pagination,
@@ -216,9 +218,9 @@ export default {
     },
     toggleBooleanFilter(filter, value = true) {
       if (!value) {
-        this.$store.commit('search/REMOVE_FILTER', filter);
+        this.$store.commit('searchImages/REMOVE_FILTER', filter);
       } else {
-        this.$store.commit('search/ADD_FILTER', filter);
+        this.$store.commit('searchImages/ADD_FILTER', filter);
       }
       this.search(1);
     },
@@ -228,24 +230,24 @@ export default {
         .replace('Found', this.$t('Based on search query with'));
     },
     onSuggestion(suggestion) {
-      this.$store.commit('search/ADD_FILTER', suggestion);
+      this.$store.commit('searchImages/ADD_FILTER', suggestion);
       this.search(1);
     },
     onFacet(facet) {
       console.log('@onFacet', facet);
-      this.$store.commit('search/ADD_FILTER', facet);
+      this.$store.commit('searchImages/ADD_FILTER', facet);
       this.search(1);
     },
     onResetFilter(type) {
-      this.$store.commit('search/RESET_FILTER', type);
+      this.$store.commit('searchImages/RESET_FILTER', type);
       this.search(1);
     },
     onUpdateFilter(filter) {
-      this.$store.commit('search/UPDATE_FILTER', filter);
+      this.$store.commit('searchImages/UPDATE_FILTER', filter);
       this.search(1);
     },
     onRemoveFilter(filter) {
-      this.$store.commit('search/REMOVE_FILTER', filter);
+      this.$store.commit('searchImages/REMOVE_FILTER', filter);
       this.search(1);
     },
     updateselectAll() {
