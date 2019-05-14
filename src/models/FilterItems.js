@@ -11,12 +11,13 @@ export default class FilterItems extends Filter {
     type = 'items',
     touched = false,
     q = '',
+    op = 'OR',
     items = [],
   } = {}) {
     super({ context, type, touched, q });
     this.q = String(q).split(',');
     this.qh = this.q;
-    this.op = 'OR';
+    this.op = op;
     this.items = items;
     this.context = context;
   }
@@ -26,18 +27,14 @@ export default class FilterItems extends Filter {
   }
 
   getQuery() {
-    if (this.context === contexts.INCLUDE) {
-      return {
-        type: this.type,
-        q: this.q,
-        op: this.op,
-      };
-    }
-    return {
+    const query = {
       type: this.type,
       q: this.q,
       op: this.op,
-      context: this.context,
     };
+    if (this.context !== contexts.INCLUDE) {
+      query.context = this.context;
+    }
+    return query;
   }
 }

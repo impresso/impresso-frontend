@@ -29,35 +29,32 @@
           v-html="labelByItems({ items: filter.items, max: 2 })"
           :class="filter.context">
         </span>
-
         <!--  type:language -->
         <span class="label sp-language"
           v-if="filter.type === 'language'"
           :class="filter.context">
           {{$t(`language.${filter.q}`)}}
         </span>
+        <!--  type:collections -->
+        <span class="label sp-collection"
+          v-if="filter.type === 'collection'"
+          v-html="labelByItems({ items: filter.items, max: 2 })"
+          :class="filter.context">
+        </span>
+
+        <!--  type:daterange -->
+        <span class="label sp-daterange"
+          v-if="filter.type === 'daterange'"
+          :class="filter.context" v-html="labelByDaterangeItems({ items: filter.items, max: 2 })">
+        </span>
+        <!-- <span class="filter-icon filter-remove dripicons-cross" @click="onRemoveFilter(filter)"></span> -->
       </template>
 
       <div class="p-2 pb-1 sp-contents">
-        <div class="description">{{filter.type}}</div>
+        <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
+        <filter-monitor checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
 
-        <!--  include / exclude toggler -->
-        {{ filter.touched }}
-        <b-form-group>
-          <b-form-radio-group
-            stacked
-            v-model="filter.context"
-            v-bind:options="filterContextOptions"
-            @change="onChangeFilter(filter)">
-          </b-form-radio-group>
-        </b-form-group>
 
-        <ul v-if="filter.type === 'topic'">
-          <topic-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
-        </ul>
-        <ul v-if="filter.type === 'newspaper'">
-          <newspaper-list-item :item="item" v-for="item in filter.items" :key="item.uid"/>
-        </ul>
         <b-form-group :label="filter.type" v-if="filter.type === 'string'">
           <b-form-input
             size="sm"
@@ -68,7 +65,7 @@
         </b-form-group>
       </div>
 
-      <div class="px-2 mt-1 mb-2">
+      <div v-if="filter.type === 'string'" class="px-2 mt-1 mb-2">
         <b-button-group>
           <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
             @click="onApplyFilter(filter)">
@@ -81,6 +78,10 @@
           <b-button  size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
         </b-button-group>
       </div>
+      <!-- type is not string, add Remove button -->
+      <div v-else class="px-2 mt-1 mb-2">
+        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
+      </div>
     </b-dropdown>
   </div>
 </template>
@@ -88,6 +89,7 @@
 <script>
 import TopicListItem from './modules/TopicListItem';
 import NewspaperListItem from './modules/NewspaperListItem';
+import FilterMonitor from './modules/FilterMonitor';
 
 export default {
   computed: {
@@ -130,6 +132,21 @@ export default {
 
       return labels;
     },
+    labelByDaterangeItems({
+      items = [],
+      max = 1,
+    } = {}) {
+      let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
+        start: this.$d(d.start, 'compact'),
+        end: this.$d(d.end, 'compact'),
+      })).join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
+      if (items.slice(max).length) {
+        labels += this.$t('items.hidden', {
+          count: items.slice(max).length,
+        });
+      }
+      return labels;
+    },
     onRemoveFilter(filter) {
       this.$emit('remove', filter);
     },
@@ -144,6 +161,7 @@ export default {
   components: {
     TopicListItem,
     NewspaperListItem,
+    FilterMonitor,
   },
 };
 </script>
@@ -160,7 +178,7 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-flex;
-    
+
     &.sp-string{
       background-color: #FFEB78;
     }
@@ -187,9 +205,21 @@ export default {
       opacity: 0.8;
       // background: red;
     }
+    .filter-remove {
+      float: right;
+      padding-right: 0;
+      margin-right: -0.5em;
+      &:hover {
+        color: rgba(200,0,0,0.9);
+      }
+    }
   }
 
 }
+.sp-contents {
+  width: 300px;
+}
+
 .sp-contents ul{
   margin: 0;
   padding:0;
@@ -207,6 +237,21 @@ export default {
 <i18n>
   {
     "en": {
+      "label": {
+        "topic": {
+          "title": "filter by topic"
+        },
+        "collection": {
+          "title": "filter by collection"
+        },
+        "newspaper": {
+          "title": "filter by newspaper"
+        },
+        "daterange": {
+          "title": "filter by date of publication",
+          "item": "From {start} to {end}"
+        }
+      },
       "action": {
         "remove": "remove filter",
         "apply": "apply changes",
