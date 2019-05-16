@@ -134,9 +134,9 @@ export default {
     ADD_FACET(state, facet) {
       state.facets.push(facet);
     },
-    // UPDATE_FILTER_IS_FRONT(state, value) {
-    //   state.searchImages.isFront = value;
-    // },
+    UPDATE_FILTER_IS_FRONT(state, value) {
+      state.searchImages.isFront = value;
+    },
     // UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
     //   state.searchImages.hasTextContents = value;
     // },

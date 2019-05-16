@@ -21,6 +21,11 @@
         </div>
         <div class="p-3">
 
+          <b-form-group class="px-3 py-1">
+            <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+              {{$t('label_isFront')}}
+            </b-form-checkbox>
+          </b-form-group>
           <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
 
         </div>
@@ -142,6 +147,14 @@ export default {
     this.search();
   },
   computed: {
+    isFront: {
+      get() {
+        return this.getBooleanFilter({ type: 'isFront' });
+      },
+      set(val) {
+        this.toggleBooleanFilter({ type: 'isFront' }, val);
+      },
+    },
     searchResults: {
       get() {
         return this.$store.getters['searchImages/results'];
@@ -353,6 +366,7 @@ export default {
         "images": "search images"
       },
       "label_order": "Order By",
+      "label_isFront": "Frontpage",
       "sort_asc": "Ascending",
       "sort_desc": "Descending",
       "sort_date": "Date",
