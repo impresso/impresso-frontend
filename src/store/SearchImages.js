@@ -149,10 +149,7 @@ export default {
     PUSH_SEARCH_PARAMS(context) {
       const query = {
         f: JSON.stringify(context.state.searchImages.getFilters()),
-        facets: context.state.facetTypes,
-        // g: context.state.groupBy,
         p: context.state.paginationCurrentPage,
-        limit: context.state.paginationPerPage,
         o: context.state.orderBy,
       };
       router.push({ name: 'searchImages', query });
@@ -217,7 +214,7 @@ export default {
             query,
           }).then(
             (res) => {
-              // console.log('SEARCH res:', res);
+              console.log('SEARCH res:', res);
               context.commit('CLEAR_FACETS');
 
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
