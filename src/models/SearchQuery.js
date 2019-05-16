@@ -17,7 +17,7 @@ export default class SearchQuery {
   constructor({
     filters = [
       // { type: 'isFront' },
-      { type: 'hasTextContents' },
+      // { type: 'hasTextContents' },
     ],
   } = {}) {
     this.uuid = uuid.v4();

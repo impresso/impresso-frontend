@@ -128,8 +128,8 @@ export default {
     applyFilter() {
       this.updateFilter({});
       this.$emit('filter-applied');
-      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', 1);
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+      this.$store.commit(`${this.$router.currentRoute.name}/UPDATE_PAGINATION_CURRENT_PAGE`, 1);
+      this.$store.dispatch(`${this.$router.currentRoute.name}/PUSH_SEARCH_PARAMS`);
     },
     updateFilter({ op, context }) {
       console.log('methods.updateFilter: op:', op, context);
@@ -143,7 +143,7 @@ export default {
       }, []);
 
       if (!q.length) {
-        this.$store.commit('search/REMOVE_FILTER', this.filter);
+        this.$store.commit(`${this.$router.currentRoute.name}/REMOVE_FILTER`, this.filter);
         this.$emit('filter-removed');
         return;
       }

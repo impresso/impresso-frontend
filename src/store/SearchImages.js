@@ -11,7 +11,7 @@ import router from '../router';
 export default {
   namespaced: true,
   state: {
-    searchImages: new SearchQuery({ filters: [] }),
+    searchImages: new SearchQuery(),
     imageSearches: [],
     results: [],
     facets: [],
@@ -22,7 +22,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['newspaper'], // this also sets the order of the filters
+    facetTypes: ['year', 'newspaper'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
   },
   getters: {
@@ -134,12 +134,12 @@ export default {
     ADD_FACET(state, facet) {
       state.facets.push(facet);
     },
-    UPDATE_FILTER_IS_FRONT(state, value) {
-      state.searchImages.isFront = value;
-    },
-    UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
-      state.searchImages.hasTextContents = value;
-    },
+    // UPDATE_FILTER_IS_FRONT(state, value) {
+    //   state.searchImages.isFront = value;
+    // },
+    // UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
+    //   state.searchImages.hasTextContents = value;
+    // },
   },
   actions: {
     /**
@@ -149,7 +149,7 @@ export default {
     PUSH_SEARCH_PARAMS(context) {
       const query = {
         f: JSON.stringify(context.state.searchImages.getFilters()),
-        // facets: context.state.facetTypes,
+        facets: context.state.facetTypes,
         // g: context.state.groupBy,
         p: context.state.paginationCurrentPage,
         limit: context.state.paginationPerPage,
@@ -273,8 +273,8 @@ export default {
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
-              // context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
-              // resolve(res);
+              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
+              resolve(res);
             },
             (err) => {
               reject(err);

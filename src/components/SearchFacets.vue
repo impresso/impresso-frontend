@@ -266,8 +266,8 @@ export default {
       // create new daterangefilter if theres none
       if (!this.daterangeIncluded.length) {
         const dr = new Daterange({
-          start: new Date(`${this.startYear}-01-01`),
-          end: new Date(`${this.endYear}-12-31`),
+          start: this.startDaterange,
+          end: this.endDaterange,
         });
 
         this.$store.commit('search/ADD_FILTER', {
