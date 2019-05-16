@@ -70,6 +70,9 @@ export default {
       background-repeat: no-repeat;
       height: 20em;
       height: 30vh;
+      input[type="checkbox"] {
+          width: 0;
+      }
   }
   h2 {
     font-size: 1em;
