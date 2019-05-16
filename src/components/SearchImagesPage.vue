@@ -169,20 +169,16 @@ export default {
       get() {
         return [
           {
-            value: 'relevance',
-            text: `${this.$t('sort_relevance')} ${this.$t('sort_asc')}`,
-          },
-          {
-            value: '-relevance',
-            text: `${this.$t('sort_relevance')} ${this.$t('sort_desc')}`,
+            value: '-date',
+            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
           },
           {
             value: 'date',
             text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
           },
           {
-            value: '-date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            value: 'relevance',
+            text: `${this.$t('sort_relevance')} ${this.$t('sort_asc')}`,
           },
         ];
       },
