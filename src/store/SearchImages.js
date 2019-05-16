@@ -17,7 +17,7 @@ export default {
     facets: [],
     orderBy: '-relevance', // relevance, -relevance, date, -date
     groupBy: 'articles', // issues, pages, articles, sentences
-    displayStyle: 'tiles',
+    displayStyle: 'images',
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
