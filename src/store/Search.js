@@ -13,7 +13,9 @@ import router from '../router';
 export default {
   namespaced: true,
   state: {
-    search: new SearchQuery(),
+    search: new SearchQuery({
+      filters: [{ type: 'hasTextContents' }],
+    }),
     searches: [],
     results: [],
     facets: [],
