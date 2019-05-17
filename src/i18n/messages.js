@@ -18,6 +18,10 @@ export default {
         item: 'from <b>{start}</b> to <b>{end}</b>',
       },
     },
+    groupBy: {
+      images: 'images',
+      articles: 'articles',
+    },
   },
   nl: {
     language: 'Taal',
