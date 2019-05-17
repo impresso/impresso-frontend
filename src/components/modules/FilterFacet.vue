@@ -175,6 +175,15 @@ export default {
         "filtered": "results are filtered when:",
         "selected": "filter results if <b>one of {count} selected</b> topic applies",
         "description": "check one or more topics to filter results",
+        "apply": "apply",
+        "clear": "reset"
+      },
+      "collection": {
+        "title": "filter by collection",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if <b>one of {count} selected</b> collection applies",
+        "description": "check one or more collection to filter results",
+        "apply": "apply",
         "clear": "reset"
       },
       "newspaper": {
