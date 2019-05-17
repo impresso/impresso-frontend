@@ -25,13 +25,13 @@
       </div>
     </base-title-bar>
     <div v-for="(filter, index) in included" :key="index" class="bg-light border p-2">
-      <filter-monitor v-if='index === included.length - 1' :filter="filter" :type="facet.type" :operators="facet.operators"
+      <filter-monitor v-if='index === included.length - 1' :store="store" :filter="filter" :type="facet.type" :operators="facet.operators"
         :items-to-add="selectedItems"
         @filter-applied="clearSelectedItems"/>
-      <filter-monitor v-else :filter="filter" :type="facet.type" :operators="facet.operators" />
+      <filter-monitor v-else :filter="filter" :store="store" :type="facet.type" :operators="facet.operators" />
     </div>
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
-      <filter-monitor :filter="filter" :type="facet.type" :operators="facet.operators" />
+      <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
     </div>
 
 
@@ -56,16 +56,30 @@ export default {
     selectedItems: [],
     operators: ['or', 'and'],
   }),
-  props: ['facet'],
+  props: {
+    store: {
+      type: String,
+      default: 'search',
+    },
+    facet: {
+      type: Object,
+    },
+  },
   computed: {
+    currentStore() {
+      if (this.store === 'searchImages') {
+        return this.$store.state.searchImages;
+      }
+      return this.$store.state.search;
+    },
     filtered() {
-      return this.$store.state.search.search.filtersIndex[this.facet.type];
+      return this.currentStore.search.filtersIndex[this.facet.type];
     },
     included() {
       if (!this.filtered) {
         return [];
       }
-      const included = this.$store.state.search.search
+      const included = this.currentStore.search
         .filtersIndex[this.facet.type]
         .filter(d => d.context !== 'exclude');
       // enrich included filter with matching buckets.
