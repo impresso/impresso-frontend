@@ -52,7 +52,7 @@
 
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
-        <filter-monitor checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
+        <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
 
 
         <b-form-group :label="filter.type" v-if="filter.type === 'string'">
@@ -92,11 +92,24 @@ import NewspaperListItem from './modules/NewspaperListItem';
 import FilterMonitor from './modules/FilterMonitor';
 
 export default {
+  props: {
+    store: {
+      type: String,
+      default: 'search',
+    },
+  },
   computed: {
+    currentStore() {
+      console.log('currentStore', this.store);
+      if (this.store === 'searchImages') {
+        return this.$store.state.searchImages;
+      }
+      return this.$store.state.search;
+    },
     pills: {
       get() {
         // exclude boolean filters
-        return this.$store.state.search.search.filters
+        return this.currentStore.search.filters
           .filter(d => ['hasTextContents', 'isFront'].indexOf(d.type) === -1);
           // .sort((a, b) => (a.type > b.type ? 1 : -1));
       },
