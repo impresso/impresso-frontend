@@ -26,7 +26,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['year', 'newspaper', 'language', 'topic'], // this also sets the order of the filters
+    facetTypes: ['year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
   },
   getters: {
