@@ -11,7 +11,7 @@ export default {
     isOnFront: false,
     message: '',
   }),
-  props: ['queryComponents', 'totalRows'],
+  props: ['queryComponents', 'totalRows', 'groupBy'],
   methods: {
     getSections(type) {
       // regroup querycomponents based on include / exclude
@@ -136,6 +136,7 @@ export default {
       immediate: true,
       handler() {
         this.message = this.$t('message', {
+          groupByLabel: this.$t(`groupBy.${this.groupBy}`),
           count: this.$n(this.totalRows),
           front: this.isFront(),
           ranges: this.getDateranges(),
@@ -183,7 +184,7 @@ export default {
       "daterange": "not published"
     },
     "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> articles {front} {newspapers} {ranges} {terms} {topics}",
+    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {ranges} {terms} {topics}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
   "fr": {
