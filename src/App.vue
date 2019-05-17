@@ -69,14 +69,16 @@ svg {
 }
 
 
-ul.nav.nav-pills .nav-link{
-    background-color: transparent;
-    font-variant: small-caps;
-    margin-bottom: -1px;
-    border: 1px solid transparent;
-    
-    color: #dee2e6;
-    &.active {
+ul.nav.nav-pills .nav-item{
+    .nav-link {
+      background-color: transparent;
+      font-variant: small-caps;
+      margin-bottom: -1px;
+      border: 1px solid transparent;
+
+      color: #a8b3bd;
+    }
+    &.active .nav-link{
       color: black;
       border-color: #dee2e6;
       border-bottom-color: #f8f9fa;
