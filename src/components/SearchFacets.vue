@@ -10,10 +10,10 @@
         </div>
         <div slot="description">
           <span v-if="daterangeFilters.length">
-            {{$t(`label.timelineDescription.filtered`)}}
+            {{$t(`label.timelineDescription.${groupByLabel}.filtered`)}}
           </span>
           <span v-else>
-              {{$t(`label.timelineDescription.description`)}}
+              {{$t(`label.timelineDescription.${groupByLabel}.description`)}}
           </span>
         </div>
       </base-title-bar>
@@ -38,7 +38,7 @@
       </timeline>
 
       <div v-for="(filter, index) in daterangeFilters" :key="index" class="bg-light border p-2 mt-2">
-        <filter-monitor :filter="filter" type="daterange" />
+        <filter-monitor :store="store" :filter="filter" type="daterange" />
       </div>
       <div v-if="!daterangeFilters.length">
         <b-button size="sm" variant="outline-primary" @click="addDaterangeFilter">
@@ -111,6 +111,10 @@ const fillYears = (initialValues = []) => {
 
 export default {
   props: {
+    store: {
+      type: String,
+      default: 'search',
+    },
     startYear: {
       type: Number,
       default: 1737,
@@ -130,8 +134,14 @@ export default {
     facetsOrder: ['language', 'newspaper', 'topic'],
   }),
   computed: {
+    currentStore() {
+      if (this.store === 'searchImages') {
+        return this.$store.state.searchImages;
+      }
+      return this.$store.state.search;
+    },
     daterangeFilters() {
-      return this.$store.state.search.search.filters.filter(d => d.type === 'daterange');
+      return this.currentStore.search.filters.filter(d => d.type === 'daterange');
     },
     daterangeIncluded() {
       return this.daterangeFilters.filter(d => d.context === 'include');
@@ -210,12 +220,12 @@ export default {
     },
     groupByLabel: {
       get() {
-        return this.$t(`groupBy.${this.$store.state.search.groupBy}`);
+        return this.$t(`groupBy.${this.currentStore.groupBy}`);
       },
     },
     values: {
       get() {
-        const facet = this.$store.state.search.facets.find(d => d.type === 'year');
+        const facet = this.currentStore.facets.find(d => d.type === 'year');
         if (!facet) {
           return [];
         }
@@ -231,7 +241,7 @@ export default {
     },
     facets: {
       get() {
-        return this.$store.state.search.facets
+        return this.currentStore.facets
           .filter(d => d.type !== 'year')
           .sort((a, b) => {
             const indexA = this.facetsOrder.indexOf(a.type);
@@ -270,7 +280,7 @@ export default {
           end: this.endDaterange,
         });
 
-        this.$store.commit('search/ADD_FILTER', {
+        this.$store.commit(`${this.store}/ADD_FILTER`, {
           type: 'daterange',
           q: dr.getValue(),
         });
@@ -387,11 +397,18 @@ export default {
     "en": {
       "label": {
         "timeline": {
-          "articles": "publication date"
+          "articles": "publication date",
+          "images": "publication date"
         },
         "timelineDescription": {
-          "articles": "Number of articles per year",
-          "description": "Number of articles per year"
+          "articles": {
+            "description": "Number of articles per year",
+            "filtered": "Number of articles per year (filtered)"
+          },
+          "images": {
+            "description": "Number of images extracted per year",
+            "filtered": "Number of images per year (filtered)"
+          }
         },
         "daterange": {
           "pick": "add filter ...",
@@ -401,7 +418,8 @@ export default {
         }
       },
       "groupBy": {
-        "articles": "articles"
+        "articles": "articles",
+        "images": "images"
       }
     }
   }
