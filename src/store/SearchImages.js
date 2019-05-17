@@ -96,8 +96,8 @@ export default {
     UPDATE_FILTER(state, { filter, q, op, context }) {
       state.search.updateFilter({ filter, q, op, context });
     },
-    UPDATE_FILTER_ITEM(state, { filter, item }) {
-      state.search.updateFilterItem({ filter, item });
+    UPDATE_FILTER_ITEM(state, { filter, item, uid }) {
+      state.search.updateFilterItem({ filter, item, uid });
     },
     STORE_SEARCH(state) {
       state.imageSearches.push(state.search);

@@ -22,17 +22,14 @@
           <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
         </div>
       </div>
-
-        <div class="p-3">
-
-          <b-form-group class="px-3 py-1">
-            <b-form-checkbox v-model="isFront" switch v-bind:value="true">
-              {{$t('label_isFront')}}
-            </b-form-checkbox>
-          </b-form-group>
-          <search-facets store="searchImages" @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
-
-        </div>
+      <!--  body -->
+      <div class="pt-3">
+        <b-form-group class="px-3 py-1">
+          <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+            {{$t('label_isFront')}}
+          </b-form-checkbox>
+        </b-form-group>
+        <search-facets store="searchImages" @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
       </div>
     </i-layout-section>
     <i-layout-section>

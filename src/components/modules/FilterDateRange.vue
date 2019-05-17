@@ -62,10 +62,12 @@ export default {
           });
         }
       }
+      if (!item) {
+        return;
+      }
       item.uid = item.getValue();
-      if (item && item.uid !== this.daterange.uid) {
+      if (item.uid !== this.daterange.uid) {
         item.checked = this.daterange.checked;
-
         console.log('updateDaterange emit "change" \n', this.daterange.uid, '\nto:\n', item.getValue());
         this.$emit('change', {
           item,
