@@ -19,7 +19,7 @@
           </template>
         </b-tabs>
         <div class="py-3 px-3">
-          <search-pills v-on:remove="onRemoveFilter"/>
+          <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
         </div>
       </div>
 
@@ -30,7 +30,7 @@
               {{$t('label_isFront')}}
             </b-form-checkbox>
           </b-form-group>
-          <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
+          <search-facets store="searchImages" @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
 
         </div>
       </div>
@@ -57,9 +57,10 @@
         <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
           <ellipsis v-bind:initialHeight="88">
             <search-result-summary
-              v-on:onSummary="onSummary"
-              v-bind:queryComponents="queryComponents"
-              v-bind:totalRows="paginationTotalRows" />
+              @onSummary="onSummary"
+              group-by="images"
+              :queryComponents="queryComponents"
+              :totalRows="paginationTotalRows" />
           </ellipsis>
         </b-navbar-nav>
 
@@ -180,10 +181,6 @@ export default {
             value: 'date',
             text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
           },
-          {
-            value: 'relevance',
-            text: `${this.$t('sort_relevance')} ${this.$t('sort_asc')}`,
-          },
         ];
       },
     },
@@ -227,7 +224,7 @@ export default {
       return this.$store.state.user.userData;
     },
     getBooleanFilter(filter) {
-      return !!this.$store.state.search.search.getFilter(filter);
+      return !!this.$store.state.searchImages.search.getFilter(filter);
     },
     toggleBooleanFilter(filter, value = true) {
       if (!value) {
