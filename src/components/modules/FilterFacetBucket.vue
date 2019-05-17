@@ -4,6 +4,8 @@
       <span v-if="type === 'topic'" v-html="bucket.item.htmlExcerpt"></span>
       <span v-if="type === 'newspaper'">{{ bucket.item.name }}</span>
       <span v-if="type === 'language'">{{ $t(`languages.${bucket.val}`) }}</span>
+      <span v-if="type === 'collection'" v-html="bucket.item.uid"></span>
+      
       <span>({{$n(bucket.count)}})</span>
     </b-form-checkbox>
     <!-- <b-dropdown v-if="isChecked" size="sm" variant="outline-primary">
