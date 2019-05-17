@@ -94,9 +94,10 @@
       <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
         <ellipsis v-bind:initialHeight="88">
           <search-result-summary
-            v-on:onSummary="onSummary"
-            v-bind:queryComponents="queryComponents"
-            v-bind:totalRows="paginationTotalRows" />
+            @onSummary="onSummary"
+            :group-by="groupBy"
+            :queryComponents="queryComponents"
+            :totalRows="paginationTotalRows" />
         </ellipsis>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto p-3" v-if="isLoggedIn">
