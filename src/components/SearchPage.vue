@@ -3,10 +3,14 @@
   <i-layout-section width="400px" class="border-right border-tertiary">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
-      <b-tabs pills class="border-bottom border-tertiary">
+      <b-tabs pills class="border-bottom mx-2 pt-2">
         <template slot="tabs">
-          <b-nav-item :to="{ name:'search'}"  ><span v-html="$t('tabs.text')"/></b-nav-item>
-          <b-nav-item :to="{ name:'searchImages'}" exact><span v-html="$t('tabs.images')"/></b-nav-item>
+          <b-nav-item class="pl-2 active"
+            active-class='none'
+            :to="{ name:'search'}"><span v-html="$t('tabs.text')"/></b-nav-item>
+          <b-nav-item
+            active-class='none'
+            :to="{ name:'searchImages'}"><span v-html="$t('tabs.images')"/></b-nav-item>
         </template>
       </b-tabs>
       <div class="py-3 px-3">
@@ -16,9 +20,9 @@
     </div>
 
     <!--  body -->
-    <div class="pt-2">
+    <div class="pt-3">
 
-      <b-form-group class="px-3 py-1">
+      <b-form-group class="mx-3">
         <b-form-checkbox v-model="hasTextContents" switch v-bind:value="true"
         v-bind:unchecked-value="false">
           {{$t('label_hasTextContents')}}
