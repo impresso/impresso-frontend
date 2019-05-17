@@ -1,24 +1,28 @@
 <template lang="html">
   <i-layout id="SearchPage">
     <i-layout-section width="400px" class="border-right border-tertiary">
+      <!--  header -->
       <div slot="header" class="border-bottom border-tertiary bg-light">
-          <b-tabs pills class="border-bottom border-tertiary">
-            <template slot="tabs">
-              <b-nav-item
-                :to="{ name:'search'}">
-                <span v-html="$t('tabs.text')" />
+        <b-tabs pills class="border-bottom mx-2 pt-2">
+          <template slot="tabs">
+            <b-nav-item class="pl-2"
+              active-class='none'
+              :to="{ name:'search'}">
+                <span v-html="$t('tabs.text')"/>
               </b-nav-item>
-              <b-nav-item
-                :to="{ name:'searchImages'}">
-                <span v-html="$t('tabs.images')" />
-              </b-nav-item>
-            </template>
-          </b-tabs>
-          <div class="py-3 px-3">
-            <search-pills v-on:remove="onRemoveFilter"/>
-            <!-- <autocomplete v-on:submit="onSuggestion" /> -->
-          </div>
+            <b-nav-item
+              class="active"
+              active-class='none'
+              :to="{ name:'searchImages'}">
+                <span v-html="$t('tabs.images')"/>
+            </b-nav-item>
+          </template>
+        </b-tabs>
+        <div class="py-3 px-3">
+          <search-pills v-on:remove="onRemoveFilter"/>
         </div>
+      </div>
+
         <div class="p-3">
 
           <b-form-group class="px-3 py-1">
