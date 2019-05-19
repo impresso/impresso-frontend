@@ -22,6 +22,10 @@ export default {
       images: 'images',
       articles: 'articles',
     },
+    browse: {
+      images: 'Search in <span class="number">{count}</span> published images',
+      articles: 'Search in <span class="number">{count}</span> published articles',
+    },
   },
   nl: {
     language: 'Taal',

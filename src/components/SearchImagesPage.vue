@@ -1,8 +1,8 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="400px" class="border-right border-tertiary">
+    <i-layout-section width="400px" class="border-right">
       <!--  header -->
-      <div slot="header" class="border-bottom border-tertiary bg-light">
+      <div slot="header" class="border-bottom bg-light">
         <b-tabs pills class="border-bottom mx-2 pt-2">
           <template slot="tabs">
             <b-nav-item class="pl-2"
@@ -33,8 +33,8 @@
       </div>
     </i-layout-section>
     <i-layout-section>
-
-      <b-navbar slot="header" variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
+      <div slot="header">
+      <b-navbar variant="tertiary" v-if="selectedItems.length > 0">
         <div class="flex-grow-1">
           <span class="small-caps">
             {{ $tc('items_selected', selectedItems.length) }}
@@ -77,7 +77,8 @@
         </b-navbar-nav>
 
       </b-navbar>
-
+    </div>
+    <!--  body -->
       <div class="p-1">
         <b-container fluid>
           <b-row class="pb-5">

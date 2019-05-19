@@ -23,16 +23,10 @@
     <div class="pt-3">
 
       <b-form-group class="mx-3">
-        <b-form-checkbox v-model="hasTextContents" switch v-bind:value="true"
-        v-bind:unchecked-value="false">
-          {{$t('label_hasTextContents')}}
-        </b-form-checkbox>
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
           {{$t('label_isFront')}}
         </b-form-checkbox>
       </b-form-group>
-
-
 
       <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
       <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>

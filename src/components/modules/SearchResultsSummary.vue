@@ -89,6 +89,23 @@ export default {
       }).join('; ');
     },
 
+    getCollections() {
+      // console.log('getNewspapers', this.queryComponents);
+      const mapper = (d) => {
+        let results = [];
+        if (d.items) {
+          results = d.items.map(item => `<strong>"${item.name}"</strong>`);
+        } else {
+          results = d.q.map(item => `<strong>"${item}"</strong>`);
+        }
+        return results.join(`<span class="operator">${this.$t('op.or')}</span>`);
+      };
+
+      return this.getFormattedSection({
+        type: 'collection',
+        mapper,
+      }).join('; ');
+    },
     getTopics() {
       const mapper = d => d.items
         .map(item => `<span class="item">"${item.getHtmlExcerpt()}"</span>`)
@@ -135,16 +152,21 @@ export default {
     queryComponents: {
       immediate: true,
       handler() {
-        this.message = this.$t('message', {
-          groupByLabel: this.$t(`groupBy.${this.groupBy}`),
-          count: this.$n(this.totalRows),
-          front: this.isFront(),
-          ranges: this.getDateranges(),
-          newspapers: this.getNewspapers(),
-          terms: this.getStrings(),
-          topics: this.getTopics(),
-        });
-        this.$emit('onSummary', this.message);
+        if (!this.queryComponents.length) {
+          this.message = this.$t(`browse.${this.groupBy}`, { count: this.$n(this.totalRows) });
+        } else {
+          this.message = this.$t('message', {
+            groupByLabel: this.$t(`groupBy.${this.groupBy}`),
+            count: this.$n(this.totalRows),
+            front: this.isFront(),
+            ranges: this.getDateranges(),
+            newspapers: this.getNewspapers(),
+            collections: this.getCollections(),
+            terms: this.getStrings(),
+            topics: this.getTopics(),
+          });
+          this.$emit('onSummary', this.message);
+        }
       },
     },
   },
@@ -171,7 +193,8 @@ export default {
         "newspaper": "of"
       },
       "string": "containing",
-      "daterange": "published"
+      "daterange": "published",
+      "collection": "saved in"
     },
     "exclude": {
       "topic": "without topic",
@@ -181,10 +204,11 @@ export default {
       "pubof": {
         "newspaper": "not published in"
       },
-      "daterange": "not published"
+      "daterange": "not published",
+      "collection": "not yet saved in"
     },
     "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {ranges} {terms} {topics}",
+    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {ranges} {collections} {terms} {topics}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
   "fr": {
