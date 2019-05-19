@@ -18,7 +18,25 @@ export default {
     }),
     searches: [],
     results: [],
-    facets: [],
+    facets: [
+      new Facet({
+        type: 'year',
+      }),
+      new Facet({
+        type: 'language',
+      }),
+      new Facet({
+        type: 'newspaper',
+      }),
+      new Facet({
+        type: 'topic',
+        operators: ['OR', 'AND'],
+      }),
+      new Facet({
+        type: 'collection',
+      }),
+    ],
+    facetTypes: ['year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
     orderBy: '-relevance', // relevance, -relevance, date, -date
     groupBy: 'articles', // issues, pages, articles, sentences
     displayStyle: 'list',
@@ -26,8 +44,8 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     queryComponents: [],
-    facetTypes: ['year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
+    isLoadingResults: false,
   },
   getters: {
     getSearches(state) {
@@ -137,6 +155,17 @@ export default {
     ADD_FACET(state, facet) {
       state.facets.push(facet);
     },
+    UPDATE_IS_LOADING(state, isLoadingResults) {
+      state.isLoadingResults = Boolean(isLoadingResults);
+    },
+    UPDATE_FACET_BUCKETS(state, { type, buckets }) {
+      const facet = state.facets.find(d => d.type === type);
+      if (facet) {
+        facet.buckets = buckets;
+      } else {
+        console.error('Could not find any `facet` having type:', type);
+      }
+    },
     UPDATE_FILTER_IS_FRONT(state, value) {
       state.search.isFront = value;
     },
@@ -219,6 +248,7 @@ export default {
       });
     },
     SEARCH(context) {
+      context.commit('UPDATE_IS_LOADING', true);
       const search = new Promise(
         (resolve, reject) => {
           const query = {
@@ -234,13 +264,11 @@ export default {
             query,
           }).then(
             (res) => {
-              context.commit('CLEAR_FACETS');
-
+              context.commit('UPDATE_IS_LOADING', false);
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
-
               // add language facet/filter
               if (res.info.facets && res.info.facets.language) {
-                const facet = new Facet({
+                context.commit('UPDATE_FACET_BUCKETS', {
                   type: 'language',
                   buckets: res.info.facets.language.buckets.map(bucket => ({
                     ...bucket,
@@ -250,13 +278,11 @@ export default {
                     },
                   })),
                 });
-
-                context.commit('ADD_FACET', facet);
               }
 
               // add topic facet/filter
               if (res.info.facets && res.info.facets.topic) {
-                const facet = new Facet({
+                context.commit('UPDATE_FACET_BUCKETS', {
                   type: 'topic',
                   operators: ['OR', 'AND'],
                   buckets: res.info.facets.topic.buckets.map(bucket => ({
@@ -267,26 +293,22 @@ export default {
                     }),
                   })),
                 });
-                // enrich current fitler, if any, with one of the topics.
-                context.commit('ADD_FACET', facet);
               }
 
               // add newspaper facet/filter
               if (res.info.facets && res.info.facets.newspaper) {
-                const facet = new Facet({
+                context.commit('UPDATE_FACET_BUCKETS', {
                   type: 'newspaper',
                   buckets: res.info.facets.newspaper.buckets.map(bucket => ({
                     ...bucket,
                     item: new Newspaper(bucket.item),
                   })),
                 });
-
-                context.commit('ADD_FACET', facet);
               }
 
               // add collection facet/filter
               if (res.info.facets && res.info.facets.collection) {
-                const facet = new Facet({
+                context.commit('UPDATE_FACET_BUCKETS', {
                   type: 'collection',
                   buckets: res.info.facets.collection.buckets.map(bucket => ({
                     ...bucket,
@@ -296,12 +318,10 @@ export default {
                     }),
                   })),
                 });
-
-                context.commit('ADD_FACET', facet);
               }
 
               if (res.info.facets && res.info.facets.year) {
-                const facet = new Facet({
+                context.commit('UPDATE_FACET_BUCKETS', {
                   type: 'year',
                   buckets: res.info.facets.year.buckets.map((bucket) => {
                     if (bucket instanceof Bucket) {
@@ -311,8 +331,8 @@ export default {
                     return new Bucket(bucket);
                   }).sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10)),
                 });
-                context.commit('ADD_FACET', facet);
               }
+
               context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
                 paginationTotalRows: res.total,
               });
@@ -320,6 +340,7 @@ export default {
               resolve(res);
             },
             (err) => {
+              context.commit('UPDATE_IS_LOADING', false);
               reject(err);
             },
           );
