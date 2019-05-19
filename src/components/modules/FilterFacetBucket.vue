@@ -5,7 +5,7 @@
       <span v-if="type === 'newspaper'">{{ bucket.item.name }}</span>
       <span v-if="type === 'language'">{{ $t(`languages.${bucket.val}`) }}</span>
       <span v-if="type === 'collection'" v-html="bucket.item.uid"></span>
-      
+
       <span>({{$n(bucket.count)}})</span>
     </b-form-checkbox>
     <!-- <b-dropdown v-if="isChecked" size="sm" variant="outline-primary">
@@ -27,7 +27,18 @@ export default {
   model: {
     prop: 'bucket',
   },
-  props: ['bucket', 'type'],
+  props: {
+    bucket: {
+      type: Object,
+    },
+    type: {
+      type: String,
+    },
+    isLoadingResults: {
+      type: Boolean,
+      deafult: true,
+    },
+  },
   computed: {
     isChecked: {
       get() {
