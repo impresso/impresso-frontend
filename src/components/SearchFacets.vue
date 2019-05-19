@@ -66,7 +66,7 @@
         </div>
       </div>
     </div>
-    <div v-for="(facet, index) in facets" class="border-top mx-3 py-2">
+    <div v-for="(facet, index) in facets" class="border-top mx-3 py-2 mb-2">
       <filter-facet :facet="facet"
         :store="store"
         @submit-buckets="submitBuckets"
