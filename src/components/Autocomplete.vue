@@ -96,7 +96,7 @@ export default {
       this.suggestion = false;
       this.selected = false;
       this.showSuggestions = false;
-      this.query = '';
+      this.q = '';
     },
     select(suggestion) {
       this.selected = suggestion;
