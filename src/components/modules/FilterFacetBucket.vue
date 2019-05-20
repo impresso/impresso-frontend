@@ -4,7 +4,15 @@
       <span v-if="type === 'topic'" v-html="bucket.item.htmlExcerpt"></span>
       <span v-if="type === 'newspaper'">{{ bucket.item.name }}</span>
       <span v-if="type === 'language'">{{ $t(`languages.${bucket.val}`) }}</span>
-      <span>({{$n(bucket.count)}})</span>
+      <span v-if="type === 'collection'">
+        <span v-if="bucket.item.name">
+          <b>{{ bucket.item.name }}</b> @{{ bucket.item.creator.username }}<br/>
+          {{ $t('dates.lastModifiedDate') }} {{ $d(bucket.item.lastModifiedDate, 'short') }}
+        </span>
+        <span v-else>{{ bucket.item.uid }}</span>
+      </span>
+
+      <span>({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
     </b-form-checkbox>
     <!-- <b-dropdown v-if="isChecked" size="sm" variant="outline-primary">
       <template slot="button-content">{{ selectedOperator }}</template>
@@ -25,7 +33,18 @@ export default {
   model: {
     prop: 'bucket',
   },
-  props: ['bucket', 'type'],
+  props: {
+    bucket: {
+      type: Object,
+    },
+    type: {
+      type: String,
+    },
+    isLoadingResults: {
+      type: Boolean,
+      deafult: true,
+    },
+  },
   computed: {
     isChecked: {
       get() {

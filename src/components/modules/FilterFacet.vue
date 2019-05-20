@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="mb-4">
+  <div>
     <base-title-bar>
       {{$t(`label.${facet.type}.title`)}}
       <div slot="options">
@@ -19,27 +19,35 @@
             </b-button>
           </span>
           <span v-else>
-            {{$t(`label.${facet.type}.description`)}}
+            <span v-if="isLoadingResults">
+              {{ $t('loading') }}
+            </span>
+            <span v-if="!isLoadingResults && !this.facet.buckets.length">
+              {{$t(`label.${facet.type}.empty`)}}
+            </span>
+            <span v-else>
+              {{$t(`label.${facet.type}.description`)}}
+            </span>
           </span>
         </span>
       </div>
     </base-title-bar>
     <div v-for="(filter, index) in included" :key="index" class="bg-light border p-2">
-      <filter-monitor v-if='index === included.length - 1' :filter="filter" :type="facet.type" :operators="facet.operators"
+      <filter-monitor v-if='index === included.length - 1' :store="store" :filter="filter" :type="facet.type" :operators="facet.operators"
         :items-to-add="selectedItems"
         @filter-applied="clearSelectedItems"/>
-      <filter-monitor v-else :filter="filter" :type="facet.type" :operators="facet.operators" />
+      <filter-monitor v-else :filter="filter" :store="store" :type="facet.type" :operators="facet.operators" />
     </div>
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
-      <filter-monitor :filter="filter" :type="facet.type" :operators="facet.operators" />
+      <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
     </div>
 
 
     <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
+      :loading="isLoadingResults"
       :bucket="bucket"
       :type="facet.type"
       @toggle-bucket="toggleBucket"/>
-    </div>
   </div>
 </template>
 
@@ -56,16 +64,33 @@ export default {
     selectedItems: [],
     operators: ['or', 'and'],
   }),
-  props: ['facet'],
+  props: {
+    store: {
+      type: String,
+      default: 'search',
+    },
+    facet: {
+      type: Object,
+    },
+  },
   computed: {
+    currentStore() {
+      if (this.store === 'searchImages') {
+        return this.$store.state.searchImages;
+      }
+      return this.$store.state.search;
+    },
+    isLoadingResults() {
+      return this.currentStore.isLoadingResults;
+    },
     filtered() {
-      return this.$store.state.search.search.filtersIndex[this.facet.type];
+      return this.currentStore.search.filtersIndex[this.facet.type];
     },
     included() {
       if (!this.filtered) {
         return [];
       }
-      const included = this.$store.state.search.search
+      const included = this.currentStore.search
         .filtersIndex[this.facet.type]
         .filter(d => d.context !== 'exclude');
       // enrich included filter with matching buckets.
@@ -161,7 +186,18 @@ export default {
         "filtered": "results are filtered when:",
         "selected": "filter results if <b>one of {count} selected</b> topic applies",
         "description": "check one or more topics to filter results",
-        "clear": "reset"
+        "apply": "apply",
+        "clear": "reset",
+        "empty": "There is no topic available"
+      },
+      "collection": {
+        "title": "filter by collection",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if <b>one of {count} selected</b> collection applies",
+        "description": "check one or more collection to filter results",
+        "apply": "apply",
+        "clear": "reset",
+        "empty": "... you haven't saved any result item in your collection"
       },
       "newspaper": {
         "title": "filter by newspaper titles",
@@ -169,7 +205,8 @@ export default {
         "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
         "description": "check one or more newspaper to filter results",
         "clear": "reset",
-        "apply": "apply"
+        "apply": "apply",
+        "empty": "(no results)"
       },
       "language": {
         "title": "filter by language of articles",
@@ -177,7 +214,8 @@ export default {
         "selected": "filter results if they are written in <b>one of {count} selected</b> languages",
         "description": "check one or more language to filter results",
         "apply": "apply",
-        "clear": "reset"
+        "clear": "reset",
+        "empty": "(no results)"
       }
     }
   }

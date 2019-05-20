@@ -1,8 +1,19 @@
 <template lang='html'>
     <i-layout id="IssuePage">
       <i-layout-section width="300px" class="border-right">
+        <b-tabs v-model="tabIndex" slot="header" class="mt-2">
+          <b-tab v-bind:title="$t('tabs.table_of_contents')" active />
+          <b-tab v-bind:title="$t('tabs.table_of_images')" />
+        </b-tabs>
+        <table-of-images
+          v-show="tabIndex === 1"
+          v-bind:tableOfContents="tableOfImages"
+          v-bind:pageUid="pageUid"
+          v-bind:articleUid="imageUid"
+          v-on:click="loadArticlePage" />
         <table-of-contents
-          v-bind:toc="toc"
+          v-show="tabIndex === 0"
+          v-bind:tableOfContents="tableOfContents"
           v-bind:pageUid="pageUid"
           v-bind:articleUid="articleUid"
           v-on:click="loadArticlePage" />
@@ -21,13 +32,12 @@
             </b-navbar-nav>
           </b-navbar>
         </div>
-            <open-seadragon-viewer
-              v-show="mode === 'image'"
-              v-bind:handler="handler">
-            </open-seadragon-viewer>
-            <issue-viewer-text
-              v-bind:article_uid="articleUid"
-              v-if="articleUid && mode === 'text'" />
+        <open-seadragon-viewer
+          v-show="mode === 'image'"
+          v-bind:handler="handler" />
+        <issue-viewer-text
+          v-bind:article_uid="articleUid"
+          v-if="articleUid && mode === 'text'" />
       </i-layout-section>
       <i-layout-section width="120px" class="border-left">
         <thumbnail-slider
@@ -54,6 +64,7 @@ import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 import BaseTabs from './base/BaseTabs';
 import TableOfContents from './modules/TableOfContents';
+import TableOfImages from './modules/TableOfImages';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
 export default {
@@ -62,9 +73,11 @@ export default {
     bounds: {},
     tab: {},
     issue: new Issue(),
-    toc: {},
+    tableOfContents: {},
+    tableOfImages: {},
     isLoaded: false,
     isDragging: false,
+    tabIndex: 0,
   }),
   computed: {
     page() {
@@ -89,43 +102,30 @@ export default {
       return this.$route.params.page_uid;
     },
     articleUid() {
-      return this.$route.params.article_uid || this.firstArticleFromCurrentPage;
+      return this.$route.params.article_uid || this.firstArticleFromCurrentPage.uid;
+    },
+    imageUid() {
+      return this.$route.params.article_uid || this.firstImageFromCurrentPage.uid;
     },
     firstArticleFromCurrentPage() {
-      if (this.toc.pages) {
-        for (let i = 0; i < this.toc.pages.length; i += 1) {
-          if (this.toc.pages[i].uid === this.pageUid) {
-            return this.toc.pages[i].articles[0].uid;
+      if (this.tableOfContents.pages) {
+        for (let i = 0; i < this.tableOfContents.pages.length; i += 1) {
+          if (this.tableOfContents.pages[i].uid === this.pageUid) {
+            return this.tableOfContents.pages[i].articles[0];
           }
         }
       }
       return false;
     },
-    newspaperTableData() {
-      return [{
-        acronym: this.issue.newspaper.acronym,
-        startYear: this.issue.newspaper.startYear,
-        endYear: this.issue.newspaper.endYear,
-        deltaYear: this.$n(this.issue.newspaper.deltaYear),
-        countIssues: this.$n(this.issue.newspaper.countIssues),
-        countPages: this.$n(this.issue.newspaper.countPages),
-        countArticles: this.$n(this.issue.newspaper.countArticles),
-      }];
-    },
-    tabs() {
-      return [
-        {
-          label: this.$t('tabs.toc'),
-          name: 'toc',
-          active: true,
-        },
-        {
-          label: this.$t('tabs.overview'),
-          name: 'overview',
-          active: false,
-          disabled: true,
-        },
-      ];
+    firstImageFromCurrentPage() {
+      if (this.tableOfImages.pages) {
+        for (let i = 0; i < this.tableOfImages.pages.length; i += 1) {
+          if (this.tableOfImages.pages[i].uid === this.pageUid) {
+            return this.tableOfImages.pages[i].articles[0];
+          }
+        }
+      }
+      return false;
     },
   },
   methods: {
@@ -174,6 +174,7 @@ export default {
     IssueViewerText,
     ThumbnailSlider,
     TableOfContents,
+    TableOfImages,
     Icon,
   },
   watch: {
@@ -280,8 +281,12 @@ export default {
           });
         });
 
-        this.$store.dispatch('issue/LOAD_TOC', issueUid).then((toc) => {
-          this.toc = toc;
+        this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS', issueUid).then((tableOfContents) => {
+          this.tableOfContents = tableOfContents;
+        });
+
+        this.$store.dispatch('issue/LOAD_TABLE_OF_IMAGES', issueUid).then((tableOfImages) => {
+          this.tableOfImages = tableOfImages;
         });
       },
     },
@@ -350,7 +355,8 @@ div.overlay-region{
     "label_display": "Display as",
     "tabs": {
         "overview": "Overview",
-        "toc": "Table of Contents",
+        "table_of_contents": "Table of Contents",
+        "table_of_images": "Images",
         "search": "Search"
     }
   },
@@ -358,7 +364,8 @@ div.overlay-region{
     "label_display": "Toon als",
     "tabs": {
         "overview": "Overzicht",
-        "toc": "Inhoudsopgave",
+        "table_of_contents": "Inhoudsopgave",
+        "table_of_images": "Afbeeldingen",
         "search": "Zoek"
     }
   }

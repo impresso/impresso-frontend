@@ -28,7 +28,7 @@ import Tag from './Tag';
  * @param {Array} tags Array of Tag objects
  * @param {Interger} time Unix timestamp of the article
  * @param {String} title Title of the article
- * @param {String} type type of article 'ad' = advertisement, 'ar' = article
+ * @param {String} type type of article 'ad' = advertisement, 'ar' = article, 'image' = image
  * @param {String} uid Unique identifier for the article
  * @param {Number} year Year of the article
  */

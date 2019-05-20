@@ -54,8 +54,12 @@ export default {
     ThumbnailSliderItem,
   },
   watch: {
-    page() {
-      this.scrollToActivePage();
+    page: {
+      handler(val, oldval) {
+        if (oldval instanceof Page) {
+          this.scrollToActivePage();
+        }
+      },
     },
     issue: {
       handler() {

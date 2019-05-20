@@ -51,10 +51,7 @@
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="type === 'newspaper'">{{ item.name }}</span>
-        <span v-if="type === 'collection'">
-          <b>{{ item.name }}</b> @{{ item.creator.username }}
-          <br/>{{ item.countItems }} items &mdash; {{ $d(item.lastModifiedDate, 'long') }}
-        </span>
+        <collection-item v-if="type === 'collection'" :item="item" />
         <div v-if="type === 'daterange'">
           <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
         </div>
@@ -67,7 +64,8 @@
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="type === 'newspaper'">{{ item.name }}</span>
         <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
-        <span v-if="item.count">({{ $n(item.count)}})</span>
+        <collection-item v-if="type === 'collection'" :item="item" />
+        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </div>
     </div>
 
@@ -88,10 +86,15 @@
 
 <script>
 import FilterDaterange from './FilterDateRange';
+import CollectionItem from './lists/CollectionItem';
 
 export default {
   props: {
     type: String, // being topic, newspaper, collection, language ...
+    store: {
+      type: String,
+      default: 'search',
+    },
     operators: {
       type: Array,
       default: () => ['OR'],
@@ -128,8 +131,8 @@ export default {
     applyFilter() {
       this.updateFilter({});
       this.$emit('filter-applied');
-      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', 1);
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+      this.$store.commit(`${this.store}/UPDATE_PAGINATION_CURRENT_PAGE`, 1);
+      this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`);
     },
     updateFilter({ op, context }) {
       console.log('methods.updateFilter: op:', op, context);
@@ -143,13 +146,13 @@ export default {
       }, []);
 
       if (!q.length) {
-        this.$store.commit('search/REMOVE_FILTER', this.filter);
+        this.$store.commit(`${this.store}/REMOVE_FILTER`, this.filter);
         this.$emit('filter-removed');
         return;
       }
 
       // commit the update
-      this.$store.commit('search/UPDATE_FILTER', {
+      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
         filter: this.filter,
         q,
         op,
@@ -169,7 +172,7 @@ export default {
       this.updateFilterItem(item);
     },
     updateFilterItem(item, uid) {
-      this.$store.commit('search/UPDATE_FILTER_ITEM', {
+      this.$store.commit(`${this.store}/UPDATE_FILTER_ITEM`, {
         filter: this.filter,
         item,
         uid,
@@ -178,6 +181,7 @@ export default {
   },
   components: {
     FilterDaterange,
+    CollectionItem,
   },
 };
 </script>

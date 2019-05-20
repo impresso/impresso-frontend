@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-media class="py-3 border-bottom">
+  <b-media class="py-3 border-bottom overflow-hidden">
     <div class="thumbnail bg-light border" slot="aside" >
       <open-seadragon-viewer
         v-bind:handler="handler">

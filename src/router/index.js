@@ -2,6 +2,7 @@ import * as services from '@/services';
 import Vue from 'vue';
 import Router from 'vue-router';
 import HomePage from '../components/HomePage';
+import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
@@ -38,6 +39,14 @@ const router = new Router({
     path: '/search',
     name: 'search',
     component: SearchPage,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/search/images',
+    name: 'searchImages',
+    component: SearchImagesPage,
     meta: {
       requiresAuth: true,
     },

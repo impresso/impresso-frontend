@@ -3,12 +3,16 @@
   <i-layout-section width="400px" class="border-right border-tertiary">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
-      <!-- <b-tabs pills class="border-bottom border-tertiary">
+      <b-tabs pills class="border-bottom mx-2 pt-2">
         <template slot="tabs">
-          <b-nav-item :to="{ name:'search'}"  ><span v-html="$t('tabs.text')"/></b-nav-item>
-          <b-nav-item :to="{ name:'newspaper'}" exact><span v-html="$t('tabs.images')"/></b-nav-item>
+          <b-nav-item class="pl-2 active"
+            active-class='none'
+            :to="{ name:'search'}"><span v-html="$t('tabs.text')"/></b-nav-item>
+          <b-nav-item
+            active-class='none'
+            :to="{ name:'searchImages'}"><span v-html="$t('tabs.images')"/></b-nav-item>
         </template>
-      </b-tabs> -->
+      </b-tabs>
       <div class="py-3 px-3">
         <search-pills v-on:remove="onRemoveFilter"/>
         <autocomplete v-on:submit="onSuggestion" />
@@ -16,19 +20,13 @@
     </div>
 
     <!--  body -->
-    <div class="pt-2">
+    <div class="pt-3">
 
-      <b-form-group class="px-3 py-1">
-        <b-form-checkbox v-model="hasTextContents" switch v-bind:value="true"
-        v-bind:unchecked-value="false">
-          {{$t('label_hasTextContents')}}
-        </b-form-checkbox>
+      <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
           {{$t('label_isFront')}}
         </b-form-checkbox>
       </b-form-group>
-
-
 
       <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
       <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
@@ -90,9 +88,10 @@
       <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
         <ellipsis v-bind:initialHeight="88">
           <search-result-summary
-            v-on:onSummary="onSummary"
-            v-bind:queryComponents="queryComponents"
-            v-bind:totalRows="paginationTotalRows" />
+            @onSummary="onSummary"
+            :group-by="groupBy"
+            :queryComponents="queryComponents"
+            :totalRows="paginationTotalRows" />
         </ellipsis>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto p-3" v-if="isLoggedIn">
