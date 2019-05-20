@@ -26,6 +26,15 @@ export default {
       images: 'Search in <span class="number">{count}</span> published images',
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
+    numbers: {
+      results: '{results} results',
+      collection: {
+        countItems: '{countItems} saved items',
+      },
+    },
+    dates: {
+      lastModifiedDate: 'last modified',
+    },
   },
   nl: {
     language: 'Taal',
