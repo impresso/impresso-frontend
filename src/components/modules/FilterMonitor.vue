@@ -51,10 +51,7 @@
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="type === 'newspaper'">{{ item.name }}</span>
-        <span v-if="type === 'collection'">
-          <b>{{ item.name }}</b> @{{ item.creator.username }}
-          <br/>{{ item.countItems }} items &mdash; {{ $d(item.lastModifiedDate, 'long') }}
-        </span>
+        <collection-item v-if="type === 'collection'" :item="item" />
         <div v-if="type === 'daterange'">
           <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
         </div>
@@ -67,7 +64,8 @@
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="type === 'newspaper'">{{ item.name }}</span>
         <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
-        <span v-if="item.count">({{ $n(item.count)}})</span>
+        <collection-item v-if="type === 'collection'" :item="item" />
+        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </div>
     </div>
 
@@ -88,6 +86,7 @@
 
 <script>
 import FilterDaterange from './FilterDateRange';
+import CollectionItem from './lists/CollectionItem';
 
 export default {
   props: {
@@ -182,6 +181,7 @@ export default {
   },
   components: {
     FilterDaterange,
+    CollectionItem,
   },
 };
 </script>
