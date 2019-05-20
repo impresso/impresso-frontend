@@ -60,15 +60,19 @@
 
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
-          <b-col cols="12" v-for="(article, index) in articles" v-bind:key="article.uid">
             <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
+          <b-col cols="12"
+            v-for="(article, index) in articles"
+            v-bind:key="`${index}-${article.uid}`">
           </b-col>
         </b-row>
 
         <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, index) in articles" v-bind:key="article.uid">
             <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
             <!-- {{ article }} -->
+          <b-col cols="6" sm="12" md="4" lg="3"
+            v-for="(article, index) in articles"
+            v-bind:key="`${index}-${article.uid}`">
           </b-col>
         </b-row>
       </b-container>
