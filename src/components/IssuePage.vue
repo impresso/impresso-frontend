@@ -71,7 +71,6 @@ export default {
   data: () => ({
     handler: new Vue(),
     bounds: {},
-    tab: {},
     issue: new Issue(),
     tableOfContents: {},
     tableOfImages: {},
@@ -176,6 +175,11 @@ export default {
     TableOfContents,
     TableOfImages,
     Icon,
+  },
+  mounted() {
+    if (this.$route.query.tab === 'images') {
+      this.tabIndex = 1;
+    }
   },
   watch: {
     '$route.params.issue_uid': {
