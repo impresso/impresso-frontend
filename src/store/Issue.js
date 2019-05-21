@@ -70,7 +70,7 @@ export default {
       });
     },
     LOAD_TABLE_OF_CONTENTS(context, uid) {
-      return new Promise((resolve, reject) => {
+      const tocPromise = new Promise((resolve, reject) => {
         const q = {
           query: {
             filters: [{
@@ -120,9 +120,8 @@ export default {
             reject(error);
           });
       });
-    },
-    LOAD_TABLE_OF_IMAGES(context, uid) {
-      return new Promise((resolve, reject) => {
+
+      const toiPromise = new Promise((resolve, reject) => {
         const query = {
           filters: [{
             type: 'issue',
@@ -131,41 +130,19 @@ export default {
           limit: 500,
         };
 
-        services.images.find({ query }).then((response) => {
-          const issue = new Issue();
-          const articles = response.data.map(image => new Article({
-            ...image,
-          }));
+        services.images.find({ query }).then(resolve, reject);
+      });
 
-          articles.forEach((article) => {
-            article.pages.forEach((p1) => {
-              const page = issue.pages.find(p2 => p1.uid === p2.uid);
-              if (!page) {
-                issue.pages.push(new Page({
-                  ...p1,
-                  articles: [article],
-                }));
-              } else {
-                page.articles.push(article);
-              }
-            });
-          });
-
-          // sort by page number
-          issue.pages.sort((pageA, pageB) => {
-            if (pageA.num < pageB.num) {
-              return -1;
-            }
-            if (pageA.num > pageB.num) {
-              return 1;
-            }
-
-            return 0;
-          });
-          resolve(issue);
-        }, (error) => {
-          reject(error);
-        });
+      return Promise.all([tocPromise, toiPromise]).then((values) => {
+        // merge the table of images into the table of articles
+        for (let i = 0; i < values[0].pages.length; i += 1) {
+          for (let j = 0; j < values[0].pages[i].articles.length; j += 1) {
+            values[0].pages[i].articles[j].images =
+              values[1].data.filter(image => image.article === values[0].pages[i].articles[j].uid)
+              .map(image => new Article(image));
+          }
+        }
+        return values[0];
       });
     },
   },

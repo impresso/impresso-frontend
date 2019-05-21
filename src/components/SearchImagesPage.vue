@@ -328,9 +328,6 @@ export default {
           page_uid: searchResult.pages[0].uid,
           article_uid: searchResult.uid,
         },
-        query: {
-          tab: 'images',
-        },
       });
     },
   },
