@@ -1,20 +1,32 @@
 <template lang="html">
   <div id="TableOfContents" ref="TableOfContents">
-    <div v-for="page in tableOfContents.pages" class="mb-5">
+    <div v-for="page in tableOfContents.pages" class="mb-5 page">
       <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
-      <ul class="list-unstyled page border-bottom border-top" v-bind:class="{active: page.uid === pageUid}">
-        <li :ref="`article-${article.uid}`" class="article border-bottom" v-for="article in page.articles" v-bind:class="{active: article.uid === articleUid}">
-            <a href="#" v-on:click.prevent="onClick(article, page)" class="p-3">
-              <div class="info">
-                <span class="d-block title" v-html="article.title || $t('no_title')"></span>
-                <span class="excerpt">{{article.excerpt | substring(100)}}</span>
-              </div>
-              <div class="page">
-                {{page.num}}
-              </div>
-            </a>
-        </li>
-      </ul>
+        <b-media
+          :ref="`article-${article.uid}`"
+          class="border-bottom article"
+          v-for="article in page.articles"
+          v-bind:class="{active: article.uid === articleUid}">
+          <a
+            class="p-3"
+            href="#"
+            v-on:click.prevent="onClick(article, page)">
+          <div
+            v-if="article.images.length"
+            class="mr-3 images">
+            <b-img
+            fluid-grow
+            class="mb-1 image"
+              v-for="image in article.images"
+              v-bind:src="image.regions[0].iiifFragment" />
+          </div>
+          <span
+            class="title"
+            v-html="article.title" />
+          <span
+            class="excerpt">{{article.excerpt | substring(100)}}</span>
+          </a>
+        </b-media>
     </div>
   </div>
 </template>
@@ -80,42 +92,34 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #TableOfContents{
-  .pagenumber {
-    font-size: 1.4em;
-    color: lighten($clr-primary, 75);
-  }
-
-  ul.page {
-    list-style: none;
+  .page{
     font-size: smaller;
-    margin-bottom: 0;
-    .article {
-      a{
-        text-decoration: none;
-        display: flex;
-        flex-direction: row;
-        align-items: stretch;
-        .info{
-          flex: auto;
-          .title{
-            font-size: 1.2em;
-            font-weight: bold;
-          }
-          .excerpt{
-            color: lighten($clr-primary, 25);
-          }
-        }
-        .page{
-          flex: min-content;
-          font-size: 1.2em;
-          font-weight: bold;
-          color: lighten($clr-primary, 75);
-        }
-      }
+    .pagenumber{
+      text-align: center;
+    }
+
+    .article{
       &.active{
-        a {
+        a{
           background: lighten($clr-primary, 88);
           font-weight: bold;
+        }
+      }
+      a{
+        text-decoration: none;
+        display: block;
+        .title{
+          font-weight: bold;
+        }
+        .excerpt{
+          color: lighten($clr-primary, 25);
+        }
+        .images{
+          width:80px;
+          float:left;
+          .image{
+
+          }
         }
       }
     }

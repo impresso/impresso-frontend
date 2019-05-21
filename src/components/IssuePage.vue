@@ -1,18 +1,15 @@
 <template lang='html'>
     <i-layout id="IssuePage">
       <i-layout-section width="300px" class="border-right">
-        <b-tabs v-model="tabIndex" slot="header" class="mt-2">
-          <b-tab v-bind:title="$t('tabs.table_of_contents')" active />
-          <b-tab v-bind:title="$t('tabs.table_of_images')" />
-        </b-tabs>
-        <table-of-images
-          v-show="tabIndex === 1"
-          v-bind:tableOfContents="tableOfImages"
-          v-bind:pageUid="pageUid"
-          v-bind:articleUid="imageUid"
-          v-on:click="loadArticlePage" />
+        <div slot="header" class="border-bottom border-tertiary bg-light">
+          <b-tabs pills class="border-bottom mx-2 pt-2">
+            <template slot="tabs">
+              <b-nav-item class="pl-2 active"
+                active-class='none'>{{$t('table_of_contents')}}</b-nav-item>
+            </template>
+          </b-tabs>
+        </div>
         <table-of-contents
-          v-show="tabIndex === 0"
           v-bind:tableOfContents="tableOfContents"
           v-bind:pageUid="pageUid"
           v-bind:articleUid="articleUid"
@@ -64,20 +61,16 @@ import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 import BaseTabs from './base/BaseTabs';
 import TableOfContents from './modules/TableOfContents';
-import TableOfImages from './modules/TableOfImages';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
 export default {
   data: () => ({
     handler: new Vue(),
     bounds: {},
-    tab: {},
     issue: new Issue(),
     tableOfContents: {},
-    tableOfImages: {},
     isLoaded: false,
     isDragging: false,
-    tabIndex: 0,
   }),
   computed: {
     page() {
@@ -104,24 +97,11 @@ export default {
     articleUid() {
       return this.$route.params.article_uid || this.firstArticleFromCurrentPage.uid;
     },
-    imageUid() {
-      return this.$route.params.article_uid || this.firstImageFromCurrentPage.uid;
-    },
     firstArticleFromCurrentPage() {
       if (this.tableOfContents.pages) {
         for (let i = 0; i < this.tableOfContents.pages.length; i += 1) {
           if (this.tableOfContents.pages[i].uid === this.pageUid) {
             return this.tableOfContents.pages[i].articles[0];
-          }
-        }
-      }
-      return false;
-    },
-    firstImageFromCurrentPage() {
-      if (this.tableOfImages.pages) {
-        for (let i = 0; i < this.tableOfImages.pages.length; i += 1) {
-          if (this.tableOfImages.pages[i].uid === this.pageUid) {
-            return this.tableOfImages.pages[i].articles[0];
           }
         }
       }
@@ -174,7 +154,6 @@ export default {
     IssueViewerText,
     ThumbnailSlider,
     TableOfContents,
-    TableOfImages,
     Icon,
   },
   watch: {
@@ -284,10 +263,6 @@ export default {
         this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS', issueUid).then((tableOfContents) => {
           this.tableOfContents = tableOfContents;
         });
-
-        this.$store.dispatch('issue/LOAD_TABLE_OF_IMAGES', issueUid).then((tableOfImages) => {
-          this.tableOfImages = tableOfImages;
-        });
       },
     },
     '$route.params.page_uid': {
@@ -353,21 +328,11 @@ div.overlay-region{
 {
   "en": {
     "label_display": "Display as",
-    "tabs": {
-        "overview": "Overview",
-        "table_of_contents": "Table of Contents",
-        "table_of_images": "Images",
-        "search": "Search"
-    }
+    "table_of_contents": "Table of Contents"
   },
   "nl": {
     "label_display": "Toon als",
-    "tabs": {
-        "overview": "Overzicht",
-        "table_of_contents": "Inhoudsopgave",
-        "table_of_images": "Afbeeldingen",
-        "search": "Zoek"
-    }
+    "table_of_contents": "Inhoudsopgave"
   }
 }
 </i18n>
