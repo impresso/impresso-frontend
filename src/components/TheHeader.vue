@@ -398,6 +398,10 @@ $clr-grey-800: #c6ccd2;
 .pt-1px {
     padding-top: 1px;
 }
+.custom-control-input {
+  width: 0;
+  height: 0;
+}
 .custom-radio > .custom-control-label::before {
     border: inherit;
     outline: inherit;

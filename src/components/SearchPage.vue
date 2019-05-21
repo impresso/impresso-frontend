@@ -97,17 +97,37 @@
       <b-navbar-nav class="ml-auto p-3" v-if="isLoggedIn">
         <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
           <b-dropdown-item
+            v-if="selectedItems.length > 0"
+            class="p-2 small-caps"
+            v-b-modal.nameSelectionCollection>
+            <span class="dripicons-checklist pr-1"></span>
+            {{$tc('add_n_to_collection', selectedItems.length)}}
+          </b-dropdown-item>
+          <b-dropdown-item
+            class="p-2 small-caps"
             v-b-modal.nameCollection>
-            <span class="dripicons-archive pr-3"></span>
+            <span class="dripicons-archive pr-1"></span>
             {{$t("query_add_to_collection")}}
           </b-dropdown-item>
-          <b-dropdown-item v-on:click="exportQueryCsv">
-            <span class="dripicons-export pr-3"></span>
+          <b-dropdown-item v-on:click="exportQueryCsv"
+            class="p-2 small-caps">
+            <span class="dripicons-export pr-1"></span>
             {{$t("query_export_csv")}}
           </b-dropdown-item>
         </b-dropdown>
       </b-navbar-nav>
     </b-navbar>
+
+
+    <b-modal hide-footer scrollable
+      body-class="m-0 p-0"
+      id="nameSelectionCollection"
+      ref="nameSelectionCollection"
+      v-on:shown="nameSelectedCollectionOnShown()"
+      v-bind:title="$tc('add_n_to_collection', selectedItems.length)">
+      <collection-add-to-list :items="selectedItems" />
+    </b-modal>
+
     <b-modal
       id="nameCollection"
       ref="nameCollection"
@@ -179,6 +199,7 @@ import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
+import CollectionAddToList from './modules/CollectionAddToList';
 import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
 // const uuid = require('uuid');
@@ -319,6 +340,9 @@ export default {
     },
   },
   methods: {
+    nameSelectedCollectionOnShown() {
+      return this.$store.dispatch('collections/LOAD_COLLECTIONS');
+    },
     getBooleanFilter(filter) {
       return !!this.$store.state.search.search.getFilter(filter);
     },
@@ -491,6 +515,7 @@ export default {
     'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
     CollectionAddTo,
+    CollectionAddToList,
     Ellipsis,
     SearchPills,
   },
@@ -578,7 +603,7 @@ div.overlay-region{
     "select_all": "Select all items on this page",
     "items_selected": "One item selected | {count} items selected",
     "Clear Selection": "Clear Selection",
-    "add_n_to_collection": "Add item to collection | Add {count} items to collection",
+    "add_n_to_collection": "Add selected item to my collection | Add {count} selected items to my collection",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
     "Collection_Name" : "Collection Name",
