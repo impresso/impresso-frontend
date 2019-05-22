@@ -31,6 +31,8 @@
                 <input type="checkbox" value="remember-me" v-model="rememberCredetials"> {{$t("login_remember")}}
               </label>
             </div>
+            <h5>Do you need an account?</h5>
+            <p>Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a></p>
           </div>
           <div class="footer p-3">
             <button class="btn btn-lg btn-primary btn-block" type="submit">{{$t("login_button")}}</button>
