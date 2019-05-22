@@ -11,7 +11,9 @@
             {'dripicons-align-justify': filter.type === 'string'},
             {'dripicons-message': filter.type === 'topic'},
             {'dripicons-pamphlet': filter.type === 'newspaper'},
-            {'dripicons-web': filter.type === 'language'}
+            {'dripicons-web': filter.type === 'language'},
+            {'dripicons-calendar': filter.type === 'daterange'},
+            {'dripicons-suitcase': filter.type === 'collection'},
           ]" />
         <!--  type:string -->
         <span class="label sp-string" v-if="filter.type === 'string'" :class="filter.precision">
