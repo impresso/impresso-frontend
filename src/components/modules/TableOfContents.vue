@@ -8,7 +8,7 @@
           v-for="article in page.articles"
           v-bind:class="{active: article.uid === articleUid}">
           <a
-            class="p-3"
+            class="p-3 clearfix"
             href="#"
             v-on:click.prevent="onClick(article, page)">
           <div
