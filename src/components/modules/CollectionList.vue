@@ -207,6 +207,11 @@ export default {
 <i18n>
 {
   "en": {
+    "a-z": "a-z",
+    "z-a": "z-a",
+    "oldest": "oldest",
+    "newest": "newest",
+    "last-edited": "last-edited",
     "placeholder": "Filter",
     "inputNewPlaceholder": "New Collection Name",
     "label_order": "Order By",
