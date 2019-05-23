@@ -24,6 +24,9 @@
       </div>
       <b-container fluid class="inputList p-0">
         <ul>
+          <li v-if="!Object.keys(this.collections).length" class="text-center p-5">
+            <div class="spinner"><span /></div>
+          </li>
           <li v-for="collection in filteredCollections" class="form-check">
             <input
               class="form-check-input"
