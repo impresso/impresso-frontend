@@ -450,6 +450,37 @@ $clr-grey-800: #c6ccd2;
     transform: scale(1);
   }
 }
+
+
+.spinner > span,
+.spinner:after,
+.spinner:before {
+  content: '';
+  width: 1em;
+  height: 1em;
+  margin: 0.2em;
+  background-color: $clr-tertiary;
+  border-radius: 50%;
+  display: inline-block;
+  animation: sk-bouncedelay 1.2s infinite ease-in-out both;
+}
+.spinner:before {
+  animation-delay: 0s;
+}
+.spinner > span {
+  animation-delay: -0.4s;
+}
+.spinner:after {
+  animation-delay: -0.8s;
+}
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% {
+    transform: scale(0);
+  } 40% {
+    transform: scale(1.0);
+  }
+}
+
 </style>
 
 <i18n>
