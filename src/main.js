@@ -29,6 +29,8 @@ Vue.config.productionTip = process.env.NODE_ENV === 'production';
 // Create VueI18n instance with options
 const i18n = new VueI18n({
   fallbackLocale: 'en',
+  silentFallbackWarn: true,
+  // silentTranslationWarn: true,
   locale: store.state.settings.language_code,
   messages,
   dateTimeFormats,
