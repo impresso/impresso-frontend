@@ -450,7 +450,6 @@ $clr-grey-800: #c6ccd2;
     transform: scale(1);
   }
 }
-
 </style>
 
 <i18n>

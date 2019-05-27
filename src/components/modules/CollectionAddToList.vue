@@ -25,7 +25,7 @@
       <b-container fluid class="inputList p-0">
         <ul>
           <li v-if="!Object.keys(this.collections).length">
-            <base-spinner class="text-center p-5" />
+            <i-spinner class="text-center p-5" />
           </li>
           <li v-for="collection in filteredCollections" class="form-check">
             <input
@@ -57,8 +57,6 @@
 </template>
 
 <script>
-import BaseSpinner from '../base/BaseSpinner';
-
 export default {
   data: () => ({
     show: false,
@@ -68,9 +66,6 @@ export default {
   props: {
     item: Object,
     items: Array,
-  },
-  components: {
-    BaseSpinner,
   },
   computed: {
     filteredCollections() {
