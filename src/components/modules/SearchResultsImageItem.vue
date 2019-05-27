@@ -1,6 +1,7 @@
 <template lang="html">
   <div class="tile my-3 border">
     <div
+      v-if="searchResult.regions && searchResult.regions[0]"
       class="thumbnail bg-light clearfix"
       :style="`background-image: url(${searchResult.regions[0].iiifFragment})`">
       <div v-if="isLoggedIn() && checkbox" class="float-right pt-1 pl-1">
@@ -10,6 +11,12 @@
           v-on:change="toggleSelected" />
       </div>
     </div>
+    <div
+      v-else
+      class="thumbnail bg-dark clearfix">
+      <p class="text-center small-caps text-light pt-4">iiifFragment missing</p>
+    </div>
+
     <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
       <h2>{{searchResult.uid}}</h2>
       <div v-show="searchResult.newspaper.name != ''" class="small-caps">
