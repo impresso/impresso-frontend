@@ -51,8 +51,7 @@
         </div>
         <hr>
         <b-container fluid>
-          <h1>Similar Articles</h1>
-          <p>Little explaination on how we find and calculate</p>
+          <h3>Similar Articles</h3>
           <b-row class="pb-5">
             <b-col
               cols="6"
