@@ -9,7 +9,8 @@
             </span>
             <h3 class='mb-1'>
               {{newspaper.name}}
-              ({{newspaper.startYear}} - {{newspaper.endYear}})</h3>
+              ({{newspaper.startYear}} - {{newspaper.endYear}})
+            </h3>
             <p class='mb-0' v-if='genealogy || publication'>
               <span v-if='genealogy'>{{ genealogy }}</span>
               <span v-if='publication'>{{ publication }}</span>
@@ -41,6 +42,23 @@
       <!-- eof:header  -->
 
       <div class='px-3 py-2 ' v-if='$route.name == "newspaper_metadata"'>
+        <div class="mt-2">
+          <div v-if="newspaper.firstIssue && newspaper.lastIssue" class="small-caps">
+            {{ $t('imeta.daterange') }}
+            {{ $d(new Date(newspaper.firstIssue.date), 'year') }}
+             - {{ $d(new Date(newspaper.lastIssue.date), 'year') }}
+          </div>
+          <div v-if="newspaper.countArticles" class="small-caps">
+            {{ $t('imeta.countArticles') }} {{ newspaper.countArticles }}
+          </div>
+          <div v-if="newspaper.countIssues" class="small-caps">
+            {{ $t('imeta.countIssues') }} {{ newspaper.countIssues }}
+          </div>
+          <div v-if="newspaper.countPages" class="small-caps">
+            {{ $t('imeta.countIssues') }} {{ newspaper.countIssues }}
+            {{ $t('imeta.countPages') }} {{ newspaper.countPages }}
+          </div>
+        </div>
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="table-caption">List of known metadata for this newspaper</template>
@@ -255,6 +273,12 @@ export default {
     "route": {
       "newspaper": "list of {total} first pages",
       "newspaper_metadata": "newspaper metadata"
+    },
+    "imeta": {
+      "daterange": "Impresso Daterange: ",
+      "countPages": "Pages: ",
+      "countIssues": "Issues: ",
+      "countArticles": "Articles: "
     },
     "metadata": {
       "property": {
