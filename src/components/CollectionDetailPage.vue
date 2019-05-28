@@ -60,15 +60,29 @@
 
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
-          <b-col cols="12" v-for="(article, index) in articles" v-bind:key="article.uid">
-            <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
+          <b-col cols="12"
+            v-for="(article, index) in articles"
+            v-bind:key="`${index}-${article.uid}`">
+            <search-results-list-item
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
           </b-col>
         </b-row>
 
         <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-          <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, index) in articles" v-bind:key="article.uid">
-            <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
-            <!-- {{ article }} -->
+          <b-col cols="6" sm="12" md="4" lg="3"
+            v-for="(article, index) in articles"
+            v-bind:key="`${index}-${article.uid}`">
+            <!-- {{article}} -->
+            <search-results-tiles-item
+              v-if="article.type === 'ar'"
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
+            <search-results-image-item
+              v-if="article.type !== 'ar'"
+              v-bind:searchResult="article"
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
           </b-col>
         </b-row>
       </b-container>
@@ -120,6 +134,7 @@ import Article from '@/models/Article';
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
+import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import Pagination from './modules/Pagination';
 
 export default {
@@ -130,6 +145,7 @@ export default {
   components: {
     SearchResultsListItem,
     SearchResultsTilesItem,
+    SearchResultsImageItem,
     Pagination,
   },
   computed: {
