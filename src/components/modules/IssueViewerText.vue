@@ -139,6 +139,8 @@ export default {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
+        this.article = new Article();
+        this.articlesSuggestions = [];
         this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
