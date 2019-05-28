@@ -55,6 +55,10 @@ export default {
         navigatorDisplayRegionColor: 'black',
         navigatorBorderColor: '#dee2e6',
         navigatorOpacity: 1,
+        gestureSettingsMouse: {
+          scrollToZoom: false,
+          clickToZoom: false,
+        },
       };
       this.handler.$emit('init', options);
     },
