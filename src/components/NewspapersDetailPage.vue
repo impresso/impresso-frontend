@@ -82,9 +82,6 @@
       <div v-else>
         <div class="p-4">
           <b-row>
-            {{firstIssue[0].date.substring(0, firstIssue[0].date.indexOf("-"))}}
-            <br>
-            {{issues[issues.length-1].date.substring(0, issues[issues.length-1].date.indexOf("-"))}}
             <b-col
               sm="12" md="4" lg="3"
               v-for="(issue, i) in issues"
@@ -191,22 +188,6 @@ export default {
       this.total = response.total;
       return response.data;
     },
-    async getFirstIssue({
-      page = 1,
-    } = {}) {
-      const response = await this.$store.dispatch('newspapers/LOAD_ISSUES', {
-        page,
-        orderBy: this.orderBy,
-        limit: 1,
-        filters: [{
-          type: 'newspaper',
-          q: this.$route.params.newspaper_uid,
-          context: 'include',
-        }],
-      });
-      return response.data;
-    },
-
     async getNewspaper() {
       return this.$store.dispatch('newspapers/LOAD_DETAIL', this.$route.params.newspaper_uid);
     },
@@ -216,7 +197,6 @@ export default {
       immediate: true,
       async handler() {
         this.issues = await this.getIssues();
-        this.firstIssue = await this.getFirstIssue();
         this.newspaper = await this.getNewspaper();
       },
     },
