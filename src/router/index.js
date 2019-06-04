@@ -14,6 +14,9 @@ import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
 import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
+import EntitiesPage from '../components/EntitiesPage';
+import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
+// import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
@@ -158,6 +161,29 @@ const router = new Router({
         realm: 'newspapers',
       },
     }],
+  },
+  {
+    path: '/entities',
+    component: EntitiesPage,
+    children: [{
+      path: '',
+      component: EntitiesExplorerPage,
+      name: 'entities',
+      meta: {
+        requiresAuth: true,
+        realm: 'entities',
+      },
+    },
+    // {
+    //   path: ':entity_uid',
+    //   component: EntitiesDetailPage,
+    //   name: 'entity',
+    //   meta: {
+    //     requiresAuth: true,
+    //     realm: 'entities',
+    //   },
+    // }
+    ],
   },
   {
     path: '/playground',
