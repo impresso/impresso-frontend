@@ -22,7 +22,7 @@
           <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
           <b-media v-if="similarToImage">
             <div style="width:128px;" slot="aside">
-              <b-img fluid-grow v-if="similarToImage" v-bind:src="similarToImage.regions[0].iiifFragment" />
+              <b-img fluid-grow v-bind:src="similarToImage.regions[0].iiifFragment" />
             </div>
             <h4>{{similarToImage.newspaper.name}}</h4>
             <p>{{$d(new Date(similarToImage.date), 'long')}}</p>
