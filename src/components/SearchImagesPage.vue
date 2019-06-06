@@ -20,6 +20,14 @@
         </b-tabs>
         <div class="py-3 px-3">
           <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
+          <b-media v-if="similarToImage">
+            <div style="width:128px;" slot="aside">
+              <b-img fluid-grow v-bind:src="similarToImage.regions[0].iiifFragment" />
+            </div>
+            <h4>{{similarToImage.newspaper.name}}</h4>
+            <p>{{$d(new Date(similarToImage.date), 'long')}}</p>
+            <b-button variant="danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">Remove</b-button>
+          </b-media>
         </div>
       </div>
       <!--  body -->
@@ -53,7 +61,7 @@
 
         <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
           <ellipsis v-bind:initialHeight="88">
-            <search-result-summary
+            <search-results-summary
               @onSummary="onSummary"
               group-by="images"
               :queryComponents="queryComponents"
@@ -86,9 +94,10 @@
               <search-results-image-item
               v-bind:searchResult="searchResult"
               v-bind:checkbox=true
-              v-on:toggleSelected="toggleSelected(searchResult)"
+              v-on:toggleSelected="toggleSelected"
               v-bind:checked="isChecked(searchResult)"
-              v-on:click="onClickResult(searchResult)"
+              v-on:click:image="onClickResult"
+              v-on:click:search="onClickSearch"
               />
             </b-col>
           </b-row>
@@ -110,6 +119,7 @@
 </template>
 
 <script>
+import * as services from '@/services';
 import Autocomplete from './Autocomplete';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import CollectionAddTo from './modules/CollectionAddTo';
@@ -118,7 +128,7 @@ import SearchFacets from './SearchFacets';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
-
+import ImageViewer from './modules/ImageViewer';
 
 export default {
   components: {
@@ -127,14 +137,16 @@ export default {
     CollectionAddTo,
     Pagination,
     SearchFacets,
-    'search-result-summary': SearchResultsSummary,
+    SearchResultsSummary,
     Ellipsis,
     SearchPills,
+    ImageViewer,
   },
   data: () => ({
     selectedItems: [],
     allIndeterminate: false,
     allSelected: false,
+    similarToImage: false,
   }),
   mounted() {
     // testing URL
@@ -161,6 +173,11 @@ export default {
     searchResults: {
       get() {
         return this.$store.getters['searchImages/results'];
+      },
+    },
+    similarTo: {
+      get() {
+        return this.$store.state.searchImages.similarTo;
       },
     },
     queryComponents: {
@@ -209,6 +226,7 @@ export default {
   },
   methods: {
     search(page) {
+      this.$store.state.searchImages.results = [];
       if (page !== undefined) {
         this.$store.commit('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
@@ -242,7 +260,6 @@ export default {
       this.search(1);
     },
     onFacet(facet) {
-      console.log('@onFacet', facet);
       this.$store.commit('searchImages/ADD_FILTER', facet);
       this.search(1);
     },
@@ -256,6 +273,10 @@ export default {
     },
     onRemoveFilter(filter) {
       this.$store.commit('searchImages/REMOVE_FILTER', filter);
+      this.search(1);
+    },
+    onRemoveSimilarTo() {
+      this.$store.commit('searchImages/UPDATE_SIMILAR_TO', false);
       this.search(1);
     },
     updateselectAll() {
@@ -330,6 +351,11 @@ export default {
         },
       });
     },
+    onClickSearch(image) {
+      this.similarToImage = image;
+      this.$store.commit('searchImages/UPDATE_SIMILAR_TO', image.uid);
+      this.search(1);
+    },
   },
   watch: {
     searchResults() {
@@ -340,10 +366,21 @@ export default {
     },
     '$route.query': {
       handler(val) {
-        console.log('@$route.query changed', val);
         this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
       },
       deep: true,
+      immediate: true,
+    },
+    '$route.query.i': {
+      handler(val) {
+        if (val) {
+          services.images.get(val).then((res) => {
+            this.similarToImage = res;
+          });
+        } else {
+          this.similarToImage = false;
+        }
+      },
       immediate: true,
     },
   },

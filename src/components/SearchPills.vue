@@ -102,7 +102,6 @@ export default {
   },
   computed: {
     currentStore() {
-      console.log('currentStore', this.store);
       if (this.store === 'searchImages') {
         return this.$store.state.searchImages;
       }
@@ -166,7 +165,6 @@ export default {
       this.$emit('remove', filter);
     },
     onChangeFilter(filter) {
-      console.log('changed');
       filter.touched = true;
     },
     onApplyFilter(filter) {
