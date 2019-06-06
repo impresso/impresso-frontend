@@ -13,6 +13,7 @@ import newspapers from './Newspapers';
 import articles from './Articles';
 import topics from './Topics';
 import jobs from './Jobs';
+import mentions from './Mentions';
 
 Vue.use(Vuex);
 
@@ -32,6 +33,7 @@ export default new Vuex.Store({
     topics,
     jobs,
     newspapers,
+    mentions,
   },
   state: {
     processing_status: false,
