@@ -16,6 +16,10 @@ export default {
   },
   getters: {},
   mutations: {
+    UPDATE_QUERY(state, query) {
+      state.query = query;
+      console.log('update q', query);
+    },
     UPDATE_ENTITIES(state, entities) {
       state.entities = entities;
     },
@@ -31,6 +35,7 @@ export default {
       return new Promise((resolve) => {
         services.entities.find({
           query: {
+            q: context.state.query,
             limit: context.state.pagination.perPage,
             orderby: context.state.orderBy,
             page: context.state.pagination.currentPage,

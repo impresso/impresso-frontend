@@ -1,42 +1,57 @@
 <template lang="html">
   <i-layout-section class="p-3">
-    <b-card>
-      <div class="float-right">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/DBP_1977_926_Jean_Monnet.jpg/300px-DBP_1977_926_Jean_Monnet.jpg" alt="DBP 1977 926 Jean Monnet">
+    <b-card v-if="entity.wikidata">
+
+      <div class="float-right ml-4">
+        <div class="border mb-2" v-for="(im, index) in entity.wikidata.images">
+          <img :src="`http://commons.wikimedia.org/wiki/Special:FilePath/${im.value}?width=300px`">
+        </div>
+        <iframe
+          v-if="entity.wikidata.coordinates"
+          width="300" height="250"
+          :src="`https://www.openstreetmap.org/export/embed.html?bbox=&marker=${entity.wikidata.coordinates.latitude},${entity.wikidata.coordinates.longitude}`"
+          class="border mb-2">
+        </iframe>
+        <div class="small small-caps text-right">
+          <a :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.id}`"
+            target="_blank">Source: wikiData/{{entity.wikidata.id}}</a>
+        </div>
       </div>
-      <div class="small-caps">
-        {{ entity.wikidata.type }}
+
+      <div>
+        <div class="small-caps">
+          {{ entity.wikidata.type }}
+        </div>
+        <h1>{{ entity.name }}</h1>
+        <p>
+          <a
+            v-if="entity.wikidata.birthPlace"
+            :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.birthPlace.id}`"
+            target="_blank">
+            {{ entity.wikidata.birthPlace.labels[activeLanguageCode] }},</a>
+          <span v-if="entity.wikidata.birthDate">
+            {{ parseWkDate(entity.wikidata.birthDate) }} -
+          </span>
+          <a
+            v-if="entity.wikidata.deathPlace"
+            :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.deathPlace.id}`"
+            target="_blank">
+            {{ entity.wikidata.deathPlace.labels[activeLanguageCode] }},</a>
+          <span v-if="entity.wikidata.deathDate">
+          {{ parseWkDate(entity.wikidata.deathDate) }}
+          </span>
+        </p>
+        <p v-if="entity.wikidata.descriptions">
+          <strong>{{ entity.wikidata.descriptions[activeLanguageCode] }}</strong>
+        </p>
+          <strong>6</strong> Occurrences (1902 - 1989), <br>
+          <strong>7</strong> mentions within corpus.
+        </p>
       </div>
-      <h1>{{ entity.name }}</h1>
-      <p>
-        <a
-          v-if="entity.wikidata.birthPlace"
-          :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.birthPlace.id}`"
-          target="_blank">
-          {{ entity.wikidata.birthPlace.labels[activeLanguageCode] }}</a>,
-        <span v-if="entity.wikidata.birthDate">
-          {{ parseWkDate(entity.wikidata.birthDate)  }} -
-        </span>
-        <a
-          v-if="entity.wikidata.deathPlace"
-          :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.deathPlace.id}`"
-          target="_blank">
-          {{ entity.wikidata.deathPlace.labels[activeLanguageCode] }}</a>,
-        </span>
-        {{ parseWkDate(entity.wikidata.deathDate)  }}
-      </p>
-      <p>
-        <strong>French political economist regarded by many as a chief architect of European unity</strong>
-      </p>
-      <p>
-        <strong>6</strong> Occurrences (1902 - 1989), <br>
-        <strong>7</strong> mentions within corpus.
-      </p>
-      <div class="float-right small small-caps">
-        <a href="https://www.wikidata.org/wiki/Q159700">Source: WikiData</a>
-      </div>
-      <pre>{{ entity}}</pre>
+
+      <pre class="small">{{ entity}}</pre>
     </b-card>
+    <b-card v-else>This entity does not contain wikidata</b-card>
   </i-layout-section>
 
 </template>

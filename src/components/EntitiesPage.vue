@@ -7,21 +7,19 @@
 
       <div slot="header" class="border-bottom">
 
-        <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <b-navbar-nav class="px-3 py-3">
-            <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
-            <label class="mr-1">{{$t("label_order")}}</label>
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </b-navbar-nav>
-        </b-navbar>
-        <div class="p-2">
-          <!-- <input
+        <div class="p-3 bg-light">
+          <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
+          <label class="mr-1">{{$t("label_order")}}</label>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </div>
+        <div class="px-2 pb-2 bg-light">
+          <input
             type="text"
             class="form-control"
-            placeholder="... name or description "
+            placeholder="Filter by name"
             name=""
             value=""
-            v-model.trim="query"/> -->
+            v-model.trim="query"/>
         </div>
       </div>
 
@@ -56,7 +54,7 @@
     </i-layout-section>
 
     <router-view />
-    
+
   </i-layout>
 </template>
 
@@ -89,6 +87,15 @@ export default {
     },
     paginationList() {
       return this.$store.state.entities.pagination;
+    },
+    query: {
+      get() {
+        return this.$store.state.entities.query || '';
+      },
+      set(val) {
+        this.$store.commit('entities/UPDATE_QUERY', val);
+        this.loadList(1);
+      },
     },
     orderByOptions: {
       get() {
