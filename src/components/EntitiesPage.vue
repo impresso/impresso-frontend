@@ -1,40 +1,62 @@
 <template lang="html">
   <i-layout id="EntitiesPage">
     <i-layout-section width="300px" class="border-right">
-      <ul class="p-0">
-        <li v-for="e in entities.entities" class="border-bottom list-unstyled m-0 p-3">
-          <strong>{{ e.name }}</strong>
-          <p>{{ e.wikidata.id }}</p>
-        </li>
-      </ul>
-      <!-- {{entities}} -->
+      <!-- <pre>
+        {{entities}}
+      </pre> -->
+
+      <div slot="header" class="border-bottom">
+
+        <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+          <b-navbar-nav class="px-3 py-3">
+            <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
+            <label class="mr-1">{{$t("label_order")}}</label>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </b-navbar-nav>
+        </b-navbar>
+        <div class="p-2">
+          <!-- <input
+            type="text"
+            class="form-control"
+            placeholder="... name or description "
+            name=""
+            value=""
+            v-model.trim="query"/> -->
+        </div>
+      </div>
+
+      <div v-for="e in entities.entities" class="border-bottom">
+        <router-link
+          class="px-3 py-2 d-block"
+          v-bind:class="{active: e.id === entityId}"
+          v-bind:to="{name: 'entity', params: {entity_id: e.id}}">
+          <strong>{{e.name}}</strong>
+          <br>
+          <p v-if="e.wikidata.descriptions">
+            {{ e.wikidata.descriptions.en }}
+          </p>
+          <div class="small-caps">
+            Items: {{ e.countItems }} — Mentions: {{ e.countMentions }}
+          </div>
+        </router-link>
+      </div>
+
+      <div
+        v-if="paginationList.totalRows > paginationList.perPage"
+        slot="footer"
+        class="p-2 border-top">
+        <pagination
+          v-bind:perPage="paginationList.perPage"
+          v-bind:currentPage="paginationList.currentPage"
+          v-bind:totalRows="paginationList.totalRows"
+          v-on:change="onInputPaginationList"
+          class="small-caps"
+          v-bind:showDescription="false" />
+      </div>
     </i-layout-section>
-    <i-layout-section class="p-3">
-      <b-card>
-        <div class="float-right">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/DBP_1977_926_Jean_Monnet.jpg/300px-DBP_1977_926_Jean_Monnet.jpg" alt="DBP 1977 926 Jean Monnet">
-        </div>
-        <div class="small-caps">
-          HUMAN
-        </div>
-        <h1>Jean Monnet</h1>
-        <p>
-          <a href="https://www.wikidata.org/wiki/Q285" target="_blank">Cognac</a>, {{ $d(new Date('1888-11-09T00:00:00Z'), 'year') }} -
-          <a href="https://www.wikidata.org/wiki/Q83447" target="_blank">Bazoches-sur-Guyonne</a>
-          , {{ $d(new Date('1979-03-16T00:00:00Z'), 'year') }}
-        </p>
-        <p>
-          <strong>French political economist regarded by many as a chief architect of European unity</strong>
-        </p>
-        <p>
-          <strong>6</strong> Occurrences (1902 - 1989), <br>
-          <strong>7</strong> mentions within corpus.
-        </p>
-        <div class="float-right small small-caps">
-          <a href="https://www.wikidata.org/wiki/Q159700">Source: WikiData</a>
-        </div>
-      </b-card>
-    </i-layout-section>
+
+    <router-view />
+    
   </i-layout>
 </template>
 
@@ -54,13 +76,42 @@ export default {
     },
   },
   mounted() {
-    this.loadList().then((res) => {
-      console.log(res);
+    this.loadList().then(() => {
+      // console.log(res);
     });
   },
   computed: {
+    entityId() {
+      return this.$route.params.entity_id;
+    },
     entities() {
       return this.$store.state.entities;
+    },
+    paginationList() {
+      return this.$store.state.entities.pagination;
+    },
+    orderByOptions: {
+      get() {
+        return [
+          {
+            value: 'name',
+            text: `${this.$t('sort_name')} ${this.$t('sort_asc')}`,
+          },
+          {
+            value: '-name',
+            text: `${this.$t('sort_name')} ${this.$t('sort_desc')}`,
+          },
+        ];
+      },
+    },
+    orderBy: {
+      get() {
+        return this.$store.state.entities.orderBy;
+      },
+      set(val) {
+        this.$store.commit('entities/UPDATE_ORDER_BY', val);
+        this.loadList(1);
+      },
     },
   },
   components: {
@@ -70,4 +121,24 @@ export default {
 </script>
 
 <style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
+a.d-block:hover {
+  text-decoration: none;
+}
+a.d-block.active {
+    background: $clr-accent-secondary;
+}
 </style>
+
+<i18n>
+{
+  "en": {
+    "label_list": "List of entities ({total})",
+    "label_order": "Order By",
+    "sort_asc": "Ascending",
+    "sort_desc": "Descending",
+    "sort_name": "Alphabetical"
+  }
+}
+</i18n>

@@ -175,7 +175,7 @@ const router = new Router({
       },
     },
     {
-      path: ':entity_uid',
+      path: ':entity_id',
       component: EntitiesDetailPage,
       name: 'entity',
       meta: {

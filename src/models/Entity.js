@@ -41,7 +41,7 @@ export default class Entity {
     this.wikidataId = String(wikidataId);
     this.dbpediaURL = String(dbpediaURL);
     this.impressoId = String(impressoId);
-    this.wikidata = String(wikidata);
+    this.wikidata = Object(wikidata);
   }
 
   // hasLabel(needle) {
