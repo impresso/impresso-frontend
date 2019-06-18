@@ -60,18 +60,22 @@
 
 <script>
 import Entity from '@/models/Entity';
-// import Mention from '@/models/Mention';
+import Mention from '@/models/Mention';
 
 export default {
   data: () => ({
     entity: new Entity(),
-    // mentions: new Mention(),
+    mentions: {},
+    // mention: new Mention(),
   }),
   computed: {
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
     mention() {
+      if (!this.mentions.data) {
+        return new Mention();
+      }
       return this.mentions.data.find(x => x.id === this.$route.params.entity_id);
     },
   },
@@ -87,7 +91,7 @@ export default {
       // console.log(numYear);
       if (isNaN(numYear)) {
         numYear = parseInt(wkDate.split('-')[1], 10) * -1;
-        console.log(numYear);
+        // console.log(numYear);
       }
       return numYear;
     },

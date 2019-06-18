@@ -93,6 +93,7 @@ export default {
         return this.$store.state.entities.query || '';
       },
       set(val) {
+        console.log(val);
         this.$store.commit('entities/UPDATE_QUERY', val);
         this.loadList(1);
       },

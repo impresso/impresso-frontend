@@ -12,7 +12,6 @@ export default {
   mutations: {},
   actions: {
     LOAD_DETAIL(context, entityId) {
-      console.log('LOAD_DETAIL', entityId);
       return new Promise((resolve, reject) => {
         services.mentions.find(entityId, {})
           .then(res => resolve(res))
