@@ -14,6 +14,7 @@ import articles from './Articles';
 import topics from './Topics';
 import jobs from './Jobs';
 import entities from './Entities';
+import mentions from './Mentions';
 
 Vue.use(Vuex);
 
@@ -34,6 +35,7 @@ export default new Vuex.Store({
     jobs,
     newspapers,
     entities,
+    mentions,
   },
   state: {
     processing_status: false,

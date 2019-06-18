@@ -81,6 +81,7 @@ export const jobs = app.service('jobs');
 export const exporter = app.service('search-exporter');
 export const articlesSuggestions = app.service('articles-suggestions').hooks(articlesSuggestionsHooks);
 export const entities = app.service('entities');
+export const mentions = app.service('mentions');
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;
