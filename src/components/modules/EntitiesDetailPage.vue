@@ -9,7 +9,7 @@
         <iframe
           v-if="entity.wikidata.coordinates"
           width="300" height="250"
-          :src="`https://www.openstreetmap.org/export/embed.html?bbox=&marker=${entity.wikidata.coordinates.latitude},${entity.wikidata.coordinates.longitude}`"
+          :src="`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${entity.wikidata.coordinates.latitude},${entity.wikidata.coordinates.longitude}`"
           class="border mb-2">
         </iframe>
         <div class="small small-caps text-right">
@@ -77,6 +77,15 @@ export default {
         return new Mention();
       }
       return this.mentions.data.find(x => x.id === this.$route.params.entity_id);
+    },
+    bbox() {
+      if (!this.entity.wikidata) {
+        return '';
+      }
+      const coords = this.entity.wikidata.coordinates;
+      const bbox = `${coords.longitude - 2},${coords.latitude - 1},${coords.longitude + 2},${coords.latitude + 1}`;
+      console.log(bbox);
+      return bbox;
     },
   },
   methods: {
