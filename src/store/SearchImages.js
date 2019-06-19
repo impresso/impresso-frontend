@@ -26,6 +26,7 @@ export default {
     facetTypes: ['year', 'newspaper'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
     similarTo: false,
+    similarToUploaded: false,
   },
   getters: {
     getSearches(state) {
@@ -70,6 +71,9 @@ export default {
     },
     UPDATE_SIMILAR_TO(state, imageUid) {
       state.similarTo = imageUid;
+    },
+    UPDATE_SIMILAR_TO_UPLOADED(state, similarToUploaded) {
+      state.similarToUploaded = similarToUploaded;
     },
     // pagination
     UPDATE_PAGINATION_CURRENT_PAGE(state, page) {
@@ -155,7 +159,9 @@ export default {
         o: context.state.orderBy,
       };
 
-      if (context.state.similarTo) {
+      if (context.state.similarToUploaded) {
+        query.u = context.state.similarToUploaded;
+      } else if (context.state.similarTo) {
         query.i = context.state.similarTo;
       }
 
@@ -168,7 +174,9 @@ export default {
       if (query.p && !isNaN(query.p)) {
         context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
       }
-      if (query.i) {
+      if (query.u) {
+        context.commit('UPDATE_SIMILAR_TO_UPLOADED', query.u);
+      } else if (query.i) {
         context.commit('UPDATE_SIMILAR_TO', query.i);
       }
       // parse filters here.
@@ -217,6 +225,7 @@ export default {
             limit: context.state.paginationPerPage,
             order_by: context.state.orderBy,
             similarTo: context.state.similarTo,
+            similarToUploaded: context.state.similarToUploaded,
           };
 
           services.images.find({
