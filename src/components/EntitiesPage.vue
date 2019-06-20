@@ -6,7 +6,6 @@
       </pre> -->
 
       <div slot="header" class="border-bottom">
-
         <div class="p-3 bg-light">
           <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
           <label class="mr-1">{{$t("label_order")}}</label>
@@ -25,9 +24,14 @@
 
       <div v-for="e in entities.entities" class="border-bottom">
         <router-link
-          class="px-3 py-2 d-block"
+          class="px-2 py-2 d-block clearfix"
           v-bind:class="{active: e.id === entityId}"
           v-bind:to="{name: 'entity', params: {entity_id: e.id}}">
+          <div
+            class="mb-2 mr-3 float-left"
+            v-if="e.wikidata.images">
+            <img :src="`http://commons.wikimedia.org/wiki/Special:FilePath/${e.wikidata.images[0].value}?width=120px`" width="60">
+          </div>
           <strong>{{e.name}}</strong>
           <br>
           <p v-if="e.wikidata.descriptions">
@@ -93,7 +97,6 @@ export default {
         return this.$store.state.entities.query || '';
       },
       set(val) {
-        console.log(val);
         this.$store.commit('entities/UPDATE_QUERY', val);
         this.loadList(1);
       },
