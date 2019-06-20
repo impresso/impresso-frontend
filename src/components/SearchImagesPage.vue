@@ -23,7 +23,6 @@
           <b-media v-if="similarToImage" class="pb-3">
             <div style="width:128px;" slot="aside">
               <b-img
-                rounded
                 fluid-grow
                 v-bind:src="similarToImage.regions[0].iiifFragment" />
             </div>
