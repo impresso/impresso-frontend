@@ -16,7 +16,7 @@ import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
 import EntitiesPage from '../components/EntitiesPage';
 import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
-import EntitiesDetailPage from '../components/modules/EntitiesDetailPage';
+import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
