@@ -43,30 +43,27 @@ export default {
       });
     },
     LOAD_PAGE(context, uid) {
-      return new Promise((resolve, reject) => {
-        services.pages.get(uid, {}).then((page) => {
-          services.articles.find({
-            query: {
-              filters: [{
-                type: 'page',
-                q: uid,
-              }],
-              limit: 500,
-            },
-          })
-          .then((articles) => {
-            resolve(new Page({
-              ...page,
-              articles: articles.data.map(article => new Article(article)),
-              articlesEntities: page.articlesEntities,
-              articlesTags: page.articlesTags,
-            }));
-          }, (error) => {
-            reject(error);
-          });
-        }, (error) => {
-          reject(error);
-        });
+      console.log('store/issue/LOAD_PAGE', uid);
+      return Promise.all([
+        services.pages.get(uid, {}),
+        services.articles.find({
+          query: {
+            filters: [{
+              type: 'page',
+              q: uid,
+            }],
+            limit: 500,
+          },
+        }),
+      ]).then(([page, articles]) => new Page({
+        ...page,
+        articles: articles.data.map(article => new Article(article)),
+        articlesEntities: page.articlesEntities,
+        articlesTags: page.articlesTags,
+      }))
+      .catch((err) => {
+        debugger;
+        console.error(err);
       });
     },
     LOAD_TABLE_OF_CONTENTS(context, uid) {
