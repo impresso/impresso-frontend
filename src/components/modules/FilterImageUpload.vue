@@ -5,7 +5,6 @@
         <b-img
           fluid-grow
           slot="aside"
-          rounded
           v-bind:src="`data:image/png;base64,${image.thumbnail}`" />
       </div>
       <h4>Filename</h4>
