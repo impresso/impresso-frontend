@@ -9,7 +9,7 @@ export default {
     entities: [],
     query: '',
     pagination: {
-      perPage: 12,
+      perPage: 2,
       currentPage: 1,
       totalRows: 0,
     },
@@ -63,6 +63,23 @@ export default {
         services.entities.get(entityId, {})
           .then(res => resolve(res))
           .catch(reject);
+      });
+    },
+    LOAD_TIMELINE() {
+      return services.search.find({
+        query: {
+          facets: 'year',
+          group_by: 'articles',
+          limit: 0,
+        },
+      }).then((res) => {
+        if (!res.info.facets && !res.info.facets.year) {
+          return [];
+        }
+        return res.info.facets.year.buckets.map(bucket => ({
+          t: bucket.val,
+          w: bucket.count,
+        })).sort((a, b) => parseInt(b.t, 10) - parseInt(a.t, 10));
       });
     },
   },

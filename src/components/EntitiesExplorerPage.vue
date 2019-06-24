@@ -16,40 +16,27 @@
           v-if="e.wikidata.images">
           <img :src="`http://commons.wikimedia.org/wiki/Special:FilePath/${e.wikidata.images[0].value}?width=200px`" width="100">
         </div>
-        <strong>{{e.name}}</strong>
+        <p v-if="e.wikidata && e.wikidata.labels">
+          <strong>{{ e.wikidata.labels[activeLanguageCode] }}</strong>
+          <em>{{ e.wikidata.descriptions[activeLanguageCode] }}</em>
+        </p>
+        <p v-else><strong>{{e.name}}</strong></p>
       </div>
-      <timeline
-       class="border"
-            :contrast="false"
-            :values="values"
-            :domain="[start, end]">
-      </timeline>
     </b-card>
 
   </i-layout-section>
 </template>
 
 <script>
-import Timeline from './modules/Timeline';
-
 export default {
   data: () => ({
-    values: [{ t: 1900, w: 19 }, { t: 1901, w: 34 }, { t: 1902, w: 34 },
-    { t: 1903, w: 89 }, { t: 1904, w: 44 }, { t: 1905, w: 34 }],
-    start: 1900,
-    end: 1905,
-    highlights: ['A', 'B'],
-    highlightA: null,
-    highlightB: null,
-    valueType: 'pages',
-    scrollTop: 0,
   }),
-  components: {
-    Timeline,
-  },
   computed: {
     entities() {
       return this.$store.state.entities;
+    },
+    activeLanguageCode() {
+      return this.$store.state.settings.language_code;
     },
   },
 };

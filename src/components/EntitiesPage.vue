@@ -74,6 +74,7 @@ export default {
       return this.$store.dispatch('entities/LOAD_ENTITIES');
     },
     onInputPaginationList(page = 1) {
+      console.log(page);
       this.loadList(page);
     },
   },
