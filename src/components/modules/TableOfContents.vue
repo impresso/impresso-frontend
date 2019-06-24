@@ -55,6 +55,10 @@ export default {
     },
     scrollToActiveArticle() {
       if (this.articleUid !== '') {
+        if (!this.$refs[`article-${this.articleUid}`]) {
+          console.error(`Cannot scrollToActiveArticle: ${this.articleUid} not ready or not found`);
+          return;
+        }
         const elm = this.$refs[`article-${this.articleUid}`][0];
         const parent = this.$refs.TableOfContents.parentNode;
         if (parent.scrollTop > elm.offsetTop ||
