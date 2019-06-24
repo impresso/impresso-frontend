@@ -16,36 +16,15 @@ export default {
   },
   actions: {
     LOAD_ISSUE(context, uid) {
-      return new Promise((resolve, reject) => {
-        services.issues.get(uid, {}).then((response) => {
-          resolve(new Issue({
-            collections: response.collections,
-            countArticles: response.count_articles,
-            countPages: response.count_pages,
-            date: response.date,
-            entities: response.entities,
-            newspaper: {
-              ...response.newspaper,
-              countArticles: response.newspaper.count_articles,
-              countIssues: response.newspaper.count_issues,
-              countPages: response.newspaper.count_pages,
-              deltaYear: response.newspaper.delta_year,
-              endYear: response.newspaper.end_year,
-              startYear: response.newspaper.start_year,
-            },
-            pages: response.pages,
-            uid: response.uid,
-            year: response.year,
-          }));
-        }, (error) => {
-          reject(error);
-        });
-      });
+      return services.issues.get(uid, {}).then(issue => new Issue(issue));
     },
     LOAD_PAGE(context, uid) {
       console.log('store/issue/LOAD_PAGE', uid);
       return Promise.all([
-        services.pages.get(uid, {}),
+        services.pages.get(uid, {}).catch((err) => {
+          console.error('Error in `store/issue/LOAD_PAGE` pages.get(', uid, ')', err.name);
+          throw err;
+        }),
         services.articles.find({
           query: {
             filters: [{
@@ -62,7 +41,6 @@ export default {
         articlesTags: page.articlesTags,
       }))
       .catch((err) => {
-        debugger;
         console.error(err);
       });
     },
