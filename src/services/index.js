@@ -3,6 +3,9 @@ import io from 'socket.io-client';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio-client';
 import auth from '@feathersjs/authentication-client';
+import articlesSuggestionsHooks from './hooks/articlesSuggestions';
+import uploadedImagesHooks from './hooks/uploadedImages';
+import imagesHooks from './hooks/images';
 
 const socket = io(`${process.env.MIDDLELAYER_API}`, {
   path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
@@ -66,7 +69,7 @@ app.service('logs').on('created', (payload) => {
 // repeat this line for every service in our backend
 export const suggestions = app.service('suggestions');
 export const articles = app.service('articles');
-export const images = app.service('images');
+export const images = app.service('images').hooks(imagesHooks);
 export const issues = app.service('issues');
 export const issuesTimeline = app.service('issues-timelines');
 export const pages = app.service('pages');
@@ -78,6 +81,8 @@ export const collectionsItems = app.service('collectable-items');
 export const topics = app.service('topics');
 export const jobs = app.service('jobs');
 export const exporter = app.service('search-exporter');
+export const articlesSuggestions = app.service('articles-suggestions').hooks(articlesSuggestionsHooks);
+export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;

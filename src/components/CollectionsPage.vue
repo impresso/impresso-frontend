@@ -66,6 +66,7 @@ export default {
 <i18n>
 {
   "en": {
+    "collections": "collections",
     "tabs": {
         "collections": "My Collections",
         "searches": "My Searches",

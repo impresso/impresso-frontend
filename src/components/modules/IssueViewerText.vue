@@ -49,44 +49,41 @@
             <img v-bind:src="region.iiifFragment" width="100%" />
           </div>
         </div>
+        <hr>
+        <b-container fluid>
+          <h3>Similar Articles</h3>
+          <b-row class="pb-5">
+            <b-col
+              cols="6"
+              sm="12"
+              md="6"
+              lg="4"
+              v-for="(searchResult, index) in articlesSuggestions"
+              v-bind:key="searchResult.article_uid">
+              <search-results-tiles-item
+                v-on:click="onClickArticleSuggestion(searchResult)"
+                v-model="articlesSuggestions[index]" />
+            </b-col>
+          </b-row>
+        </b-container>
       </i-layout-section>
-      <!-- <i-layout-section width="200px" class="text-right">
-        <h5>{{article.title}}</h5>
-        <b-button-group>
-          <b-button size="sm" variant="outline-primary">Add Tag ...</b-button>
-        </b-button-group>
-        <hr>
-        <b-dropdown size="sm" variant="outline-primary" text="Add to Collection ...">
-          <collection-add-to style="margin: -0.5em 0 -0.5em 0" />
-        </b-dropdown>
-        <br>
-        <span class="badge badge-secondary">Novels</span>
-        <span class="badge badge-secondary">Poems</span>
-        <hr>
-        <b-button size="sm" variant="outline-primary">Export Citations ...</b-button><br>
-        <b-button size="sm" variant="outline-primary">Download as ...</b-button>
-        <hr>
-        <base-title-bar>Entities in Article</base-title-bar>
-        <br>
-        <label class="mr-1" for="eorderby">Order by</label>
-        <b-dropdown id="eorderby" variant="outline-primary" size="sm" text="relevance" class="">
-          <b-dropdown-item>First Action</b-dropdown-item>
-        </b-dropdown>
-      </i-layout-section> -->
     </i-layout>
   </div>
 </template>
 
 <script>
+import { articlesSuggestions } from '@/services';
 import Article from '@/models/Article';
 import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
+import SearchResultsTilesItem from './SearchResultsTilesItem';
 import Ellipsis from './Ellipsis';
 
 export default {
   data() {
     return {
       article: new Article(),
+      articlesSuggestions: [],
     };
   },
   computed: {
@@ -111,6 +108,7 @@ export default {
     BaseTitleBar,
     CollectionAddTo,
     Ellipsis,
+    SearchResultsTilesItem,
   },
   methods: {
     onRemoveCollection(collection, item) {
@@ -125,12 +123,28 @@ export default {
         });
       }
     },
+    onClickArticleSuggestion(searchResult) {
+      this.$router.push({
+        name: 'article',
+        params: {
+          issue_uid: searchResult.issue.uid,
+          page_number: searchResult.pages[0].num,
+          page_uid: searchResult.pages[0].uid,
+          article_uid: searchResult.uid,
+        },
+      });
+    },
   },
   watch: {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
+        this.article = new Article();
+        this.articlesSuggestions = [];
         this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
+        articlesSuggestions.get(articleUid).then((res) => {
+          this.articlesSuggestions = res.data;
+        });
       },
     },
   },

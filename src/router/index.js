@@ -90,7 +90,7 @@ const router = new Router({
     name: 'collections',
     props: true,
     children: [{
-      path: '',
+      path: 'collections',
       component: CollectionsExplorerPage,
       name: 'collectionsExplorer',
       meta: {

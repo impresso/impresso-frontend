@@ -81,6 +81,12 @@ export default {
 <i18n>
 {
   "en": {
+    "dates": {
+      "lastModifiedDate": "Last-Modified-Date"
+    },
+    "numbers": {
+      "results": "Results"
+    },
     "operator": {
       "or": "included (OR)",
       "not": "excluded",

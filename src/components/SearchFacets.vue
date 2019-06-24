@@ -396,6 +396,9 @@ export default {
 <i18n>
   {
     "en": {
+      "actions": {
+        "reset" : "RESET"
+      },
       "label": {
         "timeline": {
           "articles": "publication date",
