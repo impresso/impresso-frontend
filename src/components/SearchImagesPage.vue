@@ -20,14 +20,19 @@
         </b-tabs>
         <div class="py-3 px-3">
           <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
-          <b-media v-if="similarToImage">
+          <b-media v-if="similarToImage" class="pb-3">
             <div style="width:128px;" slot="aside">
-              <b-img fluid-grow v-bind:src="similarToImage.regions[0].iiifFragment" />
+              <b-img
+                fluid-grow
+                v-bind:src="similarToImage.regions[0].iiifFragment" />
             </div>
             <h4>{{similarToImage.newspaper.name}}</h4>
             <p>{{$d(new Date(similarToImage.date), 'long')}}</p>
             <b-button variant="danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">Remove</b-button>
           </b-media>
+          <filter-image-upload
+            v-on:load="search(1)"
+            v-on:remove="search(1)" />
         </div>
       </div>
       <!--  body -->
@@ -92,13 +97,12 @@
           <b-row class="pb-5">
             <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.uid">
               <search-results-image-item
-              v-bind:searchResult="searchResult"
-              v-bind:checkbox=true
-              v-on:toggleSelected="toggleSelected"
-              v-bind:checked="isChecked(searchResult)"
-              v-on:click:image="onClickResult"
-              v-on:click:search="onClickSearch"
-              />
+                v-bind:searchResult="searchResult"
+                v-bind:checkbox="true"
+                v-on:toggleSelected="toggleSelected"
+                v-bind:checked="isChecked(searchResult)"
+                v-on:click:image="onClickResult"
+                v-on:click:search="onClickSearch" />
             </b-col>
           </b-row>
         </b-container>
@@ -120,6 +124,7 @@
 
 <script>
 import * as services from '@/services';
+import FilterImageUpload from './modules/FilterImageUpload';
 import Autocomplete from './Autocomplete';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import CollectionAddTo from './modules/CollectionAddTo';
@@ -141,6 +146,7 @@ export default {
     Ellipsis,
     SearchPills,
     ImageViewer,
+    FilterImageUpload,
   },
   data: () => ({
     selectedItems: [],
@@ -149,16 +155,6 @@ export default {
     similarToImage: false,
   }),
   mounted() {
-    // testing URL
-    // fetch('https://impresso-project.ch/api/images/')
-    //   .then(response => response.text())
-    //   .then((data) => {
-    //     this.searchResults = JSON.parse(data).data;
-    //   });
-    // if (this.uuid !== undefined) {
-    //   this.$store.commit('searchImages/LOAD_SEARCH', this.uuid);
-    //   console.log('search');
-    // }
     this.search();
   },
   computed: {
@@ -173,11 +169,6 @@ export default {
     searchResults: {
       get() {
         return this.$store.getters['searchImages/results'];
-      },
-    },
-    similarTo: {
-      get() {
-        return this.$store.state.searchImages.similarTo;
       },
     },
     queryComponents: {
@@ -296,7 +287,6 @@ export default {
         this.allSelected = true;
         this.allIndeterminate = false;
       }
-      // console.log('selected items : ', this.selectedItems);
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -352,6 +342,7 @@ export default {
       });
     },
     onClickSearch(image) {
+      this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);
       this.similarToImage = image;
       this.$store.commit('searchImages/UPDATE_SIMILAR_TO', image.uid);
       this.search(1);

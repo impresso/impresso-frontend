@@ -4,6 +4,7 @@ import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio-client';
 import auth from '@feathersjs/authentication-client';
 import articlesSuggestionsHooks from './hooks/articlesSuggestions';
+import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
 
 const socket = io(`${process.env.MIDDLELAYER_API}`, {
@@ -81,6 +82,7 @@ export const topics = app.service('topics');
 export const jobs = app.service('jobs');
 export const exporter = app.service('search-exporter');
 export const articlesSuggestions = app.service('articles-suggestions').hooks(articlesSuggestionsHooks);
+export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;
