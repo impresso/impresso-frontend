@@ -7,7 +7,7 @@
         </div>
         <h3>{{ entity.name }}
         </h3>
-        <p>{{ $tc('found_articles', entity.countMentions) }} {{$tc('found_entities', entity.countEntities)}}</p>
+        <div>{{ $tc('found_articles', entity.countItems) }} {{$tc('found_entities', entity.countMentions)}}</div>
       </section>
     </b-navbar>
     <b-navbar type="light" variant="light" class="border-bottom">
@@ -282,7 +282,7 @@ a:hover {
 {
   "en": {
     "found_articles": "Found in {n} article | Found in {n} articles",
-    "found_entities": "and {n} mentions within corpus",
+    "found_entities": "and {n} mention within corpus | and {n} mentions within corpus",
     "tabs": {
         "articles": "Articles",
         "cooccurrences": "Cooccurrences"

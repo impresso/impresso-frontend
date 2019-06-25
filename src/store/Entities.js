@@ -9,7 +9,7 @@ export default {
     entities: [],
     query: '',
     pagination: {
-      perPage: 2,
+      perPage: 12,
       currentPage: 1,
       totalRows: 0,
     },
