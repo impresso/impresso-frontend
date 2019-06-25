@@ -21,7 +21,7 @@ export default {
   },
   actions: {
     LOAD_DETAIL(context, entityId) {
-      console.log('eid', entityId);
+      // console.log('eid', entityId);
       return new Promise((resolve, reject) => {
         services.mentions.find({
           limit: context.state.pagination.perPage,
@@ -36,7 +36,7 @@ export default {
           },
         })
           .then((res) => {
-            console.log('MENTIONS', res);
+            // console.log('MENTIONS', res);
             context.state.pagination.totalRows = res.total;
             resolve(res.data);
           })

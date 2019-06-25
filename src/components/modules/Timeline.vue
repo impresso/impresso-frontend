@@ -110,6 +110,7 @@ export default {
     });
 
     this.timeline.on('mousemove', (data) => {
+      console.log('moooove', data.pointer, data.mouse);
       this.moveTooltip(data);
       this.$emit('highlight', data);
     });

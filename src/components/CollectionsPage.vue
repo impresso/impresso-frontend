@@ -36,7 +36,7 @@ export default {
         {
           label: this.$t('tabs.searches'),
           name: 'searches',
-          disabled: true,
+          disabled: false,
         },
         {
           label: this.$t('tabs.labels'),
