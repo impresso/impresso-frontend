@@ -1,5 +1,5 @@
 <template>
-<div class="py-5" id="HomePageSplash">
+<div id="HomePageSplash">
   <b-container>
     <b-row class="justify-content-md-center mb-5">
       <b-col col xl="6" lg="8" md="10">
@@ -43,6 +43,10 @@ export default {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
-  background-image: url('./../assets/img/newspapers_bg_dark.jpg');
+  background-image: url('./../assets/img/newspapers_bg_dark_blue.jpg');
+  padding: 100px 0;
+  h1, h3{
+    color: white;
+  }
 }
 </style>
