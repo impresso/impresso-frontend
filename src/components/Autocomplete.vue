@@ -8,7 +8,7 @@
       v-on:input.native="search"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn variant="outline-primary" class="px-2" v-on:click="submit(selected)">
+        <b-btn variant="primary" class="px-2" v-on:click="submit(selected)">
           <div class="search-submit dripicons-search"></div>
         </b-btn>
       </b-input-group-append>
