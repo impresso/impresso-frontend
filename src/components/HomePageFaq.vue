@@ -4,11 +4,11 @@
       <b-col col xl="6" lg="8" md="10">
         <h1 class="text-center mb-5">FAQ</h1>
         <div
-          v-for="i in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
+          v-for="i in [1, 2, 3]"
           v-bind:key="i"
           class="faq-item pb-1">
           <div class="question">
-              <strong><a href="#" v-b-toggle="`accordion-${i}`" class="my-3 d-block">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</a></strong>
+              <strong><a href="#" v-b-toggle="`accordion-${i}`" class="my-3 d-block">Question {{i}} - Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</a></strong>
           </div>
           <b-collapse class="answer" v-bind:id="`accordion-${i}`" accordion="my-accordion" role="tabpanel">
             <div class="p-4 bg-light">
