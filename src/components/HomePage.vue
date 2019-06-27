@@ -7,8 +7,8 @@
         <p><strong>
           Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt...
         </strong></p>
-        <a src="" class="btn btn-primary">Read article</a>
-        <a src="" class="btn btn-outline-primary">Visit the blog</a>
+        <button class="btn btn-primary">Read article</button>
+        <button class="btn btn-outline-primary">Visit the blog</button>
     </div>
   </div>
   <home-page-recipes />
