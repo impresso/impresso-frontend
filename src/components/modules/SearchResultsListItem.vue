@@ -24,7 +24,7 @@
           <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
           (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
         </div>
-        <small>{{article}}</small>
+        <small>{{article.excerpt}}</small>
       </div>
 
       <div v-if="article.type === 'ar'">

@@ -56,7 +56,7 @@
           <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
         </div>
         <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
-        <span v-if="item.count">({{ $n(item.count)}})</span>
+        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </b-form-checkbox>
     </div>
     <div class="items-to-add" v-if="itemsToAdd.length">
@@ -68,7 +68,6 @@
         <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </div>
     </div>
-
 
     <b-button class="mt-2" v-if="filter.touched || itemsToAdd.length" block size="sm" variant="outline-primary" @click="applyFilter()">
       <span v-if="itemsToAdd.length || filter.items.length - filter.q.length">
