@@ -27,7 +27,7 @@
     </b-navbar>
     <b-navbar class="wikibox border-bottom py-3">
       <section class="d-flex flex-row w-100" v-if="entity.wikidata">
-              <div class="w-25">
+              <div class="w-25" v-if="preferredImage">
                 <!-- <iframe
                   v-if="entity.wikidata.coordinates"
                   width="300" height="250"
@@ -86,49 +86,71 @@
       </div>
 
     </b-navbar>
-    <!-- {{mentions}} -->
+
+    <!-- <pre>{{mentions}}</pre> -->
 
     <base-tabs v-model="tab" class="pl-3 bg-light" v-bind:tabs="tabs"></base-tabs>
     <div v-if="tab.name === 'cooccurrences'" class="p-3">
       Cooccurrences
     </div>
     <div v-if="tab.name === 'articles' && mentions">
-      <a v-for="mention in mentions" class="p-3 border-bottom d-flex" href="#">
-        <div class="w-25">
-          <p>
-            <strong>Journal officiel de la Ville de Vevey</strong><br>
-            <span class="small-caps">Saturday, December 30, 2000 <br>(p. 6)</span>
-          </p>
-        </div>
-        <div class="w-50 px-2">
-          <p>
-            <strong>Bush-Gore Un suspense à couper le souffle</strong>
-          </p>
-          <p class="small">Les armes de destruction massive doivent
-
-être bannies de la planète à l'aube de ce
-
-nouveau millénaire. <mark>S'exprimant</mark> hier à la tribune
-
-du Conseil national, Mikhaïl Gorbatchev
-
-(photo Keystone) a lancé un appel pour une
-
-pide élimination des ...</p>
-
-        </div>
-        <div class="w-25">
-          <div v-if="mention.t">
-            <div class="small-caps">Context</div>
-            …{{mention.t}}…
+      <div v-for="mention in mentions" class="p-3 border-bottom d-flex">
+        <div v-if="mention.article">
+          <div class="w-25">
+            <h5 v-if="mention.article.title" class="mb-0">
+              <router-link :to="{ name: 'article', params: {
+                issue_uid: mention.article.issue.uid,
+                page_uid: mention.article.pages[0].uid,
+                article_uid: mention.article.uid,
+              } }" v-html="mention.article.title"></router-link>
+            </h5>
+            <div class="article-meta mb-2">
+              <router-link :to="{ name: 'newspaper', params: { newspaper_uid: mention.article.newspaper.uid }}">
+              <strong v-if="mention.article.newspaper.name">{{mention.article.newspaper.name}}, </strong>
+              </router-link>
+              <span class="small-caps">{{$d(new Date(mention.article.date), "long")}}</span>
+              (p. <span>{{mention.article.pages.map(page => page.num).join('; ')}}</span>)
+            </div>
           </div>
-          <div v-if="mention.fn == null">
-            <div class="small-caps">Function</div>
-            {{mention.fn}}
+          <div class="w-50 px-2">
+
+            <div v-if="mention.article.excerpt.length > 0" class="article-excerpt mb-2">{{mention.article.excerpt}}</div>
+
+              <router-link :to="{ name: 'article', params: {
+                issue_uid: mention.article.issue.uid,
+                page_uid: mention.article.pages[0].uid,
+                article_uid: mention.article.uid,
+              } }" class="btn btn-sm btn-outline-primary">
+                {{$t('view')}}
+              </router-link>
+
+              <collection-add-to
+                v-if="isLoggedIn()"
+                v-bind:item="article"
+                v-bind:text="$t('add_to_collection')" />
+
           </div>
-          <!-- {{mention}} -->
+          <div class="w-25">
+            <div v-if="mention.t">
+              <div class="small-caps">Text</div>
+              …{{mention.t}}…
+            </div>
+            <div v-if="mention.fn == null">
+              <div class="small-caps">Function</div>
+              {{mention.fn}}
+            </div>
+            <div v-if="mention.confidence == null">
+              <div class="small-caps">Confidence</div>
+              {{mention.confidence}}
+            </div>
+            <div v-if="mention.demonym == null">
+              <div class="small-caps">demonym</div>
+              {{mention.demonym}}
+            </div>
+            <!-- {{mention}} -->
+          </div>
         </div>
-      </a>
+      </div>
       <div
         v-if="paginationList.totalRows > paginationList.perPage"
         class="fixed-pagination-footer p-1 m-0">
@@ -154,6 +176,7 @@ import Entity from '@/models/Entity';
 import Timeline from './modules/Timeline';
 import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
+import CollectionAddTo from './modules/CollectionAddTo';
 
 export default {
   data: () => ({
@@ -171,13 +194,14 @@ export default {
     Timeline,
     Pagination,
     BaseTabs,
+    CollectionAddTo,
   },
   computed: {
     tabs() {
       return [
         {
-          label: this.$t('tabs.articles'),
-          name: 'articles',
+          label: this.$t('tabs.mentions'),
+          name: 'mentions',
           active: true,
         },
         {
@@ -234,7 +258,7 @@ export default {
       return this.$store.dispatch('mentions/LOAD_DETAIL', this.$route.params.entity_id);
     },
     onInputPaginationList(page = 1) {
-      console.log('page => ', page);
+      // console.log('page => ', page);
       this.loadMentions(page);
     },
     onHighlight(event, origin) {
@@ -253,6 +277,9 @@ export default {
         // console.log(numYear);
       }
       return numYear;
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
     },
   },
   watch: {
@@ -284,9 +311,10 @@ a:hover {
     "found_articles": "Found in {n} article | Found in {n} articles",
     "found_entities": "and {n} mention within corpus | and {n} mentions within corpus",
     "tabs": {
-        "articles": "Articles",
+        "mentions": "Mentions",
         "cooccurrences": "Cooccurrences"
-    }
+    },
+    "add_to_collection": "Add to Collection ..."
   }
 }
 </i18n>
