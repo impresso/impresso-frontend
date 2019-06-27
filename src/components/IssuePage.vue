@@ -68,15 +68,20 @@ export default {
     handler: new Vue(),
     bounds: {},
     issue: new Issue(),
+    currentPage: null,
     tableOfContents: {},
     isLoaded: false,
     isDragging: false,
   }),
   computed: {
     page() {
-      if (this.$route.params.page_uid) {
-        return this.issue.pages.find(p => p.uid === this.$route.params.page_uid);
+      if (this.currentPage) {
+        return this.currentPage;
       }
+
+      // if (this.$route.params.page_uid) {
+      //   return this.issue.pages.find(p => p.uid === this.$route.params.page_uid);
+      // }
 
       return this.issue.pages[0];
     },
@@ -146,6 +151,25 @@ export default {
         });
       });
     },
+    registerPage() {
+      // this.handler.$emit('dispatch', (viewer) => {
+      //   viewer.goToPage(this.issue.pages.findIndex(p => p.uid === pageUid));
+      // });
+      // if (this.issue)
+      // debugger;
+      const pageIndex = this.issue.pages.findIndex(p => p.uid === this.currentPage.uid);
+      console.log('->registerPage', this.currentPage, pageIndex, this.issue);
+      //
+      // if (pageIndex >= 0) {
+      //   this.issue.pages[pageIndex].articles = page.articles;
+      // } else {
+      //   window.app.$store.state.error_message = 'Warning: No pages found in this issue';
+      // }
+      //
+      this.handler.$emit('dispatch', (viewer) => {
+        viewer.goToPage(pageIndex);
+      });
+    },
   },
   components: {
     BaseTabs,
@@ -163,6 +187,9 @@ export default {
         this.handler.$emit('destroy');
         this.$store.dispatch('issue/LOAD_ISSUE', issueUid).then((issue) => {
           this.issue = issue;
+          if (this.currentPage) {
+            this.registerPage();
+          }
 
           this.$store.commit('SET_HEADER_TITLE', {
             subtitle: this.$d(this.issue.date, 'short'),
@@ -271,17 +298,10 @@ export default {
         this.isLoaded = false;
 
         this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
-          const pageIndex = this.issue.pages.findIndex(p => p.uid === page.uid);
-
-          if (pageIndex >= 0) {
-            this.issue.pages[pageIndex].articles = page.articles;
-          } else {
-            window.app.$store.state.error_message = 'Warning: No pages found in this issue';
+          this.currentPage = page;
+          if (this.issue) {
+            this.registerPage();
           }
-
-          this.handler.$emit('dispatch', (viewer) => {
-            viewer.goToPage(this.issue.pages.findIndex(p => p.uid === pageUid));
-          });
         });
       },
     },

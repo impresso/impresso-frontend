@@ -16,57 +16,32 @@ export default {
   },
   actions: {
     LOAD_ISSUE(context, uid) {
-      return new Promise((resolve, reject) => {
-        services.issues.get(uid, {}).then((response) => {
-          resolve(new Issue({
-            collections: response.collections,
-            countArticles: response.count_articles,
-            countPages: response.count_pages,
-            date: response.date,
-            entities: response.entities,
-            newspaper: {
-              ...response.newspaper,
-              countArticles: response.newspaper.count_articles,
-              countIssues: response.newspaper.count_issues,
-              countPages: response.newspaper.count_pages,
-              deltaYear: response.newspaper.delta_year,
-              endYear: response.newspaper.end_year,
-              startYear: response.newspaper.start_year,
-            },
-            pages: response.pages,
-            uid: response.uid,
-            year: response.year,
-          }));
-        }, (error) => {
-          reject(error);
-        });
-      });
+      return services.issues.get(uid, {}).then(issue => new Issue(issue));
     },
     LOAD_PAGE(context, uid) {
-      return new Promise((resolve, reject) => {
-        services.pages.get(uid, {}).then((page) => {
-          services.articles.find({
-            query: {
-              filters: [{
-                type: 'page',
-                q: uid,
-              }],
-              limit: 500,
-            },
-          })
-          .then((articles) => {
-            resolve(new Page({
-              ...page,
-              articles: articles.data.map(article => new Article(article)),
-              articlesEntities: page.articlesEntities,
-              articlesTags: page.articlesTags,
-            }));
-          }, (error) => {
-            reject(error);
-          });
-        }, (error) => {
-          reject(error);
-        });
+      console.log('store/issue/LOAD_PAGE', uid);
+      return Promise.all([
+        services.pages.get(uid, {}).catch((err) => {
+          console.error('Error in `store/issue/LOAD_PAGE` pages.get(', uid, ')', err.name);
+          throw err;
+        }),
+        services.articles.find({
+          query: {
+            filters: [{
+              type: 'page',
+              q: uid,
+            }],
+            limit: 500,
+          },
+        }),
+      ]).then(([page, articles]) => new Page({
+        ...page,
+        articles: articles.data.map(article => new Article(article)),
+        articlesEntities: page.articlesEntities,
+        articlesTags: page.articlesTags,
+      }))
+      .catch((err) => {
+        console.error(err);
       });
     },
     LOAD_TABLE_OF_CONTENTS(context, uid) {
