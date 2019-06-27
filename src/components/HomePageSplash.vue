@@ -7,7 +7,9 @@
           <h1>Media Monitoring of the Past</h1>
           <h3>Search trough 200 years of newspapers</h3>
         </div>
-        <autocomplete v-on:submit="onSuggestion" />
+        <autocomplete
+        v-bind:variant="'warning'"
+        v-on:submit="onSuggestion" />
       </b-col>
     </b-row>
   </b-container>
@@ -41,6 +43,6 @@ export default {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
-  background-image: url('./../assets/img/newspapers_bg_light.jpg');
+  background-image: url('./../assets/img/newspapers_bg_dark.jpg');
 }
 </style>

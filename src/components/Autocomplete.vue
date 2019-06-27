@@ -2,13 +2,12 @@
   <section class="search-bar" v-ClickOutside="hideSuggestions">
     <b-input-group>
       <b-form-input
-      class="border-primary"
       placeholder="search for ..."
       v-model.trim="q"
       v-on:input.native="search"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn variant="primary" class="px-2" v-on:click="submit(selected)">
+        <b-btn v-bind:variant="variant" class="px-2" v-on:click="submit(selected)">
           <div class="search-submit dripicons-search"></div>
         </b-btn>
       </b-input-group-append>
@@ -62,6 +61,12 @@ export default {
     selected: false,
     showSuggestions: false,
   }),
+  props: {
+    variant: {
+      type: String,
+      default: 'primary',
+    },
+  },
   methods: {
     hideSuggestions() {
       this.selected = this.suggestion;
