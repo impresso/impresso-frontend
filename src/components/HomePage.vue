@@ -13,6 +13,7 @@
   </div>
   <home-page-recipes />
   <home-page-faq />
+  <home-page-footer />
 </main>
 </template>
 
@@ -20,6 +21,7 @@
 import HomePageSplash from './HomePageSplash';
 import HomePageFaq from './HomePageFaq';
 import HomePageRecipes from './HomePageRecipes';
+import HomePageFooter from './HomePageFooter';
 
 export default {
   name: 'HomePage',
@@ -31,6 +33,7 @@ export default {
     HomePageSplash,
     HomePageFaq,
     HomePageRecipes,
+    HomePageFooter,
   },
 };
 </script>
