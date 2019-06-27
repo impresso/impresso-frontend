@@ -4,16 +4,18 @@
     <home-page-splash />
   </div>
   <div class="section">
-    section
+    <home-page-recipes />
   </div>
   <div class="section">
-    section
+    <home-page-faq />
   </div>
 </main>
 </template>
 
 <script>
 import HomePageSplash from './HomePageSplash';
+import HomePageFaq from './HomePageFaq';
+import HomePageRecipes from './HomePageRecipes';
 
 export default {
   name: 'HomePage',
@@ -23,6 +25,8 @@ export default {
   },
   components: {
     HomePageSplash,
+    HomePageFaq,
+    HomePageRecipes,
   },
 };
 </script>
