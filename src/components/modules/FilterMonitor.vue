@@ -238,6 +238,7 @@ label.custom-control-label {
         "description": "check one or more newspaper to filter results",
         "clear": "reset",
         "apply": "apply changes",
+        "update": "apply changes (added: {added}, removed: {removed})",
         "context": {
           "include": "Published in",
           "exclude": "<b>NOT</b> published in"
