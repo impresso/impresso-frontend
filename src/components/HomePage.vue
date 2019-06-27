@@ -1,14 +1,18 @@
 <template>
-<main id="HomePage" class="bg-light">
-  <div class="">
-    <home-page-splash />
+<main id="HomePage">
+  <home-page-splash />
+  <div class="bg-warning">
+    <div class="container py-4">
+        <h4>This is the title for a blog post</h4>
+        <p><strong>
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt...
+        </strong></p>
+        <a src="" class="btn btn-primary">Read article</a>
+        <a src="" class="btn btn-outline-primary">Visit the blog</a>
+    </div>
   </div>
-  <div class="section">
-    <home-page-recipes />
-  </div>
-  <div class="section">
-    <home-page-faq />
-  </div>
+  <home-page-recipes />
+  <home-page-faq />
 </main>
 </template>
 
