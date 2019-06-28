@@ -33,6 +33,8 @@
           <filter-image-upload
             v-on:load="search(1)"
             v-on:remove="search(1)" />
+
+          <search-input @submit="onSearchQuery"></search-input>
         </div>
       </div>
       <!--  body -->
@@ -132,6 +134,7 @@ import Pagination from './modules/Pagination';
 import SearchFacets from './SearchFacets';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import Ellipsis from './modules/Ellipsis';
+import SearchInput from './modules/SearchInput';
 import SearchPills from './SearchPills';
 import ImageViewer from './modules/ImageViewer';
 
@@ -142,6 +145,7 @@ export default {
     CollectionAddTo,
     Pagination,
     SearchFacets,
+    SearchInput,
     SearchResultsSummary,
     Ellipsis,
     SearchPills,
@@ -149,6 +153,7 @@ export default {
     FilterImageUpload,
   },
   data: () => ({
+    q: '',
     selectedItems: [],
     allIndeterminate: false,
     allSelected: false,
@@ -245,6 +250,14 @@ export default {
       this.inputDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
+    },
+    onSearchQuery({ q }) {
+      console.log('@onSearchQuery', q);
+      this.$store.commit('searchImages/ADD_FILTER', {
+        type: 'title',
+        q,
+      });
+      this.search(1);
     },
     onSuggestion(suggestion) {
       this.$store.commit('searchImages/ADD_FILTER', suggestion);
