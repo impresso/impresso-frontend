@@ -21,6 +21,7 @@
 
     <!--  body -->
     <div class="pt-3">
+      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings</b-button>
 
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
@@ -119,6 +120,56 @@
     </b-navbar>
 
 
+    <b-modal hide-footer
+      body-class=""
+      id="embeddings"
+      ref="embeddings"
+      v-bind:title="$t('Find similar words in corpus')">
+      <b-container>
+      <form v-on:submit.stop.prevent="embeddingsOnSubmit()">
+        <b-row>
+          <b-col>
+            <label for="inputName">Term</label>
+            <b-form-input
+              type="text"
+              class="form-control"
+              placeholder=""
+              name="inputEmbeddings"
+              v-model="inputEmbeddings" />
+          </b-col>
+          <b-col>
+            <label for="languageEmbeddings">Language</label>
+            <i-dropdown class="d-block"
+              name="languageEmbeddings"
+              v-on:input="embeddingsOnSubmit"
+              v-model="languageEmbeddings"
+              :options="languageEmbeddingsOptions"
+              size="sm" variant="outline-primary" />
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col class="mt-4">
+              <div v-if="embeddings[0] === '_fetching'">
+                <i-spinner class="text-center p-3" />
+              </div>
+              <div v-else-if="embeddings[0] === '_error'" class="alert alert-danger" role="alert">
+                {{embeddings[1]}}
+              </div>
+              <div v-else>
+                <a
+                  v-for="embedding in embeddings"
+                  :title="`add “${embedding}” to search query`"
+                  class="mr-2 mb-2 border px-2 d-inline-block"
+                  v-on:click="onSuggestion({query: embedding, type: 'string', context: 'include'})">
+                  {{embedding}}
+                </a>
+              </div>
+          </b-col>
+        </b-row>
+        </form>
+      </b-container>
+    </b-modal>
+
     <b-modal hide-footer scrollable
       body-class="m-0 p-0"
       id="nameSelectionCollection"
@@ -210,6 +261,7 @@ export default {
     allIndeterminate: false,
     allSelected: false,
     inputName: '',
+    inputEmbeddings: '',
     inputDescription: 'All of Impresso',
     nameCollectionOkDisabled: true,
   }),
@@ -228,6 +280,23 @@ export default {
       },
       set(val) {
         this.toggleBooleanFilter({ type: 'hasTextContents' }, val);
+      },
+    },
+    languageEmbeddingsOptions: {
+      get() {
+        return [
+          { value: 'en', text: 'English' },
+          { value: 'fr', text: 'French' },
+          { value: 'de', text: 'German' },
+        ];
+      },
+    },
+    languageEmbeddings: {
+      get() {
+        return this.$store.state.embeddings.language;
+      },
+      set(languageEmbeddings) {
+        this.$store.commit('embeddings/UPDATE_LANGUAGE', languageEmbeddings);
       },
     },
     groupByOptions: {
@@ -336,6 +405,11 @@ export default {
     filtersIndex: {
       get() {
         return this.$store.state.search.search.filtersIndex;
+      },
+    },
+    embeddings: {
+      get() {
+        return this.$store.state.embeddings.embeddings;
       },
     },
   },
@@ -458,6 +532,10 @@ export default {
     nameCollectionOnInput() {
       this.inputName.trim();
       this.nameCollectionOkDisabled = (this.inputName.length < 3 || this.inputName.length > 50);
+    },
+    embeddingsOnSubmit() {
+      this.inputEmbeddings.trim();
+      this.$store.dispatch('embeddings/FIND', this.inputEmbeddings);
     },
     search(page) {
       if (page !== undefined) {
