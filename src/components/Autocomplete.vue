@@ -14,11 +14,15 @@
       </b-input-group-append>
     </b-input-group>
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
-      <div v-if="suggestion" v-on:click="submit(suggestion)" v-on:mouseover="select(suggestion)" class="suggestion p-2" v-bind:class="{selected: selected === suggestion}">
-        <div class="suggestion-string">
-          {{suggestion.q}}
+
+      <div class="suggestion p-2"  v-for="(suggestion, index) in initialSuggestions" v-bind:key="index"
+          @click="submitInitialSuggestion(suggestion)"
+          @mouseover="select(suggestion)" :class="{selected: selected === suggestion}">
+        <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
+          <span class="badge">{{ suggestion.type }}</span>{{ q }}
         </div>
       </div>
+
       <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion p-2" v-bind:class="{selected: selected === s}">
         <div v-if="s.type === 'regex'" class="suggestion-regex">
           <span class="icon dripicons-rocket" :title="$t('regex')"></span>
@@ -57,6 +61,14 @@ import SuggestionFactory from '@/models/SuggestionFactory';
 export default {
   data: () => ({
     q: '',
+    initialSuggestions: [
+      {
+        type: 'string',
+      },
+      {
+        type: 'title',
+      },
+    ],
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
@@ -68,13 +80,9 @@ export default {
       this.showSuggestions = false;
     },
     search() {
-      if (this.q.length > 1) {
-        this.showSuggestions = true;
-        this.suggestion = SuggestionFactory.create({
-          type: 'string',
-          q: this.q.trim(),
-        });
+      this.showSuggestions = this.q.length > 0;
 
+      if (this.q.length > 1) {
         this.$store.dispatch('autocomplete/SEARCH', {
           q: this.q.trim(),
         }).then((res) => {
@@ -83,10 +91,14 @@ export default {
       } else {
         // if length of the query is 0 then we clear the suggestions
         this.suggestions = [];
-        this.suggestion = false;
         this.selected = false;
-        this.showSuggestions = false;
       }
+    },
+    submitInitialSuggestion({ type }) {
+      this.submit(SuggestionFactory.create({
+        type,
+        q: this.q,
+      }));
     },
     submit(suggestion) {
       if (suggestion) {
