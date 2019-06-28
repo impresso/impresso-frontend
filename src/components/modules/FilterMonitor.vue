@@ -49,7 +49,7 @@
     </div>
     <!-- for strings -->
     <div v-if="['string', 'title'].indexOf(filter.type) !== -1">
-      <b-form-group :label="filter.type">
+      <b-form-group :label="$t(`label.${filter.type}.value`)">
         <b-form-input
           size="sm"
           placeholder=""
@@ -67,7 +67,6 @@
           @change="changeFilterPrecision($event)">
         </b-form-radio-group>
       </b-form-group>
-
     </div>
     <div v-for="item in filter.items" :key="item.uid" class="mt-2">
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
@@ -159,6 +158,12 @@ export default {
         text: this.$t(`op.${value}.${this.filter.context}`),
         value,
       }));
+    },
+    hasMultipleWords() {
+      if (typeof this.filter.q === 'string') {
+        return this.filter.q.trim().split(/\s/).length > 1;
+      }
+      return false;
     },
   },
   methods: {
@@ -280,6 +285,7 @@ label.custom-control-label {
           "fuzzy": "fuzzy match",
           "soft": "at least one of the words"
         },
+        "value": "value",
         "apply": "apply changes"
       },
       "topic": {
