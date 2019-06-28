@@ -22,6 +22,8 @@
     <!--  body -->
     <div class="pt-3">
 
+      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings</b-button>
+
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
           {{$t('label_isFront')}}
@@ -154,6 +156,56 @@
       </div>
     </b-modal>
 
+    <b-modal hide-footer
+      body-class=""
+      id="embeddings"
+      ref="embeddings"
+      v-bind:title="$t('Find similar words in corpus')">
+      <b-container>
+      <form v-on:submit.stop.prevent="embeddingsOnSubmit()">
+        <b-row>
+          <b-col>
+            <label for="inputName">Term</label>
+            <b-form-input
+              type="text"
+              class="form-control"
+              placeholder=""
+              name="inputEmbeddings"
+              v-model="inputEmbeddings" />
+          </b-col>
+          <b-col>
+            <label for="languageEmbeddings">Language</label>
+            <i-dropdown class="d-block"
+              name="languageEmbeddings"
+              v-on:input="embeddingsOnSubmit"
+              v-model="languageEmbeddings"
+              :options="languageEmbeddingsOptions"
+              size="sm" variant="outline-primary" />
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col class="mt-4">
+              <div v-if="embeddings[0] === '_fetching'">
+                <i-spinner class="text-center p-3" />
+              </div>
+              <div v-else-if="embeddings[0] === '_error'" class="alert alert-danger" role="alert">
+                {{embeddings[1]}}
+              </div>
+              <div v-else>
+                <a
+                  v-for="embedding in embeddings"
+                  :title="`add “${embedding}” to search query`"
+                  class="mr-2 mb-2 border px-2 d-inline-block"
+                  v-on:click="onSuggestion({query: embedding, type: 'string', context: 'include'})">
+                  {{embedding}}
+                </a>
+              </div>
+          </b-col>
+        </b-row>
+        </form>
+      </b-container>
+    </b-modal>
+
 
     <div class="p-1">
       <b-container fluid>
@@ -212,6 +264,7 @@ export default {
     inputName: '',
     inputDescription: 'All of Impresso',
     nameCollectionOkDisabled: true,
+    inputEmbeddings: '',
   }),
   computed: {
     isFront: {
@@ -338,6 +391,28 @@ export default {
         return this.$store.state.search.search.filtersIndex;
       },
     },
+    languageEmbeddingsOptions: {
+      get() {
+        return [
+          { value: 'en', text: 'English' },
+          { value: 'fr', text: 'French' },
+          { value: 'de', text: 'German' },
+        ];
+      },
+    },
+    languageEmbeddings: {
+      get() {
+        return this.$store.state.embeddings.language;
+      },
+      set(languageEmbeddings) {
+        this.$store.commit('embeddings/UPDATE_LANGUAGE', languageEmbeddings);
+      },
+    },
+    embeddings: {
+      get() {
+        return this.$store.state.embeddings.embeddings;
+      },
+    },
   },
   methods: {
     nameSelectedCollectionOnShown() {
@@ -382,6 +457,10 @@ export default {
     onRemoveFilter(filter) {
       this.$store.commit('search/REMOVE_FILTER', filter);
       this.search(1);
+    },
+    embeddingsOnSubmit() {
+      this.inputEmbeddings.trim();
+      this.$store.dispatch('embeddings/FIND', this.inputEmbeddings);
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
