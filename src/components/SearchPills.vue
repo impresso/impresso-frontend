@@ -61,21 +61,9 @@
         <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
       </div>
 
-      <div v-if="filter.type === 'string'" class="px-2 mt-1 mb-2">
-        <b-button-group>
-          <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
-            @click="onApplyFilter(filter)">
-            {{$t('action.apply')}}
-          </b-button>
-          <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
-            @click="onApplyFilter(filter)">
-            {{$t('action.undo')}}
-          </b-button>
-          <b-button  size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
-        </b-button-group>
-      </div>
+
       <!-- type is not string, add Remove button -->
-      <div v-else class="px-2 mt-1 mb-2">
+      <div class="px-2 mt-1 mb-2">
         <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
       </div>
     </b-dropdown>
@@ -264,6 +252,9 @@ export default {
   {
     "en": {
       "label": {
+        "string": {
+          "title": "article text"
+        },
         "title": {
           "title": "title"
         },

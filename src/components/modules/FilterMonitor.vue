@@ -288,6 +288,20 @@ label.custom-control-label {
         "value": "value",
         "apply": "apply changes"
       },
+      "string": {
+        "title": "article text",
+        "context": {
+          "include": "Contains",
+          "exclude": "<b>NOT</b> contains"
+        },
+        "precision": {
+          "exact": "exactly all words",
+          "fuzzy": "fuzzy match",
+          "soft": "at least one of the words"
+        },
+        "value": "value",
+        "apply": "apply changes"
+      },
       "topic": {
         "title": "filter by topic",
         "selected": "filter results if <b>one of {count} selected</b> topic applies",
