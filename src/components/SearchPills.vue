@@ -19,6 +19,10 @@
         <span class="label sp-string" v-if="filter.type === 'string'" :class="filter.precision">
           {{filter.q}}
         </span>
+        <!--  type:string -->
+        <span class="label sp-title" v-if="filter.type === 'title'" >
+          <span class="sp-string" :class="filter.precision">{{filter.q}}</span>
+        </span>
         <!--  type:topic -->
         <span class="label sp-topic"
           v-if="filter.type === 'topic'"
@@ -55,16 +59,6 @@
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
         <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
-
-
-        <b-form-group :label="filter.type" v-if="filter.type === 'string'">
-          <b-form-input
-            size="sm"
-            placeholder=""
-            v-model="filter.q"
-            @change="onChangeFilter(filter)">
-          </b-form-input>
-        </b-form-group>
       </div>
 
       <div v-if="filter.type === 'string'" class="px-2 mt-1 mb-2">
@@ -192,13 +186,32 @@ export default {
     text-overflow: ellipsis;
     display: inline-flex;
 
-    &.sp-string{
+    &.sp-string, &>.sp-string{
       background-color: #FFEB78;
     }
     &.sp-string.exact::before,
-    &.sp-string.exact::after{
+    &.sp-string.exact::after,
+    &>.sp-string.exact::before,
+    &>.sp-string.exact::after{
       content: '"';
+      font-weight: bold;
     }
+    &.sp-string.fuzzy::after,
+    &>.sp-string.fuzzy::after{
+      content: '~';
+      font-weight: bold;
+    }
+    &.sp-string.soft::before,
+    &>.sp-string.soft::before,{
+      content: '[';
+      font-weight: bold;
+    }
+    &.sp-string.soft::after,
+    &>.sp-string.soft::after{
+      content: ']';
+      font-weight: bold;
+    }
+
   }
 
   span.label.exclude{
@@ -251,6 +264,9 @@ export default {
   {
     "en": {
       "label": {
+        "title": {
+          "title": "title"
+        },
         "topic": {
           "title": "filter by topic"
         },
