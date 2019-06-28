@@ -15,7 +15,6 @@ import topics from './Topics';
 import jobs from './Jobs';
 import entities from './Entities';
 import mentions from './Mentions';
-import embeddings from './Embeddings';
 
 Vue.use(Vuex);
 
@@ -37,7 +36,6 @@ export default new Vuex.Store({
     newspapers,
     entities,
     mentions,
-    embeddings,
   },
   state: {
     processing_status: false,
