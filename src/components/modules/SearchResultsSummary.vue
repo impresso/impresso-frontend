@@ -138,12 +138,12 @@ export default {
       }).join('; ');
     },
 
-    getStrings() {
+    getStrings(type = 'string') {
       // later, this mapper will take into account
       // the property `precision`
-      const mapper = d => `<span>"${d.q}"</span>`;
+      const mapper = d => `<span class="highlight precision-${d.precision}">${d.q}</span>${d.distance || ''}`;
       return this.getFormattedSection({
-        type: 'string',
+        type,
         mapper,
       }).join('; ');
     },
@@ -163,6 +163,7 @@ export default {
             newspapers: this.getNewspapers(),
             collections: this.getCollections(),
             terms: this.getStrings(),
+            title: this.getStrings('title'),
             topics: this.getTopics(),
           });
           this.$emit('onSummary', this.message);
@@ -173,9 +174,27 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
   span.item, span.date {
     font-family: "questa-sans", sans-serif;
+    font-weight: bold;
+  }
+
+  .precision-exact::before,
+  .precision-exact::after{
+    content: '"';
+    font-weight: bold;
+  }
+  .precision-fuzzy::after,{
+    content: '~';
+    font-weight: bold;
+  }
+  .precision-soft::before{
+    content: '[';
+    font-weight: bold;
+  }
+  .precision-soft::after{
+    content: ']';
     font-weight: bold;
   }
 </style>
@@ -193,6 +212,7 @@ export default {
         "newspaper": "of"
       },
       "string": "containing",
+      "title": "where title includes",
       "daterange": "published",
       "collection": "saved in"
     },
@@ -208,7 +228,7 @@ export default {
       "collection": "not yet saved in"
     },
     "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {ranges} {collections} {terms} {topics}",
+    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {ranges} {collections} {terms} {title} {topics}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
   "fr": {
