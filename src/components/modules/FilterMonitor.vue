@@ -11,7 +11,7 @@
         </b-form-radio-group>
       </b-form-group>
       <!--  operator -->
-      <b-form-group v-if="filter.context === 'include' && filter.items.length > 1">
+      <b-form-group v-if="filter.context === 'include' && filter.items && filter.items.length > 1">
         <b-form-radio-group
           switches
           v-model="filter.op"
@@ -47,6 +47,27 @@
         ><span class="small" v-html="$t(`op.${option}.${filter.context}`)"></span></b-dropdown-item>
       </b-dropdown>
     </div>
+    <!-- for strings -->
+    <div v-if="['string', 'title'].indexOf(filter.type) !== -1">
+      <b-form-group :label="$t(`label.${filter.type}.value`)">
+        <b-form-input
+          size="sm"
+          placeholder=""
+          :value="filter.q"
+          @input.native="changeFilterQ($event.target.value)"
+          @change="changeFilterQ($event)">
+        </b-form-input>
+      </b-form-group>
+      <!--  context -->
+      <b-form-group v-if="checkbox">
+        <b-form-radio-group
+          switches
+          v-model="filter.precision"
+          v-bind:options="checkboxPrecisions"
+          @change="changeFilterPrecision($event)">
+        </b-form-radio-group>
+      </b-form-group>
+    </div>
     <div v-for="item in filter.items" :key="item.uid" class="mt-2">
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
@@ -70,7 +91,7 @@
     </div>
 
     <b-button class="mt-2" v-if="filter.touched || itemsToAdd.length" block size="sm" variant="outline-primary" @click="applyFilter()">
-      <span v-if="itemsToAdd.length || filter.items.length - filter.q.length">
+      <span v-if="filter.items && (itemsToAdd.length || filter.items.length - filter.q.length)">
         {{
           $t(`label.${type}.update`, {
             added: itemsToAdd.length,
@@ -88,6 +109,9 @@ import FilterDaterange from './FilterDateRange';
 import CollectionItem from './lists/CollectionItem';
 
 export default {
+  data: () => ({
+    q: '',
+  }),
   props: {
     type: String, // being topic, newspaper, collection, language ...
     store: {
@@ -102,6 +126,10 @@ export default {
       type: Array,
       default: () => ['include', 'exclude'],
     },
+    precisions: {
+      type: Array,
+      default: () => ['fuzzy', 'exact', 'soft'],
+    },
     checkbox: {
       type: Boolean,
       default: false,
@@ -113,6 +141,12 @@ export default {
     },
   },
   computed: {
+    checkboxPrecisions() {
+      return this.precisions.map(value => ({
+        text: this.$t(`label.${this.type}.precision.${value}`),
+        value,
+      }));
+    },
     checkboxContexts() {
       return this.contexts.map(value => ({
         text: this.$t(`label.${this.type}.context.${value}`),
@@ -125,6 +159,12 @@ export default {
         value,
       }));
     },
+    hasMultipleWords() {
+      if (typeof this.filter.q === 'string') {
+        return this.filter.q.trim().split(/\s/).length > 1;
+      }
+      return false;
+    },
   },
   methods: {
     applyFilter() {
@@ -135,14 +175,19 @@ export default {
     },
     updateFilter({ op, context }) {
       console.log('methods.updateFilter: op:', op, context);
-      // caclulate new q every time. if it's empty
-      const q = this.filter.items.concat(this.itemsToAdd).reduce((acc, d) => {
-        // console.log('methods.updateFilter: adding uid:', d.uid, d.checked);
-        if (d.checked) {
-          acc.push(d.uid);
-        }
-        return acc;
-      }, []);
+      let q;
+      if (this.filter.items) {
+        // caclulate new q every time. if it's empty
+        q = this.filter.items.concat(this.itemsToAdd).reduce((acc, d) => {
+          // console.log('methods.updateFilter: adding uid:', d.uid, d.checked);
+          if (d.checked) {
+            acc.push(d.uid);
+          }
+          return acc;
+        }, []);
+      } else {
+        q = this.filter.q;
+      }
 
       if (!q.length) {
         this.$store.commit(`${this.store}/REMOVE_FILTER`, this.filter);
@@ -159,12 +204,35 @@ export default {
       });
       this.$emit('filter-updated');
     },
+    changeFilterQ(q) {
+      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
+        filter: this.filter,
+        q,
+      });
+      this.$emit('filter-updated');
+    },
     changeFilterOperator(op) {
       this.updateFilter({ op });
     },
     changeFilterContext(context) {
       // console.log('@changeFilterContext', context);
       this.updateFilter({ context });
+    },
+    changeFilterPrecision(precision) {
+      // console.log('@changeFilterContext', context);
+      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
+        filter: this.filter,
+        precision,
+      });
+      this.$emit('filter-updated');
+    },
+    changeFilterDistance(distance) {
+      // console.log('@changeFilterContext', context);
+      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
+        filter: this.filter,
+        distance,
+      });
+      this.$emit('filter-updated');
     },
     toggleFilterItem(checked, item) {
       item.checked = checked;
@@ -207,6 +275,33 @@ label.custom-control-label {
       }
     },
     "label": {
+      "title": {
+        "context": {
+          "include": "Contains",
+          "exclude": "<b>NOT</b> contains"
+        },
+        "precision": {
+          "exact": "exactly all words",
+          "fuzzy": "fuzzy match",
+          "soft": "at least one of the words"
+        },
+        "value": "value",
+        "apply": "apply changes"
+      },
+      "string": {
+        "title": "article text",
+        "context": {
+          "include": "Contains",
+          "exclude": "<b>NOT</b> contains"
+        },
+        "precision": {
+          "exact": "exactly all words",
+          "fuzzy": "fuzzy match",
+          "soft": "at least one of the words"
+        },
+        "value": "value",
+        "apply": "apply changes"
+      },
       "topic": {
         "title": "filter by topic",
         "selected": "filter results if <b>one of {count} selected</b> topic applies",

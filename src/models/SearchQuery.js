@@ -80,7 +80,7 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
-  updateFilter({ filter, q, op, items, context }) {
+  updateFilter({ filter, q, op, items, context, precision, distance }) {
     const fil = this.getFilter(filter);
     if (!fil) {
       return;
@@ -90,6 +90,12 @@ export default class SearchQuery {
     }
     if (op) {
       fil.op = op;
+    }
+    if (precision) {
+      fil.precision = precision;
+    }
+    if (distance) {
+      fil.distance = distance;
     }
     if (context) {
       fil.context = context;

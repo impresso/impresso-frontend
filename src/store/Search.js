@@ -113,8 +113,8 @@ export default {
     RESET_FILTER(state, type) {
       state.search.resetFilter(type);
     },
-    UPDATE_FILTER(state, { filter, q, op, context }) {
-      state.search.updateFilter({ filter, q, op, context });
+    UPDATE_FILTER(state, { filter, q, op, context, precision, distance }) {
+      state.search.updateFilter({ filter, q, op, context, precision, distance });
     },
     UPDATE_FILTER_ITEM(state, { filter, item, uid }) {
       state.search.updateFilterItem({ filter, item, uid });
