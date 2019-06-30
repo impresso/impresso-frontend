@@ -20,12 +20,12 @@
             @mouseover="select(suggestion)" :class="{selected: selected === suggestion}">
           <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
             <span class="small">{{ q }}</span>
-            <b-badge>{{ $t(suggestion.type) }}</b-badge>
+            <b-badge>{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
       <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom" :class="{ 'suggestion-side': type === 'entity' }">
-        <span class="small-caps px-2 smaller">{{$t(`labels.${type}`)}}</span>
+        <span class="small-caps px-2 smaller">{{$t(`labels.${type}.title`)}}</span>
         <div v-for="(s, index) in suggestionIndex[type]" :key="index"
             @click="submit(s)" @mouseover="select(s)"
             class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
@@ -226,14 +226,27 @@ export default {
 <i18n>
   {
     "en": {
-      "string": "in contents",
-      "title": "in article title",
-      "person": "Person",
-      "location": "Location",
-      "regex": "Regex",
-      "daterange": "Date Range",
-      "topic": "Topic",
-      "collection": "Collection"
+      "label": {
+        "string": {
+          "title": "in contents ..."
+        },
+        "title": {
+          "title": "in article titles ..."
+        },
+        "topic": {
+          "title": "suggested topics"
+        },
+        "collection": {
+          "title": "suggested collections"
+        },
+        "newspaper": {
+          "title": "suggested newspaper"
+        },
+        "daterange": {
+          "title": "filter by date of publication",
+          "item": "From {start} to {end}"
+        }
+      }
     },
     "nl": {
       "person": "Persoon",
