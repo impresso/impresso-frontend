@@ -4,6 +4,7 @@ import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
 
+import Helpers from '@/plugins/Helpers';
 import ImpressoLayout from '@/plugins/Layout';
 import TawkTo from '@/plugins/TawkTo';
 
@@ -21,6 +22,8 @@ import dateTimeFormats from './i18n/dateTimeFormats';
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
+// custom created plugins
+Vue.use(Helpers);
 Vue.use(ImpressoLayout);
 Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
 
