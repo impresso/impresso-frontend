@@ -36,7 +36,7 @@
       <label v-on:click="onClick(newspaper)" :style="{ maxWidth: margin.left + 'px' }">
         {{newspaper.name}}
       </label>
-      <div class="line" :style="{
+      <div v-if="!isNaN(newspaper.startYear) && !isNaN(newspaper.endYear)" class="line" :style="{
           left: `${scale(newspaper.startYear)}px`,
           right: `${(width - scale(newspaper.endYear))}px`}">
           <div class="label-start">{{newspaper.startYear}}</div>
