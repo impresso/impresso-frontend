@@ -14,40 +14,35 @@
       </b-input-group-append>
     </b-input-group>
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
-
-      <div class="suggestion p-2"  v-for="(suggestion, index) in initialSuggestions" v-bind:key="index"
-          @click="submitInitialSuggestion(suggestion)"
-          @mouseover="select(suggestion)" :class="{selected: selected === suggestion}">
-        <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
-          <span class="badge">{{ suggestion.type }}</span>{{ q }}
+      <div class="border-bottom">
+        <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in initialSuggestions" v-bind:key="index"
+            @click="submitInitialSuggestion(suggestion)"
+            @mouseover="select(suggestion)" :class="{selected: selected === suggestion}">
+          <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
+            <span class="small">{{ q }}</span>
+            <b-badge>{{ $t(suggestion.type) }}</b-badge>
+          </div>
         </div>
       </div>
-
-      <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion p-2" v-bind:class="{selected: selected === s}">
-        <div v-if="s.type === 'regex'" class="suggestion-regex">
-          <span class="icon dripicons-rocket" :title="$t('regex')"></span>
-          <span v-html="s.q" />
-          <b-badge>{{$t('regex')}}</b-badge>
-        </div>
-        <div href="#" v-if="s.type === 'collection'" class="suggestion-collection">
-          <span class="icon dripicons-archive" :title="$t(s.item.type)"></span>
-          <span v-html="s.item.name" />
-          <b-badge>{{$t('collection')}}</b-badge>
-        </div>
-        <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
-          <span class="icon dripicons-message" :title="$t('topic')"></span>
-          <span v-html="s.h" />
-          <b-badge>{{$t('topic')}}</b-badge>
-        </div>
-        <div href="#" v-if="s.type === 'entity'" class="suggestion-entity">
-          <span v-if="s.item.type === 'person'" class="icon dripicons-user" :title="$t(s.item.type)"></span>
-          <span v-if="s.item.type === 'location'" class="icon dripicons-location" :title="$t(s.item.type)"></span>
-          <span v-html="s.h" />
-          <b-badge>{{$t(s.item.type)}}</b-badge>
-        </div>
-        <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
-          {{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}
-          <b-badge>{{$t('daterange')}}</b-badge>
+      <div v-for="type in suggestionTypes" :key="type" class="border-bottom">
+        <span class="small-caps px-2 smaller">{{$t(`labels.${type}`)}}</span>
+        <div v-for="(s, index) in suggestionIndex[type]" :key="index"
+            @click="submit(s)" @mouseover="select(s)"
+            class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
+            <div href="#" v-if="['collection', 'newspaper'].indexOf(type) !== -1" class="suggestion-collection">
+              <span v-html="s.item.name" />
+            </div>
+            <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
+              <span v-html="s.h" />
+            </div>
+            <div href="#" v-if="s.type === 'entity'" class="suggestion-entity">
+              <span v-if="s.item.type === 'person'" class="icon dripicons-user" :title="$t(s.item.type)"></span>
+              <span v-if="s.item.type === 'location'" class="icon dripicons-location" :title="$t(s.item.type)"></span>
+              <span v-html="s.h" />
+            </div>
+            <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
+              {{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}
+            </div>
         </div>
       </div>
     </div>
@@ -74,6 +69,14 @@ export default {
     selected: false,
     showSuggestions: false,
   }),
+  computed: {
+    suggestionIndex() {
+      return this.$helpers.groupBy(this.suggestions, 'type');
+    },
+    suggestionTypes() {
+      return Object.keys(this.suggestionIndex);
+    },
+  },
   methods: {
     hideSuggestions() {
       this.selected = this.suggestion;
@@ -208,6 +211,8 @@ export default {
 <i18n>
   {
     "en": {
+      "string": "in contents",
+      "title": "in article title",
       "person": "Person",
       "location": "Location",
       "regex": "Regex",
