@@ -25,7 +25,7 @@
         </div>
       </div>
       <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom" :class="{ 'suggestion-side': type === 'entity' }">
-        <span class="small-caps px-2 smaller">{{$t(`labels.${type}.title`)}}</span>
+        <span class="small-caps px-2 smaller">{{$t(`label.${type}.title`)}}</span>
         <div v-for="(s, index) in suggestionIndex[type]" :key="index"
             @click="submit(s)" @mouseover="select(s)"
             class="suggestion small px-2 mb-1" :class="{selected: selected === s}">

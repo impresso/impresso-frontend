@@ -1,40 +1,54 @@
-import Collection from './Collection';
 
 /**
  * @class Entity is an object representing a Named Entity (NE) such as a location or person
- * @param {Array} collections List of Collection objects the entity belongs to
- * @param {Integer} df Document Frequency
- * @param {Array} labels Array with labels as strings
- * @param {String} name Name of the Namend Entity
- * @param {String} uid Unique identifier for the Named Entity
+ * @param {Array} entities List of Entity objects the entity belongs to
+ * @param {Integer} id
+ * @param {String} name
+ * @param {String} type
+ * @param {String} wikidataId
+ * @param {String} dbpediaURL
+ * @param {String} impressoId
+ * @param {Integer} countItems
+ * @param {Integer} countMentions
+ * @param {Array} wikidata Array with wikidata
  */
 export default class Entity {
   constructor({
-    collections = [],
-    df = 0,
-    labels = [],
+    entities = [],
+    id = 0,
     name = '',
-    uid = '',
+    type = 'entity',
+    wikidataId = '',
+    dbpediaURL = '',
+    impressoId = '',
+    countItems = 0,
+    countMentions = 0,
+    wikidata = [],
   } = {}) {
-    this.collections = collections.map((collection) => {
-      if (collection instanceof Collection) {
-        return collection;
+    this.entities = entities.map((entity) => {
+      if (entity instanceof Entity) {
+        return entity;
       }
 
-      return new Collection(collection);
+      return new Entity(entity);
     });
 
-    this.df = parseInt(df, 10);
-    this.labels = labels.map(label => String(label));
+    this.id = parseInt(id, 10);
     this.name = String(name);
-    this.uid = String(uid);
+    this.type = String(type);
+    this.countMentions = parseInt(countMentions, 10);
+    this.countItems = parseInt(countItems, 10);
+    this.wikidataId = String(wikidataId);
+    this.dbpediaURL = String(dbpediaURL);
+    this.impressoId = String(impressoId);
+    this.wikidata = Object(wikidata);
   }
 
-  hasLabel(needle) {
-    return this.labels.find(label => label === needle);
-  }
-
-  getLabel(index) {
-    return this.labels[index];
-  }
+  // hasLabel(needle) {
+  //   return this.labels.find(label => label === needle);
+  // }
+  //
+  // getLabel(index) {
+  //   return this.labels[index];
+  // }
 }

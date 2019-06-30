@@ -1,9 +1,9 @@
 <template lang="">
   <i-layout-section class="" v-if="$route.params.collection_uid">
 
-    <div class="d-flex align-items-stretch border-bottom px-0 py-0 bg-light">
+    <div class="d-flex align-items-stretch border-bottom px-0 py-0">
 
-      <div class="p-3 mr-auto align-self-center">
+      <div class="p-3">
         <div class="">
           <strong>{{collection.name}}</strong>
         </div>
