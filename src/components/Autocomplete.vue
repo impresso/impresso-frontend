@@ -24,7 +24,7 @@
           </div>
         </div>
       </div>
-      <div v-for="type in suggestionTypes" :key="type" class="border-bottom">
+      <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom" :class="{ 'suggestion-side': type === 'entity' }">
         <span class="small-caps px-2 smaller">{{$t(`labels.${type}`)}}</span>
         <div v-for="(s, index) in suggestionIndex[type]" :key="index"
             @click="submit(s)" @mouseover="select(s)"
@@ -173,6 +173,21 @@ export default {
     width: 100%;
     background: white;
     z-index: 10;
+
+    .suggestion-side{
+      width: 100%;
+      top: 60px;
+      position: absolute;
+      left: 100%;
+      width: 100%;
+      background: white;
+      top: 58px;
+      border: 1px solid;
+      border-left-color: transparent;
+      border-bottom-color: $clr-primary !important;
+      box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
+    }
+
     .suggestion {
       border: 1px solid transparent;
       cursor: pointer;
