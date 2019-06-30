@@ -6,20 +6,29 @@
 
 import Filter from '@/models/FilterBase';
 import * as precisions from './Precisions';
+import * as contexts from './Contexts';
 
 export default class FilterString extends Filter {
   constructor(args) {
     super(args);
     this.q = String(args.q || args.query);
     this.precision = precisions[(args.precision || 'exact').toUpperCase()];
+    this.distance = Math.max(0, Math.min(parseInt(args.distance || 0, 10), 10));
   }
 
   getQuery() {
-    return {
-      context: this.context,
-      precision: this.precision,
+    const query = {
       type: this.type,
       q: this.q,
+      precision: this.precision,
     };
+
+    if (this.distance !== 0) {
+      query.distance = this.distance;
+    }
+    if (this.context !== contexts.INCLUDE) {
+      query.context = this.context;
+    }
+    return query;
   }
 }

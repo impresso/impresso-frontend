@@ -19,6 +19,10 @@
         <span class="label sp-string" v-if="filter.type === 'string'" :class="filter.precision">
           {{filter.q}}
         </span>
+        <!--  type:string -->
+        <span class="label sp-title" v-if="filter.type === 'title'" >
+          <span class="sp-string" :class="filter.precision">{{filter.q}}</span>
+        </span>
         <!--  type:topic -->
         <span class="label sp-topic"
           v-if="filter.type === 'topic'"
@@ -55,33 +59,11 @@
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
         <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
-
-
-        <b-form-group :label="filter.type" v-if="filter.type === 'string'">
-          <b-form-input
-            size="sm"
-            placeholder=""
-            v-model="filter.q"
-            @change="onChangeFilter(filter)">
-          </b-form-input>
-        </b-form-group>
       </div>
 
-      <div v-if="filter.type === 'string'" class="px-2 mt-1 mb-2">
-        <b-button-group>
-          <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
-            @click="onApplyFilter(filter)">
-            {{$t('action.apply')}}
-          </b-button>
-          <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
-            @click="onApplyFilter(filter)">
-            {{$t('action.undo')}}
-          </b-button>
-          <b-button  size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
-        </b-button-group>
-      </div>
+
       <!-- type is not string, add Remove button -->
-      <div v-else class="px-2 mt-1 mb-2">
+      <div class="px-2 mt-1 mb-2">
         <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
       </div>
     </b-dropdown>
@@ -102,7 +84,6 @@ export default {
   },
   computed: {
     currentStore() {
-      console.log('currentStore', this.store);
       if (this.store === 'searchImages') {
         return this.$store.state.searchImages;
       }
@@ -166,7 +147,6 @@ export default {
       this.$emit('remove', filter);
     },
     onChangeFilter(filter) {
-      console.log('changed');
       filter.touched = true;
     },
     onApplyFilter(filter) {
@@ -194,13 +174,32 @@ export default {
     text-overflow: ellipsis;
     display: inline-flex;
 
-    &.sp-string{
+    &.sp-string, &>.sp-string{
       background-color: #FFEB78;
     }
     &.sp-string.exact::before,
-    &.sp-string.exact::after{
+    &.sp-string.exact::after,
+    &>.sp-string.exact::before,
+    &>.sp-string.exact::after{
       content: '"';
+      font-weight: bold;
     }
+    &.sp-string.fuzzy::after,
+    &>.sp-string.fuzzy::after{
+      content: '~';
+      font-weight: bold;
+    }
+    &.sp-string.soft::before,
+    &>.sp-string.soft::before,{
+      content: '[';
+      font-weight: bold;
+    }
+    &.sp-string.soft::after,
+    &>.sp-string.soft::after{
+      content: ']';
+      font-weight: bold;
+    }
+
   }
 
   span.label.exclude{
@@ -253,6 +252,12 @@ export default {
   {
     "en": {
       "label": {
+        "string": {
+          "title": "article text"
+        },
+        "title": {
+          "title": "title"
+        },
         "topic": {
           "title": "filter by topic"
         },

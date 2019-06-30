@@ -11,7 +11,6 @@
         </span>
         <span v-else>{{ bucket.item.uid }}</span>
       </span>
-
       <span>({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
     </b-form-checkbox>
     <!-- <b-dropdown v-if="isChecked" size="sm" variant="outline-primary">
@@ -83,9 +82,6 @@ export default {
   "en": {
     "dates": {
       "lastModifiedDate": "Last-Modified-Date"
-    },
-    "numbers": {
-      "results": "Results"
     },
     "operator": {
       "or": "included (OR)",

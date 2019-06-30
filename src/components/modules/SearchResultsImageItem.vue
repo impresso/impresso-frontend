@@ -8,8 +8,11 @@
         <b-checkbox
           class="m-0 select-item"
           v-bind:checked.native="checked"
-          v-on:change="toggleSelected" />
+          v-on:change="$emit('toggleSelected', searchResult)" />
       </div>
+      <b-button variant="secondary" v-on:click="$emit('click:search', searchResult)" class="buttonFindSimilar" size="">
+        <icon name="search" />
+      </b-button>
     </div>
     <div
       v-else
@@ -17,7 +20,7 @@
       <p class="text-center small-caps text-light pt-4">iiifFragment missing</p>
     </div>
 
-    <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
+    <a href="#" v-on:click.prevent="$emit('click:image', searchResult)" class="titleblock article-meta p-2 border-top">
       <h2>{{searchResult.uid}}</h2>
       <div v-show="searchResult.newspaper.name != ''" class="small-caps">
         {{searchResult.newspaper.name}}
@@ -31,20 +34,17 @@
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
+import 'vue-awesome/icons/search';
+
 export default {
   data: () => ({
   }),
-  model: {
-    prop: 'image',
+  components: {
+    Icon,
   },
   props: ['searchResult', 'checkbox', 'checked'],
   methods: {
-    click() {
-      this.$emit('click');
-    },
-    toggleSelected() {
-      this.$emit('toggleSelected');
-    },
     isLoggedIn() {
       return this.$store.state.user.userData;
     },
@@ -77,8 +77,14 @@ export default {
       background-repeat: no-repeat;
       height: 20em;
       height: 30vh;
+      position: relative;
       input[type="checkbox"] {
           width: 0;
+      }
+      .buttonFindSimilar{
+        position: absolute;
+        bottom:0;
+        right:0;
       }
   }
   h2 {

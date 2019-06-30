@@ -25,6 +25,8 @@ export default {
     queryComponents: [],
     facetTypes: ['year', 'newspaper'], // this also sets the order of the filters
     filterFacetYearExpanded: false,
+    similarTo: false,
+    similarToUploaded: false,
   },
   getters: {
     getSearches(state) {
@@ -54,7 +56,6 @@ export default {
     // general settings
     UPDATE_SEARCH_QUERY_FILTERS(state, filters) {
       state.search.updateFilters(filters);
-      console.log('commit->UPDATE_SEARCH_QUERY_FILTERS, after:', state.search.filters);
     },
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
@@ -68,6 +69,12 @@ export default {
     UPDATE_PAGINATION_PER_PAGE(state, paginationPerPage) {
       state.paginationPerPage = parseInt(paginationPerPage, 10);
     },
+    UPDATE_SIMILAR_TO(state, imageUid) {
+      state.similarTo = imageUid;
+    },
+    UPDATE_SIMILAR_TO_UPLOADED(state, similarToUploaded) {
+      state.similarToUploaded = similarToUploaded;
+    },
     // pagination
     UPDATE_PAGINATION_CURRENT_PAGE(state, page) {
       state.paginationCurrentPage = parseInt(page, 10);
@@ -76,7 +83,6 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
-      console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
       state.search.enrichFilters(queryComponents);
       state.queryComponents = queryComponents.map(d => new QueryComponent(d));
     },
@@ -84,7 +90,6 @@ export default {
       state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
-      console.log('#->ADD_FILTER', filter);
       state.search.addFilter(filter);
     },
     REMOVE_FILTER(state, filter) {
@@ -93,8 +98,8 @@ export default {
     RESET_FILTER(state, type) {
       state.search.resetFilter(type);
     },
-    UPDATE_FILTER(state, { filter, q, op, context }) {
-      state.search.updateFilter({ filter, q, op, context });
+    UPDATE_FILTER(state, { filter, q, op, context, precision, distance }) {
+      state.search.updateFilter({ filter, q, op, context, precision, distance });
     },
     UPDATE_FILTER_ITEM(state, { filter, item, uid }) {
       state.search.updateFilterItem({ filter, item, uid });
@@ -153,6 +158,13 @@ export default {
         p: context.state.paginationCurrentPage,
         o: context.state.orderBy,
       };
+
+      if (context.state.similarToUploaded) {
+        query.u = context.state.similarToUploaded;
+      } else if (context.state.similarTo) {
+        query.i = context.state.similarTo;
+      }
+
       router.push({ name: 'searchImages', query });
     },
     PULL_SEARCH_PARAMS(context, query) {
@@ -162,7 +174,11 @@ export default {
       if (query.p && !isNaN(query.p)) {
         context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
       }
-
+      if (query.u) {
+        context.commit('UPDATE_SIMILAR_TO_UPLOADED', query.u);
+      } else if (query.i) {
+        context.commit('UPDATE_SIMILAR_TO', query.i);
+      }
       // parse filters here.
       try {
         context.commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
@@ -172,7 +188,7 @@ export default {
       context.dispatch('SEARCH');
     },
     ADD_OR_REPLACE_FILTER(context, filter) {
-      console.log('ADD_OR_REPLACE_FILTER', 'deprecated', filter);
+      console.error('ADD_OR_REPLACE_FILTER', 'deprecated', filter);
     },
     CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
       return new Promise((resolve) => {
@@ -186,7 +202,6 @@ export default {
       });
     },
     EXPORT_FROM_QUERY(context, payload) {
-      // console.log(context, services.exporter.methods.create);
       return new Promise((resolve) => {
         services.exporter.create({
           description: payload.description,
@@ -209,13 +224,14 @@ export default {
             page: context.state.paginationCurrentPage,
             limit: context.state.paginationPerPage,
             order_by: context.state.orderBy,
+            similarTo: context.state.similarTo,
+            similarToUploaded: context.state.similarToUploaded,
           };
-          console.log('->action:SEARCH', query);
+
           services.images.find({
             query,
           }).then(
             (res) => {
-              console.log('SEARCH res:', res);
               context.commit('CLEAR_FACETS');
 
               context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));

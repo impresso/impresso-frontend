@@ -14,36 +14,35 @@
       </b-input-group-append>
     </b-input-group>
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
-      <div v-if="suggestion" v-on:click="submit(suggestion)" v-on:mouseover="select(suggestion)" class="suggestion p-2" v-bind:class="{selected: selected === suggestion}">
-        <div class="suggestion-string">
-          {{suggestion.q}}
+      <div class="border-bottom">
+        <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in initialSuggestions" v-bind:key="index"
+            @click="submitInitialSuggestion(suggestion)"
+            @mouseover="select(suggestion)" :class="{selected: selected === suggestion}">
+          <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
+            <span class="small">{{ q }}</span>
+            <b-badge>{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
+          </div>
         </div>
       </div>
-      <div v-for="s in suggestions" v-on:click="submit(s)"  v-on:mouseover="select(s)" class="suggestion p-2" v-bind:class="{selected: selected === s}">
-        <div v-if="s.type === 'regex'" class="suggestion-regex">
-          <span class="icon dripicons-rocket" :title="$t('regex')"></span>
-          <span v-html="s.q" />
-          <b-badge>{{$t('regex')}}</b-badge>
-        </div>
-        <div href="#" v-if="s.type === 'collection'" class="suggestion-collection">
-          <span class="icon dripicons-archive" :title="$t(s.item.type)"></span>
-          <span v-html="s.item.name" />
-          <b-badge>{{$t('collection')}}</b-badge>
-        </div>
-        <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
-          <span class="icon dripicons-message" :title="$t('topic')"></span>
-          <span v-html="s.h" />
-          <b-badge>{{$t('topic')}}</b-badge>
-        </div>
-        <div href="#" v-if="s.type === 'entity'" class="suggestion-entity">
-          <span v-if="s.item.type === 'person'" class="icon dripicons-user" :title="$t(s.item.type)"></span>
-          <span v-if="s.item.type === 'location'" class="icon dripicons-location" :title="$t(s.item.type)"></span>
-          <span v-html="s.h" />
-          <b-badge>{{$t(s.item.type)}}</b-badge>
-        </div>
-        <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
-          {{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}
-          <b-badge>{{$t('daterange')}}</b-badge>
+      <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom" :class="{ 'suggestion-side': type === 'entity' }">
+        <span class="small-caps px-2 smaller">{{$t(`labels.${type}.title`)}}</span>
+        <div v-for="(s, index) in suggestionIndex[type]" :key="index"
+            @click="submit(s)" @mouseover="select(s)"
+            class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
+            <div href="#" v-if="['collection', 'newspaper'].indexOf(type) !== -1" class="suggestion-collection">
+              <span v-html="s.item.name" />
+            </div>
+            <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
+              <span v-html="s.h" />
+            </div>
+            <div href="#" v-if="s.type === 'entity'" class="suggestion-entity">
+              <span v-if="s.item.type === 'person'" class="icon dripicons-user" :title="$t(s.item.type)"></span>
+              <span v-if="s.item.type === 'location'" class="icon dripicons-location" :title="$t(s.item.type)"></span>
+              <span v-html="s.h" />
+            </div>
+            <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
+              {{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}
+            </div>
         </div>
       </div>
     </div>
@@ -57,24 +56,36 @@ import SuggestionFactory from '@/models/SuggestionFactory';
 export default {
   data: () => ({
     q: '',
+    initialSuggestions: [
+      {
+        type: 'string',
+      },
+      {
+        type: 'title',
+      },
+    ],
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
     showSuggestions: false,
   }),
+  computed: {
+    suggestionIndex() {
+      return this.$helpers.groupBy(this.suggestions, 'type');
+    },
+    suggestionTypes() {
+      return Object.keys(this.suggestionIndex);
+    },
+  },
   methods: {
     hideSuggestions() {
       this.selected = this.suggestion;
       this.showSuggestions = false;
     },
     search() {
-      if (this.q.length > 1) {
-        this.showSuggestions = true;
-        this.suggestion = SuggestionFactory.create({
-          type: 'string',
-          q: this.q.trim(),
-        });
+      this.showSuggestions = this.q.length > 0;
 
+      if (this.q.length > 1) {
         this.$store.dispatch('autocomplete/SEARCH', {
           q: this.q.trim(),
         }).then((res) => {
@@ -83,10 +94,14 @@ export default {
       } else {
         // if length of the query is 0 then we clear the suggestions
         this.suggestions = [];
-        this.suggestion = false;
         this.selected = false;
-        this.showSuggestions = false;
       }
+    },
+    submitInitialSuggestion({ type }) {
+      this.submit(SuggestionFactory.create({
+        type,
+        q: this.q,
+      }));
     },
     submit(suggestion) {
       if (suggestion) {
@@ -158,6 +173,21 @@ export default {
     width: 100%;
     background: white;
     z-index: 10;
+
+    .suggestion-side{
+      width: 100%;
+      top: 60px;
+      position: absolute;
+      left: 100%;
+      width: 100%;
+      background: white;
+      top: 58px;
+      border: 1px solid;
+      border-left-color: transparent;
+      border-bottom-color: $clr-primary !important;
+      box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
+    }
+
     .suggestion {
       border: 1px solid transparent;
       cursor: pointer;
@@ -196,12 +226,27 @@ export default {
 <i18n>
   {
     "en": {
-      "person": "Person",
-      "location": "Location",
-      "regex": "Regex",
-      "daterange": "Date Range",
-      "topic": "Topic",
-      "collection": "Collection"
+      "label": {
+        "string": {
+          "title": "in contents ..."
+        },
+        "title": {
+          "title": "in article titles ..."
+        },
+        "topic": {
+          "title": "suggested topics"
+        },
+        "collection": {
+          "title": "suggested collections"
+        },
+        "newspaper": {
+          "title": "suggested newspaper"
+        },
+        "daterange": {
+          "title": "filter by date of publication",
+          "item": "From {start} to {end}"
+        }
+      }
     },
     "nl": {
       "person": "Persoon",

@@ -28,6 +28,13 @@ export default {
       filter = new FilterString(filterData);
     }
 
+    if (filterData.type === 'title') {
+      filter = new FilterString({
+        ...filterData,
+        type: 'title',
+      });
+    }
+
     if (['isFront', 'hasTextContents'].indexOf(filterData.type) > -1) {
       filter = new FilterBoolean(filterData);
     }

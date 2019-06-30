@@ -9,7 +9,8 @@
             </span>
             <h3 class='mb-1'>
               {{newspaper.name}}
-              ({{newspaper.startYear}} - {{newspaper.endYear}})</h3>
+              ({{newspaper.startYear}} - {{newspaper.endYear}})
+            </h3>
             <p class='mb-0' v-if='genealogy || publication'>
               <span v-if='genealogy'>{{ genealogy }}</span>
               <span v-if='publication'>{{ publication }}</span>
@@ -41,6 +42,23 @@
       <!-- eof:header  -->
 
       <div class='px-3 py-2 ' v-if='$route.name == "newspaper_metadata"'>
+        <div class="mt-2">
+          <div v-if="newspaper.firstIssue && newspaper.lastIssue" class="small-caps">
+            {{ $t('imeta.daterange') }}
+            {{ $d(new Date(newspaper.firstIssue.date), 'year') }}
+             - {{ $d(new Date(newspaper.lastIssue.date), 'year') }}
+          </div>
+          <div v-if="newspaper.countArticles" class="small-caps">
+            {{ $t('imeta.countArticles') }} {{ newspaper.countArticles }}
+          </div>
+          <div v-if="newspaper.countIssues" class="small-caps">
+            {{ $t('imeta.countIssues') }} {{ newspaper.countIssues }}
+          </div>
+          <div v-if="newspaper.countPages" class="small-caps">
+            {{ $t('imeta.countIssues') }} {{ newspaper.countIssues }}
+            {{ $t('imeta.countPages') }} {{ newspaper.countPages }}
+          </div>
+        </div>
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="table-caption">List of known metadata for this newspaper</template>
@@ -64,9 +82,6 @@
       <div v-else>
         <div class="p-4">
           <b-row>
-            {{firstIssue[0].date.substring(0, firstIssue[0].date.indexOf("-"))}}
-            <br>
-            {{issues[issues.length-1].date.substring(0, issues[issues.length-1].date.indexOf("-"))}}
             <b-col
               sm="12" md="4" lg="3"
               v-for="(issue, i) in issues"
@@ -173,22 +188,6 @@ export default {
       this.total = response.total;
       return response.data;
     },
-    async getFirstIssue({
-      page = 1,
-    } = {}) {
-      const response = await this.$store.dispatch('newspapers/LOAD_ISSUES', {
-        page,
-        orderBy: this.orderBy,
-        limit: 1,
-        filters: [{
-          type: 'newspaper',
-          q: this.$route.params.newspaper_uid,
-          context: 'include',
-        }],
-      });
-      return response.data;
-    },
-
     async getNewspaper() {
       return this.$store.dispatch('newspapers/LOAD_DETAIL', this.$route.params.newspaper_uid);
     },
@@ -198,7 +197,6 @@ export default {
       immediate: true,
       async handler() {
         this.issues = await this.getIssues();
-        this.firstIssue = await this.getFirstIssue();
         this.newspaper = await this.getNewspaper();
       },
     },
@@ -255,6 +253,12 @@ export default {
     "route": {
       "newspaper": "list of {total} first pages",
       "newspaper_metadata": "newspaper metadata"
+    },
+    "imeta": {
+      "daterange": "Impresso Daterange: ",
+      "countPages": "Pages: ",
+      "countIssues": "Issues: ",
+      "countArticles": "Articles: "
     },
     "metadata": {
       "property": {

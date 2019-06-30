@@ -20,6 +20,21 @@
         </b-tabs>
         <div class="py-3 px-3">
           <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
+          <b-media v-if="similarToImage" class="pb-3">
+            <div style="width:128px;" slot="aside">
+              <b-img
+                fluid-grow
+                v-bind:src="similarToImage.regions[0].iiifFragment" />
+            </div>
+            <h4>{{similarToImage.newspaper.name}}</h4>
+            <p>{{$d(new Date(similarToImage.date), 'long')}}</p>
+            <b-button variant="danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">Remove</b-button>
+          </b-media>
+          <filter-image-upload
+            v-on:load="search(1)"
+            v-on:remove="search(1)" />
+
+          <search-input @submit="onSearchQuery"></search-input>
         </div>
       </div>
       <!--  body -->
@@ -53,7 +68,7 @@
 
         <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
           <ellipsis v-bind:initialHeight="88">
-            <search-result-summary
+            <search-results-summary
               @onSummary="onSummary"
               group-by="images"
               :queryComponents="queryComponents"
@@ -84,12 +99,12 @@
           <b-row class="pb-5">
             <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.uid">
               <search-results-image-item
-              v-bind:searchResult="searchResult"
-              v-bind:checkbox=true
-              v-on:toggleSelected="toggleSelected(searchResult)"
-              v-bind:checked="isChecked(searchResult)"
-              v-on:click="onClickResult(searchResult)"
-              />
+                v-bind:searchResult="searchResult"
+                v-bind:checkbox="true"
+                v-on:toggleSelected="toggleSelected"
+                v-bind:checked="isChecked(searchResult)"
+                v-on:click:image="onClickResult"
+                v-on:click:search="onClickSearch" />
             </b-col>
           </b-row>
         </b-container>
@@ -110,6 +125,8 @@
 </template>
 
 <script>
+import * as services from '@/services';
+import FilterImageUpload from './modules/FilterImageUpload';
 import Autocomplete from './Autocomplete';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import CollectionAddTo from './modules/CollectionAddTo';
@@ -117,8 +134,9 @@ import Pagination from './modules/Pagination';
 import SearchFacets from './SearchFacets';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import Ellipsis from './modules/Ellipsis';
+import SearchInput from './modules/SearchInput';
 import SearchPills from './SearchPills';
-
+import ImageViewer from './modules/ImageViewer';
 
 export default {
   components: {
@@ -127,26 +145,21 @@ export default {
     CollectionAddTo,
     Pagination,
     SearchFacets,
-    'search-result-summary': SearchResultsSummary,
+    SearchInput,
+    SearchResultsSummary,
     Ellipsis,
     SearchPills,
+    ImageViewer,
+    FilterImageUpload,
   },
   data: () => ({
+    q: '',
     selectedItems: [],
     allIndeterminate: false,
     allSelected: false,
+    similarToImage: false,
   }),
   mounted() {
-    // testing URL
-    // fetch('https://impresso-project.ch/api/images/')
-    //   .then(response => response.text())
-    //   .then((data) => {
-    //     this.searchResults = JSON.parse(data).data;
-    //   });
-    // if (this.uuid !== undefined) {
-    //   this.$store.commit('searchImages/LOAD_SEARCH', this.uuid);
-    //   console.log('search');
-    // }
     this.search();
   },
   computed: {
@@ -209,6 +222,7 @@ export default {
   },
   methods: {
     search(page) {
+      this.$store.state.searchImages.results = [];
       if (page !== undefined) {
         this.$store.commit('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
@@ -237,12 +251,19 @@ export default {
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
     },
+    onSearchQuery({ q }) {
+      console.log('@onSearchQuery', q);
+      this.$store.commit('searchImages/ADD_FILTER', {
+        type: 'title',
+        q,
+      });
+      this.search(1);
+    },
     onSuggestion(suggestion) {
       this.$store.commit('searchImages/ADD_FILTER', suggestion);
       this.search(1);
     },
     onFacet(facet) {
-      console.log('@onFacet', facet);
       this.$store.commit('searchImages/ADD_FILTER', facet);
       this.search(1);
     },
@@ -256,6 +277,10 @@ export default {
     },
     onRemoveFilter(filter) {
       this.$store.commit('searchImages/REMOVE_FILTER', filter);
+      this.search(1);
+    },
+    onRemoveSimilarTo() {
+      this.$store.commit('searchImages/UPDATE_SIMILAR_TO', false);
       this.search(1);
     },
     updateselectAll() {
@@ -275,7 +300,6 @@ export default {
         this.allSelected = true;
         this.allIndeterminate = false;
       }
-      // console.log('selected items : ', this.selectedItems);
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -330,6 +354,12 @@ export default {
         },
       });
     },
+    onClickSearch(image) {
+      this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);
+      this.similarToImage = image;
+      this.$store.commit('searchImages/UPDATE_SIMILAR_TO', image.uid);
+      this.search(1);
+    },
   },
   watch: {
     searchResults() {
@@ -340,10 +370,21 @@ export default {
     },
     '$route.query': {
       handler(val) {
-        console.log('@$route.query changed', val);
         this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
       },
       deep: true,
+      immediate: true,
+    },
+    '$route.query.i': {
+      handler(val) {
+        if (val) {
+          services.images.get(val).then((res) => {
+            this.similarToImage = res;
+          });
+        } else {
+          this.similarToImage = false;
+        }
+      },
       immediate: true,
     },
   },
