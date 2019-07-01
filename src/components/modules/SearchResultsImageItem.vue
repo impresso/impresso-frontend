@@ -21,7 +21,7 @@
     </div>
 
     <a href="#" v-on:click.prevent="$emit('click:image', searchResult)" class="titleblock article-meta p-2 border-top">
-      <h2>{{searchResult.uid}}</h2>
+      <h2>{{ title }}</h2>
       <div v-show="searchResult.newspaper.name != ''" class="small-caps">
         {{searchResult.newspaper.name}}
       </div>
@@ -44,6 +44,11 @@ export default {
     Icon,
   },
   props: ['searchResult', 'checkbox', 'checked'],
+  computed: {
+    title() {
+      return this.$helpers.excerpt(this.searchResult.title) || this.$t('result.label.image.untitled');
+    },
+  },
   methods: {
     isLoggedIn() {
       return this.$store.state.user.userData;
