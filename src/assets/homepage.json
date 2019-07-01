@@ -26,10 +26,24 @@
   ],
   "faq": {
     "title": "FAQ",
-    "questions": [
+    "groups": [
       {
-        "question": "What is the meaning of life?",
-        "answer": "<i>42</i>"
+        "title": "The corpus",
+        "questions": [
+          {
+            "question": "What is the meaning of life?",
+            "answer": "<i>42</i>"
+          }
+        ]
+      },
+      {
+        "title": "Group 2",
+        "questions": [
+          {
+            "question": "What is the meaning of life?",
+            "answer": "<i>42</i>"
+          }
+        ]
       }
     ]
   }
