@@ -1,0 +1,27 @@
+{
+  "splash": {
+    "title": "Media Monitoring of the Past",
+    "subtitle": "Search trough 200 years of newspapers"
+  },
+  "messages": [
+    {
+      "title":  "This is the title for a blog post",
+      "body": "<p><i>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt...</i></p>",
+      "type": "warning",
+      "buttons": [
+        {
+          "title": "Read Article",
+          "src": "'https://impresso-project.ch/''",
+          "target": "_blank",
+          "type": "primary"
+        },
+        {
+          "title": "Visit our blog",
+          "src": "https://impresso-project.ch/",
+          "target": "_self",
+          "type": "outline-primary"
+        }
+      ]
+    }
+  ]
+}

@@ -4,8 +4,8 @@
     <b-row class="justify-content-md-center mb-5">
       <b-col col xl="6" lg="8" md="10">
         <div class="mb-5">
-          <h1>Media Monitoring of the Past</h1>
-          <h3>Search trough 200 years of newspapers</h3>
+          <h1 v-html="content.splash.title" />
+          <h3 v-html="content.splash.subtitle" />
         </div>
         <autocomplete
         v-bind:variant="'warning'"
@@ -13,15 +13,17 @@
       </b-col>
     </b-row>
   </b-container>
-
 </div>
 </template>
 
 <script>
 import autocomplete from '@/components/Autocomplete';
+import content from '@/assets/homepage.json';
 
 export default {
-  data: () => ({}),
+  data: () => ({
+    content,
+  }),
   methods: {
     onSuggestion(suggestion) {
       this.$store.commit('search/CLEAR');

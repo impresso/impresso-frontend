@@ -1,16 +1,7 @@
 <template>
 <main id="HomePage">
   <home-page-splash />
-  <div class="bg-warning">
-    <div class="container py-4">
-        <h4>This is the title for a blog post</h4>
-        <p><strong>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt...
-        </strong></p>
-        <button class="btn btn-primary">Read article</button>
-        <button class="btn btn-outline-primary">Visit the blog</button>
-    </div>
-  </div>
+  <home-page-messages />
   <home-page-recipes />
   <home-page-faq />
   <home-page-footer />
@@ -19,6 +10,7 @@
 
 <script>
 import HomePageSplash from './HomePageSplash';
+import HomePageMessages from './HomePageMessages';
 import HomePageFaq from './HomePageFaq';
 import HomePageRecipes from './HomePageRecipes';
 import HomePageFooter from './HomePageFooter';
@@ -31,6 +23,7 @@ export default {
   },
   components: {
     HomePageSplash,
+    HomePageMessages,
     HomePageFaq,
     HomePageRecipes,
     HomePageFooter,
