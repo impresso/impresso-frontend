@@ -26,6 +26,8 @@ export default class QueryComponent {
     context = 'include',
     q = '',
     items = [],
+    precision = '',
+    distance = '',
   } = {}) {
     this.q = q;
     this.context = context;
@@ -33,6 +35,9 @@ export default class QueryComponent {
 
     if (type === 'daterange') {
       this.items = this.q.map(daterange => new Daterange({ daterange }));
+    } else if (type === 'title' || type === 'string') {
+      this.precision = String(precision);
+      this.distance = String(distance);
     } else if (KlassMapper[type] && items.length) {
       this.items = items.map(d => new KlassMapper[type](d));
     } else {

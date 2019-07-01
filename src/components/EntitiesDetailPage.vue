@@ -1,0 +1,320 @@
+<template lang="html">
+  <i-layout-section>
+    <b-navbar type="light" slot="header" variant="light" class="border-bottom">
+      <section>
+        <div class="label small-caps">
+          {{ entity.type }}
+        </div>
+        <h3>{{ entity.name }}
+        </h3>
+        <div>{{ $tc('found_articles', entity.countItems) }} {{$tc('found_entities', entity.countMentions)}}</div>
+      </section>
+    </b-navbar>
+    <b-navbar type="light" variant="light" class="border-bottom">
+      <timeline
+            :contrast="false"
+            :values="timevalues"
+            :domain="[start, end]"
+            v-on:highlight="onHighlight($event, 'A')">
+        <div slot-scope="tooltipScope">
+          <div v-if="tooltipScope.tooltip.item">
+            {{tooltipScope}}
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w }}</b>
+          </div>
+        </div>
+      </timeline>
+    </b-navbar>
+    <b-navbar class="wikibox border-bottom py-3">
+      <section class="d-flex flex-row w-100" v-if="entity.wikidata">
+              <div class="w-25" v-if="preferredImage">
+                <!-- <iframe
+                  v-if="entity.wikidata.coordinates"
+                  width="300" height="250"
+                  :src="`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${entity.wikidata.coordinates.latitude},${entity.wikidata.coordinates.longitude}`"
+                  class="border mb-2">
+                </iframe> -->
+                <img
+                  :title="preferredImage.value"
+                  :src="`http://commons.wikimedia.org/wiki/Special:FilePath/${preferredImage.value}?width=300px`" width="98%">
+              </div>
+
+              <div class="w-75 pl-2">
+                <p v-if="entity.wikidata.descriptions">
+                  <span class="text-serif px-1 mr-1 bg-white border">W</span>
+                  <br>
+                  <strong>{{ entity.wikidata.labels[activeLanguageCode] }}</strong>
+                  <br>
+                  <em>{{ entity.wikidata.descriptions[activeLanguageCode] }}</em>
+                </p>
+                <p>
+                  <a
+                    v-if="entity.wikidata.birthPlace"
+                    :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.birthPlace.id}`"
+                    target="_blank">
+                    {{ entity.wikidata.birthPlace.labels[activeLanguageCode] }},</a>
+                  <span v-if="entity.wikidata.birthDate">
+                    {{ parseWkDate(entity.wikidata.birthDate) }} -
+                  </span>
+                  <a
+                    v-if="entity.wikidata.deathPlace"
+                    :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.deathPlace.id}`"
+                    target="_blank">
+                    {{ entity.wikidata.deathPlace.labels[activeLanguageCode] }},</a>
+                  <span v-if="entity.wikidata.deathDate">
+                  {{ parseWkDate(entity.wikidata.deathDate) }}
+                  </span>
+                </p>
+                <b-button
+                  v-if="entity.wikidata.coordinates"
+                  variant="outline-primary" size="sm" target="_blank"
+                  :href="`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${entity.wikidata.coordinates.latitude},${entity.wikidata.coordinates.longitude}`">
+                  OpenStreetMaps
+                </b-button>
+                <a class="position-absolute border-top border-left px-2 small-caps bg-white"
+                  style="right:0; bottom:0"
+                    :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.id}`"
+                    target="_blank">
+                    Source: <span class="text-serif">W</span>/{{entity.wikidata.id}}</a>
+                <!-- <pre class="small">{{mention}}</pre> -->
+              </div>
+
+
+              <!-- <pre class="small">{{ entity}}</pre> -->
+
+      </section>
+      </div>
+
+    </b-navbar>
+
+    <!-- <pre>{{mentions}}</pre> -->
+
+    <base-tabs v-model="tab" class="pl-3 bg-light" v-bind:tabs="tabs"></base-tabs>
+    <div v-if="tab.name === 'cooccurrences'" class="p-3">
+      Cooccurrences
+    </div>
+    <div v-if="tab.name === 'articles' && mentions">
+      <div v-for="mention in mentions" class="p-3 border-bottom d-flex">
+        <div v-if="mention.article">
+          <div class="w-25">
+            <h5 v-if="mention.article.title" class="mb-0">
+              <router-link :to="{ name: 'article', params: {
+                issue_uid: mention.article.issue.uid,
+                page_uid: mention.article.pages[0].uid,
+                article_uid: mention.article.uid,
+              } }" v-html="mention.article.title"></router-link>
+            </h5>
+            <div class="article-meta mb-2">
+              <router-link :to="{ name: 'newspaper', params: { newspaper_uid: mention.article.newspaper.uid }}">
+              <strong v-if="mention.article.newspaper.name">{{mention.article.newspaper.name}}, </strong>
+              </router-link>
+              <span class="small-caps">{{$d(new Date(mention.article.date), "long")}}</span>
+              (p. <span>{{mention.article.pages.map(page => page.num).join('; ')}}</span>)
+            </div>
+          </div>
+          <div class="w-50 px-2">
+
+            <div v-if="mention.article.excerpt.length > 0" class="article-excerpt mb-2">{{mention.article.excerpt}}</div>
+
+              <router-link :to="{ name: 'article', params: {
+                issue_uid: mention.article.issue.uid,
+                page_uid: mention.article.pages[0].uid,
+                article_uid: mention.article.uid,
+              } }" class="btn btn-sm btn-outline-primary">
+                {{$t('view')}}
+              </router-link>
+
+              <collection-add-to
+                v-if="isLoggedIn()"
+                v-bind:item="article"
+                v-bind:text="$t('add_to_collection')" />
+
+          </div>
+          <div class="w-25">
+            <div v-if="mention.t">
+              <div class="small-caps">Text</div>
+              …{{mention.t}}…
+            </div>
+            <div v-if="mention.fn == null">
+              <div class="small-caps">Function</div>
+              {{mention.fn}}
+            </div>
+            <div v-if="mention.confidence == null">
+              <div class="small-caps">Confidence</div>
+              {{mention.confidence}}
+            </div>
+            <div v-if="mention.demonym == null">
+              <div class="small-caps">demonym</div>
+              {{mention.demonym}}
+            </div>
+            <!-- {{mention}} -->
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="paginationList.totalRows > paginationList.perPage"
+        class="fixed-pagination-footer p-1 m-0">
+        <pagination
+          v-bind:perPage="paginationList.perPage"
+          v-bind:currentPage="paginationList.currentPage"
+          v-bind:totalRows="paginationList.totalRows"
+          v-on:change="onInputPaginationList"
+          class="small-caps"
+          v-bind:showDescription="false" />
+      </div>
+      <!-- <pre>{{mention}}</pre> -->
+    </div>
+
+
+  </i-layout-section>
+
+</template>
+
+<script>
+import Entity from '@/models/Entity';
+// import Mention from '@/models/Mention';
+import Timeline from './modules/Timeline';
+import Pagination from './modules/Pagination';
+import BaseTabs from './base/BaseTabs';
+import CollectionAddTo from './modules/CollectionAddTo';
+
+export default {
+  data: () => ({
+    entity: new Entity(),
+    mentions: {},
+    timevalues: [],
+    // mention: new Mention(),
+    start: 1800,
+    end: 2000,
+    highlights: ['A'],
+    highlightA: null,
+    tab: {},
+  }),
+  components: {
+    Timeline,
+    Pagination,
+    BaseTabs,
+    CollectionAddTo,
+  },
+  computed: {
+    tabs() {
+      return [
+        {
+          label: this.$t('tabs.mentions'),
+          name: 'mentions',
+          active: true,
+        },
+        {
+          label: this.$t('tabs.cooccurrences'),
+          name: 'cooccurrences',
+          // disabled: true,
+        },
+      ];
+    },
+    preferredImage() {
+      if (this.entity.wikidata.images) {
+        const el = this.entity.wikidata.images.find(im => im.rank === 'preferred');
+        return el || this.entity.wikidata.images[0];
+      }
+      return null;
+    },
+    activeLanguageCode() {
+      return this.$store.state.settings.language_code;
+    },
+    // mention() {
+    //   if (!this.mentions) {
+    //     return new Mention();
+    //   }
+    //   // return whole object for testing
+    //   return this.mentions;
+    //   // return this.mentions.data.find(x => x.id === this.$route.params.entity_id);
+    // },
+    paginationList() {
+      return this.$store.state.mentions.pagination;
+    },
+    bbox() {
+      if (!this.entity.wikidata) {
+        return '';
+      }
+      const coords = this.entity.wikidata.coordinates;
+      const bbox = `${coords.longitude - 2},${coords.latitude - 1},${coords.longitude + 2},${coords.latitude + 1}`;
+      return bbox;
+    },
+  },
+  methods: {
+    async getEntity() {
+      return this.$store.dispatch('entities/LOAD_DETAIL', this.$route.params.entity_id);
+    },
+    // async getMentions() {
+    //   return this.$store.dispatch('mentions/LOAD_DETAIL', this.$route.params.entity_id);
+    // },
+    async getTimeline() {
+      return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id);
+    },
+    loadMentions(page) {
+      if (page !== undefined) {
+        this.$store.commit('mentions/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      }
+      return this.$store.dispatch('mentions/LOAD_DETAIL', this.$route.params.entity_id);
+    },
+    onInputPaginationList(page = 1) {
+      // console.log('page => ', page);
+      this.loadMentions(page);
+    },
+    onHighlight(event, origin) {
+      // console.log(event, origin);
+      this.highlights.forEach((vis) => {
+        if (vis !== origin) {
+          this[`highlight${vis}`] = event.datum;
+        }
+      });
+    },
+    parseWkDate(wkDate) {
+      let numYear = parseInt(wkDate.split('-')[0], 10);
+      // console.log(numYear);
+      if (isNaN(numYear)) {
+        numYear = parseInt(wkDate.split('-')[1], 10) * -1;
+        // console.log(numYear);
+      }
+      return numYear;
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
+  },
+  watch: {
+    '$route.params.entity_id': {
+      immediate: true,
+      async handler() {
+        this.entity = await this.getEntity();
+        this.mentions = await this.loadMentions(1);
+        this.timevalues = await this.getTimeline();
+      },
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+@import "impresso-theme/src/scss/variables.sass";
+.wikibox {
+  background: $clr-bg-secondary;
+}
+a:hover {
+  text-decoration: none;
+}
+</style>
+
+<i18n>
+{
+  "en": {
+    "found_articles": "Found in {n} article | Found in {n} articles",
+    "found_entities": "and {n} mention within corpus | and {n} mentions within corpus",
+    "tabs": {
+        "mentions": "Mentions",
+        "cooccurrences": "Cooccurrences"
+    },
+    "add_to_collection": "Add to Collection ..."
+  }
+}
+</i18n>
