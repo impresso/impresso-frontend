@@ -158,5 +158,8 @@ footer{
       border-bottom-width: 2px;
     }
   }
+  a:hover{
+    background: none;
+  }
 }
 </style>
