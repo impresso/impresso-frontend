@@ -23,5 +23,14 @@
         }
       ]
     }
-  ]
+  ],
+  "faq": {
+    "title": "FAQ",
+    "questions": [
+      {
+        "question": "What is the meaning of life?",
+        "answer": "<i>42</i>"
+      }
+    ]
+  }
 }
