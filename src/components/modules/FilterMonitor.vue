@@ -90,6 +90,60 @@
       </div>
     </div>
 
+    <b-button
+      size="sm" variant="outline-primary" class="border bg-light mt-2 w-100"
+      v-if="filter.q != null"
+      v-on:click="showEmbeddings = !showEmbeddings; embeddingsOnSubmit()"
+      v-bind:class="{ 'border-bottom-0': showEmbeddings }">
+      {{$t('Add word embeddings to query')}}
+    </b-button>
+
+    <div class="border pt-3 px-2 bg-light" v-show="showEmbeddings">
+      <b-form-group>
+        <form v-on:submit.prevent="embeddingsOnSubmit()">
+          <b-row>
+            <b-col cols="12" class="input-group">
+              <b-form-input
+                type="text"
+                size="sm"
+                class="form-control"
+                placeholder="term"
+                ref="inputE"
+                :value="inputEmbeddings(filter.q)"
+                name="inputEmbeddings" />
+                <div class="input-group-append">
+                  <b-form-select name="languageEmbeddings"
+                    v-model="languageEmbeddings"
+                    :options="languageEmbeddingsOptions"
+                    v-on:change="embeddingsOnSubmit()"
+                    size="sm" variant="outline-primary" />
+                </div>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col class="mt-2">
+                <div v-if="embeddings[0] === '_fetching'">
+                  <i-spinner class="text-center p-3" />
+                </div>
+                <div v-else-if="embeddings[0] === '_error'" class="alert alert-danger" role="alert">
+                  {{embeddings[1]}}
+                </div>
+                <div v-else>
+                  <a
+                    v-for="embedding in embeddings"
+                    :title="`add “${embedding}” to search query`"
+                    class="mr-2 mt-2 border px-2 d-inline-block"
+                    v-on:click="filter.q = `${filter.q} ${embedding}`; filter.touched = true;">
+                    {{embedding}}
+                  </a>
+                </div>
+            </b-col>
+          </b-row>
+        </form>
+      </b-form-group>
+    </div>
+
+
     <b-button class="mt-2" v-if="filter.touched || itemsToAdd.length" block size="sm" variant="outline-primary" @click="applyFilter()">
       <span v-if="filter.items && (itemsToAdd.length || filter.items.length - filter.q.length)">
         {{
@@ -111,6 +165,7 @@ import CollectionItem from './lists/CollectionItem';
 export default {
   data: () => ({
     q: '',
+    showEmbeddings: false,
   }),
   props: {
     type: String, // being topic, newspaper, collection, language ...
@@ -164,6 +219,29 @@ export default {
         return this.filter.q.trim().split(/\s/).length > 1;
       }
       return false;
+    },
+    languageEmbeddingsOptions: {
+      get() {
+        return [
+          { value: 'en', text: 'English' },
+          { value: 'fr', text: 'French' },
+          { value: 'de', text: 'German' },
+          { value: 'lu', text: 'Lëtz.' },
+        ];
+      },
+    },
+    languageEmbeddings: {
+      get() {
+        return this.$store.state.embeddings.language;
+      },
+      set(languageEmbeddings) {
+        this.$store.commit('embeddings/UPDATE_LANGUAGE', languageEmbeddings);
+      },
+    },
+    embeddings: {
+      get() {
+        return this.$store.state.embeddings.embeddings;
+      },
     },
   },
   methods: {
@@ -244,6 +322,15 @@ export default {
         item,
         uid,
       });
+    },
+    inputEmbeddings(q) {
+      const firstWord = q.trim().split(' ').pop();
+      // console.log(firstWord);
+      return firstWord;
+    },
+    embeddingsOnSubmit() {
+      console.log('input:', this.$refs);
+      this.$store.dispatch('embeddings/FIND', this.$refs.inputE.$el.value);
     },
   },
   components: {
