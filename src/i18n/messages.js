@@ -40,6 +40,9 @@ export default {
         image: {
           untitled: '(untitled image)',
         },
+        entity: {
+          untitled: '(untitled)',
+        },
       },
     },
   },

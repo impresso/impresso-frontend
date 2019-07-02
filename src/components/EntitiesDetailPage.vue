@@ -7,7 +7,7 @@
         </div>
         <h3>{{ entity.name }}
         </h3>
-        <div>{{ $tc('found_articles', entity.countItems) }} {{$tc('found_entities', entity.countMentions)}}</div>
+        <div>{{ $tc('count', countMentions) }}</div>
       </section>
     </b-navbar>
     <b-navbar type="light" variant="light" class="border-bottom">
@@ -87,14 +87,13 @@
 
     </b-navbar>
 
-    <!-- <pre>{{mentions}}</pre> -->
-
     <base-tabs v-model="tab" class="pl-3 bg-light" v-bind:tabs="tabs"></base-tabs>
     <div v-if="tab.name === 'cooccurrences'" class="p-3">
       Cooccurrences
     </div>
-    <div v-if="tab.name === 'articles' && mentions">
-      <div v-for="mention in mentions" class="p-3 border-bottom d-flex">
+
+    <div v-if="tab.name === 'mentions'">
+      <div v-for="(mention, index) in mentions" :key="index" class="p-3 border-bottom d-flex">
         <div v-if="mention.article">
           <div class="w-25">
             <h5 v-if="mention.article.title" class="mb-0">
@@ -132,22 +131,36 @@
           </div>
           <div class="w-25">
             <div v-if="mention.t">
-              <div class="small-caps">Text</div>
               …{{mention.t}}…
             </div>
             <div v-if="mention.fn == null">
-              <div class="small-caps">Function</div>
-              {{mention.fn}}
+              <span class="small-caps">Function</span>
+              <span>{{mention.fn}}</span>
             </div>
             <div v-if="mention.confidence == null">
-              <div class="small-caps">Confidence</div>
-              {{mention.confidence}}
+              <span class="small-caps">Confidence</span> <span>o{{$t(`confidence.${mention.confidence}`)}}</span>
             </div>
             <div v-if="mention.demonym == null">
               <div class="small-caps">demonym</div>
               {{mention.demonym}}
             </div>
             <!-- {{mention}} -->
+          </div>
+        </div>
+        <div v-else>
+          <div v-if="mention.t">
+            …{{mention.t}}…
+          </div>
+          <div v-if="mention.fn">
+            <span class="small-caps">Function</span>
+            <span>{{mention.fn}}</span>
+          </div>
+          <div v-if="mention.confidence">
+            <span class="small-caps">Confidence</span> <span>{{$t(`confidence.${mention.confidence}`)}}</span>
+          </div>
+          <div v-if="mention.demonym">
+            <div class="small-caps">demonym</div>
+            {{mention.demonym}}
           </div>
         </div>
       </div>
@@ -181,7 +194,7 @@ import CollectionAddTo from './modules/CollectionAddTo';
 export default {
   data: () => ({
     entity: new Entity(),
-    mentions: {},
+    mentions: [],
     timevalues: [],
     // mention: new Mention(),
     start: 1800,
@@ -197,6 +210,9 @@ export default {
     CollectionAddTo,
   },
   computed: {
+    countMentions() {
+      return this.$store.state.mentions.pagination.totalRows;
+    },
     tabs() {
       return [
         {
@@ -255,11 +271,18 @@ export default {
       if (page !== undefined) {
         this.$store.commit('mentions/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-      return this.$store.dispatch('mentions/LOAD_DETAIL', this.$route.params.entity_id);
+      return this.$store.dispatch('mentions/LOAD_ENTITY_MENTIONS', {
+        filters: [
+          {
+            q: this.$route.params.entity_id,
+            type: 'entity',
+          },
+        ],
+      });
     },
-    onInputPaginationList(page = 1) {
+    async onInputPaginationList(page = 1) {
       // console.log('page => ', page);
-      this.loadMentions(page);
+      this.mentions = await this.loadMentions(page);
     },
     onHighlight(event, origin) {
       // console.log(event, origin);
@@ -308,8 +331,10 @@ a:hover {
 <i18n>
 {
   "en": {
-    "found_articles": "Found in {n} article | Found in {n} articles",
-    "found_entities": "and {n} mention within corpus | and {n} mentions within corpus",
+    "count": "Mentioned only once {n} | Mentioned {n} times",
+    "confidence": {
+      "l": "low"
+    },
     "tabs": {
         "mentions": "Mentions",
         "cooccurrences": "Cooccurrences"
