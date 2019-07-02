@@ -13,7 +13,7 @@
           v-bind:target="button.target || '_self'"
           v-bind:href="button.src"
           v-bind:class="`btn-${button.type || 'info'}`"
-          class="btn mr-2">{{button.title}}</a>
+          class="btn btn-sm mr-2">{{button.title}}</a>
       </div>
     </div>
   </div>

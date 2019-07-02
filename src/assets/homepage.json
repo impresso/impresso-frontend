@@ -5,20 +5,20 @@
   },
   "messages": [
     {
-      "title":  "This is the title for a blog post",
-      "body": "<p><i>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt...</i></p>",
+      "title":  "Call for papers - Digitised newspapers - a new Eldorado for historians ?",
+      "body": "<p><i>What does it mean to work in new ways with the traditional historical sources that are newspapers?</i></p>",
       "type": "warning",
       "buttons": [
         {
           "title": "Read Article",
-          "src": "'https://impresso-project.ch/''",
+          "src": "https://impresso-project.ch/news/2019/06/12/WS5-CfP.html",
           "target": "_blank",
           "type": "primary"
         },
         {
           "title": "Visit our blog",
-          "src": "https://impresso-project.ch/",
-          "target": "_self",
+          "src": "https://impresso-project.ch/blog/",
+          "target": "_blank",
           "type": "outline-primary"
         }
       ]
