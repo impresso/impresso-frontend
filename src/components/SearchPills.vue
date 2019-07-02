@@ -59,6 +59,68 @@
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
         <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
+
+                <b-button
+                  size="sm" variant="outline-primary" class="border bg-light mt-2 w-100"
+                  v-if="filter.q != null"
+                  v-on:click="showEmbeddings[index] = !showEmbeddings[index]; embeddingsOnSubmit(index)"
+                  v-bind:class="{ 'border-bottom-0': showEmbeddings[index] }">
+                  {{$t('Add word embeddings to query')}}
+                </b-button>
+
+                <div class="border pt-3 px-2 bg-light" v-show="showEmbeddings[index]">
+                  <b-form-group>
+                    <form v-on:submit.prevent="embeddingsOnSubmit(index)">
+                      <b-row>
+                        <b-col cols="8" class="input-group">
+                          <b-form-input
+                            type="text"
+                            size="sm"
+                            class="form-control"
+                            placeholder="term"
+                            ref="inputE"
+                            :value="inputEmbeddings(filter.q)"
+                            name="inputEmbeddings" />
+                            <div class="input-group-append">
+                              <b-button
+                                size="sm" variant="outline-primary"
+                                v-on:click.prevent="embeddingsOnSubmit(index)">GO!
+                              </b-button>
+                            </div>
+                        </b-col>
+                        <b-col cols="4" class="text-right">
+
+                          <b-form-select name="languageEmbeddings"
+                            v-model="languageEmbeddings"
+                            :options="languageEmbeddingsOptions"
+                            v-on:change="embeddingsOnSubmit(index)"
+                            size="sm" variant="outline-primary" />
+                        </b-col>
+                      </b-row>
+                      <b-row>
+                        <b-col class="mt-2">
+                            <div v-if="embeddings[0] === '_fetching'">
+                              <i-spinner class="text-center p-3" />
+                            </div>
+                            <div v-else-if="embeddings[0] === '_error'" class="alert alert-danger" role="alert">
+                              {{embeddings[1]}}
+                            </div>
+                            <div v-else>
+                              <a
+                                v-for="embedding in embeddings"
+                                :title="`add “${embedding}” to search query`"
+                                class="mr-2 mt-2 border px-2 d-inline-block"
+                                v-on:click="filter.q = `${filter.q} ${embedding}`; filter.touched = true;">
+                                {{embedding}}
+                              </a>
+                            </div>
+                        </b-col>
+                      </b-row>
+                    </form>
+                  </b-form-group>
+
+                </div>
+
       </div>
 
 
@@ -76,6 +138,9 @@ import NewspaperListItem from './modules/NewspaperListItem';
 import FilterMonitor from './modules/FilterMonitor';
 
 export default {
+  data: () => ({
+    showEmbeddings: [],
+  }),
   props: {
     store: {
       type: String,
@@ -109,6 +174,28 @@ export default {
             text: this.$t('context.exclude'),
           },
         ];
+      },
+    },
+    languageEmbeddingsOptions: {
+      get() {
+        return [
+          { value: 'en', text: 'English' },
+          { value: 'fr', text: 'French' },
+          { value: 'de', text: 'German' },
+        ];
+      },
+    },
+    languageEmbeddings: {
+      get() {
+        return this.$store.state.embeddings.language;
+      },
+      set(languageEmbeddings) {
+        this.$store.commit('embeddings/UPDATE_LANGUAGE', languageEmbeddings);
+      },
+    },
+    embeddings: {
+      get() {
+        return this.$store.state.embeddings.embeddings;
       },
     },
   },
@@ -151,6 +238,15 @@ export default {
     },
     onApplyFilter(filter) {
       this.$emit('update', filter);
+    },
+    inputEmbeddings(q) {
+      const firstWord = q.trim().split(' ').pop();
+      // console.log(firstWord);
+      return firstWord;
+    },
+    embeddingsOnSubmit(index) {
+      // console.log('input:', this.$refs.inputE[index].$el.value);
+      this.$store.dispatch('embeddings/FIND', this.$refs.inputE[index].$el.value);
     },
   },
   components: {
