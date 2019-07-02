@@ -182,6 +182,7 @@ export default {
           { value: 'en', text: 'English' },
           { value: 'fr', text: 'French' },
           { value: 'de', text: 'German' },
+          { value: 'lu', text: 'Lëtzebuergesch' },
         ];
       },
     },
