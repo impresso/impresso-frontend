@@ -51,7 +51,9 @@ html {
         position: relative;
     }
 }
-
+select {
+  appearance: inherit;
+}
 span.number {
   font-family: "questa-sans", sans-serif;
 }
