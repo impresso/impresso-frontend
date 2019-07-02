@@ -117,6 +117,10 @@
                     :options="languageEmbeddingsOptions"
                     v-on:change="embeddingsOnSubmit()"
                     size="sm" variant="outline-primary" />
+                  <b-button
+                    size="sm" variant="outline-primary"
+                    v-on:click.prevent="embeddingsOnSubmit()">GO!
+                  </b-button>
                 </div>
             </b-col>
           </b-row>
