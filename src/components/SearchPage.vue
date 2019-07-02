@@ -105,6 +105,12 @@
             <span class="dripicons-checklist pr-1"></span>
             {{$tc('add_n_to_collection', selectedItems.length)}}
           </b-dropdown-item>
+          <b-dropdown-item v-on:click="exportSelectedCsv"
+            v-if="selectedItems.length > 0"
+            class="p-2 small-caps">
+            <span class="dripicons-export pr-1"></span>
+            {{$t("selected_export_csv")}}
+          </b-dropdown-item>
           <b-dropdown-item
             class="p-2 small-caps"
             v-b-modal.nameCollection>
@@ -530,6 +536,17 @@ export default {
         console.log(res);
       });
     },
+    exportSelectedCsv() {
+      const uids = this.selectedItems.map(a => a.uid);
+      this.$store.dispatch('search/EXPORT_FROM_UIDS', {
+        filters: {
+          type: 'uid',
+          q: uids,
+        },
+      }).then((res) => {
+        console.log(res);
+      });
+    },
     nameCollectionOnShown() {
       this.inputName = '';
       this.$refs.inputName.focus();
@@ -689,6 +706,7 @@ div.overlay-region{
     "Collection_Description" : "Collection Description",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
+    "selected_export_csv": "Export selected items as CSV",
     "Based on search query with": "Based on search query with"
   },
   "nl": {
