@@ -1,6 +1,8 @@
 import * as services from '@/services';
 import Entity from '@/models/Entity';
+import Helpers from '@/plugins/Helpers';
 
+console.log(Helpers);
 
 export default {
   namespaced: true,
@@ -66,10 +68,12 @@ export default {
         if (!res.info.facets && !res.info.facets.year) {
           return [];
         }
-        return res.info.facets.year.buckets.map(bucket => ({
+        const values = res.info.facets.year.buckets.map(bucket => ({
           t: bucket.val,
           w: bucket.count,
-        })).sort((a, b) => parseInt(b.t, 10) - parseInt(a.t, 10));
+        })).sort((a, b) => parseInt(a.t, 10) - parseInt(b.t, 10));
+        console.log('LOAD_TIMELINE', Helpers.timeline.addEmptyYears(values));
+        return Helpers.timeline.addEmptyYears(values);
       });
     },
   },
