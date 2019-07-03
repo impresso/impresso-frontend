@@ -292,7 +292,6 @@ export default {
       });
     },
     async onInputPaginationList(page = 1) {
-      // console.log('page => ', page);
       this.mentions = await this.loadMentions(page);
     },
     onHighlight(event, origin) {

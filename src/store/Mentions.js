@@ -8,7 +8,7 @@ export default {
     mentions: [],
     query: '',
     pagination: {
-      perPage: 2,
+      perPage: 8,
       currentPage: 1,
       totalRows: 0,
     },
@@ -20,12 +20,12 @@ export default {
     },
   },
   actions: {
-    LOAD_ENTITY_MENTIONS(context, { filters, limit = 10, page = 1 }) {
+    LOAD_ENTITY_MENTIONS(context, { filters }) {
       // console.log('eid', entityUid);
       return services.mentions.find({
         query: {
-          limit,
-          page,
+          limit: context.state.pagination.perPage,
+          page: context.state.pagination.currentPage,
           filters,
         },
       }).then((res) => {
