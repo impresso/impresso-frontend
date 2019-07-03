@@ -1,28 +1,32 @@
 <template>
-<main id="HomePage" class="py-3 bg-light">
-  <b-container v-html="$options.filters.markdown(markdown)" />
+<main id="HomePage">
+  <home-page-splash />
+  <home-page-messages />
+  <home-page-recipes v-show="false" />
+  <home-page-faq />
+  <home-page-footer />
 </main>
 </template>
 
 <script>
-import markdown from '@/filters/markdown';
-import axios from 'axios';
+import HomePageSplash from './HomePageSplash';
+import HomePageMessages from './HomePageMessages';
+import HomePageFaq from './HomePageFaq';
+import HomePageRecipes from './HomePageRecipes';
+import HomePageFooter from './HomePageFooter';
 
 export default {
   name: 'HomePage',
   data: () => ({
-    markdown: '',
-    resource: process.env.GITHUB_WIKI_HOME,
   }),
-  mounted() {
-    axios.get(this.resource).then((res) => {
-      this.markdown = res.data;
-    });
-  },
-  filters: {
-    markdown,
-  },
   methods: {
+  },
+  components: {
+    HomePageSplash,
+    HomePageMessages,
+    HomePageFaq,
+    HomePageRecipes,
+    HomePageFooter,
   },
 };
 </script>

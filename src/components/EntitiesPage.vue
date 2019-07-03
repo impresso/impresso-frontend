@@ -108,7 +108,7 @@ export default {
       },
       set(val) {
         this.$store.commit('entities/UPDATE_QUERY', val);
-        this.loadList(1);
+        this.loadList();
       },
     },
     orderByOptions: {
@@ -131,7 +131,8 @@ export default {
       },
       set(val) {
         this.$store.commit('entities/UPDATE_ORDER_BY', val);
-        this.loadList(1);
+        console.log(val);
+        this.loadList();
       },
     },
   },

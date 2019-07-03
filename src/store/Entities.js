@@ -11,7 +11,7 @@ export default {
     items: [],
     query: '',
     pagination: {
-      perPage: 12,
+      perPage: 10,
       currentPage: 1,
       totalRows: 0,
     },
@@ -46,7 +46,8 @@ export default {
           ...result,
         }));
         context.commit('UPDATE_ENTITIES', items);
-        context.state.pagination.totalRows = res.total;
+        // console.log('tot', res.total);
+        context.state.pagination.totalRows = 199990; // res.total;
         return items;
       });
     },

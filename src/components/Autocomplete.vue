@@ -2,13 +2,12 @@
   <section class="search-bar" v-ClickOutside="hideSuggestions">
     <b-input-group>
       <b-form-input
-      class="border-primary"
       placeholder="search for ..."
       v-model.trim="q"
       v-on:input.native="search"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn variant="outline-primary" class="px-2" v-on:click="submit(selected)">
+        <b-btn v-bind:variant="variant" class="px-2" v-on:click="submit(selected)">
           <div class="search-submit dripicons-search"></div>
         </b-btn>
       </b-input-group-append>
@@ -24,7 +23,7 @@
           </div>
         </div>
       </div>
-      <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom" :class="{ 'suggestion-side': type === 'entity' }">
+      <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
         <span class="small-caps px-2 smaller">{{$t(`label.${type}.title`)}}</span>
         <div v-for="(s, index) in suggestionIndex[type]" :key="index"
             @click="submit(s)" @mouseover="select(s)"
@@ -69,6 +68,12 @@ export default {
     selected: false,
     showSuggestions: false,
   }),
+  props: {
+    variant: {
+      type: String,
+      default: 'primary',
+    },
+  },
   computed: {
     suggestionIndex() {
       return this.$helpers.groupBy(this.suggestions, 'type');
@@ -173,20 +178,6 @@ export default {
     width: 100%;
     background: white;
     z-index: 10;
-
-    .suggestion-side{
-      width: 100%;
-      top: 60px;
-      position: absolute;
-      left: 100%;
-      width: 100%;
-      background: white;
-      top: 58px;
-      border: 1px solid;
-      border-left-color: transparent;
-      border-bottom-color: $clr-primary !important;
-      box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
-    }
 
     .suggestion {
       border: 1px solid transparent;
