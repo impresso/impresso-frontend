@@ -2,7 +2,7 @@
 <main id="HomePage">
   <home-page-splash />
   <home-page-messages />
-  <home-page-recipes />
+  <home-page-recipes v-show="false" />
   <home-page-faq />
   <home-page-footer />
 </main>
