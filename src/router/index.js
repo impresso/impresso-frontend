@@ -43,7 +43,7 @@ const router = new Router({
     name: 'search',
     component: SearchPage,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
@@ -51,7 +51,7 @@ const router = new Router({
     name: 'searchImages',
     component: SearchImagesPage,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
@@ -74,7 +74,7 @@ const router = new Router({
     },
     meta: {
       realm: 'user',
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
@@ -117,7 +117,7 @@ const router = new Router({
     name: 'issue',
     props: true,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
       realm: 'issueviewer',
     },
   },
@@ -127,7 +127,7 @@ const router = new Router({
     name: 'page',
     props: true,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
       realm: 'issueviewer',
     },
   },
@@ -139,7 +139,7 @@ const router = new Router({
       component: NewspapersExplorerPage,
       name: 'newspapers',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         realm: 'newspapers',
       },
     },
@@ -148,7 +148,7 @@ const router = new Router({
       component: NewspapersDetailPage,
       name: 'newspaper',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         realm: 'newspapers',
       },
     },
@@ -157,7 +157,7 @@ const router = new Router({
       component: NewspapersDetailPage,
       name: 'newspaper_metadata',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         realm: 'newspapers',
       },
     }],
@@ -170,7 +170,7 @@ const router = new Router({
       component: EntitiesExplorerPage,
       name: 'entities',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         realm: 'entities',
       },
     },
@@ -179,7 +179,7 @@ const router = new Router({
       component: EntitiesDetailPage,
       name: 'entity',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         realm: 'entities',
       },
     }],
@@ -199,7 +199,7 @@ const router = new Router({
       component: TopicsExplorerPage,
       name: 'topics',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     },
     {
@@ -207,7 +207,7 @@ const router = new Router({
       component: TopicDetailPage,
       name: 'topic',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     }],
   },
@@ -218,14 +218,7 @@ const router = new Router({
     props: true,
     meta: {
       realm: 'issueviewer',
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/playground',
-    component: TestPage,
-    meta: {
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
