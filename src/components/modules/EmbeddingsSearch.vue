@@ -35,7 +35,7 @@
               <div v-else>
                 <a
                   v-for="embedding in embeddings"
-                  :title="`add “${embedding}” to search query`"
+                  :title="$t('filter.add', { word: embedding })"
                   class="mr-2 mt-2 border px-2 d-inline-block"
                   v-on:click="updateFilter(embedding)">
                   {{embedding}}
@@ -99,3 +99,13 @@ export default {
 
 <style lang="css" scoped>
 </style>
+
+<i18n>
+{
+  "en": {
+    "filter": {
+      "add": "Add {word} to filter"
+    }
+  }
+}
+</i18n>
