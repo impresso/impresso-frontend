@@ -96,7 +96,20 @@
       <div v-for="(mention, index) in mentions" :key="index" class="p-3 border-bottom d-flex">
         <div v-if="mention.article">
           <b-row>
-
+            <!-- <pre>{{mention.article}}</pre> -->
+            <b-col>
+              <router-link
+                v-if="mention.article.pages[0].iiifThumbnail"
+                :to="{ name: 'article', params: {
+                issue_uid: mention.article.issue.uid,
+                page_uid: mention.article.pages[0].uid,
+                article_uid: mention.article.uid,
+              } }">
+                <img
+                  v-bind:src="mention.article.pages[0].iiifThumbnail"
+                  width="85%" class="border" />
+              </router-link>
+            </b-col>
             <b-col cols="6">
               <h5 v-if="mention.article.title" class="mb-0">
                 <router-link :to="{ name: 'article', params: {
@@ -116,17 +129,18 @@
                 </router-link>
             </b-col>
 
-            <b-col>
+            <b-col cols="2">
               <div class="article-meta mb-2">
                 <router-link :to="{ name: 'newspaper', params: { newspaper_uid: mention.article.newspaper.uid }}">
-                <strong v-if="mention.article.newspaper.name">{{mention.article.newspaper.name}}, </strong>
+                <strong v-if="mention.article.newspaper.name">{{mention.article.newspaper.name}}</strong>
                 </router-link>
-                <span class="small-caps">{{$d(new Date(mention.article.date), "long")}}</span>
-                (p. <span>{{mention.article.pages.map(page => page.num).join('; ')}}</span>)
+                <p class="small-caps">{{$d(new Date(mention.article.date), "compact")}}
+                  (p. <span>{{mention.article.pages.map(page => page.num).join('; ')}}</span>)
+                </p>
               </div>
             </b-col>
 
-            <b-col>
+            <b-col cols="2">
               <div v-if="mention.t">
                 …{{mention.t}}…
               </div>
@@ -342,6 +356,7 @@ a:hover {
 {
   "en": {
     "count": "Mentioned only once {n} | Mentioned {n} times",
+    "view": "View in context",
     "confidence": {
       "l": "low"
     },
