@@ -95,55 +95,66 @@
     <div v-if="tab.name === 'mentions'">
       <div v-for="(mention, index) in mentions" :key="index" class="p-3 border-bottom d-flex">
         <div v-if="mention.article">
+          <b-row>
+
+            <b-col cols="6">
+              <h5 v-if="mention.article.title" class="mb-0">
+                <router-link :to="{ name: 'article', params: {
+                  issue_uid: mention.article.issue.uid,
+                  page_uid: mention.article.pages[0].uid,
+                  article_uid: mention.article.uid,
+                } }" v-html="mention.article.title"></router-link>
+              </h5>
+              <div v-if="mention.article.excerpt.length > 0" class="article-excerpt mb-2">{{mention.article.excerpt}}</div>
+
+                <router-link :to="{ name: 'article', params: {
+                  issue_uid: mention.article.issue.uid,
+                  page_uid: mention.article.pages[0].uid,
+                  article_uid: mention.article.uid,
+                } }" class="btn btn-sm btn-outline-primary">
+                  {{$t('view')}}
+                </router-link>
+            </b-col>
+
+            <b-col>
+              <div class="article-meta mb-2">
+                <router-link :to="{ name: 'newspaper', params: { newspaper_uid: mention.article.newspaper.uid }}">
+                <strong v-if="mention.article.newspaper.name">{{mention.article.newspaper.name}}, </strong>
+                </router-link>
+                <span class="small-caps">{{$d(new Date(mention.article.date), "long")}}</span>
+                (p. <span>{{mention.article.pages.map(page => page.num).join('; ')}}</span>)
+              </div>
+            </b-col>
+
+            <b-col>
+              <div v-if="mention.t">
+                …{{mention.t}}…
+              </div>
+              <div v-if="mention.fn == null">
+                <span class="small-caps">Function</span>
+                <span>{{mention.fn}}</span>
+              </div>
+              <div v-if="mention.confidence == null">
+                <span class="small-caps">Confidence</span> <span>o{{$t(`confidence.${mention.confidence}`)}}</span>
+              </div>
+              <div v-if="mention.demonym == null">
+                <div class="small-caps">demonym</div>
+                {{mention.demonym}}
+              </div>
+            </b-col>
+
+          </b-row>
+
           <div class="w-25">
-            <h5 v-if="mention.article.title" class="mb-0">
-              <router-link :to="{ name: 'article', params: {
-                issue_uid: mention.article.issue.uid,
-                page_uid: mention.article.pages[0].uid,
-                article_uid: mention.article.uid,
-              } }" v-html="mention.article.title"></router-link>
-            </h5>
-            <div class="article-meta mb-2">
-              <router-link :to="{ name: 'newspaper', params: { newspaper_uid: mention.article.newspaper.uid }}">
-              <strong v-if="mention.article.newspaper.name">{{mention.article.newspaper.name}}, </strong>
-              </router-link>
-              <span class="small-caps">{{$d(new Date(mention.article.date), "long")}}</span>
-              (p. <span>{{mention.article.pages.map(page => page.num).join('; ')}}</span>)
-            </div>
+
           </div>
           <div class="w-50 px-2">
 
-            <div v-if="mention.article.excerpt.length > 0" class="article-excerpt mb-2">{{mention.article.excerpt}}</div>
 
-              <router-link :to="{ name: 'article', params: {
-                issue_uid: mention.article.issue.uid,
-                page_uid: mention.article.pages[0].uid,
-                article_uid: mention.article.uid,
-              } }" class="btn btn-sm btn-outline-primary">
-                {{$t('view')}}
-              </router-link>
-
-              <collection-add-to
-                v-if="isLoggedIn()"
-                v-bind:item="article"
-                v-bind:text="$t('add_to_collection')" />
 
           </div>
           <div class="w-25">
-            <div v-if="mention.t">
-              …{{mention.t}}…
-            </div>
-            <div v-if="mention.fn == null">
-              <span class="small-caps">Function</span>
-              <span>{{mention.fn}}</span>
-            </div>
-            <div v-if="mention.confidence == null">
-              <span class="small-caps">Confidence</span> <span>o{{$t(`confidence.${mention.confidence}`)}}</span>
-            </div>
-            <div v-if="mention.demonym == null">
-              <div class="small-caps">demonym</div>
-              {{mention.demonym}}
-            </div>
+
             <!-- {{mention}} -->
           </div>
         </div>
