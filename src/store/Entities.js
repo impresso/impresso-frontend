@@ -45,7 +45,7 @@ export default {
         }));
         context.commit('UPDATE_ENTITIES', items);
         // console.log('tot', res.total);
-        context.state.pagination.totalRows = 199999; // res.total;
+        context.state.pagination.totalRows = 199990; // res.total;
         return items;
       });
     },
