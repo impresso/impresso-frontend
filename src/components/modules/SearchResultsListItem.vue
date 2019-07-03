@@ -1,8 +1,8 @@
 <template lang="html">
   <b-media class="py-3 border-bottom overflow-hidden">
+    <pre>{{article.pages[0].iiif}}</pre>
     <div class="thumbnail bg-light border" slot="aside" >
       <open-seadragon-viewer
-        v-if="article.type === 'ar'"
         v-bind:handler="handler">
       </open-seadragon-viewer>
     </div>
@@ -154,9 +154,8 @@ export default {
     CollectionAddTo,
   },
   mounted() {
-    if (this.article.type === 'ar') {
-      this.init();
-    }
+    this.init();
+
     this.handler.$on('tile-loaded', () => {
       if (this.article.isCC) {
         this.article.regions.forEach((region) => {
