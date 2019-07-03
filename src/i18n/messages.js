@@ -35,6 +35,16 @@ export default {
     dates: {
       lastModifiedDate: 'last modified',
     },
+    result: {
+      label: {
+        image: {
+          untitled: '(untitled image)',
+        },
+        entity: {
+          untitled: '(untitled)',
+        },
+      },
+    },
   },
   nl: {
     language: 'Taal',

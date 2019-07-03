@@ -20,27 +20,17 @@ export default {
     },
   },
   actions: {
-    LOAD_DETAIL(context, entityId) {
-      // console.log('eid', entityId);
-      return new Promise((resolve, reject) => {
-        services.mentions.find({
-          limit: context.state.pagination.perPage,
-          page: context.state.pagination.currentPage,
-          query: {
-            filters: [
-              {
-                q: entityId,
-                type: 'entity',
-              },
-            ],
-          },
-        })
-          .then((res) => {
-            // console.log('MENTIONS', res);
-            context.state.pagination.totalRows = res.total;
-            resolve(res.data);
-          })
-          .catch(reject);
+    LOAD_ENTITY_MENTIONS(context, { filters, limit = 10, page = 1 }) {
+      // console.log('eid', entityUid);
+      return services.mentions.find({
+        query: {
+          limit,
+          page,
+          filters,
+        },
+      }).then((res) => {
+        context.state.pagination.totalRows = res.total;
+        return res.data;
       });
     },
   },
