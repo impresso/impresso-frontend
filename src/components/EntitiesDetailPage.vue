@@ -97,49 +97,8 @@
         <div v-if="mention.article">
           <b-row>
             <!-- <pre>{{mention.article}}</pre> -->
+
             <b-col>
-              <router-link
-                :to="{ name: 'article', params: {
-                issue_uid: mention.article.issue.uid,
-                page_uid: mention.article.pages[0].uid,
-                article_uid: mention.article.uid,
-              } }">
-                <img
-                  v-bind:src="mention.article.pages[0].iiifThumbnail"
-                  width="85%" class="border" />
-              </router-link>
-            </b-col>
-            <b-col cols="6">
-              <h5 v-if="mention.article.title" class="mb-0">
-                <router-link :to="{ name: 'article', params: {
-                  issue_uid: mention.article.issue.uid,
-                  page_uid: mention.article.pages[0].uid,
-                  article_uid: mention.article.uid,
-                } }" v-html="mention.article.title"></router-link>
-              </h5>
-              <div v-if="mention.article.excerpt.length > 0" class="article-excerpt mb-2">{{mention.article.excerpt}}</div>
-
-                <router-link :to="{ name: 'article', params: {
-                  issue_uid: mention.article.issue.uid,
-                  page_uid: mention.article.pages[0].uid,
-                  article_uid: mention.article.uid,
-                } }" class="btn btn-sm btn-outline-primary">
-                  {{$t('view')}}
-                </router-link>
-            </b-col>
-
-            <b-col cols="2">
-              <div class="article-meta mb-2">
-                <router-link :to="{ name: 'newspaper', params: { newspaper_uid: mention.article.newspaper.uid }}">
-                <strong v-if="mention.article.newspaper.name">{{mention.article.newspaper.name}}</strong>
-                </router-link>
-                <p class="small-caps">{{$d(new Date(mention.article.date), "compact")}}
-                  (p. <span>{{mention.article.pages.map(page => page.num).join('; ')}}</span>)
-                </p>
-              </div>
-            </b-col>
-
-            <b-col cols="2">
               <div v-if="mention.t">
                 …{{mention.t}}…
               </div>
@@ -153,6 +112,34 @@
               <div v-if="mention.demonym == null">
                 <div class="small-caps">demonym</div>
                 {{mention.demonym}}
+              </div>
+            </b-col>
+
+            <b-col cols="6">
+              <div v-if="mention.article.excerpt.length > 0" class="article-excerpt mb-2">
+                {{mention.article.excerpt}}
+              </div>
+
+                <router-link :to="{ name: 'article', params: {
+                  issue_uid: mention.article.issue.uid,
+                  page_uid: mention.article.pages[0].uid,
+                  article_uid: mention.article.uid,
+                } }" class="btn btn-sm btn-outline-primary">
+                  {{$t('view')}}
+                </router-link>
+            </b-col>
+
+            <b-col>
+              <div class="article-meta mb-2">
+                <strong v-if="mention.article.title" class="mb-1">
+                  {{mention.article.title}}
+                </strong>
+                <router-link :to="{ name: 'newspaper', params: { newspaper_uid: mention.article.newspaper.uid }}">
+                <div class="link">{{mention.article.newspaper.name}}</div>
+                </router-link>
+                <p class="small-caps">{{$d(new Date(mention.article.date), "compact")}}
+                  (p. <span>{{mention.article.pages.map(page => page.num).join('; ')}}</span>)
+                </p>
               </div>
             </b-col>
 
