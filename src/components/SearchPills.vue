@@ -9,6 +9,7 @@
           class="filter-icon"
           :class="[
             {'dripicons-align-justify': filter.type === 'string'},
+            {'dripicons-minus': filter.type === 'title'},
             {'dripicons-message': filter.type === 'topic'},
             {'dripicons-pamphlet': filter.type === 'newspaper'},
             {'dripicons-web': filter.type === 'language'},

@@ -1,44 +1,46 @@
 <template lang="html">
   <i-layout id="EntitiesPage">
     <i-layout-section width="300px" class="border-right">
-      <!-- <pre>
-        {{entities}}
-      </pre> -->
-
-      <div slot="header" class="border-bottom">
-        <div class="p-3 bg-light">
-          <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
-          <label class="mr-1">{{$t("label_order")}}</label>
-          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-        </div>
-        <div class="px-2 pb-2 bg-light">
+      <div slot="header" class="border-bottom border-tertiary bg-light">
+        <b-tabs pills class="border-bottom mx-2 pt-2">
+          <template slot="tabs">
+            <b-nav-item class="pl-2 active"
+              active-class='none'
+              :to="{ name:'entities'}"><span v-html="$t('label_list', { total: paginationList.totalRows})"/></b-nav-item>
+          </template>
+        </b-tabs>
+        <div class="p-2 px-3">
           <input
             type="text"
             class="form-control"
-            placeholder="Filter by name"
+            placeholder="... name or description "
             name=""
             value=""
             v-model.trim="query"/>
+          <div class="mt-2">
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </div>
         </div>
+
       </div>
 
-      <div v-for="e in entities.entities" class="border-bottom">
+      <div v-for="entity in entities" class="border-bottom">
         <router-link
           class="px-2 py-2 d-block clearfix"
-          v-bind:class="{active: e.id === entityId}"
-          v-bind:to="{name: 'entity', params: {entity_id: e.id}}">
+          v-bind:class="{active: entity.uid === entityId}"
+          v-bind:to="{name: 'entity', params: {entity_id: entity.uid}}">
           <div
             class="mb-2 mr-3 float-left"
-            v-if="e.wikidata.images">
-            <img :src="`http://commons.wikimedia.org/wiki/Special:FilePath/${e.wikidata.images[0].value}?width=120px`" width="60">
+            v-if="entity.wikidata.images.length">
+            <img :src="getWikidataImageURL(entity.wikidata.images[0], { width: 60})">
           </div>
-          <strong>{{e.name}}</strong>
+          <strong>{{ getEntityName(entity) }}</strong>
           <br>
-          <p v-if="e.wikidata.descriptions">
-            {{ e.wikidata.descriptions.en }}
+          <p v-if="entity.wikidata.descriptions">
+            {{ entity.wikidata.descriptions.en }}
           </p>
-          <div class="small-caps">
-            Items: {{ e.countItems }} — Mentions: {{ e.countMentions }}
+          <div class="small-caps" v-if="entity.countItems > -1">
+            Items: {{ entity.countItems }} — Mentions: {{ entity.countMentions }}
           </div>
         </router-link>
       </div>
@@ -77,18 +79,25 @@ export default {
       console.log(page);
       this.loadList(page);
     },
+    getWikidataImageURL(image, { width = 60 } = {}) {
+      return `http://commons.wikimedia.org/wiki/Special:FilePath/${image.value}?width=${width}px`;
+    },
+    getEntityName(entity) {
+      if (!entity.name) {
+        return this.$t('result.label.entity.untitled');
+      }
+      return entity.name.split('_').join(' ');
+    },
   },
-  mounted() {
-    this.loadList().then(() => {
-      // console.log(res);
-    });
+  async mounted() {
+    await this.loadList();
   },
   computed: {
     entityId() {
       return this.$route.params.entity_id;
     },
     entities() {
-      return this.$store.state.entities;
+      return this.$store.state.entities.items;
     },
     paginationList() {
       return this.$store.state.entities.pagination;
