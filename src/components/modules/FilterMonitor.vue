@@ -58,6 +58,17 @@
           @change="changeFilterQ($event)">
         </b-form-input>
       </b-form-group>
+
+      <div class="mb-3">
+        <b-button
+          size="sm" variant="outline-primary" class="border bg-light w-100"
+          v-on:click="showEmbeddings = !showEmbeddings;"
+          v-bind:class="{ 'border-bottom-0': showEmbeddings }">
+          {{$t('embeddings.find')}}
+        </b-button>
+        <embeddings-search  v-if="showEmbeddings" v-bind:filter="filter" />
+      </div>
+
       <!--  context -->
       <b-form-group v-if="checkbox">
         <b-form-radio-group
@@ -89,16 +100,6 @@
         <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </div>
     </div>
-
-    <b-button
-      size="sm" variant="outline-primary" class="border bg-light mt-2 w-100"
-      v-if="filter.type === 'string' || filter.type === 'title'"
-      v-on:click="showEmbeddings = !showEmbeddings;"
-      v-bind:class="{ 'border-bottom-0': showEmbeddings }">
-      {{$t('Add word embeddings to query')}}
-    </b-button>
-
-    <embeddings-search  v-if="showEmbeddings" v-bind:filter="filter" />
 
     <b-button class="mt-2" v-if="filter.touched || itemsToAdd.length" block size="sm" variant="outline-primary" @click="applyFilter()">
       <span v-if="filter.items && (itemsToAdd.length || filter.items.length - filter.q.length)">
@@ -277,6 +278,9 @@ label.custom-control-label {
 <i18n>
 {
   "en": {
+    "embeddings": {
+      "find": "Find Similar Words"
+    },
     "op": {
       "OR": {
         "include": "at least <b>one</b> of the following",
