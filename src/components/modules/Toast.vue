@@ -53,7 +53,7 @@ export default {
     onStopJob(id) {
       this.$store.dispatch('jobs/PATCH_JOB', {
         id,
-        status: 'STOP',
+        status: 'stop',
       }).then((res) => {
         console.log('RECEIVED:', res);
       });
