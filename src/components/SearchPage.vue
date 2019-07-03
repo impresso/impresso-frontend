@@ -163,17 +163,27 @@
       v-bind:title="$t('Find similar words in corpus')">
       <b-container>
       <form v-on:submit.stop.prevent="embeddingsOnSubmit()">
+        
         <b-row>
-          <b-col>
+          <b-col cols="9">
             <label for="inputName">Term</label>
-            <b-form-input
-              type="text"
-              class="form-control"
-              placeholder=""
-              name="inputEmbeddings"
-              v-model="inputEmbeddings" />
+            <div class="input-group">
+              <b-form-input
+                type="text"
+                class="form-control"
+                size="sm"
+                placeholder=""
+                name="inputEmbeddings"
+                v-model="inputEmbeddings" />
+              <div class="input-group-append">
+                <b-button
+                  size="sm" variant="outline-primary"
+                  v-on:click="embeddingsOnSubmit()">{{$t('Fetch !')}}
+                </b-button>
+              </div>
+            </div>
           </b-col>
-          <b-col>
+          <b-col cols="3">
             <label for="languageEmbeddings">Language</label>
             <i-dropdown class="d-block"
               name="languageEmbeddings"

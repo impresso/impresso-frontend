@@ -58,6 +58,17 @@
           @change="changeFilterQ($event)">
         </b-form-input>
       </b-form-group>
+
+      <div class="mb-3">
+        <b-button
+          size="sm" variant="outline-primary" class="border bg-light w-100"
+          v-on:click="showEmbeddings = !showEmbeddings;"
+          v-bind:class="{ 'border-bottom-0': showEmbeddings }">
+          {{$t('embeddings.find')}}
+        </b-button>
+        <embeddings-search  v-if="showEmbeddings" v-bind:filter="filter" />
+      </div>
+
       <!--  context -->
       <b-form-group v-if="checkbox">
         <b-form-radio-group
@@ -107,10 +118,12 @@
 <script>
 import FilterDaterange from './FilterDateRange';
 import CollectionItem from './lists/CollectionItem';
+import EmbeddingsSearch from './EmbeddingsSearch';
 
 export default {
   data: () => ({
     q: '',
+    showEmbeddings: false,
   }),
   props: {
     type: String, // being topic, newspaper, collection, language ...
@@ -249,6 +262,7 @@ export default {
   components: {
     FilterDaterange,
     CollectionItem,
+    EmbeddingsSearch,
   },
 };
 </script>
@@ -264,6 +278,9 @@ label.custom-control-label {
 <i18n>
 {
   "en": {
+    "embeddings": {
+      "find": "Find Similar Words"
+    },
     "op": {
       "OR": {
         "include": "at least <b>one</b> of the following",
