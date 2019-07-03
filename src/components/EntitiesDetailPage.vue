@@ -99,7 +99,6 @@
             <!-- <pre>{{mention.article}}</pre> -->
             <b-col>
               <router-link
-                v-if="mention.article.pages[0].iiifThumbnail"
                 :to="{ name: 'article', params: {
                 issue_uid: mention.article.issue.uid,
                 page_uid: mention.article.pages[0].uid,
@@ -214,7 +213,6 @@ import Entity from '@/models/Entity';
 import Timeline from './modules/Timeline';
 import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
-import CollectionAddTo from './modules/CollectionAddTo';
 
 export default {
   data: () => ({
@@ -232,7 +230,6 @@ export default {
     Timeline,
     Pagination,
     BaseTabs,
-    CollectionAddTo,
   },
   computed: {
     countMentions() {
@@ -363,8 +360,7 @@ a:hover {
     "tabs": {
         "mentions": "Mentions",
         "cooccurrences": "Cooccurrences"
-    },
-    "add_to_collection": "Add to Collection ..."
+    }
   }
 }
 </i18n>
