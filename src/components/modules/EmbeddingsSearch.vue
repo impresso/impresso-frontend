@@ -17,6 +17,11 @@
                   :options="languageEmbeddingsOptions"
                   v-on:change="embeddingsOnSubmit()"
                   size="sm" variant="outline-primary" />
+                <b-form-select name="limitEmbeddings"
+                  v-model="limitEmbeddings"
+                  :options="limitEmbeddingsOptions"
+                  v-on:change="embeddingsOnSubmit()"
+                  size="sm" variant="outline-primary" />
                 <b-button
                   size="sm" variant="outline-primary"
                   v-on:click.prevent="embeddingsOnSubmit()">GO!
@@ -32,7 +37,7 @@
               <div v-else-if="embeddings[0] === '_error'" class="alert alert-danger" role="alert">
                 {{embeddings[1]}}
               </div>
-              <div v-else>
+              <div v-else style="max-height: 7em; overflow-y:scroll">
                 <a
                   v-for="embedding in embeddings"
                   :title="$t('filter.add', { word: embedding })"
@@ -52,14 +57,30 @@
 export default {
   props: ['filter'],
   computed: {
+    limitEmbeddingsOptions: {
+      get() {
+        return [
+          { value: 10, text: '10' },
+          { value: 20, text: '20' },
+          { value: 50, text: '50' },
+        ];
+      },
+    },
     languageEmbeddingsOptions: {
       get() {
         return [
           { value: 'en', text: 'English' },
           { value: 'fr', text: 'French' },
           { value: 'de', text: 'German' },
-          { value: 'lu', text: 'Lëtz.' },
         ];
+      },
+    },
+    limitEmbeddings: {
+      get() {
+        return this.$store.state.embeddings.limit;
+      },
+      set(limitEmbeddings) {
+        this.$store.commit('embeddings/UPDATE_LIMIT', limitEmbeddings);
       },
     },
     languageEmbeddings: {
