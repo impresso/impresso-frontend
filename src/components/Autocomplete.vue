@@ -75,6 +75,9 @@ export default {
     },
   },
   computed: {
+    allSuggestions() {
+      return this.initialSuggestions.concat(this.suggestions);
+    },
     suggestionIndex() {
       return this.$helpers.groupBy(this.suggestions, 'type');
     },
@@ -122,7 +125,7 @@ export default {
       this.selected = suggestion;
     },
     keyup(event) {
-      const index = this.suggestions.indexOf(this.selected);
+      const index = this.allSuggestions.indexOf(this.selected);
 
       switch (event.key) {
         case 'Enter':
@@ -131,21 +134,19 @@ export default {
           }
           break;
         case 'ArrowDown':
-          if (this.suggestions[index + 1]) {
-            this.selected = this.suggestions[index + 1];
+          if (this.allSuggestions[index + 1]) {
+            this.selected = this.allSuggestions[index + 1];
           } else {
-            this.selected = this.suggestion;
+            this.selected = this.allSuggestions[0];
           }
           event.target.select();
           break;
         case 'ArrowUp':
           event.preventDefault();
-          if (index === 0) {
-            this.selected = this.suggestion;
-          } else if (this.suggestions[index - 1]) {
-            this.selected = this.suggestions[index - 1];
+          if (index > 0) {
+            this.selected = this.allSuggestions[index - 1];
           } else {
-            this.selected = this.suggestions[this.suggestions.length - 1];
+            this.selected = this.allSuggestions[this.allSuggestions.length - 1];
           }
           event.target.select();
           break;
