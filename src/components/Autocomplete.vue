@@ -7,7 +7,8 @@
       v-on:input.native="search"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn v-bind:variant="variant" class="px-2" v-on:click="submit(selected)">
+        <b-btn v-bind:variant="variant" class="px-2"
+          v-on:click="submitInitialSuggestion({type: 'string'})">
           <div class="search-submit dripicons-search"></div>
         </b-btn>
       </b-input-group-append>
@@ -125,16 +126,15 @@ export default {
       this.selected = suggestion;
     },
     keyup(event) {
+      this.selected = this.selected || this.allSuggestions[0];
       const index = this.allSuggestions.indexOf(this.selected);
 
       switch (event.key) {
         case 'Enter':
-          if (this.selected) {
-            if (['string', 'title'].indexOf(this.selected.type) !== -1) {
-              this.submitInitialSuggestion(this.selected);
-            } else {
-              this.submit(this.selected);
-            }
+          if (['string', 'title'].indexOf(this.selected.type) !== -1) {
+            this.submitInitialSuggestion(this.selected);
+          } else {
+            this.submit(this.selected);
           }
           break;
         case 'ArrowDown':
