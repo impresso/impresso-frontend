@@ -4,11 +4,15 @@ export default {
   namespaced: true,
   state: {
     language: 'fr',
+    limit: 10,
     embeddings: [],
   },
   mutations: {
     UPDATE_LANGUAGE(state, language) {
       state.language = language;
+    },
+    UPDATE_LIMIT(state, limit) {
+      state.limit = limit;
     },
     UPDATE_EMBEDDINGS(state, embeddings) {
       state.embeddings = embeddings;
@@ -23,6 +27,7 @@ export default {
             query: {
               q,
               language: context.state.language,
+              limit: context.state.limit,
             },
           }).then(
             (res) => {

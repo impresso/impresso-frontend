@@ -1,6 +1,5 @@
 <template lang="html">
   <b-media class="py-3 border-bottom overflow-hidden">
-    <pre>{{article.pages[0].iiif}}</pre>
     <div class="thumbnail bg-light border" slot="aside" >
       <open-seadragon-viewer
         v-bind:handler="handler">

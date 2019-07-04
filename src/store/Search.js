@@ -247,6 +247,19 @@ export default {
         }).then(res => resolve(res));
       });
     },
+    EXPORT_FROM_UIDS(context, payload) {
+      return new Promise((resolve) => {
+        services.exporter.create({
+          // description: 'test description',
+        }, {
+          query: {
+            group_by: 'articles',
+            filters: payload.filters,
+            format: 'csv',
+          },
+        }).then(res => resolve(res));
+      });
+    },
     SEARCH(context) {
       context.commit('UPDATE_IS_LOADING', true);
       const search = new Promise(

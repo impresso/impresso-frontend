@@ -130,7 +130,11 @@ export default {
       switch (event.key) {
         case 'Enter':
           if (this.selected) {
-            this.submit(this.selected);
+            if (['string', 'title'].indexOf(this.selected.type) !== -1) {
+              this.submitInitialSuggestion(this.selected);
+            } else {
+              this.submit(this.selected);
+            }
           }
           break;
         case 'ArrowDown':
