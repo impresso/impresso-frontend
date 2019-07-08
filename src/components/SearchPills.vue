@@ -11,6 +11,8 @@
             {'dripicons-align-justify': filter.type === 'string'},
             {'dripicons-minus': filter.type === 'title'},
             {'dripicons-message': filter.type === 'topic'},
+            {'dripicons-user': filter.type === 'person'},
+            {'dripicons-location': filter.type === 'location'},
             {'dripicons-pamphlet': filter.type === 'newspaper'},
             {'dripicons-web': filter.type === 'language'},
             {'dripicons-calendar': filter.type === 'daterange'},
