@@ -4,6 +4,8 @@ import FilterString from '@/models/FilterString';
 import FilterRegex from '@/models/FilterRegex';
 import FilterNewspaper from '@/models/FilterNewspaper';
 import FilterTopic from '@/models/FilterTopic';
+import FilterPerson from '@/models/FilterPerson';
+import FilterLocation from '@/models/FilterLocation';
 import FilterLanguage from '@/models/FilterLanguage';
 import FilterFacetYear from '@/models/FilterFacetYear';
 import FilterDaterange from '@/models/FilterDaterange';
@@ -57,6 +59,14 @@ export default {
 
     if (filterData.type === 'topic') {
       filter = new FilterTopic(filterData);
+    }
+
+    if (filterData.type === 'person') {
+      filter = new FilterPerson(filterData);
+    }
+
+    if (filterData.type === 'location') {
+      filter = new FilterLocation(filterData);
     }
 
     if (filterData.type === 'year') {
