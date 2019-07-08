@@ -132,7 +132,7 @@ export default {
       start: null,
       end: null,
     },
-    facetsOrder: ['language', 'newspaper', 'topic'],
+    facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
   }),
   computed: {
     currentStore() {
