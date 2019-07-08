@@ -8,6 +8,7 @@
       "title":  "Call for papers - Digitised newspapers - a new Eldorado for historians ?",
       "body": "<p><i>What does it mean to work in new ways with the traditional historical sources that are newspapers?</i></p>",
       "type": "warning",
+      "id": "call-for-papers-digitised-newspapers",
       "buttons": [
         {
           "title": "Read Article",
@@ -20,6 +21,20 @@
           "src": "https://impresso-project.ch/blog/",
           "target": "_blank",
           "type": "outline-primary"
+        }
+      ]
+    },
+    {
+      "title":  "Get full access to the corpus",
+      "body": "<p>For legal reasons we can only show a subset of the newspapers. To gain access to the whole collection, you need to sign a Non-Disclosure-Agreement (NDA) which is available for download here. We will provide you with a user account once we received the signed NDA back from you.</p>",
+      "type": "danger",
+      "id": "get-full-access-to-the-corpus",
+      "buttons": [
+        {
+          "title": "Submit your request",
+          "src": "https://impresso-project.ch/news/2019/06/12/WS5-CfP.html",
+          "target": "_blank",
+          "type": "primary"
         }
       ]
     }
