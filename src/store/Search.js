@@ -36,7 +36,7 @@ export default {
         type: 'collection',
       }),
     ],
-    facetTypes: ['year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
+    facetTypes: ['person', 'location', 'year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
     orderBy: '-relevance', // relevance, -relevance, date, -date
     groupBy: 'articles', // issues, pages, articles, sentences
     displayStyle: 'list',

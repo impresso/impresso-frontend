@@ -8,14 +8,12 @@ import FilterItems from '@/models/FilterItems';
 export default class FilterPerson extends FilterItems {
   constructor(args) {
     super(args);
-
-    this.item = {
-      frequence: parseInt(args.item.frequence, 10),
-      name: String(args.item.name),
-      type: String(args.item.type),
-    };
-
-    this.h = String(args.h);
+    // if there is no items, create them out of this.q array
+    if (!this.items.length) {
+      this.items = this.q.map(uid => new Entity({
+        uid,
+      }));
+    }
   }
 
   setItems(items = []) {
@@ -25,16 +23,4 @@ export default class FilterPerson extends FilterItems {
     });
   }
 
-  getQuery() {
-    return {
-      type: this.type,
-      firstname: this.firstname,
-      surname: this.surname,
-      title: this.title,
-      qualifier: this.qualifier,
-      fn: this.fn,
-      demonym: this.demonym,
-      context: this.context,
-    };
-  }
 }
