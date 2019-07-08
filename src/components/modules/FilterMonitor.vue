@@ -82,6 +82,8 @@
     <div v-for="item in filter.items" :key="item.uid" class="mt-2">
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
+        <span v-if="type === 'person'">{{ item }}</span>
+        <span v-if="type === 'location'">{{ item }}</span>
         <span v-if="type === 'newspaper'">{{ item.name }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
         <div v-if="type === 'daterange'">
@@ -94,6 +96,8 @@
     <div class="items-to-add" v-if="itemsToAdd.length">
       <div v-for="item in itemsToAdd">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
+        <span v-if="type === 'person'">{{ item }}</span>
+        <span v-if="type === 'location'">{{ item }}</span>
         <span v-if="type === 'newspaper'">{{ item.name }}</span>
         <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />

@@ -32,6 +32,18 @@
           v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt' })"
           :class="filter.context">
         </span>
+        <!--  type:person -->
+        <span class="label sp-person"
+          v-if="filter.type === 'person'"
+          v-html="labelByItems({ items: filter.items, max: 2 })"
+          :class="filter.context">
+        </span>
+        <!--  type:location -->
+        <span class="label sp-location"
+          v-if="filter.type === 'location'"
+          v-html="labelByItems({ items: filter.items, max: 2 })"
+          :class="filter.context">
+        </span>
         <!--  type:newspaper -->
         <span class="label sp-newspaper"
           v-if="filter.type === 'newspaper'"
