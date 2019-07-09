@@ -39,8 +39,8 @@
         </div>
         <div class="col-sm-4">
           <h3>other relevant links</h3>
-          project <a href="/project/overview/"> overview</a><br>
-          project <a href="/consortium#people"> team</a>
+          project <a href="https://impresso-project.ch/project/overview/"> overview</a><br>
+          project <a href="https://impresso-project.ch/consortium#people"> team</a>
         </div>
         <div class="col-sm-4">
           <h3>stay in the loop</h3>
@@ -65,7 +65,7 @@
       <div class="row text-center">
         <div class="col-sm-3">
           <div class="logo smaller">
-            <a href="/consortium/#snl" title="Swiss National Library, SNL">
+            <a href="https://impresso-project.ch/consortium/#snl" title="Swiss National Library, SNL">
               <img src="https://impresso-project.ch/assets/images/snl-logo.png">
             </a>
             <p>Swiss National Library, SNL</p>
@@ -73,7 +73,7 @@
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
-            <a href="/consortium/#bnl" title="National Library of Luxembourg, BnL.">
+            <a href="https://impresso-project.ch/consortium/#bnl" title="National Library of Luxembourg, BnL.">
               <img src="https://impresso-project.ch/assets/images/bnl-logo.png">
             </a>
             <p>National Library of Luxembourg, BnL.</p>
@@ -81,7 +81,7 @@
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
-            <a href="/consortium/#aev" title="State Archives of Valais, AEV.">
+            <a href="https://impresso-project.ch/consortium/#aev" title="State Archives of Valais, AEV.">
               <img src="https://impresso-project.ch/assets/images/aev-logo.png">
             </a>
             <p>State Archives of Valais, AEV.</p>
@@ -90,7 +90,7 @@
 
         <div class="col-sm-3">
           <div class="logo smaller">
-            <a href="/consortium/#swa" title="Swiss Economic Archives, SWA.">
+            <a href="https://impresso-project.ch/consortium/#swa" title="Swiss Economic Archives, SWA.">
               <img src="https://impresso-project.ch/assets/images/unibasel-logo.jpg">
             </a>
             <p>Swiss Economic Archives, SWA.</p>
@@ -98,7 +98,7 @@
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
-            <a href="/consortium/#le-temps" title="Le Temps">
+            <a href="https://impresso-project.ch/consortium/#le-temps" title="Le Temps">
               <img src="https://impresso-project.ch/assets/images/letemps-logo.svg">
             </a>
             <p>Le Temps</p>
@@ -106,7 +106,7 @@
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
-            <a href="/consortium/#nzz" title="Neue Zürcher Zeitung, NZZ.">
+            <a href="https://impresso-project.ch/consortium/#nzz" title="Neue Zürcher Zeitung, NZZ.">
               <img src="https://impresso-project.ch/assets/images/nzz-logo.png">
             </a>
             <p>Neue Zürcher Zeitung, NZZ.</p>
@@ -122,7 +122,7 @@
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
-            <a href="/consortium/#infoclio" title="infoclio">
+            <a href="https://impresso-project.ch/consortium/#infoclio" title="infoclio">
               <img src="https://impresso-project.ch/assets/images/infoclio-ch-logo.jpeg">
             </a>
             <p>infoclio</p>
