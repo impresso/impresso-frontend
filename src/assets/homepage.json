@@ -1,7 +1,8 @@
 {
   "splash": {
     "title": "Media Monitoring of the Past",
-    "subtitle": "Search trough 200 years of newspapers"
+    "subtitle": "Search trough 200 years of newspapers",
+    "text_bottom": "<a class=\"btn btn-primary btn-sm\" href=\"#\">Request full access to the corpus</a>"
   },
   "messages": [
     {
@@ -21,20 +22,6 @@
           "src": "https://impresso-project.ch/blog/",
           "target": "_blank",
           "type": "outline-primary"
-        }
-      ]
-    },
-    {
-      "title":  "Get full access to the corpus",
-      "body": "<p>For legal reasons we can only show a subset of the newspapers. To gain access to the whole collection, you need to sign a Non-Disclosure-Agreement (NDA) which is available for download here. We will provide you with a user account once we received the signed NDA back from you.</p>",
-      "type": "danger",
-      "id": "get-full-access-to-the-corpus",
-      "buttons": [
-        {
-          "title": "Submit your request",
-          "src": "https://impresso-project.ch/news/2019/06/12/WS5-CfP.html",
-          "target": "_blank",
-          "type": "primary"
         }
       ]
     }

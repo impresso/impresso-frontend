@@ -3,9 +3,7 @@
     <div
       v-for="(message, i) in messages"
       v-bind:key="i"
-      v-show="message.show"
       v-bind:class="`bg-${message.type || 'info'}`">
-      <a href="#" class="float-right dripicons dripicons-cross m-4 btn btn-link btn-sm" v-on:click.prevent="close(message)" />
       <div class="container py-4">
         <h4 v-html="message.title" />
         <div v-html="message.body" />
@@ -28,18 +26,8 @@ export default {
   computed: {
     messages: {
       get() {
-        return content.messages.map(message => ({
-          ...message,
-          show: !localStorage.getItem(message.id),
-        }));
+        return content.messages;
       },
-    },
-  },
-  methods: {
-    close(message) {
-      localStorage.setItem(message.id, true);
-      message.show = false;
-      this.$forceUpdate();
     },
   },
 };
