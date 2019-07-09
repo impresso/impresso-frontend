@@ -236,6 +236,20 @@ export default {
                 this.isLoaded = true;
 
                 this.page.articles.forEach((article) => {
+                  article.matches.forEach((match) => {
+                    console.log('match', match);
+                    if (match.pageUid === this.article.pages[0].uid) {
+                      const overlay = {
+                        x: match.coords[0],
+                        y: match.coords[1],
+                        w: match.coords[2],
+                        h: match.coords[3],
+                        class: 'overlay-match',
+                      };
+                      this.handler.$emit('add-overlay', overlay);
+                    }
+                  });
+
                   article.regions.forEach((region) => {
                     const overlay = window.document.createElement('div');
 
