@@ -27,7 +27,7 @@ export default {
     handler: new Vue(),
     options: {
       server: {
-        process: `${process.env.MIDDLELAYER_API_PATH}/filepond`,
+        process: `${process.env.MIDDLELAYER_API_PATH.replace(/\/$/, '')}/filepond`,
         fetch: null,
         revert: null,
       },
