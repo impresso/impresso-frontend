@@ -19,11 +19,36 @@ helpers.excerpt = (text, { maxWords = 15, maxChars = 300 } = {}) => {
   return `${result} [...]`;
 };
 
+
+helpers.timeline = {};
+
+helpers.timeline.addEmptyYears = (values) => {
+  if (!values.length) {
+    return [];
+  }
+  // add zeroes to values array. Use the current extent.
+  const vs = [values[0]];
+
+  for (let i = 1, l = values.length; i < l; i += 1) {
+    const diff = values[i].t - values[i - 1].t;
+    for (let j = 1; j < diff; j += 1) {
+      vs.push({
+        t: values[i - 1].t + j,
+        w: 0,
+        w1: 0,
+      });
+    }
+    vs.push(values[i]);
+  }
+  return vs;
+};
+
 const Helpers = {
   install(Vue) {
     Vue.helpers = helpers;
     Vue.prototype.$helpers = helpers;
   },
+  ...helpers,
 };
 
 export default Helpers;
