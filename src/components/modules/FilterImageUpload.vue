@@ -27,7 +27,7 @@ export default {
     handler: new Vue(),
     options: {
       server: {
-        process: `${process.env.MIDDLELAYER_API}/filepond`,
+        process: `${process.env.MIDDLELAYER_API_PATH}/filepond`,
         fetch: null,
         revert: null,
       },
@@ -41,6 +41,7 @@ export default {
       this.handler.$emit('init', (this.options));
       this.handler.$emit('dispatch', (pond) => {
         pond.onprocessfile = (error, file) => {
+          console.log('File processed', file);
           this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', file.serverId);
           this.$store.commit('searchImages/UPDATE_SIMILAR_TO', false);
           this.loadImage(file.serverId);
