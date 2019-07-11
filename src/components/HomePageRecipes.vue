@@ -1,33 +1,34 @@
 <template lang="html">
-  <b-carousel
-    class="recipe"
-    style="text-shadow: 0px 0px 2px #000"
-    indicators>
-    <b-carousel-slide
-      caption="This is the title of the slide"
-      text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-      img-src="https://picsum.photos/1024/480/?image=10">
-      <router-link class="btn btn-primary" :to="{ name: '', params: {} }">Perform this query</router-link>
-    </b-carousel-slide>
-    <b-carousel-slide
-      caption="This is the title of the slide"
-      text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-      img-src="https://picsum.photos/1024/480/?image=12">
-      <router-link class="btn btn-primary" :to="{ name: '', params: {} }">Perform this query</router-link>
-    </b-carousel-slide>
-    <b-carousel-slide
-      caption="This is the title of the slide"
-      text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
-      img-src="https://picsum.photos/1024/480/?image=22">
-      <router-link class="btn btn-primary" :to="{ name: '', params: {} }">Perform this query</router-link>
-    </b-carousel-slide>
-  </b-carousel>
+  <div class="container my-5">
+    <b-row class="justify-content-md-center mb-5">
+      <b-col col xl="6" lg="8" md="10">
+        <h1 class="text-center mb-5">{{$t('title')}}</h1>
+        <b-carousel
+          class="recipe"
+          style="text-shadow: 0px 0px 2px #000"
+          v-bind:interval="0"
+          indicators>
+          <b-carousel-slide
+            v-for="(recipe, i) in recipes"
+            v-bind:key="i"
+            v-bind:caption="recipe.caption"
+            v-bind:text="recipe.text"
+            v-bind:img-src="recipe.img_src">
+            <a v-bind:href="recipe.query" class="btn btn-primary">Perform this query</a>
+            <a v-bind:href="recipe.video" target="_blank" class="btn btn-primary">Watch the video</a>
+          </b-carousel-slide>
+        </b-carousel>
+      </b-col>
+    </b-row>
+  </div>
 </template>
 
 <script>
+import content from '@/assets/homepage.json';
+
 export default {
   data: () => ({
-
+    recipes: content.recipes,
   }),
 };
 </script>
@@ -38,6 +39,25 @@ export default {
       color: white;
       font-weight: bold;
     }
+
+    .carousel-caption{
+      background: rgba(0,0,0, 0.6);
+      left:0;
+      right:0;
+      bottom:0;
+      padding: 20px 20px 50px;
+    }
   }
 
 </style>
+
+<i18n>
+{
+  "en": {
+    "title": "Examples"
+  },
+  "nl": {
+    "title": "Voorbeelden"
+  }
+}
+</i18n>

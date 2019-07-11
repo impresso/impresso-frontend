@@ -9,7 +9,7 @@
           <h3>{{group.title}}</h3>
           <div
             v-for="(question, j) in group.questions"
-            v-bind:key="i"
+            v-bind:key="`${i}-${j}`"
             class="faq-item pb-1">
             <div class="question">
               <strong><a href="#" v-b-toggle="`accordion-${i}-${j}`" class="my-1 d-block">{{question.question}}</a></strong>
