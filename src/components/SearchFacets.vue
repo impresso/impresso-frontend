@@ -243,7 +243,7 @@ export default {
     facets: {
       get() {
         return this.currentStore.facets
-          .filter(d => d.type !== 'year')
+          .filter(d => ['year', 'type'].indexOf(d.type) === -1)
           .sort((a, b) => {
             const indexA = this.facetsOrder.indexOf(a.type);
             const indexB = this.facetsOrder.indexOf(b.type);
@@ -396,9 +396,6 @@ export default {
 <i18n>
   {
     "en": {
-      "actions": {
-        "reset" : "RESET"
-      },
       "label": {
         "timeline": {
           "articles": "publication date",
