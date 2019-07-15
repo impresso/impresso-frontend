@@ -22,7 +22,11 @@ export default class Entity {
     wikidata = [],
   } = {}) {
     this.uid = String(uid);
-    this.name = String(name);
+    if (name.length) {
+      this.name = String(name);
+    } else {
+      this.name = this.uid.replace(/^aida-\d+-/, '').split('_').join(' ');
+    }
     this.type = String(type);
     this.countMentions = parseInt(countMentions, 10);
     this.countItems = parseInt(countItems, 10);
