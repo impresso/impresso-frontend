@@ -82,9 +82,7 @@
     <div v-for="item in filter.items" :key="item.uid" class="mt-2">
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
-        <span v-if="type === 'person'">{{ item }}</span>
-        <span v-if="type === 'location'">{{ item }}</span>
-        <span v-if="type === 'newspaper'">{{ item.name }}</span>
+        <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
         <div v-if="type === 'daterange'">
           <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
@@ -96,9 +94,7 @@
     <div class="items-to-add" v-if="itemsToAdd.length">
       <div v-for="item in itemsToAdd">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
-        <span v-if="type === 'person'">{{ item }}</span>
-        <span v-if="type === 'location'">{{ item }}</span>
-        <span v-if="type === 'newspaper'">{{ item.name }}</span>
+        <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
         <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
@@ -108,13 +104,13 @@
     <b-button class="mt-2" v-if="filter.touched || itemsToAdd.length" block size="sm" variant="outline-primary" @click="applyFilter()">
       <span v-if="filter.items && (itemsToAdd.length || filter.items.length - filter.q.length)">
         {{
-          $t(`label.${type}.update`, {
+          $t('actions.applyChangesDetailed', {
             added: itemsToAdd.length,
             removed: filter.items.length - filter.q.length  
           })
         }}
       </span>
-      <span v-else>{{ $t(`label.${type}.apply`)}}</span>
+      <span v-else>{{ $t(`actions.applyChanges`)}}</span>
     </b-button>
   </div>
 </template>
@@ -334,6 +330,22 @@ label.custom-control-label {
         "context": {
           "include": "Containing",
           "exclude": "<b>NOT</b> containing"
+        }
+      },
+      "person": {
+        "clear": "reset",
+        "apply": "apply changes",
+        "context": {
+          "include": "Mentioning",
+          "exclude": "<b>NOT</b> mentioning"
+        }
+      },
+      "location": {
+        "clear": "reset",
+        "apply": "apply changes",
+        "context": {
+          "include": "Mentioning",
+          "exclude": "<b>NOT</b> mentioning"
         }
       },
       "collection": {
