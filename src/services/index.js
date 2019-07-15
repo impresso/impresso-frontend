@@ -14,7 +14,7 @@ const socket = io(`${process.env.MIDDLELAYER_API}`, {
 export const app = feathers();
 
 app.configure(socketio(socket, {
-  timeout: 30000,
+  timeout: 130000,
 }));
 app.configure(auth({
   storage: window.localStorage,
@@ -86,6 +86,7 @@ export const entities = app.service('entities');
 export const mentions = app.service('mentions');
 export const embeddings = app.service('embeddings');
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
+export const searchFacets = app.service('search-facets');
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;
