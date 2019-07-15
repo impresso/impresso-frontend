@@ -29,25 +29,13 @@
         <!--  type:topic -->
         <span class="label sp-topic"
           v-if="filter.type === 'topic'"
-          v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt' })"
+          v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt', op: filter.op })"
           :class="filter.context">
         </span>
-        <!--  type:person -->
-        <span class="label sp-person"
-          v-if="filter.type === 'person'"
-          v-html="labelByItems({ items: filter.items, max: 2 })"
-          :class="filter.context">
-        </span>
-        <!--  type:location -->
-        <span class="label sp-location"
-          v-if="filter.type === 'location'"
-          v-html="labelByItems({ items: filter.items, max: 2 })"
-          :class="filter.context">
-        </span>
-        <!--  type:newspaper -->
-        <span class="label sp-newspaper"
-          v-if="filter.type === 'newspaper'"
-          v-html="labelByItems({ items: filter.items, max: 2 })"
+        <!--  type:person, type:location, type:newspaper -->
+        <span class="label sp-labelled"
+          v-if="['person', 'location', 'newspaper'].indexOf(filter.type) !== -1"
+          v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
           :class="filter.context">
         </span>
         <!--  type:language -->
@@ -59,7 +47,7 @@
         <!--  type:collections -->
         <span class="label sp-collection"
           v-if="filter.type === 'collection'"
-          v-html="labelByItems({ items: filter.items, max: 2 })"
+          v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
           :class="filter.context">
         </span>
 
@@ -75,7 +63,6 @@
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
         <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
       </div>
-
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
@@ -132,9 +119,10 @@ export default {
       items = [],
       prop = 'name',
       max = 1,
+      op = 'OR',
     } = {}) {
       let labels = items.slice(0, max)
-        .map(d => d[prop] || '...').join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
+        .map(d => d[prop] || '...').join(`<span class="op or px-1">${this.$t(`op.${op.toLowerCase()}`)}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
           count: items.slice(max).length,
@@ -150,7 +138,7 @@ export default {
       let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
         start: this.$d(d.start, 'compact'),
         end: this.$d(d.end, 'compact'),
-      })).join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
+      })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
           count: items.slice(max).length,
@@ -276,6 +264,12 @@ export default {
         "topic": {
           "title": "filter by topic"
         },
+        "person": {
+          "title": "filter by person mentioned (experimental)"
+        },
+        "location": {
+          "title": "filter by location (experimental)"
+        },
         "collection": {
           "title": "filter by collection"
         },
@@ -294,9 +288,6 @@ export default {
       },
       "items": {
         "hidden": "({count} more)"
-      },
-      "operator": {
-        "or": "or"
       },
       "type": {
         "string": "str",
