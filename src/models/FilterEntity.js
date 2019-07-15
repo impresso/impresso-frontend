@@ -1,12 +1,14 @@
-import Entity from '@/models/Entity';
 import FilterItems from '@/models/FilterItems';
+import Entity from '@/models/Entity';
 
 export default class FilterEntity extends FilterItems {
   setItems(items = []) {
-    debugger;
-    this.items = items.map(d => new Entity(d));
-    items.forEach((d, i) => {
-      this.items[i].checked = true;
+    this.items = items.map((uid) => {
+      const item = typeof uid === 'object' ? new Entity(uid) : new Entity({
+        uid,
+      });
+      item.checked = true;
+      return item;
     });
   }
 }
