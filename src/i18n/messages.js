@@ -6,6 +6,9 @@ export default {
       fr: 'French',
       en: 'English',
     },
+    countries: {
+      CH: 'Switzerland',
+    },
     op: {
       or: 'or',
       and: 'and',
@@ -15,6 +18,7 @@ export default {
       reset: 'Reset',
       apply: 'Apply',
       applyChanges: 'Apply changes',
+      applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
     },
     filters: {
       daterange: {
