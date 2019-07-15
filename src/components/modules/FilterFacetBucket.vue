@@ -1,24 +1,9 @@
 <template lang="html">
   <div class="bucket">
     <b-form-checkbox v-model="isChecked">
-      <span v-if="type === 'topic'" v-html="bucket.item.htmlExcerpt"></span>
-      <span v-if="type === 'newspaper'">{{ bucket.item.name }}</span>
-      <span v-if="type === 'language'">{{ $t(`languages.${bucket.val}`) }}</span>
-      <span v-if="type === 'collection'">
-        <span v-if="bucket.item.name">
-          <b>{{ bucket.item.name }}</b> @{{ bucket.item.creator.username }}<br/>
-          {{ $t('dates.lastModifiedDate') }} {{ $d(bucket.item.lastModifiedDate, 'short') }}
-        </span>
-        <span v-else>{{ bucket.item.uid }}</span>
-      </span>
+      <span v-html="title"></span>
       <span>({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
     </b-form-checkbox>
-    <!-- <b-dropdown v-if="isChecked" size="sm" variant="outline-primary">
-      <template slot="button-content">{{ selectedOperator }}</template>
-      <b-dropdown-item v-for="option in operators" :key="option"
-          @click="selectOperator(option)">{{ $t(`operator.${option}`) }}
-      </b-dropdown-item>
-    </b-dropdown> -->
   </div>
 </template>
 
@@ -45,6 +30,42 @@ export default {
     },
   },
   computed: {
+    title: {
+      get() {
+        let t;
+        switch (this.type) {
+          case 'newspaper':
+          case 'person':
+          case 'location':
+            t = this.bucket.item.name;
+            break;
+          case 'language':
+            t = this.$t(`languages.${this.bucket.val}`);
+            break;
+          case 'country':
+            t = this.$t(`countries.${this.bucket.val}`);
+            break;
+          case 'collection':
+            if (this.bucket.item.name) {
+              t = [
+                `<b>${this.bucket.item.name}</b>`,
+                `@${this.bucket.item.creator.username}<br/>`,
+                this.$t('dates.lastModifiedDate'),
+                this.$d(this.bucket.item.lastModifiedDate, 'short'),
+              ].join(' ');
+            } else {
+              t = this.bucket.item.uid;
+            }
+            break;
+          case 'topic':
+            t = this.bucket.item.htmlExcerpt;
+            break;
+          default:
+            t = this.bucket.item.uid;
+        }
+        return t;
+      },
+    },
     isChecked: {
       get() {
         return this.checked;
