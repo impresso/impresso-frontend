@@ -11,7 +11,10 @@ export default {
       and: 'and',
     },
     actions: {
+      loading: 'loading...',
       reset: 'Reset',
+      apply: 'Apply',
+      applyChanges: 'Apply changes',
     },
     filters: {
       daterange: {
