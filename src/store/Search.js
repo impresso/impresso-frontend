@@ -1,11 +1,11 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
-import Bucket from '@/models/Bucket';
-import Topic from '@/models/Topic';
+// import Bucket from '@/models/Bucket';
+// import Topic from '@/models/Topic';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
-import Newspaper from '@/models/Newspaper';
-import Collection from '@/models/Collection';
+// import Newspaper from '@/models/Newspaper';
+// import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
 // import FilterFactory from '@/models/FilterFactory';
 import router from '../router';
@@ -21,6 +21,20 @@ export default {
     facets: [
       new Facet({
         type: 'year',
+      }),
+      new Facet({
+        type: 'type',
+      }),
+      new Facet({
+        type: 'country',
+      }),
+      new Facet({
+        type: 'person',
+        operators: ['OR', 'AND'],
+      }),
+      new Facet({
+        type: 'location',
+        operators: ['OR', 'AND'],
       }),
       new Facet({
         type: 'language',
@@ -126,7 +140,6 @@ export default {
     CLEAR(state) {
       state.search = new SearchQuery();
       state.results = [];
-      state.facets = [];
       state.paginationCurrentPage = 1;
       state.paginationTotalRows = 0;
     },
@@ -149,14 +162,22 @@ export default {
     UPDATE_RESULTS(state, results) {
       state.results = results;
     },
-    CLEAR_FACETS(state) {
-      state.facets = [];
-    },
-    ADD_FACET(state, facet) {
-      state.facets.push(facet);
-    },
     UPDATE_IS_LOADING(state, isLoadingResults) {
       state.isLoadingResults = Boolean(isLoadingResults);
+    },
+    UPDATE_FACET(state, { type, numBuckets, buckets }) {
+      const facet = state.facets.find(d => d.type === type);
+      if (facet) {
+        facet.numBuckets = numBuckets;
+        if (type === 'year') {
+          // sort bucket differently
+          facet.setBuckets(buckets.sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10)));
+        } else {
+          facet.setBuckets(buckets);
+        }
+      } else {
+        console.error('Could not find any `facet` having type:', type);
+      }
     },
     UPDATE_FACET_BUCKETS(state, { type, buckets }) {
       const facet = state.facets.find(d => d.type === type);
@@ -260,107 +281,57 @@ export default {
         }).then(res => resolve(res));
       });
     },
+    LOAD_SEARCH_FACETS(context, facets) {
+      return services.searchFacets.get(facets.join(','), {
+        query: {
+          filters: context.getters.getSearch.getFilters(),
+          group_by: context.state.groupBy,
+        },
+      }).then((results) => {
+        results.forEach((facet) => {
+          context.commit('UPDATE_FACET', facet);
+        });
+      });
+    },
     SEARCH(context) {
       context.commit('UPDATE_IS_LOADING', true);
-      const search = new Promise(
-        (resolve, reject) => {
-          const query = {
-            filters: context.getters.getSearch.getFilters(),
-            facets: context.state.facetTypes,
-            group_by: context.state.groupBy,
-            page: context.state.paginationCurrentPage,
-            limit: context.state.paginationPerPage,
-            order_by: context.state.orderBy,
-          };
-          console.log('->action:SEARCH', query);
-          services.search.find({
-            query,
-          }).then(
-            (res) => {
-              context.commit('UPDATE_IS_LOADING', false);
-              context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
-              // add language facet/filter
-              if (res.info.facets && res.info.facets.language) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'language',
-                  buckets: res.info.facets.language.buckets.map(bucket => ({
-                    ...bucket,
-                    item: {
-                      ...bucket.item,
-                      uid: bucket.val,
-                    },
-                  })),
-                });
-              }
+      const facets = ['year', 'language', 'newspaper', 'type', 'country', 'collection'];
+      const query = {
+        filters: context.getters.getSearch.getFilters(),
+        facets,
+        group_by: context.state.groupBy,
+        page: context.state.paginationCurrentPage,
+        limit: context.state.paginationPerPage,
+        order_by: context.state.orderBy,
+      };
+      console.log('-> action:SEARCH', query);
 
-              // add topic facet/filter
-              if (res.info.facets && res.info.facets.topic) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'topic',
-                  operators: ['OR', 'AND'],
-                  buckets: res.info.facets.topic.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Topic({
-                      ...bucket.item,
-                      uid: bucket.val,
-                    }),
-                  })),
-                });
-              }
-
-              // add newspaper facet/filter
-              if (res.info.facets && res.info.facets.newspaper) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'newspaper',
-                  buckets: res.info.facets.newspaper.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Newspaper(bucket.item),
-                  })),
-                });
-              }
-
-              // add collection facet/filter
-              if (res.info.facets && res.info.facets.collection) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'collection',
-                  buckets: res.info.facets.collection.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Collection({
-                      ...bucket.item,
-                      uid: bucket.val,
-                    }),
-                  })),
-                });
-              }
-
-              if (res.info.facets && res.info.facets.year) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'year',
-                  buckets: res.info.facets.year.buckets.map((bucket) => {
-                    if (bucket instanceof Bucket) {
-                      return bucket;
-                    }
-
-                    return new Bucket(bucket);
-                  }).sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10)),
-                });
-              }
-
-              context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-                paginationTotalRows: res.total,
-              });
-              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
-              resolve(res);
-            },
-            (err) => {
-              context.commit('UPDATE_IS_LOADING', false);
-              reject(err);
-            },
-          );
-        },
-      );
-
-      return search;
+      return services.search.find({
+        query,
+      }).then((res) => {
+        context.commit('UPDATE_IS_LOADING', false);
+        context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+        context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+          paginationTotalRows: res.total,
+        });
+        context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
+        // register facets
+        facets.forEach((type) => {
+          console.log(' ... update facet', type, res.info.facets[type]);
+          context.commit('UPDATE_FACET', {
+            type,
+            buckets: res.info.facets[type].buckets,
+          });
+        });
+        // launch search facets
+        context.dispatch('LOAD_SEARCH_FACETS', [
+          'person',
+          'location',
+        ]);
+      }).catch((err) => {
+        console.log(err);
+        context.commit('UPDATE_IS_LOADING', false);
+      });
     },
   },
 };

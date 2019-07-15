@@ -1,3 +1,6 @@
+import Topic from '@/models/Topic';
+import Newspaper from '@/models/Newspaper';
+import Collection from '@/models/Collection';
 /**
  * @class Bucket is an object represnting a Solar search engine fascet bucket
  * @param {String} val The value of the dimenions, for instance a specific year,
@@ -11,10 +14,30 @@ export default class Bucket {
     count = 0,
     item = {},
     included = true,
+    type = '',
   } = {}) {
     this.val = String(val);
     this.count = parseInt(count, 10);
     this.item = item;
     this.included = included;
+
+    switch (type) {
+      case 'topic':
+        this.item = new Topic(item);
+        break;
+      case 'newspaper':
+        this.item = new Newspaper(item);
+        break;
+      case 'collection':
+        this.item = new Collection(item);
+        break;
+      case 'language':
+        this.item = {
+          uid: this.val,
+        };
+        break;
+      default:
+        break;
+    }
   }
 }
