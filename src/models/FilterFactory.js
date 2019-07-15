@@ -43,7 +43,7 @@ export default {
       filter = new FilterRegex(filterData);
     }
 
-    if (filterData.type === 'entity') {
+    if (['entity', 'person', 'location'].indexOf(filterData.type) !== -1) {
       filter = new FilterEntity(filterData);
     }
 

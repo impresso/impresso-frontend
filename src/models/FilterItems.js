@@ -15,10 +15,19 @@ export default class FilterItems extends Filter {
     items = [],
   } = {}) {
     super({ context, type, touched, q });
-    this.q = String(q).split(',');
+    if (Array.isArray(q)) {
+      this.q = q;
+    } else {
+      this.q = String(q).split(',');
+    }
     this.qh = this.q;
     this.op = op;
-    this.items = items;
+
+    if (!items.length) {
+      this.setItems(this.q);
+    } else {
+      this.items = items;
+    }
     this.context = context;
   }
 

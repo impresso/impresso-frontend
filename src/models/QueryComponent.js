@@ -7,6 +7,8 @@ import Collection from './Collection';
 const KlassMapper = {
   topic: Topic,
   entity: Entity,
+  person: Entity,
+  location: Entity,
   newspaper: Newspaper,
   collection: Collection,
 };
