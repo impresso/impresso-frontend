@@ -22,8 +22,9 @@ export default class FilterItems extends Filter {
     }
     this.qh = this.q;
     this.op = op;
+
     if (!items.length) {
-      this.items = this.setItems(this.q);
+      this.setItems(this.q);
     } else {
       this.items = items;
     }
