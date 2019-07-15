@@ -1,32 +1,12 @@
 import Entity from '@/models/Entity';
-import Filter from '@/models/FilterBase';
-/**
- * FilterEntity object
- * @param {String} context either 'include' or 'exclude'
- * @param {Entity} item Entity object
- */
+import FilterItems from '@/models/FilterItems';
 
-export default class FilterEntity extends Filter {
-  constructor(args) {
-    super(args);
-
-    if (args.item instanceof Entity) {
-      this.item = args.item;
-    } else {
-      this.item = new Entity(args.item);
-    }
-  }
-
-  getName() {
-    return this.item.name;
-  }
-
-  getQuery() {
-    return {
-      context: this.context,
-      type: 'string', // type: this.type,
-      precision: 'regular',
-      q: this.item.name, // remove this line
-    };
+export default class FilterEntity extends FilterItems {
+  setItems(items = []) {
+    debugger;
+    this.items = items.map(d => new Entity(d));
+    items.forEach((d, i) => {
+      this.items[i].checked = true;
+    });
   }
 }
