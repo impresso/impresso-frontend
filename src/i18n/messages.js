@@ -6,8 +6,16 @@ export default {
       fr: 'French',
       en: 'English',
     },
-    countries: {
-      CH: 'Switzerland',
+    buckets: {
+      language: {
+        de: 'German',
+        fr: 'French',
+        en: 'English',
+      },
+      country: {
+        CH: 'Switzerland',
+        LU: 'Luxembourg',
+      },
     },
     op: {
       or: 'or',
