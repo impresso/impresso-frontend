@@ -1,30 +1,29 @@
 <template lang="html">
   <i-layout-section>
     <b-navbar type="light" slot="header" variant="light" class="border-bottom">
-      <section>
+      <section style="min-height: 80px;">
         <div class="label small-caps">
           {{ entity.type }}
         </div>
         <h3>{{ entity.name }}
         </h3>
         <div>{{ $tc('count', countMentions) }}</div>
+        <b-navbar-nav style='position: absolute; left: 250px; right: 20px; top: 20px'>
+            <timeline
+                  :contrast="false"
+                  :values="timevalues"
+                  :domain="[start, end]">
+              <div slot-scope="tooltipScope">
+                <div v-if="tooltipScope.tooltip.item">
+                  {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+                  <b>{{ tooltipScope.tooltip.item.w }}</b>
+                </div>
+              </div>
+            </timeline>
+        </b-navbar-nav>
       </section>
     </b-navbar>
-    <b-navbar type="light" variant="light" class="border-bottom">
-      <timeline
-            :contrast="false"
-            :values="timevalues"
-            :domain="[start, end]"
-            v-on:highlight="onHighlight($event, 'A')">
-        <div slot-scope="tooltipScope">
-          <div v-if="tooltipScope.tooltip.item">
-            {{tooltipScope}}
-            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b>
-          </div>
-        </div>
-      </timeline>
-    </b-navbar>
+
     <b-navbar class="wikibox border-bottom py-3">
       <section class="d-flex flex-row w-100" v-if="entity.wikidata">
               <div class="w-25" v-if="preferredImage">
@@ -207,8 +206,8 @@ export default {
     mentions: [],
     timevalues: [],
     // mention: new Mention(),
-    start: 1800,
-    end: 2000,
+    start: 1840,
+    end: 2020,
     highlights: ['A'],
     highlightA: null,
     tab: {},

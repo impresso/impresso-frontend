@@ -1,7 +1,7 @@
 <template lang="html">
   <div>
     <div
-      v-for="(message, i) in content.messages"
+      v-for="(message, i) in messages"
       v-bind:key="i"
       v-bind:class="`bg-${message.type || 'info'}`">
       <div class="container py-4">
@@ -23,9 +23,13 @@
 import content from '@/assets/homepage.json';
 
 export default {
-  data: () => ({
-    content,
-  }),
+  computed: {
+    messages: {
+      get() {
+        return content.messages;
+      },
+    },
+  },
 };
 </script>
 

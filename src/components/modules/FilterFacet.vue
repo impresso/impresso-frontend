@@ -4,7 +4,7 @@
       {{$t(`label.${facet.type}.title`)}}
       <div slot="options">
         <b-button v-show="filtered" size="sm" variant="outline-primary" @click="resetFilterType">
-          {{ $t(`label.${facet.type}.clear`) }}
+          {{ $t(`actions.reset`) }}
         </b-button>
       </div>
       <div slot="description">
@@ -15,12 +15,12 @@
           <span v-if="selectedIds.length">
             <span v-html="$t(`label.${facet.type}.selected`, {count: selectedIds.length})" />
             <b-button size="sm" variant="outline-primary" @click="applyFilter">
-              {{ $t(`label.${facet.type}.apply`) }}
+              {{ $t(`actions.apply`) }}
             </b-button>
           </span>
           <span v-else>
             <span v-if="isLoadingResults">
-              {{ $t('loading') }}
+              {{ $t('actions.loading') }}
             </span>
             <span v-if="!isLoadingResults && !this.facet.buckets.length">
               {{$t(`label.${facet.type}.empty`)}}
@@ -41,8 +41,6 @@
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
       <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
     </div>
-
-
     <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
       :loading="isLoadingResults"
       :bucket="bucket"
@@ -186,17 +184,27 @@ export default {
         "filtered": "results are filtered when:",
         "selected": "filter results if <b>one of {count} selected</b> topic applies",
         "description": "check one or more topics to filter results",
-        "apply": "apply",
-        "clear": "reset",
         "empty": "There is no topic available"
+      },
+      "person": {
+        "title": "filter by person",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if <b>one of {count} selected</b> people are mentioned",
+        "description": "check one or more topics to filter results",
+        "empty": "No person has been recognized in results"
+      },
+      "location": {
+        "title": "filter by location",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if <b>one of {count} selected</b> locations are mentioned",
+        "description": "check one or more topics to filter results",
+        "empty": "There is no location available"
       },
       "collection": {
         "title": "filter by collection",
         "filtered": "results are filtered when:",
         "selected": "filter results if <b>one of {count} selected</b> collection applies",
         "description": "check one or more collection to filter results",
-        "apply": "apply",
-        "clear": "reset",
         "empty": "... you haven't saved any result item in your collection"
       },
       "newspaper": {
@@ -204,8 +212,6 @@ export default {
         "filtered": "results are filtered when:",
         "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
         "description": "check one or more newspaper to filter results",
-        "clear": "reset",
-        "apply": "apply",
         "empty": "(no results)"
       },
       "language": {
@@ -213,8 +219,13 @@ export default {
         "filtered": "results are filtered when:",
         "selected": "filter results if they are written in <b>one of {count} selected</b> languages",
         "description": "check one or more language to filter results",
-        "apply": "apply",
-        "clear": "reset",
+        "empty": "(no results)"
+      },
+      "country": {
+        "title": "filter by country of publication",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if they are published in <b>one of {count} selected</b> countries",
+        "description": "check one or more countries to filter results",
         "empty": "(no results)"
       }
     }

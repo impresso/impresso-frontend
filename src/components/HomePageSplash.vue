@@ -10,6 +10,7 @@
         <autocomplete
         v-bind:variant="'warning'"
         v-on:submit="onSuggestion" />
+        <div v-html="content.splash.text_bottom" class="mt-3 text_bottom" />
       </b-col>
     </b-row>
   </b-container>
@@ -50,5 +51,7 @@ export default {
   h1, h3{
     color: white;
   }
+
+
 }
 </style>

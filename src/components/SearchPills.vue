@@ -11,6 +11,8 @@
             {'dripicons-align-justify': filter.type === 'string'},
             {'dripicons-minus': filter.type === 'title'},
             {'dripicons-message': filter.type === 'topic'},
+            {'dripicons-user': filter.type === 'person'},
+            {'dripicons-location': filter.type === 'location'},
             {'dripicons-pamphlet': filter.type === 'newspaper'},
             {'dripicons-web': filter.type === 'language'},
             {'dripicons-calendar': filter.type === 'daterange'},
@@ -27,25 +29,25 @@
         <!--  type:topic -->
         <span class="label sp-topic"
           v-if="filter.type === 'topic'"
-          v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt' })"
+          v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt', op: filter.op })"
           :class="filter.context">
         </span>
-        <!--  type:newspaper -->
-        <span class="label sp-newspaper"
-          v-if="filter.type === 'newspaper'"
-          v-html="labelByItems({ items: filter.items, max: 2 })"
+        <!--  type:person, type:location, type:newspaper -->
+        <span class="label sp-labelled"
+          v-if="['person', 'location', 'newspaper'].indexOf(filter.type) !== -1"
+          v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
           :class="filter.context">
         </span>
-        <!--  type:language -->
-        <span class="label sp-language"
-          v-if="filter.type === 'language'"
+        <!--  type:language and other items -->
+        <span class="label sp-generic-item"
+          v-if="['language', 'country'].indexOf(filter.type) !== -1"
+          v-html="labelByItems({ items: filter.items, max: 2, prop:'uid', translate: true, type:filter.type, op: filter.op })"
           :class="filter.context">
-          {{$t(`language.${filter.q}`)}}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
           v-if="filter.type === 'collection'"
-          v-html="labelByItems({ items: filter.items, max: 2 })"
+          v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
           :class="filter.context">
         </span>
 
@@ -61,7 +63,6 @@
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
         <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
       </div>
-
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
@@ -118,9 +119,17 @@ export default {
       items = [],
       prop = 'name',
       max = 1,
+      op = 'OR',
+      translate = false,
+      type = 'label',
     } = {}) {
       let labels = items.slice(0, max)
-        .map(d => d[prop] || '...').join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
+        .map((d) => {
+          if (translate) {
+            return this.$t(`buckets.${type}.${d[prop]}`);
+          }
+          return d[prop] || '...';
+        }).join(`<span class="op or px-1">${this.$t(`op.${op.toLowerCase()}`)}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
           count: items.slice(max).length,
@@ -136,7 +145,7 @@ export default {
       let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
         start: this.$d(d.start, 'compact'),
         end: this.$d(d.end, 'compact'),
-      })).join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
+      })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
           count: items.slice(max).length,
@@ -259,8 +268,17 @@ export default {
         "title": {
           "title": "title"
         },
+        "country": {
+          "title": "Country of publication"
+        },
         "topic": {
           "title": "filter by topic"
+        },
+        "person": {
+          "title": "filter by person mentioned (experimental)"
+        },
+        "location": {
+          "title": "filter by location (experimental)"
         },
         "collection": {
           "title": "filter by collection"
@@ -280,9 +298,6 @@ export default {
       },
       "items": {
         "hidden": "({count} more)"
-      },
-      "operator": {
-        "or": "or"
       },
       "type": {
         "string": "str",

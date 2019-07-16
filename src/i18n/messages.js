@@ -6,12 +6,27 @@ export default {
       fr: 'French',
       en: 'English',
     },
+    buckets: {
+      language: {
+        de: 'German',
+        fr: 'French',
+        en: 'English',
+      },
+      country: {
+        CH: 'Switzerland',
+        LU: 'Luxembourg',
+      },
+    },
     op: {
       or: 'or',
       and: 'and',
     },
     actions: {
+      loading: 'loading...',
       reset: 'Reset',
+      apply: 'Apply',
+      applyChanges: 'Apply changes',
+      applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
     },
     filters: {
       daterange: {

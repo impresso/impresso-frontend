@@ -7,26 +7,7 @@
     </div>
     <div class="d-flex">
 
-      <!-- not an article?  -->
-      <div v-if="article.type !== 'ar'">
-        <h2 v-if="article.title" class="mb-0">
-          <router-link :to="{ name: 'article', params: {
-            issue_uid: article.issue.uid,
-            page_uid: article.pages[0].uid,
-            article_uid: article.uid,
-          } }" v-html="article.title"></router-link>
-        </h2>
-        <div class="article-meta mb-2">
-          <router-link :to="{ name: 'newspaper', params: { newspaper_uid: article.newspaper.uid }}">
-          <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
-          </router-link>
-          <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
-          (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
-        </div>
-        <small>{{article.excerpt}}</small>
-      </div>
-
-      <div v-if="article.type === 'ar'">
+      <div class="list-item-details">
         <h2 v-if="article.title" class="mb-0">
           <router-link :to="{ name: 'article', params: {
             issue_uid: article.issue.uid,
