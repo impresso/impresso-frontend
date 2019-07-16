@@ -2,7 +2,6 @@ import * as services from '@/services';
 import Issue from '@/models/Issue';
 import Page from '@/models/Page';
 import Article from '@/models/Article';
-import Match from '@/models/Match';
 import store from '../store';
 
 export default {
@@ -17,7 +16,6 @@ export default {
   },
   actions: {
     SEARCH_PAGE(context, uid) {
-      const filters = store.state.search.search.getFilters();
       return services.search.find({
         query: {
           group_by: 'articles',
@@ -26,7 +24,7 @@ export default {
               type: 'page',
               q: uid,
             },
-          ].concat(filters),
+          ].concat(store.state.search.search.getFilters()),
           limit: 1,
         },
       }).then(result => result.data);
@@ -52,7 +50,6 @@ export default {
         }),
       ]).then(([page, articles]) => new Page({
         ...page,
-        matches: [articles.data.map(match => new Match(match))],
         articles: articles.data.map(article => new Article(article)),
         articlesEntities: page.articlesEntities,
         articlesTags: page.articlesTags,
