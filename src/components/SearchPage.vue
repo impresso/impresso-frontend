@@ -169,7 +169,7 @@
       v-bind:title="$t('Find similar words in corpus')">
       <b-container>
       <form v-on:submit.stop.prevent="embeddingsOnSubmit()">
-        
+
         <b-row>
           <b-col cols="9">
             <label for="inputName">Term</label>
@@ -549,10 +549,12 @@ export default {
     exportSelectedCsv() {
       const uids = this.selectedItems.map(a => a.uid);
       this.$store.dispatch('search/EXPORT_FROM_UIDS', {
-        filters: {
-          type: 'uid',
-          q: uids,
-        },
+        filters: [
+          {
+            type: 'uid',
+            q: uids,
+          },
+        ],
       }).then((res) => {
         console.log(res);
       });
