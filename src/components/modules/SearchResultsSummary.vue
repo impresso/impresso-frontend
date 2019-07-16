@@ -116,6 +116,26 @@ export default {
         mapper,
       }).join('; ');
     },
+    getBuckets(type) {
+      const mapper = d => d.q
+        .map(item => [`<span class="item item-${type}">`, this.$t(`buckets.${type}.${item}`), '</span>'].join(''))
+        .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
+
+      return this.getFormattedSection({
+        type,
+        mapper,
+      }).join('; ');
+    },
+    getPersons() {
+      const mapper = d => d.items
+        .map(item => `<span class="item">"${item.getHtmlExcerpt()}"</span>`)
+        .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
+
+      return this.getFormattedSection({
+        type: 'person',
+        mapper,
+      }).join('; ');
+    },
 
     getDateranges() {
       const mapper = d => d.items
@@ -165,6 +185,9 @@ export default {
             terms: this.getStrings(),
             title: this.getStrings('title'),
             topics: this.getTopics(),
+            languages: this.getBuckets('language'),
+            countries: this.getBuckets('country'),
+            persons: this.getPersons(),
           });
           this.$emit('onSummary', this.message);
         }
@@ -177,7 +200,8 @@ export default {
 <style lang="scss">
   span.item, span.date {
     font-family: "questa-sans", sans-serif;
-    font-weight: bold;
+    font-variant: small-caps;
+    text-transform: lowercase;
   }
 
   .precision-exact::before,
@@ -214,7 +238,9 @@ export default {
       "string": "containing",
       "title": "where title includes",
       "daterange": "published",
-      "collection": "saved in"
+      "collection": "saved in",
+      "language": "written in",
+      "country": "printed in"
     },
     "exclude": {
       "topic": "without topic",
@@ -225,10 +251,12 @@ export default {
         "newspaper": "not published in"
       },
       "daterange": "not published",
-      "collection": "not yet saved in"
+      "collection": "not yet saved in",
+      "language": "not written in",
+      "country": "not printed in"
     },
     "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {ranges} {collections} {terms} {title} {topics}",
+    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
   "fr": {

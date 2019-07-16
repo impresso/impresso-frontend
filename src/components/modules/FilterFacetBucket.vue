@@ -40,10 +40,8 @@ export default {
             t = this.bucket.item.name;
             break;
           case 'language':
-            t = this.$t(`languages.${this.bucket.val}`);
-            break;
           case 'country':
-            t = this.$t(`countries.${this.bucket.val}`);
+            t = this.$t(`buckets.${this.type}.${this.bucket.val}`);
             break;
           case 'collection':
             if (this.bucket.item.name) {
