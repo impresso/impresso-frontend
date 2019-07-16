@@ -41,11 +41,16 @@
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
       <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
     </div>
-    <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
+    <filter-facet-bucket v-for="bucket in unfiltered.slice(0, showLimit)" :key="bucket.val"
       :loading="isLoadingResults"
       :bucket="bucket"
       :type="facet.type"
       @toggle-bucket="toggleBucket"/>
+    <b-button
+      v-html="$t('show-more')"
+      v-if="unfiltered.length > showLimit"
+      size="sm" variant="outline-secondary" class="mt-2"
+      @click="showLimit = showLimit === 10 ? 500 : 10" />
   </div>
 </template>
 
@@ -61,6 +66,7 @@ export default {
     selectedIds: [],
     selectedItems: [],
     operators: ['or', 'and'],
+    showLimit: 10,
   }),
   props: {
     store: {
@@ -178,6 +184,7 @@ export default {
 <i18n>
 {
   "en": {
+    "show-more": "Show More",
     "label": {
       "topic": {
         "title": "filter by topic",
