@@ -295,7 +295,7 @@ export default {
     },
     SEARCH(context) {
       context.commit('UPDATE_IS_LOADING', true);
-      const facets = ['year', 'language', 'newspaper', 'type', 'country', 'collection'];
+      const facets = ['year', 'language', 'newspaper', 'type', 'country', 'collection', 'topic'];
       const query = {
         filters: context.getters.getSearch.getFilters(),
         facets,
