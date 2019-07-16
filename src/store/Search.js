@@ -256,29 +256,27 @@ export default {
     },
     EXPORT_FROM_QUERY(context, payload) {
       // console.log(context, services.exporter.methods.create);
+      const filters = payload.filters || context.getters.getSearch.getFilters();
+      console.log('filters', filters);
       return new Promise((resolve) => {
         services.exporter.create({
           description: payload.description,
         }, {
           query: {
             group_by: 'articles',
-            filters: context.getters.getSearch.getFilters(),
+            filters,
             format: 'csv',
           },
         }).then(res => resolve(res));
       });
     },
-    EXPORT_FROM_UIDS(context, payload) {
-      return new Promise((resolve) => {
-        services.exporter.create({
-          // description: 'test description',
-        }, {
-          query: {
-            group_by: 'articles',
-            filters: payload.filters,
-            format: 'csv',
-          },
-        }).then(res => resolve(res));
+    EXPORT_FROM_UIDS(context, { filters }) {
+      return services.exporter.create({}, {
+        query: {
+          group_by: 'articles',
+          format: 'csv',
+          filters,
+        },
       });
     },
     LOAD_SEARCH_FACETS(context, facets) {
