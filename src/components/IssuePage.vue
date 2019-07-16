@@ -312,6 +312,12 @@ export default {
         this.isLoaded = false;
 
         this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
+          console.log('page loaded:', page);
+
+          this.$store.dispatch('issue/SEARCH_PAGE', pageUid).then(
+            console.log('search page loaded.'),
+          );
+
           this.currentPage = page;
           if (this.issue) {
             this.registerPage();

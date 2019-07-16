@@ -2,19 +2,50 @@ import * as services from '@/services';
 import Issue from '@/models/Issue';
 import Page from '@/models/Page';
 import Article from '@/models/Article';
+import Match from '@/models/Match';
+import SearchQuery from '@/models/SearchQuery';
 
 export default {
   namespaced: true,
   state: {
     viewerMode: 'text', // text or image
+    // queryComponents: [],
   },
-  getters: {},
+  getters: {
+    getSearch(state) {
+      console.log('state.search', state.search);
+      return state.search instanceof SearchQuery ? state.search : new SearchQuery(state.search);
+    },
+  },
   mutations: {
     UPDATE_VIEWER_MODE(state, viewerMode) {
       state.viewerMode = viewerMode;
     },
   },
   actions: {
+    SEARCH_PAGE(context, uid) {
+      const filters = // context.getters.getSearch.getFilters();
+        [
+          {
+            type: 'string',
+            context: 'include',
+            q: 'boule',
+          },
+        ];
+      const result = services.search.find({
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'page',
+              q: uid,
+            },
+          ].concat(filters),
+          limit: 2,
+        },
+      });
+      console.log(result);
+    },
     LOAD_ISSUE(context, uid) {
       return services.issues.get(uid, {}).then(issue => new Issue(issue));
     },
@@ -34,8 +65,26 @@ export default {
             limit: 500,
           },
         }),
+        services.search.find({
+          query: {
+            group_by: 'articles',
+            filters: [
+              {
+                type: 'page',
+                q: uid,
+              },
+              {
+                type: 'string',
+                context: 'include',
+                q: 'boule',
+              },
+            ],
+            limit: 2,
+          },
+        }),
       ]).then(([page, articles]) => new Page({
         ...page,
+        matches: [articles.data.map(match => new Match(match))],
         articles: articles.data.map(article => new Article(article)),
         articlesEntities: page.articlesEntities,
         articlesTags: page.articlesTags,
