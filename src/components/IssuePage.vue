@@ -236,9 +236,10 @@ export default {
                 this.isLoaded = true;
 
                 this.page.articles.forEach((article) => {
+                  // matches
                   article.matches.forEach((match) => {
                     console.log('match', match);
-                    if (match.pageUid === this.article.pages[0].uid) {
+                    if (match.pageUid === article.pages[0].uid) {
                       const overlay = {
                         x: match.coords[0],
                         y: match.coords[1],
@@ -249,7 +250,7 @@ export default {
                       this.handler.$emit('add-overlay', overlay);
                     }
                   });
-
+                  // regions
                   article.regions.forEach((region) => {
                     const overlay = window.document.createElement('div');
 
@@ -313,12 +314,14 @@ export default {
 
         this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
           console.log('page loaded:', page);
-
-          this.$store.dispatch('issue/SEARCH_PAGE', pageUid).then(
-            console.log('search page loaded.'),
-          );
-
           this.currentPage = page;
+
+          this.$store.dispatch('issue/SEARCH_PAGE', pageUid).then((articles) => {
+            articles.forEach((article) => {
+              page.articles.find(x => x.uid === article.uid).matches = article.matches;
+            });
+          });
+
           if (this.issue) {
             this.registerPage();
           }
@@ -357,7 +360,7 @@ div.overlay-region{
 	div.overlay-region {
     mix-blend-mode: multiply;
     &.selected, &.active{
-      opacity: 0.5;
+      opacity: 1;
     }
   }
 

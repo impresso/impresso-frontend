@@ -3,19 +3,12 @@ import Issue from '@/models/Issue';
 import Page from '@/models/Page';
 import Article from '@/models/Article';
 import Match from '@/models/Match';
-import SearchQuery from '@/models/SearchQuery';
+import store from '../store';
 
 export default {
   namespaced: true,
   state: {
     viewerMode: 'text', // text or image
-    // queryComponents: [],
-  },
-  getters: {
-    getSearch(state) {
-      console.log('state.search', state.search);
-      return state.search instanceof SearchQuery ? state.search : new SearchQuery(state.search);
-    },
   },
   mutations: {
     UPDATE_VIEWER_MODE(state, viewerMode) {
@@ -24,15 +17,8 @@ export default {
   },
   actions: {
     SEARCH_PAGE(context, uid) {
-      const filters = // context.getters.getSearch.getFilters();
-        [
-          {
-            type: 'string',
-            context: 'include',
-            q: 'boule',
-          },
-        ];
-      const result = services.search.find({
+      const filters = store.state.search.search.getFilters();
+      return services.search.find({
         query: {
           group_by: 'articles',
           filters: [
@@ -41,10 +27,9 @@ export default {
               q: uid,
             },
           ].concat(filters),
-          limit: 2,
+          limit: 1,
         },
-      });
-      console.log(result);
+      }).then(result => result.data);
     },
     LOAD_ISSUE(context, uid) {
       return services.issues.get(uid, {}).then(issue => new Issue(issue));
@@ -63,23 +48,6 @@ export default {
               q: uid,
             }],
             limit: 500,
-          },
-        }),
-        services.search.find({
-          query: {
-            group_by: 'articles',
-            filters: [
-              {
-                type: 'page',
-                q: uid,
-              },
-              {
-                type: 'string',
-                context: 'include',
-                q: 'boule',
-              },
-            ],
-            limit: 2,
           },
         }),
       ]).then(([page, articles]) => new Page({
