@@ -25,6 +25,13 @@
             v-html="article.title" />
           <span
             class="excerpt">{{article.excerpt | substring(100)}}</span>
+          <ul v-if="article.matches.length > 0" class="article-matches mb-1">
+            <li
+              v-for="(match, i) in article.matches"
+              v-bind:key="i"
+              v-html="match.fragment"
+              v-show="match.fragment.trim().length > 0" />
+          </ul>
           </a>
         </b-media>
     </div>

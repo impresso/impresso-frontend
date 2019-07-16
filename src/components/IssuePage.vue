@@ -238,7 +238,7 @@ export default {
                 this.page.articles.forEach((article) => {
                   // matches
                   article.matches.forEach((match) => {
-                    console.log('match', match);
+                    // console.log('match', match);
                     if (match.pageUid === article.pages[0].uid) {
                       const overlay = {
                         x: match.coords[0],
@@ -319,9 +319,12 @@ export default {
           this.$store.dispatch('issue/SEARCH_PAGE', pageUid).then((articles) => {
             articles.forEach((article) => {
               page.articles.find(x => x.uid === article.uid).matches = article.matches;
+              // console.log(article, page);
+              // console.log('toc', this.tableOfContents);
+              this.tableOfContents.pages.find(x => x.uid === page.uid)
+                .articles.find(x => x.uid === article.uid).matches = article.matches;
             });
           });
-
           if (this.issue) {
             this.registerPage();
           }
@@ -360,7 +363,7 @@ div.overlay-region{
 	div.overlay-region {
     mix-blend-mode: multiply;
     &.selected, &.active{
-      opacity: 1;
+      opacity: 0.5;
     }
   }
 
