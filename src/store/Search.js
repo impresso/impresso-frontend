@@ -329,7 +329,7 @@ export default {
           'location',
         ]);
       }).catch((err) => {
-        console.log(err);
+        console.error(err);
         context.commit('UPDATE_IS_LOADING', false);
       });
     },
