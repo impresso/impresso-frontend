@@ -83,11 +83,11 @@
       <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
+        <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
         <div v-if="type === 'daterange'">
           <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
         </div>
-        <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
         <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </b-form-checkbox>
     </div>
@@ -95,7 +95,7 @@
       <div v-for="item in itemsToAdd">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
-        <span v-if="type === 'language'">{{ $t(`languages.${item.uid}`) }}</span>
+        <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
         <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </div>
@@ -305,6 +305,13 @@ label.custom-control-label {
         "value": "value",
         "apply": "apply changes"
       },
+      "country": {
+        "title": "Filter by country of publication",
+        "context": {
+          "include": "newspapers published in",
+          "exclude": "newspapers <b>NOT</b> published in"
+        }
+      },
       "string": {
         "title": "article text",
         "context": {
@@ -333,16 +340,12 @@ label.custom-control-label {
         }
       },
       "person": {
-        "clear": "reset",
-        "apply": "apply changes",
         "context": {
           "include": "Mentioning",
           "exclude": "<b>NOT</b> mentioning"
         }
       },
       "location": {
-        "clear": "reset",
-        "apply": "apply changes",
         "context": {
           "include": "Mentioning",
           "exclude": "<b>NOT</b> mentioning"
@@ -377,7 +380,11 @@ label.custom-control-label {
         "selected": "filter results if they are written in <b>one of {count} selected</b> languages",
         "description": "check one or more language to filter results",
         "apply": "apply changes",
-        "clear": "reset"
+        "clear": "reset",
+        "context": {
+          "include": "Written in",
+          "exclude": "<b>NOT</b> written in"
+        }
       },
       "daterange": {
         "title": "filter by date of publication",
