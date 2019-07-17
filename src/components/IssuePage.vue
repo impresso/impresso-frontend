@@ -397,7 +397,7 @@ div.overlay-region{
 <i18n>
 {
   "en": {
-    "stats": "{countPages} pages, {countArticles} articles",
+    "stats": "{countArticles} articles in {countPages} pages",
     "label_display": "Display as",
     "table_of_contents": "table of contents"
   },
