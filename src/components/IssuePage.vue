@@ -8,6 +8,15 @@
                 active-class='none'>{{$t('table_of_contents')}}</b-nav-item>
             </template>
           </b-tabs>
+          <div class="py-1 px-3">
+            {{
+              $t('stats', {
+                countPages,
+                countArticles,
+              })
+            }}
+            <search-pills />
+          </div>
         </div>
         <table-of-contents
           v-bind:tableOfContents="tableOfContents"
@@ -60,6 +69,7 @@ import CollectionTagger from './CollectionTagger';
 import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 import BaseTabs from './base/BaseTabs';
+import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
@@ -92,6 +102,18 @@ export default {
       set(mode) {
         this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
       },
+    },
+    countPages() {
+      if (!Array.isArray(this.tableOfContents.pages)) {
+        return -1;
+      }
+      return this.tableOfContents.pages.length;
+    },
+    countArticles() {
+      if (!Array.isArray(this.tableOfContents.pages)) {
+        return -1;
+      }
+      return this.tableOfContents.pages.reduce((acc, d) => acc + d.articles.length, 0);
     },
     issueUid() {
       return this.$route.params.issue_uid;
@@ -179,6 +201,7 @@ export default {
     ThumbnailSlider,
     TableOfContents,
     Icon,
+    SearchPills,
   },
   watch: {
     '$route.params.issue_uid': {
@@ -303,6 +326,7 @@ export default {
         });
 
         this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS', issueUid).then((tableOfContents) => {
+          console.log('@issue/LOAD_TABLE_OF_CONTENTS', issueUid, tableOfContents);
           this.tableOfContents = tableOfContents;
         });
       },
@@ -373,8 +397,9 @@ div.overlay-region{
 <i18n>
 {
   "en": {
+    "stats": "{countPages} pages, {countArticles} articles",
     "label_display": "Display as",
-    "table_of_contents": "Table of Contents"
+    "table_of_contents": "table of contents"
   },
   "nl": {
     "label_display": "Toon als",
