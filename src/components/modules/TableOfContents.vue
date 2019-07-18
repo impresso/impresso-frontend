@@ -150,8 +150,7 @@ export default {
     .article{
       &.active{
         a{
-          background: lighten($clr-primary, 88);
-          font-weight: bold;
+          background: lighten($clr-accent-secondary, 12);
         }
       }
       a{
@@ -161,7 +160,7 @@ export default {
           font-weight: bold;
         }
         .excerpt{
-          color: lighten($clr-primary, 25);
+          color: $clr-secondary;
         }
         .images{
           width:80px;
