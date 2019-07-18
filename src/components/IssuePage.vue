@@ -9,12 +9,14 @@
             </template>
           </b-tabs>
           <div class="py-1 px-3">
-            {{
-              $t('stats', {
-                countPages,
-                countArticles,
-              })
-            }}
+            <p v-if="countPages != -1">
+              {{
+                $t('stats', {
+                  countPages,
+                  countArticles,
+                })
+              }}
+            </p>
             <search-pills />
           </div>
         </div>
