@@ -26,44 +26,69 @@
             v-html="article.title" /> &mdash;
           <span
             class="excerpt">{{ article.excerpt }}</span>
-          <span v-if="article.size > 1000" class="badge badge-secondary mr-1 pt-1">
+          <span v-if="article.size > 1200" class="badge badge-secondary mr-1 pt-1">
             {{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}
           </span>
           <span v-if="article.type !== 'ar'" class="badge badge-secondary mr-1 pt-1">
             {{ article.type.toUpperCase() }}
           </span>
 
-          <ul v-if="article.matches.length > 0" class="article-matches mb-1">
-            <li
-              v-for="(match, i) in article.matches"
-              v-bind:key="i"
-              v-html="match.fragment"
-              v-show="match.fragment.trim().length > 0" />
-          </ul>
+          <div class="collapased">
 
-          <!-- <ul v-if="article.topics.length > 0" class="article-topics mb-1">
-            <li
-              v-for="topic in article.topics"
-              v-bind:key="topic.topicUid">
-              {{topic.topicUid}} ({{topic.relevance}})
-            </li>
-          </ul> -->
+            <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
+              <b-badge
+                v-for="(collection, i) in article.collections"
+                v-bind:key="i"
+                variant="info"
+                class="mr-1">
+                <router-link
+                  class="text-white"
+                  v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+                  {{ collection.name }}
+                </router-link>
+                <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+              </b-badge>
+            </div>
 
-          <ul v-if="article.locations && article.locations.length > 0" class="article-locations mb-1">
-            <li
-              v-for="location in article.locations"
-              v-bind:key="location.uid">
-              {{location.uid}} ({{location.relevance}})
-            </li>
-          </ul>
+            <collection-add-to
+            class="mt-2"
+              v-if="isLoggedIn()"
+              v-bind:item="article"
+              v-bind:text="$t('add_to_collection')" />
 
-          <ul v-if="article.persons && article.persons.length > 0" class="article-persons mb-1">
-            <li
-              v-for="location in article.persons"
-              v-bind:key="person.uid">
-              {{person.uid}} ({{person.relevance}})
-            </li>
-          </ul>
+            <ul v-if="article.matches.length > 0" class="article-matches mb-1">
+              <li
+                v-for="(match, i) in article.matches"
+                v-bind:key="i"
+                v-html="match.fragment"
+                v-show="match.fragment.trim().length > 0" />
+            </ul>
+
+            <!-- <ul v-if="article.topics.length > 0" class="article-topics mb-1">
+              <li
+                v-for="topic in article.topics"
+                v-bind:key="topic.topicUid">
+                {{topic.topicUid}} ({{topic.relevance}})
+              </li>
+            </ul> -->
+
+            <ul v-if="article.locations && article.locations.length > 0" class="article-locations mb-1">
+              <li
+                v-for="location in article.locations"
+                v-bind:key="location.uid">
+                {{location.uid}} ({{location.relevance}})
+              </li>
+            </ul>
+
+            <ul v-if="article.persons && article.persons.length > 0" class="article-persons mb-1">
+              <li
+                v-for="location in article.persons"
+                v-bind:key="person.uid">
+                {{person.uid}} ({{person.relevance}})
+              </li>
+            </ul>
+
+          </div>
 
           </a>
         </b-media>
@@ -73,6 +98,7 @@
 
 <script>
 import Issue from '@/models/Issue';
+import CollectionAddTo from './CollectionAddTo';
 
 export default {
   props: {
@@ -85,6 +111,9 @@ export default {
     articleUid: {
       default: '',
     },
+  },
+  components: {
+    CollectionAddTo,
   },
   methods: {
     orderedTopics(topics) {
@@ -110,6 +139,21 @@ export default {
           parent.offsetTop + parent.offsetHeight) {
           parent.scrollTo({ top: elmRelativeTop, behavior: 'smooth' });
         }
+      }
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
+    onRemoveCollection(collection, item) {
+      const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+      if (idx !== -1) {
+        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+          collection,
+          item,
+        }).then(() => {
+          item.collections.splice(idx, 1);
+          this.$forceUpdate();
+        });
       }
     },
   },
@@ -151,11 +195,24 @@ export default {
       &.active{
         a{
           background: lighten($clr-accent-secondary, 12);
+          .collapased {
+            height: auto;
+            max-height: 1200px;
+            overflow: visible;
+            .collection-add-to {
+            }
+          }
         }
       }
       a{
         text-decoration: none;
         display: block;
+        .collapased {
+          height: 0;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 400ms ease-in-out;
+        }
         .title{
           font-weight: bold;
         }
@@ -180,7 +237,8 @@ export default {
   "en": {
     "page": "Page",
     "no_title": "No title",
-    "readingTime": "{min} min read"
+    "readingTime": "{min} min read",
+    "add_to_collection": "Add to Collection ..."
   },
   "nl": {
     "page": "Pagina",
