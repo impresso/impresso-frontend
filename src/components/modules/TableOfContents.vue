@@ -20,11 +20,16 @@
               v-for="image in article.images"
               v-bind:src="image.regions[0].iiifFragment" />
           </div>
+
           <span
             class="title"
-            v-html="article.title" />
+            v-html="article.title" /> &mdash;
           <span
-            class="excerpt">{{article.excerpt | substring(100)}}</span>
+            class="excerpt">{{ article.excerpt }}</span>
+          <span v-if="article.size > 1000" class="badge badge-primary">
+            {{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}
+          </span>
+
           <ul v-if="article.matches.length > 0" class="article-matches mb-1">
             <li
               v-for="(match, i) in article.matches"
@@ -142,7 +147,8 @@ export default {
 {
   "en": {
     "page": "Page",
-    "no_title": "No title"
+    "no_title": "No title",
+    "readingTime": "{min} min read"
   },
   "nl": {
     "page": "Pagina",
