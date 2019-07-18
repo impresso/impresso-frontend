@@ -40,7 +40,7 @@
 
           <ul v-if="article.topics.length > 0" class="article-topics mb-1">
             <li
-              v-for="topic in article.topics"
+              v-for="topic in orderedTopics(article.topics)"
               v-bind:key="topic.topicUid">
               {{topic.topicUid}} ({{topic.relevance}})
             </li>
@@ -84,6 +84,9 @@ export default {
     },
   },
   methods: {
+    orderedTopics(topics) {
+      return topics.sort((a, b) => b.relevance - a.relevance);
+    },
     onClick(article, page) {
       this.$emit('click', {
         article,
