@@ -25,7 +25,7 @@ export default {
               q: uid,
             },
           ].concat(store.state.search.search.getFilters()),
-          limit: 1,
+          limit: 2,
         },
       }).then(result => result.data);
     },
@@ -39,7 +39,7 @@ export default {
               q: uids,
             },
           ].concat(store.state.search.search.getFilters()),
-          limit: 1,
+          limit: 2,
         },
       }).then(result => result.data);
     },
