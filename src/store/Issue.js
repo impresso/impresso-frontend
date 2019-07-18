@@ -29,6 +29,20 @@ export default {
         },
       }).then(result => result.data);
     },
+    SEARCH_UIDS(context, uids) {
+      return services.search.find({
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'uid',
+              q: uids,
+            },
+          ].concat(store.state.search.search.getFilters()),
+          limit: 1,
+        },
+      }).then(result => result.data);
+    },
     LOAD_ISSUE(context, uid) {
       return services.issues.get(uid, {}).then(issue => new Issue(issue));
     },
