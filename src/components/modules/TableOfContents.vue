@@ -26,8 +26,11 @@
             v-html="article.title" /> &mdash;
           <span
             class="excerpt">{{ article.excerpt }}</span>
-          <span v-if="article.size > 1000" class="badge badge-primary">
+          <span v-if="article.size > 1000" class="badge badge-secondary mr-1 pt-1">
             {{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}
+          </span>
+          <span v-if="article.type !== 'ar'" class="badge badge-secondary mr-1 pt-1">
+            {{ article.type.toUpperCase() }}
           </span>
 
           <ul v-if="article.matches.length > 0" class="article-matches mb-1">
@@ -38,13 +41,13 @@
               v-show="match.fragment.trim().length > 0" />
           </ul>
 
-          <ul v-if="article.topics.length > 0" class="article-topics mb-1">
+          <!-- <ul v-if="article.topics.length > 0" class="article-topics mb-1">
             <li
-              v-for="topic in orderedTopics(article.topics)"
+              v-for="topic in article.topics"
               v-bind:key="topic.topicUid">
               {{topic.topicUid}} ({{topic.relevance}})
             </li>
-          </ul>
+          </ul> -->
 
           <ul v-if="article.locations && article.locations.length > 0" class="article-locations mb-1">
             <li
