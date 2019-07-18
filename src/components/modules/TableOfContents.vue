@@ -104,10 +104,11 @@ export default {
         }
         const elm = this.$refs[`article-${this.articleUid}`][0];
         const parent = this.$refs.TableOfContents.parentNode;
-        const elmTop = elm.offsetTop - parent.offsetTop;
-        if (parent.scrollTop > elmTop ||
-          (elm.offsetTop - parent.scrollTop) > parent.offsetHeight) {
-          parent.scrollTo({ top: elmTop, behavior: 'smooth' });
+        const elmRelativeTop = elm.offsetTop - parent.offsetTop;
+        if (parent.scrollTop > elmRelativeTop ||
+          (elm.offsetTop + elm.offsetHeight) - parent.scrollTop >
+          parent.offsetTop + parent.offsetHeight) {
+          parent.scrollTo({ top: elmRelativeTop, behavior: 'smooth' });
         }
       }
     },
