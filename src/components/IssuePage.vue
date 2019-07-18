@@ -342,6 +342,18 @@ export default {
           console.log('page loaded:', page);
           this.currentPage = page;
 
+          const articleUids = page.articles.map(a => a.uid);
+          // console.log('articlesids', articleUids);
+
+          this.$store.dispatch('issue/SEARCH_UIDS', articleUids).then((articles) => {
+            articles.forEach((article) => {
+              console.log('art, page', article, page);
+              page.articles.find(x => x.uid === article.uid).matches = article.matches;
+              this.tableOfContents.pages.find(x => x.uid === page.uid)
+                .articles.find(x => x.uid === article.uid).mmatches = article.matches;
+            });
+          });
+
           this.$store.dispatch('issue/SEARCH_PAGE', pageUid).then((articles) => {
             articles.forEach((article) => {
               page.articles.find(x => x.uid === article.uid).matches = article.matches;

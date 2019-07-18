@@ -37,6 +37,31 @@
               v-html="match.fragment"
               v-show="match.fragment.trim().length > 0" />
           </ul>
+
+          <ul v-if="article.topics.length > 0" class="article-topics mb-1">
+            <li
+              v-for="topic in article.topics"
+              v-bind:key="topic.topicUid">
+              {{topic.topicUid}} ({{topic.relevance}})
+            </li>
+          </ul>
+
+          <ul v-if="article.locations && article.locations.length > 0" class="article-locations mb-1">
+            <li
+              v-for="location in article.locations"
+              v-bind:key="location.uid">
+              {{location.uid}} ({{location.relevance}})
+            </li>
+          </ul>
+
+          <ul v-if="article.persons && article.persons.length > 0" class="article-persons mb-1">
+            <li
+              v-for="location in article.persons"
+              v-bind:key="person.uid">
+              {{person.uid}} ({{person.relevance}})
+            </li>
+          </ul>
+
           </a>
         </b-media>
     </div>
