@@ -79,6 +79,10 @@ import FilterMonitor from './modules/FilterMonitor';
 
 export default {
   props: {
+    excludedTypes: {
+      type: Array,
+      default: () => ['hasTextContents', 'isFront'],
+    },
     store: {
       type: String,
       default: 'search',
@@ -95,7 +99,7 @@ export default {
       get() {
         // exclude boolean filters
         return this.currentStore.search.filters
-          .filter(d => ['hasTextContents', 'isFront'].indexOf(d.type) === -1);
+          .filter(d => this.excludedTypes.indexOf(d.type) === -1);
           // .sort((a, b) => (a.type > b.type ? 1 : -1));
       },
     },
