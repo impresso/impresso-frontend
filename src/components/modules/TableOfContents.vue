@@ -193,8 +193,10 @@ export default {
 
     .article{
       &.active{
+        border-bottom: 1px solid #343a40 !important;
         a{
-          background: lighten($clr-accent-secondary, 12);
+          box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
+          background: #f8f9fa;
           .collapased {
             height: auto;
             max-height: 1200px;

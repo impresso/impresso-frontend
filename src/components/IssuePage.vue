@@ -9,14 +9,10 @@
             </template>
           </b-tabs>
           <div class="py-1 px-3">
-            <p v-if="countPages != -1">
-              {{
-                $t('stats', {
-                  countPages,
-                  countArticles,
-                })
-              }}
-            </p>
+            <p v-if="countPages != -1" class="small-caps" v-html="$t('stats', {
+              countPages,
+              countArticles,
+            })"></p>
             <search-pills />
           </div>
         </div>
@@ -410,7 +406,7 @@ div.overlay-region{
 <i18n>
 {
   "en": {
-    "stats": "{countArticles} articles in {countPages} pages",
+    "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages",
     "label_display": "Display as",
     "table_of_contents": "table of contents"
   },
