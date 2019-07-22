@@ -4,6 +4,9 @@ import Router from 'vue-router';
 import HomePage from '../components/HomePage';
 import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
+import Search2Index from '../components/Search2/Index';
+import Search2Articles from '../components/Search2/Articles';
+import Search2Issues from '../components/Search2/Issues';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
@@ -235,6 +238,20 @@ const router = new Router({
         });
       });
     },
+  },
+  {
+    path: '/search2',
+    component: Search2Index,
+    children: [{
+      path: 'articles',
+      component: Search2Articles,
+      name: 'search-articles',
+    },
+    {
+      path: 'issues',
+      component: Search2Issues,
+      name: 'search-issues',
+    }],
   }],
 });
 
