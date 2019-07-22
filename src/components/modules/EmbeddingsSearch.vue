@@ -108,6 +108,7 @@ export default {
     updateFilter(embedding) {
       this.$store.commit('search/UPDATE_FILTER', {
         filter: this.filter,
+        precision: 'soft',
         q: `${this.filter.q} ${embedding}`,
       });
     },
