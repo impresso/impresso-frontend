@@ -2,19 +2,47 @@ import * as services from '@/services';
 import Issue from '@/models/Issue';
 import Page from '@/models/Page';
 import Article from '@/models/Article';
+import store from '../store';
 
 export default {
   namespaced: true,
   state: {
     viewerMode: 'text', // text or image
   },
-  getters: {},
   mutations: {
     UPDATE_VIEWER_MODE(state, viewerMode) {
       state.viewerMode = viewerMode;
     },
   },
   actions: {
+    SEARCH_PAGE(context, uid) {
+      return services.search.find({
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'page',
+              q: uid,
+            },
+          ].concat(store.state.search.search.getFilters()),
+          limit: 2,
+        },
+      }).then(result => result.data);
+    },
+    SEARCH_UIDS(context, uids) {
+      return services.search.find({
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'uid',
+              q: uids,
+            },
+          ].concat(store.state.search.search.getFilters()),
+          limit: 2,
+        },
+      }).then(result => result.data);
+    },
     LOAD_ISSUE(context, uid) {
       return services.issues.get(uid, {}).then(issue => new Issue(issue));
     },

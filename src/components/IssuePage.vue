@@ -8,6 +8,13 @@
                 active-class='none'>{{$t('table_of_contents')}}</b-nav-item>
             </template>
           </b-tabs>
+          <div class="py-1 px-3">
+            <p v-if="countPages != -1" class="small-caps" v-html="$t('stats', {
+              countPages,
+              countArticles,
+            })"></p>
+            <search-pills />
+          </div>
         </div>
         <table-of-contents
           v-bind:tableOfContents="tableOfContents"
@@ -60,6 +67,7 @@ import CollectionTagger from './CollectionTagger';
 import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 import BaseTabs from './base/BaseTabs';
+import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 
@@ -92,6 +100,18 @@ export default {
       set(mode) {
         this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
       },
+    },
+    countPages() {
+      if (!Array.isArray(this.tableOfContents.pages)) {
+        return -1;
+      }
+      return this.tableOfContents.pages.length;
+    },
+    countArticles() {
+      if (!Array.isArray(this.tableOfContents.pages)) {
+        return -1;
+      }
+      return this.tableOfContents.pages.reduce((acc, d) => acc + d.articles.length, 0);
     },
     issueUid() {
       return this.$route.params.issue_uid;
@@ -179,6 +199,7 @@ export default {
     ThumbnailSlider,
     TableOfContents,
     Icon,
+    SearchPills,
   },
   watch: {
     '$route.params.issue_uid': {
@@ -236,6 +257,7 @@ export default {
                 this.isLoaded = true;
 
                 this.page.articles.forEach((article) => {
+                  // regions
                   article.regions.forEach((region) => {
                     const overlay = window.document.createElement('div');
 
@@ -279,6 +301,20 @@ export default {
 
                     viewer.addOverlay(overlay, rect);
                   });
+                  // matches
+                  article.matches.forEach((match) => {
+                    // console.log('match', match);
+                    if (match.pageUid === article.pages[0].uid) {
+                      const overlay = {
+                        x: match.coords[0],
+                        y: match.coords[1],
+                        w: match.coords[2],
+                        h: match.coords[3],
+                        class: 'overlay-match',
+                      };
+                      this.handler.$emit('add-overlay', overlay);
+                    }
+                  });
                 });
 
                 this.selectArticle();
@@ -288,6 +324,7 @@ export default {
         });
 
         this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS', issueUid).then((tableOfContents) => {
+          console.log('@issue/LOAD_TABLE_OF_CONTENTS', issueUid, tableOfContents);
           this.tableOfContents = tableOfContents;
         });
       },
@@ -298,7 +335,29 @@ export default {
         this.isLoaded = false;
 
         this.$store.dispatch('issue/LOAD_PAGE', pageUid).then((page) => {
+          console.log('page loaded:', page);
           this.currentPage = page;
+
+          const articleUids = page.articles.map(a => a.uid);
+          this.$store.dispatch('issue/SEARCH_UIDS', articleUids).then((articles) => {
+            articles.forEach((article) => {
+              console.log('SEARCH_UIDS:', article.uid, article.matches.length);
+              page.articles.find(x => x.uid === article.uid).matches = article.matches;
+              this.tableOfContents.pages.find(x => x.uid === page.uid)
+                .articles.find(x => x.uid === article.uid).matches = article.matches;
+            });
+          });
+
+          this.$store.dispatch('issue/SEARCH_PAGE', pageUid).then((articles) => {
+            articles.forEach((article) => {
+              console.log('SEARCH_PAGE:', article.uid, article.matches.length);
+              page.articles.find(x => x.uid === article.uid).matches = article.matches;
+              // console.log(article, page);
+              // console.log('toc', this.tableOfContents);
+              this.tableOfContents.pages.find(x => x.uid === page.uid)
+                .articles.find(x => x.uid === article.uid).matches = article.matches;
+            });
+          });
           if (this.issue) {
             this.registerPage();
           }
@@ -347,8 +406,9 @@ div.overlay-region{
 <i18n>
 {
   "en": {
+    "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages",
     "label_display": "Display as",
-    "table_of_contents": "Table of Contents"
+    "table_of_contents": "table of contents"
   },
   "nl": {
     "label_display": "Toon als",
