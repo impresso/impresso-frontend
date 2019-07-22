@@ -100,15 +100,17 @@ export default {
   methods: {
     lastWord(filter) {
       if (filter && filter.q) {
-        return filter.q.trim().split(' ').pop();
+        // q = last query string from filter
+        const q = filter.q.trim().split(' ').pop();
+        // return first word from q
+        return q.replace(/(\s|-).*/, '');
       }
       return '';
     },
     embeddingsOnSubmit() {
       this.$store.state.embeddings.embeddings = {};
       if (this.$refs.inputE && this.$refs.inputE.$el.value !== '') {
-        const firstWord = this.$refs.inputE.$el.value.replace(/(\s|-).*/, '');
-        this.$store.dispatch('embeddings/FIND', firstWord);
+        this.$store.dispatch('embeddings/FIND', this.$refs.inputE.$el.value);
       }
     },
     updateFilter(embedding) {
