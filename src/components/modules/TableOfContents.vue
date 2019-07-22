@@ -51,7 +51,7 @@
             </div>
 
             <collection-add-to
-            class="mt-2"
+            class="mt-3"
               v-if="isLoggedIn()"
               v-bind:item="article"
               v-bind:text="$t('add_to_collection')" />
@@ -193,27 +193,27 @@ export default {
 
     .article{
       &.active{
-        border-bottom: 1px solid #343a40 !important;
-        a{
-          box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
+        // border-bottom: 1px solid #343a40 !important;
+        > div.media-body > a {
+          // box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
           background: #f8f9fa;
           .collapased {
             height: auto;
-            max-height: 1200px;
+            // max-height: 1200px;
             overflow: visible;
             .collection-add-to {
             }
           }
         }
       }
-      a{
+      > div.media-body > a {
         text-decoration: none;
         display: block;
         .collapased {
           height: 0;
-          max-height: 0;
+          // max-height: 0;
           overflow: hidden;
-          transition: max-height 400ms ease-in-out;
+          // transition: max-height 400ms ease-in-out;
         }
         .title{
           font-weight: bold;
