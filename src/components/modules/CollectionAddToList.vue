@@ -48,7 +48,8 @@
               &middot;
               <span
                 class="description text-muted small-caps"
-                :title="$t('last_edited')">{{$d(collection.lastModifiedDate, 'short')}}</span>
+                :title="$t('last_edited')"
+                v-html="dateStr(collection.lastModifiedDate)" />
             </label>
           </li>
         </ul>
@@ -82,6 +83,10 @@ export default {
     },
   },
   methods: {
+    dateStr(modDate) {
+      const d = new Date(modDate);
+      return (d.toString());
+    },
     fetch() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
