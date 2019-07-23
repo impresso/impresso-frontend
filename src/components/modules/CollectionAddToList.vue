@@ -48,7 +48,7 @@
               &middot;
               <span
                 class="description text-muted small-caps"
-                :title="$t('last_edited')">{{$d(collection.lastEditedDate, 'compact')}}</span>
+                :title="$t('last_edited')">{{collection.lastModifiedDate.toString()}}</span>
             </label>
           </li>
         </ul>
@@ -152,11 +152,11 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
 .collection-add-to {
-  min-width: 400px;
+  min-width: 265px;
   input {
     font-style: italic;
     &:focus {
