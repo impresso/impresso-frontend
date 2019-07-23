@@ -5,5 +5,6 @@ export default class SuggestionItem extends Suggestion {
     super(args);
     this.item = args.item;
     this.h = String(args.h);
+    this.q = [args.item.uid];
   }
 }
