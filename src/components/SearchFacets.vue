@@ -73,6 +73,10 @@
         @update-filter="updateFilter"
         @reset-filter="resetFilter"/>
     </div>
+    <b-modal hide-footer id="facet" ref="facet"
+      v-bind:title="$t('Facets ...')">
+      <facet-explorer :facetType="facetType" />
+    </b-modal>
   </div>
 </template>
 
@@ -85,6 +89,7 @@ import FilterFacet from './modules/FilterFacet';
 import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
+import FacetExplorer from './modules/FacetExplorer';
 
 const fillYears = (initialValues = []) => {
   if (!initialValues.length) {
@@ -133,6 +138,7 @@ export default {
       end: null,
     },
     facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
+    facetType: 'not set',
   }),
   computed: {
     currentStore() {
@@ -358,6 +364,7 @@ export default {
     // flatPickr,
     FilterFacet,
     FilterMonitor,
+    FacetExplorer,
   },
 };
 </script>

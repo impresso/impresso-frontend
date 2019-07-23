@@ -47,6 +47,11 @@
       :type="facet.type"
       @toggle-bucket="toggleBucket"/>
     <b-button
+      v-html="$t('explore', {type: facet.type})"
+      size="sm" variant="outline-secondary" class="mt-2 mr-1"
+      v-b-modal.facet
+      @click="$parent.facetType = facet.type" />
+    <b-button
       v-html="$t('show-more')"
       v-if="unfiltered.length > showLimit"
       size="sm" variant="outline-secondary" class="mt-2"
@@ -185,6 +190,7 @@ export default {
 {
   "en": {
     "show-more": "Show More",
+    "explore": "Explore {type}",
     "label": {
       "topic": {
         "title": "filter by topic",
