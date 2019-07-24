@@ -16,6 +16,7 @@ import jobs from './Jobs';
 import entities from './Entities';
 import mentions from './Mentions';
 import embeddings from './Embeddings';
+import monitor from './Monitor';
 
 
 Vue.use(Vuex);
@@ -39,6 +40,7 @@ export default new Vuex.Store({
     entities,
     mentions,
     embeddings,
+    monitor,
   },
   state: {
     processing_status: false,
