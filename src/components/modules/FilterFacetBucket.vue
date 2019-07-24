@@ -2,12 +2,15 @@
   <div class="bucket">
     <b-form-checkbox v-model="isChecked">
       <span v-html="title"></span>
+      <item-selector :uid="bucket.val" :type="type"/>
       <span>({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
     </b-form-checkbox>
   </div>
 </template>
 
 <script>
+import ItemSelector from './ItemSelector';
+
 export default {
   data: () => ({
     operators: ['or', 'and', 'not'],
@@ -83,6 +86,9 @@ export default {
     selectOperator(operator) {
       this.operator = operator;
     },
+  },
+  components: {
+    ItemSelector,
   },
   mounted() {
     this.checked = !!this.bucket.checked;
