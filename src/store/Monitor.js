@@ -4,15 +4,17 @@ import Entity from '@/models/Entity';
 
 const serviceByType = {
   person: 'entities',
-  locaiton: 'entities',
+  location: 'entities',
+  newspaper: 'newspaper',
 };
 
 export default {
   namespaced: true,
   state: {
-    isActive: true,
+    isActive: false,
     isPending: false,
     isPendingTimeline: false,
+    applyCurrentSearchFilters: true,
     position: {
       top: 0,
       left: 0,
@@ -23,11 +25,17 @@ export default {
     },
     scrolltop: 0,
     item: null,
+    type: null,
+    itemCountRelated: -1,
     uid: '',
     timeline: [],
-    perspective: 'articles',
+    groupBy: 'articles',
   },
-  getters: {},
+  getters: {
+    getCurrentSearchFilters(state, getters, rootState, rootGetter) {
+      return rootGetter['search/getSearch'].getFilters();
+    },
+  },
   mutations: {
     SET_IS_ACTIVE(state, value) {
       state.isActive = !!value;
@@ -41,11 +49,14 @@ export default {
       state.timeline = timeline;
       state.isPendingTimeline = false;
     },
+    SET_ITEM_COUNT_RELATED(state, n) {
+      state.itemCountRelated = parseInt(n, 10);
+    },
     SET_PENDING_ITEM(state, item) {
       state.item = item;
       state.isPending = true;
     },
-    SET_PENDING_ITEM_TIMELINE(state) {
+    RESET_TIMELINE(state) {
       state.timeline = [];
       state.isPendingTimeline = true;
     },
@@ -61,38 +72,54 @@ export default {
     SET_SCROLLTOP(state, scrollTop) {
       state.scrolltop = parseInt(scrollTop, 10);
     },
+    SET_APPLY_CURRENT_SEARCH_FILTERS(state, value) {
+      state.applyCurrentSearchFilters = value;
+    },
+    SET_ITEM_TYPE(state, type) {
+      state.type = type;
+    },
   },
   actions: {
     SET_IS_ACTIVE({ commit }, value) {
       commit('SET_IS_ACTIVE', value);
     },
-    SET_ITEM({ state, commit }, { item, type }) { // }, position }) {
-      commit('SET_IS_ACTIVE', true);
-      commit('SET_PENDING_ITEM', item);
-      commit('SET_PENDING_ITEM_TIMELINE');
-      // commit('SET_POSITION', position);
-      console.log(item, type, state.perspective);
+    SET_APPLY_CURRENT_SEARCH_FILTERS({ commit }, value) {
+      commit('SET_APPLY_CURRENT_SEARCH_FILTERS', value);
+    },
+    LOAD_ITEM_TIMELINE({ state, commit, getters }) {
+      commit('RESET_TIMELINE');
+      let filters = [
+        {
+          type: state.type,
+          q: state.item.uid,
+        },
+      ];
+      // if user asked to get details in current search:
+      if (state.applyCurrentSearchFilters) {
+        filters = filters.concat(getters.getCurrentSearchFilters);
+      }
       // fetch article timeline related to the given type
-      const timelinePromise = services.search.find({
+      return services.search.find({
         query: {
-          group_by: state.perspective,
-          filters: [
-            {
-              type,
-              q: item.uid,
-            },
-          ],
+          group_by: state.groupBy,
+          filters,
           facets: 'year',
           limit: 0,
         },
         limit: 0,
       }).then((res) => {
+        commit('SET_ITEM_COUNT_RELATED', res.total);
         commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
       });
+    },
+    SET_ITEM({ state, commit, dispatch }, { item, type }) { // }, position }) {
+      commit('SET_IS_ACTIVE', true);
+      commit('SET_PENDING_ITEM', item);
+      commit('SET_ITEM_TYPE', type);
       // add item resolution promise to the promise chain
       if (serviceByType[type]) {
         return Promise.all([
-          timelinePromise,
+          dispatch('LOAD_ITEM_TIMELINE'),
           services[serviceByType[type]].get(item.uid).then((res) => {
             if (['location', 'person'].indexOf(type) !== -1) {
               commit('SET_ITEM', new Entity(res));
@@ -106,7 +133,7 @@ export default {
       }
       // if there is no item to fetch, just get the timeline data.
       commit('SET_ITEM', item);
-      return timelinePromise;
+      return dispatch('LOAD_ITEM_TIMELINE');
     },
     SET_VIEWPORT({ state, commit }, viewport) {
       commit('SET_VIEWPORT', viewport);
