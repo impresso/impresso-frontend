@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="monitor drop-shadow p-2 bg-light" v-on:click.stop :class="{'active': isActive, 'invisible': isDragging}"
+  <div v-if="isActive" class="monitor drop-shadow p-2 bg-light" v-on:click.stop :class="{'invisible': isDragging}"
   draggable="true"
   v-on:dragstart="dragstart($event)"
   v-on:dragend="dragend($event)"
@@ -17,18 +17,19 @@
     </div>
     <div v-if="tab === 'selectedItem'" class="mx-2 pt-2">
       <div v-if="isItemSelected">
-        there is a selection
-        {{itemTimelineDomain}}
+        <h2>{{ item.name || item.uid }} <span class="small-caps">{{ type }}</span></h2>
+        <div v-html="statsLabel"/>
+
+
         <!--  timeline vis -->
-        <div v-if="itemTimelineDomain.length" style='position:relative'>
-          {{itemTimelineDomain}} {{isPendingTimeline}}
+        <div v-if="itemTimelineDomain.length && !monitor.isPendingTimeline" style='position:relative'>
           <timeline class='bg-light pb-2'
             :values="itemTimeline"
             :domain="itemTimelineDomain">
             <div slot-scope="tooltipScope">
               <div v-if="tooltipScope.tooltip.item">
                 {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                <b>{{ tooltipScope.tooltip.item.w }}</b> {{ perspective }}
+                <b>{{ tooltipScope.tooltip.item.w }}</b>
                 <!-- <br />
                 <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
                 &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
@@ -37,10 +38,15 @@
               </div>
             </div>
           </timeline>
+          <b-form-group class="mx-3">
+            <b-form-checkbox v-model="applyCurrentSearchFilters" v-bind:value="true">
+              {{ $t('labels.applyCurrentSearchFilters') }}
+            </b-form-checkbox>
+          </b-form-group>
         </div>
 
-        <div v-if="isPending" v-html="$t('loading')" />
-        <div v-else>{{ item.name }}</div>
+        <div v-if="monitor.isPending" v-html="$t('loading')" />
+        <div v-else>{{ monitor.item }} </div>
       </div>
       <div v-else>there is no selection.</div>
 
@@ -76,23 +82,16 @@ export default {
     switchTab(tab) {
       this.tab = tab;
     },
-    doS() {
-      console.log('doing something');
-    },
-    fadeOut(el) {
-      console.log('"fading out!!!"', el);
-      return this.$store.dispatch('monitor/SET_IS_ACTIVE', !this.$store.state.monitor.isActive);
+    fadeOut() {
+      return this.$store.dispatch('monitor/SET_IS_ACTIVE', false);
     },
   },
   computed: {
-    perspective() {
-      return this.$store.state.monitor.perspective;
+    monitor() {
+      return this.$store.state.monitor;
     },
-    isPending() {
-      return this.$store.state.monitor.isPending;
-    },
-    isPendingTimeline() {
-      return this.$store.state.monitor.isPendingTimeline;
+    type() {
+      return this.$store.state.monitor.type;
     },
     item() {
       return this.$store.state.monitor.item;
@@ -114,6 +113,25 @@ export default {
     },
     isActive() {
       return this.$store.state.monitor.isActive;
+    },
+    applyCurrentSearchFilters: {
+      get() {
+        return this.$store.state.monitor.applyCurrentSearchFilters;
+      },
+      set(val) {
+        this.$store.dispatch('monitor/SET_APPLY_CURRENT_SEARCH_FILTERS', val);
+        this.$store.dispatch('monitor/LOAD_ITEM_TIMELINE');
+      },
+    },
+    statsLabel() {
+      if (!this.itemTimelineDomain.length) {
+        return this.$t('itemStatsEmpty');
+      }
+      return this.$t('itemStats', {
+        count: this.$n(this.monitor.itemCountRelated),
+        from: this.itemTimelineDomain[0],
+        to: this.itemTimelineDomain[1],
+      });
     },
   },
   components: {
@@ -148,7 +166,12 @@ export default {
       "tabs": {
         "currentSearch": "current search",
         "selectedItem": "current selection"
-      }
+      },
+      "labels": {
+        "applyCurrentSearchFilters": "apply current search filters"
+      },
+      "itemStatsEmpty": "No results apparently",
+      "itemStats": "{count} results from {from} to {to}"
     }
   }
 </i18n>
