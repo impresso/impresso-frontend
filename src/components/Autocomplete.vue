@@ -24,20 +24,27 @@
           </div>
         </div>
       </div>
+      <div class="suggestion-box border-bottom" v-if="suggestionIndex.mention">
+        <div v-for="(s, index) in suggestionIndex.mention" :key="index"
+            @click="submit(s)" @mouseover="select(s)"
+            class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
+            <div href="#" class="suggestion-entity">
+              <span v-html="s.h" />
+            </div>
+        </div>
+      </div>
       <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
         <span class="small-caps px-2 smaller">{{$t(`label.${type}.title`)}}</span>
         <div v-for="(s, index) in suggestionIndex[type]" :key="index"
             @click="submit(s)" @mouseover="select(s)"
             class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
+            <div href="#" v-if="['location', 'person'].indexOf(type) !== -1" class="suggestion-entity">
+              <span v-html="s.h" />
+            </div>
             <div href="#" v-if="['collection', 'newspaper'].indexOf(type) !== -1" class="suggestion-collection">
               <span v-html="s.item.name" />
             </div>
             <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
-              <span v-html="s.h" />
-            </div>
-            <div href="#" v-if="s.type === 'entity'" class="suggestion-entity">
-              <span v-if="s.item.type === 'person'" class="icon dripicons-user" :title="$t(s.item.type)"></span>
-              <span v-if="s.item.type === 'location'" class="icon dripicons-location" :title="$t(s.item.type)"></span>
               <span v-html="s.h" />
             </div>
             <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
@@ -83,7 +90,7 @@ export default {
       return this.$helpers.groupBy(this.suggestions, 'type');
     },
     suggestionTypes() {
-      return Object.keys(this.suggestionIndex);
+      return Object.keys(this.suggestionIndex).filter(d => d !== 'mention');
     },
   },
   methods: {

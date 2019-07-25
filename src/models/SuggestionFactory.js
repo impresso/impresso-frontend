@@ -11,9 +11,14 @@ export default {
     switch (data.type) {
       case 'person':
       case 'location':
+        return new SuggestionItem({
+          ...data,
+          type: data.type,
+        });
+      case 'mention':
         return new SuggestionMention({
           ...data,
-          type: 'entity',
+          type: 'mention',
         });
       case 'string':
       case 'title':

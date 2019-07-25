@@ -48,7 +48,7 @@
               &middot;
               <span
                 class="description text-muted small-caps"
-                :title="$t('last_edited')">{{$d(collection.lastModifiedDate, 'short')}}</span>
+                :title="$t('last_edited')">{{collection.lastModifiedDate.toString()}}</span>
             </label>
           </li>
         </ul>

@@ -162,64 +162,9 @@
       </div>
     </b-modal>
 
-    <b-modal hide-footer
-      body-class=""
-      id="embeddings"
-      ref="embeddings"
-      v-bind:title="$t('Find similar words in corpus')">
-      <b-container>
-      <form v-on:submit.stop.prevent="embeddingsOnSubmit()">
-
-        <b-row>
-          <b-col cols="9">
-            <label for="inputName">Term</label>
-            <div class="input-group">
-              <b-form-input
-                type="text"
-                class="form-control"
-                size="sm"
-                placeholder=""
-                name="inputEmbeddings"
-                v-model="inputEmbeddings" />
-              <div class="input-group-append">
-                <b-button
-                  size="sm" variant="outline-primary"
-                  v-on:click="embeddingsOnSubmit()">{{$t('Fetch !')}}
-                </b-button>
-              </div>
-            </div>
-          </b-col>
-          <b-col cols="3">
-            <label for="languageEmbeddings">Language</label>
-            <i-dropdown class="d-block"
-              name="languageEmbeddings"
-              v-on:input="embeddingsOnSubmit"
-              v-model="languageEmbeddings"
-              :options="languageEmbeddingsOptions"
-              size="sm" variant="outline-primary" />
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col class="mt-4">
-              <div v-if="embeddings[0] === '_fetching'">
-                <i-spinner class="text-center p-3" />
-              </div>
-              <div v-else-if="embeddings[0] === '_error'" class="alert alert-danger" role="alert">
-                {{embeddings[1]}}
-              </div>
-              <div v-else>
-                <a
-                  v-for="embedding in embeddings"
-                  :title="`add “${embedding}” to search query`"
-                  class="mr-2 mb-2 border px-2 d-inline-block"
-                  v-on:click="onSuggestion({query: embedding, type: 'string', context: 'include'})">
-                  {{embedding}}
-                </a>
-              </div>
-          </b-col>
-        </b-row>
-        </form>
-      </b-container>
+    <b-modal hide-footer id="embeddings" ref="embeddings"
+      v-bind:title="$t('Find words similar to ...')">
+      <embeddings-search />
     </b-modal>
 
 
@@ -270,6 +215,7 @@ import CollectionAddTo from './modules/CollectionAddTo';
 import CollectionAddToList from './modules/CollectionAddToList';
 import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
+import EmbeddingsSearch from './modules/EmbeddingsSearch';
 // const uuid = require('uuid');
 
 export default {
@@ -407,28 +353,6 @@ export default {
         return this.$store.state.search.search.filtersIndex;
       },
     },
-    languageEmbeddingsOptions: {
-      get() {
-        return [
-          { value: 'en', text: 'English' },
-          { value: 'fr', text: 'French' },
-          { value: 'de', text: 'German' },
-        ];
-      },
-    },
-    languageEmbeddings: {
-      get() {
-        return this.$store.state.embeddings.language;
-      },
-      set(languageEmbeddings) {
-        this.$store.commit('embeddings/UPDATE_LANGUAGE', languageEmbeddings);
-      },
-    },
-    embeddings: {
-      get() {
-        return this.$store.state.embeddings.embeddings;
-      },
-    },
   },
   methods: {
     nameSelectedCollectionOnShown() {
@@ -473,10 +397,6 @@ export default {
     onRemoveFilter(filter) {
       this.$store.commit('search/REMOVE_FILTER', filter);
       this.search(1);
-    },
-    embeddingsOnSubmit() {
-      this.inputEmbeddings.trim();
-      this.$store.dispatch('embeddings/FIND', this.inputEmbeddings);
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -626,6 +546,7 @@ export default {
     CollectionAddToList,
     Ellipsis,
     SearchPills,
+    EmbeddingsSearch,
   },
   mounted() {
     if (this.uuid !== undefined) {

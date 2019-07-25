@@ -7,11 +7,10 @@
             <b-form-input
               type="text"
               size="sm"
-              class="form-control"
+              class="form-control w-25"
               ref="inputE"
-              :value="lastWord(filter.q)"
+              :value="lastWord(filter)"
               name="inputEmbeddings" />
-              <div class="input-group-append">
                 <b-form-select name="languageEmbeddings"
                   v-model="languageEmbeddings"
                   :options="languageEmbeddingsOptions"
@@ -22,10 +21,11 @@
                   :options="limitEmbeddingsOptions"
                   v-on:change="embeddingsOnSubmit()"
                   size="sm" variant="outline-primary" />
-                <b-button
-                  size="sm" variant="outline-primary"
-                  v-on:click.prevent="embeddingsOnSubmit()">GO!
-                </b-button>
+                <div class="input-group-append">
+                  <b-button
+                    size="sm" variant="outline-primary"
+                    v-on:click.prevent="embeddingsOnSubmit()">GO!
+                  </b-button>
               </div>
           </b-col>
         </b-row>
@@ -37,7 +37,7 @@
               <div v-else-if="embeddings[0] === '_error'" class="alert alert-danger" role="alert">
                 {{embeddings[1]}}
               </div>
-              <div v-else style="max-height: 7em; overflow-y:scroll">
+              <div v-else class="embeddings">
                 <a
                   v-for="embedding in embeddings"
                   :title="$t('filter.add', { word: embedding })"
@@ -98,18 +98,33 @@ export default {
     },
   },
   methods: {
-    lastWord(q) {
-      return q.trim().split(' ').pop();
+    lastWord(filter) {
+      if (filter && filter.q) {
+        // q = last query string from filter
+        const q = filter.q.trim().split(' ').pop();
+        // return first word from q
+        return q.replace(/(\s|-).*/, '');
+      }
+      return '';
     },
     embeddingsOnSubmit() {
-      console.log('input:', this.$refs);
-      this.$store.dispatch('embeddings/FIND', this.$refs.inputE.$el.value);
+      this.$store.state.embeddings.embeddings = {};
+      if (this.$refs.inputE && this.$refs.inputE.$el.value !== '') {
+        this.$store.dispatch('embeddings/FIND', this.$refs.inputE.$el.value);
+      }
     },
     updateFilter(embedding) {
-      this.$store.commit('search/UPDATE_FILTER', {
-        filter: this.filter,
-        q: `${this.filter.q} ${embedding}`,
-      });
+      if (this.filter) {
+        this.$store.commit('search/UPDATE_FILTER', {
+          filter: this.filter,
+          precision: 'soft',
+          q: `${this.filter.q} ${embedding}`,
+        });
+      } else {
+        const filter = { query: embedding, type: 'string', context: 'include' };
+        this.$store.commit('search/ADD_FILTER', filter);
+        this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+      }
     },
   },
   mounted() {
@@ -119,6 +134,10 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.embeddings {
+  max-height: 20vh;
+  overflow-y:scroll;
+}
 </style>
 
 <i18n>

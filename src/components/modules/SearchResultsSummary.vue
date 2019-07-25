@@ -126,13 +126,16 @@ export default {
         mapper,
       }).join('; ');
     },
-    getPersons() {
-      const mapper = d => d.items
-        .map(item => `<span class="item">"${item.getHtmlExcerpt()}"</span>`)
+    getEntities(type) {
+      const mapper = d => d.q
+        .map((uid) => {
+          const name = uid.replace(/^aida-\d+-/, '').split('_').join(' ');
+          return `<span class="item item-${type}">${name}</span>`;
+        })
         .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
 
       return this.getFormattedSection({
-        type: 'person',
+        type,
         mapper,
       }).join('; ');
     },
@@ -187,7 +190,8 @@ export default {
             topics: this.getTopics(),
             languages: this.getBuckets('language'),
             countries: this.getBuckets('country'),
-            persons: this.getPersons(),
+            people: this.getEntities('person'),
+            locations: this.getEntities('location'),
           });
           this.$emit('onSummary', this.message);
         }
@@ -235,6 +239,8 @@ export default {
       "pubof": {
         "newspaper": "of"
       },
+      "person": "mentioning",
+      "location": "mentioning",
       "string": "containing",
       "title": "where title includes",
       "daterange": "published",
@@ -250,13 +256,15 @@ export default {
       "pubof": {
         "newspaper": "not published in"
       },
+      "person": "not mentioning",
+      "location": "not mentioning",
       "daterange": "not published",
       "collection": "not yet saved in",
       "language": "not written in",
       "country": "not printed in"
     },
     "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics}",
+    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
   "fr": {
