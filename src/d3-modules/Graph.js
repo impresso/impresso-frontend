@@ -186,7 +186,7 @@ export default class Graph extends Basic {
         .on('end', datum => this.onDragEnded(datum)));
 
     this.nodesLayer
-      .on('mouseenter', function (datum) {
+      .on('mouseenter', (datum) => {
         d3.select(this).raise();
         self.emit('node.mouseenter', datum);
       })
