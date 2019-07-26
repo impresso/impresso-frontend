@@ -2,8 +2,8 @@
   <div class="bucket">
     <b-form-checkbox v-model="isChecked">
       <span v-html="title"></span>
-      <item-selector :uid="bucket.val" :type="type"/>
       <span>({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
+      <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
     </b-form-checkbox>
   </div>
 </template>
