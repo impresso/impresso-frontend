@@ -6,17 +6,23 @@
   <div id="app-content">
     <router-view />
   </div>
+  <div id="app-monitor">
+    <monitor/>
+  </div>
 </div>
 </template>
 
 <script>
 import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
+import Monitor from './components/Monitor';
+
 
 export default {
   name: 'app',
   components: {
     TheHeader,
+    Monitor,
   },
   created() {
     // load typekit
@@ -49,6 +55,16 @@ html {
         grid-area: appcontent;
         overflow-y: auto;
         position: relative;
+    }
+
+    #app-monitor {
+      position: absolute;
+      z-index: 1001;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
 }
 select {

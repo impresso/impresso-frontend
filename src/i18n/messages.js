@@ -27,11 +27,17 @@ export default {
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
+      addToCurrentFilters: 'Add to current search filters',
     },
     filters: {
       daterange: {
         item: 'from <b>{start}</b> to <b>{end}</b>',
       },
+    },
+    types: {
+      location: 'location',
+      person: 'person',
+      human: 'human',
     },
     groupBy: {
       images: 'images',

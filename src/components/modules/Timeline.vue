@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="d3-timeline">
+  <div class="d3-timeline" ref="timeline">
     <tooltip :tooltip="tooltip">
       <slot :tooltip="tooltip">
         <div v-if="tooltip.item">
@@ -85,7 +85,7 @@ export default {
   mounted() {
     if (this.contrast) {
       this.timeline = new ContrastTimeline({
-        element: '.d3-timeline',
+        element: this.$refs.timeline,
         margin: {
           left: 10,
           right: 10,
@@ -95,7 +95,7 @@ export default {
       });
     } else {
       this.timeline = new Timeline({
-        element: '.d3-timeline',
+        element: this.$refs.timeline,
         margin: {
           left: 10,
           right: 10,
@@ -110,7 +110,6 @@ export default {
     });
 
     this.timeline.on('mousemove', (data) => {
-      console.log('moooove', data.pointer, data.mouse);
       this.moveTooltip(data);
       this.$emit('highlight', data);
     });
@@ -156,7 +155,9 @@ export default {
     },
     values: {
       immediate: false,
+      deep: true,
       handler(val) {
+        console.log('"UPDATING VALUES!!!!"', val.length);
         if (this.timeline) {
           this.timeline.update({
             data: val,
