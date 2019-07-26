@@ -12,6 +12,10 @@ export default {
       type: String,
       required: true,
     },
+    item: {
+      type: Object,
+      required: true,
+    },
     type: {
       type: String,
       required: true,
@@ -21,6 +25,7 @@ export default {
     selectItem() {
       this.$store.dispatch('monitor/SET_ITEM', {
         item: {
+          ...this.item,
           uid: this.uid,
         },
         type: this.type,
