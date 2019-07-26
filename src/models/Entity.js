@@ -23,7 +23,7 @@ export default class Entity {
   } = {}) {
     this.uid = String(uid);
     if (name.length) {
-      this.name = String(name);
+      this.name = String(name).replace(/^aida-\d+-/, '').split('_').join(' ');
     } else {
       this.name = this.uid.replace(/^aida-\d+-/, '').split('_').join(' ');
     }
