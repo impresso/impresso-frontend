@@ -119,7 +119,7 @@ export default {
     },
     ADD_FILTER(state, filter) {
       console.log('#->ADD_FILTER', filter);
-      state.search.addFilter(filter);
+      state.search.addFilter({ ...filter });
     },
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);
@@ -230,6 +230,14 @@ export default {
         console.log(err);
       }
       context.dispatch('SEARCH');
+    },
+    ADD_FILTER_TO_CURRENT_SEARCH({ state, commit, dispatch }, filter) {
+      if (!state.search.filtersIndex[filter.type]) {
+        commit('ADD_FILTER', filter);
+      } else {
+        console.log('ADD_FILTER_TO_CURRENT_SEARCH', filter);
+      }
+      dispatch('PUSH_SEARCH_PARAMS');
     },
     ADD_OR_REPLACE_FILTER(context, filter) {
       console.log('ADD_OR_REPLACE_FILTER', 'deprecated', filter);

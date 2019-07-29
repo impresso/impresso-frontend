@@ -43,6 +43,17 @@ helpers.timeline.addEmptyYears = (values) => {
   return vs;
 };
 
+helpers.timeline.fromBuckets = (buckets) => {
+  const values = buckets.map(d => ({
+    ...d,
+    w: d.count,
+    w1: 0,
+    t: parseInt(d.val, 10),
+  })).sort((a, b) => a.t - b.t);
+  // add zeroes
+  return helpers.timeline.addEmptyYears(values);
+};
+
 const Helpers = {
   install(Vue) {
     Vue.helpers = helpers;
