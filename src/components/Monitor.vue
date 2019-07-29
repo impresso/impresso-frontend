@@ -5,23 +5,31 @@
   v-on:dragend="dragend($event)"
   v-bind:style="transformStyle"
   >
-    <b-tabs pills class="border-bottom px-2 my-2">
-      <template slot="tabs">
-        <b-nav-item v-for="t in tabs" :key="t" v-on:click="switchTab(t)" :class="{'active': t === tab}">
-          <span v-html="$t(`tabs.${t}`)"/>
-        </b-nav-item>
-      </template>
-    </b-tabs>
+    <div class="d-flex my-2 align-items-center border-bottom">
+      <b-tabs pills class="px-2" style="flex-grow:1">
+        <template slot="tabs">
+          <b-nav-item v-for="t in tabs" :key="t" v-on:click="switchTab(t)" :class="{'active': t === tab}">
+            <span v-html="$t(`tabs.${t}`)"/>
+          </b-nav-item>
+        </template>
+      </b-tabs>
+      <div class="pr-3">
+        <span class="dripicons-move mr-2"/>
+        <span class="dripicons-cross" v-on:click="fadeOut"/>
+      </div>
+    </div>
+
     <div v-if="tab === 'currentSearch'" class="pt-2">
       <search-pills />
     </div>
     <div v-if="tab === 'selectedItem'" class="pt-2">
       <div v-if="isItemSelected">
         <div class="mx-2">
-          <h2>{{ item.name || item.uid }} <span class="small-caps">{{ type }}</span></h2>
-
-
-
+          <!--  title -->
+          <h2 class="mx-2">
+            <item-label :item="item" :type="type" />
+            <span class="small-caps">{{ type }}</span>
+          </h2>
           <!--  timeline vis -->
           <div v-if="itemTimelineDomain.length && !monitor.isPendingTimeline" style='position:relative'>
             <timeline class='bg-light pb-2'
@@ -52,9 +60,28 @@
           <div class="text-center m-2">
             <b-button size="sm" variant="outline-primary" @click="applyFilter">{{ $t('actions.addToCurrentFilters') }}</b-button>
           </div>
-          <wikidata-block :item="item" v-if="item.wikidataId" class="p-2"/>
-          <div v-else>
+
+          <div v-if="type === 'newspaper'" class="m-2">
+            total pages: {{ $n(item.countArticles) }} <br>
+            total issues: {{ $n(item.countIssues) }} <br>
+            total extracted articles: {{ $n(item.countArticles) }};<br>
+            first issue: <span v-if="item.firstIssue">{{ $d(item.firstIssue.date, 'short') }}</span> <br>
+            last issue: <span v-if="item.lastIssue">{{ $d(item.lastIssue.date, 'short') }}</span>
+          </div>
+
+          <div v-if="type === 'topic'" class="m-2">
             {{ item }}
+          </div>
+
+          <div v-if="['person', 'location'].indexOf(type) !== -1">
+            <wikidata-block :item="item" v-if="item.wikidataId" class="p-2"/>
+            <div class="m-2" v-else>{{ item }}</div>
+          </div>
+
+          <div class="text-center m-2" v-if="detailsUrl">
+            <router-link class="btn btn-primary btn-sm" :to="detailsUrl">
+              {{ $t('actions.more') }}
+            </router-link>
           </div>
         </div>
       </div>
@@ -68,6 +95,8 @@
 import SearchPills from './SearchPills';
 import Timeline from './modules/Timeline';
 import WikidataBlock from './modules/WikidataBlock';
+import ItemLabel from './modules/lists/ItemLabel';
+
 
 export default {
   data: () => ({
@@ -133,14 +162,30 @@ export default {
     isActive() {
       return this.$store.state.monitor.isActive;
     },
-    applyCurrentSearchFilters: {
-      get() {
-        return this.$store.state.monitor.applyCurrentSearchFilters;
-      },
-      set(val) {
-        this.$store.dispatch('monitor/SET_APPLY_CURRENT_SEARCH_FILTERS', val);
-        this.$store.dispatch('monitor/LOAD_ITEM_TIMELINE');
-      },
+    detailsUrl() {
+      if (this.type === 'newspaper') {
+        return {
+          name: 'newspaper',
+          params: {
+            newspaper_uid: this.item.uid,
+          },
+        };
+      } else if (this.type === 'topic') {
+        return {
+          name: 'topic',
+          params: {
+            topic_uid: this.item.uid,
+          },
+        };
+      } else if (this.$helpers.isEntity(this.type)) {
+        return {
+          name: 'entity',
+          params: {
+            entity_id: this.item.uid,
+          },
+        };
+      }
+      return null;
     },
     statsLabel() {
       if (!this.itemTimelineDomain.length) {
@@ -152,16 +197,27 @@ export default {
         to: this.itemTimelineDomain[1],
       });
     },
+    applyCurrentSearchFilters: {
+      get() {
+        return this.$store.state.monitor.applyCurrentSearchFilters;
+      },
+      set(val) {
+        this.$store.dispatch('monitor/SET_APPLY_CURRENT_SEARCH_FILTERS', val);
+        this.$store.dispatch('monitor/LOAD_ITEM_TIMELINE');
+      },
+    },
   },
   components: {
     SearchPills,
     Timeline,
     WikidataBlock,
+    ItemLabel,
   },
-  mounted() {
-    document.addEventListener('click', this.fadeOut);
-    document.addEventListener('touchstart', this.fadeOut);
-  },
+  // - removed: added "x" close button in component
+  // mounted() {
+  //   document.addEventListener('click', this.fadeOut);
+  //   document.addEventListener('touchstart', this.fadeOut);
+  // },
 };
 </script>
 
