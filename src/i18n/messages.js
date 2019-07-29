@@ -22,6 +22,7 @@ export default {
       and: 'and',
     },
     actions: {
+      more: 'more...',
       loading: 'loading...',
       reset: 'Reset',
       apply: 'Apply',
