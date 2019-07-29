@@ -1,24 +1,93 @@
 <template lang="html">
-  <div class="">
-    {{facetType}}
+  <div>
     <button @click="getFacets(1)" type="button" name="button">get facets</button>
-    <div v-for="(facet, index) in facets" class="border-top mx-3 py-2 mb-2">
-      <filter-facet :facet="facet"
-        store="search"
-        @submit-buckets="submitBuckets"
-        @update-filter="updateFilter"
-        @reset-filter="resetFilter"/>
+    <base-title-bar>
+      {{$t(`label.${facet.type}.title`)}}
+      <div slot="options">
+        <b-button v-show="filtered" size="sm" variant="outline-primary" @click="resetFilterType">
+          {{ $t(`actions.reset`) }}
+        </b-button>
+      </div>
+      <div slot="description">
+        <span v-if="filtered">
+          {{$t(`label.${facet.type}.filtered`)}}
+        </span>
+        <span v-else>
+          <span v-if="selectedIds.length">
+            <span v-html="$t(`label.${facet.type}.selected`, {count: selectedIds.length})" />
+            <b-button size="sm" variant="outline-primary" @click="applyFilter">
+              {{ $t(`actions.apply`) }}
+            </b-button>
+          </span>
+          <span v-else>
+            <span v-if="isLoadingResults">
+              {{ $t('actions.loading') }}
+            </span>
+            <span v-if="!isLoadingResults && !this.facet.buckets.length">
+              {{$t(`label.${facet.type}.empty`)}}
+            </span>
+            <span v-else>
+              {{$t(`label.${facet.type}.description`)}}
+            </span>
+          </span>
+        </span>
+      </div>
+    </base-title-bar>
+    <div v-for="(filter, index) in included" :key="index" class="bg-light border p-2">
+      <filter-monitor v-if='index === included.length - 1' :store="store" :filter="filter" :type="facet.type" :operators="facet.operators"
+        :items-to-add="selectedItems"
+        @filter-applied="clearSelectedItems"/>
+      <filter-monitor v-else :filter="filter" :store="store" :type="facet.type" :operators="facet.operators" />
     </div>
-    <pre>{{ facets }}</pre>
+    <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
+      <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
+    </div>
+    <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
+      :loading="isLoadingResults"
+      :bucket="bucket"
+      :type="facet.type"
+      @toggle-bucket="toggleBucket"/>
+    <pagination
+      size="sm"
+      v-bind:perPage="paginationPerPage"
+      v-bind:currentPage="paginationCurrentPage"
+      v-bind:totalRows="paginationTotalRows"
+      v-on:change="onInputPagination"
+      class="float-left small-caps" />
   </div>
 </template>
 
 <script>
-import FilterFacet from './FilterFacet';
+import 'vue-awesome/icons/times';
+import Icon from 'vue-awesome/components/Icon';
+import BaseTitleBar from './../base/BaseTitleBar';
+import FilterFacetBucket from './FilterFacetBucket';
+import FilterMonitor from './FilterMonitor';
+import Pagination from './Pagination';
 
 export default {
+  data: () => ({
+    selectedIds: [],
+    selectedItems: [],
+    operators: ['or', 'and'],
+    // showLimit: 10,
+    // exploreFacet: {},
+    paginationPerPage: 5,
+    paginationCurrentPage: 0,
+    paginationTotalRows: 0,
+  }),
   props: {
-    facetType: String,
+    store: {
+      type: String,
+      default: 'search',
+    },
+    facet: {
+      type: Object,
+    },
+    facetType: {
+      type: String,
+      default: 'person',
+    },
   },
   computed: {
     currentStore() {
@@ -27,49 +96,183 @@ export default {
       }
       return this.$store.state.search;
     },
-    facets: {
-      get() {
-        return this.currentStore.facets.filter(facet => facet.type === this.facetType);
-      },
+    isLoadingResults() {
+      return this.currentStore.isLoadingResults;
+    },
+    filtered() {
+      return this.currentStore.search.filtersIndex[this.facet.type];
+    },
+    included() {
+      if (!this.filtered) {
+        return [];
+      }
+      const included = this.currentStore.search
+        .filtersIndex[this.facet.type]
+        .filter(d => d.context !== 'exclude');
+      // enrich included filter with matching buckets.
+      included.forEach((filter) => {
+        filter.items.forEach((d, i) => {
+          const bucket = this.facet.buckets.find(b => b.val === d.uid);
+
+          if (bucket && filter.items[i]) {
+            filter.items[i].count = bucket.count;
+          }
+        });
+      });
+      return included;
+    },
+    includedIds() {
+      return this.included.reduce((acc, filter) => acc.concat(filter.qh), []);
+    },
+    excluded() {
+      if (!this.filtered) {
+        return [];
+      }
+      return this.filtered.filter(d => d.context === 'exclude');
+    },
+    /**
+     * List facet buckets NOT included in a filter
+     * @return {Array} array of buckets
+     */
+    unfiltered() {
+      if (!this.filtered || !this.included) {
+        return this.facet.buckets;
+      }
+      return this.facet.buckets.filter(b => this.includedIds.indexOf(b.val) === -1);
     },
   },
-  components: {
-    FilterFacet,
-  },
   methods: {
+    onInputPagination(page = 1) {
+      this.getFacets(page);
+    },
     getFacets(page) {
       console.log('getfacets', page);
-      // if (page !== undefined) {
-      //   this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      // }
-
-      // const facet = { type: 'person' };
-      // this.$store.commit('search/UPDATE_FACET', facet);
+      if (page !== undefined) {
+        this.paginationCurrentPage = parseInt(page, 10);
+      }
+      // this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
       this.$store.dispatch('search/LOAD_SEARCH_FACETS', {
         facets: [
-          this.facetType,
+          this.facet.type,
         ],
+        limit: this.paginationPerPage,
+        skip: this.paginationCurrentPage * this.paginationPerPage,
       }).then((e) => {
-        console.log(e, this.facets);
+        this.paginationTotalRows = this.facet.numBuckets;
+        console.log(e, this.facet);
       });
+    },
+    toggleBucket(bucket) {
+      const idx = this.selectedIds.indexOf(bucket.val);
+      if (idx !== -1 && !bucket.checked) { // remove.
+        this.selectedIds.splice(idx, 1);
+        this.selectedItems.splice(idx, 1);
+        bucket.checked = false;
+      } else if (idx === -1 && bucket.checked) { // add.
+        bucket.checked = true;
+        this.selectedIds.push(bucket.val);
+        if (bucket.item) {
+          this.selectedItems.push({
+            checked: true,
+            ...bucket.item,
+            count: bucket.count,
+          });
+        } else {
+          this.selectedItems.push(bucket);
+        }
+      } // nothing else matters
+    },
+    clearSelectedItems() {
+      this.selectedIds = [];
+      this.selectedItems = [];
+    },
+    applyFilter() {
+      console.log('submit', this.facet.type, this.selectedIds);
+      this.$emit('submit-buckets', {
+        type: this.facet.type,
+        ids: this.selectedIds,
+      });
+      this.clearSelectedItems();
     },
     updateFilter(filter) {
       this.$emit('update-filter', filter);
     },
-    resetFilter(type) {
-      this.$emit('reset-filter', type);
+    resetFilterType() {
+      this.clearSelectedItems();
+      this.$emit('reset-filter', this.facet.type);
     },
-    submitBuckets({ type, context, ids }) {
-      this.$emit('submit-facet', {
-        type,
-        context,
-        q: ids,
-        exclusive: true,
-      });
-    },
+  },
+  mounted() {
+    this.getFacets();
+  },
+  components: {
+    BaseTitleBar,
+    Icon,
+    FilterFacetBucket,
+    FilterMonitor,
+    Pagination,
   },
 };
 </script>
 
-<style lang="css" scoped>
+<style scoped lang="less">
 </style>
+<i18n>
+{
+  "en": {
+    "show-more": "Show More",
+    "explore": "Explore {type}",
+    "label": {
+      "topic": {
+        "title": "filter by topic",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if <b>one of {count} selected</b> topic applies",
+        "description": "check one or more topics to filter results",
+        "empty": "There is no topic available"
+      },
+      "person": {
+        "title": "filter by person",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if <b>one of {count} selected</b> people are mentioned",
+        "description": "check one or more topics to filter results",
+        "empty": "No person has been recognized in results"
+      },
+      "location": {
+        "title": "filter by location",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if <b>one of {count} selected</b> locations are mentioned",
+        "description": "check one or more topics to filter results",
+        "empty": "There is no location available"
+      },
+      "collection": {
+        "title": "filter by collection",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if <b>one of {count} selected</b> collection applies",
+        "description": "check one or more collection to filter results",
+        "empty": "... you haven't saved any result item in your collection"
+      },
+      "newspaper": {
+        "title": "filter by newspaper titles",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
+        "description": "check one or more newspaper to filter results",
+        "empty": "(no results)"
+      },
+      "language": {
+        "title": "filter by language of articles",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if they are written in <b>one of {count} selected</b> languages",
+        "description": "check one or more language to filter results",
+        "empty": "(no results)"
+      },
+      "country": {
+        "title": "filter by country of publication",
+        "filtered": "results are filtered when:",
+        "selected": "filter results if they are published in <b>one of {count} selected</b> countries",
+        "description": "check one or more countries to filter results",
+        "empty": "(no results)"
+      }
+    }
+  }
+}
+</i18n>

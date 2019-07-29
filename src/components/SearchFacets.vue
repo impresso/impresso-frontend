@@ -72,11 +72,21 @@
         @submit-buckets="submitBuckets"
         @update-filter="updateFilter"
         @reset-filter="resetFilter"/>
+      <b-button
+        v-html="`facet-${facet.type}`"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        @click="$bvModal.show(facet.type)" />
+      <b-modal hide-footer :id="facet.type" ref="`modal-${facet.type}`"
+        v-bind:title="`modal-${facet.type}`">
+        <facet-explorer
+          :store="store"
+          :facet="facet"
+          :facetType="facet.type"
+          @submit-buckets="submitBuckets"
+          @update-filter="updateFilter"
+          @reset-filter="resetFilter" />
+        </b-modal>
     </div>
-    <b-modal hide-footer id="facet" ref="facet"
-      v-bind:title="$t('Facets ...')">
-      <facet-explorer :facetType="facetType" />
-    </b-modal>
   </div>
 </template>
 
@@ -138,7 +148,7 @@ export default {
       end: null,
     },
     facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
-    facetType: 'not set',
+    selectedFacet: false,
   }),
   computed: {
     currentStore() {
@@ -147,6 +157,15 @@ export default {
       }
       return this.$store.state.search;
     },
+    // selectedFacet: {
+    //   get() {
+    //     if (this.currentStore.search.filters) {
+    //       return this.currentStore.search.filters;
+    //     }
+    //     return false;
+    //   },
+    // },
+
     daterangeFilters() {
       return this.currentStore.search.filters.filter(d => d.type === 'daterange');
     },
@@ -403,6 +422,7 @@ export default {
 <i18n>
   {
     "en": {
+      "explore": "Explore {type}",
       "label": {
         "timeline": {
           "articles": "publication date",

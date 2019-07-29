@@ -46,16 +46,16 @@
       :bucket="bucket"
       :type="facet.type"
       @toggle-bucket="toggleBucket"/>
-    <b-button
-      v-html="$t('explore', {type: facet.type})"
-      size="sm" variant="outline-secondary" class="mt-2 mr-1"
-      v-b-modal.facet
-      @click="$parent.facetType = facet.type" />
-    <b-button
-      v-html="$t('show-more')"
-      v-if="unfiltered.length > showLimit"
-      size="sm" variant="outline-secondary" class="mt-2"
-      @click="showLimit = showLimit === 10 ? 500 : 10" />
+      <!-- <b-button
+        v-html="$t('explore', {type: facet.type})"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        v-b-modal.facet
+        @click="onExplore(facet)" /> -->
+      <b-button
+        v-html="$t('show-more')"
+        v-if="unfiltered.length > showLimit"
+        size="sm" variant="outline-secondary" class="mt-2"
+        @click="showLimit = showLimit === 10 ? 500 : 10" />
   </div>
 </template>
 
@@ -72,6 +72,7 @@ export default {
     selectedItems: [],
     operators: ['or', 'and'],
     showLimit: 10,
+    exploreFacet: {},
   }),
   props: {
     store: {
@@ -135,6 +136,10 @@ export default {
     },
   },
   methods: {
+    // onExplore(facet) {
+    //   this.exploreFacet = facet;
+    //   console.log(this.exploreFacet);
+    // },
     toggleBucket(bucket) {
       const idx = this.selectedIds.indexOf(bucket.val);
       if (idx !== -1 && !bucket.checked) { // remove.
