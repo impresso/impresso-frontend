@@ -4,30 +4,47 @@
       <template slot="tabs">
         <b-nav-item
           href="#"
-          v-on:click="() => {}">+</b-nav-item>
+          v-on:click="addQuery">+</b-nav-item>
         <b-nav-item
+          v-for="(q, i) in queries"
+          v-bind:key="i"
           href="#"
-          v-on:click="() => {}"
-          active>Query 1</b-nav-item>
-        <b-nav-item
-          href="#"
-          v-on:click="() => {}">Query 2</b-nav-item>
+          v-on:click="selectQuery(q)"
+          v-bind:active="q.uuid === query.uuid">{{q.title}}</b-nav-item>
       </template>
     </b-tabs>
-    <div class="p-3">
-      <div v-for="i in [1,2,3,4,5,6,7,8,9,10]">
-      <h1>yo</h1>
-      <h1>yo</h1>
-      <h1>yo</h1>
-      <h1>yo</h1>
-    </div>
-    </div>
+    <query v-model="query" />
   </i-layout-section>
 </template>
 
 <script>
-  export default {
+  import Query from './Query';
 
+  export default {
+    computed: {
+      queries() {
+        return this.$store.state.queries.queries;
+      },
+      query: {
+        get() {
+          return this.$store.state.queries.query;
+        },
+        set(query) {
+          this.$store.commit('queries/select', query);
+        },
+      },
+    },
+    methods: {
+      selectQuery(query) {
+        this.query = query;
+      },
+      addQuery() {
+        this.$store.commit('queries/new');
+      },
+    },
+    components: {
+      Query,
+    },
   };
 </script>
 

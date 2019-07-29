@@ -6,6 +6,7 @@ import settings from './Settings';
 import collections from './Collections';
 import user from './User';
 import search from './Search';
+import queries from './Queries';
 import searchImages from './SearchImages';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
@@ -40,6 +41,7 @@ export default new Vuex.Store({
     entities,
     mentions,
     embeddings,
+    queries,
     monitor,
   },
   state: {

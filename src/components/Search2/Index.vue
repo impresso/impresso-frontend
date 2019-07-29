@@ -1,24 +1,44 @@
 <template>
-<i-layout id="Search2Page">
-    <i-layout-section width="400px" class="border-right">
-      <queries />
+  <i-layout id="Search2Page">
+    <i-layout-section width="400px" class="border-right" id="search-sidebar">
+      <transition name="sidebar-slide-left">
+        <pre v-if="detail">{{detail}}</pre>
+      </transition>
+      <transition name="sidebar-slide-right">
+        <queries v-if="!detail" />
+      </transition>
     </i-layout-section>
     <i-layout-section>
-      <b-tabs card content-class="d-none">
+      <b-tabs card content-class="d-none" slot="header">
         <template slot="tabs">
-          <b-nav-item v-bind:to="{ name: 'search-articles' }" active>Articles</b-nav-item>
-          <b-nav-item v-bind:to="{ name: 'search-issues' }">Issues</b-nav-item>
-          <b-nav-item v-bind:to="{ name: 'search-pages' }">Pages</b-nav-item>
-          <b-nav-item v-to="{ name: 'search' }">Senteces</b-nav-item>
+          <li class="nav-item">
+            <router-link class="nav-link" v-bind:to="{ name: 'search-articles' }" exact-active-class="active">Articles</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link" v-bind:to="{ name: 'search-issues' }" exact-active-class="active">Issues</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search-pages' }" exact-active-class="active" class="nav-link">Pages</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search-sentences' }" exact-active-class="active" class="nav-link">Senteces</router-link>
+          </li>
           <div class="pr-2 mr-2 border-right"></div>
-          <b-nav-item v-bind:to="{ name: 'search' }">Newspaper Titles</b-nav-item>
-          <b-nav-item v-bind:to="{ name: 'search' }">Entities</b-nav-item>
-          <b-nav-item v-bind:to="{ name: 'search' }">Topics</b-nav-item>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search-images' }" exact-active-class="active" class="nav-link">Images</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search-titles' }" exact-active-class="active" class="nav-link">Newspaper Titles</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search-entities' }" exact-active-class="active" class="nav-link">Entities</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'search-topics' }" exact-active-class="active" class="nav-link">Topics</router-link>
+          </li>
         </template>
       </b-tabs>
-      <keep-alive>
-        <router-view />
-      </keep-alive>
+      <router-view ref="searchComponent" />
     </i-layout-section>
   </i-layout>
 </template>
@@ -27,12 +47,53 @@
   import Queries from './Queries';
 
   export default {
+    data: () => ({
+      results: {
+        articles: {
+          total: 100,
+        },
+        issues: {
+          total: 0,
+        },
+      },
+      detail: false,
+    }),
     components: {
       Queries,
+    },
+    methods: {
+      search(payload) {
+        this.$refs.searchComponent.search(payload);
+      },
+      init() {
+      },
+    },
+    created() {
+      this.init();
     },
   };
 </script>
 
 <style lang="scss" scoped>
+#search-sidebar{
+  overflow:hidden;
+  position: relative;
+}
+.sidebar-slide-left-enter-active,
+.sidebar-slide-left-leave-active,
+.sidebar-slide-right-enter-active,
+.sidebar-slide-right-leave-active {
+  transition: transform 200ms;
+  position: absolute;
+  top:0;
+  width: 400px;
+  z-index: -1;
+}
+.sidebar-slide-left-enter, .sidebar-slide-left-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  transform: translateX(400px);
+}
 
+.sidebar-slide-right-enter, .sidebar-slide-right-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  transform: translateX(-400px);
+}
 </style>

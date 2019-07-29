@@ -5,8 +5,8 @@ import HomePage from '../components/HomePage';
 import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
 import Search2Index from '../components/Search2/Index';
-import Search2Articles from '../components/Search2/Articles';
-import Search2Issues from '../components/Search2/Issues';
+import Search2ArticlesView from '../components/Search2/ArticlesView';
+import Search2IssuesView from '../components/Search2/IssuesView';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
@@ -244,12 +244,12 @@ const router = new Router({
     component: Search2Index,
     children: [{
       path: 'articles',
-      component: Search2Articles,
+      component: Search2ArticlesView,
       name: 'search-articles',
     },
     {
       path: 'issues',
-      component: Search2Issues,
+      component: Search2IssuesView,
       name: 'search-issues',
     }],
   }],
