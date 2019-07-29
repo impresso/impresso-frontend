@@ -279,11 +279,13 @@ export default {
         },
       });
     },
-    LOAD_SEARCH_FACETS(context, facets) {
+    LOAD_SEARCH_FACETS(context, { facets, limit = 5, skip = 0 } = {}) {
       return services.searchFacets.get(facets.join(','), {
         query: {
           filters: context.getters.getSearch.getFilters(),
           group_by: context.state.groupBy,
+          limit,
+          skip,
         },
       }).then((results) => {
         results.forEach((facet) => {
@@ -322,10 +324,12 @@ export default {
           });
         });
         // launch search facets
-        context.dispatch('LOAD_SEARCH_FACETS', [
-          'person',
-          'location',
-        ]);
+        context.dispatch('LOAD_SEARCH_FACETS', {
+          facets: [
+            'person',
+            'location',
+          ],
+        });
       }).catch((err) => {
         console.error(err);
         context.commit('UPDATE_IS_LOADING', false);
