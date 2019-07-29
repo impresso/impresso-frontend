@@ -19,6 +19,7 @@ helpers.excerpt = (text, { maxWords = 15, maxChars = 300 } = {}) => {
   return `${result} [...]`;
 };
 
+helpers.isEntity = type => ['person', 'location'].indexOf(type) !== -1;
 
 helpers.timeline = {};
 

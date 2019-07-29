@@ -1,11 +1,11 @@
 import * as services from '@/services';
 import Helpers from '@/plugins/Helpers';
 import Entity from '@/models/Entity';
+import Topic from '@/models/Topic';
 
 const serviceByType = {
   person: 'entities',
   location: 'entities',
-  newspaper: 'newspaper',
 };
 
 export default {
@@ -123,6 +123,8 @@ export default {
           services[serviceByType[type]].get(item.uid).then((res) => {
             if (['location', 'person'].indexOf(type) !== -1) {
               commit('SET_ITEM', new Entity(res));
+            } else if (type === 'topic') {
+              commit('SET_ITEM', new Topic(res));
             } else {
               commit('SET_ITEM', res);
             }
