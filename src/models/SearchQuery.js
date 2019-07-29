@@ -19,11 +19,13 @@ export default class SearchQuery {
       // { type: 'isFront' },
       // { type: 'hasTextContents' },
     ],
+    title = 'Query',
   } = {}) {
     this.uuid = uuid.v4();
     this.filtersIds = [];
     this.filters = [];
     this.filtersIndex = {}; // grouped by type
+    this.title = title;
     // forEach with hash to avoid dupes
     filters.forEach(d => this.addFilter(d));
   }
