@@ -13,7 +13,7 @@
           v-bind:active="q.uuid === query.uuid">{{q.title}}</b-nav-item>
       </template>
     </b-tabs>
-    <query v-model="query" />
+    <query />
   </i-layout-section>
 </template>
 
@@ -23,14 +23,14 @@
   export default {
     computed: {
       queries() {
-        return this.$store.state.queries.queries;
+        return this.$store.getters['queries/QUERIES'];
       },
       query: {
         get() {
-          return this.$store.state.queries.query;
+          return this.$store.getters['queries/QUERY'];
         },
         set(query) {
-          this.$store.commit('queries/select', query);
+          this.$store.commit('queries/SELECT', query);
         },
       },
     },
@@ -39,7 +39,7 @@
         this.query = query;
       },
       addQuery() {
-        this.$store.commit('queries/new');
+        this.$store.commit('queries/NEW');
       },
     },
     components: {

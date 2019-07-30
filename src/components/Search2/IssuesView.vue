@@ -9,7 +9,7 @@
   export default {
     computed: {
       query() {
-        return this.$store.state.queries.query;
+        return this.$store.getters['queries/QUERY'];
       },
     },
     methods: {

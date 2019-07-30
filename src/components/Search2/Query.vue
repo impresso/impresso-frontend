@@ -22,17 +22,18 @@
   import Autocomplete from '@/components/Autocomplete';
 
   export default {
+    computed: {
+      query() {
+        return this.$store.getters['queries/QUERY'];
+      },
+    },
     methods: {
       onSuggestion(a, b, c) {
         console.log('onSuggestion', a, b, c);
       },
       onDelete() {
-        this.$store.dispatch('queries/delete', this.query);
+        this.$store.dispatch('queries/DELETE', this.query);
       },
-    },
-    props: ['query'],
-    model: {
-      prop: 'query',
     },
     components: {
       Autocomplete,
