@@ -79,8 +79,6 @@
       <b-modal hide-footer :id="facet.type" ref="`modal-${facet.type}`"
         v-bind:title="`modal-${facet.type}`">
         <facet-explorer
-          :store="store"
-          :facet="facet"
           :facetType="facet.type"
           @submit-buckets="submitBuckets"
           @update-filter="updateFilter"
