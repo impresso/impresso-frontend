@@ -41,21 +41,11 @@
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
       <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
     </div>
-    <filter-facet-bucket v-for="bucket in unfiltered.slice(0, showLimit)" :key="bucket.val"
+    <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
       :loading="isLoadingResults"
       :bucket="bucket"
       :type="facet.type"
       @toggle-bucket="toggleBucket"/>
-      <!-- <b-button
-        v-html="$t('explore', {type: facet.type})"
-        size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        v-b-modal.facet
-        @click="onExplore(facet)" /> -->
-      <b-button
-        v-html="$t('show-more')"
-        v-if="unfiltered.length > showLimit"
-        size="sm" variant="outline-secondary" class="mt-2"
-        @click="showLimit = showLimit === 10 ? 500 : 10" />
   </div>
 </template>
 
@@ -71,7 +61,6 @@ export default {
     selectedIds: [],
     selectedItems: [],
     operators: ['or', 'and'],
-    showLimit: 10,
     exploreFacet: {},
   }),
   props: {
@@ -136,10 +125,6 @@ export default {
     },
   },
   methods: {
-    // onExplore(facet) {
-    //   this.exploreFacet = facet;
-    //   console.log(this.exploreFacet);
-    // },
     toggleBucket(bucket) {
       const idx = this.selectedIds.indexOf(bucket.val);
       if (idx !== -1 && !bucket.checked) { // remove.
