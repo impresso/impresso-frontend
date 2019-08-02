@@ -59,7 +59,7 @@ html {
 
     #app-monitor {
       position: absolute;
-      z-index: 1001;
+      z-index: 1041;
       top: 0;
       left: 0;
       width: 100%;
