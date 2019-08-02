@@ -31,6 +31,7 @@ export default {
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
       addToCurrentFilters: 'Add to current search filters',
+      addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
     },
     filters: {
       daterange: {
