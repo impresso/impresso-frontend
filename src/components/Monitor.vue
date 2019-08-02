@@ -69,8 +69,13 @@
             last issue: <span v-if="item.lastIssue">{{ $d(item.lastIssue.date, 'short') }}</span>
           </div>
 
-          <div v-if="type === 'topic'" class="m-2">
-            {{ item }}
+          <div v-if="type === 'topic'" class="m-2" style="max-height: 150px; overflow: scroll">
+            <div class="d-inline-block word"  v-for="(word, idx) in item.words" :key="idx">
+              <span :style='{opacity: word.l}'>{{ word.w }}</span>
+              <!-- <span :style='{fontSize: (word.l + 0.5) + "em"}'>{{ word.w }}</span> -->
+              <!-- <span class="word-probability">{{word.p}}</span> -->
+              <span v-if="idx < item.words.length - 1">&middot;&nbsp;</span>
+            </div>
           </div>
 
           <div v-if="['person', 'location'].indexOf(type) !== -1">

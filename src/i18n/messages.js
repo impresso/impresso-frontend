@@ -11,6 +11,8 @@ export default {
         de: 'German',
         fr: 'French',
         en: 'English',
+        'n/a': 'Undefined language',
+        nl: 'Dutch',
       },
       country: {
         CH: 'Switzerland',
