@@ -1,6 +1,7 @@
 import * as services from '@/services';
+import Bucket from '@/models/Bucket';
 
-const SERVICE_BY_FACET = {
+const SERVICE_BY_FACET_TYPE = {
   person: 'entities',
   location: 'entities',
   topic: 'topics',
@@ -13,8 +14,10 @@ export default {
     orderBy: 'name',
     groupBy: 'articles',
     isLoading: false,
-    items: [],
-    searchables: Object.keys(SERVICE_BY_FACET),
+    type: '',
+    typeOptions: ['location', 'country', 'person', 'language', 'topic'],
+    buckets: [],
+    searchables: Object.keys(SERVICE_BY_FACET_TYPE),
     query: '',
     pagination: {
       perPage: 6,
@@ -24,63 +27,81 @@ export default {
   },
   getters: {},
   mutations: {
-    SET_BUCKETS(state, buckets) {
-      state.items = buckets;
-    },
     SET_IS_LOADING(state, value) {
       state.isLoading = Boolean(value);
     },
-    UPDATE_ITEMS(state, items) {
-      state.items = items;
+    SET_TYPE(state, type) {
+      state.type = type;
     },
-    // UPDATE_ORDER_BY(state, orderBy) {
-    //   state.orderBy = orderBy;
-    // },
+    UPDATE_BUCKETS(state, buckets) {
+      state.buckets = buckets;
+    },
+    UPDATE_ORDER_BY(state, orderBy) {
+      state.orderBy = orderBy;
+    },
     UPDATE_PAGINATION_CURRENT_PAGE(state, currentPage) {
       state.pagination.currentPage = parseInt(currentPage, 10);
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, totalRows) {
-      console.log('totalrows', totalRows);
       state.pagination.totalRows = parseInt(totalRows, 10);
     },
   },
   actions: {
-    LOAD_BUCKETS({ state, getters, commit }, { facet, q = '', orderBy = 'name' } = {}) {
+    CHANGE_PAGE({ commit, dispatch }, page) {
+      commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
+      dispatch('LOAD_BUCKETS');
+    },
+    CHANGE_TYPE({ commit, dispatch }, type) {
+      commit('SET_TYPE', type);
+      // When changing type, we have to reset the list of buckets
+      commit('UPDATE_BUCKETS', []);
+      commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
+      // then search again with the new params
+      dispatch('LOAD_BUCKETS');
+    },
+    LOAD_BUCKETS({ state, getters, commit }, {
+      q = '',
+      orderBy = 'name',
+    } = {}) {
       commit('SET_IS_LOADING', true);
-      console.log(facet, q, orderBy);
+      commit('UPDATE_ORDER_BY', orderBy);
+      const type = state.type;
+      console.log(type, q, orderBy, state.pagination.currentPage);
 
-      if (q && SERVICE_BY_FACET[facet]) {
-        return services[SERVICE_BY_FACET[facet]].find({
+      // if there is a service, e.g. for topics or entities
+      if (SERVICE_BY_FACET_TYPE[type]) {
+        return services[SERVICE_BY_FACET_TYPE[type]].find({
           query: {
             q,
+            page: state.pagination.currentPage,
             order_by: orderBy,
           },
         }).then((res) => {
-          console.log('Q', res);
-          commit('SET_IS_LOADING', false);
           commit('UPDATE_PAGINATION_TOTAL_ROWS', res.total);
-          commit('SET_BUCKETS', res.data);
+          commit('UPDATE_BUCKETS', res.data.map(item => new Bucket({
+            val: item.uid,
+            item,
+            type,
+          })));
         }).catch((err) => {
           console.error(err);
+        }).finally(() => {
           commit('SET_IS_LOADING', false);
         });
       }
 
-      // get all buckets by facet type
-      return services.searchFacets.get(facet, {
+      // otherwise, we just get all buckets by facet type
+      return services.searchFacets.get(type, {
         query: {
-          // filters: [],
           group_by: state.groupBy,
-          limit: state.pagination.perPage,
-          skip: (state.pagination.currentPage - 1) * state.pagination.perPage,
+          page: state.pagination.currentPage,
         },
       }).then((res) => {
-        console.log('res', res);
-        commit('SET_IS_LOADING', false);
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
-        commit('UPDATE_ITEMS', res[0].buckets);
+        commit('UPDATE_BUCKETS', res[0].buckets.map(d => new Bucket(d)));
       }).catch((err) => {
         console.error(err);
+      }).finally(() => {
         commit('SET_IS_LOADING', false);
       });
     },
