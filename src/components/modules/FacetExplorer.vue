@@ -37,6 +37,7 @@
       <b-form-checkbox v-for="bucket in buckets" :value="bucket.val" class="d-block">
         <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
         <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
+        <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
       </b-form-checkbox>
     </b-form-checkbox-group>
     <!-- Apply! -->
@@ -57,6 +58,7 @@
 import FilterFacetBucket from './FilterFacetBucket';
 import Pagination from './Pagination';
 import ItemLabel from './lists/ItemLabel';
+import ItemSelector from './ItemSelector';
 
 export default {
   data: () => ({
@@ -168,6 +170,7 @@ export default {
     FilterFacetBucket,
     Pagination,
     ItemLabel,
+    ItemSelector,
   },
 };
 </script>
