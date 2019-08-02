@@ -77,7 +77,7 @@
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
         @click="showModal(facet.type)" />
     </div>
-    <b-modal hide-footer id="facet-explorer-modal" ref="facet-explorer-modal">
+    <b-modal hide-footer hide-header id="facet-explorer-modal" ref="facet-explorer-modal">
       <facet-explorer
         :initial-type="facetExplorerType"
         @submit-buckets="submitBuckets"
