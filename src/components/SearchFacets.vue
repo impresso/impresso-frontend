@@ -75,16 +75,15 @@
       <b-button
         v-html="`facet-${facet.type}`"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        @click="$bvModal.show(facet.type)" />
-      <b-modal hide-footer :id="facet.type" ref="`modal-${facet.type}`"
-        v-bind:title="`modal-${facet.type}`">
-        <facet-explorer
-          :facetType="facet.type"
-          @submit-buckets="submitBuckets"
-          @update-filter="updateFilter"
-          @reset-filter="resetFilter" />
-        </b-modal>
+        @click="showModal(facet.type)" />
     </div>
+    <b-modal hide-footer id="facet-explorer-modal" ref="facet-explorer-modal">
+      <facet-explorer
+        :initial-type="facetExplorerType"
+        @submit-buckets="submitBuckets"
+        @update-filter="updateFilter"
+        @reset-filter="resetFilter" />
+    </b-modal>
   </div>
 </template>
 
@@ -147,6 +146,7 @@ export default {
     },
     facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
     selectedFacet: false,
+    facetExplorerType: '',
   }),
   computed: {
     currentStore() {
@@ -315,6 +315,11 @@ export default {
     },
     resetFilter(type) {
       this.$emit('reset-filter', type);
+    },
+    showModal(type) {
+      console.log('OPEN MODAL', type);
+      this.facetExplorerType = type;
+      this.$bvModal.show('facet-explorer-modal');
     },
     submitBuckets({ type, context, ids }) {
       this.$emit('submit-facet', {
