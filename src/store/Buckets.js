@@ -20,7 +20,7 @@ export default {
     searchables: Object.keys(SERVICE_BY_FACET_TYPE),
     query: '',
     pagination: {
-      perPage: 6,
+      perPage: 10,
       currentPage: 1,
       totalRows: 0,
     },
@@ -74,6 +74,7 @@ export default {
           query: {
             q,
             page: state.pagination.currentPage,
+            limit: state.pagination.perPage,
             order_by: orderBy,
           },
         }).then((res) => {
@@ -95,6 +96,7 @@ export default {
         query: {
           group_by: state.groupBy,
           page: state.pagination.currentPage,
+          limit: state.pagination.perPage,
         },
       }).then((res) => {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
