@@ -11,14 +11,13 @@ import Collection from '@/models/Collection';
 export default class Bucket {
   constructor({
     val = '',
-    count = 0,
+    count = -1,
     item = {},
     included = true,
     type = '',
   } = {}) {
     this.val = String(val);
     this.count = parseInt(count, 10);
-    this.item = item;
     this.included = included;
 
     switch (type) {
@@ -31,13 +30,15 @@ export default class Bucket {
       case 'collection':
         this.item = new Collection(item);
         break;
-      case 'language':
+      default:
         this.item = {
           uid: this.val,
         };
         break;
-      default:
-        break;
+    }
+
+    if (!val.length) {
+      throw new Error('Bucket should have a valid value "val", empty value given');
     }
   }
 }
