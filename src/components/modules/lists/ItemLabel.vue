@@ -10,9 +10,7 @@
     </div>
     <div v-if="type === 'topic'">
       <div class="d-inline-block word"  v-for="(word, idx) in item.words" :key="idx">
-        <span :style='{opacity: word.l}'>{{ word.w }} {{ word.l}}</span>
-        <!-- <span :style='{fontSize: (word.l + 0.5) + "em"}'>{{ word.w }}</span> -->
-        <!-- <span class="word-probability">{{word.p}}</span> -->
+        <span :style='{opacity: word.l}'>{{ word.w }}</span>
         <span v-if="idx < item.words.length - 1">&middot;&nbsp;</span>
       </div>
       <span class="small-caps">({{ $t(`buckets.language.${item.language}`)}})</span>
