@@ -1,5 +1,16 @@
 <template lang="html">
   <div>
+    <b-dropdown size="sm" variant="outline-primary">
+      <template slot="button-content">
+        <span v-html="$t(`switchTypes.${type}`)"/>
+      </template>
+      <b-dropdown-item
+        v-for="option in typeOptions"
+        v-bind:active="type === option"
+        v-bind:key="option"
+        v-on:click="changeType(option)"
+      ><span class="small" v-html="$t(`switchTypes.${option}`)"></span></b-dropdown-item>
+    </b-dropdown>
     <form v-on:submit.prevent="search()" class="mb-3">
       <b-input-group>
         <b-form-input
@@ -20,34 +31,24 @@
         </b-input-group-append>
       </b-input-group>
     </form>
-    <!-- {{ selectedIds }} -->
+    <span v-if='isLoading'>{{ $t('loading') }}</span>
     <!-- The Loop -->
     <b-form-checkbox-group v-model="selectedIds">
-      <b-form-checkbox v-for="bucket in buckets.items" :value="bucket.val" class="d-block">
-        <div v-if="facetType === 'topic'">
-            {{bucket.item.model}} [{{bucket.item.language}}]
-            <div v-if="bucket.item.words && bucket.item.words.length > 0">
-              <span
-                v-for="word in bucket.item.words"
-                v-if="word.p > 0.008"
-                class="small-caps"
-                :style="`opacity: ${25 * word.p}`">{{word.w}} &middot; </span>
-            </div>
-            <div v-if="bucket.item.matches" v-html="bucket.item.matches[0]" class="small" />
-          </div>
-        <div v-else>
-          {{bucket.item.name}} ({{bucket.count}}, {{bucket.countItems}})
-        </div>
+      <b-form-checkbox v-for="bucket in buckets" :value="bucket.val" class="d-block">
+        <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
+        <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
       </b-form-checkbox>
     </b-form-checkbox-group>
-    <b-button @click="applyFilter()" class="w-100 my-2 btn btn-sm btn-outline-primary">Apply</b-button>
+    <!-- Apply! -->
+    <b-button v-if='selectedIds.length' @click="applyFilter()" class="w-100 my-2 btn btn-sm btn-outline-primary"
+      v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
+    <!--  Pagination -->
     <pagination
       size="sm"
       v-if="paginationTotalRows > paginationPerPage"
-      v-bind:perPage="paginationPerPage"
-      v-bind:currentPage="paginationCurrentPage"
-      v-bind:totalRows="paginationTotalRows"
-      v-on:change="getBuckets"
+      v-model="paginationCurrentPage"
+      :perPage="paginationPerPage"
+      :totalRows="paginationTotalRows"
       class="float-left small-caps mt-3" />
   </div>
 </template>
@@ -55,6 +56,7 @@
 <script>
 import FilterFacetBucket from './FilterFacetBucket';
 import Pagination from './Pagination';
+import ItemLabel from './lists/ItemLabel';
 
 export default {
   data: () => ({
@@ -72,15 +74,25 @@ export default {
     facet: {
       type: Object,
     },
-    facetType: {
+    initialType: {
       type: String,
-      default: 'person',
+      required: true,
     },
   },
   computed: {
+    type: {
+      get() {
+        return this.$store.state.buckets.type;
+      },
+    },
+    typeOptions: {
+      get() {
+        return this.$store.state.buckets.typeOptions;
+      },
+    },
     buckets: {
       get() {
-        return this.$store.state.buckets;
+        return this.$store.state.buckets.buckets || [];
       },
     },
     isLoading: {
@@ -98,7 +110,7 @@ export default {
         return this.$store.state.buckets.pagination.currentPage;
       },
       set(val) {
-        this.$store.commit('buckets/UPDATE_PAGINATION_CURRENT_PAGE', val);
+        this.$store.dispatch('buckets/CHANGE_PAGE', val);
       },
     },
     paginationTotalRows: {
@@ -108,7 +120,7 @@ export default {
     },
     orderByOptions: {
       get() {
-        switch (this.facetType) {
+        switch (this.type) {
           case 'topic' :
             return [
               { value: 'name', text: 'Name' },
@@ -127,31 +139,16 @@ export default {
     },
   },
   methods: {
-    getBuckets(page = 1) {
-      this.paginationCurrentPage = page;
-
-      this.$store.dispatch('buckets/LOAD_BUCKETS', {
-        facet: this.facetType,
-        q: this.q,
-        orderBy: this.orderBy,
-      }).then(() => {
-        // this.buckets.items.forEach((bucket) => {
-        //   bucket.checked = this.selectedIds.includes(bucket.val);
-        // });
-        // this.$forceUpdate();
-      });
-    },
     search() {
-      this.$store.dispatch('buckets/LOAD_BUCKETS', {
-        facet: this.facetType,
-        q: this.q,
-        orderBy: this.orderBy,
-      });
+      this.$store.dispatch('buckets/CHANGE_PAGE', 1);
+    },
+    changeType(type) {
+      this.$store.dispatch('buckets/CHANGE_TYPE', type);
     },
     applyFilter() {
-      console.log('submit', this.facetType, this.selectedIds);
+      console.log('submit', this.type, this.selectedIds);
       this.$emit('submit-buckets', {
-        type: this.facetType,
+        type: this.type,
         ids: this.selectedIds,
       });
       this.clearSelectedItems();
@@ -161,15 +158,16 @@ export default {
     },
     resetFilterType() {
       this.clearSelectedItems();
-      this.$emit('reset-filter', this.facetType);
+      this.$emit('reset-filter', this.type);
     },
   },
   mounted() {
-    this.getBuckets(1);
+    this.changeType(this.initialType);
   },
   components: {
     FilterFacetBucket,
     Pagination,
+    ItemLabel,
   },
 };
 </script>
@@ -179,6 +177,14 @@ export default {
 <i18n>
 {
   "en": {
+    "switchTypes": {
+      "collection": "all collections",
+      "country": "all publication countries",
+      "language": "all languages",
+      "location": "all locations mentioned",
+      "person": "all people mentioned",
+      "topic": "all topics computed"
+    }
   }
 }
 </i18n>
