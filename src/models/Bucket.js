@@ -37,7 +37,7 @@ export default class Bucket {
         break;
     }
 
-    if (!val.length) {
+    if (!this.val.length) {
       throw new Error('Bucket should have a valid value "val", empty value given');
     }
   }
