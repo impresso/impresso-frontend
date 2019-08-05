@@ -11,6 +11,14 @@
         v-on:click="changeType(option)"
       ><span class="small" v-html="$t(`switchTypes.${option}`)"></span></b-dropdown-item>
     </b-dropdown>
+    <b-dropdown name="orderBy" :text="$t(`orderBy.${orderBy}`)" size="sm" variant="outline-primary" class="mb-3">
+      <b-dropdown-item
+        v-for="option in orderByOptions"
+        v-bind:active="orderBy === option"
+        v-bind:key="option"
+        v-on:click="changeOrder(option)"
+      ><span class="small" v-html="$t(`orderBy.${option}`)"></span></b-dropdown-item>
+    </b-dropdown>
     <form v-on:submit.prevent="search()" class="mb-3">
       <b-input-group>
         <b-form-input
@@ -19,11 +27,6 @@
         autofocus
         />
         <b-input-group-append>
-          <b-form-select name="orderBy"
-            v-model="orderBy"
-            :options="orderByOptions"
-            @change="search()"
-            size="md" variant="outline-primary" />
           <b-btn class="pt-2 pb-1 px-2"
             variant="outline-primary"
             v-on:click="search">
@@ -73,7 +76,6 @@ export default {
     selectedIds: [],
     selectedItems: [],
     operators: ['or', 'and'],
-    orderBy: 'name',
     q: '',
   }),
   props: {
@@ -128,22 +130,18 @@ export default {
         return this.$store.state.buckets.pagination.totalRows;
       },
     },
+    orderBy: {
+      get() {
+        return this.$store.state.buckets.orderBy;
+      },
+    },
     orderByOptions: {
       get() {
         switch (this.type) {
           case 'topic' :
-            return [
-              { value: 'name', text: 'Name' },
-              { value: '-name', text: '-Name' },
-              { value: 'model', text: 'model' },
-              { value: '-model', text: '-model' },
-            ];
+            return ['name', '-name', 'model', '-model'];
           default:
-            return [
-              { value: 'name', text: 'Name' },
-              { value: 'count', text: 'Count' },
-              { value: 'count-mentions', text: 'Count Mentions' },
-            ];
+            return ['name', 'count', 'count-mentions'];
         }
       },
     },
@@ -158,6 +156,9 @@ export default {
     },
     changeType(type) {
       this.$store.dispatch('buckets/CHANGE_TYPE', type);
+    },
+    changeOrder(orderBy) {
+      this.$store.dispatch('buckets/CHANGE_ORDER_BY', orderBy);
     },
     applyFilter() {
       console.log('submit', this.type, this.selectedIds);
@@ -207,6 +208,17 @@ export default {
       "location": "all locations mentioned",
       "person": "all people mentioned",
       "topic": "all topics computed"
+    },
+    "orderBy": {
+      "title": "Order by",
+      "name": "Name (a-z)",
+      "-name": "Name (z-a)",
+      "model": "Model (asc)",
+      "-model": "Model (desc)",
+      "count": "Count (most)",
+      "-count": "Count (least)",
+      "count-mentions": "Mentions (most)",
+      "-count-mentions": "Mentions (least)"
     }
   }
 }
