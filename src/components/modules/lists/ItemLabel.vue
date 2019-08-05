@@ -45,7 +45,7 @@ export default {
           t = this.item.name;
           break;
         case 'topic':
-          t = this.item.htmlExcerpt;
+          t = `<span class="small-caps">${this.item.language}</span> ${this.item.htmlExcerpt}`;
           break;
         case 'collection':
           if (this.item.name) {
