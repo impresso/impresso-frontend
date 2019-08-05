@@ -92,7 +92,7 @@
       </b-form-checkbox>
     </div>
     <div class="items-to-add" v-if="itemsToAdd.length">
-      <div v-for="item in itemsToAdd">
+      <div v-for="item in itemsToAdd" :key="item.uid">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>

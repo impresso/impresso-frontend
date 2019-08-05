@@ -17,6 +17,7 @@ import entities from './Entities';
 import mentions from './Mentions';
 import embeddings from './Embeddings';
 import monitor from './Monitor';
+import buckets from './Buckets';
 
 
 Vue.use(Vuex);
@@ -41,6 +42,7 @@ export default new Vuex.Store({
     mentions,
     embeddings,
     monitor,
+    buckets,
   },
   state: {
     processing_status: false,

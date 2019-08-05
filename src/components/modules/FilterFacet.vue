@@ -61,6 +61,7 @@ export default {
     selectedIds: [],
     selectedItems: [],
     operators: ['or', 'and'],
+    exploreFacet: {},
   }),
   props: {
     store: {
@@ -178,6 +179,8 @@ export default {
 <i18n>
 {
   "en": {
+    "show-more": "Show More",
+    "explore": "Explore {type}",
     "label": {
       "topic": {
         "title": "filter by topic",

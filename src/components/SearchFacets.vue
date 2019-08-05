@@ -72,7 +72,18 @@
         @submit-buckets="submitBuckets"
         @update-filter="updateFilter"
         @reset-filter="resetFilter"/>
+      <b-button
+        v-html="`facet-${facet.type}`"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        @click="showModal(facet.type)" />
     </div>
+    <b-modal hide-footer hide-header id="facet-explorer-modal" ref="facet-explorer-modal">
+      <facet-explorer
+        :initial-type="facetExplorerType"
+        @submit-buckets="submitBuckets"
+        @update-filter="updateFilter"
+        @reset-filter="resetFilter" />
+    </b-modal>
   </div>
 </template>
 
@@ -85,6 +96,7 @@ import FilterFacet from './modules/FilterFacet';
 import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
+import FacetExplorer from './modules/FacetExplorer';
 
 const fillYears = (initialValues = []) => {
   if (!initialValues.length) {
@@ -133,6 +145,8 @@ export default {
       end: null,
     },
     facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
+    selectedFacet: false,
+    facetExplorerType: '',
   }),
   computed: {
     currentStore() {
@@ -141,6 +155,15 @@ export default {
       }
       return this.$store.state.search;
     },
+    // selectedFacet: {
+    //   get() {
+    //     if (this.currentStore.search.filters) {
+    //       return this.currentStore.search.filters;
+    //     }
+    //     return false;
+    //   },
+    // },
+
     daterangeFilters() {
       return this.currentStore.search.filters.filter(d => d.type === 'daterange');
     },
@@ -293,6 +316,11 @@ export default {
     resetFilter(type) {
       this.$emit('reset-filter', type);
     },
+    showModal(type) {
+      console.log('OPEN MODAL', type);
+      this.facetExplorerType = type;
+      this.$bvModal.show('facet-explorer-modal');
+    },
     submitBuckets({ type, context, ids }) {
       this.$emit('submit-facet', {
         type,
@@ -358,6 +386,7 @@ export default {
     // flatPickr,
     FilterFacet,
     FilterMonitor,
+    FacetExplorer,
   },
 };
 </script>
@@ -396,6 +425,7 @@ export default {
 <i18n>
   {
     "en": {
+      "explore": "Explore {type}",
       "label": {
         "timeline": {
           "articles": "publication date",

@@ -29,7 +29,7 @@ export default {
     },
     isLoadingResults: {
       type: Boolean,
-      deafult: true,
+      default: true,
     },
   },
   computed: {
