@@ -11,6 +11,8 @@ const SERVICE_BY_FACET_TYPE = {
 export default {
   namespaced: true,
   state: {
+    q: '',
+    fq: '',
     orderBy: 'name',
     groupBy: 'articles',
     isLoading: false,
@@ -33,6 +35,10 @@ export default {
     SET_TYPE(state, type) {
       state.type = type;
     },
+    UPDATE_Q(state, q) {
+      state.q = q;
+      state.fq = q.split('*').concat(['*']).join('');
+    },
     UPDATE_BUCKETS(state, buckets) {
       state.buckets = buckets;
     },
@@ -51,6 +57,11 @@ export default {
       commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
       dispatch('LOAD_BUCKETS');
     },
+    CHANGE_Q({ commit, dispatch }, q) {
+      commit('UPDATE_Q', q);
+      commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
+      dispatch('LOAD_BUCKETS');
+    },
     CHANGE_TYPE({ commit, dispatch }, type) {
       commit('SET_TYPE', type);
       // When changing type, we have to reset the list of buckets
@@ -60,19 +71,16 @@ export default {
       dispatch('LOAD_BUCKETS');
     },
     LOAD_BUCKETS({ state, getters, commit }, {
-      q = '',
       orderBy = 'name',
     } = {}) {
       commit('SET_IS_LOADING', true);
       commit('UPDATE_ORDER_BY', orderBy);
       const type = state.type;
-      console.log(type, q, orderBy, state.pagination.currentPage);
-
       // if there is a service, e.g. for topics or entities
       if (SERVICE_BY_FACET_TYPE[type]) {
         return services[SERVICE_BY_FACET_TYPE[type]].find({
           query: {
-            q,
+            q: state.fq,
             page: state.pagination.currentPage,
             limit: state.pagination.perPage,
             order_by: orderBy,
