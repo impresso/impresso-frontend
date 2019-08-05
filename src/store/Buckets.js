@@ -64,26 +64,34 @@ export default {
     },
     CHANGE_TYPE({ commit, dispatch }, type) {
       commit('SET_TYPE', type);
+      commit('UPDATE_ORDER_BY', 'name');
       // When changing type, we have to reset the list of buckets
       commit('UPDATE_BUCKETS', []);
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
       // then search again with the new params
       dispatch('LOAD_BUCKETS');
     },
+    CHANGE_ORDER_BY({ commit, dispatch }, orderBy) {
+      console.log(orderBy);
+      commit('UPDATE_ORDER_BY', orderBy);
+      commit('UPDATE_BUCKETS', []);
+      commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
+      dispatch('LOAD_BUCKETS');
+    },
     LOAD_BUCKETS({ state, getters, commit }, {
-      orderBy = 'name',
+      filters = [],
     } = {}) {
       commit('SET_IS_LOADING', true);
-      commit('UPDATE_ORDER_BY', orderBy);
       const type = state.type;
       // if there is a service, e.g. for topics or entities
       if (SERVICE_BY_FACET_TYPE[type]) {
         return services[SERVICE_BY_FACET_TYPE[type]].find({
           query: {
             q: state.fq,
+            filters,
             page: state.pagination.currentPage,
             limit: state.pagination.perPage,
-            order_by: orderBy,
+            order_by: state.orderBy,
           },
         }).then((res) => {
           commit('UPDATE_PAGINATION_TOTAL_ROWS', res.total);
@@ -105,6 +113,7 @@ export default {
           group_by: state.groupBy,
           page: state.pagination.currentPage,
           limit: state.pagination.perPage,
+          order_by: state.orderBy,
         },
       }).then((res) => {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
