@@ -16,6 +16,7 @@
         <b-form-input
         placeholder="search for ..."
         v-model.trim="q"
+        autofocus
         />
         <b-input-group-append>
           <b-form-select name="orderBy"
