@@ -1,6 +1,6 @@
 <template lang="html">
   <div>
-    <b-dropdown size="sm" variant="outline-primary">
+    <b-dropdown size="sm" variant="outline-primary" class="mb-3">
       <template slot="button-content">
         <span v-html="$t(`switchTypes.${type}`)"/>
       </template>
@@ -31,13 +31,13 @@
         </b-input-group-append>
       </b-input-group>
     </form>
-    <span v-if='isLoading'>{{ $t('loading') }}</span>
     <!-- The Loop -->
     <b-form-checkbox-group v-model="selectedIds">
       <b-form-checkbox v-for="bucket in buckets" :value="bucket.val" class="d-block">
         <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
         <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
         <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
+
       </b-form-checkbox>
     </b-form-checkbox-group>
     <!-- Apply! -->
@@ -51,6 +51,9 @@
       :perPage="paginationPerPage"
       :totalRows="paginationTotalRows"
       class="float-left small-caps mt-3" />
+
+    <span v-if='isLoading'>{{ $t('loading') }}</span>
+
   </div>
 </template>
 
@@ -65,8 +68,8 @@ export default {
     selectedIds: [],
     selectedItems: [],
     operators: ['or', 'and'],
-    q: '',
     orderBy: 'name',
+    q: '',
   }),
   props: {
     store: {
@@ -142,7 +145,11 @@ export default {
   },
   methods: {
     search() {
-      this.$store.dispatch('buckets/CHANGE_PAGE', 1);
+      if (this.q.length) {
+        this.$store.dispatch('buckets/CHANGE_Q', this.q);
+      } else {
+        this.$store.dispatch('buckets/CHANGE_PAGE', 1);
+      }
     },
     changeType(type) {
       this.$store.dispatch('buckets/CHANGE_TYPE', type);
