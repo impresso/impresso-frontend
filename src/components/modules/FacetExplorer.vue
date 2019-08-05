@@ -31,29 +31,33 @@
         </b-input-group-append>
       </b-input-group>
     </form>
-    <!-- The Loop -->
-    <b-form-checkbox-group v-model="selectedIds">
-      <b-form-checkbox v-for="bucket in buckets" :value="bucket.val" class="d-block">
-        <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
-        <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
-        <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
-
-      </b-form-checkbox>
-    </b-form-checkbox-group>
+    <div v-if='isLoading'>
+      <i-spinner class="text-center p-3" />
+    </div>
+    <div v-else>
+      <!-- The Loop -->
+      <b-form-checkbox-group v-model="selectedIds">
+        <b-form-checkbox v-for="bucket in buckets" :value="bucket.val" class="d-block">
+          <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
+          <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
+          <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
+        </b-form-checkbox>
+      </b-form-checkbox-group>
+    </div>
     <!-- Apply! -->
     <b-button v-if='selectedIds.length' @click="applyFilter()" class="w-100 my-2 btn btn-sm btn-outline-primary"
       v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
     <!--  Pagination -->
-    <pagination
-      size="sm"
+    <div class="mt-4 pt-1" />
+    <div
       v-if="paginationTotalRows > paginationPerPage"
-      v-model="paginationCurrentPage"
-      :perPage="paginationPerPage"
-      :totalRows="paginationTotalRows"
-      class="float-left small-caps mt-3" />
-
-    <span v-if='isLoading'>{{ $t('loading') }}</span>
-
+      class="fixed-pagination-footer p-1 m-0">
+      <pagination
+        v-model="paginationCurrentPage"
+        v-bind:perPage="paginationPerPage"
+        v-bind:totalRows="paginationTotalRows"
+        align="center" />
+    </div>
   </div>
 </template>
 
@@ -183,6 +187,14 @@ export default {
 </script>
 
 <style scoped lang="less">
+.fixed-pagination-footer {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f2f2f2;
+  max-width: 100%;
+}
 </style>
 <i18n>
 {
