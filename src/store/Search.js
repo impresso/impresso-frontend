@@ -10,6 +10,7 @@ import Facet from '@/models/Facet';
 // import FilterFactory from '@/models/FilterFactory';
 import router from '../router';
 
+
 export default {
   namespaced: true,
   state: {
@@ -88,7 +89,6 @@ export default {
     // general settings
     UPDATE_SEARCH_QUERY_FILTERS(state, filters) {
       state.search.updateFilters(filters);
-      console.log('commit->UPDATE_SEARCH_QUERY_FILTERS, after:', state.search.filters);
     },
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
@@ -110,7 +110,6 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
-      console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
       state.search.enrichFilters(queryComponents);
       state.queryComponents = queryComponents.map(d => new QueryComponent(d));
     },
@@ -118,7 +117,6 @@ export default {
       state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
-      console.log('#->ADD_FILTER', filter);
       state.search.addFilter({ ...filter });
     },
     REMOVE_FILTER(state, filter) {
@@ -171,7 +169,8 @@ export default {
         facet.numBuckets = numBuckets;
         if (type === 'year') {
           // sort bucket differently
-          facet.setBuckets(buckets.sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10)));
+          const sortedBuckets = buckets.sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10));
+          facet.setBuckets(sortedBuckets);
         } else {
           facet.setBuckets(buckets);
         }
@@ -208,7 +207,7 @@ export default {
         // limit: context.state.paginationPerPage,
         o: context.state.orderBy,
       };
-      console.log('@PUSH_SEARCH_PARAMS', query);
+      console.info('@PUSH_SEARCH_PARAMS', query);
       router.push({ name: 'search', query });
     },
     PULL_SEARCH_PARAMS(context, query) {
@@ -221,13 +220,13 @@ export default {
       if (query.p && !isNaN(query.p)) {
         context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
       }
-      console.log('@PULL_SEARCH_PARAMS', query);
+      console.info('@PULL_SEARCH_PARAMS', query);
 
       // parse filters here.
       try {
         context.commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
       context.dispatch('SEARCH');
     },
@@ -235,12 +234,12 @@ export default {
       if (!state.search.filtersIndex[filter.type]) {
         commit('ADD_FILTER', filter);
       } else {
-        console.log('ADD_FILTER_TO_CURRENT_SEARCH', filter);
+        console.warn('ADD_FILTER_TO_CURRENT_SEARCH', filter);
       }
       dispatch('PUSH_SEARCH_PARAMS');
     },
     ADD_OR_REPLACE_FILTER(context, filter) {
-      console.log('ADD_OR_REPLACE_FILTER', 'deprecated', filter);
+      console.warn('ADD_OR_REPLACE_FILTER', 'deprecated', filter);
       // const index = context.state.search.filters.findIndex(item => item.type === filter.type);
       // if (index > -1) {
       //   context.commit('UPDATE_FILTER', {
@@ -265,7 +264,6 @@ export default {
     EXPORT_FROM_QUERY(context, payload) {
       // console.log(context, services.exporter.methods.create);
       const filters = payload.filters || context.getters.getSearch.getFilters();
-      console.log('filters', filters);
       return new Promise((resolve) => {
         services.exporter.create({
           description: payload.description,
@@ -312,7 +310,6 @@ export default {
         limit: context.state.paginationPerPage,
         order_by: context.state.orderBy,
       };
-      console.log('-> action:SEARCH', query);
 
       return services.search.find({
         query,
