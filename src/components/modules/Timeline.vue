@@ -60,27 +60,6 @@ export default {
     onResize() {
       this.timeline.resize();
     },
-    fillYears() {
-      if (!this.values.length) {
-        return [];
-      }
-      // add zeroes to values array. Use the current extent.
-      const values = [this.values[0]];
-
-      for (let i = 1, l = this.values.length; i < l; i += 1) {
-        // if year ...
-        const diff = this.values[i].t - this.values[i - 1].t;
-        for (let j = 1; j < diff; j += 1) {
-          values.push({
-            t: this.values[i - 1].t + j,
-            w: 0,
-            w1: 0,
-          });
-        }
-        values.push(this.values[i]);
-      }
-      return values;
-    },
   },
   mounted() {
     if (this.contrast) {
@@ -115,7 +94,13 @@ export default {
     });
 
     this.timeline.on('brushed', (data) => {
-      this.$emit('brushed', data);
+      if (this.timelineTimer) {
+        clearTimeout(this.timelineTimer);
+      }
+      this.timelineTimer = setTimeout(() => {
+        this.$emit('brushed', data);
+      }, 50);
+      this.$emit('brushing', data);
     });
 
     this.timeline.on('highlighted', (data) => {
@@ -124,7 +109,7 @@ export default {
 
     if (this.values && this.values.length) {
       this.timeline.update({
-        data: this.fillYears(),
+        data: this.values,
       });
       this.timeline.draw();
       setTimeout(this.onChangeDomain, 5000);
@@ -156,11 +141,11 @@ export default {
     values: {
       immediate: false,
       deep: true,
-      handler(val) {
-        console.log('"UPDATING VALUES!!!!"', val.length);
+      handler(data) {
+        console.info('Timeline component received data:', data.length);
         if (this.timeline) {
           this.timeline.update({
-            data: val,
+            data,
           });
           this.timeline.draw();
         }
