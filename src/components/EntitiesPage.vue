@@ -76,7 +76,6 @@ export default {
       return this.$store.dispatch('entities/LOAD_ENTITIES');
     },
     onInputPaginationList(page = 1) {
-      console.log(page);
       this.loadList(page);
     },
     getWikidataImageURL(image, { width = 60 } = {}) {
@@ -131,7 +130,6 @@ export default {
       },
       set(val) {
         this.$store.commit('entities/UPDATE_ORDER_BY', val);
-        console.log(val);
         this.loadList();
       },
     },
