@@ -91,36 +91,13 @@
 // import 'flatpickr/dist/flatpickr.css';
 // import flatPickr from 'vue-flatpickr-component';
 import Daterange from '@/models/Daterange';
+import Helpers from '@/plugins/Helpers';
 
 import FilterFacet from './modules/FilterFacet';
 import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
 import FacetExplorer from './modules/FacetExplorer';
-
-const fillYears = (initialValues = []) => {
-  if (!initialValues.length) {
-    return [];
-  }
-  // add zeroes to values array. Use the current extent.
-  const sorted = initialValues.sort((a, b) => a.t - b.t);
-
-  const values = [sorted[0]];
-
-  for (let i = 1, l = sorted.length; i < l; i += 1) {
-    // if year ...
-    const diff = sorted[i].t - sorted[i - 1].t;
-    for (let j = 1; j < diff; j += 1) {
-      values.push({
-        t: sorted[i - 1].t + j,
-        w: 0,
-        w1: 0,
-      });
-    }
-    values.push(sorted[i]);
-  }
-  return values;
-};
 
 export default {
   props: {
@@ -147,6 +124,8 @@ export default {
     facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
     selectedFacet: false,
     facetExplorerType: '',
+    daterangeSelectedIndex: 0,
+    daterangeSelectedItemIndex: 0,
   }),
   computed: {
     currentStore() {
@@ -169,6 +148,12 @@ export default {
     },
     daterangeIncluded() {
       return this.daterangeFilters.filter(d => d.context === 'include');
+    },
+    daterangeSelected() {
+      if (!this.daterangeFilters.length) {
+        return null;
+      }
+      return this.daterangeFilters[this.daterangeSelectedIndex];
     },
     startDate() {
       return new Date(`${this.startYear}-01-01`);
@@ -253,6 +238,7 @@ export default {
         if (!facet) {
           return [];
         }
+        // sort then
         const values = facet.buckets.map(d => ({
           ...d,
           w: d.count,
@@ -260,7 +246,7 @@ export default {
           t: parseInt(d.val, 10),
         }));
         // add zeroes
-        return fillYears(values);
+        return Helpers.timeline.addEmptyYears(values);
       },
     },
     facets: {
@@ -286,11 +272,29 @@ export default {
   },
   methods: {
     onTimelineBrushed(data) {
+      let changed = false;
       if (this.startDaterange !== data.minValue) {
+        changed = true;
         this.startDaterange = data.minValue;
       }
       if (this.endDaterange !== data.maxValue) {
+        changed = true;
         this.endDaterange = data.maxValue;
+      }
+      if (!changed) {
+        return;
+      }
+      const item = new Daterange({
+        start: this.startDaterange,
+        end: this.endDaterange,
+      });
+      item.checked = true;
+      if (this.daterangeSelected) {
+        this.$store.commit(`${this.store}/UPDATE_FILTER_ITEM`, {
+          filter: this.daterangeSelected,
+          item,
+          uid: this.daterangeSelected.items[this.daterangeSelectedItemIndex].uid,
+        });
       }
     },
     addDaterangeFilter() {
