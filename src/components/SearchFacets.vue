@@ -27,7 +27,7 @@
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
             {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b> {{ groupByLabel }}
+            <b>{{ $n(tooltipScope.tooltip.item.w) }}</b> {{ groupByLabel }}
             <!-- <br />
             <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
             &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
