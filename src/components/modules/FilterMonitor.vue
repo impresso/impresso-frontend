@@ -184,7 +184,6 @@ export default {
     applyFilter() {
       this.updateFilter({});
       this.$emit('filter-applied');
-      this.$store.commit(`${this.store}/UPDATE_PAGINATION_CURRENT_PAGE`, 1);
       this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`);
     },
     updateFilter({ op, context }) {

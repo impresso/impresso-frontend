@@ -1,3 +1,4 @@
+import Entity from '@/models/Entity';
 import Topic from '@/models/Topic';
 import Newspaper from '@/models/Newspaper';
 import Collection from '@/models/Collection';
@@ -23,6 +24,10 @@ export default class Bucket {
     switch (type) {
       case 'topic':
         this.item = new Topic(item);
+        break;
+      case 'person':
+      case 'location':
+        this.item = new Entity(item);
         break;
       case 'newspaper':
         this.item = new Newspaper(item);

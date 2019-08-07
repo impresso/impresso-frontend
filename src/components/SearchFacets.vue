@@ -73,7 +73,8 @@
         @update-filter="updateFilter"
         @reset-filter="resetFilter"/>
       <b-button
-        v-html="`facet-${facet.type}`"
+        v-if="facet.numBuckets > -1"
+        v-html="$t('actions.viewAll')"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
         @click="showModal(facet.type)" />
     </div>
@@ -429,7 +430,6 @@ export default {
 <i18n>
   {
     "en": {
-      "explore": "Explore {type}",
       "label": {
         "timeline": {
           "articles": "publication date",
