@@ -22,7 +22,7 @@
     <form v-on:submit.prevent="search()" class="mb-3">
       <b-input-group>
         <b-form-input
-        placeholder="search for ..."
+        :placeholder="$t('Filter_n_results', { n: paginationTotalRows })"
         v-model.trim="q"
         autofocus
         />
@@ -208,10 +208,12 @@ export default {
 <i18n>
 {
   "en": {
+    "Filter_n_results": "Filter {n} results",
     "num_results": "Found {n} results",
     "switchTypes": {
       "collection": "all collections",
       "country": "all publication countries",
+      "newspaper": "all newspapers",
       "language": "all languages",
       "location": "all locations mentioned",
       "person": "all people mentioned",
