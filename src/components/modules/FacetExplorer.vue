@@ -35,12 +35,15 @@
         </b-input-group-append>
       </b-input-group>
     </form>
-    <div v-if='isLoading'>
-      <i-spinner class="text-center p-3" />
-    </div>
-    <div v-else>
+    <div>
       <!-- The Loop -->
-      <b-form-checkbox-group v-model="selectedIds">
+      <b-form-checkbox-group v-model="selectedIds" class="position-relative" style="min-height: 4em;">
+        <div
+          v-if='isLoading'
+          class="position-absolute w-100 h-100"
+          style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
+          <i-spinner class="text-center pt-4" />
+        </div>
         <b-form-checkbox v-for="bucket in buckets" :value="bucket.val" class="d-block">
           <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
           <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
@@ -205,7 +208,7 @@ export default {
 <i18n>
 {
   "en": {
-    "num_results": "Found {n} results.",
+    "num_results": "Found {n} results",
     "switchTypes": {
       "collection": "all collections",
       "country": "all publication countries",
