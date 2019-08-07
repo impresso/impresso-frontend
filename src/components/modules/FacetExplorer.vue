@@ -11,14 +11,14 @@
         v-on:click="changeType(option)"
       ><span class="small" v-html="$t(`switchTypes.${option}`)"></span></b-dropdown-item>
     </b-dropdown>
-    <b-dropdown name="orderBy" :text="$t(`orderBy.${orderBy}`)" size="sm" variant="outline-primary" class="mb-3">
+    <!-- <b-dropdown name="orderBy" :text="$t(`orderBy.${orderBy}`)" size="sm" variant="outline-primary" class="mb-3">
       <b-dropdown-item
         v-for="option in orderByOptions"
         v-bind:active="orderBy === option"
         v-bind:key="option"
         v-on:click="changeOrder(option)"
       ><span class="small" v-html="$t(`orderBy.${option}`)"></span></b-dropdown-item>
-    </b-dropdown>
+    </b-dropdown> -->
     <form v-on:submit.prevent="search()" class="mb-3">
       <b-input-group>
         <b-form-input
@@ -140,6 +140,8 @@ export default {
         switch (this.type) {
           case 'topic' :
             return ['name', '-name', 'model', '-model'];
+          case 'country' :
+            return ['date', '-date', 'relevance', '-relevance'];
           default:
             return ['name', 'count', 'count-mentions'];
         }

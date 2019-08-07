@@ -84,15 +84,20 @@ export default {
       commit('SET_IS_LOADING', true);
       const type = state.type;
       // if there is a service, e.g. for topics or entities
-      if (SERVICE_BY_FACET_TYPE[type]) {
+      if (false && SERVICE_BY_FACET_TYPE[type]) {
+        const query = {
+          filters,
+          page: state.pagination.currentPage,
+          limit: state.pagination.perPage,
+          // order_by: state.orderBy,
+        };
+
+        if (state.fq.length) {
+          query.q = state.fq;
+        }
+
         return services[SERVICE_BY_FACET_TYPE[type]].find({
-          query: {
-            q: state.fq,
-            filters,
-            page: state.pagination.currentPage,
-            limit: state.pagination.perPage,
-            order_by: state.orderBy,
-          },
+          query,
         }).then((res) => {
           commit('UPDATE_PAGINATION_TOTAL_ROWS', res.total);
           commit('UPDATE_BUCKETS', res.data.map(item => new Bucket({
@@ -113,11 +118,14 @@ export default {
           group_by: state.groupBy,
           page: state.pagination.currentPage,
           limit: state.pagination.perPage,
-          order_by: state.orderBy,
+          // order_by: state.orderBy,
         },
       }).then((res) => {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
-        commit('UPDATE_BUCKETS', res[0].buckets.map(d => new Bucket(d)));
+        commit('UPDATE_BUCKETS', res[0].buckets.map(d => new Bucket({
+          ...d,
+          type,
+        })));
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
