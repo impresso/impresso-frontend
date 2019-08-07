@@ -79,8 +79,6 @@ import ItemSelector from './ItemSelector';
 export default {
   data: () => ({
     selectedIds: [],
-    selectedItems: [],
-    operators: ['or', 'and'],
     q: '',
   }),
   props: {
@@ -173,14 +171,7 @@ export default {
         type: this.type,
         ids: this.selectedIds,
       });
-      this.clearSelectedItems();
-    },
-    updateFilter(filter) {
-      this.$emit('update-filter', filter);
-    },
-    resetFilterType() {
-      this.clearSelectedItems();
-      this.$emit('reset-filter', this.type);
+      this.selectedIds = [];
     },
   },
   mounted() {
