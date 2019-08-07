@@ -84,7 +84,7 @@ export default {
       commit('SET_IS_LOADING', true);
       const type = state.type;
       // if there is a service, e.g. for topics or entities
-      if (false && SERVICE_BY_FACET_TYPE[type]) {
+      if (SERVICE_BY_FACET_TYPE[type]) {
         const query = {
           filters,
           page: state.pagination.currentPage,
