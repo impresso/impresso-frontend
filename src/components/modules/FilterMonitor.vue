@@ -80,14 +80,15 @@
       </b-form-group>
     </div>
     <div v-for="item in filter.items" :key="item.uid" class="mt-2">
-      <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
+      <div v-if="type === 'daterange'">
+        <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
+      </div>
+      <b-form-checkbox v-else v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
-        <div v-if="type === 'daterange'">
-          <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
-        </div>
+
         <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </b-form-checkbox>
     </div>

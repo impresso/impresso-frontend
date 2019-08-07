@@ -141,13 +141,19 @@ export default class SearchQuery {
     }
   }
 
+  /**
+   * Get filters as query. Return a concatenation of
+   * filters to be put in a querystring
+   * @param  {Array}  [exclude=[]] specify which types to exclude
+   * @return {[type]}              [description]
+   */
   getFilters(exclude = []) {
-    // const types = this.filters.map(d => d.type);
-    let filters = this.filters.map(filter => filter.getQuery());
-
-    filters = filters.filter(i => i);
-    filters = filters.filter(i => exclude.includes(i.type) === false);
-
+    let filters = this.filters
+      .map(filter => filter.getQuery())
+      .filter(i => i);
+    if (exclude.length) {
+      filters = filters.filter(i => exclude.includes(i.type) === false);
+    }
     return filters;
   }
 

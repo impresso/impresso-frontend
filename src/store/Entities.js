@@ -73,7 +73,6 @@ export default {
           t: bucket.val,
           w: bucket.count,
         })).sort((a, b) => parseInt(a.t, 10) - parseInt(b.t, 10));
-        console.log('LOAD_TIMELINE', Helpers.timeline.addEmptyYears(values));
         return Helpers.timeline.addEmptyYears(values);
       });
     },

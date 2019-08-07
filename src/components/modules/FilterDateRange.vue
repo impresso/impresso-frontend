@@ -62,18 +62,17 @@ export default {
           });
         }
       }
-      if (!item) {
+      // if start or end are not correct or there's nothing new, just skip
+      if (!item || this.daterange.uid === item.uid) {
         return;
       }
-      item.uid = item.getValue();
-      if (item.uid !== this.daterange.uid) {
-        item.checked = this.daterange.checked;
-        console.log('updateDaterange emit "change" \n', this.daterange.uid, '\nto:\n', item.getValue());
-        this.$emit('change', {
-          item,
-          uid: this.daterange.uid,
-        });
-      }
+      // check by default tne new item;
+      item.checked = true;
+      console.log('updateDaterange emit "change" \n', this.daterange.uid, '\nto:\n', item.uid);
+      this.$emit('change', {
+        item,
+        uid: this.daterange.uid,
+      });
     },
   },
   components: {
