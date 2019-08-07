@@ -198,37 +198,43 @@ export default {
      * Print search params to current URL
      * @param {[type]} context [description]
      */
-    PUSH_SEARCH_PARAMS(context) {
+    PUSH_SEARCH_PARAMS({ state }, { routeName = 'search' } = {}) {
       const query = {
-        f: JSON.stringify(context.state.search.getFilters()),
-        // facets: context.state.facetTypes,
-        g: context.state.groupBy,
-        p: context.state.paginationCurrentPage,
-        // limit: context.state.paginationPerPage,
-        o: context.state.orderBy,
+        f: JSON.stringify(state.search.getFilters()),
+        // facets: state.facetTypes,
+        g: state.groupBy,
+        p: state.paginationCurrentPage,
+        // limit: state.paginationPerPage,
+        o: state.orderBy,
       };
       console.info('@PUSH_SEARCH_PARAMS', query);
-      router.push({ name: 'search', query });
+      router.push({ name: routeName, query });
     },
-    PULL_SEARCH_PARAMS(context, query) {
+    PULL_SEARCH_PARAMS({ commit, dispatch }, query) {
       if (query.g && ['articles'].indexOf(query.g) !== -1) {
-        context.commit('UPDATE_SEARCH_GROUP_BY', query.g);
+        commit('UPDATE_SEARCH_GROUP_BY', query.g);
       }
       if (query.o && ['-relevance', 'relevance', 'date', '-date'].indexOf(query.o) !== -1) {
-        context.commit('UPDATE_SEARCH_ORDER_BY', query.o);
+        commit('UPDATE_SEARCH_ORDER_BY', query.o);
       }
       if (query.p && !isNaN(query.p)) {
-        context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
+        commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
       }
       console.info('@PULL_SEARCH_PARAMS', query);
-
-      // parse filters here.
-      try {
-        context.commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
-      } catch (err) {
-        console.error(err);
+      if (query.f) {
+        try {
+          // try to PARSE json filters
+          commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
+        } catch (err) {
+          if (err.name === 'SyntaxError') {
+            console.warn('SyntaxError. Cannot parse query filters:', query.f);
+          } else {
+            console.error(err);
+          }
+        }
       }
-      context.dispatch('SEARCH');
+      // do search!
+      dispatch('SEARCH');
     },
     ADD_FILTER_TO_CURRENT_SEARCH({ state, commit, dispatch }, filter) {
       if (!state.search.filtersIndex[filter.type]) {
