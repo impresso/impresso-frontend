@@ -198,7 +198,10 @@ export default {
      * Print search params to current URL
      * @param {[type]} context [description]
      */
-    PUSH_SEARCH_PARAMS({ state }, { routeName = 'search' } = {}) {
+    PUSH_SEARCH_PARAMS({ state, commit }, { routeName = 'search', page = 0 } = {}) {
+      if (page > 0) {
+        commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
+      }
       const query = {
         f: JSON.stringify(state.search.getFilters()),
         // facets: state.facetTypes,
@@ -328,10 +331,10 @@ export default {
         context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
         // register facets
         facets.forEach((type) => {
-          console.log(' ... update facet', type, res.info.facets[type]);
           context.commit('UPDATE_FACET', {
             type,
             buckets: res.info.facets[type].buckets,
+            numBuckets: res.info.facets[type].numBuckets,
           });
         });
         // launch search facets
