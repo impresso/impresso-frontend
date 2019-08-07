@@ -63,6 +63,10 @@ export default {
           t = this.$t(`buckets.${this.type}.${this.item.uid}`);
           break;
       }
+
+      if (!t && this.item.uid) {
+        t = this.item.uid;
+      }
       return t;
     },
   },

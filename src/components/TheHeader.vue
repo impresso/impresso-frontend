@@ -464,7 +464,7 @@ $clr-grey-800: #c6ccd2;
     "collections": "Collections",
     "label_home": "Home",
     "label_search": "Search",
-    "label_newspapers": "Newspaper Titles",
+    "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_topics": "Topics",
     "show_all": "show all",
