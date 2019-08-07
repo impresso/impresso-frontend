@@ -52,15 +52,17 @@
     <b-button v-if='selectedIds.length' @click="applyFilter()" class="w-100 my-2 btn btn-sm btn-outline-primary"
       v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
     <!--  Pagination -->
-    <div class="mt-4 pt-1" />
+    <div class="mt-4 pt-4" />
     <div
       v-if="paginationTotalRows > paginationPerPage"
-      class="fixed-pagination-footer p-1 m-0">
+      class="fixed-pagination-footer float-left small-caps p-1 m-0">
       <pagination
         v-model="paginationCurrentPage"
         v-bind:perPage="paginationPerPage"
         v-bind:totalRows="paginationTotalRows"
-        align="center" />
+        v-bind:showDescription="false"
+         />
+      <span class="float-right" v-html="$t('num_results', { n: paginationTotalRows })" />
     </div>
   </div>
 </template>
@@ -203,6 +205,7 @@ export default {
 <i18n>
 {
   "en": {
+    "num_results": "Found {n} results.",
     "switchTypes": {
       "collection": "all collections",
       "country": "all publication countries",
