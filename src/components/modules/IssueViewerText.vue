@@ -53,17 +53,46 @@
         <b-container fluid>
           <h3>Similar Articles</h3>
           <b-row class="pb-5">
-            <b-col
-              cols="6"
-              sm="12"
-              md="6"
-              lg="4"
-              v-for="(searchResult, index) in articlesSuggestions"
-              v-bind:key="searchResult.article_uid">
-              <search-results-tiles-item
-                v-on:click="onClickArticleSuggestion(searchResult)"
-                v-model="articlesSuggestions[index]" />
-            </b-col>
+              <b-col
+                cols="12"
+                sm="12"
+                md="12"
+                lg="6"
+                style="min-height:200px; overflow:hidden"
+                v-for="(searchResult, index) in articlesSuggestions"
+                v-bind:key="searchResult.article_uid">
+                <div class="display-block w-100 h-100 border-top pt-2 my-2">
+                  <div class="mb-2">
+                    <b v-html="searchResult.title" />
+                    <small v-html="searchResult.excerpt" />
+                  </div>
+                <!-- {{searchResult}} -->
+
+                <!-- common topics start -->
+                <div>
+                  <span class="label small-caps">{{ $t("common_topics") }}</span>:
+                  <b-badge variant="none" class="p-0" v-for="(rel, i) in commonTopics(searchResult.topics)" v-bind:key="i">
+                    <router-link class="" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
+                      {{ rel.topic.getHtmlExcerpt() }} ({{ $n(rel.relevance * 100) }} %)
+                    </router-link> &mdash;
+                  </b-badge>
+                </div>
+                <!-- common topics end -->
+
+                <b-button variant="outline-secondary" size="sm" class="mt-2"
+                  v-on:click="onClickArticleSuggestion(searchResult)">
+                  View Article
+                </b-button>
+
+                <!-- <div v-for="topic in searchResult.topics" class="">
+                  {{topic.topicUid}} ({{topic.relevance}})
+                </div> -->
+                <!-- <search-results-tiles-item
+                  v-on:click="onClickArticleSuggestion(searchResult)"
+                  v-model="articlesSuggestions[index]" /> -->
+                  <!-- <pre>{{searchResult}}</pre> -->
+                </div>
+              </b-col>
           </b-row>
         </b-container>
       </i-layout-section>
@@ -111,6 +140,16 @@ export default {
     SearchResultsTilesItem,
   },
   methods: {
+    commonTopics(suggestionTopics) {
+      // console.log(t);
+      // console.log(this.topics);
+      const intersection =
+        this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid));
+
+      // const common = arrA.filter(x => (arrB.includes(el)));
+      // console.log(intersection);
+      return intersection;
+    },
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
       if (idx !== -1) {
@@ -176,7 +215,8 @@ export default {
   "en": {
     "page": "pag. {num}",
     "pages": "pp. {nums}",
-    "add_to_collection": "Add to Collection ..."
+    "add_to_collection": "Add to Collection ...",
+    "common_topics": "Topics in common"
   }
 }
 </i18n>
