@@ -79,7 +79,6 @@
                   </div>
                 <!-- {{searchResult}} -->
 
-
                 <b-button variant="outline-secondary" size="sm" class="my-2"
                   v-on:click="onClickArticleSuggestion(searchResult)">
                   View Article
@@ -90,19 +89,12 @@
                   <span class="label small-caps">{{ $t("common_topics") }}</span>:
                   <b-badge variant="none" class="p-0" v-for="(rel, i) in commonTopics(searchResult.topics)" v-bind:key="i">
                     <router-link class="" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
-                      {{ rel.topic.getHtmlExcerpt() }} ({{ $n(rel.relevance * 100) }} %)
+                      {{ rel.topic.getHtmlExcerpt() }} ({{ $n(searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100) }}%)
                     </router-link> &mdash;
                   </b-badge>
                 </div>
                 <!-- common topics end -->
 
-                <!-- <div v-for="topic in searchResult.topics" class="">
-                  {{topic.topicUid}} ({{topic.relevance}})
-                </div> -->
-                <!-- <search-results-tiles-item
-                  v-on:click="onClickArticleSuggestion(searchResult)"
-                  v-model="articlesSuggestions[index]" /> -->
-                  <!-- <pre>{{searchResult}}</pre> -->
                 </div>
               </b-col>
           </b-row>
