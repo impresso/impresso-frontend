@@ -27,7 +27,11 @@ export default {
       totalRows: 0,
     },
   },
-  getters: {},
+  getters: {
+    getCurrentSearchFilters(state, getters, rootState, rootGetter) {
+      return rootGetter['search/getSearch'].getFilters();
+    },
+  },
   mutations: {
     SET_IS_LOADING(state, value) {
       state.isLoading = Boolean(value);
@@ -67,6 +71,7 @@ export default {
       commit('UPDATE_ORDER_BY', 'name');
       // When changing type, we have to reset the list of buckets
       commit('UPDATE_BUCKETS', []);
+      commit('UPDATE_Q', '');
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
       // then search again with the new params
       dispatch('LOAD_BUCKETS');
@@ -84,7 +89,7 @@ export default {
       commit('SET_IS_LOADING', true);
       const type = state.type;
       // if there is a service, e.g. for topics or entities
-      if (SERVICE_BY_FACET_TYPE[type]) {
+      if (state.q.length > 2 && SERVICE_BY_FACET_TYPE[type]) {
         const query = {
           filters,
           page: state.pagination.currentPage,
@@ -116,9 +121,10 @@ export default {
       return services.searchFacets.get(type, {
         query: {
           group_by: state.groupBy,
+          filters: getters.getCurrentSearchFilters,
           page: state.pagination.currentPage,
           limit: state.pagination.perPage,
-          // order_by: state.orderBy,
+          order_by: '-count',
         },
       }).then((res) => {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
