@@ -308,46 +308,54 @@ export default {
         });
       });
     },
-    SEARCH(context) {
-      context.commit('UPDATE_IS_LOADING', true);
-      const facets = ['year', 'language', 'newspaper', 'type', 'country', 'collection', 'topic'];
+    SEARCH({ state, dispatch, commit, getters }) {
+      commit('UPDATE_IS_LOADING', true);
+      const facets = ['year', 'language', 'newspaper', 'type', 'country', 'topic'];
       const query = {
-        filters: context.getters.getSearch.getFilters(),
+        filters: getters.getSearch.getFilters(),
         facets,
-        group_by: context.state.groupBy,
-        page: context.state.paginationCurrentPage,
-        limit: context.state.paginationPerPage,
-        order_by: context.state.orderBy,
+        group_by: state.groupBy,
+        page: state.paginationCurrentPage,
+        limit: state.paginationPerPage,
+        order_by: state.orderBy,
       };
 
-      return services.search.find({
-        query,
-      }).then((res) => {
-        context.commit('UPDATE_IS_LOADING', false);
-        context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
-        context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-          paginationTotalRows: res.total,
-        });
-        context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
-        // register facets
-        facets.forEach((type) => {
-          context.commit('UPDATE_FACET', {
-            type,
-            buckets: res.info.facets[type].buckets,
-            numBuckets: res.info.facets[type].numBuckets,
+      return Promise.all([
+        services.search.find({
+          query,
+        }).then((res) => {
+          commit('UPDATE_IS_LOADING', false);
+          commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+          commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+            paginationTotalRows: res.total,
           });
-        });
+          commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
+          // register facets
+          facets.forEach((type) => {
+            commit('UPDATE_FACET', {
+              type,
+              buckets: res.info.facets[type].buckets,
+              numBuckets: res.info.facets[type].numBuckets,
+            });
+          });
+        }).catch((err) => {
+          console.error('ERROR in "$store.search/SEARCH" services.search:', err);
+        }).finally(() => {
+          commit('UPDATE_IS_LOADING', false);
+        }),
         // launch search facets
-        context.dispatch('LOAD_SEARCH_FACETS', {
+        dispatch('LOAD_SEARCH_FACETS', {
           facets: [
             'person',
             'location',
           ],
-        });
-      }).catch((err) => {
-        console.error(err);
-        context.commit('UPDATE_IS_LOADING', false);
-      });
+        }),
+        dispatch('LOAD_SEARCH_FACETS', {
+          facets: [
+            'collection',
+          ],
+        }),
+      ]);
     },
   },
 };
