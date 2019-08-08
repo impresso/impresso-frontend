@@ -69,6 +69,9 @@ export default {
 .bucket span{
   font-variant: normal;
 }
+.bucket label{
+  font-variant: normal;
+}
 </style>
 
 <i18n>
