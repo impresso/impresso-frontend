@@ -19,24 +19,29 @@
         v-on:click="changeOrder(option)"
       ><span class="small" v-html="$t(`orderBy.${option}`)"></span></b-dropdown-item>
     </b-dropdown> -->
-    <form v-on:submit.prevent="search()" class="mb-3">
-      <b-input-group>
-        <b-form-input
-        :placeholder="$tc('searchField.placeholder', paginationTotalRows)"
-        v-model.trim="q"
-        autofocus
-        />
-        <b-input-group-append>
-          <b-btn class="pt-2 pb-1 px-2"
-            variant="outline-primary"
-            v-on:click="search">
-            <div class="search-submit dripicons-search"></div>
-          </b-btn>
-        </b-input-group-append>
-      </b-input-group>
-    </form>
-    <div v-html="$t('numbers.results', { results: paginationTotalRows })" />
-    <div>
+    <!-- search field OR simple message -->
+    <div v-if="isTypeSearchable">
+      <form v-on:submit.prevent="search()" class="mb-3">
+        <b-input-group>
+          <b-form-input
+          :placeholder="$tc('searchField.placeholder', paginationTotalRows)"
+          v-model.trim="q"
+          autofocus
+          />
+          <b-input-group-append>
+            <b-btn class="pt-2 pb-1 px-2"
+              variant="outline-primary"
+              v-on:click="search">
+              <div class="search-submit dripicons-search"></div>
+            </b-btn>
+          </b-input-group-append>
+        </b-input-group>
+      </form>
+      <div v-html="$t('numbers.results', { results: paginationTotalRows })" />
+    </div>
+    <div v-else v-html="$tc('searchField.notAvailable', paginationTotalRows)"/>
+
+    <div class="mb-1 py-2 border-bottom">
       <!-- The Loop -->
       <b-form-checkbox-group v-model="selectedIds" class="position-relative" style="min-height: 4em;">
         <div
@@ -55,17 +60,19 @@
     <!-- Apply! -->
     <b-button v-if='selectedIds.length' @click="applyFilter()" class="w-100 my-2 btn btn-sm btn-outline-primary"
       v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
+
     <!--  Pagination -->
-    <div class="mt-4 pt-4" />
     <div
-      v-if="paginationTotalRows > paginationPerPage"
-      class="fixed-pagination-footer float-left p-1 m-0">
-      <pagination
-        v-model="paginationCurrentPage"
-        v-bind:perPage="paginationPerPage"
-        v-bind:totalRows="paginationTotalRows"
-        v-bind:showDescription="false"
-         />
+      v-if="paginationTotalRows > paginationPerPage" class="p-3">
+      <div
+        class="fixed-pagination-footer mb-2 p-1">
+        <pagination
+          v-model="paginationCurrentPage"
+          v-bind:perPage="paginationPerPage"
+          v-bind:totalRows="paginationTotalRows"
+          v-bind:showDescription="false"
+           />
+      </div>
     </div>
   </div>
 </template>
@@ -98,6 +105,11 @@ export default {
     type: {
       get() {
         return this.$store.state.buckets.type;
+      },
+    },
+    isTypeSearchable: {
+      get() {
+        return this.$store.state.buckets.searchables.includes(this.type);
       },
     },
     typeOptions: {
@@ -200,7 +212,8 @@ export default {
 {
   "en": {
     "searchField": {
-      "placeholder": "No luck!|There is only one choice...|Search one of {n} available choices"
+      "placeholder": "...|There is only one choice...|Search one of {n} available choices",
+      "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
     },
     "switchTypes": {
       "collection": "all collections",
