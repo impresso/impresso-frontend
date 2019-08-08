@@ -9,6 +9,7 @@ export default class Topic {
     // array of topicWords
     words = [],
     excerpt = [],
+    matches = [],
   } = {}, {
     highlight = '',
     quantizeRange = [0.4, 0.7, 1, 1],
