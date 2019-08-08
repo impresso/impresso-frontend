@@ -77,7 +77,6 @@ export default {
       dispatch('LOAD_BUCKETS');
     },
     CHANGE_ORDER_BY({ commit, dispatch }, orderBy) {
-      console.log(orderBy);
       commit('UPDATE_ORDER_BY', orderBy);
       commit('UPDATE_BUCKETS', []);
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
