@@ -95,10 +95,12 @@ export default {
           page: state.pagination.currentPage,
           limit: state.pagination.perPage,
           // order_by: state.orderBy,
+          q: state.fq,
         };
 
-        if (state.fq.length) {
-          query.q = state.fq;
+        if (type === 'newspaper') {
+          // newspaper uses MYSQL LIKE....
+          query.q = state.q;
         }
 
         return services[SERVICE_BY_FACET_TYPE[type]].find({
