@@ -50,7 +50,7 @@
           </div>
         </div>
         <hr>
-        <b-container fluid>
+        <b-container fluid class="px-2">
           <h3>Similar Articles</h3>
           <b-row class="pb-5">
               <b-col
@@ -62,11 +62,28 @@
                 v-for="(searchResult, index) in articlesSuggestions"
                 v-bind:key="searchResult.article_uid">
                 <div class="display-block w-100 h-100 border-top pt-2 my-2">
+                  <div class="small-caps mb-1 float-left w-100">
+                    <router-link style="opacity:0.7" :to="{ name: 'issue', params: { issue_uid: searchResult.issue.uid }}">
+                      <div style="float:left; max-width:60%; text-overflow:ellipsis; overflow:hidden; white-space: nowrap;">
+                        {{ searchResult.newspaper.name}}
+                      </div>
+                      <div style="float:right; max-width: 40%; white-space: nowrap; text-overflow:ellipsis; overflow:hidden;">
+                         &mdash; {{$d(new Date(searchResult.date), 'compact')}}
+                      </div>
+                    </router-link>
+                  </div>
+
                   <div class="mb-2">
                     <b v-html="searchResult.title" />
                     <small v-html="searchResult.excerpt" />
                   </div>
                 <!-- {{searchResult}} -->
+
+
+                <b-button variant="outline-secondary" size="sm" class="my-2"
+                  v-on:click="onClickArticleSuggestion(searchResult)">
+                  View Article
+                </b-button>
 
                 <!-- common topics start -->
                 <div>
@@ -78,11 +95,6 @@
                   </b-badge>
                 </div>
                 <!-- common topics end -->
-
-                <b-button variant="outline-secondary" size="sm" class="mt-2"
-                  v-on:click="onClickArticleSuggestion(searchResult)">
-                  View Article
-                </b-button>
 
                 <!-- <div v-for="topic in searchResult.topics" class="">
                   {{topic.topicUid}} ({{topic.relevance}})
