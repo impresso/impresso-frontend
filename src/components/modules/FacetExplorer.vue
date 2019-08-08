@@ -22,7 +22,7 @@
     <form v-on:submit.prevent="search()" class="mb-3">
       <b-input-group>
         <b-form-input
-        :placeholder="$t('Filter_n_results', { n: paginationTotalRows })"
+        :placeholder="$tc('searchField.placeholder', paginationTotalRows)"
         v-model.trim="q"
         autofocus
         />
@@ -35,6 +35,7 @@
         </b-input-group-append>
       </b-input-group>
     </form>
+    <div v-html="$t('numbers.results', { results: paginationTotalRows })" />
     <div>
       <!-- The Loop -->
       <b-form-checkbox-group v-model="selectedIds" class="position-relative" style="min-height: 4em;">
@@ -58,14 +59,13 @@
     <div class="mt-4 pt-4" />
     <div
       v-if="paginationTotalRows > paginationPerPage"
-      class="fixed-pagination-footer float-left small-caps p-1 m-0">
+      class="fixed-pagination-footer float-left p-1 m-0">
       <pagination
         v-model="paginationCurrentPage"
         v-bind:perPage="paginationPerPage"
         v-bind:totalRows="paginationTotalRows"
         v-bind:showDescription="false"
          />
-      <span class="float-right" v-html="$t('num_results', { n: paginationTotalRows })" />
     </div>
   </div>
 </template>
@@ -199,8 +199,9 @@ export default {
 <i18n>
 {
   "en": {
-    "Filter_n_results": "Filter {n} results",
-    "num_results": "Found {n} results",
+    "searchField": {
+      "placeholder": "No luck!|There is only one choice...|Search one of {n} available choices"
+    },
     "switchTypes": {
       "collection": "all collections",
       "country": "all publication countries",
