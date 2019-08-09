@@ -331,13 +331,17 @@ export default {
           });
           commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
           // register facets
-          facets.forEach((type) => {
-            commit('UPDATE_FACET', {
-              type,
-              buckets: res.info.facets[type].buckets,
-              numBuckets: res.info.facets[type].numBuckets,
+          if (res.total) {
+            facets.forEach((type) => {
+              if (res.info.facets[type]) {
+                commit('UPDATE_FACET', {
+                  type,
+                  buckets: res.info.facets[type].buckets,
+                  numBuckets: res.info.facets[type].numBuckets,
+                });
+              }
             });
-          });
+          }
         }).catch((err) => {
           console.error('ERROR in "$store.search/SEARCH" services.search:', err);
         }).finally(() => {
