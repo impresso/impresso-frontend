@@ -47,7 +47,6 @@ export default {
       return services.issues.get(uid, {}).then(issue => new Issue(issue));
     },
     LOAD_PAGE(context, uid) {
-      console.log('store/issue/LOAD_PAGE', uid);
       return Promise.all([
         services.pages.get(uid, {}).catch((err) => {
           console.error('Error in `store/issue/LOAD_PAGE` pages.get(', uid, ')', err.name);
@@ -72,80 +71,46 @@ export default {
         console.error(err);
       });
     },
-    LOAD_TABLE_OF_CONTENTS(context, uid) {
-      const tocPromise = new Promise((resolve, reject) => {
-        const q = {
-          query: {
-            filters: [{
-              type: 'hasTextContents',
-            }, {
-              type: 'issue',
-              q: uid,
-            }],
-            limit: 500,
-          },
-        };
-        services.articles.find(q)
-          .then((response) => {
-            const issue = new Issue();
-            const articles = response.data.map(article => new Article({
-              ...article,
-            }));
-
-            articles.forEach((article) => {
-              article.pages.forEach((p1) => {
-                const page = issue.pages.find(p2 => p1.uid === p2.uid);
-                if (!page) {
-                  issue.pages.push(new Page({
-                    ...p1,
-                    articles: [article],
-                  }));
-                } else {
-                  page.articles.push(article);
-                }
-              });
-            });
-
-            // sort by page number
-            issue.pages.sort((pageA, pageB) => {
-              if (pageA.num < pageB.num) {
-                return -1;
-              }
-              if (pageA.num > pageB.num) {
-                return 1;
-              }
-
-              return 0;
-            });
-
-            resolve(issue);
-          }, (error) => {
-            reject(error);
-          });
-      });
-
-      const toiPromise = new Promise((resolve, reject) => {
-        const query = {
+    LOAD_ARTICLE(context, uid) {
+      return services.articles.get(uid).then(d => new Article(d));
+    },
+    LOAD_TABLE_OF_CONTENTS(context, issueUid) {
+      const articlesPromise = services.articles.find({
+        query: {
           filters: [{
+            type: 'hasTextContents',
+          }, {
             type: 'issue',
-            q: uid,
+            q: issueUid,
           }],
           limit: 500,
-        };
+        },
+      }).then(({ data }) => data.map(d => new Article(d)));
 
-        services.images.find({ query }).then(resolve, reject);
-      });
+      const imagesPromise = services.images.find({
+        query: {
+          filters: [{
+            type: 'issue',
+            q: issueUid,
+          }],
+        },
+        limit: 500,
+      }).then(({ data }) => data);
 
-      return Promise.all([tocPromise, toiPromise]).then((values) => {
-        // merge the table of images into the table of articles
-        for (let i = 0; i < values[0].pages.length; i += 1) {
-          for (let j = 0; j < values[0].pages[i].articles.length; j += 1) {
-            values[0].pages[i].articles[j].images =
-              values[1].data.filter(image => image.article === values[0].pages[i].articles[j].uid)
-              .map(image => new Article(image));
-          }
+      return Promise.all([articlesPromise, imagesPromise]).then(([articles, images]) => {
+        if (!images.length) {
+          return articles;
         }
-        return values[0];
+        // merge the table of images into the table of articles
+        // for (let i = 0; i < values[0].pages.length; i += 1) {
+        //   for (let j = 0; j < values[0].pages[i].articles.length; j += 1) {
+        //     values[0].pages[i].articles[j].images =
+        //       values[1].data.filter(image =>
+        //       image.article === values[0].pages[i].articles[j].uid)
+        //       .map(image => new Article(image));
+        //   }
+        // }
+        return articles;
       });
     },
   },
