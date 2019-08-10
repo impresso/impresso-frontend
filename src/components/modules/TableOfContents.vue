@@ -97,13 +97,13 @@
 </template>
 
 <script>
-import Issue from '@/models/Issue';
 import CollectionAddTo from './CollectionAddTo';
 
 export default {
   props: {
     tableOfContents: {
-      default: new Issue(),
+      type: Object,
+      required: true,
     },
     pageUid: {
       default: '',
