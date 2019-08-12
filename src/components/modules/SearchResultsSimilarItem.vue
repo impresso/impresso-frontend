@@ -36,10 +36,8 @@
         v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
         {{ collection.name }}
       </router-link>
-      <!-- <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, searchResult)" /> -->
     </b-badge>
 
-    <!-- {{topics}} -->
     <!-- common topics start -->
     <div v-if="topics.length > 0">
       <div class="label small-caps mt-3">{{ $t("common_topics") }}</div>
