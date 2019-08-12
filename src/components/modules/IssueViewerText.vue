@@ -58,7 +58,6 @@
                 sm="12"
                 md="12"
                 lg="6"
-                style="min-height:200px; overflow:hidden"
                 v-for="(searchResult, index) in articlesSuggestions"
                 v-bind:key="searchResult.article_uid">
                 <div class="display-block w-100 h-100 border-top pt-2 my-2">
@@ -79,14 +78,29 @@
                   </div>
                 <!-- {{searchResult}} -->
 
-                <b-button variant="outline-secondary" size="sm" class="my-2"
+                <b-button variant="outline-secondary" size="sm"
                   v-on:click="onClickArticleSuggestion(searchResult)">
-                  View Article
+                  {{$t('view')}}
                 </b-button>
+
+                <!-- collections -->
+                <collection-add-to :item="searchResult" :text="$t('add_to_collection')" />
+                <b-badge
+                  v-for="(collection, i) in searchResult.collections"
+                  v-bind:key="i"
+                  variant="info"
+                  class="mt-1 mr-1">
+                  <router-link
+                    class="text-white"
+                    v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+                    {{ collection.name }}
+                  </router-link>
+                  <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, searchResult)" />
+                </b-badge>
 
                 <!-- common topics start -->
                 <div>
-                  <span class="label small-caps">{{ $t("common_topics") }}</span>:
+                  <div class="label small-caps mt-3">{{ $t("common_topics") }}</div>
                   <b-badge variant="none" class="p-0" v-for="(rel, i) in commonTopics(searchResult.topics)" v-bind:key="i">
                     <router-link class="" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
                       {{ rel.topic.getHtmlExcerpt() }} ({{ $n(searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100) }}%)
