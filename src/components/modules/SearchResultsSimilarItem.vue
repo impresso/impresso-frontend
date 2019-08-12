@@ -1,8 +1,8 @@
 <template lang="html">
   <!-- newspaper - issue date -->
-  <div class="display-block w-100 h-100 border-top pt-2 my-2">
-    <div class="small-caps mb-1 float-left w-100">
-      <router-link style="opacity:0.7" :to="{ name: 'issue', params: { issue_uid: searchResult.issue.uid }}">
+  <div class="similar-item display-block w-100 h-100 border-top my-2 p-1">
+    <div class="small-caps mb-0 float-left w-100">
+      <router-link class="text-muted" :to="{ name: 'issue', params: { issue_uid: searchResult.issue.uid }}">
         <div style="float:left; max-width:60%; text-overflow:ellipsis; overflow:hidden; white-space: nowrap;">
           {{ searchResult.newspaper.name}}
         </div>
@@ -18,13 +18,13 @@
       <!-- <pre class="small">{{searchResult}}</pre> -->
     </div>
 
-    <b-button variant="outline-secondary" size="sm"
+    <b-button variant="outline-secondary" size="sm" class="showOnHover"
       v-on:click="onClickArticleSuggestion(searchResult)">
       {{$t('view')}}
     </b-button>
 
     <!-- collections -->
-    <collection-add-to :item="searchResult" :text="$t('add_to_collection')" />
+    <collection-add-to :item="searchResult" :text="$t('add_to_collection')" class="showOnHover" />
     <div class="mt-1" />
     <b-badge
       v-for="(collection, i) in searchResult.collections"
@@ -49,8 +49,8 @@
         v-bind:key="`${searchResult.article_uid}_ct${i}`">
         <div class="bg-accent-secondary position-absolute"
           :style="`width:${$n(searchResult.topics[topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100)}%;
-          height:100%; top:3px; left:0; border-bottom:5px solid white; z-index:-1`" />
-        <b-badge variant="none" class="p-0"
+          height:100%; top:3px; height:calc( 100% - 5px); z-index:-1`" />
+        <b-badge variant="none" class="p-0 showOnHover position-absolute"
           <router-link class="small" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
             {{ rel.topic.getHtmlExcerpt() }}
             <span class="text-muted">({{ $n(searchResult.topics[
@@ -93,12 +93,28 @@ export default {
         },
       });
     },
-    isLoggedIn() {
-      return this.$store.state.user.userData;
-    },
   },
 };
 </script>
+
+<style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
+.similar-item {
+  transition: background-color 0.2s;
+  background-color: rgba(0,0,0,0);
+  .showOnHover {
+    transition: opacity 0.2s;
+    opacity: 0;
+  }
+}
+.similar-item:hover {
+  background-color: rgba(0,0,0,0.04);
+  .showOnHover {
+    opacity: 1;
+  }
+}
+</style>
 
 <i18n>
 {
