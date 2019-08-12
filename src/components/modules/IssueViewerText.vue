@@ -24,9 +24,12 @@
         </b-badge>
         <div class="my-3">
           <span class="label small-caps">{{ $t("topics")}}</span>:
-          <span v-for="(rel, i) in topics" v-bind:key="i">
-            <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}">
-              {{ rel.topic.getHtmlExcerpt() }} ({{ $n(rel.relevance * 100) }} %)
+          <span v-for="(rel, i) in topics" v-bind:key="i" class="position-relative">
+            <div class="bg-accent-secondary position-absolute"
+              :style="`width:${$n(rel.relevance * 100 * 4)}px;
+              top:3px; left:0; height:1em; z-index:-1`" />
+            <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}" class="small">
+              {{ rel.topic.getHtmlExcerpt() }} <span class="text-muted">({{ $n(rel.relevance * 100) }} %)</span>
             </router-link> &mdash;
           </span>
         </div>
@@ -50,7 +53,7 @@
           </div>
         </div>
         <hr>
-        <b-container fluid class="px-2">
+        <b-container fluid class="px-0">
           <h3>Similar Articles</h3>
           <b-row class="pb-5">
               <b-col
@@ -143,7 +146,7 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
 #IssueViewerText{
   overflow: none;
   height: 100%;
