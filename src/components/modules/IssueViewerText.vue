@@ -60,60 +60,9 @@
                 lg="6"
                 v-for="(searchResult, index) in articlesSuggestions"
                 v-bind:key="`${index}_ra`">
-
-                <!-- newspaper - issue date -->
-                <div class="display-block w-100 h-100 border-top pt-2 my-2">
-                  <div class="small-caps mb-1 float-left w-100">
-                    <router-link style="opacity:0.7" :to="{ name: 'issue', params: { issue_uid: searchResult.issue.uid }}">
-                      <div style="float:left; max-width:60%; text-overflow:ellipsis; overflow:hidden; white-space: nowrap;">
-                        {{ searchResult.newspaper.name}}
-                      </div>
-                      <div style="float:right; max-width: 40%; white-space: nowrap; text-overflow:ellipsis; overflow:hidden;">
-                         &mdash; {{$d(new Date(searchResult.date), 'compact')}}
-                      </div>
-                    </router-link>
-                  </div>
-
-                  <div class="mb-2">
-                    <b v-html="searchResult.title" />
-                    <small v-html="searchResult.excerpt" />
-                    <!-- <pre class="small">{{searchResult}}</pre> -->
-                  </div>
-
-                <b-button variant="outline-secondary" size="sm"
-                  v-on:click="onClickArticleSuggestion(searchResult)">
-                  {{$t('view')}}
-                </b-button>
-
-                <!-- collections -->
-                <collection-add-to :item="searchResult" :text="$t('add_to_collection')" />
-                <b-badge
-                  v-for="(collection, i) in searchResult.collections"
-                  v-bind:key="`${searchResult.article_uid}_co${i}`"
-                  variant="info"
-                  class="mt-1 mr-1">
-                  <router-link
-                    class="text-white"
-                    v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
-                    {{ collection.name }}
-                  </router-link>
-                  <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, searchResult)" />
-                </b-badge>
-
-                <!-- common topics start -->
-                <div>
-                  <div class="label small-caps mt-3">{{ $t("common_topics") }}</div>
-                  <b-badge variant="none" class="p-0"
-                    v-for="(rel, i) in commonTopics(searchResult.topics)"
-                    v-bind:key="`${searchResult.article_uid}_ct${i}`">
-                    <router-link class="" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
-                      {{ rel.topic.getHtmlExcerpt() }} ({{ $n(searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100) }}%)
-                    </router-link> &mdash;
-                  </b-badge>
-                </div>
-                <!-- common topics end -->
-
-                </div>
+                <search-results-similar-item
+                  v-bind:searchResult="searchResult"
+                  :topics="commonTopics(searchResult.topics)" />
               </b-col>
           </b-row>
         </b-container>
@@ -127,7 +76,7 @@ import { articlesSuggestions } from '@/services';
 import Article from '@/models/Article';
 import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
-import SearchResultsTilesItem from './SearchResultsTilesItem';
+import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import Ellipsis from './Ellipsis';
 
 export default {
@@ -159,18 +108,11 @@ export default {
     BaseTitleBar,
     CollectionAddTo,
     Ellipsis,
-    SearchResultsTilesItem,
+    SearchResultsSimilarItem,
   },
   methods: {
     commonTopics(suggestionTopics) {
-      // console.log(t);
-      // console.log(this.topics);
-      const intersection =
-        this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid));
-
-      // const common = arrA.filter(x => (arrB.includes(el)));
-      // console.log(intersection);
-      return intersection;
+      return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid));
     },
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
@@ -184,17 +126,6 @@ export default {
         });
       }
     },
-    onClickArticleSuggestion(searchResult) {
-      this.$router.push({
-        name: 'article',
-        params: {
-          issue_uid: searchResult.issue.uid,
-          page_number: searchResult.pages[0].num,
-          page_uid: searchResult.pages[0].uid,
-          article_uid: searchResult.uid,
-        },
-      });
-    },
   },
   watch: {
     article_uid: {
@@ -202,7 +133,7 @@ export default {
       async handler(articleUid) {
         this.article = new Article();
         this.articlesSuggestions = [];
-        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
+        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid).then();
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
         });
@@ -237,8 +168,7 @@ export default {
   "en": {
     "page": "pag. {num}",
     "pages": "pp. {nums}",
-    "add_to_collection": "Add to Collection ...",
-    "common_topics": "Topics in common"
+    "add_to_collection": "Add to Collection ..."
   }
 }
 </i18n>
