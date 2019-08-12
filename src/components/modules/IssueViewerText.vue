@@ -12,7 +12,7 @@
         <collection-add-to :item="article" :text="$t('add_to_collection')" />
         <b-badge
           v-for="(collection, i) in article.collections"
-          v-bind:key="i"
+          v-bind:key="`co_${i}`"
           variant="info"
           class="mt-1 mr-1">
           <router-link
@@ -59,7 +59,9 @@
                 md="12"
                 lg="6"
                 v-for="(searchResult, index) in articlesSuggestions"
-                v-bind:key="searchResult.article_uid">
+                v-bind:key="`${index}_ra`">
+
+                <!-- newspaper - issue date -->
                 <div class="display-block w-100 h-100 border-top pt-2 my-2">
                   <div class="small-caps mb-1 float-left w-100">
                     <router-link style="opacity:0.7" :to="{ name: 'issue', params: { issue_uid: searchResult.issue.uid }}">
@@ -75,8 +77,8 @@
                   <div class="mb-2">
                     <b v-html="searchResult.title" />
                     <small v-html="searchResult.excerpt" />
+                    <!-- <pre class="small">{{searchResult}}</pre> -->
                   </div>
-                <!-- {{searchResult}} -->
 
                 <b-button variant="outline-secondary" size="sm"
                   v-on:click="onClickArticleSuggestion(searchResult)">
@@ -87,7 +89,7 @@
                 <collection-add-to :item="searchResult" :text="$t('add_to_collection')" />
                 <b-badge
                   v-for="(collection, i) in searchResult.collections"
-                  v-bind:key="i"
+                  v-bind:key="`${searchResult.article_uid}_co${i}`"
                   variant="info"
                   class="mt-1 mr-1">
                   <router-link
@@ -101,7 +103,9 @@
                 <!-- common topics start -->
                 <div>
                   <div class="label small-caps mt-3">{{ $t("common_topics") }}</div>
-                  <b-badge variant="none" class="p-0" v-for="(rel, i) in commonTopics(searchResult.topics)" v-bind:key="i">
+                  <b-badge variant="none" class="p-0"
+                    v-for="(rel, i) in commonTopics(searchResult.topics)"
+                    v-bind:key="`${searchResult.article_uid}_ct${i}`">
                     <router-link class="" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
                       {{ rel.topic.getHtmlExcerpt() }} ({{ $n(searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100) }}%)
                     </router-link> &mdash;
