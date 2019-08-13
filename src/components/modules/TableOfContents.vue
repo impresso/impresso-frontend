@@ -6,7 +6,7 @@
           :ref="`article-${article.uid}`"
           class="border-bottom article"
           v-for="article in page.articles"
-          v-bind:class="{active: article.uid === articleUid}">
+          v-bind:class="{active: article.uid === selectedArticleUid}">
           <a
             class="p-3 clearfix"
             href="#"
@@ -100,16 +100,26 @@
 import CollectionAddTo from './CollectionAddTo';
 
 export default {
+  data: () => ({
+    selectedArticleUid: '',
+  }),
   props: {
     tableOfContents: {
       type: Object,
       required: true,
     },
-    pageUid: {
+    page: {
+      type: Object,
       default: '',
     },
-    articleUid: {
+    article: {
+      type: Object,
       default: '',
+    },
+  },
+  computed: {
+    articleUid() {
+      return this.article.uid;
     },
   },
   components: {
@@ -120,18 +130,20 @@ export default {
       return topics.sort((a, b) => b.relevance - a.relevance);
     },
     onClick(article, page) {
+      this.selectedArticleUid = article.uid;
       this.$emit('click', {
         article,
         page,
       });
     },
     scrollToActiveArticle() {
-      if (this.articleUid !== '') {
-        if (!this.$refs[`article-${this.articleUid}`]) {
-          console.error(`Cannot scrollToActiveArticle: ${this.articleUid} not ready or not found`);
+      console.log('scrollToActiveArticle uid:', this.article.uid);
+      if (this.article.uid !== '') {
+        if (!this.$refs[`article-${this.article.uid}`]) {
+          console.error(`Cannot scrollToActiveArticle: ${this.article.uid} not ready or not found`);
           return;
         }
-        const elm = this.$refs[`article-${this.articleUid}`][0];
+        const elm = this.$refs[`article-${this.article.uid}`][0];
         const parent = this.$refs.TableOfContents.parentNode;
         const elmRelativeTop = elm.offsetTop - parent.offsetTop;
         if (parent.scrollTop > elmRelativeTop ||
@@ -166,9 +178,19 @@ export default {
       return val;
     },
   },
-  watch: {
-    articleUid() {
+  mounted() {
+    if (this.article) {
+      this.selectedArticleUid = this.article.uid;
       this.scrollToActiveArticle();
+    }
+  },
+  watch: {
+    article: {
+      deep: true,
+      handler(article) {
+        this.selectedArticleUid = article.uid;
+        this.scrollToActiveArticle();
+      },
     },
     tableOfContents: {
       handler() {
