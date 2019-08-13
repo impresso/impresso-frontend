@@ -17,12 +17,15 @@
               countArticles: issue.countArticles,
             })"/>
           </div>
-          <search-pills />
+          <search-pills
+            :excluded-types="['hasTextContents', 'isFront', 'issue']"
+            @remove="onRemoveFilter"
+          />
           <b-input-group>
             <b-form-input
             placeholder="search for ..."
             v-model.trim="q"
-            v-on:input.native="search"/>
+            v-on:change.native="search"/>
           </b-input-group>
         </div>
       </div>
@@ -31,7 +34,7 @@
         :tableOfContents="issue"
         :page="page"
         :article="article"
-        @:click="loadArticle" />
+        v-on:click="gotoArticle" />
     </i-layout-section>
     <!--  page openseadragon or article -->
     <i-layout-section>
@@ -119,9 +122,8 @@ export default {
         });
         this.isTocLoaded = false;
       }
-
+      // then let's load a page: if there's none, let's take the first one (cover)
       let pageUid;
-
       if (this.$route.params.page_uid) {
         pageUid = this.$route.params.page_uid;
       } else {
@@ -133,25 +135,41 @@ export default {
           uid: pageUid,
         });
         this.currentPageIndex = this.issue.pages.findIndex(p => p.uid === this.page.uid);
-        console.info('page loaded: ', this.page, this.currentPageIndex);
+        // we reset the handler here. Why?
         await this.resetHandler();
+        // we dispatch the gotoPage to change page in openseadragon
         this.handler.$emit('dispatch', (viewer) => {
           viewer.goToPage(this.currentPageIndex);
         });
       }
-
+      // if there's a specific article, let's load it
       if (this.$route.params.article_uid) {
-        const articleUid = this.$route.params.article_uid;
-        await this.loadArticle({
-          uid: articleUid,
-        });
+        if (!this.article || this.article.uid !== this.$route.params.article_uid) {
+          this.article = await this.loadArticle({
+            uid: this.$route.params.article_uid,
+          });
+          this.selectArticle();
+        }
+      }
+
+      if (this.$route.params.image_uid) {
+        console.warn('WIP!');
       }
 
       if (!this.isTocLoaded) {
         await this.loadToC();
       }
+      // load first article (according to current page!)
+      if (!this.article) {
+        if (this.issue.pages[this.currentPageIndex].articles.length) {
+          this.article = this.issue.pages[this.currentPageIndex].articles[0];
+        } else {
+          console.warn('there is no article for the current page...?');
+        }
+      }
     },
     resetHandler() {
+      const self = this;
       this.handler.$emit('destroy');
       this.handler.$emit('init', {
         sequenceMode: true,
@@ -186,70 +204,72 @@ export default {
         });
 
         viewer.addHandler('tile-loaded', () => {
-          if (this.isLoaded === false) {
-            this.isLoaded = true;
-            this.page.articles.forEach((article) => {
-              // regions
-              article.regions.forEach((region) => {
-                const overlay = window.document.createElement('div');
+          if (self.isLoaded) { // skip
+            return;
+          }
+          console.log('@tile-loaded');
+          self.isLoaded = true;
+          self.page.articles.forEach((article) => {
+            // regions
+            article.regions.forEach((region) => {
+              const overlay = window.document.createElement('div');
 
-                overlay.setAttribute('class', 'overlay-region');
-                overlay.dataset.articleUid = article.uid;
+              overlay.setAttribute('class', 'overlay-region');
+              overlay.dataset.articleUid = article.uid;
 
-                overlay.addEventListener('mouseenter', (event) => {
-                  const articleUid = event.target.dataset.articleUid;
+              overlay.addEventListener('mouseenter', (event) => {
+                const articleUid = event.target.dataset.articleUid;
 
-                  event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
-                    item.classList.add('selected');
-                  });
+                event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+                  item.classList.add('selected');
                 });
-
-                overlay.addEventListener('click', (event) => {
-                  if (this.isDragging === false || this.isDragging === undefined) {
-                    const articleUid = event.target.dataset.articleUid;
-
-                    this.$router.push({
-                      name: 'article',
-                      params: {
-                        article_uid: articleUid,
-                      },
-                    });
-                  }
-                });
-
-                overlay.addEventListener('mouseleave', (event) => {
-                  const articleUid = event.target.dataset.articleUid;
-
-                  event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
-                    item.classList.remove('selected');
-                  });
-                });
-
-                const rect = viewer.viewport.imageToViewportRectangle(
-                  region.coords.x,
-                  region.coords.y,
-                  region.coords.w,
-                  region.coords.h);
-
-                viewer.addOverlay(overlay, rect);
               });
-              // matches
-              article.matches.forEach((match) => {
-                // console.log('match', match);
-                if (match.pageUid === article.pages[0].uid) {
-                  const overlay = {
-                    x: match.coords[0],
-                    y: match.coords[1],
-                    w: match.coords[2],
-                    h: match.coords[3],
-                    class: 'overlay-match',
-                  };
-                  this.handler.$emit('add-overlay', overlay);
+
+              overlay.addEventListener('click', (event) => {
+                if (this.isDragging === false || this.isDragging === undefined) {
+                  const articleUid = event.target.dataset.articleUid;
+
+                  this.$router.push({
+                    name: 'article',
+                    params: {
+                      article_uid: articleUid,
+                    },
+                  });
                 }
               });
+
+              overlay.addEventListener('mouseleave', (event) => {
+                const articleUid = event.target.dataset.articleUid;
+
+                event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+                  item.classList.remove('selected');
+                });
+              });
+
+              const rect = viewer.viewport.imageToViewportRectangle(
+                region.coords.x,
+                region.coords.y,
+                region.coords.w,
+                region.coords.h);
+
+              viewer.addOverlay(overlay, rect);
             });
+            // matches
+            article.matches.forEach((match) => {
+              // console.log('match', match);
+              if (match.pageUid === article.pages[0].uid) {
+                const overlay = {
+                  x: match.coords[0],
+                  y: match.coords[1],
+                  w: match.coords[2],
+                  h: match.coords[3],
+                  class: 'overlay-match',
+                };
+                this.handler.$emit('add-overlay', overlay);
+              }
+            });
+          });
             // this.selectArticle();
-          }
         });
       });
     },
@@ -263,10 +283,7 @@ export default {
     },
     loadArticle({ uid }) {
       console.info('...loading article', uid);
-      return this.$store.dispatch('issue/LOAD_ARTICLE', uid).then((article) => {
-        this.article = article;
-        // select article on page?
-      });
+      return this.$store.dispatch('issue/LOAD_ARTICLE', uid);
     },
     loadToC() {
       console.info('...loading ToC', this.issue.uid);
@@ -283,14 +300,32 @@ export default {
           this.isTocLoaded = true;
         });
     },
+    onRemoveFilter(filter) {
+      this.$store.commit('search/REMOVE_FILTER', filter);
+    },
     search() {
       console.info('IssuePage, search:', this.q);
-      // search in page using current uids in current page
+      // search in page using current uids in current page,
+      // add to current search pills filters
+      const filtersIndex = this.$store.getters['search/getSearch'].filtersIndex;
+      console.info('  has filterindex', filtersIndex);
+      if (!filtersIndex.issue) {
+        this.$store.commit('search/ADD_FILTER', {
+          type: 'issue',
+          q: this.issue.uid,
+        });
+      }
+      // if there is no issue filter, add one!
+      this.$store.commit('search/ADD_FILTER', {
+        type: 'string',
+        q: this.q,
+      });
     },
     selectArticle() {
+      const self = this;
       this.handler.$emit('dispatch', (viewer) => {
         viewer.overlaysContainer.querySelectorAll('div').forEach((overlay) => {
-          if (overlay.dataset.articleUid === this.article.uid) {
+          if (overlay.dataset.articleUid === self.article.uid) {
             overlay.classList.add('active');
           } else {
             overlay.classList.remove('active');
@@ -307,10 +342,12 @@ export default {
         },
       });
     },
-    gotoArticle(article) {
+    gotoArticle({ article }) {
+      console.info('gotoArticle:', article.uid);
       this.$router.push({
         name: 'article',
         params: {
+          issue_uid: article.issue.uid,
           article_uid: article.uid,
           page_uid: article.pages[0].uid,
         },
@@ -337,7 +374,34 @@ export default {
 };
 </script>
 
-<style lang="css">
+<style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
+// TODO: we have this classblock twice, also on SearchPage.vue
+// block is not scoped so these two interfere with eachother so they interfere
+// to be the exact same
+/// Maybe we can move this to bootpresso?
+div.overlay-region{
+  background: $clr-accent-secondary;
+  opacity: 0;
+
+  transition: opacity 300ms;
+  cursor: pointer;
+  &.selected, &.active{
+    opacity: 0.2;
+  }
+}
+
+
+@supports (mix-blend-mode: multiply) {
+	div.overlay-region {
+    mix-blend-mode: multiply;
+    &.selected, &.active{
+      opacity: 0.5;
+    }
+  }
+
+}
 </style>
 
 <i18n>
