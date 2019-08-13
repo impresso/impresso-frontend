@@ -38,21 +38,15 @@
             <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
               <b-badge
                 v-for="(collection, i) in article.collections"
-                v-bind:key="i"
+                v-bind:key="`${article.article_uid}_col${i}`"
                 variant="info"
-                class="mr-1">
-                <router-link
-                  class="text-white"
-                  v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+                class="mt-1 mr-1">
                   {{ collection.name }}
-                </router-link>
-                <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
               </b-badge>
             </div>
 
             <collection-add-to
             class="mt-2"
-              v-if="isLoggedIn()"
               v-bind:item="article"
               v-bind:text="$t('add_to_collection')" />
 
