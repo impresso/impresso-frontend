@@ -116,6 +116,8 @@ export default {
   methods: {
     commonTopics(suggestionTopics) {
       return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid));
+      // sort by master topics relevance
+      // .sort((a, b) => b.relevance - a.relevance);
     },
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
