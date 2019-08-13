@@ -239,6 +239,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+  window.previousUrl = from.path;
   if (to.meta.requiresAuth === false) {
     next();
   } else {
