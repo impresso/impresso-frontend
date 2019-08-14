@@ -12,7 +12,7 @@
         <collection-add-to :item="article" :text="$t('add_to_collection')" />
         <b-badge
           v-for="(collection, i) in article.collections"
-          v-bind:key="i"
+          v-bind:key="`co_${i}`"
           variant="info"
           class="mt-1 mr-1">
           <router-link
@@ -24,9 +24,12 @@
         </b-badge>
         <div class="my-3">
           <span class="label small-caps">{{ $t("topics")}}</span>:
-          <span v-for="(rel, i) in topics" v-bind:key="i">
-            <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}">
-              {{ rel.topic.getHtmlExcerpt() }} ({{ $n(rel.relevance * 100) }} %)
+          <span v-for="(rel, i) in topics" v-bind:key="i" class="position-relative">
+            <div class="bg-accent-secondary position-absolute"
+              :style="`width:${$n(rel.relevance * 100 * 2)}px;
+              top:3px; left:0; height:1em; z-index:-1`" />
+            <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}" class="small">
+              {{ rel.topic.getHtmlExcerpt() }} <span class="text-muted">({{ $n(rel.relevance * 100) }} %)</span>
             </router-link> &mdash;
           </span>
         </div>
@@ -50,20 +53,20 @@
           </div>
         </div>
         <hr>
-        <b-container fluid>
+        <b-container fluid class="px-0">
           <h3>Similar Articles</h3>
           <b-row class="pb-5">
-            <b-col
-              cols="6"
-              sm="12"
-              md="6"
-              lg="4"
-              v-for="(searchResult, index) in articlesSuggestions"
-              v-bind:key="searchResult.article_uid">
-              <search-results-tiles-item
-                v-on:click="onClickArticleSuggestion(searchResult)"
-                v-model="articlesSuggestions[index]" />
-            </b-col>
+              <b-col
+                cols="12"
+                sm="12"
+                md="12"
+                lg="6"
+                v-for="(searchResult, index) in articlesSuggestions"
+                v-bind:key="`${index}_ra`">
+                <search-results-similar-item
+                  v-bind:searchResult="searchResult"
+                  :topics="commonTopics(searchResult.topics)" />
+              </b-col>
           </b-row>
         </b-container>
       </i-layout-section>
@@ -76,7 +79,7 @@ import { articlesSuggestions } from '@/services';
 import Article from '@/models/Article';
 import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
-import SearchResultsTilesItem from './SearchResultsTilesItem';
+import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import Ellipsis from './Ellipsis';
 
 export default {
@@ -108,9 +111,14 @@ export default {
     BaseTitleBar,
     CollectionAddTo,
     Ellipsis,
-    SearchResultsTilesItem,
+    SearchResultsSimilarItem,
   },
   methods: {
+    commonTopics(suggestionTopics) {
+      return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid));
+      // sort by master topics relevance
+      // .sort((a, b) => b.relevance - a.relevance);
+    },
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
       if (idx !== -1) {
@@ -123,17 +131,6 @@ export default {
         });
       }
     },
-    onClickArticleSuggestion(searchResult) {
-      this.$router.push({
-        name: 'article',
-        params: {
-          issue_uid: searchResult.issue.uid,
-          page_number: searchResult.pages[0].num,
-          page_uid: searchResult.pages[0].uid,
-          article_uid: searchResult.uid,
-        },
-      });
-    },
   },
   watch: {
     article_uid: {
@@ -141,7 +138,7 @@ export default {
       async handler(articleUid) {
         this.article = new Article();
         this.articlesSuggestions = [];
-        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
+        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid).then();
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
         });
@@ -151,7 +148,7 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
 #IssueViewerText{
   overflow: none;
   height: 100%;
