@@ -1,5 +1,5 @@
 <template lang="html">
-  <section v-bind:style="style">
+  <section v-bind:style="style" class="i-layout-section">
     <div v-if="this.$slots.header" class="header" :class="{'scroll' : scrollTop }">
       <slot name="header"></slot>
     </div>
@@ -53,8 +53,9 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
-section{
+<style scoped lang="scss">
+section.i-layout-section{
+  position: relative;
   display: grid;
   grid-template-columns: auto;
   grid-template-rows: min-content auto min-content;
