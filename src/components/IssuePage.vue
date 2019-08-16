@@ -106,6 +106,7 @@ export default {
       },
       set(mode) {
         this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
+        this.init();
       },
     },
   },
@@ -145,7 +146,7 @@ export default {
       // if there's a specific article, let's load it
       if (this.mode === 'text') {
         if (!this.article ||
-          !this.artile.name || this.article.uid !== this.$route.params.article_uid) {
+          !this.article.name || this.article.uid !== this.$route.params.article_uid) {
           this.article = await this.loadArticle({
             uid: this.$route.params.article_uid,
           });
@@ -160,7 +161,7 @@ export default {
         console.warn('there is no article for the current page...?');
       }
       // select article using the article uid
-      if (this.article.uid) {
+      if (this.article && this.article.uid) {
         this.selectArticle();
       }
 
