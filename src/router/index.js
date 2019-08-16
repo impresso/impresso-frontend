@@ -132,6 +132,16 @@ const router = new Router({
     },
   },
   {
+    path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
+    component: IssuePage,
+    name: 'article',
+    props: true,
+    meta: {
+      realm: 'issueviewer',
+      requiresAuth: false,
+    },
+  },
+  {
     path: '/newspapers',
     component: NewspapersPage,
     children: [{
@@ -210,16 +220,6 @@ const router = new Router({
         requiresAuth: false,
       },
     }],
-  },
-  {
-    path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
-    component: IssuePage,
-    name: 'article',
-    props: true,
-    meta: {
-      realm: 'issueviewer',
-      requiresAuth: false,
-    },
   },
   {
     path: '/article/:article_uid',
