@@ -143,13 +143,25 @@ export default {
         });
       }
       // if there's a specific article, let's load it
-      if (this.$route.params.article_uid) {
-        if (!this.article || this.article.uid !== this.$route.params.article_uid) {
+      if (this.mode === 'text') {
+        if (!this.article ||
+          !this.artile.name || this.article.uid !== this.$route.params.article_uid) {
           this.article = await this.loadArticle({
             uid: this.$route.params.article_uid,
           });
-          this.selectArticle();
         }
+      } else if (this.$route.params.article_uid) {
+        this.article = {
+          uid: this.$route.params.article_uid,
+        };
+      } else if (this.issue.pages[this.currentPageIndex].articles.length) {
+        this.article = this.issue.pages[this.currentPageIndex].articles[0];
+      } else {
+        console.warn('there is no article for the current page...?');
+      }
+      // select article using the article uid
+      if (this.article.uid) {
+        this.selectArticle();
       }
 
       if (this.$route.params.image_uid) {
@@ -159,14 +171,7 @@ export default {
       if (!this.isTocLoaded) {
         await this.loadToC();
       }
-      // load first article (according to current page!)
-      if (!this.article) {
-        if (this.issue.pages[this.currentPageIndex].articles.length) {
-          this.article = this.issue.pages[this.currentPageIndex].articles[0];
-        } else {
-          console.warn('there is no article for the current page...?');
-        }
-      }
+      // are there any matches?
     },
     resetHandler() {
       const self = this;
