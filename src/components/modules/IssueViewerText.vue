@@ -2,6 +2,7 @@
   <div id="IssueViewerText" class="container-fluid py-3">
     <i-layout>
       <i-layout-section>
+        <i-spinner v-if="!article.uid" class="text-center p-5" />
         <h3>{{article.title}}</h3>
         <div>
           <router-link :to="{ name: 'newspaper', params: {newspaper_uid: article.newspaper.uid} }">
@@ -55,18 +56,19 @@
         <hr class="py-4">
         <b-container fluid class="px-0">
           <h3>Similar Articles</h3>
+          <i-spinner v-if="articlesSuggestions.length === 0" class="text-center p-5" />
           <b-row class="pb-5">
-              <b-col
-                cols="12"
-                sm="12"
-                md="12"
-                lg="6"
-                v-for="(searchResult, index) in articlesSuggestions"
-                v-bind:key="`${index}_ra`">
-                <search-results-similar-item
-                  v-bind:searchResult="searchResult"
-                  :topics="commonTopics(searchResult.topics)" />
-              </b-col>
+            <b-col
+              cols="12"
+              sm="12"
+              md="12"
+              lg="6"
+              v-for="(searchResult, index) in articlesSuggestions"
+              v-bind:key="`${index}_ra`">
+              <search-results-similar-item
+                v-bind:searchResult="searchResult"
+                :topics="commonTopics(searchResult.topics)" />
+            </b-col>
           </b-row>
         </b-container>
       </i-layout-section>
