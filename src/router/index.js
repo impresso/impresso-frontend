@@ -67,9 +67,13 @@ const router = new Router({
     path: '/user/logout',
     name: 'logout',
     component: UserLoginPage,
-    beforeEnter: (to, from, next) => {
+    beforeEnter: () => {
       store.dispatch('user/LOGOUT').then(() => {
-        next();
+        this.$router.push({
+          path: this.$route.query.redirect || '/',
+        });
+      }, (err) => {
+        this.error = this.$t(err.message);
       });
     },
     meta: {
