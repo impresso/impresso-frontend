@@ -131,7 +131,7 @@ export default {
         if (parent.scrollTop > elmRelativeTop ||
           (elm.offsetTop + elm.offsetHeight) - parent.scrollTop >
           parent.offsetTop + parent.offsetHeight) {
-          parent.scrollTo({ top: elmRelativeTop, behavior: 'smooth' });
+          parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
         }
       }
     },
@@ -162,7 +162,9 @@ export default {
   },
   watch: {
     articleUid() {
-      this.scrollToActiveArticle();
+      window.setTimeout(() => {
+        this.scrollToActiveArticle();
+      }, 100);
     },
     tableOfContents: {
       handler() {
