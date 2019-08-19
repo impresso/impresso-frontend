@@ -239,7 +239,6 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  window.previousUrl = from.path;
   if (to.meta.requiresAuth === false) {
     next();
   } else {
@@ -250,7 +249,7 @@ router.beforeEach((to, from, next) => {
         next({
           name: 'login',
           query: {
-            redirect: to.path,
+            redirect: from.path,
           },
         });
       }
