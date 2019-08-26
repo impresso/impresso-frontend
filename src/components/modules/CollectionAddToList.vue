@@ -50,7 +50,8 @@
               &middot;
               <span
                 class="description text-muted small-caps"
-                :title="$t('last_edited')">{{collection.lastModifiedDate.toString()}}</span>
+                :title="$t('last_edited')">
+                {{collection.lastModifiedDate.toString().substring(0,15)}}</span>
             </label>
           </li>
         </ul>
