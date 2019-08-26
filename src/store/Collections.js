@@ -32,6 +32,14 @@ export default {
     UPDATE_COLLECTIONS(state, collections) {
       state.collections = collections;
     },
+    UPDATE_COLLECTION_ITEMS(state, collection) {
+      const idx = state.collections.findIndex(c => c.uid === collection.uid);
+      if (idx !== -1) {
+        state.collections[idx] = collection;
+      } else {
+        state.collections.push(collection);
+      }
+    },
     UPDATE_PAGINATION_CURRENT_PAGE(state, page) {
       state.paginationCurrentPage = parseInt(page, 10);
     },
@@ -103,6 +111,9 @@ export default {
       ]).then((results) => {
         const loadedCollection = new Collection(results[0]);
         loadedCollection.items = results[1].data;
+        context.commit('UPDATE_COLLECTION_ITEMS', {
+          collection: loadedCollection,
+        });
         context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
           paginationTotalRows: results[1].total,
         });

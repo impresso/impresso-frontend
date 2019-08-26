@@ -117,7 +117,6 @@ export default {
             item,
           }).then(() => {
             item.collections.splice(idx, 1);
-            this.$forceUpdate();
           });
         }
         if (!checked && idx === -1) {
@@ -126,8 +125,12 @@ export default {
             item,
             contentType: 'article',
           }).then(() => {
+            this.$store.commit('collections/UPDATE_COLLECTION_ITEMS', {
+              collection,
+              item,
+              contentType: 'article',
+            });
             item.collections.push(collection);
-            this.$forceUpdate();
           });
         }
       });
