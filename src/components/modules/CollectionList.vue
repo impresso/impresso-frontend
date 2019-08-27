@@ -16,28 +16,28 @@
       <b-container fluid class="inputList p-0 bg-light">
         <ul>
           <li v-for="(collection, index) in filteredCollections">
-            <label
+            <div
               class="m-0 px-3 py-2 border-bottom"
               v-on:click="select(collection, $event)"
               v-bind:class="{ 'selected': collection.uid === $route.params.collection_uid }"
               for="collection.uid">
-              <div class="clearfix">
-                <div class="float-left bold">
+              <div class="clearfix pb-2">
+                <strong class="float-left">
                   {{collection.name}}
-                </div>
+                </strong>
                 <div class="float-right">
                   <!-- {{collection.countEntities}} {{$t('items')}} -->
                 </div>
               </div>
               <div class="clearfix">
-                <div class="description float-left">
+                <div class="description float-left small">
                   {{collection.description}}
                 </div>
-                <div class="float-right text-muted">
-                  {{$t('created')}} {{$d(collection.createdDate, 'compact')}}
+                <div v-if="collection.creationDate" alt="fasdd" class="float-right text-muted small-caps">
+                  {{$t('created')}} {{collection.creationDate.toString().substring(0,15)}}
                 </div>
               </div>
-            </label>
+            </div>
           </li>
         </ul>
       </b-container>
@@ -173,10 +173,9 @@ export default {
       padding: 0;
       li {
         padding: 0;
+        background: white;
 
-        label {
-          display: block;
-          background: $clr-bg-primary;
+        div {
           cursor: pointer;
 
           &.loading {
