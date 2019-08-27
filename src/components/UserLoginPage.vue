@@ -63,7 +63,7 @@ export default {
         password: this.password,
       }).then(() => {
         this.$router.push({
-          path: window.previousUrl || window.redirect || '/',
+          path: window.redirect || '/',
         });
       }, (err) => {
         this.error = this.$t(err.message);

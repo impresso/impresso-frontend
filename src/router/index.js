@@ -69,9 +69,6 @@ const router = new Router({
     component: UserLoginPage,
     beforeEnter: () => {
       store.dispatch('user/LOGOUT').then(() => {
-        this.$router.push({
-          path: this.$route.query.redirect || '/',
-        });
       }, (err) => {
         this.error = this.$t(err.message);
       });
@@ -243,6 +240,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+  window.redirect = from.path;
   if (to.meta.requiresAuth === false) {
     next();
   } else {
