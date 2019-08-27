@@ -42,7 +42,8 @@ export default {
         case 'location':
         case 'person':
         case 'newspaper':
-          t = this.item.name;
+          t = this.item.name.replace(/\d+-/g, '');
+          // remove one or more digits followed by a '-' dash
           break;
         case 'topic':
           t = `<span class="small-caps">${this.item.language}</span> ${this.item.htmlExcerpt}`;
