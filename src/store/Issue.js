@@ -2,6 +2,7 @@ import * as services from '@/services';
 import Issue from '@/models/Issue';
 import Page from '@/models/Page';
 import Article from '@/models/Article';
+import ArticleBase from '@/models/ArticleBase';
 import store from '../store';
 
 export default {
@@ -75,17 +76,8 @@ export default {
       return services.articles.get(uid).then(d => new Article(d));
     },
     LOAD_TABLE_OF_CONTENTS(context, issueUid) {
-      const articlesPromise = services.articles.find({
-        query: {
-          filters: [{
-            type: 'hasTextContents',
-          }, {
-            type: 'issue',
-            q: issueUid,
-          }],
-          limit: 500,
-        },
-      }).then(({ data }) => data.map(d => new Article(d)));
+      const tocPromise = services.tableOfContents.get(issueUid, {})
+        .then(({ articles }) => articles.map(d => new ArticleBase(d)));
 
       const imagesPromise = services.images.find({
         query: {
@@ -97,7 +89,7 @@ export default {
         limit: 500,
       }).then(({ data }) => data);
 
-      return Promise.all([articlesPromise, imagesPromise]).then(([articles, images]) => {
+      return Promise.all([tocPromise, imagesPromise]).then(([articles, images]) => {
         if (!images.length) {
           return articles;
         }
