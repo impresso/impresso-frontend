@@ -130,7 +130,6 @@
 </template>
 
 <script>
-import Article from '@/models/Article';
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
@@ -174,9 +173,7 @@ export default {
     },
     articles: {
       get() {
-        return this.collection.items
-          .filter(d => d.contentType === 'A')
-          .map(d => new Article(d.item));
+        return this.$store.getters['collections/collectionItems'];
       },
     },
     issues: {
