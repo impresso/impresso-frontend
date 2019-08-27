@@ -89,7 +89,9 @@
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
 
-        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
+        <span v-if="item.count" class="text-muted">
+          ({{ $t('numbers.results', { results: $n(item.count) }) }})
+        </span>
       </b-form-checkbox>
     </div>
     <div class="items-to-add" v-if="itemsToAdd.length">
@@ -98,7 +100,7 @@
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
-        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
+        <span v-if="item.count" class="text-muted">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </div>
     </div>
 

@@ -3,7 +3,9 @@
     <b-form-checkbox v-model="isChecked">
       <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
       <span v-else>{{ item }}</span>
-      <span v-if="bucket.count > -1">({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
+      <span v-if="bucket.count > -1" class="text-muted">
+        {{ $t('numbers.results', { results: $n(bucket.count) }) }}
+      </span>
       <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
     </b-form-checkbox>
   </div>

@@ -53,7 +53,7 @@ export default {
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
-      results: '{results} results',
+      results: '– {results}',
       collection: {
         countItems: '{countItems} saved items',
       },
