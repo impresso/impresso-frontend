@@ -10,6 +10,7 @@
               class="form-control w-25"
               ref="inputE"
               :value="lastWord(filter)"
+              @keydown.space.prevent
               name="inputEmbeddings" />
                 <b-form-select name="languageEmbeddings"
                   v-model="languageEmbeddings"
