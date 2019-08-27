@@ -90,7 +90,7 @@
         <collection-item v-if="type === 'collection'" :item="item" />
 
         <span v-if="item.count" class="text-muted">
-          ({{ $t('numbers.results', { results: $n(item.count) }) }})
+          {{ $t('numbers.results', { results: $n(item.count) }) }}
         </span>
       </b-form-checkbox>
     </div>
