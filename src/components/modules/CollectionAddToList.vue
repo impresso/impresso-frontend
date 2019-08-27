@@ -125,11 +125,6 @@ export default {
             item,
             contentType: 'article',
           }).then(() => {
-            this.$store.commit('collections/UPDATE_COLLECTION_ITEMS', {
-              collection,
-              item,
-              contentType: 'article',
-            });
             item.collections.push(collection);
           });
         }
