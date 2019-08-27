@@ -30,7 +30,7 @@
         </div>
       </div>
       <!--  ToC -->
-      <table-of-contents v-if="isTocReady"
+      <table-of-contents class="bg-light" v-if="isTocReady"
         :tableOfContents="issue"
         :page="page"
         :article="article"
@@ -176,6 +176,7 @@ export default {
     },
     resetHandler() {
       const self = this;
+      self.isLoaded = false;
       this.handler.$emit('destroy');
       this.handler.$emit('init', {
         sequenceMode: true,
@@ -213,7 +214,7 @@ export default {
           if (self.isLoaded) { // skip
             return;
           }
-          console.log('@tile-loaded');
+          console.log('@tile-loaded', self.page.articles);
           self.isLoaded = true;
           self.page.articles.forEach((article) => {
             // regions
@@ -326,6 +327,7 @@ export default {
         type: 'string',
         q: this.q,
       });
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
     selectArticle() {
       const self = this;
@@ -353,7 +355,7 @@ export default {
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: article.issue.uid,
+          issue_uid: this.issue.uid,
           article_uid: article.uid,
           page_uid: article.pages[0].uid,
         },
