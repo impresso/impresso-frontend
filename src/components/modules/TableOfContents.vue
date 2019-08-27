@@ -21,18 +21,39 @@
               v-bind:src="image.regions[0].iiifFragment" />
           </div>
 
-          <span
-            class="title"
-            v-html="article.title" /> &mdash;
+          <span class="title"
+            v-if="article.title">
+            <span v-html="article.title" /> &mdash;
+          </span>
           <span
             class="excerpt">{{ article.excerpt }}</span>
-          <span v-if="article.size > 1200" class="badge badge-secondary mr-1 pt-1">
-            {{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}
+          <span class="badge badge-secondary mr-1 pt-1">
+            <span v-if="article.size > 1200" >{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }} / </span>
+            {{ $tc('pp', article.nbPages, { pages: article.pages.map(d => d.num).join(',') }) }}
           </span>
+
           <span v-if="article.type !== 'ar'" class="badge badge-secondary mr-1 pt-1">
             {{ article.type.toUpperCase() }}
           </span>
+          <!-- {{ article.isCC }} -->
+          <div v-if="article.locations.length" class="article-locations">
+            <span
+              v-for="location in article.locations"
+              v-bind:key="location.uid">
+              {{location.name}}
+              <item-selector :uid="location.uid" :item="location" type="location"/>,
+            </span>
 
+          </div>
+
+          <div v-if="article.persons.length" class="article-persons">
+            <span
+              v-for="person in article.persons"
+              v-bind:key="person.uid">
+              {{person.name}}
+              <item-selector :uid="person.uid" :item="person" type="person"/>,
+            </span>
+          </div>
           <div class="collapased">
 
             <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
@@ -66,21 +87,7 @@
               </li>
             </ul> -->
 
-            <ul v-if="article.locations && article.locations.length > 0" class="article-locations mb-1">
-              <li
-                v-for="location in article.locations"
-                v-bind:key="location.uid">
-                {{location.uid}} ({{location.relevance}})
-              </li>
-            </ul>
 
-            <ul v-if="article.persons && article.persons.length > 0" class="article-persons mb-1">
-              <li
-                v-for="location in article.persons"
-                v-bind:key="person.uid">
-                {{person.uid}} ({{person.relevance}})
-              </li>
-            </ul>
 
           </div>
 
@@ -92,6 +99,7 @@
 
 <script>
 import CollectionAddTo from './CollectionAddTo';
+import ItemSelector from './ItemSelector';
 
 export default {
   data: () => ({
@@ -118,6 +126,7 @@ export default {
   },
   components: {
     CollectionAddTo,
+    ItemSelector,
   },
   methods: {
     orderedTopics(topics) {
@@ -253,6 +262,7 @@ export default {
 <i18n>
 {
   "en": {
+    "pp": "no pages | p.{pages} | pp.{pages} ({n} pages)",
     "page": "Page",
     "no_title": "No title",
     "readingTime": "{min} min read",
