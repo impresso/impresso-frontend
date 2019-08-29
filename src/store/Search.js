@@ -303,6 +303,7 @@ export default {
           skip,
         },
       }).then((results) => {
+        console.log(results);
         results.forEach((facet) => {
           context.commit('UPDATE_FACET', facet);
         });
@@ -358,6 +359,7 @@ export default {
           facets: [
             'collection',
           ],
+          limit: 100,
         }),
       ]);
     },

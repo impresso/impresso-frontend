@@ -5,6 +5,10 @@
       <span v-else>{{ item }}</span>
       <span v-if="bucket.count > -1">({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
       <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
+      <span v-if="type === 'collection'" class="">
+        <collection-item :item="bucket" />
+  <!-- {{collections}} {{bucket.val}} -->
+      </span>
     </b-form-checkbox>
   </div>
 </template>
@@ -12,6 +16,7 @@
 <script>
 import ItemSelector from './ItemSelector';
 import ItemLabel from './lists/ItemLabel';
+import CollectionItem from './lists/CollectionItem';
 
 export default {
   data: () => ({
@@ -58,6 +63,7 @@ export default {
   components: {
     ItemSelector,
     ItemLabel,
+    CollectionItem,
   },
   mounted() {
     this.checked = !!this.bucket.checked;

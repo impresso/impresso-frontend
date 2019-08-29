@@ -118,10 +118,16 @@ export default {
      * @return {Array} array of buckets
      */
     unfiltered() {
-      if (!this.filtered || !this.included) {
-        return this.facet.buckets;
+      let buckets = this.facet.buckets;
+      if (this.facet.type === 'collection') {
+        buckets = buckets.filter(b => b.val === 'local-eb-GxN1NEpb');
+        // TODO: replace .val by .creator.name ...
+        // console.log(buckets);
       }
-      return this.facet.buckets.filter(b => this.includedIds.indexOf(b.val) === -1);
+      if (!this.filtered || !this.included) {
+        return buckets;
+      }
+      return buckets.filter(b => this.includedIds.indexOf(b.val) === -1);
     },
   },
   methods: {
