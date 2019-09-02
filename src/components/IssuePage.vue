@@ -102,7 +102,8 @@ export default {
     },
     mode: {
       get() {
-        return this.article ? this.$store.state.issue.viewerMode : 'image';
+        // no article°uid? image without a doubt
+        return this.$route.params.article_uid ? this.$store.state.issue.viewerMode : 'image';
       },
       set(mode) {
         this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
@@ -145,8 +146,7 @@ export default {
       }
       // if there's a specific article, let's load it
       if (this.mode === 'text') {
-        if (!this.article ||
-          !this.article.name || this.article.uid !== this.$route.params.article_uid) {
+        if (!this.article || this.article.uid !== this.$route.params.article_uid) {
           this.article = await this.loadArticle({
             uid: this.$route.params.article_uid,
           });
