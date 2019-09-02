@@ -1,62 +1,74 @@
-<template lang="">
-  <i-layout-section class="" v-if="$route.params.collection_uid">
+<template lang="html">
+  <i-layout-section v-if="$route.params.collection_uid">
 
-    <div class="d-flex align-items-stretch border-bottom px-0 py-0">
+    <div slot="header">
+      <b-navbar type="light" variant="light" class="border-bottom">
+        <section>
+          <span class="label small-caps">
+            <router-link v-bind:to="{ name: 'collections' }">&larr; {{$t("Collections")}}</router-link>
 
-      <div class="p-3">
-        <div class="">
-          <strong>{{collection.name}}</strong>
-        </div>
-        <div>
-          {{collection.description}}
-        </div>
-      </div>
+          </span>
+          <h3>{{collection.name}}</h3>
 
-      <div class="p-3 ml-auto text-right border-left">
-        <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
-          <div class="modal-edit pt-2 px-3 background-light">
-            <label for="collectionName">Name</label>
-            <input type="text" name="collectionName" class="form-control mb-3"
-              v-model="collection.name">
-            <label for="collectionDesc">Description</label>
-            <textarea type="text" name="collectionDesc" class="form-control"
-              v-model="collection.description" />
-            <b-button variant="outline-primary" size="sm" class="form-control mt-3"
-              v-on:click="save(collection)">{{ $t('edit_collection') }}
-            </b-button>
-            <b-button variant="outline-danger" size="sm" class="form-control my-3"
-              v-b-modal.confirmDelete>{{ $t('delete_collection') }}
-            </b-button>
-          </div>
-        </b-dropdown>
-      </div>
+          <ellipsis>
+            {{collection.description}}
+          </ellipsis>
 
-      <b-modal id="confirmDelete" v-on:ok="remove(collection)">
-        {{this.$t('confirm_delete', [collection.name])}}
-      </b-modal>
-
-    </div>
-
-    <div class="collection-group">
-
-      <b-navbar type="light" variant="light" class="border-bottom p-0">
-        <b-navbar-nav class="flex-grow-1 p-3">
-          <span>{{ $tc('articles', paginationTotalRows) }}</span>
-        </b-navbar-nav>
-        <b-navbar-nav class="border-left flex-row align-items-baseline p-3">
-          <label class="mr-2">{{$t("label_order")}}</label>
-          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-        </b-navbar-nav>
-        <b-navbar-nav class="pl-2 border-left flex-row align-items-baseline p-3">
-          <label class="mr-2">{{$t("label_display")}}</label>
-          <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-            <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-            <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-          </b-form-radio-group>
-        </b-navbar-nav>
+        </section>
       </b-navbar>
 
+      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom border-tertiary">
+        <b-navbar-nav class="p-3 border-right">
+          <li>
+            <label v-html="$tc('articles', paginationTotalRows) "></label>
+          </li>
 
+        </b-navbar-nav>
+        <b-navbar-nav class="p-3">
+          <li><label >{{ $t('order by') }}</label>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+
+        <div class="p-3  ml-auto border-left">
+          <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
+            <div class="modal-edit pt-2 px-3 background-light">
+              <label for="collectionName">Name</label>
+              <input type="text" name="collectionName" class="form-control mb-3"
+                v-model="collection.name">
+              <label for="collectionDesc">Description</label>
+              <textarea type="text" name="collectionDesc" class="form-control"
+                v-model="collection.description" />
+              <b-button variant="outline-primary" size="sm" class="form-control mt-3"
+                v-on:click="save(collection)">{{ $t('edit_collection') }}
+              </b-button>
+              <b-button variant="outline-danger" size="sm" class="form-control my-3"
+                v-b-modal.confirmDelete>{{ $t('delete_collection') }}
+              </b-button>
+            </div>
+          </b-dropdown>
+        </div>
+
+        <b-modal id="confirmDelete" v-on:ok="remove(collection)">
+          {{this.$t('confirm_delete', [collection.name])}}
+        </b-modal>
+
+        <b-navbar-nav class="p-3 border-left">
+          <li>
+            <label >{{ $t('label_display') }}</label>
+            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+            </b-form-radio-group>
+          </li>
+        </b-navbar-nav>
+
+
+      </b-navbar>
+    </div>
+
+
+    <div class="collection-group">
 
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
@@ -334,7 +346,7 @@ export default {
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
-    "articles": "Contains no articles | Contains one article | Contains {n} articles",
+    "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
     "edit_collection": "Update Collection",
     "delete_collection": "Delete Collection",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?"
