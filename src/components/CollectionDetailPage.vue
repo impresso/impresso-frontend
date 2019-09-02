@@ -3,11 +3,13 @@
 
     <div slot="header">
       <b-navbar type="light" variant="light" class="border-bottom">
+
         <section>
+
           <span class="label small-caps">
             <router-link v-bind:to="{ name: 'collections' }">&larr; {{$t("Collections")}}</router-link>
-
           </span>
+
           <h3>{{collection.name}}</h3>
 
           <ellipsis>
@@ -15,6 +17,40 @@
           </ellipsis>
 
         </section>
+
+
+        <section class="ml-auto pt-3">
+
+          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')">
+            <div class="modal-edit pt-2 px-3 background-light">
+              <label for="collectionName">Name</label>
+              <input type="text" name="collectionName" class="form-control mb-3"
+                v-model="collection.name">
+              <label for="collectionDesc">Description</label>
+              <textarea type="text" name="collectionDesc" class="form-control"
+                v-model="collection.description" />
+              <b-button variant="outline-primary" size="sm" class="form-control my-3"
+                v-on:click="save(collection)">{{ $t('edit_collection') }}
+              </b-button>
+            </div>
+          </b-dropdown>
+          <br>
+          <b-button
+            class="mt-2 table"
+            variant="outline-danger" size="sm"
+            v-b-modal.confirmDelete>{{ $t('delete_collection') }}
+          </b-button>
+
+        </section>
+
+
+
+        <b-modal id="confirmDelete" v-on:ok="remove(collection)">
+          {{this.$t('confirm_delete', [collection.name])}}
+        </b-modal>
+
+
+
       </b-navbar>
 
       <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom border-tertiary">
@@ -30,30 +66,7 @@
           </li>
         </b-navbar-nav>
 
-        <div class="p-3  ml-auto border-left">
-          <b-dropdown right size="sm" variant="outline-primary" :text="$t('edit_collection')">
-            <div class="modal-edit pt-2 px-3 background-light">
-              <label for="collectionName">Name</label>
-              <input type="text" name="collectionName" class="form-control mb-3"
-                v-model="collection.name">
-              <label for="collectionDesc">Description</label>
-              <textarea type="text" name="collectionDesc" class="form-control"
-                v-model="collection.description" />
-              <b-button variant="outline-primary" size="sm" class="form-control mt-3"
-                v-on:click="save(collection)">{{ $t('edit_collection') }}
-              </b-button>
-              <b-button variant="outline-danger" size="sm" class="form-control my-3"
-                v-b-modal.confirmDelete>{{ $t('delete_collection') }}
-              </b-button>
-            </div>
-          </b-dropdown>
-        </div>
-
-        <b-modal id="confirmDelete" v-on:ok="remove(collection)">
-          {{this.$t('confirm_delete', [collection.name])}}
-        </b-modal>
-
-        <b-navbar-nav class="p-3 border-left">
+        <b-navbar-nav class="p-3 border-left ml-auto">
           <li>
             <label >{{ $t('label_display') }}</label>
             <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
