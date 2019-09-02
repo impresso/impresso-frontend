@@ -152,7 +152,7 @@ export default {
         if (parent.scrollTop > elmRelativeTop ||
           (elm.offsetTop + elm.offsetHeight) - parent.scrollTop >
           parent.offsetTop + parent.offsetHeight) {
-          parent.scrollTo({ top: elmRelativeTop, behavior: 'smooth' });
+          parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
         }
       }
     },

@@ -67,9 +67,10 @@ const router = new Router({
     path: '/user/logout',
     name: 'logout',
     component: UserLoginPage,
-    beforeEnter: (to, from, next) => {
+    beforeEnter: () => {
       store.dispatch('user/LOGOUT').then(() => {
-        next();
+      }, (err) => {
+        this.error = this.$t(err.message);
       });
     },
     meta: {
@@ -239,7 +240,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  window.previousUrl = from.path;
+  window.redirect = from.path;
   if (to.meta.requiresAuth === false) {
     next();
   } else {
@@ -250,7 +251,7 @@ router.beforeEach((to, from, next) => {
         next({
           name: 'login',
           query: {
-            redirect: to.path,
+            redirect: from.path,
           },
         });
       }
