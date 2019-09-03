@@ -57,6 +57,7 @@ export default class Article {
     uid = '',
     year = 0,
     topics = [], // array of ArticleTopic instances
+    images = [],
   } = {}) {
     this.collections = collections.map((collection) => {
       if (collection instanceof Collection) {
@@ -132,6 +133,8 @@ export default class Article {
 
       return new ArticleTopic(topic);
     });
+
+    this.images = images;
 
     this.time = parseInt(time, 10);
     this.title = String(title);
