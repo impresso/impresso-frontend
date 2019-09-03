@@ -236,6 +236,12 @@ $clr-grey-300: #424a52;
 $clr-grey-400: #5a6672;
 $clr-grey-800: #c6ccd2;
 
+.pt-1px {
+    padding-top: 1px;
+}
+.pb-1px {
+    padding-bottom: 1px;
+}
 #app-header {
     .progress {
         position: absolute;
@@ -398,9 +404,7 @@ $clr-grey-800: #c6ccd2;
 .border-tertiary {
     border-color: $clr-tertiary !important;
 }
-.pt-1px {
-    padding-top: 1px;
-}
+
 .custom-control-input {
   width: 0;
   height: 0;
