@@ -1,5 +1,5 @@
 <template lang="html">
-  <div id="IssueViewerText" class="container-fluid py-3">
+  <div id="IssueViewerText" class="container-fluid py-3 bg-light">
     <i-layout>
       <i-layout-section>
         <i-spinner v-if="!article.uid" class="text-center p-5" />
@@ -34,22 +34,26 @@
             </router-link> &mdash;
           </span>
         </div>
+        <div class="alert alert-light" role="alert" v-if="!article.isCC">
+          <p>{{ $t('wrongLayout') }} <icon name="image"/></p>
+        </div>
         <div v-if="hasValidRegions === false">
           <p>{{article.excerpt}}</p>
         </div>
         <div
           v-else
-          class="region-row row mt-3 mb-3 bg-light border"
-          v-for="(region, i) in article.regions"
-          v-bind:key="i">
-          <div class="col col-sm-7">
+          class="region-row row mt-3 mb-3 bg-white">
+          <div v-for="(region, i) in article.regions" v-bind:key="i"
+            class="col"
+            :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
             <div class='region py-3'>
+              <!-- {{ i }} -->
               <p v-for="contents in region.g" >
                 <span v-html="contents"></span>
               </p>
             </div>
           </div>
-          <div class="col border-left bg-white p-0">
+          <div v-if="article.isCC" class="col border-left bg-white p-0">
             <img v-bind:src="region.iiifFragment" width="100%" />
           </div>
         </div>
@@ -77,6 +81,7 @@
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
 import { articlesSuggestions } from '@/services';
 import Article from '@/models/Article';
 import BaseTitleBar from './../base/BaseTitleBar';
@@ -114,6 +119,7 @@ export default {
     CollectionAddTo,
     Ellipsis,
     SearchResultsSimilarItem,
+    Icon,
   },
   methods: {
     commonTopics(suggestionTopics) {
@@ -175,6 +181,7 @@ export default {
 <i18n>
 {
   "en": {
+    "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"image mode\"",
     "page": "pag. {num}",
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ..."
