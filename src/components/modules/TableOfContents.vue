@@ -1,6 +1,6 @@
 <template lang="html">
   <div id="TableOfContents" ref="TableOfContents">
-    <div v-for="page in tableOfContents.pages" class="mb-5 page">
+    <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page border-bottom">
       <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
         <b-media
           :ref="`article-${article.uid}`"
@@ -212,15 +212,13 @@ export default {
 #TableOfContents{
   .page{
     font-size: smaller;
-    .pagenumber{
-      text-align: center;
-    }
 
     .article{
       &.active{
-        border-bottom: 1px solid #343a40 !important;
+        // border-bottom: 1px solid #343a40 !important;
         a{
-          box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
+          // box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
+          box-shadow: inset 6px 0px #343a40;
           background: #f8f9fa;
           .collapased {
             height: auto;
