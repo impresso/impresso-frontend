@@ -22,11 +22,7 @@ export default class Entity {
     wikidata = [],
   } = {}) {
     this.uid = String(uid);
-    if (name.length) {
-      this.name = String(name).replace(/^aida-\d+-/, '').split('_').join(' ');
-    } else {
-      this.name = this.uid.replace(/^aida-\d+-/, '').split('_').join(' ');
-    }
+    this.name = Entity.getNameFromUid(name.length ? name : this.uid);
     this.type = String(type);
     this.countMentions = parseInt(countMentions, 10);
     this.countItems = parseInt(countItems, 10);
@@ -34,5 +30,9 @@ export default class Entity {
     this.dbpediaURL = String(dbpediaURL);
     this.impressoId = String(impressoId);
     this.wikidata = wikidata;
+  }
+
+  static getNameFromUid(uid) {
+    return uid.replace(/^aida-\d+-\d+-/, '').split('_').join(' ');
   }
 }
