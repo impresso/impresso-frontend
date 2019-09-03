@@ -39,17 +39,18 @@
         </div>
         <div
           v-else
-          class="region-row row mt-3 mb-3 bg-light border"
-          v-for="(region, i) in article.regions"
-          v-bind:key="i">
-          <div class="col col-sm-7">
+          class="region-row row mt-3 mb-3 bg-light border">
+          <div v-for="(region, i) in article.regions" v-bind:key="i"
+            class="col"
+            :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
             <div class='region py-3'>
+              <!-- {{ i }} -->
               <p v-for="contents in region.g" >
                 <span v-html="contents"></span>
               </p>
             </div>
           </div>
-          <div class="col border-left bg-white p-0">
+          <div v-if="article.isCC" class="col border-left bg-white p-0">
             <img v-bind:src="region.iiifFragment" width="100%" />
           </div>
         </div>
