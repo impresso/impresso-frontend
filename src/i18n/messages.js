@@ -71,6 +71,7 @@ export default {
         },
       },
     },
+    pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
   },
   nl: {
     language: 'Taal',

@@ -4,7 +4,7 @@
       <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
         <b-media
           :ref="`article-${article.uid}`"
-          class="border-bottom article"
+          class=" article"
           v-for="article in page.articles"
           v-bind:class="{active: article.uid === selectedArticleUid}">
           <a
@@ -216,10 +216,11 @@ export default {
     .article{
       &.active{
         // border-bottom: 1px solid #343a40 !important;
+        background: white;
         a{
           // box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
-          box-shadow: inset 6px 0px #343a40;
-          background: #f8f9fa;
+          box-shadow: inset 6px 0px #56CCF2, inset 0px 1px 0px #343a4063;
+          background: white; // #f8f9fa;
           .collapased {
             height: auto;
             max-height: 1200px;
@@ -260,7 +261,6 @@ export default {
 <i18n>
 {
   "en": {
-    "pp": "no pages | p.{pages} | pp.{pages} ({n} pages)",
     "page": "Page",
     "no_title": "No title",
     "readingTime": "{min} min read",
