@@ -3,12 +3,7 @@
     <i-layout>
       <i-layout-section>
         <i-spinner v-if="!article.uid" class="text-center p-5" />
-        <h3>{{article.title}}</h3>
-        <div>
-          <router-link :to="{ name: 'newspaper', params: {newspaper_uid: article.newspaper.uid} }">
-            {{ article.newspaper.name}}
-          </router-link> &mdash; {{ articlePages }}
-        </div>
+        <article-item :item="article" :show-entities="true" :show-topics="true"/>
         <div class="my-2" />
         <collection-add-to :item="article" :text="$t('add_to_collection')" />
         <b-badge
@@ -23,17 +18,6 @@
           </router-link>
           <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
         </b-badge>
-        <div class="my-3">
-          <span class="label small-caps">{{ $t("topics")}}</span>:
-          <span v-for="(rel, i) in topics" v-bind:key="i" class="position-relative">
-            <div class="bg-accent-secondary position-absolute"
-              :style="`width:${$n(rel.relevance * 100 * 2)}px;
-              top:3px; left:0; height:1em; z-index:-1`" />
-            <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}" class="small">
-              {{ rel.topic.getHtmlExcerpt() }} <span class="text-muted">({{ $n(rel.relevance * 100) }} %)</span>
-            </router-link> &mdash;
-          </span>
-        </div>
         <div class="alert alert-light" role="alert" v-if="!article.isCC">
           <p>{{ $t('wrongLayout') }} <icon name="image"/></p>
         </div>
@@ -90,6 +74,7 @@ import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import Ellipsis from './Ellipsis';
+import ArticleItem from './lists/ArticleItem';
 
 export default {
   data() {
@@ -117,6 +102,7 @@ export default {
   },
   props: ['article_uid'],
   components: {
+    ArticleItem,
     BaseTitleBar,
     CollectionAddTo,
     Ellipsis,
