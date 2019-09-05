@@ -52,6 +52,7 @@
         </b-navbar>
       </div>
       <open-seadragon-viewer
+        class="bg-light"
         v-show="mode === 'image'"
         v-bind:handler="handler" />
       <issue-viewer-text v-if="article && article.uid && mode === 'text'"
