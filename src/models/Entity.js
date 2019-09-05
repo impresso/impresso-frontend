@@ -1,4 +1,7 @@
-
+const TYPES = {
+  54: 'location',
+  50: 'person',
+};
 /**
  * @class Entity is an object representing a Named Entity (NE) such as a location or person
  * @param {Integer} id
@@ -23,7 +26,11 @@ export default class Entity {
   } = {}) {
     this.uid = String(uid);
     this.name = Entity.getNameFromUid(name.length ? name : this.uid);
-    this.type = String(type);
+    if (type !== 'entity') {
+      this.type = String(type);
+    } else {
+      this.type = Entity.getTypeFromUid(this.uid);
+    }
     this.countMentions = parseInt(countMentions, 10);
     this.countItems = parseInt(countItems, 10);
     this.wikidataId = String(wikidataId);
@@ -34,5 +41,10 @@ export default class Entity {
 
   static getNameFromUid(uid) {
     return uid.replace(/^aida-\d+-\d+-/, '').split('_').join(' ');
+  }
+
+  static getTypeFromUid(uid) {
+    const t = String(uid.match(/^aida-\d+-(\d+)/)[1]);
+    return TYPES[t] || t;
   }
 }
