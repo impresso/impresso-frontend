@@ -8,23 +8,8 @@
     <div class="d-flex">
 
       <div class="list-item-details">
-        <h2 v-if="article.title" class="mb-0">
-          <router-link :to="{ name: 'article', params: {
-            issue_uid: article.issue.uid,
-            page_uid: article.pages[0].uid,
-            article_uid: article.uid,
-          } }" v-html="article.title"></router-link>
-        </h2>
-        <div class="article-meta mb-2">
-          <router-link :to="{ name: 'newspaper', params: { newspaper_uid: article.newspaper.uid }}">
-          <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
-          </router-link>
-          <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
-          (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
-        </div>
-
-        <div v-if="article.excerpt.length > 0" class="article-excerpt mb-2">{{article.excerpt}}</div>
-
+        <!-- if article -->
+        <article-item :item="article" v-bind:show-excerpt="true" />
         <ul v-if="article.matches.length > 0" class="article-matches mb-2">
           <li
             v-for="(match, i) in article.matches"
@@ -80,6 +65,7 @@
 import Vue from 'vue';
 import OpenSeadragonViewer from './OpenSeadragonViewer';
 import CollectionAddTo from './CollectionAddTo';
+import ArticleItem from './lists/ArticleItem';
 
 export default {
   data: () => ({
@@ -131,6 +117,7 @@ export default {
   components: {
     OpenSeadragonViewer,
     CollectionAddTo,
+    ArticleItem,
   },
   mounted() {
     this.init();
