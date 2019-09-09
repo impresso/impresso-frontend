@@ -1,40 +1,74 @@
 <template lang="html">
   <i-layout id="IssuePage">
-    <i-layout-section width="350px" class="border-right">
-      <div slot="header" class="border-bottom border-tertiary bg-light">
+    <i-layout-section width="350px" class="border-right border-tertiary bg-light">
+      <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="border-bottom mx-2 pt-2">
           <template slot="tabs">
-            <b-nav-item class="pl-2 active"
-              active-class='none'>{{$t('table_of_contents')}}</b-nav-item>
+            <b-nav-item class="pl-2"
+              @click="switchTab('toc')"
+              :class="{ 'active': !isTabSearch }"
+              active-class='none' >{{$t('table_of_contents')}}</b-nav-item>
+            <b-nav-item class="pl-2"
+              @click="switchTab('search')"
+              :class="{ 'active': isTabSearch }"
+              active-class='none'>{{$t('search_and_find')}}</b-nav-item>
           </template>
         </b-tabs>
         <div class="py-2 px-3">
           <div v-if="issue" class="mb-2">
             <div>{{ issue.newspaper.name }}</div>
             <div class="small-caps">{{ $d(issue.date, 'long') }}</div>
-            <div class="small-caps" v-html="$t('stats', {
+            <span class="small-caps" v-html="$t('stats', {
               countPages: issue.countPages,
               countArticles: issue.countArticles,
             })"/>
+            <span v-if="isTabSearch">(no search)</span>
           </div>
-          <search-pills
-            :excluded-types="['hasTextContents', 'isFront', 'issue']"
-            @remove="onRemoveFilter"
-          />
-          <b-input-group>
-            <b-form-input
-            placeholder="search for ..."
-            v-model.trim="q"
-            v-on:change.native="search"/>
-          </b-input-group>
+          <div v-if="isTabSearch">
+            <search-pills
+              :excluded-types="['hasTextContents', 'isFront', 'issue']"
+              @remove="onRemoveFilter"
+            />
+            <b-input-group>
+              <b-form-input
+              placeholder="search for ..."
+              v-model.trim="q"
+              v-on:change.native="search"/>
+            </b-input-group>
+          </div>
         </div>
       </div>
       <!--  ToC -->
-      <table-of-contents class="bg-light" v-if="isTocReady"
+      <table-of-contents v-if="!isTabSearch && isTocReady"
         :tableOfContents="issue"
         :page="page"
         :article="article"
+        :articles="matchingArticles"
         v-on:click="gotoArticle" />
+
+      <table-of-contents v-if="isTabSearch && isTocReady"
+        :tableOfContents="issue"
+        :page="page"
+        :article="article"
+        :articles="matchingArticles"
+        flatten
+        v-on:click="gotoArticle" />
+
+      <div v-if="isTabSearch">
+        <!--  Pagination v-if="matchesTotalRows > matchesPerPage" -->
+        <div
+           class="p-3">
+          <div
+            class=" mb-2 p-1">
+            <pagination
+              v-model="matchesCurrentPage"
+              v-bind:perPage="matchesPerPage"
+              v-bind:totalRows="matchesTotalRows"
+              v-bind:showDescription="false"
+               />
+          </div>
+        </div>
+      </div>
     </i-layout-section>
     <!--  page openseadragon or article -->
     <i-layout-section>
@@ -82,9 +116,11 @@ import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
+import Pagination from './modules/Pagination';
 
 export default {
   data: () => ({
+    tab: 'toc',
     handler: new Vue(),
     bounds: {},
     issue: null,
@@ -93,13 +129,41 @@ export default {
     currentPageIndex: -1,
     pagesIndex: {},
     isTocLoaded: false,
+    isSearchLoaded: false,
     isLoaded: false,
     isDragging: false,
     q: '',
+    // matching articles
+    matchesTotalRows: 0,
+    matchesPerPage: 10,
+    matchesCurrentPage: 1,
+    matches: [],
   }),
   computed: {
     isTocReady() {
       return this.issue && this.page && this.isTocLoaded;
+    },
+    isTabSearch() {
+      return this.tab === 'search';
+    },
+    matchingArticles() {
+      if (!this.isTocReady) {
+        return [];
+      }
+
+      const matchesUids = this.matches.map(d => d.id);
+      const results = [];
+
+      this.issue.articles.forEach((article) => {
+        const idx = matchesUids.indexOf(article.uid);
+        if (idx !== -1) {
+          results.push({
+            ...article,
+            matches: this.matches[idx].matches,
+          });
+        }
+      });
+      return results;
     },
     mode: {
       get() {
@@ -114,6 +178,11 @@ export default {
   },
   methods: {
     async init() {
+      if (this.$route.query.tab === 'search') {
+        this.tab = 'search';
+      } else {
+        this.tab = 'toc';
+      }
       if (!this.issue || this.issue.uid !== this.$route.params.issue_uid) {
         this.issue = await this.loadIssue({
           uid: this.$route.params.issue_uid,
@@ -173,7 +242,40 @@ export default {
       if (!this.isTocLoaded) {
         await this.loadToC();
       }
+
+      if (!this.isSearchLoaded) {
+        await this.search();
+      }
       // are there any matches?
+    },
+    switchTab(tab) {
+      // swith tab query params leaving the other untouched
+      console.info('switch tab to:', tab);
+      this.$router.push({
+        name: this.$route.name,
+        params: this.$route.params,
+        query: {
+          tab,
+        },
+      });
+    },
+    getSearchFilters() {
+      const filters = this.$store.getters['search/getSearch'].getFilters();
+      if (!filters.length) {
+        return [];
+      }
+      if (this.q.length) {
+        filters.push({
+          type: 'string',
+          q: this.q,
+        });
+      }
+      return filters.concat([
+        {
+          type: 'issue',
+          q: this.issue.uid,
+        },
+      ]);
     },
     resetHandler() {
       const self = this;
@@ -310,25 +412,27 @@ export default {
     },
     onRemoveFilter(filter) {
       this.$store.commit('search/REMOVE_FILTER', filter);
+      this.search();
     },
     search() {
-      console.info('IssuePage, search:', this.q);
-      // search in page using current uids in current page,
-      // add to current search pills filters
-      const filtersIndex = this.$store.getters['search/getSearch'].filtersIndex;
-      console.info('  has filterindex', filtersIndex);
-      if (!filtersIndex.issue) {
-        this.$store.commit('search/ADD_FILTER', {
-          type: 'issue',
-          q: this.issue.uid,
-        });
+      const filters = this.getSearchFilters();
+      if (!filters.length) {
+        console.info('-> search() skip, q is empty.');
+        return;
       }
-      // if there is no issue filter, add one!
-      this.$store.commit('search/ADD_FILTER', {
-        type: 'string',
-        q: this.q,
+      console.info('-> search() with filters:', filters);
+      this.$store.dispatch('search/GET_SEARCH_RESULTS', {
+        filters,
+        orderBy: 'id',
+        groupBy: 'raw',
+        page: this.matchesCurrentPage,
+      }).then((result) => {
+        this.isSearchLoaded = true;
+        this.matches = result.data;
+        this.matchesTotalRows = result.total;
+        console.log(result);
+        console.info('-> search() success for q:', this.q);
       });
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
     selectArticle() {
       const self = this;
@@ -360,6 +464,9 @@ export default {
           article_uid: article.uid,
           page_uid: article.pages[0].uid,
         },
+        query: {
+          tab: this.tab,
+        },
       });
     },
   },
@@ -370,12 +477,13 @@ export default {
     TableOfContents,
     Icon,
     SearchPills,
+    Pagination,
   },
   watch: {
     $route: {
       immediate: true,
-      async handler({ name, params }) {
-        console.info('@$route changed:', name, params);
+      async handler({ name, params, query }) {
+        console.info('@$route changed:', name, params, query);
         await this.init();
       },
     },
@@ -418,7 +526,8 @@ div.overlay-region{
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages",
     "label_display": "Display as",
-    "table_of_contents": "table of contents"
+    "table_of_contents": "table of contents",
+    "search_and_find": "search in issue"
   },
   "nl": {
     "label_display": "Toon als",

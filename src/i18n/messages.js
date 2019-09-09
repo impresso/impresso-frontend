@@ -1,5 +1,6 @@
 export default {
   en: {
+    untitled: '...',
     language: 'Language',
     languages: {
       de: 'German',
@@ -72,6 +73,8 @@ export default {
       },
     },
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
+    readingTime: '{min} min read',
+    reducedReadingTime: 'quick reading',
   },
   nl: {
     language: 'Taal',

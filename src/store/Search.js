@@ -308,11 +308,29 @@ export default {
         });
       });
     },
-    SEARCH({ state, dispatch, commit, getters }) {
+    GET_SEARCH_RESULTS({ state }, { groupBy, orderBy, page, limit, filters = [] } = {}) {
+      const query = {
+        filters,
+        group_by: groupBy || state.groupBy,
+        page: page || state.paginationCurrentPage,
+        limit: limit || state.paginationPerPage,
+        order_by: orderBy || state.orderBy,
+      };
+      return services.search.find({
+        query,
+      }).then((res) => {
+        if (query.groupBy === 'articles') {
+          res.data = res.data.map(result => new Article(result));
+        }
+        return res;
+      });
+    },
+    SEARCH({ state, dispatch, commit, getters }, { filters = [] } = {}) {
       commit('UPDATE_IS_LOADING', true);
       const facets = ['year', 'language', 'newspaper', 'type', 'country', 'topic'];
       const query = {
-        filters: getters.getSearch.getFilters(),
+        // concat temporary filters, if any
+        filters: getters.getSearch.getFilters().concat(filters),
         facets,
         group_by: state.groupBy,
         page: state.paginationCurrentPage,

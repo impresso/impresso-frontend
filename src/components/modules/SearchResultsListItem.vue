@@ -9,14 +9,7 @@
 
       <div class="list-item-details">
         <!-- if article -->
-        <article-item :item="article" v-bind:show-excerpt="true" />
-        <ul v-if="article.matches.length > 0" class="article-matches mb-2">
-          <li
-            v-for="(match, i) in article.matches"
-            v-bind:key="i"
-            v-html="match.fragment"
-            v-show="match.fragment.trim().length > 0" />
-        </ul>
+        <article-item :item="article" show-meta show-excerpt show-entities show-matches show-link />
         <b-badge
           class="mb-2"
           pill
