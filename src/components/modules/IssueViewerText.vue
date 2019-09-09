@@ -2,52 +2,56 @@
   <div id="IssueViewerText" class="container-fluid py-3 bg-light">
     <i-layout>
       <i-layout-section>
-        <i-spinner v-if="!article.uid" class="text-center p-5" />
-        <article-item :item="article" :show-entities="true" :show-topics="true"/>
-        <div class="my-2" />
-        <collection-add-to :item="article" :text="$t('add_to_collection')" />
-        <b-badge
-          v-for="(collection, i) in article.collections"
-          v-bind:key="`co_${i}`"
-          variant="info"
-          class="mt-1 mr-1">
-          <router-link
-            class="text-white"
-            v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
-            {{ collection.name }}
-          </router-link>
-          <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
-        </b-badge>
-        <div class="alert alert-light" role="alert" v-if="!article.isCC">
-          <p>{{ $t('wrongLayout') }} <icon name="image"/></p>
-        </div>
-        <div v-if="hasValidRegions === false">
-          <p>{{article.excerpt}}</p>
-        </div>
-        <div
-          v-else
-          class="region-row mt-3 mb-3 bg-white">
-          <div class="row" v-for="(region, i) in article.regions" v-bind:key="i">
-            <div
-              class="col"
-              :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
-              <div class='region py-3'>
-                <!-- {{ i }} -->
-                <p v-for="contents in region.g" >
-                  <span v-html="contents"></span>
-                </p>
-              </div>
-            </div>
-            <div v-if="article.isCC" class="col  bg-white p-0">
-              <img v-bind:src="region.iiifFragment" width="100%" />
-            </div>
+        <i-spinner v-if="!article" class="text-center p-5" />
+        <div v-if="article">
+          <article-item :item="article" show-entities show-excerpt show-meta show-topics/>
+          <div class="my-2" />
+          <collection-add-to :item="article" :text="$t('add_to_collection')" />
+          <b-badge
+            v-for="(collection, i) in article.collections"
+            v-bind:key="`co_${i}`"
+            variant="info"
+            class="mt-1 mr-1">
+            <router-link
+              class="text-white"
+              v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+              {{ collection.name }}
+            </router-link>
+            <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+          </b-badge>
+          <div class="alert alert-light" role="alert" v-if="!article.isCC">
+            <p>{{ $t('wrongLayout') }} <icon name="image"/></p>
           </div>
+          <div v-if="hasValidRegions === false">
+            <p>{{article.excerpt}}</p>
+          </div>
+          <b-container fluid
+            v-else
+            class="region-row mt-3 mb-3 bg-white">
+            <b-row v-for="(region, i) in article.regions" v-bind:key="i">
+              <div
+                class="col"
+                :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
+                <div class='region py-3'>
+                  <!-- {{ i }} -->
+                  <p v-for="contents in region.g" >
+                    <span v-html="contents"></span>
+                  </p>
+                </div>
+              </div>
+              <div v-if="article.isCC" class="col col-sm-5 bg-white">
+                <div >
+                  <img v-bind:src="region.iiifFragment" style="width: 100%" />
+                </div>
+              </div>
+            </b-row>
+          </b-container>
         </div>
         <hr class="py-4">
         <b-container fluid class="px-0">
           <h3>Similar Articles</h3>
-          <i-spinner v-if="articlesSuggestions.length === 0" class="text-center p-5" />
-          <b-row class="pb-5">
+          <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
+          <b-row>
             <b-col
               cols="12"
               sm="12"
@@ -69,7 +73,6 @@
 <script>
 import Icon from 'vue-awesome/components/Icon';
 import { articlesSuggestions } from '@/services';
-import Article from '@/models/Article';
 import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
@@ -79,7 +82,7 @@ import ArticleItem from './lists/ArticleItem';
 export default {
   data() {
     return {
-      article: new Article(),
+      article: null,
       articlesSuggestions: [],
     };
   },
@@ -132,9 +135,8 @@ export default {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
-        this.article = new Article();
         this.articlesSuggestions = [];
-        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid).then();
+        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
         });
