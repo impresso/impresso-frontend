@@ -4,7 +4,10 @@
       <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="item.title"></router-link>
       <span v-else v-html="item.title"></span>
     </h2>
-    <div v-else>untitled.</div>
+    <div v-else>
+      <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="$t('untitled')"></router-link>
+      <span v-else>{{ $t('untitled') }}</span>
+    </div>
     <div v-if="showMeta" class="article-meta">
       <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}">
         <strong>{{ item.newspaper.name}}</strong>
