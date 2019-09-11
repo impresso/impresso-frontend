@@ -1,12 +1,20 @@
 <template lang="html">
   <b-media class="py-3 border-bottom overflow-hidden">
-    <div class="thumbnail bg-light border" slot="aside" >
+    <div
+      v-if="isLoggedIn()"
+      class="thumbnail bg-light border"
+      slot="aside" >
       <open-seadragon-viewer
         v-bind:handler="handler">
       </open-seadragon-viewer>
     </div>
+    <div
+      v-else
+      class="error bg-light border"
+      slot="aside" >
+      <p class="message">{{$t('login_message')}}</p>
+    </div>
     <div class="d-flex">
-
       <div class="list-item-details">
         <!-- if article -->
         <article-item :item="article" show-meta show-excerpt show-entities show-matches show-link />
@@ -177,6 +185,15 @@ div.overlay-region{
     position: relative;
     cursor: move;
 }
+.error {
+    width: 215px;
+    height: 240px;
+    position: relative;
+    text-align: center;
+    .message{
+      margin-top: 114px;
+    }
+}
 h2 {
   font-size: 1.2em;
   font-weight: 500;
@@ -208,10 +225,8 @@ ul.article-matches {
 {
   "en": {
     "view": "View",
-    "add_to_collection": "Add to Collection ..."
-  },
-  "nl": {
-    "view": "Bekijk"
+    "add_to_collection": "Add to Collection ...",
+    "login_message": "Login to view image"
   }
 }
 </i18n>
