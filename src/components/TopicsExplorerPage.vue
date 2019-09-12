@@ -119,15 +119,10 @@ export default {
       return this.$route.params.topic_uid;
     },
   },
-  async mounted() {
+  mounted() {
     this.$store.commit('SET_HEADER_TITLE', {
       title: 'topics',
     });
-
-    const topicsGraph = await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH');
-
-    this.totalNodes = topicsGraph.nodes.length;
-    this.totalLinks = topicsGraph.links.length;
 
     this.graph = new Graph({
       element: '#d3-graph',
@@ -170,22 +165,28 @@ export default {
         }
       });
 
-    this.graph.updateDimension({
-      name: 'nodeColor',
-      property: this.colorBy,
-      values: topicsGraph.nodes,
+    this.$store.dispatch('topics/LOAD_TOPICS_GRAPH').then((topicsGraph) => {
+      this.totalNodes = topicsGraph.nodes.length;
+      this.totalLinks = topicsGraph.links.length;
+
+      this.graph.updateDimension({
+        name: 'nodeColor',
+        property: this.colorBy,
+        values: topicsGraph.nodes,
+      });
+
+      this.graph.updateDimension({
+        name: 'nodeSize',
+        property: this.sizeBy,
+        values: topicsGraph.nodes,
+      });
+
+      this.graph.update({
+        nodes: topicsGraph.nodes,
+        links: topicsGraph.links,
+      });
     });
 
-    this.graph.updateDimension({
-      name: 'nodeSize',
-      property: this.sizeBy,
-      values: topicsGraph.nodes,
-    });
-
-    this.graph.update({
-      nodes: topicsGraph.nodes,
-      links: topicsGraph.links,
-    });
     window.addEventListener('resize', this.onResize);
   },
   beforeDestroy() {
