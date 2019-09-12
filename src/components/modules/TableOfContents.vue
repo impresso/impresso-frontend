@@ -178,7 +178,7 @@ export default {
       });
     },
     scrollToActiveArticle() {
-      console.log('scrollToActiveArticle uid:', this.article.uid);
+      console.info('scrollToActiveArticle uid:', this.article.uid);
       if (this.article.uid !== '') {
         if (!this.$refs[`article-${this.article.uid}`]) {
           console.error(`Cannot scrollToActiveArticle: ${this.article.uid} not ready or not found`);

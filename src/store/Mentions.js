@@ -21,7 +21,7 @@ export default {
   },
   actions: {
     LOAD_ENTITY_MENTIONS(context, { filters }) {
-      // console.log('eid', entityUid);
+      // console.info('eid', entityUid);
       return services.mentions.find({
         query: {
           limit: context.state.pagination.perPage,

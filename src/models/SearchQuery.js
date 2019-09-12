@@ -62,7 +62,7 @@ export default class SearchQuery {
         const filterized = filterize(d);
         const idx = this.filtersIds.indexOf(filterized.getHash());
         if (idx !== -1) {
-          console.log('enrichFilters: found', d.type, d, filterized);
+          console.info('enrichFilters: found', d.type, d, filterized);
           if (filterized.item) {
             this.filters[idx].item = filterized.item;
           } else if (filterized.items) {

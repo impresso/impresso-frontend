@@ -178,7 +178,7 @@ export default {
       this.$store.dispatch('buckets/CHANGE_ORDER_BY', orderBy);
     },
     applyFilter() {
-      console.log('submit', this.type, this.selectedIds);
+      console.info('submit', this.type, this.selectedIds);
       this.$emit('submit-buckets', {
         type: this.type,
         ids: this.selectedIds,

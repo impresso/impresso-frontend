@@ -271,7 +271,7 @@ export default {
       });
     },
     EXPORT_FROM_QUERY(context, payload) {
-      // console.log(context, services.exporter.methods.create);
+      // console.info(context, services.exporter.methods.create);
       const filters = payload.filters || context.getters.getSearch.getFilters();
       return new Promise((resolve) => {
         services.exporter.create({

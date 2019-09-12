@@ -150,7 +150,7 @@ export default {
       this.selectedItems = [];
     },
     applyFilter() {
-      console.log('submit', this.facet.type, this.selectedIds);
+      console.info('submit', this.facet.type, this.selectedIds);
       this.$emit('submit-buckets', {
         type: this.facet.type,
         ids: this.selectedIds,
