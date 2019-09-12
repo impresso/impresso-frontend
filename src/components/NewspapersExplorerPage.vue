@@ -113,7 +113,7 @@ export default {
       this.scrollTop = e.scrollTop;
     },
     onHighlight(event, origin) {
-      // console.log(event, origin);
+      // console.info(event, origin);
       this.highlights.forEach((vis) => {
         if (vis !== origin) {
           this[`highlight${vis}`] = event.datum;

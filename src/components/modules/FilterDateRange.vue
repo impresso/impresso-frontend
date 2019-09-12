@@ -68,7 +68,7 @@ export default {
       }
       // check by default tne new item;
       item.checked = true;
-      console.log('updateDaterange emit "change" \n', this.daterange.uid, '\nto:\n', item.uid);
+      console.info('updateDaterange emit "change" \n', this.daterange.uid, '\nto:\n', item.uid);
       this.$emit('change', {
         item,
         uid: this.daterange.uid,

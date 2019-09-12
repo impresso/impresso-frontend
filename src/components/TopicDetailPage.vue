@@ -109,7 +109,7 @@ export default {
     async getArticles({
       page = 1,
     } = {}) {
-      // console.log('getArticles page', page);
+      // console.info('getArticles page', page);
       const response = await this.$store.dispatch('topics/LOAD_ARTICLES', {
         topicUid: this.topic.uid,
         limit: this.limit,
@@ -119,7 +119,7 @@ export default {
       this.articles = response.data;
       // set other data
       this.total = response.total;
-      // console.log('articles', this.articles, 'page', page);
+      // console.info('articles', this.articles, 'page', page);
       return response;
     },
   },

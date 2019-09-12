@@ -62,7 +62,7 @@ app.service('logs').on('created', (payload) => {
       payload.job.task = payload.task;
       window.app.$store.state.jobs.data.unshift(payload.job);
     }
-    // console.log(`logs.created: "${payload.msg}" with payload:`, payload);
+    // console.info(`logs.created: "${payload.msg}" with payload:`, payload);
   }
 });
 
