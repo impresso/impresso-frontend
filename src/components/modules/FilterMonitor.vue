@@ -187,12 +187,12 @@ export default {
       this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`);
     },
     updateFilter({ op, context }) {
-      console.log('methods.updateFilter: op:', op, context);
+      console.info('methods.updateFilter: op:', op, context);
       let q;
       if (this.filter.items) {
         // caclulate new q every time. if it's empty
         q = this.filter.items.concat(this.itemsToAdd).reduce((acc, d) => {
-          // console.log('methods.updateFilter: adding uid:', d.uid, d.checked);
+          // console.info('methods.updateFilter: adding uid:', d.uid, d.checked);
           if (d.checked) {
             acc.push(d.uid);
           }
@@ -228,11 +228,11 @@ export default {
       this.updateFilter({ op });
     },
     changeFilterContext(context) {
-      // console.log('@changeFilterContext', context);
+      // console.info('@changeFilterContext', context);
       this.updateFilter({ context });
     },
     changeFilterPrecision(precision) {
-      // console.log('@changeFilterContext', context);
+      // console.info('@changeFilterContext', context);
       this.$store.commit(`${this.store}/UPDATE_FILTER`, {
         filter: this.filter,
         precision,
@@ -240,7 +240,7 @@ export default {
       this.$emit('filter-updated');
     },
     changeFilterDistance(distance) {
-      // console.log('@changeFilterContext', context);
+      // console.info('@changeFilterContext', context);
       this.$store.commit(`${this.store}/UPDATE_FILTER`, {
         filter: this.filter,
         distance,

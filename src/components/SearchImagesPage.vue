@@ -252,7 +252,7 @@ export default {
         .replace('Found', this.$t('Based on search query with'));
     },
     onSearchQuery({ q }) {
-      console.log('@onSearchQuery', q);
+      console.info('@onSearchQuery', q);
       this.$store.commit('searchImages/ADD_FILTER', {
         type: 'title',
         q,

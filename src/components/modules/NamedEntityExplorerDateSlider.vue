@@ -45,15 +45,15 @@ export default {
       const posx = Math.min(
         Math.max(this.halfWidthInterval, this.svg.period.x), this.width - this.halfWidthInterval);
 
-      // console.log('translatePeriod');
-      // console.log('  - event x:    ', this.svg.period.x);
-      // console.log('  - posx:       ', posx);
+      // console.info('translatePeriod');
+      // console.info('  - event x:    ', this.svg.period.x);
+      // console.info('  - posx:       ', posx);
       this.app.selection = [posx - this.halfWidthInterval, posx + this.halfWidthInterval];
       this.app.selectionStartDate = this.app.scaleTime.invert(this.app.selection[0]);
       this.app.selectionEndDate = this.app.scaleTime.invert(this.app.selection[1]);
 
-      // console.log('  - left date:  ', this.app.selectionStartDate);
-      // console.log('  - right date: ', this.app.selectionEndDate);
+      // console.info('  - left date:  ', this.app.selectionStartDate);
+      // console.info('  - right date: ', this.app.selectionEndDate);
 
       this.svg.period
         .transition()
@@ -117,7 +117,7 @@ export default {
       // update day in Px
       this.app.oneDayInPx = Math.abs(this.app.scaleTime(this.app.date) -
         this.app.scaleTime(d3.utcDay.offset(this.app.date, 1)));
-      // console.log('updateTimeBoundaries', this.app.oneDayInPx);
+      // console.info('updateTimeBoundaries', this.app.oneDayInPx);
 
       // update date field
       this.app.dateField.html(this.timeFormat(this.app.date));
@@ -138,7 +138,7 @@ export default {
           this.app.selection[1] - this.width),
           -this.dateFieldWidth);
       // const endposy = endposx === -100 ? 25 : 0;
-      // console.log('updateTimeSelection > startposx', startposx);
+      // console.info('updateTimeSelection > startposx', startposx);
       this.app.selectionStartDateFieldValue
         .html(this.timeFormat(this.app.selectionStartDate));
       this.app.selectionStartDateField
@@ -165,7 +165,7 @@ export default {
       this.app.startDate = d3.timeMonth.offset(this.app.date, -this.monthOffset);
       this.app.endDate = d3.timeMonth.offset(this.app.date, this.monthOffset);
       // updates dates (e.g; whenever the edge dates change)
-      // console.log(
+      // console.info(
       //  'initialize',
       //  this.issue.date, this.app.date, this.app.startDate, this.app.endDate
       // );
@@ -181,7 +181,7 @@ export default {
     },
     issue: {
       handler() {
-        // console.log('VALUE', val);
+        // console.info('VALUE', val);
         this.initialize();
       },
     },

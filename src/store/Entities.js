@@ -2,7 +2,7 @@ import * as services from '@/services';
 import Entity from '@/models/Entity';
 import Helpers from '@/plugins/Helpers';
 
-console.log(Helpers);
+console.info(Helpers);
 
 export default {
   namespaced: true,
@@ -20,7 +20,7 @@ export default {
   mutations: {
     UPDATE_QUERY(state, query) {
       state.query = query;
-      console.log('update q', query);
+      console.info('update q', query);
     },
     UPDATE_ENTITIES(state, items) {
       state.items = items;
@@ -46,7 +46,7 @@ export default {
           ...result,
         }));
         context.commit('UPDATE_ENTITIES', items);
-        // console.log('tot', res.total);
+        // console.info('tot', res.total);
         context.state.pagination.totalRows = 199990; // res.total;
         return items;
       });

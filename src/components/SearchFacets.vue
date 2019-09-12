@@ -322,7 +322,7 @@ export default {
       this.$emit('reset-filter', type);
     },
     showModal(type) {
-      console.log('OPEN MODAL', type);
+      console.info('OPEN MODAL', type);
       this.facetExplorerType = type;
       this.$bvModal.show('facet-explorer-modal');
     },
@@ -335,7 +335,7 @@ export default {
       });
     },
     submitDaterange() {
-      console.log('submit-facet', this.daterange.start, this.daterange.end);
+      console.info('submit-facet', this.daterange.start, this.daterange.end);
       this.$emit('submit-facet', {
         type: 'daterange',
         start: new Date(this.daterange.start),

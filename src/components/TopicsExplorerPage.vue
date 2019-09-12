@@ -136,7 +136,7 @@ export default {
 
     this.graph
       .on('svg.click', (d) => {
-        // console.log('svg.click', d);
+        // console.info('svg.click', d);
         this.tooltip = {
           ...d,
           isActive: false,
@@ -147,7 +147,7 @@ export default {
         this.tooltip.y = d.y;
       })
       .on('node.click', (d) => {
-        // console.log('node.click', d);
+        // console.info('node.click', d);
         this.tooltip = {
           x: d.x,
           y: d.y,
@@ -156,7 +156,7 @@ export default {
         };
       })
       .on('node.click', (d) => {
-        // console.log('node.click', d);
+        // console.info('node.click', d);
         this.tooltip = {
           x: d.x,
           y: d.y,
@@ -193,7 +193,7 @@ export default {
   },
   methods: {
     onResize() {
-      console.log('TopicExplorer@resize');
+      console.info('TopicExplorer@resize');
       this.graph.resize();
     },
   },
@@ -209,7 +209,7 @@ export default {
     },
     colorBy: {
       handler(property) {
-        console.log('change colorby', property);
+        console.info('change colorby', property);
         this.graph.updateDimension({
           name: 'nodeColor',
           property,
@@ -220,7 +220,7 @@ export default {
     },
     sizeBy: {
       handler(property) {
-        console.log('change sizeby', property);
+        console.info('change sizeby', property);
         this.graph.updateDimension({
           name: 'nodeSize',
           property,

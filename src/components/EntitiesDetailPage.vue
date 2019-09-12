@@ -292,7 +292,7 @@ export default {
       this.mentions = await this.loadMentions(page);
     },
     onHighlight(event, origin) {
-      // console.log(event, origin);
+      // console.info(event, origin);
       this.highlights.forEach((vis) => {
         if (vis !== origin) {
           this[`highlight${vis}`] = event.datum;
@@ -301,10 +301,10 @@ export default {
     },
     parseWkDate(wkDate) {
       let numYear = parseInt(wkDate.split('-')[0], 10);
-      // console.log(numYear);
+      // console.info(numYear);
       if (isNaN(numYear)) {
         numYear = parseInt(wkDate.split('-')[1], 10) * -1;
-        // console.log(numYear);
+        // console.info(numYear);
       }
       return numYear;
     },

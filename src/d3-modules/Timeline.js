@@ -85,7 +85,7 @@ export default class Timeline extends Line {
         maxValue: this.brushedMaxValue,
       });
     }
-    // else console.log('@brushed called from outside, no need to emit brushes');
+    // else console.info('@brushed called from outside, no need to emit brushes');
   }
 
   brushTo({ min, max }) {

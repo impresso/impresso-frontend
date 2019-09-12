@@ -183,7 +183,7 @@ export default {
       try {
         context.commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
       } catch (err) {
-        console.log(err);
+        console.info(err);
       }
       context.dispatch('SEARCH');
     },
