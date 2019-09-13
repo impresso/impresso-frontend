@@ -1,16 +1,15 @@
 <template lang="html">
   <i-layout id="SearchPage">
     <i-layout-section width="300px" class="border-right">
-      <div slot="header" class="border-bottom">
-
-        <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <b-navbar-nav class="px-3 py-3">
-            <p>{{$t("label_list", { total: paginationList.totalRows})}}</p>
-            <label class="mr-1">{{$t("label_order")}}</label>
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </b-navbar-nav>
-        </b-navbar>
-        <div class="p-2">
+      <div slot="header" class="border-bottom border-tertiary bg-light">
+        <b-tabs pills class="border-bottom mx-2 pt-2">
+          <template slot="tabs">
+            <b-nav-item class="pl-2 active"
+              active-class='none'
+              :to="{ name:'newspapers'}"><span v-html="$t('label_list', { total: paginationList.totalRows})"/></b-nav-item>
+          </template>
+        </b-tabs>
+        <div class="p-2 px-3">
           <input
             type="text"
             class="form-control"
@@ -36,8 +35,9 @@
           v-bind:currentPage="paginationList.currentPage"
           v-bind:totalRows="paginationList.totalRows"
           v-on:change="onInputPaginationList"
-          v-bind:showDescription="true" />
+          v-bind:showDescription="false" />
       </div>
+
     </i-layout-section>
     <router-view></router-view>
   </i-layout>
@@ -169,6 +169,10 @@ export default {
 
 .active {
     background: $clr-accent-secondary;
+}
+
+.nav-item.active{
+  background-color: transparent;
 }
 </style>
 

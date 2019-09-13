@@ -62,7 +62,7 @@ export default class SearchQuery {
         const filterized = filterize(d);
         const idx = this.filtersIds.indexOf(filterized.getHash());
         if (idx !== -1) {
-          console.log('enrichFilters: found', d.type, d, filterized);
+          console.info('enrichFilters: found', d.type, d, filterized);
           if (filterized.item) {
             this.filters[idx].item = filterized.item;
           } else if (filterized.items) {
@@ -80,7 +80,7 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
-  updateFilter({ filter, q, op, items, context }) {
+  updateFilter({ filter, q, op, items, context, precision, distance }) {
     const fil = this.getFilter(filter);
     if (!fil) {
       return;
@@ -90,6 +90,12 @@ export default class SearchQuery {
     }
     if (op) {
       fil.op = op;
+    }
+    if (precision) {
+      fil.precision = precision;
+    }
+    if (distance) {
+      fil.distance = distance;
     }
     if (context) {
       fil.context = context;
@@ -135,13 +141,19 @@ export default class SearchQuery {
     }
   }
 
+  /**
+   * Get filters as query. Return a concatenation of
+   * filters to be put in a querystring
+   * @param  {Array}  [exclude=[]] specify which types to exclude
+   * @return {[type]}              [description]
+   */
   getFilters(exclude = []) {
-    // const types = this.filters.map(d => d.type);
-    let filters = this.filters.map(filter => filter.getQuery());
-
-    filters = filters.filter(i => i);
-    filters = filters.filter(i => exclude.includes(i.type) === false);
-
+    let filters = this.filters
+      .map(filter => filter.getQuery())
+      .filter(i => i);
+    if (exclude.length) {
+      filters = filters.filter(i => exclude.includes(i.type) === false);
+    }
     return filters;
   }
 

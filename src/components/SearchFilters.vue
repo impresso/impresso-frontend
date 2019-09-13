@@ -63,6 +63,8 @@ import FilterDateRange from './modules/FilterDateRange';
 import FilterNamedEntity from './modules/FilterNamedEntity';
 import FilterRegex from './modules/FilterRegex';
 import FilterTopic from './modules/FilterTopic';
+import FilterPerson from './modules/FilterPerson';
+import FilterLocation from '@/models/FilterLocation';
 import FilterCollection from './modules/FilterCollection';
 import FilterLanguage from './modules/FilterLanguage';
 import FilterNewspaper from './modules/FilterNewspaper';
@@ -70,7 +72,7 @@ import FilterString from './modules/FilterString';
 
 export default {
   data: () => ({
-    filtersOrder: ['string', 'regex', 'entity', 'topic', 'daterange', 'newspaper', 'language', 'year'],
+    filtersOrder: ['person', 'location', 'string', 'regex', 'entity', 'topic', 'daterange', 'newspaper', 'language', 'year'],
   }),
   computed: {
     search: {
@@ -120,6 +122,8 @@ export default {
     'filter-date-range': FilterDateRange,
     'filter-facet-year': FilterFacetYear,
     'filter-topic': FilterTopic,
+    'filter-person': FilterPerson,
+    'filter-location': FilterLocation,
     'filter-newspaper': FilterNewspaper,
     'filter-language': FilterLanguage,
     'filter-collection': FilterCollection,

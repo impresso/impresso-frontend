@@ -14,6 +14,9 @@ import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
 import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
+import EntitiesPage from '../components/EntitiesPage';
+import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
+import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
@@ -40,7 +43,7 @@ const router = new Router({
     name: 'search',
     component: SearchPage,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
@@ -48,7 +51,7 @@ const router = new Router({
     name: 'searchImages',
     component: SearchImagesPage,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
@@ -64,14 +67,15 @@ const router = new Router({
     path: '/user/logout',
     name: 'logout',
     component: UserLoginPage,
-    beforeEnter: (to, from, next) => {
+    beforeEnter: () => {
       store.dispatch('user/LOGOUT').then(() => {
-        next();
+      }, (err) => {
+        this.error = this.$t(err.message);
       });
     },
     meta: {
       realm: 'user',
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
@@ -90,7 +94,7 @@ const router = new Router({
     name: 'collections',
     props: true,
     children: [{
-      path: '',
+      path: 'collections',
       component: CollectionsExplorerPage,
       name: 'collectionsExplorer',
       meta: {
@@ -114,7 +118,7 @@ const router = new Router({
     name: 'issue',
     props: true,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
       realm: 'issueviewer',
     },
   },
@@ -124,8 +128,18 @@ const router = new Router({
     name: 'page',
     props: true,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
       realm: 'issueviewer',
+    },
+  },
+  {
+    path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
+    component: IssuePage,
+    name: 'article',
+    props: true,
+    meta: {
+      realm: 'issueviewer',
+      requiresAuth: false,
     },
   },
   {
@@ -136,7 +150,7 @@ const router = new Router({
       component: NewspapersExplorerPage,
       name: 'newspapers',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         realm: 'newspapers',
       },
     },
@@ -145,7 +159,7 @@ const router = new Router({
       component: NewspapersDetailPage,
       name: 'newspaper',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         realm: 'newspapers',
       },
     },
@@ -154,8 +168,30 @@ const router = new Router({
       component: NewspapersDetailPage,
       name: 'newspaper_metadata',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         realm: 'newspapers',
+      },
+    }],
+  },
+  {
+    path: '/entities',
+    component: EntitiesPage,
+    children: [{
+      path: '',
+      component: EntitiesExplorerPage,
+      name: 'entities',
+      meta: {
+        requiresAuth: false,
+        realm: 'entities',
+      },
+    },
+    {
+      path: ':entity_id',
+      component: EntitiesDetailPage,
+      name: 'entity',
+      meta: {
+        requiresAuth: false,
+        realm: 'entities',
       },
     }],
   },
@@ -174,7 +210,7 @@ const router = new Router({
       component: TopicsExplorerPage,
       name: 'topics',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     },
     {
@@ -182,26 +218,9 @@ const router = new Router({
       component: TopicDetailPage,
       name: 'topic',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     }],
-  },
-  {
-    path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
-    component: IssuePage,
-    name: 'article',
-    props: true,
-    meta: {
-      realm: 'issueviewer',
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/playground',
-    component: TestPage,
-    meta: {
-      requiresAuth: true,
-    },
   },
   {
     path: '/article/:article_uid',
@@ -221,6 +240,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+  window.redirect = from.path;
   if (to.meta.requiresAuth === false) {
     next();
   } else {
@@ -231,7 +251,7 @@ router.beforeEach((to, from, next) => {
         next({
           name: 'login',
           query: {
-            redirect: to.path,
+            redirect: from.path,
           },
         });
       }

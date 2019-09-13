@@ -24,14 +24,19 @@
       </div>
       <b-container fluid class="inputList p-0">
         <ul>
+          <li v-if="!Object.keys(this.collections).length">
+            <i-spinner class="text-center p-5" />
+          </li>
           <li v-for="collection in filteredCollections" class="form-check">
             <input
               class="form-check-input"
               type="checkbox"
               v-bind:id="collection.uid"
               v-bind:checked="isActive(collection)"
+              v-bind:class="isIndeterminate(collection)"
               />
-            <span class="checkmark dripicons-checkmark" />
+              <span class="checkmark checkmark-checked dripicons-checkmark" />
+              <span class="checkmark checkmark-indeterminate dripicons-minus" />
             <label
               class="form-check-label py-2 pr-2"
               v-on:click="toggleActive(collection, $event)"
@@ -45,7 +50,8 @@
               &middot;
               <span
                 class="description text-muted small-caps"
-                :title="$t('last_edited')">{{$d(collection.lastEditedDate, 'compact')}}</span>
+                :title="$t('last_edited')">
+                {{collection.lastModifiedDate.toString().substring(0,15)}}</span>
             </label>
           </li>
         </ul>
@@ -86,46 +92,40 @@ export default {
       const len = this.inputString.trim().length;
       this.isDisabled = (len >= 3 && len <= 50);
     },
+    isIndeterminate(needle) {
+      const items = this.items || [this.item];
+      let matches = 0;
+      items.forEach((item) => {
+        if (item.collections
+          && item.collections.find(collection => needle.uid === collection.uid)) matches += 1;
+      });
+      if (matches === 0) return 'unchecked';
+      if (matches === items.length) return 'checked';
+      return 'indeterminate';
+    },
     isActive(needle) {
-      if (this.items) {
-        let matches = 0;
-        this.items.forEach((item) => {
-          if (item.collections
-            && item.collections.find(collection => needle.uid === collection.uid)) matches += 1;
-        });
-        const el = document.querySelector(`.addbulk #${needle.uid}`);
-        if (el) el.indeterminate = false;
-        if (matches === 0) return false;
-        else if (matches === this.items.length) return true;
-        if (el) el.indeterminate = true;
-      }
-      if (!this.item || !this.item.collections) {
-        return false;
-      }
-      return this.item.collections.find(collection => needle.uid === collection.uid);
+      return this.isIndeterminate(needle) === 'checked';
     },
     toggleActive(collection) {
       const items = this.items ? this.items : [this.item];
-      const id0 = items[0].collections.findIndex(c => (c.uid === collection.uid));
-
+      const checked = this.isIndeterminate(collection) === 'checked';
       items.forEach((item) => {
-        if (id0 !== -1) {
+        const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+        if (checked && idx !== -1) {
           this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
             collection,
             item,
           }).then(() => {
-            const idx = item.collections.findIndex(c => (c.uid === collection.uid));
             item.collections.splice(idx, 1);
-            this.$forceUpdate();
           });
-        } else {
+        }
+        if (!checked && idx === -1) {
           this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
             collection,
             item,
             contentType: 'article',
           }).then(() => {
             item.collections.push(collection);
-            this.$forceUpdate();
           });
         }
       });
@@ -149,11 +149,11 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
 .collection-add-to {
-  min-width: 400px;
+  min-width: 265px;
   input {
     font-style: italic;
     &:focus {
@@ -183,14 +183,17 @@ export default {
           bottom: 0;
           left: 0.75em;
         }
-        input:checked ~ .checkmark {
+        input.checked ~ .checkmark-checked {
           display: block;
         }
-        input:indeterminate ~ label {
-          background: rgba($clr-accent-secondary, 0.25);
+        input.indeterminate ~ .checkmark-indeterminate {
+          display:block;
         }
-        input:checked ~ label {
+        input.checked ~ label {
           background: rgba($clr-accent-secondary, 0.5);
+        }
+        input.indeterminate ~ label {
+          background: rgba($clr-accent-secondary, 0.25);
         }
         label {
           display: block;

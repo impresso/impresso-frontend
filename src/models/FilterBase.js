@@ -12,6 +12,8 @@ export default class Filter {
     }
     if (context !== contexts.INCLUDE) {
       this.context = String(contexts[context.toUpperCase()]);
+    } else {
+      this.context = contexts.INCLUDE;
     }
     this.type = String(type);
     this.touched = touched;

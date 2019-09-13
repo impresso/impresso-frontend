@@ -1,10 +1,12 @@
 import * as services from '@/services';
 import Collection from '@/models/Collection';
+import Article from '@/models/Article';
 
 export default {
   namespaced: true,
   state: {
     collections: [],
+    collectionItems: [],
     collectionsSortOrder: '-modified',
     orderBy: '-dateAdded', // dateAdded, itemDate, -itemDate
     paginationPerPage: 12,
@@ -21,6 +23,15 @@ export default {
         return new Collection(collection);
       });
     },
+    collectionItems(state) {
+      return state.collectionItems.map((a) => {
+        if (a instanceof Article) {
+          return a;
+        }
+
+        return new Article(a);
+      });
+    },
     collectionsSortOrder(state) {
       return state.collectionsSortOrder;
     },
@@ -31,6 +42,9 @@ export default {
     },
     UPDATE_COLLECTIONS(state, collections) {
       state.collections = collections;
+    },
+    UPDATE_COLLECTION_ITEMS(state, items) {
+      state.collectionItems = items;
     },
     UPDATE_PAGINATION_CURRENT_PAGE(state, page) {
       state.paginationCurrentPage = parseInt(page, 10);
@@ -102,7 +116,13 @@ export default {
         }),
       ]).then((results) => {
         const loadedCollection = new Collection(results[0]);
-        loadedCollection.items = results[1].data;
+        const articles = [];
+        results[1].data.forEach((a) => {
+          if (!(a.item instanceof Article)) {
+            articles.push(new Article(a.item));
+          }
+        });
+        context.commit('UPDATE_COLLECTION_ITEMS', articles);
         context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
           paginationTotalRows: results[1].total,
         });

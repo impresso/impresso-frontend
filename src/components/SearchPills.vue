@@ -9,7 +9,10 @@
           class="filter-icon"
           :class="[
             {'dripicons-align-justify': filter.type === 'string'},
+            {'dripicons-minus': filter.type === 'title'},
             {'dripicons-message': filter.type === 'topic'},
+            {'dripicons-user': filter.type === 'person'},
+            {'dripicons-location': filter.type === 'location'},
             {'dripicons-pamphlet': filter.type === 'newspaper'},
             {'dripicons-web': filter.type === 'language'},
             {'dripicons-calendar': filter.type === 'daterange'},
@@ -19,28 +22,32 @@
         <span class="label sp-string" v-if="filter.type === 'string'" :class="filter.precision">
           {{filter.q}}
         </span>
+        <!--  type:string -->
+        <span class="label sp-title" v-if="filter.type === 'title'" >
+          <span class="sp-string" :class="filter.precision">{{filter.q}}</span>
+        </span>
         <!--  type:topic -->
         <span class="label sp-topic"
           v-if="filter.type === 'topic'"
-          v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt' })"
+          v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt', op: filter.op })"
           :class="filter.context">
         </span>
-        <!--  type:newspaper -->
-        <span class="label sp-newspaper"
-          v-if="filter.type === 'newspaper'"
-          v-html="labelByItems({ items: filter.items, max: 2 })"
+        <!--  type:person, type:location, type:newspaper -->
+        <span class="label sp-labelled"
+          v-if="['person', 'location', 'newspaper'].indexOf(filter.type) !== -1"
+          v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
           :class="filter.context">
         </span>
-        <!--  type:language -->
-        <span class="label sp-language"
-          v-if="filter.type === 'language'"
+        <!--  type:language and other items -->
+        <span class="label sp-generic-item"
+          v-if="['language', 'country'].indexOf(filter.type) !== -1"
+          v-html="labelByItems({ items: filter.items, max: 2, prop:'uid', translate: true, type:filter.type, op: filter.op })"
           :class="filter.context">
-          {{$t(`language.${filter.q}`)}}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
           v-if="filter.type === 'collection'"
-          v-html="labelByItems({ items: filter.items, max: 2 })"
+          v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
           :class="filter.context">
         </span>
 
@@ -55,33 +62,10 @@
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
         <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
-
-
-        <b-form-group :label="filter.type" v-if="filter.type === 'string'">
-          <b-form-input
-            size="sm"
-            placeholder=""
-            v-model="filter.q"
-            @change="onChangeFilter(filter)">
-          </b-form-input>
-        </b-form-group>
       </div>
 
-      <div v-if="filter.type === 'string'" class="px-2 mt-1 mb-2">
-        <b-button-group>
-          <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
-            @click="onApplyFilter(filter)">
-            {{$t('action.apply')}}
-          </b-button>
-          <b-button  size="sm" variant="outline-primary" :disabled="!filter.touched"
-            @click="onApplyFilter(filter)">
-            {{$t('action.undo')}}
-          </b-button>
-          <b-button  size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
-        </b-button-group>
-      </div>
       <!-- type is not string, add Remove button -->
-      <div v-else class="px-2 mt-1 mb-2">
+      <div class="px-2 mt-1 mb-2">
         <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
       </div>
     </b-dropdown>
@@ -95,6 +79,10 @@ import FilterMonitor from './modules/FilterMonitor';
 
 export default {
   props: {
+    excludedTypes: {
+      type: Array,
+      default: () => ['hasTextContents', 'isFront'],
+    },
     store: {
       type: String,
       default: 'search',
@@ -102,7 +90,6 @@ export default {
   },
   computed: {
     currentStore() {
-      console.log('currentStore', this.store);
       if (this.store === 'searchImages') {
         return this.$store.state.searchImages;
       }
@@ -112,7 +99,7 @@ export default {
       get() {
         // exclude boolean filters
         return this.currentStore.search.filters
-          .filter(d => ['hasTextContents', 'isFront'].indexOf(d.type) === -1);
+          .filter(d => this.excludedTypes.indexOf(d.type) === -1);
           // .sort((a, b) => (a.type > b.type ? 1 : -1));
       },
     },
@@ -136,9 +123,17 @@ export default {
       items = [],
       prop = 'name',
       max = 1,
+      op = 'OR',
+      translate = false,
+      type = 'label',
     } = {}) {
       let labels = items.slice(0, max)
-        .map(d => d[prop] || '...').join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
+        .map((d) => {
+          if (translate) {
+            return this.$t(`buckets.${type}.${d[prop]}`);
+          }
+          return d[prop] || '...';
+        }).join(`<span class="op or px-1">${this.$t(`op.${op.toLowerCase()}`)}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
           count: items.slice(max).length,
@@ -154,7 +149,7 @@ export default {
       let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
         start: this.$d(d.start, 'compact'),
         end: this.$d(d.end, 'compact'),
-      })).join(`<span class="op or px-1">${this.$t('operator.or')}</span>`);
+      })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
           count: items.slice(max).length,
@@ -166,7 +161,6 @@ export default {
       this.$emit('remove', filter);
     },
     onChangeFilter(filter) {
-      console.log('changed');
       filter.touched = true;
     },
     onApplyFilter(filter) {
@@ -194,13 +188,32 @@ export default {
     text-overflow: ellipsis;
     display: inline-flex;
 
-    &.sp-string{
+    &.sp-string, &>.sp-string{
       background-color: #FFEB78;
     }
     &.sp-string.exact::before,
-    &.sp-string.exact::after{
+    &.sp-string.exact::after,
+    &>.sp-string.exact::before,
+    &>.sp-string.exact::after{
       content: '"';
+      font-weight: bold;
     }
+    &.sp-string.fuzzy::after,
+    &>.sp-string.fuzzy::after{
+      content: '~';
+      font-weight: bold;
+    }
+    &.sp-string.soft::before,
+    &>.sp-string.soft::before,{
+      content: '[';
+      font-weight: bold;
+    }
+    &.sp-string.soft::after,
+    &>.sp-string.soft::after{
+      content: ']';
+      font-weight: bold;
+    }
+
   }
 
   span.label.exclude{
@@ -253,8 +266,23 @@ export default {
   {
     "en": {
       "label": {
+        "string": {
+          "title": "article text"
+        },
+        "title": {
+          "title": "title"
+        },
+        "country": {
+          "title": "Country of publication"
+        },
         "topic": {
           "title": "filter by topic"
+        },
+        "person": {
+          "title": "filter by person mentioned (experimental)"
+        },
+        "location": {
+          "title": "filter by location (experimental)"
         },
         "collection": {
           "title": "filter by collection"
@@ -274,9 +302,6 @@ export default {
       },
       "items": {
         "hidden": "({count} more)"
-      },
-      "operator": {
-        "or": "or"
       },
       "type": {
         "string": "str",

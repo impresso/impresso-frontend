@@ -1,6 +1,8 @@
 <template lang="html">
   <div class="tile my-3 border">
-    <div class="thumbnail bg-light clearfix">
+    <div
+      v-if="isLoggedIn()"
+      class="thumbnail bg-light clearfix">
       <open-seadragon-viewer
         v-bind:handler="handler">
       </open-seadragon-viewer>
@@ -10,6 +12,12 @@
           v-bind:checked.native="checked"
           v-on:change="toggleSelected" />
       </div>
+    </div>
+    <div
+      v-else
+      class="error bg-light"
+      slot="aside" >
+      <p class="message">{{$t('login_message')}}</p>
     </div>
     <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
       <h2 v-show="article.title != ''" v-html="article.title" />
@@ -55,6 +63,10 @@ export default {
         navigatorDisplayRegionColor: 'black',
         navigatorBorderColor: '#dee2e6',
         navigatorOpacity: 1,
+        gestureSettingsMouse: {
+          scrollToZoom: false,
+          clickToZoom: false,
+        },
       };
       this.handler.$emit('init', options);
     },
@@ -147,14 +159,22 @@ export default {
   }
   overflow: hidden;
 }
+.error {
+    width: 100%;
+    height: 250px;
+    position: relative;
+    text-align: center;
+    .message{
+      margin-top: 119px;
+    }
+}
 
 </style>
 
 <i18n>
 {
   "en": {
-  },
-  "nl": {
+    "login_message": "Login to view image"
   }
 }
 </i18n>

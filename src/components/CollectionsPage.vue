@@ -36,7 +36,7 @@ export default {
         {
           label: this.$t('tabs.searches'),
           name: 'searches',
-          disabled: true,
+          disabled: false,
         },
         {
           label: this.$t('tabs.labels'),
@@ -66,6 +66,7 @@ export default {
 <i18n>
 {
   "en": {
+    "collections": "collections",
     "tabs": {
         "collections": "My Collections",
         "searches": "My Searches",

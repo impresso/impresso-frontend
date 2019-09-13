@@ -7,20 +7,11 @@ import Newspaper from '@/models/Newspaper';
  * @param {String} items if any
  */
 export default class FilterNewspaper extends FilterItems {
-  constructor(args) {
-    super(args);
-    // if there is no items, create them out of this.q array
-    if (!this.items.length) {
-      this.items = this.q.map(uid => new Newspaper({
-        uid,
-      }));
-    }
-  }
-
   setItems(items = []) {
-    this.items = items.map(d => new Newspaper(d));
-    items.forEach((d, i) => {
-      this.items[i].checked = true;
+    this.items = items.map((d) => {
+      const item = new Newspaper(d);
+      item.checked = true;
+      return item;
     });
   }
 }

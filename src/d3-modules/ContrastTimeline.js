@@ -60,7 +60,7 @@ export default class ContrastTimeline extends Timeline {
     super.update({
       data,
     });
-    console.log('update contrast dimension', this.dimensions.y.domain);
+    console.info('update contrast dimension', this.dimensions.y.domain);
     this.dimensions.contrast.setDomain({
       domain: this.dimensions.y.domain,
     });

@@ -132,7 +132,7 @@ export default class Graph extends Basic {
   }
 
   onDragStarted(datum) {
-    // console.log('ondragstarted', datum.id);
+    // console.info('ondragstarted', datum.id);
     if (!d3.event.active) {
       this.simulation.alphaTarget(0.3).restart();
     }
@@ -144,14 +144,14 @@ export default class Graph extends Basic {
   }
 
   onDragged(datum) {
-    // console.log(this.height);
+    // console.info(this.height);
     this.dragged = datum;
     datum.fx = d3.event.x;
     datum.fy = d3.event.y;
   }
 
   onDragEnded(datum) {
-    // console.log('ondragended', datum.id);
+    // console.info('ondragended', datum.id);
     if (!d3.event.active) {
       this.simulation.alphaTarget(0);
     }
@@ -174,7 +174,7 @@ export default class Graph extends Basic {
     // I know I know...
     const self = this;
 
-    // console.log('draw nodes:', this.nodes.length);
+    // console.info('draw nodes:', this.nodes.length);
 
     this.nodesLayer = this.nodesLayer.data(this.nodes, this.identity);
     this.nodesLayer.exit().remove();
@@ -186,7 +186,7 @@ export default class Graph extends Basic {
         .on('end', datum => this.onDragEnded(datum)));
 
     this.nodesLayer
-      .on('mouseenter', function (datum) {
+      .on('mouseenter', function onMouseEnter(datum) {
         d3.select(this).raise();
         self.emit('node.mouseenter', datum);
       })
@@ -232,7 +232,7 @@ export default class Graph extends Basic {
     links = [],
     nodes = [],
   } = {}) {
-    console.log('graph update. links:', links.length, 'nodes', nodes.length);
+    console.info('graph update. links:', links.length, 'nodes', nodes.length);
     this.links = links;
     // make sure it has all the required properties
     this.nodes = nodes.map(d => ({
@@ -258,7 +258,7 @@ export default class Graph extends Basic {
   //
   // setDimension(key, dimension) {
   //
-  //   console.log('setDimension', name, property, this);
+  //   console.info('setDimension', name, property, this);
   //   this.draw();
   // }
 
@@ -270,9 +270,9 @@ export default class Graph extends Basic {
     if (this.simulationTimer) {
       clearTimeout(this.simulationTimer);
     }
-    console.log('stopSimulation: count down...', this.delay);
+    console.info('stopSimulation: count down...', this.delay);
     this.simulationTimer = setTimeout(() => {
-      console.log('stopSimulation: stopped after', this.delay);
+      console.info('stopSimulation: stopped after', this.delay);
       this.simulation.stop();
     }, this.delay);
   }

@@ -53,16 +53,16 @@ export default {
     onStopJob(id) {
       this.$store.dispatch('jobs/PATCH_JOB', {
         id,
-        status: 'STOP',
+        status: 'stop',
       }).then((res) => {
-        console.log('RECEIVED:', res);
+        console.info('RECEIVED:', res);
       });
     },
     onExport() {
       const anchor = document.createElement('a');
       document.body.appendChild(anchor);
       const file = `${services.MIDDLELAYER_MEDIA_URL}/jobs/${this.job.id}`;
-      console.log('downloading:', file);
+      console.info('downloading:', file);
       const headers = new Headers();
       headers.append('Authorization', `Bearer ${services.app.passport.storage['feathers-jwt']}`);
 
@@ -80,9 +80,9 @@ export default {
     },
   },
   // mounted() {
-  //   console.log(services.app.passport.storage['feathers-jwt']);
+  //   console.info(services.app.passport.storage['feathers-jwt']);
   //   services.app.authenticate().then((res) => {
-  //     console.log(res);
+  //     console.info(res);
   //   });
   // },
 };

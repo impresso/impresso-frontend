@@ -6,6 +6,7 @@ import Page from './Page';
 import Region from './Region';
 import ArticleTopic from './ArticleTopic';
 import Tag from './Tag';
+import Entity from './Entity';
 
 /**
  * @class Article is an object representing a newspaper article
@@ -57,6 +58,9 @@ export default class Article {
     uid = '',
     year = 0,
     topics = [], // array of ArticleTopic instances
+    images = [],
+    locations = [],
+    persons = [],
   } = {}) {
     this.collections = collections.map((collection) => {
       if (collection instanceof Collection) {
@@ -132,6 +136,22 @@ export default class Article {
 
       return new ArticleTopic(topic);
     });
+
+    this.locations = locations.map((location) => {
+      if (location instanceof Entity) {
+        return location;
+      }
+      return new Entity(location);
+    });
+
+    this.persons = persons.map((person) => {
+      if (person instanceof Entity) {
+        return person;
+      }
+      return new Entity(person);
+    });
+
+    this.images = images;
 
     this.time = parseInt(time, 10);
     this.title = String(title);

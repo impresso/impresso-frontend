@@ -4,7 +4,7 @@ import FilterString from '@/models/FilterString';
 import FilterRegex from '@/models/FilterRegex';
 import FilterNewspaper from '@/models/FilterNewspaper';
 import FilterTopic from '@/models/FilterTopic';
-import FilterLanguage from '@/models/FilterLanguage';
+import FilterItem from '@/models/FilterItem';
 import FilterFacetYear from '@/models/FilterFacetYear';
 import FilterDaterange from '@/models/FilterDaterange';
 import FilterCollection from '@/models/FilterCollection';
@@ -28,6 +28,13 @@ export default {
       filter = new FilterString(filterData);
     }
 
+    if (filterData.type === 'title') {
+      filter = new FilterString({
+        ...filterData,
+        type: 'title',
+      });
+    }
+
     if (['isFront', 'hasTextContents'].indexOf(filterData.type) > -1) {
       filter = new FilterBoolean(filterData);
     }
@@ -36,12 +43,12 @@ export default {
       filter = new FilterRegex(filterData);
     }
 
-    if (filterData.type === 'entity') {
+    if (['entity', 'person', 'location'].indexOf(filterData.type) !== -1) {
       filter = new FilterEntity(filterData);
     }
 
-    if (filterData.type === 'language') {
-      filter = new FilterLanguage(filterData);
+    if (['country', 'type', 'language', 'issue'].includes(filterData.type)) {
+      filter = new FilterItem(filterData);
     }
 
     if (filterData.type === 'newspaper') {

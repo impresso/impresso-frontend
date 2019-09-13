@@ -27,7 +27,7 @@
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
             {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b> {{ groupByLabel }}
+            <b>{{ $n(tooltipScope.tooltip.item.w) }}</b> {{ groupByLabel }}
             <!-- <br />
             <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
             &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
@@ -72,7 +72,19 @@
         @submit-buckets="submitBuckets"
         @update-filter="updateFilter"
         @reset-filter="resetFilter"/>
+      <b-button
+        v-if="facet.numBuckets > -1"
+        v-html="$t('actions.viewAll')"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        @click="showModal(facet.type)" />
     </div>
+    <b-modal hide-footer hide-header id="facet-explorer-modal" ref="facet-explorer-modal">
+      <facet-explorer
+        :initial-type="facetExplorerType"
+        @submit-buckets="submitBuckets"
+        @update-filter="updateFilter"
+        @reset-filter="resetFilter" />
+    </b-modal>
   </div>
 </template>
 
@@ -80,35 +92,13 @@
 // import 'flatpickr/dist/flatpickr.css';
 // import flatPickr from 'vue-flatpickr-component';
 import Daterange from '@/models/Daterange';
+import Helpers from '@/plugins/Helpers';
 
 import FilterFacet from './modules/FilterFacet';
 import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
-
-const fillYears = (initialValues = []) => {
-  if (!initialValues.length) {
-    return [];
-  }
-  // add zeroes to values array. Use the current extent.
-  const sorted = initialValues.sort((a, b) => a.t - b.t);
-
-  const values = [sorted[0]];
-
-  for (let i = 1, l = sorted.length; i < l; i += 1) {
-    // if year ...
-    const diff = sorted[i].t - sorted[i - 1].t;
-    for (let j = 1; j < diff; j += 1) {
-      values.push({
-        t: sorted[i - 1].t + j,
-        w: 0,
-        w1: 0,
-      });
-    }
-    values.push(sorted[i]);
-  }
-  return values;
-};
+import FacetExplorer from './modules/FacetExplorer';
 
 export default {
   props: {
@@ -132,7 +122,11 @@ export default {
       start: null,
       end: null,
     },
-    facetsOrder: ['language', 'newspaper', 'topic'],
+    facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
+    selectedFacet: false,
+    facetExplorerType: '',
+    daterangeSelectedIndex: 0,
+    daterangeSelectedItemIndex: 0,
   }),
   computed: {
     currentStore() {
@@ -141,11 +135,26 @@ export default {
       }
       return this.$store.state.search;
     },
+    // selectedFacet: {
+    //   get() {
+    //     if (this.currentStore.search.filters) {
+    //       return this.currentStore.search.filters;
+    //     }
+    //     return false;
+    //   },
+    // },
+
     daterangeFilters() {
       return this.currentStore.search.filters.filter(d => d.type === 'daterange');
     },
     daterangeIncluded() {
       return this.daterangeFilters.filter(d => d.context === 'include');
+    },
+    daterangeSelected() {
+      if (!this.daterangeFilters.length) {
+        return null;
+      }
+      return this.daterangeFilters[this.daterangeSelectedIndex];
     },
     startDate() {
       return new Date(`${this.startYear}-01-01`);
@@ -230,6 +239,7 @@ export default {
         if (!facet) {
           return [];
         }
+        // sort then
         const values = facet.buckets.map(d => ({
           ...d,
           w: d.count,
@@ -237,13 +247,13 @@ export default {
           t: parseInt(d.val, 10),
         }));
         // add zeroes
-        return fillYears(values);
+        return Helpers.timeline.addEmptyYears(values);
       },
     },
     facets: {
       get() {
         return this.currentStore.facets
-          .filter(d => d.type !== 'year')
+          .filter(d => ['year', 'type'].indexOf(d.type) === -1)
           .sort((a, b) => {
             const indexA = this.facetsOrder.indexOf(a.type);
             const indexB = this.facetsOrder.indexOf(b.type);
@@ -263,11 +273,29 @@ export default {
   },
   methods: {
     onTimelineBrushed(data) {
+      let changed = false;
       if (this.startDaterange !== data.minValue) {
+        changed = true;
         this.startDaterange = data.minValue;
       }
       if (this.endDaterange !== data.maxValue) {
+        changed = true;
         this.endDaterange = data.maxValue;
+      }
+      if (!changed) {
+        return;
+      }
+      const item = new Daterange({
+        start: this.startDaterange,
+        end: this.endDaterange,
+      });
+      item.checked = true;
+      if (this.daterangeSelected) {
+        this.$store.commit(`${this.store}/UPDATE_FILTER_ITEM`, {
+          filter: this.daterangeSelected,
+          item,
+          uid: this.daterangeSelected.items[this.daterangeSelectedItemIndex].uid,
+        });
       }
     },
     addDaterangeFilter() {
@@ -293,6 +321,11 @@ export default {
     resetFilter(type) {
       this.$emit('reset-filter', type);
     },
+    showModal(type) {
+      console.info('OPEN MODAL', type);
+      this.facetExplorerType = type;
+      this.$bvModal.show('facet-explorer-modal');
+    },
     submitBuckets({ type, context, ids }) {
       this.$emit('submit-facet', {
         type,
@@ -302,7 +335,7 @@ export default {
       });
     },
     submitDaterange() {
-      console.log('submit-facet', this.daterange.start, this.daterange.end);
+      console.info('submit-facet', this.daterange.start, this.daterange.end);
       this.$emit('submit-facet', {
         type: 'daterange',
         start: new Date(this.daterange.start),
@@ -358,6 +391,7 @@ export default {
     // flatPickr,
     FilterFacet,
     FilterMonitor,
+    FacetExplorer,
   },
 };
 </script>

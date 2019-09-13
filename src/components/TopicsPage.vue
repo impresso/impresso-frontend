@@ -152,7 +152,7 @@ export default {
             },
           ];
         }
-        // console.log('query', query);
+        // console.info('query', query);
         await this.getTopics(query);
       },
     },
@@ -168,9 +168,9 @@ export default {
   //       //   subtitle: 'topic',
   //       //   title: 'topics',
   //       // });
-  //       // console.log('TOPICI', this.topics);
+  //       // console.info('TOPICI', this.topics);
   //       // load all topic given a
-  //       // console.log('topic changed!', topicUid);
+  //       // console.info('topic changed!', topicUid);
   //     },
   //   },
   // },

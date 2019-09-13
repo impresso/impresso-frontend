@@ -7,13 +7,7 @@ export default {
   namespaced: true,
   actions: {
     LOAD_ARTICLE(context, uid) {
-      return new Promise((resolve, reject) => {
-        articles.get(uid).then((result) => {
-          resolve(new Article(result));
-        }).catch((err) => {
-          reject(err);
-        });
-      });
+      return articles.get(uid).then(d => new Article(d));
     },
   },
 };

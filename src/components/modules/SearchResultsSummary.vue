@@ -66,7 +66,7 @@ export default {
     },
 
     getNewspapers() {
-      // console.log('getNewspapers', this.queryComponents);
+      // console.info('getNewspapers', this.queryComponents);
       const mapper = (d) => {
         let results = [];
         if (d.items) {
@@ -90,7 +90,7 @@ export default {
     },
 
     getCollections() {
-      // console.log('getNewspapers', this.queryComponents);
+      // console.info('getNewspapers', this.queryComponents);
       const mapper = (d) => {
         let results = [];
         if (d.items) {
@@ -116,6 +116,29 @@ export default {
         mapper,
       }).join('; ');
     },
+    getBuckets(type) {
+      const mapper = d => d.q
+        .map(item => [`<span class="item item-${type}">`, this.$t(`buckets.${type}.${item}`), '</span>'].join(''))
+        .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
+
+      return this.getFormattedSection({
+        type,
+        mapper,
+      }).join('; ');
+    },
+    getEntities(type) {
+      const mapper = d => d.q
+        .map((uid) => {
+          const name = uid.replace(/^aida-\d+-/, '').split('_').join(' ');
+          return `<span class="item item-${type}">${name}</span>`;
+        })
+        .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
+
+      return this.getFormattedSection({
+        type,
+        mapper,
+      }).join('; ');
+    },
 
     getDateranges() {
       const mapper = d => d.items
@@ -138,12 +161,12 @@ export default {
       }).join('; ');
     },
 
-    getStrings() {
+    getStrings(type = 'string') {
       // later, this mapper will take into account
       // the property `precision`
-      const mapper = d => `<span>"${d.q}"</span>`;
+      const mapper = d => `<span class="highlight precision-${d.precision}">${d.q}</span>${d.distance || ''}`;
       return this.getFormattedSection({
-        type: 'string',
+        type,
         mapper,
       }).join('; ');
     },
@@ -163,7 +186,12 @@ export default {
             newspapers: this.getNewspapers(),
             collections: this.getCollections(),
             terms: this.getStrings(),
+            title: this.getStrings('title'),
             topics: this.getTopics(),
+            languages: this.getBuckets('language'),
+            countries: this.getBuckets('country'),
+            people: this.getEntities('person'),
+            locations: this.getEntities('location'),
           });
           this.$emit('onSummary', this.message);
         }
@@ -173,9 +201,28 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
   span.item, span.date {
     font-family: "questa-sans", sans-serif;
+    font-variant: small-caps;
+    text-transform: lowercase;
+  }
+
+  .precision-exact::before,
+  .precision-exact::after{
+    content: '"';
+    font-weight: bold;
+  }
+  .precision-fuzzy::after,{
+    content: '~';
+    font-weight: bold;
+  }
+  .precision-soft::before{
+    content: '[';
+    font-weight: bold;
+  }
+  .precision-soft::after{
+    content: ']';
     font-weight: bold;
   }
 </style>
@@ -192,9 +239,14 @@ export default {
       "pubof": {
         "newspaper": "of"
       },
+      "person": "mentioning",
+      "location": "mentioning",
       "string": "containing",
+      "title": "where title includes",
       "daterange": "published",
-      "collection": "saved in"
+      "collection": "saved in",
+      "language": "written in",
+      "country": "printed in"
     },
     "exclude": {
       "topic": "without topic",
@@ -204,11 +256,15 @@ export default {
       "pubof": {
         "newspaper": "not published in"
       },
+      "person": "not mentioning",
+      "location": "not mentioning",
       "daterange": "not published",
-      "collection": "not yet saved in"
+      "collection": "not yet saved in",
+      "language": "not written in",
+      "country": "not printed in"
     },
     "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {ranges} {collections} {terms} {topics}",
+    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
   "fr": {

@@ -13,6 +13,12 @@ import newspapers from './Newspapers';
 import articles from './Articles';
 import topics from './Topics';
 import jobs from './Jobs';
+import entities from './Entities';
+import mentions from './Mentions';
+import embeddings from './Embeddings';
+import monitor from './Monitor';
+import buckets from './Buckets';
+
 
 Vue.use(Vuex);
 
@@ -32,6 +38,11 @@ export default new Vuex.Store({
     topics,
     jobs,
     newspapers,
+    entities,
+    mentions,
+    embeddings,
+    monitor,
+    buckets,
   },
   state: {
     processing_status: false,

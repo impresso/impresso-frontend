@@ -22,6 +22,8 @@
     <!--  body -->
     <div class="pt-3">
 
+      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings</b-button>
+
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
           {{$t('label_isFront')}}
@@ -103,6 +105,12 @@
             <span class="dripicons-checklist pr-1"></span>
             {{$tc('add_n_to_collection', selectedItems.length)}}
           </b-dropdown-item>
+          <b-dropdown-item v-on:click="exportSelectedCsv"
+            v-if="selectedItems.length > 0"
+            class="p-2 small-caps">
+            <span class="dripicons-export pr-1"></span>
+            {{$t("selected_export_csv")}}
+          </b-dropdown-item>
           <b-dropdown-item
             class="p-2 small-caps"
             v-b-modal.nameCollection>
@@ -154,6 +162,11 @@
       </div>
     </b-modal>
 
+    <b-modal hide-footer id="embeddings" ref="embeddings"
+      v-bind:title="$t('Find words similar to ...')">
+      <embeddings-search />
+    </b-modal>
+
 
     <div class="p-1">
       <b-container fluid>
@@ -202,6 +215,7 @@ import CollectionAddTo from './modules/CollectionAddTo';
 import CollectionAddToList from './modules/CollectionAddToList';
 import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
+import EmbeddingsSearch from './modules/EmbeddingsSearch';
 // const uuid = require('uuid');
 
 export default {
@@ -212,6 +226,7 @@ export default {
     inputName: '',
     inputDescription: 'All of Impresso',
     nameCollectionOkDisabled: true,
+    inputEmbeddings: '',
   }),
   computed: {
     isFront: {
@@ -364,7 +379,7 @@ export default {
       this.search(1);
     },
     onFacet(facet) {
-      console.log('@onFacet', facet);
+      console.info('@onFacet', facet);
       this.$store.commit('search/ADD_FILTER', facet);
       this.search(1);
     },
@@ -448,7 +463,20 @@ export default {
       this.$store.dispatch('search/EXPORT_FROM_QUERY', {
         description: this.inputDescription,
       }).then((res) => {
-        console.log(res);
+        console.info(res);
+      });
+    },
+    exportSelectedCsv() {
+      const uids = this.selectedItems.map(a => a.uid);
+      this.$store.dispatch('search/EXPORT_FROM_UIDS', {
+        filters: [
+          {
+            type: 'uid',
+            q: uids,
+          },
+        ],
+      }).then((res) => {
+        console.info(res);
       });
     },
     nameCollectionOnShown() {
@@ -500,7 +528,7 @@ export default {
     },
     '$route.query': {
       handler(val) {
-        console.log('@$route.query changed', val);
+        console.info('@$route.query changed', val);
         this.$store.dispatch('search/PULL_SEARCH_PARAMS', val);
       },
       deep: true,
@@ -518,6 +546,7 @@ export default {
     CollectionAddToList,
     Ellipsis,
     SearchPills,
+    EmbeddingsSearch,
   },
   mounted() {
     if (this.uuid !== undefined) {
@@ -610,6 +639,7 @@ div.overlay-region{
     "Collection_Description" : "Collection Description",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
+    "selected_export_csv": "Export selected items as CSV",
     "Based on search query with": "Based on search query with"
   },
   "nl": {

@@ -1,14 +1,15 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
-import Bucket from '@/models/Bucket';
-import Topic from '@/models/Topic';
+// import Bucket from '@/models/Bucket';
+// import Topic from '@/models/Topic';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
-import Newspaper from '@/models/Newspaper';
-import Collection from '@/models/Collection';
+// import Newspaper from '@/models/Newspaper';
+// import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
 // import FilterFactory from '@/models/FilterFactory';
 import router from '../router';
+
 
 export default {
   namespaced: true,
@@ -21,6 +22,20 @@ export default {
     facets: [
       new Facet({
         type: 'year',
+      }),
+      new Facet({
+        type: 'type',
+      }),
+      new Facet({
+        type: 'country',
+      }),
+      new Facet({
+        type: 'person',
+        operators: ['OR', 'AND'],
+      }),
+      new Facet({
+        type: 'location',
+        operators: ['OR', 'AND'],
       }),
       new Facet({
         type: 'language',
@@ -36,7 +51,7 @@ export default {
         type: 'collection',
       }),
     ],
-    facetTypes: ['year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
+    facetTypes: ['person', 'location', 'year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
     orderBy: '-relevance', // relevance, -relevance, date, -date
     groupBy: 'articles', // issues, pages, articles, sentences
     displayStyle: 'list',
@@ -74,7 +89,6 @@ export default {
     // general settings
     UPDATE_SEARCH_QUERY_FILTERS(state, filters) {
       state.search.updateFilters(filters);
-      console.log('commit->UPDATE_SEARCH_QUERY_FILTERS, after:', state.search.filters);
     },
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
@@ -96,7 +110,6 @@ export default {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
     UPDATE_QUERY_COMPONENTS(state, queryComponents) {
-      console.log('#->UPDATE_QUERY_COMPONENTS, queryComponents:', queryComponents);
       state.search.enrichFilters(queryComponents);
       state.queryComponents = queryComponents.map(d => new QueryComponent(d));
     },
@@ -104,8 +117,7 @@ export default {
       state.filterFacetYearExpanded = expanded;
     },
     ADD_FILTER(state, filter) {
-      console.log('#->ADD_FILTER', filter);
-      state.search.addFilter(filter);
+      state.search.addFilter({ ...filter });
     },
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);
@@ -113,8 +125,8 @@ export default {
     RESET_FILTER(state, type) {
       state.search.resetFilter(type);
     },
-    UPDATE_FILTER(state, { filter, q, op, context }) {
-      state.search.updateFilter({ filter, q, op, context });
+    UPDATE_FILTER(state, { filter, q, op, context, precision, distance }) {
+      state.search.updateFilter({ filter, q, op, context, precision, distance });
     },
     UPDATE_FILTER_ITEM(state, { filter, item, uid }) {
       state.search.updateFilterItem({ filter, item, uid });
@@ -126,7 +138,6 @@ export default {
     CLEAR(state) {
       state.search = new SearchQuery();
       state.results = [];
-      state.facets = [];
       state.paginationCurrentPage = 1;
       state.paginationTotalRows = 0;
     },
@@ -149,14 +160,23 @@ export default {
     UPDATE_RESULTS(state, results) {
       state.results = results;
     },
-    CLEAR_FACETS(state) {
-      state.facets = [];
-    },
-    ADD_FACET(state, facet) {
-      state.facets.push(facet);
-    },
     UPDATE_IS_LOADING(state, isLoadingResults) {
       state.isLoadingResults = Boolean(isLoadingResults);
+    },
+    UPDATE_FACET(state, { type, numBuckets, buckets }) {
+      const facet = state.facets.find(d => d.type === type);
+      if (facet) {
+        facet.numBuckets = numBuckets;
+        if (type === 'year') {
+          // sort bucket differently
+          const sortedBuckets = buckets.sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10));
+          facet.setBuckets(sortedBuckets);
+        } else {
+          facet.setBuckets(buckets);
+        }
+      } else {
+        console.error('Could not find any `facet` having type:', type);
+      }
     },
     UPDATE_FACET_BUCKETS(state, { type, buckets }) {
       const facet = state.facets.find(d => d.type === type);
@@ -178,40 +198,57 @@ export default {
      * Print search params to current URL
      * @param {[type]} context [description]
      */
-    PUSH_SEARCH_PARAMS(context) {
+    PUSH_SEARCH_PARAMS({ state, commit }, { routeName = 'search', page = 0 } = {}) {
+      if (page > 0) {
+        commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
+      }
       const query = {
-        f: JSON.stringify(context.state.search.getFilters()),
-        // facets: context.state.facetTypes,
-        g: context.state.groupBy,
-        p: context.state.paginationCurrentPage,
-        // limit: context.state.paginationPerPage,
-        o: context.state.orderBy,
+        f: JSON.stringify(state.search.getFilters()),
+        // facets: state.facetTypes,
+        g: state.groupBy,
+        p: state.paginationCurrentPage,
+        // limit: state.paginationPerPage,
+        o: state.orderBy,
       };
-      console.log('@PUSH_SEARCH_PARAMS', query);
-      router.push({ name: 'search', query });
+      console.info('@PUSH_SEARCH_PARAMS', query);
+      router.push({ name: routeName, query });
     },
-    PULL_SEARCH_PARAMS(context, query) {
+    PULL_SEARCH_PARAMS({ commit, dispatch }, query) {
       if (query.g && ['articles'].indexOf(query.g) !== -1) {
-        context.commit('UPDATE_SEARCH_GROUP_BY', query.g);
+        commit('UPDATE_SEARCH_GROUP_BY', query.g);
       }
       if (query.o && ['-relevance', 'relevance', 'date', '-date'].indexOf(query.o) !== -1) {
-        context.commit('UPDATE_SEARCH_ORDER_BY', query.o);
+        commit('UPDATE_SEARCH_ORDER_BY', query.o);
       }
       if (query.p && !isNaN(query.p)) {
-        context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
+        commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
       }
-      console.log('@PULL_SEARCH_PARAMS', query);
-
-      // parse filters here.
-      try {
-        context.commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
-      } catch (err) {
-        console.log(err);
+      console.info('@PULL_SEARCH_PARAMS', query);
+      if (query.f) {
+        try {
+          // try to PARSE json filters
+          commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
+        } catch (err) {
+          if (err.name === 'SyntaxError') {
+            console.warn('SyntaxError. Cannot parse query filters:', query.f);
+          } else {
+            console.error(err);
+          }
+        }
       }
-      context.dispatch('SEARCH');
+      // do search!
+      dispatch('SEARCH');
+    },
+    ADD_FILTER_TO_CURRENT_SEARCH({ state, commit, dispatch }, filter) {
+      if (!state.search.filtersIndex[filter.type]) {
+        commit('ADD_FILTER', filter);
+      } else {
+        console.warn('ADD_FILTER_TO_CURRENT_SEARCH', filter);
+      }
+      dispatch('PUSH_SEARCH_PARAMS');
     },
     ADD_OR_REPLACE_FILTER(context, filter) {
-      console.log('ADD_OR_REPLACE_FILTER', 'deprecated', filter);
+      console.warn('ADD_OR_REPLACE_FILTER', 'deprecated', filter);
       // const index = context.state.search.filters.findIndex(item => item.type === filter.type);
       // if (index > -1) {
       //   context.commit('UPDATE_FILTER', {
@@ -234,120 +271,113 @@ export default {
       });
     },
     EXPORT_FROM_QUERY(context, payload) {
-      // console.log(context, services.exporter.methods.create);
+      // console.info(context, services.exporter.methods.create);
+      const filters = payload.filters || context.getters.getSearch.getFilters();
       return new Promise((resolve) => {
         services.exporter.create({
           description: payload.description,
         }, {
           query: {
             group_by: 'articles',
-            filters: context.getters.getSearch.getFilters(),
+            filters,
             format: 'csv',
           },
         }).then(res => resolve(res));
       });
     },
-    SEARCH(context) {
-      context.commit('UPDATE_IS_LOADING', true);
-      const search = new Promise(
-        (resolve, reject) => {
-          const query = {
-            filters: context.getters.getSearch.getFilters(),
-            facets: context.state.facetTypes,
-            group_by: context.state.groupBy,
-            page: context.state.paginationCurrentPage,
-            limit: context.state.paginationPerPage,
-            order_by: context.state.orderBy,
-          };
-          console.log('->action:SEARCH', query);
-          services.search.find({
-            query,
-          }).then(
-            (res) => {
-              context.commit('UPDATE_IS_LOADING', false);
-              context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
-              // add language facet/filter
-              if (res.info.facets && res.info.facets.language) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'language',
-                  buckets: res.info.facets.language.buckets.map(bucket => ({
-                    ...bucket,
-                    item: {
-                      ...bucket.item,
-                      uid: bucket.val,
-                    },
-                  })),
-                });
-              }
-
-              // add topic facet/filter
-              if (res.info.facets && res.info.facets.topic) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'topic',
-                  operators: ['OR', 'AND'],
-                  buckets: res.info.facets.topic.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Topic({
-                      ...bucket.item,
-                      uid: bucket.val,
-                    }),
-                  })),
-                });
-              }
-
-              // add newspaper facet/filter
-              if (res.info.facets && res.info.facets.newspaper) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'newspaper',
-                  buckets: res.info.facets.newspaper.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Newspaper(bucket.item),
-                  })),
-                });
-              }
-
-              // add collection facet/filter
-              if (res.info.facets && res.info.facets.collection) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'collection',
-                  buckets: res.info.facets.collection.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Collection({
-                      ...bucket.item,
-                      uid: bucket.val,
-                    }),
-                  })),
-                });
-              }
-
-              if (res.info.facets && res.info.facets.year) {
-                context.commit('UPDATE_FACET_BUCKETS', {
-                  type: 'year',
-                  buckets: res.info.facets.year.buckets.map((bucket) => {
-                    if (bucket instanceof Bucket) {
-                      return bucket;
-                    }
-
-                    return new Bucket(bucket);
-                  }).sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10)),
-                });
-              }
-
-              context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-                paginationTotalRows: res.total,
-              });
-              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
-              resolve(res);
-            },
-            (err) => {
-              context.commit('UPDATE_IS_LOADING', false);
-              reject(err);
-            },
-          );
+    EXPORT_FROM_UIDS(context, { filters }) {
+      return services.exporter.create({}, {
+        query: {
+          group_by: 'articles',
+          format: 'csv',
+          filters,
         },
-      );
+      });
+    },
+    LOAD_SEARCH_FACETS(context, { facets, limit = 5, skip = 0 } = {}) {
+      return services.searchFacets.get(facets.join(','), {
+        query: {
+          filters: context.getters.getSearch.getFilters(),
+          group_by: context.state.groupBy,
+          limit,
+          skip,
+        },
+      }).then((results) => {
+        results.forEach((facet) => {
+          context.commit('UPDATE_FACET', facet);
+        });
+      });
+    },
+    GET_SEARCH_RESULTS({ state }, { groupBy, orderBy, page, limit, filters = [] } = {}) {
+      const query = {
+        filters,
+        group_by: groupBy || state.groupBy,
+        page: page || state.paginationCurrentPage,
+        limit: limit || state.paginationPerPage,
+        order_by: orderBy || state.orderBy,
+      };
+      return services.search.find({
+        query,
+      }).then((res) => {
+        if (query.groupBy === 'articles') {
+          res.data = res.data.map(result => new Article(result));
+        }
+        return res;
+      });
+    },
+    SEARCH({ state, dispatch, commit, getters }, { filters = [] } = {}) {
+      commit('UPDATE_IS_LOADING', true);
+      const facets = ['year', 'language', 'newspaper', 'type', 'country', 'topic'];
+      const query = {
+        // concat temporary filters, if any
+        filters: getters.getSearch.getFilters().concat(filters),
+        facets,
+        group_by: state.groupBy,
+        page: state.paginationCurrentPage,
+        limit: state.paginationPerPage,
+        order_by: state.orderBy,
+      };
 
-      return search;
+      return Promise.all([
+        services.search.find({
+          query,
+        }).then((res) => {
+          commit('UPDATE_IS_LOADING', false);
+          commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+          commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+            paginationTotalRows: res.total,
+          });
+          commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
+          // register facets
+          if (res.total) {
+            facets.forEach((type) => {
+              if (res.info.facets[type]) {
+                commit('UPDATE_FACET', {
+                  type,
+                  buckets: res.info.facets[type].buckets,
+                  numBuckets: res.info.facets[type].numBuckets,
+                });
+              }
+            });
+          }
+        }).catch((err) => {
+          console.error('ERROR in "$store.search/SEARCH" services.search:', err);
+        }).finally(() => {
+          commit('UPDATE_IS_LOADING', false);
+        }),
+        // launch search facets
+        dispatch('LOAD_SEARCH_FACETS', {
+          facets: [
+            'person',
+            'location',
+          ],
+        }),
+        dispatch('LOAD_SEARCH_FACETS', {
+          facets: [
+            'collection',
+          ],
+        }),
+      ]);
     },
   },
 };
