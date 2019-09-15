@@ -15,7 +15,7 @@ export default {
     all: [],
     find: [],
     get: [(context) => {
-      context.result.data = new Article(context.result.data);
+      context.result = new Article(context.result);
     }],
     create: [],
     update: [],
