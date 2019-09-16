@@ -3,7 +3,7 @@
     <i-layout-section width="350px" class="border-right border-tertiary bg-light">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="border-bottom mx-2 pt-2">
-          <template slot="tabs">
+          <template v-slot:tabs-end>
             <b-nav-item class="pl-2"
               @click="switchTab('toc')"
               :class="{ 'active': !isTabSearch }"
