@@ -21,7 +21,7 @@
         <b-navbar type="light" variant="light" class="p-0 border-bottom ">
           <b-navbar-nav class="px-2 pt-2 small-caps">
             <b-tabs pills>
-              <template slot="tabs">
+              <template v-slot:tabs-end>
                 <b-nav-item :to="{ name:'newspaper_metadata'}" exact >{{$t('route.newspaper_metadata')}}</b-nav-item>
                 <b-nav-item :to="{ name:'newspaper'}" exact >{{$t('route.newspaper', { total: $n(total) })}}</b-nav-item>
               </template>

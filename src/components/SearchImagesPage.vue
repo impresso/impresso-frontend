@@ -4,7 +4,7 @@
       <!--  header -->
       <div slot="header" class="border-bottom bg-light">
         <b-tabs pills class="border-bottom mx-2 pt-2">
-          <template slot="tabs">
+          <template v-slot:tabs-end>
             <b-nav-item class="pl-2"
               active-class='none'
               :to="{ name:'search'}">
@@ -22,7 +22,7 @@
           <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
           <b-media v-if="similarToImage" class="pb-3">
             <div style="width:128px;" slot="aside">
-              <b-img
+              <b-img v-if="similarToImage.regions.length"
                 fluid-grow
                 v-bind:src="similarToImage.regions[0].iiifFragment" />
             </div>

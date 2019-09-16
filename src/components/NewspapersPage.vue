@@ -3,7 +3,7 @@
     <i-layout-section width="300px" class="border-right">
       <div slot="header" class="border-bottom border-tertiary bg-light">
         <b-tabs pills class="border-bottom mx-2 pt-2">
-          <template slot="tabs">
+          <template v-slot:tabs-end>
             <b-nav-item class="pl-2 active"
               active-class='none'
               :to="{ name:'newspapers'}"><span v-html="$t('label_list', { total: paginationList.totalRows})"/></b-nav-item>

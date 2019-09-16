@@ -7,7 +7,7 @@
   >
     <div class="d-flex my-2 align-items-center border-bottom">
       <b-tabs pills class="px-2" style="flex-grow:1">
-        <template slot="tabs">
+        <template v-slot:tabs-end>
           <b-nav-item v-for="t in tabs" :key="t" v-on:click="switchTab(t)" :class="{'active': t === tab}">
             <span v-html="$t(`tabs.${t}`)"/>
           </b-nav-item>
