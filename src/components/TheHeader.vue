@@ -15,9 +15,9 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <router-link v-bind:to="{ name: 'entities'}" exact-active-class="active" class="nav-link">{{$t("label_entities")}}</router-link>
-          </li>
+          </li> -->
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
@@ -83,7 +83,7 @@
                 </div>
               </div>
             </template>
-            <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
+            <!-- <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item> -->
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
