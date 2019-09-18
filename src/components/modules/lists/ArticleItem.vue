@@ -18,7 +18,7 @@
     </div>
 
 
-    <div v-if="showExcerpt" class="article-excerpt mt-2">
+    <div v-if="showExcerpt && item.type !=='image'" class="article-excerpt mt-2">
       <span >{{ item.excerpt }}</span>
       <span v-if="showSize" class="badge badge-secondary mr-1 pt-1">
         <span v-if="item.size > 1200">{{ $t('readingTime', { min: parseInt(item.size / 1200) }) }}</span>
