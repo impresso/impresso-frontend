@@ -7,6 +7,7 @@
         v-for="article in articles"
         v-bind:class="{active: article.uid === selectedArticleUid}"
         v-on:click.prevent="onClick(article, page)">
+        <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
         <article-item :item="article" class="p-3 clearfix"
           show-excerpt
           show-link
@@ -22,17 +23,20 @@
         <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
           <b-media
             :ref="`article-${article.uid}`"
-            class="article"
+            class="article border-bottom"
             v-for="article in page.articles"
             v-bind:class="{active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
-            <article-item :item="article" class="p-3 clearfix"
-              show-excerpt
-              show-link
-              show-entities
-              show-size
-              show-pages
-              />
+            <div class="d-flex">
+              <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
+              <article-item :item="article" class="p-3 clearfix flex-grow-1"
+                show-excerpt
+                show-link
+                show-entities
+                show-size
+                show-pages
+                />
+            </div>
             <!--
             <a
               class="p-3 clearfix"
@@ -129,6 +133,7 @@
 <script>
 
 import ArticleItem from './lists/ArticleItem';
+import ImageItem from './lists/ImageItem';
 import CollectionAddTo from './CollectionAddTo';
 import ItemSelector from './ItemSelector';
 
@@ -165,6 +170,7 @@ export default {
     CollectionAddTo,
     ItemSelector,
     ArticleItem,
+    ImageItem,
   },
   methods: {
     orderedTopics(topics) {
