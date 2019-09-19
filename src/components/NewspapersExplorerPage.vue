@@ -95,15 +95,15 @@ export default {
       return this.$t(`${this.valueType}.contrast`);
     },
   },
-  async mounted() {
+  mounted() {
     // global timeline per year, with n. of pages, n. of empty pages, n.of corrupted pages.
-    const timelines = await this.$store.dispatch('newspapers/LOAD_TIMELINES');
-    this.timelines = {
-      pages: timelines[0],
-      issues: timelines[1],
-    };
-    this.values = this.timelines[this.valueType].values;
-    // this.issuesTimeline = await this.$store.dispatch('newspapers/LOAD_ISSUES_TIMELINE');
+    return this.$store.dispatch('newspapers/LOAD_TIMELINES').then(([pages, issues]) => {
+      this.timelines = {
+        pages,
+        issues,
+      };
+      this.values = this.timelines[this.valueType].values;
+    });
   },
   methods: {
     percent(a, t) {

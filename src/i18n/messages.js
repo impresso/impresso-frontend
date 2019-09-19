@@ -54,6 +54,9 @@ export default {
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
+      articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
+      pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
+      issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
       results: '{results} results',
       collection: {
         countItems: '{countItems} saved items',
