@@ -1,8 +1,5 @@
 import * as services from '@/services';
 import Entity from '@/models/Entity';
-import Helpers from '@/plugins/Helpers';
-
-console.info(Helpers);
 
 export default {
   namespaced: true,
@@ -73,7 +70,7 @@ export default {
           t: bucket.val,
           w: bucket.count,
         })).sort((a, b) => parseInt(a.t, 10) - parseInt(b.t, 10));
-        return Helpers.timeline.addEmptyYears(values);
+        return this.$helpers.timeline.addEmptyYears(values);
       });
     },
   },
