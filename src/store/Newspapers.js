@@ -75,20 +75,11 @@ export default {
         order_by: context.state.list.orderBy,
         page: context.state.list.pagination.currentPage,
       };
-      console.info('LOAD_LIST', query);
-      return new Promise((resolve, reject) => {
-        services.newspapers.find({
-          query,
-        }).then(
-          (res) => {
-            context.commit('UPDATE_LIST_PAGINATION_TOTAL_ROWS', res.total);
-            context.commit('UPDATE_LIST_NEWSPAPERS', res.data.map(newspaper => new Newspaper({
-              ...newspaper,
-            })));
-            resolve(res);
-          },
-          reject,
-        );
+      return services.newspapers.find({
+        query,
+      }).then((res) => {
+        context.commit('UPDATE_LIST_PAGINATION_TOTAL_ROWS', res.total);
+        context.commit('UPDATE_LIST_NEWSPAPERS', res.data.map(d => new Newspaper(d)));
       });
     },
     LOAD_TIMELINES() {
@@ -123,11 +114,8 @@ export default {
       })));
     },
     LOAD_DETAIL(context, newspaperUid) {
-      return new Promise((resolve, reject) => {
-        services.newspapers.get(newspaperUid, {})
-          .then(res => resolve(res))
-          .catch(reject);
-      });
+      return services.newspapers.get(newspaperUid, {})
+        .then(res => new Newspaper(res));
     },
     LOAD_ISSUES(context, {
       page = 1,
@@ -135,15 +123,11 @@ export default {
       limit,
       filters = [],
     } = {}) {
-      return new Promise((resolve, reject) => {
-        services.issues.find({
-          query: { filters, page, limit, order_by: orderBy },
-        })
-        .then((res) => {
-          context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
-          resolve(res);
-        })
-        .catch(reject);
+      return services.issues.find({
+        query: { filters, page, limit, order_by: orderBy },
+      }).then((res) => {
+        context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
+        return res;
       });
     },
   },
