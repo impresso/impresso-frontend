@@ -7,6 +7,7 @@ import VueI18n from 'vue-i18n';
 import Helpers from '@/plugins/Helpers';
 import ImpressoLayout from '@/plugins/Layout';
 import TawkTo from '@/plugins/TawkTo';
+import EventBus from '@/plugins/EventBus';
 
 import * as services from '@/services';
 
@@ -24,6 +25,7 @@ Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 // custom created plugins
 Vue.use(Helpers);
+Vue.use(EventBus);
 Vue.use(ImpressoLayout);
 Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
 
