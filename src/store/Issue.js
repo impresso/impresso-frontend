@@ -9,10 +9,29 @@ export default {
   namespaced: true,
   state: {
     viewerMode: 'text', // text or image
+    pagesIndex: {},
+    issue: null,
   },
   mutations: {
     UPDATE_VIEWER_MODE(state, viewerMode) {
       state.viewerMode = viewerMode;
+    },
+    SET_ISSUE(state, issue) {
+      state.issue = issue;
+    },
+    SET_ISSUE_ARTICLES(state, articles) {
+      state.issue.articles = articles;
+    },
+    SET_PAGE_INDEX(state) {
+      // create or reset page index to quickly get access to the desired page
+      state.pagesIndex = {};
+      state.issue.pages.forEach((page, i) => {
+        state.pagesIndex[page.uid] = i;
+      });
+      console.info('>>> store.issue.SET_PAGE_INDEX', state.issue.pages.length);
+    },
+    SET_PAGE_ARTICLE(state, { pageIdx, articleIdx }) {
+      state.issue.pages[pageIdx].articles.push(state.issue.articles[articleIdx]);
     },
   },
   actions: {
@@ -44,8 +63,18 @@ export default {
         },
       }).then(result => result.data);
     },
-    LOAD_ISSUE(context, uid) {
-      return services.issues.get(uid, {}).then(issue => new Issue(issue));
+    LOAD_ISSUE({ commit }, uid) {
+      return services.issues.get(uid, {}).then((d) => {
+        const issue = new Issue(d);
+        commit('SET_ISSUE', issue);
+        // create or reset page index to quickly get access to the desired page
+        const pagesIndex = {};
+        issue.pages.forEach((page, i) => {
+          pagesIndex[page.uid] = i;
+        });
+        commit('SET_PAGE_INDEX', pagesIndex);
+        return issue;
+      });
     },
     LOAD_PAGE(context, uid) {
       return Promise.all([
@@ -75,23 +104,56 @@ export default {
     LOAD_ARTICLE(context, uid) {
       return services.articles.get(uid).then(d => new Article(d));
     },
-    LOAD_TABLE_OF_CONTENTS(context, issueUid) {
-      const tocPromise = services.tableOfContents.get(issueUid, {})
+    LOAD_TABLE_OF_CONTENTS({ commit, state }) {
+      const tocPromise = services.tableOfContents.get(state.issue.uid, {})
         .then(({ articles }) => articles.map(d => new ArticleBase(d)));
 
       const imagesPromise = services.images.find({
         query: {
           filters: [{
             type: 'issue',
-            q: issueUid,
+            q: state.issue.uid,
           }],
         },
+        order_by: 'id',
         limit: 500,
       }).then(({ data }) => data);
 
       return Promise.all([tocPromise, imagesPromise]).then(([articles, images]) => {
         if (!images.length) {
           return articles;
+        }
+        // articles are sorted by id
+        const uids = articles.map(d => d.uid);
+        // merge the table of images into the table of articles
+        images.forEach((image) => {
+          if (image.article) {
+            const idx = uids.indexOf(image.article.uid);
+            if (idx !== -1) {
+              articles[idx].images.push(new Article(image));
+            }
+          } else {
+            // it will be inserted later in the right page
+            console.info('image added as article', image);
+            articles.push(new Article(image));
+          }
+        });
+
+        commit('SET_ISSUE_ARTICLES', articles);
+        // refresh table of contents
+        for (let i = 0, l = articles.length; i < l; i += 1) {
+          for (let ii = 0, ll = articles[i].pages.length; ii < ll; ii += 1) {
+            const pageUid = articles[i].pages[ii].uid;
+            if (state.pagesIndex[pageUid] > -1) {
+              commit('SET_PAGE_ARTICLE', {
+                pageIdx: state.pagesIndex[pageUid],
+                articleIdx: i,
+              });
+            } else {
+              console.info('state.pagesIndex', state.pagesIndex);
+              console.error(`page nout found on issue: '${pageUid}', skipping`);
+            }
+          }
         }
         // merge the table of images into the table of articles
         // for (let i = 0; i < values[0].pages.length; i += 1) {
