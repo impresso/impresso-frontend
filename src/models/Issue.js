@@ -29,7 +29,13 @@ export default class Issue {
     articles = [],
     uid = '',
     year = 0,
+    accessRights = 'Closed',
+    cover = '',
   } = {}) {
+    this.uid = String(uid);
+    this.accessRights = accessRights;
+    this.year = parseInt(year, 10);
+    this.cover = String(cover);
     this.collections = collections.map((collection) => {
       if (collection instanceof Collection) {
         return collection;
@@ -40,7 +46,12 @@ export default class Issue {
 
     this.countArticles = countArticles;
     this.countPages = countPages;
-    this.date = new Date(date);
+
+    if (date instanceof Date) {
+      this.date = date;
+    } else if (date) {
+      this.date = new Date(date);
+    }
 
     this.entities = entities.map((entity) => {
       if (entity instanceof Entity) {
@@ -60,7 +71,6 @@ export default class Issue {
       if (page instanceof Page) {
         return page;
       }
-
       return new Page(page);
     });
 
@@ -77,9 +87,5 @@ export default class Issue {
 
       return new Article(article);
     });
-
-
-    this.uid = String(uid);
-    this.year = parseInt(year, 10);
   }
 }

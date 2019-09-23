@@ -3,7 +3,7 @@
     <i-layout-section width="300px" class="border-right">
       <div slot="header" class="border-bottom border-tertiary bg-light">
         <b-tabs pills class="border-bottom mx-2 pt-2">
-          <template slot="tabs">
+          <template v-slot:tabs-end>
             <b-nav-item class="pl-2 active"
               active-class='none'
               :to="{ name:'newspapers'}"><span v-html="$t('label_list', { total: paginationList.totalRows})"/></b-nav-item>
@@ -24,9 +24,7 @@
           class="px-3 py-2 d-block"
           v-bind:class="{active: n.uid === newspaperUid}"
           v-bind:to="{name: 'newspaper_metadata', params: {newspaper_uid: n.uid}}">
-          <strong>{{n.name}}</strong>
-          <br>
-          ({{n.startYear}} - {{n.endYear}})
+          <newspaper-item :item="n"/>
         </router-link>
       </div>
       <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top">
@@ -45,6 +43,7 @@
 
 <script>
 import Pagination from './modules/Pagination';
+import NewspaperItem from './modules/lists/NewspaperItem';
 
 export default {
   data: () => ({
@@ -149,7 +148,7 @@ export default {
   },
   components: {
     Pagination,
-
+    NewspaperItem,
   },
   watch: {
     newspaperUid: {
@@ -173,6 +172,9 @@ export default {
 
 .nav-item.active{
   background-color: transparent;
+}
+.newspaper-item h2{
+  font-size: inherit;
 }
 </style>
 

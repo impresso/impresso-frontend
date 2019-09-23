@@ -1,8 +1,9 @@
 <template lang="html">
   <div class="bucket">
     <b-form-checkbox v-model="isChecked">
-      <span v-html="title"></span>
-      <span>({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
+      <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
+      <span v-else>{{ item }}</span>
+      <span v-if="bucket.count > -1">({{ $t('numbers.results', { results: $n(bucket.count) }) }})</span>
       <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
     </b-form-checkbox>
   </div>
@@ -10,6 +11,7 @@
 
 <script>
 import ItemSelector from './ItemSelector';
+import ItemLabel from './lists/ItemLabel';
 
 export default {
   data: () => ({
@@ -29,44 +31,10 @@ export default {
     },
     isLoadingResults: {
       type: Boolean,
-      deafult: true,
+      default: true,
     },
   },
   computed: {
-    title: {
-      get() {
-        let t;
-        switch (this.type) {
-          case 'newspaper':
-          case 'person':
-          case 'location':
-            t = this.bucket.item.name;
-            break;
-          case 'language':
-          case 'country':
-            t = this.$t(`buckets.${this.type}.${this.bucket.val}`);
-            break;
-          case 'collection':
-            if (this.bucket.item.name) {
-              t = [
-                `<b>${this.bucket.item.name}</b>`,
-                `@${this.bucket.item.creator.username}<br/>`,
-                this.$t('dates.lastModifiedDate'),
-                this.$d(this.bucket.item.lastModifiedDate, 'short'),
-              ].join(' ');
-            } else {
-              t = this.bucket.item.uid;
-            }
-            break;
-          case 'topic':
-            t = this.bucket.item.htmlExcerpt;
-            break;
-          default:
-            t = this.bucket.item.uid;
-        }
-        return t;
-      },
-    },
     isChecked: {
       get() {
         return this.checked;
@@ -89,6 +57,7 @@ export default {
   },
   components: {
     ItemSelector,
+    ItemLabel,
   },
   mounted() {
     this.checked = !!this.bucket.checked;
@@ -98,6 +67,9 @@ export default {
 
 <style lang="scss">
 .bucket span{
+  font-variant: normal;
+}
+.bucket label{
   font-variant: normal;
 }
 </style>

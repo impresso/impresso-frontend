@@ -3,7 +3,7 @@
     <i-layout-section width="300px" class="border-right">
       <div slot="header" class="border-bottom border-tertiary bg-light">
         <b-tabs pills class="border-bottom mx-2 pt-2">
-          <template slot="tabs">
+          <template v-slot:tabs-end>
             <b-nav-item class="pl-2 active"
               active-class='none'
               :to="{ name:'entities'}"><span v-html="$t('label_list', { total: paginationList.totalRows})"/></b-nav-item>
@@ -76,7 +76,6 @@ export default {
       return this.$store.dispatch('entities/LOAD_ENTITIES');
     },
     onInputPaginationList(page = 1) {
-      console.log(page);
       this.loadList(page);
     },
     getWikidataImageURL(image, { width = 60 } = {}) {
@@ -131,7 +130,6 @@ export default {
       },
       set(val) {
         this.$store.commit('entities/UPDATE_ORDER_BY', val);
-        console.log(val);
         this.loadList();
       },
     },

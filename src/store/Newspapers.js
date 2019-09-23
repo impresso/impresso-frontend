@@ -75,7 +75,7 @@ export default {
         order_by: context.state.list.orderBy,
         page: context.state.list.pagination.currentPage,
       };
-      console.log('LOAD_LIST', query);
+      console.info('LOAD_LIST', query);
       return new Promise((resolve, reject) => {
         services.newspapers.find({
           query,

@@ -126,7 +126,7 @@ export default {
       this.tooltip.isActive = false;
     },
     onClick(newspaper) {
-      console.log('@click', newspaper);
+      console.info('@click', newspaper);
       // newspaper.isSelected = !newspaper.isSelected;
       // force the instance to be re-rendered
       // this.$forceUpdate();
@@ -138,7 +138,7 @@ export default {
       });
     },
     onMouseover(newspaper, event) {
-      // console.log('@mouseover', event);
+      // console.info('@mouseover', event);
       this.point.y = event.target.offsetTop;
       this.tooltip.item = newspaper;
       this.tooltip.isActive = true;
@@ -224,7 +224,7 @@ export default {
     highlight: {
       immediate: false,
       handler(val) {
-        // console.log('@highlight', val, val.t.getFullYear());
+        // console.info('@highlight', val, val.t.getFullYear());
         // const highlighted = this.getNearestValue(val.t.getFullYear());
         const year = val.t.getFullYear();
         this.point = {

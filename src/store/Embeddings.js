@@ -4,7 +4,7 @@ export default {
   namespaced: true,
   state: {
     language: 'fr',
-    limit: 10,
+    limit: 25,
     embeddings: [],
   },
   mutations: {

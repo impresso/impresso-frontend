@@ -119,15 +119,10 @@ export default {
       return this.$route.params.topic_uid;
     },
   },
-  async mounted() {
+  mounted() {
     this.$store.commit('SET_HEADER_TITLE', {
       title: 'topics',
     });
-
-    const topicsGraph = await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH');
-
-    this.totalNodes = topicsGraph.nodes.length;
-    this.totalLinks = topicsGraph.links.length;
 
     this.graph = new Graph({
       element: '#d3-graph',
@@ -136,7 +131,7 @@ export default {
 
     this.graph
       .on('svg.click', (d) => {
-        // console.log('svg.click', d);
+        // console.info('svg.click', d);
         this.tooltip = {
           ...d,
           isActive: false,
@@ -147,7 +142,7 @@ export default {
         this.tooltip.y = d.y;
       })
       .on('node.click', (d) => {
-        // console.log('node.click', d);
+        // console.info('node.click', d);
         this.tooltip = {
           x: d.x,
           y: d.y,
@@ -156,7 +151,7 @@ export default {
         };
       })
       .on('node.click', (d) => {
-        // console.log('node.click', d);
+        // console.info('node.click', d);
         this.tooltip = {
           x: d.x,
           y: d.y,
@@ -170,22 +165,28 @@ export default {
         }
       });
 
-    this.graph.updateDimension({
-      name: 'nodeColor',
-      property: this.colorBy,
-      values: topicsGraph.nodes,
+    this.$store.dispatch('topics/LOAD_TOPICS_GRAPH').then((topicsGraph) => {
+      this.totalNodes = topicsGraph.nodes.length;
+      this.totalLinks = topicsGraph.links.length;
+
+      this.graph.updateDimension({
+        name: 'nodeColor',
+        property: this.colorBy,
+        values: topicsGraph.nodes,
+      });
+
+      this.graph.updateDimension({
+        name: 'nodeSize',
+        property: this.sizeBy,
+        values: topicsGraph.nodes,
+      });
+
+      this.graph.update({
+        nodes: topicsGraph.nodes,
+        links: topicsGraph.links,
+      });
     });
 
-    this.graph.updateDimension({
-      name: 'nodeSize',
-      property: this.sizeBy,
-      values: topicsGraph.nodes,
-    });
-
-    this.graph.update({
-      nodes: topicsGraph.nodes,
-      links: topicsGraph.links,
-    });
     window.addEventListener('resize', this.onResize);
   },
   beforeDestroy() {
@@ -193,7 +194,7 @@ export default {
   },
   methods: {
     onResize() {
-      console.log('TopicExplorer@resize');
+      console.info('TopicExplorer@resize');
       this.graph.resize();
     },
   },
@@ -209,7 +210,7 @@ export default {
     },
     colorBy: {
       handler(property) {
-        console.log('change colorby', property);
+        console.info('change colorby', property);
         this.graph.updateDimension({
           name: 'nodeColor',
           property,
@@ -220,7 +221,7 @@ export default {
     },
     sizeBy: {
       handler(property) {
-        console.log('change sizeby', property);
+        console.info('change sizeby', property);
         this.graph.updateDimension({
           name: 'nodeSize',
           property,

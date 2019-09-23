@@ -80,19 +80,20 @@
       </b-form-group>
     </div>
     <div v-for="item in filter.items" :key="item.uid" class="mt-2">
-      <b-form-checkbox v-model="item.checked" @change="toggleFilterItem($event, item)">
+      <div v-if="type === 'daterange'">
+        <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
+      </div>
+      <b-form-checkbox v-else v-model="item.checked" @change="toggleFilterItem($event, item)">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
-        <div v-if="type === 'daterange'">
-          <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
-        </div>
+
         <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </b-form-checkbox>
     </div>
     <div class="items-to-add" v-if="itemsToAdd.length">
-      <div v-for="item in itemsToAdd">
+      <div v-for="item in itemsToAdd" :key="item.uid">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
@@ -183,16 +184,15 @@ export default {
     applyFilter() {
       this.updateFilter({});
       this.$emit('filter-applied');
-      this.$store.commit(`${this.store}/UPDATE_PAGINATION_CURRENT_PAGE`, 1);
       this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`);
     },
     updateFilter({ op, context }) {
-      console.log('methods.updateFilter: op:', op, context);
+      console.info('methods.updateFilter: op:', op, context);
       let q;
       if (this.filter.items) {
         // caclulate new q every time. if it's empty
         q = this.filter.items.concat(this.itemsToAdd).reduce((acc, d) => {
-          // console.log('methods.updateFilter: adding uid:', d.uid, d.checked);
+          // console.info('methods.updateFilter: adding uid:', d.uid, d.checked);
           if (d.checked) {
             acc.push(d.uid);
           }
@@ -228,11 +228,11 @@ export default {
       this.updateFilter({ op });
     },
     changeFilterContext(context) {
-      // console.log('@changeFilterContext', context);
+      // console.info('@changeFilterContext', context);
       this.updateFilter({ context });
     },
     changeFilterPrecision(precision) {
-      // console.log('@changeFilterContext', context);
+      // console.info('@changeFilterContext', context);
       this.$store.commit(`${this.store}/UPDATE_FILTER`, {
         filter: this.filter,
         precision,
@@ -240,7 +240,7 @@ export default {
       this.$emit('filter-updated');
     },
     changeFilterDistance(distance) {
-      // console.log('@changeFilterContext', context);
+      // console.info('@changeFilterContext', context);
       this.$store.commit(`${this.store}/UPDATE_FILTER`, {
         filter: this.filter,
         distance,

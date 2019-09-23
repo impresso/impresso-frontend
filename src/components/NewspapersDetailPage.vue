@@ -21,7 +21,7 @@
         <b-navbar type="light" variant="light" class="p-0 border-bottom ">
           <b-navbar-nav class="px-2 pt-2 small-caps">
             <b-tabs pills>
-              <template slot="tabs">
+              <template v-slot:tabs-end>
                 <b-nav-item :to="{ name:'newspaper_metadata'}" exact >{{$t('route.newspaper_metadata')}}</b-nav-item>
                 <b-nav-item :to="{ name:'newspaper'}" exact >{{$t('route.newspaper', { total: $n(total) })}}</b-nav-item>
               </template>
@@ -62,11 +62,10 @@
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="table-caption">List of known metadata for this newspaper</template>
-          <template slot="name" slot-scope="row" class="small-caps">
-            <p>{{ $t(`metadata.property.${row.item.name}`) }}</p>
-            <!-- <p v-html="$t(`metadata.description.${row.item.name}`)" /> -->
+          <template v-slot:cell(name)="row">
+            <p class="small-caps">{{ $t(`metadata.property.${row.item.name}`) }}</p>
           </template>
-          <template slot="property" slot-scope="row">
+          <template v-slot:cell(property)="row">
             <div v-if="row.item.isUrl">
               <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
             </div>

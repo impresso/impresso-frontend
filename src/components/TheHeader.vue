@@ -15,9 +15,9 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <router-link v-bind:to="{ name: 'entities'}" exact-active-class="active" class="nav-link">{{$t("label_entities")}}</router-link>
-          </li>
+          </li> -->
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
@@ -83,7 +83,7 @@
                 </div>
               </div>
             </template>
-            <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item>
+            <!-- <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item> -->
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
@@ -236,6 +236,12 @@ $clr-grey-300: #424a52;
 $clr-grey-400: #5a6672;
 $clr-grey-800: #c6ccd2;
 
+.pt-1px {
+    padding-top: 1px;
+}
+.pb-1px {
+    padding-bottom: 1px;
+}
 #app-header {
     .progress {
         position: absolute;
@@ -398,9 +404,7 @@ $clr-grey-800: #c6ccd2;
 .border-tertiary {
     border-color: $clr-tertiary !important;
 }
-.pt-1px {
-    padding-top: 1px;
-}
+
 .custom-control-input {
   width: 0;
   height: 0;
@@ -464,7 +468,7 @@ $clr-grey-800: #c6ccd2;
     "collections": "Collections",
     "label_home": "Home",
     "label_search": "Search",
-    "label_newspapers": "Newspaper Titles",
+    "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_topics": "Topics",
     "show_all": "show all",

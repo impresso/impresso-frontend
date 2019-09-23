@@ -43,7 +43,7 @@ app.hooks({
   error: {
     all: [
       (error) => {
-        console.log('ERROR: ', error);
+        console.error('ERROR: ', error);
         window.app.$store.state.error_message = 'API Error : See Console for details.';
         window.app.$store.commit('SET_PROCESSING', false);
       },
@@ -62,7 +62,7 @@ app.service('logs').on('created', (payload) => {
       payload.job.task = payload.task;
       window.app.$store.state.jobs.data.unshift(payload.job);
     }
-    // console.log(`logs.created: "${payload.msg}" with payload:`, payload);
+    // console.info(`logs.created: "${payload.msg}" with payload:`, payload);
   }
 });
 
@@ -87,6 +87,7 @@ export const mentions = app.service('mentions');
 export const embeddings = app.service('embeddings');
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
 export const searchFacets = app.service('search-facets');
+export const tableOfContents = app.service('table-of-contents');
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;

@@ -1,68 +1,67 @@
 <template lang="html">
-  <div id="IssueViewerText" class="container-fluid py-3">
+  <div id="IssueViewerText" class="container-fluid py-3 bg-light">
     <i-layout>
       <i-layout-section>
-        <h3>{{article.title}}</h3>
-        <div>
-          <router-link :to="{ name: 'newspaper', params: {newspaper_uid: article.newspaper.uid} }">
-            {{ article.newspaper.name}}
-          </router-link> &mdash; {{ articlePages }}
-        </div>
-        <div class="my-2" />
-        <collection-add-to :item="article" :text="$t('add_to_collection')" />
-        <b-badge
-          v-for="(collection, i) in article.collections"
-          v-bind:key="i"
-          variant="info"
-          class="mt-1 mr-1">
-          <router-link
-            class="text-white"
-            v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
-            {{ collection.name }}
-          </router-link>
-          <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
-        </b-badge>
-        <div class="my-3">
-          <span class="label small-caps">{{ $t("topics")}}</span>:
-          <span v-for="(rel, i) in topics" v-bind:key="i">
-            <router-link :to="{ name: 'topic', params: { 'topic_uid': rel.topic.uid }}">
-              {{ rel.topic.getHtmlExcerpt() }} ({{ $n(rel.relevance * 100) }} %)
-            </router-link> &mdash;
-          </span>
-        </div>
-        <div v-if="hasValidRegions === false">
-          <p>{{article.excerpt}}</p>
-        </div>
-        <div
-          v-else
-          class="row mt-3 mb-3"
-          v-for="(region, i) in article.regions"
-          v-bind:key="i">
-          <div class="col col-sm-7">
-            <div class='region p-2'>
-              <p v-for="contents in region.g" >
-                <span v-html="contents"></span>
-              </p>
-            </div>
+        <i-spinner v-if="!article" class="text-center p-5" />
+        <div v-if="article">
+          <article-item :item="article" show-entities show-excerpt show-meta show-topics/>
+          <div class="my-2" />
+          <collection-add-to :item="article" :text="$t('add_to_collection')" />
+          <b-badge
+            v-for="(collection, i) in article.collections"
+            v-bind:key="`co_${i}`"
+            variant="info"
+            class="mt-1 mr-1">
+            <router-link
+              class="text-white"
+              v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+              {{ collection.name }}
+            </router-link>
+            <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+          </b-badge>
+          <div class="alert alert-light" role="alert" v-if="!article.isCC">
+            <p>{{ $t('wrongLayout') }} <icon name="image"/></p>
           </div>
-          <div class="col">
-            <img v-bind:src="region.iiifFragment" width="100%" />
+          <div v-if="hasValidRegions === false">
+            <p>{{article.excerpt}}</p>
           </div>
+          <b-container fluid
+            v-else
+            class="region-row mt-3 mb-3 bg-white">
+            <b-row v-for="(region, i) in article.regions" v-bind:key="i">
+              <div
+                class="col"
+                :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
+                <div class='region py-3'>
+                  <!-- {{ i }} -->
+                  <p v-for="contents in region.g" >
+                    <span v-html="contents"></span>
+                  </p>
+                </div>
+              </div>
+              <div v-if="article.isCC" class="col col-sm-5 bg-white">
+                <div >
+                  <img v-bind:src="region.iiifFragment" style="width: 100%" />
+                </div>
+              </div>
+            </b-row>
+          </b-container>
         </div>
-        <hr>
-        <b-container fluid>
+        <hr class="py-4">
+        <b-container fluid class="px-0">
           <h3>Similar Articles</h3>
-          <b-row class="pb-5">
+          <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
+          <b-row>
             <b-col
-              cols="6"
+              cols="12"
               sm="12"
-              md="6"
-              lg="4"
+              md="12"
+              lg="6"
               v-for="(searchResult, index) in articlesSuggestions"
-              v-bind:key="searchResult.article_uid">
-              <search-results-tiles-item
-                v-on:click="onClickArticleSuggestion(searchResult)"
-                v-model="articlesSuggestions[index]" />
+              v-bind:key="`${index}_ra`">
+              <search-results-similar-item
+                v-bind:searchResult="searchResult"
+                :topics="commonTopics(searchResult.topics)" />
             </b-col>
           </b-row>
         </b-container>
@@ -72,17 +71,18 @@
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
 import { articlesSuggestions } from '@/services';
-import Article from '@/models/Article';
 import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
-import SearchResultsTilesItem from './SearchResultsTilesItem';
+import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import Ellipsis from './Ellipsis';
+import ArticleItem from './lists/ArticleItem';
 
 export default {
   data() {
     return {
-      article: new Article(),
+      article: null,
       articlesSuggestions: [],
     };
   },
@@ -105,12 +105,19 @@ export default {
   },
   props: ['article_uid'],
   components: {
+    ArticleItem,
     BaseTitleBar,
     CollectionAddTo,
     Ellipsis,
-    SearchResultsTilesItem,
+    SearchResultsSimilarItem,
+    Icon,
   },
   methods: {
+    commonTopics(suggestionTopics) {
+      return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid));
+      // sort by master topics relevance
+      // .sort((a, b) => b.relevance - a.relevance);
+    },
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
       if (idx !== -1) {
@@ -123,23 +130,11 @@ export default {
         });
       }
     },
-    onClickArticleSuggestion(searchResult) {
-      this.$router.push({
-        name: 'article',
-        params: {
-          issue_uid: searchResult.issue.uid,
-          page_number: searchResult.pages[0].num,
-          page_uid: searchResult.pages[0].uid,
-          article_uid: searchResult.uid,
-        },
-      });
-    },
   },
   watch: {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
-        this.article = new Article();
         this.articlesSuggestions = [];
         this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
         articlesSuggestions.get(articleUid).then((res) => {
@@ -151,7 +146,7 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="scss">
 #IssueViewerText{
   overflow: none;
   height: 100%;
@@ -160,9 +155,11 @@ export default {
     border-bottom: 1px solid cyan;
   }
 
+  .region-row {
+    margin:1px;
+  }
+
   .region{
-    padding: 0.125rem 0.25rem;
-    background: white;
 
     p {
       margin-bottom: 0;
@@ -174,6 +171,7 @@ export default {
 <i18n>
 {
   "en": {
+    "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"image mode\"",
     "page": "pag. {num}",
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ..."

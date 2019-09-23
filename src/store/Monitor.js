@@ -45,7 +45,7 @@ export default {
       state.isPending = false;
     },
     SET_ITEM_TIMELINE(state, timeline) {
-      console.log('mutation SET_ITEM_TIMELINE', timeline.length, timeline[0]);
+      console.info('mutation SET_ITEM_TIMELINE', timeline.length, timeline[0]);
       state.timeline = timeline;
       state.isPendingTimeline = false;
     },

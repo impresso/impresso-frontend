@@ -61,6 +61,7 @@ export default {
     selectedIds: [],
     selectedItems: [],
     operators: ['or', 'and'],
+    exploreFacet: {},
   }),
   props: {
     store: {
@@ -149,7 +150,7 @@ export default {
       this.selectedItems = [];
     },
     applyFilter() {
-      console.log('submit', this.facet.type, this.selectedIds);
+      console.info('submit', this.facet.type, this.selectedIds);
       this.$emit('submit-buckets', {
         type: this.facet.type,
         ids: this.selectedIds,
@@ -178,6 +179,8 @@ export default {
 <i18n>
 {
   "en": {
+    "show-more": "Show More",
+    "explore": "Explore {type}",
     "label": {
       "topic": {
         "title": "filter by topic",

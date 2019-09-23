@@ -7,7 +7,7 @@
   >
     <div class="d-flex my-2 align-items-center border-bottom">
       <b-tabs pills class="px-2" style="flex-grow:1">
-        <template slot="tabs">
+        <template v-slot:tabs-end>
           <b-nav-item v-for="t in tabs" :key="t" v-on:click="switchTab(t)" :class="{'active': t === tab}">
             <span v-html="$t(`tabs.${t}`)"/>
           </b-nav-item>
@@ -61,23 +61,16 @@
             <b-button size="sm" variant="outline-primary" @click="applyFilter">{{ $t('actions.addToCurrentFilters') }}</b-button>
           </div>
 
-          <div v-if="type === 'newspaper'" class="m-2">
-            total pages: {{ $n(item.countArticles) }} <br>
-            total issues: {{ $n(item.countIssues) }} <br>
-            total extracted articles: {{ $n(item.countArticles) }};<br>
-            first issue: <span v-if="item.firstIssue">{{ $d(item.firstIssue.date, 'short') }}</span> <br>
-            last issue: <span v-if="item.lastIssue">{{ $d(item.lastIssue.date, 'short') }}</span>
-          </div>
-
-          <div v-if="type === 'topic'" class="m-2">
-            {{ item }}
-          </div>
-
+          <!-- detailed label -->
           <div v-if="['person', 'location'].indexOf(type) !== -1">
             <wikidata-block :item="item" v-if="item.wikidataId" class="p-2"/>
             <div class="m-2" v-else>{{ item }}</div>
           </div>
+          <div v-else class="m-2" style="max-height: 150px; overflow: scroll">
+            <item-label :item="item" :type="type" detailed/>
+          </div>
 
+          <!-- button url  -->
           <div class="text-center m-2" v-if="detailsUrl">
             <router-link class="btn btn-primary btn-sm" :to="detailsUrl">
               {{ $t('actions.more') }}
@@ -231,8 +224,9 @@ export default {
     margin-left: -200px;
     margin-top: -175px;
     pointer-events: auto;
-    &.invisible {
-      opacity: 0.15;
+
+    h2 {
+      font-size: inherit;
     }
   }
 </style>

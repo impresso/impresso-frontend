@@ -66,7 +66,7 @@ export default {
     },
 
     getNewspapers() {
-      // console.log('getNewspapers', this.queryComponents);
+      // console.info('getNewspapers', this.queryComponents);
       const mapper = (d) => {
         let results = [];
         if (d.items) {
@@ -90,7 +90,7 @@ export default {
     },
 
     getCollections() {
-      // console.log('getNewspapers', this.queryComponents);
+      // console.info('getNewspapers', this.queryComponents);
       const mapper = (d) => {
         let results = [];
         if (d.items) {

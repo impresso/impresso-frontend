@@ -4,7 +4,7 @@
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
       <b-tabs pills class="border-bottom mx-2 pt-2">
-        <template slot="tabs">
+        <template v-slot:tabs-end>
           <b-nav-item class="pl-2 active"
             active-class='none'
             :to="{ name:'search'}"><span v-html="$t('tabs.text')"/></b-nav-item>
@@ -379,7 +379,7 @@ export default {
       this.search(1);
     },
     onFacet(facet) {
-      console.log('@onFacet', facet);
+      console.info('@onFacet', facet);
       this.$store.commit('search/ADD_FILTER', facet);
       this.search(1);
     },
@@ -463,7 +463,7 @@ export default {
       this.$store.dispatch('search/EXPORT_FROM_QUERY', {
         description: this.inputDescription,
       }).then((res) => {
-        console.log(res);
+        console.info(res);
       });
     },
     exportSelectedCsv() {
@@ -476,7 +476,7 @@ export default {
           },
         ],
       }).then((res) => {
-        console.log(res);
+        console.info(res);
       });
     },
     nameCollectionOnShown() {
@@ -528,7 +528,7 @@ export default {
     },
     '$route.query': {
       handler(val) {
-        console.log('@$route.query changed', val);
+        console.info('@$route.query changed', val);
         this.$store.dispatch('search/PULL_SEARCH_PARAMS', val);
       },
       deep: true,

@@ -239,6 +239,12 @@ export default {
         "topic": {
           "title": "suggested topics"
         },
+        "person": {
+          "title": "suggested people"
+        },
+        "location": {
+          "title": "suggested locations"
+        },
         "collection": {
           "title": "suggested collections"
         },

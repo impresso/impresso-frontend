@@ -93,7 +93,7 @@ export default {
   },
   methods: {
     imageStyle(image) {
-      console.log('image');
+      console.info('image');
       return {
         backgroundImage: `url("${this.getWikimediaUrl(image)}")`,
         height: `${this.thumbnailSize}px`,
@@ -121,12 +121,12 @@ export default {
       return '';
     },
     parseWkDate(wkDate) {
-      console.log('parseWkDate', wkDate);
+      console.info('parseWkDate', wkDate);
       let numYear = parseInt(wkDate.split('-')[0], 10);
-      // console.log(numYear);
+      // console.info(numYear);
       if (isNaN(numYear)) {
         numYear = parseInt(wkDate.split('-')[1], 10) * -1;
-        // console.log(numYear);
+        // console.info(numYear);
       }
       return numYear;
     },

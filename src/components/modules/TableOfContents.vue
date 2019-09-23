@@ -1,143 +1,202 @@
 <template lang="html">
-  <div id="TableOfContents" ref="TableOfContents">
-    <div v-for="page in tableOfContents.pages" class="mb-5 page">
-      <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
-        <b-media
-          :ref="`article-${article.uid}`"
-          class="border-bottom article"
-          v-for="article in page.articles"
-          v-bind:class="{active: article.uid === articleUid}">
-          <a
-            class="p-3 clearfix"
-            href="#"
+  <div class="toc" ref="TableOfContents">
+    <div v-if="flatten">
+      <b-media
+        :ref="`article-${article.uid}`"
+        class="article flatten"
+        v-for="article in articles"
+        v-bind:class="{active: article.uid === selectedArticleUid}"
+        v-on:click.prevent="onClick(article, page)">
+        <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
+        <article-item :item="article" class="p-3 clearfix"
+          show-excerpt
+          show-link
+          show-entities
+          show-size
+          show-pages
+          show-matches
+          />
+      </b-media>
+    </div>
+    <div v-else>
+      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page border-bottom">
+        <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
+          <b-media
+            :ref="`article-${article.uid}`"
+            class="article border-bottom"
+            v-for="article in page.articles"
+            v-bind:class="{active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
-          <div
-            v-if="article.images.length"
-            class="mr-3 images">
-            <b-img
-            fluid-grow
-            class="mb-1 image"
-              v-for="image in article.images"
-              v-bind:src="image.regions[0].iiifFragment" />
-          </div>
-
-          <span
-            class="title"
-            v-html="article.title" /> &mdash;
-          <span
-            class="excerpt">{{ article.excerpt }}</span>
-          <span v-if="article.size > 1200" class="badge badge-secondary mr-1 pt-1">
-            {{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}
-          </span>
-          <span v-if="article.type !== 'ar'" class="badge badge-secondary mr-1 pt-1">
-            {{ article.type.toUpperCase() }}
-          </span>
-
-          <div class="collapased">
-
-            <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
-              <b-badge
-                v-for="(collection, i) in article.collections"
-                v-bind:key="i"
-                variant="info"
-                class="mr-1">
-                <router-link
-                  class="text-white"
-                  v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
-                  {{ collection.name }}
-                </router-link>
-                <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
-              </b-badge>
+            <div class="d-flex">
+              <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
+              <article-item :item="article" class="p-3 clearfix flex-grow-1"
+                show-excerpt
+                show-link
+                show-entities
+                show-size
+                show-pages
+                />
+            </div>
+            <!--
+            <a
+              class="p-3 clearfix"
+              href="#"
+              v-on:click.prevent="onClick(article, page)">
+            <div
+              v-if="article.images.length"
+              class="mr-3 images">
+              <b-img
+              fluid-grow
+              class="mb-1 image"
+                v-for="image in article.images"
+                v-bind:src="image.regions[0].iiifFragment" />
             </div>
 
-            <collection-add-to
-            class="mt-2"
-              v-if="isLoggedIn()"
-              v-bind:item="article"
-              v-bind:text="$t('add_to_collection')" />
+            <span class="title"
+              v-if="article.title">
+              <span v-html="article.title" /> &mdash;
+            </span>
+            <span
+              class="excerpt">{{ article.excerpt }}</span>
+            <span class="badge badge-secondary mr-1 pt-1">
+              <span v-if="article.size > 1200" >{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }} / </span>
+              {{ $tc('pp', article.nbPages, { pages: article.pages.map(d => d.num).join(',') }) }}
+            </span>
 
-            <ul v-if="article.matches.length > 0" class="article-matches mb-1">
-              <li
-                v-for="(match, i) in article.matches"
-                v-bind:key="i"
-                v-html="match.fragment"
-                v-show="match.fragment.trim().length > 0" />
-            </ul>
-
-            <!-- <ul v-if="article.topics.length > 0" class="article-topics mb-1">
-              <li
-                v-for="topic in article.topics"
-                v-bind:key="topic.topicUid">
-                {{topic.topicUid}} ({{topic.relevance}})
-              </li>
-            </ul> -->
-
-            <ul v-if="article.locations && article.locations.length > 0" class="article-locations mb-1">
-              <li
+            <span v-if="article.type !== 'ar'" class="badge badge-secondary mr-1 pt-1">
+              {{ article.type.toUpperCase() }}
+            </span>
+            {{ article.isCC }}
+            <div v-if="article.locations.length" class="article-locations">
+              <span
                 v-for="location in article.locations"
                 v-bind:key="location.uid">
-                {{location.uid}} ({{location.relevance}})
-              </li>
-            </ul>
+                {{location.name}}
+                <item-selector :uid="location.uid" :item="location" type="location"/>,
+              </span>
 
-            <ul v-if="article.persons && article.persons.length > 0" class="article-persons mb-1">
-              <li
-                v-for="location in article.persons"
+            </div>
+
+            <div v-if="article.persons.length" class="article-persons">
+              <span
+                v-for="person in article.persons"
                 v-bind:key="person.uid">
-                {{person.uid}} ({{person.relevance}})
-              </li>
-            </ul>
+                {{person.name}}
+                <item-selector :uid="person.uid" :item="person" type="person"/>,
+              </span>
+            </div>
+            <div class="collapased">
 
-          </div>
+              <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
+                <b-badge
+                  v-for="(collection, i) in article.collections"
+                  v-bind:key="`${article.article_uid}_col${i}`"
+                  variant="info"
+                  class="mt-1 mr-1">
+                    {{ collection.name }}
+                </b-badge>
+              </div>
 
-          </a>
-        </b-media>
+              <collection-add-to
+              class="mt-2"
+                v-bind:item="article"
+                v-bind:text="$t('add_to_collection')" />
+
+              <ul v-if="article.matches.length > 0" class="article-matches mb-1">
+                <li
+                  v-for="(match, i) in article.matches"
+                  v-bind:key="i"
+                  v-html="match.fragment"
+                  v-show="match.fragment.trim().length > 0" />
+              </ul> -->
+
+              <!-- <ul v-if="article.topics.length > 0" class="article-topics mb-1">
+                <li
+                  v-for="topic in article.topics"
+                  v-bind:key="topic.topicUid">
+                  {{topic.topicUid}} ({{topic.relevance}})
+                </li>
+              </ul> -->
+
+
+<!--
+            </div>
+
+            </a> -->
+          </b-media>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import Issue from '@/models/Issue';
+
+import ArticleItem from './lists/ArticleItem';
+import ImageItem from './lists/ImageItem';
 import CollectionAddTo from './CollectionAddTo';
+import ItemSelector from './ItemSelector';
 
 export default {
+  data: () => ({
+    selectedArticleUid: '',
+  }),
   props: {
+    articles: {
+      type: Array,
+    },
+    flatten: {
+      type: Boolean,
+    },
     tableOfContents: {
-      default: new Issue(),
+      type: Object,
+      required: true,
     },
-    pageUid: {
+    page: {
+      type: Object,
       default: '',
     },
-    articleUid: {
+    article: {
+      type: Object,
       default: '',
+    },
+  },
+  computed: {
+    articleUid() {
+      return this.article.uid;
     },
   },
   components: {
     CollectionAddTo,
+    ItemSelector,
+    ArticleItem,
+    ImageItem,
   },
   methods: {
     orderedTopics(topics) {
       return topics.sort((a, b) => b.relevance - a.relevance);
     },
     onClick(article, page) {
+      this.selectedArticleUid = article.uid;
       this.$emit('click', {
         article,
         page,
       });
     },
     scrollToActiveArticle() {
-      if (this.articleUid !== '') {
-        if (!this.$refs[`article-${this.articleUid}`]) {
-          console.error(`Cannot scrollToActiveArticle: ${this.articleUid} not ready or not found`);
+      console.info('scrollToActiveArticle uid:', this.article.uid);
+      if (this.article.uid !== '') {
+        if (!this.$refs[`article-${this.article.uid}`]) {
+          console.error(`Cannot scrollToActiveArticle: ${this.article.uid} not ready or not found`);
           return;
         }
-        const elm = this.$refs[`article-${this.articleUid}`][0];
+        const elm = this.$refs[`article-${this.article.uid}`][0];
         const parent = this.$refs.TableOfContents.parentNode;
         const elmRelativeTop = elm.offsetTop - parent.offsetTop;
         if (parent.scrollTop > elmRelativeTop ||
           (elm.offsetTop + elm.offsetHeight) - parent.scrollTop >
           parent.offsetTop + parent.offsetHeight) {
-          parent.scrollTo({ top: elmRelativeTop, behavior: 'smooth' });
+          parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
         }
       }
     },
@@ -166,9 +225,19 @@ export default {
       return val;
     },
   },
-  watch: {
-    articleUid() {
+  mounted() {
+    if (this.article) {
+      this.selectedArticleUid = this.article.uid;
       this.scrollToActiveArticle();
+    }
+  },
+  watch: {
+    article: {
+      deep: true,
+      handler(article) {
+        this.selectedArticleUid = article.uid;
+        this.scrollToActiveArticle();
+      },
     },
     tableOfContents: {
       handler() {
@@ -181,22 +250,37 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
+.toc{
+  .article{
+    h2 {
+      font-size: inherit;
+    }
+    &.active {
+      background: white;
+      box-shadow: inset 6px 0px #56CCF2, inset 0px 1px 0px #343a4063;
+    }
+    &.active {
+      background: white;
+      box-shadow: inset 6px 0px gold, inset 0px 1px 0px #343a4063;
+    }
+  }
+}
 
-#TableOfContents{
+.oTableOfContents{
   .page{
     font-size: smaller;
-    .pagenumber{
-      text-align: center;
-    }
 
     .article{
       &.active{
-        border-bottom: 1px solid #343a40 !important;
+        // border-bottom: 1px solid #343a40 !important;
+        background: white;
+        box-shadow: inset 6px 0px #56CCF2, inset 0px 1px 0px #343a4063;
+
         a{
-          box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
-          background: #f8f9fa;
+          // box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
+          background: white; // #f8f9fa;
           .collapased {
             height: auto;
             max-height: 1200px;
@@ -239,7 +323,6 @@ export default {
   "en": {
     "page": "Page",
     "no_title": "No title",
-    "readingTime": "{min} min read",
     "add_to_collection": "Add to Collection ..."
   },
   "nl": {

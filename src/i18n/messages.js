@@ -1,5 +1,6 @@
 export default {
   en: {
+    untitled: '...',
     language: 'Language',
     languages: {
       de: 'German',
@@ -11,6 +12,8 @@ export default {
         de: 'German',
         fr: 'French',
         en: 'English',
+        'n/a': 'Undefined language',
+        nl: 'Dutch',
       },
       country: {
         CH: 'Switzerland',
@@ -29,6 +32,8 @@ export default {
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
       addToCurrentFilters: 'Add to current search filters',
+      addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
+      viewAll: 'explore all ...',
     },
     filters: {
       daterange: {
@@ -49,6 +54,9 @@ export default {
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
+      articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
+      pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
+      issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
       results: '{results} results',
       collection: {
         countItems: '{countItems} saved items',
@@ -67,6 +75,9 @@ export default {
         },
       },
     },
+    pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
+    readingTime: '{min} min read',
+    reducedReadingTime: 'quick reading',
   },
   nl: {
     language: 'Taal',

@@ -1,37 +1,23 @@
 <template lang="html">
   <b-media class="py-3 border-bottom overflow-hidden">
-    <div class="thumbnail bg-light border" slot="aside" >
+    <div
+      v-if="isLoggedIn()"
+      class="thumbnail bg-light border"
+      slot="aside" >
       <open-seadragon-viewer
         v-bind:handler="handler">
       </open-seadragon-viewer>
     </div>
+    <div
+      v-else
+      class="error bg-light border"
+      slot="aside" >
+      <p class="message">{{$t('login_message')}}</p>
+    </div>
     <div class="d-flex">
-
       <div class="list-item-details">
-        <h2 v-if="article.title" class="mb-0">
-          <router-link :to="{ name: 'article', params: {
-            issue_uid: article.issue.uid,
-            page_uid: article.pages[0].uid,
-            article_uid: article.uid,
-          } }" v-html="article.title"></router-link>
-        </h2>
-        <div class="article-meta mb-2">
-          <router-link :to="{ name: 'newspaper', params: { newspaper_uid: article.newspaper.uid }}">
-          <strong v-if="article.newspaper.name">{{article.newspaper.name}}, </strong>
-          </router-link>
-          <span class="small-caps">{{$d(new Date(article.date), "long")}}</span>
-          (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
-        </div>
-
-        <div v-if="article.excerpt.length > 0" class="article-excerpt mb-2">{{article.excerpt}}</div>
-
-        <ul v-if="article.matches.length > 0" class="article-matches mb-2">
-          <li
-            v-for="(match, i) in article.matches"
-            v-bind:key="i"
-            v-html="match.fragment"
-            v-show="match.fragment.trim().length > 0" />
-        </ul>
+        <!-- if article -->
+        <article-item :item="article" show-meta show-excerpt show-entities show-matches show-link />
         <b-badge
           class="mb-2"
           pill
@@ -62,7 +48,6 @@
         </router-link>
 
         <collection-add-to
-          v-if="isLoggedIn()"
           v-bind:item="article"
           v-bind:text="$t('add_to_collection')" />
       </div>
@@ -81,6 +66,7 @@
 import Vue from 'vue';
 import OpenSeadragonViewer from './OpenSeadragonViewer';
 import CollectionAddTo from './CollectionAddTo';
+import ArticleItem from './lists/ArticleItem';
 
 export default {
   data: () => ({
@@ -99,7 +85,7 @@ export default {
           item,
         }).then(() => {
           item.collections.splice(idx, 1);
-          this.$forceUpdate();
+          // this.$forceUpdate();
         });
       }
     },
@@ -132,6 +118,7 @@ export default {
   components: {
     OpenSeadragonViewer,
     CollectionAddTo,
+    ArticleItem,
   },
   mounted() {
     this.init();
@@ -198,6 +185,15 @@ div.overlay-region{
     position: relative;
     cursor: move;
 }
+.error {
+    width: 215px;
+    height: 240px;
+    position: relative;
+    text-align: center;
+    .message{
+      margin-top: 114px;
+    }
+}
 h2 {
   font-size: 1.2em;
   font-weight: 500;
@@ -229,10 +225,8 @@ ul.article-matches {
 {
   "en": {
     "view": "View",
-    "add_to_collection": "Add to Collection ..."
-  },
-  "nl": {
-    "view": "Bekijk"
+    "add_to_collection": "Add to Collection ...",
+    "login_message": "Login to view image"
   }
 }
 </i18n>
