@@ -15,8 +15,9 @@
 
     </router-link>
     <div v-else>
-      <h2>{{ item.name}} ({{ item.startYear}} - {{ item.endYear}})</h2>
+      <h2 v-if="showName">{{ item.name}} ({{ item.startYear}} - {{ item.endYear}})</h2>
       <div class="small" v-html="stats"></div>
+      <div class="small" v-if="showDate" v-html="dates"></div>
     </div>
   </div>
 </template>
@@ -30,11 +31,38 @@ export default {
     showLink: {
       type: Boolean,
     },
+    showDate: {
+      type: Boolean,
+    },
+    showName: {
+      type: Boolean,
+      default: true,
+    },
     item: {
       type: Object,
     },
   },
   computed: {
+    dates() {
+      if (this.item.firstIssue) {
+        let from;
+        let to;
+
+        if (this.item.firstIssue.date instanceof Date) {
+          from = this.$d(this.item.firstIssue.date, 'short');
+          to = this.$d(this.item.lastIssue.date, 'short');
+        } else {
+          from = this.$d(new Date(this.item.firstIssue.date), 'short');
+          to = this.$d(new Date(this.item.lastIssue.date), 'short');
+        }
+        console.info('dates:', from, to);
+        return this.$t('availability', {
+          from,
+          to,
+        });
+      }
+      return '';
+    },
     stats() {
       if (this.item.countIssues > 0) {
         return [
@@ -63,7 +91,8 @@ export default {
 <i18n>
   {
     "en": {
-      "unavailable": "(coming soon)"
+      "unavailable": "(coming soon)",
+      "availability": "from <span class='date'>{from}</span> to <span class='date'>{to}</span>"
     }
   }
 </i18n>

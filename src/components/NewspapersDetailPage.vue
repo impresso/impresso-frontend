@@ -38,27 +38,13 @@
             </li>
           </b-navbar-nav>
         </b-navbar>
+        <b-navbar v-else type="light" variant="light">
+          <newspaper-item :item="newspaper" :show-name="false" show-date/>
+        </b-navbar>
       </div>
       <!-- eof:header  -->
 
       <div class='px-3 py-2 ' v-if='$route.name == "newspaper_metadata"'>
-        <div class="mt-2">
-          <div v-if="newspaper.firstIssue && newspaper.lastIssue" class="small-caps">
-            {{ $t('imeta.daterange') }}
-            {{ $d(new Date(newspaper.firstIssue.date), 'year') }}
-             - {{ $d(new Date(newspaper.lastIssue.date), 'year') }}
-          </div>
-          <div v-if="newspaper.countArticles" class="small-caps">
-            {{ $t('imeta.countArticles') }} {{ newspaper.countArticles }}
-          </div>
-          <div v-if="newspaper.countIssues" class="small-caps">
-            {{ $t('imeta.countIssues') }} {{ newspaper.countIssues }}
-          </div>
-          <div v-if="newspaper.countPages" class="small-caps">
-            {{ $t('imeta.countIssues') }} {{ newspaper.countIssues }}
-            {{ $t('imeta.countPages') }} {{ newspaper.countPages }}
-          </div>
-        </div>
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="table-caption">List of known metadata for this newspaper</template>
@@ -122,6 +108,7 @@
 import Newspaper from '@/models/Newspaper';
 import Pagination from './modules/Pagination';
 import ImageViewer from './modules/ImageViewer';
+import NewspaperItem from './modules/lists/NewspaperItem';
 
 export default {
   data: () => ({
@@ -208,6 +195,7 @@ export default {
   components: {
     Pagination,
     ImageViewer,
+    NewspaperItem,
   },
 };
 </script>
@@ -230,12 +218,11 @@ export default {
 .navbar-light .navbar-nav .nav-link{
   padding: 0.125rem 0.5rem 0.25rem;
   border: 1px solid transparent;
-  &.active {
+  &.router-link-exact-active {
+    color: $clr-primary;
     border-color: #dee2e6;
     border-bottom-color: #f8f9fa;
-    border-top-color: $clr-primary;
-
-    background-color: transparent;
+    background-color: #f8f9fa;
   }
 }
 

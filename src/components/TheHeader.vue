@@ -13,13 +13,13 @@
             <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
           </li>
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
+            <router-link v-bind:to="{ name: 'newspapers'}" active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
           </li>
           <!-- <li class="nav-item">
             <router-link v-bind:to="{ name: 'entities'}" exact-active-class="active" class="nav-link">{{$t("label_entities")}}</router-link>
           </li> -->
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
+            <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
 
         </b-navbar-nav>
