@@ -347,6 +347,19 @@ export default {
           commit('UPDATE_PAGINATION_TOTAL_ROWS', {
             paginationTotalRows: res.total,
           });
+
+
+          // services.collectionsItems.find(res.data).then((re) => {
+          //   console.log('ok', re);
+          // });
+
+          res.data.forEach((item) => {
+            console.log('search item: ', item.uid);
+            services.collectionsItems.get(item.uid).then((re) => {
+              console.log('ok', re);
+            });
+          });
+
           commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
           // register facets
           if (res.total) {
