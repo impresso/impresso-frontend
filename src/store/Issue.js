@@ -120,9 +120,6 @@ export default {
       }).then(({ data }) => data);
 
       return Promise.all([tocPromise, imagesPromise]).then(([articles, images]) => {
-        if (!images.length) {
-          return articles;
-        }
         // articles are sorted by id
         const uids = articles.map(d => d.uid);
         // merge the table of images into the table of articles
