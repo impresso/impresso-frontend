@@ -8,6 +8,10 @@ export default {
       en: 'English',
     },
     buckets: {
+      type: {
+        ad: 'advertisement',
+        ar: 'article',
+      },
       language: {
         de: 'German',
         fr: 'French',
@@ -77,7 +81,7 @@ export default {
     },
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
     readingTime: '{min} min read',
-    reducedReadingTime: 'quick reading',
+    reducedReadingTime: 'short text',
   },
   nl: {
     language: 'Taal',
