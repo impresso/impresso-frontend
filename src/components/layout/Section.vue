@@ -3,7 +3,7 @@
     <div v-if="this.$slots.header" class="header" :class="{'scroll' : scrollTop }">
       <slot name="header"></slot>
     </div>
-    <div class="body" ref="body">
+    <div class="body" :class="variant" ref="body">
       <slot></slot>
     </div>
     <div v-if="this.$slots.footer" class="footer">
@@ -24,6 +24,10 @@ export default {
   props: {
     width: {
       default: 'auto',
+    },
+    variant: {
+      type: String,
+      default: '',
     },
   },
   computed: {
