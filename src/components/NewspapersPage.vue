@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="300px" class="border-right">
+    <i-layout-section width="300px" class="border-right" variant="bg-light">
       <div slot="header" class="border-bottom border-tertiary bg-light">
         <b-tabs pills class="border-bottom mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -19,6 +19,7 @@
             v-model.trim="query"/>
         </div>
       </div>
+      <!-- body -->
       <div v-for="n in newspapers" class="border-bottom">
         <router-link
           class="px-3 py-2 d-block"
@@ -27,7 +28,8 @@
           <newspaper-item :item="n"/>
         </router-link>
       </div>
-      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top">
+      <!-- footer -->
+      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top bg-slight">
         <pagination
           v-bind:perPage="paginationList.perPage"
           v-bind:currentPage="paginationList.currentPage"
@@ -35,7 +37,6 @@
           v-on:change="onInputPaginationList"
           v-bind:showDescription="false" />
       </div>
-
     </i-layout-section>
     <router-view></router-view>
   </i-layout>
@@ -59,19 +60,8 @@ export default {
     newspapers() {
       return this.$store.state.newspapers.list.newspapers;
     },
-    newspaper: {
-      get() {
-        return this.$store.state.newspapers.detail.newspaper;
-      },
-      set(newspaper) {
-        this.$store.commit('newspapers/UPDATE_DETAIL_NEWSPAPER', newspaper);
-      },
-    },
     newspaperUid() {
       return this.$route.params.newspaper_uid;
-    },
-    issues() {
-      return this.$store.state.newspapers.detail.issues;
     },
     query: {
       get() {
@@ -127,7 +117,6 @@ export default {
       if (page !== undefined) {
         this.$store.commit('newspapers/UPDATE_LIST_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-
       return this.$store.dispatch('newspapers/LOAD_LIST');
     },
     onInputPaginationList(page = 1) {
@@ -135,30 +124,11 @@ export default {
     },
   },
   mounted() {
-    this.loadList().then((res) => {
-      if (this.$route.params.newspaper_uid === undefined) {
-        this.$router.push({
-          params: {
-            newspaper_uid: res.data[0].uid,
-          },
-        });
-      }
-      this.newspaper = this.newspapers.find(newspaper => newspaper.uid === this.newspaperUid);
-    });
+    this.loadList();
   },
   components: {
     Pagination,
     NewspaperItem,
-  },
-  watch: {
-    newspaperUid: {
-      immediate: false,
-      handler(val) {
-        if (val !== undefined) {
-          this.newspaper = this.newspapers.find(newspaper => newspaper.uid === this.newspaperUid);
-        }
-      },
-    },
   },
 };
 </script>
