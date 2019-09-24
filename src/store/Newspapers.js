@@ -80,6 +80,7 @@ export default {
       }).then((res) => {
         context.commit('UPDATE_LIST_PAGINATION_TOTAL_ROWS', res.total);
         context.commit('UPDATE_LIST_NEWSPAPERS', res.data.map(d => new Newspaper(d)));
+        return res;
       });
     },
     LOAD_TIMELINES() {
