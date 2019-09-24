@@ -4,28 +4,6 @@
     "subtitle": "Search through 200 years of newspapers",
     "text_bottom": "<a class=\"btn btn-primary btn-sm\" href=\"#\">Request full access to the corpus</a>"
   },
-  "messages": [
-    {
-      "title":  "Call for papers - Digitised newspapers - a new Eldorado for historians ?",
-      "body": "<p><i>What does it mean to work in new ways with the traditional historical sources that are newspapers?</i></p>",
-      "type": "warning",
-      "id": "call-for-papers-digitised-newspapers",
-      "buttons": [
-        {
-          "title": "Read Article",
-          "src": "https://impresso-project.ch/news/2019/06/12/WS5-CfP.html",
-          "target": "_blank",
-          "type": "primary"
-        },
-        {
-          "title": "Visit our blog",
-          "src": "https://impresso-project.ch/blog/",
-          "target": "_blank",
-          "type": "outline-primary"
-        }
-      ]
-    }
-  ],
   "recipes": [
     {
       "caption": "Who is mentioned in the newspapers?",
