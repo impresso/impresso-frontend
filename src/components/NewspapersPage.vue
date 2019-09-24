@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="300px" class="border-right">
+    <i-layout-section width="300px" class="border-right" variant="bg-light">
       <div slot="header" class="border-bottom border-tertiary bg-light">
         <b-tabs pills class="border-bottom mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -20,15 +20,13 @@
         </div>
       </div>
       <!-- body -->
-      <div class="bg-light">
-        <div v-for="n in newspapers" class="border-bottom">
-          <router-link
-            class="px-3 py-2 d-block"
-            v-bind:class="{active: n.uid === newspaperUid}"
-            v-bind:to="{name: 'newspaper_metadata', params: {newspaper_uid: n.uid}}">
-            <newspaper-item :item="n"/>
-          </router-link>
-        </div>
+      <div v-for="n in newspapers" class="border-bottom">
+        <router-link
+          class="px-3 py-2 d-block"
+          v-bind:class="{active: n.uid === newspaperUid}"
+          v-bind:to="{name: 'newspaper_metadata', params: {newspaper_uid: n.uid}}">
+          <newspaper-item :item="n"/>
+        </router-link>
       </div>
       <!-- footer -->
       <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top bg-slight">
