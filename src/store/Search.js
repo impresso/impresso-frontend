@@ -342,23 +342,45 @@ export default {
         services.search.find({
           query,
         }).then((res) => {
-          commit('UPDATE_IS_LOADING', false);
-          commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
-          commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-            paginationTotalRows: res.total,
-          });
+          const itemuids = res.data.map(item => item.uid);
+          // console.log(itemuids, res.data);
 
+          services.collectionsItems.find({
+            query: { item_uids: itemuids, limit: 100 },
+          }).then((cs) => {
+            // const items = res.data;
+            // const colls = {};
+            // rs.data.forEach((r) => {
+            //   colls.collections = r.collections;
+            //   // delete (coll.collectionIds);
+            //   // delete (coll.contentType);
+            //   // delete (coll.itemId);
+            //   // delete (coll.latestDateAdded);
+            //   // delete (coll.searchQueries);
+            // });
+            res.data.forEach((re) => {
+              cs.data.forEach((c) => {
+                if (c.itemId === re.uid) {
+                  re.collections = c.collections;
+                }
+              });
+              // find(item => (item.itemId === re.uid) && item);
+            });
+            //
+            // const mergeById = (a1, a2) =>
+            //   a1.map(itm => ({
+            //     ...a2.find(item => (item.itemId === itm.uid) && item),
+            //     ...itm,
+            //   }));
+            // console.log(mergeById(items, colls));
 
-          // services.collectionsItems.find(res.data).then((re) => {
-          //   console.log('ok', re);
-          // });
-
-          res.data.forEach((item) => {
-            console.log('search item: ', item.uid);
-            services.collectionsItems.get(item.uid).then((re) => {
-              console.log('ok', re);
+            commit('UPDATE_IS_LOADING', false);
+            commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+            commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+              paginationTotalRows: res.total,
             });
           });
+
 
           commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
           // register facets
