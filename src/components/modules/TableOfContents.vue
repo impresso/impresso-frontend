@@ -15,6 +15,7 @@
           show-size
           show-pages
           show-matches
+          show-type
           />
       </b-media>
     </div>
@@ -35,6 +36,7 @@
                 show-entities
                 show-size
                 show-pages
+                show-type
                 />
             </div>
             <!--
