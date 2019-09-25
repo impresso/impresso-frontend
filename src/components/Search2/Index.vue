@@ -10,7 +10,7 @@
     </i-layout-section>
     <i-layout-section>
       <b-tabs card content-class="d-none" slot="header">
-        <template slot="tabs">
+        <template v-slot:tabs-end>
           <li class="nav-item">
             <router-link class="nav-link" v-bind:to="{ name: 'search-articles' }" exact-active-class="active">Articles</router-link>
           </li>

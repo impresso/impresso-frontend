@@ -1,7 +1,7 @@
 <template>
   <i-layout-section>
     <b-tabs card slot="header" content-class="d-none">
-      <template slot="tabs">
+      <template v-slot:tabs-end>
         <b-nav-item
           href="#"
           v-on:click="addQuery">+</b-nav-item>
