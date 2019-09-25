@@ -123,7 +123,7 @@ export default {
     tab: 'toc',
     handler: new Vue(),
     bounds: {},
-    issue: null,
+    // issue: null,
     page: null,
     article: null,
     currentPageIndex: -1,
@@ -140,6 +140,9 @@ export default {
     matches: [],
   }),
   computed: {
+    issue() {
+      return this.$store.state.issue.issue;
+    },
     isTocReady() {
       return this.issue && this.page && this.isTocLoaded;
     },
@@ -184,13 +187,8 @@ export default {
         this.tab = 'toc';
       }
       if (!this.issue || this.issue.uid !== this.$route.params.issue_uid) {
-        this.issue = await this.loadIssue({
+        await this.loadIssue({
           uid: this.$route.params.issue_uid,
-        });
-        // create or reset page index to quickly get access to the desired page
-        this.pagesIndex = {};
-        this.issue.pages.forEach((page, i) => {
-          this.pagesIndex[page.uid] = i;
         });
         this.isTocLoaded = false;
       }
@@ -397,16 +395,8 @@ export default {
     },
     loadToC() {
       console.info('...loading ToC', this.issue.uid);
-      return this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS', this.issue.uid)
-        .then((articles) => {
-          this.issue.articles = articles;
-          // for each article for each page
-          for (let i = 0, l = articles.length; i < l; i += 1) {
-            for (let ii = 0, ll = articles[i].pages.length; ii < ll; ii += 1) {
-              const pageUid = articles[i].pages[ii].uid;
-              this.issue.pages[this.pagesIndex[pageUid]].articles.push(this.issue.articles[i]);
-            }
-          }
+      return this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS')
+        .then(() => {
           this.isTocLoaded = true;
         });
     },
