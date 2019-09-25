@@ -4,7 +4,8 @@
       <b-media
         :ref="`article-${article.uid}`"
         class="article flatten"
-        v-for="article in articles"
+        v-for="(article, idx) in articles"
+        v-bind:key="idx"
         v-bind:class="{active: article.uid === selectedArticleUid}"
         v-on:click.prevent="onClick(article, page)">
         <article-item :item="article" class="p-3 clearfix"
@@ -23,7 +24,8 @@
           <b-media
             :ref="`article-${article.uid}`"
             class="article"
-            v-for="article in page.articles"
+            v-for="(article, idx) in page.articles"
+            v-bind:key="idx"
             v-bind:class="{active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
             <article-item :item="article" class="p-3 clearfix"
