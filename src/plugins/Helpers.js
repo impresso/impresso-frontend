@@ -55,6 +55,21 @@ helpers.timeline.fromBuckets = (buckets) => {
   return helpers.timeline.addEmptyYears(values);
 };
 
+helpers.numbers = {};
+
+/**
+ * Like `Number#toFixed` but only if there is a decimal part
+ * longer than `decimalPlaces`.
+ */
+helpers.numbers.toFixedOptional = (value, decimalPlaces) => {
+  const [integerPart, decimalPart] = `${value}`.split('.');
+
+  if (decimalPart !== undefined) {
+    return `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`;
+  }
+  return integerPart;
+};
+
 const Helpers = {
   install(Vue) {
     Vue.helpers = helpers;

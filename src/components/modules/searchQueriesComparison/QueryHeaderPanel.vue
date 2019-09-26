@@ -7,8 +7,8 @@
         <h3 v-if="title">{{title}}</h3>
       </div>
       <div class="col-auto align-self-start">
-        <div v-if="type" class="type px-1">
-          <span class="small-caps">{{type}}</span>
+        <div v-if="type" class="badge badge-secondary type d-flex">
+          <span class="small-caps d-flex">{{type}}</span>
         </div>
       </div>
     </div>
@@ -33,8 +33,10 @@ export default {
   @import "impresso-theme/src/scss/variables.sass";
 
   .type {
-    background: $clr-primary;
-    color: $clr-bg-secondary;
+    .small-caps {
+      height: 17px;
+      vertical-align: top;
+    }
   }
   .icon {
     font-size: 1.7em;
