@@ -18,13 +18,16 @@
     </div>
 
 
-    <div v-if="showExcerpt" class="article-excerpt mt-2">
+    <div v-if="showExcerpt && item.type !=='image'" class="article-excerpt mt-2">
       <span >{{ item.excerpt }}</span>
-      <span v-if="showSize" class="badge badge-secondary mr-1 pt-1">
-        <span v-if="item.size > 1200">{{ $t('readingTime', { min: parseInt(item.size / 1200) }) }}</span>
-        <span v-else>{{ $t('reducedReadingTime')}}</span>
-      </span>
-      <span v-if="showPages">({{ pages }})</span>
+      <b-badge v-if="showSize || showType" variant="light" class="mr-1 pt-1">
+        <span v-if="showType">{{ $t(`buckets.type.${item.type}`) }} | </span>
+        <span v-if="showSize">
+          <span v-if="item.size > 1200">{{ $t('readingTime', { min: parseInt(item.size / 1200) }) }}</span>
+          <span v-else>{{ $t('reducedReadingTime')}}</span>
+        </span>
+      </b-badge>
+      <span v-if="showPages">{{ pages }}</span>
     </div>
 
     <div v-if="showEntities" class="small article-extras article-entities mt-2">
@@ -94,6 +97,9 @@ export default {
       type: Boolean,
     },
     showMeta: {
+      type: Boolean,
+    },
+    showType: {
       type: Boolean,
     },
     showEntities: {

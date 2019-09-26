@@ -13,13 +13,13 @@
             <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
           </li>
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'newspapers'}" exact-active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
+            <router-link v-bind:to="{ name: 'newspapers'}" active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
           </li>
           <!-- <li class="nav-item">
             <router-link v-bind:to="{ name: 'entities'}" exact-active-class="active" class="nav-link">{{$t("label_entities")}}</router-link>
           </li> -->
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'topics'}" exact-active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
+            <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
 
         </b-navbar-nav>
@@ -89,7 +89,7 @@
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
             <b-dropdown-item
               target="_blank"
-              href="https://impresso-community.slack.com/join/shared_invite/enQtNTg5MzY2NDg2NTAyLWJkNWI5ZTU3ZGI1ZGE1YTg2YmViOWQ1OWMyYTRkMDY1OGM0MWUwNGQzYjYxYTA4ZGU0YzBjMGU4ZmQxNmY5Njc">
+              href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ">
               <icon name="slack"/>
               <span v-html="$t('join_slack_channel')"></span>
             </b-dropdown-item>
