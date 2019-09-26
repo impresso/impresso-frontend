@@ -44,6 +44,11 @@
             {{ newspaper.endYear}}
           </div>
       </div>
+      <div v-if="!isNaN(firstIssueYear(newspaper)) && !isNaN(lastIssueYear(newspaper))" class="line" :style="{
+          background: '#444',
+          left: `${scale(firstIssueYear(newspaper))}px`,
+          right: `${(width - scale(lastIssueYear(newspaper)))}px`}">
+      </div>
       <div class="more" v-if="newspaper.isSelected">...</div>
     </div>
   </div>
@@ -87,6 +92,18 @@ export default {
     },
   },
   methods: {
+    firstIssueYear(n) {
+      if (n.firstIssue) {
+        return Number(this.$d(n.firstIssue.date, 'year'));
+      }
+      return 'not set';
+    },
+    lastIssueYear(n) {
+      if (n.lastIssue) {
+        return Number(this.$d(n.lastIssue.date, 'year'));
+      }
+      return 'not set';
+    },
     onMousemove({ clientX, clientY }) {
       const x = clientX - this.$refs.lines.offsetLeft;
       const y = clientY - (this.$refs.lines.offsetTop - this.scrollTop);
