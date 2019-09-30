@@ -99,12 +99,21 @@
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
+    <cookie-law v-if="!user" theme="blood-orange"
+    buttonText="Accept!"
+    position="top"
+    transitionName="slideFromTop">
+      <div slot="message">
+        By using this app, I agree with the terms ladi ladi.<br><router-link to="legal-notes">Full disclaimer</router-link>
+      </div>
+    </cookie-law>
   </div>
 </template>
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
+import CookieLaw from 'vue-cookie-law';
 import Toast from './modules/Toast';
 
 export default {
@@ -223,6 +232,7 @@ export default {
   components: {
     Icon,
     Toast,
+    CookieLaw,
   },
 };
 </script>
@@ -242,7 +252,27 @@ $clr-grey-800: #c6ccd2;
 .pb-1px {
     padding-bottom: 1px;
 }
+
 #app-header {
+
+    .Cookie--blood-orange {
+
+      background: $clr-secondary;
+      border-bottom: 2px solid $clr-accent;
+      box-shadow: 0 0 5vh 0vw rgba(0,0,0,0.8);
+      a {
+        color: white;
+        text-decoration: underline;
+      }
+      .Cookie__button {
+          background: $clr-accent;
+          color: black;
+      }
+
+      .Cookie__message {
+        color: yellow;
+      }
+    }
     .progress {
         position: absolute;
         width: 100%;
