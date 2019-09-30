@@ -52,9 +52,7 @@
       <div v-if="item.topics.length">
         <b-badge variant="light" class="mr-1 small-caps">topics</b-badge>
         <span v-for="(rel, idx) in item.topics" v-bind:key="idx" class="position-relative d-inline-block">
-          <div class="bg-accent-secondary position-absolute"
-            :style="`width:${rel.relevance * 100}%;
-            height:100%; left: 15px; top:4px; height:calc( 100% - 6px); mix-blend-mode: multiply`" />
+          <div class="bg-accent-secondary topic-viz-bar" :style="`width:${rel.relevance * 100}%;`" />
           <item-label :item="rel.topic" type="topic" />
           <span class="text-muted">({{ $n(rel.relevance * 100) }}&nbsp;%)</span>
           <item-selector :uid="rel.topic.uid" :item="rel.topic" type="topic"/>
@@ -149,5 +147,12 @@ export default {
   }
   ul.article-matches li{
     border-left: 2px solid gold;
+  }
+  .topic-viz-bar {
+    position: absolute;
+    left: 15px;
+    top:4px;
+    height:calc( 100% - 6px);
+    mix-blend-mode: multiply;
   }
 </style>
