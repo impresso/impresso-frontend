@@ -46,11 +46,11 @@
         class="position-relative"
         v-bind:key="`${searchResult.article_uid}_ct${i}`">
         <div class="bg-accent-secondary viz-bar"
-          :style="`width:${$n(searchResult.topics[topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100)}%;`" />
+          :style="`width:${searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100}%;`" />
         <b-badge variant="none" class="p-0 showOnHover position-absolute"
           <router-link class="small" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
             {{ rel.topic.getHtmlExcerpt() }}
-            <span class="text-muted">({{ $n(searchResult.topics[topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100) }}%)</span>
+            <span class="text-muted">({{ $n(searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100) }}%)</span>
           </router-link>
         </b-badge>
       </div>
