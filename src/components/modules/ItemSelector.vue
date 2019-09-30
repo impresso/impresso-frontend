@@ -1,5 +1,5 @@
 <template lang="html">
-  <span class="dripicons-enter align-sub" v-on:click.prevent.stop="selectItem($event)"></span>
+  <span class="dripicons-enter icon-link" v-on:click.prevent.stop="selectItem($event)"></span>
 </template>
 <script>
 /**
@@ -35,8 +35,16 @@ export default {
 };
 </script>
 
-<style lang="css">
-.align-sub {
-  vertical-align: middle;
-}
+<style lang="scss">
+  @import "impresso-theme/src/scss/variables.sass";
+
+  .icon-link {
+    cursor: pointer;
+    vertical-align: sub;
+    line-height: 1;
+    color: $clr-secondary;
+  }
+  .icon-link:hover {
+    color: $clr-primary;
+  }
 </style>
