@@ -42,7 +42,7 @@ export default {
     cursor: pointer;
     vertical-align: sub;
     line-height: 1;
-    color: $clr-secondary;
+    color: $clr-tertiary;
   }
   .icon-link:hover {
     color: $clr-primary;
