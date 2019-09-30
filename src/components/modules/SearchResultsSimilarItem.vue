@@ -45,7 +45,7 @@
         v-for="(rel, i) in topics"
         class="position-relative"
         v-bind:key="`${searchResult.article_uid}_ct${i}`">
-        <div class="bg-accent-secondary position-absolute"
+        <div class="bg-accent-secondary viz-bar"
           :style="`width:${$n(searchResult.topics[topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100)}%;
           height:100%; top:4px; height:calc( 100% - 6px); mix-blend-mode: multiply`" />
         <b-badge variant="none" class="p-0 showOnHover position-absolute"
@@ -95,7 +95,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "impresso-theme/src/scss/variables.sass";
 
 .similar-item {
@@ -111,6 +111,13 @@ export default {
   .showOnHover {
     opacity: 1;
   }
+}
+.viz-bar {
+  position: absolute;
+  left: 0;
+  top:4px;
+  height:calc( 100% - 6px);
+  mix-blend-mode: multiply;
 }
 </style>
 
