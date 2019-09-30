@@ -47,7 +47,7 @@
         v-bind:key="`${searchResult.article_uid}_ct${i}`">
         <div class="bg-accent-secondary position-absolute"
           :style="`width:${$n(searchResult.topics[topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100)}%;
-          height:100%; top:3px; height:calc( 100% - 5px); z-index:-1`" />
+          height:100%; top:4px; height:calc( 100% - 6px); mix-blend-mode: multiply`" />
         <b-badge variant="none" class="p-0 showOnHover position-absolute"
           <router-link class="small" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
             {{ rel.topic.getHtmlExcerpt() }}
