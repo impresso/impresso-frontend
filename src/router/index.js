@@ -2,6 +2,7 @@ import * as services from '@/services';
 import Vue from 'vue';
 import Router from 'vue-router';
 import HomePage from '../components/HomePage';
+import LegalPage from '../components/LegalPage';
 import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
 import IssuePage from '../components/IssuePage';
@@ -34,6 +35,14 @@ const router = new Router({
     //     name: 'search',
     //   });
     // },
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/legal-notes',
+    name: 'legal-notes',
+    component: LegalPage,
     meta: {
       requiresAuth: false,
     },
