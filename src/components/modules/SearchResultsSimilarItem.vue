@@ -43,15 +43,17 @@
       <div class="label small-caps mt-3">{{ $t("common_topics") }}</div>
       <div
         v-for="(rel, i) in topics"
-        class="position-relative"
+        class="position-relative pb-1"
         v-bind:key="`${searchResult.article_uid}_ct${i}`">
-        <div class="bg-accent-secondary viz-bar"
-          :style="`width:${searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100}%;`" />
         <b-badge variant="none" class="p-0 showOnHover position-absolute"
-          <router-link class="small" style="padding:1px 3px;" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
+          <router-link class="small" :to="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}">
             {{ rel.topic.getHtmlExcerpt() }}
             <span class="text-muted">({{ $n(searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100) }}%)</span>
           </router-link>
+          <div class="bg-white position-relative">
+            <div class="bg-accent-secondary viz-bar"
+              :style="`width:${searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100}%;`" />
+          </div>
         </b-badge>
       </div>
     </div>
@@ -111,11 +113,7 @@ export default {
   }
 }
 .viz-bar {
-  position: absolute;
-  left: 0;
-  top:3px;
-  height:calc( 100% - 5px);
-  mix-blend-mode: multiply;
+  height: 2px;
 }
 </style>
 

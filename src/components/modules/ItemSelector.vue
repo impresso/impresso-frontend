@@ -1,5 +1,5 @@
 <template lang="html">
-  <span class="dripicons-enter" v-on:click.prevent.stop="selectItem($event)"></span>
+  <span class="dripicons-enter align-sub" v-on:click.prevent.stop="selectItem($event)"></span>
 </template>
 <script>
 /**
@@ -36,4 +36,7 @@ export default {
 </script>
 
 <style lang="css">
+.align-sub {
+  vertical-align: middle;
+}
 </style>
