@@ -431,6 +431,12 @@ $clr-grey-800: #c6ccd2;
     transform: translateX(calc(200px - 50%));
     background: $clr-bg-secondary;
     max-width: calc(100% - 400px);
+    &.aside {
+      position: absolute;
+      transform: translateX(-50%);
+      max-width: 100%;
+    }
+
     .pagination {
         li.page-item > a,
         li.page-item > span.page-link {
