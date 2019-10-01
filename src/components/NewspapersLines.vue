@@ -36,14 +36,13 @@
       <label v-on:click="onClick(newspaper)" :style="{ maxWidth: margin.left + 'px' }">
         {{newspaper.name}}
       </label>
-      <div v-if="!isNaN(newspaper.startYear) && !isNaN(newspaper.endYear)" class="line" :style="{
-          left: `${scale(newspaper.startYear)}px`,
-          right: `${(width - scale(newspaper.endYear))}px`}">
+      <div v-if="!isNaN(newspaper.startYear) && !isNaN(newspaper.endYear)" class="line" :style="newspaperStyle(newspaper)">
           <div class="label-start">{{newspaper.startYear}}</div>
           <div v-if="newspaper.startYear != newspaper.endYear" class="label-end">
             {{ newspaper.endYear}}
           </div>
       </div>
+      <div v-if="newspaper.firstIssue" class="line included" :style="newspaperIncludedStyle(newspaper)"/>
       <div class="more" v-if="newspaper.isSelected">...</div>
     </div>
   </div>
@@ -57,7 +56,6 @@ export default {
   model: {
     prop: 'newspapers',
     default: [],
-
   },
   data: () => ({
     tooltip: {
@@ -87,6 +85,28 @@ export default {
     },
   },
   methods: {
+    newspaperStyle(newspaper) {
+      return {
+        background: !newspaper.firstIssue ? 'lightgray' : '',
+        left: `${this.scale(newspaper.startYear)}px`,
+        right: `${(this.width - this.scale(newspaper.endYear))}px`,
+      };
+    },
+    newspaperIncludedStyle(newspaper) {
+      return {
+        left: `${this.scale(this.firstIssueYear(newspaper))}px`,
+        right: `${(this.width - this.scale(this.lastIssueYear(newspaper)))}px`,
+      };
+    },
+    firstIssueYear(n) {
+      return n.firstIssue ? n.firstIssue.date.getFullYear() : null;
+    },
+    lastIssueYear(n) {
+      if (n.lastIssue) {
+        return Number(this.$d(n.lastIssue.date, 'year'));
+      }
+      return 'not set';
+    },
     onMousemove({ clientX, clientY }) {
       const x = clientX - this.$refs.lines.offsetLeft;
       const y = clientY - (this.$refs.lines.offsetTop - this.scrollTop);
@@ -341,12 +361,14 @@ export default {
   .line{
     position: absolute;
     z-index: 1;
-    top: 3px;
-    height: 6px;
-    border-radius: 6px;
-    background-color: #a0a0a0;
+    top: 4px;
+    height: 4px;
+    padding: 0 1px;
+    background: red;
   }
-
+  .line.included {
+    background: $clr-accent-secondary;
+  }
   .line > .label-start,
   .line > .label-end{
     padding: 0 .25rem;
