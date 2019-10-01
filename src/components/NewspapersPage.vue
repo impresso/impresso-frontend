@@ -28,14 +28,16 @@
           <newspaper-item :item="n"/>
         </router-link>
       </div>
+      <div class="my-5" />
       <!-- footer -->
-      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top bg-slight">
+      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="fixed-pagination-footer aside p-1 m-0">
         <pagination
           v-bind:perPage="paginationList.perPage"
           v-bind:currentPage="paginationList.currentPage"
           v-bind:totalRows="paginationList.totalRows"
           v-on:change="onInputPaginationList"
-          v-bind:showDescription="false" />
+          v-bind:showDescription="false"
+          class="float-left small-caps" />
       </div>
     </i-layout-section>
     <router-view></router-view>
