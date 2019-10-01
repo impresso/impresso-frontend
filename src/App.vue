@@ -104,4 +104,76 @@ ul.nav.nav-pills .nav-item{
       background-color: transparent;
     }
 }
+
+$clr-white: #ffffff;
+$clr-grey-100: #17191c;
+$clr-grey-300: #424a52;
+$clr-grey-400: #5a6672;
+$clr-grey-800: #c6ccd2;
+
+.pt-1px {
+    padding-top: 1px;
+}
+.pb-1px {
+    padding-bottom: 1px;
+}
+
+.border-tertiary {
+    border-color: $clr-tertiary !important;
+}
+
+.custom-control-input {
+  width: 0;
+  height: 0;
+}
+.custom-radio > .custom-control-label::before {
+    border: inherit;
+    outline: inherit;
+}
+.tooltip-inner {
+    max-width: auto;
+    color: $clr-primary;
+    text-align: left;
+    background-color: $clr-bg-primary;
+    border: 1px solid $clr-primary;
+    box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
+}
+.dropdown-menu {
+    padding: 0;
+}
+.fixed-pagination-footer {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparentize($clr-primary, 0.8);
+    max-width: 100%;
+
+    .pagination {
+        li.page-item > a,
+        li.page-item > span.page-link {
+            border-color: $clr-secondary;
+            padding: 0.15em 0.6em;
+        }
+    }
+}
+/* bounce animation */
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-in .5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 </style>
