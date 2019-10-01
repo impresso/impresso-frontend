@@ -13,7 +13,7 @@
           <input
             type="text"
             class="form-control mb-3"
-            placeholder="... name or description "
+            :placeholder="$t('filter_newspapers', { total: paginationList.totalRows })"
             name=""
             value=""
             v-model.trim="query"/>
@@ -163,6 +163,7 @@ export default {
 <i18n>
 {
   "en": {
+    "filter_newspapers": "filter newspapers ({total})",
     "label_list": "List of newspapers ({total})",
     "label_order": "Order By",
     "sort_asc": "↑",
