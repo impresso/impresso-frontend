@@ -191,7 +191,8 @@
           </b-col>
         </b-row>
       </b-container>
-      <div class="fixed-pagination-footer p-1 m-0">
+      <div class="my-5" />
+      <div class="fixed-pagination-footer p-1 m-0" slot="footer">
         <pagination
           v-bind:perPage="paginationPerPage"
           v-bind:currentPage="paginationCurrentPage"

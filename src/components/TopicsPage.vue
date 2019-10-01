@@ -19,12 +19,13 @@
         </div>
 
       </div>
-      <div slot="footer">
+      <div slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
           v-bind:perPage="limit"
           v-bind:currentPage="page"
           v-bind:totalRows="total"
-          v-on:change="onInputPagination" />
+          v-on:change="onInputPagination"
+          class="float-left small-caps" />
       </div>
     </i-layout-section>
     <router-view></router-view>
