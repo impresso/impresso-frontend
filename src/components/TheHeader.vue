@@ -425,17 +425,12 @@ $clr-grey-800: #c6ccd2;
     padding: 0;
 }
 .fixed-pagination-footer {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     left: 50%;
-    transform: translateX(calc(200px - 50%));
-    background: $clr-bg-secondary;
-    max-width: calc(100% - 400px);
-    &.aside {
-      position: absolute;
-      transform: translateX(-50%);
-      max-width: 100%;
-    }
+    transform: translateX(-50%);
+    background: transparentize($clr-primary, 0.8);
+    max-width: 100%;
 
     .pagination {
         li.page-item > a,
