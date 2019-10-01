@@ -30,7 +30,7 @@
       </div>
       <div class="my-5" />
       <!-- footer -->
-      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="fixed-pagination-footer aside p-1 m-0">
+      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
           v-bind:perPage="paginationList.perPage"
           v-bind:currentPage="paginationList.currentPage"
