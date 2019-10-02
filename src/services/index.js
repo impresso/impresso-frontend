@@ -21,31 +21,40 @@ app.configure(auth({
 }));
 
 socket.on('reconnect', () => {
-  app.authenticate();
+  app.reAuthenticate();
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
 app.hooks({
   before: {
     all: [
       () => {
-        window.app.$store.state.error_message = '';
-        window.app.$store.commit('SET_PROCESSING', true);
+        if (window.app && window.app.$store) {
+          window.app.$store.state.error_message = '';
+          window.app.$store.commit('SET_PROCESSING', true);
+        }
       },
     ],
   },
   after: {
     all: [
       () => {
-        window.app.$store.commit('SET_PROCESSING', false);
+        if (window.app && window.app.$store) {
+          window.app.$store.state.error_message = '';
+          window.app.$store.commit('SET_PROCESSING', false);
+        }
       },
     ],
   },
   error: {
     all: [
       (error) => {
-        console.error('ERROR: ', error);
-        window.app.$store.state.error_message = 'API Error : See Console for details.';
-        window.app.$store.commit('SET_PROCESSING', false);
+        console.error('app ERROR: ', error);
+        if (window.app && window.app.$store) {
+          window.app.$store.state.error_message = 'Ahi ahi ahi ...';
+          window.app.$store.commit('SET_PROCESSING', false);
+        }
+        // window.app.$store.state.error_message = 'API Error : See Console for details.';
+        // window.app.$store.commit('SET_PROCESSING', false);
       },
     ],
   },
