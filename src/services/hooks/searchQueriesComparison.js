@@ -18,7 +18,10 @@ export default {
     create: [
       // using POST for getting data
       (context) => {
-        context.result = context.result.data.map(item => new Article(item));
+        context.result = {
+          ...context.result,
+          data: context.result.data.map(item => new Article(item)),
+        };
       },
     ],
     update: [],

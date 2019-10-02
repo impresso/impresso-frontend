@@ -9,6 +9,7 @@
     <!-- bars -->
     <div class="row">
       <div class="col">
+        
         <!-- bar -->
         <div class="row bar-container" 
              v-for="([label, value, scaledValue], idx) in scaledItems"
