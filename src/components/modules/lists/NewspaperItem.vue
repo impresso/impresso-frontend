@@ -15,7 +15,7 @@
 
     </router-link>
     <div v-else>
-      <h2 v-if="showName">{{ item.name}} ({{ item.startYear}} - {{ item.endYear}})</h2>
+      <h2 v-if="showName" class="sans" :class="{ 'font-weight-bold': item.included }">{{ item.name}} ({{ item.startYear}} - {{ item.endYear}})</h2>
       <div class="small" v-html="stats"></div>
       <div class="small" v-if="showDate" v-html="dates"></div>
     </div>
@@ -77,7 +77,7 @@ export default {
           }),
         ].join(', ');
       }
-      return this.$t('unavailable');
+      return ''; // this.$t('unavailable');
     },
   },
 };

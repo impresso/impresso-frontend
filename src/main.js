@@ -38,7 +38,7 @@ const i18n = new VueI18n({
 });
 
 /* eslint-disable no-new */
-services.app.authenticate().finally(() => {
+services.app.reAuthenticate().finally(() => {
   window.app = new Vue({
     el: '#app',
     i18n,

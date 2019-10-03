@@ -89,7 +89,7 @@
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
             <b-dropdown-item
               target="_blank"
-              href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ">
+              href="https://impresso-community.slack.com/join/shared_invite/enQtNTg5MzY2NDg2NTAyLWJkNWI5ZTU3ZGI1ZGE1YTg2YmViOWQ1OWMyYTRkMDY1OGM0MWUwNGQzYjYxYTA4ZGU0YzBjMGU4ZmQxNmY5Njc">
               <icon name="slack"/>
               <span v-html="$t('join_slack_channel')"></span>
             </b-dropdown-item>
@@ -227,21 +227,9 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "impresso-theme/src/scss/variables.sass";
 
-$clr-white: #ffffff;
-$clr-grey-100: #17191c;
-$clr-grey-300: #424a52;
-$clr-grey-400: #5a6672;
-$clr-grey-800: #c6ccd2;
-
-.pt-1px {
-    padding-top: 1px;
-}
-.pb-1px {
-    padding-bottom: 1px;
-}
 #app-header {
     .progress {
         position: absolute;
@@ -398,64 +386,6 @@ $clr-grey-800: #c6ccd2;
         line-height: 1;
         font-size: 0.8em;
     }
-}
-
-// extend application styles
-.border-tertiary {
-    border-color: $clr-tertiary !important;
-}
-
-.custom-control-input {
-  width: 0;
-  height: 0;
-}
-.custom-radio > .custom-control-label::before {
-    border: inherit;
-    outline: inherit;
-}
-.tooltip-inner {
-    max-width: auto;
-    color: $clr-primary;
-    text-align: left;
-    background-color: $clr-bg-primary;
-    border: 1px solid $clr-primary;
-    box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
-}
-.dropdown-menu {
-    padding: 0;
-}
-.fixed-pagination-footer {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(calc(200px - 50%));
-    background: $clr-bg-secondary;
-    max-width: calc(100% - 400px);
-    .pagination {
-        li.page-item > a,
-        li.page-item > span.page-link {
-            border-color: $clr-secondary;
-            padding: 0.15em 0.6em;
-        }
-    }
-}
-/* bounce animation */
-.bounce-enter-active {
-  animation: bounce-in .5s;
-}
-.bounce-leave-active {
-  animation: bounce-in .5s reverse;
-}
-@keyframes bounce-in {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.5);
-  }
-  100% {
-    transform: scale(1);
-  }
 }
 </style>
 
