@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="300px" class="border-right" variant="bg-light">
+    <i-layout-section width="300px" class="border-right border-top mt-1px" variant="bg-light">
       <div slot="header" class="border-bottom border-tertiary bg-light">
         <!-- <b-tabs pills class="border-bottom mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -34,7 +34,7 @@
       </div>
       <div class="my-5" />
       <!-- footer -->
-      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="fixed-pagination-footer p-1 m-0 mb-2">
         <pagination
           v-bind:perPage="paginationList.perPage"
           v-bind:currentPage="paginationList.currentPage"
