@@ -26,11 +26,11 @@ export default {
   },
   actions: {
     LOGOUT(context) {
-      return services.app.logout().then(() => {
-        context.commit('CLEAR_USER');
-      }).catch((err) => {
-        console.error('error in store/User/LOGIN');
+      return services.app.logout().catch((err) => {
+        console.error('error in store/User/LOGOUT');
         console.error(err);
+      }).finally(() => {
+        context.commit('CLEAR_USER');
       });
     },
     LOGIN({ commit }, { email, password }) {
