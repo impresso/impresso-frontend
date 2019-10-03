@@ -47,10 +47,10 @@ app.hooks({
   },
   error: {
     all: [
-      (error) => {
-        console.error('app ERROR: ', error);
+      (context) => {
+        console.error('app ERROR: ', context.error);
         if (window.app && window.app.$store) {
-          window.app.$store.state.error_message = 'Ahi ahi ahi ...';
+          window.app.$store.state.error_message = `${context.path}: ${context.error.name} (${context.error.code}), ${context.error.message}`;
           window.app.$store.commit('SET_PROCESSING', false);
         }
         // window.app.$store.state.error_message = 'API Error : See Console for details.';
