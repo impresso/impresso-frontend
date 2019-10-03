@@ -1,18 +1,23 @@
 <template lang="html">
   <div v-on:mousemove="onMousemove" v-on:mouseout="onMouseout" ref="lines" class="lines small">
     <tooltip v-bind:tooltip="tooltip">
-
       <div v-if="tooltip.item">
         <h1>{{tooltip.item.name}}</h1>
         <p>
-          <span v-if="tooltip.item.startYear != tooltip.item.endYear">
-            {{tooltip.item.startYear}} - {{tooltip.item.endYear}}
-          </span>
-          <span v-else>
-            {{tooltip.item.startYear}}
-          </span>
-           &mdash;
-          <span>{{tooltipProperties}}</span>
+          <span class="available" v-if="tooltip.item.included" v-html="$t('dates.includedLifespan', {
+            from: $d(tooltip.item.firstIssue.date, 'short'),
+            to: $d(tooltip.item.lastIssue.date, 'short'),
+          })"/>
+          <span class="small-caps" v-else>{{ $t('dates.notYetAvailable')}}</span>
+        </p>
+        <p>
+          <span v-if="tooltip.item.startYear != tooltip.item.endYear" v-html="$t('dates.publicationLifespan', {
+            from: tooltip.item.startYear,
+            to: tooltip.item.endYear,
+          })"/>
+          <span v-else v-html="$t('dates.publicationDate', {
+            date: tooltip.item.startYear,
+          })"/>
         </p>
       </div>
     </tooltip>
@@ -31,9 +36,10 @@
     }"></div> -->
     <div v-for="newspaper in newspapers" :key="newspaper.uid" class="n"
       v-on:mouseover="onMouseover(newspaper, $event)"
+      v-on:click="selectNewspaper(newspaper)"
       :class="{ selected: newspaper.isSelected }"
     >
-      <label v-on:click="onClick(newspaper)" :style="{ maxWidth: margin.left + 'px' }">
+      <label :class="{ 'font-weight-bold': newspaper.included }" :style="{ maxWidth: margin.left + 'px' }">
         {{newspaper.name}}
       </label>
       <div v-if="!isNaN(newspaper.startYear) && !isNaN(newspaper.endYear)" class="line" :style="newspaperStyle(newspaper)">
@@ -108,8 +114,9 @@ export default {
       return 'not set';
     },
     onMousemove({ clientX, clientY }) {
-      const x = clientX - this.$refs.lines.offsetLeft;
+      const x = clientX - this.$refs.lines.offsetLeft - this.$refs.lines.offsetParent.offsetLeft;
       const y = clientY - (this.$refs.lines.offsetTop - this.scrollTop);
+
       const year = parseInt(this.scale.invert(x), 10);
       const domain = this.domain;
       const isActive = year >= domain[0] && year <= domain[1];
@@ -144,6 +151,12 @@ export default {
     },
     onMouseout() {
       this.tooltip.isActive = false;
+    },
+    selectNewspaper(item) {
+      this.$store.dispatch('monitor/SET_ITEM', {
+        item,
+        type: 'newspaper',
+      });
     },
     onClick(newspaper) {
       console.info('@click', newspaper);
@@ -279,6 +292,9 @@ export default {
 
   }
 
+  .available{
+    color: white;
+  }
 
 
   .cursor {

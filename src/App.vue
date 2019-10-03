@@ -117,6 +117,18 @@ $clr-grey-800: #c6ccd2;
 .pb-1px {
     padding-bottom: 1px;
 }
+.mt-1px {
+    margin-top: 1px;
+}
+.mb-1px {
+    margin-bottom: 1px;
+}
+.mr-1px {
+    margin-right: 1px;
+}
+.ml-1px {
+    margin-left: 1px;
+}
 
 .border-tertiary {
     border-color: $clr-tertiary !important;
@@ -157,6 +169,17 @@ $clr-grey-800: #c6ccd2;
         }
     }
 }
+
+// uncomment to add background to transparent footers
+// .fixed-pagination-footer::before{
+//   content: "";
+//   position: absolute;
+//   bottom: -25%;
+//   left: -25%;
+//   right: -25%;
+//   top: 0;
+//   background-color: transparentize($clr-primary, 0.3);
+// }
 /* bounce animation */
 .bounce-enter-active {
   animation: bounce-in .5s;
