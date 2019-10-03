@@ -48,7 +48,7 @@
           </b-container>
         </div>
         <hr class="py-4">
-        <b-container fluid class="px-0">
+        <b-container fluid class="similar-items px-0">
           <h3>Similar Articles</h3>
           <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
           <b-row>
@@ -57,10 +57,11 @@
               sm="12"
               md="12"
               lg="6"
+              xl="4"
               v-for="(searchResult, index) in articlesSuggestions"
               v-bind:key="`${index}_ra`">
               <search-results-similar-item
-                v-bind:searchResult="searchResult"
+                :searchResult="searchResult"
                 :topics="commonTopics(searchResult.topics)" />
             </b-col>
           </b-row>
@@ -164,6 +165,10 @@ export default {
     p {
       margin-bottom: 0;
     }
+  }
+
+  .similar-items h2 {
+    font-size: 1em;
   }
 }
 </style>

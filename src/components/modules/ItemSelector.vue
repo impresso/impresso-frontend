@@ -40,7 +40,7 @@ export default {
 
   .icon-link {
     cursor: pointer;
-    vertical-align: sub;
+    vertical-align: middle;
     line-height: 1;
     color: $clr-tertiary;
   }
