@@ -2,24 +2,27 @@
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section>
       <div slot="header" class="header row border-bottom pm-fixer">
-        <div :class="`px-3 one-third ${queryIdx === getQueryResults().length - 1 ? '' : 'border-right'}`" 
-             v-for="(queryResult, queryIdx) in getQueryResults()" :key="queryIdx">
+        <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'}`" 
+             v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
           <query-header-panel class="col"
                               :type="queryResult.type"
-                              :title="queryResult.title" />
+                              :title="queryResult.title"
+                              :total="queryResult.total"/>
         </div>
       </div>
 
       <div class="aspects-container">
         <div class="row pm-fixer"
-             v-for="([id, title, type], idx) in facets"
-             v-bind:key="idx">
-          <div :class="`px-3 one-third ${queryIdx === getQueryResults().length - 1 ? '' : 'border-right'}`" 
-               v-for="(queryResult, queryIdx) in getQueryResults()" :key="queryIdx">
-            <loading-indicator class="col loading-bg" v-if="isQueryLoading(queryIdx) && idx === 0"/>
-            <div class="col loading-bg" v-if="isQueryLoading(queryIdx) && idx !== 0"/>
-            <div class="col" v-if="getFacetValues(queryResult, id) === undefined">
-              <div v-if="idx === 0" style="text-align: center;">[Nothing found]</div>
+             v-for="([id, title, type], facetIdx) in facets"
+             v-bind:key="facetIdx">
+          <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'} ${isQueryLoading(queryIdx) ? 'loading-bg' : ''}`" 
+               v-for="(queryResult, queryIdx) in queriesResults" 
+               :key="queryIdx">
+            <div class="col" v-if="isQueryLoading(queryIdx)">
+              <loading-indicator class="col py-3" v-if="facetIdx === 0"/>
+            </div>
+            <div class="col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, id) === undefined">
+              <div v-if="facetIdx === 0" style="text-align: center;">[Nothing found]</div>
             </div>
             <facet-overview-panel class="col"
                                   :facet="id" 
@@ -30,6 +33,7 @@
                                   @timeline-highlight-off="onTimelineHighlightOff"
                                   :timeline-highlight-value="getTimelineHighlight(id).data"
                                   :timeline-highlight-enabled="getTimelineHighlight(id).enabled"
+                                  :timeline-domain="timelineDomain"
                                   v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, id) !== undefined"/>
           </div>
         </div>
@@ -39,7 +43,9 @@
 </template>
 
 <script>
-import { searchQueriesComparison } from '@/services';
+import Vue from 'vue';
+
+import { searchQueriesComparison, search } from '@/services';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
@@ -51,79 +57,60 @@ function prepareFacets(responseFacets = {}) {
     const buckets = responseFacets[key].buckets || [];
     return {
       id: key,
-      buckets: buckets.map(({ val, count }) => ({ val, count })),
+      buckets: buckets.map(({ val, count, item: { name } = {} }) => ({ val: name || val, count })),
     };
   });
 }
 
+function getDomainForResults(results) {
+  const facets = results.facets || [];
+  const yearFacet = facets.filter(({ id }) => id === 'year')[0];
+
+  if (!yearFacet) return [];
+
+  const years = (yearFacet.buckets || []).map(({ val }) => val).sort();
+  if (years.length > 0) return [years[0], years[years.length - 1]];
+  return [];
+}
+
+const QueryLeftIndex = 0;
+const QueriesIntersectionIndex = 1;
+const QueryRightIndex = 2;
+
 export default {
   data: () => ({
-    ids: [],
     loadingFlags: [...Array(3).keys()].map(() => false),
     facets: [
       ['year', 'Year', 'timeline'],
       ['newspaper', 'Newspaper', 'bars'],
       ['country', 'Country', 'bars'],
     ],
-    queryResultLeft: {
-      type: 'collection',
-      title: 'Foo 1',
-      facets: [
-        {
-          id: 'year',
-          buckets: [...Array(180).keys()]
-            .map(x => ({ val: 1840 + x, count: Math.round(x * 1000 * Math.random()) })),
-        },
-        {
-          id: 'newspaper',
-          buckets: [...Array(Math.round(Math.random() * 10)).keys()]
-            .map(x => ({ val: `Paper ${x}`, count: x * 100 * Math.random() })),
-        },
-        {
-          id: 'country',
-          buckets: [...Array(Math.round(Math.random() * 5)).keys()]
-            .map(x => ({ val: `State ${x}`, count: x * 500 * Math.random() })),
-        },
-        {
-          id: 'trump',
-          buckets: [...Array(Math.round(Math.random() * 50)).keys()]
-            .map(x => ({ val: `Mention ${x}`, count: x * 500 * Math.random() })),
-        },
-      ],
-    },
-    queryResultRight: {
-      type: 'collection',
-      title: 'Bar 2',
-      facets: [
-        {
-          id: 'year',
-          buckets: [...Array(180).keys()]
-            .map(x => ({ val: 1840 + x, count: Math.round(x * 1000 * Math.random()) })),
-        },
-        {
-          id: 'newspaper',
-          buckets: [...Array(Math.round(Math.random() * 10)).keys()]
-            .map(x => ({ val: `Paper ${x}`, count: x * 100 * Math.random() })),
-        },
-        {
-          id: 'country',
-          buckets: [...Array(Math.round(Math.random() * 5)).keys()]
-            .map(x => ({ val: `State ${x}`, count: x * 500 * Math.random() })),
-        },
-      ],
-    },
-    queriesIntersectionResult: { type: 'intersection' },
-    timelineHighlights: {
-      year: { enabled: false },
-    },
+    timelineDomain: [],
+    queriesResults: [
+      { },
+      { type: 'intersection' },
+      { },
+    ],
+    timelineHighlights: {},
   }),
   watch: {
     '$route.params.ids': {
-      handler(ids) {
-        this.ids = typeof ids === 'string' ? ids.split(',') : ids;
-        this.loadIntersectedArticles(ids);
+      async handler(ids) {
+        const [leftId, rightId] = typeof ids === 'string' ? ids.split(',') : ids;
+
+        return Promise.all([
+          this.updateQueriesIntersectionResult(QueriesIntersectionIndex, [leftId, rightId]),
+          this.updateQueryResult(QueryLeftIndex, leftId),
+          this.updateQueryResult(QueryRightIndex, rightId),
+        ]);
       },
       immediate: true,
+    },
+    queriesResults: {
+      handler() {
+        this.updateCombinedTimelineDomain();
+      },
+      deep: true,
     },
   },
   components: {
@@ -139,7 +126,7 @@ export default {
       if (items.length === 0) return [];
       return items[0].buckets;
     },
-    async loadIntersectedArticles(ids) {
+    async updateQueriesIntersectionResult(resultIndex, ids) {
       const payload = {
         queries: ids.map(id => ({
           filters: [
@@ -153,23 +140,62 @@ export default {
         facets: this.facets.map(([type]) => type),
       };
 
-      this.loadingFlags[1] = true;
+      this.loadingFlags[resultIndex] = true;
       try {
         const result = await searchQueriesComparison.create(payload, { query: { method: 'intersection' } });
-        this.queriesIntersectionResult = {
+        const resultValue = {
           type: 'intersection',
+          title: 'In both collections',
           facets: prepareFacets(result.info.facets),
+          total: result.total,
         };
-        console.info('Intersection data', JSON.stringify(this.queriesIntersectionResult));
+        Vue.set(this.queriesResults, resultIndex, resultValue);
+        // console.info('Intersection data', JSON.stringify(this.queriesResults[resultIndex]));
       } finally {
-        this.loadingFlags[1] = false;
+        this.loadingFlags[resultIndex] = false;
       }
     },
+    async updateQueryResult(resultIndex, id) {
+      const payload = {
+        filters: [
+          {
+            type: 'collection',
+            q: id,
+          },
+        ],
+        limit: 0,
+        facets: this.facets.map(([type]) => type),
+        group_by: 'articles',
+      };
+
+      this.loadingFlags[resultIndex] = true;
+      try {
+        const result = await search.find({ query: payload });
+        const resultValue = {
+          type: 'collection',
+          title: `Query ${resultIndex === 0 ? 'left' : 'right'}`,
+          facets: prepareFacets(result.info.facets),
+          total: result.total,
+        };
+        // https://vuejs.org/v2/guide/list.html#Caveats
+        Vue.set(this.queriesResults, resultIndex, resultValue);
+        // console.info(`Data for query ${id}`, JSON.stringify(this.queriesResults[resultIndex]));
+      } finally {
+        this.loadingFlags[resultIndex] = false;
+      }
+    },
+    updateCombinedTimelineDomain() {
+      const minAndMaxYears = this.queriesResults.map(getDomainForResults);
+      const minimums = minAndMaxYears.map(([minYear]) => minYear).filter(y => y !== undefined);
+      const maximums = minAndMaxYears.map(([, maxYear]) => maxYear).filter(y => y !== undefined);
+      this.timelineDomain = [Math.min(...minimums), Math.max(...maximums)];
+    },
     onTimelineHighlight({ facetId, data }) {
-      this.timelineHighlights[facetId] = { enabled: true, data: data.datum };
+      Vue.set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
     },
     onTimelineHighlightOff({ facetId }) {
       this.timelineHighlights[facetId] = { enabled: false };
+      Vue.set(this.timelineHighlights, facetId, { enabled: false });
     },
     getTimelineHighlight(id) {
       return this.timelineHighlights[id] || {};
@@ -177,12 +203,8 @@ export default {
     isQueryLoading(queryIndex) {
       return this.loadingFlags[queryIndex];
     },
-    getQueryResults() {
-      return [
-        this.queryResultLeft,
-        this.queriesIntersectionResult,
-        this.queryResultRight,
-      ];
+    isLastResult(idx) {
+      return this.queriesResults.length - 1 === idx;
     },
   },
 };
@@ -212,6 +234,7 @@ export default {
     flex-direction: column;
     overflow-x: hidden;
     max-width: 100%;
+    height: 100%;
   }
 </style>
 

@@ -1,8 +1,8 @@
 <template>
-  <div class="px-0 py-2 container">
+  <div class="px-2 pb-2 py-2 container">
 
     <!-- title and type -->
-    <div v-if="title && type && !icon" class="row px-2 pb-2 justify-content-between">
+    <div v-if="title && type && !icon" class="row justify-content-between">
       <div class="col-auto align-self-start">
         <h3 v-if="title">{{title}}</h3>
       </div>
@@ -13,19 +13,17 @@
       </div>
     </div>
 
-    <!-- icon -->
-    <div v-if="icon" class="row px-2 pb-2 justify-content-center">
-      <div class="col-auto align-self-center">
-        <span v-bind:class="`icon dripicons dripicons-${icon}`"/>
-      </div>
+    <div class="row">
+      <div class="col-auto">{{total}} articles</div>
     </div>
+
   </div>
 </template>
 
 <script>
 export default {
   data: () => ({}),
-  props: ['title', 'type', 'icon'],
+  props: ['title', 'type', 'total'],
 };
 </script>
 
