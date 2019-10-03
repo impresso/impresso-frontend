@@ -2,21 +2,25 @@
   <i-layout id="SearchPage">
     <i-layout-section width="300px" class="border-right" variant="bg-light">
       <div slot="header" class="border-bottom border-tertiary bg-light">
-        <b-tabs pills class="border-bottom mx-2 pt-2">
+        <!-- <b-tabs pills class="border-bottom mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item class="pl-2 active"
               active-class='none'
               :to="{ name:'newspapers'}"><span v-html="$t('label_list', { total: paginationList.totalRows})"/></b-nav-item>
           </template>
-        </b-tabs>
-        <div class="p-2 px-3">
+        </b-tabs> -->
+        <div class="p-3">
           <input
             type="text"
-            class="form-control"
-            placeholder="... name or description "
+            class="form-control mb-3"
+            :placeholder="$t('filter_newspapers', { total: paginationList.totalRows })"
             name=""
             value=""
             v-model.trim="query"/>
+
+          <label>{{ $t('label_order') }}</label>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+
         </div>
       </div>
       <!-- body -->
@@ -28,14 +32,16 @@
           <newspaper-item :item="n"/>
         </router-link>
       </div>
+      <div class="my-5" />
       <!-- footer -->
-      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="p-2 border-top bg-slight">
+      <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
           v-bind:perPage="paginationList.perPage"
           v-bind:currentPage="paginationList.currentPage"
           v-bind:totalRows="paginationList.totalRows"
           v-on:change="onInputPaginationList"
-          v-bind:showDescription="false" />
+          v-bind:showDescription="false"
+          class="float-left small-caps" />
       </div>
     </i-layout-section>
     <router-view></router-view>
@@ -99,6 +105,14 @@ export default {
             value: '-endYear',
             text: `${this.$t('sort_end_date')} ${this.$t('sort_desc')}`,
           },
+          {
+            value: 'countIssues',
+            text: `${this.$t('sort_count_issues')} ${this.$t('sort_asc')}`,
+          },
+          {
+            value: '-countIssues',
+            text: `${this.$t('sort_count_issues')} ${this.$t('sort_desc')}`,
+          },
         ];
       },
     },
@@ -151,13 +165,15 @@ export default {
 <i18n>
 {
   "en": {
+    "filter_newspapers": "filter newspapers ({total})",
     "label_list": "List of newspapers ({total})",
     "label_order": "Order By",
-    "sort_asc": "Ascending",
-    "sort_desc": "Descending",
+    "sort_asc": "↑",
+    "sort_desc": "↓",
     "sort_start_date": "Date of first issue",
     "sort_end_date": "Date of last issue",
-    "sort_name": "Alphabetical"
+    "sort_name": "Alphabetical",
+    "sort_count_issues": "Available # of Issues"
   },
   "nl": {
     "label_order": "Sorteer Op",
