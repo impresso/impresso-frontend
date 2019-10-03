@@ -1,6 +1,6 @@
 import * as services from '@/services';
 import User from '@/models/User';
-import router from '@/router';
+// import router from '@/router';
 
 export default {
   namespaced: true,
@@ -26,40 +26,52 @@ export default {
   },
   actions: {
     LOGOUT(context) {
-      return new Promise((resolve, reject) => {
-        services.app.logout().then((res) => {
-          context.commit('CLEAR_USER');
-          resolve(res);
-        }, (err) => {
-          reject(err);
-        });
+      return services.app.logout().catch((err) => {
+        console.error('error in store/User/LOGOUT');
+        console.error(err);
+      }).finally(() => {
+        context.commit('CLEAR_USER');
       });
     },
-    LOGIN(context, credentials) {
-      return new Promise((resolve, reject) => {
-        services.app
-          .authenticate(credentials ? {
-            strategy: 'local',
-            ...credentials,
-          } : undefined)
-          .then(res => services.app.passport.verifyJWT(res.accessToken), reject)
-          .then(res => services.app.service('users').get(res.userId), reject)
-          .then((user) => {
-            services.app.set('user', user);
-            context.commit('SET_USER', new User({
-              ...user,
-              picture: user.profile.picture,
-              pattern: user.profile.pattern,
-            }));
-            context.dispatch('collections/LOAD_COLLECTIONS', null, {
-              root: true,
-            });
-            resolve(user);
-          }, reject)
-          .catch(() => {
-            router.push({ name: 'login' });
-          });
+    LOGIN({ commit }, { email, password }) {
+      return services.app.authenticate({
+        strategy: 'local',
+        email,
+        password,
+      }).then(({ user }) => {
+        console.info('LOGIN: user', user.username, 'logged in!');
+        services.app.set('user', user);
+        commit('SET_USER', new User({
+          ...user,
+          picture: user.profile.picture,
+          pattern: user.profile.pattern,
+        }));
+      }).catch((err) => {
+        console.error('Authentication error', err);
       });
+      // return services.app.authenticate(credentials ? {
+      //   strategy: 'local',
+      //   ...credentials,
+      // } : undefined)
+      // .then(res => services.app.passport.verifyJWT(res.accessToken))
+      // .then(res => services.app.service('users').get(res.userId))
+      // .then((user) => {
+      //   services.app.set('user', user);
+      //   context.commit('SET_USER', new User({
+      //     ...user,
+      //     picture: user.profile.picture,
+      //     pattern: user.profile.pattern,
+      //   }));
+      //   context.dispatch('collections/LOAD_COLLECTIONS', null, {
+      //     root: true,
+      //   });
+      //   return user;
+      // })
+      // .catch((err) => {
+      //   console.error('error in store/User/LOGIN');
+      //   console.error(err);
+      //   router.push({ name: 'login' });
+      // });
     },
   },
 };

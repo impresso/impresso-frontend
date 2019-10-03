@@ -14,8 +14,9 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
-    "@feathersjs/authentication-client": "^1.0.8",
-    "@feathersjs/socketio-client": "^1.1.5",
+    "@feathersjs/authentication-client": "^4.3.3",
+    "@feathersjs/feathers": "^4.3.3",
+    "@feathersjs/socketio-client": "^4.3.3",
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.1",
     "d3": "^5.7.0",
@@ -28,7 +29,7 @@
     "markdown-it": "^8.4.2",
     "markdown-it-decorate": "^1.2.2",
     "openseadragon": "^2.4.0",
-    "optimize-css-assets-webpack-plugin": "^3.2.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
     "svg-overlay": "github:openseadragon/svg-overlay",
     "uuid": "^3.3.2",
     "vue": "^2.6.10",
@@ -44,9 +45,6 @@
     "webpack": "^3.12.0"
   },
   "devDependencies": {
-    "@feathersjs/authentication": "^2.1.13",
-    "@feathersjs/feathers": "^3.2.3",
-    "@feathersjs/socketio": "^3.2.7",
     "@kazupon/vue-i18n-loader": "^0.2.1",
     "autoprefixer": "^7.2.6",
     "babel-core": "^6.26.3",
