@@ -1,34 +1,38 @@
 <template lang="html">
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section>
-      <div slot="header" class="header container-fluid row border-bottom pm-fixer">
-        <i-first-nonempty-child v-for="(queryResult, queryIdx) in getQueryResults()" :key="queryIdx">
-          <query-header-panel :class="`col ${queryIdx === getQueryResults().length - 1 ? '' : 'border-right'}`"
+      <div slot="header" class="header row border-bottom pm-fixer">
+        <div :class="`px-3 one-third ${queryIdx === getQueryResults().length - 1 ? '' : 'border-right'}`" 
+             v-for="(queryResult, queryIdx) in getQueryResults()" :key="queryIdx">
+          <query-header-panel class="col"
                               :type="queryResult.type"
                               :title="queryResult.title" />
-        </i-first-nonempty-child>
+        </div>
       </div>
 
-      <div class="body container-fluid row pm-fixer"
-           v-for="([id, title, type], idx) in facets"
-           v-bind:key="idx">
-        <i-first-nonempty-child v-for="(queryResult, queryIdx) in getQueryResults()" :key="queryIdx">
-          <loading-indicator class="col border-right loading-bg" v-if="isQueryLoading(queryIdx) && idx === 0"/>
-          <div class="col border-right loading-bg" v-if="isQueryLoading(queryIdx) && idx !== 0"/>
-          <div class="col border-right" v-if="getFacetValues(queryResult, id) === undefined">
-            <div v-if="idx === 0" style="text-align: center;">sadface</div>
+      <div class="aspects-container">
+        <div class="row pm-fixer"
+             v-for="([id, title, type], idx) in facets"
+             v-bind:key="idx">
+          <div :class="`px-3 one-third ${queryIdx === getQueryResults().length - 1 ? '' : 'border-right'}`" 
+               v-for="(queryResult, queryIdx) in getQueryResults()" :key="queryIdx">
+            <loading-indicator class="col loading-bg" v-if="isQueryLoading(queryIdx) && idx === 0"/>
+            <div class="col loading-bg" v-if="isQueryLoading(queryIdx) && idx !== 0"/>
+            <div class="col" v-if="getFacetValues(queryResult, id) === undefined">
+              <div v-if="idx === 0" style="text-align: center;">[Nothing found]</div>
+            </div>
+            <facet-overview-panel class="col"
+                                  :facet="id" 
+                                  :type="type" 
+                                  :title="title"
+                                  :values="getFacetValues(queryResult, id)"
+                                  @timeline-highlight="onTimelineHighlight"
+                                  @timeline-highlight-off="onTimelineHighlightOff"
+                                  :timeline-highlight-value="getTimelineHighlight(id).data"
+                                  :timeline-highlight-enabled="getTimelineHighlight(id).enabled"
+                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, id) !== undefined"/>
           </div>
-          <facet-overview-panel :class="`col ${queryIdx === getQueryResults().length - 1 ? '' : 'border-right'}`"
-                                :facet="id" 
-                                :type="type" 
-                                :title="title" 
-                                :values="getFacetValues(queryResult, id)"
-                                @timeline-highlight="onTimelineHighlight"
-                                @timeline-highlight-off="onTimelineHighlightOff"
-                                :timeline-highlight-value="getTimelineHighlight(id).data"
-                                :timeline-highlight-enabled="getTimelineHighlight(id).enabled"
-                                v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, id) !== undefined"/>
-        </i-first-nonempty-child>
+        </div>
       </div>
     </i-layout-section>
   </i-layout>
@@ -116,7 +120,7 @@ export default {
   watch: {
     '$route.params.ids': {
       handler(ids) {
-        this.ids = ids;
+        this.ids = typeof ids === 'string' ? ids.split(',') : ids;
         this.loadIntersectedArticles(ids);
       },
       immediate: true,
@@ -193,6 +197,21 @@ export default {
     &:last-child {
       height: 100%;
     }
+    flex-wrap: nowrap !important;
+    width: 100%;
+  }
+  .one-third {
+    flex: 1 1 auto !important;
+    max-width: 33.33%;
+    max-width: calc(100% / 3);
+  }
+
+  .aspects-container {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 </style>
 

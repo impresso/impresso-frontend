@@ -1,35 +1,33 @@
 <template>
-  <div class="d-flex">
-    <div class="col">
-
-      <!-- timeline type -->
-      <div v-if="type === 'timeline'">
-        <span class="row tb-title small-caps font-weight-bold">{{title}}</span>
-        <div class="row mt-3">
-          <timeline
-                :contrast="false"
-                :values="getTimelineValues()"
-                :domain="getDomainRange()"
-                @highlight="onHighlight"
-                @highlight-off="onHighlightOff"
-                :highlight="timelineHighlightValue"
-                :highlight-enabled-state="timelineHighlightEnabled">
-            <div slot-scope="tooltipScope">
-              <div v-if="tooltipScope.tooltip.item">
-                {{ $d(tooltipScope.tooltip.item.t, 'short', 'en') }} &middot;
-                <b>{{ tooltipScope.tooltip.item.w }}</b>
-              </div>
+  <div>
+    <!-- timeline type -->
+    <div v-if="type === 'timeline'">
+      <span class="row tb-title small-caps font-weight-bold">{{title}}</span>
+      <div class="row mt-3">
+        <timeline
+              :contrast="false"
+              :values="getTimelineValues()"
+              :domain="getDomainRange()"
+              @highlight="onHighlight"
+              @highlight-off="onHighlightOff"
+              :highlight="timelineHighlightValue"
+              :highlight-enabled-state="timelineHighlightEnabled">
+          <div slot-scope="tooltipScope">
+            <div v-if="tooltipScope.tooltip.item">
+              {{ $d(tooltipScope.tooltip.item.t, 'short', 'en') }} &middot;
+              <b>{{ tooltipScope.tooltip.item.w }}</b>
             </div>
-          </timeline>
-        </div>
+          </div>
+        </timeline>
       </div>
+    </div>
 
-      <!-- bar type -->
-      <div v-if="type === 'bars'" class="row">
-        <stacked-bars-panel
-          v-bind:label="title"
-          v-bind:items="getBarsItems()"/>
-      </div>
+    <!-- bar type -->
+    <div v-if="type === 'bars'">
+      <stacked-bars-panel
+        class="row"
+        v-bind:label="title"
+        v-bind:items="getBarsItems()"/>
     </div>
   </div>
 </template>
@@ -79,5 +77,4 @@ export default {
   .tb-title {
     font-size: .95em;
   }
-
 </style>

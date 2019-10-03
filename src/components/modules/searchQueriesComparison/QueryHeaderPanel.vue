@@ -1,5 +1,5 @@
 <template>
-  <div class="px-3 py-2 container">
+  <div class="px-0 py-2 container">
 
     <!-- title and type -->
     <div v-if="title && type && !icon" class="row px-2 pb-2 justify-content-between">
