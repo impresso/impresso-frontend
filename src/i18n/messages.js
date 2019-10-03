@@ -68,6 +68,10 @@ export default {
     },
     dates: {
       lastModifiedDate: 'last modified',
+      publicationDate: 'published in {date}',
+      publicationLifespan: '(published from {from} to {to})',
+      includedLifespan: 'available from <span class="date small-caps">{from}</span> to <span class="date small-caps">{to}</span>',
+      notYetAvailable: 'not yet available',
     },
     result: {
       label: {
