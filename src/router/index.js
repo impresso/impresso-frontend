@@ -240,25 +240,20 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  window.redirect = from.path;
   if (to.meta.requiresAuth === false) {
     next();
   } else {
-    services.app.passport.getJWT().then((jwt) => {
-      if (services.app.passport.payloadIsValid(jwt)) {
+    services.app.authentication.getAccessToken().then((jwt) => {
+      if (jwt) {
         next();
       } else {
         next({
           name: 'login',
           query: {
-            redirect: from.path,
+            redirect: to.path,
           },
         });
       }
-    }).catch(() => {
-      next({
-        name: 'login',
-      });
     });
   }
 });
