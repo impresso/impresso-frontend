@@ -114,10 +114,12 @@ export default {
       }
     },
     submitInitialSuggestion({ type }) {
-      this.submit(SuggestionFactory.create({
-        type,
-        q: this.q,
-      }));
+      if (this.q.length) {
+        this.submit(SuggestionFactory.create({
+          type,
+          q: this.q,
+        }));
+      }
     },
     submit(suggestion) {
       if (suggestion) {
