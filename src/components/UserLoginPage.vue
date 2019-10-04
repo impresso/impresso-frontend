@@ -58,12 +58,14 @@ export default {
     },
     authenticate() {
       this.error = false;
+      const path = this.$route.query.redirect || window.redirect || '/';
+
       this.$store.dispatch('user/LOGIN', {
         email: this.email,
         password: this.password,
       }).then(() => {
         this.$router.push({
-          path: window.redirect || '/',
+          path,
         });
       }, (err) => {
         this.error = this.$t(err.message);
