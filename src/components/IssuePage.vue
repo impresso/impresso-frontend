@@ -315,7 +315,7 @@ export default {
           if (self.isLoaded) { // skip
             return;
           }
-          console.log('@tile-loaded', self.page.articles);
+          console.info('@tile-loaded', self.page.articles);
           self.isLoaded = true;
           self.page.articles.forEach((article) => {
             // regions
@@ -420,7 +420,7 @@ export default {
         this.isSearchLoaded = true;
         this.matches = result.data;
         this.matchesTotalRows = result.total;
-        console.log(result);
+        console.info(result);
         console.info('-> search() success for q:', this.q);
       });
     },

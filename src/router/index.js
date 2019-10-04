@@ -20,6 +20,7 @@ import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
+import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
 import store from '../store';
 
 Vue.use(Router);
@@ -235,6 +236,19 @@ const router = new Router({
           },
         });
       });
+    },
+  },
+  {
+    path: '/compare/:ids',
+    component: SearchQueriesComparisonPage,
+    name: 'compare',
+    meta: {
+      requiresAuth: false,
+    },
+    beforeEnter: (to, from, next) => {
+      const { ids = '' } = to.params;
+      to.params.ids = ids.split(',');
+      next();
     },
   }],
 });

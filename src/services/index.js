@@ -6,6 +6,7 @@ import auth from '@feathersjs/authentication-client';
 import articlesSuggestionsHooks from './hooks/articlesSuggestions';
 import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
+import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
 
 const socket = io(`${process.env.MIDDLELAYER_API}`, {
   path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
@@ -97,6 +98,7 @@ export const embeddings = app.service('embeddings');
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
 export const searchFacets = app.service('search-facets');
 export const tableOfContents = app.service('table-of-contents');
+export const searchQueriesComparison = app.service('search-queries-comparison').hooks(searchQueriesComparisonHooks);
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;
