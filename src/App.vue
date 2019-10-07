@@ -6,7 +6,10 @@
   <div id="app-content">
     <router-view />
   </div>
-  <div id="app-monitor">
+  <div id="app-explorer" class="fullscreen">
+    <explorer/>
+  </div>
+  <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
 </div>
@@ -16,6 +19,7 @@
 import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
 import Monitor from './components/Monitor';
+import Explorer from './components/Explorer';
 
 
 export default {
@@ -23,6 +27,7 @@ export default {
   components: {
     TheHeader,
     Monitor,
+    Explorer,
   },
   created() {
     // load typekit
@@ -57,14 +62,21 @@ html {
         position: relative;
     }
 
-    #app-monitor {
+    .full-screen {
       position: absolute;
-      z-index: 1041;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
+    }
+
+    #app-explorer{
+      z-index: 1041;
+    }
+
+    #app-monitor {
+      z-index: 1042;
     }
 }
 select {
@@ -172,6 +184,17 @@ $clr-grey-900: #ddd;
             padding: 0.15em 0.6em;
         }
     }
+}
+
+.matches {
+  span {
+    color: transparentize($clr-primary, 0.45);
+    background: transparentize($clr-primary, 0.94);
+  }
+  em {
+    background: gold;
+    color: black;
+  }
 }
 
 // uncomment to add background to transparent footers
