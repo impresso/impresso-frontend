@@ -9,13 +9,6 @@ const SERVICE_BY_TYPE = {
   collection: 'collections',
 };
 
-const SERVICE_BY_FACET_TYPE = {
-  person: 'entities',
-  location: 'entities',
-  topic: 'topics',
-  newspaper: 'newspapers',
-};
-
 export default {
   namespaced: true,
   state: {
@@ -89,7 +82,7 @@ export default {
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
       // dispatch('LOAD_BUCKETS');
     },
-    SEARCH_BUCKETS({ state, commit }, { q, type }) {
+    SEARCH({ state, commit }, { q, type }) {
       if (q && q.length) {
         commit('UPDATE_Q', q);
       }
@@ -142,44 +135,14 @@ export default {
         commit('SET_IS_LOADING', false);
       });
     },
-    LOAD_BUCKETS({ state, getters, commit }, {
-      filters = [],
-    } = {}) {
+    SEARCH_FACETS({ state, getters, commit }, { type }) {
       commit('SET_IS_LOADING', true);
-      const type = state.type;
-      // if there is a service, e.g. for topics or entities
-      if (state.q.length > 2 && SERVICE_BY_FACET_TYPE[type]) {
-        const query = {
-          filters,
-          page: state.pagination.currentPage,
-          limit: state.pagination.perPage,
-          // order_by: state.orderBy,
-          q: state.fq,
-        };
-
-        if (type === 'newspaper') {
-          // newspaper uses MYSQL LIKE....
-          query.q = state.q;
-        }
-
-        return services[SERVICE_BY_FACET_TYPE[type]].find({
-          query,
-        }).then((res) => {
-          commit('UPDATE_PAGINATION_TOTAL_ROWS', res.total);
-          commit('UPDATE_BUCKETS', res.data.map(item => new Bucket({
-            val: item.uid,
-            item,
-            type,
-          })));
-        }).catch((err) => {
-          console.error(err);
-        }).finally(() => {
-          commit('SET_IS_LOADING', false);
-        });
+      if (type) {
+        commit('SET_TYPE', type);
       }
-
+      console.info('buckets/SEARCH_FACETS state:', state);
       // otherwise, we just get all buckets by facet type
-      return services.searchFacets.get(type, {
+      return services.searchFacets.get(state.type, {
         query: {
           group_by: state.groupBy,
           filters: getters.getCurrentSearchFilters,
@@ -191,7 +154,7 @@ export default {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
         commit('UPDATE_BUCKETS', res[0].buckets.map(d => new Bucket({
           ...d,
-          type,
+          type: state.type,
         })));
       }).catch((err) => {
         console.error(err);
