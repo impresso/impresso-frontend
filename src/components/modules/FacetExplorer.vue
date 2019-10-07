@@ -121,7 +121,7 @@ export default {
       console.info('submit', this.type, this.selectedIds);
       this.$emit('submit-buckets', {
         type: this.type,
-        ids: this.selectedIds,
+        q: this.selectedIds,
       });
       this.selectedIds = [];
     },
