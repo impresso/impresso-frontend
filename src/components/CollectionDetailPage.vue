@@ -111,7 +111,8 @@
           </b-col>
         </b-row>
       </b-container>
-      <div class="fixed-pagination-footer p-1 m-0">
+      <div class="my-5" />
+      <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
           size="sm"
           v-bind:perPage="paginationPerPage"

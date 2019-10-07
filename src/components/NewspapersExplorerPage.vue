@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section class="bg-light" v-on:scroll='onScroll'>
+  <i-layout-section class="bg-light border-left border-top mt-1px ml-1px" v-on:scroll='onScroll'>
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
@@ -9,11 +9,10 @@
       </b-navbar>
       <b-navbar class='m-0 px-3 border-bottom'>
         <section class="d-flex w-100" style="position: relative; height: 80px;">
-          <b-navbar-nav style='width: 200px'>
-            <label>timeline of</label>
-            <i-dropdown v-model="valueType" v-bind:options="valueTypesOptions" size="sm" variant="outline-primary" />
+          <b-navbar-nav style='width: 150px'>
+            <i-dropdown v-model="valueType" style="height:30px; margin-top:10px" v-bind:options="valueTypesOptions" size="sm" variant="outline-primary" />
           </b-navbar-nav>
-          <b-navbar-nav style='position: absolute; left: 200px; right: 50px'>
+          <b-navbar-nav style='position: absolute; left: 150px; right: 50px'>
               <timeline
                     :contrast="true"
                     :values="values"

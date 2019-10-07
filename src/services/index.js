@@ -6,6 +6,7 @@ import auth from '@feathersjs/authentication-client';
 import articlesSuggestionsHooks from './hooks/articlesSuggestions';
 import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
+import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
 
 const socket = io(`${process.env.MIDDLELAYER_API}`, {
   path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
@@ -21,31 +22,40 @@ app.configure(auth({
 }));
 
 socket.on('reconnect', () => {
-  app.authenticate();
+  app.reAuthenticate();
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
 app.hooks({
   before: {
     all: [
       () => {
-        window.app.$store.state.error_message = '';
-        window.app.$store.commit('SET_PROCESSING', true);
+        if (window.app && window.app.$store) {
+          window.app.$store.state.error_message = '';
+          window.app.$store.commit('SET_PROCESSING', true);
+        }
       },
     ],
   },
   after: {
     all: [
       () => {
-        window.app.$store.commit('SET_PROCESSING', false);
+        if (window.app && window.app.$store) {
+          window.app.$store.state.error_message = '';
+          window.app.$store.commit('SET_PROCESSING', false);
+        }
       },
     ],
   },
   error: {
     all: [
-      (error) => {
-        console.error('ERROR: ', error);
-        window.app.$store.state.error_message = 'API Error : See Console for details.';
-        window.app.$store.commit('SET_PROCESSING', false);
+      (context) => {
+        console.error('app ERROR: ', context.error);
+        if (window.app && window.app.$store) {
+          window.app.$store.state.error_message = `${context.path}: ${context.error.name} (${context.error.code}), ${context.error.message}`;
+          window.app.$store.commit('SET_PROCESSING', false);
+        }
+        // window.app.$store.state.error_message = 'API Error : See Console for details.';
+        // window.app.$store.commit('SET_PROCESSING', false);
       },
     ],
   },
@@ -88,6 +98,7 @@ export const embeddings = app.service('embeddings');
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
 export const searchFacets = app.service('search-facets');
 export const tableOfContents = app.service('table-of-contents');
+export const searchQueriesComparison = app.service('search-queries-comparison').hooks(searchQueriesComparisonHooks);
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;

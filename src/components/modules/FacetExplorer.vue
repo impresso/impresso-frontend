@@ -50,7 +50,7 @@
           style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
           <i-spinner class="text-center pt-4" />
         </div>
-        <b-form-checkbox v-for="bucket in buckets" :value="bucket.val" class="d-block">
+        <b-form-checkbox v-for="(bucket, idx) in buckets" v-bind:key="idx" :value="bucket.val" class="d-block">
           <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
           <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
           <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>

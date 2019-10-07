@@ -12,7 +12,7 @@
       <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}">
         <strong>{{ item.newspaper.name}}</strong>
       </router-link>
-      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/>,
+      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
       <span class="small-caps">{{ $d(item.date, "long") }}</span>
       <span>{{ pages }}</span>
     </div>
@@ -20,16 +20,19 @@
 
     <div v-if="showExcerpt && item.type !=='image'" class="article-excerpt mt-2">
       <span >{{ item.excerpt }}</span>
-      <span v-if="showSize" class="badge badge-secondary mr-1 pt-1">
-        <span v-if="item.size > 1200">{{ $t('readingTime', { min: parseInt(item.size / 1200) }) }}</span>
-        <span v-else>{{ $t('reducedReadingTime')}}</span>
-      </span>
-      <span v-if="showPages">({{ pages }})</span>
+      <b-badge v-if="showSize || showType" variant="light" class="mr-1 pt-1">
+        <span v-if="showType">{{ $t(`buckets.type.${item.type}`) }} | </span>
+        <span v-if="showSize">
+          <span v-if="item.size > 1200">{{ $t('readingTime', { min: parseInt(item.size / 1200) }) }}</span>
+          <span v-else>{{ $t('reducedReadingTime')}}</span>
+        </span>
+      </b-badge>
+      <span v-if="showPages">{{ pages }}</span>
     </div>
 
     <div v-if="showEntities" class="small article-extras article-entities mt-2">
       <div v-if="item.locations.length">
-        <b-badge variant="light" class="mr-1 small-caps">locations</b-badge>
+        <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
         <span v-for="(location, idx) in item.locations" v-bind:key="idx">
           <item-label :item="location" type="location" />
           <item-selector :uid="location.uid" :item="location" type="location"/>
@@ -37,7 +40,7 @@
         </span>
       </div>
       <div v-if="item.persons.length">
-        <b-badge variant="light" class="mr-1 small-caps">people</b-badge>
+        <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
         <span v-for="(person, idx) in item.persons" v-bind:key="idx">
           <item-label :item="person" type="person" />
           <item-selector :uid="person.uid" :item="person" type="person"/>
@@ -47,12 +50,15 @@
     </div>
     <div v-if="showTopics" class="small article-extras article-topics mt-2">
       <div v-if="item.topics.length">
-        <b-badge variant="light" class="mr-1 small-caps">topics</b-badge>
-        <span v-for="(rel, idx) in item.topics" v-bind:key="idx">
-          <item-label :item="rel.topic" type="topic" />
-          <span class="text-muted">({{ $n(rel.relevance * 100) }}&nbsp;%)</span>
-          <item-selector :uid="rel.topic.uid" :item="rel.topic" type="topic"/>
-          <span v-if="idx !== item.topics.length - 1">, </span>
+        <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
+        <span v-for="(rel, idx) in item.topics" v-bind:key="idx" class="position-relative d-inline-block mx-1 mb-1">
+          <viz-bar
+            :label="rel.topic.getHtmlExcerpt()"
+            :percent="$n(rel.relevance * 100)"
+            :uid="rel.topic.uid"
+            :item="rel.topic"
+            type="topic"
+            />
         </span>
       </div>
     </div>
@@ -72,6 +78,7 @@
 <script>
 import ItemSelector from './../ItemSelector';
 import ItemLabel from './ItemLabel';
+import VizBar from '../../base/VizBar';
 
 export default {
   props: {
@@ -94,6 +101,9 @@ export default {
       type: Boolean,
     },
     showMeta: {
+      type: Boolean,
+    },
+    showType: {
       type: Boolean,
     },
     showEntities: {
@@ -123,6 +133,7 @@ export default {
   components: {
     ItemSelector,
     ItemLabel,
+    VizBar,
   },
 };
 </script>
@@ -140,5 +151,8 @@ export default {
   }
   ul.article-matches li{
     border-left: 2px solid gold;
+  }
+  .viz-bar {
+    height: 2px;
   }
 </style>

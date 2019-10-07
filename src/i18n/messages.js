@@ -8,6 +8,10 @@ export default {
       en: 'English',
     },
     buckets: {
+      type: {
+        ad: 'advertisement',
+        ar: 'article',
+      },
       language: {
         de: 'German',
         fr: 'French',
@@ -64,6 +68,10 @@ export default {
     },
     dates: {
       lastModifiedDate: 'last modified',
+      publicationDate: 'published in {date}',
+      publicationLifespan: '(published from {from} to {to})',
+      includedLifespan: 'available from <span class="date small-caps">{from}</span> to <span class="date small-caps">{to}</span>',
+      notYetAvailable: 'not yet available',
     },
     result: {
       label: {
@@ -77,7 +85,7 @@ export default {
     },
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
     readingTime: '{min} min read',
-    reducedReadingTime: 'quick reading',
+    reducedReadingTime: 'short text',
   },
   nl: {
     language: 'Taal',

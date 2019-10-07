@@ -4,7 +4,8 @@
       <b-media
         :ref="`article-${article.uid}`"
         class="article flatten"
-        v-for="article in articles"
+        v-for="(article, idx) in articles"
+        v-bind:key="idx"
         v-bind:class="{active: article.uid === selectedArticleUid}"
         v-on:click.prevent="onClick(article, page)">
         <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
@@ -15,6 +16,7 @@
           show-size
           show-pages
           show-matches
+          show-type
           />
       </b-media>
     </div>
@@ -24,7 +26,8 @@
           <b-media
             :ref="`article-${article.uid}`"
             class="article border-bottom"
-            v-for="article in page.articles"
+            v-for="(article, idx) in page.articles"
+            v-bind:key="idx"
             v-bind:class="{active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
             <div class="d-flex">
@@ -35,6 +38,7 @@
                 show-entities
                 show-size
                 show-pages
+                show-type
                 />
             </div>
             <!--

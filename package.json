@@ -14,10 +14,11 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
-    "@feathersjs/authentication-client": "^1.0.8",
-    "@feathersjs/socketio-client": "^1.1.5",
+    "@feathersjs/authentication-client": "^4.3.3",
+    "@feathersjs/feathers": "^4.3.3",
+    "@feathersjs/socketio-client": "^4.3.3",
     "bootstrap": "^4.3.1",
-    "bootstrap-vue": "^2.0.1",
+    "bootstrap-vue": "^2.0.2",
     "d3": "^5.7.0",
     "debug": "^4.1.1",
     "dragscroll": "0.0.8",
@@ -36,7 +37,7 @@
     "vue-click-outside": "^1.0.7",
     "vue-filepond": "^5.1.1",
     "vue-flatpickr-component": "^8.0.0",
-    "vue-i18n": "^8.4.0",
+    "vue-i18n": "^8.14.1",
     "vue-router": "^3.0.2",
     "vuex": "^3.0.1",
     "vuex-persistedstate": "^2.5.4",
@@ -44,9 +45,6 @@
     "webpack": "^3.12.0"
   },
   "devDependencies": {
-    "@feathersjs/authentication": "^2.1.13",
-    "@feathersjs/feathers": "^3.2.3",
-    "@feathersjs/socketio": "^3.2.7",
     "@kazupon/vue-i18n-loader": "^0.2.1",
     "autoprefixer": "^7.2.6",
     "babel-core": "^6.26.3",
