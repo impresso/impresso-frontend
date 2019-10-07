@@ -38,6 +38,7 @@ export default {
     domain: Array,
     highlight: Object,
     contrast: Boolean,
+    highlightEnabledState: Boolean,
   },
   data: () => ({
     tooltip: {
@@ -86,6 +87,7 @@ export default {
     }
     this.timeline.on('mouseleave', () => {
       this.tooltip.isActive = false;
+      this.$emit('highlight-off');
     });
 
     this.timeline.on('mousemove', (data) => {
@@ -126,6 +128,12 @@ export default {
         this.timeline.highlight(val);
       },
     },
+    highlightEnabledState: {
+      immediate: false,
+      handler(val) {
+        this.tooltip.isActive = val;
+      },
+    },
     brush: {
       immediate: false,
       handler(val) {
@@ -142,7 +150,7 @@ export default {
       immediate: false,
       deep: true,
       handler(data) {
-        console.info('Timeline component received data:', data.length);
+        // console.info('Timeline component received data:', data.length);
         if (this.timeline) {
           this.timeline.update({
             data,

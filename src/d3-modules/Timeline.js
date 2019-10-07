@@ -127,7 +127,7 @@ export default class Timeline extends Line {
     super.update({
       data: data.map(d => ({
         ...d,
-        t: this.timeParse(d.t),
+        t: d.t instanceof Date ? d.t : this.timeParse(d.t),
       })),
     });
   }
@@ -141,7 +141,7 @@ export default class Timeline extends Line {
     if (datum) {
       super.highlight({
         ...datum,
-        t: this.timeParse(datum.t),
+        t: datum.t instanceof Date ? datum.t : this.timeParse(datum.t),
       });
     }
   }

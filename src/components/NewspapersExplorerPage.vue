@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section class="bg-light" v-on:scroll='onScroll'>
+  <i-layout-section class="bg-light border-left border-top mt-1px ml-1px" v-on:scroll='onScroll'>
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>

@@ -9,7 +9,8 @@
         <h3>List of Entity Timelines</h3>
       </section>
     </b-navbar>
-    <router-link v-for="e in entities.entities"
+    <router-link v-for="(e, idx) in entities.entities"
+      v-bind:key="idx"
       v-bind:to="{name: 'entity', params: {entity_id: e.id}}">
       <b-card class="m-3">
         <div class="clearfix">
