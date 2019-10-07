@@ -19,6 +19,7 @@ export default class Topic {
     this.model = String(model);
     this.words = words.filter(d => d.p > 0.0);
     this.excerpt = excerpt;
+    this.matches = matches.map(d => d.trim().split(' ').join(' · '));
 
     if (words.length && !(words[0] instanceof TopicWord)) {
       const normalize = d3.scaleQuantize()
