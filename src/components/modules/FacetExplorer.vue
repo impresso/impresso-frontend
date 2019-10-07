@@ -23,19 +23,6 @@
     <b-button v-if='selectedIds.length' @click="applyFilter()" class="w-100 my-2 btn btn-sm btn-outline-primary"
       v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
 
-    <!--  Pagination -->
-    <div
-      v-if="paginationTotalRows > paginationPerPage" class="p-3">
-      <div
-        class="fixed-pagination-footer mb-2 p-1">
-        <pagination
-          v-model="paginationCurrentPage"
-          v-bind:perPage="paginationPerPage"
-          v-bind:totalRows="paginationTotalRows"
-          v-bind:showDescription="false"
-           />
-      </div>
-    </div>
   </div>
 </template>
 
