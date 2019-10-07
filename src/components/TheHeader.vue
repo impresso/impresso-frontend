@@ -99,21 +99,21 @@
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
-    <cookie-law v-if="!user" theme="blood-orange"
-    buttonText="Accept!"
-    position="top"
-    transitionName="slideFromTop">
-      <div slot="message">
-        By using this app, I agree with the terms ladi ladi.<br><router-link to="legal-notes">Full disclaimer</router-link>
-      </div>
-    </cookie-law>
+
+    <b-modal hide-footer scrollable
+      body-class="m-0 p-0"
+      id="disclaimerNotice"
+      ref="disclaimerNotice"
+      :title="$t('Legal Disclaimer')">
+      By using this app, I agree with the terms ladi ladi.<br><router-link to="legal-notes">Full disclaimer</router-link>
+    </b-modal>
+
   </div>
 </template>
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
-import CookieLaw from 'vue-cookie-law';
 import Toast from './modules/Toast';
 
 export default {
@@ -232,7 +232,6 @@ export default {
   components: {
     Icon,
     Toast,
-    CookieLaw,
   },
 };
 </script>
