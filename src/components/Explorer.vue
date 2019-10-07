@@ -16,10 +16,10 @@
             v-bind:class="{ 'active' :
               type === availableType
             }">
-            {{availableType}}
+            {{ availableType }}
           </b-button>
           <div>
-            <form v-if="mode === 'search'" v-on:submit.prevent="onSearch" class="mt-2">
+            <form v-if="mode === 'search'" v-on:submit.prevent="search" class="mt-2">
               <b-input-group>
                 <b-form-input
                 :placeholder="$tc('searchField.placeholder', countBuckets)"
@@ -29,7 +29,7 @@
                 <b-input-group-append>
                   <b-btn class="pt-2 pb-1 px-2"
                     variant="outline-primary"
-                    v-on:click="onSearch">
+                    v-on:click="search">
                     <div class="search-submit dripicons-search"></div>
                   </b-btn>
                 </b-input-group-append>
@@ -42,7 +42,20 @@
         :initial-type="type"
         :q="q"
         v-on:submit-buckets="onSubmitBuckets" />
+        <div v-if="paginationTotalRows > paginationPerPage" class="p-3">
+          <div
+            class="fixed-pagination-footer mb-2 p-1">
+            <pagination
+              v-model="paginationCurrentPage"
+              v-bind:perPage="paginationPerPage"
+              v-bind:totalRows="paginationTotalRows"
+              v-bind:showDescription="false"
+               />
+          </div>
+        </div>
       <template v-slot:modal-footer>
+        <!--  Pagination -->
+
         <b-button variant="outline-primary" size="sm" block v-on:click="onHide">Close Me</b-button>
       </template>
     </b-modal>
@@ -51,6 +64,7 @@
 
 <script>
 import FacetExplorer from './modules/FacetExplorer';
+import Pagination from './modules/Pagination';
 
 export default {
   methods: {
@@ -65,15 +79,18 @@ export default {
     },
     onChangeType(type) {
       this.$store.dispatch('explorer/SHOW', { type });
-      this.$store.dispatch('buckets/SEARCH_BUCKETS', { type });
+      this.search();
     },
-    onSearch() {
-      // if (this.q.length) {
-      //   this.$store.dispatch('buckets/CHANGE_Q', this.q);
-      // } else {
-      //   this.$store.dispatch('buckets/CHANGE_PAGE', 1);
-      // }
-      // this.$store.dispatch('buckets/LOAD_BUCKETS');
+    search() {
+      if (this.isSearchable) {
+        this.$store.dispatch('buckets/SEARCH', {
+          type: this.type,
+        });
+      } else {
+        this.$store.dispatch('buckets/SEARCH_FACETS', {
+          type: this.type,
+        });
+      }
     },
   },
   computed: {
@@ -89,13 +106,32 @@ export default {
     mode() {
       return this.$store.state.explorer.mode;
     },
+    paginationPerPage: {
+      get() {
+        return this.$store.state.buckets.pagination.perPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.buckets.pagination.currentPage;
+      },
+      set(val) {
+        this.$store.dispatch('buckets/CHANGE_PAGE', val);
+        this.search();
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.buckets.pagination.totalRows;
+      },
+    },
     q: {
       get() {
         return this.$store.state.explorer.q;
       },
       set(q) {
         this.$store.dispatch('explorer/SHOW', { q });
-        this.$store.dispatch('buckets/SEARCH_BUCKETS', { q });
+        this.search();
       },
     },
     status() {
@@ -108,17 +144,24 @@ export default {
       if (this.isSearchable) {
         return ['newspaper', 'person', 'location', 'topic', 'collection'];
       }
-      return this.$store.state.buckets.typeOptions;
+      return [
+        'location', 'country', 'person', 'language', 'topic', 'newspaper', 'collection',
+      ];
     },
+  },
+  mounted() {
+    this.$store.dispatch('explorer/HIDE');
   },
   components: {
     FacetExplorer,
+    Pagination,
   },
   watch: {
     status: {
       handler(val) {
         if (val === 'on') {
           this.$bvModal.show('facet-explorer-modal');
+          this.search();
         }
       },
     },
