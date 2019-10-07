@@ -351,19 +351,25 @@ export default {
           const itemuids = res.data.map(item => item.uid);
           // console.log(itemuids, res.data);
 
-          services.collectionsItems.find({
-            query: { item_uids: itemuids, limit: 100 },
-          }).then((cs) => {
-            state.results.forEach((re) => {
-              cs.data.forEach((c) => {
-                if (c.itemId === re.uid) {
-                  re.collections = c.collections;
-                }
-              });
-            });
-            // console.log(state.results);
-          });
+          // console.log(state.facets.find(f => f.type === 'collection'));
 
+          if (state.facets.find(f => f.type === 'collection').numBuckets > 0) {
+            services.collectionsItems.find({
+              query: { item_uids: itemuids, limit: 100 },
+            }).then((cs) => {
+              const intersection = state.results.filter(x => cs.data.includes(x.uid));
+              console.log('intersection', intersection);
+
+              state.results.forEach((re) => {
+                cs.data.forEach((c) => {
+                  if (c.itemId === re.uid) {
+                    re.collections = c.collections;
+                  }
+                });
+              });
+              // console.log(state.results);
+            });
+          }
 
           commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
           // register facets
