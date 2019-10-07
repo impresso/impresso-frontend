@@ -39,7 +39,7 @@
             @click="submit(s)" @mouseover="select(s)"
             class="suggestion small px-2 mb-1" :class="{selected: selectedIndex === s.idx}">
           <div v-if="s.fake && type !== 'mention'">
-            <span class="small">... <b>{{ q }}</b></span>
+            <span>... <b>{{ q }}</b></span>
             <b-badge>{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
           </div>
           <div v-else :class="type">
@@ -166,6 +166,7 @@ export default {
         // open explorer
         if (this.q.length) {
           this.$store.dispatch('explorer/SHOW', {
+            mode: 'search',
             type: suggestion.type,
             q: this.q,
           });

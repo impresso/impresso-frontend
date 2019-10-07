@@ -93,6 +93,7 @@ export default {
       if (this.isSearchable) {
         this.$store.dispatch('buckets/SEARCH', {
           type: this.type,
+          q: this.q,
         });
       } else {
         this.$store.dispatch('buckets/SEARCH_FACETS', {
