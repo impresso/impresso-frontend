@@ -14,7 +14,7 @@
           <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
           <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
           <div class="matches" v-if="bucket.item && bucket.item.matches">
-            <span v-for="match in bucket.item.matches" v-html="match" :key="i"/>
+            <span v-for="(match, i) in bucket.item.matches" v-html="match" :key="i"/>
           </div>
         </b-form-checkbox>
       </b-form-checkbox-group>
@@ -130,22 +130,6 @@ export default {
     },
   },
   methods: {
-    search() {
-      if (this.q.length) {
-        this.$store.dispatch('buckets/CHANGE_Q', this.q);
-      } else {
-        this.$store.dispatch('buckets/CHANGE_PAGE', 1);
-      }
-      this.$store.dispatch('buckets/LOAD_BUCKETS');
-    },
-    changeType(type) {
-      this.$store.dispatch('buckets/CHANGE_TYPE', type);
-      this.search();
-    },
-    changeOrder(orderBy) {
-      this.$store.dispatch('buckets/CHANGE_ORDER_BY', orderBy);
-      this.search();
-    },
     applyFilter() {
       console.info('submit', this.type, this.selectedIds);
       this.$emit('submit-buckets', {
@@ -154,9 +138,6 @@ export default {
       });
       this.selectedIds = [];
     },
-  },
-  mounted() {
-    this.changeType(this.initialType);
   },
   components: {
     FilterFacetBucket,
