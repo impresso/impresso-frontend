@@ -100,13 +100,7 @@
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
 
-    <b-modal hide-footer scrollable
-      body-class="m-0 p-0"
-      id="disclaimerNotice"
-      ref="disclaimerNotice"
-      :title="$t('Legal Disclaimer')">
-      By using this app, I agree with the terms ladi ladi.<br><router-link to="legal-notes">Full disclaimer</router-link>
-    </b-modal>
+    <disclaimer-notice />
 
   </div>
 </template>
@@ -115,6 +109,7 @@
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
 import Toast from './modules/Toast';
+import DisclaimerNotice from './modals/DisclaimerNotice';
 
 export default {
   data: () => ({
@@ -232,6 +227,7 @@ export default {
   components: {
     Icon,
     Toast,
+    DisclaimerNotice,
   },
 };
 </script>
