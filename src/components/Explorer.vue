@@ -68,8 +68,16 @@ import Pagination from './modules/Pagination';
 
 export default {
   methods: {
-    onSubmitBuckets(buckets) {
-      console.info('explorer @onSubmitBuckets', buckets);
+    onSubmitBuckets({ type, q }) {
+      console.info('explorer @onSubmitBuckets filter:', type, q, this.$route);
+      this.$store.commit('search/ADD_FILTER', {
+        type,
+        q,
+      });
+      if (this.$route.name === 'search') {
+        this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+      }
+      this.search();
     },
     onHide() {
       this.$bvModal.hide('facet-explorer-modal');
