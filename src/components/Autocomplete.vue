@@ -6,6 +6,7 @@
       placeholder="search for ..."
       v-model.trim="q"
       v-on:input.native="search"
+      v-on:focus.native="selectInput"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
         <b-btn v-bind:variant="variant" class="px-2"
@@ -206,11 +207,15 @@ export default {
     select(suggestion) {
       this.selectedIndex = suggestion.idx;
     },
+    selectInput(e) {
+      e.target.select();
+    },
     keyup(event) {
       switch (event.key) {
         case 'Enter':
           console.info('submitting ...', this.selectedIndex);
           this.submit(this.selectableSuggestions[this.selectedIndex]);
+          this.selectInput(event);
           break;
         case 'ArrowDown':
           this.selectedIndex += 1;
@@ -299,7 +304,6 @@ export default {
     "en": {
       "label": {
         "string": {
-          "title": "in contents ..."
           "title": "in contents"
         },
         "mention": {
