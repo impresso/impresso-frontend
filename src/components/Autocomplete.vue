@@ -300,6 +300,7 @@ export default {
       "label": {
         "string": {
           "title": "in contents ..."
+          "title": "in contents"
         },
         "mention": {
           "title": "in contents ..."
