@@ -12,7 +12,7 @@
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
-  <disclaimer-notice v-if="!termsAgreed" />
+  <disclaimer-notice v-if="!termsAgreed && !isLoggedIn" />
 
 </div>
 </template>
@@ -36,6 +36,9 @@ export default {
   computed: {
     termsAgreed() {
       return this.$store.state.settings.termsAgreed;
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
     },
   },
   created() {
