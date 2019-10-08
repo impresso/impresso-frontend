@@ -100,8 +100,6 @@
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
 
-    <disclaimer-notice v-if="!termsAgreed" />
-
   </div>
 </template>
 
@@ -109,7 +107,6 @@
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
 import Toast from './modules/Toast';
-import DisclaimerNotice from './modals/DisclaimerNotice';
 
 export default {
   data: () => ({
@@ -227,7 +224,6 @@ export default {
   components: {
     Icon,
     Toast,
-    DisclaimerNotice,
   },
 };
 </script>
