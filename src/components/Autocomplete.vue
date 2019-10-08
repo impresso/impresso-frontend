@@ -17,39 +17,37 @@
       <div class="border-bottom">
         <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in initialSuggestions" v-bind:key="index"
             @click="submitInitialSuggestion(suggestion)"
-            @mouseover="select(suggestion)" :class="{selected: selected === suggestion}">
+            @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
-            <span class="small">{{ q }}</span>
+            <span class="small">... {{ q }}</span>
             <b-badge>{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
-      <div class="suggestion-box border-bottom" v-if="suggestionIndex.mention">
+      <!-- <div class="suggestion-box border-bottom" v-if="suggestionIndex.mention">
         <div v-for="(s, index) in suggestionIndex.mention" :key="index"
             @click="submit(s)" @mouseover="select(s)"
-            class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
+            class="suggestion small px-2 mb-1" :class="{selected: selectedIndex === s.idx}">
             <div href="#" class="suggestion-entity">
               <span v-html="s.h" />
             </div>
         </div>
-      </div>
+      </div> -->
       <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
-        <span class="small-caps px-2 smaller">{{$t(`label.${type}.title`)}}</span>
+        <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span>
         <div v-for="(s, index) in suggestionIndex[type]" :key="index"
             @click="submit(s)" @mouseover="select(s)"
-            class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
-            <div href="#" v-if="['location', 'person'].indexOf(type) !== -1" class="suggestion-entity">
-              <span v-html="s.h" />
-            </div>
-            <div href="#" v-if="['collection', 'newspaper'].indexOf(type) !== -1" class="suggestion-collection">
-              <span v-html="s.item.name" />
-            </div>
-            <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
-              <span v-html="s.h" />
-            </div>
-            <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
-              {{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}
-            </div>
+            class="suggestion small px-2 mb-1" :class="{selected: selectedIndex === s.idx}">
+          <div v-if="s.fake && type !== 'mention'">
+            <span>... <b>{{ q }}</b></span>
+            <b-badge>{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
+          </div>
+          <div v-else :class="type">
+            <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
+            <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
+            <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
+            <span v-if="s.type === 'daterange'">{{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -60,20 +58,34 @@
 import ClickOutside from 'vue-click-outside';
 import SuggestionFactory from '@/models/SuggestionFactory';
 
+const AVAILABLE_TYPES = [
+  'mention',
+  'collection',
+  'newspaper',
+  'topic',
+  'location',
+  'person',
+];
+
 export default {
   data: () => ({
     q: '',
     initialSuggestions: [
       {
         type: 'string',
+        idx: 0,
       },
       {
         type: 'title',
+        idx: 1,
       },
     ],
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
+    selectedIndex: 0,
+    maxSelectedIndex: 0,
+    selectableSuggestions: [],
     showSuggestions: false,
   }),
   props: {
@@ -83,14 +95,42 @@ export default {
     },
   },
   computed: {
-    allSuggestions() {
-      return this.initialSuggestions.concat(this.suggestions);
-    },
     suggestionIndex() {
-      return this.$helpers.groupBy(this.suggestions, 'type');
+      const index = this.$helpers.groupBy(this.suggestions, 'type');
+
+      let idx = this.initialSuggestions.length - 1;
+      let selectableSuggestions = [...this.initialSuggestions];
+
+      AVAILABLE_TYPES.forEach((type) => {
+        if (index[type]) {
+          index[type] = index[type].map((d) => {
+            idx += 1;
+            // add correct index to choice
+            return {
+              ...d,
+              idx,
+            };
+          });
+          // exclude extra suggestions for mentions
+          if (type !== 'mention') {
+            // add custom one
+            idx += 1;
+            index[type].push({
+              type,
+              fake: true,
+              idx,
+            });
+          }
+        }
+        selectableSuggestions = selectableSuggestions.concat(index[type]);
+      });
+      // update maximum index
+      this.maxSelectedIndex = idx;
+      this.selectableSuggestions = selectableSuggestions;
+      return index;
     },
     suggestionTypes() {
-      return Object.keys(this.suggestionIndex).filter(d => d !== 'mention');
+      return AVAILABLE_TYPES.filter(d => !!this.suggestionIndex[d]);
     },
   },
   methods: {
@@ -110,60 +150,62 @@ export default {
       } else {
         // if length of the query is 0 then we clear the suggestions
         this.suggestions = [];
-        this.selected = false;
+        this.selectedIndex = 0;
       }
     },
     submitInitialSuggestion({ type }) {
-      this.submit(SuggestionFactory.create({
-        type,
-        q: this.q,
-      }));
+      if (this.q.length) {
+        this.submit(SuggestionFactory.create({
+          type,
+          q: this.q,
+        }));
+      }
     },
     submit(suggestion) {
-      if (suggestion) {
+      if (suggestion.fake) {
+        // open explorer
+        if (this.q.length) {
+          this.$store.dispatch('explorer/SHOW', {
+            mode: 'search',
+            type: suggestion.type,
+            q: this.q,
+          });
+        }
+      } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
+        if (this.q.length) {
+          this.$emit('submit', {
+            type: suggestion.type,
+            q: this.q,
+          });
+        }
+      } else {
         this.$emit('submit', suggestion);
+        this.showSuggestions = false;
       }
-      this.suggestions = [];
-      this.suggestion = false;
-      this.selected = false;
-      this.showSuggestions = false;
-      this.q = '';
     },
     select(suggestion) {
-      this.selected = suggestion;
+      this.selectedIndex = suggestion.idx;
     },
     keyup(event) {
-      this.selected = this.selected || this.allSuggestions[0];
-      const index = this.allSuggestions.indexOf(this.selected);
-
       switch (event.key) {
         case 'Enter':
-          if (['string', 'title'].indexOf(this.selected.type) !== -1) {
-            this.submitInitialSuggestion(this.selected);
-          } else {
-            this.submit(this.selected);
-          }
+          console.info('submitting ...', this.selectedIndex);
+          this.submit(this.selectableSuggestions[this.selectedIndex]);
           break;
         case 'ArrowDown':
-          if (this.allSuggestions[index + 1]) {
-            this.selected = this.allSuggestions[index + 1];
-          } else {
-            this.selected = this.allSuggestions[0];
-          }
-          event.target.select();
+          this.selectedIndex += 1;
           break;
         case 'ArrowUp':
-          event.preventDefault();
-          if (index > 0) {
-            this.selected = this.allSuggestions[index - 1];
-          } else {
-            this.selected = this.allSuggestions[this.allSuggestions.length - 1];
-          }
-          event.target.select();
+          this.selectedIndex -= 1;
           break;
         default:
-          this.selected = this.suggestion;
+          // this.selected = this.suggestion;
           break;
+      }
+      if (this.selectedIndex > this.maxSelectedIndex) {
+        this.selectedIndex = 0;
+      } else if (this.selectedIndex < 0) {
+        this.selectedIndex = this.maxSelectedIndex;
       }
     },
   },
@@ -233,17 +275,23 @@ export default {
         "string": {
           "title": "in contents ..."
         },
+        "mention": {
+          "title": "in contents ..."
+        },
         "title": {
           "title": "in article titles ..."
         },
         "topic": {
-          "title": "suggested topics"
+          "title": "suggested topics",
+          "moreLikeThis": "in topic modelling contents..."
         },
         "person": {
-          "title": "suggested people"
+          "title": "suggested people",
+          "moreLikeThis": "in people names..."
         },
         "location": {
-          "title": "suggested locations"
+          "title": "suggested locations",
+          "moreLikeThis": "in location names..."
         },
         "collection": {
           "title": "suggested collections"

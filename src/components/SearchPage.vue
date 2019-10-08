@@ -1,6 +1,6 @@
 <template>
 <i-layout id="SearchPage">
-  <i-layout-section width="400px" class="border-right border-tertiary">
+  <i-layout-section width="400px" class="border-right border-top mt-1px">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
       <b-tabs pills class="border-bottom mx-2 pt-2">
@@ -40,7 +40,7 @@
       </b-button-group>
     </div> -->
   </i-layout-section>
-  <i-layout-section>
+  <i-layout-section class="border-left border-top ml-1px mt-1px">
     <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
       <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
         <label class="mr-1">{{$t("label_group")}}</label>
