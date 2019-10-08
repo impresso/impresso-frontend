@@ -17,6 +17,7 @@ import entities from './Entities';
 import mentions from './Mentions';
 import embeddings from './Embeddings';
 import monitor from './Monitor';
+import explorer from './Explorer';
 import buckets from './Buckets';
 
 
@@ -43,6 +44,7 @@ export default new Vuex.Store({
     embeddings,
     monitor,
     buckets,
+    explorer,
   },
   state: {
     processing_status: false,
