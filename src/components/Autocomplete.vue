@@ -304,13 +304,13 @@ export default {
     "en": {
       "label": {
         "string": {
-          "title": "in contents"
+          "title": "Search in contents"
         },
         "mention": {
           "title": "in contents ..."
         },
         "title": {
-          "title": "in article titles ..."
+          "title": "Search in article titles"
         },
         "topic": {
           "title": "suggested topics",
