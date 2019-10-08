@@ -92,6 +92,7 @@ export default new Vuex.Store({
   plugins: [createPersistedState({
     key: 'impresso',
     paths: [
+      'settings.termsAgreed',
       'settings.language_code',
       'search.searches',
       'search.displaySortBy',

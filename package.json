@@ -35,6 +35,7 @@
     "vue": "^2.6.10",
     "vue-awesome": "^2.3.8",
     "vue-click-outside": "^1.0.7",
+    "vue-cookie-law": "^1.10.0",
     "vue-filepond": "^5.1.1",
     "vue-flatpickr-component": "^8.0.0",
     "vue-i18n": "^8.14.1",

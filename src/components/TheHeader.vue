@@ -99,6 +99,7 @@
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
+
   </div>
 </template>
 
@@ -231,6 +232,25 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
+
+    .Cookie--blood-orange {
+
+      background: $clr-secondary;
+      border-bottom: 2px solid $clr-accent;
+      box-shadow: 0 0 5vh 0vw rgba(0,0,0,0.8);
+      a {
+        color: white;
+        text-decoration: underline;
+      }
+      .Cookie__button {
+          background: $clr-accent;
+          color: black;
+      }
+
+      .Cookie__message {
+        color: yellow;
+      }
+    }
     .progress {
         position: absolute;
         width: 100%;
