@@ -29,6 +29,7 @@ export default {
       and: 'and',
     },
     actions: {
+      agree: 'I agree to the terms of use',
       more: 'more...',
       close: 'close',
       loading: 'loading...',

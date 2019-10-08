@@ -12,6 +12,8 @@
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
+  <disclaimer-notice v-if="!termsAgreed && !isLoggedIn" />
+
 </div>
 </template>
 
@@ -20,6 +22,7 @@ import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
 import Monitor from './components/Monitor';
 import Explorer from './components/Explorer';
+import DisclaimerNotice from './components/modals/DisclaimerNotice';
 
 
 export default {
@@ -28,6 +31,15 @@ export default {
     TheHeader,
     Monitor,
     Explorer,
+    DisclaimerNotice,
+  },
+  computed: {
+    termsAgreed() {
+      return this.$store.state.settings.termsAgreed;
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
   },
   created() {
     // load typekit
