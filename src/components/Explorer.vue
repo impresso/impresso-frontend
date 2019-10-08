@@ -56,7 +56,7 @@
       <template v-slot:modal-footer>
         <!--  Pagination -->
 
-        <b-button variant="outline-primary" size="sm" block v-on:click="onHide">Close Me</b-button>
+        <b-button variant="outline-primary" size="sm" block v-on:click="onHide">{{ $t('action.close') }}</b-button>
       </template>
     </b-modal>
   </div>

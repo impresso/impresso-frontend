@@ -30,6 +30,7 @@ export default {
     },
     actions: {
       more: 'more...',
+      close: 'close',
       loading: 'loading...',
       reset: 'Reset',
       apply: 'Apply',
