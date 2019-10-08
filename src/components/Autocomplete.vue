@@ -2,9 +2,11 @@
   <section class="search-bar" v-ClickOutside="hideSuggestions">
     <b-input-group>
       <b-form-input
+      :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
       placeholder="search for ..."
       v-model.trim="q"
       v-on:input.native="search"
+      v-on:focus.native="selectInput"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
         <b-btn v-bind:variant="variant" class="px-2"
@@ -20,7 +22,7 @@
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
             <span class="small">... {{ q }}</span>
-            <b-badge>{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
+            <b-badge variant="light" class="small-caps border">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
@@ -33,22 +35,31 @@
             </div>
         </div>
       </div> -->
-      <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
-        <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span>
-        <div v-for="(s, index) in suggestionIndex[type]" :key="index"
-            @click="submit(s)" @mouseover="select(s)"
-            class="suggestion small px-2 mb-1" :class="{selected: selectedIndex === s.idx}">
-          <div v-if="s.fake && type !== 'mention'">
-            <span>... <b>{{ q }}</b></span>
-            <b-badge>{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
+
+          <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
+            <div class="row">
+              <div class="col-1" v-if="type !== 'mention'">
+                <span :class="`icon filter-icon dripicons-${typeIcon(type)} d-block p-2 accent`"></span>
+              </div>
+              <div class="col">
+                <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
+                <div v-for="(s, index) in suggestionIndex[type]" :key="index"
+                    @click="submit(s)" @mouseover="select(s)"
+                    class="suggestion px-2 mb-1" :class="{selected: selectedIndex === s.idx}">
+                  <div v-if="s.fake && type !== 'mention'">
+                    <span class="small">... <b>{{ q }}</b></span>
+                    <b-badge  variant="light" class="small-caps border">{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
+                  </div>
+                  <div v-else :class="`${type} small`">
+                    <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
+                    <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
+                    <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
+                    <span v-if="s.type === 'daterange'">{{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}</span>
+                  </div>
+              </div>
+            </div>
           </div>
-          <div v-else :class="type">
-            <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
-            <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
-            <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
-            <span v-if="s.type === 'daterange'">{{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}</span>
-          </div>
-        </div>
+
       </div>
     </div>
   </section>
@@ -134,6 +145,16 @@ export default {
     },
   },
   methods: {
+    typeIcon(type) {
+      switch (type) {
+        case 'collection': return 'suitcase';
+        case 'newspaper': return 'pamphlet';
+        case 'topic': return 'message';
+        case 'location': return 'location';
+        case 'person': return 'user';
+        default: return '';
+      }
+    },
     hideSuggestions() {
       this.selected = this.suggestion;
       this.showSuggestions = false;
@@ -186,11 +207,15 @@ export default {
     select(suggestion) {
       this.selectedIndex = suggestion.idx;
     },
+    selectInput(e) {
+      e.target.select();
+    },
     keyup(event) {
       switch (event.key) {
         case 'Enter':
           console.info('submitting ...', this.selectedIndex);
           this.submit(this.selectableSuggestions[this.selectedIndex]);
+          this.selectInput(event);
           break;
         case 'ArrowDown':
           this.selectedIndex += 1;
@@ -219,9 +244,18 @@ export default {
 
 <style scoped lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
-
 .search-bar{
   position: relative;
+  input.form-control.search-input {
+    &:focus {
+      box-shadow: none;
+      border: 1px solid $clr-secondary;
+    }
+    &.has-suggestions {
+      border: 1px solid $clr-secondary;
+      border-bottom: 0;
+    }
+  }
   .search-submit {
     line-height: 1;
     padding: 0.1em;
@@ -232,7 +266,9 @@ export default {
     width: 100%;
     background: white;
     z-index: 10;
-
+    .icon {
+      color: $clr-accent-secondary;
+    }
     .suggestion {
       border: 1px solid transparent;
       cursor: pointer;
@@ -243,11 +279,6 @@ export default {
         span {
           flex: 1;
           flex-grow: 8;
-        }
-        .icon {
-          flex: 1;
-          color: $clr-accent-secondary;
-          line-height: 1;
         }
         .badge {
           flex: 1;
@@ -273,31 +304,33 @@ export default {
     "en": {
       "label": {
         "string": {
-          "title": "in contents ..."
+          "title": "Search in contents"
         },
         "mention": {
           "title": "in contents ..."
         },
         "title": {
-          "title": "in article titles ..."
+          "title": "Search in article titles"
         },
         "topic": {
           "title": "suggested topics",
-          "moreLikeThis": "in topic modelling contents..."
+          "moreLikeThis": "More Topics ..."
         },
         "person": {
           "title": "suggested people",
-          "moreLikeThis": "in people names..."
+          "moreLikeThis": "More Persons ..."
         },
         "location": {
           "title": "suggested locations",
-          "moreLikeThis": "in location names..."
+          "moreLikeThis": "More Locations ..."
         },
         "collection": {
-          "title": "suggested collections"
+          "title": "suggested collections",
+          "moreLikeThis": "More Collections ..."
         },
         "newspaper": {
-          "title": "suggested newspaper"
+          "title": "suggested newspaper",
+          "moreLikeThis": "More Newspapers ..."
         },
         "daterange": {
           "title": "filter by date of publication",
