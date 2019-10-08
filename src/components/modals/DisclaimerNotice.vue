@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-modal scrollable ok-only no-close-on-backdrop
+  <b-modal scrollable ok-only no-close-on-backdrop visible
     id="disclaimerNotice"
     ref="disclaimerNotice"
     :title="content.title">
@@ -18,11 +18,8 @@ import content from '@/assets/disclaimer.json';
 
 export default {
   mounted() {
-    if (localStorage.getItem('terms_agreed') !== true) {
-      this.$refs.disclaimerNotice.show();
-    }
     this.$root.$on('bv::modal::hide', () => {
-      localStorage.setItem('terms_agreed', true);
+      window.localStorage.setItem('terms_agreed', true);
     });
   },
   computed: {

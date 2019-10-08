@@ -100,7 +100,7 @@
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
 
-    <disclaimer-notice />
+    <disclaimer-notice v-if="!termsAgreed" />
 
   </div>
 </template>
