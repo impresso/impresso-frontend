@@ -66,7 +66,7 @@
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
-        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
+        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
   </div>
