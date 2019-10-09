@@ -31,6 +31,7 @@ export default {
     actions: {
       agree: 'I agree to the terms of use',
       more: 'more...',
+      remove: 'remove',
       close: 'close',
       loading: 'loading...',
       reset: 'Reset',

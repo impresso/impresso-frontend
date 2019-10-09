@@ -261,6 +261,7 @@ export default {
       "daterange": "not published",
       "collection": "not yet saved in",
       "language": "not written in",
+      "string": "not containing",
       "country": "not printed in"
     },
     "isFront": "appearing on the <em>front page</em>",

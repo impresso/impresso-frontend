@@ -19,7 +19,7 @@
             {'dripicons-suitcase': filter.type === 'collection'},
           ]" />
         <!--  type:string -->
-        <span class="label sp-string" v-if="filter.type === 'string'" :class="filter.precision">
+        <span class="label sp-string" v-if="filter.type === 'string'" :class="[filter.precision,filter.context]">
           {{filter.q}}
         </span>
         <!--  type:string -->
@@ -294,11 +294,6 @@ export default {
           "title": "filter by date of publication",
           "item": "From {start} to {end}"
         }
-      },
-      "action": {
-        "remove": "remove filter",
-        "apply": "apply changes",
-        "undo": "undo changes"
       },
       "items": {
         "hidden": "({count} more)"
