@@ -89,6 +89,7 @@ export default {
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
     errors: {
+      Notauthenticated: 'Please logout, then login again. Authentication failed',
       SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles when connecting to impresso database',
     },
     paths: {
