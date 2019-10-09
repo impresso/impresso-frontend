@@ -12,8 +12,9 @@
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
-  <disclaimer-notice v-if="!termsAgreed && !isLoggedIn" />
-
+  <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
+    <disclaimer-notice />
+  </div>
 </div>
 </template>
 
@@ -35,10 +36,11 @@ export default {
   },
   computed: {
     termsAgreed() {
+      console.info('Terms agreement:', this.$store.state.settings.termsAgreed);
+      if (this.$store.state.user.userData) {
+        return true;
+      }
       return this.$store.state.settings.termsAgreed;
-    },
-    isLoggedIn() {
-      return this.$store.state.user.userData;
     },
   },
   created() {
@@ -74,7 +76,7 @@ html {
         position: relative;
     }
 
-    .full-screen {
+    .fullscreen {
       position: absolute;
       top: 0;
       left: 0;
