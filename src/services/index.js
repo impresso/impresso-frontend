@@ -49,9 +49,14 @@ app.hooks({
   error: {
     all: [
       (context) => {
-        console.error('app ERROR: ', context.error);
+        const apiPath = `paths.${context.path}.${context.method}`;
+        const errorPath = `errors.${context.error.message}`;
+        console.error('app ERROR: ', apiPath, errorPath);
         if (window.app && window.app.$store) {
-          window.app.$store.state.error_message = `${context.path}: ${context.error.name} (${context.error.code}), ${context.error.message}`;
+          window.app.$store.state.error_message = [
+            window.app.$t(errorPath),
+            window.app.$t(apiPath),
+          ].join(' ');
           window.app.$store.commit('SET_PROCESSING', false);
         }
         // window.app.$store.state.error_message = 'API Error : See Console for details.';

@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-modal scrollable centered ok-only no-close-on-backdrop hideHeaderClose visible
+  <b-modal scrollable centered ok-only no-close-on-backdrop hideHeaderClose static visible
     id="disclaimerNotice"
     ref="disclaimerNotice"
     :title="content.title"
@@ -21,13 +21,10 @@ import content from '@/assets/disclaimer.json';
 export default {
   methods: {
     agreeTerms() {
-      this.$store.commit('settings/SET_TERMS_AGREED');
+      this.$store.dispatch('settings/ACCEPT_TERMS_OF_USE');
     },
   },
   computed: {
-    termsAgreed() {
-      return this.$store.state.settings.termsAgreed;
-    },
     content: {
       get() {
         return content[this.activeLanguageCode];
