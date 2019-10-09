@@ -138,9 +138,9 @@ export default {
       },
     },
   }),
-  async mounted() {
+  mounted() {
     if (this.user) {
-      this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
+      this.$store.dispatch('jobs/LOAD_JOBS');
     }
   },
   computed: {
