@@ -88,6 +88,17 @@ export default {
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
+    errors: {
+      SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles when connecting to impresso database',
+    },
+    paths: {
+      jobs: {
+        find: 'while loading user activities',
+      },
+      images: {
+        get: 'while loading contents',
+      },
+    },
   },
   nl: {
     language: 'Taal',

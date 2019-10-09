@@ -27,7 +27,7 @@ const FILEPOND_SERVICE_PATH = [
   '/filepond',
 ].join('/').replace(/\/\/+/g, '/');
 
-console.info('init Filepond, check upload path:', FILEPOND_SERVICE_PATH);
+console.info('Current host:', process.env.MIDDLELAYER_API, 'filepond path:', FILEPOND_SERVICE_PATH);
 
 export default {
   data: () => ({
