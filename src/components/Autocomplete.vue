@@ -16,50 +16,41 @@
       </b-input-group-append>
     </b-input-group>
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
-      <div class="border-bottom">
+      <div class="border-bottom ">
         <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in initialSuggestions" v-bind:key="index"
             @click="submitInitialSuggestion(suggestion)"
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
-            <span class="small">... {{ q }}</span>
-            <b-badge variant="light" class="small-caps border">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
+            <span class="small">... <b>{{ q }}</b></span>
+            <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
-      <!-- <div class="suggestion-box border-bottom" v-if="suggestionIndex.mention">
-        <div v-for="(s, index) in suggestionIndex.mention" :key="index"
-            @click="submit(s)" @mouseover="select(s)"
-            class="suggestion small px-2 mb-1" :class="{selected: selectedIndex === s.idx}">
-            <div href="#" class="suggestion-entity">
-              <span v-html="s.h" />
-            </div>
-        </div>
-      </div> -->
-
-          <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
-            <div class="row">
-              <div class="col-1" v-if="type !== 'mention'">
-                <span :class="`icon filter-icon dripicons-${typeIcon(type)} d-block p-2 accent`"></span>
+      <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
+        <div class="row no-gutters">
+          <div class="col-1 border-right" v-if="type !== 'mention'">
+            <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
+          </div>
+          <div class="col">
+            <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
+            <div v-for="(s, index) in suggestionIndex[type]" :key="index"
+                @click="submit(s)" @mouseover="select(s)"
+                class="suggestion pr-1 pl-2 py-1" :class="{
+                  selected: selectedIndex === s.idx,
+                }">
+              <div v-if="s.fake && type !== 'mention'">
+                <span class="small">... <b>{{ q }}</b></span>
+                <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
               </div>
-              <div class="col">
-                <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
-                <div v-for="(s, index) in suggestionIndex[type]" :key="index"
-                    @click="submit(s)" @mouseover="select(s)"
-                    class="suggestion px-2 mb-1" :class="{selected: selectedIndex === s.idx}">
-                  <div v-if="s.fake && type !== 'mention'">
-                    <span class="small">... <b>{{ q }}</b></span>
-                    <b-badge  variant="light" class="small-caps border">{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
-                  </div>
-                  <div v-else :class="`${type} small`">
-                    <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
-                    <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
-                    <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
-                    <span v-if="s.type === 'daterange'">{{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}</span>
-                  </div>
+              <div v-else :class="`${type} small`">
+                <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
+                <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
+                <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
+                <span v-if="s.type === 'daterange'">{{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}</span>
               </div>
             </div>
           </div>
-
+        </div>
       </div>
     </div>
   </section>
@@ -183,6 +174,7 @@ export default {
       }
     },
     submit(suggestion) {
+      console.info('Submit suggestion: ', suggestion);
       if (suggestion.fake) {
         // open explorer
         if (this.q.length) {
@@ -213,7 +205,6 @@ export default {
     keyup(event) {
       switch (event.key) {
         case 'Enter':
-          console.info('submitting ...', this.selectedIndex);
           this.submit(this.selectableSuggestions[this.selectedIndex]);
           this.selectInput(event);
           break;
@@ -267,7 +258,19 @@ export default {
     background: white;
     z-index: 10;
     .icon {
-      color: $clr-accent-secondary;
+      color: $clr-primary;
+      // border: 1px solid $clr-secondary;
+      text-align: center;
+      font-size: 14px;
+      height: 24px;
+      width: 24px;
+      line-height: 20px;
+      padding-top: 4px;
+      // border-radius: 50%;
+      top: 50%;
+      left: .25rem;
+      margin-top: -12px;
+      position: absolute;
     }
     .suggestion {
       border: 1px solid transparent;
@@ -304,7 +307,7 @@ export default {
     "en": {
       "label": {
         "string": {
-          "title": "Search in contents"
+          "title": "Search in article contents"
         },
         "mention": {
           "title": "in contents ..."
