@@ -288,7 +288,7 @@ label.custom-control-label {
       },
       "AND": {
         "include": "<b>all</b> of the following",
-        "exclude": "<b>any</b> of the following"
+        "exclude": "<b>all</b> of the following"
       }
     },
     "label": {
