@@ -90,9 +90,13 @@ export default {
     reducedReadingTime: 'short text',
     errors: {
       Notauthenticated: 'Please logout, then login again. Authentication failed',
+      Invalidauthenticationinformationnostrategyset: 'Please reload the page, a couple of errors occurred',
       SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles when connecting to impresso database',
     },
     paths: {
+      authentication: {
+        remove: 'during logout.',
+      },
       jobs: {
         find: 'while loading user activities',
       },

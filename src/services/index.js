@@ -50,8 +50,8 @@ app.hooks({
     all: [
       (context) => {
         const apiPath = `paths.${context.path}.${context.method}`;
-        const errorPath = `errors.${context.error.message.split(' ').join('')}`;
-        console.error('app ERROR: ', apiPath, errorPath);
+        const errorPath = `errors.${context.error.message.split(/\s\(\)`/).join('')}`;
+        console.error('app ERROR: ', context.error, apiPath, errorPath);
         if (window.app && window.app.$store) {
           window.app.$store.state.error_message = [
             window.app.$t(errorPath),
