@@ -37,7 +37,6 @@
      "caption": "How to limit the date range of your query?",
      "text": "Focus on the years 1927-1928",
      "img_src": "https://media.giphy.com/media/mC7d6yRqLqZugfdqRa/giphy.gif",
-     "query": '/app/#/search?f=%5B%7B"type"%3A"hasTextContents"%7D,%7B"type"%3A"daterange","q"%3A%5B"1927-01-01T00%3A00%3A00Z%20TO%201928-12-31T23%3A59%3A59Z"%5D,"op"%3A"OR"%7D,%7B"type"%3A"string","q"%3A"jeux","precision"%3A"exact"%7D,%7B"type"%3A"string","q"%3A"olympiques","precision"%3A"exact"%7D%5D&g=articles&p=1&o=-relevance',
      "video": "https://vimeo.com/364796757"
    },
 {
@@ -50,28 +49,24 @@
      "caption": "What is on the front page?",
      "text": "Search the front pages",
      "img_src": "https://media.giphy.com/media/eKU0xyzpQALTeamE60/giphy.gif",
-     "query": '/app/#/search?f=%5B%7B"type"%3A"hasTextContents"%7D,%7B"type"%3A"string","q"%3A"jeux","precision"%3A"exact"%7D,%7B"type"%3A"string","q"%3A"olympiques","precision"%3A"exact"%7D,%7B"type"%3A"isFront"%7D%5D&g=articles&p=1&o=-relevance',
      "video": "https://vimeo.com/364796778"
    },
 {
      "caption": "Collect front page",
      "text": "Create a collection of front pages",
      "img_src": "https://media.giphy.com/media/eKU0xyzpQALTeamE60/giphy.gif",
-     'query": "/app/#/search?f=%5B%7B"type"%3A"hasTextContents"%7D,%7B"type"%3A"string","q"%3A"jeux","precision"%3A"exact"%7D,%7B"type"%3A"string","q"%3A"olympiques","precision"%3A"exact"%7D,%7B"type"%3A"isFront"%7D%5D&g=articles&p=1&o=-relevance',
      "video": "https://vimeo.com/364796809"
    },
 {
      "caption": "Trim the result maze with topic filters",
      "text": "Use topic to select sports related articles",
      "img_src": "https://media.giphy.com/media/kag5Xo5WuDQwcSoO64/giphy.giff",
-     "query": '/app/#/search?f=%5B%7B"type"%3A"hasTextContents"%7D,%7B"type"%3A"string","q"%3A"jeux","precision"%3A"exact"%7D,%7B"type"%3A"string","q"%3A"olympiques","precision"%3A"exact"%7D,%7B"type"%3A"topic","q"%3A%5B"tm-fr-all-v1.0_tp81_fr","tm-fr-all-v1.0_tp65_fr","tm-fr-all-v1.0_tp37_fr"%5D,"r"%3A%5B0,1%5D,"op"%3A"OR","context"%3A"include"%7D%5D&g=articles&p=1&o=-relevance',
      "video": "https://vimeo.com/364796956"
    },
 {
      "caption": "Curate your result list from article viewer",
      "text": "Use topic to select sports related articles",
      "img_src": "https://media.giphy.com/media/U6YfJn7iCg2BMIa6Bx/giphy.gif",
-     "query": "/app/#/issue/GDL-1968-08-05-a/page/GDL-1968-08-05-a-p0006/article/GDL-1968-08-05-a-i0070",
      "video": "https://vimeo.com/364796883"
    }
   ],
