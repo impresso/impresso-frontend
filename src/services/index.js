@@ -28,10 +28,14 @@ socket.on('reconnect', () => {
 app.hooks({
   before: {
     all: [
-      () => {
+      (context) => {
         if (window.app && window.app.$store) {
           window.app.$store.state.error_message = '';
+          window.app.$store.state.processing_message = `${context.path}.${context.method}`;
           window.app.$store.commit('SET_PROCESSING', true);
+          if (['search', 'image'].includes(context.path)) {
+            window.app.$store.commit('LOCK_SCREEN', true);
+          }
         }
       },
     ],
@@ -42,6 +46,7 @@ app.hooks({
         if (window.app && window.app.$store) {
           window.app.$store.state.error_message = '';
           window.app.$store.commit('SET_PROCESSING', false);
+          window.app.$store.commit('LOCK_SCREEN', false);
         }
       },
     ],
@@ -57,7 +62,7 @@ app.hooks({
             window.app.$t(errorPath),
             window.app.$t(apiPath),
           ].join(' ');
-          window.app.$store.commit('SET_PROCESSING', false);
+          window.app.$store.commit('LOCK_SCREEN', false);
         }
         // window.app.$store.state.error_message = 'API Error : See Console for details.';
         // window.app.$store.commit('SET_PROCESSING', false);
