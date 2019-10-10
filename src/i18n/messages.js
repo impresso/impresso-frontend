@@ -92,11 +92,13 @@ export default {
     errors: {
       Notauthenticated: 'Please logout, then login again. Authentication failed',
       Invalidauthenticationinformationnostrategyset: 'Please reload the page, a couple of errors occurred',
-      SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles when connecting to impresso database',
+      SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) when connecting to impresso database',
+      SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) when connecting to impresso database',
     },
     paths: {
       authentication: {
         remove: 'during logout.',
+        create: 'while checking your credentials',
       },
       jobs: {
         find: 'while loading user activities',
