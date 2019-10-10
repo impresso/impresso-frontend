@@ -159,6 +159,9 @@ $clr-grey-900: #ddd;
 .ml-1px {
     margin-left: 1px;
 }
+.opacity-50 {
+  opacity: 0.5;
+}
 
 .border-tertiary {
     border-color: $clr-tertiary !important;

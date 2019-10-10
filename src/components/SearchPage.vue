@@ -169,7 +169,7 @@
 
 
     <div class="p-1">
-      <b-container fluid>
+      <b-container fluid :class="{'opacity-50': $store.state.processing_status}">
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.article_uid">
             <search-results-list-item
