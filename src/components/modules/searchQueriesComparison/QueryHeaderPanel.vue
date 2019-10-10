@@ -2,7 +2,7 @@
   <div class="px-2 pb-2 py-2 container">
 
     <!-- title and type -->
-    <div v-if="title && type && !icon" class="row justify-content-between">
+    <div v-if="title && type" class="row justify-content-between">
       <div class="col-auto align-self-start">
         <h3 v-if="title">{{title}}</h3>
       </div>
@@ -35,9 +35,6 @@ export default {
       height: 17px;
       vertical-align: top;
     }
-  }
-  .icon {
-    font-size: 1.7em;
   }
 </style>
 

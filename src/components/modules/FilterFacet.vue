@@ -1,7 +1,7 @@
 <template lang="html">
   <div>
     <base-title-bar>
-      {{$t(`label.${facet.type}.title`)}}
+      {{$t(`label.${facet.type}.filterTitle`)}}
       <div slot="options">
         <b-button v-show="filtered" size="sm" variant="outline-primary" @click="resetFilterType">
           {{ $t(`actions.reset`) }}
@@ -180,58 +180,7 @@ export default {
 {
   "en": {
     "show-more": "Show More",
-    "explore": "Explore {type}",
-    "label": {
-      "topic": {
-        "title": "filter by topic",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if <b>one of {count} selected</b> topic applies",
-        "description": "check one or more topics to filter results",
-        "empty": "There is no topic available"
-      },
-      "person": {
-        "title": "filter by person",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if <b>one of {count} selected</b> people are mentioned",
-        "description": "check one or more topics to filter results",
-        "empty": "No person has been recognized in results"
-      },
-      "location": {
-        "title": "filter by location",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if <b>one of {count} selected</b> locations are mentioned",
-        "description": "check one or more topics to filter results",
-        "empty": "There is no location available"
-      },
-      "collection": {
-        "title": "filter by collection",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if <b>one of {count} selected</b> collection applies",
-        "description": "check one or more collection to filter results",
-        "empty": "... you haven't saved any result item in your collection"
-      },
-      "newspaper": {
-        "title": "filter by newspaper titles",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
-        "description": "check one or more newspaper to filter results",
-        "empty": "(no results)"
-      },
-      "language": {
-        "title": "filter by language of articles",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if they are written in <b>one of {count} selected</b> languages",
-        "description": "check one or more language to filter results",
-        "empty": "(no results)"
-      },
-      "country": {
-        "title": "filter by country of publication",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if they are published in <b>one of {count} selected</b> countries",
-        "description": "check one or more countries to filter results",
-        "empty": "(no results)"
-      }
-    }
+    "explore": "Explore {type}"
   }
 }
 </i18n>

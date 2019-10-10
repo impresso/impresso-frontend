@@ -13,7 +13,7 @@
 
       <div class="aspects-container">
         <div class="row pm-fixer"
-             v-for="([id, title, type], facetIdx) in facets"
+             v-for="([facetId, facetType], facetIdx) in facets"
              v-bind:key="facetIdx">
           <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'} ${isQueryLoading(queryIdx) ? 'loading-bg' : ''}`" 
                v-for="(queryResult, queryIdx) in queriesResults" 
@@ -21,20 +21,20 @@
             <div class="col" v-if="isQueryLoading(queryIdx)">
               <loading-indicator class="col py-3" v-if="facetIdx === 0"/>
             </div>
-            <div class="col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, id) === undefined">
+            <div class="col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) === undefined">
               <div v-if="facetIdx === 0" style="text-align: center;">[Nothing found]</div>
             </div>
             <facet-overview-panel class="col"
-                                  :facet="id" 
-                                  :type="type" 
-                                  :title="title"
-                                  :values="getFacetValues(queryResult, id)"
+                                  :facet="facetId" 
+                                  :type="facetType" 
+                                  :title="$tc(`label.${facetId}.title`, getFacetValues(queryResult, facetId).length || 1)"
+                                  :values="getFacetValues(queryResult, facetId)"
                                   @timeline-highlight="onTimelineHighlight"
                                   @timeline-highlight-off="onTimelineHighlightOff"
-                                  :timeline-highlight-value="getTimelineHighlight(id).data"
-                                  :timeline-highlight-enabled="getTimelineHighlight(id).enabled"
+                                  :timeline-highlight-value="getTimelineHighlight(facetId).data"
+                                  :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
                                   :timeline-domain="timelineDomain"
-                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, id) !== undefined"/>
+                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined"/>
           </div>
         </div>
       </div>
@@ -50,14 +50,15 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
 import LoadingIndicator from './modules/LoadingIndicator';
+import Bucket from '../models/Bucket';
 
 function prepareFacets(responseFacets = {}) {
-  const keys = Object.keys(responseFacets).filter(k => k !== 'count');
-  return keys.map((key) => {
-    const buckets = responseFacets[key].buckets || [];
+  const types = Object.keys(responseFacets).filter(k => k !== 'count');
+  return types.map((type) => {
+    const buckets = responseFacets[type].buckets || [];
     return {
-      id: key,
-      buckets: buckets.map(({ val, count, item: { name } = {} }) => ({ val: name || val, count })),
+      id: type,
+      buckets: buckets.map(bucket => new Bucket({ ...bucket, type })),
     };
   });
 }
@@ -81,11 +82,19 @@ export default {
   data: () => ({
     loadingFlags: [...Array(3).keys()].map(() => false),
     facets: [
-      ['year', 'Year', 'timeline'],
-      ['newspaper', 'Newspaper', 'bars'],
-      ['country', 'Country', 'bars'],
+      // [<facet id>, <facet visualisation method>]
+      // lightweight
+      ['year', 'timeline'],
+      ['newspaper', 'bars'],
+      ['country', 'bars'],
+      ['language', 'bars'],
+      ['type', 'bars'],
+      // heavyweight
+      ['topic', 'bars'],
+      ['person', 'bars'],
+      ['location', 'bars'],
     ],
-    timelineDomain: [],
+    // timelineDomain: [],
     queriesResults: [
       { },
       { type: 'intersection' },
@@ -106,11 +115,13 @@ export default {
       },
       immediate: true,
     },
-    queriesResults: {
-      handler() {
-        this.updateCombinedTimelineDomain();
-      },
-      deep: true,
+  },
+  computed: {
+    timelineDomain() {
+      const minAndMaxYears = this.queriesResults.map(getDomainForResults);
+      const minimums = minAndMaxYears.map(([minYear]) => minYear).filter(y => y !== undefined);
+      const maximums = minAndMaxYears.map(([, maxYear]) => maxYear).filter(y => y !== undefined);
+      return [Math.min(...minimums), Math.max(...maximums)];
     },
   },
   components: {
@@ -184,12 +195,6 @@ export default {
         this.loadingFlags[resultIndex] = false;
       }
     },
-    updateCombinedTimelineDomain() {
-      const minAndMaxYears = this.queriesResults.map(getDomainForResults);
-      const minimums = minAndMaxYears.map(([minYear]) => minYear).filter(y => y !== undefined);
-      const maximums = minAndMaxYears.map(([, maxYear]) => maxYear).filter(y => y !== undefined);
-      this.timelineDomain = [Math.min(...minimums), Math.max(...maximums)];
-    },
     onTimelineHighlight({ facetId, data }) {
       Vue.set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
     },
@@ -237,14 +242,3 @@ export default {
     height: 100%;
   }
 </style>
-
-<i18n>
-{
-  "en": {
-    "label_intersection": "Intersection"
-  },
-  "nl": {
-    "label_intersection": "Overlap"
-  }
-}
-</i18n>
