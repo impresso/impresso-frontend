@@ -154,9 +154,15 @@ export default class Article {
     this.images = images;
 
     this.time = parseInt(time, 10);
-    this.title = String(title);
+    this.title = String(title).trim();
     this.type = String(type);
     this.uid = String(uid);
     this.year = parseInt(year, 10);
+
+    if (!this.title.length && this.excerpt.length) {
+      const parts = this.excerpt.split(/\s/);
+      this.title = parts.slice(0, 4).join(' ');
+      this.excerpt = parts.slice(4).join(' ');
+    }
   }
 }
