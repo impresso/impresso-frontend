@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="IssuePage">
-    <i-layout-section width="350px" class="border-right border-tertiary bg-light">
+    <i-layout-section width="350px" class="border-right border-top mt-1px bg-light">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="border-bottom mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -71,7 +71,7 @@
       </div>
     </i-layout-section>
     <!--  page openseadragon or article -->
-    <i-layout-section>
+    <i-layout-section class="border-left border-top ml-1px mt-1px">
       <div slot="header" class="border-bottom">
         <b-navbar type="light" variant="light" class="px-0 py-0">
           <b-navbar-nav class="px-2 py-2 mx-auto">
