@@ -43,9 +43,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
-
-import { searchQueriesComparison, search } from '@/services';
+import { searchQueriesComparison, search, collections } from '@/services';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
@@ -109,8 +107,8 @@ export default {
 
         return Promise.all([
           this.updateQueriesIntersectionResult(QueriesIntersectionIndex, [leftId, rightId]),
-          this.updateQueryResult(QueryLeftIndex, leftId),
-          this.updateQueryResult(QueryRightIndex, rightId),
+          this.updateCollectionResult(QueryLeftIndex, leftId),
+          this.updateCollectionResult(QueryRightIndex, rightId),
         ]);
       },
       immediate: true,
@@ -160,13 +158,13 @@ export default {
           facets: prepareFacets(result.info.facets),
           total: result.total,
         };
-        Vue.set(this.queriesResults, resultIndex, resultValue);
+        this.$set(this.queriesResults, resultIndex, resultValue);
         // console.info('Intersection data', JSON.stringify(this.queriesResults[resultIndex]));
       } finally {
         this.loadingFlags[resultIndex] = false;
       }
     },
-    async updateQueryResult(resultIndex, id) {
+    async updateCollectionResult(resultIndex, id) {
       const payload = {
         filters: [
           {
@@ -184,23 +182,28 @@ export default {
         const result = await search.find({ query: payload });
         const resultValue = {
           type: 'collection',
-          title: `Query ${resultIndex === 0 ? 'left' : 'right'}`,
+          title: '',
           facets: prepareFacets(result.info.facets),
           total: result.total,
         };
         // https://vuejs.org/v2/guide/list.html#Caveats
-        Vue.set(this.queriesResults, resultIndex, resultValue);
+        this.$set(this.queriesResults, resultIndex, resultValue);
         // console.info(`Data for query ${id}`, JSON.stringify(this.queriesResults[resultIndex]));
       } finally {
         this.loadingFlags[resultIndex] = false;
       }
+
+      collections.get(id, { query: { nameOnly: true } })
+        .then(({ name }) => {
+          this.$set(this.queriesResults[resultIndex], 'title', name);
+        });
     },
     onTimelineHighlight({ facetId, data }) {
-      Vue.set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
+      this.$set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
     },
     onTimelineHighlightOff({ facetId }) {
       this.timelineHighlights[facetId] = { enabled: false };
-      Vue.set(this.timelineHighlights, facetId, { enabled: false });
+      this.$set(this.timelineHighlights, facetId, { enabled: false });
     },
     getTimelineHighlight(id) {
       return this.timelineHighlights[id] || {};
