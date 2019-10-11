@@ -6,8 +6,10 @@
              v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
           <query-header-panel class="col"
                               :type="queryResult.type"
-                              :title="queryResult.title"
-                              :total="queryResult.total"/>
+                              :collection="asCollection(queryResult)"
+                              :total="queryResult.total"
+                              :collections="collections"
+                              @collection-selected="collectionId => onCollectionSelected(queryIdx, collectionId)"/>
         </div>
       </div>
 
@@ -99,11 +101,14 @@ export default {
       { },
     ],
     timelineHighlights: {},
+    collections: [],
+    ids: [],
   }),
   watch: {
     '$route.params.ids': {
       async handler(ids) {
         const [leftId, rightId] = typeof ids === 'string' ? ids.split(',') : ids;
+        this.ids = [leftId, rightId];
 
         return Promise.all([
           this.updateQueriesIntersectionResult(QueriesIntersectionIndex, [leftId, rightId]),
@@ -113,6 +118,10 @@ export default {
       },
       immediate: true,
     },
+  },
+  async created() {
+    const { data } = await collections.find();
+    this.collections = data.map(({ name, uid }) => ({ id: uid, title: name }));
   },
   computed: {
     timelineDomain() {
@@ -181,6 +190,7 @@ export default {
       try {
         const result = await search.find({ query: payload });
         const resultValue = {
+          id,
           type: 'collection',
           title: '',
           facets: prepareFacets(result.info.facets),
@@ -213,6 +223,22 @@ export default {
     },
     isLastResult(idx) {
       return this.queriesResults.length - 1 === idx;
+    },
+    asCollection(queryResult) {
+      return {
+        id: queryResult.id,
+        title: queryResult.title,
+      };
+    },
+    onCollectionSelected(queryIndex, collectionId) {
+      const ids = [...this.ids];
+      ids[queryIndex === 0 ? 0 : 1] = collectionId;
+      this.$router.push({
+        name: 'compare',
+        params: {
+          ids: ids.join(','),
+        },
+      });
     },
   },
 };
