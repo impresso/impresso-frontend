@@ -11,6 +11,7 @@ export default {
       type: {
         ad: 'advertisement',
         ar: 'article',
+        ob: 'obituary',
       },
       language: {
         de: 'German',
