@@ -16,7 +16,12 @@
 
     <!-- common topics start -->
     <div v-if="topics.length > 0">
-      <div class="label small-caps mt-3">{{ $t("common_topics") }}</div>
+      <div class="label small-caps mt-3">{{ $t("common_topics") }}
+        <info-button :target="searchResult.uid"
+          name="Topics in Common"
+          content="this is a more specific info. It may contain html tags like <b>bold</b> or <a href='#'>anchor links</a>"
+          />
+      </div>
       <div
         v-for="(rel, i) in topics"
         class="position-relative pb-1 small"
@@ -39,6 +44,7 @@
 <script>
 import ArticleItem from './lists/ArticleItem';
 import VizBar from '../base/VizBar';
+import InfoButton from '../base/InfoButton';
 
 export default {
   model: {
@@ -48,6 +54,7 @@ export default {
   components: {
     ArticleItem,
     VizBar,
+    InfoButton,
   },
   methods: {
     onClickArticleSuggestion(searchResult) {
