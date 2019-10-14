@@ -32,7 +32,43 @@
       "img_src": "https://media.giphy.com/media/RlHsYmDdVTs9NJ8Ddz/giphy.gif",
       "query": "/app/#/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22horoscope%22%7D%5D&g=articles&p=1&o=-relevance",
       "video": "https://vimeo.com/user79245600/review/347022471/e20095b5b0"
-    }
+    },
+    {
+     "caption": "How to limit the date range of your query?",
+     "text": "Focus on the years 1927-1928",
+     "img_src": "https://media.giphy.com/media/mC7d6yRqLqZugfdqRa/giphy.gif",
+     "video": "https://vimeo.com/364796757"
+   },
+{
+     "caption": "How to merge two collections?",
+     "text": "Create a new collection based on two collections",
+     "img_src": "https://media.giphy.com/media/TLDGzHax8jJ8ziExPe/giphy.gif",
+     "video": "https://vimeo.com/364801944"
+   },
+{
+     "caption": "What is on the front page?",
+     "text": "Search the front pages",
+     "img_src": "https://media.giphy.com/media/eKU0xyzpQALTeamE60/giphy.gif",
+     "video": "https://vimeo.com/364796778"
+   },
+{
+     "caption": "Collect front page",
+     "text": "Create a collection of front pages",
+     "img_src": "https://media.giphy.com/media/eKU0xyzpQALTeamE60/giphy.gif",
+     "video": "https://vimeo.com/364796809"
+   },
+{
+     "caption": "Trim the result maze with topic filters",
+     "text": "Use topic to select sports related articles",
+     "img_src": "https://media.giphy.com/media/kag5Xo5WuDQwcSoO64/giphy.giff",
+     "video": "https://vimeo.com/364796956"
+   },
+{
+     "caption": "Curate your result list from article viewer",
+     "text": "Use topic to select sports related articles",
+     "img_src": "https://media.giphy.com/media/U6YfJn7iCg2BMIa6Bx/giphy.gif",
+     "video": "https://vimeo.com/364796883"
+   }
   ],
   "faq": {
     "title": "FAQ",
