@@ -1,57 +1,39 @@
 <template>
-<main id="HomePage">
-  <home-page-splash />
-  <home-page-messages />
-  <home-page-recipes />
-  <home-page-faq />
-  <home-page-footer />
-</main>
+  <div id="faq-items" class="container py-5">
+    <b-row class="justify-content-md-center mb-5">
+      <b-col col xl="6" lg="8" md="10">
+        <h1 class="text-center mb-5">{{faq.title}}</h1>
+
+
+        <div v-for="(group, i) in faq.groups" class="mb-5">
+          <h3>{{group.title}}</h3>
+          <div
+            v-for="(question, j) in group.questions"
+            v-bind:key="`${i}-${j}`"
+            class="faq-item pb-1">
+            <div class="question">
+              <strong><a href="#" v-b-toggle="`accordion-${i}-${j}`" class="my-1 d-block">{{question.question}}</a></strong>
+            </div>
+            <b-collapse class="answer" v-bind:id="`accordion-${i}-${j}`" accordion="my-accordion" role="tabpanel">
+              <div class="p-4 bg-light" v-html="question.answer" />
+            </b-collapse>
+          </div>
+        </div>
+      </b-col>
+    </b-row>
+  </div>
+
 </template>
 
 <script>
-import HomePageSplash from './HomePageSplash';
-import HomePageMessages from './HomePageMessages';
-import HomePageFaq from './HomePageFaq';
-import HomePageRecipes from './HomePageRecipes';
-import HomePageFooter from './HomePageFooter';
+import content from '@/assets/faqpage.json';
 
 export default {
-  name: 'HomePage',
   data: () => ({
+    faq: content.faq,
   }),
-  methods: {
-  },
-  components: {
-    HomePageSplash,
-    HomePageMessages,
-    HomePageFaq,
-    HomePageRecipes,
-    HomePageFooter,
-  },
 };
 </script>
 
 <style lang="scss">
 </style>
-
-<i18n>
-{
-  "en": {
-    "welcome": {
-      "title": "Welcome",
-      "body": "The language is English. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis auteirure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    }
-  },
-  "fr": {
-    "welcome": {
-      "title": "Bonjour"
-    }
-  },
-  "nl": {
-    "welcome": {
-      "title": "Welkom",
-      "body": "De taal is Nederlands. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis auteirure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    }
-  }
-}
-</i18n>
