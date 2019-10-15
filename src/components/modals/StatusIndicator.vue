@@ -18,6 +18,8 @@ export default {
 
 <style lang="scss">
   .box {
-    margin: 45vh;
+    position: absolute;
+    left: 37.5%;        // 50% - (25% / 2)
+    top: 42vh;          // 42 is the answer to the universe
   }
 </style>
