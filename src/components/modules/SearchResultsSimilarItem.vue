@@ -17,11 +17,7 @@
     <!-- common topics start -->
     <div v-if="topics.length > 0">
       <div class="label small-caps mt-3">{{ $t("common_topics") }}
-        <info-button :target="searchResult.uid"
-          name="Topics in Common"
-          content="this is a more specific info. It may contain html tags like <b>bold</b> or <a href='./faq/'>anchor links</a> or
-          a <router-link to='{ name: \'faq\'}'>router link</router-link>"
-          />
+        <info-button :target="searchResult.uid" name="topics-in-common" />
       </div>
       <div
         v-for="(rel, i) in topics"
