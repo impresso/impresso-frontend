@@ -25,15 +25,20 @@ socket.on('reconnect', () => {
   app.reAuthenticate();
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
+const needsLockScreen = p => [
+  'search.find',
+].includes(p);
+
 app.hooks({
   before: {
     all: [
       (context) => {
+        const fullPath = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
           window.app.$store.state.error_message = '';
-          window.app.$store.state.processing_message = `${context.path}.${context.method}`;
+          window.app.$store.state.processing_message = fullPath;
           window.app.$store.commit('SET_PROCESSING', true);
-          if (!['suggestions'].includes(context.path)) {
+          if (needsLockScreen(fullPath)) {
             window.app.$store.commit('LOCK_SCREEN', true);
           }
         }
@@ -42,11 +47,14 @@ app.hooks({
   },
   after: {
     all: [
-      () => {
+      (context) => {
+        const fullPath = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
           window.app.$store.state.error_message = '';
           window.app.$store.commit('SET_PROCESSING', false);
-          window.app.$store.commit('LOCK_SCREEN', false);
+          if (needsLockScreen(fullPath)) {
+            window.app.$store.commit('LOCK_SCREEN', false);
+          }
         }
       },
     ],
@@ -56,7 +64,7 @@ app.hooks({
       (context) => {
         const apiPath = `paths.${context.path}.${context.method}`;
         const errorPath = `errors.${context.error.message.split(/\s\(\)`/).join('')}`;
-        console.error('app ERROR: ', context.error, apiPath, errorPath);
+        console.error('app ERROR on:', apiPath, context.error, errorPath);
         if (window.app && window.app.$store) {
           window.app.$store.state.error_message = [
             window.app.$t(errorPath),
@@ -65,8 +73,6 @@ app.hooks({
           window.app.$store.commit('SET_PROCESSING', false);
           window.app.$store.commit('LOCK_SCREEN', false);
         }
-        // window.app.$store.state.error_message = 'API Error : See Console for details.';
-        // window.app.$store.commit('SET_PROCESSING', false);
       },
     ],
   },
