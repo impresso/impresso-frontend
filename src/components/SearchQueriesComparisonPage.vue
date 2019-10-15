@@ -6,14 +6,16 @@
              v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
           <query-header-panel class="col"
                               :type="queryResult.type"
-                              :title="queryResult.title"
-                              :total="queryResult.total"/>
+                              :collection="asCollection(queryResult)"
+                              :total="queryResult.total"
+                              :collections="collections"
+                              @collection-selected="collectionId => onCollectionSelected(queryIdx, collectionId)"/>
         </div>
       </div>
 
       <div class="aspects-container">
         <div class="row pm-fixer"
-             v-for="([id, title, type], facetIdx) in facets"
+             v-for="([facetId, facetType], facetIdx) in facets"
              v-bind:key="facetIdx">
           <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'} ${isQueryLoading(queryIdx) ? 'loading-bg' : ''}`" 
                v-for="(queryResult, queryIdx) in queriesResults" 
@@ -21,20 +23,20 @@
             <div class="col" v-if="isQueryLoading(queryIdx)">
               <loading-indicator class="col py-3" v-if="facetIdx === 0"/>
             </div>
-            <div class="col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, id) === undefined">
+            <div class="col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) === undefined">
               <div v-if="facetIdx === 0" style="text-align: center;">[Nothing found]</div>
             </div>
             <facet-overview-panel class="col"
-                                  :facet="id" 
-                                  :type="type" 
-                                  :title="title"
-                                  :values="getFacetValues(queryResult, id)"
+                                  :facet="facetId" 
+                                  :type="facetType" 
+                                  :title="$tc(`label.${facetId}.title`, getFacetValues(queryResult, facetId).length || 1)"
+                                  :values="getFacetValues(queryResult, facetId)"
                                   @timeline-highlight="onTimelineHighlight"
                                   @timeline-highlight-off="onTimelineHighlightOff"
-                                  :timeline-highlight-value="getTimelineHighlight(id).data"
-                                  :timeline-highlight-enabled="getTimelineHighlight(id).enabled"
+                                  :timeline-highlight-value="getTimelineHighlight(facetId).data"
+                                  :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
                                   :timeline-domain="timelineDomain"
-                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, id) !== undefined"/>
+                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined"/>
           </div>
         </div>
       </div>
@@ -43,21 +45,20 @@
 </template>
 
 <script>
-import Vue from 'vue';
-
-import { searchQueriesComparison, search } from '@/services';
+import { searchQueriesComparison, search, collections } from '@/services';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
 import LoadingIndicator from './modules/LoadingIndicator';
+import Bucket from '../models/Bucket';
 
 function prepareFacets(responseFacets = {}) {
-  const keys = Object.keys(responseFacets).filter(k => k !== 'count');
-  return keys.map((key) => {
-    const buckets = responseFacets[key].buckets || [];
+  const types = Object.keys(responseFacets).filter(k => k !== 'count');
+  return types.map((type) => {
+    const buckets = responseFacets[type].buckets || [];
     return {
-      id: key,
-      buckets: buckets.map(({ val, count, item: { name } = {} }) => ({ val: name || val, count })),
+      id: type,
+      buckets: buckets.map(bucket => new Bucket({ ...bucket, type })),
     };
   });
 }
@@ -81,36 +82,53 @@ export default {
   data: () => ({
     loadingFlags: [...Array(3).keys()].map(() => false),
     facets: [
-      ['year', 'Year', 'timeline'],
-      ['newspaper', 'Newspaper', 'bars'],
-      ['country', 'Country', 'bars'],
+      // [<facet id>, <facet visualisation method>]
+      // lightweight
+      ['year', 'timeline'],
+      ['newspaper', 'bars'],
+      ['country', 'bars'],
+      ['language', 'bars'],
+      ['type', 'bars'],
+      // heavyweight
+      ['topic', 'bars'],
+      ['person', 'bars'],
+      ['location', 'bars'],
     ],
-    timelineDomain: [],
+    // timelineDomain: [],
     queriesResults: [
       { },
       { type: 'intersection' },
       { },
     ],
     timelineHighlights: {},
+    collections: [],
+    ids: [],
   }),
   watch: {
     '$route.params.ids': {
       async handler(ids) {
         const [leftId, rightId] = typeof ids === 'string' ? ids.split(',') : ids;
+        this.ids = [leftId, rightId];
 
         return Promise.all([
           this.updateQueriesIntersectionResult(QueriesIntersectionIndex, [leftId, rightId]),
-          this.updateQueryResult(QueryLeftIndex, leftId),
-          this.updateQueryResult(QueryRightIndex, rightId),
+          this.updateCollectionResult(QueryLeftIndex, leftId),
+          this.updateCollectionResult(QueryRightIndex, rightId),
         ]);
       },
       immediate: true,
     },
-    queriesResults: {
-      handler() {
-        this.updateCombinedTimelineDomain();
-      },
-      deep: true,
+  },
+  async created() {
+    const { data } = await collections.find();
+    this.collections = data.map(({ name, uid }) => ({ id: uid, title: name }));
+  },
+  computed: {
+    timelineDomain() {
+      const minAndMaxYears = this.queriesResults.map(getDomainForResults);
+      const minimums = minAndMaxYears.map(([minYear]) => minYear).filter(y => y !== undefined);
+      const maximums = minAndMaxYears.map(([, maxYear]) => maxYear).filter(y => y !== undefined);
+      return [Math.min(...minimums), Math.max(...maximums)];
     },
   },
   components: {
@@ -149,13 +167,13 @@ export default {
           facets: prepareFacets(result.info.facets),
           total: result.total,
         };
-        Vue.set(this.queriesResults, resultIndex, resultValue);
+        this.$set(this.queriesResults, resultIndex, resultValue);
         // console.info('Intersection data', JSON.stringify(this.queriesResults[resultIndex]));
       } finally {
         this.loadingFlags[resultIndex] = false;
       }
     },
-    async updateQueryResult(resultIndex, id) {
+    async updateCollectionResult(resultIndex, id) {
       const payload = {
         filters: [
           {
@@ -172,30 +190,30 @@ export default {
       try {
         const result = await search.find({ query: payload });
         const resultValue = {
+          id,
           type: 'collection',
-          title: `Query ${resultIndex === 0 ? 'left' : 'right'}`,
+          title: '',
           facets: prepareFacets(result.info.facets),
           total: result.total,
         };
         // https://vuejs.org/v2/guide/list.html#Caveats
-        Vue.set(this.queriesResults, resultIndex, resultValue);
+        this.$set(this.queriesResults, resultIndex, resultValue);
         // console.info(`Data for query ${id}`, JSON.stringify(this.queriesResults[resultIndex]));
       } finally {
         this.loadingFlags[resultIndex] = false;
       }
-    },
-    updateCombinedTimelineDomain() {
-      const minAndMaxYears = this.queriesResults.map(getDomainForResults);
-      const minimums = minAndMaxYears.map(([minYear]) => minYear).filter(y => y !== undefined);
-      const maximums = minAndMaxYears.map(([, maxYear]) => maxYear).filter(y => y !== undefined);
-      this.timelineDomain = [Math.min(...minimums), Math.max(...maximums)];
+
+      collections.get(id, { query: { nameOnly: true } })
+        .then(({ name }) => {
+          this.$set(this.queriesResults[resultIndex], 'title', name);
+        });
     },
     onTimelineHighlight({ facetId, data }) {
-      Vue.set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
+      this.$set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
     },
     onTimelineHighlightOff({ facetId }) {
       this.timelineHighlights[facetId] = { enabled: false };
-      Vue.set(this.timelineHighlights, facetId, { enabled: false });
+      this.$set(this.timelineHighlights, facetId, { enabled: false });
     },
     getTimelineHighlight(id) {
       return this.timelineHighlights[id] || {};
@@ -205,6 +223,22 @@ export default {
     },
     isLastResult(idx) {
       return this.queriesResults.length - 1 === idx;
+    },
+    asCollection(queryResult) {
+      return {
+        id: queryResult.id,
+        title: queryResult.title,
+      };
+    },
+    onCollectionSelected(queryIndex, collectionId) {
+      const ids = [...this.ids];
+      ids[queryIndex === 0 ? 0 : 1] = collectionId;
+      this.$router.push({
+        name: 'compare',
+        params: {
+          ids: ids.join(','),
+        },
+      });
     },
   },
 };
@@ -237,14 +271,3 @@ export default {
     height: 100%;
   }
 </style>
-
-<i18n>
-{
-  "en": {
-    "label_intersection": "Intersection"
-  },
-  "nl": {
-    "label_intersection": "Overlap"
-  }
-}
-</i18n>

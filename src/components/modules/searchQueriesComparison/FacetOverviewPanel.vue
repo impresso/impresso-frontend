@@ -3,15 +3,15 @@
     <!-- timeline type -->
     <div v-if="type === 'timeline'">
       <span class="row tb-title small-caps font-weight-bold">{{title}}</span>
-      <div class="row mt-3">
+      <div class="row mt-5">
         <timeline
-              :key="timelineValuesChangeCounter"
               :contrast="false"
               :values="timelineValues"
               @highlight="onHighlight"
               @highlight-off="onHighlightOff"
               :highlight="timelineHighlightValue"
-              :highlight-enabled-state="timelineHighlightEnabled">
+              :highlight-enabled-state="timelineHighlightEnabled"
+              :brushable="false">
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'short', 'en') }} &middot;
@@ -26,8 +26,9 @@
     <div v-if="type === 'bars'">
       <stacked-bars-panel
         class="row"
-        v-bind:label="title"
-        v-bind:items="barValues"/>
+        :label="title"
+        :buckets="values"
+        :facet-type="facet"/>
     </div>
 
     <hr/>
@@ -37,6 +38,7 @@
 <script>
 import StackedBarsPanel from '../vis/StackedBarsPanel';
 import Timeline from '../Timeline';
+import Bucket from '../../../models/Bucket';
 
 const timelineValuesSorter = (a, b) => a.t - b.t;
 
@@ -57,66 +59,47 @@ function fillEmptyYearsWithZeros(timelineValues, timelineRange) {
 }
 
 export default {
-  data: () => ({
-    timelineValuesChangeCounter: 0,
-  }),
-  props: [
-    'facet',
-    'type',
-    'title',
-    'values',
-    'timelineHighlightValue',
-    'timelineHighlightEnabled',
-    'timelineDomain',
-  ],
+  data: () => ({}),
+  props: {
+    facet: String, // any of the common facet types: newspaper, language, etc.
+    type: {
+      type: String, // type of the visualisation component
+      validator: t => ['timeline', 'bars'].includes(t),
+    },
+    title: String,
+    values: {
+      type: Array, // array of `Bucket` objects.
+      default: [],
+      validator: v => v.map(i => i instanceof Bucket),
+    },
+    timelineHighlightValue: Object, // a `{ w, t }` object (see Timeline.js)
+    timelineHighlightEnabled: Boolean,
+    timelineDomain: {
+      // a tuple of the extent of the timeline in time values (e.g. years): `[1904, 1925]`
+      type: Array,
+      validator: v => v.length === 2,
+    },
+  },
   components: {
     StackedBarsPanel,
     Timeline,
   },
-  watch: {
-    values: {
-      handler() {
-        this.updateDomainRange();
-        this.updateValues();
-      },
-      immediate: true,
+  computed: {
+    timelineValues() {
+      const v = this.values
+        .map(({ val, count }) => ({ t: parseInt(val, 10), w: count }))
+        .sort(timelineValuesSorter);
+      return fillEmptyYearsWithZeros(v, this.timelineDomainRange);
     },
-    timelineDomain: {
-      handler() {
-        this.updateDomainRange();
-        this.updateValues();
-      },
-      immediate: true,
+    timelineDomainRange() {
+      if (this.timelineDomain) {
+        return this.timelineDomain;
+      }
+      const keys = this.values.map(({ val }) => val).sort();
+      return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : [];
     },
   },
   methods: {
-    updateValues() {
-      if (this.type === 'timeline') {
-        const v = this.values
-          .map(({ val, count }) => ({ t: val, w: count }))
-          .sort(timelineValuesSorter);
-        this.timelineValues = fillEmptyYearsWithZeros(v, this.timelineDomainRange);
-        this.timelineValuesChangeCounter += 1;
-      }
-
-      if (this.type === 'bars') {
-        const getVal = this.facet === 'newspaper'
-          ? val => val
-          : val => this.$t(`buckets.${this.facet}.${val}`, val);
-        this.barValues = this.values
-          .map(({ val, count }) => [getVal(val), count]);
-      }
-    },
-    updateDomainRange() {
-      if (this.type !== 'timeline') return;
-
-      if (this.timelineDomain) {
-        this.timelineDomainRange = this.timelineDomain;
-      } else {
-        const keys = this.values.map(({ val }) => val).sort();
-        this.timelineDomainRange = keys.length > 0 ? [keys[0], keys[keys.length - 1]] : [];
-      }
-    },
     onHighlight(data) {
       this.$emit('timeline-highlight', { facetId: this.facet, data });
     },

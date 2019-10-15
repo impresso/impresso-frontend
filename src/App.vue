@@ -15,6 +15,9 @@
   <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
     <disclaimer-notice />
   </div>
+  <div id="app-loading" class="fullscreen locked" v-if="is_locked">
+    <status-indicator />
+  </div>
 </div>
 </template>
 
@@ -24,6 +27,7 @@ import TheHeader from './components/TheHeader';
 import Monitor from './components/Monitor';
 import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
+import StatusIndicator from './components/modals/StatusIndicator';
 
 
 export default {
@@ -33,6 +37,7 @@ export default {
     Monitor,
     Explorer,
     DisclaimerNotice,
+    StatusIndicator,
   },
   computed: {
     termsAgreed() {
@@ -41,6 +46,9 @@ export default {
         return true;
       }
       return this.$store.state.settings.termsAgreed;
+    },
+    is_locked() {
+      return this.$store.state.processing_locked;
     },
   },
   created() {
@@ -83,6 +91,10 @@ html {
       width: 100%;
       height: 100%;
       pointer-events: none;
+      &.locked{
+        background: rgba($clr-primary, 0.25);
+        pointer-events: auto;
+      }
     }
 
     #app-explorer{
@@ -91,6 +103,10 @@ html {
 
     #app-monitor {
       z-index: 1042;
+    }
+
+    #app-loading {
+      z-index: 1043;
     }
 }
 select {
@@ -158,6 +174,9 @@ $clr-grey-900: #ddd;
 }
 .ml-1px {
     margin-left: 1px;
+}
+.opacity-50 {
+  opacity: 0.5;
 }
 
 .border-tertiary {

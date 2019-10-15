@@ -48,6 +48,8 @@ export default new Vuex.Store({
   },
   state: {
     processing_status: false,
+    processing_locked: false,
+    processing_message: '',
     error_message: '',
     header_title: '',
     header_subtitle: '',
@@ -71,6 +73,9 @@ export default new Vuex.Store({
     SET_HEADER_TITLE(state, payload) {
       state.header_title = String(payload.title || '');
       state.header_subtitle = String(payload.subtitle || '');
+    },
+    LOCK_SCREEN(state, status) {
+      state.processing_locked = status;
     },
     SET_PROCESSING(state, status) {
       if (status === true) {
