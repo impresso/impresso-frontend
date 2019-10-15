@@ -39,6 +39,10 @@ export default {
     highlight: Object,
     contrast: Boolean,
     highlightEnabledState: Boolean,
+    brushable: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     tooltip: {
@@ -82,7 +86,7 @@ export default {
           top: 10,
         },
         domain: this.domain,
-        brushable: true,
+        brushable: this.brushable,
       });
     }
     this.timeline.on('mouseleave', () => {
@@ -213,13 +217,3 @@ export default {
     }
   }
 </style>
-<i18n>
-{
-  "en": {
-    "pages": {
-      "total": "pages",
-      "empty": "not available"
-    }
-  }
-}
-</i18n>

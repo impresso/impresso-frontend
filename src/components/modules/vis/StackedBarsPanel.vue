@@ -12,14 +12,16 @@
         
         <!-- bar -->
         <div class="row bar-container" 
-             v-for="([label, value, scaledValue], idx) in scaledItems"
+             v-for="(bucket, idx) in buckets"
              v-bind:key="idx">
           <div class="col">
             <div class="bar">
-              <div class="px-1">{{label}}</div>
-              <div class="px-1">{{formatValue(value)}}{{valueSuffix}}</div>
+              <div class="px-1">
+                <item-label :item="bucket.item" :type="facetType"/>
+              </div>
+              <div class="px-1">{{formatValue(toScaledValue(bucket.count))}}{{valueSuffix}}</div>
             </div>
-            <div class="scale" v-bind:style="`width: ${scaledValue * 100}%`"/>
+            <div class="scale" v-bind:style="`width: ${toScaledValue(bucket.count) * 100}%`"/>
           </div>
         </div>
       </div>
@@ -28,25 +30,36 @@
 </template>
 
 <script>
-import Helpers from '@/plugins/Helpers';
+import ItemLabel from '../lists/ItemLabel';
+import Bucket from '../../../models/Bucket';
 
 export default {
-  data: () => ({
-    scaledItems: [],
-  }),
-  props: ['label', 'items', 'valueSuffix'],
-  watch: {
-    items: {
-      handler(items) {
-        const maxValue = Math.max(...(items || []).map(([, value]) => value));
-        this.scaledItems = (items || [])
-          .map(([label, value]) => [label, value, value / maxValue]);
-      },
-      immediate: true,
+  data: () => ({}),
+  props: {
+    label: String, // label of the chart
+    buckets: {
+      type: Array,
+      default: [],
+      validator: buckets => buckets.map(b => b instanceof Bucket),
+    },
+    valueSuffix: String, // suffix appended to the value label
+    facetType: String, // type of facet to render
+  },
+  components: {
+    ItemLabel,
+  },
+  computed: {
+    maxValue() {
+      return Math.max(...this.buckets.map(b => b.count));
     },
   },
   methods: {
-    formatValue: val => Helpers.numbers.toFixedOptional(val, 2),
+    formatValue(val) {
+      return this.$helpers.numbers.toFixedOptional(val, 2);
+    },
+    toScaledValue(val) {
+      return val / this.maxValue;
+    },
   },
 };
 </script>

@@ -20,7 +20,7 @@ export default {
       default: false,
     },
     options: {
-      default: [],
+      default() { return []; },
     },
     size: {
       default: 'md',
@@ -32,7 +32,7 @@ export default {
   computed: {
     selected: {
       get() {
-        return this.options.find(option => option.value === this.value);
+        return this.options.find(option => option.value === this.value) || {};
       },
     },
   },

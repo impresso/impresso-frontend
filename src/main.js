@@ -35,6 +35,7 @@ const i18n = new VueI18n({
   locale: store.state.settings.language_code,
   messages,
   dateTimeFormats,
+  silentFallbackWarn: false,
 });
 
 /* eslint-disable no-new */
