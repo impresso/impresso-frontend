@@ -40,8 +40,8 @@
       <div v-for="(filter, index) in daterangeFilters" :key="index" class="bg-light border p-2 mt-2">
         <filter-monitor :store="store" :filter="filter" type="daterange" />
       </div>
-      <div v-if="!daterangeFilters.length">
-        <b-button size="sm" variant="outline-primary" @click="addDaterangeFilter">
+      <div v-if="!daterangeFilters.length && (daterange.start || daterange.end)">
+        <b-button size="sm" variant="outline-primary" @click="addDaterangeFilter" class="mt-2">
         {{ $t('label.daterange.pick') }}
         </b-button>
       </div>
@@ -440,10 +440,9 @@ export default {
           }
         },
         "daterange": {
-          "pick": "add filter ...",
+          "pick": "Filter by daterange",
           "start": "from",
-          "end": "to",
-          "apply": "add as filter"
+          "end": "to"
         }
       },
       "groupBy": {
