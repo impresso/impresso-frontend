@@ -31,12 +31,12 @@
           v-on:click="onExport()">{{ $t('download csv') }}
         </b-button>
         <b-button
-          v-else
+          v-if="job.status === 'RUN'"
           variant="outline-danger m-1" size="sm"
           v-on:click="onStopJob(job.id)">Stop
         </b-button>
         <b-button
-          v-if="job.status === 'DON'"
+          v-if="job.status === 'DON' || job.status === 'STO'"
           variant="outline-danger m-1" size="sm"
           v-on:click="onStopJob(job.id)">{{ $t('actions.remove') }}
         </b-button>
