@@ -45,24 +45,18 @@
               </div>
               <div v-else>
                 <toast v-for="(job, i) in jobs" v-bind:job="job" v-bind:key="i" />
-                <div class="text-center">
-                  <pagination
-                    v-bind:perPage="paginationJobsList.perPage"
-                    v-bind:currentPage="paginationJobsList.currentPage"
-                    v-bind:totalRows="paginationJobsList.totalRows"
-                    v-on:change="onChangeJobsPage"
-                    class="small-caps"
-                    v-bind:showDescription="true" />
-                  <b-button
-                    v-if="showLess"
-                    @click="showLess = false"
-                    class="text-white border-white"
-                    size="sm">{{$t('show_all')}}</b-button>
-                  <b-button
-                    v-if="!showLess"
-                    @click="showLess = true"
-                    class="text-white border-white"
-                    size="sm">{{$t('show_less')}}</b-button>
+                <div
+                  v-if="paginationJobsList.totalRows > paginationJobsList.perPage"
+                  class="my-4">
+                  <div class="fixed-pagination-footer p-1 m-0">
+                    <pagination
+                      v-bind:perPage="paginationJobsList.perPage"
+                      v-bind:currentPage="paginationJobsList.currentPage"
+                      v-bind:totalRows="paginationJobsList.totalRows"
+                      v-on:change="onChangeJobsPage"
+                      class="small-caps"
+                      v-bind:showDescription="false" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -115,7 +109,6 @@ import Pagination from './modules/Pagination';
 
 export default {
   data: () => ({
-    showLess: true,
     languages: {
       de: {
         code: 'de',
@@ -440,8 +433,6 @@ export default {
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_topics": "Topics",
-    "show_all": "show all",
-    "show_less": "show less",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
