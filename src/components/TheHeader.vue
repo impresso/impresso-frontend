@@ -436,6 +436,7 @@ export default {
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_topics": "Topics",
+    "label_faq": "Help",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
