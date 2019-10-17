@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import { protobuf } from 'impresso-jscommons';
 import { searchQueriesComparison, search, collections } from '@/services';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
@@ -74,6 +75,30 @@ function getDomainForResults(results) {
   return [];
 }
 
+const collectionIdToQuery = id => ({
+  filters: [
+    {
+      type: 'collection',
+      q: id,
+    },
+  ],
+});
+
+const constructQueryParameters = (comparables, queryParameters) => {
+  const collectionIds = comparables
+    .filter(({ type }) => type === 'collection')
+    .map(({ id }) => id);
+  const serializedQueries = comparables
+    .filter(({ type }) => type === 'query')
+    .map(({ query }) => protobuf.searchQuery.serialize(query));
+
+  return {
+    ...queryParameters,
+    collectionIds: collectionIds.length > 0 ? collectionIds.join(',') : undefined,
+    queries: serializedQueries.length > 0 ? serializedQueries.join(',') : undefined,
+  };
+};
+
 const QueryLeftIndex = 0;
 const QueriesIntersectionIndex = 1;
 const QueryRightIndex = 2;
@@ -94,29 +119,65 @@ export default {
       ['person', 'bars'],
       ['location', 'bars'],
     ],
-    // timelineDomain: [],
     queriesResults: [
       { },
       { type: 'intersection' },
       { },
     ],
     timelineHighlights: {},
+    // list of available collections:
     collections: [],
-    ids: [],
+    // comparable items: { type, query, id }
+    // where type is one of ['collection', 'query']
+    //       id is the ID of the collection if this is a collection
+    //       query is a Search Query object.
+    comparables: [],
   }),
   watch: {
-    '$route.params.ids': {
-      async handler(ids) {
-        const [leftId, rightId] = typeof ids === 'string' ? ids.split(',') : ids;
-        this.ids = [leftId, rightId];
+    '$route.query': {
+      handler(queryParameters) {
+        let { collectionIds = '', queries = '' } = queryParameters;
+        collectionIds = collectionIds.split(',').filter(v => v !== '');
+        queries = queries.split(',').filter(v => v !== '').map((serializedQuery, idx) => {
+          try {
+            return protobuf.searchQuery.deserialize(serializedQuery);
+          } catch (e) {
+            throw new Error(`Query ${idx} could not be parsed: ${e.message}`);
+          }
+        });
 
-        return Promise.all([
-          this.updateQueriesIntersectionResult(QueriesIntersectionIndex, [leftId, rightId]),
-          this.updateCollectionResult(QueryLeftIndex, leftId),
-          this.updateCollectionResult(QueryRightIndex, rightId),
-        ]);
+        if (queries.length + collectionIds.length > 2) {
+          throw new Error('Too many comparable items provided');
+        }
+
+        this.comparables = collectionIds
+          .map(id => ({
+            id,
+            type: 'collection',
+            query: collectionIdToQuery(id),
+          }))
+          .concat(queries.map(query => ({
+            type: 'query',
+            query,
+          })));
       },
       immediate: true,
+      deep: true,
+    },
+    comparables: {
+      async handler(comparables) {
+        if (comparables.length === 0) return Promise.resolve([]);
+        const fetchDataPromises = comparables.length < 2
+          ? [this.updateQueryResult(QueryLeftIndex, comparables[0])]
+          : [
+            this.updateQueryResult(QueryLeftIndex, comparables[0]),
+            this.updateQueriesIntersectionResult(QueriesIntersectionIndex, comparables),
+            this.updateQueryResult(QueryRightIndex, comparables[1]),
+          ];
+        return Promise.all(fetchDataPromises);
+      },
+      immediate: true,
+      deep: true,
     },
   },
   async created() {
@@ -128,7 +189,7 @@ export default {
       const minAndMaxYears = this.queriesResults.map(getDomainForResults);
       const minimums = minAndMaxYears.map(([minYear]) => minYear).filter(y => y !== undefined);
       const maximums = minAndMaxYears.map(([, maxYear]) => maxYear).filter(y => y !== undefined);
-      return [Math.min(...minimums), Math.max(...maximums)];
+      return [Math.min(...minimums), Math.max(...maximums)].filter(isFinite);
     },
   },
   components: {
@@ -144,16 +205,9 @@ export default {
       if (items.length === 0) return [];
       return items[0].buckets;
     },
-    async updateQueriesIntersectionResult(resultIndex, ids) {
+    async updateQueriesIntersectionResult(resultIndex, comparables) {
       const payload = {
-        queries: ids.map(id => ({
-          filters: [
-            {
-              type: 'collection',
-              q: id,
-            },
-          ],
-        })),
+        queries: comparables.map(({ query }) => query),
         limit: 0,
         facets: this.facets.map(([type]) => type),
       };
@@ -173,16 +227,11 @@ export default {
         this.loadingFlags[resultIndex] = false;
       }
     },
-    async updateCollectionResult(resultIndex, id) {
+    async updateQueryResult(resultIndex, { type, query, id }) {
       const payload = {
-        filters: [
-          {
-            type: 'collection',
-            q: id,
-          },
-        ],
+        ...query,
         limit: 0,
-        facets: this.facets.map(([type]) => type),
+        facets: this.facets.map(([facetType]) => facetType),
         group_by: 'articles',
       };
 
@@ -191,8 +240,8 @@ export default {
         const result = await search.find({ query: payload });
         const resultValue = {
           id,
-          type: 'collection',
-          title: '',
+          type,
+          title: 'Query',
           facets: prepareFacets(result.info.facets),
           total: result.total,
         };
@@ -203,10 +252,12 @@ export default {
         this.loadingFlags[resultIndex] = false;
       }
 
-      collections.get(id, { query: { nameOnly: true } })
-        .then(({ name }) => {
-          this.$set(this.queriesResults[resultIndex], 'title', name);
-        });
+      if (type === 'collection') {
+        collections.get(id, { query: { nameOnly: true } })
+          .then(({ name }) => {
+            this.$set(this.queriesResults[resultIndex], 'title', name);
+          });
+      }
     },
     onTimelineHighlight({ facetId, data }) {
       this.$set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
@@ -231,13 +282,13 @@ export default {
       };
     },
     onCollectionSelected(queryIndex, collectionId) {
-      const ids = [...this.ids];
-      ids[queryIndex === 0 ? 0 : 1] = collectionId;
+      const comparables = this.comparables.map(c => ({ ...c }));
+      comparables[queryIndex === 0 ? 0 : 1].id = collectionId;
+
+      const queryParameters = constructQueryParameters(comparables, this.$route.query);
       this.$router.push({
         name: 'compare',
-        params: {
-          ids: ids.join(','),
-        },
+        query: queryParameters,
       });
     },
   },

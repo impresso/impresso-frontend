@@ -248,16 +248,11 @@ const router = new Router({
     },
   },
   {
-    path: '/compare/:ids',
+    path: '/compare',
     component: SearchQueriesComparisonPage,
     name: 'compare',
     meta: {
       requiresAuth: false,
-    },
-    beforeEnter: (to, from, next) => {
-      const { ids = '' } = to.params;
-      to.params.ids = ids.split(',');
-      next();
     },
   }],
 });

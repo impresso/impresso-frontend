@@ -93,6 +93,15 @@ export default new Vuex.Store({
         }
       }
     },
+    SET_ERROR_MESSAGE(state, message) {
+      state.error_message = message;
+    },
+  },
+  actions: {
+    DISPLAY_ERROR({ commit }, error) {
+      console.error('[Unexpected error]: ', error.stack);
+      commit('SET_ERROR_MESSAGE', error.message);
+    },
   },
   plugins: [createPersistedState({
     key: 'impresso',
