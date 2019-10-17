@@ -33,6 +33,7 @@ export default {
       agree: 'I agree to the terms of use',
       more: 'more...',
       remove: 'remove',
+      clear: 'clear',
       close: 'close',
       loading: 'loading...',
       reset: 'Reset',

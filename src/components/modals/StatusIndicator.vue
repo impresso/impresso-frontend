@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="box w-25 bg-light drop-shadow border border-primary p-4 text-center">
-    {{ status }}
+    {{ $t('loading') }}
     <i-spinner class="mt-4"></i-spinner>
   </div>
 </template>
