@@ -6,7 +6,7 @@
       <div v-html="content.summary" />
       <router-link
         class="d-block text-right small-caps"
-        v-bind:to="{ name: `faq`, hash:`#${content.id}` }">
+        v-bind:to="{ name: `faq`, hash: `#${content.id}` }">
         {{$t("more_info")}} &rarr;
       </router-link>
     </b-popover>

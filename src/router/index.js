@@ -29,6 +29,19 @@ Vue.use(Router);
 
 const router = new Router({
   mode: 'history',
+  scrollBehavior(to, from, savedPosition) {
+    const el = document.querySelector('div#app-content');
+    console.log('---', el.scrollLeft, el.scrollTop);
+    if (savedPosition) {
+      console.log(savedPosition);
+      return savedPosition;
+    }
+    if (to.hash) {
+      console.log('h', to.hash);
+      return { selector: to.hash };
+    }
+    return { x: 0, y: 0 };
+  },
   routes: [{
     path: '/',
     name: 'home',
@@ -288,6 +301,32 @@ router.beforeEach((to, from, next) => {
         });
       }
     });
+  }
+});
+const scrollableElementId = 'app-content'; // You should change this
+const scrollPositions = Object.create(null);
+
+router.beforeEach((to, from, next) => {
+  const element = document.getElementById(scrollableElementId);
+  if (element !== null) {
+    scrollPositions[from.name] = element.scrollTop;
+  }
+  console.log('before', from.name, scrollPositions[from.name], element.scrollTop);
+
+  next();
+});
+
+window.addEventListener('popstate', () => {
+  console.log('after scr', scrollableElementId);
+  const currentRouteName = router.history.current.name;
+  const element = document.getElementById(scrollableElementId);
+
+  console.log('after', currentRouteName, element, scrollPositions[currentRouteName]);
+
+  if (element !== null && currentRouteName in scrollPositions) {
+    setTimeout(() => {
+      element.scrollTop = scrollPositions[currentRouteName];
+    }, 50);
   }
 });
 
