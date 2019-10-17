@@ -179,6 +179,10 @@ $clr-grey-900: #ddd;
   opacity: 0.5;
 }
 
+.border-primary {
+    border-color: $clr-primary !important;
+}
+
 .border-tertiary {
     border-color: $clr-tertiary !important;
 }
