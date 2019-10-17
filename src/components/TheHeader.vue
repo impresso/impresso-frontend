@@ -1,7 +1,7 @@
 <template lang="html">
   <div style="margin-bottom: -1px;">
     <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
-    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
+    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-bottom border-primary">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
@@ -47,21 +47,19 @@
                 {{ $t('no-jobs-yet' )}}
               </div>
               <div v-else>
-                <toast v-for="(job, i) in this.jobs"
-                  v-bind:job="job"
-                  v-bind:key="job.id"
-                  />
-                <div class="text-center">
-                  <b-button
-                    v-if="showLess"
-                    @click="showLess = false"
-                    class="text-white border-white"
-                    size="sm">{{$t('show_all')}}</b-button>
-                  <b-button
-                    v-if="!showLess"
-                    @click="showLess = true"
-                    class="text-white border-white"
-                    size="sm">{{$t('show_less')}}</b-button>
+                <toast v-for="(job, i) in jobs" v-bind:job="job" v-bind:key="i" />
+                <div
+                  v-if="paginationJobsList.totalRows > paginationJobsList.perPage"
+                  class="my-4">
+                  <div class="fixed-pagination-footer p-1 m-0">
+                    <pagination
+                      v-bind:perPage="paginationJobsList.perPage"
+                      v-bind:currentPage="paginationJobsList.currentPage"
+                      v-bind:totalRows="paginationJobsList.totalRows"
+                      v-on:change="onChangeJobsPage"
+                      class="small-caps"
+                      v-bind:showDescription="false" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -110,10 +108,10 @@
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
 import Toast from './modules/Toast';
+import Pagination from './modules/Pagination';
 
 export default {
   data: () => ({
-    showLess: true,
     languages: {
       de: {
         code: 'de',
@@ -143,15 +141,20 @@ export default {
   }),
   mounted() {
     if (this.user) {
-      this.$store.dispatch('jobs/LOAD_JOBS');
+      this.$store.dispatch('jobs/LOAD_JOBS').then((res) => {
+        console.info('Jobs loaded.', res);
+      });
     }
   },
   computed: {
     jobs() {
-      return this.showLess ? this.$store.state.jobs.data.slice(0, 4) : this.$store.state.jobs.data;
+      return this.$store.state.jobs.items;
     },
     runningJobs() {
-      return this.$store.state.jobs.data.filter(job => job.status === 'RUN');
+      return this.$store.state.jobs.items.filter(d => d.status === 'RUN');
+    },
+    paginationJobsList() {
+      return this.$store.state.jobs.pagination;
     },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
@@ -198,8 +201,14 @@ export default {
     },
   },
   methods: {
-    async test() {
-      await this.$store.dispatch('jobs/TEST');
+    onChangeJobsPage(page = 1) {
+      console.info('onChangeJobsPage', page);
+      this.$store.dispatch('jobs/LOAD_JOBS', {
+        page,
+      });
+    },
+    test() {
+      return this.$store.dispatch('jobs/TEST');
     },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode;
@@ -227,15 +236,15 @@ export default {
   components: {
     Icon,
     Toast,
+    Pagination,
   },
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
-
     .Cookie--blood-orange {
 
       background: $clr-secondary;
@@ -349,6 +358,9 @@ export default {
     .navbar-dark .b-nav-dropdown .dropdown-menu {
       background: $clr-grey-300 !important;
       padding: .5rem 0;
+      border-top-color: $clr-primary;
+      margin-top: 0px;
+
       &.dropdown-menu-right{
         margin-right: -1px;
       }
@@ -424,9 +436,6 @@ export default {
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_topics": "Topics",
-    "label_faq": "Help",
-    "show_all": "show all",
-    "show_less": "show less",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",

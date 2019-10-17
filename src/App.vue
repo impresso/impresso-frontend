@@ -179,6 +179,10 @@ $clr-grey-900: #ddd;
   opacity: 0.5;
 }
 
+.border-primary {
+    border-color: $clr-primary !important;
+}
+
 .border-tertiary {
     border-color: $clr-tertiary !important;
 }
@@ -217,6 +221,26 @@ $clr-grey-900: #ddd;
             padding: 0.15em 0.6em;
         }
     }
+}
+.dark-mode,
+.navbar-dark {
+  .fixed-pagination-footer {
+    background: transparentize($clr-bg-primary, 1);
+  }
+  .page-link,
+  .page-item.disabled .page-link {
+    background: $clr-secondary;
+    color: $clr-bg-primary;
+  }
+  .page-link {
+    border-color: $clr-tertiary !important;
+  }
+  .page-link:hover,
+  .page-item.active .page-link {
+    background: $clr-bg-primary;
+    color: $clr-primary;
+    border-color: $clr-bg-primary !important;
+  }
 }
 
 .matches {
