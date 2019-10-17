@@ -1,7 +1,7 @@
 <template lang="html">
   <div style="margin-bottom: -1px;">
     <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
-    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
+    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-bottom border-primary">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
@@ -44,11 +44,15 @@
                 {{ $t('no-jobs-yet' )}}
               </div>
               <div v-else>
-                <toast v-for="(job, i) in this.jobs"
-                  v-bind:job="job"
-                  v-bind:key="job.id"
-                  />
+                <toast v-for="(job, i) in jobs" v-bind:job="job" v-bind:key="i" />
                 <div class="text-center">
+                  <pagination
+                    v-bind:perPage="paginationJobsList.perPage"
+                    v-bind:currentPage="paginationJobsList.currentPage"
+                    v-bind:totalRows="paginationJobsList.totalRows"
+                    v-on:change="onChangeJobsPage"
+                    class="small-caps"
+                    v-bind:showDescription="true" />
                   <b-button
                     v-if="showLess"
                     @click="showLess = false"
@@ -107,6 +111,7 @@
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
 import Toast from './modules/Toast';
+import Pagination from './modules/Pagination';
 
 export default {
   data: () => ({
@@ -140,15 +145,20 @@ export default {
   }),
   mounted() {
     if (this.user) {
-      this.$store.dispatch('jobs/LOAD_JOBS');
+      this.$store.dispatch('jobs/LOAD_JOBS').then((res) => {
+        console.info('Jobs loaded.', res);
+      });
     }
   },
   computed: {
     jobs() {
-      return this.showLess ? this.$store.state.jobs.data.slice(0, 4) : this.$store.state.jobs.data;
+      return this.$store.state.jobs.items;
     },
     runningJobs() {
-      return this.$store.state.jobs.data.filter(job => job.status === 'RUN');
+      return this.$store.state.jobs.items.filter(d => d.status === 'RUN');
+    },
+    paginationJobsList() {
+      return this.$store.state.jobs.pagination;
     },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
@@ -195,8 +205,14 @@ export default {
     },
   },
   methods: {
-    async test() {
-      await this.$store.dispatch('jobs/TEST');
+    onChangeJobsPage(page = 1) {
+      console.info('onChangeJobsPage', page);
+      this.$store.dispatch('jobs/LOAD_JOBS', {
+        page,
+      });
+    },
+    test() {
+      return this.$store.dispatch('jobs/TEST');
     },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode;
@@ -224,15 +240,15 @@ export default {
   components: {
     Icon,
     Toast,
+    Pagination,
   },
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
 #app-header {
-
     .Cookie--blood-orange {
 
       background: $clr-secondary;
@@ -346,6 +362,9 @@ export default {
     .navbar-dark .b-nav-dropdown .dropdown-menu {
       background: $clr-grey-300 !important;
       padding: .5rem 0;
+      border-top-color: $clr-primary;
+      margin-top: 0px;
+
       &.dropdown-menu-right{
         margin-right: -1px;
       }
