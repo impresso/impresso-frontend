@@ -25,6 +25,13 @@ socket.on('reconnect', () => {
   app.reAuthenticate();
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
+socket.on('connect_error', (err) => {
+  if (window.app && window.app.$store) {
+    err.message = `Could not connect to the API: ${err.message}`;
+    window.app.$store.dispatch('DISPLAY_ERROR', err);
+  }
+});
+
 const needsLockScreen = p => [
   'search.find',
 ].includes(p);
@@ -64,8 +71,8 @@ app.hooks({
       (context) => {
         const apiPath = `paths.${context.path}.${context.method}`;
         const errorPath = `errors.${context.error.message.split(/\s\(\)`/).join('')}`;
-        console.error('app ERROR on:', apiPath, context.error, errorPath);
-        if (window.app && window.app.$store) {
+        if (window.app && window.app.$store && context.error.code >= 500) {
+          console.error('app ERROR on:', apiPath, context.error, errorPath);
           window.app.$store.state.error_message = [
             window.app.$t(errorPath),
             window.app.$t(apiPath),

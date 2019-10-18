@@ -256,6 +256,12 @@ export default {
         collections.get(id, { query: { nameOnly: true } })
           .then(({ name }) => {
             this.$set(this.queriesResults[resultIndex], 'title', name);
+          })
+          .catch((e) => {
+            if (e.name === 'NotFound') {
+              return this.$set(this.queriesResults[resultIndex], 'title', this.$t('cta.select-collection'));
+            }
+            throw e;
           });
       }
     },
@@ -283,7 +289,10 @@ export default {
     },
     onCollectionSelected(queryIndex, collectionId) {
       const comparables = this.comparables.map(c => ({ ...c }));
-      comparables[queryIndex === 0 ? 0 : 1].id = collectionId;
+      const comparable = comparables[queryIndex === 0 ? 0 : 1];
+
+      comparable.id = collectionId;
+      comparable.type = 'collection';
 
       const queryParameters = constructQueryParameters(comparables, this.$route.query);
       this.$router.push({
@@ -320,5 +329,17 @@ export default {
     overflow-x: hidden;
     max-width: 100%;
     height: 100%;
+    border-top: 1px solid #dee2e6;
+    margin-top: 1px;
   }
 </style>
+
+<i18n>
+{
+  "en": {
+    "cta": {
+      "select-collection": "Please select a collection"
+    }
+  }
+}
+</i18n>

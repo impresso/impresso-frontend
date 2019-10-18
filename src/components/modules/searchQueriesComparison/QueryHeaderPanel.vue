@@ -1,15 +1,33 @@
 <template>
   <div class="px-2 pb-2 py-2 container">
 
-    <!-- title and type -->
-    <div class="row justify-content-between">
-      <div class="col-auto align-self-start">
-        <h3 v-if="type !== 'collection'">{{title}}</h3>
-        <dropdown v-if="type === 'collection'" 
-                  :options="options"
+    <b-tabs small 
+            class="mx-2 pt-2"
+            content-class="mt-3" 
+            v-if="type !== 'intersection'">
+      <!-- query -->
+      <b-tab active-class='none'
+             :active="type === 'query'"
+             :title="$t('tabs.query')"
+             @click="typeChanged('query')">
+        [query]
+      </b-tab>
+      <!-- collection -->
+      <b-tab active-class='none'
+             :active="type === 'collection'"
+             :title="$t('tabs.collection')"
+             @click="typeChanged('collection')">
+        <dropdown :options="options"
                   :value="value"
                   @input="setValue"
                   variant="light"/>
+      </b-tab>
+    </b-tabs>
+
+    <!-- intersection -->
+    <div class="row justify-content-between" v-if="type === 'intersection'">
+      <div class="col-auto align-self-start">
+        <h3>{{title}}</h3>
       </div>
       <div class="col-auto align-self-start">
         <div v-if="type" class="badge badge-secondary type d-flex">
@@ -51,6 +69,12 @@ export default {
         this.$emit('collection-selected', collection.id);
       }
     },
+    typeChanged(newType) {
+      console.info('Type', newType);
+      if (newType === 'collection') {
+        this.$emit('collection-selected', 'no-collection-selected');
+      }
+    },
   },
   computed: {
     options() {
@@ -87,6 +111,11 @@ export default {
 
 <i18n>
 {
-
+  "en": {
+    "tabs": {
+      "collection": "Collection",
+      "query": "Query"
+    }
+  }
 }
 </i18n>
