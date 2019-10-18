@@ -79,12 +79,12 @@ export default {
       headers.append('Authorization', `Bearer ${services.app.authentication.options.storage['feathers-jwt']}`);
 
       fetch(file, { headers })
-        .then(response => response.blob())
+        .then(res => res.blob())
         .then((blobby) => {
           const objectUrl = window.URL.createObjectURL(blobby);
 
           anchor.href = objectUrl;
-          anchor.download = `impresso-job-${this.job.id}.csv`;
+          anchor.download = `impresso-job-${this.job.id}.zip`;
           anchor.click();
 
           window.URL.revokeObjectURL(objectUrl);
