@@ -18,6 +18,9 @@
           </h3>
           <span style="line-height:0.8" v-html="job.extra.collection.description" />
         </blockquote>
+        <blockquote v-else v-html="job.description" class="pl-2 my-1 border-left small">
+        </blockquote>
+
         <div>
           <span class='small-caps'>{{ $t(`jobs.status.${job.status}`) }}</span> &mdash;
           <span class='text-white'>{{ percent(job.progress) }}</span>
