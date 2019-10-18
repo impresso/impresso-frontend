@@ -76,7 +76,7 @@ export default {
       const file = `${services.MIDDLELAYER_MEDIA_URL}/jobs/${this.job.id}`;
       console.info('downloading:', file);
       const headers = new Headers();
-      headers.append('Authorization', `Bearer ${services.app.passport.storage['feathers-jwt']}`);
+      headers.append('Authorization', `Bearer ${services.app.authentication.options.storage['feathers-jwt']}`);
 
       fetch(file, { headers })
         .then(response => response.blob())
