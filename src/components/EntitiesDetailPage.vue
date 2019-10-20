@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section>
+  <i-layout-section class="border-left border-top ml-1px mt-1px">
     <b-navbar type="light" slot="header" variant="light" class="border-bottom">
       <section style="min-height: 80px;">
         <div class="label small-caps">
@@ -194,7 +194,6 @@
 </template>
 
 <script>
-import Entity from '@/models/Entity';
 // import Mention from '@/models/Mention';
 import Timeline from './modules/Timeline';
 import Pagination from './modules/Pagination';
@@ -202,7 +201,7 @@ import BaseTabs from './base/BaseTabs';
 
 export default {
   data: () => ({
-    entity: new Entity(),
+    entity: null,
     mentions: [],
     timevalues: [],
     // mention: new Mention(),
@@ -266,13 +265,13 @@ export default {
     },
   },
   methods: {
-    async getEntity() {
+    getEntity() {
       return this.$store.dispatch('entities/LOAD_DETAIL', this.$route.params.entity_id);
     },
     // async getMentions() {
     //   return this.$store.dispatch('mentions/LOAD_DETAIL', this.$route.params.entity_id);
     // },
-    async getTimeline() {
+    getTimeline() {
       return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id);
     },
     loadMentions(page) {
@@ -316,9 +315,10 @@ export default {
     '$route.params.entity_id': {
       immediate: true,
       async handler() {
+        console.info('loading:', this.$route.params.entity_id);
         this.entity = await this.getEntity();
         this.mentions = await this.loadMentions(1);
-        this.timevalues = await this.getTimeline();
+        // this.timevalues = await this.getTimeline();
       },
     },
   },
