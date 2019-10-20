@@ -1,98 +1,59 @@
 <template lang="html">
   <i-layout id="EntitiesPage">
-    <i-layout-section width="300px" class="border-right">
-      <div slot="header" class="border-bottom border-tertiary bg-light">
+    <list :pagination-list="paginationList" v-on:change-page="changePage">
+      <template v-slot:header>
         <b-tabs pills class="border-bottom mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item class="pl-2 active"
               active-class='none'
-              :to="{ name:'entities'}"><span v-html="$t('label_list', { total: paginationList.totalRows})"/></b-nav-item>
+              :to="{ name:'entities'}"><span v-html="$t('label_list', { total: $n(paginationList.totalRows) })"/></b-nav-item>
           </template>
         </b-tabs>
         <div class="p-2 px-3">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="... name or description "
-            name=""
-            value=""
-            v-model.trim="query"/>
+          <b-input placeholder="filter entities" v-model.trim="query"/>
           <div class="mt-2">
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </div>
         </div>
-
-      </div>
-
-      <div v-for="entity in entities" class="border-bottom">
-        <router-link
-          class="px-2 py-2 d-block clearfix"
-          v-bind:class="{active: entity.uid === entityId}"
-          v-bind:to="{name: 'entity', params: {entity_id: entity.uid}}">
-          <div
-            class="mb-2 mr-3 float-left"
-            v-if="entity.wikidata.images.length">
-            <img :src="getWikidataImageURL(entity.wikidata.images[0], { width: 60})">
-          </div>
-          <strong>{{ getEntityName(entity) }}</strong>
-          <br>
-          <p v-if="entity.wikidata.descriptions">
-            {{ entity.wikidata.descriptions.en }}
-          </p>
-          <div class="small-caps" v-if="entity.countItems > -1">
-            Items: {{ entity.countItems }} — Mentions: {{ entity.countMentions }}
-          </div>
-        </router-link>
-      </div>
-
-      <div
-        v-if="paginationList.totalRows > paginationList.perPage"
-        slot="footer"
-        class="p-2 border-top">
-        <pagination
-          v-bind:perPage="paginationList.perPage"
-          v-bind:currentPage="paginationList.currentPage"
-          v-bind:totalRows="paginationList.totalRows"
-          v-on:change="onInputPaginationList"
-          class="small-caps"
-          v-bind:showDescription="false" />
-      </div>
-    </i-layout-section>
-
+      </template>
+      <template v-slot:default>
+        <entity-item v-for="(entity, i) in entities"
+          class="p-3 border-bottom"
+          v-bind:key="i"
+          v-bind:item="entity"
+          v-bind:active="entity.uid === selectedId"
+          show-link
+        />
+      </template>
+    </list>
+    <!-- main page -->
     <router-view />
 
   </i-layout>
 </template>
 
 <script>
-import Pagination from './modules/Pagination';
+import List from './modules/lists/List';
+import EntityItem from './modules/lists/EntityItem';
 
 export default {
   methods: {
     loadList(page) {
-      if (page !== undefined) {
-        this.$store.commit('entities/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
-      return this.$store.dispatch('entities/LOAD_ENTITIES');
+      return this.$store.dispatch('entities/LOAD_ENTITIES', {
+        page,
+        q: this.query,
+      });
     },
-    onInputPaginationList(page = 1) {
+    changePage(page = 1) {
+      debugger;
       this.loadList(page);
     },
-    getWikidataImageURL(image, { width = 60 } = {}) {
-      return `http://commons.wikimedia.org/wiki/Special:FilePath/${image.value}?width=${width}px`;
-    },
-    getEntityName(entity) {
-      if (!entity.name) {
-        return this.$t('result.label.entity.untitled');
-      }
-      return entity.name.split('_').join(' ');
-    },
   },
-  async mounted() {
-    await this.loadList();
+  mounted() {
+    return this.loadList();
   },
   computed: {
-    entityId() {
+    selectedId() {
       return this.$route.params.entity_id;
     },
     entities() {
@@ -110,19 +71,33 @@ export default {
         this.loadList();
       },
     },
-    orderByOptions: {
-      get() {
-        return [
-          {
-            value: 'name',
-            text: `${this.$t('sort_name')} ${this.$t('sort_asc')}`,
-          },
-          {
-            value: '-name',
-            text: `${this.$t('sort_name')} ${this.$t('sort_desc')}`,
-          },
-        ];
-      },
+    orderByOptions() {
+      return [
+        {
+          value: 'name',
+          text: this.$t('sort.name.asc'),
+        },
+        {
+          value: '-name',
+          text: this.$t('sort.name.desc'),
+        },
+        {
+          value: '-count',
+          text: this.$t('sort.countArticles.desc'),
+        },
+        {
+          value: 'count',
+          text: this.$t('sort.countArticles.asc'),
+        },
+        {
+          value: '-count-mentions',
+          text: this.$t('sort.countMentions.desc'),
+        },
+        {
+          value: 'count-mentions',
+          text: this.$t('sort.countMentions.asc'),
+        },
+      ];
     },
     orderBy: {
       get() {
@@ -135,7 +110,8 @@ export default {
     },
   },
   components: {
-    Pagination,
+    List,
+    EntityItem,
   },
 };
 </script>
@@ -154,7 +130,7 @@ a.d-block.active {
 <i18n>
 {
   "en": {
-    "label_list": "List of entities ({total})",
+    "label_list": "browse {total} named entities",
     "label_order": "Order By",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
