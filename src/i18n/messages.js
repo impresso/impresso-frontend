@@ -173,6 +173,20 @@ export default {
         empty: '(no results)',
       },
     },
+    sort: {
+      name: {
+        asc: 'by name, A-Z',
+        desc: 'by name, Z-A',
+      },
+      countArticles: {
+        asc: 'by n. of articles, lowest first',
+        desc: 'by n. of articles, highest first',
+      },
+      countMentions: {
+        asc: 'by n. of mentions, lowest first',
+        desc: 'by n. of mentions, highest first',
+      },
+    },
   },
   nl: {
     language: 'Taal',
