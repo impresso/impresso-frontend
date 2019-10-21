@@ -10,33 +10,33 @@
       "text": "Search for Robert Schumann",
       "img_src": "https://media.giphy.com/media/IhVFxKbsZjDUWI2zpw/giphy.gif",
       "query": "/app/#/search?f=%5B%7B\"type\"%3A\"hasTextContents\"%7D,%7B\"precision\"%3A\"exact\",\"type\"%3A\"string\",\"q\"%3A\"Robert%20Schumann\"%7D%5D&g=articles&p=1&o=-relevance",
-      "video": "https://vimeo.com/user79245600/review/347022479/e2f8f99532"
+      "video": "https://vimeo.com/347022479/"
     },
     {
       "caption": "Find concerts playing Robert Schumann",
       "text": "Narrow down your query to the most relevant articles with topics",
       "img_src": "https://media.giphy.com/media/gk9EkcWRb7qQMr7zk0/giphy.gif",
       "query": "/app/#/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22Robert%20Schumann%22%7D,%7B%22type%22%3A%22topic%22,%22q%22%3A%5B%22tmrero-fr-alpha_tp79_fr%22%5D,%22r%22%3A%5B0,1%5D,%22op%22%3A%22OR%22,%22context%22%3A%22include%22%7D%5D&g=articles&p=1&o=-relevance",
-      "video": "https://vimeo.com/user79245600/review/347022433/afa1c1acc9"
+      "video": "https://vimeo.com/347022433/"
     },
     {
       "caption": "Make a collection",
       "text": "With collections you can compose your own currated lists of articles",
       "img_src": "https://media.giphy.com/media/VJrqLAd4mdQWnmuFR7/giphy.gif",
-      "query": "/app/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22Robert%20Schumann%22%7D%5D&g=articles&p=1&o=-relevance",
-      "video": "https://vimeo.com/user79245600/review/347022422/75ba364c06"
+      "video": "https://vimeo.com/347022422/"
     },
     {
       "caption": "Search for horoscopes",
       "text": "Find horoscopes vs. articles about horoscopes",
       "img_src": "https://media.giphy.com/media/RlHsYmDdVTs9NJ8Ddz/giphy.gif",
       "query": "/app/#/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22horoscope%22%7D%5D&g=articles&p=1&o=-relevance",
-      "video": "https://vimeo.com/user79245600/review/347022471/e20095b5b0"
+      "video": "https://vimeo.com/347022471/"
     },
     {
      "caption": "How to limit the date range of your query?",
      "text": "Focus on the years 1927-1928",
      "img_src": "https://media.giphy.com/media/mC7d6yRqLqZugfdqRa/giphy.gif",
+     "query": "/app/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22Robert%20Schumann%22%7D%5D&g=articles&p=1&o=-relevance#/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22type%22%3A%22daterange%22,%22q%22%3A%5B%221927-01-01T00%3A00%3A00Z%20TO%201928-12-31T23%3A59%3A59Z%22%5D,%22op%22%3A%22OR%22%7D%5D&g=articles&p=1&o=-relevance",
      "video": "https://vimeo.com/364796757"
    },
 {
@@ -60,7 +60,7 @@
 {
      "caption": "Trim the result maze with topic filters",
      "text": "Use topic to select sports related articles",
-     "img_src": "https://media.giphy.com/media/kag5Xo5WuDQwcSoO64/giphy.giff",
+     "img_src": "https://media.giphy.com/media/kag5Xo5WuDQwcSoO64/giphy.gif",
      "video": "https://vimeo.com/364796956"
    },
 {
