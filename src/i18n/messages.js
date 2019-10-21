@@ -32,6 +32,7 @@ export default {
     actions: {
       agree: 'I agree to the terms of use',
       more: 'more...',
+      searchMore: 'open in search page...',
       remove: 'remove',
       clear: 'clear',
       close: 'close',
@@ -94,8 +95,8 @@ export default {
     errors: {
       Notauthenticated: 'Please logout, then login again. Authentication failed',
       Invalidauthenticationinformationnostrategyset: 'Please reload the page, a couple of errors occurred',
-      SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) when connecting to impresso database',
-      SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) when connecting to impresso database',
+      SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
+      SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
     },
     paths: {
       authentication: {
@@ -107,6 +108,9 @@ export default {
       },
       images: {
         get: 'while loading contents',
+      },
+      entities: {
+        find: 'while loading named entities',
       },
     },
     label: {
@@ -175,16 +179,24 @@ export default {
     },
     sort: {
       name: {
-        asc: 'by name, A-Z',
-        desc: 'by name, Z-A',
+        asc: 'order by name, A-Z',
+        desc: 'order by name, Z-A',
+      },
+      publicationDate: {
+        asc: 'order by publication date, oldest',
+        desc: 'order by publication date, most recent first',
+      },
+      relevanceArticles: {
+        asc: 'order by relevance in articles, lowest first',
+        desc: 'order by relevance in articles, highest first',
       },
       countArticles: {
-        asc: 'by n. of articles, lowest first',
-        desc: 'by n. of articles, highest first',
+        asc: 'order by n. of articles, lowest first',
+        desc: 'order by n. of articles, highest first',
       },
       countMentions: {
-        asc: 'by n. of mentions, lowest first',
-        desc: 'by n. of mentions, highest first',
+        asc: 'order by n. of mentions, lowest first',
+        desc: 'order by n. of mentions, highest first',
       },
     },
   },
