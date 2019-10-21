@@ -1,16 +1,17 @@
 <template>
 <div id="HomePageSplash">
   <b-container>
-    <b-row class="justify-content-md-center mb-5">
+    <b-row class="justify-content-md-center pt-5 pb-3">
       <b-col col xl="6" lg="8" md="10">
         <div class="mb-5">
           <h1 v-html="content.splash.title" />
           <h3 v-html="content.splash.subtitle" />
         </div>
         <autocomplete
-        v-bind:variant="'warning'"
-        v-on:submit="onSuggestion" />
+          v-bind:variant="'warning'"
+          v-on:submit="onSuggestion" />
         <div v-html="content.splash.text_bottom" class="mt-3 text_bottom" />
+        <h2 class="text-center pt-5 m-0 small-caps text-white">A couple of Case Studies to get you  started ...</h2>
       </b-col>
     </b-row>
   </b-container>
@@ -40,14 +41,8 @@ export default {
 
 <style scoped lang="scss">
 #HomePageSplash{
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-image: url('./../assets/img/newspapers_bg_dark_blue.jpg');
-  padding: 100px 0;
+  background: url('./../assets/img/black-dots.png') repeat,
+    url('./../assets/img/newspapers_bg_dark_blue.jpg') center center/cover no-repeat;
   h1, h3{
     color: white;
   }

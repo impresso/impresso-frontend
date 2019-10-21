@@ -2,7 +2,7 @@
   "splash": {
     "title": "Media Monitoring of the Past",
     "subtitle": "Search through 200 years of newspapers",
-    "text_bottom": "<a class=\"btn btn-primary btn-sm\" href=\"mailto:info@impresso-project.ch?subject=Impresso Full Access Request&body=Please provide your contact details and the reason for your request ...\">Request full access to the corpus</a>"
+    "text_bottom": "<a class=\"btn btn-outline-primary bg-light btn-sm\" href=\"mailto:info@impresso-project.ch?subject=Impresso Full Access Request&body=Please provide your contact details and the reason for your request ...\">Request full access to the corpus</a>"
   },
   "recipes": [
     {
