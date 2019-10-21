@@ -41,11 +41,11 @@ export default {
     loadList(page) {
       return this.$store.dispatch('entities/LOAD_ENTITIES', {
         page,
+        orderBy: this.orderBy,
         q: this.query,
       });
     },
     changePage(page = 1) {
-      debugger;
       this.loadList(page);
     },
   },
@@ -104,7 +104,7 @@ export default {
         return this.$store.state.entities.orderBy;
       },
       set(val) {
-        this.$store.commit('entities/UPDATE_ORDER_BY', val);
+        this.$store.dispatch('entities/UPDATE_ORDER_BY', val);
         this.loadList();
       },
     },
