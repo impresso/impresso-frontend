@@ -1,10 +1,11 @@
 import * as services from '@/services';
 import Entity from '@/models/Entity';
+import Article from '@/models/Article';
 
 export default {
   namespaced: true,
   state: {
-    orderBy: 'name',
+    orderBy: '-count',
     items: [],
     query: '',
     pagination: {
@@ -33,8 +34,10 @@ export default {
     },
   },
   actions: {
+    UPDATE_ORDER_BY({ commit }, value) {
+      commit('UPDATE_ORDER_BY', value);
+    },
     LOAD_ENTITIES({ state, commit }, { page = 1, q = '' } = {}) {
-      console.info('entities/LOAD_ENTITIES loading:', page);
       commit('UPDATE_PAGINATION', {
         currentPage: page,
       });
@@ -46,6 +49,7 @@ export default {
       if (q.length) {
         query.q = q.split('*').concat(['*']).join('');
       }
+      console.info('entities/LOAD_ENTITIES loading query:', query);
       return services.entities.find({
         query,
       }).then((res) => {
@@ -59,6 +63,20 @@ export default {
         });
         return items;
       });
+    },
+    LOAD_ENTITY_ARTICLES(context, { page = 1, filters = [], orderBy = '-relevance' } = []) {
+      const query = {
+        page,
+        filters,
+        order_by: orderBy,
+        group_by: 'articles',
+      };
+      return services.search.find({
+        query,
+      }).then(res => ({
+        ...res,
+        data: res.data.map(d => new Article(d)),
+      }));
     },
     LOAD_DETAIL(context, entityId) {
       return services.entities.get(entityId, {}).then((res) => {
