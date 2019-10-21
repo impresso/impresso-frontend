@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="container my-5">
     <b-row class="justify-content-md-center mb-5">
-      <b-col col xl="6" lg="8" md="10">
+      <b-col col xl="9" lg="10" md="12">
         <h1 class="text-center mb-5">{{$t('title')}}</h1>
         <b-carousel
           class="recipe"
@@ -14,7 +14,7 @@
             v-bind:caption="recipe.caption"
             v-bind:text="recipe.text"
             v-bind:img-src="recipe.img_src">
-            <a v-bind:href="recipe.query" class="btn btn-primary">Perform this query</a>
+            <a v-bind:href="recipe.query" class="btn btn-secondary" v-if="recipe.query">Perform this query ... </a>
             <a v-bind:href="recipe.video" target="_blank" class="btn btn-primary">Watch the video</a>
           </b-carousel-slide>
         </b-carousel>
