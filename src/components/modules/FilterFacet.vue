@@ -12,13 +12,7 @@
           {{$t(`label.${facet.type}.filtered`)}}
         </span>
         <span v-else>
-          <span v-if="selectedIds.length">
-            <span v-html="$t(`label.${facet.type}.selected`, {count: selectedIds.length})" />
-            <b-button size="sm" variant="outline-primary" @click="applyFilter">
-              {{ $t(`actions.apply`) }}
-            </b-button>
-          </span>
-          <span v-else>
+          <span v-if="!selectedIds.length">
             <span v-if="isLoadingResults">
               {{ $t('actions.loading') }}
             </span>
@@ -46,6 +40,13 @@
       :bucket="bucket"
       :type="facet.type"
       @toggle-bucket="toggleBucket"/>
+    <span v-if="selectedIds.length">
+      <div class="small mt-3" v-html="$t(`label.${facet.type}.selected`, {count: selectedIds.length})" />
+      <b-button size="sm" variant="outline-primary" @click="applyFilter">
+        {{ $t(`actions.apply`) }}
+      </b-button>
+    </span>
+
   </div>
 </template>
 
