@@ -75,7 +75,8 @@
       <b-button
         v-if="facet.numBuckets > -1"
         v-html="$t('actions.viewAll')"
-        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        size="sm" variant="outline-secondary"
+        class="mt-2 mr-1 d-flex ml-auto"
         @click="showModal(facet.type)" />
     </div>
   </div>
@@ -440,7 +441,7 @@ export default {
           }
         },
         "daterange": {
-          "pick": "Filter by daterange",
+          "pick": "Apply filter by daterange",
           "start": "from",
           "end": "to"
         }
