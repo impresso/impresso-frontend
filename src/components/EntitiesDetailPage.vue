@@ -3,11 +3,13 @@
     <div slot="header" class="border-bottom bg-light">
       <b-navbar type="light" variant="light">
         <section>
+          <h3>
+            <span v-html="entity.name" />
+            <span class="badge small-caps ml-1 bg-medium badge-light">
+              {{ $t(`types.${entity.type}`) }}
+            </span>
+          </h3>
 
-          <h3 v-html="entity.name" />
-          <div class="badge float-right ml-1 bg-medium badge-light">
-            {{ $t(`types.${entity.type}`) }}
-          </div>
         </section>
       </b-navbar>
         <!-- <b-navbar-nav style='position: absolute; left: 250px; right: 20px; top: 20px'>
@@ -48,6 +50,12 @@
           </li>
         </b-navbar-nav>
       </b-navbar >
+
+      <b-navbar v-if="tab.name === 'overview'">
+        <div v-if="description">
+          "<span v-html="description" />" (wikidata)
+        </div>
+      </b-navbar>
     </div>
 
 
@@ -182,6 +190,12 @@ export default {
     MentionItem,
   },
   computed: {
+    description() {
+      if (!this.entity || !this.entity.wikidata || !this.entity.wikidata.descriptions) {
+        return null;
+      }
+      return this.entity.wikidata.descriptions.en;
+    },
     orderBy: {
       get() {
         console.info('get order by', this.currentOrderBy);
@@ -368,7 +382,7 @@ a:hover {
         "overview": "overview",
         "mentions": "... mentions | mentioned only once | mentioned {count} times",
         "cooccurrences": "Cooccurrences",
-        "articles": "... articles | found in 1 article | found in {count} articles"
+        "articles": "... related articles | 1 related article | {count} related articles"
     }
   }
 }
