@@ -198,6 +198,10 @@ export default {
         asc: 'order by n. of mentions, lowest first',
         desc: 'order by n. of mentions, highest first',
       },
+      idMentions: {
+        asc: 'order by publication date, oldest first',
+        desc: 'order by publication date, most recent first',
+      },
     },
   },
   nl: {
