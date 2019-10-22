@@ -27,6 +27,9 @@ import store from '../store';
 
 Vue.use(Router);
 
+const BASE_URL = process.env.BASE_URL || '/';
+console.info('Setup Router with BASE_URL to:', BASE_URL);
+
 const router = new Router({
   mode: 'history',
   scrollBehavior(to, from, savedPosition) {
@@ -42,8 +45,9 @@ const router = new Router({
     }
     return { x: 0, y: 0 };
   },
+  base: BASE_URL,
   routes: [{
-    path: process.env.PUBLIC_PATH || '/',
+    path: '/',
     name: 'home',
     component: HomePage,
     // beforeEnter: (to, from, next) => {
