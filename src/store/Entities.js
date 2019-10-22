@@ -1,6 +1,7 @@
 import * as services from '@/services';
 import Entity from '@/models/Entity';
 import Article from '@/models/Article';
+import Mention from '@/models/Mention';
 
 export default {
   namespaced: true,
@@ -76,6 +77,30 @@ export default {
       }).then(res => ({
         ...res,
         data: res.data.map(d => new Article(d)),
+      }));
+    },
+    LOAD_ENTITY_MENTIONS(context, { page = 1, filters = [], orderBy = '-relevance' } = []) {
+      const query = {
+        page,
+        filters,
+        order_by: orderBy,
+      };
+      console.info('entities/LOAD_ENTITY_MENTIONS query:', query);
+
+      return services.mentions.find({
+        query,
+      }).then((res) => {
+        console.info('entities/LOAD_ENTITY_MENTIONS SUCCESS? receved:', res);
+        return res;
+      }).then(res => ({
+        ...res,
+        data: res.data.map((d) => {
+          const mention = new Mention(d);
+          if (mention.article) {
+            mention.article = new Article(mention.article);
+          }
+          return mention;
+        }),
       }));
     },
     LOAD_DETAIL(context, entityId) {
