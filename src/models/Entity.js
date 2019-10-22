@@ -23,6 +23,7 @@ export default class Entity {
     countItems = -1,
     countMentions = -1,
     wikidata = [],
+    matches = [],
   } = {}) {
     this.uid = String(uid);
     this.name = Entity.getNameFromUid(name.length ? name : this.uid);
@@ -30,6 +31,9 @@ export default class Entity {
       this.type = String(type);
     } else {
       this.type = Entity.getTypeFromUid(this.uid);
+    }
+    if (matches.length) {
+      this.name = matches.join('');
     }
     this.countMentions = parseInt(countMentions, 10);
     this.countItems = parseInt(countItems, 10);

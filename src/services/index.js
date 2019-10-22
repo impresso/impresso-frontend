@@ -3,10 +3,12 @@ import io from 'socket.io-client';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio-client';
 import auth from '@feathersjs/authentication-client';
+
 import articlesSuggestionsHooks from './hooks/articlesSuggestions';
 import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
 import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
+
 
 const socket = io(`${process.env.MIDDLELAYER_API}`, {
   path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
@@ -25,23 +27,36 @@ socket.on('reconnect', () => {
   app.reAuthenticate();
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
+const needsLockScreen = p => [
+  'search.find',
+].includes(p);
+
 app.hooks({
   before: {
     all: [
-      () => {
+      (context) => {
+        const fullPath = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
           window.app.$store.state.error_message = '';
+          window.app.$store.state.processing_message = fullPath;
           window.app.$store.commit('SET_PROCESSING', true);
+          if (needsLockScreen(fullPath)) {
+            window.app.$store.commit('LOCK_SCREEN', true);
+          }
         }
       },
     ],
   },
   after: {
     all: [
-      () => {
+      (context) => {
+        const fullPath = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
           window.app.$store.state.error_message = '';
           window.app.$store.commit('SET_PROCESSING', false);
+          if (needsLockScreen(fullPath)) {
+            window.app.$store.commit('LOCK_SCREEN', false);
+          }
         }
       },
     ],
@@ -49,30 +64,34 @@ app.hooks({
   error: {
     all: [
       (context) => {
-        console.error('app ERROR: ', context.error);
+        const apiPath = `paths.${context.path}.${context.method}`;
+        const errorPath = `errors.${context.error.message.split(/\s\(\)`/).join('')}`;
+        console.error('app ERROR on:', apiPath, context.error, errorPath);
         if (window.app && window.app.$store) {
-          window.app.$store.state.error_message = `${context.path}: ${context.error.name} (${context.error.code}), ${context.error.message}`;
+          window.app.$store.state.error_message = [
+            window.app.$t(errorPath),
+            window.app.$t(apiPath),
+          ].join(' ');
           window.app.$store.commit('SET_PROCESSING', false);
+          window.app.$store.commit('LOCK_SCREEN', false);
         }
-        // window.app.$store.state.error_message = 'API Error : See Console for details.';
-        // window.app.$store.commit('SET_PROCESSING', false);
       },
     ],
   },
 });
 
 app.service('logs').on('created', (payload) => {
+  console.info('@logs->created', payload);
   if (payload.job) {
-    const idx = window.app.$store.state.jobs.data.findIndex(x => x.id === payload.job.id);
-    if (idx !== -1) {
-      window.app.$store.state.jobs.data[idx].status = payload.job.status;
-      window.app.$store.state.jobs.data[idx].task = payload.task;
-      window.app.$store.state.jobs.data[idx].progress = payload.job.progress;
-    } else {
-      payload.job.task = payload.task;
-      window.app.$store.state.jobs.data.unshift(payload.job);
+    const extra = {};
+    if (payload.collection) {
+      extra.collection = payload.collection;
     }
-    // console.info(`logs.created: "${payload.msg}" with payload:`, payload);
+    window.app.$store.dispatch('jobs/UPDATE_JOB', {
+      ...payload.job,
+      progress: payload.progress,
+      extra,
+    });
   }
 });
 

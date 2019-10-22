@@ -3,8 +3,8 @@ import Topic from '@/models/Topic';
 import Newspaper from '@/models/Newspaper';
 import Collection from '@/models/Collection';
 /**
- * @class Bucket is an object represnting a Solar search engine fascet bucket
- * @param {String} val The value of the dimenions, for instance a specific year,
+ * @class Bucket is an object representing a Solar search engine facet bucket
+ * @param {String} val The value of the dimensions, for instance a specific year,
  * language or newspaper title
  * @param {Number} count Number of matched results for this value
  * @param {Object} item Optional object of for instance type Newspaper or Entity

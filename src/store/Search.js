@@ -261,12 +261,10 @@ export default {
     },
     CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
       return new Promise((resolve) => {
-        services.search.create({}, {
-          query: {
-            collection_uid: collectionUid,
-            group_by: 'articles',
-            filters: context.getters.getSearch.getFilters(),
-          },
+        services.search.create({
+          group_by: 'articles',
+          filters: context.getters.getSearch.getFilters(),
+          collection_uid: collectionUid,
         }).then(res => resolve(res));
       });
     },

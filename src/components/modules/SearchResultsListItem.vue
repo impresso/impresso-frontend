@@ -17,7 +17,7 @@
     <div class="d-flex">
       <div class="list-item-details">
         <!-- if article -->
-        <article-item :item="article" show-meta show-excerpt show-entities show-matches show-link />
+        <article-item :item="article" show-meta show-excerpt show-entities show-matches show-link class="mb-2" />
         <b-badge
           class="mb-2"
           pill

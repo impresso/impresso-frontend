@@ -78,13 +78,6 @@
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
         @click="showModal(facet.type)" />
     </div>
-    <b-modal hide-footer hide-header id="facet-explorer-modal" ref="facet-explorer-modal">
-      <facet-explorer
-        :initial-type="facetExplorerType"
-        @submit-buckets="submitBuckets"
-        @update-filter="updateFilter"
-        @reset-filter="resetFilter" />
-    </b-modal>
   </div>
 </template>
 
@@ -98,7 +91,6 @@ import FilterFacet from './modules/FilterFacet';
 import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
-import FacetExplorer from './modules/FacetExplorer';
 
 export default {
   props: {
@@ -323,8 +315,10 @@ export default {
     },
     showModal(type) {
       console.info('OPEN MODAL', type);
-      this.facetExplorerType = type;
-      this.$bvModal.show('facet-explorer-modal');
+      this.$store.dispatch('explorer/SHOW', {
+        type,
+        mode: 'facets',
+      });
     },
     submitBuckets({ type, context, ids }) {
       this.$emit('submit-facet', {
@@ -391,7 +385,7 @@ export default {
     // flatPickr,
     FilterFacet,
     FilterMonitor,
-    FacetExplorer,
+    // FacetExplorer,
   },
 };
 </script>

@@ -2,9 +2,11 @@
   <section class="search-bar" v-ClickOutside="hideSuggestions">
     <b-input-group>
       <b-form-input
+      :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
       placeholder="search for ..."
       v-model.trim="q"
       v-on:input.native="search"
+      v-on:focus.native="selectInput"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
         <b-btn v-bind:variant="variant" class="px-2"
@@ -14,42 +16,40 @@
       </b-input-group-append>
     </b-input-group>
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
-      <div class="border-bottom">
+      <div class="border-bottom ">
         <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in initialSuggestions" v-bind:key="index"
             @click="submitInitialSuggestion(suggestion)"
-            @mouseover="select(suggestion)" :class="{selected: selected === suggestion}">
+            @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
-            <span class="small">{{ q }}</span>
-            <b-badge>{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
+            <span class="small">... <b>{{ q }}</b></span>
+            <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
-      <div class="suggestion-box border-bottom" v-if="suggestionIndex.mention">
-        <div v-for="(s, index) in suggestionIndex.mention" :key="index"
-            @click="submit(s)" @mouseover="select(s)"
-            class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
-            <div href="#" class="suggestion-entity">
-              <span v-html="s.h" />
-            </div>
-        </div>
-      </div>
       <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
-        <span class="small-caps px-2 smaller">{{$t(`label.${type}.title`)}}</span>
-        <div v-for="(s, index) in suggestionIndex[type]" :key="index"
-            @click="submit(s)" @mouseover="select(s)"
-            class="suggestion small px-2 mb-1" :class="{selected: selected === s}">
-            <div href="#" v-if="['location', 'person'].indexOf(type) !== -1" class="suggestion-entity">
-              <span v-html="s.h" />
+        <div class="row no-gutters">
+          <div class="col-1 border-right" v-if="type !== 'mention'">
+            <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
+          </div>
+          <div class="col">
+            <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
+            <div v-for="(s, index) in suggestionIndex[type]" :key="index"
+                @click="submit(s)" @mouseover="select(s)"
+                class="suggestion pr-1 pl-2 py-1" :class="{
+                  selected: selectedIndex === s.idx,
+                }">
+              <div v-if="s.fake && type !== 'mention'">
+                <span class="small">... <b>{{ q }}</b></span>
+                <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
+              </div>
+              <div v-else :class="`${type} small`">
+                <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
+                <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
+                <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
+                <span v-if="s.type === 'daterange'">{{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}</span>
+              </div>
             </div>
-            <div href="#" v-if="['collection', 'newspaper'].indexOf(type) !== -1" class="suggestion-collection">
-              <span v-html="s.item.name" />
-            </div>
-            <div href="#" v-if="s.type === 'topic'" class="suggestion-topic">
-              <span v-html="s.h" />
-            </div>
-            <div href="#" v-if="s.type === 'daterange'" class="suggestion-daterange">
-              {{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}
-            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -60,20 +60,34 @@
 import ClickOutside from 'vue-click-outside';
 import SuggestionFactory from '@/models/SuggestionFactory';
 
+const AVAILABLE_TYPES = [
+  'mention',
+  'collection',
+  'newspaper',
+  'topic',
+  'location',
+  'person',
+];
+
 export default {
   data: () => ({
     q: '',
     initialSuggestions: [
       {
         type: 'string',
+        idx: 0,
       },
       {
         type: 'title',
+        idx: 1,
       },
     ],
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
+    selectedIndex: 0,
+    maxSelectedIndex: 0,
+    selectableSuggestions: [],
     showSuggestions: false,
   }),
   props: {
@@ -83,17 +97,55 @@ export default {
     },
   },
   computed: {
-    allSuggestions() {
-      return this.initialSuggestions.concat(this.suggestions);
-    },
     suggestionIndex() {
-      return this.$helpers.groupBy(this.suggestions, 'type');
+      const index = this.$helpers.groupBy(this.suggestions, 'type');
+
+      let idx = this.initialSuggestions.length - 1;
+      let selectableSuggestions = [...this.initialSuggestions];
+
+      AVAILABLE_TYPES.forEach((type) => {
+        if (index[type]) {
+          index[type] = index[type].map((d) => {
+            idx += 1;
+            // add correct index to choice
+            return {
+              ...d,
+              idx,
+            };
+          });
+          // exclude extra suggestions for mentions
+          if (type !== 'mention') {
+            // add custom one
+            idx += 1;
+            index[type].push({
+              type,
+              fake: true,
+              idx,
+            });
+          }
+        }
+        selectableSuggestions = selectableSuggestions.concat(index[type]);
+      });
+      // update maximum index
+      this.maxSelectedIndex = idx;
+      this.selectableSuggestions = selectableSuggestions;
+      return index;
     },
     suggestionTypes() {
-      return Object.keys(this.suggestionIndex).filter(d => d !== 'mention');
+      return AVAILABLE_TYPES.filter(d => !!this.suggestionIndex[d]);
     },
   },
   methods: {
+    typeIcon(type) {
+      switch (type) {
+        case 'collection': return 'suitcase';
+        case 'newspaper': return 'pamphlet';
+        case 'topic': return 'message';
+        case 'location': return 'location';
+        case 'person': return 'user';
+        default: return '';
+      }
+    },
     hideSuggestions() {
       this.selected = this.suggestion;
       this.showSuggestions = false;
@@ -110,60 +162,66 @@ export default {
       } else {
         // if length of the query is 0 then we clear the suggestions
         this.suggestions = [];
-        this.selected = false;
+        this.selectedIndex = 0;
       }
     },
     submitInitialSuggestion({ type }) {
-      this.submit(SuggestionFactory.create({
-        type,
-        q: this.q,
-      }));
+      if (this.q.length) {
+        this.submit(SuggestionFactory.create({
+          type,
+          q: this.q,
+        }));
+      }
     },
     submit(suggestion) {
-      if (suggestion) {
+      console.info('Submit suggestion: ', suggestion);
+      if (suggestion.fake) {
+        // open explorer
+        if (this.q.length) {
+          this.$store.dispatch('explorer/SHOW', {
+            mode: 'search',
+            type: suggestion.type,
+            q: this.q,
+          });
+        }
+      } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
+        if (this.q.length) {
+          this.$emit('submit', {
+            type: suggestion.type,
+            q: this.q,
+          });
+        }
+      } else {
         this.$emit('submit', suggestion);
+        this.showSuggestions = false;
       }
-      this.suggestions = [];
-      this.suggestion = false;
-      this.selected = false;
-      this.showSuggestions = false;
-      this.q = '';
     },
     select(suggestion) {
-      this.selected = suggestion;
+      this.selectedIndex = suggestion.idx;
+    },
+    selectInput(e) {
+      e.target.select();
     },
     keyup(event) {
-      this.selected = this.selected || this.allSuggestions[0];
-      const index = this.allSuggestions.indexOf(this.selected);
-
       switch (event.key) {
         case 'Enter':
-          if (['string', 'title'].indexOf(this.selected.type) !== -1) {
-            this.submitInitialSuggestion(this.selected);
-          } else {
-            this.submit(this.selected);
-          }
+          this.submit(this.selectableSuggestions[this.selectedIndex]);
+          this.selectInput(event);
           break;
         case 'ArrowDown':
-          if (this.allSuggestions[index + 1]) {
-            this.selected = this.allSuggestions[index + 1];
-          } else {
-            this.selected = this.allSuggestions[0];
-          }
-          event.target.select();
+          this.selectedIndex += 1;
           break;
         case 'ArrowUp':
-          event.preventDefault();
-          if (index > 0) {
-            this.selected = this.allSuggestions[index - 1];
-          } else {
-            this.selected = this.allSuggestions[this.allSuggestions.length - 1];
-          }
-          event.target.select();
+          this.selectedIndex -= 1;
           break;
         default:
-          this.selected = this.suggestion;
+          // this.selected = this.suggestion;
           break;
+      }
+      if (this.selectedIndex > this.maxSelectedIndex) {
+        this.selectedIndex = 0;
+      } else if (this.selectedIndex < 0) {
+        this.selectedIndex = this.maxSelectedIndex;
       }
     },
   },
@@ -177,9 +235,18 @@ export default {
 
 <style scoped lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
-
 .search-bar{
   position: relative;
+  input.form-control.search-input {
+    &:focus {
+      box-shadow: none;
+      border: 1px solid $clr-secondary;
+    }
+    &.has-suggestions {
+      border: 1px solid $clr-secondary;
+      border-bottom: 0;
+    }
+  }
   .search-submit {
     line-height: 1;
     padding: 0.1em;
@@ -190,7 +257,21 @@ export default {
     width: 100%;
     background: white;
     z-index: 10;
-
+    .icon {
+      color: $clr-primary;
+      // border: 1px solid $clr-secondary;
+      text-align: center;
+      font-size: 14px;
+      height: 24px;
+      width: 24px;
+      line-height: 20px;
+      padding-top: 4px;
+      // border-radius: 50%;
+      top: 50%;
+      left: .25rem;
+      margin-top: -12px;
+      position: absolute;
+    }
     .suggestion {
       border: 1px solid transparent;
       cursor: pointer;
@@ -201,11 +282,6 @@ export default {
         span {
           flex: 1;
           flex-grow: 8;
-        }
-        .icon {
-          flex: 1;
-          color: $clr-accent-secondary;
-          line-height: 1;
         }
         .badge {
           flex: 1;
@@ -231,25 +307,33 @@ export default {
     "en": {
       "label": {
         "string": {
+          "title": "Search in article contents"
+        },
+        "mention": {
           "title": "in contents ..."
         },
         "title": {
-          "title": "in article titles ..."
+          "title": "Search in article titles"
         },
         "topic": {
-          "title": "suggested topics"
+          "title": "suggested topics",
+          "moreLikeThis": "More Topics ..."
         },
         "person": {
-          "title": "suggested people"
+          "title": "suggested people",
+          "moreLikeThis": "More Persons ..."
         },
         "location": {
-          "title": "suggested locations"
+          "title": "suggested locations",
+          "moreLikeThis": "More Locations ..."
         },
         "collection": {
-          "title": "suggested collections"
+          "title": "suggested collections",
+          "moreLikeThis": "More Collections ..."
         },
         "newspaper": {
-          "title": "suggested newspaper"
+          "title": "suggested newspaper",
+          "moreLikeThis": "More Newspapers ..."
         },
         "daterange": {
           "title": "filter by date of publication",

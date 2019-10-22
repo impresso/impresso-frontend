@@ -88,7 +88,7 @@
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
-
+        <span v-if="!item.uid.length">...</span>
         <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
       </b-form-checkbox>
     </div>
@@ -288,7 +288,7 @@ label.custom-control-label {
       },
       "AND": {
         "include": "<b>all</b> of the following",
-        "exclude": "<b>any</b> of the following"
+        "exclude": "<b>all</b> of the following"
       }
     },
     "label": {

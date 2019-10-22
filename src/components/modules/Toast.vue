@@ -1,42 +1,59 @@
 <template lang="html">
   <b-alert show fade variant="dark"
-    class="toast m-0 py-0 px-2">
-    <b-progress
-      v-if="job.progress < 1"
-      :value="(job.progress * 100) + 1"
-      variant="info"
-      animated
-      height="2px" />
-    <b-row align-v="center">
-      <b-col cols="8">
-        <div class="m-1">
-          <div>
-            <span v-if="job.type">{{ $t(`jobs.type.${job.type}`) }}</span>
-            <span v-else>{{ $t(`jobs.type.${job.task}`) }}</span>
-            <b-badge>{{ $t(`jobs.status.${job.status}`) }}</b-badge>
-          </div>
-          <div v-if="job.extra">
-            <span>{{ percent(job.extra.progress) }} &mdash; </span>
-            <span class='date' v-if="job.creationDate"> {{$d(new Date(job.creationDate), 'precise')}}</span>
-          </div>
-          <div v-else>
-            <span >{{ percent(job.progress) }}</span>
-          </div>
+    class="toast m-0 p-0 mb-2">
+    <div class="toast-item d-flex align-items-center px-2">
+      <div class="flex-grow-1 pr-2">
+        <h2 class='text-white sans p-0 m-0'>{{ $t(`jobs.type.${job.type}`) }}</h2>
+        <div class="date small-caps">{{$d(new Date(job.creationDate), 'precise')}} (#{{job.id}})</div>
+        <blockquote v-if="job.extra.collection" class="pl-2 my-1 border-left small">
+          <h3 class="text-white font-weight-bold sans p-0 m-0">
+            <router-link v-if="job.extra.collection.status !== 'DEL'" :to="{ name: 'collection',
+              params: {
+                collection_uid: job.extra.collection.id
+              }
+            }" v-html="job.extra.collection.name" />
+            <span v-else>
+              <del  v-html="job.extra.collection.name"></del> ({{ $t('collection.deleted') }})
+            </span>
+          </h3>
+          <span style="line-height:0.8" v-html="job.extra.collection.description" />
+        </blockquote>
+        <blockquote v-else v-html="job.description" class="pl-2 my-1 border-left small">
+        </blockquote>
+
+        <div>
+          <span class='small-caps'>{{ $t(`jobs.status.${job.status}`) }}</span> &mdash;
+          <span class='text-white'>{{ percent(job.progress) }}</span>
         </div>
-      </b-col>
-      <b-col cols="4" class="text-right">
+      </div>
+      <!-- buttons and actions! -->
+      <div>
+        <b-button
+          v-if="job.status === 'DON' && job.type === 'EXP'"
+          variant="outline-success m-1" size="sm"
+          v-on:click="onExport()">{{ $t('download csv') }}
+        </b-button>
         <b-button
           v-if="job.status === 'RUN'"
           variant="outline-danger m-1" size="sm"
           v-on:click="onStopJob(job.id)">Stop
         </b-button>
         <b-button
-          v-if="job.status === 'DON' && job.type === 'EXP'"
-          variant="outline-success m-1" size="sm"
-          v-on:click="onExport()">{{ $t('download csv') }}
+          v-if="job.status === 'DON' || job.status === 'STO'"
+          variant="outline-danger m-1" size="sm"
+          v-on:click="onStopJob(job.id)">{{ $t('actions.remove') }}
         </b-button>
-      </b-col>
-    </b-row>
+      </div>
+    </div>
+    <!-- PERCENT -->
+    <div v-if="job.status === 'RUN'" class="position-relative mx-2 mb-3">
+      <b-progress
+        :value="(job.progress * 100)"
+        variant="info"
+        animated
+        height="4px"/>
+      </div>
+    </div>
   </b-alert>
 </template>
 
@@ -47,15 +64,13 @@ export default {
   props: ['job'],
   methods: {
     percent(n) {
-      const p = Math.min(100, Math.round(n * 10000) / 100);
+      const p = Math.min(100, Math.round(parseFloat(n) * 10000) / 100);
       return `${p} %`;
     },
     onStopJob(id) {
-      this.$store.dispatch('jobs/PATCH_JOB', {
+      return this.$store.dispatch('jobs/PATCH_JOB', {
         id,
         status: 'stop',
-      }).then((res) => {
-        console.info('RECEIVED:', res);
       });
     },
     onExport() {
@@ -64,15 +79,15 @@ export default {
       const file = `${services.MIDDLELAYER_MEDIA_URL}/jobs/${this.job.id}`;
       console.info('downloading:', file);
       const headers = new Headers();
-      headers.append('Authorization', `Bearer ${services.app.passport.storage['feathers-jwt']}`);
+      headers.append('Authorization', `Bearer ${services.app.authentication.options.storage['feathers-jwt']}`);
 
       fetch(file, { headers })
-        .then(response => response.blob())
+        .then(res => res.blob())
         .then((blobby) => {
           const objectUrl = window.URL.createObjectURL(blobby);
 
           anchor.href = objectUrl;
-          anchor.download = `impresso-job-${this.job.id}.csv`;
+          anchor.download = `impresso-job-${this.job.id}.zip`;
           anchor.click();
 
           window.URL.revokeObjectURL(objectUrl);
@@ -94,22 +109,33 @@ export default {
 $clr-grey-800: #c6ccd2;
 
 .toast {
+
+  h2, h3{
+    font-size: inherit;
+  }
 }
 
 .alert-dark{
   color: $clr-grey-800;
   background-color: transparent;
   border-color: transparent;
+  border-bottom: 1px solid #343a40;
 }
+
+
 
 </style>
 
 <i18n>
 {
   "en": {
+    "collection": {
+      "deleted": "removed."
+    },
     "jobs": {
       "type": {
         "EXP": "export search results as csv",
+        "DCO": "Deleting a collection",
         "IDX": "Indexing collection items",
         "store_collectable_items": "Indexing collection items",
         "TES": "Echo (TEST)",
@@ -120,7 +146,8 @@ $clr-grey-800: #c6ccd2;
       "status": {
         "DON": "done",
         "RUN": "progress",
-        "ERR": "error"
+        "ERR": "error",
+        "STO": "stopped"
       }
     }
   }

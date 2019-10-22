@@ -35,10 +35,18 @@ const i18n = new VueI18n({
   locale: store.state.settings.language_code,
   messages,
   dateTimeFormats,
+  silentFallbackWarn: false,
 });
 
 /* eslint-disable no-new */
-services.app.reAuthenticate().finally(() => {
+console.info('Checking authentication...');
+services.app.reAuthenticate().catch((err) => {
+  if (err.code === 401) {
+    console.info('Authentication failed:', err.message);
+  } else {
+    console.error(err);
+  }
+}).finally(() => {
   window.app = new Vue({
     el: '#app',
     i18n,

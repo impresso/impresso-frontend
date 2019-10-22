@@ -14,9 +14,9 @@ import articles from './Articles';
 import topics from './Topics';
 import jobs from './Jobs';
 import entities from './Entities';
-import mentions from './Mentions';
 import embeddings from './Embeddings';
 import monitor from './Monitor';
+import explorer from './Explorer';
 import buckets from './Buckets';
 
 
@@ -39,13 +39,15 @@ export default new Vuex.Store({
     jobs,
     newspapers,
     entities,
-    mentions,
     embeddings,
     monitor,
     buckets,
+    explorer,
   },
   state: {
     processing_status: false,
+    processing_locked: false,
+    processing_message: '',
     error_message: '',
     header_title: '',
     header_subtitle: '',
@@ -70,6 +72,9 @@ export default new Vuex.Store({
       state.header_title = String(payload.title || '');
       state.header_subtitle = String(payload.subtitle || '');
     },
+    LOCK_SCREEN(state, status) {
+      state.processing_locked = status;
+    },
     SET_PROCESSING(state, status) {
       if (status === true) {
         processings += 1;
@@ -90,6 +95,7 @@ export default new Vuex.Store({
   plugins: [createPersistedState({
     key: 'impresso',
     paths: [
+      'settings.termsAgreed',
       'settings.language_code',
       'search.searches',
       'search.displaySortBy',

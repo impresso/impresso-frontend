@@ -129,7 +129,7 @@ export default {
     getEntities(type) {
       const mapper = d => d.q
         .map((uid) => {
-          const name = uid.replace(/^aida-\d+-/, '').split('_').join(' ');
+          const name = uid.replace(/^aida-\d+-\d+-/, '').split('_').join(' ');
           return `<span class="item item-${type}">${name}</span>`;
         })
         .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
@@ -261,6 +261,7 @@ export default {
       "daterange": "not published",
       "collection": "not yet saved in",
       "language": "not written in",
+      "string": "not containing",
       "country": "not printed in"
     },
     "isFront": "appearing on the <em>front page</em>",

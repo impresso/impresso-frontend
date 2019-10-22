@@ -6,8 +6,17 @@
   <div id="app-content">
     <router-view />
   </div>
-  <div id="app-monitor">
+  <div id="app-explorer" class="fullscreen">
+    <explorer/>
+  </div>
+  <div id="app-monitor" class="fullscreen">
     <monitor/>
+  </div>
+  <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
+    <disclaimer-notice />
+  </div>
+  <div id="app-loading" class="fullscreen locked" v-if="is_locked">
+    <status-indicator />
   </div>
 </div>
 </template>
@@ -16,6 +25,9 @@
 import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
 import Monitor from './components/Monitor';
+import Explorer from './components/Explorer';
+import DisclaimerNotice from './components/modals/DisclaimerNotice';
+import StatusIndicator from './components/modals/StatusIndicator';
 
 
 export default {
@@ -23,6 +35,21 @@ export default {
   components: {
     TheHeader,
     Monitor,
+    Explorer,
+    DisclaimerNotice,
+    StatusIndicator,
+  },
+  computed: {
+    termsAgreed() {
+      console.info('Terms agreement:', this.$store.state.settings.termsAgreed);
+      if (this.$store.state.user.userData) {
+        return true;
+      }
+      return this.$store.state.settings.termsAgreed;
+    },
+    is_locked() {
+      return this.$store.state.processing_locked;
+    },
   },
   created() {
     // load typekit
@@ -57,14 +84,29 @@ html {
         position: relative;
     }
 
-    #app-monitor {
+    .fullscreen {
       position: absolute;
-      z-index: 1041;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
+      &.locked{
+        background: rgba($clr-primary, 0.25);
+        pointer-events: auto;
+      }
+    }
+
+    #app-explorer{
+      z-index: 1041;
+    }
+
+    #app-monitor {
+      z-index: 1042;
+    }
+
+    #app-loading {
+      z-index: 1043;
     }
 }
 select {
@@ -133,6 +175,13 @@ $clr-grey-900: #ddd;
 .ml-1px {
     margin-left: 1px;
 }
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.border-primary {
+    border-color: $clr-primary !important;
+}
 
 .border-tertiary {
     border-color: $clr-tertiary !important;
@@ -172,6 +221,37 @@ $clr-grey-900: #ddd;
             padding: 0.15em 0.6em;
         }
     }
+}
+.dark-mode,
+.navbar-dark {
+  .fixed-pagination-footer {
+    background: transparentize($clr-bg-primary, 1);
+  }
+  .page-link,
+  .page-item.disabled .page-link {
+    background: $clr-secondary;
+    color: $clr-bg-primary;
+  }
+  .page-link {
+    border-color: $clr-tertiary !important;
+  }
+  .page-link:hover,
+  .page-item.active .page-link {
+    background: $clr-bg-primary;
+    color: $clr-primary;
+    border-color: $clr-bg-primary !important;
+  }
+}
+
+.matches {
+  span {
+    color: transparentize($clr-primary, 0.45);
+    background: transparentize($clr-primary, 0.94);
+  }
+  em {
+    background: gold;
+    color: black;
+  }
 }
 
 // uncomment to add background to transparent footers
