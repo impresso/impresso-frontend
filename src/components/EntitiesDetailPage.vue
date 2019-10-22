@@ -1,9 +1,9 @@
 <template lang="html">
-  <i-layout-section class="border-left border-top ml-1px mt-1px">
+  <i-layout-section v-if="entity" class="border-left border-top ml-1px mt-1px">
     <div slot="header" class="border-bottom bg-light">
       <b-navbar type="light" variant="light">
         <section>
-          <h3>
+          <h3 v-if="entity">
             <span v-html="entity.name" />
             <span class="badge small-caps ml-1 bg-medium badge-light">
               {{ $t(`types.${entity.type}`) }}
@@ -12,20 +12,8 @@
 
         </section>
       </b-navbar>
-        <!-- <b-navbar-nav style='position: absolute; left: 250px; right: 20px; top: 20px'>
-          <timeline
-                :contrast="false"
-                :values="timevalues"
-                :domain="[start, end]">
-            <div slot-scope="tooltipScope">
-              <div v-if="tooltipScope.tooltip.item">
-                {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                <b>{{ tooltipScope.tooltip.item.w }}</b>
-              </div>
-            </div>
-          </timeline>
-        </b-navbar-nav> -->
-      <b-tabs pills class="border-bottom pt-2">
+
+      <b-tabs pills class="border-bottom">
         <template v-slot:tabs-end>
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
             :class="{ active: tabItem.name === tab.name }"
@@ -35,31 +23,29 @@
           </b-nav-item>
         </template>
       </b-tabs>
-
-      <b-navbar  v-if="tab.name === 'articles'">
-        <b-navbar-nav class="px-2 ">
-          <li class="small">
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li>
-        </b-navbar-nav>
-        <b-navbar-nav class="pl-2 border-left">
+      <!-- navbars below the pills tabs -->
+      <b-navbar>
+        <b-navbar-nav class="pr-2 border-right">
           <li>
             <router-link class="btn btn-outline-primary btn-sm" :to="{ name: 'search', params: {} }">
               {{ $t('actions.searchMore') }}
             </router-link>
           </li>
         </b-navbar-nav>
-      </b-navbar >
-
-      <b-navbar v-if="tab.name === 'overview'">
-        <div v-if="description">
-          "<span v-html="description" />" (wikidata)
-        </div>
+        <b-navbar v-if="tab.name === 'overview'">
+          <div v-if="description">
+            "<span v-html="description" />" (wikidata)
+          </div>
+        </b-navbar>
+        <b-navbar-nav v-if="tab.name === 'articles' || tab.name === 'mentions'" class="px-2 ">
+          <li>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
       </b-navbar>
     </div>
 
-
-
+    <!-- BODY ILayout-->
     <div class="items p-3">
       <div v-if="tab.name === 'articles'">
         <div v-for="(item, index) in items" :key="index">
@@ -127,11 +113,23 @@
 
           </section>
         </b-navbar>
+        <timeline
+              :contrast="false"
+              :values="timevalues"
+              :domain="[start, end]">
+          <div slot-scope="tooltipScope">
+            <div v-if="tooltipScope.tooltip.item">
+              {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+              <b>{{ tooltipScope.tooltip.item.w }}</b>
+            </div>
+          </div>
+        </timeline>
       </div>
 
       <div v-if="tab.name === 'mentions'">
-        <div v-for="(item, index) in items" :key="index">
-          <mention-item :item="mention" />
+        <div v-for="(item, index) in items" :key="index" class="border-bottom mb-3 pb-3">
+          <mention-item :item="item" />
+          <article-item :item="item.article" show-meta show-excerpt show-link as-reference class="bg-light p-2"/>
         </div>
       </div>
     </div>
@@ -198,7 +196,6 @@ export default {
     },
     orderBy: {
       get() {
-        console.info('get order by', this.currentOrderBy);
         return this.currentOrderBy;
       },
       set(value) {
@@ -207,15 +204,7 @@ export default {
       },
     },
     orderByOptions() {
-      return [
-        {
-          value: 'relevance',
-          text: this.$t('sort.relevanceArticles.asc'),
-        },
-        {
-          value: '-relevance',
-          text: this.$t('sort.relevanceArticles.desc'),
-        },
+      const common = [
         {
           value: 'date',
           text: this.$t('sort.publicationDate.asc'),
@@ -224,6 +213,31 @@ export default {
           value: '-date',
           text: this.$t('sort.publicationDate.desc'),
         },
+      ];
+
+      if (this.tab.name === TAB_ARTICLES) {
+        return [
+          {
+            value: 'relevance',
+            text: this.$t('sort.relevanceArticles.asc'),
+          },
+          {
+            value: '-relevance',
+            text: this.$t('sort.relevanceArticles.desc'),
+          },
+          ...common,
+        ];
+      }
+      return [
+        {
+          value: 'id',
+          text: this.$t('sort.idMentions.asc'),
+        },
+        {
+          value: '-id',
+          text: this.$t('sort.idMentions.desc'),
+        },
+        ...common,
       ];
     },
     countMentions() {
@@ -275,6 +289,15 @@ export default {
     getTimeline() {
       return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id);
     },
+    async loadItems(page = 1) {
+      if (this.tab.name === TAB_ARTICLES) {
+        await this.loadArticles(page);
+      } else if (this.tab.name === TAB_MENTIONS) {
+        await this.loadMentions(page);
+      } else {
+        await this.loadFacets();
+      }
+    },
     loadArticles(page = 1) {
       return this.$store.dispatch('entities/LOAD_ENTITY_ARTICLES', {
         page,
@@ -294,35 +317,30 @@ export default {
         this.items = res.data;
       });
     },
-    async loadItems(page = 1) {
-      if (this.tab.name === TAB_ARTICLES) {
-        await this.loadArticles(page);
-      } else if (this.tab.name === TAB_MENTIONS) {
-        await this.loadMentions(page);
-      } else {
-        await this.loadFacets();
-      }
-    },
-    loadMentions(page) {
-      if (page !== undefined) {
-        this.$store.commit('mentions/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
-      return this.$store.dispatch('mentions/LOAD_ENTITY_MENTIONS', {
+    loadMentions(page = 1) {
+      return this.$store.dispatch('entities/LOAD_ENTITY_MENTIONS', {
+        page,
+        orderBy: this.currentOrderBy,
         filters: [
           {
             q: this.$route.params.entity_id,
             type: 'entity',
           },
         ],
+      }).then((res) => {
+        this.paginationList = {
+          perPage: this.paginationList.perPage,
+          currentPage: page,
+          totalRows: res.total,
+        };
+        console.info('RECEIVED', res);
+        this.items = res.data;
       });
     },
     onInputPagination(page = 1) {
-      console.log('page changed', page);
       return this.loadItems(page);
-      // this.mentions = await this.loadMentions(page);
     },
     onHighlight(event, origin) {
-      // console.info(event, origin);
       this.highlights.forEach((vis) => {
         if (vis !== origin) {
           this[`highlight${vis}`] = event.datum;
@@ -351,6 +369,12 @@ export default {
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
+
+        if (this.tab.name === TAB_ARTICLES) {
+          this.currentOrderBy = '-relevance';
+        } else if (this.tab.name === TAB_MENTIONS) {
+          this.currentOrderBy = 'id';
+        }
         // reset item list
         this.items = [];
         await this.loadItems();
