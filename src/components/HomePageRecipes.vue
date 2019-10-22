@@ -4,7 +4,7 @@
       <b-col class="m-0 p-0">
         <b-carousel
           class="recipe"
-          interval="6000"
+          :interval="6000"
           indicators>
           <b-carousel-slide
             v-for="(recipe, i) in recipes"
