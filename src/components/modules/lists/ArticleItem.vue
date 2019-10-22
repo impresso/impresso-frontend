@@ -1,5 +1,5 @@
 <template lang="html">
-  <article>
+  <article :class="{ reference : asReference }">
     <h2 v-if="item.title" class="mb-0">
       <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="item.title"></router-link>
       <span v-else v-html="item.title"></span>
@@ -9,11 +9,11 @@
       <span v-else>{{ $t('untitled') }}</span>
     </div>
     <div v-if="showMeta" class="article-meta">
-      <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}">
-        <strong>{{ item.newspaper.name}}</strong>
+      <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
+        {{ item.newspaper.name}}
       </router-link>
       <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
-      <span class="small-caps">{{ $d(item.date, "long") }}</span>
+      <span class="date">{{ $d(item.date, "long") }}</span>
       <span>{{ pages }}</span>
     </div>
 
@@ -112,6 +112,9 @@ export default {
     showTopics: {
       type: Boolean,
     },
+    asReference: {
+      type: Boolean,
+    },
   },
   computed: {
     pages() {
@@ -139,6 +142,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .article-newspaper {
+    font-weight: bold;
+  }
+  .date {
+    text-transform: lowercase;
+    font-variant: small-caps;
+  }
+  article.reference {
+    h2, .article-meta {
+      font-size: inherit;
+      display: inline-block;
+    }
+    h2::after {
+      content: ', ';
+    }
+    .date {
+      text-transform: none;
+      font-variant: normal;
+    }
+    .article-newspaper{
+      font-weight: normal;
+    }
+
+    .article-excerpt{
+      margin-top: auto !important;
+      font-size: inherit;
+    }
+  }
   .article-extras .badge{
     font-size: inherit;
   }
