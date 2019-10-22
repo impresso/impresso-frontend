@@ -47,7 +47,7 @@ const router = new Router({
   },
   base: BASE_URL,
   routes: [{
-    path: '/',
+    path: '',
     name: 'home',
     component: HomePage,
     // beforeEnter: (to, from, next) => {
@@ -290,6 +290,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+  console.info('Routing to', to, 'from', from);
   if (to.meta.requiresAuth === false) {
     next();
   } else {
@@ -312,11 +313,14 @@ const scrollPositions = Object.create(null);
 
 router.beforeEach((to, from, next) => {
   const element = document.getElementById(scrollableElementId);
-  if (element !== null) {
-    scrollPositions[from.name] = element.scrollTop;
+  try {
+    if (element !== null) {
+      scrollPositions[from.name] = element.scrollTop;
+    }
+    console.info('beforeEach', from.name, scrollPositions[from.name], element.scrollTop);
+  } catch (err) {
+    console.error(err);
   }
-  console.log('before', from.name, scrollPositions[from.name], element.scrollTop);
-
   next();
 });
 
