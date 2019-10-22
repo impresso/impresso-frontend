@@ -84,12 +84,13 @@
         <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
       </div>
       <b-form-checkbox v-else v-model="item.checked" @change="toggleFilterItem($event, item)">
-        <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
+        <item-label :item="item" :type="type"/>
+        <!-- <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
-        <collection-item v-if="type === 'collection'" :item="item" />
-        <span v-if="!item.uid.length">...</span>
-        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
+        <collection-item v-if="type === 'collection'" :item="item" />-->
+        <span v-if="!item.uid.length">...</span> 
+        <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
       </b-form-checkbox>
     </div>
     <div class="items-to-add" v-if="itemsToAdd.length">
@@ -98,7 +99,7 @@
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
-        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
+        <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
       </div>
     </div>
 
@@ -118,6 +119,7 @@
 
 <script>
 import FilterDaterange from './FilterDateRange';
+import ItemLabel from './lists/ItemLabel';
 import CollectionItem from './lists/CollectionItem';
 import EmbeddingsSearch from './EmbeddingsSearch';
 
@@ -263,6 +265,7 @@ export default {
     FilterDaterange,
     CollectionItem,
     EmbeddingsSearch,
+    ItemLabel,
   },
 };
 </script>
