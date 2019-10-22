@@ -633,7 +633,7 @@ div.overlay-region{
     "select_all": "Select all items on this page",
     "items_selected": "One item selected | {count} items selected",
     "Clear Selection": "Clear Selection",
-    "add_n_to_collection": "Add selected item to my collection | Add {count} selected items to my collection",
+    "add_n_to_collection": "Add selected item to collection ... | Add {count} selected items to collection ...",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
     "Collection_Name" : "Collection Name",
