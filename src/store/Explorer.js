@@ -26,7 +26,7 @@ export default {
   },
   actions: {
     SHOW({ commit }, { type, q, mode }) {
-      console.info('store.explorer/SHOW', type, q, mode);
+      console.info('store.explorer/SHOW', typeof type, typeof q, typeof mode);
       if (q) {
         commit('SET_Q', q);
       }

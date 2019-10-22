@@ -1,8 +1,8 @@
 <template lang="html">
   <div>
-    <div class="mb-1 pb-2 border-bottom">
+    <div class="mb-1 border-bottom">
       <!-- The Loop -->
-      <b-form-checkbox-group v-model="selectedIds" class="position-relative" style="min-height: 4em;">
+      <b-form-checkbox-group v-model="selectedIds" class="position-relative p-2" style="min-height: 4em; max-height: 16em; overflow: scroll">
         <div
           v-if='isLoading'
           class="position-absolute w-100 h-100"
@@ -71,31 +71,12 @@ export default {
     },
     buckets: {
       get() {
-        return this.$store.state.buckets.buckets || [];
+        return this.$store.state.buckets.items;
       },
     },
     isLoading: {
       get() {
         return this.$store.state.buckets.isLoading;
-      },
-    },
-    paginationPerPage: {
-      get() {
-        return this.$store.state.buckets.pagination.perPage;
-      },
-    },
-    paginationCurrentPage: {
-      get() {
-        return this.$store.state.buckets.pagination.currentPage;
-      },
-      set(val) {
-        this.$store.dispatch('buckets/CHANGE_PAGE', val);
-        this.$store.dispatch('buckets/LOAD_BUCKETS');
-      },
-    },
-    paginationTotalRows: {
-      get() {
-        return this.$store.state.buckets.pagination.totalRows;
       },
     },
     orderBy: {
