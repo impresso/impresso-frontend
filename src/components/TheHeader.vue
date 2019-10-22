@@ -21,6 +21,9 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
+          </li>
 
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
@@ -433,6 +436,7 @@ export default {
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_topics": "Topics",
+    "label_faq": "Help",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",

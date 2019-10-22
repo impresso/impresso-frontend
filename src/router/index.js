@@ -2,6 +2,7 @@ import * as services from '@/services';
 import Vue from 'vue';
 import Router from 'vue-router';
 import HomePage from '../components/HomePage';
+import FaqPage from '../components/FaqPage';
 import LegalPage from '../components/LegalPage';
 import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
@@ -27,6 +28,20 @@ import store from '../store';
 Vue.use(Router);
 
 const router = new Router({
+  mode: 'history',
+  scrollBehavior(to, from, savedPosition) {
+    const el = document.querySelector('div#app-content');
+    console.log('---', el.scrollLeft, el.scrollTop);
+    if (savedPosition) {
+      console.log(savedPosition);
+      return savedPosition;
+    }
+    if (to.hash) {
+      console.log('h', to.hash);
+      return { selector: to.hash };
+    }
+    return { x: 0, y: 0 };
+  },
   routes: [{
     path: '/',
     name: 'home',
@@ -36,6 +51,14 @@ const router = new Router({
     //     name: 'search',
     //   });
     // },
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/faq',
+    name: 'faq',
+    component: FaqPage,
     meta: {
       requiresAuth: false,
     },
@@ -278,6 +301,32 @@ router.beforeEach((to, from, next) => {
         });
       }
     });
+  }
+});
+const scrollableElementId = 'app-content'; // You should change this
+const scrollPositions = Object.create(null);
+
+router.beforeEach((to, from, next) => {
+  const element = document.getElementById(scrollableElementId);
+  if (element !== null) {
+    scrollPositions[from.name] = element.scrollTop;
+  }
+  console.log('before', from.name, scrollPositions[from.name], element.scrollTop);
+
+  next();
+});
+
+window.addEventListener('popstate', () => {
+  console.log('after scr', scrollableElementId);
+  const currentRouteName = router.history.current.name;
+  const element = document.getElementById(scrollableElementId);
+
+  console.log('after', currentRouteName, element, scrollPositions[currentRouteName]);
+
+  if (element !== null && currentRouteName in scrollPositions) {
+    setTimeout(() => {
+      element.scrollTop = scrollPositions[currentRouteName];
+    }, 50);
   }
 });
 
