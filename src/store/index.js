@@ -14,7 +14,6 @@ import articles from './Articles';
 import topics from './Topics';
 import jobs from './Jobs';
 import entities from './Entities';
-import mentions from './Mentions';
 import embeddings from './Embeddings';
 import monitor from './Monitor';
 import explorer from './Explorer';
@@ -40,7 +39,6 @@ export default new Vuex.Store({
     jobs,
     newspapers,
     entities,
-    mentions,
     embeddings,
     monitor,
     buckets,
