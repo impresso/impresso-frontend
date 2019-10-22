@@ -27,6 +27,9 @@ import store from '../store';
 
 Vue.use(Router);
 
+const BASE_URL = process.env.BASE_URL || '/';
+console.info('Setup Router with BASE_URL to:', BASE_URL);
+
 const router = new Router({
   mode: 'history',
   scrollBehavior(to, from, savedPosition) {
@@ -44,8 +47,9 @@ const router = new Router({
     }
     return {};
   },
+  base: BASE_URL,
   routes: [{
-    path: '/',
+    path: '',
     name: 'home',
     component: HomePage,
     // beforeEnter: (to, from, next) => {
@@ -288,6 +292,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+  console.info('Routing to', to, 'from', from);
   if (to.meta.requiresAuth === false) {
     next();
   } else {

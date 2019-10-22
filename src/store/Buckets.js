@@ -19,7 +19,7 @@ export default {
     isLoading: false,
     type: '',
     typeOptions: ['location', 'country', 'person', 'language', 'topic', 'newspaper'],
-    buckets: [],
+    items: [],
     query: '',
     pagination: {
       perPage: 10,
@@ -43,8 +43,9 @@ export default {
       state.q = q;
       state.fq = q.split('*').concat(['*']).join('');
     },
-    UPDATE_BUCKETS(state, buckets) {
-      state.buckets = buckets;
+    UPDATE_ITEMS(state, items) {
+      console.info('@UPDATE_ITEMS', items);
+      state.items = items;
     },
     UPDATE_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
@@ -70,7 +71,7 @@ export default {
       commit('SET_TYPE', type);
       commit('UPDATE_ORDER_BY', 'name');
       // When changing type, we have to reset the list of buckets
-      commit('UPDATE_BUCKETS', []);
+      commit('UPDATE_ITEMS', []);
       commit('UPDATE_Q', '');
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
       // then search again with the new params
@@ -78,12 +79,12 @@ export default {
     },
     CHANGE_ORDER_BY({ commit, dispatch }, orderBy) {
       commit('UPDATE_ORDER_BY', orderBy);
-      commit('UPDATE_BUCKETS', []);
+      commit('UPDATE_ITEMS', []);
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
       // dispatch('LOAD_BUCKETS');
     },
     SEARCH({ state, commit }, { q, type }) {
-      if (q && q.length) {
+      if (typeof q !== 'undefined') {
         commit('UPDATE_Q', q);
       }
 
@@ -96,6 +97,7 @@ export default {
         return null;
       }
       commit('SET_IS_LOADING', true);
+
       const service = services[SERVICE_BY_TYPE[state.type]];
       const query = {
         page: state.pagination.currentPage,
@@ -119,15 +121,18 @@ export default {
           query.q = state.fq;
         }
       }
+      console.info('buckets/SEARCH type:', state.type, 'query:', query);
       return service.find({
         query,
       }).then((res) => {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res.total);
-        commit('UPDATE_BUCKETS', res.data.map(item => new Bucket({
+        const items = res.data.filter(d => d.uid.length).map(item => new Bucket({
           val: item.uid,
           item,
           type: state.type,
-        })));
+        }));
+        commit('UPDATE_ITEMS', items);
+        console.info('buckets/SEARCH type:', state.type, 'success:', res);
       }).catch((err) => {
         console.error(err);
         return [];
@@ -152,7 +157,7 @@ export default {
         },
       }).then((res) => {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
-        commit('UPDATE_BUCKETS', res[0].buckets.map(d => new Bucket({
+        commit('UPDATE_ITEMS', res[0].buckets.map(d => new Bucket({
           ...d,
           type: state.type,
         })));

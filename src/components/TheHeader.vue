@@ -22,9 +22,10 @@
             <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
           <li class="nav-item">
+            <a class="nav-link" v-on:click.stop.prevent="openExplorer">{{$t("label_explore")}}</a>
+          </li>
             <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
           </li>
-
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
@@ -201,6 +202,9 @@ export default {
     },
   },
   methods: {
+    openExplorer() {
+      this.$store.dispatch('explorer/SHOW', {});
+    },
     onChangeJobsPage(page = 1) {
       console.info('onChangeJobsPage', page);
       this.$store.dispatch('jobs/LOAD_JOBS', {
@@ -435,6 +439,7 @@ export default {
     "label_search": "Search",
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
+    "label_explore": "explore...",
     "label_topics": "Topics",
     "label_faq": "Help",
     "staff": "staff",
