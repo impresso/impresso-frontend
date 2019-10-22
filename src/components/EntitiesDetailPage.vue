@@ -331,7 +331,7 @@ export default {
         this.paginationList = {
           perPage: this.paginationList.perPage,
           currentPage: page,
-          totalRows: res.total,
+          totalRows: this.entity.countMentions,
         };
         console.info('RECEIVED', res);
         this.items = res.data;

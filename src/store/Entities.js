@@ -79,8 +79,9 @@ export default {
         data: res.data.map(d => new Article(d)),
       }));
     },
-    LOAD_ENTITY_MENTIONS(context, { page = 1, filters = [], orderBy = '-relevance' } = []) {
+    LOAD_ENTITY_MENTIONS(context, { page = 1, filters = [], orderBy = '-relevance', faster = 'on' } = []) {
       const query = {
+        faster,
         page,
         filters,
         order_by: orderBy,
