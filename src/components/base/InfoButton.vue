@@ -1,9 +1,9 @@
 <template lang="html">
-  <span class="info-button">
+  <span v-if="content" class="info-button">
     <span class="icon-link dripicons-information" :id="`ib_${target}`"></span>
     <b-popover :target="`ib_${target}`" triggers="hover click blur" placement="right" custom-class="drop-shadow">
-      <template v-slot:title>{{content.title}}</template>
-      <div v-html="content.summary" />
+      <template v-if="content.title" v-slot:title>{{content.title}}</template>
+      <div v-if="content.summary" v-html="content.summary" />
       <router-link
         class="d-block text-right small-caps"
         v-bind:to="{ name: `faq`, hash: `#${content.id}` }">

@@ -33,17 +33,19 @@ console.info('Setup Router with BASE_URL to:', BASE_URL);
 const router = new Router({
   mode: 'history',
   scrollBehavior(to, from, savedPosition) {
-    const el = document.querySelector('div#app-content');
-    console.log('---', el.scrollLeft, el.scrollTop);
     if (savedPosition) {
-      console.log(savedPosition);
+      console.log('saved position : ', savedPosition);
       return savedPosition;
     }
     if (to.hash) {
-      console.log('h', to.hash);
-      return { selector: to.hash };
+      const el = document.querySelector('div#app-content');
+      // console.log('---', el.scrollLeft, el.scrollTop);
+      const rect = el.getBoundingClientRect();
+      const ela = document.querySelector(to.hash);
+      const recta = ela.getBoundingClientRect();
+      el.scrollTop = recta.top - rect.top - 10;
     }
-    return { x: 0, y: 0 };
+    return {};
   },
   base: BASE_URL,
   routes: [{
@@ -306,35 +308,6 @@ router.beforeEach((to, from, next) => {
         });
       }
     });
-  }
-});
-const scrollableElementId = 'app-content'; // You should change this
-const scrollPositions = Object.create(null);
-
-router.beforeEach((to, from, next) => {
-  const element = document.getElementById(scrollableElementId);
-  try {
-    if (element !== null) {
-      scrollPositions[from.name] = element.scrollTop;
-    }
-    console.info('beforeEach', from.name, scrollPositions[from.name], element.scrollTop);
-  } catch (err) {
-    console.error(err);
-  }
-  next();
-});
-
-window.addEventListener('popstate', () => {
-  console.log('after scr', scrollableElementId);
-  const currentRouteName = router.history.current.name;
-  const element = document.getElementById(scrollableElementId);
-
-  console.log('after', currentRouteName, element, scrollPositions[currentRouteName]);
-
-  if (element !== null && currentRouteName in scrollPositions) {
-    setTimeout(() => {
-      element.scrollTop = scrollPositions[currentRouteName];
-    }, 50);
   }
 });
 

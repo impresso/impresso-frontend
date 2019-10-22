@@ -39,4 +39,7 @@ export default {
 </script>
 
 <style lang="scss">
+  img {
+    max-width: 100%;
+  }
 </style>
