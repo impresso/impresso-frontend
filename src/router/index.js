@@ -28,7 +28,7 @@ Vue.use(Router);
 
 const router = new Router({
   routes: [{
-    path: '/',
+    path: process.env.PUBLIC_PATH || '/',
     name: 'home',
     component: HomePage,
     // beforeEnter: (to, from, next) => {
