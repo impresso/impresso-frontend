@@ -49,9 +49,9 @@
       </div>
     </div>
     <div v-if="showTopics" class="small article-extras article-topics mt-2">
+      <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
       <div v-if="item.topics.length">
-        <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
-        <span v-for="(rel, idx) in item.topics" v-bind:key="idx" class="position-relative d-inline-block mx-1 mb-1">
+        <div v-for="(rel, idx) in item.topics" v-bind:key="idx" class="mx-1 mb-1">
           <viz-bar
             :label="rel.topic.getHtmlExcerpt()"
             :percent="$n(rel.relevance * 100)"
@@ -59,7 +59,7 @@
             :item="rel.topic"
             type="topic"
             />
-        </span>
+        </div>
       </div>
     </div>
     <div v-if="showMatches">
@@ -176,14 +176,17 @@ export default {
   .article-excerpt{
     font-size: smaller;
   }
+  .article-topics > div{
+    columns: 4 270px;
+    div {
+      break-inside: avoid-column;
+    }
+  }
   ul.article-matches{
     list-style-type: none;
     font-size: smaller;
   }
   ul.article-matches li{
     border-left: 2px solid gold;
-  }
-  .viz-bar {
-    height: 2px;
   }
 </style>

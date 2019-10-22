@@ -50,7 +50,7 @@
         <label class="mr-1">{{$t("label_order")}}</label>
         <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
       </b-navbar-nav>
-      <b-navbar-nav class="px-3 py-3 border-right">
+      <b-navbar-nav class="px-3 py-3">
         <label class="mr-1">{{$t("label_display")}}</label>
         <b-nav-form>
           <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
@@ -59,16 +59,6 @@
           </b-form-radio-group>
         </b-nav-form>
       </b-navbar-nav>
-      <div class="flex-shrink-1">
-        <b-navbar-nav v-if="isLoggedIn" class="pl-4">
-          <b-form-checkbox
-            v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
-            v-bind:indeterminate="this.allIndeterminate"
-            v-bind:checked.native="this.allSelected"
-            v-on:change="toggleSelectAll">
-          </b-form-checkbox>
-        </b-navbar-nav>
-      </div>
     </b-navbar>
 
     <b-navbar slot="header" variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
@@ -96,8 +86,8 @@
             :totalRows="paginationTotalRows" />
         </ellipsis>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-auto p-3" v-if="isLoggedIn">
-        <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
+      <b-navbar-nav class="ml-auto pl-3" v-if="isLoggedIn()">
+        <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
           <b-dropdown-item
             v-if="selectedItems.length > 0"
             class="p-2 small-caps"
@@ -123,6 +113,12 @@
             {{$t("query_export_csv")}}
           </b-dropdown-item>
         </b-dropdown>
+        <b-form-checkbox
+          v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
+          v-bind:indeterminate="this.allIndeterminate"
+          v-bind:checked.native="this.allSelected"
+          v-on:change="toggleSelectAll">
+        </b-form-checkbox>
       </b-navbar-nav>
     </b-navbar>
 
@@ -575,6 +571,10 @@ export default {
       margin-bottom: 0;
       line-height: 1.5;
     }
+    .custom-control-label,
+    .custom-control-label::before {
+      position: inherit;
+    }
 }
 
 // TODO: we have this classblock twice, also on IssuePage.vue
@@ -633,7 +633,7 @@ div.overlay-region{
     "select_all": "Select all items on this page",
     "items_selected": "One item selected | {count} items selected",
     "Clear Selection": "Clear Selection",
-    "add_n_to_collection": "Add selected item to my collection | Add {count} selected items to my collection",
+    "add_n_to_collection": "Add selected item to collection ... | Add {count} selected items to collection ...",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
     "Collection_Name" : "Collection Name",

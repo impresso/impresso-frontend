@@ -24,6 +24,8 @@
           <li class="nav-item">
             <a class="nav-link" v-on:click.stop.prevent="openExplorer">{{$t("label_explore")}}</a>
           </li>
+            <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
+          </li>
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
           <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
@@ -439,6 +441,7 @@ export default {
     "label_entities": "Entities",
     "label_explore": "explore...",
     "label_topics": "Topics",
+    "label_faq": "Help",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
