@@ -3,10 +3,12 @@ import io from 'socket.io-client';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio-client';
 import auth from '@feathersjs/authentication-client';
+
 import articlesSuggestionsHooks from './hooks/articlesSuggestions';
 import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
 import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
+
 
 const socket = io(`${process.env.MIDDLELAYER_API}`, {
   path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
@@ -86,17 +88,17 @@ app.hooks({
 });
 
 app.service('logs').on('created', (payload) => {
+  console.info('@logs->created', payload);
   if (payload.job) {
-    const idx = window.app.$store.state.jobs.data.findIndex(x => x.id === payload.job.id);
-    if (idx !== -1) {
-      window.app.$store.state.jobs.data[idx].status = payload.job.status;
-      window.app.$store.state.jobs.data[idx].task = payload.task;
-      window.app.$store.state.jobs.data[idx].progress = payload.job.progress;
-    } else {
-      payload.job.task = payload.task;
-      window.app.$store.state.jobs.data.unshift(payload.job);
+    const extra = {};
+    if (payload.collection) {
+      extra.collection = payload.collection;
     }
-    // console.info(`logs.created: "${payload.msg}" with payload:`, payload);
+    window.app.$store.dispatch('jobs/UPDATE_JOB', {
+      ...payload.job,
+      progress: payload.progress,
+      extra,
+    });
   }
 });
 

@@ -1,10 +1,12 @@
 import * as services from '@/services';
 import Entity from '@/models/Entity';
+import Article from '@/models/Article';
+import Mention from '@/models/Mention';
 
 export default {
   namespaced: true,
   state: {
-    orderBy: 'name',
+    orderBy: '-count',
     items: [],
     query: '',
     pagination: {
@@ -25,34 +27,87 @@ export default {
     UPDATE_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
     },
-    UPDATE_PAGINATION_CURRENT_PAGE(state, currentPage) {
-      state.pagination.currentPage = parseInt(currentPage, 10);
+    UPDATE_PAGINATION(state, pagination) {
+      state.pagination = {
+        ...state.pagination,
+        ...pagination,
+      };
     },
   },
   actions: {
-    LOAD_ENTITIES(context) {
+    UPDATE_ORDER_BY({ commit }, value) {
+      commit('UPDATE_ORDER_BY', value);
+    },
+    LOAD_ENTITIES({ state, commit }, { page = 1, q = '' } = {}) {
+      commit('UPDATE_PAGINATION', {
+        currentPage: page,
+      });
+      const query = {
+        limit: state.pagination.perPage,
+        order_by: state.orderBy,
+        page: state.pagination.currentPage,
+      };
+      if (q.length) {
+        query.q = q.split('*').concat(['*']).join('');
+      }
+      console.info('entities/LOAD_ENTITIES loading query:', query);
       return services.entities.find({
-        query: {
-          q: context.state.query,
-          limit: context.state.pagination.perPage,
-          orderby: context.state.orderBy,
-          page: context.state.pagination.currentPage,
-        },
+        query,
       }).then((res) => {
+        console.info('entities/LOAD_ENTITIES', res);
         const items = res.data.map(result => new Entity({
           ...result,
         }));
-        context.commit('UPDATE_ENTITIES', items);
-        // console.info('tot', res.total);
-        context.state.pagination.totalRows = 199990; // res.total;
+        commit('UPDATE_ENTITIES', items);
+        commit('UPDATE_PAGINATION', {
+          totalRows: res.total,
+        });
         return items;
       });
     },
+    LOAD_ENTITY_ARTICLES(context, { page = 1, filters = [], orderBy = '-relevance' } = []) {
+      const query = {
+        page,
+        filters,
+        order_by: orderBy,
+        group_by: 'articles',
+      };
+      return services.search.find({
+        query,
+      }).then(res => ({
+        ...res,
+        data: res.data.map(d => new Article(d)),
+      }));
+    },
+    LOAD_ENTITY_MENTIONS(context, { page = 1, filters = [], orderBy = '-relevance', faster = 'on' } = []) {
+      const query = {
+        faster,
+        page,
+        filters,
+        order_by: orderBy,
+      };
+      console.info('entities/LOAD_ENTITY_MENTIONS query:', query);
+
+      return services.mentions.find({
+        query,
+      }).then((res) => {
+        console.info('entities/LOAD_ENTITY_MENTIONS SUCCESS? receved:', res);
+        return res;
+      }).then(res => ({
+        ...res,
+        data: res.data.map((d) => {
+          const mention = new Mention(d);
+          if (mention.article) {
+            mention.article = new Article(mention.article);
+          }
+          return mention;
+        }),
+      }));
+    },
     LOAD_DETAIL(context, entityId) {
-      return new Promise((resolve, reject) => {
-        services.entities.get(entityId, {})
-          .then(res => resolve(res))
-          .catch(reject);
+      return services.entities.get(entityId, {}).then((res) => {
+        console.info('entities/LOAD_DETAIL success:', res);
+        return new Entity(res);
       });
     },
     LOAD_TIMELINE() {
@@ -63,6 +118,7 @@ export default {
           limit: 0,
         },
       }).then((res) => {
+        console.info('entities/LOAD_TIMELINE success:', res);
         if (!res.info.facets && !res.info.facets.year) {
           return [];
         }

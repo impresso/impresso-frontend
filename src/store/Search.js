@@ -261,12 +261,10 @@ export default {
     },
     CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
       return new Promise((resolve) => {
-        services.search.create({}, {
-          query: {
-            collection_uid: collectionUid,
-            group_by: 'articles',
-            filters: context.getters.getSearch.getFilters(),
-          },
+        services.search.create({
+          group_by: 'articles',
+          filters: context.getters.getSearch.getFilters(),
+          collection_uid: collectionUid,
         }).then(res => resolve(res));
       });
     },
@@ -347,6 +345,29 @@ export default {
           commit('UPDATE_PAGINATION_TOTAL_ROWS', {
             paginationTotalRows: res.total,
           });
+
+          if (this.state.user.userData) {
+            const itemuids = res.data.map(item => item.uid);
+
+            if (state.facets.find(f => f.type === 'collection').numBuckets > 0) {
+              services.collectionsItems.find({
+                query: { item_uids: itemuids, limit: 100 },
+              }).then((cs) => {
+                const intersection = state.results.filter(x => cs.data.includes(x.uid));
+                console.log('intersection', intersection);
+
+                state.results.forEach((re) => {
+                  cs.data.forEach((c) => {
+                    if (c.itemId === re.uid) {
+                      re.collections = c.collections;
+                    }
+                  });
+                });
+                // console.log(state.results);
+              });
+            }
+          }
+
           commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
           // register facets
           if (res.total) {

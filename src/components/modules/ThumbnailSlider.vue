@@ -42,11 +42,13 @@ export default {
       this.$emit('click', page);
     },
     scrollToActivePage() {
-      const elm = this.$refs[`page-${this.page.uid}`][0];
-      const parent = this.$refs.thumbnailSlider;
-      if (parent.scrollTop > elm.offsetTop ||
-        ((elm.offsetTop + elm.offsetHeight) - parent.scrollTop) > parent.offsetHeight) {
-        parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+      if (this.page) {
+        const elm = this.$refs[`page-${this.page.uid}`][0];
+        const parent = this.$refs.thumbnailSlider;
+        if (parent.scrollTop > elm.offsetTop ||
+          ((elm.offsetTop + elm.offsetHeight) - parent.scrollTop) > parent.offsetHeight) {
+          parent.scrollTo({ top: elm.offsetTop, behavior: 'smooth' });
+        }
       }
     },
   },

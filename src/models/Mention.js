@@ -13,6 +13,8 @@ export default class Mention {
     title = '',
     qualifier = '',
     demonym = '',
+    article = null,
+    context = '',
   } = {}) {
     this.frequence = parseInt(frequence, 10);
     this.name = String(name);
@@ -27,5 +29,9 @@ export default class Mention {
     this.title = String(title);
     this.qualifier = String(qualifier);
     this.demonym = String(demonym);
+    this.context = String(context);
+    if (article) {
+      this.article = article;
+    }
   }
 }

@@ -41,7 +41,8 @@
       <facet-explorer
         :initial-type="type"
         :q="q"
-        v-on:submit-buckets="onSubmitBuckets" />
+        v-on:submit-buckets="onSubmitBuckets"
+        class="my-0 mb-3 px-2"/>
         <div v-if="paginationTotalRows > paginationPerPage" class="p-3">
           <div
             class="fixed-pagination-footer mb-2 p-1">
@@ -90,16 +91,16 @@ export default {
       this.search();
     },
     search() {
+      console.info('search() - type:', this.type, 'q:', this.q, this.isSearchable);
       if (this.isSearchable) {
-        this.$store.dispatch('buckets/SEARCH', {
+        return this.$store.dispatch('buckets/SEARCH', {
           type: this.type,
           q: this.q,
         });
-      } else {
-        this.$store.dispatch('buckets/SEARCH_FACETS', {
-          type: this.type,
-        });
       }
+      return this.$store.dispatch('buckets/SEARCH_FACETS', {
+        type: this.type,
+      });
     },
   },
   computed: {
@@ -151,7 +152,7 @@ export default {
     },
     typeOptions() {
       if (this.isSearchable) {
-        return ['newspaper', 'person', 'location', 'topic', 'collection'];
+        return ['newspaper', 'person', 'location', 'topic', 'collection', 'year'];
       }
       return [
         'location', 'country', 'person', 'language', 'topic', 'newspaper', 'collection',
@@ -178,7 +179,12 @@ export default {
 };
 </script>
 
-<style lang="css" scoped>
+<style lang="scss">
+  #facet-explorer-modal{
+    .modal-body{
+      padding: 0;
+    }
+  }
 </style>
 
 <i18n>

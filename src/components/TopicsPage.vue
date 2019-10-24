@@ -1,7 +1,7 @@
 <template lang="html">
   <i-layout id="TopicsPage">
-    <i-layout-section width="300px" class="border-right">
-      <div slot="header">
+    <list :pagination-list="paginationList" v-on:change-page="changePage">
+      <template v-slot:header>
         <div class='p-3 border-bottom bg-light'>
           <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
           <label>{{ $t('select model') }}</label>
@@ -10,32 +10,24 @@
           <label>{{ $t('order_by') }}</label>
           <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
         </div>
-      </div>
-      <div>
-        <div class='topic p-2 border-bottom' v-for="topic in topics">
+      </template>
+
+      <template v-slot:default>
+        <div class='topic item p-2 border-bottom' v-for="topic in topics">
           <div class='badge small-caps'>{{topic.language}}</div>
           <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}" v-html="topic.getHtmlExcerpt({ token: q })" />
           <div class='small-caps'>{{topic.model}}</div>
         </div>
 
-      </div>
-      <div slot="footer" class="fixed-pagination-footer p-1 m-0">
-        <pagination
-          v-bind:perPage="limit"
-          v-bind:currentPage="page"
-          v-bind:totalRows="total"
-          v-on:change="onInputPagination"
-          class="float-left small-caps" />
-      </div>
-    </i-layout-section>
+      </template>
+    </list>
+    <!-- main page -->
     <router-view></router-view>
   </i-layout>
 </template>
 
 <script>
-// import Topic from '@/models/Topic';
-import Pagination from './modules/Pagination';
-
+import List from './modules/lists/List';
 
 export default {
   data: () => ({
@@ -48,6 +40,13 @@ export default {
     q: '',
   }),
   computed: {
+    paginationList() {
+      return {
+        currentPage: this.page,
+        totalRows: this.total,
+        perPage: this.limit,
+      };
+    },
     topicModelOptions() {
       return [{
         value: '*',
@@ -98,8 +97,8 @@ export default {
 
   },
   methods: {
-    async onInputPagination(page) {
-      await this.getTopics({
+    changePage(page) {
+      return this.getTopics({
         page,
       });
     },
@@ -181,7 +180,7 @@ export default {
 //     // },
 //   },
   components: {
-    Pagination,
+    List,
   },
 };
 </script>
