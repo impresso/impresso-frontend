@@ -154,16 +154,30 @@ export default {
   overflow: none;
   height: 100%;
 
+
   span.location,
   span.person{
-    box-shadow:inset 0px -2px 0px 0px transparentize($clr-accent-secondary, 0.6);
-    transition: box-shadow 0.4s;
-    padding: 0 1px;
-
+    box-shadow:inset 0px -2px 0px 0px transparentize($clr-tertiary, 0.5);
+    transition: box-shadow 0.2s;
     cursor: pointer;
-    &:hover {
-      box-shadow:inset 0px -20px 0px 0px transparentize($clr-accent-secondary, 0.6);
+
+    &::before {
+      font-family: "dripicons-v2";
+      font-size: 75%;
+      opacity: 0.6;
+      padding-right: 2px;
     }
+
+    &:hover {
+      box-shadow:inset 0px -24px 0px 0px transparentize($clr-tertiary, 0.5);
+    }
+  }
+
+  span.location::before {
+    content: '\e012';
+  }
+  span.person::before {
+    content: '\e056';
   }
 
   .region-row {
