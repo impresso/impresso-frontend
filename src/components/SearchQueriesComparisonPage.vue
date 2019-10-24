@@ -2,7 +2,7 @@
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section>
       <div slot="header" class="header row border-bottom pm-fixer">
-        <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'}`" 
+        <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'}`"
              v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
           <query-header-panel class="col"
                               :comparable="comparables[queryIdx]"
@@ -18,8 +18,8 @@
         <div class="row pm-fixer"
              v-for="([facetId, facetType], facetIdx) in facets"
              v-bind:key="facetIdx">
-          <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'} ${isQueryLoading(queryIdx) ? 'loading-bg' : ''}`" 
-               v-for="(queryResult, queryIdx) in queriesResults" 
+          <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'} ${isQueryLoading(queryIdx) ? 'loading-bg' : ''}`"
+               v-for="(queryResult, queryIdx) in queriesResults"
                :key="queryIdx">
             <div class="col" v-if="isQueryLoading(queryIdx)">
               <loading-indicator class="col py-3" v-if="facetIdx === 0"/>
@@ -28,8 +28,8 @@
               <div v-if="facetIdx === 0" style="text-align: center;">[Nothing found]</div>
             </div>
             <facet-overview-panel class="col"
-                                  :facet="facetId" 
-                                  :type="facetType" 
+                                  :facet="facetId"
+                                  :type="facetType"
                                   :title="$tc(`label.${facetId}.title`, getFacetValues(queryResult, facetId).length || 1)"
                                   :values="getFacetValues(queryResult, facetId)"
                                   @timeline-highlight="onTimelineHighlight"
