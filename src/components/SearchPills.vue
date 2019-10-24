@@ -61,7 +61,14 @@
 
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
-        <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
+        <filter-monitor checkbox 
+                        :store="storeModuleName"
+                        :filter="filter"
+                        :type="filter.type"
+                        :search-query-id="searchQueryId"
+                        :operators="['AND', 'OR']"
+                        :skip-push-search-params="skipPushSearchParams" 
+                        @filter-applied="onFilterApplied" />
       </div>
 
       <!-- type is not string, add Remove button -->
@@ -83,23 +90,32 @@ export default {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
     },
-    store: {
+    storeModuleName: {
       type: String,
       default: 'search',
     },
+    searchQueryId: {
+      // [Optional] ID of the search query the filter belongs to.
+      // This ID is dispatched to the the store by filter monitor.
+      type: String,
+      default: undefined,
+    },
+    skipPushSearchParams: {
+      type: Boolean,
+      default: false,
+    },
+    searchFilters: {
+      type: Array,
+      default: undefined,
+    },
   },
   computed: {
-    currentStore() {
-      if (this.store === 'searchImages') {
-        return this.$store.state.searchImages;
-      }
-      return this.$store.state.search;
-    },
     pills: {
       get() {
-        // exclude boolean filters
-        return this.currentStore.search.filters
-          .filter(d => this.excludedTypes.indexOf(d.type) === -1);
+        const filters = this.searchFilters !== undefined
+          ? this.searchFilters
+          : this.$store.state[this.storeModuleName].search.filters;
+        return filters.filter(d => this.excludedTypes.indexOf(d.type) === -1);
           // .sort((a, b) => (a.type > b.type ? 1 : -1));
       },
     },
@@ -160,10 +176,7 @@ export default {
     onRemoveFilter(filter) {
       this.$emit('remove', filter);
     },
-    onChangeFilter(filter) {
-      filter.touched = true;
-    },
-    onApplyFilter(filter) {
+    onFilterApplied(filter) {
       this.$emit('update', filter);
     },
   },

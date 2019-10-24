@@ -14,7 +14,7 @@
         </template>
       </b-tabs>
       <div class="py-3 px-3">
-        <search-pills v-on:remove="onRemoveFilter"/>
+        <search-pills v-on:remove="onRemoveFilter" :search-filters="filters"/>
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
@@ -160,7 +160,7 @@
 
     <b-modal hide-footer id="embeddings" ref="embeddings"
       v-bind:title="$t('Find words similar to ...')">
-      <embeddings-search />
+      <embeddings-search @embdding-selected="addFilterFromEmbedding" />
     </b-modal>
 
 
@@ -514,6 +514,12 @@ export default {
         this.allSelected = true;
         this.allIndeterminate = false;
       }
+    },
+    addFilterFromEmbedding(embedding) {
+      console.info('AE', embedding);
+      const filter = { query: embedding, type: 'string', context: 'include' };
+      this.$store.dispatch('search/ADD_FILTER', { filter });
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
   },
   watch: {

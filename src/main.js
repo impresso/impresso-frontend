@@ -28,6 +28,11 @@ Vue.use(ImpressoLayout);
 Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
+Vue.config.errorHandler = error => store.dispatch('DISPLAY_ERROR', error);
+
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason) store.dispatch('DISPLAY_ERROR', event.reason);
+});
 
 // Create VueI18n instance with options
 const i18n = new VueI18n({

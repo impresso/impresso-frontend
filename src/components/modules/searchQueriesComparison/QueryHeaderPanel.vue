@@ -1,19 +1,46 @@
 <template>
   <div class="px-2 pb-2 py-2 container">
 
-    <!-- title and type -->
-    <div class="row justify-content-between">
-      <div class="col-auto align-self-start">
-        <h3 v-if="type !== 'collection'">{{title}}</h3>
-        <dropdown v-if="type === 'collection'" 
-                  :options="options"
-                  :value="value"
-                  @input="setValue"
+    <b-tabs small 
+            class="mx-2 pt-2"
+            content-class="mt-3" 
+            v-if="comparable.type !== 'intersection'">
+      <!-- query -->
+      <b-tab active-class='none'
+             :active="comparable.type === 'query'"
+             :title="$t('tabs.query')"
+             @click="typeChanged('query')">
+        [query]
+        <div class="py-3 px-3">
+          <search-pills v-on:remove="onRemoveFilter"
+                        v-on:update="onUpdateFilter"
+                        :skip-push-search-params="true"
+                        :search-filters="searchQuery.filters"
+                        store-module-name="queryComparison"
+                        :search-query-id="comparableId"/>
+          <autocomplete v-on:submit="onSuggestion" />
+      </div>
+      </b-tab>
+      <!-- collection -->
+      <b-tab active-class='none'
+             :active="comparable.type === 'collection'"
+             :title="$t('tabs.collection')"
+             @click="typeChanged('collection')">
+        <dropdown :options="collectionsOptions"
+                  :value="comparable.id"
+                  @input="setCollectionId"
                   variant="light"/>
+      </b-tab>
+    </b-tabs>
+
+    <!-- intersection -->
+    <div class="row justify-content-between" v-if="comparable.type === 'intersection'">
+      <div class="col-auto align-self-start">
+        <h3>{{title}}</h3>
       </div>
       <div class="col-auto align-self-start">
-        <div v-if="type" class="badge badge-secondary type d-flex">
-          <span class="small-caps d-flex">{{type}}</span>
+        <div v-if="comparable.type" class="badge badge-secondary type d-flex">
+          <span class="small-caps d-flex">{{comparable.type}}</span>
         </div>
       </div>
     </div>
@@ -26,49 +53,107 @@
 </template>
 
 <script>
+// import { mapState } from 'vuex'
+
 import Dropdown from '../../layout/Dropdown';
+import SearchPills from '../../SearchPills';
+import Autocomplete from '../../Autocomplete';
 
 export default {
-  data: () => ({}),
+  data: () => ({
+    lastQuery: undefined,
+  }),
   props: {
-    collection: {
-      type: Object, // A `{ title, id }` object where `title` is the name of the collection
+    comparable: {
+      // A { id, type, query } object
+      type: Object,
+      default() { return {}; },
     },
-    type: String, // `collection` or `intersection`.
+    title: {
+      type: String,
+    },
     total: Number, // total items in selected collection.
     collections: {
       type: Array, // An array of `{ title, id }` objects for the dropdown box
       default() { return []; },
     },
+    comparableId: {
+      type: String,
+      default: undefined,
+    },
+    query: {
+      type: Object,
+      default() { return { filters: [] }; },
+    },
   },
   components: {
     Dropdown,
+    SearchPills,
+    Autocomplete,
+  },
+  watch: {
+    'comparable.query': {
+      handler() {
+        const { comparableId: searchQueryId, comparable: { query = { filters: [] } } } = this;
+        const { filters } = query;
+        this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
+        if (this.comparable.query) {
+          this.$set(this, 'lastQuery', this.comparable.query);
+        }
+      },
+      immediate: true,
+      deep: true,
+    },
   },
   methods: {
-    setValue(value) {
-      const collection = this.collections.find(c => c.id === value);
-      if (collection) {
-        this.$emit('collection-selected', collection.id);
+    setCollectionId(id) {
+      this.comparable.id = id;
+      this.$emit('comparable-changed', this.comparable);
+    },
+    typeChanged(newType) {
+      this.comparable.type = newType;
+      if (newType === 'query' && !this.comparable.query && this.lastQuery) {
+        this.comparable.query = this.lastQuery;
       }
+      this.$emit('comparable-changed', this.comparable);
+    },
+    onSuggestion(filter) {
+      const { comparableId: searchQueryId } = this;
+      this.$store.dispatch('queryComparison/ADD_FILTER', { searchQueryId, filter });
+
+      this.comparable.query = this.canonicalSearchQuery;
+      this.$emit('comparable-changed', this.comparable);
+    },
+    onRemoveFilter(filter) {
+      const { comparableId: searchQueryId } = this;
+      this.$store.dispatch('queryComparison/REMOVE_FILTER', { searchQueryId, filter });
+
+      this.comparable.query = this.canonicalSearchQuery;
+      this.$emit('comparable-changed', this.comparable);
+    },
+    onUpdateFilter() {
+      this.comparable.query = this.canonicalSearchQuery;
+      this.$emit('comparable-changed', this.comparable);
     },
   },
   computed: {
-    options() {
+    collectionsOptions() {
       const options = this.collections.map(({ title, id }) => ({ text: title, value: id }));
-      if (this.collection && !options.find(o => o.value === this.collection.id)) {
-        options.unshift({ text: this.collection.title, value: this.collection.id });
+      if (!options.find(o => o.value === this.comparable.id)) {
+        options.unshift({
+          text: this.title || 'Select a collection',
+          value: this.comparable.id,
+        });
       }
       return options;
     },
-    value() {
-      return this.collection
-        ? this.collection.id
-        : undefined;
+    searchQuery() {
+      return this.$store.getters['queryComparison/getSearchQuery'](this.comparableId);
     },
-    title() {
-      return this.collection
-        ? this.collection.title
-        : '';
+    canonicalSearchQuery() {
+      return {
+        filters: this.$store.getters['queryComparison/getSearchQuery'](this.comparableId).getFilters(),
+      };
     },
   },
 };
@@ -87,6 +172,11 @@ export default {
 
 <i18n>
 {
-
+  "en": {
+    "tabs": {
+      "collection": "Collection",
+      "query": "Query"
+    }
+  }
 }
 </i18n>
