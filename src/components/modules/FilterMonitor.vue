@@ -66,7 +66,9 @@
           v-bind:class="{ 'border-bottom-0': showEmbeddings }">
           {{$t('embeddings.find')}}
         </b-button>
-        <embeddings-search  v-if="showEmbeddings" v-bind:filter="filter" />
+        <embeddings-search v-if="showEmbeddings" 
+                           v-bind:filter="filter" 
+                           @embdding-selected="addEmbeddingSuggestion"/>
       </div>
 
       <!--  context -->
@@ -132,6 +134,16 @@ export default {
       type: String,
       default: 'search',
     },
+    searchQueryId: {
+      // [Optional] ID of the search query the filter belongs to.
+      // This ID is dispatched to the the store.
+      type: String,
+      default: undefined,
+    },
+    skipPushSearchParams: {
+      type: Boolean,
+      default: false,
+    },
     operators: {
       type: Array,
       default: () => ['OR'],
@@ -183,11 +195,13 @@ export default {
   methods: {
     applyFilter() {
       this.updateFilter({});
-      this.$emit('filter-applied');
-      this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`);
+      const { searchQueryId, filter } = this;
+      this.$emit('filter-applied', filter);
+      if (!this.skipPushSearchParams) {
+        this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, { searchQueryId });
+      }
     },
     updateFilter({ op, context }) {
-      console.info('methods.updateFilter: op:', op, context);
       let q;
       if (this.filter.items) {
         // caclulate new q every time. if it's empty
@@ -202,15 +216,20 @@ export default {
         q = this.filter.q;
       }
 
+      const { searchQueryId, filter } = this;
+
       if (!q.length) {
-        this.$store.commit(`${this.store}/REMOVE_FILTER`, this.filter);
+        this.$store.dispatch(`${this.store}/REMOVE_FILTER`, {
+          filter,
+          searchQueryId,
+        });
         this.$emit('filter-removed');
         return;
       }
 
-      // commit the update
-      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
-        filter: this.filter,
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
         q,
         op,
         context,
@@ -218,8 +237,10 @@ export default {
       this.$emit('filter-updated');
     },
     changeFilterQ(q) {
-      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
-        filter: this.filter,
+      const { searchQueryId, filter } = this;
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
         q,
       });
       this.$emit('filter-updated');
@@ -232,17 +253,21 @@ export default {
       this.updateFilter({ context });
     },
     changeFilterPrecision(precision) {
+      const { searchQueryId, filter } = this;
       // console.info('@changeFilterContext', context);
-      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
-        filter: this.filter,
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
         precision,
       });
       this.$emit('filter-updated');
     },
     changeFilterDistance(distance) {
+      const { searchQueryId, filter } = this;
       // console.info('@changeFilterContext', context);
-      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
-        filter: this.filter,
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
         distance,
       });
       this.$emit('filter-updated');
@@ -252,11 +277,25 @@ export default {
       this.updateFilterItem(item);
     },
     updateFilterItem(item, uid) {
-      this.$store.commit(`${this.store}/UPDATE_FILTER_ITEM`, {
-        filter: this.filter,
+      const { searchQueryId, filter } = this;
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER_ITEM`, {
+        filter,
+        searchQueryId,
         item,
         uid,
       });
+      console.info('updateFilterItem', filter);
+      this.$emit('filter-updated');
+    },
+    addEmbeddingSuggestion(embedding) {
+      const { searchQueryId, filter } = this;
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
+        precision: 'soft',
+        q: `${filter.q} ${embedding}`,
+      });
+      this.$emit('filter-updated');
     },
   },
   components: {

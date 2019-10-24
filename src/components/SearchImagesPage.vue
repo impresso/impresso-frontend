@@ -19,7 +19,7 @@
           </template>
         </b-tabs>
         <div class="py-3 px-3">
-          <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
+          <search-pills :search-filters="filters" store-module-name="searchImages" v-on:remove="onRemoveFilter"/>
           <b-media v-if="similarToImage" class="pb-3">
             <div style="width:128px;" slot="aside">
               <b-img v-if="similarToImage.regions.length"
@@ -163,6 +163,11 @@ export default {
     this.search();
   },
   computed: {
+    filters: {
+      get() {
+        return this.$store.state.searchImages.search.filters;
+      },
+    },
     isFront: {
       get() {
         return this.getBooleanFilter({ type: 'isFront' });

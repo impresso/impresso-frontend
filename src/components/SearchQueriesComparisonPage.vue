@@ -5,11 +5,12 @@
         <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'}`" 
              v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
           <query-header-panel class="col"
-                              :type="queryResult.type"
-                              :collection="asCollection(queryResult)"
+                              :comparable="comparables[queryIdx]"
                               :total="queryResult.total"
+                              :title="queryResult.title"
                               :collections="collections"
-                              @collection-selected="collectionId => onCollectionSelected(queryIdx, collectionId)"/>
+                              :comparable-id="`p-${queryIdx}`"
+                              @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
         </div>
       </div>
 
@@ -84,20 +85,26 @@ const collectionIdToQuery = id => ({
   ],
 });
 
+const comparableToQuery = ({ id, type, query }) => {
+  if (type === 'collection') return collectionIdToQuery(id);
+  return query;
+};
+
 const constructQueryParameters = (comparables, queryParameters) => {
-  const collectionIds = comparables
-    .filter(({ type }) => type === 'collection')
-    .map(({ id }) => id);
-  const serializedQueries = comparables
-    .filter(({ type }) => type === 'query')
-    .map(({ query }) => protobuf.searchQuery.serialize(query));
+  const [left, right] = [comparables[0]].concat(comparables[2])
+    .map(({ type, query, id }) => {
+      if (type === 'collection') return `c:${id || 'unknown-collection-id'}`;
+      return query ? protobuf.searchQuery.serialize(query) : undefined;
+    });
 
   return {
     ...queryParameters,
-    collectionIds: collectionIds.length > 0 ? collectionIds.join(',') : undefined,
-    queries: serializedQueries.length > 0 ? serializedQueries.join(',') : undefined,
+    left,
+    right,
   };
 };
+
+const DefaultQuery = { filters: [{ type: 'hasTextContents' }] };
 
 const QueryLeftIndex = 0;
 const QueriesIntersectionIndex = 1;
@@ -105,9 +112,11 @@ const QueryRightIndex = 2;
 
 export default {
   data: () => ({
+    // loading flags indicate that tab at flag's index is loading data
+    // from the API.
     loadingFlags: [...Array(3).keys()].map(() => false),
+    // [<facet id>, <facet visualisation method>]
     facets: [
-      // [<facet id>, <facet visualisation method>]
       // lightweight
       ['year', 'timeline'],
       ['newspaper', 'bars'],
@@ -124,46 +133,46 @@ export default {
       { type: 'intersection' },
       { },
     ],
+    // Timeline highlight (tooltip) data.
+    // Used to synchronise all three timelines
     timelineHighlights: {},
     // list of available collections:
     collections: [],
     // comparable items: { type, query, id }
-    // where type is one of ['collection', 'query']
+    // where type is one of ['collection', 'query', 'intersection']
     //       id is the ID of the collection if this is a collection
     //       query is a Search Query object.
-    comparables: [],
+    comparables: [
+      { type: 'query', query: DefaultQuery },
+      { type: 'intersection' },
+      { type: 'query', query: DefaultQuery },
+    ],
   }),
   watch: {
+    // query parameters updated - this drives state change
     '$route.query': {
       handler(queryParameters) {
-        let { collectionIds = '', queries = '' } = queryParameters;
-        collectionIds = collectionIds.split(',').filter(v => v !== '');
-        queries = queries.split(',').filter(v => v !== '').map((serializedQuery, idx) => {
+        const { left = '', right = '' } = queryParameters;
+        const [leftComparable, rightComparable] = [left, right].map((item, idx) => {
+          const parts = item.split(':');
+          if (parts.length === 2 && parts[0] === 'c') return { type: 'collection', id: parts[1] };
           try {
-            return protobuf.searchQuery.deserialize(serializedQuery);
+            const query = item === ''
+              ? DefaultQuery
+              : protobuf.searchQuery.deserialize(item);
+            return { type: 'query', query };
           } catch (e) {
             throw new Error(`Query ${idx} could not be parsed: ${e.message}`);
           }
         });
 
-        if (queries.length + collectionIds.length > 2) {
-          throw new Error('Too many comparable items provided');
-        }
-
-        this.comparables = collectionIds
-          .map(id => ({
-            id,
-            type: 'collection',
-            query: collectionIdToQuery(id),
-          }))
-          .concat(queries.map(query => ({
-            type: 'query',
-            query,
-          })));
+        this.$set(this.comparables, 0, leftComparable);
+        this.$set(this.comparables, 2, rightComparable);
       },
       immediate: true,
       deep: true,
     },
+    // comparables are updated by the query paramters - fetching new data.
     comparables: {
       async handler(comparables) {
         if (comparables.length === 0) return Promise.resolve([]);
@@ -171,8 +180,9 @@ export default {
           ? [this.updateQueryResult(QueryLeftIndex, comparables[0])]
           : [
             this.updateQueryResult(QueryLeftIndex, comparables[0]),
-            this.updateQueriesIntersectionResult(QueriesIntersectionIndex, comparables),
-            this.updateQueryResult(QueryRightIndex, comparables[1]),
+            this.updateQueriesIntersectionResult(QueriesIntersectionIndex,
+              [comparables[0]].concat(comparables[2])),
+            this.updateQueryResult(QueryRightIndex, comparables[2]),
           ];
         return Promise.all(fetchDataPromises);
       },
@@ -180,11 +190,13 @@ export default {
       deep: true,
     },
   },
+  // get collections on created.
   async created() {
     const { data } = await collections.find();
     this.collections = data.map(({ name, uid }) => ({ id: uid, title: name }));
   },
   computed: {
+    // the span of the domain to fit the widest result on timeline.
     timelineDomain() {
       const minAndMaxYears = this.queriesResults.map(getDomainForResults);
       const minimums = minAndMaxYears.map(([minYear]) => minYear).filter(y => y !== undefined);
@@ -199,18 +211,24 @@ export default {
     LoadingIndicator,
   },
   methods: {
+    /** Get particular values out of a retuls object */
     getFacetValues(result, facetId) {
       if (result.facets === undefined) return undefined;
       const items = result.facets.filter(({ id }) => id === facetId);
       if (items.length === 0) return [];
       return items[0].buckets;
     },
+    /** Fetch intersection data */
     async updateQueriesIntersectionResult(resultIndex, comparables) {
       const payload = {
-        queries: comparables.map(({ query }) => query),
+        queries: comparables
+          .map(comparableToQuery)
+          .filter(query => query !== null && query !== undefined),
         limit: 0,
         facets: this.facets.map(([type]) => type),
       };
+
+      if (payload.queries.length < 2) return;
 
       this.loadingFlags[resultIndex] = true;
       try {
@@ -222,18 +240,20 @@ export default {
           total: result.total,
         };
         this.$set(this.queriesResults, resultIndex, resultValue);
-        // console.info('Intersection data', JSON.stringify(this.queriesResults[resultIndex]));
       } finally {
         this.loadingFlags[resultIndex] = false;
       }
     },
-    async updateQueryResult(resultIndex, { type, query, id }) {
+    /** Fetch query data */
+    async updateQueryResult(resultIndex, comparable) {
       const payload = {
-        ...query,
+        ...comparableToQuery(comparable),
         limit: 0,
         facets: this.facets.map(([facetType]) => facetType),
         group_by: 'articles',
       };
+
+      const { type, id } = comparable;
 
       this.loadingFlags[resultIndex] = true;
       try {
@@ -247,11 +267,11 @@ export default {
         };
         // https://vuejs.org/v2/guide/list.html#Caveats
         this.$set(this.queriesResults, resultIndex, resultValue);
-        // console.info(`Data for query ${id}`, JSON.stringify(this.queriesResults[resultIndex]));
       } finally {
         this.loadingFlags[resultIndex] = false;
       }
 
+      // if query is for collection - get collection name
       if (type === 'collection') {
         collections.get(id, { query: { nameOnly: true } })
           .then(({ name }) => {
@@ -265,6 +285,7 @@ export default {
           });
       }
     },
+    /** Next three *timeline* methods are for synchronising timeline tooltips */
     onTimelineHighlight({ facetId, data }) {
       this.$set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
     },
@@ -287,14 +308,10 @@ export default {
         title: queryResult.title,
       };
     },
-    onCollectionSelected(queryIndex, collectionId) {
-      const comparables = this.comparables.map(c => ({ ...c }));
-      const comparable = comparables[queryIndex === 0 ? 0 : 1];
+    onComparableUpdated(comparableId, comparable) {
+      this.$set(this.comparables, comparableId, comparable);
 
-      comparable.id = collectionId;
-      comparable.type = 'collection';
-
-      const queryParameters = constructQueryParameters(comparables, this.$route.query);
+      const queryParameters = constructQueryParameters(this.comparables, this.$route.query);
       this.$router.push({
         name: 'compare',
         query: queryParameters,

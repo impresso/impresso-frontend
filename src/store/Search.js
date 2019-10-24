@@ -379,5 +379,17 @@ export default {
         }),
       ]);
     },
+    ADD_FILTER({ commit }, { filter }) {
+      commit('ADD_FILTER', filter);
+    },
+    REMOVE_FILTER({ commit }, { filter }) {
+      commit('REMOVE_FILTER', filter);
+    },
+    UPDATE_FILTER({ commit }, message) {
+      commit('UPDATE_FILTER', message);
+    },
+    UPDATE_FILTER_ITEM({ commit }, message) {
+      commit('UPDATE_FILTER_ITEM', message);
+    },
   },
 };

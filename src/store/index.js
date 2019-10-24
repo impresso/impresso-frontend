@@ -19,7 +19,7 @@ import embeddings from './Embeddings';
 import monitor from './Monitor';
 import explorer from './Explorer';
 import buckets from './Buckets';
-
+import queryComparison from './QueryComparison';
 
 Vue.use(Vuex);
 
@@ -45,6 +45,7 @@ export default new Vuex.Store({
     monitor,
     buckets,
     explorer,
+    queryComparison,
   },
   state: {
     processing_status: false,
