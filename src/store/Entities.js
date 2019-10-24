@@ -105,7 +105,9 @@ export default {
       }));
     },
     LOAD_DETAIL(context, entityId) {
-      return services.entities.get(entityId, {}).then((res) => {
+      const eid = unescape(entityId);
+      console.log('unesc', eid);
+      return services.entities.get(eid, {}).then((res) => {
         console.info('entities/LOAD_DETAIL success:', res);
         return new Entity(res);
       });

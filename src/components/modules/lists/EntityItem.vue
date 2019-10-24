@@ -10,7 +10,7 @@
     <router-link v-if="showLink"
       v-bind:class="{ active: active }"
       v-bind:to="{ name: 'entity', params: {
-        entity_id: this.item.uid,
+        entity_id: escurl(this.item.uid),
       }}">
       <span v-html="name"></span>
     </router-link>
@@ -63,6 +63,9 @@ export default {
   methods: {
     getWikidataImageURL(image, { width = 60 } = {}) {
       return `http://commons.wikimedia.org/wiki/Special:FilePath/${image.value}?width=${width}px`;
+    },
+    escurl(str) {
+      return escape(str);
     },
   },
 };
