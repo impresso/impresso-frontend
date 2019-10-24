@@ -148,12 +148,22 @@ export default {
 </script>
 
 <style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
 #IssueViewerText{
   overflow: none;
   height: 100%;
 
-  span.location{
-    border-bottom: 1px solid cyan;
+  span.location,
+  span.person{
+    box-shadow:inset 0px -2px 0px 0px transparentize($clr-accent-secondary, 0.6);
+    transition: box-shadow 0.4s;
+    padding: 0 1px;
+
+    cursor: pointer;
+    &:hover {
+      box-shadow:inset 0px -20px 0px 0px transparentize($clr-accent-secondary, 0.6);
+    }
   }
 
   .region-row {
