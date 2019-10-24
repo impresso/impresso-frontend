@@ -114,6 +114,7 @@
           </b-dropdown-item>
         </b-dropdown>
         <b-form-checkbox
+        class="mx-1"
           v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
           v-bind:indeterminate="this.allIndeterminate"
           v-bind:checked.native="this.allSelected"
