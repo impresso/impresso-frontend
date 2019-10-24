@@ -5,7 +5,7 @@
         <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'}`" 
              v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
           <query-header-panel class="col"
-                              :comparable="comparables[queryIdx]"
+                              :comparable="comparableForQuery(queryIdx)"
                               :total="queryResult.total"
                               :title="queryResult.title"
                               :collections="collections"
@@ -91,7 +91,7 @@ const comparableToQuery = ({ id, type, query }) => {
 };
 
 const constructQueryParameters = (comparables, queryParameters) => {
-  const [left, right] = [comparables[0]].concat(comparables[2])
+  const [left, right] = comparables
     .map(({ type, query, id }) => {
       if (type === 'collection') return `c:${id || 'unknown-collection-id'}`;
       return query ? protobuf.searchQuery.serialize(query) : undefined;
@@ -103,6 +103,8 @@ const constructQueryParameters = (comparables, queryParameters) => {
     right,
   };
 };
+
+const deepEqual = (o1, o2) => JSON.stringify(o1) === JSON.stringify(o2);
 
 const DefaultQuery = { filters: [{ type: 'hasTextContents' }] };
 
@@ -139,12 +141,11 @@ export default {
     // list of available collections:
     collections: [],
     // comparable items: { type, query, id }
-    // where type is one of ['collection', 'query', 'intersection']
+    // where type is one of ['collection', 'query']
     //       id is the ID of the collection if this is a collection
     //       query is a Search Query object.
     comparables: [
       { type: 'query', query: DefaultQuery },
-      { type: 'intersection' },
       { type: 'query', query: DefaultQuery },
     ],
   }),
@@ -153,7 +154,7 @@ export default {
     '$route.query': {
       handler(queryParameters) {
         const { left = '', right = '' } = queryParameters;
-        const [leftComparable, rightComparable] = [left, right].map((item, idx) => {
+        const comparables = [left, right].map((item, idx) => {
           const parts = item.split(':');
           if (parts.length === 2 && parts[0] === 'c') return { type: 'collection', id: parts[1] };
           try {
@@ -165,26 +166,30 @@ export default {
             throw new Error(`Query ${idx} could not be parsed: ${e.message}`);
           }
         });
-
-        this.$set(this.comparables, 0, leftComparable);
-        this.$set(this.comparables, 2, rightComparable);
+        this.$set(this, 'comparables', comparables);
       },
       immediate: true,
       deep: true,
     },
     // comparables are updated by the query paramters - fetching new data.
     comparables: {
-      async handler(comparables) {
-        if (comparables.length === 0) return Promise.resolve([]);
-        const fetchDataPromises = comparables.length < 2
-          ? [this.updateQueryResult(QueryLeftIndex, comparables[0])]
-          : [
-            this.updateQueryResult(QueryLeftIndex, comparables[0]),
-            this.updateQueriesIntersectionResult(QueriesIntersectionIndex,
-              [comparables[0]].concat(comparables[2])),
-            this.updateQueryResult(QueryRightIndex, comparables[2]),
-          ];
-        return Promise.all(fetchDataPromises);
+      async handler([left, right] = [], [oldLeft, oldRight] = []) {
+        const queries = [];
+        if (!deepEqual(left, oldLeft)) {
+          queries.push(this.updateQueryResult(QueryLeftIndex, left));
+        }
+
+        if (!deepEqual(right, oldRight)) {
+          queries.push(this.updateQueryResult(QueryRightIndex, right));
+        }
+
+        if (queries.length > 0) {
+          queries.push(
+            this.updateQueriesIntersectionResult(QueriesIntersectionIndex, [left, right]),
+          );
+        }
+
+        return Promise.all(queries);
       },
       immediate: true,
       deep: true,
@@ -235,7 +240,7 @@ export default {
         const result = await searchQueriesComparison.create(payload, { query: { method: 'intersection' } });
         const resultValue = {
           type: 'intersection',
-          title: 'In both collections',
+          title: '',
           facets: prepareFacets(result.info.facets),
           total: result.total,
         };
@@ -261,7 +266,7 @@ export default {
         const resultValue = {
           id,
           type,
-          title: 'Query',
+          title: '',
           facets: prepareFacets(result.info.facets),
           total: result.total,
         };
@@ -308,14 +313,29 @@ export default {
         title: queryResult.title,
       };
     },
-    onComparableUpdated(comparableId, comparable) {
-      this.$set(this.comparables, comparableId, comparable);
+    onComparableUpdated(queryIdx, comparable) {
+      if (queryIdx !== 0 && queryIdx !== 2) return;
+      const comparableIdx = queryIdx === 0 ? 0 : 1;
+
+      this.$set(this.comparables, comparableIdx, comparable);
 
       const queryParameters = constructQueryParameters(this.comparables, this.$route.query);
       this.$router.push({
         name: 'compare',
         query: queryParameters,
       });
+    },
+    comparableForQuery(queryIndex) {
+      switch (queryIndex) {
+        case 0:
+          return this.comparables[0];
+        case 1:
+          return { type: 'intersection' };
+        case 2:
+          return this.comparables[1];
+        default:
+          throw new Error(`Unexpected queryIndex: ${queryIndex}`);
+      }
     },
   },
 };

@@ -10,7 +10,6 @@
              :active="comparable.type === 'query'"
              :title="$t('tabs.query')"
              @click="typeChanged('query')">
-        [query]
         <div class="py-3 px-3">
           <search-pills v-on:remove="onRemoveFilter"
                         v-on:update="onUpdateFilter"
