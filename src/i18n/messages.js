@@ -30,6 +30,7 @@ export default {
       and: 'and',
     },
     actions: {
+      addFilter: 'add filter...',
       agree: 'I agree to the terms of use',
       more: 'more...',
       searchMore: 'open in search page...',
