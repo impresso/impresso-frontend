@@ -10,7 +10,8 @@ import imagesHooks from './hooks/images';
 import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
 
 
-const socket = io(`${process.env.MIDDLELAYER_API}`, {
+const MiddleLayerApiBase = `${process.env.MIDDLELAYER_API}`;
+const socket = io(MiddleLayerApiBase || window.location.hostname, {
   path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
 });
 

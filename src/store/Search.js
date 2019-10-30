@@ -353,9 +353,6 @@ export default {
               services.collectionsItems.find({
                 query: { item_uids: itemuids, limit: 100 },
               }).then((cs) => {
-                const intersection = state.results.filter(x => cs.data.includes(x.uid));
-                console.log('intersection', intersection);
-
                 state.results.forEach((re) => {
                   cs.data.forEach((c) => {
                     if (c.itemId === re.uid) {
