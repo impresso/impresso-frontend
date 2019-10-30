@@ -15,7 +15,8 @@
             {'dripicons-location': filter.type === 'location'},
             {'dripicons-pamphlet': filter.type === 'newspaper'},
             {'dripicons-web': filter.type === 'language'},
-            {'dripicons-calendar': filter.type === 'daterange'},
+            {'dripicons-pulse': filter.type === 'daterange'},
+            {'dripicons-calendar': filter.type === 'year'},
             {'dripicons-suitcase': filter.type === 'collection'},
           ]" />
         <!--  type:string -->
@@ -43,6 +44,11 @@
           v-if="['language', 'country'].indexOf(filter.type) !== -1"
           v-html="labelByItems({ items: filter.items, max: 2, prop:'uid', translate: true, type:filter.type, op: filter.op })"
           :class="filter.context">
+        </span>
+        <!--  type:generic -->
+        <span class="label sp-generic-item"
+          v-if="filter.type === 'year'"
+          :class="filter.context">{{ filter.q.join(', ') }}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
