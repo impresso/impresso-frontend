@@ -74,7 +74,7 @@
         @reset-filter="resetFilter"/>
       <b-button
         v-if="facet.numBuckets > -1"
-        v-html="$t('actions.viewAll')"
+        v-html="$t('actions.more')"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
         @click="showModal(facet.type)" />
     </div>
@@ -121,6 +121,9 @@ export default {
     daterangeSelectedItemIndex: 0,
   }),
   computed: {
+    temporaryFilter() {
+      return this.$store.getters['explorer/getTemporaryFilter']();
+    },
     currentStore() {
       if (this.store === 'searchImages') {
         return this.$store.state.searchImages;
@@ -318,6 +321,7 @@ export default {
       this.$store.dispatch('explorer/SHOW', {
         type,
         mode: 'facets',
+        filters: this.currentStore.search.filters,
       });
     },
     submitBuckets({ type, context, ids }) {
@@ -377,6 +381,14 @@ export default {
           context,
         });
       }
+    },
+  },
+  watch: {
+    temporaryFilter: { // user uploaded image id
+      handler(filter) {
+        console.info('@temporaryFilter', filter);
+      },
+      immediate: true,
     },
   },
   components: {
