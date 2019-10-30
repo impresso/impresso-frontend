@@ -14,7 +14,11 @@
         </template>
       </b-tabs>
       <div class="py-3 px-3">
-        <search-pills v-on:remove="onRemoveFilter" :search-filters="filters"/>
+        <search-pills
+          v-on:remove="onRemoveFilter"
+          v-on:add="onAddFilter"
+          :search-filters="filters"
+        />
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
@@ -393,6 +397,10 @@ export default {
     },
     onRemoveFilter(filter) {
       this.$store.commit('search/REMOVE_FILTER', filter);
+      this.search(1);
+    },
+    onAddFilter(filter) {
+      this.$store.commit('search/ADD_FILTER', filter);
       this.search(1);
     },
     itemSelected(item) {
