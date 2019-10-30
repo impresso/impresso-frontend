@@ -14,7 +14,7 @@ export default {
   },
   getters: {
     getTemporaryFilter: state => (searchQueryId) => {
-      if (state.searchQueryId === searchQueryId) {
+      if (typeof searchQueryId === 'undefined' || state.searchQueryId === searchQueryId) {
         return state.temporaryFilter;
       }
       return null;
