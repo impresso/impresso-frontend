@@ -67,13 +67,13 @@
 
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
-        <filter-monitor checkbox 
+        <filter-monitor checkbox
                         :store="storeModuleName"
                         :filter="filter"
                         :type="filter.type"
                         :search-query-id="searchQueryId"
                         :operators="['AND', 'OR']"
-                        :skip-push-search-params="skipPushSearchParams" 
+                        :skip-push-search-params="skipPushSearchParams"
                         @filter-applied="onFilterApplied" />
       </div>
 
@@ -82,6 +82,7 @@
         <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
+    <b-button variant="outline-primary" size="sm" v-on:click="addFilter">{{ $t('actions.addFilter') }}</b-button>
   </div>
 </template>
 
@@ -116,6 +117,9 @@ export default {
     },
   },
   computed: {
+    temporaryFilter() {
+      return this.$store.getters['explorer/getTemporaryFilter'](this.searchQueryId);
+    },
     pills: {
       get() {
         const filters = this.searchFilters !== undefined
@@ -185,11 +189,32 @@ export default {
     onFilterApplied(filter) {
       this.$emit('update', filter);
     },
+    onAddFilter(filter) {
+      this.$emit('add', filter);
+    },
+    addFilter() {
+      this.$store.dispatch('explorer/SET_SEARCH_QUERY_ID', this.searchQueryId);
+      this.$store.dispatch('explorer/SHOW', {
+        mode: 'facets',
+        filters: this.searchFilters,
+      });
+    },
   },
   components: {
     TopicListItem,
     NewspaperListItem,
     FilterMonitor,
+  },
+  watch: {
+    temporaryFilter: { // user uploaded image id
+      handler(filter) {
+        if (filter) {
+          this.onAddFilter(filter);
+        }
+        return filter;
+      },
+      immediate: true,
+    },
   },
 };
 </script>
