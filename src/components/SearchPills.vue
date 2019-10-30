@@ -82,7 +82,7 @@
         <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
-    <b-button variant="outline-primary" size="sm" v-on:click="addFilter">{{ $t('actions.addFilter') }}</b-button>
+    <b-button v-if="enableAddFilter" variant="outline-primary" size="sm" v-on:click="addFilter">{{ $t('actions.addFilter') }}</b-button>
   </div>
 </template>
 
@@ -114,6 +114,10 @@ export default {
     searchFilters: {
       type: Array,
       default: undefined,
+    },
+    enableAddFilter: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {
