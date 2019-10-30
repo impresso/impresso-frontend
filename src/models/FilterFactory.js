@@ -5,7 +5,6 @@ import FilterRegex from '@/models/FilterRegex';
 import FilterNewspaper from '@/models/FilterNewspaper';
 import FilterTopic from '@/models/FilterTopic';
 import FilterItem from '@/models/FilterItem';
-import FilterFacetYear from '@/models/FilterFacetYear';
 import FilterDaterange from '@/models/FilterDaterange';
 import FilterCollection from '@/models/FilterCollection';
 
@@ -47,7 +46,7 @@ export default {
       filter = new FilterEntity(filterData);
     }
 
-    if (['country', 'type', 'language', 'issue'].includes(filterData.type)) {
+    if (['country', 'type', 'language', 'issue', 'year'].includes(filterData.type)) {
       filter = new FilterItem(filterData);
     }
 
@@ -57,10 +56,6 @@ export default {
 
     if (filterData.type === 'topic') {
       filter = new FilterTopic(filterData);
-    }
-
-    if (filterData.type === 'year') {
-      filter = new FilterFacetYear(filterData);
     }
 
     if (filterData.type === 'daterange') {

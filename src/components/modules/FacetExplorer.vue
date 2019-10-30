@@ -11,7 +11,9 @@
         </div>
         <b-form-checkbox v-for="(bucket, idx) in buckets" v-bind:key="idx" :value="bucket.val" class="d-block">
           <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
-          <span v-if="bucket.count > -1">( {{ $n(bucket.count) }} )</span>
+          <span v-if="bucket.count > -1">
+            (<span v-html="$tc('numbers.results', bucket.count, { n : $n(bucket.count) })"/>)
+          </span>
           <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
           <div class="matches" v-if="bucket.item && bucket.item.matches">
             <span v-for="(match, i) in bucket.item.matches" v-html="match" :key="i"/>

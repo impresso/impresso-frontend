@@ -152,10 +152,11 @@ export default {
     },
     typeOptions() {
       if (this.isSearchable) {
-        return ['newspaper', 'person', 'location', 'topic', 'collection', 'year'];
+        return ['newspaper', 'person', 'location', 'topic', 'collection'];
       }
       return [
-        'location', 'country', 'person', 'language', 'topic', 'newspaper', 'collection',
+        'location', 'country', 'person', 'language',
+        'topic', 'newspaper', 'collection', 'year', 'month',
       ];
     },
   },
