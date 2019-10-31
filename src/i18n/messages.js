@@ -30,6 +30,7 @@ export default {
       and: 'and',
     },
     actions: {
+      addFilter: 'add filter...',
       agree: 'I agree to the terms of use',
       more: 'more...',
       searchMore: 'open in search page...',
@@ -115,13 +116,13 @@ export default {
     },
     label: {
       year: {
-        title: 'Year | Years',
+        title: 'Year | Year | Years',
       },
       type: {
-        title: 'Title | Titles',
+        title: 'Title | Title | Titles',
       },
       topic: {
-        title: 'Topic | Topics',
+        title: 'Topic | Topic | Topics',
         filterTitle: 'filter by topic',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> topic applies',
@@ -129,7 +130,7 @@ export default {
         empty: 'There is no topic available',
       },
       person: {
-        title: 'Person | Persons',
+        title: 'Person | Person | Persons',
         filterTitle: 'filter by person',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> people are mentioned',
@@ -137,7 +138,7 @@ export default {
         empty: 'No person has been recognized in results',
       },
       location: {
-        title: 'Location | Locations',
+        title: 'Location | Location | Locations',
         filterTitle: 'filter by location',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> locations are mentioned',
@@ -145,7 +146,7 @@ export default {
         empty: 'There is no location available',
       },
       collection: {
-        title: 'Collection | Collections',
+        title: 'Collection | Collection | Collections',
         filterTitle: 'filter by collection',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> collection applies',
@@ -153,7 +154,7 @@ export default {
         empty: '... you haven\'t saved any result item in your collection',
       },
       newspaper: {
-        title: 'Newspaper | Newspapers',
+        title: 'Newspaper | Newspaper | Newspapers',
         filterTitle: 'filter by newspaper titles',
         filtered: 'results are filtered when:',
         selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
@@ -161,7 +162,7 @@ export default {
         empty: '(no results)',
       },
       language: {
-        title: 'Language | Languages',
+        title: 'Language | Language | Languages',
         filterTitle: 'filter by language of articles',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are written in <b>one of {count} selected</b> languages',
@@ -169,7 +170,7 @@ export default {
         empty: '(no results)',
       },
       country: {
-        title: 'Country | Countries',
+        title: 'Country | Country | Countries',
         filterTitle: 'filter by country of publication',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are published in <b>one of {count} selected</b> countries',

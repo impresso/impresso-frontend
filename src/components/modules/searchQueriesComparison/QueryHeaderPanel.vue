@@ -1,9 +1,9 @@
 <template>
   <div class="px-2 pb-2 py-2 container">
 
-    <b-tabs small 
+    <b-tabs small
             class="mx-2 pt-2"
-            content-class="mt-3" 
+            content-class="mt-3"
             v-if="comparable.type !== 'intersection'">
       <!-- query -->
       <b-tab active-class='none'
@@ -13,10 +13,13 @@
         <div class="py-3 px-3">
           <search-pills v-on:remove="onRemoveFilter"
                         v-on:update="onUpdateFilter"
+                        v-on:add="onAddFilter"
                         :skip-push-search-params="true"
                         :search-filters="searchQuery.filters"
                         store-module-name="queryComparison"
-                        :search-query-id="comparableId"/>
+                        :search-query-id="comparableId"
+                        enable-add-filter
+                        />
           <autocomplete v-on:submit="onSuggestion" />
       </div>
       </b-tab>
@@ -129,6 +132,9 @@ export default {
 
       this.comparable.query = this.canonicalSearchQuery;
       this.$emit('comparable-changed', this.comparable);
+    },
+    onAddFilter(filter) {
+      this.onSuggestion(filter);
     },
     onUpdateFilter() {
       this.comparable.query = this.canonicalSearchQuery;

@@ -21,11 +21,12 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a class="nav-link" v-on:click.stop.prevent="openExplorer">{{$t("label_explore")}}</a>
           </li>
+          <li class="nav-item">
             <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
-          </li>
+          </li> -->
           </li>
             <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
           </li>`
@@ -445,7 +446,7 @@ export default {
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_compare": "Compare",
-    "label_faq": "Help",
+    "label_faq": "FAQ",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
