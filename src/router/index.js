@@ -34,7 +34,6 @@ const router = new Router({
   mode: 'history',
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
-      console.log('saved position : ', savedPosition);
       return savedPosition;
     }
     if (to.hash) {
