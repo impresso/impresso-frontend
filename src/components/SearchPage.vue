@@ -82,7 +82,7 @@
       </b-navbar>
 
       <b-navbar class="d-flex p-0 border-bottom bg-light">
-        <b-navbar-nav class="p-2 border-right flex-grow-1">
+        <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
           <ellipsis v-bind:initialHeight="60">
             <search-result-summary
               @onSummary="onSummary"
@@ -91,8 +91,11 @@
               :totalRows="paginationTotalRows" />
           </ellipsis>
         </b-navbar-nav>
-        <b-navbar-nav class="ml-auto pl-3" v-if="isLoggedIn()">
-          <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
+        <b-navbar-nav class="ml-auto pl-3" >
+          <b-button size="sm" variant="outline-primary" class="mr-1" v-on:click="compare">
+            {{ $t('actions.compare') }}
+          </b-button>
+          <b-dropdown  v-if="isLoggedIn()" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
             <b-dropdown-item
               v-if="selectedItems.length > 0"
               class="p-2 small-caps"
@@ -118,7 +121,7 @@
               {{$t("query_export_csv")}}
             </b-dropdown-item>
           </b-dropdown>
-          <b-form-checkbox
+          <b-form-checkbox  v-if="isLoggedIn()"
           class="mx-1"
             v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
             v-bind:indeterminate="this.allIndeterminate"
@@ -208,6 +211,7 @@
 </template>
 
 <script>
+import { protobuf } from 'impresso-jscommons';
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchFacets from './SearchFacets';
@@ -348,6 +352,16 @@ export default {
     },
   },
   methods: {
+    compare() {
+      this.$router.push({
+        name: 'compare',
+        query: {
+          left: protobuf.searchQuery.serialize({
+            filters: this.filters.map(d => d.getQuery()),
+          }),
+        },
+      });
+    },
     nameSelectedCollectionOnShown() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
