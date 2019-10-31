@@ -3,7 +3,7 @@
   <i-layout-section width="400px" class="border-right border-top mt-1px">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
-      <b-tabs pills class="border-bottom mx-2 pt-2">
+      <b-tabs pills class="mx-2 pt-2">
         <template v-slot:tabs-end>
           <b-nav-item class="pl-2 active"
             active-class='none'
