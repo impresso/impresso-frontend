@@ -1,16 +1,14 @@
 <template>
-  <div class="px-2 pb-2 py-2 container">
+  <div class="p-2 container">
 
-    <b-tabs small
-            class="mx-2 pt-2"
-            content-class="mt-3"
+    <b-tabs pills content-class="mt-3"
             v-if="comparable.type !== 'intersection'">
       <!-- query -->
-      <b-tab active-class='none'
+      <b-tab
              :active="comparable.type === 'query'"
-             :title="$t('tabs.query')"
+             :title="getTabLabel('query')"
              @click="typeChanged('query')">
-        <div class="py-3 px-3">
+        <div class="px-1 pb-2">
           <search-pills v-on:remove="onRemoveFilter"
                         v-on:update="onUpdateFilter"
                         v-on:add="onAddFilter"
@@ -21,12 +19,12 @@
                         enable-add-filter
                         />
           <autocomplete v-on:submit="onSuggestion" />
-      </div>
+        </div>
       </b-tab>
       <!-- collection -->
-      <b-tab active-class='none'
+      <b-tab
              :active="comparable.type === 'collection'"
-             :title="$t('tabs.collection')"
+             :title="getTabLabel('collection')"
              @click="typeChanged('collection')">
         <dropdown :options="collectionsOptions"
                   :value="comparable.id"
@@ -47,9 +45,7 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-auto">{{total}} articles</div>
-    </div>
+
 
   </div>
 </template>
@@ -108,6 +104,14 @@ export default {
     },
   },
   methods: {
+    getTabLabel(type) {
+      if (type === this.comparable.type) {
+        return this.$tc(`tabs.${type}.active`, this.total, {
+          count: this.$n(this.total),
+        });
+      }
+      return this.$t(`tabs.${type}.pick`);
+    },
     setCollectionId(id) {
       this.comparable.id = id;
       this.$emit('comparable-changed', this.comparable);
@@ -179,8 +183,14 @@ export default {
 {
   "en": {
     "tabs": {
-      "collection": "Collection",
-      "query": "Query"
+      "collection": {
+        "active": "collection | collection (1 result) | collection ({count} results)",
+        "pick": "collection"
+      },
+      "query": {
+        "active": "query | query (1 result) | query ({count} results)",
+        "pick": "query"
+      }
     }
   }
 }
