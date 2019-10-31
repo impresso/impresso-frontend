@@ -14,8 +14,10 @@
               :brushable="false">
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
-              {{ $d(tooltipScope.tooltip.item.t, 'short', 'en') }} &middot;
-              <b>{{ tooltipScope.tooltip.item.w }}</b>
+              {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
+              <b v-html="$tc('numbers.results', tooltipScope.tooltip.item.w, {
+                n: $n(tooltipScope.tooltip.item.w),
+              })"/>
             </div>
           </div>
         </timeline>
