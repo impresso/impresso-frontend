@@ -1,7 +1,7 @@
 <template lang="html">
   <div class='search-pills'>
     <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
-      v-for="(filter, index) in pills" :key="filter.key">
+      v-for="(filter, index) in pills" :key="index">
       <!--  button content -->
       <template slot="button-content">
         <!-- badge: initial type instead of icons -->
