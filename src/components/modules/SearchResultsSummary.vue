@@ -1,6 +1,6 @@
 <template lang="html">
-  <section class="search-results-summary textbox-fancy">
-    <span class="label">{{$t("summary")}}</span>
+  <section class="search-results-summary textbox-fancy border-tertiary">
+    <!-- <span class="label">{{$t("summary")}}</span> -->
     <div class="text-serif" v-html="message"></div>
   </section>
 </template>
