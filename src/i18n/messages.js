@@ -203,6 +203,13 @@ export default {
         asc: 'order by publication date, oldest first',
         desc: 'order by publication date, most recent first',
       },
+      relevance: {
+        desc: 'relevance',
+      },
+      date: {
+        asc: 'publication date, oldest first',
+        desc: 'publication date, most recent first',
+      },
     },
   },
   nl: {

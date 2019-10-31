@@ -274,24 +274,14 @@ export default {
     },
     orderByOptions: {
       get() {
-        return [
-          {
-            value: 'relevance',
-            text: `${this.$t('sort_relevance')} ${this.$t('sort_asc')}`,
-          },
-          {
-            value: '-relevance',
-            text: `${this.$t('sort_relevance')} ${this.$t('sort_desc')}`,
-          },
-          {
-            value: 'date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
-          },
-          {
-            value: '-date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
-          },
-        ];
+        return this.$store.state.search.orderByOptions.map((value) => {
+          const label = value.replace(/^-/, '');
+          const direction = value.indexOf('-') === 0 ? 'desc' : 'asc';
+          return {
+            value,
+            text: this.$t(`sort.${label}.${direction}`),
+          };
+        });
       },
     },
     orderBy: {
@@ -635,10 +625,6 @@ div.overlay-region{
     "label_group": "Group By",
     "label_isFront": "Frontpage",
     "label_hasTextContents": "Contains Text",
-    "sort_asc": "Ascending",
-    "sort_desc": "Descending",
-    "sort_date": "Date",
-    "sort_relevance": "Relevance",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "order_issues": "Issue",
