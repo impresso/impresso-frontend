@@ -73,27 +73,28 @@ export default {
       height: 100%;
       overflow: hidden;
     }
+    .btn{
+      background-color: #f8f9fa;
+    }
+    > .more{
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 150px;
+      text-align: right;
+      background: linear-gradient(#f8f9fa00 20%, #f8f9fa);
+    }
   }
-
-  .ellipsis > .more{
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 150px;
-    text-align: right;
-    background: linear-gradient(#f8f9fa00 20%, #f8f9fa);
-  }
-
 </style>
 
 <i18n>
 {
   "en": {
-    "more": "more ...",
+    "more": "(more ...)",
     "less": "less ..."
   },
   "it": {
-    "more": "espandi ...",
+    "more": "(espandi ...)",
     "less": "less ..."
   }
 }
