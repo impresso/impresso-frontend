@@ -1,35 +1,44 @@
 <template lang="html">
   <i-layout id="SearchQueriesComparisonPage">
-    <i-layout-section>
-      <div slot="header" class="header row border-bottom pm-fixer">
-        <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'}`" 
-             v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
-          <query-header-panel class="col"
-                              :comparable="comparableForQuery(queryIdx)"
-                              :total="queryResult.total"
-                              :title="queryResult.title"
-                              :collections="collections"
-                              :comparable-id="`p-${queryIdx}`"
-                              @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
+    <i-layout-section class="border-top mt-1px">
+      <div slot="header">
+        <div class="header row pm-fixer bg-light border-bottom border-tertiary">
+          <div class="one-third" :class="{
+            'border-right mr-1px': !isLastResult(queryIdx),
+            'border-left': queryIdx > 0,
+          }"
+               v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
+            <query-header-panel class="col"
+                                :comparable="comparableForQuery(queryIdx)"
+                                :total="queryResult.total"
+                                :title="queryResult.title"
+                                :collections="collections"
+                                :comparable-id="`p-${queryIdx}`"
+                                @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
+          </div>
         </div>
       </div>
-
-      <div class="aspects-container">
-        <div class="row pm-fixer"
+      <!-- body -->
+      <div class="aspects-container container-fluid">
+        <div class="row "
              v-for="([facetId, facetType], facetIdx) in facets"
              v-bind:key="facetIdx">
-          <div :class="`px-3 one-third ${isLastResult(queryIdx) ? '' : 'border-right'} ${isQueryLoading(queryIdx) ? 'loading-bg' : ''}`" 
-               v-for="(queryResult, queryIdx) in queriesResults" 
-               :key="queryIdx">
+          <div class="one-third" :class="{
+            /* 'border-right mr-1px': !isLastResult(queryIdx), */
+            'border-left': queryIdx > 0,
+            'loading-bg': isQueryLoading(queryIdx),
+          }"
+              v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
             <div class="col" v-if="isQueryLoading(queryIdx)">
               <loading-indicator class="col py-3" v-if="facetIdx === 0"/>
             </div>
             <div class="col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) === undefined">
               <div v-if="facetIdx === 0" style="text-align: center;">[Nothing found]</div>
             </div>
-            <facet-overview-panel class="col"
-                                  :facet="facetId" 
-                                  :type="facetType" 
+            <div class="col">
+            <facet-overview-panel class="px-2"
+                                  :facet="facetId"
+                                  :type="facetType"
                                   :title="$tc(`label.${facetId}.title`, getFacetValues(queryResult, facetId).length || 1)"
                                   :values="getFacetValues(queryResult, facetId)"
                                   @timeline-highlight="onTimelineHighlight"
@@ -38,6 +47,7 @@
                                   :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
                                   :timeline-domain="timelineDomain"
                                   v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined"/>
+            </div>
           </div>
         </div>
       </div>
