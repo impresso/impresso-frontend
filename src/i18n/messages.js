@@ -32,6 +32,7 @@ export default {
     actions: {
       addFilter: 'add filter...',
       agree: 'I agree to the terms of use',
+      compare: 'compare ...',
       more: 'more...',
       searchMore: 'open in search page...',
       remove: 'remove',
@@ -202,6 +203,13 @@ export default {
       idMentions: {
         asc: 'order by publication date, oldest first',
         desc: 'order by publication date, most recent first',
+      },
+      relevance: {
+        desc: 'relevance',
+      },
+      date: {
+        asc: 'publication date, oldest first',
+        desc: 'publication date, most recent first',
       },
     },
   },
