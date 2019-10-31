@@ -327,9 +327,10 @@ export default {
       if (queryIdx !== 0 && queryIdx !== 2) return;
       const comparableIdx = queryIdx === 0 ? 0 : 1;
 
-      this.$set(this.comparables, comparableIdx, comparable);
+      const comparables = this.comparables.map(c => Object.assign({}, c));
+      comparables[comparableIdx] = comparable;
 
-      const queryParameters = constructQueryParameters(this.comparables, this.$route.query);
+      const queryParameters = constructQueryParameters(comparables, this.$route.query);
       this.$router.push({
         name: 'compare',
         query: queryParameters,

@@ -113,8 +113,8 @@ export default {
       return this.$t(`tabs.${type}.pick`);
     },
     setCollectionId(id) {
-      this.comparable.id = id;
-      this.$emit('comparable-changed', this.comparable);
+      const comparable = Object.assign({}, this.comparable, { id });
+      this.$emit('comparable-changed', comparable);
     },
     typeChanged(newType) {
       this.comparable.type = newType;
