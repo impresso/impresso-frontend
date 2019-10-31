@@ -353,9 +353,6 @@ export default {
               services.collectionsItems.find({
                 query: { item_uids: itemuids, limit: 100 },
               }).then((cs) => {
-                const intersection = state.results.filter(x => cs.data.includes(x.uid));
-                console.log('intersection', intersection);
-
                 state.results.forEach((re) => {
                   cs.data.forEach((c) => {
                     if (c.itemId === re.uid) {
@@ -399,6 +396,18 @@ export default {
           ],
         }),
       ]);
+    },
+    ADD_FILTER({ commit }, { filter }) {
+      commit('ADD_FILTER', filter);
+    },
+    REMOVE_FILTER({ commit }, { filter }) {
+      commit('REMOVE_FILTER', filter);
+    },
+    UPDATE_FILTER({ commit }, message) {
+      commit('UPDATE_FILTER', message);
+    },
+    UPDATE_FILTER_ITEM({ commit }, message) {
+      commit('UPDATE_FILTER_ITEM', message);
     },
   },
 };

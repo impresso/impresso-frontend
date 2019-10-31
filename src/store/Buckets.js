@@ -140,21 +140,21 @@ export default {
         commit('SET_IS_LOADING', false);
       });
     },
-    SEARCH_FACETS({ state, getters, commit }, { type }) {
+    SEARCH_FACETS({ state, getters, commit }, { type, filters }) {
       commit('SET_IS_LOADING', true);
       if (type) {
         commit('SET_TYPE', type);
       }
-      console.info('buckets/SEARCH_FACETS state:', state);
-      // otherwise, we just get all buckets by facet type
+      const query = {
+        group_by: state.groupBy,
+        filters: typeof filters === 'undefined' ? getters.getCurrentSearchFilters : filters.map(filter => filter.getQuery()),
+        page: state.pagination.currentPage,
+        limit: state.pagination.perPage,
+        order_by: '-count',
+      };
+      console.info('buckets/SEARCH_FACETS query:', query);
       return services.searchFacets.get(state.type, {
-        query: {
-          group_by: state.groupBy,
-          filters: getters.getCurrentSearchFilters,
-          page: state.pagination.currentPage,
-          limit: state.pagination.perPage,
-          order_by: '-count',
-        },
+        query,
       }).then((res) => {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
         commit('UPDATE_ITEMS', res[0].buckets.map(d => new Bucket({

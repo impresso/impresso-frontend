@@ -34,7 +34,6 @@ const router = new Router({
   mode: 'history',
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
-      console.log('saved position : ', savedPosition);
       return savedPosition;
     }
     if (to.hash) {
@@ -277,16 +276,11 @@ const router = new Router({
     },
   },
   {
-    path: '/compare/:ids',
+    path: '/compare',
     component: SearchQueriesComparisonPage,
     name: 'compare',
     meta: {
       requiresAuth: false,
-    },
-    beforeEnter: (to, from, next) => {
-      const { ids = '' } = to.params;
-      to.params.ids = ids.split(',');
-      next();
     },
   }],
 });

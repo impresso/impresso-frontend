@@ -22,19 +22,21 @@ import Vue from 'vue';
 import FilePond from '@/components/modules/FilePond';
 import { uploadedImages } from '@/services';
 
+const MiddleLayerApiBase = process.env.MIDDLELAYER_API || window.location.hostname;
+
 const FILEPOND_SERVICE_PATH = [
   process.env.MIDDLELAYER_API_PATH,
   '/filepond',
 ].join('/').replace(/\/\/+/g, '/');
 
-console.info('Current host:', process.env.MIDDLELAYER_API, 'filepond path:', FILEPOND_SERVICE_PATH);
+console.info('Current host:', MiddleLayerApiBase, 'filepond path:', FILEPOND_SERVICE_PATH);
 
 export default {
   data: () => ({
     handler: new Vue(),
     options: {
       server: {
-        url: process.env.MIDDLELAYER_API,
+        url: MiddleLayerApiBase,
         process: FILEPOND_SERVICE_PATH,
         fetch: null,
         revert: null,

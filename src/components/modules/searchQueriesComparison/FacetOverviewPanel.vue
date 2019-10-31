@@ -14,8 +14,10 @@
               :brushable="false">
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
-              {{ $d(tooltipScope.tooltip.item.t, 'short', 'en') }} &middot;
-              <b>{{ tooltipScope.tooltip.item.w }}</b>
+              {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
+              <b v-html="$tc('numbers.results', tooltipScope.tooltip.item.w, {
+                n: $n(tooltipScope.tooltip.item.w),
+              })"/>
             </div>
           </div>
         </timeline>
@@ -48,6 +50,8 @@ function fillEmptyYearsWithZeros(timelineValues, timelineRange) {
   const presentYears = timelineValues.map(({ t }) => t);
 
   const rangeSize = rangeMax - rangeMin;
+  if (isNaN(rangeSize)) return timelineValues;
+
   const range = [...Array(rangeSize).keys()].map(i => rangeMin + i);
 
   return range.reduce((values, year) => {
@@ -77,7 +81,7 @@ export default {
     timelineDomain: {
       // a tuple of the extent of the timeline in time values (e.g. years): `[1904, 1925]`
       type: Array,
-      validator: v => v.length === 2,
+      validator: v => v.length === 0 || v.length === 2,
     },
   },
   components: {
@@ -92,7 +96,7 @@ export default {
       return fillEmptyYearsWithZeros(v, this.timelineDomainRange);
     },
     timelineDomainRange() {
-      if (this.timelineDomain) {
+      if (this.timelineDomain.length === 2) {
         return this.timelineDomain;
       }
       const keys = this.values.map(({ val }) => val).sort();

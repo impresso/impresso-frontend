@@ -3,7 +3,7 @@
   <i-layout-section width="400px" class="border-right border-top mt-1px">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
-      <b-tabs pills class="border-bottom mx-2 pt-2">
+      <b-tabs pills class="mx-2 pt-2">
         <template v-slot:tabs-end>
           <b-nav-item class="pl-2 active"
             active-class='none'
@@ -14,7 +14,11 @@
         </template>
       </b-tabs>
       <div class="py-3 px-3">
-        <search-pills v-on:remove="onRemoveFilter"/>
+        <search-pills
+          v-on:remove="onRemoveFilter"
+          v-on:add="onAddFilter"
+          :search-filters="filters"
+        />
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
@@ -161,7 +165,7 @@
 
     <b-modal hide-footer id="embeddings" ref="embeddings"
       v-bind:title="$t('Find words similar to ...')">
-      <embeddings-search />
+      <embeddings-search @embdding-selected="addFilterFromEmbedding" />
     </b-modal>
 
 
@@ -396,6 +400,10 @@ export default {
       this.$store.commit('search/REMOVE_FILTER', filter);
       this.search(1);
     },
+    onAddFilter(filter) {
+      this.$store.commit('search/ADD_FILTER', filter);
+      this.search(1);
+    },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
     },
@@ -515,6 +523,12 @@ export default {
         this.allSelected = true;
         this.allIndeterminate = false;
       }
+    },
+    addFilterFromEmbedding(embedding) {
+      console.info('AE', embedding);
+      const filter = { query: embedding, type: 'string', context: 'include' };
+      this.$store.dispatch('search/ADD_FILTER', { filter });
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
   },
   watch: {

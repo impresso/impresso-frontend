@@ -18,7 +18,7 @@ import embeddings from './Embeddings';
 import monitor from './Monitor';
 import explorer from './Explorer';
 import buckets from './Buckets';
-
+import queryComparison from './QueryComparison';
 
 Vue.use(Vuex);
 
@@ -43,6 +43,7 @@ export default new Vuex.Store({
     monitor,
     buckets,
     explorer,
+    queryComparison,
   },
   state: {
     processing_status: false,
@@ -90,6 +91,15 @@ export default new Vuex.Store({
           state.processing_status = false;
         }
       }
+    },
+    SET_ERROR_MESSAGE(state, message) {
+      state.error_message = message;
+    },
+  },
+  actions: {
+    DISPLAY_ERROR({ commit }, error) {
+      console.error('[Unexpected error]: ', error.stack);
+      commit('SET_ERROR_MESSAGE', error.message);
     },
   },
   plugins: [createPersistedState({

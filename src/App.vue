@@ -128,7 +128,9 @@ svg {
   }
 }
 
-
+ul.nav.nav-pills{
+  border-bottom: 1px solid #dee2e6;
+}
 ul.nav.nav-pills .nav-item{
     .nav-link {
       background-color: transparent;
@@ -142,7 +144,12 @@ ul.nav.nav-pills .nav-item{
       color: black;
       border-color: #dee2e6;
       border-bottom-color: #f8f9fa;
-
+      background-color: transparent;
+    }
+    .nav-link.active{
+      color: black;
+      border-color: #dee2e6;
+      border-bottom-color: #f8f9fa;
       background-color: transparent;
     }
 }

@@ -19,7 +19,7 @@
               <div class="px-1">
                 <item-label :item="bucket.item" :type="facetType"/>
               </div>
-              <div class="px-1">{{formatValue(toScaledValue(bucket.count))}}{{valueSuffix}}</div>
+              <div class="px-1">{{formatValue(bucket.count)}}{{valueSuffix}}</div>
             </div>
             <div class="scale" v-bind:style="`width: ${toScaledValue(bucket.count) * 100}%`"/>
           </div>

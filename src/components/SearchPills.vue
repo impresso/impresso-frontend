@@ -67,7 +67,14 @@
 
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
-        <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
+        <filter-monitor checkbox
+                        :store="storeModuleName"
+                        :filter="filter"
+                        :type="filter.type"
+                        :search-query-id="searchQueryId"
+                        :operators="['AND', 'OR']"
+                        :skip-push-search-params="skipPushSearchParams"
+                        @filter-applied="onFilterApplied" />
       </div>
 
       <!-- type is not string, add Remove button -->
@@ -75,6 +82,7 @@
         <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
+    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="addFilter">{{ $t('actions.addFilter') }}</b-button>
   </div>
 </template>
 
@@ -89,23 +97,39 @@ export default {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
     },
-    store: {
+    storeModuleName: {
       type: String,
       default: 'search',
     },
+    searchQueryId: {
+      // [Optional] ID of the search query the filter belongs to.
+      // This ID is dispatched to the the store by filter monitor.
+      type: String,
+      default: undefined,
+    },
+    skipPushSearchParams: {
+      type: Boolean,
+      default: false,
+    },
+    searchFilters: {
+      type: Array,
+      default: undefined,
+    },
+    enableAddFilter: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
-    currentStore() {
-      if (this.store === 'searchImages') {
-        return this.$store.state.searchImages;
-      }
-      return this.$store.state.search;
+    temporaryFilter() {
+      return this.$store.getters['explorer/getTemporaryFilter'](this.searchQueryId);
     },
     pills: {
       get() {
-        // exclude boolean filters
-        return this.currentStore.search.filters
-          .filter(d => this.excludedTypes.indexOf(d.type) === -1);
+        const filters = this.searchFilters !== undefined
+          ? this.searchFilters
+          : this.$store.state[this.storeModuleName].search.filters;
+        return filters.filter(d => this.excludedTypes.indexOf(d.type) === -1);
           // .sort((a, b) => (a.type > b.type ? 1 : -1));
       },
     },
@@ -166,17 +190,35 @@ export default {
     onRemoveFilter(filter) {
       this.$emit('remove', filter);
     },
-    onChangeFilter(filter) {
-      filter.touched = true;
-    },
-    onApplyFilter(filter) {
+    onFilterApplied(filter) {
       this.$emit('update', filter);
+    },
+    onAddFilter(filter) {
+      this.$emit('add', filter);
+    },
+    addFilter() {
+      this.$store.dispatch('explorer/SET_SEARCH_QUERY_ID', this.searchQueryId);
+      this.$store.dispatch('explorer/SHOW', {
+        mode: 'facets',
+        filters: this.searchFilters,
+      });
     },
   },
   components: {
     TopicListItem,
     NewspaperListItem,
     FilterMonitor,
+  },
+  watch: {
+    temporaryFilter: { // user uploaded image id
+      handler(filter) {
+        if (filter) {
+          this.onAddFilter(filter);
+        }
+        return filter;
+      },
+      immediate: true,
+    },
   },
 };
 </script>

@@ -71,13 +71,10 @@ export default {
   methods: {
     onSubmitBuckets({ type, q }) {
       console.info('explorer @onSubmitBuckets filter:', type, q, this.$route);
-      this.$store.commit('search/ADD_FILTER', {
+      this.$store.dispatch('explorer/ADD_FILTER', {
         type,
         q,
       });
-      if (this.$route.name === 'search') {
-        this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
-      }
       this.search();
     },
     onHide() {
@@ -87,11 +84,14 @@ export default {
       this.$store.dispatch('explorer/HIDE');
     },
     onChangeType(type) {
-      this.$store.dispatch('explorer/SHOW', { type });
+      this.$store.dispatch('explorer/SHOW', {
+        type,
+        filters: this.filters,
+      });
       this.search();
     },
     search() {
-      console.info('search() - type:', this.type, 'q:', this.q, this.isSearchable);
+      console.info('search() - type:', this.type, '- q:', this.q, this.isSearchable, '- filters:', this.filters);
       if (this.isSearchable) {
         return this.$store.dispatch('buckets/SEARCH', {
           type: this.type,
@@ -100,6 +100,7 @@ export default {
       }
       return this.$store.dispatch('buckets/SEARCH_FACETS', {
         type: this.type,
+        filters: this.filters,
       });
     },
   },
@@ -115,6 +116,9 @@ export default {
     },
     mode() {
       return this.$store.state.explorer.mode;
+    },
+    filters() {
+      return this.$store.state.explorer.filters;
     },
     paginationPerPage: {
       get() {
