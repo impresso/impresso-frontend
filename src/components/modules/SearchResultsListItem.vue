@@ -1,7 +1,7 @@
 <template lang="html">
   <b-media class="py-3 border-bottom overflow-hidden">
     <div
-      v-if="isLoggedIn()"
+      v-if="isAvailable()"
       class="thumbnail bg-light border"
       slot="aside" >
       <open-seadragon-viewer
@@ -51,7 +51,7 @@
           v-bind:item="article"
           v-bind:text="$t('add_to_collection')" />
       </div>
-      <div v-if="isLoggedIn() && checkbox" class="ml-auto pl-2">
+      <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
         <b-checkbox
           class="mr-0 select-item"
           v-bind:checked.native="checked"
@@ -111,7 +111,10 @@ export default {
 
       this.handler.$emit('init', options);
     },
-    isLoggedIn() {
+    isAvailable() {
+      if (this.article.issue.accessRights === 'OpenPublic') {
+        return true;
+      }
       return this.$store.state.user.userData;
     },
   },

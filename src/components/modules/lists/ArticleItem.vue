@@ -72,6 +72,7 @@
           v-show="match.fragment.trim().length > 0" />
       </ul>
     </div>
+    <!-- {{ item.issue.accessRights }} -->
   </article>
 </template>
 
