@@ -1,9 +1,13 @@
-<template>
-  <div class="p-2 container">
-
-    <b-tabs pills content-class="mt-3"
+<template lang="html">
+  <div class="p-2 container query-header-panel">
+    <b-tabs pills content-class="mt-3" :align="alignment"
             v-if="comparable.type !== 'intersection'">
       <!-- query -->
+      <b-tab v-if="left" disabled>
+        <template v-slot:title>
+          <div class="side left">A</div>
+        </template>
+      </b-tab>
       <b-tab
              :active="comparable.type === 'query'"
              :title="getTabLabel('query')"
@@ -31,18 +35,36 @@
                   @input="setCollectionId"
                   variant="light"/>
       </b-tab>
+      <b-tab v-if="!left" disabled>
+        <template v-slot:title>
+          <div class="side">B</div>
+        </template>
+      </b-tab>
     </b-tabs>
 
     <!-- intersection -->
-    <div class="row justify-content-between" v-if="comparable.type === 'intersection'">
-      <div class="col-auto align-self-start">
-        <h3>{{title}}</h3>
+    <div class="row justify-content-between" v-if="containsComparison">
+      <div class="col-auto w-100">
+        <b-tabs pills content-class="mt-3" align="center">
+          <b-tab v-for="(option, i) in comparisonOptions" :key="i">
+            <template v-slot:title>
+              <div v-html="$t(`comparison.labels.${option}`)" />
+            </template>
+          </b-tab>
+          <section class="px-1">
+            <h3 class="textbox-fancy" v-if="!isNaN(this.total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
+              n: $n(this.total),
+            })"/>
+            <h3 v-else> "..."</h3>
+            <div  v-html="$t(`comparison.descriptions.${comparable.type}`)"/>
+          </section>
+        </b-tabs>
       </div>
-      <div class="col-auto align-self-start">
+      <!-- <div class="col-auto align-self-start">
         <div v-if="comparable.type" class="badge badge-secondary type d-flex">
           <span class="small-caps d-flex">{{comparable.type}}</span>
         </div>
-      </div>
+      </div> -->
     </div>
 
 
@@ -70,10 +92,19 @@ export default {
     title: {
       type: String,
     },
+    left: {
+      type: Boolean,
+    },
     total: Number, // total items in selected collection.
     collections: {
       type: Array, // An array of `{ title, id }` objects for the dropdown box
       default() { return []; },
+    },
+    comparisonOptions: {
+      type: Array,
+      default() {
+        return ['intersection', 'diffA', 'diffB'];
+      },
     },
     comparableId: {
       type: String,
@@ -146,6 +177,15 @@ export default {
     },
   },
   computed: {
+    alignment() {
+      if (this.comparable.type === 'intersection') {
+        return 'center';
+      }
+      return this.left ? 'left' : 'right';
+    },
+    containsComparison() {
+      return this.comparisonOptions.includes(this.comparable.type);
+    },
     collectionsOptions() {
       const options = this.collections.map(({ title, id }) => ({ text: title, value: id }));
       if (!options.find(o => o.value === this.comparable.id)) {
@@ -170,11 +210,31 @@ export default {
 
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
+  .query-header-panel{
+    .type {
+      .small-caps {
+        height: 17px;
+        vertical-align: top;
+      }
+    }
 
-  .type {
-    .small-caps {
-      height: 17px;
-      vertical-align: top;
+    span.number {
+      font-weight: bold;
+    }
+
+    div.side {
+      color: #FC5C53;
+      text-transform: lowercase;
+      width: 1.25em;
+      height: 1.25em;
+      line-height: 1em;
+      text-align: center;
+      border-radius: 1.25em;
+      border: 1px solid;
+
+      &.left{
+        color: #2E80C9;
+      }
     }
   }
 </style>
@@ -182,6 +242,19 @@ export default {
 <i18n>
 {
   "en": {
+    "comparison": {
+      "labels": {
+        "intersection": "<div class='side left d-inline-block'>A</div> &amp; <div class='side d-inline-block'>B</div>",
+        "diffA": "<div class='side left d-inline-block'>A</div> not in <div class='side d-inline-block'>B</div>",
+        "diffB": "<div class='side d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>"
+      },
+      "titles": {
+        "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
+      },
+      "descriptions": {
+        "intersection": "Display lists of common newspapers, named entities, topics"
+      }
+    },
     "tabs": {
       "collection": {
         "active": "collection | collection (1 result) | collection ({count} results)",
