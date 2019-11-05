@@ -38,6 +38,9 @@ export default {
         strategy: 'local',
         email,
         password,
+      }).then((res) => {
+        console.info('Authentication response:', res);
+        return res;
       }).then(({ user }) => {
         console.info('LOGIN: user', user.username, 'logged in!');
         services.app.set('user', user);
