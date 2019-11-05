@@ -9,6 +9,8 @@
           }"
                v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
             <query-header-panel class="col"
+                                :left='queryIdx === 0'
+                                :comparison-options="['intersection']"
                                 :comparable="comparableForQuery(queryIdx)"
                                 :total="queryResult.total"
                                 :title="queryResult.title"
