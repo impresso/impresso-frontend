@@ -1,6 +1,6 @@
 {
   "en": {
-    "title": "Extended FAQ",
+    "title": "FAQ",
     "faq": [
     {
       "id": "who-is-behind-impresso",
@@ -217,6 +217,18 @@
           "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/word-embeddings.png'></img>'",
           "You can use them to add additional search terms to your query, for example you can discover synonyms or frequent OCR mistakes you should consider to get additional search results. In a future release we will add a dedicated view for the more advanced exploration of word frequencies within the corpus and over time.",
           "Further reading:<ul><li>Firth, John Rupert. 1957. A synopsis of linguistic theory 1930-1955. In Special Volume of the Philological Society. Oxford: Oxford University Press.</li><li>'FastText - Word Representations' Accessed October 12, 2019. https://fasttext.cc/index.html.</li><li>Ben Schmidt. 'Vector Space Models for the Digital Humanities.' Accessed October 12, 2019. http://bookworm.benschmidt.org/posts/2015-10-25-Word-Embeddings.html.</li></ul>"
+        ]
+      },
+      {
+        "id": "topics-in-common",
+        "title": "Contextual Help Title",
+        "summary": "This is a short description or summary, it is shown in context below the title. Keep it simple, stupid! (kiss)",
+        "description": [
+          "This is the long description. It is only displayed on the dedicated FAQ page.",
+          "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
+          "We are further supported by a team of academic partners who advise us in the pursuit of the project: <ul><li>François Vallotton (Full Professor at the University of Lausanne),</li><li>Raphaëlle Ruppen Coutaz (Lecturer at the University of Lausanne),</li><li>Frédéric Clavert (Assistant Professor at C2DH) and </li><li>Enrico Natale (Managing Director infoclio.ch).</li></ul>",
+          "Finally, a group of associated researchers have committed to using impresso for their research and provide valuable feedback to us.",
+          "Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details."
         ]
       }
     ]
