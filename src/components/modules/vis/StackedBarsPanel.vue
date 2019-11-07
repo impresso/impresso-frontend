@@ -3,16 +3,17 @@
     <!-- label -->
     <div class="row">
       <div class="col">
-        <span class="tb-title small-caps font-weight-bold">{{label}}</span>
+        <span class="tb-title small-caps font-weight-bold">{{label}} {{this.$parent.hovered}}</span>
       </div>
     </div>
     <!-- bars -->
     <div class="row">
       <div class="col">
-        
+
         <!-- bar -->
-        <div class="row bar-container" 
+        <div class="row bar-container"
              v-for="(bucket, idx) in buckets"
+             v-on:mouseover="onHover(bucket.item.uid)"
              v-bind:key="idx">
           <div class="col">
             <div class="bar">
@@ -37,6 +38,7 @@ export default {
   data: () => ({}),
   props: {
     label: String, // label of the chart
+    hoverId: String,
     buckets: {
       type: Array,
       default: [],
@@ -60,6 +62,9 @@ export default {
     toScaledValue(val) {
       return val / this.maxValue;
     },
+    onHover(val) {
+      this.$emit('hovered', val);
+    },
   },
 };
 </script>
@@ -78,6 +83,11 @@ export default {
 
   .bar-container {
     margin: .3em 0;
+    cursor: crosshair;
+
+    &:hover {
+      background-color: transparentize($clr-accent-secondary, 0.7);
+    }
 
     .col {
       position: relative;
