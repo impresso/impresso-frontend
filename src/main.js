@@ -63,3 +63,5 @@ services.app.reAuthenticate().catch((err) => {
     },
   });
 });
+
+console.info('Last notification date', store.state.settings.lastNotificationDate);

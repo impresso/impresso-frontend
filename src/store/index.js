@@ -106,6 +106,7 @@ export default new Vuex.Store({
     key: 'impresso',
     paths: [
       'settings.termsAgreed',
+      'settings.lastNotificationDate',
       'settings.language_code',
       'search.searches',
       'search.displaySortBy',
