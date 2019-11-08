@@ -6,6 +6,9 @@ export default {
     lastNotificationDate: (new Date(0)).toISOString(),
   },
   getters: {
+    lastNotificationDate(state) {
+      return new Date(state.lastNotificationDate);
+    },
   },
   mutations: {
     SET_LANGUAGE(state, payload) {
@@ -23,8 +26,8 @@ export default {
       console.info('settings/ACCEPT_TERMS_OF_USE');
       commit('SET_TERMS_AGREED', true);
     },
-    HIDE_JOBS_NOTIFICATION({ commit }) {
-      console.info('settings/HIDE_JOBS_NOTIFICATION');
+    UPDATE_LAST_NOTIFICATION_DATE({ commit }) {
+      console.info('@settings/UPDATE_LAST_NOTIFICATION_DATE');
       commit('SET_LAST_NOTIFICATION_DATE');
     },
   },
