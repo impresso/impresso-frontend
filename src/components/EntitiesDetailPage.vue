@@ -27,7 +27,7 @@
       <b-navbar>
         <b-navbar-nav class="pr-2 border-right">
           <li>
-            <router-link class="btn btn-outline-primary btn-sm" :to="{ name: 'search', params: {} }">
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
           </li>
@@ -150,12 +150,13 @@
 </template>
 
 <script>
-// import Mention from '@/models/Mention';
+import SearchQuery from '@/models/SearchQuery';
 import Timeline from './modules/Timeline';
 import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
 import ArticleItem from './modules/lists/ArticleItem';
 import MentionItem from './modules/lists/MentionItem';
+
 
 const TAB_ARTICLES = 'articles';
 const TAB_MENTIONS = 'mentions';
@@ -188,6 +189,17 @@ export default {
     MentionItem,
   },
   computed: {
+    searchPageLink() {
+      if (!this.entity) {
+        return { name: 'search' };
+      }
+      return {
+        name: 'search',
+        query: SearchQuery.serialize({
+          filters: [{ type: this.entity.type, q: this.entity.uid }],
+        }),
+      };
+    },
     description() {
       if (!this.entity || !this.entity.wikidata || !this.entity.wikidata.descriptions) {
         return null;
