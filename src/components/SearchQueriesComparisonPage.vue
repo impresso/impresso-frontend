@@ -45,6 +45,8 @@
                                   :values="getFacetValues(queryResult, facetId)"
                                   @timeline-highlight="onTimelineHighlight"
                                   @timeline-highlight-off="onTimelineHighlightOff"
+                                  @hovered="onHovered"
+                                  :hover-id="hoverId"
                                   :timeline-highlight-value="getTimelineHighlight(facetId).data"
                                   :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
                                   :timeline-domain="timelineDomain"
@@ -160,6 +162,7 @@ export default {
       { type: 'query', query: DefaultQuery },
       { type: 'query', query: DefaultQuery },
     ],
+    hoverId: String,
   }),
   watch: {
     // query parameters updated - this drives state change
@@ -309,6 +312,9 @@ export default {
     onTimelineHighlightOff({ facetId }) {
       this.timelineHighlights[facetId] = { enabled: false };
       this.$set(this.timelineHighlights, facetId, { enabled: false });
+    },
+    onHovered(val) {
+      this.hoverId = val;
     },
     getTimelineHighlight(id) {
       return this.timelineHighlights[id] || {};

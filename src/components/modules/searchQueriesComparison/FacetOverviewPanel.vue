@@ -27,6 +27,8 @@
     <!-- bar type -->
     <div v-if="type === 'bars'">
       <stacked-bars-panel
+        @hovered="onHoverBar"
+        :hover-id="hoverId"
         class="row"
         :label="title"
         :buckets="values"
@@ -63,8 +65,10 @@ function fillEmptyYearsWithZeros(timelineValues, timelineRange) {
 }
 
 export default {
-  data: () => ({}),
+  data: () => ({
+  }),
   props: {
+    hoverId: String,
     facet: String, // any of the common facet types: newspaper, language, etc.
     type: {
       type: String, // type of the visualisation component
@@ -109,6 +113,9 @@ export default {
     },
     onHighlightOff() {
       this.$emit('timeline-highlight-off', { facetId: this.facet });
+    },
+    onHoverBar(val) {
+      this.$emit('hovered', val);
     },
   },
 };
