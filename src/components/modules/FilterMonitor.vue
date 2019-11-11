@@ -66,8 +66,8 @@
           v-bind:class="{ 'border-bottom-0': showEmbeddings }">
           {{$t('embeddings.find')}}
         </b-button>
-        <embeddings-search v-if="showEmbeddings" 
-                           v-bind:filter="filter" 
+        <embeddings-search v-if="showEmbeddings"
+                           v-bind:filter="filter"
                            @embdding-selected="addEmbeddingSuggestion"/>
       </div>
 
@@ -87,12 +87,9 @@
       </div>
       <b-form-checkbox v-else v-model="item.checked" @change="toggleFilterItem($event, item)">
         <item-label :item="item" :type="type"/>
-        <!-- <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
-        <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
-        <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
-        <collection-item v-if="type === 'collection'" :item="item" />-->
-        <span v-if="!item.uid.length">...</span> 
+        <span v-if="!item.uid.length">...</span>
         <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+        <item-selector :uid="item.uid" :item="item" :type="item.type"/>
       </b-form-checkbox>
     </div>
     <div class="items-to-add" v-if="itemsToAdd.length">
@@ -121,6 +118,7 @@
 
 <script>
 import FilterDaterange from './FilterDateRange';
+import ItemSelector from './ItemSelector';
 import ItemLabel from './lists/ItemLabel';
 import CollectionItem from './lists/CollectionItem';
 import EmbeddingsSearch from './EmbeddingsSearch';
@@ -305,6 +303,7 @@ export default {
     CollectionItem,
     EmbeddingsSearch,
     ItemLabel,
+    ItemSelector,
   },
 };
 </script>
