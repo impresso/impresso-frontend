@@ -3,7 +3,7 @@
     <!-- label -->
     <div class="row">
       <div class="col">
-        <span class="tb-title small-caps font-weight-bold">{{label}} {{this.$parent.hovered}}</span>
+        <span class="tb-title small-caps font-weight-bold">{{label}}</span>
       </div>
     </div>
     <!-- bars -->
@@ -11,7 +11,7 @@
       <div class="col">
 
         <!-- bar -->
-        <div class="row bar-container"
+        <div :class="`row bar-container ${hoverId === bucket.item.uid ? 'hilight' : ''}`"
              v-for="(bucket, idx) in buckets"
              v-on:mouseover="onHover(bucket.item.uid)"
              v-bind:key="idx">
@@ -85,6 +85,7 @@ export default {
     margin: .3em 0;
     cursor: crosshair;
 
+    &.hilight,
     &:hover {
       background-color: transparentize($clr-accent-secondary, 0.7);
     }
