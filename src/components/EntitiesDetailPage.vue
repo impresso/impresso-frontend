@@ -295,7 +295,9 @@ export default {
       return this.loadFacets();
     },
     loadFacets() {
-      return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id);
+      return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id).then((values) => {
+        this.timevalues = values;
+      });
     },
     loadArticles(page = 1) {
       return this.$store.dispatch('entities/LOAD_ENTITY_ARTICLES', {
