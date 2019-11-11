@@ -115,8 +115,7 @@
         </b-navbar>
         <timeline
               :contrast="false"
-              :values="timevalues"
-              :domain="[start, end]">
+              :values="timevalues">
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
@@ -167,11 +166,6 @@ export default {
     entity: null,
     mentions: [],
     timevalues: [],
-    // mention: new Mention(),
-    start: 1840,
-    end: 2020,
-    highlights: ['A'],
-    highlightA: null,
     tab: {},
     paginationList: {
       perPage: 10,
