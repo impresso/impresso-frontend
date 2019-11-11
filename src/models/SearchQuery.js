@@ -28,6 +28,22 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
+  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy } = {}) {
+    const query = {
+      f: JSON.stringify(filters),
+      g: groupBy,
+    };
+
+    if (page) {
+      query.p = page;
+    }
+
+    if (orderBy) {
+      query.o = orderBy;
+    }
+    return query;
+  }
+
   getFilter(filter) {
     const filterized = filterize(filter);
     if (!filterized.hash) {
