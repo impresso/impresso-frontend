@@ -13,7 +13,7 @@
         </section>
       </b-navbar>
 
-      <b-tabs pills class="border-bottom">
+      <b-tabs pills>
         <template v-slot:tabs-end>
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
             :class="{ active: tabItem.name === tab.name }"
@@ -286,17 +286,18 @@ export default {
     getEntity() {
       return this.$store.dispatch('entities/LOAD_DETAIL', this.$route.params.entity_id);
     },
-    getTimeline() {
-      return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id);
-    },
-    async loadItems(page = 1) {
+    loadItems(page = 1) {
       if (this.tab.name === TAB_ARTICLES) {
-        await this.loadArticles(page);
+        return this.loadArticles(page);
       } else if (this.tab.name === TAB_MENTIONS) {
-        await this.loadMentions(page);
-      } else {
-        await this.loadFacets();
+        return this.loadMentions(page);
       }
+      return this.loadFacets();
+    },
+    loadFacets() {
+      return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id).then((values) => {
+        this.timevalues = values;
+      });
     },
     loadArticles(page = 1) {
       return this.$store.dispatch('entities/LOAD_ENTITY_ARTICLES', {
