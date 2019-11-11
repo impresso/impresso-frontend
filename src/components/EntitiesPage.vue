@@ -2,7 +2,7 @@
   <i-layout id="EntitiesPage">
     <list :pagination-list="paginationList" v-on:change-page="changePage">
       <template v-slot:header>
-        <b-tabs pills class="border-bottom mx-2 pt-2">
+        <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item class="pl-2 active"
               active-class='none'
