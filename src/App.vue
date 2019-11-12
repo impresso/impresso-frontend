@@ -250,6 +250,10 @@ $clr-grey-900: #ddd;
   }
 }
 
+.viz-bar {
+  height: 2px;
+}
+
 .matches {
   span {
     color: transparentize($clr-primary, 0.45);

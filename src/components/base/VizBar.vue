@@ -1,34 +1,34 @@
 <template lang="html">
-  <div class="">
-    <b-badge variant="none" class="p-0 position-absolute"
-      <router-link v-if="linkto" :to="linkto">
-        {{ label }}
-        <span class="text-muted">({{percent}}%)</span>
-      </router-link>
-      <span v-else>{{ label }} <span class="text-muted">({{percent}}%)</span></span>
-      <item-selector :uid="uid" :item="item" :type="type"/>
+  <div v-b-tooltip.hover.right :title="toolTitle" class="w-100">
 
-      <div class="bg-white position-relative">
-        <div class="bg-accent-secondary viz-bar"
-          :style="`width:${percent}%;`" />
+      <div>
+        <item-label :item="item" :type="type" />
+        <item-selector :uid="uid" :item="item" :type="type"/>
       </div>
-    </b-badge>
+      <div class="bg-white w-100">
+        <div class="bg-accent-secondary viz-bar" :style="`width:${percent}%;`" />
+      </div>
+
   </div>
 </template>
 
 <script>
+import ItemLabel from '../modules/lists/ItemLabel';
 import ItemSelector from '../modules/ItemSelector';
 
 export default {
-  props: ['label', 'linkto', 'uid', 'percent', 'uid', 'type', 'item'],
+  props: ['percent', 'count', 'uid', 'type', 'item'],
   components: {
     ItemSelector,
+    ItemLabel,
+  },
+  computed: {
+    toolTitle() {
+      let title = '';
+      if (this.count) title += this.$n(this.count);
+      if (this.percent) title += ` (${this.$n(this.percent)}%) `;
+      return title;
+    },
   },
 };
 </script>
-
-<style lang="css">
-.viz-bar {
-  height: 2px;
-}
-</style>
