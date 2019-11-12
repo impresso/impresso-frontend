@@ -6,28 +6,28 @@
   },
   "recipes": [
     {
-      "caption": "Who is mentioned in the newspapers?",
-      "text": "Search for Robert Schumann",
+      "caption": "Reconstruct the coverage of the composer Robert Schumann",
+      "text": "Explore the newspapers’ mentions of specific persons or locations",
       "img_src": "https://media.giphy.com/media/IhVFxKbsZjDUWI2zpw/giphy.gif",
       "query": "/app/#/search?f=%5B%7B\"type\"%3A\"hasTextContents\"%7D,%7B\"precision\"%3A\"exact\",\"type\"%3A\"string\",\"q\"%3A\"Robert%20Schumann\"%7D%5D&g=articles&p=1&o=-relevance",
       "video": "https://vimeo.com/347022479/"
     },
     {
-      "caption": "Find concerts playing Robert Schumann",
-      "text": "Narrow down your query to the most relevant articles with topics",
+      "caption": "Find performances of Robert Schumann’s music",
+      "text": "Use topics to identify the most relevant articles",
       "img_src": "https://media.giphy.com/media/gk9EkcWRb7qQMr7zk0/giphy.gif",
       "query": "/app/#/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22Robert%20Schumann%22%7D,%7B%22type%22%3A%22topic%22,%22q%22%3A%5B%22tmrero-fr-alpha_tp79_fr%22%5D,%22r%22%3A%5B0,1%5D,%22op%22%3A%22OR%22,%22context%22%3A%22include%22%7D%5D&g=articles&p=1&o=-relevance",
       "video": "https://vimeo.com/347022433/"
     },
     {
-      "caption": "Make a collection",
-      "text": "With collections you can compose your own currated lists of articles",
+      "caption": "Create a collection",
+      "text": "Collections are curated lists of articles",
       "img_src": "https://media.giphy.com/media/VJrqLAd4mdQWnmuFR7/giphy.gif",
       "video": "https://vimeo.com/347022422/"
     },
     {
       "caption": "Search for horoscopes",
-      "text": "Find horoscopes vs. articles about horoscopes",
+      "text": "Distinguish between horoscopes and articles which mention the term",
       "img_src": "https://media.giphy.com/media/RlHsYmDdVTs9NJ8Ddz/giphy.gif",
       "query": "/app/#/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22horoscope%22%7D%5D&g=articles&p=1&o=-relevance",
       "video": "https://vimeo.com/347022471/"
@@ -40,28 +40,16 @@
      "video": "https://vimeo.com/364796757"
    },
 {
-     "caption": "How to merge two collections?",
-     "text": "Create a new collection based on two collections",
+     "caption": "Merge two collections",
+     "text": "Create a new collection based on two or more collections",
      "img_src": "https://media.giphy.com/media/TLDGzHax8jJ8ziExPe/giphy.gif",
      "video": "https://vimeo.com/364801944"
    },
 {
      "caption": "What is on the front page?",
-     "text": "Search the front pages",
+     "text": "Limit your search to the first page of a newspaper issue",
      "img_src": "https://media.giphy.com/media/eKU0xyzpQALTeamE60/giphy.gif",
      "video": "https://vimeo.com/364796778"
-   },
-{
-     "caption": "Collect front page",
-     "text": "Create a collection of front pages",
-     "img_src": "https://media.giphy.com/media/eKU0xyzpQALTeamE60/giphy.gif",
-     "video": "https://vimeo.com/364796809"
-   },
-{
-     "caption": "Trim the result maze with topic filters",
-     "text": "Use topic to select sports related articles",
-     "img_src": "https://media.giphy.com/media/kag5Xo5WuDQwcSoO64/giphy.gif",
-     "video": "https://vimeo.com/364796956"
    },
 {
      "caption": "Curate your result list from article viewer",
