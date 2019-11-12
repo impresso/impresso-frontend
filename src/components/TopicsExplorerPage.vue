@@ -79,6 +79,9 @@ export default {
     },
   }),
   computed: {
+    itemsIndex() {
+      return this.$store.state.topics.itemsIndex;
+    },
     linkByOptions() {
       return [
         {
@@ -165,28 +168,6 @@ export default {
         }
       });
 
-    this.$store.dispatch('topics/LOAD_TOPICS_GRAPH').then((topicsGraph) => {
-      this.totalNodes = topicsGraph.nodes.length;
-      this.totalLinks = topicsGraph.links.length;
-
-      this.graph.updateDimension({
-        name: 'nodeColor',
-        property: this.colorBy,
-        values: topicsGraph.nodes,
-      });
-
-      this.graph.updateDimension({
-        name: 'nodeSize',
-        property: this.sizeBy,
-        values: topicsGraph.nodes,
-      });
-
-      this.graph.update({
-        nodes: topicsGraph.nodes,
-        links: topicsGraph.links,
-      });
-    });
-
     window.addEventListener('resize', this.onResize);
   },
   beforeDestroy() {
@@ -199,6 +180,40 @@ export default {
     },
   },
   watch: {
+    itemsIndex: {
+      immediate: true,
+      deep: true,
+      async handler(itemsIndex) {
+        // if there is no graph, load the graph first.
+        if (!this.totalNodes) {
+          console.info('@itemsIndex updated, loading graph...');
+          await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH').then((topicsGraph) => {
+            this.totalNodes = topicsGraph.nodes.length;
+            this.totalLinks = topicsGraph.links.length;
+
+            this.graph.updateDimension({
+              name: 'nodeColor',
+              property: this.colorBy,
+              values: topicsGraph.nodes,
+            });
+
+            this.graph.updateDimension({
+              name: 'nodeSize',
+              property: this.sizeBy,
+              values: topicsGraph.nodes,
+            });
+
+            this.graph.update({
+              nodes: topicsGraph.nodes,
+              links: topicsGraph.links,
+            });
+          });
+          console.info('@itemsIndex updated, graph loaded.');
+        }
+        // re evaluate graph
+        console.info('@itemsIndex updated, highlight search results in graph.', itemsIndex);
+      },
+    },
     '$route.params.topic_uid': {
       immediate: true,
       async handler(topicUid) {
