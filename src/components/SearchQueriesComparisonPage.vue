@@ -248,7 +248,6 @@ export default {
         facets: this.facets.map(([type]) => type),
       };
 
-      console.log(payload.queries);
       if (payload.queries.length < 2) return;
 
       this.loadingFlags[resultIndex] = true;
