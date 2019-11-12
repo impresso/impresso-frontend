@@ -16,6 +16,7 @@
         <div class='topic item p-2 border-bottom' v-for="topic in topics">
           <div class='badge small-caps'>{{topic.language}}</div>
           <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}" v-html="topic.getHtmlExcerpt({ token: q })" />
+          <item-selector :uid="topic.uid" :item="topic" type="topic"/>
           <div class='small-caps'>{{topic.model}}</div>
         </div>
 
@@ -28,24 +29,20 @@
 
 <script>
 import List from './modules/lists/List';
+import ItemSelector from './modules/ItemSelector';
 
 export default {
   data: () => ({
     submitted: false,
-    topics: [],
     topicModels: [],
-    total: 0,
-    page: 1,
-    limit: 50,
     q: '',
   }),
   computed: {
+    topics() {
+      return this.$store.state.topics.items;
+    },
     paginationList() {
-      return {
-        currentPage: this.page,
-        totalRows: this.total,
-        perPage: this.limit,
-      };
+      return this.$store.state.topics.pagination;
     },
     topicModelOptions() {
       return [{
@@ -115,8 +112,6 @@ export default {
         facets,
         filters,
       });
-      this.topics = response.data;
-      this.total = response.total;
 
       if (response.info.facets && response.info.facets.topicmodel) {
         this.topicModels = response.info.facets.topicmodel.buckets || [];
@@ -157,30 +152,9 @@ export default {
       },
     },
   },
-  // watch: {
-  //   '$route.params.topic_uid': {
-  //     immediate: true,
-  //     async handler() {
-  //       await this.getTopics();
-  //       // it there is a topic uid, show only topics from this model
-  //       // if model changed.
-  //       // this.$store.commit('SET_HEADER_TITLE', {
-  //       //   subtitle: 'topic',
-  //       //   title: 'topics',
-  //       // });
-  //       // console.info('TOPICI', this.topics);
-  //       // load all topic given a
-  //       // console.info('topic changed!', topicUid);
-  //     },
-  //   },
-  // },
-//   methods: {
-//     // fetch() {
-//     //   // return this.$store.dispatch('topics/LOAD_TOPICS');
-//     // },
-//   },
   components: {
     List,
+    ItemSelector,
   },
 };
 </script>
