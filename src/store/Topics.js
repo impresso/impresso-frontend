@@ -8,6 +8,13 @@ export default {
   state: {
     orderBy: '-name',
     topicModel: '*',
+    items: [],
+    itemsIndex: {},
+    pagination: {
+      perPage: 10,
+      currentPage: 1,
+      totalRows: 0,
+    },
   },
   mutations: {
     UPDATE_ORDER_BY(state, orderBy) {
@@ -15,6 +22,19 @@ export default {
     },
     UPDATE_TOPIC_MODEL(state, topicModel) {
       state.topicModel = topicModel;
+    },
+    UPDATE_ITEMS(state, items) {
+      state.items = items;
+      state.itemsIndex = {};
+      items.forEach((d, k) => {
+        state.itemsIndex[d.uid] = k;
+      });
+    },
+    UPDATE_PAGINATION(state, pagination) {
+      state.pagination = {
+        ...state.pagination,
+        ...pagination,
+      };
     },
   },
   actions: {
@@ -66,7 +86,7 @@ export default {
         };
       });
     },
-    LOAD_TOPICS(context, {
+    LOAD_TOPICS({ commit }, {
       page = 1,
       limit,
       q,
@@ -90,12 +110,20 @@ export default {
 
       return services.topics.find({
         query,
-      }).then(res => ({
-        ...res,
-        data: res.data.map(d => new Topic(d, {
+      }).then((res) => {
+        const data = res.data.map(d => new Topic(d, {
           highlight: query.q ? q.split('*').join('') : '',
-        })),
-      }));
+        }));
+        commit('UPDATE_ITEMS', data);
+        commit('UPDATE_PAGINATION', {
+          currentPage: page,
+          totalRows: res.total,
+        });
+        return {
+          ...res,
+          data,
+        };
+      });
     },
     LOAD_ARTICLES(context, {
       topicUid,
