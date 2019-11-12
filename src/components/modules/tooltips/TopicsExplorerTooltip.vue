@@ -5,7 +5,8 @@
       <div>
         <span class='badge'> {{tooltip.item.language}}</span>
         <b class='sans-serif'>{{excerpt}} ...</b>
-        <router-link :to="{ name: 'topic', params: { topic_uid: tooltip.item.uid} }" class="mt-3 btn-block btn btn-outline-primary btn-sm">related articles</router-link>
+        <a class='mt-3  btn btn-outline-primary btn-sm' v-on:click.prevent.stop="selectItem()">{{ $t('actions.more') }}</a>
+        <!-- router-link :to="{ name: 'topic', params: { topic_uid: tooltip.item.uid} }" class="mt-3 btn-block btn btn-outline-primary btn-sm">related articles</router-link> -->
       </div>
     </div>
   </div>
@@ -34,6 +35,14 @@ export default {
     },
     excerpt() {
       return this.tooltip.item ? this.tooltip.item.excerpt.map(d => d.w).join(' · ') : '';
+    },
+  },
+  methods: {
+    selectItem() {
+      this.$store.dispatch('monitor/SET_ITEM', {
+        item: this.tooltip.item,
+        type: 'topic',
+      });
     },
   },
 };
