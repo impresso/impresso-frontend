@@ -9,7 +9,6 @@ export default class FilterTopic extends FilterItems {
   constructor(args) {
     super(args);
     this.h = String(args.h);
-    this.range = [0, 1];
     if (!this.items.length) {
       this.items = this.q.map(uid => new Topic({
         uid,
@@ -28,7 +27,6 @@ export default class FilterTopic extends FilterItems {
     return {
       type: this.type,
       q: this.q,
-      r: this.range,
       op: this.op,
       context: this.context,
     };
