@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section>
+  <i-layout-section class="border-left border-top ml-1px mt-1px">
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
@@ -244,6 +244,28 @@ export default {
       console.info('TopicExplorer@resize');
       this.graph.resize();
     },
+    getFilteredNodes() {
+      return this.graphNodes.filter(d => typeof this.itemsIndex[d.uid] !== 'undefined');
+    },
+    getFilteredLinks() {
+      // get map of uids
+      const filteredNodesUids = this.filteredNodes.map(d => d.uid);
+      // loop through our graphLinks
+      return this.graphLinks.map((d) => {
+        const s = this.graphNodes[d.source].uid;
+        const t = this.graphNodes[d.target].uid;
+
+        if (this.itemsIndex[t] === undefined || this.itemsIndex[s] === undefined) {
+          return null;
+        }
+        // change source and target id
+        return {
+          ...d,
+          source: filteredNodesUids.indexOf(s),
+          target: filteredNodesUids.indexOf(t),
+        };
+      }).filter(d => d);
+    },
   },
   watch: {
     itemsIndex: {
@@ -257,39 +279,20 @@ export default {
           console.info('@itemsIndex updated, graph loaded.');
         }
         // re evaluate graph
-        // this.graph.filterLinks(d => !!(itemsIndex[d.source.uid] || itemsIndex[d.target.uid]));
-        // if (this.graph) {
-        //   this.graph.selectNodes(d => typeof itemsIndex[d.uid] !== 'undefined');
-        // }
-        // update graph, remove nodes
-
-        if (this.graphNodes.length) {
+        if (this.graph) {
           if (this.timerDelayGraphUpdate) {
             clearTimeout(this.timerDelayGraphUpdate);
           }
-          console.info('@itemsIndex updated, update graph in 2s');
+
+          console.info('@itemsIndex updated, update graph in 2s...');
+
           this.timerDelayGraphUpdate = setTimeout(() => {
-            console.info('@itemsIndex now update graph...');
+            this.filteredNodes = this.getFilteredNodes();
+            this.filteredLinks = this.getFilteredLinks();
 
-            this.filteredNodes = this.graphNodes.filter(d => typeof itemsIndex[d.uid] !== 'undefined');
-            const filteredNodesIndex = this.filteredNodes.map(d => d.uid);
-
-            console.info('@itemsIndex n. filtered nodes:', filteredNodesIndex.length);
-            this.filteredLinks = this.graphLinks.map((d) => {
-              const s = this.graphNodes[d.source].uid;
-              const t = this.graphNodes[d.target].uid;
-
-              if (itemsIndex[t] === undefined || itemsIndex[s] === undefined) {
-                return null;
-              }
-              // change source and target id
-              return {
-                ...d,
-                source: filteredNodesIndex.indexOf(s),
-                target: filteredNodesIndex.indexOf(t),
-              };
-            }).filter(d => d);
+            console.info('@itemsIndex n. filtered nodes:', this.filteredNodes.length);
             console.info('@itemsIndex n. filtered links:', this.filteredLinks.length);
+
             this.updateGraph({
               nodes: this.filteredNodes,
               links: this.filteredLinks,
@@ -301,15 +304,11 @@ export default {
     linkBy: {
       immediate: true,
       handler() {
-        // if (this.filteredNodes.length) {
+        this.filteredLinks = this.getFilteredLinks();
         this.updateGraph({
           nodes: this.filteredNodes,
           links: this.filteredLinks,
         });
-        // } else if(this.graphNodes.length) {
-        //
-        // }
-        // this.updateGraph();
       },
     },
     '$route.params.topic_uid': {
