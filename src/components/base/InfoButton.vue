@@ -69,11 +69,3 @@ export default {
   border-left-color: $clr-primary;
 }
 </style>
-
-<i18n>
-{
-  "en": {
-    "more_info": "More Info"
-  }
-}
-</i18n>
