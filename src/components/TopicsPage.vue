@@ -13,7 +13,7 @@
       </template>
 
       <template v-slot:default>
-        <div class='topic item p-2 border-bottom' v-for="topic in topics">
+        <div class='topic item p-2 border-bottom' v-for="topic in topics" v-bind:key="topic.uid">
           <div class='badge small-caps'>{{topic.language}}</div>
           <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}" v-html="topic.getHtmlExcerpt({ token: q })" />
           <div class='small-caps'>{{topic.model}}</div>
@@ -174,11 +174,11 @@ export default {
   //     },
   //   },
   // },
-//   methods: {
-//     // fetch() {
-//     //   // return this.$store.dispatch('topics/LOAD_TOPICS');
-//     // },
-//   },
+  //   methods: {
+  //     // fetch() {
+  //     //   // return this.$store.dispatch('topics/LOAD_TOPICS');
+  //     // },
+  //   },
   components: {
     List,
   },

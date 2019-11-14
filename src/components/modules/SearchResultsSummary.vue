@@ -142,14 +142,14 @@ export default {
 
     getDateranges() {
       const mapper = d => d.items
-          .map((item) => {
-            const label = this.$t('filters.daterange.item', {
-              start: this.$d(item.start, 'compact'),
-              end: this.$d(item.end, 'compact'),
-            });
-            return `<span class="item">${label}</span>`;
-          })
-          .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
+        .map((item) => {
+          const label = this.$t('filters.daterange.item', {
+            start: this.$d(item.start, 'compact'),
+            end: this.$d(item.end, 'compact'),
+          });
+          return `<span class="item">${label}</span>`;
+        })
+        .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
 
       this.hasDaterange = false;
       return this.getFormattedSection({

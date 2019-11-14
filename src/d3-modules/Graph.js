@@ -105,7 +105,7 @@ export default class Graph extends Basic {
     // apply force
     this.simulation.force('link')
       .distance(this.dimensions.linkDistance.accessor());
-      // strength(+this.value);
+    // strength(+this.value);
     // this.simulation.alpha(1).restart();
   }
 
@@ -203,8 +203,8 @@ export default class Graph extends Basic {
       .classed('n', true);
 
     this.nodesLayer.append('circle')
-        .attr('class', 'whoosh')
-        .attr('r', 2);
+      .attr('class', 'whoosh')
+      .attr('r', 2);
 
     // add text
     this.nodesLayer.append('text')
@@ -276,5 +276,4 @@ export default class Graph extends Basic {
       this.simulation.stop();
     }, this.delay);
   }
-
 }

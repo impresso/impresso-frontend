@@ -5,7 +5,6 @@ import FilterItems from '@/models/FilterItems';
  * @type {Array}
  */
 export default class FilterItem extends FilterItems {
-
   setItems(items = []) {
     this.items = items.map((d) => {
       const item = typeof d === 'object' ? d : {

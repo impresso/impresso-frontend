@@ -107,7 +107,7 @@
         {{
           $t('actions.applyChangesDetailed', {
             added: itemsToAdd.length,
-            removed: filter.items.length - filter.q.length  
+            removed: filter.items.length - filter.q.length
           })
         }}
       </span>

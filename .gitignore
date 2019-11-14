@@ -10,6 +10,7 @@ selenium-debug.log
 config/*.js
 !config/index.js
 !config/default.env.js
+!config/prod.env.js
 !config/example.*.env.js
 
 # Editor directories and files
