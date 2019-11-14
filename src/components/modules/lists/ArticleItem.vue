@@ -53,8 +53,7 @@
       <div v-if="item.topics.length">
         <div v-for="(rel, idx) in item.topics" v-bind:key="idx" class="mx-1 mb-1">
           <viz-bar
-            :label="rel.topic.getHtmlExcerpt()"
-            :percent="$n(rel.relevance * 100)"
+            :percent="rel.relevance * 100"
             :uid="rel.topic.uid"
             :item="rel.topic"
             type="topic"

@@ -24,9 +24,7 @@
         class="position-relative pb-1 small"
         v-bind:key="`${searchResult.article_uid}_ct${i}`">
         <viz-bar
-          :label="rel.topic.getHtmlExcerpt()"
-          :linkto="{ name: 'topic', params: { 'topic_uid': rel.topicUid }}"
-          :percent="$n(searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100)"
+          :percent="searchResult.topics[searchResult.topics.findIndex(c => (c.topicUid === rel.topicUid))].relevance * 100"
           :uid="rel.topic.uid"
           :item="rel.topic"
           type="topic"
