@@ -22,8 +22,6 @@ ENV PUBLIC_PATH /app/
 ENV NODE_ENV production
 RUN npm run build
 
-RUN find dist
-
 # 2. copy
 FROM busybox
 
