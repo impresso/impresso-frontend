@@ -45,6 +45,8 @@
                                   :values="getFacetValues(queryResult, facetId)"
                                   @timeline-highlight="onTimelineHighlight"
                                   @timeline-highlight-off="onTimelineHighlightOff"
+                                  @hovered="onHovered"
+                                  :hover-id="hoverId"
                                   :timeline-highlight-value="getTimelineHighlight(facetId).data"
                                   :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
                                   :timeline-domain="timelineDomain"
@@ -126,6 +128,7 @@ const QueryRightIndex = 2;
 
 export default {
   data: () => ({
+    hoverId: '',
     // loading flags indicate that tab at flag's index is loading data
     // from the API.
     loadingFlags: [...Array(3).keys()].map(() => false),
@@ -309,6 +312,9 @@ export default {
     onTimelineHighlightOff({ facetId }) {
       this.timelineHighlights[facetId] = { enabled: false };
       this.$set(this.timelineHighlights, facetId, { enabled: false });
+    },
+    onHovered(val) {
+      this.hoverId = String(val);
     },
     getTimelineHighlight(id) {
       return this.timelineHighlights[id] || {};

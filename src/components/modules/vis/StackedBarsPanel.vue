@@ -1,42 +1,42 @@
 <template lang="html">
-  <div class="d-flex wrapper">
+  <div class="d-flex wrapper mx-0">
     <!-- label -->
-    <div class="row">
-      <div class="col">
-        <span class="tb-title small-caps font-weight-bold">{{label}}</span>
-      </div>
-    </div>
+    <div class="tb-title label small-caps font-weight-bold my-2">{{label}}</div>
+
     <!-- bars -->
-    <div class="row">
-      <div class="col">
-        
-        <!-- bar -->
-        <div class="row bar-container" 
-             v-for="(bucket, idx) in buckets"
-             v-bind:key="idx">
-          <div class="col">
-            <div class="bar">
-              <div class="px-1">
-                <item-label :item="bucket.item" :type="facetType"/>
-              </div>
-              <div class="px-1">{{formatValue(bucket.count)}}{{valueSuffix}}</div>
-            </div>
-            <div class="scale" v-bind:style="`width: ${toScaledValue(bucket.count) * 100}%`"/>
-          </div>
+    <div class="row mx-0">
+      <div class="col bg-light">
+
+        <div :class="`bar-container row my-1 small ${hoverId === bucket.item.uid ? 'hilight' : ''}`"
+          v-for="(bucket, idx) in buckets"
+          v-on:mouseover="onHover(bucket.item.uid)"
+          v-bind:key="idx">
+
+          <viz-bar
+            :percent="toScaledValue(bucket.count) * 100"
+            :count="bucket.count"
+            :uid="bucket.item.uid"
+            :item="bucket.item"
+            :type="facetType" />
+
         </div>
+
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import ItemLabel from '../lists/ItemLabel';
+import VizBar from '../../base/VizBar';
 import Bucket from '../../../models/Bucket';
 
 export default {
   data: () => ({}),
   props: {
     label: String, // label of the chart
+    hoverId: {
+      type: String,
+    },
     buckets: {
       type: Array,
       default: [],
@@ -46,7 +46,7 @@ export default {
     facetType: String, // type of facet to render
   },
   components: {
-    ItemLabel,
+    VizBar,
   },
   computed: {
     maxValue() {
@@ -54,11 +54,11 @@ export default {
     },
   },
   methods: {
-    formatValue(val) {
-      return this.$helpers.numbers.toFixedOptional(val, 2);
-    },
     toScaledValue(val) {
       return val / this.maxValue;
+    },
+    onHover(val) {
+      this.$emit('hovered', String(val));
     },
   },
 };
@@ -73,33 +73,13 @@ export default {
   }
 
   .tb-title {
-    font-size: .95em;
   }
 
   .bar-container {
-    margin: .3em 0;
 
-    .col {
-      position: relative;
-      border-bottom: 1px solid scale-color($clr-grey-800, $lightness: 50%);
-      padding: 0;
+    &.hilight {
+      background-color: transparentize($clr-accent, 0);
     }
 
-    .bar {
-      display: flex;
-      justify-content: space-between;
-      div {
-        white-space: nowrap;
-        overflow: hidden;
-        font-size: .75em;
-      }
-    }
-    .scale {
-      background: scale-color($clr-grey-800, $lightness: 30%);
-      position: absolute;
-      height: 100%;
-      top: 0;
-      z-index: -1;
-    }
   }
 </style>

@@ -2,6 +2,7 @@ import * as services from '@/services';
 import Entity from '@/models/Entity';
 import Article from '@/models/Article';
 import Mention from '@/models/Mention';
+import Helpers from '@/plugins/Helpers';
 
 export default {
   namespaced: true,
@@ -110,24 +111,17 @@ export default {
         return new Entity(res);
       });
     },
-    LOAD_TIMELINE() {
-      return services.search.find({
-        query: {
-          facets: 'year',
-          group_by: 'articles',
-          limit: 0,
-        },
-      }).then((res) => {
-        console.info('entities/LOAD_TIMELINE success:', res);
-        if (!res.info.facets && !res.info.facets.year) {
-          return [];
-        }
-        const values = res.info.facets.year.buckets.map(bucket => ({
-          t: bucket.val,
-          w: bucket.count,
-        })).sort((a, b) => parseInt(a.t, 10) - parseInt(b.t, 10));
-        return this.$helpers.timeline.addEmptyYears(values);
-      });
+    LOAD_TIMELINE(context, entityId) {
+      const query = {
+        filters: [{
+          type: 'entity',
+          q: entityId,
+        }],
+        group_by: 'articles',
+      };
+      return services.searchFacets.get('year', {
+        query,
+      }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
     },
   },
 };

@@ -13,7 +13,7 @@
         </section>
       </b-navbar>
 
-      <b-tabs pills class="border-bottom">
+      <b-tabs pills>
         <template v-slot:tabs-end>
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
             :class="{ active: tabItem.name === tab.name }"
@@ -27,7 +27,7 @@
       <b-navbar>
         <b-navbar-nav class="pr-2 border-right">
           <li>
-            <router-link class="btn btn-outline-primary btn-sm" :to="{ name: 'search', params: {} }">
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
           </li>
@@ -115,8 +115,7 @@
         </b-navbar>
         <timeline
               :contrast="false"
-              :values="timevalues"
-              :domain="[start, end]">
+              :values="timevalues">
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
@@ -150,12 +149,13 @@
 </template>
 
 <script>
-// import Mention from '@/models/Mention';
+import SearchQuery from '@/models/SearchQuery';
 import Timeline from './modules/Timeline';
 import Pagination from './modules/Pagination';
 import BaseTabs from './base/BaseTabs';
 import ArticleItem from './modules/lists/ArticleItem';
 import MentionItem from './modules/lists/MentionItem';
+
 
 const TAB_ARTICLES = 'articles';
 const TAB_MENTIONS = 'mentions';
@@ -166,11 +166,6 @@ export default {
     entity: null,
     mentions: [],
     timevalues: [],
-    // mention: new Mention(),
-    start: 1840,
-    end: 2020,
-    highlights: ['A'],
-    highlightA: null,
     tab: {},
     paginationList: {
       perPage: 10,
@@ -188,6 +183,17 @@ export default {
     MentionItem,
   },
   computed: {
+    searchPageLink() {
+      if (!this.entity) {
+        return { name: 'search' };
+      }
+      return {
+        name: 'search',
+        query: SearchQuery.serialize({
+          filters: [{ type: this.entity.type, q: this.entity.uid }],
+        }),
+      };
+    },
     description() {
       if (!this.entity || !this.entity.wikidata || !this.entity.wikidata.descriptions) {
         return null;
@@ -286,17 +292,18 @@ export default {
     getEntity() {
       return this.$store.dispatch('entities/LOAD_DETAIL', this.$route.params.entity_id);
     },
-    getTimeline() {
-      return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id);
-    },
-    async loadItems(page = 1) {
+    loadItems(page = 1) {
       if (this.tab.name === TAB_ARTICLES) {
-        await this.loadArticles(page);
+        return this.loadArticles(page);
       } else if (this.tab.name === TAB_MENTIONS) {
-        await this.loadMentions(page);
-      } else {
-        await this.loadFacets();
+        return this.loadMentions(page);
       }
+      return this.loadFacets();
+    },
+    loadFacets() {
+      return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id).then((values) => {
+        this.timevalues = values;
+      });
     },
     loadArticles(page = 1) {
       return this.$store.dispatch('entities/LOAD_ENTITY_ARTICLES', {

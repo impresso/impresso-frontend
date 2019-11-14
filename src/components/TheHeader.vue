@@ -37,7 +37,7 @@
         <b-navbar-nav>
           <b-nav-item-dropdown right no-caret
             v-if="user"
-            ref="ddownJobs" class="p-2">
+            ref="ddownJobs" class="p-2" v-on:hidden="updateLastNotificationDate">
               <template slot="button-content">
                 <div class="dripicons-cloud-download position-relative" style="top:0.25em" />
                 <transition name="bounce">
@@ -206,6 +206,9 @@ export default {
     },
   },
   methods: {
+    updateLastNotificationDate() {
+      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE');
+    },
     openExplorer() {
       this.$store.dispatch('explorer/SHOW', {});
     },
@@ -226,10 +229,16 @@ export default {
     },
   },
   watch: {
-    runningJobs: {
-      handler(val) {
-        if (val.length > 0 && this.$refs.ddownJobs) {
-          this.$refs.ddownJobs.show();
+    jobs: {
+      handler(jobs) {
+        if (jobs.length && this.$refs.ddownJobs) {
+          const lastModifiedDate = new Date(jobs.map(d => d.lastModifiedDate).sort().pop());
+          if (this.$store.getters['settings/lastNotificationDate'] - lastModifiedDate < 0) {
+            console.info('Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.');
+            this.$refs.ddownJobs.show();
+          } else {
+            console.info('Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.');
+          }
         }
       },
     },
