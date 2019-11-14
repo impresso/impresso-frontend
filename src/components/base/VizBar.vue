@@ -1,13 +1,18 @@
 <template lang="html">
   <div v-b-tooltip.hover.right :title="toolTitle" class="w-100">
 
-      <div>
+    <div class="clearfix">
+      <div class="float-left w-75">
         <item-label :item="item" :type="type" />
         <item-selector :uid="uid" :item="item" :type="type"/>
       </div>
-      <div class="bg-white w-100">
-        <div class="bg-accent-secondary viz-bar" :style="`width:${percent}%;`" />
+      <div v-if="count" class="float-right w-25 text-right">
+        {{$n(count)}}
       </div>
+    </div>
+    <div class="bg-white w-100">
+      <div class="bg-accent-secondary viz-bar" :style="`width:${percent}%;`" />
+    </div>
 
   </div>
 </template>
@@ -24,9 +29,7 @@ export default {
   },
   computed: {
     toolTitle() {
-      let title = '';
-      if (this.count) title += this.$n(this.count);
-      if (this.percent) title += ` (${this.$n(this.percent)}%) `;
+      const title = this.percent ? `${this.$n(this.percent)}%` : '';
       return title;
     },
   },
