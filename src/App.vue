@@ -204,10 +204,7 @@ $clr-grey-900: #ddd;
 }
 .tooltip-inner {
     max-width: auto;
-    color: $clr-primary;
     text-align: left;
-    background-color: $clr-bg-primary;
-    border: 1px solid $clr-primary;
     box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 }
 .dropdown-menu {
@@ -248,6 +245,10 @@ $clr-grey-900: #ddd;
     color: $clr-primary;
     border-color: $clr-bg-primary !important;
   }
+}
+
+.viz-bar {
+  height: 2px;
 }
 
 .matches {

@@ -10,6 +10,8 @@ export default class Topic {
     words = [],
     excerpt = [],
     matches = [],
+    relatedTopics = [],
+    countItems = -1,
   } = {}, {
     highlight = '',
     quantizeRange = [0.4, 0.7, 1, 1],
@@ -20,7 +22,8 @@ export default class Topic {
     this.words = words.filter(d => d.p > 0.0);
     this.excerpt = excerpt;
     this.matches = matches.map(d => d.trim().split(' ').join(' · '));
-
+    this.countItems = countItems;
+    this.relatedTopics = relatedTopics;
     if (words.length && !(words[0] instanceof TopicWord)) {
       const normalize = d3.scaleQuantize()
         .domain(d3.extent(this.words, d => d.p))

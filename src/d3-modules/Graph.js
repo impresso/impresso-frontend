@@ -10,7 +10,7 @@ export default class Graph extends Basic {
       bottom: 10,
       left: 10,
     },
-    maxNodeRadius = 12,
+    maxNodeRadius = 15,
     maxDistance = 50,
     delay = 30000,
     fixAfterDrag = true,
@@ -34,17 +34,17 @@ export default class Graph extends Basic {
           property: 'degree',
           type: Dimension.TYPE_CONTINUOUS,
           scaleFn: d3.scaleLinear,
-          range: [4, maxNodeRadius],
+          range: [3, maxNodeRadius],
         }),
-        linkDistance: new Dimension({
-          name: 'linkDistance',
+        linkStrength: new Dimension({
+          name: 'linkStrength',
           property: 'w',
           type: Dimension.TYPE_CONTINUOUS,
           scaleFn: d3.scaleSqrt,
-          range: [10, 200],
+          range: [0.1, 1],
         }),
-        linkWeight: new Dimension({
-          name: 'linkWeight',
+        linkStrokeWidth: new Dimension({
+          name: 'linkStrokeWidth',
           property: 'w',
           type: Dimension.TYPE_CONTINUOUS,
           scaleFn: d3.scaleSqrt,
@@ -53,11 +53,11 @@ export default class Graph extends Basic {
         ...dimensions,
       },
     });
-
-    this.svg.on('click', () => {
-      this.selected = null;
-      this.emit('svg.click');
-    });
+    this.svg
+      .on('click', () => {
+        this.selected = null;
+        this.emit('svg.click');
+      });
 
     this.fixAfterDrag = fixAfterDrag;
     this.maxNodeRadius = parseInt(maxNodeRadius, 10);
@@ -68,44 +68,76 @@ export default class Graph extends Basic {
     this.identity = identity;
 
     // initialize graphic elements
+    this.zoomableLayer = this.svg.append('g');
+
+    this.zoomHandler = d3.zoom()
+      .scaleExtent([0.5, 5])
+      .on('zoom', () => {
+        this.emit('svg.zoom', d3.event.transform);
+        this.zoom(d3.event.transform);
+      });
+
+    this.svg.call(this.zoomHandler);
+
     // init link and node collections
-    this.linksLayer = this.svg.append('g')
+    this.linksLayer = this.zoomableLayer.append('g')
       .classed('links', true)
       .selectAll('line');
 
-    this.nodesLayer = this.svg.append('g')
+    this.nodesLayer = this.zoomableLayer.append('g')
       .classed('nodes', true)
       .selectAll('circle');
 
+    this.linkForce = d3.forceLink().distance(maxDistance).strength(
+      this.dimensions.linkStrength.accessor(),
+    );
     // initialize force!
     this.simulation = d3.forceSimulation()
-      .force('link',
-        d3.forceLink()
-          .id((d, k) => k)
-          .distance(maxDistance)
-          .strength(0.5))
+      .force('link', this.linkForce)
+      // .force('collide', d3.forceCollide()
+      //   .strength(0.7)
+      //   .radius(this.maxNodeRadius))
+      .force('charge', d3.forceManyBody()
+        .strength(-20)
+        .distanceMin(this.maxNodeRadius)
+        .distanceMax(this.maxNodeRadius * 10))
       .force('center', d3.forceCenter(
         this.width / 2,
         this.height / 2))
-      .force('charge', d3.forceManyBody()
-        .distanceMin(this.maxNodeRadius))
       .alphaTarget(0.5)
       .on('tick', () => this.tick());
 
-    this.stopSimulation();
+    // this.stopSimulation();
+  }
+
+  zoom(transform) {
+    if (!transform) {
+      this.svg.transition().duration(250).call(
+        this.zoomHandler.transform,
+        d3.zoomIdentity,
+        d3.zoomTransform(this.svg.node()).invert([this.width / 2, this.height / 2]),
+      );
+    } else {
+      this.zoomableLayer.attr('transform', transform);
+    }
   }
 
   applyDimensions() {
     this.nodesLayer
       .selectAll('.n')
       .transition()
-      .attr('fill', this.dimensions.nodeColor.accessor())
+      .attr('fill', (d) => {
+        if (d.disabled) {
+          return '#ffffff';
+        }
+        return this.dimensions.nodeColor.accessor()(d);
+      })
       .attr('r', this.dimensions.nodeSize.accessor());
 
     // apply force
-    this.simulation.force('link')
-      .distance(this.dimensions.linkDistance.accessor());
-    // strength(+this.value);
+    // this.simulation.force('link')
+      // .strength(this.dimensions.linkStrength.accessor());
+      // strength(+this.value);
     // this.simulation.alpha(1).restart();
   }
 
@@ -171,20 +203,36 @@ export default class Graph extends Basic {
 
   // normally called by this.update
   draw() {
-    // I know I know...
     const self = this;
-
-    // console.info('draw nodes:', this.nodes.length);
-
+    this.simulation.stop();
+    // Apply the general update pattern to the nodes.
+    // It follows https://bl.ocks.org/HarryStevens/bc938c8d45008d99faed47039fbe5d49
     this.nodesLayer = this.nodesLayer.data(this.nodes, this.identity);
     this.nodesLayer.exit().remove();
-    this.nodesLayer = this.nodesLayer.enter().append('g')
+
+    const nodesEnter = this.nodesLayer.enter().append('g')
       .attr('class', d => d.type)
       .call(d3.drag()
         .on('start', datum => this.onDragStarted(datum))
         .on('drag', datum => this.onDragged(datum))
         .on('end', datum => this.onDragEnded(datum)));
+      // .merge(this.nodesLayer);
 
+    nodesEnter.append('circle')
+      .classed('n', true);
+
+    nodesEnter.append('circle')
+        .attr('class', 'whoosh')
+        .attr('r', 2);
+
+    // add text
+    nodesEnter.append('text')
+      .attr('dx', 25)
+      .attr('dy', '.35em')
+      .text(this.nodeLabel);
+
+    // merge
+    this.nodesLayer = this.nodesLayer.merge(nodesEnter);
     this.nodesLayer
       .on('mouseenter', function onMouseEnter(datum) {
         d3.select(this).raise();
@@ -194,11 +242,13 @@ export default class Graph extends Basic {
         this.emit('node.mouseleave', datum);
       })
       .on('click', (datum) => {
+        console.info('click on', datum);
         d3.event.stopPropagation();
         self.selected = datum;
         self.emit('node.click', datum);
       });
 
+<<<<<<< HEAD
     this.nodesLayer.append('circle')
       .classed('n', true);
 
@@ -212,48 +262,93 @@ export default class Graph extends Basic {
       .attr('dy', '.35em')
       .text(this.nodeLabel);
 
+=======
+>>>>>>> develop
     this.linksLayer = this.linksLayer.data(this.links); // , d => `${d.source.id}-${d.target.id}`);
     this.linksLayer.exit().remove();
-    this.linksLayer = this.linksLayer.enter()
-      .append('line')
-      .attr('stroke-width', this.dimensions.linkWeight.accessor());
 
+    const linksEnter = this.linksLayer.enter()
+      .append('line')
+      .attr('stroke-width', this.dimensions.linkStrokeWidth.accessor());
+
+    this.linksLayer = this.linksLayer.merge(linksEnter);
+    this.linksLayer
+      .on('mouseenter', (datum) => {
+        this.emit('link.mouseenter', datum);
+      })
+      .on('mouseleave', (datum) => {
+        this.emit('link.mouseleave', datum);
+      })
+      .on('click', (datum) => {
+        d3.event.stopPropagation();
+        self.selected = datum;
+        self.emit('link.click', datum);
+      });
     // Update and restart the simulation.
     this.simulation.force('center', d3.forceCenter(this.width / 2, this.height / 2));
     this.simulation.nodes(this.nodes);
     this.simulation.force('link').links(this.links);
 
-    this.simulation.restart();
-    this.stopSimulation();
     this.applyDimensions();
+
+    this.simulation.alphaTarget(0.5).restart();
+    this.stopSimulation();
   }
 
-  update({
-    links = [],
-    nodes = [],
-  } = {}) {
-    console.info('graph update. links:', links.length, 'nodes', nodes.length);
-    this.links = links;
+  update({ links, nodes }) {
     // make sure it has all the required properties
-    this.nodes = nodes.map(d => ({
-      ...d,
-      r: d.r || this.maxNodeRadius,
-      type: d.type || 'n',
-    }));
+    if (nodes) {
+      console.info('Graph.update, new nodes:', nodes.length, nodes[0]);
+      if (this.nodes && this.nodes.length) {
+        console.info('Graph.update, merge with existing nodes:', this.nodes.length);
+        const nodesIds = this.nodes.map(d => d.id);
+        this.nodes = nodes.map((d) => {
+          const idx = nodesIds.indexOf(d.id);
+          const node = {
+            ...d,
+            r: d.r || this.maxNodeRadius,
+            type: d.type || 'n',
+          };
+          if (idx > -1) {
+            Object.assign(node, {
+              vx: +this.nodes[idx].vx,
+              vy: +this.nodes[idx].vy,
+              x: +this.nodes[idx].x,
+              y: +this.nodes[idx].y,
+            });
+          }
+          return node;
+        });
+      } else {
+        this.nodes = nodes.map(d => ({
+          ...d,
+          r: d.r || this.maxNodeRadius,
+          type: d.type || 'n',
+        }));
+      }
+    }
+    if (links) {
+      console.info('Graph.update, new links:', links.length, links[0]);
+      this.links = links.map(d => ({
+        ...d,
+        a: true,
+      }));
+      this.updateDimension({
+        name: 'linkStrength',
+        property: 'w',
+        values: this.links,
+      });
 
-    this.updateDimension({
-      name: 'linkDistance',
-      property: 'w',
-      values: this.links,
-    });
+      this.updateDimension({
+        name: 'linkStrokeWidth',
+        property: 'w',
+        values: this.links,
+      });
+    }
 
-    this.updateDimension({
-      name: 'linkWeight',
-      property: 'w',
-      values: this.links,
-    });
-
-    this.draw();
+    if (links || nodes) {
+      this.draw();
+    }
   }
   //
   // setDimension(key, dimension) {
@@ -276,4 +371,14 @@ export default class Graph extends Basic {
       this.simulation.stop();
     }, this.delay);
   }
+<<<<<<< HEAD
+=======
+
+  // resize() {
+  //   super.resize();
+  //   this.zoomableLayer
+  //     .attr('width', this.width)
+  //     .attr('height', this.height);
+  // }
+>>>>>>> develop
 }
