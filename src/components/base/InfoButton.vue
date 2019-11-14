@@ -5,6 +5,7 @@
       <template v-if="content.title" v-slot:title>{{content.title}}</template>
       <div v-if="content.summary" v-html="content.summary" />
       <router-link
+        v-if="content.description"
         class="d-block text-right small-caps"
         v-bind:to="{ name: `faq`, hash: `#${content.id}` }">
         {{$t("more_info")}} &rarr;
