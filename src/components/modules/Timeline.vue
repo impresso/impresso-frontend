@@ -73,7 +73,7 @@ export default {
         margin: {
           left: 10,
           right: 10,
-          top: 10,
+          top: 15,
         },
         domain: this.domain,
       });
@@ -83,7 +83,7 @@ export default {
         margin: {
           left: 10,
           right: 10,
-          top: 10,
+          top: 15,
         },
         domain: this.domain,
         brushable: this.brushable,
@@ -175,7 +175,7 @@ export default {
 
   .d3-timeline{
     width: 100%;
-    height: 80px;
+    height: 85px;
     position: relative;
 
     g.context path.curve {
@@ -202,6 +202,9 @@ export default {
       &.contrast{
         fill: red;
       }
+    }
+    g.context .peak text{
+      font-size: 11px;
     }
     g.brush {
       rect.selection {
