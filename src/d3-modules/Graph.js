@@ -248,22 +248,6 @@ export default class Graph extends Basic {
         self.emit('node.click', datum);
       });
 
-<<<<<<< HEAD
-    this.nodesLayer.append('circle')
-      .classed('n', true);
-
-    this.nodesLayer.append('circle')
-      .attr('class', 'whoosh')
-      .attr('r', 2);
-
-    // add text
-    this.nodesLayer.append('text')
-      .attr('dx', 25)
-      .attr('dy', '.35em')
-      .text(this.nodeLabel);
-
-=======
->>>>>>> develop
     this.linksLayer = this.linksLayer.data(this.links); // , d => `${d.source.id}-${d.target.id}`);
     this.linksLayer.exit().remove();
 
@@ -371,8 +355,6 @@ export default class Graph extends Basic {
       this.simulation.stop();
     }, this.delay);
   }
-<<<<<<< HEAD
-=======
 
   // resize() {
   //   super.resize();
@@ -380,5 +362,4 @@ export default class Graph extends Basic {
   //     .attr('width', this.width)
   //     .attr('height', this.height);
   // }
->>>>>>> develop
 }
