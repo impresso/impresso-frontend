@@ -1,7 +1,9 @@
 import Entity from '@/models/Entity';
 import Topic from '@/models/Topic';
 import Newspaper from '@/models/Newspaper';
+import Year from '@/models/Year';
 import Collection from '@/models/Collection';
+
 /**
  * @class Bucket is an object representing a Solar search engine facet bucket
  * @param {String} val The value of the dimensions, for instance a specific year,
@@ -34,6 +36,9 @@ export default class Bucket {
         break;
       case 'collection':
         this.item = new Collection(item);
+        break;
+      case 'year':
+        this.item = new Year(item);
         break;
       default:
         this.item = {
