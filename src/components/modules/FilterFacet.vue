@@ -72,12 +72,18 @@ export default {
       type: Object,
     },
   },
+  watch: {
+    facet: {
+      handler(v) {
+        console.info('*****', JSON.stringify(v));
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
   computed: {
     currentStore() {
-      if (this.store === 'searchImages') {
-        return this.$store.state.searchImages;
-      }
-      return this.$store.state.search;
+      return this.$store.state[this.store];
     },
     isLoadingResults() {
       return this.currentStore.isLoadingResults;

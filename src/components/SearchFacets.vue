@@ -125,10 +125,7 @@ export default {
       return this.$store.getters['explorer/getTemporaryFilter']();
     },
     currentStore() {
-      if (this.store === 'searchImages') {
-        return this.$store.state.searchImages;
-      }
-      return this.$store.state.search;
+      return this.$store.state[this.store];
     },
     // selectedFacet: {
     //   get() {

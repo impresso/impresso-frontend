@@ -129,7 +129,10 @@ export default {
     showEmbeddings: false,
   }),
   props: {
-    type: String, // being topic, newspaper, collection, language ...
+    type: {
+      type: String,
+      default: '',
+    }, // being topic, newspaper, collection, language ...
     store: {
       type: String,
       default: 'search',

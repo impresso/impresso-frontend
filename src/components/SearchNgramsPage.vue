@@ -13,6 +13,7 @@
       <!--  facets -->
       <div class="pt-3">
         <search-facets
+          store="searchNgrams"
           @submit-facet="onFacetSubmitted"
           @update-filter="onFilterUpdated"
           @reset-filter="onFilterReset"/>
@@ -35,18 +36,36 @@ export default {
     SearchTabs,
     SearchFacets,
   },
+  mounted() {
+    this.executeSearch();
+  },
+  watch: {
+    '$route.query': {
+      handler(val) {
+        this.$store.dispatch('searchNgrams/PULL_SEARCH_PARAMS', val);
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
   methods: {
+    executeSearch() {
+      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+    },
     searchNgrams(args) {
       console.info('searchNgrams', args);
     },
-    onFacetSubmitted(args) {
-      console.info('onFacetSubmitted', args);
+    onFacetSubmitted(facet) {
+      this.$store.commit('searchNgrams/ADD_FILTER', facet);
+      this.executeSearch();
     },
-    onFilterUpdated(args) {
-      console.info('onFilterUpdated', args);
+    onFilterUpdated(filter) {
+      this.$store.commit('searchNgrams/UPDATE_FILTER', filter);
+      this.executeSearch();
     },
-    onFilterReset(args) {
-      console.info('onFilterReset', args);
+    onFilterReset(type) {
+      this.$store.commit('searchNgrams/RESET_FILTER', type);
+      this.executeSearch();
     },
   },
 };

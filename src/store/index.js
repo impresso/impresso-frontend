@@ -7,6 +7,7 @@ import collections from './Collections';
 import user from './User';
 import search from './Search';
 import searchImages from './SearchImages';
+import searchNgrams from './SearchNgrams';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
 import newspapers from './Newspapers';
@@ -31,6 +32,7 @@ export default new Vuex.Store({
     settings,
     search,
     searchImages,
+    searchNgrams,
     autocomplete,
     user,
     issue,

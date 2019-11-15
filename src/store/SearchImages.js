@@ -120,7 +120,7 @@ export default {
         // load last search
         let searchData = state.imageSearches[state.imageSearches.length - 1];
 
-        // or if id is set then load search with specifici uuid
+        // or if id is set then load search with specific uuid
         if (id) {
           searchData = state.imageSearches.find(search => search.uuid === id);
         }
