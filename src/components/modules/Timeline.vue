@@ -38,6 +38,7 @@ export default {
     domain: Array,
     highlight: Object,
     contrast: Boolean,
+    percentage: Boolean,
     highlightEnabledState: Boolean,
     brushable: {
       type: Boolean,
@@ -113,10 +114,16 @@ export default {
       this.moveTooltip(data);
     });
 
+    if (this.percentage) {
+      this.timeline.dimensions.y.property = 'p';
+    }
+
     if (this.values && this.values.length) {
       this.timeline.update({
         data: this.values,
       });
+
+
       this.timeline.draw();
       setTimeout(this.onChangeDomain, 5000);
     }
@@ -126,6 +133,19 @@ export default {
     window.removeEventListener('resize', this.onResize);
   },
   watch: {
+    percentage: {
+      immediate: false,
+      handler() {
+        debugger;
+        if (this.timeline) {
+          this.timeline.dimensions.y.property = 'p';
+          this.timeline.update({
+            data: this.values,
+          });
+          this.timeline.draw();
+        }
+      },
+    },
     highlight: {
       immediate: false,
       handler(val) {
