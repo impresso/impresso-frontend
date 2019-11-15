@@ -72,15 +72,6 @@ export default {
       type: Object,
     },
   },
-  watch: {
-    facet: {
-      handler(v) {
-        console.info('*****', JSON.stringify(v));
-      },
-      deep: true,
-      immediate: true,
-    },
-  },
   computed: {
     currentStore() {
       return this.$store.state[this.store];
