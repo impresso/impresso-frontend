@@ -7,7 +7,7 @@
         <search-tabs/>
 
         <div class="py-3 px-3">
-          [ngram search input box placeholder]
+          <search-input @submit="onNgramsSubmitted" placeholder="search ngrams ..."></search-input>
         </div>
       </div>
       <!--  facets -->
@@ -30,11 +30,13 @@
 <script>
 import SearchTabs from '../components/modules/navigation/SearchTabs';
 import SearchFacets from './SearchFacets';
+import SearchInput from './modules/SearchInput';
 
 export default {
   components: {
     SearchTabs,
     SearchFacets,
+    SearchInput,
   },
   mounted() {
     this.executeSearch();
@@ -52,8 +54,8 @@ export default {
     executeSearch() {
       this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
     },
-    searchNgrams(args) {
-      console.info('searchNgrams', args);
+    onNgramsSubmitted({ q }) {
+      console.info('searchNgrams', q);
     },
     onFacetSubmitted(facet) {
       this.$store.commit('searchNgrams/ADD_FILTER', facet);
