@@ -231,7 +231,7 @@ export default {
     values: {
       get() {
         const facet = this.currentStore.facets.find(d => d.type === 'year');
-        if (!facet) {
+        if (!facet || !facet.buckets.length) {
           return [];
         }
         // sort then
@@ -239,6 +239,7 @@ export default {
           ...d,
           w: d.count,
           w1: 0,
+          p: d.item.normalize(d.count),
           t: parseInt(d.val, 10),
         }));
         // add zeroes
