@@ -3,21 +3,8 @@
     <i-layout-section width="400px" class="border-right">
       <!--  header -->
       <div slot="header" class="border-bottom bg-light">
-        <b-tabs pills class="border-bottom mx-2 pt-2">
-          <template v-slot:tabs-end>
-            <b-nav-item class="pl-2"
-              active-class='none'
-              :to="{ name:'search'}">
-                <span v-html="$t('tabs.text')"/>
-              </b-nav-item>
-            <b-nav-item
-              class="active"
-              active-class='none'
-              :to="{ name:'searchImages'}">
-                <span v-html="$t('tabs.images')"/>
-            </b-nav-item>
-          </template>
-        </b-tabs>
+        <search-tabs/>
+
         <div class="py-3 px-3">
           <search-pills :search-filters="filters" store-module-name="searchImages" v-on:remove="onRemoveFilter"/>
           <b-media v-if="similarToImage" class="pb-3">
@@ -137,6 +124,7 @@ import Ellipsis from './modules/Ellipsis';
 import SearchInput from './modules/SearchInput';
 import SearchPills from './SearchPills';
 import ImageViewer from './modules/ImageViewer';
+import SearchTabs from '../components/modules/navigation/SearchTabs';
 
 export default {
   components: {
@@ -151,6 +139,7 @@ export default {
     SearchPills,
     ImageViewer,
     FilterImageUpload,
+    SearchTabs,
   },
   data: () => ({
     q: '',
@@ -402,10 +391,6 @@ export default {
 <i18n>
   {
     "en": {
-      "tabs": {
-        "text": "search articles",
-        "images": "search images"
-      },
       "label_order": "Order By",
       "label_isFront": "Frontpage",
       "sort_asc": "Ascending",

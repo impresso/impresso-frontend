@@ -3,16 +3,8 @@
   <i-layout-section width="400px" class="border-right border-top mt-1px">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
-      <b-tabs pills class="mx-2 pt-2">
-        <template v-slot:tabs-end>
-          <b-nav-item class="pl-2 active"
-            active-class='none'
-            :to="{ name:'search'}"><span v-html="$t('tabs.text')"/></b-nav-item>
-          <b-nav-item
-            active-class='none'
-            :to="{ name:'searchImages'}"><span v-html="$t('tabs.images')"/></b-nav-item>
-        </template>
-      </b-tabs>
+      <search-tabs/>
+
       <div class="py-3 px-3">
         <search-pills
           v-on:remove="onRemoveFilter"
@@ -223,7 +215,7 @@ import CollectionAddToList from './modules/CollectionAddToList';
 import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
-// const uuid = require('uuid');
+import SearchTabs from '../components/modules/navigation/SearchTabs';
 
 export default {
   data: () => ({
@@ -530,7 +522,6 @@ export default {
       }
     },
     addFilterFromEmbedding(embedding) {
-      console.info('AE', embedding);
       const filter = { query: embedding, type: 'string', context: 'include' };
       this.$store.dispatch('search/ADD_FILTER', { filter });
       this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
@@ -564,6 +555,7 @@ export default {
     Ellipsis,
     SearchPills,
     EmbeddingsSearch,
+    SearchTabs,
   },
   mounted() {
     if (this.uuid !== undefined) {
@@ -631,10 +623,6 @@ div.overlay-region{
 <i18n>
 {
   "en": {
-    "tabs": {
-      "text": "search articles",
-      "images": "search images"
-    },
     "label_display": "Display As",
     "label_order": "Order By",
     "label_group": "Group By",

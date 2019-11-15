@@ -6,6 +6,7 @@ import FaqPage from '../components/FaqPage';
 import LegalPage from '../components/LegalPage';
 import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
+import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
@@ -88,6 +89,14 @@ const router = new Router({
     path: '/search/images',
     name: 'searchImages',
     component: SearchImagesPage,
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/search/ngrams',
+    name: 'searchNgrams',
+    component: SearchNgramsPage,
     meta: {
       requiresAuth: false,
     },
