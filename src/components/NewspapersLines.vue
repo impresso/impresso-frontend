@@ -237,9 +237,9 @@ export default {
         obj[d.endYear] = true;
         return obj;
       }, {}))
-      .filter(d => !isNaN(d))
-      .map(d => parseInt(d, 10))
-      .sort();
+        .filter(d => !isNaN(d))
+        .map(d => parseInt(d, 10))
+        .sort();
     },
     scale() {
       return d3.scaleLinear()
@@ -429,16 +429,16 @@ export default {
         "BL": "Canton of Basel-Landschaft",
         "BS": "Canton of Basel-Stadt",
         "BE": "Canton of Bern",
-        "FR":	"Canton of Fribourg",
+        "FR": "Canton of Fribourg",
         "GE": "Canton of Geneva",
         "GL": "Canton of Glarus",
-        "GR":	"Canton of Grisons",
-        "JU":	"Canton of Jura",
+        "GR": "Canton of Grisons",
+        "JU": "Canton of Jura",
         "LU": "Canton of Luzern",
-        "NE":	"Canton of Neuchâtel",
+        "NE": "Canton of Neuchâtel",
         "OW": "Canton of Obwalden",
         "NW": "Canton of Nidwalden",
-        "SH":	"Canton of Schaffhausen",
+        "SH": "Canton of Schaffhausen",
         "SZ": "Canton of Schwytz",
         "SO": "Canton of Solothurn",
         "SG": "Canton of St. Gallen",

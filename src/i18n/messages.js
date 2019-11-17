@@ -212,6 +212,7 @@ export default {
         desc: 'publication date, most recent first',
       },
     },
+    more_info: 'More Info',
   },
   nl: {
     language: 'Taal',

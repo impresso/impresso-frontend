@@ -128,6 +128,7 @@ const QueryRightIndex = 2;
 
 export default {
   data: () => ({
+    hoverId: '',
     // loading flags indicate that tab at flag's index is loading data
     // from the API.
     loadingFlags: [...Array(3).keys()].map(() => false),
@@ -162,7 +163,6 @@ export default {
       { type: 'query', query: DefaultQuery },
       { type: 'query', query: DefaultQuery },
     ],
-    hoverId: String,
   }),
   watch: {
     // query parameters updated - this drives state change
@@ -314,7 +314,7 @@ export default {
       this.$set(this.timelineHighlights, facetId, { enabled: false });
     },
     onHovered(val) {
-      this.hoverId = val;
+      this.hoverId = String(val);
     },
     getTimelineHighlight(id) {
       return this.timelineHighlights[id] || {};

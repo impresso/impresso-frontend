@@ -112,7 +112,7 @@ export default {
         commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
       });
     },
-    SET_ITEM({ state, commit, dispatch }, { item, type }) { // }, position }) {
+    SET_ITEM({ commit, dispatch }, { item, type }) { // }, position }) {
       commit('SET_IS_ACTIVE', true);
       commit('SET_PENDING_ITEM', item);
       commit('SET_ITEM_TYPE', type);
@@ -137,7 +137,7 @@ export default {
       commit('SET_ITEM', item);
       return dispatch('LOAD_ITEM_TIMELINE');
     },
-    SET_VIEWPORT({ state, commit }, viewport) {
+    SET_VIEWPORT({ commit }, viewport) {
       commit('SET_VIEWPORT', viewport);
     },
     SET_SCROLLTOP({ commit }, scrollTop) {

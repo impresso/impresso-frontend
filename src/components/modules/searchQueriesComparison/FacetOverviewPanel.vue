@@ -2,7 +2,7 @@
   <div>
     <!-- timeline type -->
     <div v-if="type === 'timeline'">
-      <span class="row tb-title small-caps font-weight-bold">{{title}}</span>
+      <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{title}}</span>
       <div class="row mt-5">
         <timeline
               :contrast="false"
@@ -68,7 +68,9 @@ export default {
   data: () => ({
   }),
   props: {
-    hoverId: String,
+    hoverId: {
+      type: String,
+    },
     facet: String, // any of the common facet types: newspaper, language, etc.
     type: {
       type: String, // type of the visualisation component
@@ -115,7 +117,7 @@ export default {
       this.$emit('timeline-highlight-off', { facetId: this.facet });
     },
     onHoverBar(val) {
-      this.$emit('hovered', val);
+      this.$emit('hovered', String(val));
     },
   },
 };
@@ -124,7 +126,4 @@ export default {
 <style lang="scss" scoped>
   @import "impresso-theme/src/scss/variables.sass";
 
-  .tb-title {
-    font-size: .95em;
-  }
 </style>

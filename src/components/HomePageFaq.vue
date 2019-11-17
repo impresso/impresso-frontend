@@ -2,7 +2,7 @@
   <div id="faq-items" class="container py-5">
     <b-row class="justify-content-md-center mb-5">
       <b-col col xl="6" lg="8" md="10">
-        <h1 class="text-center mb-5">{{faq.title}}</h1>
+        <h1 class="mb-5">{{faq.title}}</h1>
 
 
         <div v-for="(group, i) in faq.groups" class="mb-5">

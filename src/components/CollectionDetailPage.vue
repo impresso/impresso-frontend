@@ -50,13 +50,9 @@
 
         </section>
 
-
-
         <b-modal id="confirmDelete" v-on:ok="remove(collection)">
           {{this.$t('confirm_delete', [collection.name])}}
         </b-modal>
-
-
 
       </b-navbar>
 
