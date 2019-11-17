@@ -94,7 +94,7 @@
     "material-design-color": "^2.3.2",
     "mocha": "^5.2.0",
     "nightwatch": "^1.0.14",
-    "node-sass": "^4.11.0",
+    "node-sass": "^4.13.0",
     "opn": "^5.4.0",
     "ora": "^1.4.0",
     "portfinder": "^1.0.20",
