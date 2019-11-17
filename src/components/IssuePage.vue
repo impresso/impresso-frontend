@@ -377,7 +377,7 @@ export default {
               }
             });
           });
-            // this.selectArticle();
+          // this.selectArticle();
         });
       });
     },
@@ -501,13 +501,12 @@ div.overlay-region{
 
 
 @supports (mix-blend-mode: multiply) {
-	div.overlay-region {
+  div.overlay-region {
     mix-blend-mode: multiply;
     &.selected, &.active{
       opacity: 0.5;
     }
   }
-
 }
 </style>
 

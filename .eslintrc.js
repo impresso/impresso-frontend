@@ -2,14 +2,15 @@
 
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
   parserOptions: {
-    sourceType: 'module'
+    sourceType: 'module',
+    ecmaVersion: 2018,
+    parser: 'babel-eslint'
   },
   env: {
     browser: true,
   },
-  extends: 'airbnb-base',
+  extends: ['airbnb-base', 'plugin:vue/base'],
   // required to lint *.vue files
   plugins: [
     'html'
@@ -44,7 +45,9 @@ module.exports = {
           'error'
         ]
       }
-    ]
-    // 'max-len': 5000
+    ],
+    'max-len': ["error", { "code": 1000 }],
+    'no-irregular-whitespace': 0,
+    'vue/valid-template-root': 0,
   }
 }

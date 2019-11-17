@@ -27,5 +27,4 @@ export default class SmallMultiples extends EventEmitter {
 
     // / subdivide in groups
   }
-
 }

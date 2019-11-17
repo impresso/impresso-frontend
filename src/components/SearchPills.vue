@@ -130,7 +130,7 @@ export default {
           ? this.searchFilters
           : this.$store.state[this.storeModuleName].search.filters;
         return filters.filter(d => this.excludedTypes.indexOf(d.type) === -1);
-          // .sort((a, b) => (a.type > b.type ? 1 : -1));
+        // .sort((a, b) => (a.type > b.type ? 1 : -1));
       },
     },
     filterContextOptions: {
@@ -252,7 +252,7 @@ export default {
       font-weight: bold;
     }
     &.sp-string.soft::before,
-    &>.sp-string.soft::before,{
+    &>.sp-string.soft::before {
       content: '[';
       font-weight: bold;
     }
@@ -261,7 +261,6 @@ export default {
       content: ']';
       font-weight: bold;
     }
-
   }
 
   span.label.exclude{

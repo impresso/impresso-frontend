@@ -171,6 +171,4 @@ export default class SearchQuery {
     }
     return filters;
   }
-
-
 }

@@ -5,6 +5,21 @@
 
 const path = require('path')
 
+/**
+ * Ignoring absence of "dev.env" file for production builds.
+ */
+const devEnv = (() => {
+  try {
+    return require('./dev.env')
+  } catch (e) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('No "dev.env" config found. It is fine - we are building for production')
+      return {}
+    }
+    throw e
+  }
+})()
+
 module.exports = {
   build: {
     env: require('./prod.env'),
@@ -26,7 +41,7 @@ module.exports = {
     bundleAnalyzerReport: process.env.npm_config_report
   },
   dev: {
-    env: require('./dev.env'),
+    env: devEnv,
     port: process.env.PORT || 8080,
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
