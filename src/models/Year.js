@@ -12,12 +12,13 @@ export default class Year {
     this.y = y;
     this.refs = refs;
   }
-/**
- * Normalize a given value against a specific value in refs.
- * @param  {float} value                      value to normalize
- * @param  {String} [k=NUMBER_OF_CONTENTITEMS] [description]
- * @return {float}                            normalized values
- */
+
+  /**
+    * Normalize a given value against a specific value in refs.
+    * @param  {float} value                      value to normalize
+    * @param  {String} [k=NUMBER_OF_CONTENTITEMS] [description]
+    * @return {float}                            normalized values
+    */
   normalize(value, k = NUMBER_OF_CONTENTITEMS) {
     if (typeof this.refs[k] === 'undefined' || this.refs[k] === 0) {
       return 0;
