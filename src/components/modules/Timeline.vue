@@ -136,9 +136,8 @@ export default {
     percentage: {
       immediate: false,
       handler() {
-        debugger;
         if (this.timeline) {
-          this.timeline.dimensions.y.property = 'p';
+          this.timeline.dimensions.y.property = this.percentage ? 'p' : 'w';
           this.timeline.update({
             data: this.values,
           });
