@@ -10,11 +10,14 @@
         </div>
         <div slot="description">
           <span v-if="daterangeFilters.length">
-            {{$t(`label.timelineDescription.${groupByLabel}.filtered`)}}
+            {{$t(`label.timelineDescription.${groupByLabel}.filtered.${displayStyle}`)}}
           </span>
           <span v-else>
-              {{$t(`label.timelineDescription.${groupByLabel}.description`)}}
+              {{$t(`label.timelineDescription.${groupByLabel}.description.${displayStyle}`)}}
           </span>
+          <b-nav-form>
+            <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
+          </b-nav-form>
         </div>
       </base-title-bar>
 
@@ -23,6 +26,7 @@
         :values="values"
         :brush="[startDaterange, endDaterange]"
         :domain="[startYear, endYear]"
+        :percentage="percentage"
         @brushed="onTimelineBrushed">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
@@ -92,6 +96,9 @@ import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
 
+const TIMELINE_PERCENT = 'percent';
+const TIMELINE_SUM = 'sum';
+
 export default {
   props: {
     store: {
@@ -119,6 +126,7 @@ export default {
     facetExplorerType: '',
     daterangeSelectedIndex: 0,
     daterangeSelectedItemIndex: 0,
+    percentage: false,
   }),
   computed: {
     temporaryFilter() {
@@ -130,15 +138,20 @@ export default {
       }
       return this.$store.state.search;
     },
-    // selectedFacet: {
-    //   get() {
-    //     if (this.currentStore.search.filters) {
-    //       return this.currentStore.search.filters;
-    //     }
-    //     return false;
-    //   },
-    // },
-
+    displayStyle: {
+      get() {
+        return this.percentage ? TIMELINE_PERCENT : TIMELINE_SUM;
+      },
+      set(v) {
+        this.percentage = v === TIMELINE_PERCENT;
+      },
+    },
+    displayStyleOptions() {
+      return [TIMELINE_PERCENT, TIMELINE_SUM].map(value => ({
+        text: this.$t(`label.display.${value}`),
+        value,
+      }));
+    },
     daterangeFilters() {
       return this.currentStore.search.filters.filter(d => d.type === 'daterange');
     },
@@ -444,13 +457,23 @@ export default {
         },
         "timelineDescription": {
           "articles": {
-            "description": "Number of articles per year",
-            "filtered": "Number of articles per year (filtered)"
+            "description": {
+              "sum": "Number of articles per year",
+              "percent": "Percentage of articles per year"
+            },
+            "filtered": {
+              "sum": "Number of articles per year (filtered)",
+              "percent": "Percentage of articles per year (filtered)"
+            }
           },
           "images": {
             "description": "Number of images extracted per year",
             "filtered": "Number of images per year (filtered)"
           }
+        },
+        "display": {
+          "sum": "sum",
+          "percent": "%"
         },
         "daterange": {
           "pick": "add filter ...",
