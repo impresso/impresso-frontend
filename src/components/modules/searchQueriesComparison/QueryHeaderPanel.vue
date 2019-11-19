@@ -207,7 +207,6 @@ export default {
       };
     },
     searchPageLink() {
-      console.info('comparable', this.comparable);
       if (this.comparable.type === 'collection') {
         return {
           name: 'search',
