@@ -42,6 +42,9 @@
       </b-tab>
     </b-tabs>
 
+    <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+      {{ $t('actions.searchMore') }}
+    </router-link>
     <!-- intersection -->
     <div class="row justify-content-between" v-if="containsComparison">
       <div class="col-auto w-100">
@@ -73,7 +76,7 @@
 
 <script>
 // import { mapState } from 'vuex'
-
+import SearchQuery from '@/models/SearchQuery';
 import Dropdown from '../../layout/Dropdown';
 import SearchPills from '../../SearchPills';
 import Autocomplete from '../../Autocomplete';
@@ -201,6 +204,28 @@ export default {
     canonicalSearchQuery() {
       return {
         filters: this.$store.getters['queryComparison/getSearchQuery'](this.comparableId).getFilters(),
+      };
+    },
+    searchPageLink() {
+      console.info('comparable', this.comparable);
+      if (this.comparable.type === 'collection') {
+        return {
+          name: 'search',
+          query: SearchQuery.serialize({
+            filters: [{ type: 'collection', q: this.comparable.id }],
+          }),
+        };
+      }
+      if (this.comparable.query) {
+        return {
+          name: 'search',
+          query: SearchQuery.serialize({
+            filters: this.comparable.query.filters,
+          }),
+        };
+      }
+      return {
+        name: 'search',
       };
     },
   },
