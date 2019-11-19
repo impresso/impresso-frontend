@@ -1,5 +1,5 @@
 # 1. build
-FROM node:10-alpine AS frontend_builder
+FROM node:12-alpine AS frontend_builder
 
 WORKDIR /impresso_frontend
 
