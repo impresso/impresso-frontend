@@ -22,7 +22,12 @@ export default {
   computed: {
     content: {
       get() {
-        return content[this.activeLanguageCode].faq.find(e => e.id === this.name);
+        const matches = [];
+        content[this.activeLanguageCode].groups.forEach((item) => {
+          const found = item.faq.find(fa => fa.id === this.name);
+          if (found) matches.push(found);
+        });
+        return matches[0];
       },
     },
     activeLanguageCode() {
