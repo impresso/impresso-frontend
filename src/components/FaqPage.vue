@@ -11,7 +11,7 @@
               <strong>{{term.title}}</strong>
             </div>
             <div class="faq-item pb-1">
-              <b-collapse class="description py-2" v-bind:id="`accordion-${i}`" accordion="my-accordion" role="tabpanel">
+              <b-collapse :visible="isOpen(term.id)" class="description py-2" v-bind:id="`accordion-${i}`" accordion="my-accordion" role="tabpanel">
                 <div class="summary my-1 p-3 bg-light border-left">{{term.summary}}</div>
                 <p v-for="paragraph in term.description" v-html="paragraph" />
               </b-collapse>
@@ -36,6 +36,11 @@ export default {
     },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
+    },
+  },
+  methods: {
+    isOpen(term) {
+      return this.$route.hash === `#${term}`;
     },
   },
 };
