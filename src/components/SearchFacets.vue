@@ -113,6 +113,9 @@ export default {
       type: Number,
       default: 2020,
     },
+    percentProp: {
+      type: String,
+    },
   },
   data: () => ({
     daterange: {
@@ -252,7 +255,7 @@ export default {
           ...d,
           w: d.count,
           w1: 0,
-          p: d.item.normalize(d.count),
+          p: d.item.normalize(d.count, this.percentProp),
           t: parseInt(d.val, 10),
         }));
         // add zeroes
@@ -467,8 +470,14 @@ export default {
             }
           },
           "images": {
-            "description": "Number of images extracted per year",
-            "filtered": "Number of images per year (filtered)"
+            "description": {
+              "sum": "Number of images extracted per year",
+              "percent": "Percentage of number of images per year"
+            },
+            "filtered": {
+              "sum": "Number of images per year (filtered)",
+              "percent": "Percentage of number of images per year (filtered)"
+            }
           }
         },
         "display": {
