@@ -275,7 +275,7 @@ export default {
         "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
       },
       "descriptions": {
-        "intersection": "Display lists of common newspapers, named entities, topics"
+        "intersection": "Lists of newspapers, named entities and topics for articles which appear both in A and B."
       }
     },
     "tabs": {
