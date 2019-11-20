@@ -32,7 +32,7 @@
           </li>`
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
-          <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
+          <!-- <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1> -->
         </b-navbar-nav>
         <b-navbar-nav>
           <b-nav-item-dropdown right no-caret
