@@ -11,7 +11,12 @@
               <strong>{{term.title}}</strong>
             </div>
             <div class="faq-item pb-1">
-              <b-collapse class="description py-2" v-bind:id="`accordion-${i}-${j}`" accordion="my-accordion" role="tabpanel">
+              <b-collapse
+                v-bind:id="`accordion-${i}-${j}`"
+                v-bind:visible="isOpen(term.id)"
+                class="description py-2"
+                accordion="my-accordion"
+                role="tabpanel">
                 <div class="summary my-1 p-3 bg-light border-left">{{term.summary}}</div>
                 <p v-for="paragraph in term.description" v-html="paragraph" />
               </b-collapse>
