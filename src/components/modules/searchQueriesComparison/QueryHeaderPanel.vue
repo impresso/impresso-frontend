@@ -43,7 +43,6 @@
     </b-tabs>
     <div class="">
       {{ comparable }}
-      <!-- <button type="button" name="button" @click="search()">query {{title}} {{total}}</button> -->
       <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
         {{ $t('actions.searchMore') }} {{comparable.type}} {{total}}
       </router-link>
