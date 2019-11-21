@@ -136,7 +136,7 @@ export default {
         Math.max(
           this.dateFieldWidth - this.width,
           this.app.selection[1] - this.width),
-          -this.dateFieldWidth);
+        -this.dateFieldWidth);
       // const endposy = endposx === -100 ? 25 : 0;
       // console.info('updateTimeSelection > startposx', startposx);
       this.app.selectionStartDateFieldValue

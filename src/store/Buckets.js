@@ -22,7 +22,7 @@ export default {
     items: [],
     query: '',
     pagination: {
-      perPage: 10,
+      perPage: 20,
       currentPage: 1,
       totalRows: 0,
     },
@@ -44,7 +44,6 @@ export default {
       state.fq = q.split('*').concat(['*']).join('');
     },
     UPDATE_ITEMS(state, items) {
-      console.info('@UPDATE_ITEMS', items);
       state.items = items;
     },
     UPDATE_ORDER_BY(state, orderBy) {
@@ -58,16 +57,16 @@ export default {
     },
   },
   actions: {
-    CHANGE_PAGE({ commit, dispatch }, page) {
+    CHANGE_PAGE({ commit }, page) {
       commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
       // dispatch('LOAD_BUCKETS');
     },
-    CHANGE_Q({ commit, dispatch }, q) {
+    CHANGE_Q({ commit }, q) {
       commit('UPDATE_Q', q);
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
       // dispatch('LOAD_BUCKETS');
     },
-    CHANGE_TYPE({ commit, dispatch }, type) {
+    CHANGE_TYPE({ commit }, type) {
       commit('SET_TYPE', type);
       commit('UPDATE_ORDER_BY', 'name');
       // When changing type, we have to reset the list of buckets
@@ -77,7 +76,7 @@ export default {
       // then search again with the new params
       // dispatch('LOAD_BUCKETS');
     },
-    CHANGE_ORDER_BY({ commit, dispatch }, orderBy) {
+    CHANGE_ORDER_BY({ commit }, orderBy) {
       commit('UPDATE_ORDER_BY', orderBy);
       commit('UPDATE_ITEMS', []);
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
@@ -152,7 +151,7 @@ export default {
         limit: state.pagination.perPage,
         order_by: '-count',
       };
-      console.info('buckets/SEARCH_FACETS query:', query);
+      console.info('buckets/SEARCH_FACETS type:', state.type, 'query:', query);
       return services.searchFacets.get(state.type, {
         query,
       }).then((res) => {

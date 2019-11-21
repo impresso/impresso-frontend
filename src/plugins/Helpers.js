@@ -37,6 +37,7 @@ helpers.timeline.addEmptyYears = (values) => {
         t: values[i - 1].t + j,
         w: 0,
         w1: 0,
+        p: 0,
       });
     }
     vs.push(values[i]);

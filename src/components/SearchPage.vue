@@ -3,16 +3,7 @@
   <i-layout-section width="400px" class="border-right border-top mt-1px">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
-      <b-tabs pills class="mx-2 pt-2">
-        <template v-slot:tabs-end>
-          <b-nav-item class="pl-2 active"
-            active-class='none'
-            :to="{ name:'search'}"><span v-html="$t('tabs.text')"/></b-nav-item>
-          <b-nav-item
-            active-class='none'
-            :to="{ name:'searchImages'}"><span v-html="$t('tabs.images')"/></b-nav-item>
-        </template>
-      </b-tabs>
+      <search-tabs />
       <div class="py-3 px-3">
         <search-pills
           v-on:remove="onRemoveFilter"
@@ -35,7 +26,7 @@
       </b-form-group>
 
       <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
-      <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
+      <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter" percent-prop="a"/>
     </div>
     <!-- <div slot="footer">
       <b-button-group class="d-flex bg-white p-3 border-top border-tertiary">
@@ -223,6 +214,7 @@ import CollectionAddToList from './modules/CollectionAddToList';
 import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
+import SearchTabs from './modules/SearchTabs';
 // const uuid = require('uuid');
 
 export default {
@@ -564,6 +556,7 @@ export default {
     Ellipsis,
     SearchPills,
     EmbeddingsSearch,
+    SearchTabs,
   },
   mounted() {
     if (this.uuid !== undefined) {

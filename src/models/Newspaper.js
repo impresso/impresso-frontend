@@ -1,6 +1,6 @@
 import Issue from './Issue';
 
- /**
+/**
   * @class Issue is an object representing a newspaper issue
   * @param {String} acronym Three Letter Acronym (TLA) for the newspaper
   * @param {Integer} countArticles Amount of articles in the issue

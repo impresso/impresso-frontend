@@ -135,7 +135,7 @@ export default {
         filterTitle: 'filter by person',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> people are mentioned',
-        description: 'check one or more topics to filter results',
+        description: 'check one or more persons to filter results',
         empty: 'No person has been recognized in results',
       },
       location: {
@@ -143,7 +143,7 @@ export default {
         filterTitle: 'filter by location',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> locations are mentioned',
-        description: 'check one or more topics to filter results',
+        description: 'check one or more locations to filter results',
         empty: 'There is no location available',
       },
       collection: {

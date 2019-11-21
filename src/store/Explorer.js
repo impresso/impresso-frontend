@@ -48,7 +48,7 @@ export default {
     },
   },
   actions: {
-    ADD_FILTER({ commit, state }, filter) {
+    ADD_FILTER({ commit }, filter) {
       commit('SET_TEMPORARY_FILTER', filter);
     },
     SET_SEARCH_QUERY_ID({ commit }, searchQueryId) {

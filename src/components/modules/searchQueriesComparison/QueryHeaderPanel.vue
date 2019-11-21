@@ -49,6 +49,9 @@
       </router-link>
     </div>
 
+    <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+      {{ $t('actions.searchMore') }}
+    </router-link>
     <!-- intersection -->
     <div class="row justify-content-between" v-if="containsComparison">
       <div class="col-auto w-100">
@@ -73,7 +76,6 @@
         </div>
       </div> -->
     </div>
-
 
 
   </div>
@@ -242,6 +244,27 @@ export default {
         filters: this.$store.getters['queryComparison/getSearchQuery'](this.comparableId).getFilters(),
       };
     },
+    searchPageLink() {
+      if (this.comparable.type === 'collection') {
+        return {
+          name: 'search',
+          query: SearchQuery.serialize({
+            filters: [{ type: 'collection', q: this.comparable.id }],
+          }),
+        };
+      }
+      if (this.comparable.query) {
+        return {
+          name: 'search',
+          query: SearchQuery.serialize({
+            filters: this.comparable.query.filters,
+          }),
+        };
+      }
+      return {
+        name: 'search',
+      };
+    },
   },
 };
 </script>
@@ -290,7 +313,7 @@ export default {
         "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
       },
       "descriptions": {
-        "intersection": "Display lists of common newspapers, named entities, topics"
+        "intersection": "Lists of newspapers, named entities and topics for articles which appear both in A and B."
       }
     },
     "tabs": {
