@@ -115,11 +115,11 @@ export default new Vuex.Store({
       );
       commit('SET_ERROR_MESSAGE', error.message);
       // do not force if BadGateway or polling error (risk of having endless and useless loops)
-      if (['BadGateway'].includes(error.name)) {
+      if (['BadGateway'].includes(error.name) || ['TransportError'].includes(error.type)) {
         console.info('Error', error.name, 'at', errorRoute, 'hasn\'t been dispatched, risk of loopholes');
       } else {
         await errorCollector.create({
-          uri: errorRoute.join('.'),
+          uri: errorRoute.length ? errorRoute.join('.') : 'N/A',
           ...error,
         }).catch((err) => {
           console.error('[Unexpected error in sending the error]', err);
