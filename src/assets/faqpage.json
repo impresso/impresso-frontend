@@ -4,25 +4,8 @@
     "groups":
     [
       {
-      "title": "Contextual Help",
-      "faq": [
-      {
-      "id": "topics-in-common",
-      "title": "Topics in Common",
-      "summary": "This is a short description or summary, it is shown in context below the title. Keep it simple, stupid! (kiss)",
-      "description": [
-      "This is the long description. It is only displayed on the dedicated FAQ page.",
-      "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
-      "We are further supported by a team of academic partners who advise us in the pursuit of the project: <ul><li>François Vallotton (Full Professor at the University of Lausanne),</li><li>Raphaëlle Ruppen Coutaz (Lecturer at the University of Lausanne),</li><li>Frédéric Clavert (Assistant Professor at C2DH) and </li><li>Enrico Natale (Managing Director infoclio.ch).</li></ul>",
-      "Finally, a group of associated researchers have committed to using impresso for their research and provide valuable feedback to us.",
-      "Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details."
-      ]
-      }
-    ]
-    },
-    {
-      "title": "About Impresso",
-      "faq": [
+        "title": "About Impresso",
+        "faq": [
       {
       "id": "who-is-behind-impresso",
       "title": "Who is behind impresso?",
@@ -224,9 +207,15 @@
       {
       "id": "How was topic modeling applied to this collection",
       "title": "How was topic modeling applied to this collection?",
-      "summary": "short text",
+      "summary": "We generated topic models for both French and German language newspapers with the goal to optimize them for content exploration. These are the topics you see on display in the interface. Given the large size of our corpus, we can not easily re-run topic modeling on the fly for user collections. We recognize that this can be of interest to many users, if this is of interest to you, we advise you to export your collection and use your preferred topic modeling tool of choice.",
       "description": [
-      "long text"
+      "For the global topic modeling, we used MALLET and used the following steps to prepare the data: ",
+      "<ul><li>Language identification</li><li>Linguistic processing (Lemmatization; note that historical spellings cannot currently be lemmatized correctly; terms like “Bundesrath” can therefore not be found in topic models)</li><li>Reduction to nouns and proper nouns in order to improve the interpretability of topics.</li></ul>",
+      "Topic models have been trained on articles which contain a minimum of 10 nouns. For articles with less than 10 nouns we infer topics. In this context, training means the following: Given a set of documents and a fixed number of topics, we compute topic-word and topic-document distributions that make our documents probable. Inference: Given a topic model and an unseen document, we determine a topic distribution for the document that explains its observed words best.",
+      "Large datasets like ours can not be easily processed with MALLET, instead we subsample the articles in order to be able to process them. For the sample we randomly select about 30% of the articles for French (as we did not have that much of German articles, we did not sample for this language so far).",
+      "MALLET requires us to pre-determine the number of topics it should generate. We set this number to 100. This number is arbitrary but represents our attempt to capture the complexity of the newspaper content without overburdening users by offering too many topics to inspect.",
+      "In the interface, a topic is linked to an article if its proportion is at least 2% for French and 0.5% for German (this may change to 2% in the near future). This is to ensure that topics remain distinctive and can indeed serve as search facets.",
+      "Further reading: <a href='http://mallet.cs.umass.edu/' target='_blank'>MALLET homepage</a>"
       ]
       },
       {
@@ -240,6 +229,23 @@
       "Further reading:<ul><li>Firth, John Rupert. 1957. A synopsis of linguistic theory 1930-1955. In Special Volume of the Philological Society. Oxford: Oxford University Press.</li><li>'FastText - Word Representations' Accessed October 12, 2019. https://fasttext.cc/index.html.</li><li>Ben Schmidt. 'Vector Space Models for the Digital Humanities.' Accessed October 12, 2019. http://bookworm.benschmidt.org/posts/2015-10-25-Word-Embeddings.html.</li></ul>"
       ]
       }
+      ]
+      },
+      {
+        "title": "Contextual Help",
+        "faq": [
+        {
+        "id": "topics-in-common",
+        "title": "Topics in Common",
+        "summary": "This is a short description or summary, it is shown in context below the title. Keep it simple, stupid! (kiss)",
+        "description": [
+        "This is the long description. It is only displayed on the dedicated FAQ page.",
+        "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
+        "We are further supported by a team of academic partners who advise us in the pursuit of the project: <ul><li>François Vallotton (Full Professor at the University of Lausanne),</li><li>Raphaëlle Ruppen Coutaz (Lecturer at the University of Lausanne),</li><li>Frédéric Clavert (Assistant Professor at C2DH) and </li><li>Enrico Natale (Managing Director infoclio.ch).</li></ul>",
+        "Finally, a group of associated researchers have committed to using impresso for their research and provide valuable feedback to us.",
+        "Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details."
+        ]
+        }
       ]
       }
     ]
