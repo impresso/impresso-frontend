@@ -41,6 +41,13 @@
         </template>
       </b-tab>
     </b-tabs>
+    <div class="">
+      {{ comparable }}
+      <!-- <button type="button" name="button" @click="search()">query {{title}} {{total}}</button> -->
+      <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
+        {{ $t('actions.searchMore') }} {{comparable.type}} {{total}}
+      </router-link>
+    </div>
 
     <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
       {{ $t('actions.searchMore') }}
@@ -176,6 +183,37 @@ export default {
     onUpdateFilter() {
       this.comparable.query = this.canonicalSearchQuery;
       this.$emit('comparable-changed', this.comparable);
+    },
+  //   search() {
+  //     this.$router.push({name: 'search', query:})
+  //     console.info('search() - ', this.comparable);
+  //     if (this.comparable.type === 'collection') {
+  //       return this.$store.dispatch('buckets/SEARCH', {
+  //         type: this.comparable.type,
+  //         q: this.comparable.id,
+  //       });
+  //     }
+  //     return this.$store.dispatch('buckets/SEARCH_FACETS', {
+  //       type: this.comparable.type,
+  //       filters: this.comparable.filters,
+  //     });
+  //   },
+    searchPageLink(c) {
+      console.log('ccc', c);
+      if (c.type === 'query') {
+        return {
+          name: 'search',
+          query: SearchQuery.serialize({
+            filters: c.query.filters,
+          }),
+        };
+      }
+      return {
+        name: 'search',
+        query: SearchQuery.serialize({
+          filters: [{ type: 'collection', q: c.id }],
+        }),
+      };
     },
   },
   computed: {
