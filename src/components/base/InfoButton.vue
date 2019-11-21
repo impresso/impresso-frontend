@@ -24,7 +24,7 @@ export default {
       get() {
         const matches = [];
         content[this.activeLanguageCode].groups.forEach((item) => {
-          const found = item.faq.find(fa => fa.id === this.name);
+          const found = item.faq && item.faq.find(fa => fa.id === this.name);
           if (found) matches.push(found);
         });
         return matches[0];
