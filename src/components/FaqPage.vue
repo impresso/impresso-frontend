@@ -5,13 +5,13 @@
         <h1 class="mb-4">{{faq.title}}</h1>
         <div v-for="(group, i) in faq.groups" class="my-4">
           <h2>{{group.title}}</h2>
-          <div v-for="(term, i) in group.faq" class="my-3">
+          <div v-for="(term, j) in group.faq" class="my-3">
             <a :id="`${term.id}`"></a>
-            <div class="accordion-toggle" v-b-toggle="`accordion-${i}`">
+            <div class="accordion-toggle" v-b-toggle="`accordion-${i}-${j}`">
               <strong>{{term.title}}</strong>
             </div>
             <div class="faq-item pb-1">
-              <b-collapse class="description py-2" v-bind:id="`accordion-${i}`" accordion="my-accordion" role="tabpanel">
+              <b-collapse class="description py-2" v-bind:id="`accordion-${i}-${j}`" accordion="my-accordion" role="tabpanel">
                 <div class="summary my-1 p-3 bg-light border-left">{{term.summary}}</div>
                 <p v-for="paragraph in term.description" v-html="paragraph" />
               </b-collapse>
