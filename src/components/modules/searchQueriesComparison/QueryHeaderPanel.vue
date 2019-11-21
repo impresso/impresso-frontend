@@ -41,16 +41,6 @@
         </template>
       </b-tab>
     </b-tabs>
-    <div class="">
-      {{ comparable }}
-      <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
-        {{ $t('actions.searchMore') }} {{comparable.type}} {{total}}
-      </router-link>
-    </div>
-
-    <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-      {{ $t('actions.searchMore') }}
-    </router-link>
     <!-- intersection -->
     <div class="row justify-content-between" v-if="containsComparison">
       <div class="col-auto w-100">
@@ -75,8 +65,21 @@
         </div>
       </div> -->
     </div>
-
-
+    <!-- buttons -->
+    <div class="">
+      <!-- {{ comparable }} -->
+      <!-- <button type="button" name="button" @click="search()">query {{title}} {{total}}</button> -->
+      <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
+        {{
+          $t('actions.searchMore')
+        }}
+        {{
+          $tc('numbers.resultsParenthesis', total, {
+            n: $n(total),
+          })
+        }}
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -228,27 +231,6 @@ export default {
         filters: this.$store.getters['queryComparison/getSearchQuery'](this.comparableId).getFilters(),
       };
     },
-    searchPageLink() {
-      if (this.comparable.type === 'collection') {
-        return {
-          name: 'search',
-          query: SearchQuery.serialize({
-            filters: [{ type: 'collection', q: this.comparable.id }],
-          }),
-        };
-      }
-      if (this.comparable.query) {
-        return {
-          name: 'search',
-          query: SearchQuery.serialize({
-            filters: this.comparable.query.filters,
-          }),
-        };
-      }
-      return {
-        name: 'search',
-      };
-    },
   },
 };
 </script>
@@ -302,11 +284,11 @@ export default {
     },
     "tabs": {
       "collection": {
-        "active": "collection | collection (1 result) | collection ({count} results)",
+        "active": "collection *",
         "pick": "collection"
       },
       "query": {
-        "active": "query | query (1 result) | query ({count} results)",
+        "active": "query *",
         "pick": "query"
       }
     }
