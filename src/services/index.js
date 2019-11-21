@@ -126,6 +126,7 @@ export const uploadedImages = app.service('uploaded-images').hooks(uploadedImage
 export const searchFacets = app.service('search-facets');
 export const tableOfContents = app.service('table-of-contents');
 export const searchQueriesComparison = app.service('search-queries-comparison').hooks(searchQueriesComparisonHooks);
+export const errorCollector = app.service('errors-collector');
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;
