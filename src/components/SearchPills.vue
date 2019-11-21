@@ -18,6 +18,8 @@
             {'dripicons-pulse': filter.type === 'daterange'},
             {'dripicons-calendar': filter.type === 'year'},
             {'dripicons-suitcase': filter.type === 'collection'},
+            {'dripicons-tag': filter.type === 'type'},
+            {'dripicons-print': filter.type === 'country'},
           ]" />
         <!--  type:string -->
         <span class="label sp-string" v-if="filter.type === 'string'" :class="[filter.precision,filter.context]">
@@ -41,14 +43,14 @@
         </span>
         <!--  type:language and other items -->
         <span class="label sp-generic-item"
-          v-if="['language', 'country'].indexOf(filter.type) !== -1"
+          v-if="['language', 'country', 'type'].indexOf(filter.type) !== -1"
           v-html="labelByItems({ items: filter.items, max: 2, prop:'uid', translate: true, type:filter.type, op: filter.op })"
           :class="filter.context">
         </span>
         <!--  type:generic -->
         <span class="label sp-generic-item"
-          v-if="filter.type === 'year'"
-          :class="filter.context">{{ filter.q.join(', ') }}
+          v-if="['year'].includes(filter.type)"
+          :class="filter.context">{{filter}}{{ filter.q.join(', ') }}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
@@ -321,6 +323,9 @@ export default {
         },
         "country": {
           "title": "Country of publication"
+        },
+        "type": {
+          "title": "Article content type"
         },
         "topic": {
           "title": "filter by topic"

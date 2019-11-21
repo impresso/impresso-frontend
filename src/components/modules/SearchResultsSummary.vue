@@ -188,6 +188,7 @@ export default {
             terms: this.getStrings(),
             title: this.getStrings('title'),
             topics: this.getTopics(),
+            type: this.getBuckets('type'),
             languages: this.getBuckets('language'),
             countries: this.getBuckets('country'),
             people: this.getEntities('person'),
@@ -246,7 +247,8 @@ export default {
       "daterange": "published",
       "collection": "saved in",
       "language": "written in",
-      "country": "printed in"
+      "country": "printed in",
+      "type": "tagged as"
     },
     "exclude": {
       "topic": "without topic",
@@ -262,10 +264,11 @@ export default {
       "collection": "not yet saved in",
       "language": "not written in",
       "string": "not containing",
-      "country": "not printed in"
+      "country": "not printed in",
+      "type": "not tagged as"
     },
     "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
+    "message": "Found <span class='number'>{count}</span> {groupByLabel} {type} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
   "fr": {
