@@ -17,6 +17,7 @@
           </span>
           <b-nav-form>
             <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
+            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
           </b-nav-form>
         </div>
       </base-title-bar>
@@ -95,6 +96,7 @@ import FilterFacet from './modules/FilterFacet';
 import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
+import InfoButton from './base/InfoButton';
 
 const TIMELINE_PERCENT = 'percent';
 const TIMELINE_SUM = 'sum';
@@ -414,6 +416,7 @@ export default {
     // flatPickr,
     FilterFacet,
     FilterMonitor,
+    InfoButton,
     // FacetExplorer,
   },
 };
