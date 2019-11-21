@@ -22,7 +22,7 @@ export default {
     items: [],
     query: '',
     pagination: {
-      perPage: 10,
+      perPage: 20,
       currentPage: 1,
       totalRows: 0,
     },
