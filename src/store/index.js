@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
+import { errorCollector } from '@/services';
 
 import settings from './Settings';
 import collections from './Collections';
@@ -97,9 +98,33 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    DISPLAY_ERROR({ commit }, error) {
-      console.error('[Unexpected error]: ', error.stack);
+    async DISPLAY_ERROR({ commit }, error) {
+      const errorRoute = [];
+      // get error route if possible
+      try {
+        errorRoute.push(error.hook.path);
+        errorRoute.push(error.hook.method);
+      } catch (e) {
+        console.warn(e);
+      }
+      console.error(`[Unexpected error ${error.name}]: ${errorRoute.join('.')}`,
+        error.code,
+        error.name,
+        error.message,
+        error.stack,
+      );
       commit('SET_ERROR_MESSAGE', error.message);
+      // do not force if BadGateway or polling error (risk of having endless and useless loops)
+      if (['BadGateway'].includes(error.name)) {
+        console.info('Error', error.name, 'at', errorRoute, 'hasn\'t been dispatched, risk of loopholes');
+      } else {
+        await errorCollector.create({
+          uri: errorRoute.join('.'),
+          ...error,
+        }).catch((err) => {
+          console.error('[Unexpected error in sending the error]', err);
+        });
+      }
     },
   },
   plugins: [createPersistedState({
