@@ -184,22 +184,7 @@ export default {
       this.comparable.query = this.canonicalSearchQuery;
       this.$emit('comparable-changed', this.comparable);
     },
-  //   search() {
-  //     this.$router.push({name: 'search', query:})
-  //     console.info('search() - ', this.comparable);
-  //     if (this.comparable.type === 'collection') {
-  //       return this.$store.dispatch('buckets/SEARCH', {
-  //         type: this.comparable.type,
-  //         q: this.comparable.id,
-  //       });
-  //     }
-  //     return this.$store.dispatch('buckets/SEARCH_FACETS', {
-  //       type: this.comparable.type,
-  //       filters: this.comparable.filters,
-  //     });
-  //   },
     searchPageLink(c) {
-      console.log('ccc', c);
       if (c.type === 'query') {
         return {
           name: 'search',
