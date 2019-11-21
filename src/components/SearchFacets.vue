@@ -124,7 +124,7 @@ export default {
       start: null,
       end: null,
     },
-    facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
+    facetsOrder: ['type', 'person', 'location', 'language', 'newspaper', 'topic'],
     selectedFacet: false,
     facetExplorerType: '',
     daterangeSelectedIndex: 0,
@@ -265,7 +265,7 @@ export default {
     facets: {
       get() {
         return this.currentStore.facets
-          .filter(d => ['year', 'type'].indexOf(d.type) === -1)
+          .filter(d => ['year'].indexOf(d.type) === -1)
           .sort((a, b) => {
             const indexA = this.facetsOrder.indexOf(a.type);
             const indexB = this.facetsOrder.indexOf(b.type);

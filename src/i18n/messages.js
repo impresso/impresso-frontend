@@ -12,6 +12,10 @@ export default {
         ad: 'advertisement',
         ar: 'article',
         ob: 'obituary',
+        tb: 'tables',
+        death_notice: 'obituary (other)',
+        weather: 'weather forecast',
+        w: 'weather news (other)',
       },
       language: {
         de: 'German',
@@ -70,6 +74,7 @@ export default {
       pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
       issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
       results: 'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
+      resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
       collection: {
         countItems: '{countItems} saved items',
       },
@@ -121,6 +126,14 @@ export default {
       },
       type: {
         title: 'Title | Title | Titles',
+        filterTitle: 'filter by article type',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> article types applies',
+        description: 'check one or more article types to filter results',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as',
+        },
       },
       topic: {
         title: 'Topic | Topic | Topics',
