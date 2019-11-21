@@ -44,7 +44,6 @@ export default {
       state.fq = q.split('*').concat(['*']).join('');
     },
     UPDATE_ITEMS(state, items) {
-      console.info('@UPDATE_ITEMS', items);
       state.items = items;
     },
     UPDATE_ORDER_BY(state, orderBy) {
@@ -152,7 +151,7 @@ export default {
         limit: state.pagination.perPage,
         order_by: '-count',
       };
-      console.info('buckets/SEARCH_FACETS query:', query);
+      console.info('buckets/SEARCH_FACETS type:', state.type, 'query:', query);
       return services.searchFacets.get(state.type, {
         query,
       }).then((res) => {

@@ -43,6 +43,11 @@ export default {
       return this.$store.state.settings.language_code;
     },
   },
+  methods: {
+    isOpen(term) {
+      return this.$route.hash === `#${term}`;
+    },
+  },
 };
 </script>
 

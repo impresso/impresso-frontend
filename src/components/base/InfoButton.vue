@@ -5,6 +5,7 @@
       <template v-if="content.title" v-slot:title>{{content.title}}</template>
       <div v-if="content.summary" v-html="content.summary" />
       <router-link
+        v-if="content.description"
         class="d-block text-right small-caps"
         v-bind:to="{ name: `faq`, hash: `#${content.id}` }">
         {{$t("more_info")}} &rarr;
@@ -21,7 +22,12 @@ export default {
   computed: {
     content: {
       get() {
-        return content[this.activeLanguageCode].faq.find(e => e.id === this.name);
+        const matches = [];
+        content[this.activeLanguageCode].groups.forEach((item) => {
+          const found = item.faq && item.faq.find(fa => fa.id === this.name);
+          if (found) matches.push(found);
+        });
+        return matches[0];
       },
     },
     activeLanguageCode() {
