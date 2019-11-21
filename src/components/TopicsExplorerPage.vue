@@ -4,6 +4,7 @@
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
           <span class="label small-caps">{{$t('summary')}}</span>
+          <small><info-button name="why-topic" class="text-muted" /></small>
           <h3 class='mb-1' v-html="$t('topics_cooccurrence_graph', {
             items: $n(this.filteredNodes.length),
             rels: $n(this.filteredLinks.length),
@@ -61,6 +62,7 @@
 import Topic from '@/models/Topic';
 import Graph from '@/d3-modules/Graph';
 import Tooltip from './modules/tooltips/TopicsExplorerTooltip';
+import InfoButton from './base/InfoButton';
 
 
 export default {
@@ -345,6 +347,7 @@ export default {
   },
   components: {
     Tooltip,
+    InfoButton,
   },
 };
 </script>

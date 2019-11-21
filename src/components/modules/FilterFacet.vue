@@ -2,6 +2,11 @@
   <div>
     <base-title-bar>
       {{$t(`label.${facet.type}.filterTitle`)}}
+      <info-button class="ml-1" v-if="facet.type === 'person' || facet.type === 'location'"
+        :target="facet.type"
+        name="what-is-nep" />
+      <info-button v-if="facet.type === 'newspaper'" name="which-newspapers" class="ml-1" />
+      <info-button v-if="facet.type === 'topic'" name="how-to-read-the-topics" class="ml-1" />
       <div slot="options">
         <b-button v-show="filtered" size="sm" variant="outline-primary" @click="resetFilterType">
           {{ $t(`actions.reset`) }}
@@ -55,6 +60,7 @@ import Icon from 'vue-awesome/components/Icon';
 import BaseTitleBar from './../base/BaseTitleBar';
 import FilterFacetBucket from './FilterFacetBucket';
 import FilterMonitor from './FilterMonitor';
+import InfoButton from '../base/InfoButton';
 
 export default {
   data: () => ({
@@ -170,6 +176,7 @@ export default {
     Icon,
     FilterFacetBucket,
     FilterMonitor,
+    InfoButton,
   },
 };
 </script>

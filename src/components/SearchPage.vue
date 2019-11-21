@@ -17,7 +17,8 @@
     <!--  body -->
     <div class="pt-3">
 
-      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings</b-button>
+      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings <info-button class="ml-1" name="how-are-word-embeddings-generated" />
+      </b-button>
 
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
@@ -110,6 +111,7 @@
               class="p-2 small-caps">
               <span class="dripicons-export pr-1"></span>
               {{$t("query_export_csv")}}
+              <info-button name="can-i-download-part-of-the-data" class="float-right" />
             </b-dropdown-item>
           </b-dropdown>
           <b-form-checkbox  v-if="isLoggedIn()"
@@ -215,6 +217,7 @@ import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
 import SearchTabs from './modules/SearchTabs';
+import InfoButton from './base/InfoButton';
 // const uuid = require('uuid');
 
 export default {
@@ -557,6 +560,7 @@ export default {
     SearchPills,
     EmbeddingsSearch,
     SearchTabs,
+    InfoButton,
   },
   mounted() {
     if (this.uuid !== undefined) {

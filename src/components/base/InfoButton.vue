@@ -1,7 +1,7 @@
 <template lang="html">
   <span v-if="content" class="info-button">
-    <span class="icon-link dripicons-information" :id="`ib_${target}`"></span>
-    <b-popover :target="`ib_${target}`" triggers="hover click blur" placement="right" custom-class="drop-shadow">
+    <span class="icon-link dripicons-information" :id="`ib_${target || name}`"></span>
+    <b-popover :target="`ib_${target || name}`" triggers="hover click blur" placement="right" custom-class="drop-shadow">
       <template v-if="content.title" v-slot:title>{{content.title}}</template>
       <div v-if="content.summary" v-html="content.summary" />
       <router-link
@@ -18,7 +18,10 @@
 import content from '@/assets/faqpage.json';
 
 export default {
-  props: ['target', 'name'],
+  props: [
+    'target', // optional
+    'name', // name = ID required
+  ],
   computed: {
     content: {
       get() {
@@ -45,6 +48,7 @@ export default {
 }
 .popover-header,
 .popover-body {
+  max-width: 185px;
   background: $clr-primary;
   color: $clr-white;
   a {
