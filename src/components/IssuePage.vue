@@ -81,6 +81,9 @@
                 <b-form-radio value="image"><icon name="image"/></b-form-radio>
                 <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/></b-form-radio>
               </b-form-radio-group>
+              <small>
+                <info-button name="What-OCR" class="ml-1" />
+              </small>
             </div>
           </b-navbar-nav>
         </b-navbar>
@@ -117,6 +120,7 @@ import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 import Pagination from './modules/Pagination';
+import InfoButton from './base/InfoButton';
 
 export default {
   data: () => ({
@@ -468,6 +472,7 @@ export default {
     Icon,
     SearchPills,
     Pagination,
+    InfoButton,
   },
   watch: {
     $route: {

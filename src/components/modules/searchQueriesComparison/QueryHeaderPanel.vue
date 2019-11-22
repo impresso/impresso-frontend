@@ -40,6 +40,9 @@
           <div class="side">B</div>
         </template>
       </b-tab>
+      <router-link class="btn btn-outline-primary btn-sm ml-1" :to="searchPageLink">
+        {{ $t('actions.searchMore') }}
+      </router-link>
     </b-tabs>
     <!-- intersection -->
     <div class="row justify-content-between" v-if="containsComparison">
