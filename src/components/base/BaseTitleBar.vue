@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="tb pb-2 mb-2" :class="getClasses">
+  <div class="tb" :class="getClasses">
     <div class="tb-heading">
       <div class="tb-title" :class="{'small-caps': smallCaps, 'font-weight-bold': true}">
         <slot></slot>
@@ -36,7 +36,7 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 .tb {
-  padding-top:1px;
+  // padding-top:1px;
 }
 
 .tb-description {
