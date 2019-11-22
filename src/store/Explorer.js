@@ -11,6 +11,7 @@ export default {
     filters: [], // current filters, used in facet mode
     temporaryFilter: null,
     searchQueryId: '',
+    currentInfoButtonId: undefined,
   },
   getters: {
     getTemporaryFilter: state => (searchQueryId) => {
@@ -46,8 +47,14 @@ export default {
       console.info('MUTATION store.explorer/SET_SEARCH_QUERY_ID', searchQueryId);
       state.searchQueryId = searchQueryId;
     },
+    SET_CURRENT_INFO_BUTTON(state, id) {
+      state.currentInfoButtonId = id;
+    },
   },
   actions: {
+    SET_CURRENT_INFO_BUTTON({ commit }, id) {
+      commit('SET_CURRENT_INFO_BUTTON', id);
+    },
     ADD_FILTER({ commit }, filter) {
       commit('SET_TEMPORARY_FILTER', filter);
     },

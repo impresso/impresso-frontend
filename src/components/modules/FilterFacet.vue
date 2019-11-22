@@ -1,5 +1,5 @@
 <template lang="html">
-  <div>
+  <div class="">
     <base-title-bar>
       {{$t(`label.${facet.type}.filterTitle`)}}
       <info-button class="ml-1" v-if="facet.type === 'person' || facet.type === 'location'"
@@ -10,6 +10,9 @@
       <div slot="options">
         <b-button v-show="filtered" size="sm" variant="outline-primary" @click="resetFilterType">
           {{ $t(`actions.reset`) }}
+        </b-button>
+        <b-button v-if="isCollapsible" size="sm" variant="outline-icon" @click="toggleVisibility">
+          <span class="icon-link" :class="{ 'dripicons-plus': isCollapsed, 'dripicons-minus': !isCollapsed }"></span>
         </b-button>
       </div>
       <div slot="description">
@@ -46,11 +49,18 @@
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
       <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
     </div>
-    <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
-      :loading="isLoadingResults"
-      :bucket="bucket"
-      :type="facet.type"
-      @toggle-bucket="toggleBucket"/>
+    <div v-if="showBuckets">
+      <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
+        :loading="isLoadingResults"
+        :bucket="bucket"
+        :type="facet.type"
+        @toggle-bucket="toggleBucket"/>
+      <b-button
+        v-if="facet.numBuckets > -1"
+        v-html="$t('actions.more')"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        @click="showModal" />
+    </div>
   </div>
 </template>
 
@@ -68,17 +78,26 @@ export default {
     selectedItems: [],
     operators: ['or', 'and'],
     exploreFacet: {},
+    isCollapsed: true,
   }),
   props: {
     store: {
       type: String,
       default: 'search',
     },
-    facet: {
-      type: Object,
-    },
+    facet: Object,
+    collapsible: Boolean,
   },
   computed: {
+    showBuckets() {
+      if (!this.isCollapsible) {
+        return true;
+      }
+      return !this.isCollapsed;
+    },
+    isCollapsible() {
+      return this.collapsible && !this.filtered;
+    },
     currentStore() {
       if (this.store === 'searchImages') {
         return this.$store.state.searchImages;
@@ -131,6 +150,9 @@ export default {
     },
   },
   methods: {
+    toggleVisibility() {
+      this.isCollapsed = !this.isCollapsed;
+    },
     toggleBucket(bucket) {
       const idx = this.selectedIds.indexOf(bucket.val);
       if (idx !== -1 && !bucket.checked) { // remove.
@@ -169,6 +191,14 @@ export default {
     resetFilterType() {
       this.clearSelectedItems();
       this.$emit('reset-filter', this.facet.type);
+    },
+    showModal() {
+      console.info('Opening Explorer for type:', this.facet.type);
+      this.$store.dispatch('explorer/SHOW', {
+        type: this.facet.type,
+        mode: 'facets',
+        filters: this.currentStore.search.filters,
+      });
     },
   },
   components: {

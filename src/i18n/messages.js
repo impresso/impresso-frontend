@@ -130,6 +130,7 @@ export default {
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> article types applies',
         description: 'check one or more article types to filter results',
+        empty: 'No articles types available',
         context: {
           include: 'tagged as',
           exclude: '<b>NOT</b> tagged as',

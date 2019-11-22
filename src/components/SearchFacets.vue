@@ -71,17 +71,13 @@
         </div>
       </div>
     </div>
-    <div v-for="(facet, index) in facets" class="border-top mx-3 py-2 mb-2">
+    <div v-for="(facet, index) in facets" class="border-top py-2 mx-3">
       <filter-facet :facet="facet"
         :store="store"
         @submit-buckets="submitBuckets"
         @update-filter="updateFilter"
-        @reset-filter="resetFilter"/>
-      <b-button
-        v-if="facet.numBuckets > -1"
-        v-html="$t('actions.more')"
-        size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        @click="showModal(facet.type)" />
+        @reset-filter="resetFilter"
+        collapsible/>
     </div>
   </div>
 </template>
@@ -126,7 +122,7 @@ export default {
       start: null,
       end: null,
     },
-    facetsOrder: ['type', 'person', 'location', 'language', 'newspaper', 'topic'],
+    facetsOrder: ['type', 'person', 'location', 'topic', 'language', 'newspaper', 'country'],
     selectedFacet: false,
     facetExplorerType: '',
     daterangeSelectedIndex: 0,
@@ -268,19 +264,14 @@ export default {
       get() {
         return this.currentStore.facets
           .filter(d => ['year'].indexOf(d.type) === -1)
+          .map((d) => {
+            d.isFiltered = this.currentStore.search.filtersIndex[d.type];
+            return d;
+          })
           .sort((a, b) => {
             const indexA = this.facetsOrder.indexOf(a.type);
             const indexB = this.facetsOrder.indexOf(b.type);
-
-            if (indexA < indexB) {
-              return -1;
-            }
-
-            if (indexA > indexB) {
-              return 1;
-            }
-
-            return 0;
+            return indexA - indexB;
           });
       },
     },
@@ -335,14 +326,6 @@ export default {
     resetFilter(type) {
       this.$emit('reset-filter', type);
     },
-    showModal(type) {
-      console.info('OPEN MODAL', type);
-      this.$store.dispatch('explorer/SHOW', {
-        type,
-        mode: 'facets',
-        filters: this.currentStore.search.filters,
-      });
-    },
     submitBuckets({ type, context, ids }) {
       this.$emit('submit-facet', {
         type,
@@ -378,21 +361,7 @@ export default {
           q: bucket.val,
           context,
         });
-      } else if (facet.type === 'newspaper') {
-        this.$emit('submit-facet', {
-          q: bucket.val,
-          type: facet.type,
-          item: bucket.item,
-          context,
-        });
-      } else if (facet.type === 'language') {
-        this.$emit('submit-facet', {
-          q: bucket.val,
-          type: facet.type,
-          item: bucket.item,
-          context,
-        });
-      } else if (facet.type === 'collection') {
+      } else if (['newspaper', 'language', 'collection'].includes(facet.type)) {
         this.$emit('submit-facet', {
           q: bucket.val,
           type: facet.type,

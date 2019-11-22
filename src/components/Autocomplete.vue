@@ -17,11 +17,12 @@
     </b-input-group>
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
       <div class="border-bottom ">
-        <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in initialSuggestions" v-bind:key="index"
+        <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
             @click="submitInitialSuggestion(suggestion)"
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
-            <span class="small">... <b>{{ q }}</b></span>
+            <span v-if='suggestion.h' v-html='suggestion.h'/>
+            <span v-else>...<b>{{ q }}</b></span>
             <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
@@ -75,13 +76,12 @@ export default {
     initialSuggestions: [
       {
         type: 'string',
-        idx: 0,
       },
       {
         type: 'title',
-        idx: 1,
       },
     ],
+    recentSuggestions: [],
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
@@ -97,11 +97,17 @@ export default {
     },
   },
   computed: {
+    staticSuggestions() {
+      return this.initialSuggestions.concat(this.recentSuggestions).map((d, idx) => ({
+        ...d,
+        idx,
+      }));
+    },
     suggestionIndex() {
       const index = this.$helpers.groupBy(this.suggestions, 'type');
 
-      let idx = this.initialSuggestions.length - 1;
-      let selectableSuggestions = [...this.initialSuggestions];
+      let idx = this.staticSuggestions.length - 1;
+      let selectableSuggestions = [...this.staticSuggestions];
 
       AVAILABLE_TYPES.forEach((type) => {
         if (index[type]) {
@@ -152,6 +158,15 @@ export default {
     },
     search() {
       this.showSuggestions = this.q.length > 0;
+      // debugger;
+      if (this.q.length) {
+        this.$store.dispatch('autocomplete/SUGGEST_RECENT_QUERY', this.q).then((res) => {
+          this.recentSuggestions = res.map(d => ({
+            ...d,
+            type: 'string',
+          }));
+        });
+      }
 
       if (this.q.length > 1) {
         this.$store.dispatch('autocomplete/SEARCH', {
@@ -165,19 +180,18 @@ export default {
         this.selectedIndex = 0;
       }
     },
-    submitInitialSuggestion({ type }) {
+    submitInitialSuggestion({ type, q }) {
       if (this.q.length) {
         this.submit(SuggestionFactory.create({
           type,
-          q: this.q,
+          q: q || this.q,
         }));
       }
     },
     submit(suggestion) {
-      console.info('Submit suggestion: ', suggestion);
       if (suggestion.fake) {
-        // open explorer
         if (this.q.length) {
+          // open explorer
           this.$store.dispatch('explorer/SHOW', {
             mode: 'search',
             type: suggestion.type,
@@ -186,12 +200,19 @@ export default {
         }
       } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
         if (this.q.length) {
+          console.info('Submit \'string\' suggestion, q:', this.q);
+          if (!suggestion.q) {
+            this.$store.dispatch('autocomplete/SAVE', {
+              q: suggestion.q || this.q,
+            });
+          }
           this.$emit('submit', {
             type: suggestion.type,
-            q: this.q,
+            q: suggestion.q || this.q,
           });
         }
       } else {
+        console.info('Submit suggestion: ', suggestion);
         this.$emit('submit', suggestion);
         this.showSuggestions = false;
       }

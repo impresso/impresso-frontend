@@ -51,6 +51,11 @@ export default {
       return this.$store.state.processing_locked;
     },
   },
+  mounted() {
+    window.addEventListener('click', () => {
+      this.$root.$emit('bv::hide::popover');
+    });
+  },
   created() {
     // load typekit
     WebFontLoader.load({
@@ -259,6 +264,27 @@ $clr-grey-900: #ddd;
   em {
     background: gold;
     color: black;
+  }
+}
+
+.btn-outline-icon{
+  color: $clr-grey-400;
+  background-color: transparent;
+  background-image: none;
+  border-color: $clr-grey-400;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: rem;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  >span{
+    color: inherit;
+  }
+  &:hover{
+    border-color: #17191c;
+    color: #17191c;
   }
 }
 
