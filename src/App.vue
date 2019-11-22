@@ -262,6 +262,27 @@ $clr-grey-900: #ddd;
   }
 }
 
+.btn-outline-icon{
+  color: $clr-grey-400;
+  background-color: transparent;
+  background-image: none;
+  border-color: $clr-grey-400;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: rem;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  >span{
+    color: inherit;
+  }
+  &:hover{
+    border-color: #17191c;
+    color: #17191c;
+  }
+}
+
 // uncomment to add background to transparent footers
 // .fixed-pagination-footer::before{
 //   content: "";
