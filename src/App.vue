@@ -51,6 +51,11 @@ export default {
       return this.$store.state.processing_locked;
     },
   },
+  mounted() {
+    window.addEventListener('click', () => {
+      this.$root.$emit('bv::hide::popover');
+    });
+  },
   created() {
     // load typekit
     WebFontLoader.load({
