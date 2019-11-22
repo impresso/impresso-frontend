@@ -143,6 +143,7 @@ export default new Vuex.Store({
       'collections.collectionsSortOrder',
       'issue.viewerMode',
       'newspapers.orderBy',
+      'autocomplete.queries',
     ],
   })],
 });
