@@ -1,7 +1,9 @@
 <template lang="html">
   <span v-if="content" class="info-button">
-    <span class="icon-link dripicons-information" :id="`ib_${target || name}`"></span>
-    <b-popover :target="`ib_${target || name}`" triggers="hover click blur" placement="right" custom-class="drop-shadow">
+    <div class="icon-link dripicons-information d-inline-block" :id="targetId"
+      @click.prevent.stop="togglePopover"
+      @mouseover="togglePopover(true)"></div>
+    <b-popover :target="targetId" boundary='window' placement="right" custom-class="drop-shadow">
       <template v-if="content.title" v-slot:title>{{content.title}}</template>
       <div v-if="content.summary" v-html="content.summary" />
       <router-link
@@ -22,7 +24,16 @@ export default {
     'target', // optional
     'name', // name = ID required
   ],
+  data: () => ({
+    show: false,
+  }),
   computed: {
+    currentTargetId() {
+      return this.$store.state.explorer.currentInfoButtonId;
+    },
+    targetId() {
+      return `ib_${this.target || this.name}`;
+    },
     content: {
       get() {
         const matches = [];
@@ -37,6 +48,26 @@ export default {
       return this.$store.state.settings.language_code;
     },
   },
+  methods: {
+    togglePopover(status) {
+      if (typeof status === 'boolean') {
+        this.show = status;
+      } else {
+        this.show = !!this.show;
+      }
+      console.info('popover show:', this.show, this.targetId, this.currentTargetId);
+
+      if (this.currentTargetId) {
+        if (this.currentTargetId !== this.targetId) {
+          this.$root.$emit('bv::hide::popover', this.currentTargetId);
+        }
+      }
+      if (this.show) {
+        this.$store.dispatch('explorer/SET_CURRENT_INFO_BUTTON', this.targetId);
+        this.$root.$emit('bv::show::popover', this.targetId);
+      }
+    },
+  },
 };
 </script>
 
@@ -45,9 +76,12 @@ export default {
 
 .popover {
   border: none;
+  pointer-events: none;
 }
+
 .popover-header,
 .popover-body {
+  pointer-events: auto;
   max-width: 185px;
   background: $clr-primary;
   color: $clr-white;
@@ -57,6 +91,7 @@ export default {
 }
 .popover-header {
   font-weight: bold;
+  font-style: italic;
   border-bottom: none;
   padding-bottom: 0;
   &::after {
