@@ -1,6 +1,6 @@
 <template lang="html">
   <span v-if="content" class="info-button">
-    <div class="icon-link dripicons-information d-inline-block" :id="targetId"
+    <div class="info-button-trigger icon-link dripicons-information d-inline-block" :id="targetId"
       @click.prevent.stop="togglePopover"
       @mouseover="togglePopover(true)"></div>
     <b-popover :target="targetId" boundary='window' placement="right" custom-class="drop-shadow">
@@ -73,6 +73,9 @@ export default {
 
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
+
+.info-button-trigger {
+}
 
 .popover {
   border: none;

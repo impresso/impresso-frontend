@@ -37,7 +37,7 @@
         ]
       },
       {
-        "title": "Contextual Help",
+        "title": "Rights related questions",
         "faq": [
           {
             "id": "what-do-you-mean-by-impresso-material",
@@ -86,7 +86,12 @@
             "description": [
               "Should you need a larger, custom export, please email us at info@impresso-project.ch."
             ]
-          },
+          }
+        ]
+      },
+      {
+        "title": "Contextual Help",
+        "faq": [
           {
             "id": "do-you-have-an-api",
             "title": "Do you have an API?",
@@ -236,19 +241,15 @@
           {
             "id": "topics-in-common",
             "title": "Topics in Common",
-            "summary": "This is a short description or summary, it is shown in context below the title. Keep it simple, stupid! (kiss)",
+            "summary": "Summary text in progress",
             "description": [
-              "This is the long description. It is only displayed on the dedicated FAQ page.",
-              "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
-              "We are further supported by a team of academic partners who advise us in the pursuit of the project: <ul><li>François Vallotton (Full Professor at the University of Lausanne),</li><li>Raphaëlle Ruppen Coutaz (Lecturer at the University of Lausanne),</li><li>Frédéric Clavert (Assistant Professor at C2DH) and </li><li>Enrico Natale (Managing Director infoclio.ch).</li></ul>",
-              "Finally, a group of associated researchers have committed to using impresso for their research and provide valuable feedback to us.",
-              "Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details."
+              "Description text in progress."
             ]
           },
           {
             "id": "relative-vs-absolute-year-graph",
             "title": "How is it plotted ?",
-            "summary": "summary text in progress"
+            "summary": "Summary text in progress"
           }
         ]
       }
