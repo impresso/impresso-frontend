@@ -256,6 +256,17 @@ $clr-grey-900: #ddd;
   height: 2px;
 }
 
+.icon-link {
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+  color: $clr-tertiary;
+}
+.icon-link:hover {
+  color: $clr-primary;
+}
+
+
 .matches {
   span {
     color: transparentize($clr-primary, 0.45);
