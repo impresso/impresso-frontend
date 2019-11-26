@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="p-2 container query-header-panel">
+  <div class="p-2 container query-header-panel" style="padding-bottom: 2.5rem !important;">
     <b-tabs pills content-class="mt-3" :align="alignment"
             v-if="comparable.type !== 'intersection'">
       <!-- query -->
@@ -40,9 +40,6 @@
           <div class="side">B</div>
         </template>
       </b-tab>
-      <router-link class="btn btn-outline-primary btn-sm ml-1" :to="searchPageLink">
-        {{ $t('actions.searchMore') }}
-      </router-link>
     </b-tabs>
     <!-- intersection -->
     <div class="row justify-content-between" v-if="containsComparison">
@@ -69,7 +66,7 @@
       </div> -->
     </div>
     <!-- buttons -->
-    <div class="">
+    <div class="position-absolute" style="left: 50%; width: 90%; margin-left: -25%; bottom: .5rem">
       <!-- {{ comparable }} -->
       <!-- <button type="button" name="button" @click="search()">query {{title}} {{total}}</button> -->
       <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
