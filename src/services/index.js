@@ -3,11 +3,15 @@ import io from 'socket.io-client';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio-client';
 import auth from '@feathersjs/authentication-client';
+
 import articlesSuggestionsHooks from './hooks/articlesSuggestions';
 import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
+import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
 
-const socket = io(`${process.env.MIDDLELAYER_API}`, {
+
+const MiddleLayerApiBase = `${process.env.MIDDLELAYER_API}`;
+const socket = io(MiddleLayerApiBase || window.location.hostname, {
   path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
 });
 
@@ -21,48 +25,90 @@ app.configure(auth({
 }));
 
 socket.on('reconnect', () => {
-  app.authenticate();
+  app.reAuthenticate();
+  if (window.app) {
+    window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', true);
+  }
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
+
+socket.on('connect_error', (err) => {
+  if (window.app && window.app.$store) {
+    err.message = `Could not connect to the API: ${err.message}`;
+    console.error(err);
+    if (window.app) {
+      console.info('DISPLAY_CONNECTIVITY_STATUS');
+      window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false);
+    }
+  }
+});
+
+const needsLockScreen = p => [
+  'search.find',
+].includes(p);
 
 app.hooks({
   before: {
     all: [
-      () => {
-        window.app.$store.state.error_message = '';
-        window.app.$store.commit('SET_PROCESSING', true);
+      (context) => {
+        const route = `${context.path}.${context.method}`;
+        if (window.app && window.app.$store) {
+          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'LOADING' });
+          if (needsLockScreen(route)) {
+            window.app.$store.commit('LOCK_SCREEN', true);
+          }
+        }
       },
     ],
   },
   after: {
     all: [
-      () => {
-        window.app.$store.commit('SET_PROCESSING', false);
+      (context) => {
+        const route = `${context.path}.${context.method}`;
+        if (window.app && window.app.$store) {
+          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'DONE' });
+          if (needsLockScreen(route)) {
+            window.app.$store.commit('LOCK_SCREEN', false);
+          }
+        }
       },
     ],
   },
   error: {
     all: [
-      (error) => {
-        console.error('ERROR: ', error);
-        window.app.$store.state.error_message = 'API Error : See Console for details.';
-        window.app.$store.commit('SET_PROCESSING', false);
+      (context) => {
+        const route = `${context.path}.${context.method}`;
+        if (window.app) {
+          // handle not authenticated error when removing authentication
+          if (route === 'authentication.remove' && context.error.name === 'NotAuthenticated') {
+            console.info('Ingore NotAuthenticated error on "authentication.remove" route.');
+          } else {
+            window.app.$store.dispatch('DISPLAY_ERROR', {
+              error: context.error,
+              origin: 'app.hooks.error.all',
+            });
+          }
+          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'DONE' });
+          if (needsLockScreen(route)) {
+            window.app.$store.commit('LOCK_SCREEN', false);
+          }
+        }
       },
     ],
   },
 });
 
 app.service('logs').on('created', (payload) => {
+  console.info('@logs->created', payload);
   if (payload.job) {
-    const idx = window.app.$store.state.jobs.data.findIndex(x => x.id === payload.job.id);
-    if (idx !== -1) {
-      window.app.$store.state.jobs.data[idx].status = payload.job.status;
-      window.app.$store.state.jobs.data[idx].task = payload.task;
-      window.app.$store.state.jobs.data[idx].progress = payload.job.progress;
-    } else {
-      payload.job.task = payload.task;
-      window.app.$store.state.jobs.data.unshift(payload.job);
+    const extra = {};
+    if (payload.collection) {
+      extra.collection = payload.collection;
     }
-    // console.info(`logs.created: "${payload.msg}" with payload:`, payload);
+    window.app.$store.dispatch('jobs/UPDATE_JOB', {
+      ...payload.job,
+      progress: payload.progress,
+      extra,
+    });
   }
 });
 
@@ -88,6 +134,8 @@ export const embeddings = app.service('embeddings');
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
 export const searchFacets = app.service('search-facets');
 export const tableOfContents = app.service('table-of-contents');
+export const searchQueriesComparison = app.service('search-queries-comparison').hooks(searchQueriesComparisonHooks);
+export const errorCollector = app.service('errors-collector');
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;

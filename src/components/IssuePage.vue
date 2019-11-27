@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="IssuePage">
-    <i-layout-section width="350px" class="border-right border-tertiary bg-light">
+    <i-layout-section width="350px" class="border-right border-top mt-1px bg-light">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="border-bottom mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -71,7 +71,7 @@
       </div>
     </i-layout-section>
     <!--  page openseadragon or article -->
-    <i-layout-section>
+    <i-layout-section class="border-left border-top ml-1px mt-1px">
       <div slot="header" class="border-bottom">
         <b-navbar type="light" variant="light" class="px-0 py-0">
           <b-navbar-nav class="px-2 py-2 mx-auto">
@@ -81,6 +81,9 @@
                 <b-form-radio value="image"><icon name="image"/></b-form-radio>
                 <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/></b-form-radio>
               </b-form-radio-group>
+              <small>
+                <info-button name="What-OCR" class="ml-1" />
+              </small>
             </div>
           </b-navbar-nav>
         </b-navbar>
@@ -117,6 +120,7 @@ import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 import Pagination from './modules/Pagination';
+import InfoButton from './base/InfoButton';
 
 export default {
   data: () => ({
@@ -315,7 +319,7 @@ export default {
           if (self.isLoaded) { // skip
             return;
           }
-          console.log('@tile-loaded', self.page.articles);
+          console.info('@tile-loaded', self.page.articles);
           self.isLoaded = true;
           self.page.articles.forEach((article) => {
             // regions
@@ -377,7 +381,7 @@ export default {
               }
             });
           });
-            // this.selectArticle();
+          // this.selectArticle();
         });
       });
     },
@@ -420,7 +424,7 @@ export default {
         this.isSearchLoaded = true;
         this.matches = result.data;
         this.matchesTotalRows = result.total;
-        console.log(result);
+        console.info(result);
         console.info('-> search() success for q:', this.q);
       });
     },
@@ -468,6 +472,7 @@ export default {
     Icon,
     SearchPills,
     Pagination,
+    InfoButton,
   },
   watch: {
     $route: {
@@ -501,13 +506,12 @@ div.overlay-region{
 
 
 @supports (mix-blend-mode: multiply) {
-	div.overlay-region {
+  div.overlay-region {
     mix-blend-mode: multiply;
     &.selected, &.active{
       opacity: 0.5;
     }
   }
-
 }
 </style>
 

@@ -97,9 +97,9 @@ export default {
         articlesEntities: page.articlesEntities,
         articlesTags: page.articlesTags,
       }))
-      .catch((err) => {
-        console.error(err);
-      });
+        .catch((err) => {
+          console.error(err);
+        });
     },
     LOAD_ARTICLE(context, uid) {
       return services.articles.get(uid).then(d => new Article(d));

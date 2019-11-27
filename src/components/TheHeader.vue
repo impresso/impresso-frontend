@@ -1,7 +1,7 @@
 <template lang="html">
   <div style="margin-bottom: -1px;">
-    <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
-    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1">
+    <b-progress v-if='processingStatus' :value="100" variant="info" animated height="4px"></b-progress>
+    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-bottom border-primary">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
@@ -21,15 +21,26 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
-
+          <!-- <li class="nav-item">
+            <a class="nav-link" v-on:click.stop.prevent="openExplorer">{{$t("label_explore")}}</a>
+          </li>
+          <li class="nav-item">
+            <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
+          </li> -->
+          </li>
+            <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
+          </li>`
+          <li v-if="!connectivityStatus">
+            <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
+          </li>
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
-          <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1>
+          <!-- <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1> -->
         </b-navbar-nav>
         <b-navbar-nav>
           <b-nav-item-dropdown right no-caret
             v-if="user"
-            ref="ddownJobs" class="p-2">
+            ref="ddownJobs" class="p-2" v-on:hidden="updateLastNotificationDate">
               <template slot="button-content">
                 <div class="dripicons-cloud-download position-relative" style="top:0.25em" />
                 <transition name="bounce">
@@ -44,21 +55,19 @@
                 {{ $t('no-jobs-yet' )}}
               </div>
               <div v-else>
-                <toast v-for="(job, i) in this.jobs"
-                  v-bind:job="job"
-                  v-bind:key="job.id"
-                  />
-                <div class="text-center">
-                  <b-button
-                    v-if="showLess"
-                    @click="showLess = false"
-                    class="text-white border-white"
-                    size="sm">{{$t('show_all')}}</b-button>
-                  <b-button
-                    v-if="!showLess"
-                    @click="showLess = true"
-                    class="text-white border-white"
-                    size="sm">{{$t('show_less')}}</b-button>
+                <toast v-for="(job, i) in jobs" v-bind:job="job" v-bind:key="i" />
+                <div
+                  v-if="paginationJobsList.totalRows > paginationJobsList.perPage"
+                  class="my-4">
+                  <div class="fixed-pagination-footer p-1 m-0">
+                    <pagination
+                      v-bind:perPage="paginationJobsList.perPage"
+                      v-bind:currentPage="paginationJobsList.currentPage"
+                      v-bind:totalRows="paginationJobsList.totalRows"
+                      v-on:change="onChangeJobsPage"
+                      class="small-caps"
+                      v-bind:showDescription="false" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -89,7 +98,7 @@
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
             <b-dropdown-item
               target="_blank"
-              href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ">
+              href="https://impresso-community.slack.com/join/shared_invite/enQtNTg5MzY2NDg2NTAyLWJkNWI5ZTU3ZGI1ZGE1YTg2YmViOWQ1OWMyYTRkMDY1OGM0MWUwNGQzYjYxYTA4ZGU0YzBjMGU4ZmQxNmY5Njc">
               <icon name="slack"/>
               <span v-html="$t('join_slack_channel')"></span>
             </b-dropdown-item>
@@ -98,7 +107,16 @@
           <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
-    <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
+    <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">
+      <div v-for="(error, idx) in alertMessage" v-bind:key="idx">
+        <span>
+          <span v-if="error.name === 'NotAuthenticated'">{{ $t('errors.Notauthenticated') }}</span>
+          <span v-else-if="error.name === 'BadGateway'">{{ $t(`errors.BadGateway.${error.message}`) }}</span>
+          <span v-else>{{ error }}</span>
+        </span>
+        <span v-if="error.route.length">{{ $t(['paths', ...error.route].join('.')) }}</span>
+      </div>
+    </b-alert>
   </div>
 </template>
 
@@ -106,10 +124,10 @@
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
 import Toast from './modules/Toast';
+import Pagination from './modules/Pagination';
 
 export default {
   data: () => ({
-    showLess: true,
     languages: {
       de: {
         code: 'de',
@@ -137,29 +155,34 @@ export default {
       },
     },
   }),
-  async mounted() {
+  mounted() {
     if (this.user) {
-      this.$store.state.jobs = await this.$store.dispatch('jobs/LOAD_JOBS');
+      this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
+        console.info('Jobs loaded.');
+      });
     }
   },
   computed: {
     jobs() {
-      return this.showLess ? this.$store.state.jobs.data.slice(0, 4) : this.$store.state.jobs.data;
+      return this.$store.state.jobs.items;
     },
     runningJobs() {
-      return this.$store.state.jobs.data.filter(job => job.status === 'RUN');
+      return this.$store.state.jobs.items.filter(d => d.status === 'RUN');
+    },
+    paginationJobsList() {
+      return this.$store.state.jobs.pagination;
     },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
     showAlert() {
-      return this.$store.state.error_message !== '';
+      return this.$store.state.errorMessages.length > 0;
     },
     alertMessage() {
-      return this.$store.state.error_message;
+      return this.$store.state.errorMessages;
     },
-    progressBarHeight() {
-      return this.$store.state.processing_status ? '2px' : '0';
+    processingStatus() {
+      return this.$store.state.processingStatus;
     },
     user() {
       return this.$store.getters['user/user'];
@@ -192,10 +215,25 @@ export default {
       }
       return style;
     },
+    connectivityStatus() {
+      return this.$store.state.connectivityStatus;
+    },
   },
   methods: {
-    async test() {
-      await this.$store.dispatch('jobs/TEST');
+    updateLastNotificationDate() {
+      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE');
+    },
+    openExplorer() {
+      this.$store.dispatch('explorer/SHOW', {});
+    },
+    onChangeJobsPage(page = 1) {
+      console.info('onChangeJobsPage', page);
+      this.$store.dispatch('jobs/LOAD_JOBS', {
+        page,
+      });
+    },
+    test() {
+      return this.$store.dispatch('jobs/TEST');
     },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode;
@@ -205,10 +243,16 @@ export default {
     },
   },
   watch: {
-    runningJobs: {
-      handler(val) {
-        if (val.length > 0 && this.$refs.ddownJobs) {
-          this.$refs.ddownJobs.show();
+    jobs: {
+      handler(jobs) {
+        if (jobs.length && this.$refs.ddownJobs) {
+          const lastModifiedDate = new Date(jobs.map(d => d.lastModifiedDate).sort().pop());
+          if (this.$store.getters['settings/lastNotificationDate'] - lastModifiedDate < 0) {
+            console.info('Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.');
+            this.$refs.ddownJobs.show();
+          } else {
+            console.info('Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.');
+          }
         }
       },
     },
@@ -223,6 +267,7 @@ export default {
   components: {
     Icon,
     Toast,
+    Pagination,
   },
 };
 </script>
@@ -230,19 +275,25 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-$clr-white: #ffffff;
-$clr-grey-100: #17191c;
-$clr-grey-300: #424a52;
-$clr-grey-400: #5a6672;
-$clr-grey-800: #c6ccd2;
-
-.pt-1px {
-    padding-top: 1px;
-}
-.pb-1px {
-    padding-bottom: 1px;
-}
 #app-header {
+    .Cookie--blood-orange {
+
+      background: $clr-secondary;
+      border-bottom: 2px solid $clr-accent;
+      box-shadow: 0 0 5vh 0vw rgba(0,0,0,0.8);
+      a {
+        color: white;
+        text-decoration: underline;
+      }
+      .Cookie__button {
+          background: $clr-accent;
+          color: black;
+      }
+
+      .Cookie__message {
+        color: yellow;
+      }
+    }
     .progress {
         position: absolute;
         width: 100%;
@@ -338,6 +389,9 @@ $clr-grey-800: #c6ccd2;
     .navbar-dark .b-nav-dropdown .dropdown-menu {
       background: $clr-grey-300 !important;
       padding: .5rem 0;
+      border-top-color: $clr-primary;
+      margin-top: 0px;
+
       &.dropdown-menu-right{
         margin-right: -1px;
       }
@@ -399,64 +453,6 @@ $clr-grey-800: #c6ccd2;
         font-size: 0.8em;
     }
 }
-
-// extend application styles
-.border-tertiary {
-    border-color: $clr-tertiary !important;
-}
-
-.custom-control-input {
-  width: 0;
-  height: 0;
-}
-.custom-radio > .custom-control-label::before {
-    border: inherit;
-    outline: inherit;
-}
-.tooltip-inner {
-    max-width: auto;
-    color: $clr-primary;
-    text-align: left;
-    background-color: $clr-bg-primary;
-    border: 1px solid $clr-primary;
-    box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
-}
-.dropdown-menu {
-    padding: 0;
-}
-.fixed-pagination-footer {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(calc(200px - 50%));
-    background: $clr-bg-secondary;
-    max-width: calc(100% - 400px);
-    .pagination {
-        li.page-item > a,
-        li.page-item > span.page-link {
-            border-color: $clr-secondary;
-            padding: 0.15em 0.6em;
-        }
-    }
-}
-/* bounce animation */
-.bounce-enter-active {
-  animation: bounce-in .5s;
-}
-.bounce-leave-active {
-  animation: bounce-in .5s reverse;
-}
-@keyframes bounce-in {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.5);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
 </style>
 
 <i18n>
@@ -470,9 +466,10 @@ $clr-grey-800: #c6ccd2;
     "label_search": "Search",
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
+    "label_explore": "explore...",
     "label_topics": "Topics",
-    "show_all": "show all",
-    "show_less": "show less",
+    "label_compare": "Compare",
+    "label_faq": "FAQ",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",

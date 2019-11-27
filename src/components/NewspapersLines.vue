@@ -1,18 +1,23 @@
 <template lang="html">
   <div v-on:mousemove="onMousemove" v-on:mouseout="onMouseout" ref="lines" class="lines small">
     <tooltip v-bind:tooltip="tooltip">
-
       <div v-if="tooltip.item">
         <h1>{{tooltip.item.name}}</h1>
         <p>
-          <span v-if="tooltip.item.startYear != tooltip.item.endYear">
-            {{tooltip.item.startYear}} - {{tooltip.item.endYear}}
-          </span>
-          <span v-else>
-            {{tooltip.item.startYear}}
-          </span>
-           &mdash;
-          <span>{{tooltipProperties}}</span>
+          <span class="available" v-if="tooltip.item.included" v-html="$t('dates.includedLifespan', {
+            from: $d(tooltip.item.firstIssue.date, 'short'),
+            to: $d(tooltip.item.lastIssue.date, 'short'),
+          })"/>
+          <span class="small-caps" v-else>{{ $t('dates.notYetAvailable')}}</span>
+        </p>
+        <p>
+          <span v-if="tooltip.item.startYear != tooltip.item.endYear" v-html="$t('dates.publicationLifespan', {
+            from: tooltip.item.startYear,
+            to: tooltip.item.endYear,
+          })"/>
+          <span v-else v-html="$t('dates.publicationDate', {
+            date: tooltip.item.startYear,
+          })"/>
         </p>
       </div>
     </tooltip>
@@ -31,19 +36,19 @@
     }"></div> -->
     <div v-for="newspaper in newspapers" :key="newspaper.uid" class="n"
       v-on:mouseover="onMouseover(newspaper, $event)"
+      v-on:click="selectNewspaper(newspaper)"
       :class="{ selected: newspaper.isSelected }"
     >
-      <label v-on:click="onClick(newspaper)" :style="{ maxWidth: margin.left + 'px' }">
+      <label :class="{ 'font-weight-bold': newspaper.included }" :style="{ maxWidth: margin.left + 'px' }">
         {{newspaper.name}}
       </label>
-      <div v-if="!isNaN(newspaper.startYear) && !isNaN(newspaper.endYear)" class="line" :style="{
-          left: `${scale(newspaper.startYear)}px`,
-          right: `${(width - scale(newspaper.endYear))}px`}">
+      <div v-if="!isNaN(newspaper.startYear) && !isNaN(newspaper.endYear)" class="line" :style="newspaperStyle(newspaper)">
           <div class="label-start">{{newspaper.startYear}}</div>
           <div v-if="newspaper.startYear != newspaper.endYear" class="label-end">
             {{ newspaper.endYear}}
           </div>
       </div>
+      <div v-if="newspaper.firstIssue" class="line included" :style="newspaperIncludedStyle(newspaper)"/>
       <div class="more" v-if="newspaper.isSelected">...</div>
     </div>
   </div>
@@ -57,7 +62,6 @@ export default {
   model: {
     prop: 'newspapers',
     default: [],
-
   },
   data: () => ({
     tooltip: {
@@ -87,9 +91,32 @@ export default {
     },
   },
   methods: {
+    newspaperStyle(newspaper) {
+      return {
+        background: !newspaper.firstIssue ? 'lightgray' : '',
+        left: `${this.scale(newspaper.startYear)}px`,
+        right: `${(this.width - this.scale(newspaper.endYear))}px`,
+      };
+    },
+    newspaperIncludedStyle(newspaper) {
+      return {
+        left: `${this.scale(this.firstIssueYear(newspaper))}px`,
+        right: `${(this.width - this.scale(this.lastIssueYear(newspaper)))}px`,
+      };
+    },
+    firstIssueYear(n) {
+      return n.firstIssue ? n.firstIssue.date.getFullYear() : null;
+    },
+    lastIssueYear(n) {
+      if (n.lastIssue) {
+        return Number(this.$d(n.lastIssue.date, 'year'));
+      }
+      return 'not set';
+    },
     onMousemove({ clientX, clientY }) {
-      const x = clientX - this.$refs.lines.offsetLeft;
+      const x = clientX - this.$refs.lines.offsetLeft - this.$refs.lines.offsetParent.offsetLeft;
       const y = clientY - (this.$refs.lines.offsetTop - this.scrollTop);
+
       const year = parseInt(this.scale.invert(x), 10);
       const domain = this.domain;
       const isActive = year >= domain[0] && year <= domain[1];
@@ -124,6 +151,12 @@ export default {
     },
     onMouseout() {
       this.tooltip.isActive = false;
+    },
+    selectNewspaper(item) {
+      this.$store.dispatch('monitor/SET_ITEM', {
+        item,
+        type: 'newspaper',
+      });
     },
     onClick(newspaper) {
       console.info('@click', newspaper);
@@ -204,9 +237,9 @@ export default {
         obj[d.endYear] = true;
         return obj;
       }, {}))
-      .filter(d => !isNaN(d))
-      .map(d => parseInt(d, 10))
-      .sort();
+        .filter(d => !isNaN(d))
+        .map(d => parseInt(d, 10))
+        .sort();
     },
     scale() {
       return d3.scaleLinear()
@@ -259,6 +292,9 @@ export default {
 
   }
 
+  .available{
+    color: white;
+  }
 
 
   .cursor {
@@ -341,12 +377,14 @@ export default {
   .line{
     position: absolute;
     z-index: 1;
-    top: 3px;
-    height: 6px;
-    border-radius: 6px;
-    background-color: #a0a0a0;
+    top: 4px;
+    height: 4px;
+    padding: 0 1px;
+    background: red;
   }
-
+  .line.included {
+    background: $clr-accent-secondary;
+  }
   .line > .label-start,
   .line > .label-end{
     padding: 0 .25rem;
@@ -391,16 +429,16 @@ export default {
         "BL": "Canton of Basel-Landschaft",
         "BS": "Canton of Basel-Stadt",
         "BE": "Canton of Bern",
-        "FR":	"Canton of Fribourg",
+        "FR": "Canton of Fribourg",
         "GE": "Canton of Geneva",
         "GL": "Canton of Glarus",
-        "GR":	"Canton of Grisons",
-        "JU":	"Canton of Jura",
+        "GR": "Canton of Grisons",
+        "JU": "Canton of Jura",
         "LU": "Canton of Luzern",
-        "NE":	"Canton of Neuchâtel",
+        "NE": "Canton of Neuchâtel",
         "OW": "Canton of Obwalden",
         "NW": "Canton of Nidwalden",
-        "SH":	"Canton of Schaffhausen",
+        "SH": "Canton of Schaffhausen",
         "SZ": "Canton of Schwytz",
         "SO": "Canton of Solothurn",
         "SG": "Canton of St. Gallen",

@@ -22,8 +22,8 @@ class Dimension {
     this.range = range;
     this.isRangeFixed = isRangeFixed;
 
-    if (this.type === TYPE_DISCRETE) {
-      this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length])
+    if (this.type === TYPE_DISCRETE && this.domain.length) {
+      this.scale = this.scaleFn(d3.schemeSpectral[Math.max(this.domain.length, 3)])
         .domain(this.domain);
     } else {
       this.scale = this.scaleFn()
@@ -114,6 +114,7 @@ class Dimension {
     } else {
       if (!this.isDomainFixed) {
         this.domain = d3.extent(values, d => d[this.property]);
+        console.info(`[${this.name}:${this.property}]`, 'Dimension.update(), updated domain:', this.domain);
       }
       this.scale = this.scaleFn()
         .domain(this.domain)

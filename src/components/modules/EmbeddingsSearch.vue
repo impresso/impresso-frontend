@@ -114,17 +114,7 @@ export default {
       }
     },
     updateFilter(embedding) {
-      if (this.filter) {
-        this.$store.commit('search/UPDATE_FILTER', {
-          filter: this.filter,
-          precision: 'soft',
-          q: `${this.filter.q} ${embedding}`,
-        });
-      } else {
-        const filter = { query: embedding, type: 'string', context: 'include' };
-        this.$store.commit('search/ADD_FILTER', filter);
-        this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
-      }
+      this.$emit('embdding-selected', embedding);
     },
   },
   mounted() {

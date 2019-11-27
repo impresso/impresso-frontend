@@ -57,6 +57,9 @@ export default {
             t = this.item.uid;
           }
           break;
+        case 'year':
+          t = this.item ? this.item.y : this.val;
+          break;
         default:
           t = this.$t(`buckets.${this.type}.${this.item.uid}`);
           break;

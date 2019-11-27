@@ -11,45 +11,48 @@
           </span>
 
           <h3>{{collection.name}}</h3>
-
-          <ellipsis>
+          <p>
             {{collection.description}}
-          </ellipsis>
+          </p>
 
         </section>
 
 
-        <section class="ml-auto pt-3">
+        <section class="ml-auto py-3">
 
-          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')">
+          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }">
+            <b-button
+              variant="outline-info" size="sm"
+              v-b-modal.confirmDelete>{{ $t('compare_collection') }}
+            </b-button>
+          </router-link>
+
+          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')" ref="edit_collection">
             <div class="modal-edit pt-2 px-3 background-light">
               <label for="collectionName">Name</label>
               <input type="text" name="collectionName" class="form-control mb-3"
+                v-on:keyup.enter="save(collection)"
                 v-model="collection.name">
               <label for="collectionDesc">Description</label>
               <textarea type="text" name="collectionDesc" class="form-control"
+                v-on:keyup.enter="save(collection)"
                 v-model="collection.description" />
               <b-button variant="outline-primary" size="sm" class="form-control my-3"
-                v-on:click="save(collection)">{{ $t('edit_collection') }}
+                v-on:click="save(collection)">{{ $t('update_collection') }}
+              </b-button>
+              <b-button
+                class="form-control mb-3"
+                variant="outline-danger" size="sm"
+                v-b-modal.confirmDelete>{{ $t('delete_collection') }}
               </b-button>
             </div>
           </b-dropdown>
-          <br>
-          <b-button
-            class="mt-2 table"
-            variant="outline-danger" size="sm"
-            v-b-modal.confirmDelete>{{ $t('delete_collection') }}
-          </b-button>
 
         </section>
-
-
 
         <b-modal id="confirmDelete" v-on:ok="remove(collection)">
           {{this.$t('confirm_delete', [collection.name])}}
         </b-modal>
-
-
 
       </b-navbar>
 
@@ -111,7 +114,8 @@
           </b-col>
         </b-row>
       </b-container>
-      <div class="fixed-pagination-footer p-1 m-0">
+      <div class="my-5" />
+      <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
           size="sm"
           v-bind:perPage="paginationPerPage"
@@ -322,6 +326,7 @@ export default {
           });
         });
       }
+      this.$refs.edit_collection.hide(true);
     },
     sortBy(data, field) {
       data.sort((a, b) => {
@@ -360,8 +365,10 @@ export default {
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
-    "edit_collection": "Update Collection",
+    "edit_collection": "Collection Settings",
+    "update_collection": "Update Collection",
     "delete_collection": "Delete Collection",
+    "compare_collection": "Compare with ...",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?"
   },
   "nl": {

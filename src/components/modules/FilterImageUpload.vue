@@ -7,11 +7,11 @@
           slot="aside"
           v-bind:src="`data:image/png;base64,${image.thumbnail}`" />
       </div>
-      <h4>Filename</h4>
-      <p><small>{{image.name}}</small></p>
-      <h4>Upload date</h4>
-      <p><small>{{$d(image.creationDate, 'long')}}</small></p>
-      <b-button variant="danger" size="sm" v-on:click="remove">Remove</b-button>
+      <p>
+        <b>{{image.name}}</b>
+        <div class="date">{{ $d(image.creationDate, 'long') }}</div>
+      </p>
+      <b-button variant="outline-primary" size="sm" v-on:click="remove">{{ $t('actions.remove') }}</b-button>
     </b-media>
     <file-pond v-bind:handler="handler" />
   </div>
@@ -22,12 +22,22 @@ import Vue from 'vue';
 import FilePond from '@/components/modules/FilePond';
 import { uploadedImages } from '@/services';
 
+const MiddleLayerApiBase = process.env.MIDDLELAYER_API || window.location.hostname;
+
+const FILEPOND_SERVICE_PATH = [
+  process.env.MIDDLELAYER_API_PATH,
+  '/filepond',
+].join('/').replace(/\/\/+/g, '/');
+
+console.info('Current host:', MiddleLayerApiBase, 'filepond path:', FILEPOND_SERVICE_PATH);
+
 export default {
   data: () => ({
     handler: new Vue(),
     options: {
       server: {
-        process: `${process.env.MIDDLELAYER_API_PATH.replace(/\/$/, '')}/filepond`,
+        url: MiddleLayerApiBase,
+        process: FILEPOND_SERVICE_PATH,
         fetch: null,
         revert: null,
       },
@@ -41,7 +51,7 @@ export default {
       this.handler.$emit('init', (this.options));
       this.handler.$emit('dispatch', (pond) => {
         pond.onprocessfile = (error, file) => {
-          console.info('File processed', file);
+          console.info('File processed', file.filename, file.fileType, file.serverId);
           this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', file.serverId);
           this.$store.commit('searchImages/UPDATE_SIMILAR_TO', false);
           this.loadImage(file.serverId);
@@ -56,11 +66,16 @@ export default {
       this.init();
     },
     loadImage(val) {
-      uploadedImages.get(val).then((res) => {
-        this.$emit('load');
-        this.image = res;
-        this.handler.$emit('destroy');
-      });
+      console.info('loadImage: ', val);
+      if (val && val.length) {
+        uploadedImages.get(val).then((res) => {
+          this.$emit('load');
+          this.image = res;
+          this.handler.$emit('destroy');
+        });
+      } else {
+        console.error('loadImage failed, no image id has been provided');
+      }
     },
   },
   mounted() {

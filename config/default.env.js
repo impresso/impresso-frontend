@@ -8,4 +8,5 @@ module.exports = {
   MIDDLELAYER_API_SOCKET_PATH: '"/socket.io/"',
   TAWK_TO_SITE_ID: false,
   GITHUB_WIKI_HOME: '"https://path/to/home.md"',
+  BASE_URL: '"/app/"',
 };

@@ -1,25 +1,11 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="400px" class="border-right">
+    <i-layout-section width="400px" class="border-right border-top mt-1px">
       <!--  header -->
       <div slot="header" class="border-bottom bg-light">
-        <b-tabs pills class="border-bottom mx-2 pt-2">
-          <template v-slot:tabs-end>
-            <b-nav-item class="pl-2"
-              active-class='none'
-              :to="{ name:'search'}">
-                <span v-html="$t('tabs.text')"/>
-              </b-nav-item>
-            <b-nav-item
-              class="active"
-              active-class='none'
-              :to="{ name:'searchImages'}">
-                <span v-html="$t('tabs.images')"/>
-            </b-nav-item>
-          </template>
-        </b-tabs>
+        <search-tabs />
         <div class="py-3 px-3">
-          <search-pills store="searchImages" v-on:remove="onRemoveFilter"/>
+          <search-pills :search-filters="filters" store-module-name="searchImages" v-on:remove="onRemoveFilter"/>
           <b-media v-if="similarToImage" class="pb-3">
             <div style="width:128px;" slot="aside">
               <b-img v-if="similarToImage.regions.length"
@@ -31,6 +17,7 @@
             <b-button variant="danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">Remove</b-button>
           </b-media>
           <filter-image-upload
+            v-if="enableUpload"
             v-on:load="search(1)"
             v-on:remove="search(1)" />
 
@@ -44,10 +31,10 @@
             {{$t('label_isFront')}}
           </b-form-checkbox>
         </b-form-group>
-        <search-facets store="searchImages" @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
+        <search-facets store="searchImages" @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter" percent-prop="m"/>
       </div>
     </i-layout-section>
-    <i-layout-section>
+    <i-layout-section class="border-left border-top ml-1px mt-1px">
       <div slot="header">
       <b-navbar variant="tertiary" v-if="selectedItems.length > 0">
         <div class="flex-grow-1">
@@ -137,8 +124,14 @@ import Ellipsis from './modules/Ellipsis';
 import SearchInput from './modules/SearchInput';
 import SearchPills from './SearchPills';
 import ImageViewer from './modules/ImageViewer';
+import SearchTabs from './modules/SearchTabs';
 
 export default {
+  props: {
+    enableUpload: {
+      type: Boolean,
+    },
+  },
   components: {
     Autocomplete,
     SearchResultsImageItem,
@@ -151,6 +144,7 @@ export default {
     SearchPills,
     ImageViewer,
     FilterImageUpload,
+    SearchTabs,
   },
   data: () => ({
     q: '',
@@ -159,10 +153,12 @@ export default {
     allSelected: false,
     similarToImage: false,
   }),
-  mounted() {
-    this.search();
-  },
   computed: {
+    filters: {
+      get() {
+        return this.$store.state.searchImages.search.filters;
+      },
+    },
     isFront: {
       get() {
         return this.getBooleanFilter({ type: 'isFront' });
@@ -370,7 +366,9 @@ export default {
     },
     '$route.query': {
       handler(val) {
+        console.info('@$route.query changed', val);
         this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
+        // this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
       },
       deep: true,
       immediate: true,

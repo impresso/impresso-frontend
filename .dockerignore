@@ -1,0 +1,8 @@
+config
+!config/index.js
+!config/prod.env.js
+!config/default.env.js
+.git
+node_modules
+docker
+dist

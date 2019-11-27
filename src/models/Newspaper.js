@@ -1,6 +1,6 @@
 import Issue from './Issue';
 
- /**
+/**
   * @class Issue is an object representing a newspaper issue
   * @param {String} acronym Three Letter Acronym (TLA) for the newspaper
   * @param {Integer} countArticles Amount of articles in the issue
@@ -25,6 +25,7 @@ export default class Newspaper {
     properties = [],
     firstIssue = null,
     lastIssue = null,
+    included = false,
   } = {}) {
     this.acronym = String(acronym);
     this.countArticles = parseInt(countArticles, 10);
@@ -36,6 +37,8 @@ export default class Newspaper {
     this.startYear = parseInt(startYear, 10);
     this.uid = String(uid);
     this.properties = properties;
+    this.included = included;
+
     if (firstIssue) {
       this.firstIssue = new Issue(firstIssue);
     }

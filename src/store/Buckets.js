@@ -1,11 +1,12 @@
 import * as services from '@/services';
 import Bucket from '@/models/Bucket';
 
-const SERVICE_BY_FACET_TYPE = {
+const SERVICE_BY_TYPE = {
   person: 'entities',
   location: 'entities',
   topic: 'topics',
   newspaper: 'newspapers',
+  collection: 'collections',
 };
 
 export default {
@@ -17,12 +18,11 @@ export default {
     groupBy: 'articles',
     isLoading: false,
     type: '',
-    typeOptions: ['location', 'country', 'person', 'language', 'topic'],
-    buckets: [],
-    searchables: Object.keys(SERVICE_BY_FACET_TYPE),
+    typeOptions: ['location', 'country', 'person', 'language', 'topic', 'newspaper'],
+    items: [],
     query: '',
     pagination: {
-      perPage: 10,
+      perPage: 20,
       currentPage: 1,
       totalRows: 0,
     },
@@ -43,8 +43,8 @@ export default {
       state.q = q;
       state.fq = q.split('*').concat(['*']).join('');
     },
-    UPDATE_BUCKETS(state, buckets) {
-      state.buckets = buckets;
+    UPDATE_ITEMS(state, items) {
+      state.items = items;
     },
     UPDATE_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
@@ -57,81 +57,108 @@ export default {
     },
   },
   actions: {
-    CHANGE_PAGE({ commit, dispatch }, page) {
+    CHANGE_PAGE({ commit }, page) {
       commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
-      dispatch('LOAD_BUCKETS');
+      // dispatch('LOAD_BUCKETS');
     },
-    CHANGE_Q({ commit, dispatch }, q) {
+    CHANGE_Q({ commit }, q) {
       commit('UPDATE_Q', q);
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
-      dispatch('LOAD_BUCKETS');
+      // dispatch('LOAD_BUCKETS');
     },
-    CHANGE_TYPE({ commit, dispatch }, type) {
+    CHANGE_TYPE({ commit }, type) {
       commit('SET_TYPE', type);
       commit('UPDATE_ORDER_BY', 'name');
       // When changing type, we have to reset the list of buckets
-      commit('UPDATE_BUCKETS', []);
+      commit('UPDATE_ITEMS', []);
       commit('UPDATE_Q', '');
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
       // then search again with the new params
-      dispatch('LOAD_BUCKETS');
+      // dispatch('LOAD_BUCKETS');
     },
-    CHANGE_ORDER_BY({ commit, dispatch }, orderBy) {
+    CHANGE_ORDER_BY({ commit }, orderBy) {
       commit('UPDATE_ORDER_BY', orderBy);
-      commit('UPDATE_BUCKETS', []);
+      commit('UPDATE_ITEMS', []);
       commit('UPDATE_PAGINATION_CURRENT_PAGE', 1);
-      dispatch('LOAD_BUCKETS');
+      // dispatch('LOAD_BUCKETS');
     },
-    LOAD_BUCKETS({ state, getters, commit }, {
-      filters = [],
-    } = {}) {
-      commit('SET_IS_LOADING', true);
-      const type = state.type;
-      // if there is a service, e.g. for topics or entities
-      if (state.q.length > 2 && SERVICE_BY_FACET_TYPE[type]) {
-        const query = {
-          filters,
-          page: state.pagination.currentPage,
-          limit: state.pagination.perPage,
-          // order_by: state.orderBy,
-          q: state.fq,
-        };
-
-        if (type === 'newspaper') {
-          // newspaper uses MYSQL LIKE....
-          query.q = state.q;
-        }
-
-        return services[SERVICE_BY_FACET_TYPE[type]].find({
-          query,
-        }).then((res) => {
-          commit('UPDATE_PAGINATION_TOTAL_ROWS', res.total);
-          commit('UPDATE_BUCKETS', res.data.map(item => new Bucket({
-            val: item.uid,
-            item,
-            type,
-          })));
-        }).catch((err) => {
-          console.error(err);
-        }).finally(() => {
-          commit('SET_IS_LOADING', false);
-        });
+    SEARCH({ state, commit }, { q, type }) {
+      if (typeof q !== 'undefined') {
+        commit('UPDATE_Q', q);
       }
 
-      // otherwise, we just get all buckets by facet type
-      return services.searchFacets.get(type, {
-        query: {
-          group_by: state.groupBy,
-          filters: getters.getCurrentSearchFilters,
-          page: state.pagination.currentPage,
-          limit: state.pagination.perPage,
-          order_by: '-count',
-        },
+      if (type) {
+        commit('SET_TYPE', type);
+      }
+
+      if (state.isLoading) {
+        // cancel current query!
+        return null;
+      }
+      commit('SET_IS_LOADING', true);
+
+      const service = services[SERVICE_BY_TYPE[state.type]];
+      const query = {
+        page: state.pagination.currentPage,
+        limit: state.pagination.perPage,
+      };
+      if (state.type === 'person') {
+        query.filters = [{
+          type: 'type',
+          q: 'Person',
+        }];
+      } else if (state.type === 'location') {
+        query.filters = [{
+          type: 'type',
+          q: 'Location',
+        }];
+      }
+      if (state.q.length) {
+        if (['newspaper', 'collection'].indexOf(state.type) > -1) {
+          query.q = state.q;
+        } else {
+          query.q = state.fq;
+        }
+      }
+      console.info('buckets/SEARCH type:', state.type, 'query:', query);
+      return service.find({
+        query,
+      }).then((res) => {
+        commit('UPDATE_PAGINATION_TOTAL_ROWS', res.total);
+        const items = res.data.filter(d => d.uid.length).map(item => new Bucket({
+          val: item.uid,
+          item,
+          type: state.type,
+        }));
+        commit('UPDATE_ITEMS', items);
+        console.info('buckets/SEARCH type:', state.type, 'success:', res);
+      }).catch((err) => {
+        console.error(err);
+        return [];
+      }).finally(() => {
+        commit('SET_IS_LOADING', false);
+      });
+    },
+    SEARCH_FACETS({ state, getters, commit }, { type, filters }) {
+      commit('SET_IS_LOADING', true);
+      if (type) {
+        commit('SET_TYPE', type);
+      }
+      const query = {
+        group_by: state.groupBy,
+        filters: typeof filters === 'undefined' ? getters.getCurrentSearchFilters : filters.map(filter => filter.getQuery()),
+        page: state.pagination.currentPage,
+        limit: state.pagination.perPage,
+        order_by: '-count',
+      };
+      console.info('buckets/SEARCH_FACETS type:', state.type, 'query:', query);
+      return services.searchFacets.get(state.type, {
+        query,
       }).then((res) => {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', res[0].numBuckets);
-        commit('UPDATE_BUCKETS', res[0].buckets.map(d => new Bucket({
+        commit('UPDATE_ITEMS', res[0].buckets.map(d => new Bucket({
           ...d,
-          type,
+          type: state.type,
         })));
       }).catch((err) => {
         console.error(err);

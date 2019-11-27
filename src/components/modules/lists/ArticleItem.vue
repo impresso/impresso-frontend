@@ -1,5 +1,5 @@
 <template lang="html">
-  <article>
+  <article :class="{ reference : asReference }">
     <h2 v-if="item.title" class="mb-0">
       <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="item.title"></router-link>
       <span v-else v-html="item.title"></span>
@@ -9,19 +9,19 @@
       <span v-else>{{ $t('untitled') }}</span>
     </div>
     <div v-if="showMeta" class="article-meta">
-      <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}">
-        <strong>{{ item.newspaper.name}}</strong>
+      <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
+        {{ item.newspaper.name}}
       </router-link>
-      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/>,
-      <span class="small-caps">{{ $d(item.date, "long") }}</span>
+      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
+      <span class="date">{{ $d(item.date, "long") }}</span>
       <span>{{ pages }}</span>
     </div>
 
 
     <div v-if="showExcerpt && item.type !=='image'" class="article-excerpt mt-2">
-      <span >{{ item.excerpt }}</span>
+      <span class="article-excerpt">{{ item.excerpt }}</span>
       <b-badge v-if="showSize || showType" variant="light" class="mr-1 pt-1">
-        <span v-if="showType">{{ $t(`buckets.type.${item.type}`) }} | </span>
+        <span v-if="showType && item.type">{{ $t(`buckets.type.${item.type}`) }} | </span>
         <span v-if="showSize">
           <span v-if="item.size > 1200">{{ $t('readingTime', { min: parseInt(item.size / 1200) }) }}</span>
           <span v-else>{{ $t('reducedReadingTime')}}</span>
@@ -32,7 +32,7 @@
 
     <div v-if="showEntities" class="small article-extras article-entities mt-2">
       <div v-if="item.locations.length">
-        <b-badge variant="light" class="mr-1 small-caps">locations</b-badge>
+        <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
         <span v-for="(location, idx) in item.locations" v-bind:key="idx">
           <item-label :item="location" type="location" />
           <item-selector :uid="location.uid" :item="location" type="location"/>
@@ -40,7 +40,7 @@
         </span>
       </div>
       <div v-if="item.persons.length">
-        <b-badge variant="light" class="mr-1 small-caps">people</b-badge>
+        <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
         <span v-for="(person, idx) in item.persons" v-bind:key="idx">
           <item-label :item="person" type="person" />
           <item-selector :uid="person.uid" :item="person" type="person"/>
@@ -49,14 +49,16 @@
       </div>
     </div>
     <div v-if="showTopics" class="small article-extras article-topics mt-2">
+      <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
       <div v-if="item.topics.length">
-        <b-badge variant="light" class="mr-1 small-caps">topics</b-badge>
-        <span v-for="(rel, idx) in item.topics" v-bind:key="idx">
-          <item-label :item="rel.topic" type="topic" />
-          <span class="text-muted">({{ $n(rel.relevance * 100) }}&nbsp;%)</span>
-          <item-selector :uid="rel.topic.uid" :item="rel.topic" type="topic"/>
-          <span v-if="idx !== item.topics.length - 1">, </span>
-        </span>
+        <div v-for="(rel, idx) in item.topics" v-bind:key="idx" class="mx-1 mb-1">
+          <viz-bar
+            :percent="rel.relevance * 100"
+            :uid="rel.topic.uid"
+            :item="rel.topic"
+            type="topic"
+            />
+        </div>
       </div>
     </div>
     <div v-if="showMatches">
@@ -69,12 +71,14 @@
           v-show="match.fragment.trim().length > 0" />
       </ul>
     </div>
+    <!-- {{ item.issue.accessRights }} -->
   </article>
 </template>
 
 <script>
 import ItemSelector from './../ItemSelector';
 import ItemLabel from './ItemLabel';
+import VizBar from '../../base/VizBar';
 
 export default {
   props: {
@@ -108,6 +112,9 @@ export default {
     showTopics: {
       type: Boolean,
     },
+    asReference: {
+      type: Boolean,
+    },
   },
   computed: {
     pages() {
@@ -129,16 +136,51 @@ export default {
   components: {
     ItemSelector,
     ItemLabel,
+    VizBar,
   },
 };
 </script>
 
 <style lang="scss" scoped>
+  .article-newspaper {
+    font-weight: bold;
+  }
+  .date {
+    text-transform: lowercase;
+    font-variant: small-caps;
+  }
+  article.reference {
+    h2, .article-meta {
+      font-size: inherit;
+      display: inline-block;
+    }
+    h2::after {
+      content: ', ';
+    }
+    .date {
+      text-transform: none;
+      font-variant: normal;
+    }
+    .article-newspaper{
+      font-weight: normal;
+    }
+
+    .article-excerpt{
+      margin-top: auto !important;
+      font-size: inherit;
+    }
+  }
   .article-extras .badge{
     font-size: inherit;
   }
   .article-excerpt{
     font-size: smaller;
+  }
+  .article-topics > div{
+    columns: 4 270px;
+    div {
+      break-inside: avoid-column;
+    }
   }
   ul.article-matches{
     list-style-type: none;

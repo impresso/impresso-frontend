@@ -48,7 +48,7 @@
           </b-container>
         </div>
         <hr class="py-4">
-        <b-container fluid class="px-0">
+        <b-container fluid class="similar-items px-0">
           <h3>Similar Articles</h3>
           <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
           <b-row>
@@ -57,10 +57,11 @@
               sm="12"
               md="12"
               lg="6"
+              xl="4"
               v-for="(searchResult, index) in articlesSuggestions"
               v-bind:key="`${index}_ra`">
               <search-results-similar-item
-                v-bind:searchResult="searchResult"
+                :searchResult="searchResult"
                 :topics="commonTopics(searchResult.topics)" />
             </b-col>
           </b-row>
@@ -147,12 +148,36 @@ export default {
 </script>
 
 <style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
 #IssueViewerText{
   overflow: none;
   height: 100%;
 
-  span.location{
-    border-bottom: 1px solid cyan;
+
+  span.location,
+  span.person{
+    box-shadow:inset 0px -2px 0px 0px transparentize($clr-tertiary, 0.5);
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+
+    &::before {
+      font-family: "dripicons-v2";
+      font-size: 75%;
+      opacity: 0.6;
+      padding-right: 2px;
+    }
+
+    &:hover {
+      box-shadow:inset 0px -24px 0px 0px transparentize($clr-tertiary, 0.5);
+    }
+  }
+
+  span.location::before {
+    content: '\e012';
+  }
+  span.person::before {
+    content: '\e056';
   }
 
   .region-row {
@@ -164,6 +189,10 @@ export default {
     p {
       margin-bottom: 0;
     }
+  }
+
+  .similar-items h2 {
+    font-size: 1em;
   }
 }
 </style>

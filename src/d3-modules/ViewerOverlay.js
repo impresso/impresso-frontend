@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import Page from '@/models/Page';
 
 class ViewerOverlay {
-
   constructor(viewer) {
     this.viewer = viewer;
     this.data = {};

@@ -1,10 +1,13 @@
 <template lang="html">
-  <i-layout-section>
+  <i-layout-section class="border-left border-top ml-1px mt-1px">
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
           <span class="label small-caps">{{$t('summary')}}</span>
+          <small><info-button name="why-topic" class="text-muted" /></small>
           <h3 class='mb-1' v-html="$t('topics_cooccurrence_graph', {
+            items: $n(this.filteredNodes.length),
+            rels: $n(this.filteredLinks.length),
             nodes: $n(this.totalNodes),
             links: $n(this.totalLinks),
           })" />
@@ -12,19 +15,24 @@
       </b-navbar>
       <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
 
-        <b-navbar-nav class="px-1 ">
-          <li class="p-2 border-right"><label >{{ $t('color by') }}</label>
+        <b-navbar-nav class="px-2 pt-2 pb-1 border-right">
+          <li ><label >{{ $t('color by') }}</label>
             <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
-        <b-navbar-nav class="px-1 ">
-          <li class="p-2 border-right"><label >{{ $t('connected if') }}</label>
+        <b-navbar-nav class="px-2 pt-2 pb-1  border-right">
+          <li ><label >{{ $t('connected if') }}</label>
             <i-dropdown v-model="linkBy" v-bind:options="linkByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
-        <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto border-right">
+        <b-navbar-nav class="px-2 pt-2 pb-1 border-right">
           <li><label >{{ $t('size by') }}</label>
             <i-dropdown v-model="sizeBy" v-bind:options="sizeByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="px-2 pt-2 pb-1">
+          <li><label v-html="$t('zoom')" />
+            <b-button v-on:click="zoomReset()" variant="secondary" size="sm">{{ $t('actions.reset') }}</b-button>
           </li>
         </b-navbar-nav>
       </b-navbar>
@@ -54,6 +62,7 @@
 import Topic from '@/models/Topic';
 import Graph from '@/d3-modules/Graph';
 import Tooltip from './modules/tooltips/TopicsExplorerTooltip';
+import InfoButton from './base/InfoButton';
 
 
 export default {
@@ -70,22 +79,44 @@ export default {
     totalNodes: 0,
     totalLinks: 0,
     // visual dimensions
-    linkBy: 'wordInCommon',
     colorBy: 'model',
-    sizeBy: 'degree',
+    sizeBy: 'countItems',
     // legend
     legend: {
       nodeColor: [],
     },
+    filteredNodes: [],
+    filteredLinks: [],
+    zoomLevel: {},
   }),
   computed: {
+    graphNodes() {
+      return this.$store.state.topics.graphNodes;
+    },
+    graphLinks() {
+      const mode = this.$store.state.topics.graphLinkMode;
+      console.info('graphLinks changed, mode:', mode);
+      return this.$store.state.topics.graphLinks[mode];
+    },
+    items() {
+      return this.$store.state.topics.items;
+    },
+    itemsIndex() {
+      return this.$store.state.topics.itemsIndex;
+    },
+    linkBy: {
+      get() {
+        return this.$store.state.topics.graphLinkMode;
+      },
+      set(v) {
+        this.$store.dispatch('topics/CHANGE_GRAPH_LINK_MODE', v);
+      },
+    },
     linkByOptions() {
-      return [
-        {
-          value: 'wordInCommon',
-          text: this.$t('wordInCommon'),
-        },
-      ];
+      return ['byCommonWords', 'byCommonArticles'].map(value => ({
+        value,
+        text: this.$t(value),
+      }));
     },
     colorByOptions() {
       return [
@@ -101,6 +132,10 @@ export default {
     },
     sizeByOptions() {
       return [
+        {
+          value: 'countItems',
+          text: this.$t('countItems'),
+        },
         {
           value: 'degree',
           text: this.$t('degree'),
@@ -137,6 +172,12 @@ export default {
           isActive: false,
         };
       })
+      .on('svg.zoom', (s) => {
+        console.info(s);
+        this.zoomLevel = {
+          ...s,
+        };
+      })
       .on('node.tick', (d) => {
         this.tooltip.x = d.x;
         this.tooltip.y = d.y;
@@ -165,40 +206,113 @@ export default {
         }
       });
 
-    this.$store.dispatch('topics/LOAD_TOPICS_GRAPH').then((topicsGraph) => {
-      this.totalNodes = topicsGraph.nodes.length;
-      this.totalLinks = topicsGraph.links.length;
-
-      this.graph.updateDimension({
-        name: 'nodeColor',
-        property: this.colorBy,
-        values: topicsGraph.nodes,
-      });
-
-      this.graph.updateDimension({
-        name: 'nodeSize',
-        property: this.sizeBy,
-        values: topicsGraph.nodes,
-      });
-
-      this.graph.update({
-        nodes: topicsGraph.nodes,
-        links: topicsGraph.links,
-      });
-    });
-
     window.addEventListener('resize', this.onResize);
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.onResize);
   },
   methods: {
+    updateGraph({ nodes, links }) {
+      if (!this.graph) {
+        console.warn('updateGraph() called when graph is not ready');
+        return;
+      }
+
+      this.totalNodes = this.graphNodes.length;
+      this.totalLinks = this.graphLinks.length;
+      console.info('updateGraph, available nodes:', this.totalNodes, 'available links:', this.totalLinks);
+
+      this.graph.updateDimension({
+        name: 'nodeColor',
+        property: this.colorBy,
+        values: nodes,
+      });
+
+      this.graph.updateDimension({
+        name: 'nodeSize',
+        property: this.sizeBy,
+        values: nodes,
+      });
+
+      this.graph.update({
+        nodes,
+        links,
+      });
+    },
+    zoomReset() {
+      this.graph.zoom();
+    },
     onResize() {
       console.info('TopicExplorer@resize');
       this.graph.resize();
     },
+    getFilteredNodes() {
+      return this.graphNodes.filter(d => typeof this.itemsIndex[d.uid] !== 'undefined');
+    },
+    getFilteredLinks() {
+      // get map of uids
+      const filteredNodesUids = this.filteredNodes.map(d => d.uid);
+      // loop through our graphLinks
+      return this.graphLinks.map((d) => {
+        const s = this.graphNodes[d.source].uid;
+        const t = this.graphNodes[d.target].uid;
+
+        if (this.itemsIndex[t] === undefined || this.itemsIndex[s] === undefined) {
+          return null;
+        }
+        // change source and target id
+        return {
+          ...d,
+          source: filteredNodesUids.indexOf(s),
+          target: filteredNodesUids.indexOf(t),
+        };
+      }).filter(d => d);
+    },
   },
   watch: {
+    itemsIndex: {
+      immediate: true,
+      deep: true,
+      async handler(itemsIndex) {
+        // if there is no graph, load the graph first.
+        if (itemsIndex && !this.totalNodes) {
+          console.info('@itemsIndex updated, loading graph...');
+          await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH');
+          console.info('@itemsIndex updated, graph loaded.');
+        }
+        // re evaluate graph
+        if (this.graph) {
+          if (this.timerDelayGraphUpdate) {
+            clearTimeout(this.timerDelayGraphUpdate);
+          }
+
+          console.info('@itemsIndex updated, update graph in 2s...');
+
+          this.timerDelayGraphUpdate = setTimeout(() => {
+            this.filteredNodes = this.getFilteredNodes();
+            this.filteredLinks = this.getFilteredLinks();
+
+            console.info('@itemsIndex n. filtered nodes:', this.filteredNodes.length);
+            console.info('@itemsIndex n. filtered links:', this.filteredLinks.length);
+
+            this.updateGraph({
+              nodes: this.filteredNodes,
+              links: this.filteredLinks,
+            });
+          }, 500);
+        }
+      },
+    },
+    linkBy: {
+      immediate: true,
+      handler() {
+        this.filteredLinks = this.getFilteredLinks();
+        this.updateGraph({
+          nodes: this.filteredNodes,
+          links: this.filteredLinks,
+        });
+      },
+    },
     '$route.params.topic_uid': {
       immediate: true,
       async handler(topicUid) {
@@ -233,6 +347,7 @@ export default {
   },
   components: {
     Tooltip,
+    InfoButton,
   },
 };
 </script>
@@ -274,8 +389,10 @@ export default {
     }
   }
 
-  .nodes > g.fix text{
-    display: block;
+  .nodes > g.fix{
+    text {
+     display: block;
+    }
   }
 }
 
@@ -284,9 +401,11 @@ export default {
 {
   "en": {
     "summary": "Explore the list of topics",
-    "topics_cooccurrence_graph": "Visualise <span class=\"number\">{nodes}</span> topics and their <span class=\"number\">{links}</span> co-occurrences",
+    "topics_cooccurrence_graph": "Visualise <span class=\"number\">{items}</span> / <span class=\"number\">{nodes}</span> topics and their <span class=\"number\">{rels}</span> / <span class=\"number\">{links}</span> relationships",
     "color by": "colored by",
-    "topic model": "{item.name}"
+    "topic model": "{item.name}",
+    "countItems": "number of articles",
+    "zoom": "zoom &amp; pan"
   }
 }
 </i18n>

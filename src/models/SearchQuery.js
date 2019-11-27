@@ -28,6 +28,22 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
+  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy } = {}) {
+    const query = {
+      f: JSON.stringify(filters),
+      g: groupBy,
+    };
+
+    if (page) {
+      query.p = page;
+    }
+
+    if (orderBy) {
+      query.o = orderBy;
+    }
+    return query;
+  }
+
   getFilter(filter) {
     const filterized = filterize(filter);
     if (!filterized.hash) {
@@ -62,7 +78,6 @@ export default class SearchQuery {
         const filterized = filterize(d);
         const idx = this.filtersIds.indexOf(filterized.getHash());
         if (idx !== -1) {
-          console.info('enrichFilters: found', d.type, d, filterized);
           if (filterized.item) {
             this.filters[idx].item = filterized.item;
           } else if (filterized.items) {
@@ -156,6 +171,4 @@ export default class SearchQuery {
     }
     return filters;
   }
-
-
 }

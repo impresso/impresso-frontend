@@ -1,7 +1,7 @@
 <template lang="html">
   <div class='search-pills'>
     <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
-      v-for="(filter, index) in pills" :key="filter.key">
+      v-for="(filter, index) in pills" :key="index">
       <!--  button content -->
       <template slot="button-content">
         <!-- badge: initial type instead of icons -->
@@ -15,11 +15,14 @@
             {'dripicons-location': filter.type === 'location'},
             {'dripicons-pamphlet': filter.type === 'newspaper'},
             {'dripicons-web': filter.type === 'language'},
-            {'dripicons-calendar': filter.type === 'daterange'},
+            {'dripicons-pulse': filter.type === 'daterange'},
+            {'dripicons-calendar': filter.type === 'year'},
             {'dripicons-suitcase': filter.type === 'collection'},
+            {'dripicons-tag': filter.type === 'type'},
+            {'dripicons-print': filter.type === 'country'},
           ]" />
         <!--  type:string -->
-        <span class="label sp-string" v-if="filter.type === 'string'" :class="filter.precision">
+        <span class="label sp-string" v-if="filter.type === 'string'" :class="[filter.precision,filter.context]">
           {{filter.q}}
         </span>
         <!--  type:string -->
@@ -40,9 +43,14 @@
         </span>
         <!--  type:language and other items -->
         <span class="label sp-generic-item"
-          v-if="['language', 'country'].indexOf(filter.type) !== -1"
+          v-if="['language', 'country', 'type'].indexOf(filter.type) !== -1"
           v-html="labelByItems({ items: filter.items, max: 2, prop:'uid', translate: true, type:filter.type, op: filter.op })"
           :class="filter.context">
+        </span>
+        <!--  type:generic -->
+        <span class="label sp-generic-item"
+          v-if="['year'].includes(filter.type)"
+          :class="filter.context">{{filter}}{{ filter.q.join(', ') }}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
@@ -61,14 +69,22 @@
 
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
-        <filter-monitor :store="store" checkbox :filter="filter" :type="filter.type" :operators="['AND', 'OR']" />
+        <filter-monitor checkbox
+                        :store="storeModuleName"
+                        :filter="filter"
+                        :type="filter.type"
+                        :search-query-id="searchQueryId"
+                        :operators="['AND', 'OR']"
+                        :skip-push-search-params="skipPushSearchParams"
+                        @filter-applied="onFilterApplied" />
       </div>
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
-        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('action.remove')}}</b-button>
+        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
+    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="addFilter">{{ $t('actions.addFilter') }}</b-button>
   </div>
 </template>
 
@@ -83,24 +99,40 @@ export default {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
     },
-    store: {
+    storeModuleName: {
       type: String,
       default: 'search',
     },
+    searchQueryId: {
+      // [Optional] ID of the search query the filter belongs to.
+      // This ID is dispatched to the the store by filter monitor.
+      type: String,
+      default: undefined,
+    },
+    skipPushSearchParams: {
+      type: Boolean,
+      default: false,
+    },
+    searchFilters: {
+      type: Array,
+      default: undefined,
+    },
+    enableAddFilter: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
-    currentStore() {
-      if (this.store === 'searchImages') {
-        return this.$store.state.searchImages;
-      }
-      return this.$store.state.search;
+    temporaryFilter() {
+      return this.$store.getters['explorer/getTemporaryFilter'](this.searchQueryId);
     },
     pills: {
       get() {
-        // exclude boolean filters
-        return this.currentStore.search.filters
-          .filter(d => this.excludedTypes.indexOf(d.type) === -1);
-          // .sort((a, b) => (a.type > b.type ? 1 : -1));
+        const filters = this.searchFilters !== undefined
+          ? this.searchFilters
+          : this.$store.state[this.storeModuleName].search.filters;
+        return filters.filter(d => this.excludedTypes.indexOf(d.type) === -1);
+        // .sort((a, b) => (a.type > b.type ? 1 : -1));
       },
     },
     filterContextOptions: {
@@ -160,17 +192,35 @@ export default {
     onRemoveFilter(filter) {
       this.$emit('remove', filter);
     },
-    onChangeFilter(filter) {
-      filter.touched = true;
-    },
-    onApplyFilter(filter) {
+    onFilterApplied(filter) {
       this.$emit('update', filter);
+    },
+    onAddFilter(filter) {
+      this.$emit('add', filter);
+    },
+    addFilter() {
+      this.$store.dispatch('explorer/SET_SEARCH_QUERY_ID', this.searchQueryId);
+      this.$store.dispatch('explorer/SHOW', {
+        mode: 'facets',
+        filters: this.searchFilters,
+      });
     },
   },
   components: {
     TopicListItem,
     NewspaperListItem,
     FilterMonitor,
+  },
+  watch: {
+    temporaryFilter: { // user uploaded image id
+      handler(filter) {
+        if (filter) {
+          this.onAddFilter(filter);
+        }
+        return filter;
+      },
+      immediate: true,
+    },
   },
 };
 </script>
@@ -204,7 +254,7 @@ export default {
       font-weight: bold;
     }
     &.sp-string.soft::before,
-    &>.sp-string.soft::before,{
+    &>.sp-string.soft::before {
       content: '[';
       font-weight: bold;
     }
@@ -213,7 +263,6 @@ export default {
       content: ']';
       font-weight: bold;
     }
-
   }
 
   span.label.exclude{
@@ -275,6 +324,9 @@ export default {
         "country": {
           "title": "Country of publication"
         },
+        "type": {
+          "title": "Article content type"
+        },
         "topic": {
           "title": "filter by topic"
         },
@@ -294,11 +346,6 @@ export default {
           "title": "filter by date of publication",
           "item": "From {start} to {end}"
         }
-      },
-      "action": {
-        "remove": "remove filter",
-        "apply": "apply changes",
-        "undo": "undo changes"
       },
       "items": {
         "hidden": "({count} more)"

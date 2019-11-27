@@ -52,7 +52,8 @@ export default {
       }),
     ],
     facetTypes: ['person', 'location', 'year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
-    orderBy: '-relevance', // relevance, -relevance, date, -date
+    orderBy: '-relevance', // -relevance, date, -date
+    orderByOptions: ['-relevance', 'date', '-date'],
     groupBy: 'articles', // issues, pages, articles, sentences
     displayStyle: 'list',
     paginationPerPage: 12,
@@ -217,7 +218,7 @@ export default {
       if (query.g && ['articles'].indexOf(query.g) !== -1) {
         commit('UPDATE_SEARCH_GROUP_BY', query.g);
       }
-      if (query.o && ['-relevance', 'relevance', 'date', '-date'].indexOf(query.o) !== -1) {
+      if (query.o && ['-relevance', 'date', '-date'].indexOf(query.o) !== -1) {
         commit('UPDATE_SEARCH_ORDER_BY', query.o);
       }
       if (query.p && !isNaN(query.p)) {
@@ -243,7 +244,8 @@ export default {
       if (!state.search.filtersIndex[filter.type]) {
         commit('ADD_FILTER', filter);
       } else {
-        console.warn('ADD_FILTER_TO_CURRENT_SEARCH', filter);
+        console.warn('still TODO behaviour of ADD_FILTER_TO_CURRENT_SEARCH', filter);
+        commit('ADD_FILTER', filter);
       }
       dispatch('PUSH_SEARCH_PARAMS');
     },
@@ -261,12 +263,10 @@ export default {
     },
     CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
       return new Promise((resolve) => {
-        services.search.create({}, {
-          query: {
-            collection_uid: collectionUid,
-            group_by: 'articles',
-            filters: context.getters.getSearch.getFilters(),
-          },
+        services.search.create({
+          group_by: 'articles',
+          filters: context.getters.getSearch.getFilters(),
+          collection_uid: collectionUid,
         }).then(res => resolve(res));
       });
     },
@@ -295,13 +295,15 @@ export default {
       });
     },
     LOAD_SEARCH_FACETS(context, { facets, limit = 5, skip = 0 } = {}) {
+      const query = {
+        filters: context.getters.getSearch.getFilters(),
+        group_by: context.state.groupBy,
+        limit,
+        skip,
+      };
+      console.info('Search/LOAD_SEARCH_FACETS query:', query);
       return services.searchFacets.get(facets.join(','), {
-        query: {
-          filters: context.getters.getSearch.getFilters(),
-          group_by: context.state.groupBy,
-          limit,
-          skip,
-        },
+        query,
       }).then((results) => {
         results.forEach((facet) => {
           context.commit('UPDATE_FACET', facet);
@@ -347,6 +349,26 @@ export default {
           commit('UPDATE_PAGINATION_TOTAL_ROWS', {
             paginationTotalRows: res.total,
           });
+
+          if (this.state.user.userData) {
+            const itemuids = res.data.map(item => item.uid);
+
+            if (state.facets.find(f => f.type === 'collection').numBuckets > 0) {
+              services.collectionsItems.find({
+                query: { item_uids: itemuids, limit: 100 },
+              }).then((cs) => {
+                state.results.forEach((re) => {
+                  cs.data.forEach((c) => {
+                    if (c.itemId === re.uid) {
+                      re.collections = c.collections;
+                    }
+                  });
+                });
+                // console.log(state.results);
+              });
+            }
+          }
+
           commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
           // register facets
           if (res.total) {
@@ -378,6 +400,18 @@ export default {
           ],
         }),
       ]);
+    },
+    ADD_FILTER({ commit }, { filter }) {
+      commit('ADD_FILTER', filter);
+    },
+    REMOVE_FILTER({ commit }, { filter }) {
+      commit('REMOVE_FILTER', filter);
+    },
+    UPDATE_FILTER({ commit }, message) {
+      commit('UPDATE_FILTER', message);
+    },
+    UPDATE_FILTER_ITEM({ commit }, message) {
+      commit('UPDATE_FILTER_ITEM', message);
     },
   },
 };

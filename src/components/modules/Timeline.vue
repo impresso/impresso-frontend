@@ -38,6 +38,12 @@ export default {
     domain: Array,
     highlight: Object,
     contrast: Boolean,
+    percentage: Boolean,
+    highlightEnabledState: Boolean,
+    brushable: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     tooltip: {
@@ -68,7 +74,7 @@ export default {
         margin: {
           left: 10,
           right: 10,
-          top: 10,
+          top: 15,
         },
         domain: this.domain,
       });
@@ -78,14 +84,15 @@ export default {
         margin: {
           left: 10,
           right: 10,
-          top: 10,
+          top: 15,
         },
         domain: this.domain,
-        brushable: true,
+        brushable: this.brushable,
       });
     }
     this.timeline.on('mouseleave', () => {
       this.tooltip.isActive = false;
+      this.$emit('highlight-off');
     });
 
     this.timeline.on('mousemove', (data) => {
@@ -107,10 +114,16 @@ export default {
       this.moveTooltip(data);
     });
 
+    if (this.percentage) {
+      this.timeline.dimensions.y.property = 'p';
+    }
+
     if (this.values && this.values.length) {
       this.timeline.update({
         data: this.values,
       });
+
+
       this.timeline.draw();
       setTimeout(this.onChangeDomain, 5000);
     }
@@ -120,10 +133,28 @@ export default {
     window.removeEventListener('resize', this.onResize);
   },
   watch: {
+    percentage: {
+      immediate: false,
+      handler() {
+        if (this.timeline) {
+          this.timeline.dimensions.y.property = this.percentage ? 'p' : 'w';
+          this.timeline.update({
+            data: this.values,
+          });
+          this.timeline.draw();
+        }
+      },
+    },
     highlight: {
       immediate: false,
       handler(val) {
         this.timeline.highlight(val);
+      },
+    },
+    highlightEnabledState: {
+      immediate: false,
+      handler(val) {
+        this.tooltip.isActive = val;
       },
     },
     brush: {
@@ -142,7 +173,7 @@ export default {
       immediate: false,
       deep: true,
       handler(data) {
-        console.info('Timeline component received data:', data.length);
+        // console.info('Timeline component received data:', data.length);
         if (this.timeline) {
           this.timeline.update({
             data,
@@ -163,7 +194,7 @@ export default {
 
   .d3-timeline{
     width: 100%;
-    height: 80px;
+    height: 85px;
     position: relative;
 
     g.context path.curve {
@@ -191,6 +222,9 @@ export default {
         fill: red;
       }
     }
+    g.context .peak text{
+      font-size: 11px;
+    }
     g.brush {
       rect.selection {
         fill: $clr-accent;
@@ -205,13 +239,3 @@ export default {
     }
   }
 </style>
-<i18n>
-{
-  "en": {
-    "pages": {
-      "total": "pages",
-      "empty": "not available"
-    }
-  }
-}
-</i18n>

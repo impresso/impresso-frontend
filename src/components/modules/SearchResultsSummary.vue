@@ -1,6 +1,6 @@
 <template lang="html">
-  <section class="search-results-summary textbox-fancy">
-    <span class="label">{{$t("summary")}}</span>
+  <section class="search-results-summary textbox-fancy border-tertiary">
+    <!-- <span class="label">{{$t("summary")}}</span> -->
     <div class="text-serif" v-html="message"></div>
   </section>
 </template>
@@ -129,7 +129,7 @@ export default {
     getEntities(type) {
       const mapper = d => d.q
         .map((uid) => {
-          const name = uid.replace(/^aida-\d+-/, '').split('_').join(' ');
+          const name = uid.replace(/^aida-\d+-\d+-/, '').split('_').join(' ');
           return `<span class="item item-${type}">${name}</span>`;
         })
         .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
@@ -142,14 +142,14 @@ export default {
 
     getDateranges() {
       const mapper = d => d.items
-          .map((item) => {
-            const label = this.$t('filters.daterange.item', {
-              start: this.$d(item.start, 'compact'),
-              end: this.$d(item.end, 'compact'),
-            });
-            return `<span class="item">${label}</span>`;
-          })
-          .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
+        .map((item) => {
+          const label = this.$t('filters.daterange.item', {
+            start: this.$d(item.start, 'compact'),
+            end: this.$d(item.end, 'compact'),
+          });
+          return `<span class="item">${label}</span>`;
+        })
+        .join(`<span class="operator">&nbsp;${this.$t('op.or')}&nbsp;</span>`);
 
       this.hasDaterange = false;
       return this.getFormattedSection({
@@ -188,6 +188,7 @@ export default {
             terms: this.getStrings(),
             title: this.getStrings('title'),
             topics: this.getTopics(),
+            type: this.getBuckets('type'),
             languages: this.getBuckets('language'),
             countries: this.getBuckets('country'),
             people: this.getEntities('person'),
@@ -246,7 +247,8 @@ export default {
       "daterange": "published",
       "collection": "saved in",
       "language": "written in",
-      "country": "printed in"
+      "country": "printed in",
+      "type": "tagged as"
     },
     "exclude": {
       "topic": "without topic",
@@ -261,10 +263,12 @@ export default {
       "daterange": "not published",
       "collection": "not yet saved in",
       "language": "not written in",
-      "country": "not printed in"
+      "string": "not containing",
+      "country": "not printed in",
+      "type": "not tagged as"
     },
     "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> {groupByLabel} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
+    "message": "Found <span class='number'>{count}</span> {groupByLabel} {type} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
   "fr": {

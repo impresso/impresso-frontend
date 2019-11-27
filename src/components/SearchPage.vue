@@ -1,20 +1,15 @@
 <template>
 <i-layout id="SearchPage">
-  <i-layout-section width="400px" class="border-right border-tertiary">
+  <i-layout-section width="400px" class="border-right border-top mt-1px">
     <!--  header -->
     <div slot="header" class="border-bottom border-tertiary bg-light">
-      <b-tabs pills class="border-bottom mx-2 pt-2">
-        <template v-slot:tabs-end>
-          <b-nav-item class="pl-2 active"
-            active-class='none'
-            :to="{ name:'search'}"><span v-html="$t('tabs.text')"/></b-nav-item>
-          <b-nav-item
-            active-class='none'
-            :to="{ name:'searchImages'}"><span v-html="$t('tabs.images')"/></b-nav-item>
-        </template>
-      </b-tabs>
+      <search-tabs />
       <div class="py-3 px-3">
-        <search-pills v-on:remove="onRemoveFilter"/>
+        <search-pills
+          v-on:remove="onRemoveFilter"
+          v-on:add="onAddFilter"
+          :search-filters="filters"
+        />
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
@@ -22,7 +17,8 @@
     <!--  body -->
     <div class="pt-3">
 
-      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings</b-button>
+      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings <info-button class="ml-1" name="how-are-word-embeddings-generated" />
+      </b-button>
 
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
@@ -31,7 +27,7 @@
       </b-form-group>
 
       <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
-      <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter"/>
+      <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter" percent-prop="a"/>
     </div>
     <!-- <div slot="footer">
       <b-button-group class="d-flex bg-white p-3 border-top border-tertiary">
@@ -40,92 +36,94 @@
       </b-button-group>
     </div> -->
   </i-layout-section>
-  <i-layout-section>
-    <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-      <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
-        <label class="mr-1">{{$t("label_group")}}</label>
-        <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm" variant="outline-primary"></i-dropdown>
-      </b-navbar-nav>
-      <b-navbar-nav class="px-3 py-3 border-right">
-        <label class="mr-1">{{$t("label_order")}}</label>
-        <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-      </b-navbar-nav>
-      <b-navbar-nav class="px-3 py-3 border-right">
-        <label class="mr-1">{{$t("label_display")}}</label>
-        <b-nav-form>
-          <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-            <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-            <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-          </b-form-radio-group>
-        </b-nav-form>
-      </b-navbar-nav>
-      <div class="flex-shrink-1">
-        <b-navbar-nav v-if="isLoggedIn" class="pl-4">
-          <b-form-checkbox
+  <i-layout-section class="border-left border-top ml-1px mt-1px">
+    <div slot="header">
+      <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+        <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
+          <label class="mr-1">{{$t("label_group")}}</label>
+          <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </b-navbar-nav>
+        <b-navbar-nav class="px-3 py-3 border-right">
+          <label class="mr-1">{{$t("label_order")}}</label>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </b-navbar-nav>
+        <b-navbar-nav class="px-3 py-3">
+          <label class="mr-1">{{$t("label_display")}}</label>
+          <b-nav-form>
+            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+            </b-form-radio-group>
+          </b-nav-form>
+        </b-navbar-nav>
+      </b-navbar>
+
+      <b-navbar variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
+        <div class="flex-grow-1">
+          <span class="small-caps">
+            {{ $tc('items_selected', selectedItems.length) }}
+          </span>
+          <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
+            {{ $t('Clear Selection') }}
+          </b-button>
+          <collection-add-to
+            :items="selectedItems"
+            :text="$tc('add_n_to_collection', selectedItems.length)"
+            class="addbulk bg-white float-right" />
+        </div>
+      </b-navbar>
+
+      <b-navbar class="d-flex p-0 border-bottom bg-light">
+        <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
+          <ellipsis v-bind:initialHeight="60">
+            <search-result-summary
+              @onSummary="onSummary"
+              :group-by="groupBy"
+              :queryComponents="queryComponents"
+              :totalRows="paginationTotalRows" />
+          </ellipsis>
+        </b-navbar-nav>
+        <b-navbar-nav class="ml-auto pl-3" >
+          <b-button size="sm" variant="outline-primary" class="mr-1" v-on:click="compare">
+            {{ $t('actions.compare') }}
+          </b-button>
+          <b-dropdown  v-if="isLoggedIn()" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
+            <b-dropdown-item
+              v-if="selectedItems.length > 0"
+              class="p-2 small-caps"
+              v-b-modal.nameSelectionCollection>
+              <span class="dripicons-checklist pr-1"></span>
+              {{$tc('add_n_to_collection', selectedItems.length)}}
+            </b-dropdown-item>
+            <b-dropdown-item v-on:click="exportSelectedCsv"
+              v-if="selectedItems.length > 0"
+              class="p-2 small-caps">
+              <span class="dripicons-export pr-1"></span>
+              {{$t("selected_export_csv")}}
+            </b-dropdown-item>
+            <b-dropdown-item
+              class="p-2 small-caps"
+              v-b-modal.nameCollection>
+              <span class="dripicons-archive pr-1"></span>
+              {{$t("query_add_to_collection")}}
+            </b-dropdown-item>
+            <b-dropdown-item v-on:click="exportQueryCsv"
+              class="p-2 small-caps">
+              <span class="dripicons-export pr-1"></span>
+              {{$t("query_export_csv")}}
+              <info-button name="can-i-download-part-of-the-data" class="float-right" />
+            </b-dropdown-item>
+          </b-dropdown>
+          <b-form-checkbox  v-if="isLoggedIn()"
+          class="mx-1"
             v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
             v-bind:indeterminate="this.allIndeterminate"
             v-bind:checked.native="this.allSelected"
             v-on:change="toggleSelectAll">
           </b-form-checkbox>
         </b-navbar-nav>
-      </div>
-    </b-navbar>
-
-    <b-navbar slot="header" variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
-      <div class="flex-grow-1">
-        <span class="small-caps">
-          {{ $tc('items_selected', selectedItems.length) }}
-        </span>
-        <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
-          {{ $t('Clear Selection') }}
-        </b-button>
-        <collection-add-to
-          :items="selectedItems"
-          :text="$tc('add_n_to_collection', selectedItems.length)"
-          class="addbulk bg-white float-right" />
-      </div>
-    </b-navbar>
-
-    <b-navbar class="d-flex p-0 border-bottom bg-light">
-      <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
-        <ellipsis v-bind:initialHeight="88">
-          <search-result-summary
-            @onSummary="onSummary"
-            :group-by="groupBy"
-            :queryComponents="queryComponents"
-            :totalRows="paginationTotalRows" />
-        </ellipsis>
-      </b-navbar-nav>
-      <b-navbar-nav class="ml-auto p-3" v-if="isLoggedIn">
-        <b-dropdown v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white">
-          <b-dropdown-item
-            v-if="selectedItems.length > 0"
-            class="p-2 small-caps"
-            v-b-modal.nameSelectionCollection>
-            <span class="dripicons-checklist pr-1"></span>
-            {{$tc('add_n_to_collection', selectedItems.length)}}
-          </b-dropdown-item>
-          <b-dropdown-item v-on:click="exportSelectedCsv"
-            v-if="selectedItems.length > 0"
-            class="p-2 small-caps">
-            <span class="dripicons-export pr-1"></span>
-            {{$t("selected_export_csv")}}
-          </b-dropdown-item>
-          <b-dropdown-item
-            class="p-2 small-caps"
-            v-b-modal.nameCollection>
-            <span class="dripicons-archive pr-1"></span>
-            {{$t("query_add_to_collection")}}
-          </b-dropdown-item>
-          <b-dropdown-item v-on:click="exportQueryCsv"
-            class="p-2 small-caps">
-            <span class="dripicons-export pr-1"></span>
-            {{$t("query_export_csv")}}
-          </b-dropdown-item>
-        </b-dropdown>
-      </b-navbar-nav>
-    </b-navbar>
-
+      </b-navbar>
+    </div>
 
     <b-modal hide-footer scrollable
       body-class="m-0 p-0"
@@ -164,7 +162,7 @@
 
     <b-modal hide-footer id="embeddings" ref="embeddings"
       v-bind:title="$t('Find words similar to ...')">
-      <embeddings-search />
+      <embeddings-search @embdding-selected="addFilterFromEmbedding" />
     </b-modal>
 
 
@@ -191,7 +189,8 @@
           </b-col>
         </b-row>
       </b-container>
-      <div class="fixed-pagination-footer p-1 m-0">
+      <div class="my-5" />
+      <div class="fixed-pagination-footer p-1 m-0" slot="footer">
         <pagination
           v-bind:perPage="paginationPerPage"
           v-bind:currentPage="paginationCurrentPage"
@@ -205,6 +204,7 @@
 </template>
 
 <script>
+import { protobuf } from 'impresso-jscommons';
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchFacets from './SearchFacets';
@@ -216,6 +216,8 @@ import CollectionAddToList from './modules/CollectionAddToList';
 import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
+import SearchTabs from './modules/SearchTabs';
+import InfoButton from './base/InfoButton';
 // const uuid = require('uuid');
 
 export default {
@@ -272,24 +274,14 @@ export default {
     },
     orderByOptions: {
       get() {
-        return [
-          {
-            value: 'relevance',
-            text: `${this.$t('sort_relevance')} ${this.$t('sort_asc')}`,
-          },
-          {
-            value: '-relevance',
-            text: `${this.$t('sort_relevance')} ${this.$t('sort_desc')}`,
-          },
-          {
-            value: 'date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
-          },
-          {
-            value: '-date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
-          },
-        ];
+        return this.$store.state.search.orderByOptions.map((value) => {
+          const label = value.replace(/^-/, '');
+          const direction = value.indexOf('-') === 0 ? 'desc' : 'asc';
+          return {
+            value,
+            text: this.$t(`sort.${label}.${direction}`),
+          };
+        });
       },
     },
     orderBy: {
@@ -355,6 +347,16 @@ export default {
     },
   },
   methods: {
+    compare() {
+      this.$router.push({
+        name: 'compare',
+        query: {
+          left: protobuf.searchQuery.serialize({
+            filters: this.filters.map(d => d.getQuery()),
+          }),
+        },
+      });
+    },
     nameSelectedCollectionOnShown() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
@@ -396,6 +398,10 @@ export default {
     },
     onRemoveFilter(filter) {
       this.$store.commit('search/REMOVE_FILTER', filter);
+      this.search(1);
+    },
+    onAddFilter(filter) {
+      this.$store.commit('search/ADD_FILTER', filter);
       this.search(1);
     },
     itemSelected(item) {
@@ -518,6 +524,12 @@ export default {
         this.allIndeterminate = false;
       }
     },
+    addFilterFromEmbedding(embedding) {
+      console.info('AE', embedding);
+      const filter = { query: embedding, type: 'string', context: 'include' };
+      this.$store.dispatch('search/ADD_FILTER', { filter });
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+    },
   },
   watch: {
     searchResults() {
@@ -547,6 +559,8 @@ export default {
     Ellipsis,
     SearchPills,
     EmbeddingsSearch,
+    SearchTabs,
+    InfoButton,
   },
   mounted() {
     if (this.uuid !== undefined) {
@@ -573,6 +587,10 @@ export default {
     label {
       margin-bottom: 0;
       line-height: 1.5;
+    }
+    .custom-control-label,
+    .custom-control-label::before {
+      position: inherit;
     }
 }
 
@@ -619,10 +637,6 @@ div.overlay-region{
     "label_group": "Group By",
     "label_isFront": "Frontpage",
     "label_hasTextContents": "Contains Text",
-    "sort_asc": "Ascending",
-    "sort_desc": "Descending",
-    "sort_date": "Date",
-    "sort_relevance": "Relevance",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "order_issues": "Issue",
@@ -632,7 +646,7 @@ div.overlay-region{
     "select_all": "Select all items on this page",
     "items_selected": "One item selected | {count} items selected",
     "Clear Selection": "Clear Selection",
-    "add_n_to_collection": "Add selected item to my collection | Add {count} selected items to my collection",
+    "add_n_to_collection": "Add selected item to collection ... | Add {count} selected items to collection ...",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
     "Collection_Name" : "Collection Name",

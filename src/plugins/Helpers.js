@@ -37,6 +37,7 @@ helpers.timeline.addEmptyYears = (values) => {
         t: values[i - 1].t + j,
         w: 0,
         w1: 0,
+        p: 0,
       });
     }
     vs.push(values[i]);
@@ -53,6 +54,21 @@ helpers.timeline.fromBuckets = (buckets) => {
   })).sort((a, b) => a.t - b.t);
   // add zeroes
   return helpers.timeline.addEmptyYears(values);
+};
+
+helpers.numbers = {};
+
+/**
+ * Like `Number#toFixed` but only if there is a decimal part
+ * longer than `decimalPlaces`.
+ */
+helpers.numbers.toFixedOptional = (value, decimalPlaces) => {
+  const [integerPart, decimalPart] = `${value}`.split('.');
+
+  if (decimalPart !== undefined) {
+    return `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`;
+  }
+  return integerPart;
 };
 
 const Helpers = {

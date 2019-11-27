@@ -2,6 +2,8 @@ import * as services from '@/services';
 import Vue from 'vue';
 import Router from 'vue-router';
 import HomePage from '../components/HomePage';
+import FaqPage from '../components/FaqPage';
+import LegalPage from '../components/LegalPage';
 import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
 import IssuePage from '../components/IssuePage';
@@ -20,13 +22,33 @@ import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
+import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
 import store from '../store';
 
 Vue.use(Router);
 
+const BASE_URL = process.env.BASE_URL || '/';
+console.info('Setup Router with BASE_URL to:', BASE_URL);
+
 const router = new Router({
+  mode: 'history',
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    if (to.hash) {
+      const el = document.querySelector('div#app-content');
+      // console.log('---', el.scrollLeft, el.scrollTop);
+      const rect = el.getBoundingClientRect();
+      const ela = document.querySelector(to.hash);
+      const recta = ela.getBoundingClientRect();
+      el.scrollTop = recta.top - rect.top - 10;
+    }
+    return {};
+  },
+  base: BASE_URL,
   routes: [{
-    path: '/',
+    path: '',
     name: 'home',
     component: HomePage,
     // beforeEnter: (to, from, next) => {
@@ -34,6 +56,22 @@ const router = new Router({
     //     name: 'search',
     //   });
     // },
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/faq',
+    name: 'faq',
+    component: FaqPage,
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: '/legal-notes',
+    name: 'legal-notes',
+    component: LegalPage,
     meta: {
       requiresAuth: false,
     },
@@ -236,29 +274,33 @@ const router = new Router({
         });
       });
     },
+  },
+  {
+    path: '/compare',
+    component: SearchQueriesComparisonPage,
+    name: 'compare',
+    meta: {
+      requiresAuth: false,
+    },
   }],
 });
 
 router.beforeEach((to, from, next) => {
-  window.redirect = from.path;
+  console.info('Routing to', to.path, 'from', from.path);
   if (to.meta.requiresAuth === false) {
     next();
   } else {
-    services.app.passport.getJWT().then((jwt) => {
-      if (services.app.passport.payloadIsValid(jwt)) {
+    services.app.authentication.getAccessToken().then((jwt) => {
+      if (jwt) {
         next();
       } else {
         next({
           name: 'login',
           query: {
-            redirect: from.path,
+            redirect: to.path,
           },
         });
       }
-    }).catch(() => {
-      next({
-        name: 'login',
-      });
     });
   }
 });

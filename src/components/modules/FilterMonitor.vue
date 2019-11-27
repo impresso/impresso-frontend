@@ -66,7 +66,9 @@
           v-bind:class="{ 'border-bottom-0': showEmbeddings }">
           {{$t('embeddings.find')}}
         </b-button>
-        <embeddings-search  v-if="showEmbeddings" v-bind:filter="filter" />
+        <embeddings-search v-if="showEmbeddings"
+                           v-bind:filter="filter"
+                           @embdding-selected="addEmbeddingSuggestion"/>
       </div>
 
       <!--  context -->
@@ -84,12 +86,10 @@
         <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
       </div>
       <b-form-checkbox v-else v-model="item.checked" @change="toggleFilterItem($event, item)">
-        <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
-        <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
-        <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
-        <collection-item v-if="type === 'collection'" :item="item" />
-
-        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
+        <item-label :item="item" :type="type"/>
+        <span v-if="!item.uid.length">...</span>
+        <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+        <item-selector :uid="item.uid" :item="item" :type="filter.type"/>
       </b-form-checkbox>
     </div>
     <div class="items-to-add" v-if="itemsToAdd.length">
@@ -98,7 +98,7 @@
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
         <collection-item v-if="type === 'collection'" :item="item" />
-        <span v-if="item.count">({{ $t('numbers.results', { results: $n(item.count) }) }})</span>
+        <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
       </div>
     </div>
 
@@ -107,7 +107,7 @@
         {{
           $t('actions.applyChangesDetailed', {
             added: itemsToAdd.length,
-            removed: filter.items.length - filter.q.length  
+            removed: filter.items.length - filter.q.length
           })
         }}
       </span>
@@ -118,6 +118,8 @@
 
 <script>
 import FilterDaterange from './FilterDateRange';
+import ItemSelector from './ItemSelector';
+import ItemLabel from './lists/ItemLabel';
 import CollectionItem from './lists/CollectionItem';
 import EmbeddingsSearch from './EmbeddingsSearch';
 
@@ -131,6 +133,16 @@ export default {
     store: {
       type: String,
       default: 'search',
+    },
+    searchQueryId: {
+      // [Optional] ID of the search query the filter belongs to.
+      // This ID is dispatched to the the store.
+      type: String,
+      default: undefined,
+    },
+    skipPushSearchParams: {
+      type: Boolean,
+      default: false,
     },
     operators: {
       type: Array,
@@ -183,11 +195,13 @@ export default {
   methods: {
     applyFilter() {
       this.updateFilter({});
-      this.$emit('filter-applied');
-      this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`);
+      const { searchQueryId, filter } = this;
+      this.$emit('filter-applied', filter);
+      if (!this.skipPushSearchParams) {
+        this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, { searchQueryId });
+      }
     },
     updateFilter({ op, context }) {
-      console.info('methods.updateFilter: op:', op, context);
       let q;
       if (this.filter.items) {
         // caclulate new q every time. if it's empty
@@ -202,15 +216,20 @@ export default {
         q = this.filter.q;
       }
 
+      const { searchQueryId, filter } = this;
+
       if (!q.length) {
-        this.$store.commit(`${this.store}/REMOVE_FILTER`, this.filter);
+        this.$store.dispatch(`${this.store}/REMOVE_FILTER`, {
+          filter,
+          searchQueryId,
+        });
         this.$emit('filter-removed');
         return;
       }
 
-      // commit the update
-      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
-        filter: this.filter,
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
         q,
         op,
         context,
@@ -218,8 +237,10 @@ export default {
       this.$emit('filter-updated');
     },
     changeFilterQ(q) {
-      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
-        filter: this.filter,
+      const { searchQueryId, filter } = this;
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
         q,
       });
       this.$emit('filter-updated');
@@ -232,17 +253,21 @@ export default {
       this.updateFilter({ context });
     },
     changeFilterPrecision(precision) {
+      const { searchQueryId, filter } = this;
       // console.info('@changeFilterContext', context);
-      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
-        filter: this.filter,
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
         precision,
       });
       this.$emit('filter-updated');
     },
     changeFilterDistance(distance) {
+      const { searchQueryId, filter } = this;
       // console.info('@changeFilterContext', context);
-      this.$store.commit(`${this.store}/UPDATE_FILTER`, {
-        filter: this.filter,
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
         distance,
       });
       this.$emit('filter-updated');
@@ -252,17 +277,33 @@ export default {
       this.updateFilterItem(item);
     },
     updateFilterItem(item, uid) {
-      this.$store.commit(`${this.store}/UPDATE_FILTER_ITEM`, {
-        filter: this.filter,
+      const { searchQueryId, filter } = this;
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER_ITEM`, {
+        filter,
+        searchQueryId,
         item,
         uid,
       });
+      console.info('updateFilterItem', filter);
+      this.$emit('filter-updated');
+    },
+    addEmbeddingSuggestion(embedding) {
+      const { searchQueryId, filter } = this;
+      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+        filter,
+        searchQueryId,
+        precision: 'soft',
+        q: `${filter.q} ${embedding}`,
+      });
+      this.$emit('filter-updated');
     },
   },
   components: {
     FilterDaterange,
     CollectionItem,
     EmbeddingsSearch,
+    ItemLabel,
+    ItemSelector,
   },
 };
 </script>
@@ -288,7 +329,7 @@ label.custom-control-label {
       },
       "AND": {
         "include": "<b>all</b> of the following",
-        "exclude": "<b>any</b> of the following"
+        "exclude": "<b>all</b> of the following"
       }
     },
     "label": {

@@ -1,12 +1,12 @@
 <template lang="html">
   <div class="tile my-3 border">
     <div
-      v-if="isLoggedIn()"
+      v-if="isAvaliable()"
       class="thumbnail bg-light clearfix">
       <open-seadragon-viewer
         v-bind:handler="handler">
       </open-seadragon-viewer>
-      <div v-if="isLoggedIn() && checkbox" class="float-right pt-1 pl-1">
+      <div v-if="isAvaliable() && checkbox" class="float-right pt-1 pl-1">
         <b-checkbox
           class="m-0 select-item"
           v-bind:checked.native="checked"
@@ -70,7 +70,10 @@ export default {
       };
       this.handler.$emit('init', options);
     },
-    isLoggedIn() {
+    isAvaliable() {
+      if (this.article.issue.accessRights === 'OpenPublic') {
+        return true;
+      }
       return this.$store.state.user.userData;
     },
   },

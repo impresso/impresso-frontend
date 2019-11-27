@@ -1,12 +1,10 @@
 <template lang="html">
-  <div class="container my-5">
+  <div class="container-fluid mb-5">
     <b-row class="justify-content-md-center mb-5">
-      <b-col col xl="6" lg="8" md="10">
-        <h1 class="text-center mb-5">{{$t('title')}}</h1>
+      <b-col class="m-0 p-0">
         <b-carousel
           class="recipe"
-          style="text-shadow: 0px 0px 2px #000"
-          v-bind:interval="0"
+          :interval="6000"
           indicators>
           <b-carousel-slide
             v-for="(recipe, i) in recipes"
@@ -14,7 +12,7 @@
             v-bind:caption="recipe.caption"
             v-bind:text="recipe.text"
             v-bind:img-src="recipe.img_src">
-            <a v-bind:href="recipe.query" class="btn btn-primary">Perform this query</a>
+            <a v-bind:href="recipe.query" class="btn btn-outline-primary bg-light" v-if="recipe.query">Perform this query ... </a>
             <a v-bind:href="recipe.video" target="_blank" class="btn btn-primary">Watch the video</a>
           </b-carousel-slide>
         </b-carousel>
@@ -34,6 +32,7 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "impresso-theme/src/scss/variables.sass";
   .recipe {
     .carousel-caption h3{
       color: white;
@@ -41,11 +40,32 @@ export default {
     }
 
     .carousel-caption{
-      background: rgba(0,0,0, 0.6);
       left:0;
       right:0;
-      bottom:0;
-      padding: 20px 20px 50px;
+      top:0;
+      padding: 80px 20px 50px;
+    }
+    .carousel-caption h3 {
+      color: black;
+      font-weight: bold;
+      background: $clr-accent;
+      display: inline-block;
+      padding: 10px 20px;
+      text-shadow: none;
+    }
+    .carousel-item::before{
+      width: 100%;
+      height: 100%;
+      content: '';
+
+      background: rgba(50,50,50,0.8) url(./../assets/img/black-dots.png) repeat;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    .carousel-indicators {
+      bottom: auto;
+      top: 1em;
     }
   }
 

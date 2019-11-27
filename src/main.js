@@ -28,6 +28,19 @@ Vue.use(ImpressoLayout);
 Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
+Vue.config.errorHandler = error => store.dispatch('DISPLAY_ERROR', {
+  error,
+  origin: 'Vue.config.errorHandler',
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason) {
+    store.dispatch('DISPLAY_ERROR', {
+      error: event.reason,
+      origin: 'unhandledrejection',
+    });
+  }
+});
 
 // Create VueI18n instance with options
 const i18n = new VueI18n({
@@ -35,10 +48,26 @@ const i18n = new VueI18n({
   locale: store.state.settings.language_code,
   messages,
   dateTimeFormats,
+  silentFallbackWarn: false,
 });
 
 /* eslint-disable no-new */
-services.app.authenticate().finally(() => {
+console.info('Checking authentication...');
+services.app.reAuthenticate().catch((err) => {
+  if (err.code === 401) {
+    console.info('Authentication failed:', err.message);
+    if (store.state.user.userData) {
+      console.info('Authentication failed ... but an user is present. Force logging out.');
+      store.dispatch('user/LOGOUT');
+      store.dispatch('DISPLAY_ERROR', {
+        error: err,
+        origin: 'services.app.reAuthenticate',
+      });
+    }
+  } else {
+    console.error(err);
+  }
+}).finally(() => {
   window.app = new Vue({
     el: '#app',
     i18n,
@@ -50,3 +79,5 @@ services.app.authenticate().finally(() => {
     },
   });
 });
+
+console.info('Last notification date', store.state.settings.lastNotificationDate);

@@ -16,11 +16,14 @@ export default class Timeline extends Line {
       element,
       svg,
       margin: {
-        top: 10,
+        top: 15,
         bottom: 20,
         left: 10,
         right: 10,
         ...margin,
+      },
+      ticks: {
+        offset: 9,
       },
       dimensions: {
         x: new Dimension({
@@ -47,6 +50,14 @@ export default class Timeline extends Line {
         domain: domain.map(d => this.timeParse(d)),
       });
     }
+    this.contextPeak = this.context.append('g')
+      .attr('class', 'peak');
+    this.contextPeak.append('circle')
+      .attr('r', 2)
+      .attr('class', 'peak-pointer');
+    this.contextPeakText = this.contextPeak.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', -4);
 
     this.brushable = brushable;
     if (brushable) {
@@ -56,7 +67,7 @@ export default class Timeline extends Line {
       this.brush = d3.brushX()
         .extent([[0, 0], [
           this.width - this.margin.right - this.margin.left,
-          this.height - this.margin.bottom - 3,
+          this.height - this.margin.bottom - this.ticks.offset,
         ]])
         .on('brush end', this.brushed.bind(this));
       this.contextBrush = this.context.append('g')
@@ -68,6 +79,8 @@ export default class Timeline extends Line {
   brushed() {
     if (d3.event.sourceEvent) {
       const ordered = d3.event.selection;
+
+      if (!ordered) return;
 
       this.brushedMinDate = this.dimensions.x.scale.invert(ordered[0]);
       this.brushedMaxDate = this.dimensions.x.scale.invert(ordered[1]);
@@ -114,6 +127,15 @@ export default class Timeline extends Line {
     this.contextAxisX.call(this.xAxis2);
     this.contextAxisX.attr('transform',
       `translate(0,${this.height - this.margin.bottom - this.margin.top})`);
+    // where is the first maximum peak?
+    if (this.maxDatum) {
+      const xmax = this.dimensions.x.scale(this.maxDatum[this.dimensions.x.property]);
+      this.contextPeak.attr('transform', `translate(${xmax},0)`);
+      this.contextPeakText.text(this.maxDatum[this.dimensions.y.property]);
+    }
+    // this.contextPeak.attr('transform',
+    //
+    // ``)
   }
 
   /**
@@ -127,9 +149,16 @@ export default class Timeline extends Line {
     super.update({
       data: data.map(d => ({
         ...d,
-        t: this.timeParse(d.t),
+        t: d.t instanceof Date ? d.t : this.timeParse(d.t),
       })),
     });
+    // idx of this data where the y value is at its maximum
+    const ymaxIdx = this.data.findIndex(
+      d => d[this.dimensions.y.property] >= this.dimensions.y.domain[1],
+    );
+    if (ymaxIdx > -1) {
+      this.maxDatum = this.data[ymaxIdx];
+    }
   }
 
   /**
@@ -141,7 +170,7 @@ export default class Timeline extends Line {
     if (datum) {
       super.highlight({
         ...datum,
-        t: this.timeParse(datum.t),
+        t: datum.t instanceof Date ? datum.t : this.timeParse(datum.t),
       });
     }
   }

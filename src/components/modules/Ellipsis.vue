@@ -3,7 +3,7 @@
     <div class="contents" ref="contents" v-bind:style="`max-height:${height}px`">
       <slot></slot>
     </div>
-    <div class="more" v-bind:style="gradientStyle" v-if="$refs.contents && $refs.contents.scrollHeight > this.initialHeight">
+    <div class="more" v-bind:style="gradientStyle" v-if="contentHeight > initialHeight">
       <b-button size="sm" variant="outline-primary" v-on:click="onClick">
         {{$t(this.isCollapsed ? 'more' : 'less')}}</b-button>
     </div>
@@ -16,6 +16,7 @@ export default {
     isCollapsed: true,
     height: 0,
     collapsedHeight: 0,
+    contentHeight: 0,
   }),
   props: {
     initialHeight: {
@@ -26,6 +27,11 @@ export default {
       type: String,
       default: '#f8f9fa',
     },
+  },
+  updated() {
+    if (this.$refs && this.$refs.contents) {
+      this.contentHeight = this.$refs.contents.scrollHeight;
+    }
   },
   mounted() {
     this.height = +this.initialHeight;
@@ -67,27 +73,28 @@ export default {
       height: 100%;
       overflow: hidden;
     }
+    .btn{
+      background-color: #f8f9fa;
+    }
+    > .more{
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 150px;
+      text-align: right;
+      background: linear-gradient(#f8f9fa00 20%, #f8f9fa);
+    }
   }
-
-  .ellipsis > .more{
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 150px;
-    text-align: right;
-    background: linear-gradient(#f8f9fa00 20%, #f8f9fa);
-  }
-
 </style>
 
 <i18n>
 {
   "en": {
-    "more": "more ...",
+    "more": "(more ...)",
     "less": "less ..."
   },
   "it": {
-    "more": "espandi ...",
+    "more": "(espandi ...)",
     "less": "less ..."
   }
 }

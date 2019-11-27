@@ -1,10 +1,18 @@
 <template lang="html">
-  <div>
+  <div class="">
     <base-title-bar>
-      {{$t(`label.${facet.type}.title`)}}
+      {{$t(`label.${facet.type}.filterTitle`)}}
+      <info-button class="ml-1" v-if="facet.type === 'person' || facet.type === 'location'"
+        :target="facet.type"
+        name="what-is-nep" />
+      <info-button v-if="facet.type === 'newspaper'" name="which-newspapers" class="ml-1" />
+      <info-button v-if="facet.type === 'topic'" name="how-to-read-the-topics" class="ml-1" />
       <div slot="options">
         <b-button v-show="filtered" size="sm" variant="outline-primary" @click="resetFilterType">
           {{ $t(`actions.reset`) }}
+        </b-button>
+        <b-button v-if="isCollapsible" size="sm" variant="outline-icon" @click="toggleVisibility">
+          <span class="icon-link" :class="{ 'dripicons-plus': isCollapsed, 'dripicons-minus': !isCollapsed }"></span>
         </b-button>
       </div>
       <div slot="description">
@@ -41,11 +49,18 @@
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
       <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
     </div>
-    <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
-      :loading="isLoadingResults"
-      :bucket="bucket"
-      :type="facet.type"
-      @toggle-bucket="toggleBucket"/>
+    <div v-if="showBuckets">
+      <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
+        :loading="isLoadingResults"
+        :bucket="bucket"
+        :type="facet.type"
+        @toggle-bucket="toggleBucket"/>
+      <b-button
+        v-if="facet.numBuckets > -1"
+        v-html="$t('actions.more')"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        @click="showModal" />
+    </div>
   </div>
 </template>
 
@@ -55,6 +70,7 @@ import Icon from 'vue-awesome/components/Icon';
 import BaseTitleBar from './../base/BaseTitleBar';
 import FilterFacetBucket from './FilterFacetBucket';
 import FilterMonitor from './FilterMonitor';
+import InfoButton from '../base/InfoButton';
 
 export default {
   data: () => ({
@@ -62,17 +78,26 @@ export default {
     selectedItems: [],
     operators: ['or', 'and'],
     exploreFacet: {},
+    isCollapsed: true,
   }),
   props: {
     store: {
       type: String,
       default: 'search',
     },
-    facet: {
-      type: Object,
-    },
+    facet: Object,
+    collapsible: Boolean,
   },
   computed: {
+    showBuckets() {
+      if (!this.isCollapsible) {
+        return true;
+      }
+      return !this.isCollapsed;
+    },
+    isCollapsible() {
+      return this.collapsible && !this.filtered;
+    },
     currentStore() {
       if (this.store === 'searchImages') {
         return this.$store.state.searchImages;
@@ -125,6 +150,9 @@ export default {
     },
   },
   methods: {
+    toggleVisibility() {
+      this.isCollapsed = !this.isCollapsed;
+    },
     toggleBucket(bucket) {
       const idx = this.selectedIds.indexOf(bucket.val);
       if (idx !== -1 && !bucket.checked) { // remove.
@@ -164,12 +192,21 @@ export default {
       this.clearSelectedItems();
       this.$emit('reset-filter', this.facet.type);
     },
+    showModal() {
+      console.info('Opening Explorer for type:', this.facet.type);
+      this.$store.dispatch('explorer/SHOW', {
+        type: this.facet.type,
+        mode: 'facets',
+        filters: this.currentStore.search.filters,
+      });
+    },
   },
   components: {
     BaseTitleBar,
     Icon,
     FilterFacetBucket,
     FilterMonitor,
+    InfoButton,
   },
 };
 </script>
@@ -180,58 +217,7 @@ export default {
 {
   "en": {
     "show-more": "Show More",
-    "explore": "Explore {type}",
-    "label": {
-      "topic": {
-        "title": "filter by topic",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if <b>one of {count} selected</b> topic applies",
-        "description": "check one or more topics to filter results",
-        "empty": "There is no topic available"
-      },
-      "person": {
-        "title": "filter by person",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if <b>one of {count} selected</b> people are mentioned",
-        "description": "check one or more topics to filter results",
-        "empty": "No person has been recognized in results"
-      },
-      "location": {
-        "title": "filter by location",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if <b>one of {count} selected</b> locations are mentioned",
-        "description": "check one or more topics to filter results",
-        "empty": "There is no location available"
-      },
-      "collection": {
-        "title": "filter by collection",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if <b>one of {count} selected</b> collection applies",
-        "description": "check one or more collection to filter results",
-        "empty": "... you haven't saved any result item in your collection"
-      },
-      "newspaper": {
-        "title": "filter by newspaper titles",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
-        "description": "check one or more newspaper to filter results",
-        "empty": "(no results)"
-      },
-      "language": {
-        "title": "filter by language of articles",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if they are written in <b>one of {count} selected</b> languages",
-        "description": "check one or more language to filter results",
-        "empty": "(no results)"
-      },
-      "country": {
-        "title": "filter by country of publication",
-        "filtered": "results are filtered when:",
-        "selected": "filter results if they are published in <b>one of {count} selected</b> countries",
-        "description": "check one or more countries to filter results",
-        "empty": "(no results)"
-      }
-    }
+    "explore": "Explore {type}"
   }
 }
 </i18n>

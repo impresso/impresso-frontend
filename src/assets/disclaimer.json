@@ -1,0 +1,25 @@
+{
+  "en": {
+    "title" : "Terms of Use",
+    "body" : [
+      "<h3><h3>",
+      "The material accessible via the impresso interface is of three kinds: digital documents, newspaper metadata, and semantic annotations.",
+      "<b>Digital documents</b> correspond to newspaper images and their related texts acquired via optical character recognition (OCR).",
+      "These digital documents are subject to copyright law and the ‘impresso – Media Monitoring of the Past’ project has received permission from cultural heritage institutions and rights holders to put their works on the internet, provided that you, as a user, adhere to the terms of use.",
+      "Some of these digital documents are freely available for personal and academic use (see the right statement ‘Personal and Academic use’), while others are no longer in copyright and may be used without restriction (see the right statement ‘Public’).",
+      "Conditions of use are set at the issue level of each newspaper. You can find this information a) in the newspaper page, b) in the article view of impresso interface, and c) upon download, for each item of the CSV file.",
+      "More specifically, personal and academic use include the following:",
+      "<ul><li>users are allowed to use digital documents for research and educational purposes, or within the scope of personal activities. This includes the right to save or print digital documents.</li><li>users are allowed to cite digital documents in publications (e.g. thesis, scientific publications) and other dissemination activities (e.g. scientific presentation, blog or website, social media), in accordance with customary scholarly and scientific practices, as well as with <a target='_blank' href='https://www.admin.ch/opc/en/classified-compilation/19920251/index.html#a25'>Article 25 of the Swiss Federal Act on Copyright and Related Rights</a>. In particular, citations of digital documents should always include their archival holders, as well as the impresso project interface if they are found and accessed through it.</li><li>users are not allowed to redistribute digital documents;</li><li>users are not allowed to use digital documents for commercial purposes.</li><li>users are not allowed to mass-download digital documents without permission.</li></ul>",
+      "Any other use of the copyrighted material requires permission from the copyright holder(s). The terms of use for each digital document indicate who the copyright could be. Users must check the copyright status of documents before any use other than personal use.",
+      "<b>Newspaper metadata</b> corresponds to descriptive (e.g. title, dates, place of publication), structural (issue, page, content items), and administrative metadata (file timestamps, file creator, preservation metadata). The impresso interface gives access to newspaper metadata that was given by cultural institutions and, most of the time, completed by impresso team (either technical or descriptive metadata). All newspaper metadata material is free of use, under a <a href='https://creativecommons.org/licenses/by/4.0/' target='_blank'>CC BY 4.0</a> license.",
+      "<b>Semantic annotations</b> correspond to semantic information automatically computed by the impresso team. They include linguistic pre-processing, word embeddings, OCR quality assessment, n-grams, named entity mentions and entities, topics and topic models, text re-use clusters and passage and image visual signatures.",
+      "These semantic annotations are currently visible through the impresso interface and used as facets mainly. They are also part of the content that users can export as CSV. Furthermore, they will also be released at the end of project as proper linguistic datasets. In all their forms, semantic annotations are under a <a href='https://creativecommons.org/licenses/by-nc-sa/4.0/' target='_blank'>CC-BY-SA 4.0</a> license.",
+      "The terms of use are governed by and construed in accordance with the laws of Switzerland. The exclusive place of jurisdiction shall be Lausanne, Switzerland.",
+      "<h3>Liability disclaimer</h3>",
+      "Impresso makes newspapers available as cultural and historical sources, in the form in which they appeared at the time. Furthermore, any information (digital documents, metadata, semantic information) on this website is provided as is, without guarantee of completeness or correctness.",
+      "Impresso project and its partners assumes no liability for the use of digital documents, metadata, and semantic annotations from its collections by users or third parties. Users or third parties free impresso and its partners of any claim addressed to it by third parties, in particular concerning the violation of intellectual property rights or personality rights arising from the use of such documents.",
+      "By accessing impresso-project.ch/app digital documents and data, the user agrees to accept the conditions of use indicated above.",
+      ""
+    ]
+  }
+}
