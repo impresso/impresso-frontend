@@ -28,10 +28,18 @@ Vue.use(ImpressoLayout);
 Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
-Vue.config.errorHandler = error => store.dispatch('DISPLAY_ERROR', error);
+Vue.config.errorHandler = error => store.dispatch('DISPLAY_ERROR', {
+  error,
+  origin: 'Vue.config.errorHandler',
+});
 
 window.addEventListener('unhandledrejection', (event) => {
-  if (event.reason) store.dispatch('DISPLAY_ERROR', event.reason);
+  if (event.reason) {
+    store.dispatch('DISPLAY_ERROR', {
+      error: event.reason,
+      origin: 'unhandledrejection',
+    });
+  }
 });
 
 // Create VueI18n instance with options
@@ -48,6 +56,14 @@ console.info('Checking authentication...');
 services.app.reAuthenticate().catch((err) => {
   if (err.code === 401) {
     console.info('Authentication failed:', err.message);
+    if (store.state.user.userData) {
+      console.info('Authentication failed ... but an user is present. Force logging out.');
+      store.dispatch('user/LOGOUT');
+      store.dispatch('DISPLAY_ERROR', {
+        error: err,
+        origin: 'services.app.reAuthenticate',
+      });
+    }
   } else {
     console.error(err);
   }

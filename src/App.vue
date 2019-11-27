@@ -48,7 +48,7 @@ export default {
       return this.$store.state.settings.termsAgreed;
     },
     is_locked() {
-      return this.$store.state.processing_locked;
+      return this.$store.state.processingLocked;
     },
   },
   mounted() {
