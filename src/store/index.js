@@ -23,8 +23,10 @@ import queryComparison from './QueryComparison';
 
 Vue.use(Vuex);
 
-let processing; // timeout object
-let processings = 0; // counter for the amount of async processes
+const ERRORS_DO_NOT_DISPLAY = ['NavigationDuplicated']; // error names not to display to the user
+const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError']; // error to avoid loopholes
+
+let processingTimer; // timeout object
 
 export default new Vuex.Store({
   modules: {
@@ -47,12 +49,19 @@ export default new Vuex.Store({
     queryComparison,
   },
   state: {
-    processing_status: false,
-    processing_locked: false,
+    processingStatus: false,
+    processingLocked: false,
     processing_message: '',
     error_message: '',
+    // error message handling,
+    errorMessages: [],
+    errorMessagesIndex: [],
+    // processing queue
+    processingActivities: [],
+    processingActivitiesIndex: [],
     header_title: '',
     header_subtitle: '',
+    connectivityStatus: true,
   },
   getters: {
     headerTitle(state) {
@@ -75,30 +84,67 @@ export default new Vuex.Store({
       state.header_subtitle = String(payload.subtitle || '');
     },
     LOCK_SCREEN(state, status) {
-      state.processing_locked = status;
+      state.processingLocked = status;
     },
     SET_PROCESSING(state, status) {
-      if (status === true) {
-        processings += 1;
-        if (processings === 1) {
-          processing = setTimeout(() => {
-            state.processing_status = true;
-          }, 100);
-        }
+      if (processingTimer) {
+        clearTimeout(processingTimer);
+      }
+      if (status) {
+        state.processingStatus = status;
       } else {
-        processings -= 1;
-        if (processings === 0) {
-          clearTimeout(processing);
-          state.processing_status = false;
-        }
+        processingTimer = setTimeout(() => {
+          state.processingStatus = false;
+        }, 500);
       }
     },
     SET_ERROR_MESSAGE(state, message) {
       state.error_message = message;
     },
+    PUSH_ERROR_MESSAGE(state, { route, message, code, name }) {
+      const hash = JSON.stringify([...route, code, name]);
+      if (!state.errorMessagesIndex.includes(hash)) {
+        state.errorMessagesIndex.push(hash);
+        state.errorMessages.push({ route, message, code, name });
+      }
+    },
+    SET_CONNECTIVITY_STATUS(state, status) {
+      state.connectivityStatus = status;
+    },
+    PUSH_PROCESSING_ACTIVITY(state, { route, status }) {
+      const idx = state.processingActivitiesIndex.indexOf(route);
+      if (idx < 0) {
+        state.processingActivitiesIndex.push(route);
+        state.processingActivities.push({ route, status, c: 1 });
+      } else {
+        state.processingActivities[idx].c += 1;
+      }
+    },
+    REMOVE_PROCESSING_ACTIVITY(state, { route }) {
+      const idx = state.processingActivitiesIndex.indexOf(route);
+      if (idx > -1) {
+        state.processingActivities.splice(idx, 1);
+        state.processingActivitiesIndex.splice(idx, 1);
+      }
+    },
   },
   actions: {
-    async DISPLAY_ERROR({ commit }, error) {
+    UPDATE_PROCESSING_ACTIVITY({ state, commit }, { route, status }) {
+      if (status === 'LOADING') {
+        commit('PUSH_PROCESSING_ACTIVITY', { route, status });
+      } else if (status === 'LONG') {
+        commit('PUSH_PROCESSING_ACTIVITY', { route, status });
+      } else if (status === 'DONE') {
+        commit('REMOVE_PROCESSING_ACTIVITY', { route, status });
+      }
+      console.info('current activities:', state.processingActivitiesIndex.length, state.processingActivitiesIndex);
+      // check active ones
+      commit('SET_PROCESSING', !!state.processingActivitiesIndex.length);
+    },
+    DISPLAY_CONNECTIVITY_STATUS({ commit }, status) {
+      commit('SET_CONNECTIVITY_STATUS', Boolean(status));
+    },
+    async DISPLAY_ERROR({ commit }, { error, origin = '' }) {
       const errorRoute = [];
       // get error route if possible
       try {
@@ -107,15 +153,22 @@ export default new Vuex.Store({
       } catch (e) {
         console.warn(e);
       }
-      console.error(`[Unexpected error ${error.name}]: ${errorRoute.join('.')}`,
+      console.error(`[Unexpected error ${error.name}]: ${errorRoute.join('.')} (origin:${origin})`,
         error.code,
         error.name,
         error.message,
         error.stack,
       );
-      commit('SET_ERROR_MESSAGE', error.message);
+      if (!ERRORS_DO_NOT_DISPLAY.includes(error.name)) {
+        commit('PUSH_ERROR_MESSAGE', {
+          route: errorRoute,
+          message: error.message,
+          code: error.code,
+          name: error.name,
+        });
+      }
       // do not force if BadGateway or polling error (risk of having endless and useless loops)
-      if (['BadGateway'].includes(error.name) || ['TransportError'].includes(error.type)) {
+      if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === error.type).length) {
         console.info('Error', error.name, 'at', errorRoute, 'hasn\'t been dispatched, risk of loopholes');
       } else {
         await errorCollector.create({
