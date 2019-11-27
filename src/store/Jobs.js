@@ -61,7 +61,6 @@ export default {
           limit,
         },
       }).then((res) => {
-        console.info('LOAD_JOBS', res);
         commit('SET_PAGINATION', { page, limit, total: res.total });
         commit('SET_ITEMS', res.data.map(d => ({
           ...d,
