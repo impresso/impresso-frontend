@@ -1,5 +1,8 @@
 export default {
   en: {
+    connectivityStatus: {
+      offline: '⚡ offline!',
+    },
     untitled: '...',
     language: 'Language',
     languages: {
@@ -100,12 +103,17 @@ export default {
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
     errors: {
+      BadGateway: {
+        SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
+        SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
+      },
       Notauthenticated: 'Please logout, then login again. Authentication failed',
       Invalidauthenticationinformationnostrategyset: 'Please reload the page, a couple of errors occurred',
-      SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
-      SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
     },
     paths: {
+      newspapers: {
+        find: 'while loading list of newspapers',
+      },
       authentication: {
         remove: 'during logout.',
         create: 'while checking your credentials',
