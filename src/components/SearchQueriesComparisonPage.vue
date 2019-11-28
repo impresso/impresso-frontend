@@ -190,9 +190,6 @@ export default {
     comparables: {
       async handler([left, right] = [], [oldLeft, oldRight] = []) {
         const queries = [];
-
-        // console.log(left, right, oldLeft, oldRight);
-
         if (!deepEqual(left, oldLeft)) {
           queries.push(this.updateQueryResult(QueryLeftIndex, left));
         }
