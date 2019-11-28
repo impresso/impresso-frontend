@@ -295,7 +295,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  console.info('Routing to', to, 'from', from);
+  console.info('Routing to', to.path, 'from', from.path);
   if (to.meta.requiresAuth === false) {
     next();
   } else {

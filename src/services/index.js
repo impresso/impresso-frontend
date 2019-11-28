@@ -26,12 +26,19 @@ app.configure(auth({
 
 socket.on('reconnect', () => {
   app.reAuthenticate();
+  if (window.app) {
+    window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', true);
+  }
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
 socket.on('connect_error', (err) => {
   if (window.app && window.app.$store) {
     err.message = `Could not connect to the API: ${err.message}`;
-    window.app.$store.dispatch('DISPLAY_ERROR', err);
+    console.error(err);
+    if (window.app) {
+      console.info('DISPLAY_CONNECTIVITY_STATUS');
+      window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false);
+    }
   }
 });
 
@@ -43,12 +50,10 @@ app.hooks({
   before: {
     all: [
       (context) => {
-        const fullPath = `${context.path}.${context.method}`;
+        const route = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
-          window.app.$store.state.error_message = '';
-          window.app.$store.state.processing_message = fullPath;
-          window.app.$store.commit('SET_PROCESSING', true);
-          if (needsLockScreen(fullPath)) {
+          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'LOADING' });
+          if (needsLockScreen(route)) {
             window.app.$store.commit('LOCK_SCREEN', true);
           }
         }
@@ -58,11 +63,10 @@ app.hooks({
   after: {
     all: [
       (context) => {
-        const fullPath = `${context.path}.${context.method}`;
+        const route = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
-          window.app.$store.state.error_message = '';
-          window.app.$store.commit('SET_PROCESSING', false);
-          if (needsLockScreen(fullPath)) {
+          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'DONE' });
+          if (needsLockScreen(route)) {
             window.app.$store.commit('LOCK_SCREEN', false);
           }
         }
@@ -72,16 +76,21 @@ app.hooks({
   error: {
     all: [
       (context) => {
-        const apiPath = `paths.${context.path}.${context.method}`;
-        const errorPath = `errors.${context.error.message.split(/\s\(\)`/).join('')}`;
-        if (window.app && window.app.$store && context.error.code >= 500) {
-          console.error('app ERROR on:', apiPath, context.error, errorPath);
-          window.app.$store.state.error_message = [
-            window.app.$t(errorPath),
-            window.app.$t(apiPath),
-          ].join(' ');
-          window.app.$store.commit('SET_PROCESSING', false);
-          window.app.$store.commit('LOCK_SCREEN', false);
+        const route = `${context.path}.${context.method}`;
+        if (window.app) {
+          // handle not authenticated error when removing authentication
+          if (route === 'authentication.remove' && context.error.name === 'NotAuthenticated') {
+            console.info('Ingore NotAuthenticated error on "authentication.remove" route.');
+          } else {
+            window.app.$store.dispatch('DISPLAY_ERROR', {
+              error: context.error,
+              origin: 'app.hooks.error.all',
+            });
+          }
+          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'DONE' });
+          if (needsLockScreen(route)) {
+            window.app.$store.commit('LOCK_SCREEN', false);
+          }
         }
       },
     ],
@@ -126,6 +135,7 @@ export const uploadedImages = app.service('uploaded-images').hooks(uploadedImage
 export const searchFacets = app.service('search-facets');
 export const tableOfContents = app.service('table-of-contents');
 export const searchQueriesComparison = app.service('search-queries-comparison').hooks(searchQueriesComparisonHooks);
+export const errorCollector = app.service('errors-collector');
 
 export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
 export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;

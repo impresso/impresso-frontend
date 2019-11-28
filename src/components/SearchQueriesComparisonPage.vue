@@ -62,7 +62,6 @@
 <script>
 import { protobuf } from 'impresso-jscommons';
 import { searchQueriesComparison, search, collections } from '@/services';
-import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
 import LoadingIndicator from './modules/LoadingIndicator';
@@ -225,7 +224,6 @@ export default {
     },
   },
   components: {
-    SearchResultsTilesItem,
     FacetOverviewPanel,
     QueryHeaderPanel,
     LoadingIndicator,

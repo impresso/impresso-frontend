@@ -4,7 +4,10 @@
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
           <span class="label small-caps">{{$t('list_of_newspapers')}}</span>
-          <h3 class='mb-1'>{{ $t('newspapers_lines') }}</h3>
+          <small><info-button name="which-newspapers" class="text-muted" /></small>
+          <h3 class='mb-1'>{{ $t('newspapers_lines') }}
+          </h3>
+
         </section>
       </b-navbar>
       <b-navbar class='m-0 px-3 border-bottom'>
@@ -59,6 +62,7 @@
 <script>
 import NewspapersLines from './NewspapersLines';
 import Timeline from './modules/Timeline';
+import InfoButton from './base/InfoButton';
 
 export default {
   data: () => ({
@@ -135,6 +139,7 @@ export default {
     // Tooltip,
     NewspapersLines,
     Timeline,
+    InfoButton,
   },
 };
 </script>

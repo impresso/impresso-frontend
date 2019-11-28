@@ -10,11 +10,15 @@
         </div>
         <div slot="description">
           <span v-if="daterangeFilters.length">
-            {{$t(`label.timelineDescription.${groupByLabel}.filtered`)}}
+            {{$t(`label.timelineDescription.${groupByLabel}.filtered.${displayStyle}`)}}
           </span>
           <span v-else>
-              {{$t(`label.timelineDescription.${groupByLabel}.description`)}}
+              {{$t(`label.timelineDescription.${groupByLabel}.description.${displayStyle}`)}}
           </span>
+          <b-nav-form>
+            <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
+            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
+          </b-nav-form>
         </div>
       </base-title-bar>
 
@@ -23,6 +27,7 @@
         :values="values"
         :brush="[startDaterange, endDaterange]"
         :domain="[startYear, endYear]"
+        :percentage="percentage"
         @brushed="onTimelineBrushed">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
@@ -66,17 +71,13 @@
         </div>
       </div>
     </div>
-    <div v-for="(facet, index) in facets" class="border-top mx-3 py-2 mb-2">
+    <div v-for="(facet, index) in facets" class="border-top py-2 mx-3">
       <filter-facet :facet="facet"
         :store="store"
         @submit-buckets="submitBuckets"
         @update-filter="updateFilter"
-        @reset-filter="resetFilter"/>
-      <b-button
-        v-if="facet.numBuckets > -1"
-        v-html="$t('actions.more')"
-        size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        @click="showModal(facet.type)" />
+        @reset-filter="resetFilter"
+        collapsible/>
     </div>
   </div>
 </template>
@@ -91,6 +92,10 @@ import FilterFacet from './modules/FilterFacet';
 import FilterMonitor from './modules/FilterMonitor';
 import BaseTitleBar from './base/BaseTitleBar';
 import Timeline from './modules/Timeline';
+import InfoButton from './base/InfoButton';
+
+const TIMELINE_PERCENT = 'percent';
+const TIMELINE_SUM = 'sum';
 
 export default {
   props: {
@@ -106,6 +111,9 @@ export default {
       type: Number,
       default: 2020,
     },
+    percentProp: {
+      type: String,
+    },
   },
   data: () => ({
     daterange: {
@@ -114,11 +122,12 @@ export default {
       start: null,
       end: null,
     },
-    facetsOrder: ['person', 'location', 'language', 'newspaper', 'topic'],
+    facetsOrder: ['type', 'person', 'location', 'topic', 'language', 'newspaper', 'country'],
     selectedFacet: false,
     facetExplorerType: '',
     daterangeSelectedIndex: 0,
     daterangeSelectedItemIndex: 0,
+    percentage: false,
   }),
   computed: {
     temporaryFilter() {
@@ -127,15 +136,20 @@ export default {
     currentStore() {
       return this.$store.state[this.store];
     },
-    // selectedFacet: {
-    //   get() {
-    //     if (this.currentStore.search.filters) {
-    //       return this.currentStore.search.filters;
-    //     }
-    //     return false;
-    //   },
-    // },
-
+    displayStyle: {
+      get() {
+        return this.percentage ? TIMELINE_PERCENT : TIMELINE_SUM;
+      },
+      set(v) {
+        this.percentage = v === TIMELINE_PERCENT;
+      },
+    },
+    displayStyleOptions() {
+      return [TIMELINE_PERCENT, TIMELINE_SUM].map(value => ({
+        text: this.$t(`label.display.${value}`),
+        value,
+      }));
+    },
     daterangeFilters() {
       return this.currentStore.search.filters.filter(d => d.type === 'daterange');
     },
@@ -228,7 +242,7 @@ export default {
     values: {
       get() {
         const facet = this.currentStore.facets.find(d => d.type === 'year');
-        if (!facet) {
+        if (!facet || !facet.buckets.length) {
           return [];
         }
         // sort then
@@ -236,6 +250,7 @@ export default {
           ...d,
           w: d.count,
           w1: 0,
+          p: d.item.normalize(d.count, this.percentProp),
           t: parseInt(d.val, 10),
         }));
         // add zeroes
@@ -245,20 +260,15 @@ export default {
     facets: {
       get() {
         return this.currentStore.facets
-          .filter(d => ['year', 'type'].indexOf(d.type) === -1)
+          .filter(d => ['year'].indexOf(d.type) === -1)
+          .map((d) => {
+            d.isFiltered = this.currentStore.search.filtersIndex[d.type];
+            return d;
+          })
           .sort((a, b) => {
             const indexA = this.facetsOrder.indexOf(a.type);
             const indexB = this.facetsOrder.indexOf(b.type);
-
-            if (indexA < indexB) {
-              return -1;
-            }
-
-            if (indexA > indexB) {
-              return 1;
-            }
-
-            return 0;
+            return indexA - indexB;
           });
       },
     },
@@ -313,14 +323,6 @@ export default {
     resetFilter(type) {
       this.$emit('reset-filter', type);
     },
-    showModal(type) {
-      console.info('OPEN MODAL', type);
-      this.$store.dispatch('explorer/SHOW', {
-        type,
-        mode: 'facets',
-        filters: this.currentStore.search.filters,
-      });
-    },
     submitBuckets({ type, context, ids }) {
       this.$emit('submit-facet', {
         type,
@@ -356,21 +358,7 @@ export default {
           q: bucket.val,
           context,
         });
-      } else if (facet.type === 'newspaper') {
-        this.$emit('submit-facet', {
-          q: bucket.val,
-          type: facet.type,
-          item: bucket.item,
-          context,
-        });
-      } else if (facet.type === 'language') {
-        this.$emit('submit-facet', {
-          q: bucket.val,
-          type: facet.type,
-          item: bucket.item,
-          context,
-        });
-      } else if (facet.type === 'collection') {
+      } else if (['newspaper', 'language', 'collection'].includes(facet.type)) {
         this.$emit('submit-facet', {
           q: bucket.val,
           type: facet.type,
@@ -394,6 +382,7 @@ export default {
     // flatPickr,
     FilterFacet,
     FilterMonitor,
+    InfoButton,
     // FacetExplorer,
   },
 };
@@ -440,13 +429,29 @@ export default {
         },
         "timelineDescription": {
           "articles": {
-            "description": "Number of articles per year",
-            "filtered": "Number of articles per year (filtered)"
+            "description": {
+              "sum": "Number of articles per year",
+              "percent": "Percentage of articles per year"
+            },
+            "filtered": {
+              "sum": "Number of articles per year (filtered)",
+              "percent": "Percentage of articles per year (filtered)"
+            }
           },
           "images": {
-            "description": "Number of images extracted per year",
-            "filtered": "Number of images per year (filtered)"
+            "description": {
+              "sum": "Number of images extracted per year",
+              "percent": "Percentage of number of images per year"
+            },
+            "filtered": {
+              "sum": "Number of images per year (filtered)",
+              "percent": "Percentage of number of images per year (filtered)"
+            }
           }
+        },
+        "display": {
+          "sum": "sum",
+          "percent": "%"
         },
         "daterange": {
           "pick": "add filter ...",

@@ -36,15 +36,4 @@ export default {
 </script>
 
 <style lang="scss">
-  @import "impresso-theme/src/scss/variables.sass";
-
-  .icon-link {
-    cursor: pointer;
-    vertical-align: middle;
-    line-height: 1;
-    color: $clr-tertiary;
-  }
-  .icon-link:hover {
-    color: $clr-primary;
-  }
 </style>

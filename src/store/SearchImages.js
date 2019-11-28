@@ -2,8 +2,6 @@ import * as services from '@/services';
 import Article from '@/models/Article';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
-import Newspaper from '@/models/Newspaper';
-import Bucket from '@/models/Bucket';
 // import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
 // import FilterFactory from '@/models/FilterFactory';
@@ -15,7 +13,14 @@ export default {
     search: new SearchQuery(),
     imageSearches: [],
     results: [],
-    facets: [],
+    facets: [
+      new Facet({
+        type: 'year',
+      }),
+      new Facet({
+        type: 'newspaper',
+      }),
+    ],
     orderBy: '-date', // relevance, -relevance, date, -date
     groupBy: 'images', // issues, pages, articles, sentences
     displayStyle: 'images',
@@ -137,8 +142,20 @@ export default {
     CLEAR_FACETS(state) {
       state.facets = [];
     },
-    ADD_FACET(state, facet) {
-      state.facets.push(facet);
+    UPDATE_FACET(state, { type, numBuckets, buckets }) {
+      const facet = state.facets.find(d => d.type === type);
+      if (facet) {
+        facet.numBuckets = numBuckets;
+        if (type === 'year') {
+          // sort bucket differently
+          const sortedBuckets = buckets.sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10));
+          facet.setBuckets(sortedBuckets);
+        } else {
+          facet.setBuckets(buckets);
+        }
+      } else {
+        console.error('Could not find any `facet` having type:', type);
+      }
     },
     UPDATE_FILTER_IS_FRONT(state, value) {
       state.search.isFront = value;
@@ -154,17 +171,27 @@ export default {
      */
     PUSH_SEARCH_PARAMS(context) {
       const query = {
-        f: JSON.stringify(context.state.search.getFilters()),
         p: context.state.paginationCurrentPage,
         o: context.state.orderBy,
       };
+      const filters = context.state.search.getFilters();
+
+      if (filters.length) {
+        query.f = JSON.stringify(filters);
+      }
 
       if (context.state.similarToUploaded) {
         query.u = context.state.similarToUploaded;
       } else if (context.state.similarTo) {
         query.i = context.state.similarTo;
       }
-
+      // check if query has changed.
+      // if (router.currentRoute.name === 'searchImages' && JSON.stringify(router.currentRoute.query) === JSON.stringify(query)) {
+      //   console.info('@PUSH_SEARCH_PARAMS: same route as before, do nothing.');
+      // } else {
+      //   console.info('@PUSH_SEARCH_PARAMS: printing url...', query);
+      //   router.push({ name: 'searchImages', query });
+      // }
       router.push({ name: 'searchImages', query });
     },
     PULL_SEARCH_PARAMS(context, query) {
@@ -214,86 +241,41 @@ export default {
         }).then(res => resolve(res));
       });
     },
-    SEARCH(context) {
-      const search = new Promise(
-        (resolve, reject) => {
-          const query = {
-            filters: context.getters.getSearch.getFilters(),
-            facets: context.state.facetTypes,
-            group_by: context.state.groupBy,
-            page: context.state.paginationCurrentPage,
-            limit: context.state.paginationPerPage,
-            order_by: context.state.orderBy,
-            similarTo: context.state.similarTo,
-            similarToUploaded: context.state.similarToUploaded,
-          };
-
-          services.images.find({
-            query,
-          }).then(
-            (res) => {
-              context.commit('CLEAR_FACETS');
-
-              context.commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
-
-              if (res.info.facets && res.info.facets.year) {
-                const facet = new Facet({
-                  type: 'year',
-                  buckets: res.info.facets.year.buckets.map((bucket) => {
-                    if (bucket instanceof Bucket) {
-                      return bucket;
-                    }
-
-                    return new Bucket(bucket);
-                  }).sort((a, b) => parseInt(a.val, 10) - parseInt(b.val, 10)),
-                });
-                context.commit('ADD_FACET', facet);
-              }
-
-              // add newspaper facet/filter
-              if (res.info.facets && res.info.facets.newspaper) {
-                const facet = new Facet({
-                  type: 'newspaper',
-                  buckets: res.info.facets.newspaper.buckets.map(bucket => ({
-                    ...bucket,
-                    item: new Newspaper(bucket.item),
-                  })),
-                });
-
-                context.commit('ADD_FACET', facet);
-              }
-
-              // add collection facet/filter
-              // if (res.info.facets && res.info.facets.collection) {
-              //   const facet = new Facet({
-              //     type: 'collection',
-              //     buckets: res.info.facets.collection.buckets.map(bucket => ({
-              //       ...bucket,
-              //       item: new Collection({
-              //         ...bucket.item,
-              //         uid: bucket.val,
-              //       }),
-              //     })),
-              //   });
-              //
-              //   context.commit('ADD_FACET', facet);
-              // }
-
-
-              context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-                paginationTotalRows: res.total,
+    UPDATE_FILTER({ commit }, message) {
+      commit('UPDATE_FILTER', message);
+    },
+    SEARCH({ state, commit, getters }, { filters = [] } = {}) {
+      const query = {
+        filters: getters.getSearch.getFilters().concat(filters),
+        facets: state.facetTypes,
+        group_by: state.groupBy,
+        page: state.paginationCurrentPage,
+        limit: state.paginationPerPage,
+        order_by: state.orderBy,
+        similarTo: state.similarTo,
+        similarToUploaded: state.similarToUploaded,
+      };
+      return services.images.find({
+        query,
+      }).then((res) => {
+        commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+        commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+          paginationTotalRows: res.total,
+        });
+        commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
+        // update facets
+        if (res.total) {
+          state.facetTypes.forEach((type) => {
+            if (res.info.facets[type]) {
+              commit('UPDATE_FACET', {
+                type,
+                buckets: res.info.facets[type].buckets,
+                numBuckets: res.info.facets[type].numBuckets,
               });
-              context.commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
-              resolve(res);
-            },
-            (err) => {
-              reject(err);
-            },
-          );
-        },
-      );
-
-      return search;
+            }
+          });
+        }
+      });
     },
   },
 };

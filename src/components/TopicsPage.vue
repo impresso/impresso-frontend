@@ -5,6 +5,7 @@
         <div class='p-3 border-bottom bg-light'>
           <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
           <label>{{ $t('select model') }}</label>
+          <small><info-button name="how-topic" class="text-muted" /></small>
           <i-dropdown v-model="topicModel" v-bind:options="topicModelOptions" size="sm" variant="outline-primary"></i-dropdown>
           <br/>
           <!-- <label>{{ $t('order_by') }}</label> -->
@@ -33,6 +34,7 @@
 <script>
 import List from './modules/lists/List';
 import ItemSelector from './modules/ItemSelector';
+import InfoButton from './base/InfoButton';
 
 export default {
   data: () => ({
@@ -177,6 +179,7 @@ export default {
   components: {
     List,
     ItemSelector,
+    InfoButton,
   },
 };
 </script>

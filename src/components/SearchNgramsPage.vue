@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import SearchTabs from '../components/modules/navigation/SearchTabs';
+import SearchTabs from './modules/SearchTabs';
 import SearchFacets from './SearchFacets';
 import SearchInput from './modules/SearchInput';
 

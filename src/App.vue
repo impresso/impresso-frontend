@@ -48,8 +48,13 @@ export default {
       return this.$store.state.settings.termsAgreed;
     },
     is_locked() {
-      return this.$store.state.processing_locked;
+      return this.$store.state.processingLocked;
     },
+  },
+  mounted() {
+    window.addEventListener('click', () => {
+      this.$root.$emit('bv::hide::popover');
+    });
   },
   created() {
     // load typekit
@@ -251,6 +256,17 @@ $clr-grey-900: #ddd;
   height: 2px;
 }
 
+.icon-link {
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+  color: $clr-tertiary;
+}
+.icon-link:hover {
+  color: $clr-primary;
+}
+
+
 .matches {
   span {
     color: transparentize($clr-primary, 0.45);
@@ -259,6 +275,27 @@ $clr-grey-900: #ddd;
   em {
     background: gold;
     color: black;
+  }
+}
+
+.btn-outline-icon{
+  color: $clr-grey-400;
+  background-color: transparent;
+  background-image: none;
+  border-color: $clr-grey-400;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: rem;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  >span{
+    color: inherit;
+  }
+  &:hover{
+    border-color: #17191c;
+    color: #17191c;
   }
 }
 

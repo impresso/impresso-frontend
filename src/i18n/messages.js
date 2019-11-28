@@ -1,5 +1,8 @@
 export default {
   en: {
+    connectivityStatus: {
+      offline: '⚡ offline!',
+    },
     untitled: '...',
     language: 'Language',
     languages: {
@@ -12,6 +15,10 @@ export default {
         ad: 'advertisement',
         ar: 'article',
         ob: 'obituary',
+        tb: 'tables',
+        death_notice: 'obituary (other)',
+        weather: 'weather forecast',
+        w: 'weather news (other)',
       },
       language: {
         de: 'German',
@@ -70,6 +77,7 @@ export default {
       pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
       issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
       results: 'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
+      resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
       collection: {
         countItems: '{countItems} saved items',
       },
@@ -95,12 +103,17 @@ export default {
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
     errors: {
+      BadGateway: {
+        SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
+        SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
+      },
       Notauthenticated: 'Please logout, then login again. Authentication failed',
       Invalidauthenticationinformationnostrategyset: 'Please reload the page, a couple of errors occurred',
-      SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
-      SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
     },
     paths: {
+      newspapers: {
+        find: 'while loading list of newspapers',
+      },
       authentication: {
         remove: 'during logout.',
         create: 'while checking your credentials',
@@ -121,6 +134,15 @@ export default {
       },
       type: {
         title: 'Title | Title | Titles',
+        filterTitle: 'filter by article type',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> article types applies',
+        description: 'check one or more article types to filter results',
+        empty: 'No articles types available',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as',
+        },
       },
       topic: {
         title: 'Topic | Topic | Topics',
@@ -135,7 +157,7 @@ export default {
         filterTitle: 'filter by person',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> people are mentioned',
-        description: 'check one or more topics to filter results',
+        description: 'check one or more persons to filter results',
         empty: 'No person has been recognized in results',
       },
       location: {
@@ -143,7 +165,7 @@ export default {
         filterTitle: 'filter by location',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> locations are mentioned',
-        description: 'check one or more topics to filter results',
+        description: 'check one or more locations to filter results',
         empty: 'There is no location available',
       },
       collection: {
@@ -212,6 +234,7 @@ export default {
         desc: 'publication date, most recent first',
       },
     },
+    more_info: 'More Info',
   },
   nl: {
     language: 'Taal',
