@@ -67,19 +67,20 @@
       </div> -->
     </div>
     <!-- buttons -->
-    <div class="search-button col-auto my-2 d-flex" style="align-items: flex-end;">
-      <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
-        {{
-          $t('actions.searchMore')
-        }}
-        {{
-          $tc('numbers.resultsParenthesis', total, {
-            n: $n(total),
-          })
-        }}
-      </router-link>
+    <div class="row">
+      <div class="search-button col-auto my-2 mx-1">
+        <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
+          {{
+            $t('actions.searchMore')
+          }}
+          {{
+            $tc('numbers.resultsParenthesis', total, {
+              n: $n(total),
+            })
+          }}
+        </router-link>
+      </div>
     </div>
-    <!-- <p><small>{{ searchPageLink(comparable) }}</small></p> -->
   </div>
 </template>
 
