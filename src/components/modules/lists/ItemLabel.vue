@@ -32,6 +32,9 @@ export default {
     detailed: {
       type: Boolean,
     },
+    hideuser: {
+      type: Boolean,
+    },
   },
   computed: {
     label() {
@@ -47,11 +50,14 @@ export default {
           break;
         case 'collection':
           if (this.item.name) {
+            const username = this.hideuser ? '' : `@${this.item.creator.username}<br/>`;
             t = [
-              `<b>${this.item.name}</b>`,
-              `@${this.item.creator.username}<br/>`,
+              `<b>${this.item.name}</b><br/>`,
+              username,
+              '<span class="small-caps">',
               this.$t('dates.lastModifiedDate'),
               this.$d(this.item.lastModifiedDate, 'short'),
+              '</span>',
             ].join(' ');
           } else {
             t = this.item.uid;
