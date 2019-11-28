@@ -31,6 +31,7 @@
         :title="getTabLabel('collection')"
         @click="typeChanged('collection')">
         <collection-picker
+          class="mx-1"
           :collections="collections"
           :active="comparable.id"
           @input="onCollectionSelected"
@@ -199,6 +200,14 @@ export default {
           name: 'search',
           query: SearchQuery.serialize({
             filters: c.query.filters,
+          }),
+        };
+      }
+      if (c.type === 'intersection') {
+        return {
+          name: 'search',
+          query: SearchQuery.serialize({
+            filters: c.filters,
           }),
         };
       }
