@@ -50,6 +50,7 @@ export default {
       addToCurrentFilters: 'Add to current search filters',
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
       viewAll: 'explore all ...',
+      select_collection: 'Select a collection',
     },
     filters: {
       daterange: {
