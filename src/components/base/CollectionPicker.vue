@@ -12,7 +12,7 @@
     <b-dropdown-item v-for="(c, i) in collections"
       @click="setCollectionId(c.uid)"
       :active="active === c.uid">
-      <item-label :item="c" type="collection" />
+      <item-label :item="c" type="collection" hideuser />
     </b-dropdown-item>
   </b-dropdown>
 </template>
