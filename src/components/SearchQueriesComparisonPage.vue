@@ -22,15 +22,15 @@
       </div>
       <!-- body -->
       <div class="aspects-container container-fluid">
-        <div class="row "
+        <div class="row"
              v-for="([facetId, facetType], facetIdx) in facets"
              v-bind:key="facetIdx">
           <div class="one-third" :class="{
             /* 'border-right mr-1px': !isLastResult(queryIdx), */
             'border-left': queryIdx > 0,
             'loading-bg': isQueryLoading(queryIdx),
-          }"
-              v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
+            }"
+            v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
             <div class="col" v-if="isQueryLoading(queryIdx)">
               <loading-indicator class="col py-3" v-if="facetIdx === 0"/>
             </div>
@@ -50,7 +50,7 @@
                                   :timeline-highlight-value="getTimelineHighlight(facetId).data"
                                   :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
                                   :timeline-domain="timelineDomain"
-                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined"/>
+                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined" />
             </div>
           </div>
         </div>
@@ -348,7 +348,12 @@ export default {
         case 0:
           return this.comparables[0];
         case 1:
-          return { type: 'intersection' };
+          return {
+            type: 'intersection',
+            filters: this.comparables
+              .map(comparableToQuery)
+              .reduce((acc, { filters }) => acc.concat(filters), []),
+          };
         case 2:
           return this.comparables[1];
         default:
@@ -376,7 +381,6 @@ export default {
     max-width: 33.33%;
     max-width: calc(100% / 3);
   }
-
   .aspects-container {
     display: flex;
     flex: 1 1 auto;
