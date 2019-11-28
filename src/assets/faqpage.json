@@ -25,13 +25,19 @@
             "description": [
               "In a nutshell, the impresso corpus contains the historical newspaper collections of the Swiss National Library, the National Library of Luxembourg, the Neue Zürcher Zeitung, Le Temps, the Valais State Archives and Media Center, and the Swiss Economic Archives. We recommend that you take a closer look at the <a href='https://impresso-project.ch/app/#/newspapers'>Newspaper Titles</a>."
             ]
-          },
+          }
+        ]
+      },
+      {
+        "title": "Usage of the impresso corpus",
+        "faq": [
           {
-            "id": "i-have-noticed-mistakes",
-            "title": "I have noticed mistakes in the text and among the named entities. Where do they come from?",
-            "summary": "We use state-of-the-art tools to improve the quality of the OCR and to identify persons and locations. Inevitably, they sometimes fail and make mistakes which we need to remain aware of.",
+            "id": "how-can-i-get-access",
+            "title": "Why can’t I see everything? How do I get access to the full corpus?",
+            "summary": "we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).",
             "description": [
-              "Generally, poor OCR also lowers the quality of the output of subsequent processes and this can often explain varying quality across different newspapers and over time."
+              "From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a <a href='https://github.com/impresso/impresso-frontend/blob/develop/src/assets/img/_impresso_NDA.pdf'>Non Disclosure Agreement</a> (NDA). We will provide you with a user account once we receive the signed NDA from you.",
+              "Please see the Terms of Use to learn more about the usage rights for the impresso corpus."
             ]
           },
           {
@@ -40,27 +46,6 @@
             "summary": "To leave us feedback, please click on the black envelope on the lower right of the interface or email us at info@impresso-project.ch. We will get back to you soon after.",
             "description": [
               "The impresso interface remains under active development and we will add new features to the interface in the common months. We always look forward to hearing from you and to learn how you made use of impresso’s tools. To leave us feedback, please click on the black envelope on the lower right of the interface or email us at info@impresso-project.ch. We will get back to you soon after."
-            ]
-          }
-        ]
-      },
-      {
-        "title": "Rights related questions",
-        "faq": [
-          {
-            "id": "what-do-you-mean-by-impresso-material",
-            "title": "What do you mean by ‘impresso material’?",
-            "summary": "This includes all images, text, metadata, the semantic annotations and the interface.",
-            "description": [
-              "We distinguish between the following assets: <ul><li>newspaper images and text, subject to copyrights (see the rights statements pages)</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>newspaper metadata, free for use under a CC BY 4.0 license.</li><li>semantic annotations, free for use under a CC BY SA 4.0 license (will be released at the end of the project)</li><li>impresso interface, including front end design and back end database and system architecture, under a GNU AGPLv3  license (will be released at the end of the project)</li></ul>"
-            ]
-          },
-          {
-            "id": "what-are-the-copyrights",
-            "title": "What are the copyrights of the newspapers accessible through the impresso interface?",
-            "summary": "Newspapers accessible through the impresso interface are under different copyrights.",
-            "description": [
-              " The condition of use is indicated at the level of the issue, for each newspaper. The majority of them are free of use for personal and academic use (see the ‘Personal and Academic use’ license page). Others are not subject to any restrictions (see the ‘Public’ License page). Newspapers from the National Library of Luxembourg can be used without restriction up to 1877, only for personal and academic use onwards."
             ]
           },
           {
@@ -72,11 +57,43 @@
             ]
           },
           {
+            "id": "what-are-the-copyrights",
+            "title": "What are the copyrights of the newspapers accessible through the impresso interface?",
+            "summary": "Newspapers accessible through the impresso interface are under different copyrights.",
+            "description": [
+              " The condition of use is indicated at the level of the issue, for each newspaper. The majority of them are free of use for personal and academic use (see the ‘Personal and Academic use’ license page). Others are not subject to any restrictions (see the ‘Public’ License page). Newspapers from the National Library of Luxembourg can be used without restriction up to 1877, only for personal and academic use onwards."
+            ]
+          },
+          {
+            "id": "what-do-you-mean-by-impresso-material",
+            "title": "What do you mean by ‘impresso material’?",
+            "summary": "This includes all images, text, metadata, the semantic annotations and the interface.",
+            "description": [
+              "We distinguish between the following assets: <ul><li>newspaper images and text, subject to copyrights (see the rights statements pages)</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>newspaper metadata, free for use under a CC BY 4.0 license.</li><li>semantic annotations, free for use under a CC BY SA 4.0 license (will be released at the end of the project)</li><li>impresso interface, including front end design and back end database and system architecture, under a GNU AGPLv3  license (will be released at the end of the project)</li></ul>"
+            ]
+          },
+          {
+            "id": "how-can-i-cite-impresso",
+            "title": "How can I cite impresso?",
+            "summary": "short text  TBD",
+            "description": [
+              "long text TDB"
+            ]
+          },
+          {
             "id": "can-i-cite",
             "title": "Can I cite and/or display impresso newspaper articles on my blog or website? Can I cite impresso material in my thesis or in a scientific publication?",
             "summary": "Yes, you can cite all impresso material, in accordance with customary scholarly and scientific practices. One exception: images",
             "description": [
               "when re-using an illustration or photograph printed in a newspaper provided by the National Library of Luxembourg, you must obtain their permission beforehand and email them at licensing@uni.lu"
+            ]
+          },
+          {
+            "id": "do-you-have-an-api",
+            "title": "Do you have an API?",
+            "summary": "For advanced users we provide access via an API.",
+            "description": [
+              "If this is of interest to you, please contact us at info@impresso-project.ch."
             ]
           },
           {
@@ -94,48 +111,6 @@
             "description": [
               "Should you need a larger, custom export, please email us at info@impresso-project.ch."
             ]
-          }
-        ]
-      },
-      {
-        "title": "Computational processing of historical newspapers",
-        "faq": [
-          {
-            "id": "do-you-have-an-api",
-            "title": "Do you have an API?",
-            "summary": "For advanced users we provide access via an API.",
-            "description": [
-              "If this is of interest to you, please contact us at info@impresso-project.ch."
-            ]
-          },
-          {
-            "id": "how-can-i-cite-impresso",
-            "title": "How can I cite impresso?",
-            "summary": "short text  TBD",
-            "description": [
-              "long text TDB"
-            ]
-          },
-          {
-            "id": "how-can-i-get-access",
-            "title": "Why can’t I see everything? How do I get access to the full corpus?",
-            "summary": "we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).",
-            "description": [
-              "From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a <a href='https://github.com/impresso/impresso-frontend/blob/develop/src/assets/img/_impresso_NDA.pdf'>Non Disclosure Agreement</a> (NDA). We will provide you with a user account once we receive the signed NDA from you.",
-              "Please see the Terms of Use to learn more about the usage rights for the impresso corpus."
-            ]
-          },
-          {
-            "id": "how-to-make-and-and-or-queries",
-            "title": "How to make AND and OR queries?",
-            "summary": "When using the search box, every new element that you add is by default used to narrow down your result list.",
-            "description": [
-              "In other words, the search box implicitly translates your query as a concatenation of ‘AND’ options: the search results retrieved have to satisfy all the search criteria (every keyword, every collection, every topic).",
-              "In order to ensure a more fluid use of the interface, the ‘OR’ logic is limited to one filter type at the time: e.g. you can look for articles mentioning the named entity (person) ‘Albert Einstein’ OR the named entity ‘J. Robert Oppenheimer’. This means that you can’t combine in an OR search, filters from different type, for instance location OR person. In other words: ‘Albert Einstein’ OR  ‘J. Robert Oppenheimer’ but not ‘Albert Einstein’ OR ‘Geneva, Switzerland’.",
-              "To enable the ‘OR’ search you should use the options given in the left pane of the search page (ie the filters). By checking more than one filter, you can decide to apply either the ‘OR’ or the ‘AND’ logic to the selection. However, if you decide to use the autocomplete and select one of the given options, the new filter will be concatenated with an AND.",
-              "For instance: a query about olympic games (‘jeux olympiques’ in French), combined with two topics (topic 1: ‘finale · monde · championnat · jeu · champion’ and topic 2: ‘course · tour · étape · monde · épreuve’) will return different result lists if you select the topics from the search box (selection in ‘AND’ mode) than if you select them from the left pane.",
-              "<ul><li>Selection from the search box: Found 42,695 articles containing jeux and olympiques with topic ‘finale · monde · championnat · jeu · champion’ or ‘course · tour · étape · monde · épreuve’</li><li>Selection from the filter pane: Found 12,542 articles containing jeux and olympiques with topic ‘course · tour · étape · monde · épreuve’ and ‘finale · monde · championnat · jeu · champion’</li></ul>"
-            ]
           },
           {
             "id": "why-are-some-pages-or-issues-not-searchable",
@@ -146,18 +121,12 @@
               "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/topic_modeling.png'></img>'",
               "There are multiple reasons which cause missing content: <ul><li>Digitisation: Not all issues were available for digitisation by the libraries due to incomplete collections; in other cases single pages or complete issues were missed during the digitisation. In this case, the folder structure on the hard disks we received suggests that there should be an issue but there are no corresponding files. In other cases, newspaper pages were digitized successfully but not subjected to text recognition (OCR). You can find these pages in the interface by browsing an issue, but not through a search. </li><li>Transfer: We received most of our corpus on hard drives, some of the .zip files were not readable. We did our best to recover these files but sometimes this was not possible.</li></ul>"
             ]
-          },
-          {
-            "id": "how-does-the-image-search-work",
-            "title": "How does the image search work?",
-            "summary": "We retrieve images which are similar to each other.",
-            "description": [
-              "This feature is the result of a collaboration with our colleague <a href='https://profile.benoitseguin.net'>Benoit Seguin</a>, who developed novel deep learning techniques for searching large-scale image collections and successfully applied them to the collection of images in our corpus. This yielded visual signatures for each recognized picture in our corpus. We use these signatures to retrieve images which are similar to each other.",
-              "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/image_search.png'></img>",
-              "Use the image search tab to search within captions of detected images/pictures. Once you select an image, all similar images will be displayed. Alternatively, you can upload your own images to identify identical or similar ones in our corpus.",
-              "Further reading: B. L. A. Seguin, “Making large art historical photo archives searchable,” 2018, https://infoscience.epfl.ch/record/261212."
-            ]
-          },
+          }
+        ]
+      },
+      {
+        "title": "Computational processing of historical newspapers",
+        "faq": [
           {
             "id": "What-OCR",
             "title": "What are OCR, OLR and METS/ALTO??",
@@ -180,6 +149,14 @@
               "In a first step, Named Entity Recognition and Classification (NERC) automatically detects  and categorize mentions of e.g. a person in a text. For now we make use of a rule-based system, and will also apply machine learning techniques at a later stage. A rule-based system tries to recognize patterns based on morphological and lexical clues. For example, the pattern  [uppercase token + uppercase letter + punctuation + known surname] could recognize ‘George W. Bush’. A machine learning-based system requires, for its part, a large number of annotated entities in texts (examples of persons, institutions and locations), from which it will “learn” what they look like and how to identify them. In a second step we try to link entity mentions to a knowledge base containing entities (with their unique identifiers). We use AIDA Light for the linking and Wikidata as the reference knowledge base. This allows us to link one mention of a person named ‘Winston Churchill’ to the former British prime minister across the corpus (when it works). Finally, in the near future we will be looking for relations between entities, for example  a born_in relation between a person and a location entity, colleague_of between two persons, alma_mater between a person and an organisation (in this case could be of subtype ‘Educational’).",
               "These are baselines, and the improvement of automated recognition and linking of named entities in historical texts is one of impresso’s research objectives.",
               "Further reading: <ul><li>Impresso blog post: Named entity processing in a nutshell,  https://impresso-project.ch/news/2018/06/12/tradingzone-ner.html</li><li>If you wish a lightweight introduction to Named Entity Processing for Digital Humanities, have a look at the tutorial we provided during the DH 2019 conference in Utrecht: https://github.com/impresso/named-entity-tutorial-dh2019</li><li>An old reference, but which gives a nice overview: Nadeau, David, and Satoshi Sekine. 'A survey of named entity recognition and classification'. Lingvisticae Investigationes 30.1 (2007): 3-26.</li><li>For those who are curious about the concept of named entities, a longer document (in French): Les Entitées Nommées, de la linguistique au TAL : Statut théorique et méthodes de désambiguïsation</li><li>A small book on the topic: Damien Nouvel, Maud Ehrmann, Sophie Rosset, Named entities for computational linguistics, 2016, Focus, Wiley.</li><li>Some information about the AIDA  system:  https://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/ambiverse-nlu/aida</li></ul"
+            ]
+          },
+          {
+            "id": "i-have-noticed-mistakes",
+            "title": "I have noticed mistakes in the text and among the named entities. Where do they come from?",
+            "summary": "We use state-of-the-art tools to improve the quality of the OCR and to identify persons and locations. Inevitably, they sometimes fail and make mistakes which we need to remain aware of.",
+            "description": [
+              "Generally, poor OCR also lowers the quality of the output of subsequent processes and this can often explain varying quality across different newspapers and over time."
             ]
           },
           {
@@ -244,6 +221,29 @@
             "summary": "Summary text in progress",
             "description": [
               "Description text in progress."
+            ]
+          },
+          {
+            "id": "how-does-the-image-search-work",
+            "title": "How does the image search work?",
+            "summary": "We retrieve images which are similar to each other.",
+            "description": [
+              "This feature is the result of a collaboration with our colleague <a href='https://profile.benoitseguin.net'>Benoit Seguin</a>, who developed novel deep learning techniques for searching large-scale image collections and successfully applied them to the collection of images in our corpus. This yielded visual signatures for each recognized picture in our corpus. We use these signatures to retrieve images which are similar to each other.",
+              "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/image_search.png'></img>",
+              "Use the image search tab to search within captions of detected images/pictures. Once you select an image, all similar images will be displayed. Alternatively, you can upload your own images to identify identical or similar ones in our corpus.",
+              "Further reading: B. L. A. Seguin, “Making large art historical photo archives searchable,” 2018, https://infoscience.epfl.ch/record/261212."
+            ]
+          },
+          {
+            "id": "how-to-make-and-and-or-queries",
+            "title": "How to make AND and OR queries?",
+            "summary": "When using the search box, every new element that you add is by default used to narrow down your result list.",
+            "description": [
+              "In other words, the search box implicitly translates your query as a concatenation of ‘AND’ options: the search results retrieved have to satisfy all the search criteria (every keyword, every collection, every topic).",
+              "In order to ensure a more fluid use of the interface, the ‘OR’ logic is limited to one filter type at the time: e.g. you can look for articles mentioning the named entity (person) ‘Albert Einstein’ OR the named entity ‘J. Robert Oppenheimer’. This means that you can’t combine in an OR search, filters from different type, for instance location OR person. In other words: ‘Albert Einstein’ OR  ‘J. Robert Oppenheimer’ but not ‘Albert Einstein’ OR ‘Geneva, Switzerland’.",
+              "To enable the ‘OR’ search you should use the options given in the left pane of the search page (ie the filters). By checking more than one filter, you can decide to apply either the ‘OR’ or the ‘AND’ logic to the selection. However, if you decide to use the autocomplete and select one of the given options, the new filter will be concatenated with an AND.",
+              "For instance: a query about olympic games (‘jeux olympiques’ in French), combined with two topics (topic 1: ‘finale · monde · championnat · jeu · champion’ and topic 2: ‘course · tour · étape · monde · épreuve’) will return different result lists if you select the topics from the search box (selection in ‘AND’ mode) than if you select them from the left pane.",
+              "<ul><li>Selection from the search box: Found 42,695 articles containing jeux and olympiques with topic ‘finale · monde · championnat · jeu · champion’ or ‘course · tour · étape · monde · épreuve’</li><li>Selection from the filter pane: Found 12,542 articles containing jeux and olympiques with topic ‘course · tour · étape · monde · épreuve’ and ‘finale · monde · championnat · jeu · champion’</li></ul>"
             ]
           },
           {
