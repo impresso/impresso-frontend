@@ -48,10 +48,12 @@ export default {
         case 'collection':
           if (this.item.name) {
             t = [
-              `<b>${this.item.name}</b>`,
+              `<b>${this.item.name}</b><br/>`,
               `@${this.item.creator.username}<br/>`,
+              '<span class="small-caps">',
               this.$t('dates.lastModifiedDate'),
               this.$d(this.item.lastModifiedDate, 'short'),
+              '</span>',
             ].join(' ');
           } else {
             t = this.item.uid;

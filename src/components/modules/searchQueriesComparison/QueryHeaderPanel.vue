@@ -27,13 +27,14 @@
       </b-tab>
       <!-- collection -->
       <b-tab
-             :active="comparable.type === 'collection'"
-             :title="getTabLabel('collection')"
-             @click="typeChanged('collection')">
-        <dropdown :options="collectionsOptions"
-                  :value="comparable.id"
-                  @input="setCollectionId"
-                  variant="light"/>
+        :active="comparable.type === 'collection'"
+        :title="getTabLabel('collection')"
+        @click="typeChanged('collection')">
+        <collection-picker
+          :collections="collections"
+          :active="comparable.id"
+          @input="onCollectionSelected"
+          />
       </b-tab>
       <b-tab v-if="!left" disabled>
         <template v-slot:title>
@@ -66,9 +67,7 @@
       </div> -->
     </div>
     <!-- buttons -->
-    <div class="text-center my-2">
-      <!-- {{ comparable }} -->
-      <!-- <button type="button" name="button" @click="search()">query {{title}} {{total}}</button> -->
+    <div class="search-button col-auto my-2 d-flex" style="align-items: flex-end;">
       <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
         {{
           $t('actions.searchMore')
@@ -80,6 +79,7 @@
         }}
       </router-link>
     </div>
+    <!-- <p><small>{{ searchPageLink(comparable) }}</small></p> -->
   </div>
 </template>
 
@@ -89,6 +89,7 @@ import SearchQuery from '@/models/SearchQuery';
 import Dropdown from '../../layout/Dropdown';
 import SearchPills from '../../SearchPills';
 import Autocomplete from '../../Autocomplete';
+import CollectionPicker from '../../base/CollectionPicker';
 
 export default {
   data: () => ({
@@ -130,6 +131,7 @@ export default {
     Dropdown,
     SearchPills,
     Autocomplete,
+    CollectionPicker,
   },
   watch: {
     'comparable.query': {
@@ -146,6 +148,10 @@ export default {
     },
   },
   methods: {
+    onCollectionSelected(id) {
+      const comparable = Object.assign({}, this.comparable, { id });
+      this.$emit('comparable-changed', comparable);
+    },
     getTabLabel(type) {
       if (type === this.comparable.type) {
         return this.$tc(`tabs.${type}.active`, this.total, {
@@ -154,10 +160,10 @@ export default {
       }
       return this.$t(`tabs.${type}.pick`);
     },
-    setCollectionId(id) {
-      const comparable = Object.assign({}, this.comparable, { id });
-      this.$emit('comparable-changed', comparable);
-    },
+    // setCollectionId(id) {
+    //   const comparable = Object.assign({}, this.comparable, { id });
+    //   this.$emit('comparable-changed', comparable);
+    // },
     typeChanged(newType) {
       this.comparable.type = newType;
       if (newType === 'query' && !this.comparable.query && this.lastQuery) {
@@ -213,16 +219,6 @@ export default {
     containsComparison() {
       return this.comparisonOptions.includes(this.comparable.type);
     },
-    collectionsOptions() {
-      const options = this.collections.map(({ title, id }) => ({ text: title, value: id }));
-      if (!options.find(o => o.value === this.comparable.id)) {
-        options.unshift({
-          text: this.title || 'Select a collection',
-          value: this.comparable.id,
-        });
-      }
-      return options;
-    },
     searchQuery() {
       return this.$store.getters['queryComparison/getSearchQuery'](this.comparableId);
     },
@@ -262,6 +258,8 @@ export default {
       &.left{
         color: #2E80C9;
       }
+    }
+    .search-button {
     }
   }
 </style>
