@@ -1,6 +1,6 @@
 <template lang="html">
   <div style="margin-bottom: -1px;">
-    <b-progress :value="100" variant="info" animated :height="progressBarHeight"></b-progress>
+    <b-progress v-if='processingStatus' :value="100" variant="info" animated height="4px"></b-progress>
     <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-bottom border-primary">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
@@ -30,6 +30,9 @@
           </li>
             <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
           </li>`
+          <li v-if="!connectivityStatus">
+            <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
+          </li>
         </b-navbar-nav>
         <b-navbar-nav class="nav-title mx-auto">
           <!-- <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1> -->
@@ -104,8 +107,16 @@
           <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
-    <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">{{ alertMessage }}</b-alert>
-
+    <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">
+      <div v-for="(error, idx) in alertMessage" v-bind:key="idx">
+        <span>
+          <span v-if="error.name === 'NotAuthenticated'">{{ $t('errors.Notauthenticated') }}</span>
+          <span v-else-if="error.name === 'BadGateway'">{{ $t(`errors.BadGateway.${error.message}`) }}</span>
+          <span v-else>{{ error }}</span>
+        </span>
+        <span v-if="error.route.length">{{ $t(['paths', ...error.route].join('.')) }}</span>
+      </div>
+    </b-alert>
   </div>
 </template>
 
@@ -146,8 +157,8 @@ export default {
   }),
   mounted() {
     if (this.user) {
-      this.$store.dispatch('jobs/LOAD_JOBS').then((res) => {
-        console.info('Jobs loaded.', res);
+      this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
+        console.info('Jobs loaded.');
       });
     }
   },
@@ -165,13 +176,13 @@ export default {
       return this.$store.state.settings.language_code;
     },
     showAlert() {
-      return this.$store.state.error_message !== '';
+      return this.$store.state.errorMessages.length > 0;
     },
     alertMessage() {
-      return this.$store.state.error_message;
+      return this.$store.state.errorMessages;
     },
-    progressBarHeight() {
-      return this.$store.state.processing_status ? '2px' : '0';
+    processingStatus() {
+      return this.$store.state.processingStatus;
     },
     user() {
       return this.$store.getters['user/user'];
@@ -203,6 +214,9 @@ export default {
         style.backgroundImage = `linear-gradient(90deg,${gradient.join(',')})`;
       }
       return style;
+    },
+    connectivityStatus() {
+      return this.$store.state.connectivityStatus;
     },
   },
   methods: {
