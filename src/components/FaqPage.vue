@@ -4,7 +4,7 @@
       <b-col col xl="6" lg="8" md="10">
         <h1 class="mb-4">{{faq.title}}</h1>
         <div v-for="(group, i) in faq.groups" class="my-4">
-          <h2>{{group.title}}</h2>
+          <h2 class="py-3"><i>{{group.title}}</i></h2>
           <div v-for="(term, j) in group.faq" class="my-3">
             <a :id="`${term.id}`"></a>
             <div class="accordion-toggle" v-b-toggle="`accordion-${i}-${j}`">

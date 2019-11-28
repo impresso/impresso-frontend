@@ -61,6 +61,7 @@
 
 <script>
 import { protobuf } from 'impresso-jscommons';
+import Collection from '@/models/Collection';
 import { searchQueriesComparison, search, collections } from '@/services';
 import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
@@ -212,7 +213,7 @@ export default {
   // get collections on created.
   async created() {
     const { data } = await collections.find();
-    this.collections = data.map(({ name, uid }) => ({ id: uid, title: name }));
+    this.collections = data.map(d => new Collection(d));
   },
   computed: {
     // the span of the domain to fit the widest result on timeline.
