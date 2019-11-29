@@ -1,11 +1,12 @@
 <template lang="html">
-  <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop :class="{'invisible': isDragging}"
+  <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop>
+  <!-- <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop :class="{'invisible': isDragging}"
   draggable="true"
   v-on:dragstart="dragstart($event)"
   v-on:dragend="dragend($event)"
   v-bind:style="transformStyle"
-  >
-    <div class="d-flex my-2 align-items-center border-bottom">
+  > -->
+    <div class="d-flex my-2 align-items-center">
       <b-tabs pills class="px-2" style="flex-grow:1">
         <template v-slot:tabs-end>
           <b-nav-item v-for="t in tabs" :key="t" v-on:click="switchTab(t)" :class="{'active': t === tab}">
@@ -49,11 +50,21 @@
             </timeline>
 
           </div>
-          <b-form-group class="mx-3">
+          <!-- {{ path }}
+          {{ searchQueryId }}
+          {{ searchQueryFilters }} -->
+          <!-- <b-form-group class="mx-3">
+
             <b-form-checkbox v-model="applyCurrentSearchFilters" v-bind:value="true">
-              {{ $t('labels.applyCurrentSearchFilters') }} <br/> <span v-html="statsLabel"/>
+              {{ $t('labels.applyCurrentSearchFilters') }} <br/>
+              <span v-html="statsLabel"/>
+              <search-query-summary class="d-inline" reduced :search-query='searchQuery' />
             </b-form-checkbox>
-          </b-form-group>
+          </b-form-group> -->
+          <p class="px-2">
+          <span v-html="statsLabel"/>
+          <search-query-summary class="d-inline" reduced :search-query='searchQuery' />
+        </p>
         </div>
         <div v-if="monitor.isPending" v-html="$t('loading')" />
         <div v-else >
@@ -89,14 +100,27 @@ import SearchPills from './SearchPills';
 import Timeline from './modules/Timeline';
 import WikidataBlock from './modules/WikidataBlock';
 import ItemLabel from './modules/lists/ItemLabel';
-
+import SearchQuerySummary from './modules/SearchQuerySummary';
+/**
+ * Display info about the current selected item.
+ * Trigger from inside a component:
+       ```
+       this.$store.dispatch('monitor/SET_ITEM', {
+         searchQueryId: '',
+         item: {},
+         type: this.type,
+       });
+       ```
+    If searchQueryId is null, filters are loaded from the current searchQuery object.
+  * Cfr src/components/modules/ItemSelector.vue
+  */
 
 export default {
   data: () => ({
     isDragging: false,
     position: {},
     transformStyle: {},
-    tabs: ['selectedItem', 'currentSearch'],
+    tabs: ['selectedItem'], // 'currentSearch'],
     tab: 'selectedItem',
   }),
   methods: {
@@ -149,6 +173,15 @@ export default {
         this.$store.state.monitor.timeline[this.$store.state.monitor.timeline.length - 1].t,
       ];
     },
+    searchQuery() {
+      return this.$store.getters['monitor/getCurrentSearchQuery'];
+    },
+    searchQueryFilters() {
+      return this.$store.getters['monitor/getCurrentSearchFilters'];
+    },
+    searchQueryId() {
+      return this.$store.state.monitor.searchQueryId;
+    },
     isItemSelected() {
       return !!this.$store.state.monitor.item;
     },
@@ -180,11 +213,17 @@ export default {
       }
       return null;
     },
+    path() {
+      return this.$route.name;
+    },
     statsLabel() {
+      let key = 'itemStats';
       if (!this.itemTimelineDomain.length) {
-        return this.$t('itemStatsEmpty');
+        key = 'itemStatsEmpty';
+      } else if (this.searchQueryFilters.length > 1) {
+        key = 'itemStatsFiltered';
       }
-      return this.$t('itemStats', {
+      return this.$t(key, {
         count: this.$n(this.monitor.itemCountRelated),
         from: this.itemTimelineDomain[0],
         to: this.itemTimelineDomain[1],
@@ -205,6 +244,7 @@ export default {
     Timeline,
     WikidataBlock,
     ItemLabel,
+    SearchQuerySummary,
   },
   // - removed: added "x" close button in component
   // mounted() {
@@ -238,10 +278,11 @@ export default {
         "selectedItem": "current selection"
       },
       "labels": {
-        "applyCurrentSearchFilters": "apply current search filters"
+        "applyCurrentSearchFilters": "display results per year"
       },
       "itemStatsEmpty": "No results apparently",
-      "itemStats": "{count} results from {from} to {to}"
+      "itemStats": "<span class='number'>{count}</span> results from {from} to {to}",
+      "itemStatsFiltered": "<span class='number'>{count}</span> results from {from} to {to}, with additional filters:"
     }
   }
 </i18n>
