@@ -68,6 +68,7 @@ export default {
     groupBy: {
       images: 'images',
       articles: 'articles',
+      contents: 'contents',
     },
     browse: {
       images: 'Search in <span class="number">{count}</span> published images',
