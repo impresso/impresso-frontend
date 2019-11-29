@@ -50,6 +50,7 @@
                                   :timeline-highlight-value="getTimelineHighlight(facetId).data"
                                   :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
                                   :timeline-domain="timelineDomain"
+                                  :search-query-id="`queryComparison/p-${queryIdx}`"
                                   v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined"/>
             </div>
           </div>
