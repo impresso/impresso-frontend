@@ -284,6 +284,11 @@ export default {
           facets: prepareFacets(result.info.facets),
           total: result.total,
         };
+        // update searchQuery
+        await this.$store.dispatch('queryComparison/UPDATE_QUERY_COMPONENTS', {
+          searchQueryId: `p-${resultIndex}`,
+          queryComponents: result.info.queryComponents,
+        });
         // https://vuejs.org/v2/guide/list.html#Caveats
         this.$set(this.queriesResults, resultIndex, resultValue);
       } finally {
