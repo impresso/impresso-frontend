@@ -28,8 +28,11 @@
             <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
           </li> -->
           </li>
+            <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
+          </li>
+          </li>
             <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
-          </li>`
+          </li>
           <li v-if="!connectivityStatus">
             <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
           </li>
@@ -468,7 +471,7 @@ export default {
     "label_entities": "Entities",
     "label_explore": "explore...",
     "label_topics": "Topics",
-    "label_compare": "Compare",
+    "label_compare": "Inspect & Compare",
     "label_faq": "FAQ",
     "staff": "staff",
     "researcher": "researcher",

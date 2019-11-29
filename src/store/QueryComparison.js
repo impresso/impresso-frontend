@@ -36,6 +36,10 @@ export default {
       getQueryById(state, searchQueryId)
         .updateFilterItem({ filter, item, uid });
     },
+    UPDATE_QUERY_COMPONENTS(state, { searchQueryId, queryComponents }) {
+      getQueryById(state, searchQueryId)
+        .enrichFilters(queryComponents);
+    },
     CLEAR(state) {
       state.searchQueries = {};
     },
@@ -55,6 +59,9 @@ export default {
     },
     UPDATE_FILTER_ITEM({ commit }, message) {
       commit('UPDATE_FILTER_ITEM', message);
+    },
+    UPDATE_QUERY_COMPONENTS({ commit }, { searchQueryId, queryComponents }) {
+      commit('UPDATE_QUERY_COMPONENTS', { searchQueryId, queryComponents });
     },
     SET_SEARCH_QUERY_FILTERS({ commit }, { searchQueryId, filters }) {
       commit('SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
