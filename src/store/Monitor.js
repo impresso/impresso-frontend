@@ -36,11 +36,14 @@ export default {
     groupBy: 'articles',
   },
   getters: {
-    getCurrentSearchFilters(state, getters, rootState, rootGetter) {
+    getCurrentSearchQuery(state, getters, rootState, rootGetter) {
       if (state.searchQueryId.length) {
-        return rootGetter[`${state.searchQueryNamespace}/getSearchQuery`](state.searchQueryId).getFilters();
+        return rootGetter[`${state.searchQueryNamespace}/getSearchQuery`](state.searchQueryId);
       }
-      return rootGetter[`${state.searchQueryNamespace}/getSearch`].getFilters();
+      return rootGetter[`${state.searchQueryNamespace}/getSearch`];
+    },
+    getCurrentSearchFilters(state, getters) {
+      return getters.getCurrentSearchQuery.getFilters();
     },
   },
   mutations: {
@@ -115,7 +118,6 @@ export default {
       if (state.applyCurrentSearchFilters) {
         filters = filters.concat(getters.getCurrentSearchFilters);
       }
-      debugger;
       // fetch article timeline related to the given type
       return services.search.find({
         query: {
