@@ -3,6 +3,8 @@ import Helpers from '@/plugins/Helpers';
 import Entity from '@/models/Entity';
 import Topic from '@/models/Topic';
 
+const DEFAULT_SEARCH_NAMESPACE = 'search';
+
 const serviceByType = {
   person: 'entities',
   location: 'entities',
@@ -28,12 +30,17 @@ export default {
     type: null,
     itemCountRelated: -1,
     uid: '',
+    searchQueryId: '',
+    searchQueryNamespace: DEFAULT_SEARCH_NAMESPACE,
     timeline: [],
     groupBy: 'articles',
   },
   getters: {
     getCurrentSearchFilters(state, getters, rootState, rootGetter) {
-      return rootGetter['search/getSearch'].getFilters();
+      if (state.searchQueryId.length) {
+        return rootGetter[`${state.searchQueryNamespace}/getSearchQuery`](state.searchQueryId).getFilters();
+      }
+      return rootGetter[`${state.searchQueryNamespace}/getSearch`].getFilters();
     },
   },
   mutations: {
@@ -78,6 +85,16 @@ export default {
     SET_ITEM_TYPE(state, type) {
       state.type = type;
     },
+    SET_SEARCH_QUERY_ID(state, searchQueryId = '') {
+      if (searchQueryId.length) {
+        const parts = searchQueryId.split('/');
+        state.searchQueryId = parts.length > 1 ? parts[1] : searchQueryId;
+        state.searchQueryNamespace = parts.length > 1 ? parts[0] : DEFAULT_SEARCH_NAMESPACE;
+      } else {
+        state.searchQueryId = '';
+        state.searchQueryNamespace = DEFAULT_SEARCH_NAMESPACE;
+      }
+    },
   },
   actions: {
     SET_IS_ACTIVE({ commit }, value) {
@@ -98,6 +115,7 @@ export default {
       if (state.applyCurrentSearchFilters) {
         filters = filters.concat(getters.getCurrentSearchFilters);
       }
+      debugger;
       // fetch article timeline related to the given type
       return services.search.find({
         query: {
@@ -112,10 +130,11 @@ export default {
         commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
       });
     },
-    SET_ITEM({ commit, dispatch }, { item, type }) { // }, position }) {
+    SET_ITEM({ commit, dispatch }, { item, type, searchQueryId }) { // }, position }) {
       commit('SET_IS_ACTIVE', true);
       commit('SET_PENDING_ITEM', item);
       commit('SET_ITEM_TYPE', type);
+      commit('SET_SEARCH_QUERY_ID', searchQueryId);
       // add item resolution promise to the promise chain
       if (serviceByType[type]) {
         return Promise.all([
