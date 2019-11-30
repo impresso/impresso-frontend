@@ -100,6 +100,15 @@ export default {
     },
   },
   actions: {
+    FORWARD_FILTER_TO_CURRENT_SEARCH({ getters }, filter) {
+      getters.getCurrentSearchQuery.addFilter(filter);
+      // dispatch(`${state.searchQueryNamespace}/ADD_FILTER`, {
+      //   searchQueryId: state.searchQueryId,
+      //   filter,
+      // }, {
+      //   root: true,
+      // });
+    },
     SET_IS_ACTIVE({ commit }, value) {
       commit('SET_IS_ACTIVE', value);
     },
