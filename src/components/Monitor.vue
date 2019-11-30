@@ -69,7 +69,8 @@
         <div v-if="monitor.isPending" v-html="$t('loading')" />
         <div v-else >
           <div class="text-center m-2">
-            <b-button size="sm" variant="outline-primary" @click="applyFilter">{{ $t('actions.addToCurrentFilters') }}</b-button>
+            <b-button size="sm" variant="outline-primary" @click="applyFilter('include')">{{ $t('actions.addToCurrentFilters') }}</b-button>
+            <b-button size="sm" variant="outline-primary" @click="applyFilter('exclude')">{{ $t('actions.removeFromCurrentFilters') }}</b-button>
           </div>
 
           <!-- detailed label -->
@@ -142,11 +143,12 @@ export default {
     fadeOut() {
       return this.$store.dispatch('monitor/SET_IS_ACTIVE', false);
     },
-    applyFilter() {
-      return this.$store.dispatch('search/ADD_FILTER_TO_CURRENT_SEARCH', {
+    applyFilter(context = 'include') {
+      return this.$store.dispatch('monitor/FORWARD_FILTER_TO_CURRENT_SEARCH', {
         type: this.type,
         q: [this.item.uid],
         items: [this.item],
+        context,
         checked: true,
       });
     },
