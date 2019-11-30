@@ -137,7 +137,7 @@ export default new Vuex.Store({
       } else if (status === 'DONE') {
         commit('REMOVE_PROCESSING_ACTIVITY', { route, status });
       }
-      console.info('current activities:', state.processingActivitiesIndex.length, state.processingActivitiesIndex);
+      // console.info('current activities:', state.processingActivitiesIndex.length, state.processingActivitiesIndex);
       // check active ones
       commit('SET_PROCESSING', !!state.processingActivitiesIndex.length);
     },
