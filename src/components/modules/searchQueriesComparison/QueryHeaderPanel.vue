@@ -1,5 +1,6 @@
 <template lang="html">
-  <div class="p-2 container query-header-panel">
+  <div class="query-header-panel">
+  <div class="p-2 container">
     <b-tabs pills content-class="mt-3" :align="alignment"
             v-if="comparable.type !== 'intersection'">
       <!-- query -->
@@ -67,21 +68,20 @@
         </div>
       </div> -->
     </div>
-    <!-- buttons -->
-    <div class="row">
-      <div class="search-button col-auto my-2 mx-1">
-        <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
-          {{
-            $t('actions.searchMore')
-          }}
-          {{
-            $tc('numbers.resultsParenthesis', total, {
-              n: $n(total),
-            })
-          }}
-        </router-link>
-      </div>
-    </div>
+
+  </div>
+  <div class="search-button-wrapper">
+    <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
+      {{
+        $t('actions.searchMore')
+      }}
+      {{
+        $tc('numbers.resultsParenthesis', total, {
+          n: $n(total),
+        })
+      }}
+    </router-link>
+  </div>
   </div>
 </template>
 
@@ -252,6 +252,10 @@ export default {
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
   .query-header-panel{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 2rem;
     .type {
       .small-caps {
         height: 17px;
@@ -277,7 +281,11 @@ export default {
         color: #2E80C9;
       }
     }
-    .search-button {
+    div.search-button-wrapper{
+      position: absolute;
+      bottom: 0.5rem;
+      text-align: center;
+      width: 100%;
     }
   }
 </style>

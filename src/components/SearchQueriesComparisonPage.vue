@@ -8,8 +8,7 @@
             'border-left': queryIdx > 0,
           }"
                v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
-            <query-header-panel class="col"
-                                :left='queryIdx === 0'
+            <query-header-panel :left='queryIdx === 0'
                                 :comparison-options="['intersection']"
                                 :comparable="comparableForQuery(queryIdx)"
                                 :total="queryResult.total"
@@ -231,6 +230,7 @@ export default {
     LoadingIndicator,
   },
   methods: {
+
     /** Get particular values out of a retuls object */
     getFacetValues(result, facetId) {
       if (result.facets === undefined) return undefined;
