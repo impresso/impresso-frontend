@@ -533,6 +533,12 @@ export default {
       this.$store.dispatch('search/ADD_FILTER', { filter });
       this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
+    onEventBus({ filter, searchQueryId }) {
+      if (!searchQueryId.length) {
+        console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
+        this.onSuggestion(filter);
+      }
+    },
   },
   watch: {
     searchResults() {
@@ -566,6 +572,8 @@ export default {
     InfoButton,
   },
   mounted() {
+    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBus);
+
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
@@ -577,6 +585,7 @@ export default {
     // if(nextpage !=== "issue || article"){
     //     this.$store.commit('search/CLEAR');
     // }
+    this.$eventBus.$off(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBus);
   },
 };
 </script>
