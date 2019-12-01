@@ -144,13 +144,17 @@ export default {
       return this.$store.dispatch('monitor/SET_IS_ACTIVE', false);
     },
     applyFilter(context = 'include') {
-      return this.$store.dispatch('monitor/FORWARD_FILTER_TO_CURRENT_SEARCH', {
-        type: this.type,
-        q: [this.item.uid],
-        items: [this.item],
-        context,
-        checked: true,
+      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
+        searchQueryId: this.searchQueryId,
+        filter: {
+          type: this.type,
+          q: [this.item.uid],
+          items: [this.item],
+          context,
+          checked: true,
+        },
       });
+      this.fadeOut();
     },
   },
   computed: {
