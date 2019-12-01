@@ -3,7 +3,7 @@
     <!-- timeline type -->
     <div v-if="type === 'timeline'">
       <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{title}}</span>
-      <div class="row mt-5">
+      <div class="row mb-3">
         <timeline
               :contrast="false"
               :values="timelineValues"
