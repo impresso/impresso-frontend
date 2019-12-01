@@ -96,6 +96,7 @@ import CollectionPicker from '../../base/CollectionPicker';
 export default {
   data: () => ({
     lastQuery: undefined,
+    lastQueryHash: undefined,
   }),
   props: {
     comparable: {
@@ -140,14 +141,31 @@ export default {
       handler() {
         const { comparableId: searchQueryId, comparable: { query = { filters: [] } } } = this;
         const { filters } = query;
+        // check here that lastQuery is different that the new one.
         this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
         if (this.comparable.query) {
+          // get current query hash
+          const hash = SearchQuery.serialize({ filters }, 'protobuf');
+          if (this.lastQueryHash && this.lastQueryHash !== hash) {
+            // emit comparable-changed
+            console.info('Emit event "comparable-changed", searchQueryId:', searchQueryId);
+            this.$emit('comparable-changed', this.comparable);
+          }
+          this.lastQueryHash = hash;
           this.$set(this, 'lastQuery', this.comparable.query);
         }
       },
       immediate: true,
       deep: true,
     },
+  },
+  mounted() {
+    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, ({ filter, searchQueryId }) => {
+      if (this.comparableId === searchQueryId) {
+        console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
+        this.onSuggestion(filter);
+      }
+    });
   },
   methods: {
     onCollectionSelected(id) {
@@ -162,37 +180,27 @@ export default {
       }
       return this.$t(`tabs.${type}.pick`);
     },
-    // setCollectionId(id) {
-    //   const comparable = Object.assign({}, this.comparable, { id });
-    //   this.$emit('comparable-changed', comparable);
-    // },
     typeChanged(newType) {
       this.comparable.type = newType;
       if (newType === 'query' && !this.comparable.query && this.lastQuery) {
         this.comparable.query = this.lastQuery;
       }
-      this.$emit('comparable-changed', this.comparable);
     },
     onSuggestion(filter) {
       const { comparableId: searchQueryId } = this;
       this.$store.dispatch('queryComparison/ADD_FILTER', { searchQueryId, filter });
-
       this.comparable.query = this.canonicalSearchQuery;
-      this.$emit('comparable-changed', this.comparable);
     },
     onRemoveFilter(filter) {
       const { comparableId: searchQueryId } = this;
       this.$store.dispatch('queryComparison/REMOVE_FILTER', { searchQueryId, filter });
-
       this.comparable.query = this.canonicalSearchQuery;
-      this.$emit('comparable-changed', this.comparable);
     },
     onAddFilter(filter) {
       this.onSuggestion(filter);
     },
     onUpdateFilter() {
       this.comparable.query = this.canonicalSearchQuery;
-      this.$emit('comparable-changed', this.comparable);
     },
     searchPageLink(c) {
       if (c.type === 'query') {
