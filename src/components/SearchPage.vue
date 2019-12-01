@@ -79,7 +79,7 @@
             <search-result-summary
               @onSummary="onSummary"
               :group-by="groupBy"
-              :queryComponents="queryComponents"
+              :search-query="searchQuery"
               :totalRows="paginationTotalRows" />
           </ellipsis>
         </b-navbar-nav>
@@ -339,6 +339,9 @@ export default {
       get() {
         return this.$store.state.search.search.filters;
       },
+    },
+    searchQuery() {
+      return this.$store.state.search.search;
     },
     filtersIndex: {
       get() {
