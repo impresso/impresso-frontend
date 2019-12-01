@@ -62,8 +62,11 @@
             </b-form-checkbox>
           </b-form-group> -->
           <p class="px-2">
-          <span v-html="statsLabel"/>
-          <search-query-summary class="d-inline" reduced :search-query='searchQuery' />
+          <ellipsis v-bind:initialHeight="60">
+            <span v-html="statsLabel"/>
+            <search-query-summary class="d-inline" reduced :search-query='searchQuery' />
+          </ellipsis>
+
         </p>
         </div>
         <div v-if="monitor.isPending" v-html="$t('loading')" />
@@ -98,6 +101,7 @@
 
 <script>
 import SearchPills from './SearchPills';
+import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
 import WikidataBlock from './modules/WikidataBlock';
 import ItemLabel from './modules/lists/ItemLabel';
@@ -251,6 +255,7 @@ export default {
     WikidataBlock,
     ItemLabel,
     SearchQuerySummary,
+    Ellipsis,
   },
   // - removed: added "x" close button in component
   // mounted() {
@@ -288,7 +293,7 @@ export default {
       },
       "itemStatsEmpty": "No results apparently",
       "itemStats": "<span class='number'>{count}</span> results from {from} to {to}",
-      "itemStatsFiltered": "<span class='number'>{count}</span> results from {from} to {to}, with additional filters:"
+      "itemStatsFiltered": "<span class='number'>{count}</span> results from {from} to {to}, within current search:"
     }
   }
 </i18n>
