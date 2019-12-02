@@ -1,7 +1,7 @@
 <template lang="html">
-  <p>
-    <span v-if="reduced" v-html="$t('reducedSummary', reducedSummaryProps)"/>
-    <span v-else v-html="$t('extendedSummary', summaryProps)"/>
+  <p class='search-query-summary'>
+    <span v-html="reducedSummary"/>
+    <!-- <span v-else v-html="$t('extendedSummary', summaryProps)"/> -->
   </p>
 </template>
 
@@ -12,9 +12,9 @@ export default {
   props: {
     reduced: Boolean,
     searchQuery: Object,
-    groupBy: {
-      type: String,
-      default: 'contents',
+    enumerables: {
+      type: Array,
+      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country'],
     },
   },
   data: () => ({
@@ -22,8 +22,9 @@ export default {
     hasDaterange: false,
   }),
   computed: {
-    reducedSummaryProps() {
+    reducedSummary() {
       const filtersIndex = Helpers.groupBy(this.searchQuery.filters, 'type');
+      const enumerables = [];
       const translationTable = {};
 
       // add translation if isFront is enabled
@@ -32,39 +33,61 @@ export default {
         translationTable.isFront = this.$t('isFront');
       }
 
-      ['topic', 'newspaper', 'person', 'location', 'language', 'country'].forEach((type) => {
-        if (filtersIndex[type]) {
-          translationTable[type] = this.getTranslationWithItems({
-            filters: filtersIndex[type],
-            type,
-          });
-        }
-      });
-
-      ['string', 'title'].forEach((type) => {
-        if (filtersIndex[type]) {
-          translationTable[type] = this.getTranslation({
-            filters: filtersIndex[type],
-            type,
-          });
-        }
-      });
-
-      if (!Object.keys(translationTable).length) {
-        return {};
+      if (filtersIndex.daterange) {
+        this.hasDaterange = true;
+        translationTable.daterange = this.$t('isFront');
       }
-      // add group by
-      translationTable.groupBy = this.$t(`groupBy.${this.groupBy}`);
-      return translationTable;
+
+      // add specific translation for newspapers
+      if (filtersIndex.newspaper) {
+        translationTable.newspaper = this.getTranslation({
+          filters: filtersIndex.newspaper,
+          type: 'newspaper',
+          prefix: this.isOnFront || this.hasDaterange ? 'pubof.' : 'pub.',
+        });
+      }
+      // other translations
+      ['string', 'title', 'daterange'].concat(this.enumerables).forEach((type) => {
+        if (filtersIndex[type]) {
+          if (this.isEnumerable(type)) {
+            enumerables.push(this.getTranslation({
+              filters: filtersIndex[type],
+              type,
+            }));
+          } else {
+            translationTable[type] = this.getTranslation({
+              filters: filtersIndex[type],
+              type,
+            });
+          }
+        }
+      });
+
+      // Return is here because of "hidden" filters, such as hasTextContents
+      if (!Object.keys(translationTable).length) {
+        return '';
+      }
+
+      translationTable.enumerable = enumerables.join('; ');
+
+      const summary = this.$t('reducedSummary', translationTable);
+      this.$emit('updated', summary.split(/\s+/).join(' '));
+      return summary;
     },
     summaryProps() {
       return '';
     },
   },
   methods: {
+    isEnumerable(type) {
+      return this.enumerables.includes(type);
+    },
     getLabel({ item, type }) {
       let t = '';
       switch (type) {
+        case 'daterange':
+          t = `from <span class="date">${this.$d(item.start, 'compact')}</span> to <span class="date">${this.$d(item.end, 'compact')}</span>`;
+          break;
         case 'location':
         case 'person':
         case 'newspaper':
@@ -76,7 +99,7 @@ export default {
           t = `<span class="highlight precision-${item.precision}">${item.q}</span>${item.distance || ''}`;
           break;
         case 'topic':
-          t = `<span class="small-caps">${item.language}</span> ${item.htmlExcerpt}`;
+          t = `"${item.htmlExcerpt || ''}..."`;
           break;
         case 'year':
           t = item.y;
@@ -92,7 +115,15 @@ export default {
     },
     getFilterAsLabel(filter) {
       if (filter.items) {
-        return '';
+        const operator = this.$t(`op.${filter.op.toLowerCase()}`);
+        return filter.items.map(item => [
+          `<span class="item ${filter.type}">`,
+          this.getLabel({
+            item,
+            type: filter.type,
+          }),
+          '</span>',
+        ].join('')).join(` <span class="operator">${operator}</span> `);
       } else if (filter.type === 'string') {
         return this.getLabel({
           item: filter,
@@ -111,13 +142,13 @@ export default {
         return sections;
       }, {});
     },
-    getTranslation({ filters, type }) {
+    getTranslation({ filters, type, prefix = '' }) {
       const sections = this.getContextSections(filters);
       return ['include', 'exclude'].reduce((results, context) => {
         if (sections[context]) {
           const mapped = sections[context].map(filter => this.getFilterAsLabel(filter));
           const last = mapped.pop();
-          const terms = [this.$t(`${context}.${type}`)];
+          const terms = [this.$t(`${context}.${prefix}${type}`)];
           if (mapped.length) {
             terms.push([mapped.join(', '), last].join(' <span class="operator">AND</span> '));
           } else {
@@ -158,44 +189,82 @@ export default {
   },
 };
 </script>
-
-<style lang="css" scoped>
+<style lang="scss">
+.search-query-summary{
+  span.item.person, span.item.location, span.item.daterange > span.date {
+    font-family: "questa-sans", sans-serif;
+    font-variant: small-caps;
+    text-transform: lowercase;
+  }
+  span.item.collection {
+    font-family: "questa-sans", sans-serif;
+    color: blue;
+  }
+  span.item.newspaper {
+    color: black;
+    font-weight: bold;
+  }
+  .precision-exact::before,
+  .precision-exact::after{
+    content: '"';
+    font-weight: bold;
+  }
+  .precision-fuzzy::after,{
+    content: '~';
+    font-weight: bold;
+  }
+  .precision-soft::before{
+    content: '[';
+    font-weight: bold;
+  }
+  .precision-soft::after{
+    content: ']';
+    font-weight: bold;
+  }
+}
 </style>
 <i18n>
   {
     "en": {
-      "reducedSummary": "{groupBy} {string} {type} {topic} {isFront} {newspaper} {person} {location} {countries} {ranges}",
-      "extendedSummary": "{type} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
+      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {collection} {enumerable}",
       "isFront": "appearing on the <em>front page</em>",
       "include": {
+        "topic": "with topic",
+        "pub": {
+          "newspaper": "published in"
+        },
+        "pubof": {
+          "newspaper": "of"
+        },
+        "newspaper": "published in",
+        "person": "mentioning",
+        "location": "mentioning",
         "string": "containing",
-        "topic": {
-          "reduced": "no topic | with <span class='number'>1</span> topic | with <span class='number'>{n}</span> topics",
-          "extended": "with topic | with topics"
-        },
-        "person": {
-          "reduced": "mentioning <span class='number'>1</span> person | mentioning <span class='number'>{n}</span> persons",
-          "extended": "mentioning"
-        },
-        "location": {
-          "reduced": "mentioning <span class='number'>1</span> location | mentioning <span class='number'>{n}</span> locations",
-          "extended": "mentioning"
-        }
+        "title": "where title includes",
+        "daterange": "published",
+        "collection": "saved in",
+        "language": "written in",
+        "country": "printed in",
+        "type": "- tagged as"
       },
       "exclude": {
+        "topic": "without topic",
+        "pub": {
+          "newspaper": "not published in"
+        },
+        "pubof": {
+          "newspaper": "not published in"
+        },
+        "newspaper": "not published in",
+        "person": "not mentioning",
+        "location": "not mentioning",
         "string": "not containing",
-        "person": {
-          "reduced": "not mentioning <span class='number'>1</span> person|<span class='number'>{n}</span> persons",
-          "extended": "not mentioning"
-        },
-        "location": {
-          "reduced": "not mentioning",
-          "extended": "not mentioning"
-        },
-        "topic": {
-          "reduced": "without <span class='number'>1</span> topic | without <span class='number'>{n}</span> topics",
-          "extended": "with topic | with topics"
-        }
+        "title": "where title does not includes",
+        "daterange": "not published",
+        "collection": "not saved in",
+        "language": "not written in",
+        "country": "not printed in",
+        "type": "- not tagged as"
       }
     }
   }
