@@ -15,7 +15,6 @@
         </template>
       </b-tabs>
       <div class="pr-3">
-        <span class="dripicons-move mr-2"/>
         <span class="dripicons-cross" v-on:click="fadeOut"/>
       </div>
     </div>
@@ -62,11 +61,10 @@
             </b-form-checkbox>
           </b-form-group> -->
           <p class="px-2">
-          <ellipsis v-bind:initialHeight="60">
+          <ellipsis v-bind:initialHeight="70">
             <span v-html="statsLabel"/>
-            <search-query-summary class="d-inline" reduced :search-query='searchQuery' />
+            <search-query-summary class="pl-2 border-left border-tertiary" :search-query='searchQuery' />
           </ellipsis>
-
         </p>
         </div>
         <div v-if="monitor.isPending" v-html="$t('loading')" />
@@ -265,7 +263,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .monitor {
     border: 1px solid #343a40;
     position: absolute;
@@ -292,7 +290,7 @@ export default {
         "applyCurrentSearchFilters": "display results per year"
       },
       "itemStatsEmpty": "No results apparently",
-      "itemStats": "<span class='number'>{count}</span> results from {from} to {to}",
+      "itemStats": "<b class='number'>{count}</b> results from {from} to {to}",
       "itemStatsFiltered": "<span class='number'>{count}</span> results from {from} to {to}, within current search:"
     }
   }
