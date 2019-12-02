@@ -1,4 +1,6 @@
+import { protobuf } from 'impresso-jscommons';
 import FilterFactory from '@/models/FilterFactory';
+
 
 /**
  * @class SearchQuery is an object representing Search Query we can send to the api
@@ -28,7 +30,11 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
-  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy } = {}) {
+  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy } = {}, serializer = 'json') {
+    if (serializer === 'protobuf') {
+      return protobuf.searchQuery.serialize({ filters });
+    }
+
     const query = {
       f: JSON.stringify(filters),
       g: groupBy,

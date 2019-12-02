@@ -50,7 +50,8 @@ export default {
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
-      addToCurrentFilters: 'Add to current search filters',
+      addToCurrentFilters: 'Add as search filter',
+      removeFromCurrentFilters: 'Exclude from current search',
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
@@ -68,6 +69,7 @@ export default {
     groupBy: {
       images: 'images',
       articles: 'articles',
+      contents: 'contents',
     },
     browse: {
       images: 'Search in <span class="number">{count}</span> published images',

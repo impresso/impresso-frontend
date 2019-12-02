@@ -4,7 +4,7 @@
     <div class="clearfix">
       <div class="float-left w-75">
         <item-label :item="item" :type="type" />
-        <item-selector :uid="uid" :item="item" :type="type"/>
+        <item-selector :uid="uid" :item="item" :type="type" :search-query-id="searchQueryId"/>
       </div>
       <div v-if="count" class="float-right w-25 text-right">
         {{$n(count)}}
@@ -22,7 +22,7 @@ import ItemLabel from '../modules/lists/ItemLabel';
 import ItemSelector from '../modules/ItemSelector';
 
 export default {
-  props: ['percent', 'count', 'uid', 'type', 'item'],
+  props: ['percent', 'count', 'uid', 'type', 'item', 'searchQueryId'],
   components: {
     ItemSelector,
     ItemLabel,

@@ -14,6 +14,7 @@
 
           <viz-bar
             :percent="toScaledValue(bucket.count) * 100"
+            :search-query-id="searchQueryId"
             :count="bucket.count"
             :uid="bucket.item.uid"
             :item="bucket.item"
@@ -33,6 +34,7 @@ import Bucket from '../../../models/Bucket';
 export default {
   data: () => ({}),
   props: {
+    searchQueryId: String,
     label: String, // label of the chart
     hoverId: {
       type: String,

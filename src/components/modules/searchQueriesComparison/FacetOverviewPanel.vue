@@ -3,7 +3,7 @@
     <!-- timeline type -->
     <div v-if="type === 'timeline'">
       <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{title}}</span>
-      <div class="row mt-5">
+      <div class="row mb-3">
         <timeline
               :contrast="false"
               :values="timelineValues"
@@ -29,6 +29,7 @@
       <stacked-bars-panel
         @hovered="onHoverBar"
         :hover-id="hoverId"
+        :search-query-id="searchQueryId"
         class="row"
         :label="title"
         :buckets="values"
@@ -71,6 +72,7 @@ export default {
     hoverId: {
       type: String,
     },
+    searchQueryId: String,
     facet: String, // any of the common facet types: newspaper, language, etc.
     type: {
       type: String, // type of the visualisation component
