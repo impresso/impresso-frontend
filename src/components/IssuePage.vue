@@ -1,4 +1,4 @@
-entities<template lang="html">
+<template lang="html">
   <i-layout id="IssuePage">
     <i-layout-section width="350px" class="border-right border-top mt-1px bg-light">
       <div slot="header" class="border-bottom border-tertiary">
