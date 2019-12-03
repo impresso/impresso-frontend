@@ -26,7 +26,7 @@ app.configure(auth({
 
 socket.on('reconnect', () => {
   app.reAuthenticate();
-  if (window.app) {
+  if (window.app && window.app.$store) {
     window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', true);
   }
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
@@ -35,10 +35,7 @@ socket.on('connect_error', (err) => {
   if (window.app && window.app.$store) {
     err.message = `Could not connect to the API: ${err.message}`;
     console.error(err);
-    if (window.app) {
-      console.info('DISPLAY_CONNECTIVITY_STATUS');
-      window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false);
-    }
+    window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false);
   }
 });
 
@@ -104,11 +101,13 @@ app.service('logs').on('created', (payload) => {
     if (payload.collection) {
       extra.collection = payload.collection;
     }
-    window.app.$store.dispatch('jobs/UPDATE_JOB', {
-      ...payload.job,
-      progress: payload.progress,
-      extra,
-    });
+    if (window.app && window.app.$store) {
+      window.app.$store.dispatch('jobs/UPDATE_JOB', {
+        ...payload.job,
+        progress: payload.progress,
+        extra,
+      });
+    }
   }
 });
 
