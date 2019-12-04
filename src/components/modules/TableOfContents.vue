@@ -17,6 +17,7 @@
           show-pages
           show-matches
           show-type
+
           />
       </b-media>
     </div>
@@ -30,9 +31,9 @@
             v-bind:key="idx"
             v-bind:class="{active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
-            <div class="d-flex">
-              <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
-              <article-item :item="article" class="p-3 clearfix flex-grow-1"
+            <div>
+              <image-item :height="200" :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
+              <article-item :item="article" class="p-3"
                 show-excerpt
                 show-link
                 show-entities
@@ -40,93 +41,8 @@
                 show-pages
                 show-type
                 />
+              <image-item :height="200" class="mx-3 mb-2" :item="image" v-for="(image, i) in article.images" v-bind:key="i"/>
             </div>
-            <!--
-            <a
-              class="p-3 clearfix"
-              href="#"
-              v-on:click.prevent="onClick(article, page)">
-            <div
-              v-if="article.images.length"
-              class="mr-3 images">
-              <b-img
-              fluid-grow
-              class="mb-1 image"
-                v-for="image in article.images"
-                v-bind:src="image.regions[0].iiifFragment" />
-            </div>
-
-            <span class="title"
-              v-if="article.title">
-              <span v-html="article.title" /> &mdash;
-            </span>
-            <span
-              class="excerpt">{{ article.excerpt }}</span>
-            <span class="badge badge-secondary mr-1 pt-1">
-              <span v-if="article.size > 1200" >{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }} / </span>
-              {{ $tc('pp', article.nbPages, { pages: article.pages.map(d => d.num).join(',') }) }}
-            </span>
-
-            <span v-if="article.type !== 'ar'" class="badge badge-secondary mr-1 pt-1">
-              {{ article.type.toUpperCase() }}
-            </span>
-            {{ article.isCC }}
-            <div v-if="article.locations.length" class="article-locations">
-              <span
-                v-for="location in article.locations"
-                v-bind:key="location.uid">
-                {{location.name}}
-                <item-selector :uid="location.uid" :item="location" type="location"/>,
-              </span>
-
-            </div>
-
-            <div v-if="article.persons.length" class="article-persons">
-              <span
-                v-for="person in article.persons"
-                v-bind:key="person.uid">
-                {{person.name}}
-                <item-selector :uid="person.uid" :item="person" type="person"/>,
-              </span>
-            </div>
-            <div class="collapased">
-
-              <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
-                <b-badge
-                  v-for="(collection, i) in article.collections"
-                  v-bind:key="`${article.article_uid}_col${i}`"
-                  variant="info"
-                  class="mt-1 mr-1">
-                    {{ collection.name }}
-                </b-badge>
-              </div>
-
-              <collection-add-to
-              class="mt-2"
-                v-bind:item="article"
-                v-bind:text="$t('add_to_collection')" />
-
-              <ul v-if="article.matches.length > 0" class="article-matches mb-1">
-                <li
-                  v-for="(match, i) in article.matches"
-                  v-bind:key="i"
-                  v-html="match.fragment"
-                  v-show="match.fragment.trim().length > 0" />
-              </ul> -->
-
-              <!-- <ul v-if="article.topics.length > 0" class="article-topics mb-1">
-                <li
-                  v-for="topic in article.topics"
-                  v-bind:key="topic.topicUid">
-                  {{topic.topicUid}} ({{topic.relevance}})
-                </li>
-              </ul> -->
-
-
-<!--
-            </div>
-
-            </a> -->
           </b-media>
         </div>
       </div>

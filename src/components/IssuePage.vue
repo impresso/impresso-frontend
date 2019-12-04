@@ -2,7 +2,7 @@
   <i-layout id="IssuePage">
     <i-layout-section width="350px" class="border-right border-top mt-1px bg-light">
       <div slot="header" class="border-bottom border-tertiary">
-        <b-tabs pills class="border-bottom mx-2 pt-2">
+        <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item class="pl-2"
               @click="switchTab('toc')"
@@ -16,8 +16,6 @@
         </b-tabs>
         <div class="py-2 px-3">
           <div v-if="issue" class="mb-2">
-            <div>{{ issue.newspaper.name }}</div>
-            <div class="small-caps">{{ $d(issue.date, 'long') }}</div>
             <span class="small-caps" v-html="$t('stats', {
               countPages: issue.countPages,
               countArticles: issue.countArticles,
@@ -73,8 +71,28 @@
     <!--  page openseadragon or article -->
     <i-layout-section class="border-left border-top ml-1px mt-1px">
       <div slot="header" class="border-bottom">
+        <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+          <section class='p-2 pl-3'>
+            <h3 v-if="issue" class="m-0">{{ issue.newspaper.name }} &mdash;
+              <span class="date small">
+              {{ $d(issue.date, 'long') }}
+              </span>
+              <span v-if="page" class="badge badge-info sans-serif">{{ $tc('pp', 1, { pages: page.num }) }}</span>
+            </h3>
+          </section>
+        </b-navbar>
         <b-navbar type="light" variant="light" class="px-0 py-0">
-          <b-navbar-nav class="px-2 py-2 mx-auto">
+          <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
+            <span class="small-caps">{{ $t(`buckets.type.${article.type}`) }}</span>
+            <span class="small">
+              &nbsp;&nbsp;
+              <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
+              <span v-else>{{ $t('reducedReadingTime')}}</span>
+              &nbsp;&nbsp;
+              {{ articlePages }}
+            </span>
+          </b-navbar-nav>
+          <!-- <b-navbar-nav class="px-2 py-2 mx-auto">
             <div>
               <label class="mr-2">{{$t("label_display")}}</label>
               <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
@@ -85,7 +103,7 @@
                 <info-button name="What-OCR" class="ml-1" />
               </small>
             </div>
-          </b-navbar-nav>
+          </b-navbar-nav> -->
         </b-navbar>
       </div>
       <open-seadragon-viewer
@@ -171,6 +189,14 @@ export default {
         }
       });
       return results;
+    },
+    articlePages() {
+      if (!this.article) {
+        return '';
+      }
+      return this.$tc('pp', this.article.nbPages, {
+        pages: this.article.pages.map(d => d.num).join(','),
+      });
     },
     mode: {
       get() {

@@ -1,12 +1,17 @@
 <template lang="html">
-  <div class="image-item">
-    <b-img fluid-grow class="image" v-bind:src="src" />
+  <div class="image-item w-100">
+    <b-img-lazy :height="height" class="image" flex-grow v-bind:src="src" />
+    <figcaption class="small py-2" v-if="item.title.length">{{ item.title }}</figcaption>
   </div>
 </template>
 
 <script>
 export default {
   props: {
+    height: {
+      type: Number,
+      default: 100,
+    },
     item: {
       type: Object,
     },
@@ -26,4 +31,10 @@ export default {
 </script>
 
 <style lang="css">
+.image-item figcaption {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 300px;
+}
 </style>
