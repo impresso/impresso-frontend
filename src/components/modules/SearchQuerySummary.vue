@@ -23,6 +23,10 @@ export default {
   }),
   computed: {
     reducedSummary() {
+      if (!this.searchQuery) {
+        console.error('No search query defined');
+        return '';
+      }
       const filtersIndex = Helpers.groupBy(this.searchQuery.filters, 'type');
       const enumerables = [];
       const translationTable = {};
