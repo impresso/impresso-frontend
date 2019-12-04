@@ -72,7 +72,7 @@
     <i-layout-section class="border-left border-top ml-1px mt-1px">
       <div slot="header" class="border-bottom">
         <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
-          <section class='p-2'>
+          <section class='p-2 pl-3'>
             <h3 v-if="issue" class="m-0">{{ issue.newspaper.name }} &mdash;
               <span class="date small">
               {{ $d(issue.date, 'long') }}
@@ -82,8 +82,15 @@
           </section>
         </b-navbar>
         <b-navbar type="light" variant="light" class="px-0 py-0">
-          <b-navbar-nav v-if="article" class="px-3 py-3 border-right">
+          <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
             <span class="small-caps">{{ $t(`buckets.type.${article.type}`) }}</span>
+            <span class="small">
+              &nbsp;&nbsp;
+              <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
+              <span v-else>{{ $t('reducedReadingTime')}}</span>
+              &nbsp;&nbsp;
+              {{ articlePages }}
+            </span>
           </b-navbar-nav>
           <!-- <b-navbar-nav class="px-2 py-2 mx-auto">
             <div>
@@ -182,6 +189,14 @@ export default {
         }
       });
       return results;
+    },
+    articlePages() {
+      if (!this.article) {
+        return '';
+      }
+      return this.$tc('pp', this.article.nbPages, {
+        pages: this.article.pages.map(d => d.num).join(','),
+      });
     },
     mode: {
       get() {
