@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="IssuePage">
-    <i-layout-section width="350px" class="border-right border-top mt-1px bg-light">
+    <i-layout-section width="350px" class="border-right border-top mt-1px">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -83,27 +83,26 @@
         </b-navbar>
         <b-navbar type="light" variant="light" class="px-0 py-0">
           <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
-            <span class="small-caps">{{ $t(`buckets.type.${article.type}`) }}</span>
-            <span class="small">
-              &nbsp;&nbsp;
-              <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
-              <span v-else>{{ $t('reducedReadingTime')}}</span>
-              &nbsp;&nbsp;
-              {{ articlePages }}
-            </span>
-          </b-navbar-nav>
-          <!-- <b-navbar-nav class="px-2 py-2 mx-auto">
-            <div>
-              <label class="mr-2">{{$t("label_display")}}</label>
-              <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="image"><icon name="image"/></b-form-radio>
-                <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/></b-form-radio>
-              </b-form-radio-group>
-              <small>
-                <info-button name="What-OCR" class="ml-1" />
-              </small>
+            <div v-if="article && article.type">
+              <span class="small-caps">{{ $t(`buckets.type.${article.type}`) }}</span>
+              <span class="small">
+                &nbsp;&nbsp;
+                <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
+                <span v-else>{{ $t('reducedReadingTime')}}</span>
+                &nbsp;&nbsp;
+                {{ articlePages }}
+              </span>
             </div>
-          </b-navbar-nav> -->
+          </b-navbar-nav>
+          <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
+            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="image">view in context <icon name="image"/></b-form-radio>
+              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/> close reading</b-form-radio>
+            </b-form-radio-group>
+            <small>
+              <info-button name="What-OCR" class="ml-1" />
+            </small>
+          </b-navbar-nav>
         </b-navbar>
       </div>
       <open-seadragon-viewer
@@ -113,7 +112,7 @@
       <issue-viewer-text v-if="article && article.uid && mode === 'text'"
         v-bind:article_uid="article.uid"/>
     </i-layout-section>
-    <i-layout-section width="120px" class="border-left" v-if="issue">
+    <i-layout-section width="120px" class="border-left border-top mt-1px bg-light" v-if="issue">
       <thumbnail-slider
         :bounds="bounds"
         :issue="issue"
@@ -154,6 +153,8 @@ export default {
     pagesIndex: {},
     isTocLoaded: false,
     isSearchLoaded: false,
+    isMarginaliaLoaded: false,
+    isMarginaliaUpdated: false,
     isLoaded: false,
     isDragging: false,
     q: '',
@@ -161,9 +162,13 @@ export default {
     matchesTotalRows: 0,
     matchesPerPage: 10,
     matchesCurrentPage: 1,
-    topicsCurrentPage: {},
-    entitiesCurrentPage: {},
+    // marginalia
+    pageTopics: [],
+    pagePersons: [],
+    pageLocations: [],
+    //
     matches: [],
+    tocArticles: [],
   }),
   computed: {
     issue() {
@@ -195,7 +200,7 @@ export default {
       return results;
     },
     articlePages() {
-      if (!this.article) {
+      if (!this.article || !this.article.pages) {
         return '';
       }
       return this.$tc('pp', this.article.nbPages, {
@@ -234,20 +239,21 @@ export default {
         pageUid = this.issue.cover;
       }
 
-      this.topicsCurrentPage = await this.loadPageTopics({ uid: pageUid });
-      this.entitiesCurrentPage = await this.loadPageEntities({ uid: pageUid });
-
       if (!this.page || this.page.uid !== pageUid) {
         this.page = await this.loadPage({
           uid: pageUid,
         });
         this.currentPageIndex = this.issue.pages.findIndex(p => p.uid === this.page.uid);
+
         // we reset the handler here. Why?
         await this.resetHandler();
         // we dispatch the gotoPage to change page in openseadragon
         this.handler.$emit('dispatch', (viewer) => {
           viewer.goToPage(this.currentPageIndex);
         });
+        // force reload fo marginalia, page changed.
+        this.isMarginaliaLoaded = false;
+        this.isMarginaliaUpdated = false;
       }
       // if there's a specific article, let's load it
       if (this.mode === 'text') {
@@ -278,8 +284,20 @@ export default {
         await this.loadToC();
       }
 
+      // get article properties from toc
+      if (this.mode !== 'text' && this.article) {
+        const selectedArticle = this.tocArticles.find(d => d.uid === this.article.uid);
+        if (selectedArticle) {
+          this.article = selectedArticle;
+        }
+      }
+
       if (!this.isSearchLoaded) {
         await this.search();
+      }
+
+      if (!this.isMarginaliaLoaded) {
+        await this.loadMarginalia();
       }
       // are there any matches?
     },
@@ -311,6 +329,23 @@ export default {
           q: this.issue.uid,
         },
       ]);
+    },
+    updateMarginalia() {
+      console.info('Update page marginalia');
+      const listMapper = () => d => `<li>${d.item.htmlExcerpt || d.item.name} (${d.count})</li>`;
+      const sectionFormatter = (items, type) => [
+        '<section><h4 class="small-caps">',
+        this.$tc(`label.${type}.title`, items.length),
+        '</h4><ul>',
+        items.map(listMapper(type)).join(''),
+        '</ul></section>',
+      ].join('');
+      this.marginaliaLeft.innerHTML = sectionFormatter(this.pageTopics, 'topic');
+      this.marginaliaRight.innerHTML = [
+        sectionFormatter(this.pagePersons, 'person'),
+        sectionFormatter(this.pageLocations, 'location'),
+      ].join('');
+      this.isMarginaliaUpdated = true;
     },
     resetHandler() {
       const self = this;
@@ -352,46 +387,28 @@ export default {
           if (self.isLoaded) { // skip
             return;
           }
-          console.info('@tile-loaded', self.page.articles);
+          console.info('OS Viewer @tile-loaded, n. of articles:', self.page.articles.length);
           self.isLoaded = true;
-
-
-          // marginalia left
-          const marginaliaLeft = window.document.createElement('div');
-          marginaliaLeft.setAttribute('class', 'marginalia left');
-
-          let listHtml = '';
-          this.topicsCurrentPage.buckets.forEach((topic) => {
-            // console.log(topic.val, topic.count);
-            listHtml += `<li>${topic.val} (${topic.count})</li>`;
-          });
-          marginaliaLeft.innerHTML = `<h4 class="small-caps">Page Topics</h4><ul>${listHtml}</ul>`;
-
-          const marginaliaLeftRect = viewer.viewport.imageToViewportRectangle(-4000, 0, 4000, 10000);
-
-          viewer.addOverlay(marginaliaLeft, marginaliaLeftRect);
-
-
-          // marginalia right
-          const marginaliaRight = window.document.createElement('div');
-          marginaliaRight.setAttribute('class', 'marginalia right');
-
-          listHtml = '';
-          // console.log('EEEEEEEE', this.entitiesCurrentPage);
-          this.entitiesCurrentPage.forEach((entityTypes) => {
-            listHtml += `<li><b>${entityTypes.type} (${entityTypes.numBuckets})</b></li>`;
-            entityTypes.buckets.forEach((entity) => {
-              console.log(entity.val, entity.count);
-              listHtml += `<li><entity-item :item="${entity.item}" />${entity.val} (${entity.count})</li>`;
-            });
-          });
-
-          marginaliaRight.innerHTML = `<h4 class="small-caps">Page Entities</h4><ul>${listHtml}</ul>`;
-
-          const marginaliaRightRect = viewer.viewport.imageToViewportRectangle(viewer.world.getItemAt(0).getContentSize().x, 0, 4000, 10000);
-
-          viewer.addOverlay(marginaliaRight, marginaliaRightRect);
-
+          // create or reset marginalia left
+          self.marginaliaLeft = window.document.createElement('div');
+          self.marginaliaLeft.setAttribute('class', 'marginalia left');
+          viewer.addOverlay(
+            self.marginaliaLeft,
+            viewer.viewport.imageToViewportRectangle(-4000, 0, 4000, 10000),
+          );
+          // create or reset marginalia right
+          self.marginaliaRight = window.document.createElement('div');
+          self.marginaliaRight.setAttribute('class', 'marginalia right');
+          viewer.addOverlay(
+            self.marginaliaRight,
+            viewer.viewport.imageToViewportRectangle(
+              viewer.world.getItemAt(0).getContentSize().x, 0,
+              4000, 10000,
+            ),
+          );
+          if (self.isMarginaliaLoaded) {
+            self.updateMarginalia();
+          }
 
           self.page.articles.forEach((article) => {
             // regions
@@ -466,11 +483,11 @@ export default {
       return this.$store.dispatch('issue/LOAD_PAGE', uid);
     },
     loadPageTopics({ uid }) {
-      console.info('...loading marginalia', uid);
+      console.info('...loading marginalia topics', uid);
       return this.$store.dispatch('entities/LOAD_PAGE_TOPICS', uid);
     },
     loadPageEntities({ uid }) {
-      console.info('...loading LOAD_PAGE_ENTITIES', uid);
+      console.info('...loading marginalia named entities', uid);
       return this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', uid);
     },
     loadArticle({ uid }) {
@@ -480,9 +497,25 @@ export default {
     loadToC() {
       console.info('...loading ToC', this.issue.uid);
       return this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS')
-        .then(() => {
+        .then((articles) => {
+          this.tocArticles = articles;
           this.isTocLoaded = true;
         });
+    },
+    loadMarginalia() {
+      console.info('...loading marginalia:', this.page.uid);
+      return Promise.all([
+        this.loadPageTopics({ uid: this.page.uid }),
+        this.loadPageEntities({ uid: this.page.uid }),
+      ]).then(([topicFacet, [locationFacet, personFacet]]) => {
+        this.isMarginaliaLoaded = true;
+        this.pageTopics = topicFacet.buckets;
+        this.pageLocations = locationFacet.buckets;
+        this.pagePersons = personFacet.buckets;
+        if (this.isLoaded) {
+          this.updateMarginalia();
+        }
+      });
     },
     onRemoveFilter(filter) {
       this.$store.commit('search/REMOVE_FILTER', filter);
@@ -587,6 +620,10 @@ div.overlay-region{
 div.marginalia{
   // background: $clr-accent;
   // border: 2px solid black;
+  section {
+    max-width: 200px;
+    font-size: 80%;
+  }
   &.left {
     padding-right: 1em;
     text-align: right;
