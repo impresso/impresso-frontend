@@ -27,8 +27,13 @@
           </div>
           <b-container fluid
             v-else
-            class="region-row mt-3 mb-3 bg-white">
-            <b-row v-for="(region, i) in article.regions" v-bind:key="i">
+            class="region-row mt-3 mb-3">
+            <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
+              <div v-if="article.isCC" class="col col-sm-5 bg-white border">
+                <div class="py-3">
+                  <img v-bind:src="region.iiifFragment" style="width: 100%" />
+                </div>
+              </div>
               <div
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
@@ -37,11 +42,6 @@
                   <p v-for="contents in region.g" >
                     <span v-html="contents"></span>
                   </p>
-                </div>
-              </div>
-              <div v-if="article.isCC" class="col col-sm-5 bg-white">
-                <div >
-                  <img v-bind:src="region.iiifFragment" style="width: 100%" />
                 </div>
               </div>
             </b-row>
