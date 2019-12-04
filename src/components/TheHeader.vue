@@ -115,7 +115,7 @@
         <span>
           <span v-if="error.name === 'NotAuthenticated'">{{ $t('errors.Notauthenticated') }}</span>
           <span v-else-if="error.name === 'BadGateway'">{{ $t(`errors.BadGateway.${error.message}`) }}</span>
-          <span v-else-if="error.name === 'TypeError'">{{ $t(`errors.TypeError`) }}: {{ error.message }}</span>
+          <span v-else-if="error.name === 'TypeError'">{{ $t(`errors.TypeError`) }} {{ error.message }}</span>
           <span v-else>{{ error }}</span>
         </span>
         <span v-if="error.route.length">{{ $t(['paths', ...error.route].join('.')) }}</span>
