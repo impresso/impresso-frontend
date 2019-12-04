@@ -123,5 +123,29 @@ export default {
         query,
       }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
     },
+    LOAD_PAGE_TOPICS(context, pageId) {
+      const query = {
+        filters: [{
+          type: 'page',
+          q: pageId,
+        }],
+        group_by: 'articles',
+      };
+      return services.searchFacets.get('topic', {
+        query,
+      }).then(([topics]) => topics);
+    },
+    LOAD_PAGE_ENTITIES(context, pageId) {
+      const query = {
+        filters: [{
+          type: 'page',
+          q: pageId,
+        }],
+        group_by: 'articles',
+      };
+      return services.searchFacets.get('location,person', {
+        query,
+      }).then(([locations, persons]) => [locations, persons]);
+    },
   },
 };

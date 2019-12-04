@@ -134,6 +134,8 @@ import 'vue-awesome/icons/align-left';
 import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 
+import ItemLabel from './modules/lists/ItemLabel';
+
 import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
@@ -159,6 +161,8 @@ export default {
     matchesTotalRows: 0,
     matchesPerPage: 10,
     matchesCurrentPage: 1,
+    topicsCurrentPage: {},
+    entitiesCurrentPage: {},
     matches: [],
   }),
   computed: {
@@ -229,6 +233,9 @@ export default {
       } else {
         pageUid = this.issue.cover;
       }
+
+      this.topicsCurrentPage = await this.loadPageTopics({ uid: pageUid });
+      this.entitiesCurrentPage = await this.loadPageEntities({ uid: pageUid });
 
       if (!this.page || this.page.uid !== pageUid) {
         this.page = await this.loadPage({
@@ -347,6 +354,45 @@ export default {
           }
           console.info('@tile-loaded', self.page.articles);
           self.isLoaded = true;
+
+
+          // marginalia left
+          const marginaliaLeft = window.document.createElement('div');
+          marginaliaLeft.setAttribute('class', 'marginalia left');
+
+          let listHtml = '';
+          this.topicsCurrentPage.buckets.forEach((topic) => {
+            // console.log(topic.val, topic.count);
+            listHtml += `<li>${topic.val} (${topic.count})</li>`;
+          });
+          marginaliaLeft.innerHTML = `<h4 class="small-caps">Page Topics</h4><ul>${listHtml}</ul>`;
+
+          const marginaliaLeftRect = viewer.viewport.imageToViewportRectangle(-4000, 0, 4000, 10000);
+
+          viewer.addOverlay(marginaliaLeft, marginaliaLeftRect);
+
+
+          // marginalia right
+          const marginaliaRight = window.document.createElement('div');
+          marginaliaRight.setAttribute('class', 'marginalia right');
+
+          listHtml = '';
+          // console.log('EEEEEEEE', this.entitiesCurrentPage);
+          this.entitiesCurrentPage.forEach((entityTypes) => {
+            listHtml += `<li><b>${entityTypes.type} (${entityTypes.numBuckets})</b></li>`;
+            entityTypes.buckets.forEach((entity) => {
+              console.log(entity.val, entity.count);
+              listHtml += `<li><entity-item :item="${entity.item}" />${entity.val} (${entity.count})</li>`;
+            });
+          });
+
+          marginaliaRight.innerHTML = `<h4 class="small-caps">Page Entities</h4><ul>${listHtml}</ul>`;
+
+          const marginaliaRightRect = viewer.viewport.imageToViewportRectangle(viewer.world.getItemAt(0).getContentSize().x, 0, 4000, 10000);
+
+          viewer.addOverlay(marginaliaRight, marginaliaRightRect);
+
+
           self.page.articles.forEach((article) => {
             // regions
             article.regions.forEach((region) => {
@@ -418,6 +464,14 @@ export default {
     loadPage({ uid }) {
       console.info('...loading page', uid);
       return this.$store.dispatch('issue/LOAD_PAGE', uid);
+    },
+    loadPageTopics({ uid }) {
+      console.info('...loading marginalia', uid);
+      return this.$store.dispatch('entities/LOAD_PAGE_TOPICS', uid);
+    },
+    loadPageEntities({ uid }) {
+      console.info('...loading LOAD_PAGE_ENTITIES', uid);
+      return this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', uid);
     },
     loadArticle({ uid }) {
       console.info('...loading article', uid);
@@ -499,6 +553,7 @@ export default {
     SearchPills,
     Pagination,
     InfoButton,
+    ItemLabel,
   },
   watch: {
     $route: {
@@ -527,6 +582,22 @@ div.overlay-region{
   cursor: pointer;
   &.selected, &.active{
     opacity: 0.2;
+  }
+}
+div.marginalia{
+  // background: $clr-accent;
+  // border: 2px solid black;
+  &.left {
+    padding-right: 1em;
+    text-align: right;
+  }
+  &.right {
+    padding-left: 1em;
+    text-align: left;
+  }
+  ul {
+    list-style: none;
+    padding: 0.5em 0;
   }
 }
 
