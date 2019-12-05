@@ -334,7 +334,7 @@ export default {
       console.info('Update page marginalia');
       const listMapper = () => d => `<li>${d.item.htmlExcerpt || d.item.name} (${d.count})</li>`;
       const sectionFormatter = (items, type) => [
-        '<section><h4 class="small-caps">',
+        '<section><h4 class="small-caps border-bottom">',
         this.$tc(`label.${type}.title`, items.length),
         '</h4><ul>',
         items.map(listMapper(type)).join(''),
@@ -623,10 +623,19 @@ div.marginalia{
   section {
     max-width: 200px;
     font-size: 80%;
+    color: #626e7a;
   }
   &.left {
     padding-right: 1em;
     text-align: right;
+  }
+  &.left section {
+    position: absolute;
+    right: 1em;
+  }
+  h4{
+    font-weight: bold;
+    padding-bottom: 1rem;
   }
   &.right {
     padding-left: 1em;
