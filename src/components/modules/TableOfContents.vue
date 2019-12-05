@@ -178,61 +178,7 @@ export default {
       font-size: inherit;
     }
     &.active {
-      background: white;
-      box-shadow: inset 6px 0px #56CCF2, inset 0px 1px 0px #343a4063;
-    }
-    &.active {
-      background: white;
-      box-shadow: inset 6px 0px gold, inset 0px 1px 0px #343a4063;
-    }
-  }
-}
-
-.oTableOfContents{
-  .page{
-    font-size: smaller;
-
-    .article{
-      &.active{
-        // border-bottom: 1px solid #343a40 !important;
-        background: white;
-        box-shadow: inset 6px 0px #56CCF2, inset 0px 1px 0px #343a4063;
-
-        a{
-          // box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
-          background: white; // #f8f9fa;
-          .collapased {
-            height: auto;
-            max-height: 1200px;
-            overflow: visible;
-            .collection-add-to {
-            }
-          }
-        }
-      }
-      a{
-        text-decoration: none;
-        display: block;
-        .collapased {
-          height: 0;
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 400ms ease-in-out;
-        }
-        .title{
-          font-weight: bold;
-        }
-        .excerpt{
-          color: $clr-secondary;
-        }
-        .images{
-          width:80px;
-          float:left;
-          .image{
-
-          }
-        }
-      }
+      box-shadow: inset 4px 0px #343a40;
     }
   }
 }

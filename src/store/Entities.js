@@ -3,6 +3,7 @@ import Entity from '@/models/Entity';
 import Article from '@/models/Article';
 import Mention from '@/models/Mention';
 import Helpers from '@/plugins/Helpers';
+import Facet from '@/models/Facet';
 
 export default {
   namespaced: true,
@@ -133,7 +134,7 @@ export default {
       };
       return services.searchFacets.get('topic', {
         query,
-      }).then(([topics]) => topics);
+      }).then(([topic]) => new Facet(topic));
     },
     LOAD_PAGE_ENTITIES(context, pageId) {
       const query = {
@@ -145,7 +146,10 @@ export default {
       };
       return services.searchFacets.get('location,person', {
         query,
-      }).then(([locations, persons]) => [locations, persons]);
+      }).then(([location, person]) => [
+        new Facet(location),
+        new Facet(person),
+      ]);
     },
   },
 };
