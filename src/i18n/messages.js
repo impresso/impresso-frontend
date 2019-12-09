@@ -3,7 +3,7 @@ export default {
     connectivityStatus: {
       offline: '⚡ offline!',
     },
-    untitled: '...',
+    untitled: '(untitled)',
     language: 'Language',
     languages: {
       de: 'German',
