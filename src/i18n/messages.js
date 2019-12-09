@@ -108,6 +108,7 @@ export default {
     reducedReadingTime: 'short text',
     errors: {
       TypeError: 'TypeError:',
+      Timeout: 'Timeout:',
       BadGateway: {
         SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
         SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
