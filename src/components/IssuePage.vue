@@ -418,6 +418,16 @@ export default {
               overlay.setAttribute('class', 'overlay-region');
               overlay.dataset.articleUid = article.uid;
 
+              // selected article regions
+              if (article.uid === this.$route.params.article_uid) {
+                this.$router.push({
+                  name: 'article',
+                  params: {
+                    article_uid: this.$route.params.article_uid,
+                  },
+                });
+              }
+
               overlay.addEventListener('mouseenter', (event) => {
                 const articleUid = event.target.dataset.articleUid;
 
