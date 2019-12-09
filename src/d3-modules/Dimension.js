@@ -114,7 +114,7 @@ class Dimension {
     } else {
       if (!this.isDomainFixed) {
         this.domain = d3.extent(values, d => d[this.property]);
-        console.info(`[${this.name}:${this.property}]`, 'Dimension.update(), updated domain:', this.domain);
+        // console.info(`[${this.name}:${this.property}]`, 'Dimension.update(), updated domain:', this.domain);
       }
       this.scale = this.scaleFn()
         .domain(this.domain)
