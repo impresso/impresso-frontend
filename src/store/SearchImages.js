@@ -1,5 +1,5 @@
 import * as services from '@/services';
-import Article from '@/models/Article';
+import Image from '@/models/Image';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 // import Collection from '@/models/Collection';
@@ -46,11 +46,11 @@ export default {
     },
     results(state) {
       return state.results.map((result) => {
-        if (result instanceof Article) {
+        if (result instanceof Image) {
           return result;
         }
 
-        return new Article(result);
+        return new Image(result);
       });
     },
     facets(state) {
@@ -258,7 +258,7 @@ export default {
       return services.images.find({
         query,
       }).then((res) => {
-        commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+        commit('UPDATE_RESULTS', res.data.map(result => new Image(result)));
         commit('UPDATE_PAGINATION_TOTAL_ROWS', {
           paginationTotalRows: res.total,
         });
