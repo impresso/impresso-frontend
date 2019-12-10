@@ -117,6 +117,7 @@
           <span v-else-if="error.name === 'BadGateway'">{{ $t(`errors.BadGateway.${error.message}`) }}</span>
           <span v-else-if="error.name === 'TypeError'">{{ $t(`errors.TypeError`) }} {{ error.message }}</span>
           <span v-else-if="error.name === 'Timeout'">{{ $t(`errors.Timeout`) }} {{ error.message }}</span>
+          <span v-else-if="error.name === 'BadRequest' && error.message === 'Login incorrect'">{{ $t(`errors.BadRequest`) }} {{ error.message }}</span>
           <span v-else>{{ error }}</span>
         </span>
         <span v-if="error.route.length">{{ $t(['paths', ...error.route].join('.')) }}</span>
@@ -172,7 +173,7 @@ export default {
       return {
         name: 'login',
         query: {
-          redirect: this.$route.fullPath,
+          redirect: this.$route.path,
         },
       };
     },
