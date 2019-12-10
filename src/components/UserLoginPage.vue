@@ -66,9 +66,10 @@ export default {
       }).then(() => {
         this.$router.push({
           path,
+          ...this.$store.getters.redirectionParams,
         });
-      }, (err) => {
-        this.error = this.$t(err.message);
+      }).catch((err) => {
+        throw err;
       });
     },
   },
