@@ -28,7 +28,7 @@
               v-bind:autocomplete="autocomplete()">
             <div class="checkbox mb-3">
               <label>
-                <input type="checkbox" value="remember-me" v-model="rememberCredetials"> {{$t("login_remember")}}
+                <input type="checkbox" value="remember-me" v-model="rememberCredentials"> {{$t("login_remember")}}
               </label>
             </div>
             <h5>Do you need an account?</h5>
@@ -54,7 +54,7 @@ export default {
   }),
   methods: {
     autocomplete() {
-      return this.rememberCredetials === true ? 'on' : 'off';
+      return this.rememberCredentials === true ? 'on' : 'off';
     },
     authenticate() {
       this.error = false;
@@ -73,9 +73,9 @@ export default {
     },
   },
   computed: {
-    rememberCredetials: {
+    rememberCredentials: {
       get() {
-        return this.$store.state.user.rememberCredetials;
+        return this.$store.state.user.rememberCredentials;
       },
       set(val) {
         this.$store.commit('user/SET_REMEMBER_CREDENTIALS', {
