@@ -107,7 +107,7 @@
             </b-dropdown-item>
 
           </b-nav-item-dropdown>
-          <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
+          <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">
@@ -168,6 +168,14 @@ export default {
     }
   },
   computed: {
+    loginRouteParams() {
+      return {
+        name: 'login',
+        query: {
+          redirect: this.$route.fullPath,
+        },
+      };
+    },
     jobs() {
       return this.$store.state.jobs.items;
     },
