@@ -77,9 +77,22 @@
               <span class="date small">
               {{ $d(issue.date, 'long') }}
               </span>
-              <span v-if="page" class="badge badge-info sans-serif">{{ $tc('pp', 1, { pages: page.num }) }}</span>
             </h3>
           </section>
+          <b-navbar-nav v-if="issue">
+            <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
+            <b-button variant="outline-primary" size="sm" class=""
+              v-bind:disabled="currentPageIndex === 0"
+              v-on:click="gotoPageIndex(currentPageIndex - 1)">
+              <span class="dripicons dripicons-media-previous"></span>
+            </b-button>
+            <span v-if="page" class="border-top border-bottom px-2 border-primary badge-primary">{{ $tc('pp', 1, { pages: page.num }) }}</span>
+            <b-button variant="outline-primary" size="sm" class=""
+              v-bind:disabled="(currentPageIndex + 1) === issue.pages.length"
+              v-on:click="gotoPageIndex(currentPageIndex + 1)">
+              <div class="dripicons dripicons-media-next" style="line-height:1"></div>
+            </b-button>
+          </b-navbar-nav>
         </b-navbar>
         <b-navbar type="light" variant="light" class="px-0 py-0">
           <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
@@ -170,6 +183,20 @@ export default {
     matches: [],
     tocArticles: [],
   }),
+  mounted() {
+    window.addEventListener('keyup', (e) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          this.gotoPageIndex(this.currentPageIndex - 1);
+          break;
+        case 'ArrowRight':
+          this.gotoPageIndex(this.currentPageIndex + 1);
+          break;
+        default:
+          break;
+      }
+    });
+  },
   computed: {
     issue() {
       return this.$store.state.issue.issue;
@@ -562,6 +589,12 @@ export default {
           }
         });
       });
+    },
+    gotoPageIndex(idx) {
+      const page = this.issue.pages[idx];
+      if (page) {
+        this.gotoPage(page);
+      }
     },
     gotoPage(page) {
       this.$router.push({
