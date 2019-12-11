@@ -84,13 +84,13 @@
             <b-button variant="outline-primary" size="sm" class=""
               v-bind:disabled="currentPageIndex === 0"
               v-on:click="gotoPageIndex(currentPageIndex - 1)">
-              <span class="dripicons dripicons-media-previous"></span>
+              <div class="dripicons dripicons-media-previous" style="line-height:0.6"></div>
             </b-button>
             <span v-if="page" class="border-top border-bottom px-2 border-primary badge-primary">{{ $tc('pp', 1, { pages: page.num }) }}</span>
             <b-button variant="outline-primary" size="sm" class=""
               v-bind:disabled="(currentPageIndex + 1) === issue.pages.length"
               v-on:click="gotoPageIndex(currentPageIndex + 1)">
-              <div class="dripicons dripicons-media-next" style="line-height:1"></div>
+              <div class="dripicons dripicons-media-next" style="line-height:0.6"></div>
             </b-button>
           </b-navbar-nav>
         </b-navbar>
