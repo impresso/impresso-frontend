@@ -187,9 +187,11 @@ export default {
     window.addEventListener('keyup', (e) => {
       switch (e.key) {
         case 'ArrowLeft':
+          e.preventDefault();
           this.gotoPageIndex(this.currentPageIndex - 1);
           break;
         case 'ArrowRight':
+          e.preventDefault();
           this.gotoPageIndex(this.currentPageIndex + 1);
           break;
         default:
@@ -507,7 +509,7 @@ export default {
               }
             });
           });
-          // this.selectArticle();
+          this.selectArticle();
         });
       });
     },
@@ -651,13 +653,13 @@ export default {
 // to be the exact same
 /// Maybe we can move this to bootpresso?
 div.overlay-region{
-  background: $clr-accent-secondary;
-  opacity: 0;
-
-  transition: opacity 300ms;
+  border: 1px dashed $clr-accent-secondary;
+  background-color: transparent;
+  transition: background-color 300ms;
   cursor: pointer;
+
   &.selected, &.active{
-    opacity: 0.2;
+    background-color: $clr-accent-secondary;
   }
 }
 div.marginalia{
