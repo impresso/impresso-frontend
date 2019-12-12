@@ -1,6 +1,6 @@
 <template lang="html">
-  <i-layout id="IssuePage">
-    <i-layout-section width="350px" class="border-right border-top mt-1px">
+  <i-layout id="IssuePage" ref="issuePage">
+    <i-layout-section width="350px" class="border-right border-top mt-1px bg-white">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -125,6 +125,7 @@
               </b-form-radio-group>
             </li>
           </b-navbar-nav>
+          <b-button variant="outline-primary" size="sm" @click="toggleFullscreen" class="ml-3">FullScreen</b-button>
        </b-navbar>
       </div>
       <open-seadragon-viewer
@@ -645,6 +646,15 @@ export default {
           tab: this.tab,
         },
       });
+    },
+    toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        this.$refs.issuePage.$el.requestFullscreen().catch((err) => {
+          console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
     },
   },
   components: {
