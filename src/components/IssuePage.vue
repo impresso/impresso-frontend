@@ -113,7 +113,7 @@
               <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/> close reading</b-form-radio>
             </b-form-radio-group>
             <small>
-              <info-button name="What-OCR" class="ml-1" />
+              <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
             </small>
           </b-navbar-nav>
         </b-navbar>
