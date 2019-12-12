@@ -290,19 +290,22 @@ $clr-grey-900: #ddd;
 }
 
 
-div.overlay-region {
-  border: 1px solid $clr-accent-secondary;
+.overlay-region {
   background-color: transparentize($clr-accent-secondary, 1);
-  transition: background-color, border-width 300ms;
+  transition: background-color 300ms;
   cursor: pointer;
 
   &.selected {
-    border-width: 3px;
+    background-color: transparentize($clr-accent-secondary, 0.8);
   }
   &.active {
-    background-color: transparentize($clr-accent-secondary, 0.8);
+    background-color: transparentize($clr-accent-secondary, 0.5);
     cursor: inherit;
   }
+}
+
+.show-outlines .overlay-region {
+  outline: 1px solid $clr-accent-secondary;
 }
 
 .overlay-match{

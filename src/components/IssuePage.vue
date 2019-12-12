@@ -79,15 +79,15 @@
               </span>
             </h3>
           </section>
-          <b-navbar-nav v-if="issue">
+          <b-navbar-nav v-if="issue" class=" border">
             <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
-            <b-button variant="outline-primary" size="sm"
+            <b-button variant="light" size="sm"
               v-bind:disabled="currentPageIndex === 0"
               v-on:click="gotoPageIndex(currentPageIndex - 1)">
               <div class="dripicons dripicons-media-previous pt-1"></div>
             </b-button>
-            <div v-if="page" class="px-2 pt-1 bg-primary" style="padding-bottom:0.2rem">{{ $tc('pp', 1, { pages: page.num }) }}</div>
-            <b-button variant="outline-primary" size="sm"
+            <div v-if="page" class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
+            <b-button variant="light" size="sm"
               v-bind:disabled="(currentPageIndex + 1) === issue.pages.length"
               v-on:click="gotoPageIndex(currentPageIndex + 1)">
               <div class="dripicons dripicons-media-next pt-1"></div>
@@ -116,10 +116,22 @@
               <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
             </small>
           </b-navbar-nav>
-        </b-navbar>
+          <b-navbar-nav v-show="mode === 'image'" class="px-3 pt-1 border-right">
+            <li>
+              <label for="showOutlines">Outlines</label>
+              <b-form-radio-group v-model="showOutlines" button-variant="outline-primary" size="sm" buttons>
+                <b-form-radio value="show-outlines">show</b-form-radio>
+                <b-form-radio value="no-outlines">hide</b-form-radio>
+              </b-form-radio-group>
+            </li>
+          </b-navbar-nav>
+       </b-navbar>
       </div>
       <open-seadragon-viewer
-        class="bg-light"
+        :class="[
+          'bg-light',
+          showOutlines,
+        ]"
         v-show="mode === 'image'"
         v-bind:handler="handler" />
       <issue-viewer-text v-if="article && article.uid && mode === 'text'"
@@ -246,6 +258,17 @@ export default {
       set(mode) {
         this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
         this.init();
+      },
+    },
+    showOutlines: {
+      get() {
+        return this.$store.state.issue.showOutlines;
+      },
+      set(showOutlines) {
+        console.log(showOutlines);
+        this.$store.commit('issue/UPDATE_OUTLINES', showOutlines);
+        // console.log(showOutlines, this.$store.state.issue.showOutlines);
+        // this.init();
       },
     },
   },
