@@ -81,23 +81,23 @@
           </section>
           <b-navbar-nav v-if="issue">
             <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
-            <b-button variant="outline-primary" size="sm" class=""
+            <b-button variant="outline-primary" size="sm"
               v-bind:disabled="currentPageIndex === 0"
               v-on:click="gotoPageIndex(currentPageIndex - 1)">
-              <div class="dripicons dripicons-media-previous" style="line-height:0.6"></div>
+              <div class="dripicons dripicons-media-previous pt-1"></div>
             </b-button>
-            <span v-if="page" class="border-top border-bottom px-2 border-primary badge-primary">{{ $tc('pp', 1, { pages: page.num }) }}</span>
-            <b-button variant="outline-primary" size="sm" class=""
+            <div v-if="page" class="px-2 pt-1 bg-primary" style="padding-bottom:0.2rem">{{ $tc('pp', 1, { pages: page.num }) }}</div>
+            <b-button variant="outline-primary" size="sm"
               v-bind:disabled="(currentPageIndex + 1) === issue.pages.length"
               v-on:click="gotoPageIndex(currentPageIndex + 1)">
-              <div class="dripicons dripicons-media-next" style="line-height:0.6"></div>
+              <div class="dripicons dripicons-media-next pt-1"></div>
             </b-button>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar type="light" variant="light" class="px-0 py-0">
           <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
             <div v-if="article && article.type">
-              <span class="small-caps">{{ $t(`buckets.type.${article.type}`) }}</span>
+              <span class="badge bg-accent-secondary text-clr-white">{{ $t(`buckets.type.${article.type}`) }}</span>
               <span class="small">
                 &nbsp;&nbsp;
                 <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
@@ -187,10 +187,12 @@ export default {
     window.addEventListener('keyup', (e) => {
       switch (e.key) {
         case 'ArrowLeft':
+        case 'ArrowUp':
           e.preventDefault();
           this.gotoPageIndex(this.currentPageIndex - 1);
           break;
         case 'ArrowRight':
+        case 'ArrowDown':
           e.preventDefault();
           this.gotoPageIndex(this.currentPageIndex + 1);
           break;
@@ -648,20 +650,6 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-// TODO: we have this classblock twice, also on SearchPage.vue
-// block is not scoped so these two interfere with eachother so they interfere
-// to be the exact same
-/// Maybe we can move this to bootpresso?
-div.overlay-region{
-  border: 1px dashed $clr-accent-secondary;
-  background-color: transparent;
-  transition: background-color 300ms;
-  cursor: pointer;
-
-  &.selected, &.active{
-    background-color: $clr-accent-secondary;
-  }
-}
 div.marginalia{
   // background: $clr-accent;
   // border: 2px solid black;
@@ -696,9 +684,6 @@ div.marginalia{
 @supports (mix-blend-mode: multiply) {
   div.overlay-region {
     mix-blend-mode: multiply;
-    &.selected, &.active{
-      opacity: 0.5;
-    }
   }
 }
 </style>

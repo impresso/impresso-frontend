@@ -178,10 +178,6 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-div.overlay-region{
-  background: $clr-accent-secondary;
-  opacity: 0.25;
-}
 .thumbnail {
     width: 215px;
     height: 240px;
