@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="IssuePage" ref="issuePage">
-    <i-layout-section width="350px" class="border-right border-top mt-1px bg-white">
+    <i-layout-section width="350px" class="border-right border-top mt-1px">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
