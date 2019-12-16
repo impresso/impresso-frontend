@@ -6,12 +6,11 @@
         class="article flatten"
         v-for="(article, idx) in articles"
         v-bind:key="idx"
-        v-bind:class="{active: article.uid === selectedArticleUid}"
+        v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
         v-on:click.prevent="onClick(article, page)">
         <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
         <article-item :item="article" class="p-3 clearfix"
           show-excerpt
-          show-link
           show-entities
           show-size
           show-pages
@@ -22,20 +21,20 @@
       </b-media>
     </div>
     <div v-else>
-      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page border-bottom">
+      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page "
+      v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}">
         <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
           <b-media
             :ref="`article-${article.uid}`"
-            class="article border-bottom"
+            class="article "
             v-for="(article, idx) in page.articles"
             v-bind:key="idx"
-            v-bind:class="{active: article.uid === selectedArticleUid}"
+            v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
             <div>
               <image-item :height="200" :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
               <article-item :item="article" class="p-3"
                 show-excerpt
-                show-link
                 show-entities
                 show-size
                 show-pages
@@ -84,6 +83,9 @@ export default {
   computed: {
     articleUid() {
       return this.article.uid;
+    },
+    currentPageNum() {
+      return this.page.num;
     },
   },
   components: {
@@ -173,12 +175,25 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 .toc{
+  margin-left: 1px;
   .article{
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $clr-bg-secondary;
+    }
+
     h2 {
       font-size: inherit;
     }
+    &.activepage {
+      box-shadow: inset 1px 0 $clr-primary;
+    }
     &.active {
-      box-shadow: inset 4px 0px #343a40;
+      box-shadow: inset .25em 0 $clr-accent-secondary;
+      background-color: $clr-bg-secondary;
+      cursor: inherit;
     }
   }
 }

@@ -218,6 +218,7 @@ export default new Vuex.Store({
       'user.userData',
       'collections.collectionsSortOrder',
       'issue.viewerMode',
+      'issue.showOutlines',
       'newspapers.orderBy',
       'autocomplete.queries',
     ],

@@ -8,6 +8,7 @@ import store from '../store';
 export default {
   namespaced: true,
   state: {
+    showOutlines: false,
     viewerMode: 'text', // text or image
     pagesIndex: {},
     issue: null,
@@ -15,6 +16,9 @@ export default {
   mutations: {
     UPDATE_VIEWER_MODE(state, viewerMode) {
       state.viewerMode = viewerMode;
+    },
+    UPDATE_OUTLINES(state, showOutlines) {
+      state.showOutlines = showOutlines;
     },
     SET_ISSUE(state, issue) {
       state.issue = issue;

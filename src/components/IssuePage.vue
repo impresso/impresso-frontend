@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout id="IssuePage">
+  <i-layout id="IssuePage" ref="issuePage">
     <i-layout-section width="350px" class="border-right border-top mt-1px">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
@@ -79,25 +79,25 @@
               </span>
             </h3>
           </section>
-          <b-navbar-nav v-if="issue">
+          <b-navbar-nav v-if="issue" class=" border">
             <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
-            <b-button variant="outline-primary" size="sm" class=""
+            <b-button variant="light" size="sm"
               v-bind:disabled="currentPageIndex === 0"
               v-on:click="gotoPageIndex(currentPageIndex - 1)">
-              <div class="dripicons dripicons-media-previous" style="line-height:0.6"></div>
+              <div class="dripicons dripicons-media-previous pt-1"></div>
             </b-button>
-            <span v-if="page" class="border-top border-bottom px-2 border-primary badge-primary">{{ $tc('pp', 1, { pages: page.num }) }}</span>
-            <b-button variant="outline-primary" size="sm" class=""
+            <div v-if="page" class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
+            <b-button variant="light" size="sm"
               v-bind:disabled="(currentPageIndex + 1) === issue.pages.length"
               v-on:click="gotoPageIndex(currentPageIndex + 1)">
-              <div class="dripicons dripicons-media-next" style="line-height:0.6"></div>
+              <div class="dripicons dripicons-media-next pt-1"></div>
             </b-button>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar type="light" variant="light" class="px-0 py-0">
           <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
             <div v-if="article && article.type">
-              <span class="small-caps">{{ $t(`buckets.type.${article.type}`) }}</span>
+              <span class="badge bg-accent-secondary text-clr-white">{{ $t(`buckets.type.${article.type}`) }}</span>
               <span class="small">
                 &nbsp;&nbsp;
                 <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
@@ -113,13 +113,41 @@
               <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/> close reading</b-form-radio>
             </b-form-radio-group>
             <small>
-              <info-button name="What-OCR" class="ml-1" />
+              <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
             </small>
           </b-navbar-nav>
-        </b-navbar>
+
+          <b-navbar-nav v-show="mode === 'image'" class="px-3 border-right">
+
+            <b-button
+              :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
+              @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
+              <div class="d-flex flex-row align-items-center">
+                <div class="d-flex dripicons dripicons-preview" />
+                <div class="ml-2">{{$t('toggle_outlines')}}</div>
+              </div>
+            </b-button>
+
+          </b-navbar-nav>
+          <b-navbar-nav>
+
+            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
+              <div class="d-flex flex-row align-items-center">
+                <div :class="['d-flex', 'dripicons', isFullscreen ? 'dripicons-contract' : 'dripicons-expand']" />
+                <div class="ml-2">{{$t('toggle_fullscreen')}}</div>
+              </div>
+            </b-button>
+
+          </b-navbar-nav>
+
+
+       </b-navbar>
       </div>
       <open-seadragon-viewer
-        class="bg-light"
+        :class="[
+          'bg-light',
+          showOutlines,
+        ]"
         v-show="mode === 'image'"
         v-bind:handler="handler" />
       <issue-viewer-text v-if="article && article.uid && mode === 'text'"
@@ -171,6 +199,7 @@ export default {
     isLoaded: false,
     isDragging: false,
     q: '',
+    isFullscreen: false,
     // matching articles
     matchesTotalRows: 0,
     matchesPerPage: 10,
@@ -187,9 +216,13 @@ export default {
     window.addEventListener('keyup', (e) => {
       switch (e.key) {
         case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault();
           this.gotoPageIndex(this.currentPageIndex - 1);
           break;
         case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault();
           this.gotoPageIndex(this.currentPageIndex + 1);
           break;
         default:
@@ -242,6 +275,14 @@ export default {
       set(mode) {
         this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
         this.init();
+      },
+    },
+    showOutlines: {
+      get() {
+        return this.$store.state.issue.showOutlines;
+      },
+      set(showOutlines) {
+        this.$store.commit('issue/UPDATE_OUTLINES', showOutlines);
       },
     },
   },
@@ -507,7 +548,7 @@ export default {
               }
             });
           });
-          // this.selectArticle();
+          this.selectArticle();
         });
       });
     },
@@ -619,6 +660,18 @@ export default {
         },
       });
     },
+    toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        this.$refs.issuePage.$el.requestFullscreen().then(() => {
+          this.isFullscreen = true;
+        }).catch((err) => {
+          console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        this.isFullscreen = false;
+        document.exitFullscreen();
+      }
+    },
   },
   components: {
     OpenSeadragonViewer,
@@ -646,20 +699,6 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-// TODO: we have this classblock twice, also on SearchPage.vue
-// block is not scoped so these two interfere with eachother so they interfere
-// to be the exact same
-/// Maybe we can move this to bootpresso?
-div.overlay-region{
-  background: $clr-accent-secondary;
-  opacity: 0;
-
-  transition: opacity 300ms;
-  cursor: pointer;
-  &.selected, &.active{
-    opacity: 0.2;
-  }
-}
 div.marginalia{
   // background: $clr-accent;
   // border: 2px solid black;
@@ -694,9 +733,6 @@ div.marginalia{
 @supports (mix-blend-mode: multiply) {
   div.overlay-region {
     mix-blend-mode: multiply;
-    &.selected, &.active{
-      opacity: 0.5;
-    }
   }
 }
 </style>
@@ -707,7 +743,9 @@ div.marginalia{
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages",
     "label_display": "Display as",
     "table_of_contents": "table of contents",
-    "search_and_find": "search in issue"
+    "search_and_find": "search in issue",
+    "toggle_fullscreen": "Fullscreen",
+    "toggle_outlines": "Outlines"
   },
   "nl": {
     "label_display": "Toon als",

@@ -199,6 +199,29 @@ $clr-grey-900: #ddd;
     border-color: $clr-tertiary !important;
 }
 
+.bg-primary {
+  background-color: $clr-primary;
+  color: $clr-white;
+}
+
+.bg-secondary {
+  background-color: $clr-secondary;
+  color: $clr-white;
+}
+
+.bg-tertiary {
+  background-color: $clr-tertiary;
+}
+
+.bg-accent {
+  background-color: $clr-accent;
+}
+
+.bg-accent-secondary {
+  background-color: $clr-accent-secondary;
+  color: $clr-white;
+}
+
 .custom-control-input {
   width: 0;
   height: 0;
@@ -266,6 +289,29 @@ $clr-grey-900: #ddd;
   color: $clr-primary;
 }
 
+
+.overlay-region {
+  background-color: transparentize($clr-accent-secondary, 1);
+  transition: background-color 300ms;
+  cursor: pointer;
+
+  &.selected {
+    background-color: transparentize($clr-accent-secondary, 0.8);
+  }
+  &.active {
+    background-color: transparentize($clr-accent-secondary, 0.5);
+    cursor: inherit;
+  }
+}
+
+.show-outlines .overlay-region {
+  outline: 1px solid $clr-accent-secondary;
+}
+
+.overlay-match{
+  background: transparentize($clr-accent, 0.5);
+  outline: 2px solid $clr-accent;
+}
 
 .matches {
   span {
