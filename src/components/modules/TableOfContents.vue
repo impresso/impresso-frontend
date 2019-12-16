@@ -6,7 +6,7 @@
         class="article flatten"
         v-for="(article, idx) in articles"
         v-bind:key="idx"
-        v-bind:class="{activepage: page.num === currentPage, active: article.uid === selectedArticleUid}"
+        v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
         v-on:click.prevent="onClick(article, page)">
         <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
         <article-item :item="article" class="p-3 clearfix"
@@ -21,15 +21,15 @@
       </b-media>
     </div>
     <div v-else>
-      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page border-bottom"
-      v-bind:class="{activepage: page.num === currentPage, active: article.uid === selectedArticleUid}">
+      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page "
+      v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}">
         <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
           <b-media
             :ref="`article-${article.uid}`"
-            class="article border-bottom"
+            class="article "
             v-for="(article, idx) in page.articles"
             v-bind:key="idx"
-            v-bind:class="{activepage: page.num === currentPage, active: article.uid === selectedArticleUid}"
+            v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
             <div>
               <image-item :height="200" :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
@@ -84,7 +84,7 @@ export default {
     articleUid() {
       return this.article.uid;
     },
-    currentPage() {
+    currentPageNum() {
       return this.page.num;
     },
   },
@@ -175,6 +175,7 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 .toc{
+  margin-left: 1px;
   .article{
     transition: all 0.2s ease-in-out;
     cursor: pointer;
@@ -187,7 +188,7 @@ export default {
       font-size: inherit;
     }
     &.activepage {
-      box-shadow: inset .25em 0 $clr-primary;
+      box-shadow: inset 1px 0 $clr-primary;
     }
     &.active {
       box-shadow: inset .25em 0 $clr-accent-secondary;
