@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="IssuePage" ref="issuePage">
-    <i-layout-section width="350px" class="border-right border-top mt-1px">
+    <i-layout-section width="350px" class="border-right border-top mt-1px bg-white">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -116,16 +116,31 @@
               <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
             </small>
           </b-navbar-nav>
-          <b-navbar-nav v-show="mode === 'image'" class="px-3 pt-1 border-right">
-            <li>
-              <label for="showOutlines">Outlines</label>
-              <b-form-radio-group v-model="showOutlines" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="show-outlines">show</b-form-radio>
-                <b-form-radio value="no-outlines">hide</b-form-radio>
-              </b-form-radio-group>
-            </li>
+
+          <b-navbar-nav v-show="mode === 'image'" class="px-3 border-right">
+
+            <b-button
+              :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
+              @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
+              <div class="d-flex flex-row align-items-center">
+                <div class="d-flex dripicons dripicons-preview" />
+                <div class="ml-2">{{$t('toggle_outlines')}}</div>
+              </div>
+            </b-button>
+
           </b-navbar-nav>
-          <b-button variant="outline-primary" size="sm" @click="toggleFullscreen" class="ml-3">FullScreen</b-button>
+          <b-navbar-nav>
+
+            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
+              <div class="d-flex flex-row align-items-center">
+                <div :class="['d-flex', 'dripicons', isFullscreen ? 'dripicons-contract' : 'dripicons-expand']" />
+                <div class="ml-2">{{$t('toggle_fullscreen')}}</div>
+              </div>
+            </b-button>
+
+          </b-navbar-nav>
+
+
        </b-navbar>
       </div>
       <open-seadragon-viewer
@@ -184,6 +199,7 @@ export default {
     isLoaded: false,
     isDragging: false,
     q: '',
+    isFullscreen: false,
     // matching articles
     matchesTotalRows: 0,
     matchesPerPage: 10,
@@ -266,10 +282,7 @@ export default {
         return this.$store.state.issue.showOutlines;
       },
       set(showOutlines) {
-        console.log(showOutlines);
         this.$store.commit('issue/UPDATE_OUTLINES', showOutlines);
-        // console.log(showOutlines, this.$store.state.issue.showOutlines);
-        // this.init();
       },
     },
   },
@@ -649,10 +662,13 @@ export default {
     },
     toggleFullscreen() {
       if (!document.fullscreenElement) {
-        this.$refs.issuePage.$el.requestFullscreen().catch((err) => {
+        this.$refs.issuePage.$el.requestFullscreen().then(() => {
+          this.isFullscreen = true;
+        }).catch((err) => {
           console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
         });
       } else {
+        this.isFullscreen = false;
         document.exitFullscreen();
       }
     },
@@ -727,7 +743,9 @@ div.marginalia{
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages",
     "label_display": "Display as",
     "table_of_contents": "table of contents",
-    "search_and_find": "search in issue"
+    "search_and_find": "search in issue",
+    "toggle_fullscreen": "Fullscreen",
+    "toggle_outlines": "Outlines"
   },
   "nl": {
     "label_display": "Toon als",
