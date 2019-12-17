@@ -112,6 +112,7 @@ app.service('logs').on('created', (payload) => {
 });
 
 // repeat this line for every service in our backend
+export const version = app.service('version');
 export const suggestions = app.service('suggestions');
 export const articles = app.service('articles');
 export const images = app.service('images').hooks(imagesHooks);
