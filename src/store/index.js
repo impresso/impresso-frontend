@@ -64,6 +64,7 @@ export default new Vuex.Store({
     header_title: '',
     header_subtitle: '',
     connectivityStatus: true,
+    redirectionParams: {},
   },
   getters: {
     headerTitle(state) {
@@ -78,6 +79,9 @@ export default new Vuex.Store({
       }
 
       return title;
+    },
+    redirectionParams(state) {
+      return state.redirectionParams;
     },
   },
   mutations: {
@@ -100,6 +104,9 @@ export default new Vuex.Store({
         }, 500);
       }
     },
+    SET_REDIRECTION_ROUTE(state, params) {
+      state.redirectionParams = params;
+    },
     SET_ERROR_MESSAGE(state, message) {
       state.error_message = message;
     },
@@ -109,6 +116,10 @@ export default new Vuex.Store({
         state.errorMessagesIndex.push(hash);
         state.errorMessages.push({ route, message, code, name });
       }
+    },
+    CLEAN_ERROR_MESSAGE(state) {
+      state.errorMessagesIndex = [];
+      state.errorMessages = [];
     },
     SET_CONNECTIVITY_STATUS(state, status) {
       state.connectivityStatus = status;
@@ -131,6 +142,10 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    SET_REDIRECTION_ROUTE({ commit }, params) {
+      console.info('/SET_REDIRECTION_ROUTE', params);
+      commit('SET_REDIRECTION_ROUTE', params);
+    },
     UPDATE_PROCESSING_ACTIVITY({ state, commit }, { route, status }) {
       if (status === 'LOADING') {
         commit('PUSH_PROCESSING_ACTIVITY', { route, status });
@@ -139,12 +154,15 @@ export default new Vuex.Store({
       } else if (status === 'DONE') {
         commit('REMOVE_PROCESSING_ACTIVITY', { route, status });
       }
-      console.info('current activities:', state.processingActivitiesIndex.length, state.processingActivitiesIndex);
+      // console.info('current activities:', state.processingActivitiesIndex.length, state.processingActivitiesIndex);
       // check active ones
       commit('SET_PROCESSING', !!state.processingActivitiesIndex.length);
     },
     DISPLAY_CONNECTIVITY_STATUS({ commit }, status) {
       commit('SET_CONNECTIVITY_STATUS', Boolean(status));
+    },
+    CLEAN_ERROR_MESSAGE({ commit }) {
+      commit('CLEAN_ERROR_MESSAGE');
     },
     async DISPLAY_ERROR({ commit }, { error, origin = '' }) {
       const errorRoute = [];
@@ -161,24 +179,29 @@ export default new Vuex.Store({
         error.message,
         error.stack,
       );
-      if (!ERRORS_DO_NOT_DISPLAY.includes(error.name)) {
-        commit('PUSH_ERROR_MESSAGE', {
-          route: errorRoute,
-          message: error.message,
-          code: error.code,
-          name: error.name,
-        });
-      }
-      // do not force if BadGateway or polling error (risk of having endless and useless loops)
-      if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === error.type).length) {
-        console.info('Error', error.name, 'at', errorRoute, 'hasn\'t been dispatched, risk of loopholes');
+      if (errorRoute.length && errorRoute[0] === 'errors-collector') {
+        console.info('Error', error.name, 'at', errorRoute, 'hasn\'t been dispatched. Source: errors-collector. Risk of loopholes');
       } else {
-        await errorCollector.create({
-          uri: errorRoute.length ? errorRoute.join('.') : 'N/A',
-          ...error,
-        }).catch((err) => {
-          console.error('[Unexpected error in sending the error]', err);
-        });
+        if (!ERRORS_DO_NOT_DISPLAY.includes(error.name)) {
+          commit('PUSH_ERROR_MESSAGE', {
+            route: errorRoute,
+            message: error.message,
+            code: error.code,
+            name: error.name,
+          });
+        }
+
+        // do not force if BadGateway or polling error (risk of having endless and useless loops)
+        if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === error.type).length) {
+          console.info('Error', error.name, 'at', errorRoute, 'hasn\'t been dispatched, risk of loopholes');
+        } else {
+          await errorCollector.create({
+            uri: errorRoute.length ? errorRoute.join('.') : 'N/A',
+            ...error,
+          }).catch((err) => {
+            console.error('[Unexpected error in sending the error]', err);
+          });
+        }
       }
     },
   },
@@ -197,6 +220,7 @@ export default new Vuex.Store({
       'user.userData',
       'collections.collectionsSortOrder',
       'issue.viewerMode',
+      'issue.showOutlines',
       'newspapers.orderBy',
       'autocomplete.queries',
     ],

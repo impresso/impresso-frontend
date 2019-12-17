@@ -8,6 +8,7 @@
  */
 export default {
   props: {
+    searchQueryId: String,
     uid: {
       type: String,
       required: true,
@@ -24,6 +25,7 @@ export default {
   methods: {
     selectItem() {
       this.$store.dispatch('monitor/SET_ITEM', {
+        searchQueryId: this.searchQueryId,
         item: {
           ...this.item,
           uid: this.uid,

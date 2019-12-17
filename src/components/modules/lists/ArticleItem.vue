@@ -2,10 +2,12 @@
   <article :class="{ reference : asReference }">
     <h2 v-if="item.title" class="mb-0">
       <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="item.title"></router-link>
+      <a v-else-if="showHref" v-on:click.prevent="onClick" v-html="item.title"></a>
       <span v-else v-html="item.title"></span>
     </h2>
     <div v-else>
       <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="$t('untitled')"></router-link>
+      <a v-else-if="showHref" v-on:click.prevent="onClick">{{ $t('untitled') }}</a>
       <span v-else>{{ $t('untitled') }}</span>
     </div>
     <div v-if="showMeta" class="article-meta">
@@ -82,39 +84,18 @@ import VizBar from '../../base/VizBar';
 
 export default {
   props: {
-    item: {
-      type: Object,
-    },
-    showExcerpt: {
-      type: Boolean,
-    },
-    showMatches: {
-      type: Boolean,
-    },
-    showPages: {
-      type: Boolean,
-    },
-    showSize: {
-      type: Boolean,
-    },
-    showLink: {
-      type: Boolean,
-    },
-    showMeta: {
-      type: Boolean,
-    },
-    showType: {
-      type: Boolean,
-    },
-    showEntities: {
-      type: Boolean,
-    },
-    showTopics: {
-      type: Boolean,
-    },
-    asReference: {
-      type: Boolean,
-    },
+    item: Object,
+    showExcerpt: Boolean,
+    showMatches: Boolean,
+    showPages: Boolean,
+    showSize: Boolean,
+    showLink: Boolean,
+    showHref: Boolean,
+    showMeta: Boolean,
+    showType: Boolean,
+    showEntities: Boolean,
+    showTopics: Boolean,
+    asReference: Boolean,
   },
   computed: {
     pages() {
@@ -131,6 +112,14 @@ export default {
         params.issue_uid = this.item.uid.match(/(^.+)-i/)[1];
       }
       return params;
+    },
+  },
+  methods: {
+    onClick() {
+      this.$emit('click:title', {
+        name: 'article',
+        params: this.routerLinkParams,
+      });
     },
   },
   components: {

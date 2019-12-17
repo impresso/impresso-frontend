@@ -106,6 +106,9 @@ export default {
                 border: 1px solid #E0E0E0;
                 z-index: 20;
             }
+            &.active {
+              background: #343a40;
+            }
 
             .mini_viewer {
                 background: white;
@@ -116,12 +119,13 @@ export default {
                 overflow: hidden;
                 padding: 5px;
                 &.selected {
-                    border-color: #9E9E9E;
+                    border-color: #343a40;
                 }
                 &.selected + .page_number {
-                    border: 1px solid #9E9E9E;
-                    background: fade(#BDBDBD, 90);
+                    border-color: #343a40;
+                    background: #343a40;
                     color: white;
+                    font-weight: bold;
                 }
             }
 

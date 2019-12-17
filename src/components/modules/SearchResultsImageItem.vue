@@ -4,7 +4,7 @@
       v-if="searchResult.regions && searchResult.regions[0]"
       class="thumbnail bg-light clearfix"
       :style="`background-image: url(${searchResult.regions[0].iiifFragment})`">
-      <div v-if="isLoggedIn() && checkbox" class="float-right pt-1 pl-1">
+      <div v-if="isLoggedIn && checkbox" class="float-right pt-1 pl-1">
         <b-checkbox
           class="m-0 select-item"
           v-bind:checked.native="checked"
@@ -17,41 +17,48 @@
     <div
       v-else
       class="thumbnail bg-dark clearfix">
-      <p class="text-center small-caps text-light pt-4">iiifFragment missing</p>
+      <p class="text-center small-caps text-light pt-4">{{ $t('iiif.missing') }}</p>
     </div>
 
-    <a href="#" v-on:click.prevent="$emit('click:image', searchResult)" class="titleblock article-meta p-2 border-top">
-      <h2>{{ title }}</h2>
-      <div v-show="searchResult.newspaper.name != ''" class="small-caps">
-        {{searchResult.newspaper.name}}
-      </div>
-      <div class="small-caps">
-        {{$d(new Date(searchResult.date), 'short')}}
-        (p. <span>{{searchResult.pages.map(page => page.num).join('; ')}}</span>)
-      </div>
-    </a>
+    <article-item :item="searchResult" show-href show-meta v-on:click:title="viewArticle" class="p-2"/>
   </div>
 </template>
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/search';
+import ArticleItem from './lists/ArticleItem';
 
 export default {
-  data: () => ({
-  }),
   components: {
     Icon,
+    ArticleItem,
   },
   props: ['searchResult', 'checkbox', 'checked'],
   computed: {
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
     title() {
       return this.$helpers.excerpt(this.searchResult.title) || this.$t('result.label.image.untitled');
     },
   },
   methods: {
-    isLoggedIn() {
-      return this.$store.state.user.userData;
+    viewArticle({ params }) {
+      if (this.searchResult.article) {
+        this.$router.push({
+          name: 'article',
+          params: {
+            ...params,
+            article_uid: this.searchResult.article.uid,
+          },
+        });
+      } else {
+        this.$router.push({
+          name: 'article',
+          params,
+        });
+      }
     },
   },
 };

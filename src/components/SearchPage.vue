@@ -79,7 +79,7 @@
             <search-result-summary
               @onSummary="onSummary"
               :group-by="groupBy"
-              :queryComponents="queryComponents"
+              :search-query="searchQuery"
               :totalRows="paginationTotalRows" />
           </ellipsis>
         </b-navbar-nav>
@@ -340,6 +340,9 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    searchQuery() {
+      return this.$store.state.search.search;
+    },
     filtersIndex: {
       get() {
         return this.$store.state.search.search.filtersIndex;
@@ -529,6 +532,12 @@ export default {
       this.$store.dispatch('search/ADD_FILTER', { filter });
       this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
+    onEventBus({ filter, searchQueryId }) {
+      if (!searchQueryId.length) {
+        console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
+        this.onSuggestion(filter);
+      }
+    },
   },
   watch: {
     searchResults() {
@@ -562,6 +571,8 @@ export default {
     InfoButton,
   },
   mounted() {
+    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBus);
+
     if (this.uuid !== undefined) {
       this.$store.commit('search/LOAD_SEARCH', this.uuid);
     }
@@ -573,6 +584,7 @@ export default {
     // if(nextpage !=== "issue || article"){
     //     this.$store.commit('search/CLEAR');
     // }
+    this.$eventBus.$off(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBus);
   },
 };
 </script>
@@ -591,25 +603,6 @@ export default {
     .custom-control-label::before {
       position: inherit;
     }
-}
-
-// TODO: we have this classblock twice, also on IssuePage.vue
-// block is not scoped so these two interfere with eachother so they interfere
-// to be the exact same
-/// Maybe we can move this to bootpresso?
-div.overlay-region{
-  background: $clr-accent-secondary;
-  opacity: 0;
-  transition: opacity 300ms;
-  &.selected{
-    opacity: 0.25;
-  }
-}
-
-.overlay-match{
-  background: $clr-accent;
-  outline: 2px solid $clr-accent;
-  opacity: 0.5;
 }
 
 .navigator{

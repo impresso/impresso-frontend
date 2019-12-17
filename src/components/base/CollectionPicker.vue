@@ -9,7 +9,7 @@
       </div>
       <span v-else v-html="$t('actions.select_collection')" />
     </template>
-    <b-dropdown-item v-for="(c, i) in collections"
+    <b-dropdown-item v-for="(c, i) in collections" v-bind:key="i"
       @click="setCollectionId(c.uid)"
       :active="active === c.uid">
       <item-label :item="c" type="collection" hideuser />

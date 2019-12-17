@@ -49,32 +49,8 @@ export default {
           picture: user.profile.picture,
           pattern: user.profile.pattern,
         }));
-      }).catch((err) => {
-        console.error('Authentication error', err);
+        return user;
       });
-      // return services.app.authenticate(credentials ? {
-      //   strategy: 'local',
-      //   ...credentials,
-      // } : undefined)
-      // .then(res => services.app.passport.verifyJWT(res.accessToken))
-      // .then(res => services.app.service('users').get(res.userId))
-      // .then((user) => {
-      //   services.app.set('user', user);
-      //   context.commit('SET_USER', new User({
-      //     ...user,
-      //     picture: user.profile.picture,
-      //     pattern: user.profile.pattern,
-      //   }));
-      //   context.dispatch('collections/LOAD_COLLECTIONS', null, {
-      //     root: true,
-      //   });
-      //   return user;
-      // })
-      // .catch((err) => {
-      //   console.error('error in store/User/LOGIN');
-      //   console.error(err);
-      //   router.push({ name: 'login' });
-      // });
     },
   },
 };

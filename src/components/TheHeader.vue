@@ -107,7 +107,7 @@
             </b-dropdown-item>
 
           </b-nav-item-dropdown>
-          <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
+          <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">
@@ -115,6 +115,9 @@
         <span>
           <span v-if="error.name === 'NotAuthenticated'">{{ $t('errors.Notauthenticated') }}</span>
           <span v-else-if="error.name === 'BadGateway'">{{ $t(`errors.BadGateway.${error.message}`) }}</span>
+          <span v-else-if="error.name === 'TypeError'">{{ $t(`errors.TypeError`) }} {{ error.message }}</span>
+          <span v-else-if="error.name === 'Timeout'">{{ $t(`errors.Timeout`) }} {{ error.message }}</span>
+          <span v-else-if="error.name === 'BadRequest' && error.message === 'Login incorrect'">{{ $t(`errors.BadRequest`) }} {{ error.message }}</span>
           <span v-else>{{ error }}</span>
         </span>
         <span v-if="error.route.length">{{ $t(['paths', ...error.route].join('.')) }}</span>
@@ -166,6 +169,14 @@ export default {
     }
   },
   computed: {
+    loginRouteParams() {
+      return {
+        name: 'login',
+        query: {
+          redirect: this.$route.path,
+        },
+      };
+    },
     jobs() {
       return this.$store.state.jobs.items;
     },

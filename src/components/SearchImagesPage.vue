@@ -35,52 +35,27 @@
       </div>
     </i-layout-section>
     <i-layout-section class="border-left border-top ml-1px mt-1px">
+      <!-- header -->
       <div slot="header">
-      <b-navbar variant="tertiary" v-if="selectedItems.length > 0">
-        <div class="flex-grow-1">
-          <span class="small-caps">
-            {{ $tc('items_selected', selectedItems.length) }}
-          </span>
-          <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
-            {{ $t('clear_selection') }}
-          </b-button>
-          <collection-add-to
-            :items="selectedItems"
-            :text="$tc('add_n_to_collection', selectedItems.length)"
-            class="addbulk bg-white float-right" />
-        </div>
-      </b-navbar>
+        <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
+          <b-navbar-nav class="border-right flex-grow-1  py-2 ">
+            <ellipsis v-bind:initialHeight="60">
+              <search-results-summary
+                @onSummary="onSummary"
+                group-by="images"
+                :searchQuery="searchQuery"
+                :totalRows="paginationTotalRows" />
+            </ellipsis>
+          </b-navbar-nav>
+          <b-navbar-nav class="ml-auto pl-2">
+            <label class="mr-1">{{$t("label_order")}}
+              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" class="pl-1"></i-dropdown>
+            </label>
+          </b-navbar-nav>
+        </b-navbar>
+     </div>
 
-      <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-
-        <b-navbar-nav class="px-3 pt-1 pb-3 border-right" style="flex:1">
-          <ellipsis v-bind:initialHeight="88">
-            <search-results-summary
-              @onSummary="onSummary"
-              group-by="images"
-              :queryComponents="queryComponents"
-              :totalRows="paginationTotalRows" />
-          </ellipsis>
-        </b-navbar-nav>
-
-        <b-navbar-nav class="p-3 pt-4 border-right">
-          <label class="mr-1">{{$t("label_order")}}
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" class="pl-1"></i-dropdown>
-          </label>
-        </b-navbar-nav>
-
-        <b-navbar-nav v-if="isLoggedIn" class="pl-4">
-          <b-form-checkbox
-            v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
-            v-bind:indeterminate="this.allIndeterminate"
-            v-bind:checked.native="this.allSelected"
-            v-on:change="toggleSelectAll">
-          </b-form-checkbox>
-        </b-navbar-nav>
-
-      </b-navbar>
-    </div>
-    <!--  body -->
+     <!--  body -->
       <div class="p-1">
         <b-container fluid>
           <b-row class="pb-5">
@@ -90,7 +65,6 @@
                 v-bind:checkbox="true"
                 v-on:toggleSelected="toggleSelected"
                 v-bind:checked="isChecked(searchResult)"
-                v-on:click:image="onClickResult"
                 v-on:click:search="onClickSearch" />
             </b-col>
           </b-row>
@@ -171,6 +145,9 @@ export default {
       get() {
         return this.$store.getters['searchImages/results'];
       },
+    },
+    searchQuery() {
+      return this.$store.state.searchImages.search;
     },
     queryComponents: {
       get() {
@@ -338,17 +315,6 @@ export default {
     },
     onClearSelection() {
       this.selectedItems = [];
-    },
-    onClickResult(searchResult) {
-      this.$router.push({
-        name: 'article',
-        params: {
-          issue_uid: searchResult.issue.uid,
-          page_number: searchResult.pages[0].num,
-          page_uid: searchResult.pages[0].uid,
-          article_uid: searchResult.uid,
-        },
-      });
     },
     onClickSearch(image) {
       this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);

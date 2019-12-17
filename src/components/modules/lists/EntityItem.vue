@@ -16,7 +16,7 @@
     </router-link>
     <div v-else v-html="name" />
 
-    <!-- description and othe metadata -->
+    <!-- description and other metadata -->
     <div class="type badge ml-1  bg-medium badge-light">{{ $t(`types.${item.type}`) }}</div>
     <div v-if="description" v-html="description"/>
     <div class="small-caps" v-if="item.countItems > -1">

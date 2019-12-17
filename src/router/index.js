@@ -295,8 +295,14 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  console.info('Routing to', to.path, 'from', from.path);
-  if (to.meta.requiresAuth === false) {
+  console.info('Routing to', to.name, to.path, 'from', from.name, from.path);
+  // clean yellow alert error messages
+  store.dispatch('CLEAN_ERROR_MESSAGE');
+  if (to.name === 'login' && from.name && from.name !== 'login') {
+    store.dispatch('SET_REDIRECTION_ROUTE', {
+      ...from,
+    }).then(next);
+  } else if (to.meta.requiresAuth === false) {
     next();
   } else {
     services.app.authentication.getAccessToken().then((jwt) => {
