@@ -50,8 +50,14 @@ export default {
       new Facet({
         type: 'collection',
       }),
+      new Facet({
+        type: 'accessRight',
+      }),
+      new Facet({
+        type: 'partner',
+      }),
     ],
-    facetTypes: ['person', 'location', 'year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
+    facetTypes: ['person', 'location', 'year', 'newspaper', 'language', 'topic', 'collection', 'accessRight', 'partner'], // this also sets the order of the filters
     orderBy: '-relevance', // -relevance, date, -date
     orderByOptions: ['-relevance', 'date', '-date'],
     groupBy: 'articles', // issues, pages, articles, sentences
@@ -340,53 +346,48 @@ export default {
         order_by: state.orderBy,
       };
 
-      return Promise.all([
-        services.search.find({
-          query,
-        }).then((res) => {
-          commit('UPDATE_IS_LOADING', false);
-          commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
-          commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-            paginationTotalRows: res.total,
-          });
+      return services.search.find({
+        query,
+      }).then((res) => {
+        commit('UPDATE_IS_LOADING', false);
+        commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+        commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+          paginationTotalRows: res.total,
+        });
 
-          if (this.state.user.userData) {
-            const itemuids = res.data.map(item => item.uid);
+        if (this.state.user.userData) {
+          const itemuids = res.data.map(item => item.uid);
 
-            if (state.facets.find(f => f.type === 'collection').numBuckets > 0) {
-              services.collectionsItems.find({
-                query: { item_uids: itemuids, limit: 100 },
-              }).then((cs) => {
-                state.results.forEach((re) => {
-                  cs.data.forEach((c) => {
-                    if (c.itemId === re.uid) {
-                      re.collections = c.collections;
-                    }
-                  });
+          if (state.facets.find(f => f.type === 'collection').numBuckets > 0) {
+            services.collectionsItems.find({
+              query: { item_uids: itemuids, limit: 100 },
+            }).then((cs) => {
+              state.results.forEach((re) => {
+                cs.data.forEach((c) => {
+                  if (c.itemId === re.uid) {
+                    re.collections = c.collections;
+                  }
                 });
-                // console.log(state.results);
               });
-            }
-          }
-
-          commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
-          // register facets
-          if (res.total) {
-            facets.forEach((type) => {
-              if (res.info.facets[type]) {
-                commit('UPDATE_FACET', {
-                  type,
-                  buckets: res.info.facets[type].buckets,
-                  numBuckets: res.info.facets[type].numBuckets,
-                });
-              }
+              // console.log(state.results);
             });
           }
-        }).catch((err) => {
-          console.error('ERROR in "$store.search/SEARCH" services.search:', err);
-        }).finally(() => {
-          commit('UPDATE_IS_LOADING', false);
-        }),
+        }
+
+        commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
+        // register facets
+        if (res.total) {
+          facets.forEach((type) => {
+            if (res.info.facets[type]) {
+              commit('UPDATE_FACET', {
+                type,
+                buckets: res.info.facets[type].buckets,
+                numBuckets: res.info.facets[type].numBuckets,
+              });
+            }
+          });
+        }
+      }).then(() => Promise.all([
         // launch search facets
         dispatch('LOAD_SEARCH_FACETS', {
           facets: [
@@ -394,12 +395,25 @@ export default {
             'location',
           ],
         }),
+        // if there's a user
         dispatch('LOAD_SEARCH_FACETS', {
           facets: [
             'collection',
           ],
         }),
-      ]);
+        window.impressoDataVersion > 1 ? dispatch('LOAD_SEARCH_FACETS', {
+          facets: [
+            'accessRight',
+            'partner',
+          ],
+        }) : null,
+      ].filter(d => d)))
+        .catch((err) => {
+          console.error('ERROR in "$store.search/SEARCH" services.search:', err);
+        })
+        .finally(() => {
+          commit('UPDATE_IS_LOADING', false);
+        });
     },
     ADD_FILTER({ commit }, { filter }) {
       commit('ADD_FILTER', filter);
