@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout id="IssuePage" ref="issuePage">
+  <i-layout id="IssuePage" ref="issuePage" class="bg-light">
     <i-layout-section width="350px" class="border-right border-top mt-1px">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
@@ -99,10 +99,14 @@
             <div v-if="article && article.type">
               <span class="badge bg-accent-secondary text-clr-white">{{ $t(`buckets.type.${article.type}`) }}</span>
               <span class="small">
-                &nbsp;&nbsp;
+                <span>{{ $t(`buckets.language.${article.language}`) }}</span>
+                &nbsp;
                 <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
                 <span v-else>{{ $t('reducedReadingTime')}}</span>
-                &nbsp;&nbsp;
+                <!-- &nbsp;
+                <span>{{ $t(`buckets.accessRight.${article.accessRight}`) }}</span>
+                 -->
+                &nbsp;
                 {{ articlePages }}
               </span>
             </div>
@@ -123,8 +127,9 @@
               :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
               @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
               <div class="d-flex flex-row align-items-center">
-                <div class="d-flex dripicons dripicons-preview" />
-                <div class="ml-2">{{$t('toggle_outlines')}}</div>
+                <div class="d-flex dripicons dripicons-preview mr-2" />
+                <div v-if="showOutlines">{{$t('toggle_outlines_on')}}</div>
+                <div v-else>{{$t('toggle_outlines_off')}}</div>
               </div>
             </b-button>
 
@@ -133,8 +138,9 @@
 
             <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
               <div class="d-flex flex-row align-items-center">
-                <div :class="['d-flex', 'dripicons', isFullscreen ? 'dripicons-contract' : 'dripicons-expand']" />
-                <div class="ml-2">{{$t('toggle_fullscreen')}}</div>
+                <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
+                <div v-if="isFullscreen">{{$t('toggle_fullscreen_on')}}</div>
+                <div v-else>{{$t('toggle_fullscreen_off')}}</div>
               </div>
             </b-button>
 
@@ -480,6 +486,7 @@ export default {
 
           self.page.articles.forEach((article) => {
             // regions
+            // debugger;
             article.regions.forEach((region) => {
               const overlay = window.document.createElement('div');
 
@@ -487,14 +494,14 @@ export default {
               overlay.dataset.articleUid = article.uid;
 
               // selected article regions
-              if (article.uid === this.$route.params.article_uid) {
-                this.$router.push({
-                  name: 'article',
-                  params: {
-                    article_uid: this.$route.params.article_uid,
-                  },
-                });
-              }
+              // if (article.uid === this.$route.params.article_uid) {
+              //   this.$router.push({
+              //     name: 'article',
+              //     params: {
+              //       article_uid: this.$route.params.article_uid,
+              //     },
+              //   });
+              // }
 
               overlay.addEventListener('mouseenter', (event) => {
                 const articleUid = event.target.dataset.articleUid;
@@ -623,7 +630,7 @@ export default {
       const self = this;
       this.handler.$emit('dispatch', (viewer) => {
         viewer.overlaysContainer.querySelectorAll('div').forEach((overlay) => {
-          if (overlay.dataset.articleUid === self.article.uid) {
+          if (self.article && overlay.dataset.articleUid === self.article.uid) {
             overlay.classList.add('active');
           } else {
             overlay.classList.remove('active');
@@ -744,8 +751,10 @@ div.marginalia{
     "label_display": "Display as",
     "table_of_contents": "table of contents",
     "search_and_find": "search in issue",
-    "toggle_fullscreen": "Fullscreen",
-    "toggle_outlines": "Outlines"
+    "toggle_fullscreen_on": "Fullscreen: on",
+    "toggle_outlines_on": "outlines: on",
+    "toggle_fullscreen_off": "Fullscreen: off",
+    "toggle_outlines_off": "Outlines: off"
   },
   "nl": {
     "label_display": "Toon als",
