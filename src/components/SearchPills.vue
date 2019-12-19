@@ -71,7 +71,7 @@
       </template>
 
       <div class="p-2 pb-1 sp-contents">
-        <div class="description">{{ $tc(`label.${filter.type}.title`, filter.items.length) }}</div>
+        <div class="description">{{ $tc(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}</div>
         <filter-monitor checkbox
                         :store="storeModuleName"
                         :filter="filter"

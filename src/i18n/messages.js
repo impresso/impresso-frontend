@@ -26,6 +26,7 @@ export default {
         en: 'English',
         'n/a': 'Undefined language',
         nl: 'Dutch',
+        undefined: 'Undefined language',
       },
       accessRight: {
         na: 'not specified',
