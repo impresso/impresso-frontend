@@ -13,10 +13,10 @@
     <div class="bg-dark text-tertiary p-3 stats">
 
       <br>
-
-      <viz-bar2 items="[
-        {name: 'FR', count: 13},
-        {name: 'DE', count: 23}]" />
+      <viz-bar-multi title="Langues" variant="compact" :items="[{name: 'Français', count: 70}, {name: 'Deutsch', count: 20}, {name: 'English', count: 10}]" />
+      <viz-bar-multi title="Statistiques" variant="compact" :items="[{name: 'Ravioli', count: 110}, {name: 'Spaghetti', count: 20}, {name: 'Penne', count: 70}]" />
+      <viz-bar-multi title="Autres" :items="[{name: 'ita', count: 35}, {name: 'FRançais', count: 60}, {name: 'DEutsch', count: 25}, {name: 'ENglish newsppapa', count: 10}]" />
+      <viz-bar-multi :items="[{name: 'FRançais', count: 20}, {name: 'DEutsch', count: 70}, {name: 'ENglish newsppapa', count: 10}]" />
 
       <br>
 
@@ -52,7 +52,7 @@
 <script>
 import Autocomplete from './Autocomplete';
 import SearchTabs from './modules/SearchTabs';
-import VizBar2 from './base/VizBar2';
+import VizBarMulti from './base/VizBarMulti';
 
 export default {
   methods: {
@@ -70,7 +70,7 @@ export default {
   components: {
     Autocomplete,
     SearchTabs,
-    VizBar2,
+    VizBarMulti,
   },
 };
 </script>
