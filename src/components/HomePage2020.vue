@@ -40,10 +40,11 @@
   </i-layout-section>
   <i-layout-section>
     <div class="bg-dark text-tertiary p-3">
-      <h1 class="text-white huge">Media Monitoring of the Past</h1>
-      <h1 class="text-white">Today, 50 years ago.</h1>
-      This section would need to be limited to registred users.
-      <h1 class="text-white">Queries</h1>
+      <h1 class="text-white huge">Media Monitoring of the <span class="text-accent">Past</span></h1>
+      <h1 class="text-white mt-5">Today, 100 years ago.</h1>
+      This section lists front pages with the most important events.
+      <h1 class="text-white mt-5">Some examples to get you started</h1>
+      <recipes />
     </div>
   </i-layout-section>
 </i-layout>
@@ -53,6 +54,7 @@
 import Autocomplete from './Autocomplete';
 import SearchTabs from './modules/SearchTabs';
 import VizBarMulti from './base/VizBarMulti';
+import Recipes from './modules/homepage/Recipes';
 
 export default {
   methods: {
@@ -71,6 +73,7 @@ export default {
     Autocomplete,
     SearchTabs,
     VizBarMulti,
+    Recipes,
   },
 };
 </script>
@@ -122,6 +125,7 @@ export default {
 
   .huge {
     font-size: 800%;
+    line-height: 0.7;
   }
 
 
