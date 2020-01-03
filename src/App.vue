@@ -9,6 +9,9 @@
   <div id="app-explorer" class="fullscreen">
     <explorer/>
   </div>
+  <div id="app-search-query-explorer" class="fullscreen">
+    <search-query-explorer/>
+  </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
@@ -28,6 +31,7 @@ import Monitor from './components/Monitor';
 import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
+import SearchQueryExplorer from './components/modals/SearchQueryExplorer';
 
 
 export default {
@@ -38,6 +42,7 @@ export default {
     Explorer,
     DisclaimerNotice,
     StatusIndicator,
+    SearchQueryExplorer,
   },
   computed: {
     termsAgreed() {
@@ -100,6 +105,10 @@ html {
         background: rgba($clr-primary, 0.25);
         pointer-events: auto;
       }
+    }
+
+    #app-search-query-explorer{
+      z-index: 1040;
     }
 
     #app-explorer{
