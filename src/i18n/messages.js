@@ -275,6 +275,7 @@ export default {
       },
     },
     more_info: 'More Info',
+    currentSearch: 'current search',
   },
   nl: {
     language: 'Taal',
