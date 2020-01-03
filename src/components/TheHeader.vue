@@ -10,7 +10,13 @@
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
           </li> -->
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
+            <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">
+              {{$t("label_search")}}
+              <span v-if="activeSearchTypes.length" v-on:click.prevent.stop="openSearchQueryExplorer" class="badge badge-warning">
+                {{ activeSearchTypes.length }}
+              </span>
+            </router-link>
+
           </li>
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'newspapers'}" active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
@@ -189,6 +195,9 @@ export default {
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
+    activeSearchTypes() {
+      return this.$store.getters['search/getSearch'].getTypes();
+    },
     showAlert() {
       return this.$store.state.errorMessages.length > 0;
     },
@@ -239,6 +248,9 @@ export default {
     },
     openExplorer() {
       this.$store.dispatch('explorer/SHOW', {});
+    },
+    openSearchQueryExplorer() {
+      this.$store.dispatch('searchQueryExplorer/TOGGLE');
     },
     onChangeJobsPage(page = 1) {
       console.info('onChangeJobsPage', page);
