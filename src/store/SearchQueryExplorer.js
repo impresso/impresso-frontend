@@ -50,6 +50,7 @@ export default {
         });
         commit('SET_SEARCH_QUERY_HASH', hash);
         services.search.find({
+          lock: false,
           query: {
             filters,
             group_by: 'articles',
