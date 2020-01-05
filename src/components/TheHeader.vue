@@ -507,7 +507,7 @@ export default {
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_compare": "Inspect & Compare",
-    "label_current_search": "check latest results",
+    "label_current_search": "current search query...",
     "label_faq": "FAQ",
     "staff": "staff",
     "researcher": "researcher",
