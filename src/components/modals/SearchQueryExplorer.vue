@@ -130,6 +130,7 @@ export default {
 
   article h2, article h2 a{
     color: #c2c8ce;
+    font-size: inherit;
   }
   article .article-newspaper{
     color: #c2c8ce;
