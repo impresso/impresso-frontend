@@ -9,9 +9,6 @@
   <div id="app-explorer" class="fullscreen">
     <explorer/>
   </div>
-  <div id="app-search-query-explorer" class="fullscreen">
-    <search-query-explorer/>
-  </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
@@ -31,8 +28,6 @@ import Monitor from './components/Monitor';
 import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
-import SearchQueryExplorer from './components/modals/SearchQueryExplorer';
-
 
 export default {
   name: 'app',
@@ -42,7 +37,6 @@ export default {
     Explorer,
     DisclaimerNotice,
     StatusIndicator,
-    SearchQueryExplorer,
   },
   computed: {
     termsAgreed() {
@@ -266,15 +260,15 @@ $clr-grey-900: #ddd;
 .dark-mode,
 .navbar-dark {
   .fixed-pagination-footer {
-    background: transparentize($clr-bg-primary, 1);
+    background: transparent;
   }
   .page-link,
   .page-item.disabled .page-link {
-    background: $clr-secondary;
+    background: transparent;
     color: $clr-bg-primary;
   }
   .page-link {
-    border-color: $clr-tertiary !important;
+    border-color: transparent !important; // $clr-tertiary !important;
   }
   .page-link:hover,
   .page-item.active .page-link {
