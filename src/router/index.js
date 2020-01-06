@@ -52,20 +52,15 @@ const router = new Router({
     {
       path: '',
       name: 'home',
-      component: HomePage,
-      // beforeEnter: (to, from, next) => {
-      //   next({
-      //     name: 'search',
-      //   });
-      // },
+      component: HomePage2020,
       meta: {
         requiresAuth: false,
       },
     },
     {
-      path: '/2020',
-      name: 'search',
-      component: HomePage2020,
+      path: '/2019',
+      name: '2019',
+      component: HomePage,
       meta: {
         requiresAuth: false,
       },
