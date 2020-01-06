@@ -113,8 +113,8 @@
           </b-navbar-nav>
           <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
             <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="image">view in context <icon name="image"/></b-form-radio>
-              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/> close reading</b-form-radio>
+              <b-form-radio value="image">{{ $t('facsimileView') }}&nbsp;<icon name="image"/></b-form-radio>
+              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/>&nbsp;{{ $t('closeReadingView') }}</b-form-radio>
             </b-form-radio-group>
             <small>
               <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
@@ -754,7 +754,9 @@ div.marginalia{
     "toggle_fullscreen_on": "Fullscreen: on",
     "toggle_outlines_on": "outlines: on",
     "toggle_fullscreen_off": "Fullscreen: off",
-    "toggle_outlines_off": "Outlines: off"
+    "toggle_outlines_off": "Outlines: off",
+    "facsimileView": "Facsimile view",
+    "closeReadingView": "close reading view"
   },
   "nl": {
     "label_display": "Toon als",
