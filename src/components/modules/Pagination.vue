@@ -1,5 +1,5 @@
 <template lang="html">
-<div class="">
+<div :class="{ 'dark-mode': darkMode }" >
   <b-pagination
     v-bind:size="size"
     v-bind:value="currentPage"
@@ -20,20 +20,13 @@
   </div>
 </div>
 </template>
-
 <script>
-import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import VueI18n from 'vue-i18n';
-
-Vue.use(BootstrapVue);
-Vue.use(VueI18n);
-
 export default {
   model: {
     prop: 'currentPage',
   },
   props: {
+    darkMode: Boolean,
     perPage: {
       type: Number,
       default: 1,
@@ -78,6 +71,7 @@ export default {
       this.$emit('change', val);
     },
     onInput(val) {
+      console.info('onInput!', val);
       this.$emit('input', val);
     },
   },
@@ -85,6 +79,9 @@ export default {
 </script>
 
 <style scoped lang="less">
+  .dark-mode{
+    background: transparent;
+  }
 </style>
 
 <i18n>

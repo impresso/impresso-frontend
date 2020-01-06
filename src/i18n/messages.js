@@ -98,6 +98,7 @@ export default {
       collection: {
         countItems: '{countItems} saved items',
       },
+      of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -275,6 +276,7 @@ export default {
       },
     },
     more_info: 'More Info',
+    currentSearch: 'current search',
   },
   nl: {
     language: 'Taal',

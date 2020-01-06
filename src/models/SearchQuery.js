@@ -177,4 +177,12 @@ export default class SearchQuery {
     }
     return filters;
   }
+  /**
+   * get list of current types, minus default ones
+   * @param  {Array}  [ignoreTypes=['hasTextContents'] } = {}] available options
+   * @return {Array}  list of active filter types
+   */
+  getTypes({ ignoreTypes = ['hasTextContents'] } = {}) {
+    return Object.keys(this.filtersIndex).filter(d => !ignoreTypes.includes(d));
+  }
 }

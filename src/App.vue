@@ -29,7 +29,6 @@ import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 
-
 export default {
   name: 'app',
   components: {
@@ -100,6 +99,10 @@ html {
         background: rgba($clr-primary, 0.25);
         pointer-events: auto;
       }
+    }
+
+    #app-search-query-explorer{
+      z-index: 1040;
     }
 
     #app-explorer{
@@ -257,15 +260,15 @@ $clr-grey-900: #ddd;
 .dark-mode,
 .navbar-dark {
   .fixed-pagination-footer {
-    background: transparentize($clr-bg-primary, 1);
+    background: transparent;
   }
   .page-link,
   .page-item.disabled .page-link {
-    background: $clr-secondary;
+    background: transparent;
     color: $clr-bg-primary;
   }
   .page-link {
-    border-color: $clr-tertiary !important;
+    border-color: transparent !important; // $clr-tertiary !important;
   }
   .page-link:hover,
   .page-item.active .page-link {

@@ -19,9 +19,9 @@
       </div>
     </div>
 
-    <div v-if="tab === 'currentSearch'" class="pt-2">
+    <!-- <div v-if="tab === 'currentSearch'" class="pt-2">
       <search-pills />
-    </div>
+    </div> -->
     <div v-if="tab === 'selectedItem'" class="pt-2">
       <div v-if="isItemSelected">
         <div class="mx-2">

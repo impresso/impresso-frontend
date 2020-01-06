@@ -50,7 +50,7 @@ app.hooks({
         const route = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
           window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'LOADING' });
-          if (needsLockScreen(route)) {
+          if (needsLockScreen(route) && context.params.lock !== false) {
             window.app.$store.commit('LOCK_SCREEN', true);
           }
         }
