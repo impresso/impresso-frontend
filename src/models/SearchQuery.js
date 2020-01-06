@@ -50,6 +50,14 @@ export default class SearchQuery {
     return query;
   }
 
+  getSerialized({
+    serializer = 'json',
+  } = {}) {
+    return SearchQuery.serialize({
+      filters: this.filters,
+    }, serializer);
+  }
+
   getFilter(filter) {
     const filterized = filterize(filter);
     if (!filterized.hash) {
