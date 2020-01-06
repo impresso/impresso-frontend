@@ -1,4 +1,6 @@
+import Collection from './Collection';
 import Entity from './Entity';
+import Match from './Match';
 /**
  * @class ArticleBase is an object representing a newspaper article in
  * issue Table of contents. that 's why it is simplified.
@@ -29,6 +31,7 @@ export default class ArticleBase {
     persons = [],
     locations = [],
     collections = [],
+    accessRight = 'na',
     // to be added dinamically from TOC
     matches = [],
     images = [],
@@ -37,14 +40,46 @@ export default class ArticleBase {
     this.type = String(type);
     this.title = String(title);
     this.excerpt = String(excerpt);
-    this.isCC = !!isCC;
+    this.isCC = Boolean(isCC);
     this.size = parseInt(size, 10);
     this.nbPages = parseInt(nbPages, 10);
     this.pages = pages;
-    this.persons = persons.map(d => new Entity(d));
-    this.locations = locations.map(d => new Entity(d));
-    this.collections = collections;
-    this.matches = matches;
+    this.accessRight = accessRight;
     this.images = images;
+
+    this.collections = collections.map((collection) => {
+      if (collection instanceof Collection) {
+        return collection;
+      }
+      return new Collection(collection);
+    });
+
+    this.matches = matches.map((match) => {
+      if (match instanceof Match) {
+        return match;
+      }
+      return new Match(match);
+    });
+
+    this.locations = locations.map((location) => {
+      if (location instanceof Entity) {
+        return location;
+      }
+      return new Entity(location);
+    });
+
+    this.persons = persons.map((person) => {
+      if (person instanceof Entity) {
+        return person;
+      }
+      return new Entity(person);
+    });
+
+    // no title?
+    if (!this.title.length && this.excerpt.length) {
+      const parts = this.excerpt.split(/\s/);
+      this.title = parts.slice(0, 4).join(' ');
+      this.excerpt = parts.slice(4).join(' ');
+    }
   }
 }

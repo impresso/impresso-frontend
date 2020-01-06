@@ -10,8 +10,27 @@
             <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
           </li> -->
           <li class="nav-item">
-            <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
+            <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">
+              {{$t("label_search")}}
+            </router-link>
           </li>
+          <b-navbar-nav>
+            <b-nav-item-dropdown  no-caret
+              v-if="activeSearchTypes.length"
+              ref="ddownSearchResults" class="p-2" v-on:shown="openSearchQueryExplorer">
+              <template slot="button-content">
+                <div style="color: gold">{{ $t("label_current_search") }}</div>
+                <transition name="bounce">
+                  <b-badge
+                    pill variant="transparent" class="border">
+                    {{ $n(currentSearchResults) }}
+                  </b-badge>
+                </transition>
+              </template>
+              <search-query-explorer dark-mode/>
+            </b-nav-item-dropdown>
+          </b-navbar-nav>
+
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'newspapers'}" active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
           </li>
@@ -21,12 +40,6 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
-          <!-- <li class="nav-item">
-            <a class="nav-link" v-on:click.stop.prevent="openExplorer">{{$t("label_explore")}}</a>
-          </li>
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
-          </li> -->
           </li>
             <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
           </li>
@@ -131,6 +144,7 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
 import Toast from './modules/Toast';
 import Pagination from './modules/Pagination';
+import SearchQueryExplorer from './modals/SearchQueryExplorer';
 
 export default {
   data: () => ({
@@ -183,11 +197,17 @@ export default {
     runningJobs() {
       return this.$store.state.jobs.items.filter(d => d.status === 'RUN');
     },
+    currentSearchResults() {
+      return this.$store.state.search.paginationTotalRows;
+    },
     paginationJobsList() {
       return this.$store.state.jobs.pagination;
     },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
+    },
+    activeSearchTypes() {
+      return this.$store.getters['search/getSearch'].getTypes();
     },
     showAlert() {
       return this.$store.state.errorMessages.length > 0;
@@ -240,6 +260,9 @@ export default {
     openExplorer() {
       this.$store.dispatch('explorer/SHOW', {});
     },
+    openSearchQueryExplorer() {
+      this.$store.dispatch('searchQueryExplorer/TOGGLE');
+    },
     onChangeJobsPage(page = 1) {
       console.info('onChangeJobsPage', page);
       this.$store.dispatch('jobs/LOAD_JOBS', {
@@ -282,6 +305,7 @@ export default {
     Icon,
     Toast,
     Pagination,
+    SearchQueryExplorer,
   },
 };
 </script>
@@ -483,6 +507,7 @@ export default {
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_compare": "Inspect & Compare",
+    "label_current_search": "current search query...",
     "label_faq": "FAQ",
     "staff": "staff",
     "researcher": "researcher",

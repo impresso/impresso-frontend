@@ -20,6 +20,9 @@
             {'dripicons-suitcase': filter.type === 'collection'},
             {'dripicons-tag': filter.type === 'type'},
             {'dripicons-print': filter.type === 'country'},
+            {'dripicons-shopping-bag': filter.type === 'accessRight'},
+            {'dripicons-store': filter.type === 'partner'},
+
           ]" />
         <!--  type:string -->
         <span class="label sp-string" v-if="filter.type === 'string'" :class="[filter.precision,filter.context]">
@@ -43,7 +46,7 @@
         </span>
         <!--  type:language and other items -->
         <span class="label sp-generic-item"
-          v-if="['language', 'country', 'type'].indexOf(filter.type) !== -1"
+          v-if="['language', 'country', 'type', 'accessRight', 'partner'].indexOf(filter.type) !== -1"
           v-html="labelByItems({ items: filter.items, max: 2, prop:'uid', translate: true, type:filter.type, op: filter.op })"
           :class="filter.context">
         </span>
@@ -68,7 +71,7 @@
       </template>
 
       <div class="p-2 pb-1 sp-contents">
-        <div class="description">{{ $t(`label.${filter.type}.title`) }}</div>
+        <div class="description">{{ $tc(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}</div>
         <filter-monitor checkbox
                         :store="storeModuleName"
                         :filter="filter"
@@ -323,9 +326,6 @@ export default {
         },
         "country": {
           "title": "Country of publication"
-        },
-        "type": {
-          "title": "Article content type"
         },
         "topic": {
           "title": "filter by topic"

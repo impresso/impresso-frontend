@@ -26,10 +26,23 @@ export default {
         en: 'English',
         'n/a': 'Undefined language',
         nl: 'Dutch',
+        undefined: 'Undefined language',
+      },
+      accessRight: {
+        na: 'not specified',
+        OpenPrivate: 'OpenPrivate',
+        Closed: 'Closed',
+        OpenPublic: 'OpenPublic',
       },
       country: {
         CH: 'Switzerland',
         LU: 'Luxembourg',
+      },
+      partner: {
+        SNL: 'Swiss National Library',
+        BNL: 'Luxembourg National Library',
+        NZZ: 'NZZ',
+        Migros: 'Migros',
       },
     },
     op: {
@@ -85,6 +98,7 @@ export default {
       collection: {
         countItems: '{countItems} saved items',
       },
+      of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -140,7 +154,7 @@ export default {
         title: 'Year | Year | Years',
       },
       type: {
-        title: 'Title | Title | Titles',
+        title: 'Article content type | Article content types | Article content types',
         filterTitle: 'filter by article type',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> article types applies',
@@ -207,6 +221,26 @@ export default {
         description: 'check one or more countries to filter results',
         empty: '(no results)',
       },
+      accessRight: {
+        title: 'Access right | Access right | Access Rights',
+        filterTitle: 'filter by access right',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if their access right is <b>one of {count} selected</b>',
+        description: 'filter results based on access right',
+        empty: '(no results)',
+        context: {
+          include: 'content available as',
+          exclude: 'content <b>NOT</b> avaiable as',
+        },
+      },
+      partner: {
+        title: 'Data Provider | Data Provider | Data Providers',
+        filterTitle: 'filter by archive',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they are published in <b>one of {count} selected</b> archives',
+        description: 'check one or more data provider to filter results',
+        empty: '(no results)',
+      },
     },
     sort: {
       name: {
@@ -242,6 +276,7 @@ export default {
       },
     },
     more_info: 'More Info',
+    currentSearch: 'current search',
   },
   nl: {
     language: 'Taal',
