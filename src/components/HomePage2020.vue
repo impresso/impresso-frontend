@@ -97,13 +97,17 @@ export default {
   methods: {
     onSuggestion(suggestion) {
       this.$store.commit('search/ADD_FILTER', suggestion);
-      this.search(1);
+      this.search();
     },
-    search(page) {
-      if (page !== undefined) {
-        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+    search() {
+      const searchQuery = this.$store.getters['search/getSearch'];
+      const query = searchQuery.getSerialized();
+      console.info('search() ', query);
+
+      this.$router.push({
+        name: 'search',
+        query,
+      });
     },
   },
   components: {
