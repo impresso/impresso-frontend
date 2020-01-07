@@ -40,18 +40,20 @@
           <li class="nav-item">
             <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
           </li>
-          </li>
+          <li>
             <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
-          </li>
-          </li>
-            <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
           </li>
           <li v-if="!connectivityStatus">
             <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
           </li>
         </b-navbar-nav>
-        <b-navbar-nav class="nav-title mx-auto">
-          <!-- <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1> -->
+        <b-navbar-nav class="nav-title mr-0">
+          <li>
+            <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
+          </li>
+          <li>
+            <router-link v-bind:to="{ name: 'termsOfUse'}" active-class="active" class="nav-link">{{$t("label_terms_of_use")}}</router-link>
+          </li>
         </b-navbar-nav>
         <b-navbar-nav>
           <b-nav-item-dropdown right no-caret
@@ -88,7 +90,7 @@
               </div>
             </div>
           </b-nav-item-dropdown>
-          <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
+          <!-- <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
             <b-dropdown-item v-for="language in languages"
             v-bind:active="activeLanguageCode === language.code"
             v-bind:key="language.code"
@@ -96,7 +98,7 @@
             v-on:click="selectLanguage(language.code)">
               <span>{{language.name}}</span>
             </b-dropdown-item>
-          </b-nav-item-dropdown>
+          </b-nav-item-dropdown> -->
           <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 " right>
             <template slot="button-content">
               <div class='d-inline-block'>
@@ -509,6 +511,7 @@ export default {
     "label_compare": "Inspect & Compare",
     "label_current_search": "current search query...",
     "label_faq": "FAQ",
+    "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
