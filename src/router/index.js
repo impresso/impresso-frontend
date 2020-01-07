@@ -74,8 +74,8 @@ const router = new Router({
       },
     },
     {
-      path: '/legal-notes',
-      name: 'legal-notes',
+      path: '/terms-of-use',
+      name: 'termsOfUse',
       component: LegalPage,
       meta: {
         requiresAuth: false,
