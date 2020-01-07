@@ -129,6 +129,7 @@ export default {
       }
       // fetch article timeline related to the given type
       return services.search.find({
+        lock: false,
         query: {
           group_by: state.groupBy,
           filters,
