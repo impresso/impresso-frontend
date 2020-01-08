@@ -68,7 +68,7 @@ export default {
       });
 
       // Return is here because of "hidden" filters, such as hasTextContents
-      if (!Object.keys(translationTable).length) {
+      if (!enumerables.length && !Object.keys(translationTable).length) {
         return '';
       }
 
