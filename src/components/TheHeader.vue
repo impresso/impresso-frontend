@@ -178,10 +178,6 @@ export default {
         console.info('Jobs loaded.');
       });
     }
-    this.$eventBus.$on(this.$eventBus.ADDED_FILTER_TO_SEARCH_QUERY, this.onEventBusAddedFilter);
-  },
-  beforeDestroy() {
-    this.$eventBus.$off(this.$eventBus.ADDED_FILTER_TO_SEARCH_QUERY, this.onEventBusAddedFilter);
   },
   computed: {
     loginRouteParams() {
