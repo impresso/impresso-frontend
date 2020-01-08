@@ -178,6 +178,7 @@ export default {
         console.info('Jobs loaded.');
       });
     }
+    this.countActiveSearchFilters = this.$store.getters['search/getCurrentSearch'].countActiveFilters();
   },
   computed: {
     loginRouteParams() {
@@ -299,7 +300,7 @@ export default {
           this.countActiveSearchFilters = this.$store.getters['search/getCurrentSearch'].countActiveFilters();
         }
       },
-      immediate: true,
+      immediate: false,
     },
   },
   components: {
