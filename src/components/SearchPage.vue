@@ -530,12 +530,6 @@ export default {
       this.$store.dispatch('search/ADD_FILTER', { filter });
       this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
-    onEventBusAddedFilter({ filter, searchQueryId }) {
-      if (!searchQueryId.length) {
-        console.info('@eventBus.ADDED_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
-        this.search();
-      }
-    },
   },
   watch: {
     searchResults() {
