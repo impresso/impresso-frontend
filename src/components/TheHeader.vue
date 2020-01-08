@@ -5,60 +5,54 @@
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
-        <b-navbar-nav>
-          <!-- <li class="nav-item">
-            <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
-          </li> -->
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">
-              {{$t("label_search")}}
-            </router-link>
-          </li>
-          <b-navbar-nav>
-            <b-nav-item-dropdown  no-caret
-              v-if="activeSearchTypes.length"
-              ref="ddownSearchResults" class="p-2" v-on:shown="openSearchQueryExplorer">
-              <template slot="button-content">
-                <div style="color: gold">{{ $t("label_current_search") }}</div>
-                <transition name="bounce">
-                  <b-badge
-                    pill variant="transparent" class="border">
-                    {{ $n(currentSearchResults) }}
-                  </b-badge>
-                </transition>
-              </template>
-              <search-query-explorer dark-mode/>
-            </b-nav-item-dropdown>
-          </b-navbar-nav>
 
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'newspapers'}" active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
-          </li>
-          <!-- <li class="nav-item">
-            <router-link v-bind:to="{ name: 'entities'}" exact-active-class="active" class="nav-link">{{$t("label_entities")}}</router-link>
-          </li> -->
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
-          </li>
-          <li>
-            <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
-          </li>
-          <li v-if="!connectivityStatus">
-            <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
-          </li>
-        </b-navbar-nav>
-        <b-navbar-nav class="nav-title mr-0">
-          <li>
-            <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
-          </li>
-          <li>
-            <router-link v-bind:to="{ name: 'termsOfUse'}" active-class="active" class="nav-link">{{$t("label_terms_of_use")}}</router-link>
-          </li>
-        </b-navbar-nav>
-        <b-navbar-nav>
+      <b-navbar-nav>
+        <b-nav-item v-bind:to="{ name: 'search', query: currentSearchQueryParams }" active-class="active">
+          {{$t("label_search")}}
+        </b-nav-item>
+
+        <b-nav-item-dropdown  no-caret
+          v-if="countActiveSearchFilters"
+          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer">
+          <template slot="button-content">
+            <span style="color: gold">{{ $tc("label_current_search", countActiveSearchFilters) }}</span>
+            <!-- <transition name="bounce">
+              <b-badge
+                pill variant="transparent" class="border">
+                {{ $n(currentSearchResults) }}
+              </b-badge>
+            </transition> -->
+          </template>
+          <search-query-explorer dark-mode/>
+        </b-nav-item-dropdown>
+
+        <b-nav-item v-bind:to="{ name: 'newspapers'}" active-class="active">
+          {{$t("label_newspapers")}}
+        </b-nav-item>
+        <!-- <b-nav-item v-bind:to="{ name: 'entities'}" exact-active-class="active">
+          {{$t("label_entities")}}
+        </b-nav-item> -->
+        <b-nav-item v-bind:to="{ name: 'topics'}" active-class="active">
+          {{$t("label_topics")}}
+        </b-nav-item>
+        <b-nav-item v-bind:to="{ name: 'compare'}" active-class="active">
+          {{$t("label_compare")}}
+        </b-nav-item>
+        <b-nav-item v-if="!connectivityStatus">
+          <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
+        </b-nav-item>
+      </b-navbar-nav>
+
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item v-bind:to="{ name: 'faq'}" active-class="active">
+            {{$t("label_faq")}}
+          </b-nav-item>
+          <b-nav-item v-bind:to="{ name: 'termsOfUse'}" active-class="active">
+            {{$t("label_terms_of_use")}}
+          </b-nav-item>
           <b-nav-item-dropdown right no-caret
             v-if="user"
-            ref="ddownJobs" class="p-2" v-on:hidden="updateLastNotificationDate">
+            ref="ddownJobs" v-on:hidden="updateLastNotificationDate">
               <template slot="button-content">
                 <div class="dripicons-cloud-download position-relative" style="top:0.25em" />
                 <transition name="bounce">
@@ -99,9 +93,9 @@
               <span>{{language.name}}</span>
             </b-dropdown-item>
           </b-nav-item-dropdown> -->
-          <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 " right>
+          <b-nav-item-dropdown v-if="user" class="user-space pl-1 pr-2 " right>
             <template slot="button-content">
-              <div class='d-inline-block'>
+              <div class='d-inline-block mt-2'>
                 <div class='user-picture mt-1 float-left position-relative' :style='userPicture'>
                 </div>
                 <div class='user-label pt-2'>
@@ -122,7 +116,7 @@
             </b-dropdown-item>
 
           </b-nav-item-dropdown>
-          <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
+          <b-nav-item class="small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">
@@ -150,6 +144,7 @@ import SearchQueryExplorer from './modals/SearchQueryExplorer';
 
 export default {
   data: () => ({
+    countActiveSearchFilters: [],
     languages: {
       de: {
         code: 'de',
@@ -183,6 +178,10 @@ export default {
         console.info('Jobs loaded.');
       });
     }
+    this.$eventBus.$on(this.$eventBus.ADDED_FILTER_TO_SEARCH_QUERY, this.onEventBusAddedFilter);
+  },
+  beforeDestroy() {
+    this.$eventBus.$off(this.$eventBus.ADDED_FILTER_TO_SEARCH_QUERY, this.onEventBusAddedFilter);
   },
   computed: {
     loginRouteParams() {
@@ -208,8 +207,11 @@ export default {
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
     },
-    activeSearchTypes() {
-      return this.$store.getters['search/getSearch'].getTypes();
+    currentSearchHash() {
+      return this.$store.state.search.currentSearchHash;
+    },
+    currentSearchQueryParams() {
+      return this.$store.state.search.search.getSerialized();
     },
     showAlert() {
       return this.$store.state.errorMessages.length > 0;
@@ -295,12 +297,13 @@ export default {
         }
       },
     },
-    $route: {
-      handler(val, oldVal) {
-        if (val.meta.realm !== oldVal.meta.realm) {
-          this.$store.commit('SET_HEADER_TITLE', {});
+    currentSearchHash: {
+      handler(val) {
+        if (val.length) {
+          this.countActiveSearchFilters = this.$store.getters['search/getCurrentSearch'].countActiveFilters();
         }
       },
+      immediate: true,
     },
   },
   components: {
@@ -315,6 +318,9 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
+#TheHeader {
+  height: 56px;
+}
 #app-header {
     .Cookie--blood-orange {
 
@@ -389,6 +395,12 @@ export default {
                 font-weight: bold;
             }
         }
+    }
+    .navbar-nav .nav-link {
+      padding-top: 0;
+      padding-bottom: 0;
+      line-height: 56px;
+      height: 56px;
     }
     .navbar-dark .navbar-nav .nav-link {
         color: $clr-grey-800;
@@ -509,7 +521,7 @@ export default {
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_compare": "Inspect & Compare",
-    "label_current_search": "current search query...",
+    "label_current_search": "current search query | * 1 active filter | * {n} active filters",
     "label_faq": "FAQ",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
