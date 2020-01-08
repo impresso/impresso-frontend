@@ -54,7 +54,7 @@ export default class SearchQuery {
     serializer = 'json',
   } = {}) {
     return SearchQuery.serialize({
-      filters: this.filters,
+      filters: this.getFilters(),
     }, serializer);
   }
 
@@ -184,6 +184,14 @@ export default class SearchQuery {
       filters = filters.filter(i => exclude.includes(i.type) === false);
     }
     return filters;
+  }
+  /**
+   * Similar to getFilters, without mapping. Return the number of active filters
+   * @param  {options}  [{ ignoreTypes=['hasTextContents'] } = {}]
+   * @return {number}
+   */
+  countActiveFilters({ ignoreTypes = ['hasTextContents'] } = {}) {
+    return this.filters.filter(d => !ignoreTypes.includes(d.type)).length;
   }
   /**
    * get list of current types, minus default ones
