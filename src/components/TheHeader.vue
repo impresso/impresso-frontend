@@ -8,7 +8,7 @@
 
       <b-navbar-nav>
         <b-nav-item v-bind:to="{ name: 'search', query: currentSearchQueryParams }" active-class="active">
-          {{$t("label_search")}}
+          {{$tc("label_search", countActiveSearchFilters)}}
         </b-nav-item>
 
         <b-nav-item-dropdown  no-caret
@@ -512,13 +512,13 @@ export default {
     "dashboard": "Dashboard",
     "collections": "Collections",
     "label_home": "Home",
-    "label_search": "Search",
+    "label_search": "Search | Search* ({n} filters) | Search* ({n} filters)",
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_compare": "Inspect & Compare",
-    "label_current_search": "current search query | * 1 active filter | * {n} active filters",
+    "label_current_search": "browse results",
     "label_faq": "FAQ",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
