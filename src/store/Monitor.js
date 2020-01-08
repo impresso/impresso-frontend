@@ -139,7 +139,9 @@ export default {
         limit: 0,
       }).then((res) => {
         commit('SET_ITEM_COUNT_RELATED', res.total);
-        commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
+        if (res.info.facets && res.info.facets.year) {
+          commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
+        }
       });
     },
     SET_ITEM({ commit, dispatch }, { item, type, searchQueryId }) { // }, position }) {
