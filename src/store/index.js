@@ -212,6 +212,7 @@ export default new Vuex.Store({
       'settings.lastNotificationDate',
       'settings.language_code',
       'search.searches',
+      'search.currentSearchHash',
       'search.displaySortBy',
       'search.displaySortOrder',
       'search.displayStyle',
