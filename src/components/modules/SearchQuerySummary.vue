@@ -202,7 +202,7 @@ export default {
   }
   span.item.collection {
     font-family: "questa-sans", sans-serif;
-    color: blue;
+    color: #049dae;
   }
   span.item.newspaper {
     color: black;

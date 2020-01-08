@@ -360,6 +360,9 @@ $clr-grey-900: #ddd;
   }
 }
 
+.badge-info{
+  background-color: #049dae;
+}
 // uncomment to add background to transparent footers
 // .fixed-pagination-footer::before{
 //   content: "";
