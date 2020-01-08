@@ -1,15 +1,9 @@
 import * as services from '@/services';
 import Article from '@/models/Article';
-// import Bucket from '@/models/Bucket';
-// import Topic from '@/models/Topic';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
-// import Newspaper from '@/models/Newspaper';
-// import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
-// import FilterFactory from '@/models/FilterFactory';
 import router from '../router';
-
 
 export default {
   namespaced: true,
@@ -17,6 +11,7 @@ export default {
     search: new SearchQuery({
       filters: [{ type: 'hasTextContents' }],
     }),
+    currentSearchHash: '',
     searches: [],
     results: [],
     facets: [
@@ -79,6 +74,12 @@ export default {
     getSearch(state) {
       return state.search instanceof SearchQuery ? state.search : new SearchQuery(state.search);
     },
+    getCurrentSearch(state) {
+      return state.search;
+    },
+    getCurrentSearchHash(state) {
+      return state.currentSearchHash;
+    },
     results(state) {
       return state.results.map((result) => {
         if (result instanceof Article) {
@@ -125,12 +126,15 @@ export default {
     },
     ADD_FILTER(state, filter) {
       state.search.addFilter({ ...filter });
+      state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
     },
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);
+      state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
     },
     RESET_FILTER(state, type) {
       state.search.resetFilter(type);
+      state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
     },
     UPDATE_FILTER(state, { filter, q, op, context, precision, distance }) {
       state.search.updateFilter({ filter, q, op, context, precision, distance });
@@ -415,14 +419,17 @@ export default {
           commit('UPDATE_IS_LOADING', false);
         });
     },
+    RESET_FILTER({ commit }, { type }) {
+      commit('RESET_FILTER', type);
+    },
     ADD_FILTER({ commit }, { filter }) {
       commit('ADD_FILTER', filter);
     },
     REMOVE_FILTER({ commit }, { filter }) {
       commit('REMOVE_FILTER', filter);
     },
-    UPDATE_FILTER({ commit }, message) {
-      commit('UPDATE_FILTER', message);
+    UPDATE_FILTER({ commit }, { filter }) {
+      commit('UPDATE_FILTER', { filter });
     },
     UPDATE_FILTER_ITEM({ commit }, message) {
       commit('UPDATE_FILTER_ITEM', message);
