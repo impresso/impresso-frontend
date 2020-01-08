@@ -428,8 +428,8 @@ export default {
     REMOVE_FILTER({ commit }, { filter }) {
       commit('REMOVE_FILTER', filter);
     },
-    UPDATE_FILTER({ commit }, { filter }) {
-      commit('UPDATE_FILTER', { filter });
+    UPDATE_FILTER({ commit }, message) {
+      commit('UPDATE_FILTER', message);
     },
     UPDATE_FILTER_ITEM({ commit }, message) {
       commit('UPDATE_FILTER_ITEM', message);
