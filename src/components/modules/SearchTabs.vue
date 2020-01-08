@@ -3,7 +3,7 @@
     <template v-slot:tabs-end>
       <b-nav-item v-for="tab in tabs" v-bind:key="tab" active-class='none'
         :class="{ active: isActive(tab) }"
-        :to="{ name: tab }"><span v-html="$t(`tabs.${tab}`)"/>
+        :to="{ name: tab, query: currentSearchQueryParams(tab) }"><span v-html="$t(`tabs.${tab}`)"/>
       </b-nav-item>
     </template>
   </b-tabs>
@@ -18,6 +18,12 @@ export default {
     },
   },
   methods: {
+    currentSearchQueryParams(tab) {
+      if (tab === 'search') {
+        return this.$store.state.search.search.getSerialized();
+      }
+      return this.$store.state.searchImages.search.getSerialized();
+    },
     isActive(tab) {
       return this.$route.name === tab;
     },
