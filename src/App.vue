@@ -50,10 +50,22 @@ export default {
       return this.$store.state.processingLocked;
     },
   },
+  methods: {
+    onEventBusAddFilter({ filter, searchQueryId }) {
+      console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
+      if (!searchQueryId || !searchQueryId.length) {
+        this.$store.dispatch('search/ADD_FILTER', { filter });
+      }
+    },
+  },
   mounted() {
     window.addEventListener('click', () => {
       this.$root.$emit('bv::hide::popover');
     });
+    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBusAddFilter);
+  },
+  beforeDestroy() {
+    this.$eventBus.$off(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBusAddFilter);
   },
   created() {
     // load typekit
