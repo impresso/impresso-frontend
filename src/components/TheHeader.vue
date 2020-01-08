@@ -398,6 +398,11 @@ export default {
       padding-bottom: 0;
       line-height: 56px;
       height: 56px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 100px;
+      font-size: .9rem;
     }
     .navbar-dark .navbar-nav .nav-link {
         color: $clr-grey-800;
@@ -501,6 +506,20 @@ export default {
         line-height: 1;
         font-size: 0.8em;
     }
+}
+
+
+@media (min-width: 992px) {
+  #app-header .navbar-nav .nav-link{
+    max-width: 120px;
+    font-size: 1rem;
+  }
+}
+@media (min-width: 1200px) {
+  #app-header .navbar-nav .nav-link{
+    max-width: 220px;
+    font-size: 1rem;
+  }
 }
 </style>
 
