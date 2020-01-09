@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="TopicsPage">
-    <list :pagination-list="paginationList" v-on:change-page="changePage">
+    <list :pagination-list="paginationList" v-on:change-page="changePage" class="border-right border-top mr-1px mt-1px">
       <template v-slot:header>
         <div class='p-3 border-bottom bg-light'>
           <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
