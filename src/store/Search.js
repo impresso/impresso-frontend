@@ -3,6 +3,7 @@ import Article from '@/models/Article';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 import Facet from '@/models/Facet';
+import Helpers from '@/plugins/Helpers';
 import router from '../router';
 
 export default {
@@ -433,6 +434,33 @@ export default {
     },
     UPDATE_FILTER_ITEM({ commit }, message) {
       commit('UPDATE_FILTER_ITEM', message);
+    },
+    LOAD_TIMELINE(context, { filters = [] } = {}) {
+      return services.searchFacets.get('year', {
+        query: {
+          filters,
+          group_by: 'articles',
+        },
+      }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
+    },
+    LOAD_ARTICLES(context, {
+      page = 1,
+      limit = 10,
+      filters = [],
+      orderBy = '-relevance',
+    } = {}) {
+      return services.search.find({
+        query: {
+          page,
+          limit,
+          filters,
+          order_by: orderBy,
+          group_by: 'articles',
+        },
+      }).then(res => ({
+        ...res,
+        data: res.data.map(d => new Article(d)),
+      }));
     },
   },
 };
