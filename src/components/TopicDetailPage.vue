@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section>
+  <i-layout-section class="border-left border-top ml-1px mt-1px">
     <div slot="header">
       <b-navbar type="light" variant="light" class="border-bottom">
         <section>
@@ -42,7 +42,7 @@
 
     <div class='m-3'>
       <div class="article border-bottom" v-for="(article, idx) in articles">
-        <search-results-list-item v-model="articles[idx]" />
+        <article-item :item="article" show-meta show-topics show-excerpt show-entities show-matches show-link class="mb-2" />
       </div>
 
     </div>
@@ -54,14 +54,13 @@
         v-on:change="onInputPagination"
         v-bind:showDescription="false" />
     </div>
-
   </i-layout-section>
 </template>
 
 <script>
 import Topic from '@/models/Topic';
 import Pagination from './modules/Pagination';
-import SearchResultsListItem from './modules/SearchResultsListItem';
+import ArticleItem from './modules/lists/ArticleItem';
 import Ellipsis from './modules/Ellipsis';
 
 export default {
@@ -153,7 +152,7 @@ export default {
   components: {
     Pagination,
     Ellipsis,
-    SearchResultsListItem,
+    ArticleItem,
   },
 };
 </script>
