@@ -242,6 +242,10 @@ export default {
         empty: '(no results)',
       },
     },
+    tabs: {
+      overview: 'overview',
+      relatedArticles: '... related articles | 1 related article | {count} related articles',
+    },
     sort: {
       name: {
         asc: 'order by name, A-Z',

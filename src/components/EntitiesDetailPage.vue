@@ -410,7 +410,6 @@ a:hover {
       "l": "low"
     },
     "tabs": {
-        "overview": "overview",
         "mentions": "... mentions | mentioned only once | mentioned {count} times",
         "cooccurrences": "Cooccurrences",
         "articles": "... related articles | 1 related article | {count} related articles"

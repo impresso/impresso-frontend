@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section class="border-left border-top ml-1px mt-1px">
+  <i-layout-section class="topics-explorer-page">
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
