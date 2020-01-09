@@ -72,15 +72,19 @@ export default {
     total: 0,
     page: 1,
     limit: 10,
-    orderBy: 'relevance',
+    orderBy: '-relevance',
     timeline: [],
   }),
   computed: {
     orderByOptions() {
       return [
         {
+          value: '-relevance',
+          text: this.$t('topic.relevanceDESC'),
+        },
+        {
           value: 'relevance',
-          text: this.$t('topic.relevance'),
+          text: this.$t('topic.relevanceASC'),
         },
         {
           value: 'date',
@@ -113,6 +117,7 @@ export default {
       const response = await this.$store.dispatch('topics/LOAD_ARTICLES', {
         topicUid: this.topic.uid,
         limit: this.limit,
+        orderBy: this.orderBy,
         page,
       });
       // sres et articles
@@ -129,13 +134,19 @@ export default {
       async handler(topicUid) {
         // load single topic data
         this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', topicUid);
-        this.$store.commit('SET_HEADER_TITLE', {
-          subtitle: this.topic.getHtmlExcerpt(),
-          title: 'topics',
-        });
+        // this.$store.commit('SET_HEADER_TITLE', {
+        //   subtitle: this.topic.getHtmlExcerpt(),
+        //   title: 'topics',
+        // });
 
         // load articles
         await this.getArticles();
+      },
+    },
+    orderBy: {
+      handler(val) {
+        console.info(val);
+        this.getArticles();
       },
     },
   },
@@ -158,7 +169,8 @@ export default {
   {
     "en": {
       "topic": {
-        "relevance": "topic relevance"
+        "relevanceDESC": "topic relevance (highest first)",
+        "relevanceASC": "topic relevance (lowest first)"
       },
       "article": {
         "dateASC": "article date",
