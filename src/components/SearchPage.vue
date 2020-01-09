@@ -389,7 +389,6 @@ export default {
       this.$store.dispatch('search/ADD_FILTER', { filter });
     },
     onResetFilter(type) {
-      debugger;
       this.$store.dispatch('search/RESET_FILTER', { type });
     },
     onUpdateFilter(filter) {
