@@ -52,18 +52,16 @@
           <!-- {{ path }}
           {{ searchQueryId }}
           {{ searchQueryFilters }} -->
-          <!-- <b-form-group class="mx-3">
+          <b-form-group class="mx-3">
 
-            <b-form-checkbox v-model="applyCurrentSearchFilters" v-bind:value="true">
-              {{ $t('labels.applyCurrentSearchFilters') }} <br/>
-              <span v-html="statsLabel"/>
-              <search-query-summary class="d-inline" reduced :search-query='searchQuery' />
+            <b-form-checkbox v-model="applyCurrentSearchFilters">
+              {{ $t('labels.applyCurrentSearchFilters') }}
             </b-form-checkbox>
-          </b-form-group> -->
+          </b-form-group>
           <p class="px-2">
-          <ellipsis v-bind:initialHeight="70">
+          <ellipsis  v-bind:initialHeight="70">
             <span v-html="statsLabel"/>
-            <search-query-summary class="pl-2 border-left border-tertiary" :search-query='searchQuery' />
+            <search-query-summary v-if="applyCurrentSearchFilters" class="pl-2 border-left border-tertiary" :search-query='searchQuery' />
           </ellipsis>
         </p>
         </div>
@@ -146,6 +144,7 @@ export default {
       return this.$store.dispatch('monitor/SET_IS_ACTIVE', false);
     },
     applyFilter(context = 'include') {
+      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
       this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
         searchQueryId: this.searchQueryId,
         filter: {
@@ -156,7 +155,7 @@ export default {
           checked: true,
         },
       });
-      this.fadeOut();
+      // this.fadeOut();
     },
   },
   computed: {
@@ -228,7 +227,7 @@ export default {
       let key = 'itemStats';
       if (!this.itemTimelineDomain.length) {
         key = 'itemStatsEmpty';
-      } else if (this.searchQueryFilters.length > 1) {
+      } else if (this.applyCurrentSearchFilters && this.searchQueryFilters.length > 1) {
         key = 'itemStatsFiltered';
       }
       return this.$t(key, {
@@ -287,7 +286,7 @@ export default {
         "selectedItem": "current selection"
       },
       "labels": {
-        "applyCurrentSearchFilters": "display results per year"
+        "applyCurrentSearchFilters": "filter by current search query"
       },
       "itemStatsEmpty": "No results apparently",
       "itemStats": "<b class='number'>{count}</b> results from {from} to {to}",

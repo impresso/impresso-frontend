@@ -97,6 +97,7 @@ export default {
         state.searchQueryId = '';
         state.searchQueryNamespace = DEFAULT_SEARCH_NAMESPACE;
       }
+      console.info('Monitor/SET_SEARCH_QUERY_ID', searchQueryId);
     },
   },
   actions: {
@@ -129,6 +130,7 @@ export default {
       }
       // fetch article timeline related to the given type
       return services.search.find({
+        lock: false,
         query: {
           group_by: state.groupBy,
           filters,
@@ -138,7 +140,9 @@ export default {
         limit: 0,
       }).then((res) => {
         commit('SET_ITEM_COUNT_RELATED', res.total);
-        commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
+        if (res.info.facets && res.info.facets.year) {
+          commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
+        }
       });
     },
     SET_ITEM({ commit, dispatch }, { item, type, searchQueryId }) { // }, position }) {

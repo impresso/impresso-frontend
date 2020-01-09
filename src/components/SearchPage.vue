@@ -340,6 +340,9 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    currentSearchHash() {
+      return this.$store.state.search.currentSearchHash;
+    },
     searchQuery() {
       return this.$store.state.search.search;
     },
@@ -368,44 +371,38 @@ export default {
     },
     toggleBooleanFilter(filter, value = true) {
       if (!value) {
-        this.$store.commit('search/REMOVE_FILTER', filter);
+        this.$store.dispatch('search/REMOVE_FILTER', { filter });
       } else {
-        this.$store.commit('search/ADD_FILTER', filter);
+        this.$store.dispatch('search/ADD_FILTER', { filter });
       }
-      this.search(1);
     },
     onSummary(msg) {
       this.inputDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
     },
-    onSuggestion(suggestion) {
-      this.$store.commit('search/ADD_FILTER', suggestion);
-      this.search(1);
+    onSuggestion(filter) {
+      this.$store.dispatch('search/ADD_FILTER', { filter });
     },
-    onFacet(facet) {
-      console.info('@onFacet', facet);
-      this.$store.commit('search/ADD_FILTER', facet);
-      this.search(1);
+    onFacet(filter) {
+      console.info('@onFacet', filter);
+      this.$store.dispatch('search/ADD_FILTER', { filter });
     },
     onResetFilter(type) {
-      this.$store.commit('search/RESET_FILTER', type);
-      this.search(1);
+      debugger;
+      this.$store.dispatch('search/RESET_FILTER', { type });
     },
     onUpdateFilter(filter) {
-      this.$store.commit('search/UPDATE_FILTER', filter);
-      this.search(1);
+      this.$store.dispatch('search/UPDATE_FILTER', { filter });
     },
     onInputPagination(page = 1) {
       this.search(page);
     },
     onRemoveFilter(filter) {
-      this.$store.commit('search/REMOVE_FILTER', filter);
-      this.search(1);
+      this.$store.dispatch('search/REMOVE_FILTER', { filter });
     },
     onAddFilter(filter) {
-      this.$store.commit('search/ADD_FILTER', filter);
-      this.search(1);
+      this.$store.dispatch('search/ADD_FILTER', { filter });
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -533,12 +530,6 @@ export default {
       this.$store.dispatch('search/ADD_FILTER', { filter });
       this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
-    onEventBus({ filter, searchQueryId }) {
-      if (!searchQueryId.length) {
-        console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
-        this.onSuggestion(filter);
-      }
-    },
   },
   watch: {
     searchResults() {
@@ -546,6 +537,15 @@ export default {
     },
     selectedItems() {
       this.updateselectAll();
+    },
+    currentSearchHash: {
+      handler(val) {
+        if (val.length) {
+          console.info('@currentSearchHash changed', val);
+          this.search();
+        }
+      },
+      immediate: false,
     },
     '$route.query': {
       handler(val) {
@@ -572,20 +572,10 @@ export default {
     InfoButton,
   },
   mounted() {
-    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBus);
-
-    if (this.uuid !== undefined) {
-      this.$store.commit('search/LOAD_SEARCH', this.uuid);
-    }
-    // this.search();
-  },
-  beforeDestroy() {
-    // TODO: need to use the url to reflect the search, this way we can use back
-    // button and keep the search AND go to home and start a new search
-    // if(nextpage !=== "issue || article"){
-    //     this.$store.commit('search/CLEAR');
+    console.info('changed');
+    // if (this.uuid !== undefined) {
+    //   this.$store.commit('search/LOAD_SEARCH', this.uuid);
     // }
-    this.$eventBus.$off(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBus);
   },
 };
 </script>

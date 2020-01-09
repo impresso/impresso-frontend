@@ -11,7 +11,7 @@ export default {
     items: [],
     itemsIndex: {},
     pagination: {
-      perPage: 50,
+      perPage: 200,
       currentPage: 1,
       totalRows: 0,
     },

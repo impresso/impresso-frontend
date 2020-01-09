@@ -9,7 +9,7 @@ export default {
     isActive: false,
     searchQueryHash: '',
     pagination: {
-      perPage: 3,
+      perPage: 1,
       currentPage: 1,
       totalRows: -1,
     },
