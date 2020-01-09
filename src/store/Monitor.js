@@ -97,6 +97,7 @@ export default {
         state.searchQueryId = '';
         state.searchQueryNamespace = DEFAULT_SEARCH_NAMESPACE;
       }
+      console.info('Monitor/SET_SEARCH_QUERY_ID', searchQueryId);
     },
   },
   actions: {
