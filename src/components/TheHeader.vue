@@ -1,7 +1,7 @@
 <template lang="html">
-  <div style="margin-bottom: -1px;">
+  <div >
     <b-progress v-if='processingStatus' :value="100" variant="info" animated height="4px"></b-progress>
-    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-primary">
+    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-primary mb-1px">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
