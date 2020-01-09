@@ -22,7 +22,7 @@
     </div>
     <div v-else>
       <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page "
-      v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}">
+      v-bind:class="{activepage: page.num === currentPageNum}">
         <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
           <b-media
             :ref="`article-${article.uid}`"
