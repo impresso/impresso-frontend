@@ -8,7 +8,7 @@
 
       <b-navbar-nav>
         <b-nav-item v-if="!countActiveSearchFilters" v-bind:to="{ name: 'search', query: currentSearchQueryParams }" active-class="active">
-          {{$t("label_search", 0)}}
+          {{$tc("label_search", 0)}}
         </b-nav-item>
 
         <b-nav-item-dropdown  no-caret
@@ -16,15 +16,11 @@
           ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" class="pl-3">
           <template slot="button-content">
             <span style="color: gold">
-              <span v-if="countActiveSearchItems">
-                {{
-                  $tc("label_search_with_items", countActiveSearchFilters, {
-                    items: $tc('numbers.items', countActiveSearchItems),
-                  })
-                }}
-              </span>
+              <span v-if="countActiveSearchItems" v-html="$tc('label_search_with_items', countActiveSearchFilters, {
+                items: $tc('numbers.items', countActiveSearchItems),
+              })" />
               <span v-else>
-                {{ $tc("label_search", countActiveSearchFilters) }}
+                {{ $tc('label_search', countActiveSearchFilters) }}
               </span>
             </span>
           </template>
@@ -547,7 +543,7 @@ export default {
     "collections": "Collections",
     "label_home": "Home",
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
-    "label_search_with_items": "Search | Search* ({n} filter {items}) | Search* ({n} filters, {items})",
+    "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_explore": "explore...",
