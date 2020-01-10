@@ -17,7 +17,7 @@
         </div>
       </template>
       <template v-slot:default>
-        <router-link v-for="(newspaper, i) in newspapers"
+        <router-link v-for="(newspaper, i) in newspapers" v-bind:key="i"
           class="p-3 border-bottom d-block"
           v-bind:class="{active: newspaper.uid === newspaperUid}"
           v-bind:to="{name: 'newspaper_metadata', params: {newspaper_uid: newspaper.uid}}">
