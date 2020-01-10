@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section class="border-left border-top ml-1px mt-1px">
+  <i-layout-section main>
     <div slot="header">
       <b-navbar>
         <section>
@@ -21,7 +21,7 @@
         </template>
       </b-tabs>
 
-      <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom border-tertiary">
+      <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
         <b-navbar-nav>
           <b-nav-form class="p-2 border-right">
             <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>

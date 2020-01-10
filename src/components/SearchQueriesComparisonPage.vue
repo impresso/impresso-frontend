@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="SearchQueriesComparisonPage">
-    <i-layout-section class="border-top mt-1px">
+    <i-layout-section class="border-top ">
       <div slot="header">
         <div class="header row pm-fixer bg-light border-bottom border-tertiary">
           <div class="one-third" :class="{

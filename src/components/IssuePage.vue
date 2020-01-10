@@ -1,6 +1,6 @@
 <template lang="html">
-  <i-layout id="IssuePage" ref="issuePage" class="bg-light">
-    <i-layout-section width="350px" class="border-right border-top mt-1px">
+  <i-layout id="IssuePage" ref="issuePage">
+    <i-layout-section width="350px">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -71,7 +71,7 @@
       </div>
     </i-layout-section>
     <!--  page openseadragon or article -->
-    <i-layout-section class="border-left border-top ml-1px mt-1px">
+    <i-layout-section main>
       <div slot="header" class="border-bottom">
         <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
           <section class='p-2 pl-3'>
@@ -161,7 +161,7 @@
       <issue-viewer-text v-if="article && article.uid && mode === 'text'"
         v-bind:article_uid="article.uid"/>
     </i-layout-section>
-    <i-layout-section width="120px" class="border-left border-top mt-1px bg-light" v-if="issue">
+    <i-layout-section width="120px" class="border-left" v-if="issue">
       <thumbnail-slider
         :bounds="bounds"
         :issue="issue"

@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="400px" class="border-right border-top mt-1px">
+    <i-layout-section width="400px" class="border-right border-top ">
       <!--  header -->
       <div slot="header" class="border-bottom bg-light">
         <search-tabs />
@@ -34,7 +34,7 @@
         <search-facets store="searchImages" @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter" percent-prop="m"/>
       </div>
     </i-layout-section>
-    <i-layout-section class="border-left border-top ml-1px mt-1px">
+    <i-layout-section class="border-left border-top ml-1px ">
       <!-- header -->
       <div slot="header">
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">

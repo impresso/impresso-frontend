@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section v-if="entity" class="border-left border-top ml-1px mt-1px">
+  <i-layout-section v-if="entity" main>
     <div slot="header" class="border-bottom bg-light">
       <b-navbar type="light" variant="light">
         <section>
