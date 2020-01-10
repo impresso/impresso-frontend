@@ -1,9 +1,9 @@
 <template lang="html">
-  <i-layout-section width="300px" class="border-right border-top mt-1px">
+  <i-layout-section width="300px">
     <!-- <div slot="header" class="border-bottom border-tertiary bg-light"> -->
     <template v-slot:header>
       <!-- header -->
-      <div class="border-bottom border-tertiary bg-light">
+      <div class="border-bottom">
         <slot name="header"></slot>
       </div>
     </template>

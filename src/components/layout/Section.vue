@@ -1,5 +1,5 @@
 <template lang="html">
-  <section v-bind:style="style" class="i-layout-section">
+  <section v-bind:style="style" class="i-layout-section" :class="{'border-left': main}">
     <div v-if="this.$slots.header" class="header" :class="{'scroll' : scrollTop }">
       <slot name="header"></slot>
     </div>
@@ -22,6 +22,7 @@ export default {
     scrollTop: 0,
   }),
   props: {
+    main: Boolean,
     width: {
       default: 'auto',
     },

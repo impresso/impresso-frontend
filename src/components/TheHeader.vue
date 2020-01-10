@@ -364,7 +364,6 @@ export default {
     }
     nav {
         margin-top: 0;
-        margin-bottom: 1px;
         .navbar-collapse {
             height: 44px;
         }

@@ -1,7 +1,7 @@
 <template lang="html">
-    <i-layout-section class="bg-light">
+    <i-layout-section main>
       <!-- slot:header  -->
-      <div slot="header" >
+      <div slot="header" class="border-bottom">
         <b-navbar type="light" variant="light" >
           <section class='pt-2'>
             <span class="label small-caps">

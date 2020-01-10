@@ -193,6 +193,9 @@ $clr-grey-900: #ddd;
 .mt-1px {
     margin-top: 1px;
 }
+.mt-2px {
+    margin-top: 2px;
+}
 .mb-1px {
     margin-bottom: 1px;
 }

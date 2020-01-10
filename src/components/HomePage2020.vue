@@ -1,6 +1,6 @@
 <template>
 <i-layout id="HomePage2020" :class="{ 'pt-1px bg-light border-top': showLines, 'bg-dark border-tertiary': darkMode }" >
-  <i-layout-section width="400px" :class="{ 'mt-1px mr-1px border-top border-right': showLines,'border-tertiary': darkMode }">
+  <i-layout-section width="400px" :class="{ ' mr-1px border-top border-right': showLines,'border-tertiary': darkMode }">
     <!--  header -->
     <div slot="header" :class="{ 'border-bottom border-secondary': showLines }">
       <search-tabs />
@@ -14,17 +14,18 @@
       <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
       <p class="small-caps mt-3">Impresso data rundown</p>
       <p>
-        <span class="number">29</span>
+        <span class="number">76</span>
         newspapers collected,<br>
-        <span class="number">1.2</span>
+        <span class="number">5,445,822</span>
         billion pages scanned,<br>
-        <span class="number">137</span>
-        million articles identified
+        <span class="number">47,876,994</span>
+        million content items identified,<br>
+        <span class="number">12,508,779,241</span>
+        words.<br>
       </p>
       <p>
-        <span class="number">5</span> languages,<br>
-        <span class="number">6</span> countries of publication<br>
-        <span class="number">5.2</span> named entities disambiguated
+        <span class="number">2</span> countries of publication<br>
+        <span class="number">530,086</span> named entities disambiguated
       </p>
 
       <div class="mb-2">
@@ -57,7 +58,7 @@
     </div>
 
   </i-layout-section>
-  <i-layout-section :class="{ 'mt-1px ml-1px border-top border-left': showLines, 'border-tertiary': darkMode }">
+  <i-layout-section :class="{ ' ml-1px border-top border-left': showLines, 'border-tertiary': darkMode }">
     <div class="text-tertiary p-3">
       <h1 class="huge m-4 mt-2">Media Monitoring of the <span class="text-accent">Past</span></h1>
       <!-- <h1 class="text-white mt-5">Today, 100 years ago.</h1>

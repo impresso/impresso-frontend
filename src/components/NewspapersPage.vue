@@ -1,14 +1,39 @@
 <template lang="html">
-  <i-layout id="SearchPage">
-    <i-layout-section width="300px" class="border-right border-top mt-1px" variant="bg-light">
-      <div slot="header" class="border-bottom border-tertiary bg-light">
-        <!-- <b-tabs pills class="border-bottom mx-2 pt-2">
+  <i-layout>
+    <list :pagination-list="paginationList" v-on:change-page="changePage">
+      <template v-slot:header>
+        <b-tabs pills class="mx-2 pt-2">
+          <template v-slot:tabs-end>
+            <b-nav-item class="pl-2 active"
+              active-class='none'
+              :to="{ name:'newspapers'}"><span v-html="$t('label_list', { total: $n(paginationList.totalRows) })"/></b-nav-item>
+          </template>
+        </b-tabs>
+        <div class="p-2 px-3">
+          <b-input placeholder="filter newspapers" v-model.trim="query"/>
+          <div class="mt-2">
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </div>
+        </div>
+      </template>
+      <template v-slot:default>
+        <router-link v-for="(newspaper, i) in newspapers"
+          class="p-3 border-bottom d-block"
+          v-bind:class="{active: newspaper.uid === newspaperUid}"
+          v-bind:to="{name: 'newspaper_metadata', params: {newspaper_uid: newspaper.uid}}">
+          <newspaper-item :item="newspaper"/>
+        </router-link>
+      </template>
+    </list>
+    <!--<i-layout-section width="300px" variant="bg-light">
+      <div slot="header" class="border-bottom">
+        <b-tabs pills class="border-bottom mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item class="pl-2 active"
               active-class='none'
               :to="{ name:'newspapers'}"><span v-html="$t('label_list', { total: paginationList.totalRows})"/></b-nav-item>
           </template>
-        </b-tabs> -->
+        </b-tabs>
         <div class="p-3">
           <input
             type="text"
@@ -23,7 +48,7 @@
 
         </div>
       </div>
-      <!-- body -->
+
       <div v-for="n in newspapers" class="border-bottom">
         <router-link
           class="px-3 py-2 d-block"
@@ -33,7 +58,7 @@
         </router-link>
       </div>
       <div class="my-5" />
-      <!-- footer -->
+
       <div v-if="paginationList.totalRows > paginationList.perPage" slot="footer" class="fixed-pagination-footer p-1 m-0 mb-2">
         <pagination
           v-bind:perPage="paginationList.perPage"
@@ -44,12 +69,13 @@
           class="float-left small-caps" />
       </div>
     </i-layout-section>
+  -->
     <router-view></router-view>
   </i-layout>
 </template>
 
 <script>
-import Pagination from './modules/Pagination';
+import List from './modules/lists/List';
 import NewspaperItem from './modules/lists/NewspaperItem';
 
 export default {
@@ -141,7 +167,7 @@ export default {
     this.loadList();
   },
   components: {
-    Pagination,
+    List,
     NewspaperItem,
   },
 };
