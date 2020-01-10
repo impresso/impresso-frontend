@@ -153,6 +153,7 @@ import SearchQueryExplorer from './modals/SearchQueryExplorer';
 export default {
   data: () => ({
     countActiveSearchFilters: [],
+    countActiveSearchItems: 0,
     languages: {
       de: {
         code: 'de',
