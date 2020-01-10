@@ -16,17 +16,25 @@
         </b-tabs>
         <div class="py-2 px-3">
           <div v-if="issue" class="mb-2">
-            <span class="small-caps" v-html="$t('stats', {
+            <span v-if="isTabSearch">
+              <span v-if="q.length" v-html="$tc('numbers.articlesMatching', matchesTotalRows, {
+                n: $n(matchesTotalRows),
+                q,
+              })"/>
+              <span v-else v-html="$tc('numbers.articles', matchesTotalRows)" />
+            </span>
+            <span v-else class="small-caps" v-html="$t('stats', {
               countPages: issue.countPages,
               countArticles: issue.countArticles,
             })"/>
-            <span v-if="isTabSearch">(no search)</span>
           </div>
           <div v-if="isTabSearch">
-            <search-pills
-              :excluded-types="['hasTextContents', 'isFront', 'issue']"
-              @remove="onRemoveFilter"
-            />
+            <p if="applyCurrentSearchFilters">
+              <search-pills
+                :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']"
+                @remove="onRemoveFilter"
+              />
+            </p>
             <b-input-group>
               <b-form-input
               placeholder="search for ..."
@@ -52,20 +60,14 @@
         flatten
         v-on:click="gotoArticle" />
 
-      <div v-if="isTabSearch">
-        <!--  Pagination v-if="matchesTotalRows > matchesPerPage" -->
-        <div
-           class="p-3">
-          <div
-            class=" mb-2 p-1">
-            <pagination
-              v-model="matchesCurrentPage"
-              v-bind:perPage="matchesPerPage"
-              v-bind:totalRows="matchesTotalRows"
-              v-bind:showDescription="false"
-               />
-          </div>
-        </div>
+      <div class="fixed-pagination-footer p-1 m-0 mb-2" v-if="isTabSearch">
+        <pagination
+          v-bind:currentPage="matchesCurrentPage"
+          v-bind:perPage="matchesPerPage"
+          v-bind:totalRows="matchesTotalRows"
+          v-bind:showDescription="false"
+          v-on:change="onInputPagination"
+           />
       </div>
     </i-layout-section>
     <!--  page openseadragon or article -->
@@ -196,6 +198,7 @@ export default {
     // issue: null,
     page: null,
     article: null,
+    applyCurrentSearchFilters: false,
     currentPageIndex: -1,
     pagesIndex: {},
     isTocLoaded: false,
@@ -387,9 +390,9 @@ export default {
       });
     },
     getSearchFilters() {
-      const filters = this.$store.getters['search/getSearch'].getFilters();
-      if (!filters.length) {
-        return [];
+      let filters = [];
+      if (this.applyCurrentSearchFilters) {
+        filters = this.$store.getters['search/getSearch'].getFilters();
       }
       if (this.q.length) {
         filters.push({
@@ -604,6 +607,10 @@ export default {
     },
     onRemoveFilter(filter) {
       this.$store.commit('search/REMOVE_FILTER', filter);
+      this.search();
+    },
+    onInputPagination(page) {
+      this.matchesCurrentPage = page;
       this.search();
     },
     search() {

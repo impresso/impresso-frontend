@@ -95,6 +95,7 @@ export default {
       pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
       issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
       results: 'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
+      articlesMatching: 'no articles matching {q}| <span class="number">1</span> article matches {q} | <span class="number">{n}</span> articles found containing <span class="highlight">{q}</span>',
       resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
       collection: {
         countItems: '{countItems} saved items',
