@@ -24,6 +24,7 @@ export default {
         de: 'German',
         fr: 'French',
         en: 'English',
+        lb: 'Luxembourgish',
         'n/a': 'Undefined language',
         nl: 'Dutch',
         undefined: 'Undefined language',
