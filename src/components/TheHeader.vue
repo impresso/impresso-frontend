@@ -7,23 +7,34 @@
       </b-navbar-brand>
 
       <b-navbar-nav>
-        <b-nav-item v-bind:to="{ name: 'search', query: currentSearchQueryParams }" active-class="active">
-          {{$tc("label_search", countActiveSearchFilters)}}
+        <b-nav-item v-if="!countActiveSearchFilters" v-bind:to="{ name: 'search', query: currentSearchQueryParams }" active-class="active">
+          {{$t("label_search", 0)}}
         </b-nav-item>
 
         <b-nav-item-dropdown  no-caret
           v-if="countActiveSearchFilters"
-          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer">
+          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" class="pl-3">
           <template slot="button-content">
-            <span style="color: gold">{{ $tc("label_current_search", countActiveSearchFilters) }}</span>
-            <!-- <transition name="bounce">
-              <b-badge
-                pill variant="transparent" class="border">
-                {{ $n(currentSearchResults) }}
-              </b-badge>
-            </transition> -->
+            <span style="color: gold">
+              <span v-if="countActiveSearchItems">
+                {{
+                  $tc("label_search_with_items", countActiveSearchFilters, {
+                    items: $tc('numbers.items', countActiveSearchItems),
+                  })
+                }}
+              </span>
+              <span v-else>
+                {{ $tc("label_search", countActiveSearchFilters) }}
+              </span>
+            </span>
           </template>
-          <search-query-explorer dark-mode/>
+          <b-button class="ml-3 my-2" size="sm" variant="outline-primary bg-light" :disabled="$route.name === 'search'" v-bind:to="{ name: 'search', query: currentSearchQueryParams }">
+            {{$t('actions.searchMore')}}
+          </b-button>
+          <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" v-bind:to="{ name: 'search' }">
+            {{$t('actions.resetQuery')}}
+          </b-button> -->
+          <search-query-explorer v-on:click="" dark-mode/>
         </b-nav-item-dropdown>
 
         <b-nav-item v-bind:to="{ name: 'newspapers'}" active-class="active">
@@ -115,6 +126,7 @@
               <span v-html="$t('join_slack_channel')"></span>
             </b-dropdown-item>
 
+            <b-dropdown-text class="px-3" v-html="$t('current_version', { version })"/>
           </b-nav-item-dropdown>
           <b-nav-item class="small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
@@ -253,6 +265,9 @@ export default {
     connectivityStatus() {
       return this.$store.state.connectivityStatus;
     },
+    version() {
+      return [window.impressoVersion, window.impressoDataVersion].join('/');
+    },
   },
   methods: {
     updateLastNotificationDate() {
@@ -298,6 +313,7 @@ export default {
       handler(val) {
         if (val.length) {
           this.countActiveSearchFilters = this.$store.getters['search/getCurrentSearch'].countActiveFilters();
+          this.countActiveSearchItems = this.$store.getters['search/getCurrentSearch'].countActiveItems();
         }
       },
       immediate: false,
@@ -530,7 +546,8 @@ export default {
     "dashboard": "Dashboard",
     "collections": "Collections",
     "label_home": "Home",
-    "label_search": "Search | Search* ({n} filters) | Search* ({n} filters)",
+    "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
+    "label_search_with_items": "Search | Search* ({n} filter {items}) | Search* ({n} filters, {items})",
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_explore": "explore...",
@@ -542,7 +559,8 @@ export default {
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
-    "no-jobs-yet": "Here you will find notifications about your collections and your downloads."
+    "no-jobs-yet": "Here you will find notifications about your collections and your downloads.",
+    "current_version": "v <span class='small-caps'>{version}</span>"
   }
 }
 </i18n>

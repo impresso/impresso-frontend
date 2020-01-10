@@ -224,6 +224,15 @@ export default class SearchQuery {
   countActiveFilters({ ignoreTypes = ['hasTextContents'] } = {}) {
     return this.filters.filter(d => !ignoreTypes.includes(d.type)).length;
   }
+
+  countActiveItems({ ignoreTypes = ['hasTextContents'] } = {}) {
+    return this.filters.filter(d => !ignoreTypes.includes(d.type)).reduce((acc, d) => {
+      if (d.items) {
+        return acc + d.items.length;
+      }
+      return acc + 1;
+    }, 0);
+  }
   /**
    * get list of current types, minus default ones
    * @param  {Array}  [ignoreTypes=['hasTextContents'] } = {}] available options
