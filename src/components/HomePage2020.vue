@@ -3,7 +3,7 @@
   <i-layout-section width="400px" :class="{ ' mr-1px border-top border-right': showLines,'border-tertiary': darkMode }">
     <!--  header -->
     <div slot="header" :class="{ 'border-bottom border-secondary': showLines }">
-      <search-tabs />
+      <search-tabs focusOnSearch/>
       <div class="py-3 px-3">
         <autocomplete v-on:submit="onSuggestion" />
       </div>

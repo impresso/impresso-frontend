@@ -12,6 +12,7 @@
 <script>
 export default {
   props: {
+    focusOnSearch: Boolean,
     tabs: {
       type: Array,
       default: () => ['search', 'searchImages'],
@@ -25,6 +26,9 @@ export default {
       return this.$store.state.searchImages.search.getSerialized();
     },
     isActive(tab) {
+      if (this.focusOnSearch) {
+        return tab === 'search';
+      }
       return this.$route.name === tab;
     },
   },
