@@ -27,6 +27,7 @@ export default class Page {
     collections = [],
     entities = [],
     iiif = '',
+    iiifThumbnail = '',
     labels = ['page'],
     num = 0,
     regions = [],
@@ -74,6 +75,7 @@ export default class Page {
     });
 
     this.iiif = String(iiif);
+    this.iiifThumbnail = String(iiifThumbnail);
     this.labels = labels.map(label => String(label));
     this.num = parseInt(num, 10);
 
