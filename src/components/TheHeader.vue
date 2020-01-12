@@ -24,7 +24,7 @@
               </span>
             </span>
           </template>
-          <b-button class="ml-3 my-2" size="sm" variant="outline-primary bg-light" :disabled="$route.name === 'search'" v-bind:to="{ name: 'search', query: currentSearchQueryParams }">
+          <b-button class="ml-3 my-2" size="sm" variant="outline-primary outline-primary-contrast" :disabled="$route.name === 'search'" v-bind:to="{ name: 'search', query: currentSearchQueryParams }">
             {{$t('actions.searchMore')}}
           </b-button>
           <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" v-bind:to="{ name: 'search' }">
@@ -333,7 +333,6 @@ export default {
 }
 #app-header {
     .Cookie--blood-orange {
-
       background: $clr-secondary;
       border-bottom: 2px solid $clr-accent;
       box-shadow: 0 0 5vh 0vw rgba(0,0,0,0.8);
@@ -451,6 +450,8 @@ export default {
       &.show > a{
         color: $clr-white;
       }
+
+
     }
     .navbar-dark .b-nav-dropdown .dropdown-menu {
       background: $clr-grey-300 !important;
@@ -473,6 +474,15 @@ export default {
       .dropdown-item.active{
         color: $clr-white;
         background: $clr-grey-400;
+      }
+
+      .btn-outline-primary{
+        border: 1px solid #caccce;
+        color: #caccce;
+        &:hover{
+          border-color: $clr-white;
+          color: $clr-white;
+        }
       }
     }
 
