@@ -128,6 +128,10 @@ export default {
     }
   }
 
+  span.item.newspaper{
+    color: white;
+  }
+
   article h2, article h2 a{
     color: #c2c8ce;
     font-size: inherit;
