@@ -1,53 +1,83 @@
 <template lang="html">
     <i-layout-section main>
       <!-- slot:header  -->
-      <div slot="header" class="border-bottom">
-        <b-navbar type="light" variant="light" >
-          <section class='pt-2'>
+      <div slot="header" >
+        <b-navbar>
+          <section>
             <span class="label small-caps">
               <router-link :to="{ name: 'newspapers' }">&larr; {{$t("newspapers")}}</router-link>
             </span>
-            <h3 class='mb-1'>
+            <h3>
               {{newspaper.name}}
               ({{newspaper.startYear}} - {{newspaper.endYear}})
             </h3>
-            <p class='mb-0' v-if='genealogy || publication'>
+            <p class='mt-1' v-if='genealogy || publication'>
               <span v-if='genealogy'>{{ genealogy }}</span>
               <span v-if='publication'>{{ publication }}</span>
             </p>
           </section>
+        </b-navbar>
 
-        </b-navbar>
-        <b-navbar type="light" variant="light" class="p-0 border-bottom ">
-          <b-navbar-nav class="px-2 pt-2 small-caps">
-            <b-tabs pills>
-              <template v-slot:tabs-end>
-                <b-nav-item :to="{ name:'newspaper_metadata'}" exact >{{$t('route.newspaper_metadata')}}</b-nav-item>
-                <b-nav-item :to="{ name:'newspaper'}" exact >{{$t('route.newspaper', { total: $n(total) })}}</b-nav-item>
-              </template>
-            </b-tabs>
-          </b-navbar-nav>
-        </b-navbar>
+        <b-tabs pills class="mx-3">
+          <template v-slot:tabs-end>
+            <b-nav-item :to="{ name:'newspaper_metadata'}" exact active-class='active' class="pl-2">
+              <span>{{$t('route.newspaper_metadata')}}</span>
+            </b-nav-item>
+            <b-nav-item :to="{ name:'newspaper'}" exact active-class='active' class="pl-2">
+              <span>{{$t('route.newspaper', { total: $n(total) })}}</span>
+            </b-nav-item>
+          </template>
+        </b-tabs>
         <!--  order by -->
-        <b-navbar type="light" variant="light"
-          v-if="$route.name != 'newspaper_metadata'"
-          class="border-bottom p-0">
-          <b-navbar-nav class="pl-3 pr-2 py-2 pr-auto">
+        <b-navbar class="px-3 py-0 border-bottom">
+
+          <b-nav-form class="p-2 border-right">
+            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
+              {{ $t('actions.addToCurrentFilters') }}
+            </b-button>
+          </b-nav-form>
+          <b-nav-form class="p-2 border-right">
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+              {{ $t('actions.searchMore') }}
+            </router-link>
+          </b-nav-form>
+
+          <b-navbar-nav v-if="$route.name === 'newspaper'"
+          class="pl-3 pr-2 py-2 pr-auto">
             <li><label >{{ $t('order by') }}</label>
               <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
             </li>
           </b-navbar-nav>
         </b-navbar>
-        <b-navbar v-else type="light" variant="light">
+        <!-- <b-navbar v-else type="light" variant="light">
           <newspaper-item :item="newspaper" :show-name="false" show-date/>
-        </b-navbar>
+        </b-navbar> -->
       </div>
       <!-- eof:header  -->
 
       <div class='px-3 py-2 ' v-if='$route.name == "newspaper_metadata"'>
+        <div class="pt-3">
+          <h3 class="m-0 tb-title small-caps font-weight-bold">articles per year</h3>
+          <p class="description small">number of articles extracted which are available in impresso</p>
+        </div>
+        <timeline
+              :contrast="false"
+              :values="timevalues">
+          <div slot-scope="tooltipScope">
+            <div v-if="tooltipScope.tooltip.item">
+              {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+              <b>{{ tooltipScope.tooltip.item.w }}</b>
+            </div>
+          </div>
+        </timeline>
+
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
-          <template slot="table-caption">List of known metadata for this newspaper</template>
+          <template slot="table-caption">
+            <h3 class="m-0 tb-title small-caps font-weight-bold">
+              List of known metadata for this newspaper
+            </h3>
+          </template>
           <template v-slot:cell(name)="row">
             <p class="small-caps">{{ $t(`metadata.property.${row.item.name}`) }}</p>
           </template>
@@ -73,20 +103,22 @@
               v-bind:key="i"
               class="mb-4">
 
-              <b-card
-                :img-src="issue.iiifThumbnail"
-                :img-alt="$d(new Date(issue.date), 'long')"
-                img-top
-                class="mb-2"
-              >
-
-              <div class="card-text p-0">
-                <router-link
-                  class='small-caps'
-                  v-bind:to="{ name: 'issue', params: { issue_uid:issue.uid } }">
-                    {{$d(new Date(issue.date), "long")}}
+              <b-card class="mb-2">
+                <router-link v-bind:to="{ name: 'page', params: {
+                  issue_uid: issue.uid,
+                  page_uid: issue.frontPage.uid,
+                }}">
+                  <b-card-img-lazy
+                    :src="issue.frontPage.iiifThumbnail"
+                    :alt="$d(issue.date, 'long')" top />
                 </router-link>
-              </div>
+                <b-card-body>
+                  <router-link
+                    class='small-caps'
+                    v-bind:to="{ name: 'issue', params: { issue_uid: issue.uid } }">
+                      {{$d(new Date(issue.date), "long")}}
+                  </router-link>
+                </b-card-body>
               </b-card>
             </b-col>
           </b-row>
@@ -106,9 +138,11 @@
 
 <script>
 import Newspaper from '@/models/Newspaper';
+import SearchQuery from '@/models/SearchQuery';
 import Pagination from './modules/Pagination';
 import ImageViewer from './modules/ImageViewer';
 import NewspaperItem from './modules/lists/NewspaperItem';
+import Timeline from './modules/Timeline';
 
 export default {
   data: () => ({
@@ -119,8 +153,17 @@ export default {
     newspaper: new Newspaper(),
     tab: 'issues',
     orderBy: '-date',
+    timevalues: [],
   }),
   computed: {
+    searchPageLink() {
+      return {
+        name: 'search',
+        query: SearchQuery.serialize({
+          filters: [{ type: 'newspaper', q: this.newspaper.uid }],
+        }),
+      };
+    },
     orderByOptions() {
       return [
         {
@@ -153,15 +196,38 @@ export default {
     },
   },
   methods: {
+    applyFilter(context = 'include') {
+      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
+      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
+        searchQueryId: '',
+        filter: {
+          type: 'newspaper',
+          q: [this.newspaper.uid],
+          items: [this.newspaper],
+        },
+      });
+    },
     async onInputPagination(page) {
-      this.issues = await this.getIssues({
+      await this.loadIssues({
         page,
       });
     },
-    async getIssues({
+    async loadTimeline() {
+      return this.$store.dispatch('search/LOAD_TIMELINE', {
+        filters: [
+          {
+            q: this.$route.params.newspaper_uid,
+            type: 'newspaper',
+          },
+        ],
+      }).then((values) => {
+        this.timevalues = values;
+      });
+    },
+    async loadIssues({
       page = 1,
     } = {}) {
-      const response = await this.$store.dispatch('newspapers/LOAD_ISSUES', {
+      const response = await this.$store.dispatch('issue/LOAD_ISSUES', {
         page,
         orderBy: this.orderBy,
         limit: this.limit,
@@ -171,24 +237,30 @@ export default {
           context: 'include',
         }],
       });
+      this.page = page;
       this.total = response.total;
-      return response.data;
+      this.issues = response.data;
     },
-    async getNewspaper() {
-      return this.$store.dispatch('newspapers/LOAD_DETAIL', this.$route.params.newspaper_uid);
+    async loadNewspaper() {
+      this.newspaper = await this.$store.dispatch('newspapers/LOAD_DETAIL', this.$route.params.newspaper_uid);
+      this.total = this.newspaper.countIssues;
     },
   },
   watch: {
-    '$route.params.newspaper_uid': {
+    $route: {
       immediate: true,
-      async handler() {
-        this.issues = await this.getIssues();
-        this.newspaper = await this.getNewspaper();
+      async handler({ name }) {
+        await this.loadNewspaper();
+        if (name === 'newspaper_metadata') {
+          await this.loadTimeline();
+        } else {
+          await this.loadIssues();
+        }
       },
     },
     orderBy: {
-      async handler() {
-        this.issues = await this.getIssues();
+      handler() {
+        return this.loadIssues();
       },
     },
   },
@@ -196,6 +268,7 @@ export default {
     Pagination,
     ImageViewer,
     NewspaperItem,
+    Timeline,
   },
 };
 </script>

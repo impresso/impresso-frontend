@@ -80,6 +80,19 @@ export default {
         return issue;
       });
     },
+    LOAD_ISSUES(context, {
+      page = 1,
+      orderBy = '-date',
+      limit,
+      filters = [],
+    } = {}) {
+      return services.issues.find({
+        query: { filters, page, limit, order_by: orderBy },
+      }).then(res => ({
+        ...res,
+        data: res.data.map(d => new Issue(d)),
+      }));
+    },
     LOAD_PAGE(context, uid) {
       return Promise.all([
         services.pages.get(uid, {}).catch((err) => {

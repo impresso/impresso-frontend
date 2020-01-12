@@ -25,6 +25,7 @@ export default class Issue {
     date = new Date(),
     entities = [],
     newspaper = new Newspaper(),
+    frontPage = null,
     pages = [],
     articles = [],
     uid = '',
@@ -36,6 +37,13 @@ export default class Issue {
     this.accessRights = accessRights;
     this.year = parseInt(year, 10);
     this.cover = String(cover);
+
+    if (frontPage instanceof Page) {
+      this.frontPage = frontPage;
+    } else if (frontPage) {
+      this.frontPage = new Page(frontPage);
+    }
+
     this.collections = collections.map((collection) => {
       if (collection instanceof Collection) {
         return collection;
