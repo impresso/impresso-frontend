@@ -148,8 +148,8 @@ export default {
     }
   }
   .btn-outline-primary {
-    border-color: #73777a;
-    color: #ffffff87;
+    border-color: #caccce;
+    color: #caccce;
     &:hover{
       border-color: $clr-white !important;
       color: $clr-white;
