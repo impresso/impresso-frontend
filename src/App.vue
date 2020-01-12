@@ -74,6 +74,10 @@ export default {
         id: process.env.TYPEKIT_ID,
       },
     });
+    // check whether there is a searchquery hash somewhere
+    console.info('App @created, retrieve initial search.currentSearchHash', this.$store.state.search.currentSearchHash);
+    // push the current search query using the current hash
+    this.$store.dispatch('search/INIT');
   },
 };
 </script>
