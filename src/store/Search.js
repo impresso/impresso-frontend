@@ -1,3 +1,4 @@
+import { protobuf } from 'impresso-jscommons';
 import * as services from '@/services';
 import Article from '@/models/Article';
 import QueryComponent from '@/models/QueryComponent';
@@ -13,6 +14,7 @@ export default {
       filters: [{ type: 'hasTextContents' }],
     }),
     currentSearchHash: '',
+    currentSearchIsPristine: true,
     searches: [],
     results: [],
     facets: [
@@ -129,6 +131,9 @@ export default {
       state.search.addFilter({ ...filter });
       state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
     },
+    INITIALIZE_FILTERS(state, filters) {
+      filters.forEach(d => state.search.addFilter(d));
+    },
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);
       state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
@@ -203,6 +208,9 @@ export default {
     },
     UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
       state.search.hasTextContents = value;
+    },
+    UPDATE_SEARCH_IS_PRISTINE(state, value) {
+      state.currentSearchIsPristine = Boolean(value);
     },
   },
   actions: {
@@ -435,8 +443,8 @@ export default {
     UPDATE_FILTER_ITEM({ commit }, message) {
       commit('UPDATE_FILTER_ITEM', message);
     },
-    LOAD_TIMELINE(context, { filters = [] } = {}) {
-      return services.searchFacets.get('year', {
+    LOAD_TIMELINE(context, { filters = [], granularity = 'year' } = {}) {
+      return services.searchFacets.get(granularity, {
         query: {
           filters,
           group_by: 'articles',
@@ -461,6 +469,16 @@ export default {
         ...res,
         data: res.data.map(d => new Article(d)),
       }));
+    },
+    INIT({ state, commit }) {
+      if (state.currentSearchIsPristine) {
+        const { filters } = protobuf.searchQuery.deserialize(state.currentSearchHash);
+        commit('UPDATE_SEARCH_IS_PRISTINE', true);
+        commit('INITIALIZE_FILTERS', filters);
+        console.info('search/INIT, initial searchQuery instance:', state.search);
+      } else {
+        console.warn('search/INIT already initialized, skip.');
+      }
     },
   },
 };
