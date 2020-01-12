@@ -147,7 +147,7 @@ export default {
 {
   "en": {
     "filter_newspapers": "filter newspapers ({total})",
-    "label_list": "List of newspapers ({total})",
+    "label_list": "list of newspapers ({total})",
     "label_order": "Order By",
     "sort_asc": "↑",
     "sort_desc": "↓",
