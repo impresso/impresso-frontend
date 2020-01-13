@@ -176,11 +176,11 @@ export default {
     PUSH_SEARCH_PARAMS({ state }) {
       const query = {
         o: state.orderBy,
+        p: state.paginationCurrentPage,
       };
-      if (!state.applyRandomPage) {
-        query.p = state.paginationCurrentPage;
+      if (state.applyRandomPage) {
+        query.random = (new Date()).toUTCString();
       }
-
       const filters = state.search.getFilters();
 
       if (filters.length) {
@@ -208,6 +208,7 @@ export default {
       if (query.p && !isNaN(query.p)) {
         context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
       }
+      context.commit('SET_RANDOM_PAGE', Boolean(query.random));
       if (query.u) {
         context.commit('UPDATE_SIMILAR_TO_UPLOADED', query.u);
       } else if (query.i) {
@@ -219,6 +220,7 @@ export default {
       } catch (err) {
         console.info(err);
       }
+      console.info('SearchImages/PULL_SEARCH_PARAMS', query);
       context.dispatch('SEARCH');
     },
     ADD_OR_REPLACE_FILTER(context, filter) {
@@ -254,6 +256,9 @@ export default {
     SET_RANDOM_PAGE({ commit }, value) {
       commit('SET_RANDOM_PAGE', value);
     },
+    UPDATE_PAGINATION_CURRENT_PAGE({ commit }, page) {
+      commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
+    },
     SEARCH({ state, commit, getters }, { filters = [] } = {}) {
       const query = {
         filters: getters.getSearch.getFilters().concat(filters),
@@ -273,8 +278,7 @@ export default {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', {
           paginationTotalRows: res.total,
         });
-        // random page
-        commit('UPDATE_PAGINATION_CURRENT_PAGE', Math.round(res.skip / res.limit));
+        commit('UPDATE_PAGINATION_CURRENT_PAGE', Math.round(res.skip / res.limit) + 1);
         commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
         // update facets
         if (res.total) {

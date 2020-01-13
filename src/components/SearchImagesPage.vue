@@ -45,7 +45,7 @@
                 {{ $t('label_applyRandomPage') }}
               </b-form-checkbox>
               </b-form-group>
-              <b-button v-show="applyRandomPage" size="sm" variant="outline-primary">reload</b-button>
+              <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>reload</b-button>
             </b-nav-form>
           </b-navbar-nav>
         </b-navbar>
@@ -216,14 +216,12 @@ export default {
   methods: {
     search(page) {
       this.$store.state.searchImages.results = [];
-      debugger;
-      if (page !== undefined) {
-        if (page !== 1) {
-          this.$store.dispatch('searchImages/SET_RANDOM_PAGE', false);
-        }
-        this.$store.commit('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
+      this.$store.dispatch('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       this.$store.dispatch('searchImages/PUSH_SEARCH_PARAMS');
+    },
+    loadRandomPage() {
+      this.$store.dispatch('searchImages/SET_RANDOM_PAGE', true);
+      this.dispatch('searchImages/SEARCH');
     },
     reset() {
       this.$store.commit('searchImages/CLEAR');
@@ -335,6 +333,7 @@ export default {
       return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
     },
     onInputPagination(page = 1) {
+      this.$store.dispatch('searchImages/SET_RANDOM_PAGE', false);
       this.search(page);
     },
     onClearSelection() {
@@ -358,7 +357,6 @@ export default {
       handler(val) {
         console.info('@$route.query changed', val);
         this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
-        // this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
       },
       deep: true,
       immediate: true,
