@@ -7,13 +7,20 @@
         <search-query-summary class="d-inline" :search-query='searchQuery'/>
       </blockquote>
     </div>
-    <div class="search-query-explorer-result p-3" v-for="(item, index) in results" :key="index" v-on:click.prevent.stop="gotoArticle(item)">
-      <span v-html="getCurrentIndex(index)" />
-      <article-item
-        :item="item"
-        show-meta show-excerpt
-      />
+
+    <div class="p-3" v-if="isLoading">
+      {{ $t('actions.loading') }}
     </div>
+    <div v-else>
+      <div class="search-query-explorer-result p-3" v-for="(item, index) in results" :key="index" v-on:click.prevent.stop="gotoArticle(item)">
+        <span v-html="getCurrentIndex(index)" />
+        <article-item
+          :item="item"
+          show-meta show-excerpt
+        />
+      </div>
+    </div>
+    <!-- eof resutls / loading -->
     <div>
       <div class=" p-1 m-0">
         <pagination
@@ -55,6 +62,9 @@ export default {
     isActive() {
       return this.$store.state.searchQueryExplorer.isActive;
     },
+    isLoading() {
+      return this.$store.state.searchQueryExplorer.isLoading;
+    },
     results() {
       return this.$store.state.searchQueryExplorer.results;
     },
@@ -93,9 +103,7 @@ export default {
       });
     },
     loadCurrentResult() {
-      this.$store.dispatch('searchQueryExplorer/GET_CONTEXT_SEARCH_RESULT', {
-        filters: this.searchQuery.getFilters().concat(this.additionalFilters),
-      });
+      this.onChangePage(1);
     },
   },
   components: {
