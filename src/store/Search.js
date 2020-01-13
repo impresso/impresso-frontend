@@ -428,6 +428,9 @@ export default {
           commit('UPDATE_IS_LOADING', false);
         });
     },
+    UPDATE_QUERY_COMPONENTS({ commit }, components) {
+      commit('UPDATE_QUERY_COMPONENTS', components);
+    },
     RESET_FILTER({ commit }, { type }) {
       commit('RESET_FILTER', type);
     },
