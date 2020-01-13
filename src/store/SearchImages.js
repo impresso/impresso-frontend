@@ -32,6 +32,7 @@ export default {
     filterFacetYearExpanded: false,
     similarTo: false,
     similarToUploaded: false,
+    applyRandomPage: true,
   },
   getters: {
     getSearches(state) {
@@ -163,27 +164,33 @@ export default {
     // UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
     //   state.search.hasTextContents = value;
     // },
+    SET_RANDOM_PAGE(state, value) {
+      state.applyRandomPage = Boolean(value);
+    },
   },
   actions: {
     /**
      * Print search params to current URL
      * @param {[type]} context [description]
      */
-    PUSH_SEARCH_PARAMS(context) {
+    PUSH_SEARCH_PARAMS({ state }) {
       const query = {
-        p: context.state.paginationCurrentPage,
-        o: context.state.orderBy,
+        o: state.orderBy,
       };
-      const filters = context.state.search.getFilters();
+      if (!state.applyRandomPage) {
+        query.p = state.paginationCurrentPage;
+      }
+
+      const filters = state.search.getFilters();
 
       if (filters.length) {
         query.f = JSON.stringify(filters);
       }
 
-      if (context.state.similarToUploaded) {
-        query.u = context.state.similarToUploaded;
-      } else if (context.state.similarTo) {
-        query.i = context.state.similarTo;
+      if (state.similarToUploaded) {
+        query.u = state.similarToUploaded;
+      } else if (state.similarTo) {
+        query.i = state.similarTo;
       }
       // check if query has changed.
       // if (router.currentRoute.name === 'searchImages' && JSON.stringify(router.currentRoute.query) === JSON.stringify(query)) {
@@ -244,6 +251,9 @@ export default {
     UPDATE_FILTER({ commit }, message) {
       commit('UPDATE_FILTER', message);
     },
+    SET_RANDOM_PAGE({ commit }, value) {
+      commit('SET_RANDOM_PAGE', value);
+    },
     SEARCH({ state, commit, getters }, { filters = [] } = {}) {
       const query = {
         filters: getters.getSearch.getFilters().concat(filters),
@@ -254,6 +264,7 @@ export default {
         order_by: state.orderBy,
         similarTo: state.similarTo,
         similarToUploaded: state.similarToUploaded,
+        randomPage: state.applyRandomPage ? 'true' : 'false',
       };
       return services.images.find({
         query,
@@ -262,6 +273,8 @@ export default {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', {
           paginationTotalRows: res.total,
         });
+        // random page
+        commit('UPDATE_PAGINATION_CURRENT_PAGE', Math.round(res.skip / res.limit));
         commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
         // update facets
         if (res.total) {
