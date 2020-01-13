@@ -42,7 +42,7 @@
             <b-nav-form>
               <b-form-group class="ml-2 mr-3">
               <b-form-checkbox v-model="applyRandomPage" switch>
-                {{ $t('labels.applyRandomPage') }}
+                {{ $t('label_applyRandomPage') }}
               </b-form-checkbox>
               </b-form-group>
               <b-button v-show="applyRandomPage" size="sm" variant="outline-primary">reload</b-button>
@@ -391,6 +391,7 @@ export default {
       },
       "label_order": "Order By",
       "label_isFront": "Frontpage",
+      "label_applyRandomPage": "start with random results page",
       "sort_asc": "Ascending",
       "sort_desc": "Descending",
       "sort_date": "Date",
