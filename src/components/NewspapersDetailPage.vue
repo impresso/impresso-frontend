@@ -79,7 +79,7 @@
             </h3>
           </template>
           <template v-slot:cell(name)="row">
-            <p class="small-caps">{{ $t(`metadata.property.${row.item.name}`) }}</p>
+            <p class="small-caps">{{row.item.label}}</p>
           </template>
           <template v-slot:cell(property)="row">
             <div v-if="row.item.isUrl">
@@ -318,29 +318,6 @@ export default {
       "countPages": "Pages: ",
       "countIssues": "Issues: ",
       "countArticles": "Articles: "
-    },
-    "metadata": {
-      "property": {
-        "provenanceId": "Provenance identifier",
-        "provenanceSource": "Provenance",
-        "countryCode": "Country of publication",
-        "provinceCode": "Province of publication",
-        "periodicity": "Periodicity",
-        "provenanceUri": "Source permalink",
-        "longTitle": "Full title",
-        "noteGenealogy": "Related titles",
-        "notePublicationDates": "Remarks on publication dates",
-        "publicationPlace": "Publication place",
-        "publicationDates": "First publication",
-        "relatedUrl": "Other links",
-        "logoFilename": "Source logo",
-        "availabilityEta": "Publication date on impresso",
-        "variantTitle": "Alternative title",
-        "otherTitle": "Alternative title"
-      },
-      "description": {
-
-      }
     }
   }
 }
