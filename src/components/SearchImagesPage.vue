@@ -221,7 +221,7 @@ export default {
     },
     loadRandomPage() {
       this.$store.dispatch('searchImages/SET_RANDOM_PAGE', true);
-      this.dispatch('searchImages/SEARCH');
+      this.$store.dispatch('searchImages/SEARCH');
     },
     reset() {
       this.$store.commit('searchImages/CLEAR');
