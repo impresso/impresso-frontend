@@ -40,7 +40,8 @@
               </div>
               <div v-else class="embeddings">
                 <a
-                  v-for="embedding in embeddings"
+                  v-for="(embedding, i) in embeddings"
+                  :key="i"
                   :title="$t('filter.add', { word: embedding })"
                   class="mr-2 mt-2 border px-2 d-inline-block"
                   v-on:click="updateFilter(embedding)">
@@ -56,25 +57,22 @@
 
 <script>
 export default {
-  props: ['filter'],
+  data: () => ({
+    languageEmbeddingsOptions: [
+      { value: 'en', text: 'English' },
+      { value: 'fr', text: 'French' },
+      { value: 'de', text: 'German' },
+      { value: 'lb', text: 'Luxembourgish' },
+    ],
+    limitEmbeddingsOptions: [
+      { value: 25, text: '25' },
+      { value: 50, text: '50' },
+    ],
+  }),
+  props: {
+    filter: Object,
+  },
   computed: {
-    limitEmbeddingsOptions: {
-      get() {
-        return [
-          { value: 25, text: '25' },
-          { value: 50, text: '50' },
-        ];
-      },
-    },
-    languageEmbeddingsOptions: {
-      get() {
-        return [
-          { value: 'en', text: 'English' },
-          { value: 'fr', text: 'French' },
-          { value: 'de', text: 'German' },
-        ];
-      },
-    },
     limitEmbeddings: {
       get() {
         return this.$store.state.embeddings.limit;
