@@ -16,9 +16,12 @@ export default {
         ar: 'article',
         ob: 'obituary',
         tb: 'tables',
+        uc: 'unclassified content',
+        page: 'page article',
         death_notice: 'obituary (other)',
         weather: 'weather forecast',
         w: 'weather news (other)',
+        picture: 'picture',
       },
       language: {
         de: 'German',
