@@ -1,5 +1,4 @@
 import * as services from '@/services';
-import Article from '@/models/Article';
 import Topic from '@/models/Topic';
 
 
@@ -11,7 +10,7 @@ export default {
     items: [],
     itemsIndex: {},
     pagination: {
-      perPage: 50,
+      perPage: 200,
       currentPage: 1,
       totalRows: 0,
     },
@@ -170,35 +169,6 @@ export default {
           data,
         };
       });
-    },
-    LOAD_ARTICLES(context, {
-      topicUid,
-      page,
-      limit,
-      filters = [],
-      orderBy = '-relevance',
-    } = {}) {
-      const query = {
-        group_by: 'articles',
-        page,
-        limit,
-        order_by: orderBy,
-        facets: ['topic', 'newspaper'],
-        filters: [
-          {
-            type: 'topic',
-            context: 'include',
-            q: topicUid,
-          },
-        ].concat(filters),
-      };
-
-      return services.search.find({
-        query,
-      }).then(res => ({
-        ...res,
-        data: res.data.map(d => new Article(d)),
-      }));
     },
     LOAD_TOPIC(context, uid) {
       return services.topics.get(uid, {

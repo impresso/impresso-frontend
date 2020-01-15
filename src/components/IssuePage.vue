@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="IssuePage" ref="issuePage">
-    <i-layout-section width="350px" class="border-right border-top mt-1px">
+    <i-layout-section width="350px">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -16,17 +16,25 @@
         </b-tabs>
         <div class="py-2 px-3">
           <div v-if="issue" class="mb-2">
-            <span class="small-caps" v-html="$t('stats', {
+            <span v-if="isTabSearch">
+              <span v-if="q.length" v-html="$tc('numbers.articlesMatching', matchesTotalRows, {
+                n: $n(matchesTotalRows),
+                q,
+              })"/>
+              <span v-else v-html="$tc('numbers.articles', matchesTotalRows)" />
+            </span>
+            <span v-else class="small-caps" v-html="$t('stats', {
               countPages: issue.countPages,
               countArticles: issue.countArticles,
             })"/>
-            <span v-if="isTabSearch">(no search)</span>
           </div>
           <div v-if="isTabSearch">
-            <search-pills
-              :excluded-types="['hasTextContents', 'isFront', 'issue']"
-              @remove="onRemoveFilter"
-            />
+            <p if="applyCurrentSearchFilters">
+              <search-pills
+                :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']"
+                @remove="onRemoveFilter"
+              />
+            </p>
             <b-input-group>
               <b-form-input
               placeholder="search for ..."
@@ -52,24 +60,18 @@
         flatten
         v-on:click="gotoArticle" />
 
-      <div v-if="isTabSearch">
-        <!--  Pagination v-if="matchesTotalRows > matchesPerPage" -->
-        <div
-           class="p-3">
-          <div
-            class=" mb-2 p-1">
-            <pagination
-              v-model="matchesCurrentPage"
-              v-bind:perPage="matchesPerPage"
-              v-bind:totalRows="matchesTotalRows"
-              v-bind:showDescription="false"
-               />
-          </div>
-        </div>
+      <div class="fixed-pagination-footer p-1 m-0 mb-2" v-if="isTabSearch">
+        <pagination
+          v-bind:currentPage="matchesCurrentPage"
+          v-bind:perPage="matchesPerPage"
+          v-bind:totalRows="matchesTotalRows"
+          v-bind:showDescription="false"
+          v-on:change="onInputPagination"
+           />
       </div>
     </i-layout-section>
     <!--  page openseadragon or article -->
-    <i-layout-section class="border-left border-top ml-1px mt-1px">
+    <i-layout-section main>
       <div slot="header" class="border-bottom">
         <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
           <section class='p-2 pl-3'>
@@ -99,18 +101,22 @@
             <div v-if="article && article.type">
               <span class="badge bg-accent-secondary text-clr-white">{{ $t(`buckets.type.${article.type}`) }}</span>
               <span class="small">
-                &nbsp;&nbsp;
+                <span>{{ $t(`buckets.language.${article.language}`) }}</span>
+                &nbsp;
                 <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
                 <span v-else>{{ $t('reducedReadingTime')}}</span>
-                &nbsp;&nbsp;
+                <!-- &nbsp;
+                <span>{{ $t(`buckets.accessRight.${article.accessRight}`) }}</span>
+                 -->
+                &nbsp;
                 {{ articlePages }}
               </span>
             </div>
           </b-navbar-nav>
           <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
             <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="image">view in context <icon name="image"/></b-form-radio>
-              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/> close reading</b-form-radio>
+              <b-form-radio value="image">{{ $t('facsimileView') }}&nbsp;<icon name="image"/></b-form-radio>
+              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/>&nbsp;{{ $t('closeReadingView') }}</b-form-radio>
             </b-form-radio-group>
             <small>
               <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
@@ -123,8 +129,9 @@
               :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
               @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
               <div class="d-flex flex-row align-items-center">
-                <div class="d-flex dripicons dripicons-preview" />
-                <div class="ml-2">{{$t('toggle_outlines')}}</div>
+                <div class="d-flex dripicons dripicons-preview mr-2" />
+                <div v-if="showOutlines">{{$t('toggle_outlines_on')}}</div>
+                <div v-else>{{$t('toggle_outlines_off')}}</div>
               </div>
             </b-button>
 
@@ -133,8 +140,9 @@
 
             <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
               <div class="d-flex flex-row align-items-center">
-                <div :class="['d-flex', 'dripicons', isFullscreen ? 'dripicons-contract' : 'dripicons-expand']" />
-                <div class="ml-2">{{$t('toggle_fullscreen')}}</div>
+                <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
+                <div v-if="isFullscreen">{{$t('toggle_fullscreen_on')}}</div>
+                <div v-else>{{$t('toggle_fullscreen_off')}}</div>
               </div>
             </b-button>
 
@@ -153,7 +161,7 @@
       <issue-viewer-text v-if="article && article.uid && mode === 'text'"
         v-bind:article_uid="article.uid"/>
     </i-layout-section>
-    <i-layout-section width="120px" class="border-left border-top mt-1px bg-light" v-if="issue">
+    <i-layout-section width="120px" class="border-left" v-if="issue">
       <thumbnail-slider
         :bounds="bounds"
         :issue="issue"
@@ -190,6 +198,7 @@ export default {
     // issue: null,
     page: null,
     article: null,
+    applyCurrentSearchFilters: false,
     currentPageIndex: -1,
     pagesIndex: {},
     isTocLoaded: false,
@@ -381,9 +390,9 @@ export default {
       });
     },
     getSearchFilters() {
-      const filters = this.$store.getters['search/getSearch'].getFilters();
-      if (!filters.length) {
-        return [];
+      let filters = [];
+      if (this.applyCurrentSearchFilters) {
+        filters = this.$store.getters['search/getSearch'].getFilters();
       }
       if (this.q.length) {
         filters.push({
@@ -480,6 +489,7 @@ export default {
 
           self.page.articles.forEach((article) => {
             // regions
+            // debugger;
             article.regions.forEach((region) => {
               const overlay = window.document.createElement('div');
 
@@ -487,14 +497,14 @@ export default {
               overlay.dataset.articleUid = article.uid;
 
               // selected article regions
-              if (article.uid === this.$route.params.article_uid) {
-                this.$router.push({
-                  name: 'article',
-                  params: {
-                    article_uid: this.$route.params.article_uid,
-                  },
-                });
-              }
+              // if (article.uid === this.$route.params.article_uid) {
+              //   this.$router.push({
+              //     name: 'article',
+              //     params: {
+              //       article_uid: this.$route.params.article_uid,
+              //     },
+              //   });
+              // }
 
               overlay.addEventListener('mouseenter', (event) => {
                 const articleUid = event.target.dataset.articleUid;
@@ -599,6 +609,10 @@ export default {
       this.$store.commit('search/REMOVE_FILTER', filter);
       this.search();
     },
+    onInputPagination(page) {
+      this.matchesCurrentPage = page;
+      this.search();
+    },
     search() {
       const filters = this.getSearchFilters();
       if (!filters.length) {
@@ -623,7 +637,7 @@ export default {
       const self = this;
       this.handler.$emit('dispatch', (viewer) => {
         viewer.overlaysContainer.querySelectorAll('div').forEach((overlay) => {
-          if (overlay.dataset.articleUid === self.article.uid) {
+          if (self.article && overlay.dataset.articleUid === self.article.uid) {
             overlay.classList.add('active');
           } else {
             overlay.classList.remove('active');
@@ -744,8 +758,12 @@ div.marginalia{
     "label_display": "Display as",
     "table_of_contents": "table of contents",
     "search_and_find": "search in issue",
-    "toggle_fullscreen": "Fullscreen",
-    "toggle_outlines": "Outlines"
+    "toggle_fullscreen_on": "Fullscreen: on",
+    "toggle_outlines_on": "outlines: on",
+    "toggle_fullscreen_off": "Fullscreen: off",
+    "toggle_outlines_off": "Outlines: off",
+    "facsimileView": "Facsimile view",
+    "closeReadingView": "close reading view"
   },
   "nl": {
     "label_display": "Toon als",

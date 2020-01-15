@@ -70,15 +70,20 @@ services.app.reAuthenticate().catch((err) => {
     console.error(err);
   }
 }).finally(() => {
-  window.app = new Vue({
-    el: '#app',
-    i18n,
-    router,
-    store,
-    template: '<App/>',
-    components: {
-      App,
-    },
+  services.version.find().then((res) => {
+    console.info(`Version services:${res.version}, data:${res.solr.dataVersion}`);
+    window.impressoVersion = res.version;
+    window.impressoDataVersion = res.solr.dataVersion;
+    window.app = new Vue({
+      el: '#app',
+      i18n,
+      router,
+      store,
+      template: '<App/>',
+      components: {
+        App,
+      },
+    });
   });
 });
 

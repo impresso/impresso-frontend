@@ -21,6 +21,7 @@ import monitor from './Monitor';
 import explorer from './Explorer';
 import buckets from './Buckets';
 import queryComparison from './QueryComparison';
+import searchQueryExplorer from './SearchQueryExplorer';
 
 Vue.use(Vuex);
 
@@ -49,6 +50,7 @@ export default new Vuex.Store({
     buckets,
     explorer,
     queryComparison,
+    searchQueryExplorer,
   },
   state: {
     processingStatus: false,
@@ -212,6 +214,7 @@ export default new Vuex.Store({
       'settings.lastNotificationDate',
       'settings.language_code',
       'search.searches',
+      'search.currentSearchHash',
       'search.displaySortBy',
       'search.displaySortOrder',
       'search.displayStyle',

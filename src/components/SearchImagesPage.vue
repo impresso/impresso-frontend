@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="400px" class="border-right border-top mt-1px">
+    <i-layout-section width="400px">
       <!--  header -->
       <div slot="header" class="border-bottom bg-light">
         <search-tabs />
@@ -34,9 +34,21 @@
         <search-facets store="searchImages" @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter" percent-prop="m"/>
       </div>
     </i-layout-section>
-    <i-layout-section class="border-left border-top ml-1px mt-1px">
+    <i-layout-section main>
       <!-- header -->
       <div slot="header">
+        <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
+          <b-navbar-nav class="p-2 border-right">
+            <b-nav-form>
+              <b-form-group class="ml-2 mr-3">
+              <b-form-checkbox v-model="applyRandomPage" switch>
+                {{ $t('label_applyRandomPage') }}
+              </b-form-checkbox>
+              </b-form-group>
+              <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>reload</b-button>
+            </b-nav-form>
+          </b-navbar-nav>
+        </b-navbar>
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
           <b-navbar-nav class="border-right flex-grow-1  py-2 ">
             <ellipsis v-bind:initialHeight="60">
@@ -128,6 +140,14 @@ export default {
     similarToImage: false,
   }),
   computed: {
+    applyRandomPage: {
+      get() {
+        return this.$store.state.searchImages.applyRandomPage;
+      },
+      set(val) {
+        this.$store.dispatch('searchImages/SET_RANDOM_PAGE', val);
+      },
+    },
     filters: {
       get() {
         return this.$store.state.searchImages.search.filters;
@@ -196,10 +216,12 @@ export default {
   methods: {
     search(page) {
       this.$store.state.searchImages.results = [];
-      if (page !== undefined) {
-        this.$store.commit('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
+      this.$store.dispatch('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       this.$store.dispatch('searchImages/PUSH_SEARCH_PARAMS');
+    },
+    loadRandomPage() {
+      this.$store.dispatch('searchImages/SET_RANDOM_PAGE', true);
+      this.$store.dispatch('searchImages/SEARCH');
     },
     reset() {
       this.$store.commit('searchImages/CLEAR');
@@ -311,6 +333,7 @@ export default {
       return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
     },
     onInputPagination(page = 1) {
+      this.$store.dispatch('searchImages/SET_RANDOM_PAGE', false);
       this.search(page);
     },
     onClearSelection() {
@@ -334,7 +357,6 @@ export default {
       handler(val) {
         console.info('@$route.query changed', val);
         this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
-        // this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
       },
       deep: true,
       immediate: true,
@@ -363,6 +385,7 @@ export default {
     "en": {
       "label_order": "Order By",
       "label_isFront": "Frontpage",
+      "label_applyRandomPage": "start with random results page",
       "sort_asc": "Ascending",
       "sort_desc": "Descending",
       "sort_date": "Date",

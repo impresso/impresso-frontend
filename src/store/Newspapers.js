@@ -101,18 +101,5 @@ export default {
       return services.newspapers.get(newspaperUid, {})
         .then(res => new Newspaper(res));
     },
-    LOAD_ISSUES(context, {
-      page = 1,
-      orderBy = '-date',
-      limit,
-      filters = [],
-    } = {}) {
-      return services.issues.find({
-        query: { filters, page, limit, order_by: orderBy },
-      }).then((res) => {
-        context.commit('UPDATE_DETAIL_PAGINATION_TOTAL_ROWS', res.total);
-        return res;
-      });
-    },
   },
 };

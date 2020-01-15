@@ -29,7 +29,6 @@ import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 
-
 export default {
   name: 'app',
   components: {
@@ -51,10 +50,22 @@ export default {
       return this.$store.state.processingLocked;
     },
   },
+  methods: {
+    onEventBusAddFilter({ filter, searchQueryId }) {
+      console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
+      if (!searchQueryId || !searchQueryId.length) {
+        this.$store.dispatch('search/ADD_FILTER', { filter });
+      }
+    },
+  },
   mounted() {
     window.addEventListener('click', () => {
       this.$root.$emit('bv::hide::popover');
     });
+    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBusAddFilter);
+  },
+  beforeDestroy() {
+    this.$eventBus.$off(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBusAddFilter);
   },
   created() {
     // load typekit
@@ -63,6 +74,10 @@ export default {
         id: process.env.TYPEKIT_ID,
       },
     });
+    // check whether there is a searchquery hash somewhere
+    console.info('App @created, retrieve initial search.currentSearchHash', this.$store.state.search.currentSearchHash);
+    // push the current search query using the current hash
+    this.$store.dispatch('search/INIT');
   },
 };
 </script>
@@ -100,6 +115,10 @@ html {
         background: rgba($clr-primary, 0.25);
         pointer-events: auto;
       }
+    }
+
+    #app-search-query-explorer{
+      z-index: 1040;
     }
 
     #app-explorer{
@@ -177,6 +196,9 @@ $clr-grey-900: #ddd;
 }
 .mt-1px {
     margin-top: 1px;
+}
+.mt-2px {
+    margin-top: 2px;
 }
 .mb-1px {
     margin-bottom: 1px;
@@ -257,15 +279,15 @@ $clr-grey-900: #ddd;
 .dark-mode,
 .navbar-dark {
   .fixed-pagination-footer {
-    background: transparentize($clr-bg-primary, 1);
+    background: transparent;
   }
   .page-link,
   .page-item.disabled .page-link {
-    background: $clr-secondary;
+    background: transparent;
     color: $clr-bg-primary;
   }
   .page-link {
-    border-color: $clr-tertiary !important;
+    border-color: transparent !important; // $clr-tertiary !important;
   }
   .page-link:hover,
   .page-item.active .page-link {
@@ -345,6 +367,9 @@ $clr-grey-900: #ddd;
   }
 }
 
+.badge-info{
+  background-color: #049dae;
+}
 // uncomment to add background to transparent footers
 // .fixed-pagination-footer::before{
 //   content: "";

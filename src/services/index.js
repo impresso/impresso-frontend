@@ -50,7 +50,7 @@ app.hooks({
         const route = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
           window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'LOADING' });
-          if (needsLockScreen(route)) {
+          if (needsLockScreen(route) && context.params.lock !== false) {
             window.app.$store.commit('LOCK_SCREEN', true);
           }
         }
@@ -112,6 +112,7 @@ app.service('logs').on('created', (payload) => {
 });
 
 // repeat this line for every service in our backend
+export const version = app.service('version');
 export const suggestions = app.service('suggestions');
 export const articles = app.service('articles');
 export const images = app.service('images').hooks(imagesHooks);

@@ -122,7 +122,7 @@ export default {
       start: null,
       end: null,
     },
-    facetsOrder: ['type', 'person', 'location', 'topic', 'language', 'newspaper', 'country'],
+    facetsOrder: ['type', 'person', 'location', 'topic', 'language', 'newspaper', 'country', 'partner', 'accessRight'],
     selectedFacet: false,
     facetExplorerType: '',
     daterangeSelectedIndex: 0,
@@ -259,8 +259,12 @@ export default {
     },
     facets: {
       get() {
+        let ignoreFacets = ['year', 'accessRight', 'partner'];
+        if (window.impressoDataVersion > 1) {
+          ignoreFacets = ['year'];
+        }
         return this.currentStore.facets
-          .filter(d => ['year'].indexOf(d.type) === -1)
+          .filter(d => !ignoreFacets.includes(d.type))
           .map((d) => {
             d.isFiltered = this.currentStore.search.filtersIndex[d.type];
             return d;

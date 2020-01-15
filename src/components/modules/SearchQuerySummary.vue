@@ -68,7 +68,7 @@ export default {
       });
 
       // Return is here because of "hidden" filters, such as hasTextContents
-      if (!Object.keys(translationTable).length) {
+      if (!enumerables.length && !Object.keys(translationTable).length) {
         return '';
       }
 
@@ -202,7 +202,7 @@ export default {
   }
   span.item.collection {
     font-family: "questa-sans", sans-serif;
-    color: blue;
+    color: #049dae;
   }
   span.item.newspaper {
     color: black;

@@ -29,7 +29,7 @@
         ]
       },
       {
-        "title": "Usage of the impresso corpus",
+        "title": "Uses of the impresso corpus",
         "faq": [
           {
             "id": "how-can-i-get-access",
@@ -75,9 +75,10 @@
           {
             "id": "how-can-i-cite-impresso",
             "title": "How can I cite impresso?",
-            "summary": "short text  TBD",
+            "summary": "When quoting individual articles, mention the online version with the URL and the date of access. Click on more for some example.",
             "description": [
-              "long text TDB"
+              "In the context of digitised materials, it is important to quote the portal in which you found a particular source. Applied to newspapers, it means that one has to add to the traditional information on the author, article and newspaper title, the URL and the date of accessing the digitised source. For instance, to quote an article intitled 'Un mythe toujours intact?', written by Corinne Chuard, published in the newspaper l'Impartial on the 3.08.1987, retrieved on the 3.08.2018, one might use the following model to refer to it: Chuard, Corinne. ‘Un mythe toujours intact?’, L’Impartial, 03-Aug-1987, p. 2. Available: https://impresso-project.ch/app/issue/IMP-1987-08-03-a/page/IMP-1987-08-03-a-p0002/article/IMP-1987-08-03-a-i0019. Accessed: 03-Aug-2018.",
+              "To refer to the project, please use the following quote: <blockquote>impresso. Media Monitoring of the Past. Supported by the Swiss National Science Foundation under grant CR- SII5_173719, 2019. https://impresso-project.ch.</blockquote>"
             ]
           },
           {
@@ -117,9 +118,17 @@
             "title": "Why are some pages or issues not searchable?",
             "summary": "We use state-of-the-art tools to improve the quality of the OCR and to identify persons and locations. Inevitably, they sometimes fail and make mistakes which we need to remain aware of.",
             "description": [
-              "There is no such thing as a perfect corpus and ours is no exception. To give you a better sense of what you can expect to find in our corpus, we display the total count of missing pages and issues per year in the Newspaper overview. If you do date-specific queries, we recommend that you check how much content is missing. In a future release we will also display missing content per individual newspaper.",
+              "There is no such thing as a perfect corpus and ours is no exception. To give you a better sense of what you can expect to find in our corpus, we display the total count of pages and issues per year in the Newspaper overview. If you do date-specific queries, we recommend that you check how much content is missing. In a future release we will also display missing content per individual newspaper.",
               "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/topic_modeling.png'></img>'",
               "There are multiple reasons which cause missing content: <ul><li>Digitisation: Not all issues were available for digitisation by the libraries due to incomplete collections; in other cases single pages or complete issues were missed during the digitisation. In this case, the folder structure on the hard disks we received suggests that there should be an issue but there are no corresponding files. In other cases, newspaper pages were digitized successfully but not subjected to text recognition (OCR). You can find these pages in the interface by browsing an issue, but not through a search. </li><li>Transfer: We received most of our corpus on hard drives, some of the .zip files were not readable. We did our best to recover these files but sometimes this was not possible.</li></ul>"
+            ]
+          },
+          {
+            "id": "compare-and-inspect",
+            "title": "Where can I analyse the metadata of my collections or queries?",
+            "summary": "Get an overview of the metadata of your query and/or saved collections: how many hits per newspaper title, locations, persons and how the results are present in other queries and/or collections.",
+            "description": [
+              "Start with selecting in column ‘A’, a query or an existing collection, to be contrasted with a query or another existing collection. To compare collections, select the ‘collection’ tab and then select from the list, the collection you want to inspect and compare. Go then to the column ‘B’ and select another collection in the same way. In the middle column, you will see the overlapping metadata: the number of articles present in both collections, distributed by newspaper titles, named entities, topics, etc. Scroll down the lists to inspect individual filters. You can also inspect and compare queries: in column ‘A’ and ‘B’, type a keyword in the search box and limit the scope of this query by adding filters."
             ]
           }
         ]
@@ -218,9 +227,9 @@
           {
             "id": "topics-in-common",
             "title": "What are Topics in Common?",
-            "summary": "Summary text in progress",
+            "summary": "Each article is described by several relevant topics. In order to  recommend related articles, we choose articles with the most similar topic distribution.",
             "description": [
-              "Description text in progress."
+              "The topics are computed per language over the whole impresso collection period, so the suggested articles may come from very different time periods, linked by the inclusionary topics. This is a means to expand your readings and make you aware of related articles that may not have appeared in the results of your initial keyword search. The topic distribution may not be exactly the same for the suggested similar articles than from article currently displayed, nonetheless main topics must have similar values."
             ]
           },
           {
@@ -249,12 +258,26 @@
           {
             "id": "relative-vs-absolute-year-graph",
             "title": "How is it plotted?",
-            "summary": "Summary text in progress"
+            "summary": "SUM displays the absolute frequencies of result hits, whereas % shows the relative number of hits, compared to all articles from the impresso corpus.",
+            "description": [
+              "The highest result per year is displayed in number. The impresso interface groups the results per article, so the displayed frequency is the count of all articles containing at least one occurrence of the keyword. In other words, it is not the raw number of hits for the searched key-word, but the number of hits grouped by articles, as shown in the search summary. For instance, a query for Einstein’ returns 8 967 articles. These 8 967 articles contain 13 535 individual hits of ‘Einstein’. An item is included in the search when it contains at least one character, this means that the search is conducted also within advertisements and tables when they contain text."
+            ]
           },
           {
-            "id": "term-frequencies",
-            "title": "What do the visualisations of article and term frequencies indicate?",
-            "summary": "Summary text in progress"
+            "id": "metadata-category-article-type",
+            "title": "How is the article type identified?",
+            "summary": "After the scanning of the newspapers, during the Optical Layout Recognition, some particular object types have been identified and tagged as such: articles, obituaries etc.",
+            "description": [
+              "The digitisation of the newspapers has been supervised by the partners of impresso and carried out by external service providers for most cases. Each partner defined the categories of newspapers article that the external service provider should tag. We inherited these categories, that are dependent on each newspaper title and each partner. For instance, the National Library of Luxembourg provided newspapers with articles tagged as obituaries, advertisements for most newspapers and for some newspapers, the weather section could be identified. The identification is based on visual features that change rapidly over time and between the newspaper titles: the visual presentation of obituaries is not constant over decades and relies therefore on intensive manual annotation. This makes the segmentation of the newspapers into different article types very costly and difficult to reuse from one newspaper title to another."
+            ]
+          },
+          {
+            "id": "missing-pages-newspapers",
+            "title": "What does the missing pages or issues indicate?",
+            "summary": "Errors may occur in the process of digitisation: some files may be corrupted and therefore cannot be used for full text search.",
+            "description": [
+              "The newspaper digitisation has been carried out by external service providers; the files created in this process for each page and each newspaper issue may suffer from their transfer from one server to another. When copying these files anew, one can count the number of files that cannot be read anymore or that are simply empty. In the newspaper titles’ overview, we display the proportion of unavailable files per year (when applicable), measured in number of pages or issues. You may notice a difference of temporal distribution of the missing files. This is simply because the pages are contained in a folder that constitutes a newspaper issue. A missing issue corresponds to a corrupted archive, while missing pages correspond to empty files within an issue folder. These numbers are not indicative of the missing physical issues in the providers’ collection (e.g. a newspaper issue that was printed, but was not preserved in the physical archive). They do not indicate the number of issues that could not be printed for material reasons (strike, shortage of paper, censorship etc.) nor they are an indication of the proportion of newspapers that have been digitised, compared to all historical newspapers."
+            ]
           }
         ]
       }

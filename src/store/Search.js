@@ -1,15 +1,11 @@
+import { protobuf } from 'impresso-jscommons';
 import * as services from '@/services';
 import Article from '@/models/Article';
-// import Bucket from '@/models/Bucket';
-// import Topic from '@/models/Topic';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
-// import Newspaper from '@/models/Newspaper';
-// import Collection from '@/models/Collection';
 import Facet from '@/models/Facet';
-// import FilterFactory from '@/models/FilterFactory';
+import Helpers from '@/plugins/Helpers';
 import router from '../router';
-
 
 export default {
   namespaced: true,
@@ -17,6 +13,8 @@ export default {
     search: new SearchQuery({
       filters: [{ type: 'hasTextContents' }],
     }),
+    currentSearchHash: '',
+    currentSearchIsPristine: true,
     searches: [],
     results: [],
     facets: [
@@ -50,8 +48,14 @@ export default {
       new Facet({
         type: 'collection',
       }),
+      new Facet({
+        type: 'accessRight',
+      }),
+      new Facet({
+        type: 'partner',
+      }),
     ],
-    facetTypes: ['person', 'location', 'year', 'newspaper', 'language', 'topic', 'collection'], // this also sets the order of the filters
+    facetTypes: ['person', 'location', 'year', 'newspaper', 'language', 'topic', 'collection', 'accessRight', 'partner'], // this also sets the order of the filters
     orderBy: '-relevance', // -relevance, date, -date
     orderByOptions: ['-relevance', 'date', '-date'],
     groupBy: 'articles', // issues, pages, articles, sentences
@@ -72,6 +76,12 @@ export default {
     },
     getSearch(state) {
       return state.search instanceof SearchQuery ? state.search : new SearchQuery(state.search);
+    },
+    getCurrentSearch(state) {
+      return state.search;
+    },
+    getCurrentSearchHash(state) {
+      return state.currentSearchHash;
     },
     results(state) {
       return state.results.map((result) => {
@@ -119,12 +129,18 @@ export default {
     },
     ADD_FILTER(state, filter) {
       state.search.addFilter({ ...filter });
+      state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
+    },
+    INITIALIZE_FILTERS(state, filters) {
+      filters.forEach(d => state.search.addFilter(d));
     },
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);
+      state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
     },
     RESET_FILTER(state, type) {
       state.search.resetFilter(type);
+      state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
     },
     UPDATE_FILTER(state, { filter, q, op, context, precision, distance }) {
       state.search.updateFilter({ filter, q, op, context, precision, distance });
@@ -192,6 +208,9 @@ export default {
     },
     UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
       state.search.hasTextContents = value;
+    },
+    UPDATE_SEARCH_IS_PRISTINE(state, value) {
+      state.currentSearchIsPristine = Boolean(value);
     },
   },
   actions: {
@@ -340,53 +359,48 @@ export default {
         order_by: state.orderBy,
       };
 
-      return Promise.all([
-        services.search.find({
-          query,
-        }).then((res) => {
-          commit('UPDATE_IS_LOADING', false);
-          commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
-          commit('UPDATE_PAGINATION_TOTAL_ROWS', {
-            paginationTotalRows: res.total,
-          });
+      return services.search.find({
+        query,
+      }).then((res) => {
+        commit('UPDATE_IS_LOADING', false);
+        commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+        commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+          paginationTotalRows: res.total,
+        });
 
-          if (this.state.user.userData) {
-            const itemuids = res.data.map(item => item.uid);
+        if (this.state.user.userData) {
+          const itemuids = res.data.map(item => item.uid);
 
-            if (state.facets.find(f => f.type === 'collection').numBuckets > 0) {
-              services.collectionsItems.find({
-                query: { item_uids: itemuids, limit: 100 },
-              }).then((cs) => {
-                state.results.forEach((re) => {
-                  cs.data.forEach((c) => {
-                    if (c.itemId === re.uid) {
-                      re.collections = c.collections;
-                    }
-                  });
+          if (state.facets.find(f => f.type === 'collection').numBuckets > 0) {
+            services.collectionsItems.find({
+              query: { item_uids: itemuids, limit: 100 },
+            }).then((cs) => {
+              state.results.forEach((re) => {
+                cs.data.forEach((c) => {
+                  if (c.itemId === re.uid) {
+                    re.collections = c.collections;
+                  }
                 });
-                // console.log(state.results);
               });
-            }
-          }
-
-          commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
-          // register facets
-          if (res.total) {
-            facets.forEach((type) => {
-              if (res.info.facets[type]) {
-                commit('UPDATE_FACET', {
-                  type,
-                  buckets: res.info.facets[type].buckets,
-                  numBuckets: res.info.facets[type].numBuckets,
-                });
-              }
+              // console.log(state.results);
             });
           }
-        }).catch((err) => {
-          console.error('ERROR in "$store.search/SEARCH" services.search:', err);
-        }).finally(() => {
-          commit('UPDATE_IS_LOADING', false);
-        }),
+        }
+
+        commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
+        // register facets
+        if (res.total) {
+          facets.forEach((type) => {
+            if (res.info.facets[type]) {
+              commit('UPDATE_FACET', {
+                type,
+                buckets: res.info.facets[type].buckets,
+                numBuckets: res.info.facets[type].numBuckets,
+              });
+            }
+          });
+        }
+      }).then(() => Promise.all([
         // launch search facets
         dispatch('LOAD_SEARCH_FACETS', {
           facets: [
@@ -394,12 +408,31 @@ export default {
             'location',
           ],
         }),
+        // if there's a user
         dispatch('LOAD_SEARCH_FACETS', {
           facets: [
             'collection',
           ],
         }),
-      ]);
+        window.impressoDataVersion > 1 ? dispatch('LOAD_SEARCH_FACETS', {
+          facets: [
+            'accessRight',
+            'partner',
+          ],
+        }) : null,
+      ].filter(d => d)))
+        .catch((err) => {
+          console.error('ERROR in "$store.search/SEARCH" services.search:', err);
+        })
+        .finally(() => {
+          commit('UPDATE_IS_LOADING', false);
+        });
+    },
+    UPDATE_QUERY_COMPONENTS({ commit }, components) {
+      commit('UPDATE_QUERY_COMPONENTS', components);
+    },
+    RESET_FILTER({ commit }, { type }) {
+      commit('RESET_FILTER', type);
     },
     ADD_FILTER({ commit }, { filter }) {
       commit('ADD_FILTER', filter);
@@ -412,6 +445,43 @@ export default {
     },
     UPDATE_FILTER_ITEM({ commit }, message) {
       commit('UPDATE_FILTER_ITEM', message);
+    },
+    LOAD_TIMELINE(context, { filters = [], granularity = 'year' } = {}) {
+      return services.searchFacets.get(granularity, {
+        query: {
+          filters,
+          group_by: 'articles',
+        },
+      }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
+    },
+    LOAD_ARTICLES(context, {
+      page = 1,
+      limit = 10,
+      filters = [],
+      orderBy = '-relevance',
+    } = {}) {
+      return services.search.find({
+        query: {
+          page,
+          limit,
+          filters,
+          order_by: orderBy,
+          group_by: 'articles',
+        },
+      }).then(res => ({
+        ...res,
+        data: res.data.map(d => new Article(d)),
+      }));
+    },
+    INIT({ state, commit }) {
+      if (state.currentSearchIsPristine) {
+        const { filters } = protobuf.searchQuery.deserialize(state.currentSearchHash);
+        commit('UPDATE_SEARCH_IS_PRISTINE', true);
+        commit('INITIALIZE_FILTERS', filters);
+        console.info('search/INIT, initial searchQuery instance:', state.search);
+      } else {
+        console.warn('search/INIT already initialized, skip.');
+      }
     },
   },
 };

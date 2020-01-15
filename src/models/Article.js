@@ -1,13 +1,10 @@
-import Collection from './Collection';
 import Issue from './Issue';
-import Match from './Match';
 import Newspaper from './Newspaper';
 import Page from './Page';
 import Region from './Region';
 import ArticleTopic from './ArticleTopic';
 import Tag from './Tag';
-import Entity from './Entity';
-
+import ArticleBase from './ArticleBase';
 /**
  * @class Article is an object representing a newspaper article
  * @param {String} country Country Code
@@ -33,7 +30,7 @@ import Entity from './Entity';
  * @param {String} uid Unique identifier for the article
  * @param {Number} year Year of the article
  */
-export default class Article {
+export default class Article extends ArticleBase {
   constructor({
     country = '',
     collections = [],
@@ -42,6 +39,7 @@ export default class Article {
     dl = 0,
     isCC = false,
     isFront = false,
+    accessRights = 'na',
     issue = new Issue(),
     labels = [],
     language = '',
@@ -62,20 +60,36 @@ export default class Article {
     locations = [],
     persons = [],
   } = {}) {
-    this.collections = collections.map((collection) => {
-      if (collection instanceof Collection) {
-        return collection;
-      }
-
-      return new Collection(collection);
+    super({
+      uid,
+      type,
+      title,
+      excerpt,
+      isCC,
+      size,
+      nbPages,
+      pages,
+      persons,
+      locations,
+      collections,
+      accessRights,
+      // to be added dinamically from TOC
+      matches,
+      images,
     });
-
+    // missing data from ArticleBase
     this.country = String(country);
-    this.date = new Date(date);
-    this.excerpt = String(excerpt);
     this.dl = parseInt(dl, 10);
-    this.isCC = Boolean(isCC);
     this.isFront = Boolean(isFront);
+    this.language = String(language);
+    this.time = parseInt(time, 10);
+    this.year = parseInt(year, 10);
+
+    if (date instanceof Date) {
+      this.date = date;
+    } else if (date) {
+      this.date = new Date(date);
+    }
 
     if (issue instanceof Issue) {
       this.issue = issue;
@@ -84,18 +98,6 @@ export default class Article {
     }
 
     this.labels = labels.map(label => String(label));
-
-    this.language = String(language);
-
-    this.matches = matches.map((match) => {
-      if (match instanceof Match) {
-        return match;
-      }
-
-      return new Match(match);
-    });
-
-    this.nbPages = parseInt(nbPages, 10);
 
     if (newspaper instanceof Newspaper) {
       this.newspaper = newspaper;
@@ -107,17 +109,13 @@ export default class Article {
       if (page instanceof Page) {
         return page;
       }
-
       return new Page(page);
     });
-
-    this.size = parseInt(size, 10);
 
     this.regions = regions.map((region) => {
       if (region instanceof Region) {
         return region;
       }
-
       return new Region(region);
     });
 
@@ -125,7 +123,6 @@ export default class Article {
       if (tag instanceof Tag) {
         return tag;
       }
-
       return new Tag(tag);
     });
 
@@ -133,36 +130,9 @@ export default class Article {
       if (topic instanceof ArticleTopic) {
         return topic;
       }
-
       return new ArticleTopic(topic);
     });
 
-    this.locations = locations.map((location) => {
-      if (location instanceof Entity) {
-        return location;
-      }
-      return new Entity(location);
-    });
-
-    this.persons = persons.map((person) => {
-      if (person instanceof Entity) {
-        return person;
-      }
-      return new Entity(person);
-    });
-
     this.images = images;
-
-    this.time = parseInt(time, 10);
-    this.title = String(title).trim();
-    this.type = String(type);
-    this.uid = String(uid);
-    this.year = parseInt(year, 10);
-
-    if (!this.title.length && this.excerpt.length) {
-      const parts = this.excerpt.split(/\s/);
-      this.title = parts.slice(0, 4).join(' ');
-      this.excerpt = parts.slice(4).join(' ');
-    }
   }
 }
