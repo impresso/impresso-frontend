@@ -1,5 +1,7 @@
 const helpers = {};
 
+const timelineValuesSorter = (a, b) => a.t - b.t;
+
 helpers.groupBy = (data, key) => data.reduce((reduced, item) => {
   (reduced[item[key]] = reduced[item[key]] || []).push(item);
   return reduced;
@@ -43,6 +45,24 @@ helpers.timeline.addEmptyYears = (values) => {
     vs.push(values[i]);
   }
   return vs;
+};
+
+helpers.timeline.addEmptyYearsWithRange = (timelineValues, timelineRange) => {
+  if (!timelineRange) return timelineValues;
+  const [rangeMin, rangeMax] = timelineRange;
+  const presentYears = timelineValues.map(({ t }) => t);
+
+  const rangeSize = rangeMax - rangeMin;
+  if (isNaN(rangeSize)) return timelineValues;
+
+  const range = [...Array(rangeSize).keys()].map(i => rangeMin + i);
+
+  return range.reduce((values, year) => {
+    if (presentYears.indexOf(year) === -1) {
+      values.push({ t: year, w: 0 });
+    }
+    return values;
+  }, timelineValues).sort(timelineValuesSorter);
 };
 
 helpers.timeline.fromBuckets = (buckets) => {

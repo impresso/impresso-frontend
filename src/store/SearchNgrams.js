@@ -1,10 +1,11 @@
 /* eslint-disable no-shadow */
 // @ts-check
 
+import Vue from 'vue';
 import SearchQuery from '../models/SearchQuery';
 import Facet from '../models/Facet';
 import router from '../router';
-import { search as searchService } from '../services';
+import { ngramTrends as ngramTrendsService } from '../services';
 
 const AvailableFacets = [
   'year',
@@ -26,6 +27,8 @@ const FacetsOperators = {
  * @property {SearchQuery} search - has to be named "search". Required by SearchFacets
  * @property {Facet[]} facets - list of facets to render. Required
  * @property {String} groupBy - required by SearchFacets
+ * @property {String} unigram - unigram
+ * @property {object} trend - trend values
  */
 const state = {
   search: new SearchQuery({
@@ -33,6 +36,8 @@ const state = {
   }),
   facets: AvailableFacets.map(type => new Facet({ type, operators: FacetsOperators[type] })),
   groupBy: 'articles',
+  unigram: undefined,
+  trend: {},
 };
 
 /** @type {import("vuex").ActionTree<State>} */
@@ -43,6 +48,7 @@ const actions = {
   PUSH_SEARCH_PARAMS({ state }) {
     const query = {
       f: JSON.stringify(state.search.getFilters()),
+      unigram: state.unigram,
     };
     router.push({ name: 'searchNgrams', query });
   },
@@ -66,13 +72,18 @@ const actions = {
     commit('UPDATE_FILTER_ITEM', message);
   },
   async SEARCH({ state, commit }) {
+    if (state.unigram === undefined) return;
     const query = {
+      ngrams: [state.unigram],
       filters: state.search.getFilters(),
       facets: AvailableFacets,
-      group_by: state.groupBy,
-      limit: 0,
     };
-    const results = await searchService.find({ query });
+    const results = await ngramTrendsService.create(query);
+    commit('SET_TREND', {
+      values: results.trends[0].values,
+      domain: results.domainValues,
+    });
+
     AvailableFacets.forEach((type) => {
       if (results.info.facets[type]) {
         commit('UPDATE_FACET', {
@@ -88,6 +99,7 @@ const actions = {
 /** @type {import("vuex").GetterTree<State>} */
 const getters = {
   searchQuery: state => state.search,
+  trend: state => state.trend,
 };
 
 /** @type {import("vuex").MutationTree<State>} */
@@ -116,6 +128,12 @@ const mutations = {
     search.updateFilter({
       filter, q, op, context, precision, distance, items: undefined,
     });
+  },
+  SET_UNIGRAM(state, unigram) {
+    state.unigram = unigram;
+  },
+  SET_TREND(state, trend) {
+    Vue.set(state, 'trend', trend);
   },
 };
 

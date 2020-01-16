@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="d3-timeline" ref="timeline">
+  <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`">
     <tooltip :tooltip="tooltip">
       <slot :tooltip="tooltip">
         <div v-if="tooltip.item">
@@ -44,6 +44,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    height: {
+      type: String,
+      default: '85',
+    },
   },
   data: () => ({
     tooltip: {
@@ -53,6 +57,14 @@ export default {
       item: {},
     },
   }),
+  computed: {
+    heightVal() {
+      const valNumber = parseInt(this.height, 10);
+      if (!isNaN(valNumber)) return `${valNumber}px`;
+      if (typeof this.height === 'string') return this.height;
+      return 'auto';
+    },
+  },
   methods: {
     moveTooltip(data) {
       this.tooltip = {
@@ -194,7 +206,7 @@ export default {
 
   .d3-timeline{
     width: 100%;
-    height: 85px;
+    // height: 85px;
     position: relative;
 
     g.context path.curve {

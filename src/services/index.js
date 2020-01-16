@@ -121,6 +121,7 @@ export const issuesTimeline = app.service('issues-timelines');
 export const pages = app.service('pages');
 export const pagesTimelines = app.service('pages-timelines');
 export const search = app.service('search');
+export const ngramTrends = app.service('ngram-trends');
 export const newspapers = app.service('newspapers');
 export const collections = app.service('collections');
 export const collectionsItems = app.service('collectable-items');
