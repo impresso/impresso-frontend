@@ -27,7 +27,7 @@
         <span class="number">2</span> countries of publication<br>
         <span class="number">530,086</span> named entities disambiguated
       </p>
-
+      <p>More? Check on our <a href="https://impresso-project.ch/news/2020/01/05/state-corpus-january2020.html">blog</a></p>
       <div class="mb-2">
         <b-button
           :variant="showLines  ? 'primary' : 'outline-primary'" size="sm"
@@ -64,7 +64,7 @@
       <!-- <h1 class="text-white mt-5">Today, 100 years ago.</h1>
       This section lists front pages with the most important events. -->
 
-      <h2 class="p-4 m-0">Mining 200 years <br/>of historical newspapers</h2>
+      <h2 class="p-4 m-0">Mining 200 years <br/>of historical newspapers <info-button name="which-newspapers" class="ml-2 mt-1 d-inline-block" /></h2>
       <p class="px-4 pb-4">
         How can newspapers help understand the past? How to explore them?
         <br>
@@ -83,6 +83,7 @@ import SearchTabs from './modules/SearchTabs';
 import VizBarMulti from './base/VizBarMulti';
 import Recipes from './modules/homepage/Recipes';
 import HomePageFooter from './HomePageFooter';
+import InfoButton from './base/InfoButton';
 
 export default {
   props: {
@@ -117,6 +118,7 @@ export default {
     VizBarMulti,
     Recipes,
     HomePageFooter,
+    InfoButton,
   },
 };
 </script>
