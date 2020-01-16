@@ -1,8 +1,7 @@
 <template lang="html">
   <span v-if="content" class="info-button">
     <div class="info-button-trigger icon-link dripicons-information d-inline-block" :id="targetId"
-      @click.prevent.stop="togglePopover"
-      @mouseover="togglePopover(true)"></div>
+      @click.prevent.stop="togglePopover"></div>
     <b-popover :target="targetId" boundary='window' placement="right" custom-class="drop-shadow">
       <template v-if="content.title" v-slot:title>{{content.title}}</template>
       <div v-if="content.summary" v-html="content.summary" />
@@ -17,6 +16,14 @@
 </template>
 
 <script>
+/**
+ * Usage of this component
+ *
+ * import InfoButton from './base/InfoButton';
+ *
+ * in template:
+ * <info-button name="which-newspapers" class="ml-2 mt-1 d-inline-block" />
+ */
 import content from '@/assets/faqpage.json';
 
 export default {
