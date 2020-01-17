@@ -117,8 +117,8 @@ export default {
         return [domainValue, value];
       });
       const v = pairs
-        .map(([d, val]) => ({ t: parseInt(d, 10), w: val }));
-      return Helpers.timeline.addEmptyYears(v);
+        .map(([d, val]) => ({ t: new Date(d), w: val }));
+      return Helpers.timeline.addEmptyIntervals(v, 'year'); // TODO: get the interval unit from the API.
     },
     trend() {
       return this.$store.state.searchNgrams.trend;

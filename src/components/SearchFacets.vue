@@ -254,7 +254,7 @@ export default {
           t: parseInt(d.val, 10),
         }));
         // add zeroes
-        return Helpers.timeline.addEmptyYears(values);
+        return Helpers.timeline.addEmptyIntervals(values);
       },
     },
     facets: {

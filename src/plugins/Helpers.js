@@ -25,7 +25,14 @@ helpers.isEntity = type => ['person', 'location'].indexOf(type) !== -1;
 
 helpers.timeline = {};
 
-helpers.timeline.addEmptyYears = (values) => {
+/**
+ * Add empty intervals to a list of timeline items (Item is a `{ w, t, w1, p }` object).
+ * Interval value is `t` and it can be either a number of a date. Intervals are considered
+ * with an interval unit which is either `number`, `year` or `month`.
+ * @param {object[]} values timeline item values
+ * @param {string} unit interval units
+ */
+helpers.timeline.addEmptyIntervals = (values, unit = 'number') => {
   if (!values.length) {
     return [];
   }
@@ -33,10 +40,33 @@ helpers.timeline.addEmptyYears = (values) => {
   const vs = [values[0]];
 
   for (let i = 1, l = values.length; i < l; i += 1) {
-    const diff = values[i].t - values[i - 1].t;
+    let diff;
+    switch (unit) {
+      case 'year':
+        diff = Math.round((values[i].t - values[i - 1].t) / (365 * 24 * 60 * 60 * 1000));
+        break;
+      case 'month':
+        diff = Math.round((values[i].t - values[i - 1].t) / (30 * 24 * 60 * 60 * 1000));
+        break;
+      default:
+        diff = values[i].t - values[i - 1].t;
+    }
     for (let j = 1; j < diff; j += 1) {
+      let newValue;
+      switch (unit) {
+        case 'year':
+          newValue = new Date(values[i - 1].t);
+          newValue.setFullYear(values[i - 1].t.getFullYear() + j);
+          break;
+        case 'month':
+          newValue = new Date(values[i - 1].t);
+          newValue.setMonth(values[i - 1].t.getMonth() + j);
+          break;
+        default:
+          newValue = values[i - 1].t + j;
+      }
       vs.push({
-        t: values[i - 1].t + j,
+        t: newValue,
         w: 0,
         w1: 0,
         p: 0,
@@ -73,7 +103,7 @@ helpers.timeline.fromBuckets = (buckets) => {
     t: parseInt(d.val, 10),
   })).sort((a, b) => a.t - b.t);
   // add zeroes
-  return helpers.timeline.addEmptyYears(values);
+  return helpers.timeline.addEmptyIntervals(values);
 };
 
 helpers.numbers = {};
