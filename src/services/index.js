@@ -41,6 +41,7 @@ socket.on('connect_error', (err) => {
 
 const needsLockScreen = p => [
   'search.find',
+  'ngram-trends.create',
 ].includes(p);
 
 app.hooks({

@@ -50,13 +50,23 @@ const actions = {
       f: JSON.stringify(state.search.getFilters()),
       unigram: state.unigram,
     };
-    router.push({ name: 'searchNgrams', query });
+    router.push({ name: 'searchNgrams', query })
+      .catch((err) => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
+        }
+      });
   },
   /**
    * Update state from URL query parameters.
    */
   PULL_SEARCH_PARAMS({ commit, dispatch }, query) {
-    commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
+    try {
+      commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
+    } catch (error) {
+      if (!(error instanceof SyntaxError)) throw error;
+    }
+    commit('SET_UNIGRAM', query.unigram || 'impresso');
     dispatch('SEARCH');
   },
   ADD_FILTER({ commit }, { filter }) {
@@ -65,11 +75,17 @@ const actions = {
   REMOVE_FILTER({ commit }, { filter }) {
     commit('REMOVE_FILTER', filter);
   },
+  RESET_FILTER({ commit }, { type }) {
+    commit('RESET_FILTER', type);
+  },
   UPDATE_FILTER({ commit }, message) {
     commit('UPDATE_FILTER', message);
   },
   UPDATE_FILTER_ITEM({ commit }, message) {
     commit('UPDATE_FILTER_ITEM', message);
+  },
+  SET_UNIGRAM({ commit }, unigram) {
+    commit('SET_UNIGRAM', unigram);
   },
   async SEARCH({ state, commit }) {
     if (state.unigram === undefined) return;
@@ -82,6 +98,7 @@ const actions = {
     commit('SET_TREND', {
       values: results.trends[0].values,
       domain: results.domainValues,
+      total: results.trends[0].total,
     });
 
     AvailableFacets.forEach((type) => {
@@ -131,9 +148,22 @@ const mutations = {
   },
   SET_UNIGRAM(state, unigram) {
     state.unigram = unigram;
+    const query = {
+      ...router.currentRoute.query,
+      unigram,
+    };
+    router.replace({ name: 'searchNgrams', query })
+      .catch((err) => {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err;
+        }
+      });
   },
   SET_TREND(state, trend) {
     Vue.set(state, 'trend', trend);
+  },
+  RESET_FILTER({ search }, type) {
+    search.resetFilter(type);
   },
 };
 

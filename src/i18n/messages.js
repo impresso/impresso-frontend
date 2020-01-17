@@ -105,6 +105,7 @@ export default {
         countItems: '{countItems} saved items',
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
+      unigramMentions: 'no mentions of "{unigram}" | <span class="number">1</span> mention of "{unigram}" | <span class="number">{n}</span> mentions of "{unigram}"',
     },
     dates: {
       lastModifiedDate: 'last modified',

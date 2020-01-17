@@ -7,7 +7,11 @@
         <search-tabs/>
 
         <div class="py-3 px-3">
-          <search-input @submit="onNgramsSubmitted" placeholder="search ngrams ..."></search-input>
+          <search-input
+            @submit="onNgramsSubmitted"
+            placeholder="search ngrams ..."
+            :initial="unigram">
+          </search-input>
         </div>
       </div>
       <!--  facets -->
@@ -21,16 +25,34 @@
     </i-layout-section>
 
     <!-- main section -->
-    <i-layout-section class="border-left border-top ml-1px mt-1px">
+    <i-layout-section class="border-left border-top ml-1px mt-1px" main>
+
+      <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
+        <b-navbar-nav class="border-right flex-grow-1  py-2 ">
+          <section class="search-results-summary text-serif textbox-fancy border-tertiary">
+            <span v-if="!unigram">Enter unigram</span>
+            <span v-if="unigram" v-html="$tc('numbers.unigramMentions', trend.total || 0, { unigram, n: trend.total })"></span>
+            <router-link
+              v-if="unigram && trend.total > 0"
+              class="btn btn-outline-primary btn-sm"
+              :to="searchPageLink">
+              {{ $t('label.seeArticles') }}
+            </router-link>
+          </section>
+        </b-navbar-nav>
+      </b-navbar>
+
       <timeline
+            v-if="trend.total > 0"
             :contrast="false"
             :values="timelineValues"
             :brushable="false"
-            :height="null">
+            :height="'80%'">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
             {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
-            <b v-html="$tc('numbers.results', tooltipScope.tooltip.item.w, {
+            <b v-html="$tc('numbers.unigramMentions', tooltipScope.tooltip.item.w, {
+              unigram,
               n: $n(tooltipScope.tooltip.item.w),
             })"/>
           </div>
@@ -41,13 +63,14 @@
 </template>
 
 <script>
-import SearchTabs from './modules/SearchTabs';
-import SearchFacets from './SearchFacets';
-import SearchInput from './modules/SearchInput';
-import Timeline from './modules/Timeline';
-import Helpers from '../plugins/Helpers';
+import SearchTabs from '@/components/modules/SearchTabs';
+import SearchFacets from '@/components/SearchFacets';
+import SearchInput from '@/components/modules/SearchInput';
+import Timeline from '@/components/modules/Timeline';
+import Helpers from '@/plugins/Helpers';
 
 export default {
+  name: 'SearchNgramsPage',
   components: {
     SearchTabs,
     SearchFacets,
@@ -68,7 +91,7 @@ export default {
   },
   methods: {
     executeSearch() {
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+      this.$store.dispatch('searchNgrams/SEARCH');
     },
     onNgramsSubmitted({ q }) {
       this.$store.commit('searchNgrams/SET_UNIGRAM', q);
@@ -100,6 +123,21 @@ export default {
     trend() {
       return this.$store.state.searchNgrams.trend;
     },
+    unigram() {
+      return this.$store.state.searchNgrams.unigram;
+    },
+    searchPageLink() {
+      const filters = this.$store.state.searchNgrams.search.getFilters();
+      filters.push({
+        type: 'string',
+        precision: 'exact',
+        q: this.unigram,
+      });
+      const query = {
+        f: JSON.stringify(filters),
+      };
+      return { name: 'search', query };
+    },
   },
 };
 </script>
@@ -111,6 +149,9 @@ export default {
         "text": "search articles",
         "images": "search images",
         "ngrams": "ngrams"
+      },
+      "label": {
+        "seeArticles": "See articles"
       }
     }
   }
@@ -118,8 +159,4 @@ export default {
 
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
-
-  // .d3-timeline {
-  //   height: 100% !important;
-  // }
 </style>

@@ -25,6 +25,18 @@ export default {
       type: String,
       default: 'search in image captions ...',
     },
+    initial: {
+      type: String,
+      default: '',
+    },
+  },
+  watch: {
+    initial: {
+      handler(val) {
+        this.q = val;
+      },
+      immediate: true,
+    },
   },
   methods: {
     change() {

@@ -46,7 +46,7 @@ export default {
     },
     height: {
       type: String,
-      default: '85',
+      default: '85px',
     },
   },
   data: () => ({
@@ -59,8 +59,6 @@ export default {
   }),
   computed: {
     heightVal() {
-      const valNumber = parseInt(this.height, 10);
-      if (!isNaN(valNumber)) return `${valNumber}px`;
       if (typeof this.height === 'string') return this.height;
       return 'auto';
     },
