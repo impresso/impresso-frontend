@@ -99,6 +99,7 @@ const actions = {
       values: results.trends[0].values,
       domain: results.domainValues,
       total: results.trends[0].total,
+      timeInterval: results.timeInterval,
     });
 
     AvailableFacets.forEach((type) => {

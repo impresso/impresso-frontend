@@ -118,7 +118,7 @@ export default {
       });
       const v = pairs
         .map(([d, val]) => ({ t: new Date(d), w: val }));
-      return Helpers.timeline.addEmptyIntervals(v, 'year'); // TODO: get the interval unit from the API.
+      return Helpers.timeline.addEmptyIntervals(v, this.trend.timeInterval);
     },
     trend() {
       return this.$store.state.searchNgrams.trend;
