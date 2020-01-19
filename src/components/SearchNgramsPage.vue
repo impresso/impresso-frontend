@@ -88,6 +88,12 @@ export default {
       deep: true,
       immediate: true,
     },
+    filters: {
+      async handler() {
+        await this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+      },
+      deep: true,
+    },
   },
   methods: {
     executeSearch() {
@@ -125,6 +131,9 @@ export default {
     },
     unigram() {
       return this.$store.state.searchNgrams.unigram;
+    },
+    filters() {
+      return this.$store.state.searchNgrams.search.filters;
     },
     searchPageLink() {
       const filters = this.$store.state.searchNgrams.search.getFilters();

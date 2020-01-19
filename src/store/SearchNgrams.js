@@ -166,6 +166,9 @@ const mutations = {
   RESET_FILTER({ search }, type) {
     search.resetFilter(type);
   },
+  UPDATE_FILTER_ITEM({ search }, { filter, item, uid }) {
+    search.updateFilterItem({ filter, item, uid });
+  },
 };
 
 export default {
