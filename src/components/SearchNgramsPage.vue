@@ -47,10 +47,11 @@
             :contrast="false"
             :values="timelineValues"
             :brushable="false"
-            :height="'80%'">
+            :height="'80%'"
+            :resolution="timelineResolution">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
+            {{ $d(tooltipScope.tooltip.item.t, timelineResolution, 'en') }} &middot;
             <b v-html="$tc('numbers.unigramMentions', tooltipScope.tooltip.item.w, {
               unigram,
               n: $n(tooltipScope.tooltip.item.w),
@@ -124,7 +125,7 @@ export default {
       });
       const v = pairs
         .map(([d, val]) => ({ t: new Date(d), w: val }));
-      return Helpers.timeline.addEmptyIntervals(v, this.trend.timeInterval);
+      return Helpers.timeline.addEmptyIntervals(v, this.trend.timeInterval).sort((a, b) => a.t - b.t);
     },
     trend() {
       return this.$store.state.searchNgrams.trend;
@@ -134,6 +135,9 @@ export default {
     },
     filters() {
       return this.$store.state.searchNgrams.search.filters;
+    },
+    timelineResolution() {
+      return this.trend.timeInterval;
     },
     searchPageLink() {
       const filters = this.$store.state.searchNgrams.search.getFilters();
