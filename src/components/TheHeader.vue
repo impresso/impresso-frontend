@@ -1,49 +1,65 @@
 <template lang="html">
-  <div style="margin-bottom: -1px;">
+  <div >
     <b-progress v-if='processingStatus' :value="100" variant="info" animated height="4px"></b-progress>
-    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-bottom border-primary">
+    <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-primary">
       <b-navbar-brand :to="{name: 'home'}">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
-        <b-navbar-nav>
-          <!-- <li class="nav-item">
-            <router-link v-bind:to="{ name: 'home'}" exact-active-class="active" class="nav-link small-caps">{{$t("label_home")}}</router-link>
-          </li> -->
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'search'}" active-class="active" class="nav-link">{{$t("label_search")}}</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'newspapers'}" active-class="active" class="nav-link">{{$t("label_newspapers")}}</router-link>
-          </li>
-          <!-- <li class="nav-item">
-            <router-link v-bind:to="{ name: 'entities'}" exact-active-class="active" class="nav-link">{{$t("label_entities")}}</router-link>
-          </li> -->
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'topics'}" active-class="active" class="nav-link">{{$t("label_topics")}}</router-link>
-          </li>
-          <!-- <li class="nav-item">
-            <a class="nav-link" v-on:click.stop.prevent="openExplorer">{{$t("label_explore")}}</a>
-          </li>
-          <li class="nav-item">
-            <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
-          </li> -->
-          </li>
-            <router-link v-bind:to="{ name: 'compare'}" active-class="active" class="nav-link">{{$t("label_compare")}}</router-link>
-          </li>
-          </li>
-            <router-link v-bind:to="{ name: 'faq'}" active-class="active" class="nav-link">{{$t("label_faq")}}</router-link>
-          </li>
-          <li v-if="!connectivityStatus">
-            <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
-          </li>
-        </b-navbar-nav>
-        <b-navbar-nav class="nav-title mx-auto">
-          <!-- <h1 v-show="headerTitle" class="nav-title" v-html="headerTitle"></h1> -->
-        </b-navbar-nav>
-        <b-navbar-nav>
+
+      <b-navbar-nav>
+        <b-nav-item v-if="!countActiveSearchFilters" v-bind:to="{ name: 'search', query: currentSearchQueryParams }" active-class="active">
+          {{$tc("label_search", 0)}}
+        </b-nav-item>
+
+        <b-nav-item-dropdown  no-caret
+          v-if="countActiveSearchFilters"
+          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" class="pl-3">
+          <template slot="button-content">
+            <span style="color: gold">
+              <span v-if="countActiveSearchItems" v-html="$tc('label_search_with_items', countActiveSearchFilters, {
+                items: $tc('numbers.items', countActiveSearchItems),
+              })" />
+              <span v-else>
+                {{ $tc('label_search', countActiveSearchFilters) }}
+              </span>
+            </span>
+          </template>
+          <b-button class="ml-3 my-2" size="sm" variant="outline-primary outline-primary-contrast" :disabled="$route.name === 'search'" v-bind:to="{ name: 'search', query: currentSearchQueryParams }">
+            {{$t('actions.searchMore')}}
+          </b-button>
+          <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" v-bind:to="{ name: 'search' }">
+            {{$t('actions.resetQuery')}}
+          </b-button> -->
+          <search-query-explorer v-on:click="" dark-mode/>
+        </b-nav-item-dropdown>
+
+        <b-nav-item v-bind:to="{ name: 'newspapers'}" active-class="active">
+          {{$t("label_newspapers")}}
+        </b-nav-item>
+        <!-- <b-nav-item v-bind:to="{ name: 'entities'}" exact-active-class="active">
+          {{$t("label_entities")}}
+        </b-nav-item> -->
+        <b-nav-item v-bind:to="{ name: 'topics'}" active-class="active">
+          {{$t("label_topics")}}
+        </b-nav-item>
+        <b-nav-item v-bind:to="{ name: 'compare'}" active-class="active">
+          {{$t("label_compare")}}
+        </b-nav-item>
+        <b-nav-item v-if="!connectivityStatus">
+          <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
+        </b-nav-item>
+      </b-navbar-nav>
+
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item v-bind:to="{ name: 'faq'}" active-class="active">
+            {{$t("label_faq")}}
+          </b-nav-item>
+          <b-nav-item v-bind:to="{ name: 'termsOfUse'}" active-class="active">
+            {{$t("label_terms_of_use")}}
+          </b-nav-item>
           <b-nav-item-dropdown right no-caret
             v-if="user"
-            ref="ddownJobs" class="p-2" v-on:hidden="updateLastNotificationDate">
+            ref="ddownJobs" v-on:hidden="updateLastNotificationDate">
               <template slot="button-content">
                 <div class="dripicons-cloud-download position-relative" style="top:0.25em" />
                 <transition name="bounce">
@@ -75,7 +91,7 @@
               </div>
             </div>
           </b-nav-item-dropdown>
-          <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
+          <!-- <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
             <b-dropdown-item v-for="language in languages"
             v-bind:active="activeLanguageCode === language.code"
             v-bind:key="language.code"
@@ -83,10 +99,10 @@
             v-on:click="selectLanguage(language.code)">
               <span>{{language.name}}</span>
             </b-dropdown-item>
-          </b-nav-item-dropdown>
-          <b-nav-item-dropdown v-if="user" class="user-space pb-1 pl-1 pr-2 " right>
+          </b-nav-item-dropdown> -->
+          <b-nav-item-dropdown v-if="user" class="user-space pl-1 pr-2 " right>
             <template slot="button-content">
-              <div class='d-inline-block'>
+              <div class='d-inline-block mt-2'>
                 <div class='user-picture mt-1 float-left position-relative' :style='userPicture'>
                 </div>
                 <div class='user-label pt-2'>
@@ -106,8 +122,9 @@
               <span v-html="$t('join_slack_channel')"></span>
             </b-dropdown-item>
 
+            <b-dropdown-text class="px-3" v-html="$t('current_version', { version })"/>
           </b-nav-item-dropdown>
-          <b-nav-item class="p-2 small-caps border-left" v-else v-bind:to="{ name: 'login'}">{{$t("login")}}</b-nav-item>
+          <b-nav-item class="small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible v-html="" variant="warning" class="m-0 px-3">
@@ -115,6 +132,9 @@
         <span>
           <span v-if="error.name === 'NotAuthenticated'">{{ $t('errors.Notauthenticated') }}</span>
           <span v-else-if="error.name === 'BadGateway'">{{ $t(`errors.BadGateway.${error.message}`) }}</span>
+          <span v-else-if="error.name === 'TypeError'">{{ $t(`errors.TypeError`) }} {{ error.message }}</span>
+          <span v-else-if="error.name === 'Timeout'">{{ $t(`errors.Timeout`) }} {{ error.message }}</span>
+          <span v-else-if="error.name === 'BadRequest' && error.message === 'Login incorrect'">{{ $t(`errors.BadRequest`) }} {{ error.message }}</span>
           <span v-else>{{ error }}</span>
         </span>
         <span v-if="error.route.length">{{ $t(['paths', ...error.route].join('.')) }}</span>
@@ -128,9 +148,12 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/slack';
 import Toast from './modules/Toast';
 import Pagination from './modules/Pagination';
+import SearchQueryExplorer from './modals/SearchQueryExplorer';
 
 export default {
   data: () => ({
+    countActiveSearchFilters: [],
+    countActiveSearchItems: 0,
     languages: {
       de: {
         code: 'de',
@@ -164,19 +187,37 @@ export default {
         console.info('Jobs loaded.');
       });
     }
+    this.countActiveSearchFilters = this.$store.getters['search/getCurrentSearch'].countActiveFilters();
   },
   computed: {
+    loginRouteParams() {
+      return {
+        name: 'login',
+        query: {
+          redirect: this.$route.path,
+        },
+      };
+    },
     jobs() {
       return this.$store.state.jobs.items;
     },
     runningJobs() {
       return this.$store.state.jobs.items.filter(d => d.status === 'RUN');
     },
+    currentSearchResults() {
+      return this.$store.state.search.paginationTotalRows;
+    },
     paginationJobsList() {
       return this.$store.state.jobs.pagination;
     },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
+    },
+    currentSearchHash() {
+      return this.$store.state.search.currentSearchHash;
+    },
+    currentSearchQueryParams() {
+      return this.$store.state.search.search.getSerialized();
     },
     showAlert() {
       return this.$store.state.errorMessages.length > 0;
@@ -221,6 +262,9 @@ export default {
     connectivityStatus() {
       return this.$store.state.connectivityStatus;
     },
+    version() {
+      return [window.impressoVersion, window.impressoDataVersion].join('/');
+    },
   },
   methods: {
     updateLastNotificationDate() {
@@ -228,6 +272,9 @@ export default {
     },
     openExplorer() {
       this.$store.dispatch('explorer/SHOW', {});
+    },
+    openSearchQueryExplorer() {
+      this.$store.dispatch('searchQueryExplorer/TOGGLE');
     },
     onChangeJobsPage(page = 1) {
       console.info('onChangeJobsPage', page);
@@ -259,18 +306,21 @@ export default {
         }
       },
     },
-    $route: {
-      handler(val, oldVal) {
-        if (val.meta.realm !== oldVal.meta.realm) {
-          this.$store.commit('SET_HEADER_TITLE', {});
+    currentSearchHash: {
+      handler(val) {
+        if (val.length) {
+          this.countActiveSearchFilters = this.$store.getters['search/getCurrentSearch'].countActiveFilters();
+          this.countActiveSearchItems = this.$store.getters['search/getCurrentSearch'].countActiveItems();
         }
       },
+      immediate: false,
     },
   },
   components: {
     Icon,
     Toast,
     Pagination,
+    SearchQueryExplorer,
   },
 };
 </script>
@@ -278,9 +328,11 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
+#TheHeader {
+  height: 56px;
+}
 #app-header {
     .Cookie--blood-orange {
-
       background: $clr-secondary;
       border-bottom: 2px solid $clr-accent;
       box-shadow: 0 0 5vh 0vw rgba(0,0,0,0.8);
@@ -324,7 +376,6 @@ export default {
     }
     nav {
         margin-top: 0;
-        margin-bottom: 1px;
         .navbar-collapse {
             height: 44px;
         }
@@ -352,6 +403,17 @@ export default {
                 font-weight: bold;
             }
         }
+    }
+    .navbar-nav .nav-link {
+      padding-top: 0;
+      padding-bottom: 0;
+      line-height: 56px;
+      height: 56px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 100px;
+      font-size: .9rem;
     }
     .navbar-dark .navbar-nav .nav-link {
         color: $clr-grey-800;
@@ -388,6 +450,8 @@ export default {
       &.show > a{
         color: $clr-white;
       }
+
+
     }
     .navbar-dark .b-nav-dropdown .dropdown-menu {
       background: $clr-grey-300 !important;
@@ -410,6 +474,15 @@ export default {
       .dropdown-item.active{
         color: $clr-white;
         background: $clr-grey-400;
+      }
+
+      .btn-outline-primary{
+        border: 1px solid #caccce;
+        color: #caccce;
+        &:hover{
+          border-color: $clr-white;
+          color: $clr-white;
+        }
       }
     }
 
@@ -456,6 +529,20 @@ export default {
         font-size: 0.8em;
     }
 }
+
+
+@media (min-width: 992px) {
+  #app-header .navbar-nav .nav-link{
+    max-width: 120px;
+    font-size: 1rem;
+  }
+}
+@media (min-width: 1200px) {
+  #app-header .navbar-nav .nav-link{
+    max-width: 220px;
+    font-size: 1rem;
+  }
+}
 </style>
 
 <i18n>
@@ -466,17 +553,21 @@ export default {
     "dashboard": "Dashboard",
     "collections": "Collections",
     "label_home": "Home",
-    "label_search": "Search",
+    "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
+    "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
     "label_newspapers": "Newspapers",
     "label_entities": "Entities",
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_compare": "Inspect & Compare",
+    "label_current_search": "browse results",
     "label_faq": "FAQ",
+    "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
-    "no-jobs-yet": "Here you will find notifications about your collections and your downloads."
+    "no-jobs-yet": "Here you will find notifications about your collections and your downloads.",
+    "current_version": "v <span class='small-caps'>{version}</span>"
   }
 }
 </i18n>

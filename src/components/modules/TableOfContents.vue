@@ -6,127 +6,42 @@
         class="article flatten"
         v-for="(article, idx) in articles"
         v-bind:key="idx"
-        v-bind:class="{active: article.uid === selectedArticleUid}"
+        v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
         v-on:click.prevent="onClick(article, page)">
         <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
         <article-item :item="article" class="p-3 clearfix"
           show-excerpt
-          show-link
           show-entities
           show-size
           show-pages
           show-matches
           show-type
+
           />
       </b-media>
     </div>
     <div v-else>
-      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page border-bottom">
+      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page "
+      v-bind:class="{activepage: page.num === currentPageNum}">
         <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
           <b-media
             :ref="`article-${article.uid}`"
-            class="article border-bottom"
+            class="article "
             v-for="(article, idx) in page.articles"
             v-bind:key="idx"
-            v-bind:class="{active: article.uid === selectedArticleUid}"
+            v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
-            <div class="d-flex">
-              <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
-              <article-item :item="article" class="p-3 clearfix flex-grow-1"
+            <div>
+              <image-item :height="200" :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
+              <article-item :item="article" class="p-3"
                 show-excerpt
-                show-link
                 show-entities
                 show-size
                 show-pages
                 show-type
                 />
+              <image-item :height="200" class="mx-3 mb-2" :item="image" v-for="(image, i) in article.images" v-bind:key="i"/>
             </div>
-            <!--
-            <a
-              class="p-3 clearfix"
-              href="#"
-              v-on:click.prevent="onClick(article, page)">
-            <div
-              v-if="article.images.length"
-              class="mr-3 images">
-              <b-img
-              fluid-grow
-              class="mb-1 image"
-                v-for="image in article.images"
-                v-bind:src="image.regions[0].iiifFragment" />
-            </div>
-
-            <span class="title"
-              v-if="article.title">
-              <span v-html="article.title" /> &mdash;
-            </span>
-            <span
-              class="excerpt">{{ article.excerpt }}</span>
-            <span class="badge badge-secondary mr-1 pt-1">
-              <span v-if="article.size > 1200" >{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }} / </span>
-              {{ $tc('pp', article.nbPages, { pages: article.pages.map(d => d.num).join(',') }) }}
-            </span>
-
-            <span v-if="article.type !== 'ar'" class="badge badge-secondary mr-1 pt-1">
-              {{ article.type.toUpperCase() }}
-            </span>
-            {{ article.isCC }}
-            <div v-if="article.locations.length" class="article-locations">
-              <span
-                v-for="location in article.locations"
-                v-bind:key="location.uid">
-                {{location.name}}
-                <item-selector :uid="location.uid" :item="location" type="location"/>,
-              </span>
-
-            </div>
-
-            <div v-if="article.persons.length" class="article-persons">
-              <span
-                v-for="person in article.persons"
-                v-bind:key="person.uid">
-                {{person.name}}
-                <item-selector :uid="person.uid" :item="person" type="person"/>,
-              </span>
-            </div>
-            <div class="collapased">
-
-              <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
-                <b-badge
-                  v-for="(collection, i) in article.collections"
-                  v-bind:key="`${article.article_uid}_col${i}`"
-                  variant="info"
-                  class="mt-1 mr-1">
-                    {{ collection.name }}
-                </b-badge>
-              </div>
-
-              <collection-add-to
-              class="mt-2"
-                v-bind:item="article"
-                v-bind:text="$t('add_to_collection')" />
-
-              <ul v-if="article.matches.length > 0" class="article-matches mb-1">
-                <li
-                  v-for="(match, i) in article.matches"
-                  v-bind:key="i"
-                  v-html="match.fragment"
-                  v-show="match.fragment.trim().length > 0" />
-              </ul> -->
-
-              <!-- <ul v-if="article.topics.length > 0" class="article-topics mb-1">
-                <li
-                  v-for="topic in article.topics"
-                  v-bind:key="topic.topicUid">
-                  {{topic.topicUid}} ({{topic.relevance}})
-                </li>
-              </ul> -->
-
-
-<!--
-            </div>
-
-            </a> -->
           </b-media>
         </div>
       </div>
@@ -168,6 +83,9 @@ export default {
   computed: {
     articleUid() {
       return this.article.uid;
+    },
+    currentPageNum() {
+      return this.page.num;
     },
   },
   components: {
@@ -257,66 +175,25 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 .toc{
+  margin-left: 1px;
   .article{
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $clr-bg-secondary;
+    }
+
     h2 {
       font-size: inherit;
     }
-    &.active {
-      background: white;
-      box-shadow: inset 6px 0px #56CCF2, inset 0px 1px 0px #343a4063;
+    &.activepage {
+      box-shadow: inset 1px 0 $clr-primary;
     }
     &.active {
-      background: white;
-      box-shadow: inset 6px 0px gold, inset 0px 1px 0px #343a4063;
-    }
-  }
-}
-
-.oTableOfContents{
-  .page{
-    font-size: smaller;
-
-    .article{
-      &.active{
-        // border-bottom: 1px solid #343a40 !important;
-        background: white;
-        box-shadow: inset 6px 0px #56CCF2, inset 0px 1px 0px #343a4063;
-
-        a{
-          // box-shadow: inset 1px 0px #343a40, 0px -1px #343a40, inset -1px 0px #343a40;
-          background: white; // #f8f9fa;
-          .collapased {
-            height: auto;
-            max-height: 1200px;
-            overflow: visible;
-            .collection-add-to {
-            }
-          }
-        }
-      }
-      a{
-        text-decoration: none;
-        display: block;
-        .collapased {
-          height: 0;
-          max-height: 0;
-          overflow: hidden;
-          transition: max-height 400ms ease-in-out;
-        }
-        .title{
-          font-weight: bold;
-        }
-        .excerpt{
-          color: $clr-secondary;
-        }
-        .images{
-          width:80px;
-          float:left;
-          .image{
-
-          }
-        }
-      }
+      box-shadow: inset .25em 0 $clr-accent-secondary;
+      background-color: $clr-bg-secondary;
+      cursor: inherit;
     }
   }
 }

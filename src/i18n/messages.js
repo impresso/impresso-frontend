@@ -3,7 +3,7 @@ export default {
     connectivityStatus: {
       offline: '⚡ offline!',
     },
-    untitled: '...',
+    untitled: '(untitled)',
     language: 'Language',
     languages: {
       de: 'German',
@@ -16,20 +16,37 @@ export default {
         ar: 'article',
         ob: 'obituary',
         tb: 'tables',
+        uc: 'unclassified content',
+        page: 'page article',
         death_notice: 'obituary (other)',
         weather: 'weather forecast',
         w: 'weather news (other)',
+        picture: 'picture',
       },
       language: {
         de: 'German',
         fr: 'French',
         en: 'English',
+        lb: 'Luxembourgish',
         'n/a': 'Undefined language',
         nl: 'Dutch',
+        undefined: 'Undefined language',
+      },
+      accessRight: {
+        na: 'not specified',
+        OpenPrivate: 'OpenPrivate',
+        Closed: 'Closed',
+        OpenPublic: 'OpenPublic',
       },
       country: {
         CH: 'Switzerland',
         LU: 'Luxembourg',
+      },
+      partner: {
+        SNL: 'Swiss National Library',
+        BNL: 'Luxembourg National Library',
+        NZZ: 'NZZ',
+        Migros: 'Migros',
       },
     },
     op: {
@@ -50,7 +67,8 @@ export default {
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
-      addToCurrentFilters: 'Add to current search filters',
+      addToCurrentFilters: 'Add as search filter',
+      removeFromCurrentFilters: 'Exclude from current search',
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
@@ -68,20 +86,25 @@ export default {
     groupBy: {
       images: 'images',
       articles: 'articles',
+      contents: 'contents',
     },
     browse: {
       images: 'Search in <span class="number">{count}</span> published images',
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
+      items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
+      images: 'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
       pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
       issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
       results: 'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
+      articlesMatching: 'no articles matching {q}| <span class="number">1</span> article matches {q} | <span class="number">{n}</span> articles found containing <span class="highlight">{q}</span>',
       resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
       collection: {
         countItems: '{countItems} saved items',
       },
+      of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -104,6 +127,9 @@ export default {
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
     errors: {
+      TypeError: 'TypeError:',
+      Timeout: 'Timeout:',
+      BadRequest: 'Bad request.',
       BadGateway: {
         SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
         SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
@@ -134,7 +160,7 @@ export default {
         title: 'Year | Year | Years',
       },
       type: {
-        title: 'Title | Title | Titles',
+        title: 'Article content type | Article content types | Article content types',
         filterTitle: 'filter by article type',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> article types applies',
@@ -201,6 +227,30 @@ export default {
         description: 'check one or more countries to filter results',
         empty: '(no results)',
       },
+      accessRight: {
+        title: 'Access right | Access right | Access Rights',
+        filterTitle: 'filter by access right',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if their access right is <b>one of {count} selected</b>',
+        description: 'filter results based on access right',
+        empty: '(no results)',
+        context: {
+          include: 'content available as',
+          exclude: 'content <b>NOT</b> avaiable as',
+        },
+      },
+      partner: {
+        title: 'Data Provider | Data Provider | Data Providers',
+        filterTitle: 'filter by archive',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they are published in <b>one of {count} selected</b> archives',
+        description: 'check one or more data provider to filter results',
+        empty: '(no results)',
+      },
+    },
+    tabs: {
+      overview: 'overview',
+      relatedArticles: '... related articles | 1 related article | {count} related articles',
     },
     sort: {
       name: {
@@ -236,6 +286,7 @@ export default {
       },
     },
     more_info: 'More Info',
+    currentSearch: 'current search',
   },
   nl: {
     language: 'Taal',

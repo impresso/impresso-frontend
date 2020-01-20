@@ -1,8 +1,8 @@
 <template lang="html">
-  <i-layout id="IssuePage">
-    <i-layout-section width="350px" class="border-right border-top mt-1px bg-light">
+  <i-layout id="IssuePage" ref="issuePage">
+    <i-layout-section width="350px">
       <div slot="header" class="border-bottom border-tertiary">
-        <b-tabs pills class="border-bottom mx-2 pt-2">
+        <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item class="pl-2"
               @click="switchTab('toc')"
@@ -16,19 +16,25 @@
         </b-tabs>
         <div class="py-2 px-3">
           <div v-if="issue" class="mb-2">
-            <div>{{ issue.newspaper.name }}</div>
-            <div class="small-caps">{{ $d(issue.date, 'long') }}</div>
-            <span class="small-caps" v-html="$t('stats', {
+            <span v-if="isTabSearch">
+              <span v-if="q.length" v-html="$tc('numbers.articlesMatching', matchesTotalRows, {
+                n: $n(matchesTotalRows),
+                q,
+              })"/>
+              <span v-else v-html="$tc('numbers.articles', matchesTotalRows)" />
+            </span>
+            <span v-else class="small-caps" v-html="$t('stats', {
               countPages: issue.countPages,
               countArticles: issue.countArticles,
             })"/>
-            <span v-if="isTabSearch">(no search)</span>
           </div>
           <div v-if="isTabSearch">
-            <search-pills
-              :excluded-types="['hasTextContents', 'isFront', 'issue']"
-              @remove="onRemoveFilter"
-            />
+            <p if="applyCurrentSearchFilters">
+              <search-pills
+                :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']"
+                @remove="onRemoveFilter"
+              />
+            </p>
             <b-input-group>
               <b-form-input
               placeholder="search for ..."
@@ -54,42 +60,102 @@
         flatten
         v-on:click="gotoArticle" />
 
-      <div v-if="isTabSearch">
-        <!--  Pagination v-if="matchesTotalRows > matchesPerPage" -->
-        <div
-           class="p-3">
-          <div
-            class=" mb-2 p-1">
-            <pagination
-              v-model="matchesCurrentPage"
-              v-bind:perPage="matchesPerPage"
-              v-bind:totalRows="matchesTotalRows"
-              v-bind:showDescription="false"
-               />
-          </div>
-        </div>
+      <div class="fixed-pagination-footer p-1 m-0 mb-2" v-if="isTabSearch">
+        <pagination
+          v-bind:currentPage="matchesCurrentPage"
+          v-bind:perPage="matchesPerPage"
+          v-bind:totalRows="matchesTotalRows"
+          v-bind:showDescription="false"
+          v-on:change="onInputPagination"
+           />
       </div>
     </i-layout-section>
     <!--  page openseadragon or article -->
-    <i-layout-section class="border-left border-top ml-1px mt-1px">
+    <i-layout-section main>
       <div slot="header" class="border-bottom">
-        <b-navbar type="light" variant="light" class="px-0 py-0">
-          <b-navbar-nav class="px-2 py-2 mx-auto">
-            <div>
-              <label class="mr-2">{{$t("label_display")}}</label>
-              <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="image"><icon name="image"/></b-form-radio>
-                <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/></b-form-radio>
-              </b-form-radio-group>
-              <small>
-                <info-button name="What-OCR" class="ml-1" />
-              </small>
-            </div>
+        <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+          <section class='p-2 pl-3'>
+            <h3 v-if="issue" class="m-0">{{ issue.newspaper.name }} &mdash;
+              <span class="date small">
+              {{ $d(issue.date, 'long') }}
+              </span>
+            </h3>
+          </section>
+          <b-navbar-nav v-if="issue" class=" border">
+            <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
+            <b-button variant="light" size="sm"
+              v-bind:disabled="currentPageIndex === 0"
+              v-on:click="gotoPageIndex(currentPageIndex - 1)">
+              <div class="dripicons dripicons-media-previous pt-1"></div>
+            </b-button>
+            <div v-if="page" class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
+            <b-button variant="light" size="sm"
+              v-bind:disabled="(currentPageIndex + 1) === issue.pages.length"
+              v-on:click="gotoPageIndex(currentPageIndex + 1)">
+              <div class="dripicons dripicons-media-next pt-1"></div>
+            </b-button>
           </b-navbar-nav>
         </b-navbar>
+        <b-navbar type="light" variant="light" class="px-0 py-0">
+          <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
+            <div v-if="article && article.type">
+              <span class="badge bg-accent-secondary text-clr-white">{{ $t(`buckets.type.${article.type}`) }}</span>
+              <span class="small">
+                <span>{{ $t(`buckets.language.${article.language}`) }}</span>
+                &nbsp;
+                <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
+                <span v-else>{{ $t('reducedReadingTime')}}</span>
+                <!-- &nbsp;
+                <span>{{ $t(`buckets.accessRight.${article.accessRight}`) }}</span>
+                 -->
+                &nbsp;
+                {{ articlePages }}
+              </span>
+            </div>
+          </b-navbar-nav>
+          <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
+            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="image">{{ $t('facsimileView') }}&nbsp;<icon name="image"/></b-form-radio>
+              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/>&nbsp;{{ $t('closeReadingView') }}</b-form-radio>
+            </b-form-radio-group>
+            <small>
+              <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
+            </small>
+          </b-navbar-nav>
+
+          <b-navbar-nav v-show="mode === 'image'" class="px-3 border-right">
+
+            <b-button
+              :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
+              @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
+              <div class="d-flex flex-row align-items-center">
+                <div class="d-flex dripicons dripicons-preview mr-2" />
+                <div v-if="showOutlines">{{$t('toggle_outlines_on')}}</div>
+                <div v-else>{{$t('toggle_outlines_off')}}</div>
+              </div>
+            </b-button>
+
+          </b-navbar-nav>
+          <b-navbar-nav>
+
+            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
+              <div class="d-flex flex-row align-items-center">
+                <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
+                <div v-if="isFullscreen">{{$t('toggle_fullscreen_on')}}</div>
+                <div v-else>{{$t('toggle_fullscreen_off')}}</div>
+              </div>
+            </b-button>
+
+          </b-navbar-nav>
+
+
+       </b-navbar>
       </div>
       <open-seadragon-viewer
-        class="bg-light"
+        :class="[
+          'bg-light',
+          showOutlines,
+        ]"
         v-show="mode === 'image'"
         v-bind:handler="handler" />
       <issue-viewer-text v-if="article && article.uid && mode === 'text'"
@@ -116,6 +182,8 @@ import 'vue-awesome/icons/align-left';
 import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 
+import ItemLabel from './modules/lists/ItemLabel';
+
 import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
@@ -130,19 +198,47 @@ export default {
     // issue: null,
     page: null,
     article: null,
+    applyCurrentSearchFilters: false,
     currentPageIndex: -1,
     pagesIndex: {},
     isTocLoaded: false,
     isSearchLoaded: false,
+    isMarginaliaLoaded: false,
+    isMarginaliaUpdated: false,
     isLoaded: false,
     isDragging: false,
     q: '',
+    isFullscreen: false,
     // matching articles
     matchesTotalRows: 0,
     matchesPerPage: 10,
     matchesCurrentPage: 1,
+    // marginalia
+    pageTopics: [],
+    pagePersons: [],
+    pageLocations: [],
+    //
     matches: [],
+    tocArticles: [],
   }),
+  mounted() {
+    window.addEventListener('keyup', (e) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault();
+          this.gotoPageIndex(this.currentPageIndex - 1);
+          break;
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault();
+          this.gotoPageIndex(this.currentPageIndex + 1);
+          break;
+        default:
+          break;
+      }
+    });
+  },
   computed: {
     issue() {
       return this.$store.state.issue.issue;
@@ -172,6 +268,14 @@ export default {
       });
       return results;
     },
+    articlePages() {
+      if (!this.article || !this.article.pages) {
+        return '';
+      }
+      return this.$tc('pp', this.article.nbPages, {
+        pages: this.article.pages.map(d => d.num).join(','),
+      });
+    },
     mode: {
       get() {
         // no article°uid? image without a doubt
@@ -180,6 +284,14 @@ export default {
       set(mode) {
         this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
         this.init();
+      },
+    },
+    showOutlines: {
+      get() {
+        return this.$store.state.issue.showOutlines;
+      },
+      set(showOutlines) {
+        this.$store.commit('issue/UPDATE_OUTLINES', showOutlines);
       },
     },
   },
@@ -209,12 +321,16 @@ export default {
           uid: pageUid,
         });
         this.currentPageIndex = this.issue.pages.findIndex(p => p.uid === this.page.uid);
+
         // we reset the handler here. Why?
         await this.resetHandler();
         // we dispatch the gotoPage to change page in openseadragon
         this.handler.$emit('dispatch', (viewer) => {
           viewer.goToPage(this.currentPageIndex);
         });
+        // force reload fo marginalia, page changed.
+        this.isMarginaliaLoaded = false;
+        this.isMarginaliaUpdated = false;
       }
       // if there's a specific article, let's load it
       if (this.mode === 'text') {
@@ -245,8 +361,20 @@ export default {
         await this.loadToC();
       }
 
+      // get article properties from toc
+      if (this.mode !== 'text' && this.article) {
+        const selectedArticle = this.tocArticles.find(d => d.uid === this.article.uid);
+        if (selectedArticle) {
+          this.article = selectedArticle;
+        }
+      }
+
       if (!this.isSearchLoaded) {
         await this.search();
+      }
+
+      if (!this.isMarginaliaLoaded) {
+        await this.loadMarginalia();
       }
       // are there any matches?
     },
@@ -262,9 +390,9 @@ export default {
       });
     },
     getSearchFilters() {
-      const filters = this.$store.getters['search/getSearch'].getFilters();
-      if (!filters.length) {
-        return [];
+      let filters = [];
+      if (this.applyCurrentSearchFilters) {
+        filters = this.$store.getters['search/getSearch'].getFilters();
       }
       if (this.q.length) {
         filters.push({
@@ -278,6 +406,23 @@ export default {
           q: this.issue.uid,
         },
       ]);
+    },
+    updateMarginalia() {
+      console.info('Update page marginalia');
+      const listMapper = () => d => `<li>${d.item.htmlExcerpt || d.item.name} (${d.count})</li>`;
+      const sectionFormatter = (items, type) => [
+        '<section><h4 class="small-caps border-bottom">',
+        this.$tc(`label.${type}.title`, items.length),
+        '</h4><ul>',
+        items.map(listMapper(type)).join(''),
+        '</ul></section>',
+      ].join('');
+      this.marginaliaLeft.innerHTML = sectionFormatter(this.pageTopics, 'topic');
+      this.marginaliaRight.innerHTML = [
+        sectionFormatter(this.pagePersons, 'person'),
+        sectionFormatter(this.pageLocations, 'location'),
+      ].join('');
+      this.isMarginaliaUpdated = true;
     },
     resetHandler() {
       const self = this;
@@ -319,15 +464,47 @@ export default {
           if (self.isLoaded) { // skip
             return;
           }
-          console.info('@tile-loaded', self.page.articles);
+          console.info('OS Viewer @tile-loaded, n. of articles:', self.page.articles.length);
           self.isLoaded = true;
+          // create or reset marginalia left
+          self.marginaliaLeft = window.document.createElement('div');
+          self.marginaliaLeft.setAttribute('class', 'marginalia left');
+          viewer.addOverlay(
+            self.marginaliaLeft,
+            viewer.viewport.imageToViewportRectangle(-4000, 0, 4000, 10000),
+          );
+          // create or reset marginalia right
+          self.marginaliaRight = window.document.createElement('div');
+          self.marginaliaRight.setAttribute('class', 'marginalia right');
+          viewer.addOverlay(
+            self.marginaliaRight,
+            viewer.viewport.imageToViewportRectangle(
+              viewer.world.getItemAt(0).getContentSize().x, 0,
+              4000, 10000,
+            ),
+          );
+          if (self.isMarginaliaLoaded) {
+            self.updateMarginalia();
+          }
+
           self.page.articles.forEach((article) => {
             // regions
+            // debugger;
             article.regions.forEach((region) => {
               const overlay = window.document.createElement('div');
 
               overlay.setAttribute('class', 'overlay-region');
               overlay.dataset.articleUid = article.uid;
+
+              // selected article regions
+              // if (article.uid === this.$route.params.article_uid) {
+              //   this.$router.push({
+              //     name: 'article',
+              //     params: {
+              //       article_uid: this.$route.params.article_uid,
+              //     },
+              //   });
+              // }
 
               overlay.addEventListener('mouseenter', (event) => {
                 const articleUid = event.target.dataset.articleUid;
@@ -381,7 +558,7 @@ export default {
               }
             });
           });
-          // this.selectArticle();
+          this.selectArticle();
         });
       });
     },
@@ -393,6 +570,14 @@ export default {
       console.info('...loading page', uid);
       return this.$store.dispatch('issue/LOAD_PAGE', uid);
     },
+    loadPageTopics({ uid }) {
+      console.info('...loading marginalia topics', uid);
+      return this.$store.dispatch('entities/LOAD_PAGE_TOPICS', uid);
+    },
+    loadPageEntities({ uid }) {
+      console.info('...loading marginalia named entities', uid);
+      return this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', uid);
+    },
     loadArticle({ uid }) {
       console.info('...loading article', uid);
       return this.$store.dispatch('issue/LOAD_ARTICLE', uid);
@@ -400,12 +585,32 @@ export default {
     loadToC() {
       console.info('...loading ToC', this.issue.uid);
       return this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS')
-        .then(() => {
+        .then((articles) => {
+          this.tocArticles = articles;
           this.isTocLoaded = true;
         });
     },
+    loadMarginalia() {
+      console.info('...loading marginalia:', this.page.uid);
+      return Promise.all([
+        this.loadPageTopics({ uid: this.page.uid }),
+        this.loadPageEntities({ uid: this.page.uid }),
+      ]).then(([topicFacet, [locationFacet, personFacet]]) => {
+        this.isMarginaliaLoaded = true;
+        this.pageTopics = topicFacet.buckets;
+        this.pageLocations = locationFacet.buckets;
+        this.pagePersons = personFacet.buckets;
+        if (this.isLoaded) {
+          this.updateMarginalia();
+        }
+      });
+    },
     onRemoveFilter(filter) {
       this.$store.commit('search/REMOVE_FILTER', filter);
+      this.search();
+    },
+    onInputPagination(page) {
+      this.matchesCurrentPage = page;
       this.search();
     },
     search() {
@@ -432,13 +637,19 @@ export default {
       const self = this;
       this.handler.$emit('dispatch', (viewer) => {
         viewer.overlaysContainer.querySelectorAll('div').forEach((overlay) => {
-          if (overlay.dataset.articleUid === self.article.uid) {
+          if (self.article && overlay.dataset.articleUid === self.article.uid) {
             overlay.classList.add('active');
           } else {
             overlay.classList.remove('active');
           }
         });
       });
+    },
+    gotoPageIndex(idx) {
+      const page = this.issue.pages[idx];
+      if (page) {
+        this.gotoPage(page);
+      }
     },
     gotoPage(page) {
       this.$router.push({
@@ -463,6 +674,18 @@ export default {
         },
       });
     },
+    toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        this.$refs.issuePage.$el.requestFullscreen().then(() => {
+          this.isFullscreen = true;
+        }).catch((err) => {
+          console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        this.isFullscreen = false;
+        document.exitFullscreen();
+      }
+    },
   },
   components: {
     OpenSeadragonViewer,
@@ -473,6 +696,7 @@ export default {
     SearchPills,
     Pagination,
     InfoButton,
+    ItemLabel,
   },
   watch: {
     $route: {
@@ -489,18 +713,33 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-// TODO: we have this classblock twice, also on SearchPage.vue
-// block is not scoped so these two interfere with eachother so they interfere
-// to be the exact same
-/// Maybe we can move this to bootpresso?
-div.overlay-region{
-  background: $clr-accent-secondary;
-  opacity: 0;
-
-  transition: opacity 300ms;
-  cursor: pointer;
-  &.selected, &.active{
-    opacity: 0.2;
+div.marginalia{
+  // background: $clr-accent;
+  // border: 2px solid black;
+  section {
+    max-width: 200px;
+    font-size: 80%;
+    color: #626e7a;
+  }
+  &.left {
+    padding-right: 1em;
+    text-align: right;
+  }
+  &.left section {
+    position: absolute;
+    right: 1em;
+  }
+  h4{
+    font-weight: bold;
+    padding-bottom: 1rem;
+  }
+  &.right {
+    padding-left: 1em;
+    text-align: left;
+  }
+  ul {
+    list-style: none;
+    padding: 0.5em 0;
   }
 }
 
@@ -508,9 +747,6 @@ div.overlay-region{
 @supports (mix-blend-mode: multiply) {
   div.overlay-region {
     mix-blend-mode: multiply;
-    &.selected, &.active{
-      opacity: 0.5;
-    }
   }
 }
 </style>
@@ -521,7 +757,13 @@ div.overlay-region{
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages",
     "label_display": "Display as",
     "table_of_contents": "table of contents",
-    "search_and_find": "search in issue"
+    "search_and_find": "search in issue",
+    "toggle_fullscreen_on": "Fullscreen: on",
+    "toggle_outlines_on": "outlines: on",
+    "toggle_fullscreen_off": "Fullscreen: off",
+    "toggle_outlines_off": "Outlines: off",
+    "facsimileView": "Facsimile view",
+    "closeReadingView": "close reading view"
   },
   "nl": {
     "label_display": "Toon als",

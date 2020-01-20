@@ -8,6 +8,7 @@ import store from '../store';
 export default {
   namespaced: true,
   state: {
+    showOutlines: false,
     viewerMode: 'text', // text or image
     pagesIndex: {},
     issue: null,
@@ -15,6 +16,9 @@ export default {
   mutations: {
     UPDATE_VIEWER_MODE(state, viewerMode) {
       state.viewerMode = viewerMode;
+    },
+    UPDATE_OUTLINES(state, showOutlines) {
+      state.showOutlines = showOutlines;
     },
     SET_ISSUE(state, issue) {
       state.issue = issue;
@@ -76,6 +80,19 @@ export default {
         return issue;
       });
     },
+    LOAD_ISSUES(context, {
+      page = 1,
+      orderBy = '-date',
+      limit,
+      filters = [],
+    } = {}) {
+      return services.issues.find({
+        query: { filters, page, limit, order_by: orderBy },
+      }).then(res => ({
+        ...res,
+        data: res.data.map(d => new Issue(d)),
+      }));
+    },
     LOAD_PAGE(context, uid) {
       return Promise.all([
         services.pages.get(uid, {}).catch((err) => {
@@ -114,10 +131,14 @@ export default {
             type: 'issue',
             q: state.issue.uid,
           }],
+          order_by: 'id',
+          limit: 500,
         },
-        order_by: 'id',
-        limit: 500,
-      }).then(({ data }) => data);
+      }).then(({ data }) => data).catch((err) => {
+        // forward to service
+        console.error(err);
+        return [];
+      });
 
       return Promise.all([tocPromise, imagesPromise]).then(([articles, images]) => {
         // articles are sorted by id
@@ -125,13 +146,13 @@ export default {
         // merge the table of images into the table of articles
         images.forEach((image) => {
           if (image.article) {
-            const idx = uids.indexOf(image.article.uid);
+            const idx = uids.indexOf(image.article.uid || image.article);
             if (idx !== -1) {
               articles[idx].images.push(new Article(image));
             }
           } else {
             // it will be inserted later in the right page
-            console.info('image added as article', image);
+            console.info('Image added as article, no article has been attached to it:', image);
             articles.push(new Article(image));
           }
         });

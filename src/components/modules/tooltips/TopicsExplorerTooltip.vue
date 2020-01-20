@@ -43,6 +43,7 @@ export default {
   },
   methods: {
     selectItem() {
+      this.tooltip.isActive = false;
       this.$store.dispatch('monitor/SET_ITEM', {
         item: this.tooltip.item,
         type: 'topic',

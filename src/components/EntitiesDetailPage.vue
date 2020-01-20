@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section v-if="entity" class="border-left border-top ml-1px mt-1px">
+  <i-layout-section v-if="entity" main>
     <div slot="header" class="border-bottom bg-light">
       <b-navbar type="light" variant="light">
         <section>
@@ -410,7 +410,6 @@ a:hover {
       "l": "low"
     },
     "tabs": {
-        "overview": "overview",
         "mentions": "... mentions | mentioned only once | mentioned {count} times",
         "cooccurrences": "Cooccurrences",
         "articles": "... related articles | 1 related article | {count} related articles"

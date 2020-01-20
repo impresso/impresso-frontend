@@ -1,8 +1,8 @@
 <template>
 <i-layout id="SearchPage">
-  <i-layout-section width="400px" class="border-right border-top mt-1px">
+  <i-layout-section width="400px">
     <!--  header -->
-    <div slot="header" class="border-bottom border-tertiary bg-light">
+    <div slot="header" class="border-bottom">
       <search-tabs />
       <div class="py-3 px-3">
         <search-pills
@@ -36,7 +36,7 @@
       </b-button-group>
     </div> -->
   </i-layout-section>
-  <i-layout-section class="border-left border-top ml-1px mt-1px">
+  <i-layout-section main>
     <div slot="header">
       <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
         <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
@@ -79,7 +79,7 @@
             <search-result-summary
               @onSummary="onSummary"
               :group-by="groupBy"
-              :queryComponents="queryComponents"
+              :search-query="searchQuery"
               :totalRows="paginationTotalRows" />
           </ellipsis>
         </b-navbar-nav>
@@ -340,6 +340,12 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    currentSearchHash() {
+      return this.$store.state.search.currentSearchHash;
+    },
+    searchQuery() {
+      return this.$store.state.search.search;
+    },
     filtersIndex: {
       get() {
         return this.$store.state.search.search.filtersIndex;
@@ -365,44 +371,37 @@ export default {
     },
     toggleBooleanFilter(filter, value = true) {
       if (!value) {
-        this.$store.commit('search/REMOVE_FILTER', filter);
+        this.$store.dispatch('search/REMOVE_FILTER', { filter });
       } else {
-        this.$store.commit('search/ADD_FILTER', filter);
+        this.$store.dispatch('search/ADD_FILTER', { filter });
       }
-      this.search(1);
     },
     onSummary(msg) {
       this.inputDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
     },
-    onSuggestion(suggestion) {
-      this.$store.commit('search/ADD_FILTER', suggestion);
-      this.search(1);
+    onSuggestion(filter) {
+      this.$store.dispatch('search/ADD_FILTER', { filter });
     },
-    onFacet(facet) {
-      console.info('@onFacet', facet);
-      this.$store.commit('search/ADD_FILTER', facet);
-      this.search(1);
+    onFacet(filter) {
+      console.info('@onFacet', filter);
+      this.$store.dispatch('search/ADD_FILTER', { filter });
     },
     onResetFilter(type) {
-      this.$store.commit('search/RESET_FILTER', type);
-      this.search(1);
+      this.$store.dispatch('search/RESET_FILTER', { type });
     },
     onUpdateFilter(filter) {
-      this.$store.commit('search/UPDATE_FILTER', filter);
-      this.search(1);
+      this.$store.dispatch('search/UPDATE_FILTER', { filter });
     },
     onInputPagination(page = 1) {
       this.search(page);
     },
     onRemoveFilter(filter) {
-      this.$store.commit('search/REMOVE_FILTER', filter);
-      this.search(1);
+      this.$store.dispatch('search/REMOVE_FILTER', { filter });
     },
     onAddFilter(filter) {
-      this.$store.commit('search/ADD_FILTER', filter);
-      this.search(1);
+      this.$store.dispatch('search/ADD_FILTER', { filter });
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -538,6 +537,15 @@ export default {
     selectedItems() {
       this.updateselectAll();
     },
+    currentSearchHash: {
+      handler(val) {
+        if (val.length) {
+          console.info('@currentSearchHash changed', val);
+          this.search();
+        }
+      },
+      immediate: false,
+    },
     '$route.query': {
       handler(val) {
         console.info('@$route.query changed', val);
@@ -563,16 +571,9 @@ export default {
     InfoButton,
   },
   mounted() {
-    if (this.uuid !== undefined) {
-      this.$store.commit('search/LOAD_SEARCH', this.uuid);
-    }
-    // this.search();
-  },
-  beforeDestroy() {
-    // TODO: need to use the url to reflect the search, this way we can use back
-    // button and keep the search AND go to home and start a new search
-    // if(nextpage !=== "issue || article"){
-    //     this.$store.commit('search/CLEAR');
+    console.info('changed');
+    // if (this.uuid !== undefined) {
+    //   this.$store.commit('search/LOAD_SEARCH', this.uuid);
     // }
   },
 };
@@ -592,25 +593,6 @@ export default {
     .custom-control-label::before {
       position: inherit;
     }
-}
-
-// TODO: we have this classblock twice, also on IssuePage.vue
-// block is not scoped so these two interfere with eachother so they interfere
-// to be the exact same
-/// Maybe we can move this to bootpresso?
-div.overlay-region{
-  background: $clr-accent-secondary;
-  opacity: 0;
-  transition: opacity 300ms;
-  &.selected{
-    opacity: 0.25;
-  }
-}
-
-.overlay-match{
-  background: $clr-accent;
-  outline: 2px solid $clr-accent;
-  opacity: 0.5;
 }
 
 .navigator{

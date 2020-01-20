@@ -26,7 +26,7 @@ app.configure(auth({
 
 socket.on('reconnect', () => {
   app.reAuthenticate();
-  if (window.app) {
+  if (window.app && window.app.$store) {
     window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', true);
   }
 }); // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
@@ -35,10 +35,7 @@ socket.on('connect_error', (err) => {
   if (window.app && window.app.$store) {
     err.message = `Could not connect to the API: ${err.message}`;
     console.error(err);
-    if (window.app) {
-      console.info('DISPLAY_CONNECTIVITY_STATUS');
-      window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false);
-    }
+    window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false);
   }
 });
 
@@ -53,7 +50,7 @@ app.hooks({
         const route = `${context.path}.${context.method}`;
         if (window.app && window.app.$store) {
           window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'LOADING' });
-          if (needsLockScreen(route)) {
+          if (needsLockScreen(route) && context.params.lock !== false) {
             window.app.$store.commit('LOCK_SCREEN', true);
           }
         }
@@ -104,15 +101,18 @@ app.service('logs').on('created', (payload) => {
     if (payload.collection) {
       extra.collection = payload.collection;
     }
-    window.app.$store.dispatch('jobs/UPDATE_JOB', {
-      ...payload.job,
-      progress: payload.progress,
-      extra,
-    });
+    if (window.app && window.app.$store) {
+      window.app.$store.dispatch('jobs/UPDATE_JOB', {
+        ...payload.job,
+        progress: payload.progress,
+        extra,
+      });
+    }
   }
 });
 
 // repeat this line for every service in our backend
+export const version = app.service('version');
 export const suggestions = app.service('suggestions');
 export const articles = app.service('articles');
 export const images = app.service('images').hooks(imagesHooks);

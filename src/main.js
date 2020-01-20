@@ -7,6 +7,7 @@ import VueI18n from 'vue-i18n';
 import Helpers from '@/plugins/Helpers';
 import ImpressoLayout from '@/plugins/Layout';
 import TawkTo from '@/plugins/TawkTo';
+import EventBus from '@/plugins/EventBus';
 
 import * as services from '@/services';
 
@@ -24,6 +25,7 @@ Vue.use(BootstrapVue);
 Vue.use(VueI18n);
 // custom created plugins
 Vue.use(Helpers);
+Vue.use(EventBus);
 Vue.use(ImpressoLayout);
 Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
 
@@ -68,15 +70,20 @@ services.app.reAuthenticate().catch((err) => {
     console.error(err);
   }
 }).finally(() => {
-  window.app = new Vue({
-    el: '#app',
-    i18n,
-    router,
-    store,
-    template: '<App/>',
-    components: {
-      App,
-    },
+  services.version.find().then((res) => {
+    console.info(`Version services:${res.version}, data:${res.solr.dataVersion}`);
+    window.impressoVersion = res.version;
+    window.impressoDataVersion = res.solr.dataVersion;
+    window.app = new Vue({
+      el: '#app',
+      i18n,
+      router,
+      store,
+      template: '<App/>',
+      components: {
+        App,
+      },
+    });
   });
 });
 

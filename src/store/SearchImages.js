@@ -1,5 +1,5 @@
 import * as services from '@/services';
-import Article from '@/models/Article';
+import Image from '@/models/Image';
 import QueryComponent from '@/models/QueryComponent';
 import SearchQuery from '@/models/SearchQuery';
 // import Collection from '@/models/Collection';
@@ -32,6 +32,7 @@ export default {
     filterFacetYearExpanded: false,
     similarTo: false,
     similarToUploaded: false,
+    applyRandomPage: true,
   },
   getters: {
     getSearches(state) {
@@ -46,11 +47,11 @@ export default {
     },
     results(state) {
       return state.results.map((result) => {
-        if (result instanceof Article) {
+        if (result instanceof Image) {
           return result;
         }
 
-        return new Article(result);
+        return new Image(result);
       });
     },
     facets(state) {
@@ -163,27 +164,33 @@ export default {
     // UPDATE_FILTER_HAS_TEXT_CONTENTS(state, value) {
     //   state.search.hasTextContents = value;
     // },
+    SET_RANDOM_PAGE(state, value) {
+      state.applyRandomPage = Boolean(value);
+    },
   },
   actions: {
     /**
      * Print search params to current URL
      * @param {[type]} context [description]
      */
-    PUSH_SEARCH_PARAMS(context) {
+    PUSH_SEARCH_PARAMS({ state }) {
       const query = {
-        p: context.state.paginationCurrentPage,
-        o: context.state.orderBy,
+        o: state.orderBy,
+        p: state.paginationCurrentPage,
       };
-      const filters = context.state.search.getFilters();
+      if (state.applyRandomPage) {
+        query.random = (new Date()).toUTCString();
+      }
+      const filters = state.search.getFilters();
 
       if (filters.length) {
         query.f = JSON.stringify(filters);
       }
 
-      if (context.state.similarToUploaded) {
-        query.u = context.state.similarToUploaded;
-      } else if (context.state.similarTo) {
-        query.i = context.state.similarTo;
+      if (state.similarToUploaded) {
+        query.u = state.similarToUploaded;
+      } else if (state.similarTo) {
+        query.i = state.similarTo;
       }
       // check if query has changed.
       // if (router.currentRoute.name === 'searchImages' && JSON.stringify(router.currentRoute.query) === JSON.stringify(query)) {
@@ -201,6 +208,7 @@ export default {
       if (query.p && !isNaN(query.p)) {
         context.commit('UPDATE_PAGINATION_CURRENT_PAGE', parseInt(query.p, 10));
       }
+      context.commit('SET_RANDOM_PAGE', Boolean(query.random));
       if (query.u) {
         context.commit('UPDATE_SIMILAR_TO_UPLOADED', query.u);
       } else if (query.i) {
@@ -212,6 +220,7 @@ export default {
       } catch (err) {
         console.info(err);
       }
+      console.info('SearchImages/PULL_SEARCH_PARAMS', query);
       context.dispatch('SEARCH');
     },
     ADD_OR_REPLACE_FILTER(context, filter) {
@@ -244,6 +253,12 @@ export default {
     UPDATE_FILTER({ commit }, message) {
       commit('UPDATE_FILTER', message);
     },
+    SET_RANDOM_PAGE({ commit }, value) {
+      commit('SET_RANDOM_PAGE', value);
+    },
+    UPDATE_PAGINATION_CURRENT_PAGE({ commit }, page) {
+      commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
+    },
     SEARCH({ state, commit, getters }, { filters = [] } = {}) {
       const query = {
         filters: getters.getSearch.getFilters().concat(filters),
@@ -254,14 +269,16 @@ export default {
         order_by: state.orderBy,
         similarTo: state.similarTo,
         similarToUploaded: state.similarToUploaded,
+        randomPage: state.applyRandomPage ? 'true' : 'false',
       };
       return services.images.find({
         query,
       }).then((res) => {
-        commit('UPDATE_RESULTS', res.data.map(result => new Article(result)));
+        commit('UPDATE_RESULTS', res.data.map(result => new Image(result)));
         commit('UPDATE_PAGINATION_TOTAL_ROWS', {
           paginationTotalRows: res.total,
         });
+        commit('UPDATE_PAGINATION_CURRENT_PAGE', Math.round(res.skip / res.limit) + 1);
         commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
         // update facets
         if (res.total) {

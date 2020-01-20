@@ -1,10 +1,8 @@
 <template lang="html">
-  <div id="IssueViewerText" class="container-fluid py-3 bg-light">
-    <i-layout>
-      <i-layout-section>
+  <div id="IssueViewerText" class="px-3 bg-light">
         <i-spinner v-if="!article" class="text-center p-5" />
         <div v-if="article">
-          <article-item :item="article" show-entities show-excerpt show-meta show-topics/>
+          <article-item :item="article" show-entities show-excerpt show-topics/>
           <div class="my-2" />
           <collection-add-to :item="article" :text="$t('add_to_collection')" />
           <b-badge
@@ -27,8 +25,13 @@
           </div>
           <b-container fluid
             v-else
-            class="region-row mt-3 mb-3 bg-white">
-            <b-row v-for="(region, i) in article.regions" v-bind:key="i">
+            class="region-row mt-3 mb-3">
+            <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
+              <div v-if="article.isCC" class="col col-sm-5 bg-white border">
+                <div class="py-3">
+                  <img v-bind:src="region.iiifFragment" style="width: 100%" />
+                </div>
+              </div>
               <div
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
@@ -37,11 +40,6 @@
                   <p v-for="contents in region.g" >
                     <span v-html="contents"></span>
                   </p>
-                </div>
-              </div>
-              <div v-if="article.isCC" class="col col-sm-5 bg-white">
-                <div >
-                  <img v-bind:src="region.iiifFragment" style="width: 100%" />
                 </div>
               </div>
             </b-row>
@@ -66,8 +64,6 @@
             </b-col>
           </b-row>
         </b-container>
-      </i-layout-section>
-    </i-layout>
   </div>
 </template>
 
@@ -154,6 +150,13 @@ export default {
   overflow: none;
   height: 100%;
 
+  article h2{
+    font-size: 3.5rem;
+  }
+
+  article .article-excerpt{
+    font-size: inherit;
+  }
 
   span.location,
   span.person{
@@ -200,7 +203,7 @@ export default {
 <i18n>
 {
   "en": {
-    "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"image mode\"",
+    "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",
     "page": "pag. {num}",
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ..."

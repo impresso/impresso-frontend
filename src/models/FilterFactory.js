@@ -46,7 +46,7 @@ export default {
       filter = new FilterEntity(filterData);
     }
 
-    if (['country', 'type', 'language', 'issue', 'year'].includes(filterData.type)) {
+    if (['country', 'type', 'language', 'issue', 'year', 'accessRight', 'partner'].includes(filterData.type)) {
       filter = new FilterItem(filterData);
     }
 

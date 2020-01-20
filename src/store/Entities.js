@@ -3,6 +3,7 @@ import Entity from '@/models/Entity';
 import Article from '@/models/Article';
 import Mention from '@/models/Mention';
 import Helpers from '@/plugins/Helpers';
+import Facet from '@/models/Facet';
 
 export default {
   namespaced: true,
@@ -122,6 +123,33 @@ export default {
       return services.searchFacets.get('year', {
         query,
       }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
+    },
+    LOAD_PAGE_TOPICS(context, pageId) {
+      const query = {
+        filters: [{
+          type: 'page',
+          q: pageId,
+        }],
+        group_by: 'articles',
+      };
+      return services.searchFacets.get('topic', {
+        query,
+      }).then(([topic]) => new Facet(topic));
+    },
+    LOAD_PAGE_ENTITIES(context, pageId) {
+      const query = {
+        filters: [{
+          type: 'page',
+          q: pageId,
+        }],
+        group_by: 'articles',
+      };
+      return services.searchFacets.get('location,person', {
+        query,
+      }).then(([location, person]) => [
+        new Facet(location),
+        new Facet(person),
+      ]);
     },
   },
 };

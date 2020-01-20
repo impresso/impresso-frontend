@@ -3,6 +3,8 @@ import Helpers from '@/plugins/Helpers';
 import Entity from '@/models/Entity';
 import Topic from '@/models/Topic';
 
+const DEFAULT_SEARCH_NAMESPACE = 'search';
+
 const serviceByType = {
   person: 'entities',
   location: 'entities',
@@ -28,12 +30,20 @@ export default {
     type: null,
     itemCountRelated: -1,
     uid: '',
+    searchQueryId: '',
+    searchQueryNamespace: DEFAULT_SEARCH_NAMESPACE,
     timeline: [],
     groupBy: 'articles',
   },
   getters: {
-    getCurrentSearchFilters(state, getters, rootState, rootGetter) {
-      return rootGetter['search/getSearch'].getFilters();
+    getCurrentSearchQuery(state, getters, rootState, rootGetter) {
+      if (state.searchQueryId.length) {
+        return rootGetter[`${state.searchQueryNamespace}/getSearchQuery`](state.searchQueryId);
+      }
+      return rootGetter[`${state.searchQueryNamespace}/getSearch`];
+    },
+    getCurrentSearchFilters(state, getters) {
+      return getters.getCurrentSearchQuery.getFilters();
     },
   },
   mutations: {
@@ -78,8 +88,28 @@ export default {
     SET_ITEM_TYPE(state, type) {
       state.type = type;
     },
+    SET_SEARCH_QUERY_ID(state, searchQueryId = '') {
+      if (searchQueryId.length) {
+        const parts = searchQueryId.split('/');
+        state.searchQueryId = parts.length > 1 ? parts[1] : searchQueryId;
+        state.searchQueryNamespace = parts.length > 1 ? parts[0] : DEFAULT_SEARCH_NAMESPACE;
+      } else {
+        state.searchQueryId = '';
+        state.searchQueryNamespace = DEFAULT_SEARCH_NAMESPACE;
+      }
+      console.info('Monitor/SET_SEARCH_QUERY_ID', searchQueryId);
+    },
   },
   actions: {
+    FORWARD_FILTER_TO_CURRENT_SEARCH({ getters }, filter) {
+      getters.getCurrentSearchQuery.addFilter(filter);
+      // dispatch(`${state.searchQueryNamespace}/ADD_FILTER`, {
+      //   searchQueryId: state.searchQueryId,
+      //   filter,
+      // }, {
+      //   root: true,
+      // });
+    },
     SET_IS_ACTIVE({ commit }, value) {
       commit('SET_IS_ACTIVE', value);
     },
@@ -100,6 +130,7 @@ export default {
       }
       // fetch article timeline related to the given type
       return services.search.find({
+        lock: false,
         query: {
           group_by: state.groupBy,
           filters,
@@ -109,13 +140,16 @@ export default {
         limit: 0,
       }).then((res) => {
         commit('SET_ITEM_COUNT_RELATED', res.total);
-        commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
+        if (res.info.facets && res.info.facets.year) {
+          commit('SET_ITEM_TIMELINE', Helpers.timeline.fromBuckets(res.info.facets.year.buckets));
+        }
       });
     },
-    SET_ITEM({ commit, dispatch }, { item, type }) { // }, position }) {
+    SET_ITEM({ commit, dispatch }, { item, type, searchQueryId }) { // }, position }) {
       commit('SET_IS_ACTIVE', true);
       commit('SET_PENDING_ITEM', item);
       commit('SET_ITEM_TYPE', type);
+      commit('SET_SEARCH_QUERY_ID', searchQueryId);
       // add item resolution promise to the promise chain
       if (serviceByType[type]) {
         return Promise.all([

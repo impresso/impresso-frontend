@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section class="border-left border-top ml-1px mt-1px">
+  <i-layout-section class="topics-explorer-page" main>
     <div slot="header">
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
@@ -21,7 +21,7 @@
           </li>
         </b-navbar-nav>
         <b-navbar-nav class="px-2 pt-2 pb-1  border-right">
-          <li ><label >{{ $t('connected if') }}</label>
+          <li ><label >{{ $t('connected') }}</label>
             <i-dropdown v-model="linkBy" v-bind:options="linkByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
@@ -405,6 +405,8 @@ export default {
     "color by": "colored by",
     "topic model": "{item.name}",
     "countItems": "number of articles",
+    "byCommonWords": "share at least one word",
+    "byCommonArticles": "share at least one article",
     "zoom": "zoom &amp; pan"
   }
 }

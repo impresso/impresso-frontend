@@ -7,7 +7,8 @@ export default {
   namespaced: true,
   actions: {
     LOAD_ARTICLE(context, uid) {
-      return articles.get(uid).then(d => new Article(d));
+      return articles.get(uid)
+        .then(d => new Article(d));
     },
   },
 };

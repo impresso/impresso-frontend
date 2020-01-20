@@ -1,4 +1,6 @@
+import { protobuf } from 'impresso-jscommons';
 import FilterFactory from '@/models/FilterFactory';
+
 
 /**
  * @class SearchQuery is an object representing Search Query we can send to the api
@@ -28,7 +30,11 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
-  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy } = {}) {
+  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy } = {}, serializer = 'json') {
+    if (serializer === 'protobuf') {
+      return protobuf.searchQuery.serialize({ filters });
+    }
+
     const query = {
       f: JSON.stringify(filters),
       g: groupBy,
@@ -42,6 +48,14 @@ export default class SearchQuery {
       query.o = orderBy;
     }
     return query;
+  }
+
+  getSerialized({
+    serializer = 'json',
+  } = {}) {
+    return SearchQuery.serialize({
+      filters: this.getFilters(),
+    }, serializer);
   }
 
   getFilter(filter) {
@@ -59,16 +73,47 @@ export default class SearchQuery {
   addFilter(filter) {
     const filterized = filterize(filter);
     const hash = filterized.getHash();
-    // check if the has exists.
+    // check if the filter do not exists.
     if (this.filtersIds.indexOf(hash) === -1) {
-      this.filtersIds.push(hash);
-      this.filters.push(filterized);
-      // add to filter index dictionary (by filter type), create the index
-      // if it does not exist
-      if (!Array.isArray(this.filtersIndex[filterized.type])) {
-        this.filtersIndex[filterized.type] = [];
+      // if it does not exist, check if a filter with the same type and context exists.
+      const similarFilterIdx = this.filters.findIndex(d => d.context === filterized.context && d.type === filterized.type);
+
+      if (!Array.isArray(filterized.items) || similarFilterIdx === -1) {
+        this.filtersIds.push(hash);
+        this.filters.push(filterized);
+        // add to filter index dictionary (by filter type), create the index
+        // if it does not exist
+        if (!Array.isArray(this.filtersIndex[filterized.type])) {
+          this.filtersIndex[filterized.type] = [];
+        }
+        this.filtersIndex[filterized.type].push(filterized);
+        // const oppositeFilterIdx = this.filters.findIndex(d => d.type && d.context != d.context);
+      } else {
+        console.info('addFilter(): similar filter exists, merge.');
+        // merge filter
+        this.mergeFilterAtIndex(filterized, similarFilterIdx);
       }
-      this.filtersIndex[filterized.type].push(filterized);
+    }
+  }
+
+  mergeFilterAtIndex(filter, idx) {
+    if (filter.items) {
+      const uids = [];
+      const items = [];
+      // combine the two lists of items;
+      this.filters[idx].items.concat(filter.items).forEach((d) => {
+        if (!uids.includes(d.uid)) {
+          uids.push(d.uid);
+          items.push(d);
+        }
+      });
+      this.filters[idx].setItems(items);
+      this.filters[idx].q = uids;
+      // recalculate hash and reset at filtersIds index:
+      this.filtersIds[idx] = this.filters[idx].getHash();
+      console.info('mergeFilterAtIndex(): Filters merged correctly.');
+    } else {
+      console.warn('cannot use mergeFilterAtIndex without items');
     }
   }
 
@@ -170,5 +215,30 @@ export default class SearchQuery {
       filters = filters.filter(i => exclude.includes(i.type) === false);
     }
     return filters;
+  }
+  /**
+   * Similar to getFilters, without mapping. Return the number of active filters
+   * @param  {options}  [{ ignoreTypes=['hasTextContents'] } = {}]
+   * @return {number}
+   */
+  countActiveFilters({ ignoreTypes = ['hasTextContents'] } = {}) {
+    return this.filters.filter(d => !ignoreTypes.includes(d.type)).length;
+  }
+
+  countActiveItems({ ignoreTypes = ['hasTextContents'] } = {}) {
+    return this.filters.filter(d => !ignoreTypes.includes(d.type)).reduce((acc, d) => {
+      if (d.items) {
+        return acc + d.items.length;
+      }
+      return acc + 1;
+    }, 0);
+  }
+  /**
+   * get list of current types, minus default ones
+   * @param  {Array}  [ignoreTypes=['hasTextContents'] } = {}] available options
+   * @return {Array}  list of active filter types
+   */
+  getTypes({ ignoreTypes = ['hasTextContents'] } = {}) {
+    return Object.keys(this.filtersIndex).filter(d => !ignoreTypes.includes(d));
   }
 }

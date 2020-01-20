@@ -136,14 +136,6 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 .tile {
-  div.overlay-region{
-    background: $clr-accent-secondary;
-    opacity: 0.25;
-  }
-  &:hover {
-    transition: 0.2s;
-    border-color: black !important;
-  }
   .titleblock {
     display:block;
     &:hover {

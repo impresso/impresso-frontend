@@ -73,20 +73,22 @@ export default class Line extends Basic {
     if (datum) {
       const { index, nearest } = this.dimensions.x
         .getNearestValue(datum[this.dimensions.x.property]);
-      const pointerX = this.dimensions.x.scale(nearest);
-      const pointerY = this.dimensions.y.scale(this.data[index][this.dimensions.y.property]);
+      if (nearest) {
+        const pointerX = this.dimensions.x.scale(nearest);
+        const pointerY = this.dimensions.y.scale(this.data[index][this.dimensions.y.property]);
 
-      this.contextPointer
-        .classed('active', true)
-        .attr('transform', `translate(${pointerX},${pointerY})`);
+        this.contextPointer
+          .classed('active', true)
+          .attr('transform', `translate(${pointerX},${pointerY})`);
 
-      this.emit('highlighted', {
-        pointer: {
-          x: pointerX,
-          y: pointerY,
-        },
-        datum: this.data[index],
-      });
+        this.emit('highlighted', {
+          pointer: {
+            x: pointerX,
+            y: pointerY,
+          },
+          datum: this.data[index],
+        });
+      }
     }
   }
 

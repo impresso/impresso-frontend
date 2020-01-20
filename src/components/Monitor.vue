@@ -1,11 +1,12 @@
 <template lang="html">
-  <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop :class="{'invisible': isDragging}"
+  <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop>
+  <!-- <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop :class="{'invisible': isDragging}"
   draggable="true"
   v-on:dragstart="dragstart($event)"
   v-on:dragend="dragend($event)"
   v-bind:style="transformStyle"
-  >
-    <div class="d-flex my-2 align-items-center border-bottom">
+  > -->
+    <div class="d-flex my-2 align-items-center">
       <b-tabs pills class="px-2" style="flex-grow:1">
         <template v-slot:tabs-end>
           <b-nav-item v-for="t in tabs" :key="t" v-on:click="switchTab(t)" :class="{'active': t === tab}">
@@ -14,14 +15,13 @@
         </template>
       </b-tabs>
       <div class="pr-3">
-        <span class="dripicons-move mr-2"/>
         <span class="dripicons-cross" v-on:click="fadeOut"/>
       </div>
     </div>
 
-    <div v-if="tab === 'currentSearch'" class="pt-2">
+    <!-- <div v-if="tab === 'currentSearch'" class="pt-2">
       <search-pills />
-    </div>
+    </div> -->
     <div v-if="tab === 'selectedItem'" class="pt-2">
       <div v-if="isItemSelected">
         <div class="mx-2">
@@ -49,16 +49,27 @@
             </timeline>
 
           </div>
+          <!-- {{ path }}
+          {{ searchQueryId }}
+          {{ searchQueryFilters }} -->
           <b-form-group class="mx-3">
-            <b-form-checkbox v-model="applyCurrentSearchFilters" v-bind:value="true">
-              {{ $t('labels.applyCurrentSearchFilters') }} <br/> <span v-html="statsLabel"/>
+
+            <b-form-checkbox v-model="applyCurrentSearchFilters">
+              {{ $t('labels.applyCurrentSearchFilters') }}
             </b-form-checkbox>
           </b-form-group>
+          <p class="px-2">
+          <ellipsis  v-bind:initialHeight="70">
+            <span v-html="statsLabel"/>
+            <search-query-summary v-if="applyCurrentSearchFilters" class="pl-2 border-left border-tertiary" :search-query='searchQuery' />
+          </ellipsis>
+        </p>
         </div>
         <div v-if="monitor.isPending" v-html="$t('loading')" />
         <div v-else >
           <div class="text-center m-2">
-            <b-button size="sm" variant="outline-primary" @click="applyFilter">{{ $t('actions.addToCurrentFilters') }}</b-button>
+            <b-button size="sm" variant="outline-primary" @click="applyFilter('include')">{{ $t('actions.addToCurrentFilters') }}</b-button>
+            <b-button size="sm" variant="outline-primary" @click="applyFilter('exclude')">{{ $t('actions.removeFromCurrentFilters') }}</b-button>
           </div>
 
           <!-- detailed label -->
@@ -86,17 +97,31 @@
 
 <script>
 import SearchPills from './SearchPills';
+import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
 import WikidataBlock from './modules/WikidataBlock';
 import ItemLabel from './modules/lists/ItemLabel';
-
+import SearchQuerySummary from './modules/SearchQuerySummary';
+/**
+ * Display info about the current selected item.
+ * Trigger from inside a component:
+       ```
+       this.$store.dispatch('monitor/SET_ITEM', {
+         searchQueryId: '',
+         item: {},
+         type: this.type,
+       });
+       ```
+    If searchQueryId is null, filters are loaded from the current searchQuery object.
+  * Cfr src/components/modules/ItemSelector.vue
+  */
 
 export default {
   data: () => ({
     isDragging: false,
     position: {},
     transformStyle: {},
-    tabs: ['selectedItem', 'currentSearch'],
+    tabs: ['selectedItem'], // 'currentSearch'],
     tab: 'selectedItem',
   }),
   methods: {
@@ -118,13 +143,19 @@ export default {
     fadeOut() {
       return this.$store.dispatch('monitor/SET_IS_ACTIVE', false);
     },
-    applyFilter() {
-      return this.$store.dispatch('search/ADD_FILTER_TO_CURRENT_SEARCH', {
-        type: this.type,
-        q: [this.item.uid],
-        items: [this.item],
-        checked: true,
+    applyFilter(context = 'include') {
+      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
+      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
+        searchQueryId: this.searchQueryId,
+        filter: {
+          type: this.type,
+          q: [this.item.uid],
+          items: [this.item],
+          context,
+          checked: true,
+        },
       });
+      // this.fadeOut();
     },
   },
   computed: {
@@ -148,6 +179,15 @@ export default {
         this.$store.state.monitor.timeline[0].t,
         this.$store.state.monitor.timeline[this.$store.state.monitor.timeline.length - 1].t,
       ];
+    },
+    searchQuery() {
+      return this.$store.getters['monitor/getCurrentSearchQuery'];
+    },
+    searchQueryFilters() {
+      return this.$store.getters['monitor/getCurrentSearchFilters'];
+    },
+    searchQueryId() {
+      return this.$store.state.monitor.searchQueryId;
     },
     isItemSelected() {
       return !!this.$store.state.monitor.item;
@@ -180,11 +220,17 @@ export default {
       }
       return null;
     },
+    path() {
+      return this.$route.name;
+    },
     statsLabel() {
+      let key = 'itemStats';
       if (!this.itemTimelineDomain.length) {
-        return this.$t('itemStatsEmpty');
+        key = 'itemStatsEmpty';
+      } else if (this.applyCurrentSearchFilters && this.searchQueryFilters.length > 1) {
+        key = 'itemStatsFiltered';
       }
-      return this.$t('itemStats', {
+      return this.$t(key, {
         count: this.$n(this.monitor.itemCountRelated),
         from: this.itemTimelineDomain[0],
         to: this.itemTimelineDomain[1],
@@ -205,6 +251,8 @@ export default {
     Timeline,
     WikidataBlock,
     ItemLabel,
+    SearchQuerySummary,
+    Ellipsis,
   },
   // - removed: added "x" close button in component
   // mounted() {
@@ -214,7 +262,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   .monitor {
     border: 1px solid #343a40;
     position: absolute;
@@ -238,10 +286,11 @@ export default {
         "selectedItem": "current selection"
       },
       "labels": {
-        "applyCurrentSearchFilters": "apply current search filters"
+        "applyCurrentSearchFilters": "filter by current search query"
       },
       "itemStatsEmpty": "No results apparently",
-      "itemStats": "{count} results from {from} to {to}"
+      "itemStats": "<b class='number'>{count}</b> results from {from} to {to}",
+      "itemStatsFiltered": "<span class='number'>{count}</span> results from {from} to {to}, within current search:"
     }
   }
 </i18n>

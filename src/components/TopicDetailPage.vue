@@ -1,86 +1,145 @@
 <template lang="html">
-  <i-layout-section>
+  <i-layout-section main>
     <div slot="header">
-      <b-navbar type="light" variant="light" class="border-bottom">
+      <b-navbar>
         <section>
           <span class="label small-caps">
             <router-link v-bind:to="{ name: 'topics' }">&larr; {{$t("topics")}}</router-link>
-
           </span>
-          <h3>{{ topic.language }} "{{ topic.getHtmlExcerpt() }} ..."</h3>
-
-          <ellipsis>
-            <div class="d-inline-block word"  v-for="(word, idx) in topic.words">
-              <span :style='{opacity: word.l}'>{{ word.w }}</span>
-              <!-- <span :style='{fontSize: (word.l + 0.5) + "em"}'>{{ word.w }}</span> -->
-              <!-- <span class="word-probability">{{word.p}}</span> -->
-              <span v-if="idx < topic.words.length - 1">&middot;&nbsp;</span>
-            </div>
-
-            <span class="label small-caps">
-              {{$t("model")}} {{ topic.model }}
-            </span>
-          </ellipsis>
+          <h3><b-badge>{{ topic.language }}</b-badge> "{{ topic.getHtmlExcerpt() }} ..."</h3>
         </section>
       </b-navbar>
 
-      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom border-tertiary">
-        <b-navbar-nav class="px-2">
-          <li class='p-2 border-right'>
-            <b>{{$n(this.total)}}</b>
-            <label>{{$t('articles')}}</label>
-          </li>
+      <b-tabs pills class="mx-3">
+        <template v-slot:tabs-end>
+          <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
+            :class="{ active: tabItem.name === tab.name }"
+            active-class='none'
+            :to="{ name: 'topic', params: { topic_uid: topic.uid }, query: { tab: tabItem.name }}">
+            <span v-html="tabItem.label"/>
+          </b-nav-item>
+        </template>
+      </b-tabs>
 
-        </b-navbar-nav>
-        <b-navbar-nav class="px-1 ">
-          <li class="p-2"><label >{{ $t('order by') }}</label>
+      <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
+        <b-navbar-nav>
+          <b-nav-form class="p-2 border-right">
+            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
+              {{ $t('actions.addToCurrentFilters') }}
+            </b-button>
+          </b-nav-form>
+          <b-nav-form class="p-2 border-right">
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+              {{ $t('actions.searchMore') }}
+            </router-link>
+          </b-nav-form>
+          <b-nav-form v-if="tab.name === TAB_ARTICLES" class="p-2 border-right">
+            <label >{{ $t('order by') }}&nbsp;</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li>
+          </b-nav-form>
+          <!-- <b-nav-item>
+            <b-form-group class="mx-3">
+              <b-form-checkbox v-model="applyCurrentSearchFilters">
+                {{ $t('labels.applyCurrentSearchFilters') }}
+              </b-form-checkbox>
+            </b-form-group>
+          </b-nav-item> -->
         </b-navbar-nav>
+
       </b-navbar>
     </div>
 
-    <div class='m-3'>
-      <div class="article border-bottom" v-for="(article, idx) in articles">
-        <search-results-list-item v-model="articles[idx]" />
+    <div v-if="tab.name === TAB_ARTICLES" class="mb-5">
+      <div v-for="(article, idx) in articles" class="p-3 mb-2 border-bottom">
+        <article-item :item="article"
+          show-meta show-topics
+          show-excerpt show-entities
+          show-matches show-link
+        />
       </div>
-
+      <div class="fixed-pagination-footer p-1 mb-2 m-0">
+        <pagination
+          v-bind:perPage="limit"
+          v-bind:currentPage="page"
+          v-bind:totalRows="total"
+          v-on:change="onInputPagination"
+          v-bind:showDescription="false" />
+      </div>
     </div>
-    <div class="fixed-pagination-footer p-1 mb-2 m-0">
-      <pagination
-        v-bind:perPage="limit"
-        v-bind:currentPage="page"
-        v-bind:totalRows="total"
-        v-on:change="onInputPagination"
-        v-bind:showDescription="false" />
-    </div>
 
+    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3 m-3">
+      <div class="mb-2">
+        <h3 class="m-0 tb-title small-caps font-weight-bold">List of words</h3>
+        <p class="description small">Top words ...</p>
+      </div>
+      <ellipsis >
+        <div class="d-inline-block word"  v-for="(word, idx) in topic.words">
+          <span :style='{opacity: word.l}'>{{ word.w }}</span>
+          <!-- <span :style='{fontSize: (word.l + 0.5) + "em"}'>{{ word.w }}</span> -->
+          <!-- <span class="word-probability">{{word.p}}</span> -->
+          <span v-if="idx < topic.words.length - 1">&middot;&nbsp;</span>
+        </div>
+
+        <span class="label small-caps">
+          {{$t("model")}} {{ topic.model }}
+        </span>
+      </ellipsis>
+
+      <div class="mt-4 border-top pt-3">
+        <h3 class="m-0 tb-title small-caps font-weight-bold">articles per year</h3>
+        <p class="description small">number of articles where this topic is relevant</p>
+      </div>
+      <timeline
+            :contrast="false"
+            :values="timevalues">
+        <div slot-scope="tooltipScope">
+          <div v-if="tooltipScope.tooltip.item">
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w }}</b>
+          </div>
+        </div>
+      </timeline>
+    </div>
   </i-layout-section>
 </template>
 
 <script>
+import SearchQuery from '@/models/SearchQuery';
 import Topic from '@/models/Topic';
 import Pagination from './modules/Pagination';
-import SearchResultsListItem from './modules/SearchResultsListItem';
+import ArticleItem from './modules/lists/ArticleItem';
 import Ellipsis from './modules/Ellipsis';
+import Timeline from './modules/Timeline';
+
+const TAB_ARTICLES = 'articles';
+const TAB_OVERVIEW = 'overview';
 
 export default {
   data: () => ({
     submitted: false,
     topic: new Topic(),
     articles: [],
+    timevalues: [],
+    tab: {},
     total: 0,
     page: 1,
     limit: 10,
-    orderBy: 'relevance',
+    orderBy: '-relevance',
     timeline: [],
+    applyCurrentSearchFilters: false,
+    TAB_ARTICLES,
+    TAB_OVERVIEW,
   }),
   computed: {
     orderByOptions() {
       return [
         {
+          value: '-relevance',
+          text: this.$t('topic.relevanceDESC'),
+        },
+        {
           value: 'relevance',
-          text: this.$t('topic.relevance'),
+          text: this.$t('topic.relevanceASC'),
         },
         {
           value: 'date',
@@ -92,11 +151,39 @@ export default {
         },
       ];
     },
+    searchPageLink() {
+      if (!this.topic) {
+        return { name: 'search' };
+      }
+      return {
+        name: 'search',
+        query: SearchQuery.serialize({
+          filters: [{ type: 'topic', q: this.topic.uid }],
+        }),
+      };
+    },
+    currentSearchHash() {
+      return this.$store.state.search.currentSearchHash;
+    },
     topicModel() {
       return this.$route.params.topic_model;
     },
     topicUid() {
       return this.$route.params.topic_uid;
+    },
+    tabs() {
+      return [
+        {
+          label: this.$t('tabs.overview'),
+          name: TAB_OVERVIEW,
+        },
+        {
+          label: this.$tc('tabs.relatedArticles', this.total, {
+            count: this.$n(this.total),
+          }),
+          name: TAB_ARTICLES,
+        },
+      ];
     },
   },
   methods: {
@@ -106,13 +193,31 @@ export default {
       });
     },
 
+    async loadTimeline() {
+      return this.$store.dispatch('search/LOAD_TIMELINE', {
+        filters: [
+          {
+            q: this.$route.params.topic_uid,
+            type: 'topic',
+          },
+        ],
+      }).then((values) => {
+        this.timevalues = values;
+      });
+    },
+
     async getArticles({
       page = 1,
     } = {}) {
       // console.info('getArticles page', page);
-      const response = await this.$store.dispatch('topics/LOAD_ARTICLES', {
-        topicUid: this.topic.uid,
-        limit: this.limit,
+      const response = await this.$store.dispatch('search/LOAD_ARTICLES', {
+        filters: [
+          {
+            type: 'topic',
+            q: this.$route.params.topic_uid,
+          },
+        ],
+        orderBy: this.orderBy,
         page,
       });
       // sres et articles
@@ -122,27 +227,51 @@ export default {
       // console.info('articles', this.articles, 'page', page);
       return response;
     },
+
+    applyFilter(context = 'include') {
+      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
+      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
+        searchQueryId: '',
+        filter: {
+          type: 'topic',
+          q: [this.topic.uid],
+          items: [this.topic],
+        },
+      });
+    },
   },
   watch: {
-    '$route.params.topic_uid': {
+    $route: {
       immediate: true,
-      async handler(topicUid) {
-        // load single topic data
-        this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', topicUid);
-        this.$store.commit('SET_HEADER_TITLE', {
-          subtitle: this.topic.getHtmlExcerpt(),
-          title: 'topics',
-        });
-
-        // load articles
-        await this.getArticles();
+      async handler({ params, query }) {
+        // always reload entity
+        this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', params.topic_uid);
+        this.total = +this.topic.countItems;
+        // set active tab
+        const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
+        this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
+        // reset item list
+        if (this.tab.name === TAB_ARTICLES) {
+          await this.getArticles();
+        } else {
+          await this.loadTimeline();
+        }
+      },
+      deep: true,
+    },
+    orderBy: {
+      handler(val) {
+        if (val) {
+          this.getArticles();
+        }
       },
     },
   },
   components: {
     Pagination,
     Ellipsis,
-    SearchResultsListItem,
+    ArticleItem,
+    Timeline,
   },
 };
 </script>
@@ -158,7 +287,8 @@ export default {
   {
     "en": {
       "topic": {
-        "relevance": "topic relevance"
+        "relevanceDESC": "topic relevance (highest first)",
+        "relevanceASC": "topic relevance (lowest first)"
       },
       "article": {
         "dateASC": "article date",

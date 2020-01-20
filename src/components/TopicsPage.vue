@@ -2,7 +2,14 @@
   <i-layout id="TopicsPage">
     <list :pagination-list="paginationList" v-on:change-page="changePage">
       <template v-slot:header>
-        <div class='p-3 border-bottom bg-light'>
+        <b-tabs pills class="mx-2 pt-2">
+          <template v-slot:tabs-end>
+            <b-nav-item class="pl-2 active"
+              active-class='none'
+              :to="{ name:'topics'}"><span v-html="$t('label_list', { total: $n(paginationList.totalRows) })"/></b-nav-item>
+          </template>
+        </b-tabs>
+        <div class='pb-2 px-3'>
           <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
           <label>{{ $t('select model') }}</label>
           <small><info-button name="how-topic" class="text-muted" /></small>
@@ -204,6 +211,7 @@ export default {
 <i18n>
 {
   "en": {
+    "label_list": "browse {total} topics",
     "order_by": "order by",
     "sort_name_asc": "Main word, A-Z",
     "sort_name_desc": "Main word, Z-A",

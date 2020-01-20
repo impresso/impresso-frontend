@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout id="SearchQueriesComparisonPage">
-    <i-layout-section class="border-top mt-1px">
+    <i-layout-section class="border-top ">
       <div slot="header">
         <div class="header row pm-fixer bg-light border-bottom border-tertiary">
           <div class="one-third" :class="{
@@ -8,8 +8,7 @@
             'border-left': queryIdx > 0,
           }"
                v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
-            <query-header-panel class="col"
-                                :left='queryIdx === 0'
+            <query-header-panel :left='queryIdx === 0'
                                 :comparison-options="['intersection']"
                                 :comparable="comparableForQuery(queryIdx)"
                                 :total="queryResult.total"
@@ -50,7 +49,8 @@
                                   :timeline-highlight-value="getTimelineHighlight(facetId).data"
                                   :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
                                   :timeline-domain="timelineDomain"
-                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined" />
+                                  :search-query-id="`queryComparison/p-${queryIdx}`"
+                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined"/>
             </div>
           </div>
         </div>
@@ -230,6 +230,7 @@ export default {
     LoadingIndicator,
   },
   methods: {
+
     /** Get particular values out of a retuls object */
     getFacetValues(result, facetId) {
       if (result.facets === undefined) return undefined;
