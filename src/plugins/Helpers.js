@@ -48,6 +48,9 @@ helpers.timeline.addEmptyIntervals = (values, unit = 'number') => {
       case 'month':
         diff = Math.round((values[i].t - values[i - 1].t) / (30 * 24 * 60 * 60 * 1000));
         break;
+      case 'day':
+        diff = Math.round((values[i].t - values[i - 1].t) / (24 * 60 * 60 * 1000));
+        break;
       default:
         diff = values[i].t - values[i - 1].t;
     }
@@ -61,6 +64,10 @@ helpers.timeline.addEmptyIntervals = (values, unit = 'number') => {
         case 'month':
           newValue = new Date(values[i - 1].t);
           newValue.setMonth(values[i - 1].t.getMonth() + j);
+          break;
+        case 'day':
+          newValue = new Date(values[i - 1].t);
+          newValue.setMonth(values[i - 1].t.getDay() + j);
           break;
         default:
           newValue = values[i - 1].t + j;
