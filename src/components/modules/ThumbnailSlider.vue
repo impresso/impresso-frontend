@@ -1,9 +1,9 @@
 <template lang="html">
   <div id="thumbnail-slider" ref="thumbnailSlider">
-    <div class="tiles">
+    <div class="tiles" v-if="page && issue">
       <div
-        v-if="page && issue"
         v-for="(item, index) in issue.pages"
+        v-bind:key="index"
         class="tile"
         v-bind:ref="`page-${item.uid}`"
         v-bind:class="{active: page.uid === item.uid}"
@@ -29,7 +29,7 @@ import ThumbnailSliderItem from './ThumbnailSliderItem';
 export default {
   props: {
     issue: new Issue(),
-    bounds: false,
+    bounds: {},
     page: new Page(),
     displayMode: {
       default: 'image',

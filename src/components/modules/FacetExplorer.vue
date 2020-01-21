@@ -29,8 +29,6 @@
 </template>
 
 <script>
-import FilterFacetBucket from './FilterFacetBucket';
-import Pagination from './Pagination';
 import ItemLabel from './lists/ItemLabel';
 import ItemSelector from './ItemSelector';
 
@@ -110,8 +108,6 @@ export default {
     },
   },
   components: {
-    FilterFacetBucket,
-    Pagination,
     ItemLabel,
     ItemSelector,
   },

@@ -3,7 +3,7 @@ import Issue from '@/models/Issue';
 import Page from '@/models/Page';
 import Article from '@/models/Article';
 import ArticleBase from '@/models/ArticleBase';
-import store from '../store';
+import store from ".";
 
 export default {
   namespaced: true,

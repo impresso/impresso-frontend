@@ -71,7 +71,7 @@ export default {
     // load typekit
     WebFontLoader.load({
       typekit: {
-        id: process.env.TYPEKIT_ID,
+        id: process.env.VUE_APP_TYPEKIT_ID,
       },
     });
     // check whether there is a searchquery hash somewhere

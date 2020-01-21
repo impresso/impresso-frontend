@@ -18,8 +18,6 @@ export default {
     },
   },
   data: () => ({
-    isOnFront: false,
-    hasDaterange: false,
   }),
   computed: {
     reducedSummary() {
@@ -31,14 +29,17 @@ export default {
       const enumerables = [];
       const translationTable = {};
 
+      let isOnFront = false;
+      let hasDaterange = false;
+
       // add translation if isFront is enabled
       if (filtersIndex.isFront) {
-        this.isOnFront = true;
+        isOnFront = true;
         translationTable.isFront = this.$t('isFront');
       }
 
       if (filtersIndex.daterange) {
-        this.hasDaterange = true;
+        hasDaterange = true;
         translationTable.daterange = this.$t('isFront');
       }
 
@@ -47,7 +48,7 @@ export default {
         translationTable.newspaper = this.getTranslation({
           filters: filtersIndex.newspaper,
           type: 'newspaper',
-          prefix: this.isOnFront || this.hasDaterange ? 'pubof.' : 'pub.',
+          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.',
         });
       }
       // other translations
@@ -213,7 +214,7 @@ export default {
     content: '"';
     font-weight: bold;
   }
-  .precision-fuzzy::after,{
+  .precision-fuzzy::after {
     content: '~';
     font-weight: bold;
   }

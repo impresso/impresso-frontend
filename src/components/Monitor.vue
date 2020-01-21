@@ -96,7 +96,6 @@
 </template>
 
 <script>
-import SearchPills from './SearchPills';
 import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
 import WikidataBlock from './modules/WikidataBlock';
@@ -247,7 +246,6 @@ export default {
     },
   },
   components: {
-    SearchPills,
     Timeline,
     WikidataBlock,
     ItemLabel,

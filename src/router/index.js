@@ -1,6 +1,6 @@
-import * as services from '@/services';
 import Vue from 'vue';
 import Router from 'vue-router';
+import * as services from '@/services';
 import HomePage from '../components/HomePage';
 import HomePage2020 from '../components/HomePage2020';
 import FaqPage from '../components/FaqPage';

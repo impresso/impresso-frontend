@@ -47,7 +47,7 @@
       <b-navbar-nav>
       <li>
         <label>{{$t('legend')}}</label>
-        <div class="d-inline-block pl-2" v-for="item in legend.nodeColor">
+        <div class="d-inline-block pl-2" v-for="item in legend.nodeColor" :key="item">
           <div class='legend-node' v-bind:style="{backgroundColor: item.color}"></div>
           <span>{{item.name}} ({{$n(item.count)}})</span>
         </div>
@@ -357,9 +357,6 @@ export default {
   height: 100%;
   position: relative;
 }
-.legend-item{
-
-}
 .legend-node{
   width: 1rem;
   height: 1rem;
@@ -401,7 +398,7 @@ export default {
 {
   "en": {
     "summary": "Explore the list of topics",
-    "topics_cooccurrence_graph": "Visualise <span class=\"number\">{items}</span> / <span class=\"number\">{nodes}</span> topics and their <span class=\"number\">{rels}</span> / <span class=\"number\">{links}</span> relationships",
+    "topics_cooccurrence_graph": "Visualise <span class='number'>{items}</span> / <span class='number'>{nodes}</span> topics and their <span class='number'>{rels}</span> / <span class='number'>{links}</span> relationships",
     "color by": "colored by",
     "topic model": "{item.name}",
     "countItems": "number of articles",

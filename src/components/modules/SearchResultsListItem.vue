@@ -54,7 +54,7 @@
       <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
         <b-checkbox
           class="mr-0 select-item"
-          v-bind:checked.native="checked"
+          v-bind:checked="checked"
           v-on:change="toggleSelected" />
       </div>
     </div>

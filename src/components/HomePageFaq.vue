@@ -5,7 +5,7 @@
         <h1 class="mb-5">{{faq.title}}</h1>
 
 
-        <div v-for="(group, i) in faq.groups" class="mb-5">
+        <div v-for="(group, i) in faq.groups" v-bind:key="i" class="mb-5">
           <h3>{{group.title}}</h3>
           <div
             v-for="(question, j) in group.questions"

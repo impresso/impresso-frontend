@@ -13,9 +13,8 @@ COPY build ./build
 COPY src ./src
 COPY static ./static
 
-RUN mkdir ./config
-COPY config/prod.env.js config/index.js ./config/
-COPY .eslintrc.js .eslintignore .postcssrc.js .babelrc ./
+COPY .eslintignore .postcssrc.js .babelrc ./
+COPY .env .env.production ./
 COPY index.html ./
 
 ENV PUBLIC_PATH /app/

@@ -18,7 +18,7 @@
           </select>
           <hr>
           <ul class="list-unstyled">
-            <li v-for="collection in collections" class="form-check">
+            <li v-for="(collection, index) in collections" v-bind:key="index" class="form-check">
               <input
               class="form-check-input"
               type="checkbox"

@@ -88,7 +88,6 @@
 <script>
 // import { mapState } from 'vuex'
 import SearchQuery from '@/models/SearchQuery';
-import Dropdown from '../../layout/Dropdown';
 import SearchPills from '../../SearchPills';
 import Autocomplete from '../../Autocomplete';
 import CollectionPicker from '../../base/CollectionPicker';
@@ -131,7 +130,6 @@ export default {
     },
   },
   components: {
-    Dropdown,
     SearchPills,
     Autocomplete,
     CollectionPicker,
