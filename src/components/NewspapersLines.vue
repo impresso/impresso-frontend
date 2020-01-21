@@ -5,8 +5,8 @@
         <h1>{{tooltip.item.name}}</h1>
         <p>
           <span class="available" v-if="tooltip.item.included" v-html="$t('dates.includedLifespan', {
-            from: $d(tooltip.item.firstIssue.date, 'short'),
-            to: $d(tooltip.item.lastIssue.date, 'short'),
+            from: $d(getIssueDate(tooltip.item.firstIssue), 'short'),
+            to: $d(getIssueDate(tooltip.item.lastIssue), 'short'),
           })"/>
           <span class="small-caps" v-else>{{ $t('dates.notYetAvailable')}}</span>
         </p>
@@ -112,6 +112,9 @@ export default {
         return Number(this.$d(n.lastIssue.date, 'year'));
       }
       return 'not set';
+    },
+    getIssueDate(n) {
+      if (n && n.date) return n.date;
     },
     onMousemove({ clientX, clientY }) {
       const x = clientX - this.$refs.lines.offsetLeft - this.$refs.lines.offsetParent.offsetLeft;

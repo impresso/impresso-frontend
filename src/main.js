@@ -27,7 +27,9 @@ Vue.use(VueI18n);
 Vue.use(Helpers);
 Vue.use(EventBus);
 Vue.use(ImpressoLayout);
-Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
+if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
+  Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID });
+}
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
 Vue.config.errorHandler = error => store.dispatch('DISPLAY_ERROR', {
@@ -50,7 +52,7 @@ const i18n = new VueI18n({
   locale: store.state.settings.language_code,
   messages,
   dateTimeFormats,
-  silentFallbackWarn: false,
+  silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
 });
 
 /* eslint-disable no-new */
@@ -83,6 +85,7 @@ services.app.reAuthenticate().catch((err) => {
       components: {
         App,
       },
+      render: h => h(App),
     });
   });
 });

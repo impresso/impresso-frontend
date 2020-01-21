@@ -16,14 +16,17 @@
           show-pages
           show-matches
           show-type
-
-          />
+        />
       </b-media>
     </div>
+    
     <div v-else>
-      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page "
-      v-bind:class="{activepage: page.num === currentPageNum}">
-        <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
+      <div v-for="(page, index) in tableOfContents.pages"
+           v-bind:key="index"
+           class="mb-2 pb-1px page "
+           v-bind:class="{activepage: page.num === currentPageNum}">
+        <div class="p-3 d-block text-bold pagenumber">
+          {{$t('page')}} {{page.num}}
           <b-media
             :ref="`article-${article.uid}`"
             class="article "
@@ -32,15 +35,26 @@
             v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
             v-on:click.prevent="onClick(article, page)">
             <div>
-              <image-item :height="200" :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
+              <image-item
+                :height="200"
+                :item="article"
+                v-if="article.type === 'image'"
+                class="my-2 ml-3"
+                />
               <article-item :item="article" class="p-3"
                 show-excerpt
                 show-entities
                 show-size
                 show-pages
                 show-type
-                />
-              <image-item :height="200" class="mx-3 mb-2" :item="image" v-for="(image, i) in article.images" v-bind:key="i"/>
+              />
+              <image-item
+                :height="200"
+                class="mx-3 mb-2"
+                :item="image"
+                v-for="(image, i) in article.images" 
+                v-bind:key="i"
+              />
             </div>
           </b-media>
         </div>
@@ -53,8 +67,6 @@
 
 import ArticleItem from './lists/ArticleItem';
 import ImageItem from './lists/ImageItem';
-import CollectionAddTo from './CollectionAddTo';
-import ItemSelector from './ItemSelector';
 
 export default {
   data: () => ({
@@ -73,11 +85,11 @@ export default {
     },
     page: {
       type: Object,
-      default: '',
+      default: () => '',
     },
     article: {
       type: Object,
-      default: '',
+      default: () => '',
     },
   },
   computed: {
@@ -89,8 +101,6 @@ export default {
     },
   },
   components: {
-    CollectionAddTo,
-    ItemSelector,
     ArticleItem,
     ImageItem,
   },

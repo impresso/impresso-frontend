@@ -152,7 +152,6 @@
 import SearchQuery from '@/models/SearchQuery';
 import Timeline from './modules/Timeline';
 import Pagination from './modules/Pagination';
-import BaseTabs from './base/BaseTabs';
 import ArticleItem from './modules/lists/ArticleItem';
 import MentionItem from './modules/lists/MentionItem';
 
@@ -178,7 +177,6 @@ export default {
   components: {
     Timeline,
     Pagination,
-    BaseTabs,
     ArticleItem,
     MentionItem,
   },

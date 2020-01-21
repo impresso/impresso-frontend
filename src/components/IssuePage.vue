@@ -182,8 +182,6 @@ import 'vue-awesome/icons/align-left';
 import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 
-import ItemLabel from './modules/lists/ItemLabel';
-
 import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
@@ -696,7 +694,6 @@ export default {
     SearchPills,
     Pagination,
     InfoButton,
-    ItemLabel,
   },
   watch: {
     $route: {

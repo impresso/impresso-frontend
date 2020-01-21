@@ -27,7 +27,7 @@
           <li v-if="!Object.keys(this.collections).length">
             <i-spinner class="text-center p-5" />
           </li>
-          <li v-for="collection in filteredCollections" class="form-check">
+          <li v-for="(collection, index) in filteredCollections" v-bind:key="index" class="form-check">
             <input
               class="form-check-input"
               type="checkbox"
@@ -156,8 +156,6 @@ export default {
   min-width: 265px;
   input {
     font-style: italic;
-    &:focus {
-    }
   }
   .inputList {
     max-height: 50vh;

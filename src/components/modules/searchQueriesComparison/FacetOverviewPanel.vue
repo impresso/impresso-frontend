@@ -81,7 +81,7 @@ export default {
     title: String,
     values: {
       type: Array, // array of `Bucket` objects.
-      default: [],
+      default: () => [],
       validator: v => v.map(i => i instanceof Bucket),
     },
     timelineHighlightValue: Object, // a `{ w, t }` object (see Timeline.js)

@@ -9,7 +9,7 @@
       </div>
       <p>
         <b>{{image.name}}</b>
-        <div class="date">{{ $d(image.creationDate, 'long') }}</div>
+        <span class="date">{{ $d(image.creationDate, 'long') }}</span>
       </p>
       <b-button variant="outline-primary" size="sm" v-on:click="remove">{{ $t('actions.remove') }}</b-button>
     </b-media>
@@ -22,10 +22,10 @@ import Vue from 'vue';
 import FilePond from '@/components/modules/FilePond';
 import { uploadedImages } from '@/services';
 
-const MiddleLayerApiBase = process.env.MIDDLELAYER_API || window.location.hostname;
+const MiddleLayerApiBase = process.env.VUE_APP_MIDDLELAYER_API || window.location.hostname;
 
 const FILEPOND_SERVICE_PATH = [
-  process.env.MIDDLELAYER_API_PATH,
+  process.env.VUE_APP_MIDDLELAYER_API_PATH,
   '/filepond',
 ].join('/').replace(/\/\/+/g, '/');
 
