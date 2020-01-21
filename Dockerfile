@@ -9,11 +9,10 @@ COPY package.json package-lock.json ./
 
 RUN npm install
 
-COPY build ./build
 COPY src ./src
 COPY static ./static
 
-COPY .eslintignore .postcssrc.js .babelrc ./
+COPY .eslintignore .postcssrc.js .babelrc vue.config.js ./
 COPY .env .env.production ./
 COPY index.html ./
 

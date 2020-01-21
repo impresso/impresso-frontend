@@ -1,3 +1,7 @@
+function getPublicPath() {
+  if (process.env.PUBLIC_PATH) return process.env.PUBLIC_PATH
+  return process.env.NODE_ENV === 'production' ? '/app' : '/'
+}
 module.exports = {
   chainWebpack: config => {
     config.module
@@ -7,5 +11,6 @@ module.exports = {
       .use("i18n")
         .loader("@kazupon/vue-i18n-loader")
         .end();
-  }
+  },
+  publicPath: getPublicPath()
 }
