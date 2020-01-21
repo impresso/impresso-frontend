@@ -71,7 +71,9 @@
 
   </div>
   <div class="search-button-wrapper">
-    <router-link v-if="comparable" class="btn btn-outline-primary btn-sm" :to="searchPageLink(comparable)">
+    <router-link v-if="comparable && searchPageLink(comparable) !== undefined"
+                 class="btn btn-outline-primary btn-sm"
+                 :to="searchPageLink(comparable)">
       {{
         $t('actions.searchMore')
       }}
@@ -141,19 +143,18 @@ export default {
       handler() {
         const { comparableId: searchQueryId, comparable: { query = { filters: [] } } } = this;
         const { filters } = query;
-        // check here that lastQuery is different that the new one.
-        this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
         if (this.comparable.query) {
           // get current query hash
           const hash = SearchQuery.serialize({ filters }, 'protobuf');
-          if (this.lastQueryHash && this.lastQueryHash !== hash) {
+          if (this.lastQueryHash !== hash) {
             // emit comparable-changed
-            console.info('Emit event "comparable-changed", searchQueryId:', searchQueryId);
             this.$emit('comparable-changed', this.comparable);
           }
           this.lastQueryHash = hash;
           this.$set(this, 'lastQuery', this.comparable.query);
         }
+        // check here that lastQuery is different that the new one.
+        this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
       },
       immediate: true,
       deep: true,
@@ -162,7 +163,6 @@ export default {
   mounted() {
     this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, ({ filter, searchQueryId }) => {
       if (this.comparableId === searchQueryId) {
-        console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
         this.onSuggestion(filter);
       }
     });
@@ -204,6 +204,7 @@ export default {
     },
     searchPageLink(c) {
       if (c.type === 'query') {
+        if (c.query === undefined) return undefined;
         return {
           name: 'search',
           query: SearchQuery.serialize({
@@ -212,6 +213,7 @@ export default {
         };
       }
       if (c.type === 'intersection') {
+        if (c.filters === undefined) return undefined;
         return {
           name: 'search',
           query: SearchQuery.serialize({
@@ -219,6 +221,7 @@ export default {
           }),
         };
       }
+      if (c.id === undefined) return undefined;
       return {
         name: 'search',
         query: SearchQuery.serialize({
