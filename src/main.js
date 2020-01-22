@@ -3,6 +3,7 @@
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
+import VueGtag from 'vue-gtag';
 
 import Helpers from '@/plugins/Helpers';
 import ImpressoLayout from '@/plugins/Layout';
@@ -30,7 +31,13 @@ Vue.use(ImpressoLayout);
 if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
   Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID });
 }
-
+if (process.env.VUE_APP_GA_TRACKING_ID) {
+  Vue.use(VueGtag, {
+    config: {
+      id: process.env.VUE_APP_GA_TRACKING_ID,
+    },
+  }, router);
+}
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
 Vue.config.errorHandler = error => store.dispatch('DISPLAY_ERROR', {
   error,
