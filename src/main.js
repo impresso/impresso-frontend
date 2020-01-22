@@ -62,17 +62,19 @@ const i18n = new VueI18n({
   silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
 });
 
-const reducedTimeoutPromise = new Promise((resolve, reject) => {
-  const ms = 3000;
+const reducedTimeoutPromise = ({ ms = 500, service }) => new Promise((resolve, reject) => {
   let id = setTimeout(() => {
     clearTimeout(id);
-    reject('Timed out in '+ ms + 'ms.');
+    reject(`Timed out in ${ms} ms for service: ${service}`);
   }, ms);
 });
 
 /* eslint-disable no-new */
 console.info('Checking authentication...');
-services.app.reAuthenticate().catch((err) => {
+Promise.race([
+  services.app.reAuthenticate(),
+  reducedTimeoutPromise({ service: 'app.reAuthenticate' }),
+]).catch((err) => {
   if (err.code === 401) {
     console.info('Authentication failed:', err.message);
     if (store.state.user.userData) {
@@ -89,13 +91,13 @@ services.app.reAuthenticate().catch((err) => {
 }).then(() => {
   console.info('Loading app & data version...');
   return Promise.race([
-    reducedTimeoutPromise,
+    reducedTimeoutPromise({ service: 'version' }),
     services.version.find().then((res) => ({
       version: res.version,
       dataVersion: res.solr.dataVersion,
     }))
   ]).catch((err) => {
-    console.warn('...could not load version from api, error', err);
+    console.error(err);
     return {
       version: 'n/a',
       dataVersion: 'n/a',
