@@ -62,6 +62,14 @@ const i18n = new VueI18n({
   silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
 });
 
+const reducedTimeoutPromise = new Promise((resolve, reject) => {
+  const ms = 3000;
+  let id = setTimeout(() => {
+    clearTimeout(id);
+    reject('Timed out in '+ ms + 'ms.');
+  }, ms);
+});
+
 /* eslint-disable no-new */
 console.info('Checking authentication...');
 services.app.reAuthenticate().catch((err) => {
@@ -78,22 +86,36 @@ services.app.reAuthenticate().catch((err) => {
   } else {
     console.error(err);
   }
-}).finally(() => {
-  services.version.find().then((res) => {
-    console.info(`Version services:${res.version}, data:${res.solr.dataVersion}`);
-    window.impressoVersion = res.version;
-    window.impressoDataVersion = res.solr.dataVersion;
-    window.app = new Vue({
-      el: '#app',
-      i18n,
-      router,
-      store,
-      template: '<App/>',
-      components: {
-        App,
-      },
-      render: h => h(App),
-    });
+}).then(() => {
+  console.info('Loading app & data version...');
+  return Promise.race([
+    reducedTimeoutPromise,
+    services.version.find().then((res) => ({
+      version: res.version,
+      dataVersion: res.solr.dataVersion,
+    }))
+  ]).catch((err) => {
+    console.warn('...could not load version from api, error', err);
+    return {
+      version: 'n/a',
+      dataVersion: 'n/a',
+    };
+  });
+}).then(({ version, dataVersion }) => {
+  console.info(`Version services:${version}, data:${dataVersion}`);
+  window.impressoVersion = version;
+  window.impressoDataVersion = dataVersion;
+
+  window.app = new Vue({
+    el: '#app',
+    i18n,
+    router,
+    store,
+    template: '<App/>',
+    components: {
+      App,
+    },
+    render: h => h(App),
   });
 });
 
