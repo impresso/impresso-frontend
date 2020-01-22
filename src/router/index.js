@@ -292,6 +292,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   console.info('Routing to', to.name, to.path, 'from', from.name, from.path);
+  Vue.prototype.$renderMetaTags({ title: to.name });
   // clean yellow alert error messages
   store.dispatch('CLEAN_ERROR_MESSAGE');
   if (to.name === 'login' && from.name && from.name !== 'login') {
