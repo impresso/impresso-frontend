@@ -76,7 +76,7 @@ services.app.reAuthenticate().catch((err) => {
   } else {
     console.error(err);
   }
-}).then(() => {
+}).finally(() => {
   services.version.find().then((res) => {
     console.info(`Version services:${res.version}, data:${res.solr.dataVersion}`);
     window.impressoVersion = res.version;
