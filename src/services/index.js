@@ -36,6 +36,7 @@ socket.on('connect_error', (err) => {
     err.message = `Could not connect to the API: ${err.message}`;
     console.error(err);
     window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false);
+    window.app.$store.commit('LOCK_SCREEN', false);
   }
 });
 
