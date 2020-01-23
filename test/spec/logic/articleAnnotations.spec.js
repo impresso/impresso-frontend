@@ -1,0 +1,271 @@
+/* eslint-env mocha */
+import assert from 'assert';
+
+import {
+  getNamedEntitiesFromArticleResponse,
+  splitTextByLineBreaks,
+  annotateText,
+} from '../../../src/logic/articleAnnotations';
+
+const articleResponse = {
+  "uid": "indeplux-1923-09-04-a-i0071",
+  "type": "ad",
+  "title": "Publicité 9 Page 2",
+  "size": 938,
+  "nbPages": 1,
+  "pages": [
+    {
+      "uid": "indeplux-1923-09-04-a-p0002",
+      "num": 2,
+      "issueUid": "indeplux-1923-09-04-a",
+      "newspaperUid": "indeplux",
+      "iiif": "https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/info.json",
+      "iiifThumbnail": "https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/full/150,/0/default.png",
+      "accessRights": "nd",
+      "labels": [
+        "page"
+      ],
+      "hasCoords": true,
+      "hasErrors": false,
+      "regions": []
+    }
+  ],
+  "isCC": true,
+  "excerpt": "Succursale à Luxembourg Téléphone 503 La maison Mercier garantit sur facture que se vins ont été mis en bouteilles avant...",
+  "persons": [
+    {
+      "uid": "aida-0001-50-Roy_Mathias",
+      "relevance": 1
+    }
+  ],
+  "locations": [
+    {
+      "uid": "aida-0001-54-Luxembourg",
+      "relevance": 3
+    },
+    {
+      "uid": "aida-0001-54-Thionville",
+      "relevance": 1
+    }
+  ],
+  "language": "n/a",
+  "content": "Succursale à Luxembourg Téléphone 503 La maison Mercier garantit sur facture que se vins ont été mis en bouteilles avant la guerre B— . \" ~ LA MAISON Mathias LUX Télépli. 41-35, LUXEMBOURG, rue Fellip, 24,Télépli, 41-55 recommande aux £ cursionnistes et T&uristas ses 5728 Auto-Cars et Voitures de ville avec une et plusieurs places MIME AVEC tlIS E? MIETÎES Déménagement. Prix modérés B -P-.. •— .~B| I' TH.JL1TSLU2I ! Société Anonyme de Transports et d'Enfrepôfs { j Siège social à LUXEMBOURG Avenue de la Liberté (Rue Dicks) (Anciennement J.-P. BALANCE.-Maison fondée en 1890) j j | Téléphones : gggg, j 4M «g Transports Internationaux Agence en douane î Transit Affrètements - Consignations « Groupages SUCCURSALES à: Thionville Igel Wasserbillig Téléphone No 79 Téléphone No 2 Trêves — Téléphone No 226 5 5925 L’imprimerie Joseph BEFFORT, 3, Place d’Armes, 3 se recommande pour la confection de labeurs typographiques en tous genres ",
+  "contentLineBreaks": [23,37,83,130,139,149,161,219,234,263,272,303,332,358,385,401,417,452,468,494,527,583,612,638,665,706,721,750,781,814,863,899,937],
+  "issue": {
+    "uid": "indeplux-1923-09-04-a",
+    "cover": "",
+    "labels": [
+      "issue"
+    ],
+    "fresh": false,
+    "accessRights": "Closed",
+    "date": "1923-09-04T00:00:00.000Z",
+    "year": "1923"
+  },
+  "newspaper": {
+    "uid": "indeplux",
+    "acronym": "indeplux",
+    "labels": [
+      "newspaper"
+    ],
+    "languages": [],
+    "properties": [],
+    "included": true,
+    "name": "L'indépendance luxembourgeoise",
+    "endYear": null,
+    "startYear": null,
+    "firstIssue": {
+      "uid": "indeplux-1871-10-01-a",
+      "cover": "",
+      "labels": [
+        "issue"
+      ],
+      "fresh": false,
+      "accessRights": "Closed",
+      "date": "1871-10-01T00:00:00.000Z",
+      "year": "1871"
+    },
+    "lastIssue": {
+      "uid": "indeplux-1933-12-30-a",
+      "cover": "",
+      "labels": [
+        "issue"
+      ],
+      "fresh": false,
+      "accessRights": "Closed",
+      "date": "1933-12-30T00:00:00.000Z",
+      "year": "1933"
+    },
+    "countArticles": 753525,
+    "countIssues": 18350,
+    "countPages": 71650,
+    "fetched": true,
+    "deltaYear": null
+  },
+  "collections": [],
+  "tags": [],
+  "country": "LU",
+  "year": 1923,
+  "date": "1923-09-04T00:00:00.000Z",
+  "isFront": false,
+  "accessRight": "na",
+  "labels": [
+    "article"
+  ],
+  "mentions": [
+    {
+      "person": [
+        [
+          150,
+          11
+        ],
+        [
+          517,
+          9
+        ]
+      ]
+    },
+    {
+      "location": [
+        [
+          13,
+          10
+        ],
+        [
+          178,
+          10
+        ],
+        [
+          484,
+          10
+        ],
+        [
+          722,
+          10
+        ]
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "pageUid": "indeplux-1923-09-04-a-p0002",
+      "coords": [
+        2142,
+        3618,
+        1103,
+        3106
+      ],
+      "g": [
+        "Succursale à <span class=\"location\">Luxembourg</span>",
+        " Téléphone 503",
+        " La maison Mercier garantit sur facture que se",
+        " vins ont été mis en bouteilles avant la guerre",
+        " B— . \" ~",
+        " LA MAISON",
+        " <span class=\"person\">Mathias LUX</span>",
+        " Télépli. 41-35, <span class=\"location\">LUXEMBOURG</span>, rue Fellip, 24,Télépli, 41-55",
+        " recommande aux",
+        " £ cursionnistes et T&uristas",
+        " ses 5728",
+        " Auto-Cars et Voitures de ville",
+        " avec une et plusieurs places",
+        " MIME AVEC tlIS E? MIETÎES",
+        " Déménagement. Prix modérés",
+        " B -P-.. •— .~B|",
+        " I' TH.JL1TSLU2I",
+        " ! Société Anonyme de Transports et",
+        " d'Enfrepôfs { j",
+        " Siège social à <span class=\"location\">LUXEMBOURG</span>",
+        " Avenue de la Liberté (Rue Dicks)",
+        " (Anciennement J.-P. BALANCE.-Maison fondée en 1890) j j",
+        " | Téléphones : gggg, j 4M «g",
+        " Transports Internationaux",
+        " Agence en douane î Transit",
+        " Affrètements - Consignations « Groupages",
+        " SUCCURSALES à:",
+        " <span class=\"location\">Thionville</span> Igel Wasserbillig",
+        " Téléphone No 79 Téléphone No 2",
+        " Trêves — Téléphone No 226 5 5925",
+        " L’imprimerie Joseph BEFFORT, 3, Place d’Armes, 3",
+        " se recommande pour la confection de",
+        " labeurs typographiques en tous genres",
+        " "
+      ],
+      "iiifFragment": "https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/2142,3618,1103,3106/full/0/default.png"
+    }
+  ],
+  "v": ""
+};
+
+/**
+ * Add line tags to legacy text, split it by tags and update classes. 
+ */
+const expectedAnnotatedText = articleResponse.regions[0].g.map(line => {
+  const items = line
+    .split(/[<>]/)
+    .filter(x => x !== '')
+    .map(l => {
+      return l.startsWith('span') || l.startsWith('/span')
+        ? `<${l.replace('person', 'entity person').replace('location', 'entity location')}>` 
+        : l
+    });
+  return ['<p class="line">', items, '</p>'].flat();
+}).flat();
+
+describe('getNamedEntitiesFromArticleResponse', () => {
+  it('extracts entities', () => {
+    const entities = getNamedEntitiesFromArticleResponse(articleResponse);
+    const expectedEntities = [
+      {
+        id: 'aida-0001-50-Roy_Mathias',
+        kind: 'namedEntity',
+        type: 'person',
+        offset: { start: 150, end: 161 }
+      },
+      {
+        id: 'aida-0001-54-Luxembourg',
+        kind: 'namedEntity',
+        type: 'location',
+        offset: { start: 13, end: 23 }
+      },
+      {
+        id: 'aida-0001-54-Luxembourg',
+        kind: 'namedEntity',
+        type: 'location',
+        offset: { start: 178, end: 188 }
+      },
+      {
+        id: 'aida-0001-54-Luxembourg',
+        kind: 'namedEntity',
+        type: 'location',
+        offset: { start: 484, end: 494 }
+      },
+      {
+        id: 'aida-0001-54-Thionville',
+        kind: 'namedEntity',
+        type: 'location',
+        offset: { start: 722, end: 732 }
+      },
+    ];
+
+    assert.deepEqual(entities, expectedEntities);
+  });
+});
+
+describe('splitTextByLineBreaks', () => {
+  it('splits text into expected number of parts', () => {
+    const parts = splitTextByLineBreaks(articleResponse.content, articleResponse.contentLineBreaks);
+    assert.equal(parts.length, articleResponse.regions[0].g.length);
+  });
+})
+
+describe('annotateText', () => {
+  it('annotates', () => {
+    const entities = getNamedEntitiesFromArticleResponse(articleResponse);
+    const lineBreaks = articleResponse.contentLineBreaks;
+  
+    const annotatedText = annotateText(articleResponse.content, entities, lineBreaks);
+  
+    assert.deepStrictEqual(annotatedText, expectedAnnotatedText);  
+  })
+});

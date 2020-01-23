@@ -9,7 +9,7 @@
     "start": "npm run serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "npm run unit && npm run e2e"
+    "test": "jest ./test/spec"
   },
   "dependencies": {
     "@feathersjs/authentication-client": "4.3.3",
@@ -48,10 +48,12 @@
     "@vue/cli-plugin-eslint": "4.1.0",
     "@vue/cli-service": "4.1.0",
     "@vue/eslint-config-airbnb": "5.0.2",
+    "@vue/test-utils": "1.0.0-beta.31",
     "babel-eslint": "10.0.3",
     "eslint": "5.16.0",
     "eslint-plugin-import": "2.20.0",
     "eslint-plugin-vue": "5.0.0",
+    "jest": "25.1.0",
     "less": "^3.10.3",
     "less-loader": "5.0.0",
     "node-sass": "4.13.1",
