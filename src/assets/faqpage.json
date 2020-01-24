@@ -21,9 +21,10 @@
           {
             "id": "which-newspapers",
             "title": "Which newspapers do you have in your corpus?",
-            "summary": "All titles are listed on the Newspaper Titles page.",
+            "summary": "All titles are listed on the Newspaper page.",
             "description": [
-              "In a nutshell, the impresso corpus contains the historical newspaper collections of the Swiss National Library, the National Library of Luxembourg, the Neue Zürcher Zeitung, Le Temps, the Valais State Archives and Media Center, and the Swiss Economic Archives. We recommend that you take a closer look at the <a href='https://impresso-project.ch/app/#/newspapers'>Newspaper Titles</a>."
+              "In a nutshell, the impresso corpus contains titles from the historical newspaper collections of the Swiss National Library, the National Library of Luxembourg, the Media Center and the Valais State Archives, and the Swiss Economic Archives. The archives of the journals Le Temps and of the Neue Zürcher Zeitung are also in impresso.",
+              "We recommend that you take a closer look at the <a href='/app/newspapers'>Newspapers page</a>."
             ]
           }
         ]
