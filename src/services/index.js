@@ -10,9 +10,9 @@ import imagesHooks from './hooks/images';
 import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
 
 
-const MiddleLayerApiBase = `${process.env.MIDDLELAYER_API}`;
+const MiddleLayerApiBase = `${process.env.VUE_APP_MIDDLELAYER_API}`;
 const socket = io(MiddleLayerApiBase || window.location.hostname, {
-  path: `${process.env.MIDDLELAYER_API_SOCKET_PATH}`,
+  path: process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH,
 });
 
 export const app = feathers();
@@ -36,6 +36,7 @@ socket.on('connect_error', (err) => {
     err.message = `Could not connect to the API: ${err.message}`;
     console.error(err);
     window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false);
+    window.app.$store.commit('LOCK_SCREEN', false);
   }
 });
 
@@ -137,6 +138,6 @@ export const tableOfContents = app.service('table-of-contents');
 export const searchQueriesComparison = app.service('search-queries-comparison').hooks(searchQueriesComparisonHooks);
 export const errorCollector = app.service('errors-collector');
 
-export const MIDDLELAYER_API = `${process.env.MIDDLELAYER_API}`;
-export const MIDDLELAYER_MEDIA_PATH = `${process.env.MIDDLELAYER_MEDIA_PATH}`;
+export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API;
+export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH;
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('');

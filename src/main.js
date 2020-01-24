@@ -3,11 +3,13 @@
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import VueI18n from 'vue-i18n';
+import VueGtag from 'vue-gtag';
 
 import Helpers from '@/plugins/Helpers';
 import ImpressoLayout from '@/plugins/Layout';
 import TawkTo from '@/plugins/TawkTo';
 import EventBus from '@/plugins/EventBus';
+import MetaTags from '@/plugins/MetaTags';
 
 import * as services from '@/services';
 
@@ -27,8 +29,17 @@ Vue.use(VueI18n);
 Vue.use(Helpers);
 Vue.use(EventBus);
 Vue.use(ImpressoLayout);
-Vue.use(TawkTo, { siteId: process.env.TAWK_TO_SITE_ID });
-
+Vue.use(MetaTags, { suffix: 'impresso' });
+if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
+  Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID });
+}
+if (process.env.VUE_APP_GA_TRACKING_ID) {
+  Vue.use(VueGtag, {
+    config: {
+      id: process.env.VUE_APP_GA_TRACKING_ID,
+    },
+  }, router);
+}
 Vue.config.productionTip = process.env.NODE_ENV === 'production';
 Vue.config.errorHandler = error => store.dispatch('DISPLAY_ERROR', {
   error,
@@ -50,12 +61,22 @@ const i18n = new VueI18n({
   locale: store.state.settings.language_code,
   messages,
   dateTimeFormats,
-  silentFallbackWarn: false,
+  silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
+});
+
+const reducedTimeoutPromise = ({ ms = 500, service }) => new Promise((resolve, reject) => {
+  let id = setTimeout(() => {
+    clearTimeout(id);
+    reject(`Timed out in ${ms} ms for service: ${service}`);
+  }, ms);
 });
 
 /* eslint-disable no-new */
 console.info('Checking authentication...');
-services.app.reAuthenticate().catch((err) => {
+Promise.race([
+  services.app.reAuthenticate(),
+  reducedTimeoutPromise({ service: 'app.reAuthenticate' }),
+]).catch((err) => {
   if (err.code === 401) {
     console.info('Authentication failed:', err.message);
     if (store.state.user.userData) {
@@ -69,21 +90,36 @@ services.app.reAuthenticate().catch((err) => {
   } else {
     console.error(err);
   }
-}).finally(() => {
-  services.version.find().then((res) => {
-    console.info(`Version services:${res.version}, data:${res.solr.dataVersion}`);
-    window.impressoVersion = res.version;
-    window.impressoDataVersion = res.solr.dataVersion;
-    window.app = new Vue({
-      el: '#app',
-      i18n,
-      router,
-      store,
-      template: '<App/>',
-      components: {
-        App,
-      },
-    });
+}).then(() => {
+  console.info('Loading app & data version...');
+  return Promise.race([
+    reducedTimeoutPromise({ service: 'version' }),
+    services.version.find().then((res) => ({
+      version: res.version,
+      dataVersion: res.solr.dataVersion,
+    }))
+  ]).catch((err) => {
+    console.error(err);
+    return {
+      version: 'n/a',
+      dataVersion: 'n/a',
+    };
+  });
+}).then(({ version, dataVersion }) => {
+  console.info(`Version services:${version}, data:${dataVersion}`);
+  window.impressoVersion = version;
+  window.impressoDataVersion = dataVersion;
+
+  window.app = new Vue({
+    el: '#app',
+    i18n,
+    router,
+    store,
+    template: '<App/>',
+    components: {
+      App,
+    },
+    render: h => h(App),
   });
 });
 

@@ -80,7 +80,6 @@
 <script>
 import Autocomplete from './Autocomplete';
 import SearchTabs from './modules/SearchTabs';
-import VizBarMulti from './base/VizBarMulti';
 import Recipes from './modules/homepage/Recipes';
 import HomePageFooter from './HomePageFooter';
 import InfoButton from './base/InfoButton';
@@ -115,7 +114,6 @@ export default {
   components: {
     Autocomplete,
     SearchTabs,
-    VizBarMulti,
     Recipes,
     HomePageFooter,
     InfoButton,
@@ -156,9 +154,6 @@ export default {
       border-color: $clr-white !important;
       color: $clr-white;
     }
-  }
-  .btn-primary {
-    // border-width: 0 0 1px 0;
   }
 
   ul.nav.nav-pills {

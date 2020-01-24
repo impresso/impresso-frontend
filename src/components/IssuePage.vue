@@ -182,8 +182,6 @@ import 'vue-awesome/icons/align-left';
 import IssueViewerText from './modules/IssueViewerText';
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer';
 
-import ItemLabel from './modules/lists/ItemLabel';
-
 import SearchPills from './SearchPills';
 import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
@@ -368,6 +366,8 @@ export default {
           this.article = selectedArticle;
         }
       }
+      // refresh metadata according the current route
+      this.renderMetaTags();
 
       if (!this.isSearchLoaded) {
         await this.search();
@@ -376,7 +376,22 @@ export default {
       if (!this.isMarginaliaLoaded) {
         await this.loadMarginalia();
       }
-      // are there any matches?
+    },
+    renderMetaTags() {
+      const tags = {};
+      const titleParts = [
+        this.issue.newspaper.name,
+        this.$d(this.issue.date, 'short'),
+      ];
+
+      if (this.$route.name === 'article') {
+        titleParts.unshift(this.article.uid);
+      }
+
+      this.$renderMetaTags({
+        title: titleParts.join(' · '),
+        ...tags,
+      });
     },
     switchTab(tab) {
       // swith tab query params leaving the other untouched
@@ -696,7 +711,6 @@ export default {
     SearchPills,
     Pagination,
     InfoButton,
-    ItemLabel,
   },
   watch: {
     $route: {

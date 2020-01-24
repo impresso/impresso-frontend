@@ -15,7 +15,7 @@ export default {
     tileSources: {
       default: false,
     },
-    bounds: false,
+    bounds: {},
     active: {
       default: false,
     },

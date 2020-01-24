@@ -9,7 +9,7 @@
       <div v-if="isAvaliable() && checkbox" class="float-right pt-1 pl-1">
         <b-checkbox
           class="m-0 select-item"
-          v-bind:checked.native="checked"
+          v-bind:checked="checked"
           v-on:change="toggleSelected" />
       </div>
     </div>

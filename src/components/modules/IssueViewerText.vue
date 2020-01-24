@@ -37,7 +37,7 @@
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
                 <div class='region py-3'>
                   <!-- {{ i }} -->
-                  <p v-for="contents in region.g" >
+                  <p v-for="(contents, index) in region.g" v-bind:key="index">
                     <span v-html="contents"></span>
                   </p>
                 </div>
@@ -70,10 +70,8 @@
 <script>
 import Icon from 'vue-awesome/components/Icon';
 import { articlesSuggestions } from '@/services';
-import BaseTitleBar from './../base/BaseTitleBar';
 import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
-import Ellipsis from './Ellipsis';
 import ArticleItem from './lists/ArticleItem';
 
 export default {
@@ -103,9 +101,7 @@ export default {
   props: ['article_uid'],
   components: {
     ArticleItem,
-    BaseTitleBar,
     CollectionAddTo,
-    Ellipsis,
     SearchResultsSimilarItem,
     Icon,
   },

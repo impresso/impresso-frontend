@@ -92,8 +92,6 @@
 </template>
 
 <script>
-import TopicListItem from './modules/TopicListItem';
-import NewspaperListItem from './modules/NewspaperListItem';
 import FilterMonitor from './modules/FilterMonitor';
 
 export default {
@@ -210,8 +208,6 @@ export default {
     },
   },
   components: {
-    TopicListItem,
-    NewspaperListItem,
     FilterMonitor,
   },
   watch: {

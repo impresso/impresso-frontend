@@ -53,7 +53,6 @@
         animated
         height="4px"/>
       </div>
-    </div>
   </b-alert>
 </template>
 
