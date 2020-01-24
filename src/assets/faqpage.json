@@ -69,7 +69,7 @@
             "title": "What do you mean by ‘impresso material’?",
             "summary": "This includes all images, text, metadata, the semantic annotations and the interface.",
             "description": [
-              "We distinguish between the following assets: <ul><li>newspaper images and text, subject to copyrights (see the rights statements pages)</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>newspaper metadata, free for use under a CC BY 4.0 license.</li><li>semantic annotations, free for use under a CC BY SA 4.0 license (will be released at the end of the project)</li><li>impresso interface, including front end design and back end database and system architecture, under a GNU AGPLv3  license (will be released at the end of the project)</li></ul>"
+              "We distinguish between the following assets: <ul><li>newspaper images and text, subject to copyrights (see the rights statements pages)</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>semantic annotations, free for use under a CC BY SA 4.0 license (will be released at the end of the project)</li><li>impresso interface, including front end design and back end database and system architecture, under a GNU AGPLv3 license (will be released at the end of the project)</li></ul>"
             ]
           },
           {
