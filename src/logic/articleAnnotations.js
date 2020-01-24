@@ -68,17 +68,17 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     const startDiff = entityA.offset.start - entityB.offset.start;
     if (startDiff !== 0) return startDiff;
 
-    // then 'region' takes priority
+    // With the same start offset the priority is given
+    // to first 'region', then 'line' then all other kinds
     if (entityA.kind === 'region' && entityA.kind === entityB.kind) return 0;
     if (entityA.kind === 'region') return -1;
     if (entityB.kind === 'region') return 1;
 
-    // then 'line' kind takes priority
     if (entityA.kind === 'line' && entityA.kind === entityB.kind) return 0;
     if (entityA.kind === 'line') return -1;
     if (entityB.kind === 'line') return 1;
 
-    // then by length
+    // then sort by length of the tag span
     const lengthA = entityA.offset.end - entityA.offset.start;
     const lengthB = entityB.offset.end - entityB.offset.start;
     const lengthDiff = lengthB - lengthA;
