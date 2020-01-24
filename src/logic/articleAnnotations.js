@@ -59,7 +59,7 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     .concat(regionEntities)
 }
 
-const DefaultAnnotationConfiguration = {
+export const DefaultAnnotationConfiguration = Object.freeze({
   line: {
     start: () => '<p class="line">',
     end: () => '</p>'
@@ -69,10 +69,10 @@ const DefaultAnnotationConfiguration = {
     end: () => '</div>'
   },
   namedEntity: {
-    start: (entity, isContinuation) => `<span class="entity ${entity.type}${isContinuation ? ' continuation' : ''}">`,
+    start: (entity, isContinuation) => `<span class="entity ${entity.type}${isContinuation ? ' continuation' : ''}" ${entity.id ? `data-id="${entity.id}"` : ''}>`,
     end: () => '</span>'
   },
-}
+})
 
 function getOpenTagForEntity(entity, configuration, isContinuation = false) {
   const tagTemplate = configuration[entity.kind]['start'];

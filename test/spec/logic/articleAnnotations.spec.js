@@ -4,7 +4,15 @@ import assert from 'assert';
 import {
   getNamedEntitiesFromArticleResponse,
   annotateText,
+  DefaultAnnotationConfiguration
 } from '../../../src/logic/articleAnnotations';
+
+const TestAnnotationConfiguration = Object.assign({}, DefaultAnnotationConfiguration, {
+  namedEntity: {
+    start: (entity, isContinuation) => `<span class="entity ${entity.type}${isContinuation ? ' continuation' : ''}">`,
+    end: () => '</span>'
+  }
+})
 
 const articleResponse = {
   uid: 'indeplux-1923-09-04-a-i0071',
@@ -527,7 +535,7 @@ describe('annotateText', () => {
     const lineBreaks = articleResponse.contentLineBreaks;
     const regionBreaks = articleResponse.regionBreaks;
 
-    const annotatedText = annotateText(articleResponse.content, entities, lineBreaks, regionBreaks);
+    const annotatedText = annotateText(articleResponse.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
 
     assert.deepStrictEqual(annotatedText, expectedAnnotatedText);
   })
@@ -537,7 +545,7 @@ describe('annotateText', () => {
     const lineBreaks = articleResponseWithMultipleRegions.contentLineBreaks;
     const regionBreaks = articleResponseWithMultipleRegions.regionBreaks;
 
-    const annotatedText = annotateText(articleResponseWithMultipleRegions.content, entities, lineBreaks, regionBreaks);
+    const annotatedText = annotateText(articleResponseWithMultipleRegions.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
 
     assert.deepStrictEqual(annotatedText, expectedAnnotatedTextWithMultipleRegions);
   })
@@ -547,7 +555,7 @@ describe('annotateText', () => {
     const lineBreaks = articleResponseWithMultilineEntity.contentLineBreaks;
     const regionBreaks = articleResponseWithMultilineEntity.regionBreaks;
 
-    const annotatedText = annotateText(articleResponseWithMultilineEntity.content, entities, lineBreaks, regionBreaks);
+    const annotatedText = annotateText(articleResponseWithMultilineEntity.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
     const expectedAnnotatedText = [
       '<div class="region">',
       '<p class="line">',

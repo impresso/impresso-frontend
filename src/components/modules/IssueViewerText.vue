@@ -198,8 +198,15 @@ export default {
   span.location::before {
     content: '\e012';
   }
+  span.location.continuation::before {
+    content: '';
+  }
+
   span.person::before {
     content: '\e056';
+  }
+  span.person.continuation::before {
+    content: '';
   }
 
   .region-row {
