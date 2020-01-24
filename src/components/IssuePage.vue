@@ -222,18 +222,18 @@ export default {
   mounted() {
     window.addEventListener('keyup', (e) => {
       switch (e.key) {
-        case 'ArrowLeft':
-        case 'ArrowUp':
-          e.preventDefault();
-          this.gotoPageIndex(this.currentPageIndex - 1);
-          break;
-        case 'ArrowRight':
-        case 'ArrowDown':
-          e.preventDefault();
-          this.gotoPageIndex(this.currentPageIndex + 1);
-          break;
-        default:
-          break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        e.preventDefault();
+        this.gotoPageIndex(this.currentPageIndex - 1);
+        break;
+      case 'ArrowRight':
+      case 'ArrowDown':
+        e.preventDefault();
+        this.gotoPageIndex(this.currentPageIndex + 1);
+        break;
+      default:
+        break;
       }
     });
   },

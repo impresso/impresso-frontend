@@ -3,7 +3,6 @@ import assert from 'assert';
 
 import {
   getNamedEntitiesFromArticleResponse,
-  splitTextByLineBreaks,
   annotateText,
 } from '../../../src/logic/articleAnnotations';
 
@@ -471,13 +470,13 @@ const expectedAnnotatedText = ['<div class="region">'].concat(articleResponse.re
 const expectedAnnotatedTextWithMultipleRegions = articleResponseWithMultipleRegions.regions.map(({ g }) => {
   return ['<div class="region">'].concat(g.map(line => {
     const items = line
-    .split(/[<>]/)
-    .filter(x => x !== '')
-    .map(l => {
-      return l.startsWith('span') || l.startsWith('/span')
-        ? `<${l.replace('person', 'entity person').replace('location', 'entity location')}>`
-        : l
-    });
+      .split(/[<>]/)
+      .filter(x => x !== '')
+      .map(l => {
+        return l.startsWith('span') || l.startsWith('/span')
+          ? `<${l.replace('person', 'entity person').replace('location', 'entity location')}>`
+          : l
+      });
     return ['<p class="line">', items, '</p>'].flat();
   })).concat(['</div>']).flat();
 }).flat();
@@ -521,13 +520,6 @@ describe('getNamedEntitiesFromArticleResponse', () => {
     assert.deepEqual(entities, expectedEntities);
   });
 });
-
-describe('splitTextByLineBreaks', () => {
-  it('splits text into expected number of parts', () => {
-    const parts = splitTextByLineBreaks(articleResponse.content, articleResponse.contentLineBreaks);
-    assert.equal(parts.length, articleResponse.regions[0].g.length);
-  });
-})
 
 describe('annotateText', () => {
   it('annotates a text with a single region', () => {

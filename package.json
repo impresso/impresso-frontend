@@ -107,7 +107,8 @@
       "eqeqeq": [
         "error",
         "smart"
-      ]
+      ],
+      "indent": ["error", 2]
     },
     "parserOptions": {
       "parser": "babel-eslint"

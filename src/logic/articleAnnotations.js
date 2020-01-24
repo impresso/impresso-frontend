@@ -31,13 +31,7 @@ export function getNamedEntitiesFromArticleResponse(response) {
   return personEntities.concat(locationEntities);
 }
 
-export function splitTextByLineBreaks(text, lineBreaks) {
-  const items = lineBreaks.map((breakpoint, index) => {
-    if (index === 0) return text.slice(0, breakpoint);
-    return text.slice(lineBreaks[index - 1], breakpoint);
-  });
-  return items.concat(text.slice(lineBreaks[lineBreaks.length - 1], text.length));
-}
+const SpecialEntitiesPriorityOrder = ['line', 'region'];
 
 function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, textLength) {
   const lineEntities = lineBreaks.map((breakpoint, index) => {
@@ -60,66 +54,9 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     end: textLength
   }});
 
-  const sortedEntities = entities
+  return entities
     .concat(lineEntities)
     .concat(regionEntities)
-    .sort((entityA, entityB) => {
-    // sort by start offset
-    const startDiff = entityA.offset.start - entityB.offset.start;
-    if (startDiff !== 0) return startDiff;
-
-    // With the same start offset the priority is given
-    // to first 'region', then 'line' then all other kinds
-    if (entityA.kind === 'region' && entityA.kind === entityB.kind) return 0;
-    if (entityA.kind === 'region') return -1;
-    if (entityB.kind === 'region') return 1;
-
-    if (entityA.kind === 'line' && entityA.kind === entityB.kind) return 0;
-    if (entityA.kind === 'line') return -1;
-    if (entityB.kind === 'line') return 1;
-
-    // then sort by length of the tag span
-    const lengthA = entityA.offset.end - entityA.offset.start;
-    const lengthB = entityB.offset.end - entityB.offset.start;
-    const lengthDiff = lengthB - lengthA;
-    if (lengthDiff !== 0) return lengthDiff;
-  });
-
-  return sortedEntities;
-}
-
-function unwindEntities(entities) {
-  const stack = []
-  const items = entities.reduce((acc, entity) => {
-    if (stack.length === 0) {
-      stack.push(entity);
-      const items = acc.concat([
-        { offset: entity.offset.start, position: 'start', entity }
-      ]);
-      return items;
-    }
-
-    let items = []
-    while(stack.length > 0 && stack[stack.length -1].offset.end <= entity.offset.start) {
-      const mostRecentStackEntity = stack.pop();
-      items = items.concat([
-        { offset: mostRecentStackEntity.offset.end, position: 'end', entity: mostRecentStackEntity }
-      ])
-    }
-    stack.push(entity);
-    items = items.concat([
-      { offset: entity.offset.start, position: 'start', entity }
-    ])
-
-    return acc.concat(items);
-  }, []);
-  const stackItems = stack.reverse().map(entity => ({
-    offset: entity.offset.end,
-    position: 'end',
-    entity
-  }))
-
-  return items.concat(stackItems);
 }
 
 const DefaultAnnotationConfiguration = {
@@ -137,67 +74,99 @@ const DefaultAnnotationConfiguration = {
   },
 }
 
-function getTagForEntity(tagEntity, configuration, isContinuation = false) {
-  const tagTemplate = configuration[tagEntity.entity.kind][tagEntity.position];
-  return tagTemplate(tagEntity.entity, isContinuation);
+function getOpenTagForEntity(entity, configuration, isContinuation = false) {
+  const tagTemplate = configuration[entity.kind]['start'];
+  return tagTemplate(entity, isContinuation);
 }
 
-function getOpenTagForEntity(tagEntity, configuration, isContinuation = false) {
-  const tagTemplate = configuration[tagEntity.entity.kind]['start'];
-  return tagTemplate(tagEntity.entity, isContinuation);
+function getCloseTagForEntity(entity, configuration, isContinuation = false) {
+  const tagTemplate = configuration[entity.kind]['end'];
+  return tagTemplate(entity, isContinuation);
 }
 
-function getCloseTagForEntity(tagEntity, configuration, isContinuation = false) {
-  const tagTemplate = configuration[tagEntity.entity.kind]['end'];
-  return tagTemplate(tagEntity.entity, isContinuation);
-}
+const getEntitiesForPosition = (entities, position) => entities
+  .filter(({ offset: { start, end }}) => position >= start && position <= end)
+  .sort(({ kind: kindA }, { kind: kindB }) => {
+    const [priorityA, priorityB] = [kindA, kindB].map(i => SpecialEntitiesPriorityOrder.indexOf(i));
+    return priorityB - priorityA;
+  });
 
 export function annotateText(text, entities, lineBreaks, regionBreaks, configuration = DefaultAnnotationConfiguration) {
   const expandedEntities = expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text.length);
-  const unwoundEntities = unwindEntities(expandedEntities);
-  const tagStack = [];
+  const breakpoints = [...new Set(expandedEntities.map(({ offset: { start, end }}) => [start, end]).flat().sort((a, b) => a - b))]
 
-  return unwoundEntities.reduce((annotatedTextItems, tagEntity, index) => {
-    let items = [];
+  const items = breakpoints.reduce((acc, breakpoint, idx) => {
+    let items = []
+    const entities = getEntitiesForPosition(expandedEntities, breakpoint);
+    const subtext = idx < breakpoints.length - 1 ? text.slice(breakpoint, breakpoints[idx + 1]) : undefined
+    const specialEntities = entities
+      .filter(({ kind }) => SpecialEntitiesPriorityOrder.includes(kind))
+    const otherEntities = entities
+      .filter(({ kind }) => !SpecialEntitiesPriorityOrder.includes(kind))
 
-    // when line ends close all the tags in stack except "region".
-    if (tagEntity.position === 'end' && tagEntity.entity.kind === 'line') {
-      const extraEndTags = tagStack
-        .filter(openTag => openTag.entity.kind !== 'region')
-        .map(openTag => getCloseTagForEntity(openTag, configuration, true))
-      items = items.concat(extraEndTags.slice(0, extraEndTags.length - 1));
+    const closeSpecialEntities = specialEntities.filter(({ offset: { end }}) => end === breakpoint).reverse()
+    const openSpecialEntities = specialEntities.filter(({ offset: { start }}) => start === breakpoint)
+
+    const sorter = (a, b) => {
+      if (a.offset.end === breakpoint) return -1
+      if (b.offset.end === breakpoint) return 1
+      if (a.offset.start === breakpoint) return -1
+      if (b.offset.start === breakpoint) return -1
+      return 0
+    }
+    const openOtherEntities = otherEntities
+      .filter(({ offset: { start }}) => start === breakpoint)
+      .sort(sorter)
+    const closeOtherEntities = otherEntities
+      .filter(({ offset: { end }}) => end === breakpoint)
+      .sort(sorter)
+
+    const entityWontBeUsed = entity => !openOtherEntities.includes(entity) && !closeOtherEntities.includes(entity)
+
+    closeOtherEntities.forEach(entity => {
+      items.push(getCloseTagForEntity(entity, configuration, false))
+    })
+
+    if (closeSpecialEntities.length > 0) {
+      otherEntities.filter(entityWontBeUsed).forEach(entity => {
+        const tag = getCloseTagForEntity(entity, configuration, true)
+        items.push(tag)
+      })
+    }
+    closeSpecialEntities.forEach(entity => {
+      const tag = getCloseTagForEntity(entity, configuration, false)
+      items.push(tag)
+    })
+
+    openSpecialEntities.forEach(entity => {
+      const tag = getOpenTagForEntity(entity, configuration, false)
+      items.push(tag)
+    })
+    if (openSpecialEntities.length > 0) {
+      otherEntities.filter(entityWontBeUsed).forEach(entity => {
+        const tag = getOpenTagForEntity(entity, configuration, true)
+        items.push(tag)
+      })
     }
 
-    items = items.concat([getTagForEntity(tagEntity, configuration)]);
+    openOtherEntities.forEach(entity => {
+      items.push(getOpenTagForEntity(entity, configuration, false))
+    })
 
-    // when line starts, open all the tags in stack except "region".
-    if (tagEntity.position === 'start' && tagEntity.entity.kind === 'line') {
-      const extraStartTags = tagStack
-        .filter(openTag => openTag.entity.kind !== 'region')
-        .map(openTag => getOpenTagForEntity(openTag, configuration, true));
-      items = items.concat(extraStartTags);
-    }
+    if (subtext !== undefined) items.push(subtext)
 
-    if (tagEntity.position === 'start') {
-      const nextTagEntity = unwoundEntities[index + 1]
-      if (nextTagEntity && tagEntity.offset !== nextTagEntity.offset) {
-        items = items.concat([text.slice(tagEntity.offset, nextTagEntity.offset)])
-      }
+    // console.info('^^', {
+    //   closeSpecialEntities,
+    //   openSpecialEntities,
+    //   openOtherEntities,
+    //   closeOtherEntities,
+    //   otherEntities,
+    //   subtext,
+    //   items
+    // });
 
-      tagStack.push(tagEntity);
-    }
-
-    if (tagEntity.position === 'end') {
-      if (!['region', 'line'].includes(tagEntity.entity.kind)) {
-        const nextTagEntity = unwoundEntities[index + 1]
-        if (nextTagEntity && tagEntity.offset !== nextTagEntity.offset) {
-          items = items.concat([text.slice(tagEntity.offset, nextTagEntity.offset)])
-        }
-      }
-
-      tagStack.pop();
-    }
-
-    return annotatedTextItems.concat(items);
+    return acc.concat(items)
   }, []);
+
+  return items;
 }
