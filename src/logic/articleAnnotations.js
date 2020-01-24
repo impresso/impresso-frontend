@@ -68,12 +68,6 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     const startDiff = entityA.offset.start - entityB.offset.start;
     if (startDiff !== 0) return startDiff;
 
-    // then by length
-    const lengthA = entityA.offset.end - entityA.offset.start;
-    const lengthB = entityB.offset.end - entityB.offset.start;
-    const lengthDiff = lengthB - lengthA;
-    if (lengthDiff !== 0) return lengthDiff;
-
     // then 'region' takes priority
     if (entityA.kind === 'region' && entityA.kind === entityB.kind) return 0;
     if (entityA.kind === 'region') return -1;
@@ -82,7 +76,13 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     // then 'line' kind takes priority
     if (entityA.kind === 'line' && entityA.kind === entityB.kind) return 0;
     if (entityA.kind === 'line') return -1;
-    return 1;
+    if (entityB.kind === 'line') return 1;
+
+    // then by length
+    const lengthA = entityA.offset.end - entityA.offset.start;
+    const lengthB = entityB.offset.end - entityB.offset.start;
+    const lengthDiff = lengthB - lengthA;
+    if (lengthDiff !== 0) return lengthDiff;
   });
 
   return sortedEntities;

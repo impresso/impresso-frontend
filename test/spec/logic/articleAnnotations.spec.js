@@ -377,6 +377,82 @@ const articleResponseWithMultipleRegions = {
   v: ''
 };
 
+const articleResponseWithMultilineEntity = {
+  uid: 'indeplux-1923-09-04-a-i0056',
+  type: 'ar',
+  title: 'Un télégramme du roi George',
+  size: 534,
+  nbPages: 1,
+  isCC: true,
+  excerpt: 'Le télégramme suivant a ete adresse par le roi George V à l’Empereur du Japon: «Je me hâte d’exprimer à...',
+  locations: [
+    {
+      uid: 'aida-0001-54-Boy_George',
+      relevance: 1
+    },
+    {
+      uid: 'aida-0001-54-Japan',
+      relevance: 1
+    }
+  ],
+  language: 'fr',
+  content: 'Un télégramme du roi George Le télégramme suivant a ete adresse par le roi George V à l’Empereur du Japon: «Je me hâte d’exprimer à V. M. Impériale l’horreur avec laquelle j’ai appris le désastre épouvantable qui a frappé votre pays ainsi que les terribles conséquences qui en ont été la suite, à Tokio et à Yokohama. Je sympathise profondément. avec V. M. dans ces circonstances effrayantes, qui ont entraîné la perte de vies et de propriétés, ainsi que des souffrances impossibles à décrire, subies par des milliers de vos sujets.» ',
+  collections: [],
+  tags: [],
+  country: 'LU',
+  year: 1923,
+  date: '1923-09-04T00:00:00.000Z',
+  isFront: true,
+  accessRight: 'na',
+  labels: [
+    'article'
+  ],
+  mentions: [
+    {
+      person: [
+        [
+          17,
+          13
+        ]
+      ]
+    },
+    {
+      location: [
+        [
+          75,
+          6
+        ],
+        [
+          100,
+          5
+        ]
+      ]
+    }
+  ],
+  contentLineBreaks: [
+    27,
+    63,
+    100,
+    104,
+    138,
+    183,
+    222,
+    257,
+    305,
+    332,
+    379,
+    421,
+    459,
+    504,
+    533
+  ],
+  regionBreaks: [
+    28
+  ],
+  matches: [],
+  v: ''
+};
+
 /**
  * Add line tags to legacy text, split it by tags and update classes.
  */
@@ -472,5 +548,78 @@ describe('annotateText', () => {
     const annotatedText = annotateText(articleResponseWithMultipleRegions.content, entities, lineBreaks, regionBreaks);
 
     assert.deepStrictEqual(annotatedText, expectedAnnotatedTextWithMultipleRegions);
+  })
+
+  it('annotates a text with a multiline entity', () => {
+    const entities = getNamedEntitiesFromArticleResponse(articleResponseWithMultilineEntity);
+    const lineBreaks = articleResponseWithMultilineEntity.contentLineBreaks;
+    const regionBreaks = articleResponseWithMultilineEntity.regionBreaks;
+
+    const annotatedText = annotateText(articleResponseWithMultilineEntity.content, entities, lineBreaks, regionBreaks);
+    const expectedAnnotatedText = [
+      '<div class="region">',
+      '<p class="line">',
+      'Un télégramme du roi George',
+      '</p>',
+      '</div>',
+      '<div class="region">',
+      '<p class="line">',
+      ' Le télégramme suivant a ete adresse',
+      '</p>',
+      '<p class="line">',
+      ' par le roi ',
+      '<span class="entity location">',
+      'George',
+      '</span>',
+      ' V à l’Empereur du ',
+      '</p>',
+      '<p class="line">',
+      '<span class="entity location">',
+      'Japo',
+      '</span>',
+      '</p>',
+      '<p class="line">',
+      '<span class="entity location continuation">',
+      'n',
+      '</span>',
+      ': «Je me hâte d’exprimer à V. M. ',
+      '</p>',
+      '<p class="line">',
+      'Impériale l’horreur avec laquelle j’ai appris',
+      '</p>',
+      '<p class="line">',
+      ' le désastre épouvantable qui a frappé ',
+      '</p>',
+      '<p class="line">',
+      'votre pays ainsi que les terribles ',
+      '</p>',
+      '<p class="line">',
+      'conséquences qui en ont été la suite, à Tokio et',
+      '</p>',
+      '<p class="line">',
+      ' à Yokohama. Je sympathise ',
+      '</p>',
+      '<p class="line">',
+      'profondément. avec V. M. dans ces circonstances',
+      '</p>',
+      '<p class="line">',
+      ' effrayantes, qui ont entraîné la perte de',
+      '</p>',
+      '<p class="line">',
+      ' vies et de propriétés, ainsi que des ',
+      '</p>',
+      '<p class="line">',
+      'souffrances impossibles à décrire, subies par',
+      '</p>',
+      '<p class="line">',
+      ' des milliers de vos sujets.»',
+      '</p>',
+      '<p class="line">',
+      ' ',
+      '</p>',
+      '</div>',
+    ];
+
+    assert.deepStrictEqual(annotatedText, expectedAnnotatedText);
   })
 });
