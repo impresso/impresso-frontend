@@ -1,6 +1,6 @@
 {
   "name": "impresso-frontend",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A Vue.js project",
   "author": "Thijs van Beek <thijs.vanbeek@uni.lu>",
   "private": true,
@@ -93,9 +93,21 @@
       ],
       "import/no-cycle": 0,
       "no-trailing-spaces": "error",
-      "quotes": ["warn", "single", { "allowTemplateLiterals": true }],
-      "quote-props": ["error", "as-needed"],
-      "eqeqeq": ["error", "smart"]
+      "quotes": [
+        "warn",
+        "single",
+        {
+          "allowTemplateLiterals": true
+        }
+      ],
+      "quote-props": [
+        "error",
+        "as-needed"
+      ],
+      "eqeqeq": [
+        "error",
+        "smart"
+      ]
     },
     "parserOptions": {
       "parser": "babel-eslint"
