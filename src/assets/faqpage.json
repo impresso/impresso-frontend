@@ -124,7 +124,12 @@
               "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/topic_modeling.png'></img>'",
               "There are multiple reasons which cause missing content: <ul><li>Digitisation: Not all issues were available for digitisation by the libraries due to incomplete collections; in other cases single pages or complete issues were missed during the digitisation. In this case, the folder structure on the hard disks we received suggests that there should be an issue but there are no corresponding files. In other cases, newspaper pages were digitized successfully but not subjected to text recognition (OCR). You can find these pages in the interface by browsing an issue, but not through a search. </li><li>Transfer: The journey of digitized materials is quite fragmented in both space and time, with various transfers at different times among several partners (e.g. the library, the OCR company, the hosting company, and finally, us). When discovering non readable .zip files in the sources we received on hard drives, it was not possible to recover them nor to know where the corruption came from. Full traceability is still a challenge.</li></ul>"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "title": "Uses of the impresso interface",
+        "faq": [
           {
             "id": "compare-and-inspect",
             "title": "Where can I analyse the metadata of my collections or queries?",
