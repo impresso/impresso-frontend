@@ -34,9 +34,9 @@
           {
             "id": "how-can-i-get-access",
             "title": "Why can’t I see everything? How do I get access to the full corpus?",
-            "summary": "we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).",
+            "summary": "Unrestricted access is only possible for the subset of newspapers which are in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).",
             "description": [
-              "From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a <a href='https://github.com/impresso/impresso-frontend/blob/develop/src/assets/img/_impresso_NDA.pdf'>Non Disclosure Agreement</a> (NDA). We will provide you with a user account once we receive the signed NDA from you.",
+              "From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why <b>unrestricted access is only possible for the subset of newspapers which are in the public domain</b>. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA). We will provide you with a user account <b>upon reception of your signed NDA</b>.",
               "Please see the <a href='/app/terms-of-use'>Terms of Use</a> to learn more about the usage rights for the impresso corpus."
             ]
           },
