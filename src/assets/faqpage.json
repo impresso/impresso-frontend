@@ -37,7 +37,7 @@
             "summary": "we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).",
             "description": [
               "From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a <a href='https://github.com/impresso/impresso-frontend/blob/develop/src/assets/img/_impresso_NDA.pdf'>Non Disclosure Agreement</a> (NDA). We will provide you with a user account once we receive the signed NDA from you.",
-              "Please see the Terms of Use to learn more about the usage rights for the impresso corpus."
+              "Please see the <a href='/app/terms-of-use'>Terms of Use</a> to learn more about the usage rights for the impresso corpus."
             ]
           },
           {
@@ -53,7 +53,7 @@
             "title": "Can I use impresso interface in the classroom?",
             "summary": "Yes, with the same restrictions as for other uses and we would be very happy to hear about your experience!",
             "description": [
-              "All material restrictions apply equally in a teaching context, please see the Terms of Use page. It could be a good opportunity to introduce legal matters related to primary sources and research data to the students."
+              "All material restrictions apply equally in a teaching context, please see the <a href='/app/terms-of-use'>Terms of Use</a> page. It could be a good opportunity to introduce legal matters related to primary sources and research data to the students."
             ]
           },
           {
