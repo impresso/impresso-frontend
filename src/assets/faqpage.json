@@ -62,7 +62,8 @@
             "title": "What are the copyrights of the newspapers accessible through the impresso interface?",
             "summary": "Newspapers accessible through the impresso interface are under different copyrights.",
             "description": [
-              " The condition of use is indicated at the level of the issue, for each newspaper. The majority of them are free of use for personal and academic use (see the ‘Personal and Academic use’ license page). Others are not subject to any restrictions (see the ‘Public’ License page). Newspapers from the National Library of Luxembourg can be used without restriction up to 1877, only for personal and academic use onwards."
+              "Conditions of use are set at the issue level of each newspaper. You can find this information a) on the individual newspaper page, b) upon download, for each item of the CSV file. To select articles belonging to a particular category of license, choose the relevant category in \"filter by access rights\".",
+              "The majority of them are free of use for personal and academic use (see the ‘Personal and Academic use’ section in the <a href='/app/terms-of-use'>Terms of Use</a>). Others are not subject to any restrictions (see the ‘Public’ in the <a href='/app/terms-of-use'>Terms of Use</a>). Newspapers from the National Library of Luxembourg can be used without restriction up to 1877, only for personal and academic use onwards."
             ]
           },
           {
