@@ -19,7 +19,7 @@
         />
       </b-media>
     </div>
-    
+
     <div v-else>
       <div v-for="(page, index) in tableOfContents.pages"
            v-bind:key="index"
@@ -52,7 +52,7 @@
                 :height="200"
                 class="mx-3 mb-2"
                 :item="image"
-                v-for="(image, i) in article.images" 
+                v-for="(image, i) in article.images"
                 v-bind:key="i"
               />
             </div>

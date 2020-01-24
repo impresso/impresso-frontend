@@ -173,7 +173,7 @@ export default new Vuex.Store({
           errorRoute.push(error.hook.method);
         } catch (e) {
           console.warn(e);
-        }  
+        }
       }
       console.error(`[Unexpected error ${error.name}]: ${errorRoute.join('.')} (origin:${origin})`,
         error.code,

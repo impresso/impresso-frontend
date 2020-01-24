@@ -91,7 +91,11 @@
           "vue": "never"
         }
       ],
-      "import/no-cycle": 0
+      "import/no-cycle": 0,
+      "no-trailing-spaces": "error",
+      "quotes": ["warn", "single", { "allowTemplateLiterals": true }],
+      "quote-props": ["error", "as-needed"],
+      "eqeqeq": ["error", "smart"]
     },
     "parserOptions": {
       "parser": "babel-eslint"
