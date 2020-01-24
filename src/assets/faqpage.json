@@ -8,13 +8,13 @@
           {
             "id": "who-is-behind-impresso",
             "title": "Who is behind impresso?",
-            "summary": "The objective of the impresso project is to enable critical text mining of newspaper archives with an interdisciplinary consortium implementing a technological framework to extract, process, link, and explore data from print media archives.",
+            "summary": "The impresso project is a Swiss-Luxembourgish research project dedicated to the computational enrichment of historical newspapers and the development of new workflows for (digital) historians in a newly designed user interface.",
             "description": [
-              "The impresso project is a Swiss-Luxembourgish research project dedicated to the computational enrichment of historical newspapers and the development of new workflows for (digital) historians in a newly designed user interface.",
+              "The objective of the impresso project is to enable critical text mining of newspaper archives with an interdisciplinary consortium implementing a technological framework to extract, process, link, and explore data from print media archives.",
               "The core team consists of computational linguists, designers/developers as well as historians based at the <a href='http://dhlab.epfl.ch'>DHLAB of the École polytechnique fédérale de Lausanne (EPFL)</a>, the <a  href='https://www.cl.uzh.ch/de.html'>Institute of Computational Linguistics at the University of Zurich</a> and the <a href='http://c2dh.uni.lu'>Luxembourg Centre for Contemporary and Digital History (C2DH)</a>. The project is funded by the <a href='http://www.snf.ch'>Swiss National Science foundation</a> (Grant CR- SII5_173719). ",
               "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
               "We are further supported by a team of academic partners: <ul><li>François Vallotton (Full Professor at the University of Lausanne),</li><li>Raphaëlle Ruppen Coutaz (Lecturer at the University of Lausanne),</li><li>Frédéric Clavert (Assistant Professor at C2DH) and </li><li>Enrico Natale (Managing Director infoclio.ch).</li></ul>",
-              "Finally, a group of associated researchers have committed to using impresso for their research and provide valuable feedback to us.",
+              "Finally, a group of associated researchers have committed to using <i>impresso</i> for their research and provide valuable feedback to us.",
               "Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details."
             ]
           },
