@@ -11,10 +11,10 @@ RUN npm install
 
 COPY src ./src
 COPY static ./static
+COPY public ./public
 
 COPY .eslintignore .postcssrc.js .babelrc vue.config.js ./
 COPY .env .env.production ./
-COPY index.html ./
 
 ENV PUBLIC_PATH /app/
 ENV NODE_ENV production
