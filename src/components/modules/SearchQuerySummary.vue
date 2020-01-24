@@ -14,7 +14,7 @@ export default {
     searchQuery: Object,
     enumerables: {
       type: Array,
-      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country'],
+      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country', 'accessRight'],
     },
   },
   data: () => ({
@@ -234,6 +234,7 @@ export default {
       "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {collection} {enumerable}",
       "isFront": "appearing on the <em>front page</em>",
       "include": {
+        "accessRight": "available as",
         "topic": "with topic",
         "pub": {
           "newspaper": "published in"
@@ -253,6 +254,7 @@ export default {
         "type": "- tagged as"
       },
       "exclude": {
+        "accessRight": "not available as",
         "topic": "without topic",
         "pub": {
           "newspaper": "not published in"
