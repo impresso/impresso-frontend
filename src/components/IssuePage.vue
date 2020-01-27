@@ -380,24 +380,41 @@ export default {
       }
     },
     renderMetaTags() {
-      const tags = {};
-      try{
-        const titleParts = [
-          this.issue.newspaper.name,
-          this.$d(this.issue.date, 'short'),
-        ];
+      let tags = {};
+      const titleParts = [
+        this.issue.newspaper.name,
+        this.$d(this.issue.date, 'short'),
+      ];
 
-        if (this.$route.name === 'article') {
-          titleParts.unshift(this.article.uid);
-        }
-
-        this.$renderMetaTags({
-          title: titleParts.join(' · '),
-          ...tags,
-        });
-      } catch(err) {
-        console.error(err);
+      if (this.$route.name === 'article') {
+        titleParts.unshift(this.article.uid);
+        tags = {
+          dc: {
+            'DC.title': this.article.title,
+            'DC.type': 'newspaperArticle',
+            'DC.identifier': this.article.uid,
+            'DC.rights': 'copyright',
+            'DC.language': this.article.language,
+            'DC.publication': 'impresso',
+            'DC.isPartOf': this.issue.newspaper.name,
+            'DCTERMS.issued': this.issue.date.toISOString().split('T').shift(),
+            'DCTERMS.publisher': this.issue.newspaper.name,
+          },
+          og: {
+            'og:site_name': this.issue.newspaper.name,
+          },
+          meta: {
+            citation_newspaper_title: this.issue.newspaper.name,
+            description: this.article.excerpt,
+          },
+        };
       }
+
+      this.$renderMetaTags({
+        title: titleParts.join(' · '),
+        ...tags,
+        updateZotero: true,
+      });
     },
     switchTab(tab) {
       // swith tab query params leaving the other untouched
@@ -586,27 +603,27 @@ export default {
       });
     },
     loadIssue({ uid }) {
-      console.info('...loading issue', uid);
+      // console.info('...loading issue', uid);
       return this.$store.dispatch('issue/LOAD_ISSUE', uid);
     },
     loadPage({ uid }) {
-      console.info('...loading page', uid);
+      // console.info('...loading page', uid);
       return this.$store.dispatch('issue/LOAD_PAGE', uid);
     },
     loadPageTopics({ uid }) {
-      console.info('...loading marginalia topics', uid);
+      // console.info('...loading marginalia topics', uid);
       return this.$store.dispatch('entities/LOAD_PAGE_TOPICS', uid);
     },
     loadPageEntities({ uid }) {
-      console.info('...loading marginalia named entities', uid);
+      // console.info('...loading marginalia named entities', uid);
       return this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', uid);
     },
     loadArticle({ uid }) {
-      console.info('...loading article', uid);
+      // console.info('...loading article', uid);
       return this.$store.dispatch('issue/LOAD_ARTICLE', uid);
     },
     loadToC() {
-      console.info('...loading ToC', this.issue.uid);
+      // console.info('...loading ToC', this.issue.uid);
       return this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS')
         .then((articles) => {
           this.tocArticles = articles;
@@ -614,7 +631,7 @@ export default {
         });
     },
     loadMarginalia() {
-      console.info('...loading marginalia:', this.page.uid);
+      // console.info('...loading marginalia:', this.page.uid);
       return Promise.all([
         this.loadPageTopics({ uid: this.page.uid }),
         this.loadPageEntities({ uid: this.page.uid }),
@@ -639,10 +656,10 @@ export default {
     search() {
       const filters = this.getSearchFilters();
       if (!filters.length) {
-        console.info('-> search() skip, q is empty.');
+        // console.info('-> search() skip, q is empty.');
         return;
       }
-      console.info('-> search() with filters:', filters);
+      // console.info('-> search() with filters:', filters);
       this.$store.dispatch('search/GET_SEARCH_RESULTS', {
         filters,
         orderBy: 'id',
@@ -652,8 +669,8 @@ export default {
         this.isSearchLoaded = true;
         this.matches = result.data;
         this.matchesTotalRows = result.total;
-        console.info(result);
-        console.info('-> search() success for q:', this.q);
+        // console.info(result);
+        // console.info('-> search() success for q:', this.q);
       });
     },
     selectArticle() {
