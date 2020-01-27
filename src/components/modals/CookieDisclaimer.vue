@@ -2,7 +2,6 @@
   <div class="cookie-disclaimer" v-if="!cookiesAccepted">
     <div class="d-flex p-4">
       <div class="flex-grow-1">
-        {{cookiesAccepted}}
         This website uses cookies to ensure you get the best experience on our website.
         <a href="https://www.cookiesandyou.com/">Learn more</a>
       </div>
@@ -34,6 +33,7 @@ export default {
   right: 0;
   background-color: #FFEB78;
   z-index: 1090;
+  padding-right: 80px;
 }
 
 .cookie-disclaimer a {
