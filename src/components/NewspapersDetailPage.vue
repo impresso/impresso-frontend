@@ -79,12 +79,20 @@
             </h3>
           </template>
           <template v-slot:cell(name)="row">
-            <p class="small-caps">{{row.item.label}}</p>
+            <span v-if="row.item.name === 'institutionNames'">
+              <p class="small-caps">Institution</p>
+            </span>
+            <span v-else-if="row.item.name === 'institutionLinks'" />
+            <span v-else-if="row.item.name === 'institutionLogos'" />
+
+            <p v-else class="small-caps">{{row.item.label}}</p>
             <!-- {{row.item.name}} -->
           </template>
           <template v-slot:cell(property)="row">
 
             <div v-if="row.item.name === 'institutionNames'" v-html="institution" />
+            <div v-else-if="row.item.name === 'institutionLinks'" />
+            <div v-else-if="row.item.name === 'institutionLogos'" />
             <div v-else-if="row.item.isUrl">
               <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
             </div>
@@ -96,6 +104,9 @@
             </div>
           </template>
         </b-table>
+        <!-- <pre>
+          {{newspaper.properties}}
+        </pre> -->
       </div>
       <div v-else>
         <div class="p-4">
