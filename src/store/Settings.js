@@ -3,6 +3,7 @@ export default {
   state: {
     language_code: 'en',
     termsAgreed: false,
+    cookiesAccepted: false,
     lastNotificationDate: (new Date(0)).toISOString(),
   },
   getters: {
@@ -17,6 +18,9 @@ export default {
     SET_TERMS_AGREED(state, value) {
       state.termsAgreed = Boolean(value);
     },
+    SET_COOKIES_ACCEPTED(state, value) {
+      state.cookiesAccepted = Boolean(value);
+    },
     SET_LAST_NOTIFICATION_DATE(state) {
       state.lastNotificationDate = (new Date()).toISOString();
     },
@@ -25,6 +29,9 @@ export default {
     ACCEPT_TERMS_OF_USE({ commit }) {
       console.info('settings/ACCEPT_TERMS_OF_USE');
       commit('SET_TERMS_AGREED', true);
+    },
+    ACCEPT_COOKIES({ commit }) {
+      commit('SET_COOKIES_ACCEPTED', true);
     },
     UPDATE_LAST_NOTIFICATION_DATE({ commit }) {
       console.info('@settings/UPDATE_LAST_NOTIFICATION_DATE');

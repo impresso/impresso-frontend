@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout id="IssuePage" ref="issuePage">
+  <i-layout id="IssuePage" class="bg-light" ref="issuePage">
     <i-layout-section width="350px">
       <div slot="header" class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
