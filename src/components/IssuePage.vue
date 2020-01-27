@@ -137,8 +137,12 @@
           </b-navbar-nav>
        </b-navbar>
       </div>
-      <div v-if="!isContentAvailable && issue">
-        
+      <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
+        <div class="align-self-center">
+          This content is available to logged-in people only.
+          <br/>
+          <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
+        </div>
       </div>
       <open-seadragon-viewer
         :class="[
