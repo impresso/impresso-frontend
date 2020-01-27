@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import FilterFactory from '@/models/FilterFactory';
 import Icon from 'vue-awesome/components/Icon';
+import FilterFactory from '@/models/FilterFactory';
 
 import 'vue-awesome/icons/edit';
 import 'vue-awesome/icons/check';

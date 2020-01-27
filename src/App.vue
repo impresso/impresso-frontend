@@ -18,6 +18,7 @@
   <div id="app-loading" class="fullscreen locked" v-if="is_locked">
     <status-indicator />
   </div>
+  <cookie-disclaimer />
 </div>
 </template>
 
@@ -28,6 +29,7 @@ import Monitor from './components/Monitor';
 import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
+import CookieDisclaimer from './components/modals/CookieDisclaimer';
 
 export default {
   name: 'app',
@@ -37,6 +39,7 @@ export default {
     Explorer,
     DisclaimerNotice,
     StatusIndicator,
+    CookieDisclaimer,
   },
   computed: {
     termsAgreed() {
@@ -71,7 +74,7 @@ export default {
     // load typekit
     WebFontLoader.load({
       typekit: {
-        id: process.env.TYPEKIT_ID,
+        id: process.env.VUE_APP_TYPEKIT_ID,
       },
     });
     // check whether there is a searchquery hash somewhere

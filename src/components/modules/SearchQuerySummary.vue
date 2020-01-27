@@ -14,12 +14,10 @@ export default {
     searchQuery: Object,
     enumerables: {
       type: Array,
-      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country'],
+      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country', 'accessRight'],
     },
   },
   data: () => ({
-    isOnFront: false,
-    hasDaterange: false,
   }),
   computed: {
     reducedSummary() {
@@ -31,14 +29,17 @@ export default {
       const enumerables = [];
       const translationTable = {};
 
+      let isOnFront = false;
+      let hasDaterange = false;
+
       // add translation if isFront is enabled
       if (filtersIndex.isFront) {
-        this.isOnFront = true;
+        isOnFront = true;
         translationTable.isFront = this.$t('isFront');
       }
 
       if (filtersIndex.daterange) {
-        this.hasDaterange = true;
+        hasDaterange = true;
         translationTable.daterange = this.$t('isFront');
       }
 
@@ -47,7 +48,7 @@ export default {
         translationTable.newspaper = this.getTranslation({
           filters: filtersIndex.newspaper,
           type: 'newspaper',
-          prefix: this.isOnFront || this.hasDaterange ? 'pubof.' : 'pub.',
+          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.',
         });
       }
       // other translations
@@ -213,7 +214,7 @@ export default {
     content: '"';
     font-weight: bold;
   }
-  .precision-fuzzy::after,{
+  .precision-fuzzy::after {
     content: '~';
     font-weight: bold;
   }
@@ -233,6 +234,7 @@ export default {
       "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {collection} {enumerable}",
       "isFront": "appearing on the <em>front page</em>",
       "include": {
+        "accessRight": "available as",
         "topic": "with topic",
         "pub": {
           "newspaper": "published in"
@@ -252,6 +254,7 @@ export default {
         "type": "- tagged as"
       },
       "exclude": {
+        "accessRight": "not available as",
         "topic": "without topic",
         "pub": {
           "newspaper": "not published in"

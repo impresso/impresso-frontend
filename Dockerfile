@@ -9,14 +9,12 @@ COPY package.json package-lock.json ./
 
 RUN npm install
 
-COPY build ./build
 COPY src ./src
 COPY static ./static
+COPY public ./public
 
-RUN mkdir ./config
-COPY config/prod.env.js config/index.js ./config/
-COPY .eslintrc.js .eslintignore .postcssrc.js .babelrc ./
-COPY index.html ./
+COPY .eslintignore .postcssrc.js .babelrc vue.config.js ./
+COPY .env .env.production ./
 
 ENV PUBLIC_PATH /app/
 ENV NODE_ENV production

@@ -27,7 +27,7 @@
           </div>
         </div>
       </div>
-      <div v-for="(type, i) in suggestionTypes" :key="type" class="suggestion-box border-bottom">
+      <div v-for="type in suggestionTypes" :key="type" class="suggestion-box border-bottom">
         <div class="row no-gutters">
           <div class="col-1 border-right" v-if="type !== 'mention'">
             <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
@@ -133,7 +133,11 @@ export default {
         selectableSuggestions = selectableSuggestions.concat(index[type]);
       });
       // update maximum index
+      // TODO: Remove side effect from computed property.
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.maxSelectedIndex = idx;
+      // TODO: Remove side effect from computed property.
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.selectableSuggestions = selectableSuggestions;
       return index;
     },
@@ -203,12 +207,12 @@ export default {
           console.info('Submit \'string\' suggestion, q:', this.q);
           if (!suggestion.q) {
             this.$store.dispatch('autocomplete/SAVE', {
-              q: suggestion.q || this.q,
+              q: suggestion.q || this.q,
             });
           }
           this.$emit('submit', {
             type: suggestion.type,
-            q: suggestion.q || this.q,
+            q: suggestion.q || this.q,
           });
         }
       } else {

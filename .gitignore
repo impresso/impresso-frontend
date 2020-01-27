@@ -12,6 +12,7 @@ config/*.js
 !config/default.env.js
 !config/prod.env.js
 !config/example.*.env.js
+tmp/
 
 # Editor directories and files
 .idea

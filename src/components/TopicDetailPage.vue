@@ -50,7 +50,7 @@
     </div>
 
     <div v-if="tab.name === TAB_ARTICLES" class="mb-5">
-      <div v-for="(article, idx) in articles" class="p-3 mb-2 border-bottom">
+      <div v-for="(article, idx) in articles" :key="idx" class="p-3 mb-2 border-bottom">
         <article-item :item="article"
           show-meta show-topics
           show-excerpt show-entities
@@ -73,7 +73,7 @@
         <p class="description small">Top words ...</p>
       </div>
       <ellipsis >
-        <div class="d-inline-block word"  v-for="(word, idx) in topic.words">
+        <div class="d-inline-block word"  v-for="(word, idx) in topic.words" :key="idx">
           <span :style='{opacity: word.l}'>{{ word.w }}</span>
           <!-- <span :style='{fontSize: (word.l + 0.5) + "em"}'>{{ word.w }}</span> -->
           <!-- <span class="word-probability">{{word.p}}</span> -->

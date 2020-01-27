@@ -476,8 +476,10 @@ export default {
     INIT({ state, commit }) {
       if (state.currentSearchIsPristine) {
         const { filters } = protobuf.searchQuery.deserialize(state.currentSearchHash);
-        commit('UPDATE_SEARCH_IS_PRISTINE', true);
-        commit('INITIALIZE_FILTERS', filters);
+        if (Array.isArray(filters)) {
+          commit('UPDATE_SEARCH_IS_PRISTINE', true);
+          commit('INITIALIZE_FILTERS', filters);
+        }
         console.info('search/INIT, initial searchQuery instance:', state.search);
       } else {
         console.warn('search/INIT already initialized, skip.');

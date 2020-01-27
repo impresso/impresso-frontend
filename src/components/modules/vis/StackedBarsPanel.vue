@@ -41,7 +41,7 @@ export default {
     },
     buckets: {
       type: Array,
-      default: [],
+      default: () => [],
       validator: buckets => buckets.map(b => b instanceof Bucket),
     },
     valueSuffix: String, // suffix appended to the value label
@@ -72,9 +72,6 @@ export default {
   .wrapper {
     flex-direction: column;
     flex-grow: 1;
-  }
-
-  .tb-title {
   }
 
   .bar-container {

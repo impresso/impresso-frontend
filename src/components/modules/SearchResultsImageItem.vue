@@ -7,7 +7,7 @@
       <div v-if="isLoggedIn && checkbox" class="float-right pt-1 pl-1">
         <b-checkbox
           class="m-0 select-item"
-          v-bind:checked.native="checked"
+          v-bind:checked="checked"
           v-on:change="$emit('toggleSelected', searchResult)" />
       </div>
       <b-button variant="secondary" v-on:click="$emit('click:search', searchResult)" class="buttonFindSimilar" size="">

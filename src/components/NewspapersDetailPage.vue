@@ -140,8 +140,6 @@
 import Newspaper from '@/models/Newspaper';
 import SearchQuery from '@/models/SearchQuery';
 import Pagination from './modules/Pagination';
-import ImageViewer from './modules/ImageViewer';
-import NewspaperItem from './modules/lists/NewspaperItem';
 import Timeline from './modules/Timeline';
 
 export default {
@@ -266,8 +264,6 @@ export default {
   },
   components: {
     Pagination,
-    ImageViewer,
-    NewspaperItem,
     Timeline,
   },
 };

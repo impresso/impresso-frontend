@@ -71,7 +71,7 @@
       <div class="p-1">
         <b-container fluid>
           <b-row class="pb-5">
-            <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.uid">
+            <b-col cols="6" sm="12" md="6" lg="4" v-for="searchResult in searchResults" v-bind:key="searchResult.uid">
               <search-results-image-item
                 v-bind:searchResult="searchResult"
                 v-bind:checkbox="true"
@@ -100,16 +100,13 @@
 <script>
 import * as services from '@/services';
 import FilterImageUpload from './modules/FilterImageUpload';
-import Autocomplete from './Autocomplete';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
-import CollectionAddTo from './modules/CollectionAddTo';
 import Pagination from './modules/Pagination';
 import SearchFacets from './SearchFacets';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import Ellipsis from './modules/Ellipsis';
 import SearchInput from './modules/SearchInput';
 import SearchPills from './SearchPills';
-import ImageViewer from './modules/ImageViewer';
 import SearchTabs from './modules/SearchTabs';
 
 export default {
@@ -119,16 +116,13 @@ export default {
     },
   },
   components: {
-    Autocomplete,
     SearchResultsImageItem,
-    CollectionAddTo,
     Pagination,
     SearchFacets,
     SearchInput,
     SearchResultsSummary,
     Ellipsis,
     SearchPills,
-    ImageViewer,
     FilterImageUpload,
     SearchTabs,
   },
