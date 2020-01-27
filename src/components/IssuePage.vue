@@ -98,18 +98,12 @@
         </b-navbar>
         <b-navbar type="light" variant="light" class="px-0 py-0">
           <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
-            <div v-if="article && article.type">
+            <div v-if="article">
               <span class="badge bg-accent-secondary text-clr-white">{{ $t(`buckets.type.${article.type}`) }}</span>
-              <span class="small">
-                <span>{{ $t(`buckets.language.${article.language}`) }}</span>
-                &nbsp;
-                <span v-if="article.size > 1200">{{ $t('readingTime', { min: parseInt(article.size / 1200) }) }}</span>
-                <span v-else>{{ $t('reducedReadingTime')}}</span>
-                <!-- &nbsp;
-                <span>{{ $t(`buckets.accessRight.${article.accessRight}`) }}</span>
-                 -->
-                &nbsp;
-                {{ articlePages }}
+              <span class="badge">
+                <span class='small-caps' id='selected-article-language'>{{ article.language }}</span> |
+                <span>{{ articlePages }}</span>
+                <b-tooltip target="selected-article-language" :title="$t(`buckets.language.${article.language}`)"></b-tooltip>
               </span>
             </div>
           </b-navbar-nav>
@@ -123,8 +117,7 @@
             </small>
           </b-navbar-nav>
 
-          <b-navbar-nav v-show="mode === 'image'" class="px-3 border-right">
-
+          <b-navbar-nav v-show="mode === 'image'" class="py-2 px-3">
             <b-button
               :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
               @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
@@ -134,10 +127,6 @@
                 <div v-else>{{$t('toggle_outlines_off')}}</div>
               </div>
             </b-button>
-
-          </b-navbar-nav>
-          <b-navbar-nav>
-
             <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
               <div class="d-flex flex-row align-items-center">
                 <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
@@ -145,18 +134,22 @@
                 <div v-else>{{$t('toggle_fullscreen_off')}}</div>
               </div>
             </b-button>
-
           </b-navbar-nav>
-
-
        </b-navbar>
+      </div>
+      <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
+        <div class="align-self-center">
+          This content is available to logged-in people only.
+          <br/>
+          <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
+        </div>
       </div>
       <open-seadragon-viewer
         :class="[
           'bg-light',
           showOutlines,
         ]"
-        v-show="mode === 'image'"
+        v-show="isContentAvailable && mode === 'image'"
         v-bind:handler="handler" />
       <issue-viewer-text v-if="article && article.uid && mode === 'text'"
         v-bind:article_uid="article.uid"/>
@@ -238,6 +231,19 @@ export default {
     });
   },
   computed: {
+    isContentAvailable() {
+      if (this.issue) {
+        if (this.issue.accessRight === 'OpenPublic') {
+          return true;
+        } else if (this.currentUser && this.currentUser.isActive) {
+          return true;
+        }
+      }
+      return false;
+    },
+    currentUser() {
+      return this.$store.getters['user/user'];
+    },
     issue() {
       return this.$store.state.issue.issue;
     },
@@ -331,23 +337,19 @@ export default {
         this.isMarginaliaUpdated = false;
       }
       // if there's a specific article, let's load it
-      if (this.mode === 'text') {
+      if (this.$route.params.article_uid) {
         if (!this.article || this.article.uid !== this.$route.params.article_uid) {
           this.article = await this.loadArticle({
             uid: this.$route.params.article_uid,
           });
         }
-      } else if (this.$route.params.article_uid) {
-        this.article = {
-          uid: this.$route.params.article_uid,
-        };
-      } else if (this.issue.pages[this.currentPageIndex].articles.length) {
-        this.article = this.issue.pages[this.currentPageIndex].articles[0];
-      } else {
-        console.warn('there is no article for the current page...?');
+      } else if (this.article) {
+        // unload current article
+        this.article = null;
       }
-      // select article using the article uid
-      if (this.article && this.article.uid) {
+
+      if (this.article) {
+        // select article using the article uid
         this.selectArticle();
       }
 
@@ -360,12 +362,12 @@ export default {
       }
 
       // get article properties from toc
-      if (this.mode !== 'text' && this.article) {
-        const selectedArticle = this.tocArticles.find(d => d.uid === this.article.uid);
-        if (selectedArticle) {
-          this.article = selectedArticle;
-        }
-      }
+      // if (this.mode !== 'text' && !this.article) {
+      //   const selectedArticle = this.tocArticles.find(d => d.uid === this.article.uid);
+      //   if (selectedArticle) {
+      //     this.article = selectedArticle;
+      //   }
+      // }
       // refresh metadata according the current route
       this.renderMetaTags();
 
@@ -378,7 +380,7 @@ export default {
       }
     },
     renderMetaTags() {
-      const tags = {};
+      let tags = {};
       const titleParts = [
         this.issue.newspaper.name,
         this.$d(this.issue.date, 'short'),
@@ -386,11 +388,32 @@ export default {
 
       if (this.$route.name === 'article') {
         titleParts.unshift(this.article.uid);
+        tags = {
+          dc: {
+            'DC.title': this.article.title,
+            'DC.type': 'newspaperArticle',
+            'DC.identifier': this.article.uid,
+            'DC.rights': 'copyright',
+            'DC.language': this.article.language,
+            'DC.publication': 'impresso',
+            'DC.isPartOf': this.issue.newspaper.name,
+            'DCTERMS.issued': this.issue.date.toISOString().split('T').shift(),
+            'DCTERMS.publisher': this.issue.newspaper.name,
+          },
+          og: {
+            'og:site_name': this.issue.newspaper.name,
+          },
+          meta: {
+            citation_newspaper_title: this.issue.newspaper.name,
+            description: this.article.excerpt,
+          },
+        };
       }
 
       this.$renderMetaTags({
         title: titleParts.join(' · '),
         ...tags,
+        updateZotero: true,
       });
     },
     switchTab(tab) {
@@ -573,32 +596,34 @@ export default {
               }
             });
           });
-          this.selectArticle();
+          if (this.article) {
+            this.selectArticle();
+          }
         });
       });
     },
     loadIssue({ uid }) {
-      console.info('...loading issue', uid);
+      // console.info('...loading issue', uid);
       return this.$store.dispatch('issue/LOAD_ISSUE', uid);
     },
     loadPage({ uid }) {
-      console.info('...loading page', uid);
+      // console.info('...loading page', uid);
       return this.$store.dispatch('issue/LOAD_PAGE', uid);
     },
     loadPageTopics({ uid }) {
-      console.info('...loading marginalia topics', uid);
+      // console.info('...loading marginalia topics', uid);
       return this.$store.dispatch('entities/LOAD_PAGE_TOPICS', uid);
     },
     loadPageEntities({ uid }) {
-      console.info('...loading marginalia named entities', uid);
+      // console.info('...loading marginalia named entities', uid);
       return this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', uid);
     },
     loadArticle({ uid }) {
-      console.info('...loading article', uid);
+      // console.info('...loading article', uid);
       return this.$store.dispatch('issue/LOAD_ARTICLE', uid);
     },
     loadToC() {
-      console.info('...loading ToC', this.issue.uid);
+      // console.info('...loading ToC', this.issue.uid);
       return this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS')
         .then((articles) => {
           this.tocArticles = articles;
@@ -606,7 +631,7 @@ export default {
         });
     },
     loadMarginalia() {
-      console.info('...loading marginalia:', this.page.uid);
+      // console.info('...loading marginalia:', this.page.uid);
       return Promise.all([
         this.loadPageTopics({ uid: this.page.uid }),
         this.loadPageEntities({ uid: this.page.uid }),
@@ -631,10 +656,10 @@ export default {
     search() {
       const filters = this.getSearchFilters();
       if (!filters.length) {
-        console.info('-> search() skip, q is empty.');
+        // console.info('-> search() skip, q is empty.');
         return;
       }
-      console.info('-> search() with filters:', filters);
+      // console.info('-> search() with filters:', filters);
       this.$store.dispatch('search/GET_SEARCH_RESULTS', {
         filters,
         orderBy: 'id',
@@ -644,8 +669,8 @@ export default {
         this.isSearchLoaded = true;
         this.matches = result.data;
         this.matchesTotalRows = result.total;
-        console.info(result);
-        console.info('-> search() success for q:', this.q);
+        // console.info(result);
+        // console.info('-> search() success for q:', this.q);
       });
     },
     selectArticle() {
@@ -715,9 +740,9 @@ export default {
   watch: {
     $route: {
       immediate: true,
-      async handler({ name, params, query }) {
+      handler({ name, params, query }) {
         console.info('@$route changed:', name, params, query);
-        await this.init();
+        this.init();
       },
     },
   },
@@ -776,8 +801,8 @@ div.marginalia{
     "toggle_outlines_on": "outlines: on",
     "toggle_fullscreen_off": "Fullscreen: off",
     "toggle_outlines_off": "Outlines: off",
-    "facsimileView": "Facsimile view",
-    "closeReadingView": "close reading view"
+    "facsimileView": "Facsimile",
+    "closeReadingView": "Transcript"
   },
   "nl": {
     "label_display": "Toon als",
