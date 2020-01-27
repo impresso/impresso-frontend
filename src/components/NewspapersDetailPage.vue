@@ -80,9 +80,12 @@
           </template>
           <template v-slot:cell(name)="row">
             <p class="small-caps">{{row.item.label}}</p>
+            <!-- {{row.item.name}} -->
           </template>
           <template v-slot:cell(property)="row">
-            <div v-if="row.item.isUrl">
+
+            <div v-if="row.item.name === 'institutionNames'" v-html="institution" />
+            <div v-else-if="row.item.isUrl">
               <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
             </div>
             <div v-else-if="row.item.name === 'logoFilename'">
@@ -173,6 +176,26 @@ export default {
           text: this.$t('order by date'),
         },
       ];
+    },
+    institution: {
+      get() {
+        const institutionNames = this.newspaper.properties.find(d => d.name === 'institutionNames');
+        const institutionLinks = this.newspaper.properties.find(d => d.name === 'institutionLinks');
+        const institutionLogos = this.newspaper.properties.find(d => d.name === 'institutionLogos');
+        // const institutionPortal = this.newspaper.properties.find(d => d.name === 'institutionPortal');
+        let ret = '';
+        if (institutionLogos) {
+          ret += `<img src="https://impresso-project.ch/assets/images/${institutionLogos.value}" class="d-block mb-1" />`;
+        }
+        if (institutionNames) {
+          ret += `${institutionNames.value}`;
+        }
+        if (institutionLinks) {
+          ret = `<a href="${institutionLinks.value}" target="_blank">${ret}</a>` ;
+        }
+        if (ret !== '') return ret;
+        return false;
+      },
     },
     genealogy: {
       get() {
