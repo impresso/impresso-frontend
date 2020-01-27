@@ -211,6 +211,7 @@ export default new Vuex.Store({
     key: 'impresso',
     paths: [
       'settings.termsAgreed',
+      'settings.cookiesAccepted',
       'settings.lastNotificationDate',
       'settings.language_code',
       'search.searches',

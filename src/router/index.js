@@ -4,7 +4,7 @@ import * as services from '@/services';
 import HomePage from '../components/HomePage';
 import HomePage2020 from '../components/HomePage2020';
 import FaqPage from '../components/FaqPage';
-import LegalPage from '../components/LegalPage';
+import TermsOfUsePage from '../components/TermsOfUsePage';
 import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
 import IssuePage from '../components/IssuePage';
@@ -76,7 +76,7 @@ const router = new Router({
     {
       path: '/terms-of-use',
       name: 'termsOfUse',
-      component: LegalPage,
+      component: TermsOfUsePage,
       meta: {
         requiresAuth: false,
       },
