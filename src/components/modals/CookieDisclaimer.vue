@@ -3,7 +3,7 @@
     <div class="d-flex p-4">
       <div class="flex-grow-1">
         This website uses cookies to ensure you get the best experience on our website.
-        <a href="https://www.cookiesandyou.com/">Learn more</a>
+        <a target="_blank" href="https://www.cookiesandyou.com/">Learn more</a>
       </div>
       <b-button variant="primary" size="sm" @click="accept()">{{ $t('actions.accept') }}</b-button>
     </div>
