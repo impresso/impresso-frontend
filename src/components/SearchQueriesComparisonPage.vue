@@ -351,19 +351,19 @@ export default {
     },
     comparableForQuery(queryIndex) {
       switch (queryIndex) {
-        case 0:
-          return this.comparables[0];
-        case 1:
-          return {
-            type: 'intersection',
-            filters: this.comparables
-              .map(comparableToQuery)
-              .reduce((acc, { filters }) => acc.concat(filters), []),
-          };
-        case 2:
-          return this.comparables[1];
-        default:
-          throw new Error(`Unexpected queryIndex: ${queryIndex}`);
+      case 0:
+        return this.comparables[0];
+      case 1:
+        return {
+          type: 'intersection',
+          filters: this.comparables
+            .map(comparableToQuery)
+            .reduce((acc, { filters }) => acc.concat(filters), []),
+        };
+      case 2:
+        return this.comparables[1];
+      default:
+        throw new Error(`Unexpected queryIndex: ${queryIndex}`);
       }
     },
   },
