@@ -167,11 +167,13 @@ export default new Vuex.Store({
     async DISPLAY_ERROR({ commit }, { error, origin = '' }) {
       const errorRoute = [];
       // get error route if possible
-      try {
-        errorRoute.push(error.hook.path);
-        errorRoute.push(error.hook.method);
-      } catch (e) {
-        console.warn(e);
+      if (error.hook) {
+        try {
+          errorRoute.push(error.hook.path);
+          errorRoute.push(error.hook.method);
+        } catch (e) {
+          console.warn(e);
+        }
       }
       console.error(`[Unexpected error ${error.name}]: ${errorRoute.join('.')} (origin:${origin})`,
         error.code,
@@ -209,6 +211,7 @@ export default new Vuex.Store({
     key: 'impresso',
     paths: [
       'settings.termsAgreed',
+      'settings.cookiesAccepted',
       'settings.lastNotificationDate',
       'settings.language_code',
       'search.searches',

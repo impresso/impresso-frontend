@@ -15,7 +15,9 @@ export default {
     handler: new Vue(),
   }),
   props: {
-    image: false,
+    image: {
+      default: false,
+    },
     options: {},
   },
   components: {

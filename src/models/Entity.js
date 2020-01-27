@@ -24,6 +24,7 @@ export default class Entity {
     countMentions = -1,
     wikidata = [],
     matches = [],
+    relevance = -1,
   } = {}) {
     this.uid = String(uid);
     this.name = Entity.getNameFromUid(name.length ? name : this.uid);
@@ -41,6 +42,7 @@ export default class Entity {
     this.dbpediaURL = String(dbpediaURL);
     this.impressoId = String(impressoId);
     this.wikidata = wikidata;
+    this.relevance = relevance;
   }
 
   static getNameFromUid(uid) {

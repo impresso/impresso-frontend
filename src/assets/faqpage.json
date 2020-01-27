@@ -8,22 +8,23 @@
           {
             "id": "who-is-behind-impresso",
             "title": "Who is behind impresso?",
-            "summary": "The objective of the impresso project is to enable critical text mining of newspaper archives with an interdisciplinary consortium implementing a technological framework to extract, process, link, and explore data from print media archives.",
+            "summary": "The impresso project is a Swiss-Luxembourgish research project dedicated to the computational enrichment of historical newspapers and the development of new workflows for (digital) historians in a newly designed user interface.",
             "description": [
-              "The impresso project is a Swiss-Luxembourgish research project dedicated to the computational enrichment of historical newspapers and the development of new workflows for (digital) historians in a newly designed user interface.",
+              "The objective of the impresso project is to enable critical text mining of newspaper archives with an interdisciplinary consortium implementing a technological framework to extract, process, link, and explore data from print media archives.",
               "The core team consists of computational linguists, designers/developers as well as historians based at the <a href='http://dhlab.epfl.ch'>DHLAB of the École polytechnique fédérale de Lausanne (EPFL)</a>, the <a  href='https://www.cl.uzh.ch/de.html'>Institute of Computational Linguistics at the University of Zurich</a> and the <a href='http://c2dh.uni.lu'>Luxembourg Centre for Contemporary and Digital History (C2DH)</a>. The project is funded by the <a href='http://www.snf.ch'>Swiss National Science foundation</a> (Grant CR- SII5_173719). ",
               "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
               "We are further supported by a team of academic partners: <ul><li>François Vallotton (Full Professor at the University of Lausanne),</li><li>Raphaëlle Ruppen Coutaz (Lecturer at the University of Lausanne),</li><li>Frédéric Clavert (Assistant Professor at C2DH) and </li><li>Enrico Natale (Managing Director infoclio.ch).</li></ul>",
-              "Finally, a group of associated researchers have committed to using impresso for their research and provide valuable feedback to us.",
+              "Finally, a group of associated researchers have committed to using <i>impresso</i> for their research and provide valuable feedback to us.",
               "Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details."
             ]
           },
           {
             "id": "which-newspapers",
             "title": "Which newspapers do you have in your corpus?",
-            "summary": "All titles are listed on the Newspaper Titles page.",
+            "summary": "All titles are listed on the Newspaper page.",
             "description": [
-              "In a nutshell, the impresso corpus contains the historical newspaper collections of the Swiss National Library, the National Library of Luxembourg, the Neue Zürcher Zeitung, Le Temps, the Valais State Archives and Media Center, and the Swiss Economic Archives. We recommend that you take a closer look at the <a href='https://impresso-project.ch/app/#/newspapers'>Newspaper Titles</a>."
+              "In a nutshell, the impresso corpus contains titles from the historical newspaper collections of the Swiss National Library, the National Library of Luxembourg, the Media Center and the Valais State Archives, and the Swiss Economic Archives. The archives of the journals Le Temps and of the Neue Zürcher Zeitung are also in impresso.",
+              "We recommend that you take a closer look at the <a href='/app/newspapers'>Newspapers page</a>."
             ]
           }
         ]
@@ -34,10 +35,10 @@
           {
             "id": "how-can-i-get-access",
             "title": "Why can’t I see everything? How do I get access to the full corpus?",
-            "summary": "we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).",
+            "summary": "Unrestricted access is only possible for the subset of newspapers which are in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).",
             "description": [
-              "From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why we can only show a subset of the newspapers which have been made available in the public domain. To gain access to the whole collection, you need to sign a <a href='https://github.com/impresso/impresso-frontend/blob/develop/src/assets/img/_impresso_NDA.pdf'>Non Disclosure Agreement</a> (NDA). We will provide you with a user account once we receive the signed NDA from you.",
-              "Please see the Terms of Use to learn more about the usage rights for the impresso corpus."
+              "From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why <b>unrestricted access is only possible for the subset of newspapers which are in the public domain</b>. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA). We will provide you with a user account <b>upon reception of your signed NDA</b>.",
+              "Please see the <a href='/app/terms-of-use'>Terms of Use</a> to learn more about the usage rights for the impresso corpus."
             ]
           },
           {
@@ -53,7 +54,7 @@
             "title": "Can I use impresso interface in the classroom?",
             "summary": "Yes, with the same restrictions as for other uses and we would be very happy to hear about your experience!",
             "description": [
-              "All material restrictions apply equally in a teaching context, please see the Terms of Use page. It could be a good opportunity to introduce legal matters related to primary sources and research data to the students."
+              "All material restrictions apply equally in a teaching context, please see the <a href='/app/terms-of-use'>Terms of Use</a> page. It could be a good opportunity to introduce legal matters related to primary sources and research data to the students."
             ]
           },
           {
@@ -61,7 +62,8 @@
             "title": "What are the copyrights of the newspapers accessible through the impresso interface?",
             "summary": "Newspapers accessible through the impresso interface are under different copyrights.",
             "description": [
-              " The condition of use is indicated at the level of the issue, for each newspaper. The majority of them are free of use for personal and academic use (see the ‘Personal and Academic use’ license page). Others are not subject to any restrictions (see the ‘Public’ License page). Newspapers from the National Library of Luxembourg can be used without restriction up to 1877, only for personal and academic use onwards."
+              "Conditions of use are set at the issue level of each newspaper. You can find this information a) on the individual newspaper page, b) upon download, for each item of the CSV file. To select articles belonging to a particular category of license, choose the relevant category in \"filter by access rights\".",
+              "The majority of them are free of use for personal and academic use (see the ‘Personal and Academic use’ section in the <a href='/app/terms-of-use'>Terms of Use</a>). Others are not subject to any restrictions (see the ‘Public’ in the <a href='/app/terms-of-use'>Terms of Use</a>). Newspapers from the National Library of Luxembourg can be used without restriction up to 1877, only for personal and academic use onwards."
             ]
           },
           {
@@ -69,7 +71,7 @@
             "title": "What do you mean by ‘impresso material’?",
             "summary": "This includes all images, text, metadata, the semantic annotations and the interface.",
             "description": [
-              "We distinguish between the following assets: <ul><li>newspaper images and text, subject to copyrights (see the rights statements pages)</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>newspaper metadata, free for use under a CC BY 4.0 license.</li><li>semantic annotations, free for use under a CC BY SA 4.0 license (will be released at the end of the project)</li><li>impresso interface, including front end design and back end database and system architecture, under a GNU AGPLv3  license (will be released at the end of the project)</li></ul>"
+              "We distinguish between the following assets: <ul><li>newspaper images and text, subject to copyrights (see the rights statements pages)</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>semantic annotations, free for use under a CC BY SA 4.0 license (will be released at the end of the project)</li><li>impresso interface, including front end design and back end database and system architecture, under a GNU AGPLv3 license (will be released at the end of the project)</li></ul>"
             ]
           },
           {
@@ -120,9 +122,14 @@
             "description": [
               "There is no such thing as a perfect corpus and ours is no exception. To give you a better sense of what you can expect to find in our corpus, we display the total count of pages and issues per year in the Newspaper overview. If you do date-specific queries, we recommend that you check how much content is missing. In a future release we will also display missing content per individual newspaper.",
               "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/topic_modeling.png'></img>'",
-              "There are multiple reasons which cause missing content: <ul><li>Digitisation: Not all issues were available for digitisation by the libraries due to incomplete collections; in other cases single pages or complete issues were missed during the digitisation. In this case, the folder structure on the hard disks we received suggests that there should be an issue but there are no corresponding files. In other cases, newspaper pages were digitized successfully but not subjected to text recognition (OCR). You can find these pages in the interface by browsing an issue, but not through a search. </li><li>Transfer: We received most of our corpus on hard drives, some of the .zip files were not readable. We did our best to recover these files but sometimes this was not possible.</li></ul>"
+              "There are multiple reasons which cause missing content: <ul><li>Digitisation: Not all issues were available for digitisation by the libraries due to incomplete collections; in other cases single pages or complete issues were missed during the digitisation. In this case, the folder structure on the hard disks we received suggests that there should be an issue but there are no corresponding files. In other cases, newspaper pages were digitized successfully but not subjected to text recognition (OCR). You can find these pages in the interface by browsing an issue, but not through a search. </li><li>Transfer: The journey of digitized materials is quite fragmented in both space and time, with various transfers at different times among several partners (e.g. the library, the OCR company, the hosting company, and finally, us). When discovering non readable .zip files in the sources we received on hard drives, it was not possible to recover them nor to know where the corruption came from. Full traceability is still a challenge.</li></ul>"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "title": "Uses of the impresso interface",
+        "faq": [
           {
             "id": "compare-and-inspect",
             "title": "Where can I analyse the metadata of my collections or queries?",

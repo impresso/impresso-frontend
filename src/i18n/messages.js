@@ -33,10 +33,10 @@ export default {
         undefined: 'Undefined language',
       },
       accessRight: {
-        na: 'not specified',
-        OpenPrivate: 'OpenPrivate',
-        Closed: 'Closed',
-        OpenPublic: 'OpenPublic',
+        na: 'not specified (no export)',
+        OpenPrivate: 'Personal use',
+        Closed: 'Personal use (no export)',
+        OpenPublic: 'Public domain',
       },
       country: {
         CH: 'Switzerland',
@@ -56,6 +56,7 @@ export default {
     actions: {
       addFilter: 'add filter...',
       agree: 'I agree to the terms of use',
+      accept: 'accept',
       compare: 'compare ...',
       more: 'more...',
       searchMore: 'open in search page...',
@@ -72,6 +73,7 @@ export default {
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
+      login: 'log in',
     },
     filters: {
       daterange: {

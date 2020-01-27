@@ -44,7 +44,6 @@
 </template>
 
 <script>
-import BaseTitleBar from './base/BaseTitleBar';
 
 export default {
   data: () => ({
@@ -86,7 +85,6 @@ export default {
     },
   },
   components: {
-    BaseTitleBar,
   },
 };
 </script>
@@ -119,10 +117,6 @@ export default {
     background: $clr-accent-light;
     font-weight: bold;
     font-size: larger;
-  }
-
-  .body{
-
   }
 
   .footer{

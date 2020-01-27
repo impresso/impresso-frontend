@@ -131,7 +131,7 @@
       <hr>
       <h4>Entities</h4>
       <div class="grid">
-        <div class="item" v-for="entity in entities">
+        <div class="item" v-for="(entity, index) in entities" v-bind:key="index">
           {{entity}}
         </div>
       </div>
@@ -140,7 +140,7 @@
     <div v-if="issues.length > 0" class="collection-group">
       <h4>Issues</h4>
       <div class="grid">
-        <div class="item" v-for="issue in issues">
+        <div class="item" v-for="(issue, index) in issues" v-bind:key="index">
           {{issue}}
         </div>
       </div>
@@ -149,7 +149,7 @@
     <div v-if="pages.length > 0" class="collection-group">
       <h4>Pages</h4>
       <div class="grid">
-        <div class="item" v-for="page in pages">
+        <div class="item" v-for="(page, index) in pages" v-bind:key="index">
           <open-seadragon-viewer v-model="page.iiif" />
         </div>
       </div>

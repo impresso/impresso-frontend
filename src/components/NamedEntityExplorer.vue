@@ -3,7 +3,7 @@
 
     <div class="results">
       <ul class="nav nav-fill">
-        <li class="nav-item " v-for="t in types">
+        <li class="nav-item " v-for="t in types" :key="t">
           <a
           class="nav-link text-capitalize"
           href="#"
@@ -14,7 +14,7 @@
       </ul>
 
         <ul class="nav nav-fill">
-          <li class="nav-item " v-for="p in perdiods"><a
+          <li class="nav-item " v-for="p in perdiods" :key="p"><a
             class="nav-link text-capitalize"
             href='#'
             v-bind:class="{active: (period === p)}"
@@ -24,10 +24,19 @@
       <date-slider v-model="issue" v-bind:period="period"></date-slider>
 
       <div class="list">
-        <div class="media" v-for="item in issue.entities">
+        <div class="media" v-for="(item, index) in issue.entities" :key="index">
           <img class="mr-3" src="http://www.placehold.it/48x48" alt="Generic placeholder image">
           <div class="media-body">
-            <p class="m-0"><strong>{{item.name}}</strong> <b-badge v-for="label in getLabel(item)" v-bind:class="label" class="float-right">{{label}}</b-badge></p>
+            <p class="m-0">
+              <strong>{{item.name}}</strong>
+              <b-badge
+                v-for="label in getLabel(item)"
+                :key="label"
+                v-bind:class="label"
+                class="float-right">
+                {{label}}
+              </b-badge>
+            </p>
             <p>Lorem ipsum dolor sit amet</p>
             <hr>
           </div>

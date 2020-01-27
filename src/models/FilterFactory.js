@@ -1,3 +1,4 @@
+import uuid from 'uuid';
 import FilterBoolean from '@/models/FilterBoolean';
 import FilterEntity from '@/models/FilterEntity';
 import FilterString from '@/models/FilterString';
@@ -8,7 +9,6 @@ import FilterItem from '@/models/FilterItem';
 import FilterDaterange from '@/models/FilterDaterange';
 import FilterCollection from '@/models/FilterCollection';
 
-import uuid from 'uuid';
 
 export default {
   create: (filterData) => {

@@ -66,8 +66,7 @@
 
 <script>
 import 'vue-awesome/icons/times';
-import Icon from 'vue-awesome/components/Icon';
-import BaseTitleBar from './../base/BaseTitleBar';
+import BaseTitleBar from '../base/BaseTitleBar';
 import FilterFacetBucket from './FilterFacetBucket';
 import FilterMonitor from './FilterMonitor';
 import InfoButton from '../base/InfoButton';
@@ -203,7 +202,6 @@ export default {
   },
   components: {
     BaseTitleBar,
-    Icon,
     FilterFacetBucket,
     FilterMonitor,
     InfoButton,

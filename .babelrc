@@ -1,15 +1,5 @@
 {
   "presets": [
-    [ "@vue/app", { "useBuiltIns": "entry" } ],
-    [ "@babel/preset-env", {
-      "shippedProposals": true,
-      "forceAllTransforms": true
-    }]
-  ],
-  "plugins": [],
-  "env": {
-    "test": {
-      "plugins": ["istanbul"]
-    }
-  }
+    "@vue/cli-plugin-babel/preset"
+  ]
 }

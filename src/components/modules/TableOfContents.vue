@@ -2,13 +2,13 @@
   <div class="toc" ref="TableOfContents">
     <div v-if="flatten">
       <b-media
-        :ref="`article-${article.uid}`"
+        :ref="`article-${art.uid}`"
         class="article flatten"
-        v-for="(article, idx) in articles"
+        v-for="(art, idx) in articles"
         v-bind:key="idx"
-        v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
-        v-on:click.prevent="onClick(article, page)">
-        <image-item :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
+        v-bind:class="{active: art.uid === selectedArticleUid}"
+        v-on:click.prevent="onClick(art, art.pages[0])">
+        <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3"/>
         <article-item :item="article" class="p-3 clearfix"
           show-excerpt
           show-entities
@@ -16,31 +16,46 @@
           show-pages
           show-matches
           show-type
-
-          />
+        />
       </b-media>
     </div>
+
     <div v-else>
-      <div v-for="page in tableOfContents.pages" class="mb-2 pb-1px page "
-      v-bind:class="{activepage: page.num === currentPageNum}">
-        <span class="p-3 d-block text-bold pagenumber">{{$t('page')}} {{page.num}}</span>
+      <div v-for="(pag, index) in tableOfContents.pages"
+           v-bind:key="index"
+           class="mb-2 pb-1px page "
+           v-bind:class="{activepage: pag.uid === selectedPageUid}">
+        <div class="p-3 d-block text-bold pagenumber"
+        :ref="`page-${pag.uid}`" :data-id='pag.uid'>
+          {{$t('page')}} {{pag.num}}
           <b-media
-            :ref="`article-${article.uid}`"
+            :ref="`article-${art.uid}`"
             class="article "
-            v-for="(article, idx) in page.articles"
+            v-for="(art, idx) in pag.articles"
             v-bind:key="idx"
-            v-bind:class="{activepage: page.num === currentPageNum, active: article.uid === selectedArticleUid}"
-            v-on:click.prevent="onClick(article, page)">
+            v-bind:class="{activepage: pag.uid === selectedPageUid, active: art.uid === selectedArticleUid}"
+            v-on:click.prevent="onClick(art, pag)">
             <div>
-              <image-item :height="200" :item="article" v-if="article.type === 'image'" class="my-2 ml-3"/>
-              <article-item :item="article" class="p-3"
+              <image-item
+                :height="200"
+                :item="article"
+                v-if="art.type === 'image'"
+                class="my-2 ml-3"
+                />
+              <article-item :item="art" class="p-3"
                 show-excerpt
                 show-entities
                 show-size
                 show-pages
                 show-type
-                />
-              <image-item :height="200" class="mx-3 mb-2" :item="image" v-for="(image, i) in article.images" v-bind:key="i"/>
+              />
+              <image-item
+                :height="200"
+                class="mx-3 mb-2"
+                :item="image"
+                v-for="(image, i) in art.images"
+                v-bind:key="i"
+              />
             </div>
           </b-media>
         </div>
@@ -53,12 +68,13 @@
 
 import ArticleItem from './lists/ArticleItem';
 import ImageItem from './lists/ImageItem';
-import CollectionAddTo from './CollectionAddTo';
-import ItemSelector from './ItemSelector';
 
 export default {
   data: () => ({
+    // if all pages have been loaded.
+    retryTimer: 0,
     selectedArticleUid: '',
+    selectedPageUid: '',
   }),
   props: {
     articles: {
@@ -73,24 +89,12 @@ export default {
     },
     page: {
       type: Object,
-      default: '',
     },
     article: {
       type: Object,
-      default: '',
-    },
-  },
-  computed: {
-    articleUid() {
-      return this.article.uid;
-    },
-    currentPageNum() {
-      return this.page.num;
     },
   },
   components: {
-    CollectionAddTo,
-    ItemSelector,
     ArticleItem,
     ImageItem,
   },
@@ -105,14 +109,27 @@ export default {
         page,
       });
     },
+    scrollToActivePage() {
+      if (!this.$refs[`page-${this.selectedPageUid}`]) {
+        console.warn(`Cannot scrollToActivePage: ${this.selectedPageUid} not ready or not found`);
+        clearTimeout(this.retryTimer);
+        this.retryTimer = setTimeout(this.scrollToActivePage, 500);
+      } else {
+        console.info('scroll to page', this.selectedPageUid);
+        const elm = this.$refs[`page-${this.selectedPageUid}`][0];
+        const parent = this.$refs.TableOfContents.parentNode;
+        console.info('ELM', elm.offsetTop);
+        const elmRelativeTop = elm.offsetTop - parent.offsetTop;
+        parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
+      }
+    },
     scrollToActiveArticle() {
-      console.info('scrollToActiveArticle uid:', this.article.uid);
-      if (this.article.uid !== '') {
-        if (!this.$refs[`article-${this.article.uid}`]) {
-          console.error(`Cannot scrollToActiveArticle: ${this.article.uid} not ready or not found`);
-          return;
-        }
-        const elm = this.$refs[`article-${this.article.uid}`][0];
+      if (!this.$refs[`article-${this.selectedArticleUid}`]) {
+        console.warn(`Cannot scrollToActiveArticle: ${this.selectedArticleUid} not ready or not found;`);
+        clearTimeout(this.retryTimer);
+        this.retryTimer = setTimeout(this.scrollToActiveArticle, 500);
+      } else {
+        const elm = this.$refs[`article-${this.selectedArticleUid}`][0];
         const parent = this.$refs.TableOfContents.parentNode;
         const elmRelativeTop = elm.offsetTop - parent.offsetTop;
         if (parent.scrollTop > elmRelativeTop ||
@@ -121,6 +138,20 @@ export default {
           parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
         }
       }
+      // if (this.article) {
+      //   if (!this.$refs[`article-${this.article.uid}`]) {
+      //     console.error(`Cannot scrollToActiveArticle: ${this.article.uid} not ready or not found`);
+      //   } else {
+      //     const elm = this.$refs[`article-${this.article.uid}`][0];
+      //     const parent = this.$refs.TableOfContents.parentNode;
+      //     const elmRelativeTop = elm.offsetTop - parent.offsetTop;
+      //     if (parent.scrollTop > elmRelativeTop ||
+      //       (elm.offsetTop + elm.offsetHeight) - parent.scrollTop >
+      //       parent.offsetTop + parent.offsetHeight) {
+      //       parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
+      //     }
+      //   }
+      // }
     },
     isLoggedIn() {
       return this.$store.state.user.userData;
@@ -147,28 +178,21 @@ export default {
       return val;
     },
   },
-  mounted() {
-    if (this.article) {
-      this.selectedArticleUid = this.article.uid;
-      this.scrollToActiveArticle();
-    }
-  },
   watch: {
-    article: {
-      deep: true,
-      handler(article) {
-        this.selectedArticleUid = article.uid;
-        this.scrollToActiveArticle();
-      },
-    },
-    tableOfContents: {
-      handler() {
-        window.setTimeout(() => {
+    $route: {
+      immediate: true,
+      handler({ name, params }) {
+        if (name === 'article') {
+          this.selectedArticleUid = params.article_uid;
           this.scrollToActiveArticle();
-        }, 500);
+        } else if (name === 'page') {
+          console.info(params);
+          this.selectedPageUid = params.page_uid;
+          this.scrollToActivePage();
+        }
       },
     },
-  },
+  }
 };
 </script>
 

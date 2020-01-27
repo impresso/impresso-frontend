@@ -88,12 +88,6 @@ export default {
           entities += item.countEntities;
           issues += item.countIssues;
           pages += item.countPages;
-
-          this.$store.dispatch('collections/LOAD_COLLECTION', item).then((res) => {
-            res.items.forEach((item_) => {
-              this.collectionsMerged.items.push(item_);
-            });
-          });
         });
 
         return new Collection({
@@ -113,6 +107,17 @@ export default {
       },
     },
   },
+  watch: {
+    collections() {
+      this.collections.forEach((item) => {
+        this.$store.dispatch('collections/LOAD_COLLECTION', item).then((res) => {
+          res.items.forEach((item_) => {
+            this.collectionsMerged.items.push(item_);
+          });
+        });
+      });
+    }
+  },
   methods: {
     gotoArticle(article) {
       this.$router.push({
@@ -129,7 +134,7 @@ export default {
 };
 </script>
 
-<style lang="css">
+<style lang="scss">
 .navbar-nav.flex-row {
     flex-direction: row;
     align-items: center;

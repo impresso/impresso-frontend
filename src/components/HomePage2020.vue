@@ -16,18 +16,22 @@
       <p>
         <span class="number">76</span>
         newspapers collected,<br>
-        <span class="number">5,445,822</span>
-        billion pages scanned,<br>
-        <span class="number">47,876,994</span>
-        million content items identified,<br>
-        <span class="number">12,508,779,241</span>
+        <span class="number"> 600,919</span>
+        issues,<br>
+        <span class="number">5,429,656</span>
+         pages scanned,<br>
+        <span class="number">47,798,468</span>
+         content items identified,<br>
+         <span class="number"> 3,462,799</span>
+          images,<br>
+        <span class="number">12,493,358,703</span>
         words.<br>
       </p>
       <p>
         <span class="number">2</span> countries of publication<br>
         <span class="number">530,086</span> named entities disambiguated
       </p>
-      <p>More? Check on our <a href="https://impresso-project.ch/news/2020/01/05/state-corpus-january2020.html">blog</a></p>
+      <p>More? Check on our <a class="text-white" href="https://impresso-project.ch/news/2020/01/23/state-corpus-january2020.html">blog</a></p>
       <div class="mb-2">
         <b-button
           :variant="showLines  ? 'primary' : 'outline-primary'" size="sm"
@@ -80,7 +84,6 @@
 <script>
 import Autocomplete from './Autocomplete';
 import SearchTabs from './modules/SearchTabs';
-import VizBarMulti from './base/VizBarMulti';
 import Recipes from './modules/homepage/Recipes';
 import HomePageFooter from './HomePageFooter';
 import InfoButton from './base/InfoButton';
@@ -115,7 +118,6 @@ export default {
   components: {
     Autocomplete,
     SearchTabs,
-    VizBarMulti,
     Recipes,
     HomePageFooter,
     InfoButton,
@@ -156,9 +158,6 @@ export default {
       border-color: $clr-white !important;
       color: $clr-white;
     }
-  }
-  .btn-primary {
-    // border-width: 0 0 1px 0;
   }
 
   ul.nav.nav-pills {

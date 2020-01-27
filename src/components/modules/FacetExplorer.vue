@@ -29,8 +29,6 @@
 </template>
 
 <script>
-import FilterFacetBucket from './FilterFacetBucket';
-import Pagination from './Pagination';
 import ItemLabel from './lists/ItemLabel';
 import ItemSelector from './ItemSelector';
 
@@ -89,12 +87,12 @@ export default {
     orderByOptions: {
       get() {
         switch (this.type) {
-          case 'topic' :
-            return ['name', '-name', 'model', '-model'];
-          case 'country' :
-            return ['date', '-date', 'relevance', '-relevance'];
-          default:
-            return ['name', 'count', 'count-mentions'];
+        case 'topic' :
+          return ['name', '-name', 'model', '-model'];
+        case 'country' :
+          return ['date', '-date', 'relevance', '-relevance'];
+        default:
+          return ['name', 'count', 'count-mentions'];
         }
       },
     },
@@ -110,8 +108,6 @@ export default {
     },
   },
   components: {
-    FilterFacetBucket,
-    Pagination,
     ItemLabel,
     ItemSelector,
   },

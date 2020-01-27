@@ -377,29 +377,29 @@ export default {
     },
     comparableForQuery(queryIndex) {
       switch (queryIndex) {
-        case 0:
-          return this.comparables[0];
-        case 1:
-          // eslint-disable-next-line no-case-declarations
-          const comparablesFilters = this.comparables
-            .map(comparableToQuery)
-            .filter(({ filters } = {}) => filters !== undefined)
-            .map(({ filters }) => filters);
-          if (comparablesFilters.length !== 2) {
-            return {
-              type: 'intersection',
-              filters: undefined,
-            };
-          }
+      case 0:
+        return this.comparables[0];
+      case 1:
+        // eslint-disable-next-line no-case-declarations
+        const comparablesFilters = this.comparables
+          .map(comparableToQuery)
+          .filter(({ filters } = {}) => filters !== undefined)
+          .map(({ filters }) => filters);
+        if (comparablesFilters.length !== 2) {
           return {
             type: 'intersection',
-            filters: comparablesFilters
-              .reduce((acc, { filters } = {}) => acc.concat(filters), []),
+            filters: undefined,
           };
-        case 2:
-          return this.comparables[1];
-        default:
-          throw new Error(`Unexpected queryIndex: ${queryIndex}`);
+        }
+        return {
+          type: 'intersection',
+          filters: comparablesFilters
+            .reduce((acc, { filters } = {}) => acc.concat(filters), []),
+        };
+      case 2:
+        return this.comparables[1];
+      default:
+        throw new Error(`Unexpected queryIndex: ${queryIndex}`);
       }
     },
     insertMostRecentSearchQuery(queryIdx) {
