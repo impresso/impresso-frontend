@@ -35,6 +35,10 @@ export default class ArticleBase {
     // to be added dinamically from TOC
     matches = [],
     images = [],
+    contentLineBreaks = [],
+    regionBreaks = [],
+    mentions = [],
+    content = ''
   } = {}) {
     this.uid = String(uid);
     this.type = String(type);
@@ -46,6 +50,10 @@ export default class ArticleBase {
     this.pages = pages;
     this.accessRight = accessRight;
     this.images = images;
+    this.contentLineBreaks = contentLineBreaks;
+    this.regionBreaks = regionBreaks;
+    this.mentions = mentions;
+    this.content = content;
 
     this.collections = collections.map((collection) => {
       if (collection instanceof Collection) {

@@ -29,10 +29,10 @@
           <div class="media-body">
             <p class="m-0">
               <strong>{{item.name}}</strong>
-              <b-badge 
+              <b-badge
                 v-for="label in getLabel(item)"
                 :key="label"
-                v-bind:class="label" 
+                v-bind:class="label"
                 class="float-right">
                 {{label}}
               </b-badge>

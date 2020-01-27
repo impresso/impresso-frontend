@@ -66,7 +66,7 @@
 
 <script>
 import 'vue-awesome/icons/times';
-import BaseTitleBar from "../base/BaseTitleBar";
+import BaseTitleBar from '../base/BaseTitleBar';
 import FilterFacetBucket from './FilterFacetBucket';
 import FilterMonitor from './FilterMonitor';
 import InfoButton from '../base/InfoButton';

@@ -73,6 +73,7 @@ export default {
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
+      login: 'log in',
     },
     filters: {
       daterange: {
