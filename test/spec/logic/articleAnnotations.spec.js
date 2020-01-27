@@ -184,7 +184,7 @@ const articleResponse = {
         ' ! Société Anonyme de Transports et',
         ' d\'Enfrepôfs { j',
         ' Siège social à <span class="location">LUXEMBOURG</span>',
-        ' Avenue de la Liberté (Rue Dicks)',
+        ' Avenue de la Liberté (<span class="person">Rue Dicks</span>)',
         ' (Anciennement J.-P. BALANCE.-Maison fondée en 1890) j j',
         ' | Téléphones : gggg, j 4M «g',
         ' Transports Internationaux',
@@ -494,31 +494,37 @@ describe('getNamedEntitiesFromArticleResponse', () => {
     const entities = getNamedEntitiesFromArticleResponse(articleResponse);
     const expectedEntities = [
       {
-        id: 'aida-0001-50-Roy_Mathias',
+        id: 'person-0',
         kind: 'namedEntity',
         type: 'person',
         offset: { start: 150, end: 161 }
       },
       {
-        id: 'aida-0001-54-Luxembourg',
+        id: 'person-1',
+        kind: 'namedEntity',
+        type: 'person',
+        offset: { start: 517, end: 526 }
+      },
+      {
+        id: 'location-0',
         kind: 'namedEntity',
         type: 'location',
         offset: { start: 13, end: 23 }
       },
       {
-        id: 'aida-0001-54-Luxembourg',
+        id: 'location-1',
         kind: 'namedEntity',
         type: 'location',
         offset: { start: 178, end: 188 }
       },
       {
-        id: 'aida-0001-54-Luxembourg',
+        id: 'location-2',
         kind: 'namedEntity',
         type: 'location',
         offset: { start: 484, end: 494 }
       },
       {
-        id: 'aida-0001-54-Thionville',
+        id: 'location-3',
         kind: 'namedEntity',
         type: 'location',
         offset: { start: 722, end: 732 }
@@ -559,12 +565,18 @@ describe('annotateText', () => {
     const expectedAnnotatedText = [
       '<div class="region">',
       '<p class="line">',
-      'Un télégramme du roi George',
+      'Un télégramme du ',
+      '<span class="entity person">',
+      'roi George',
+      '</span>',
       '</p>',
       '</div>',
       '<div class="region">',
       '<p class="line">',
-      ' Le télégramme suivant a ete adresse',
+      '<span class="entity person continuation">',
+      ' Le',
+      '</span>',
+      ' télégramme suivant a ete adresse',
       '</p>',
       '<p class="line">',
       ' par le roi ',

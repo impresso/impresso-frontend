@@ -1,6 +1,6 @@
 
-const namedEntitiesToListOfIds = namedEntities => namedEntities
-  .reduce((ids, { uid, relevance }) => ids.concat(Array.from({length: relevance}, () => uid)), []);
+// const namedEntitiesToListOfIds = namedEntities => namedEntities
+//   .reduce((ids, { uid, relevance }) => ids.concat(Array.from({length: relevance}, () => uid)), []);
 
 const getNamedEntities = (ids, offsets, type) => ids.map((id, index) => {
   const [offset, length] = offsets[index];
@@ -19,11 +19,18 @@ const getOffsets = (response, field) => {
 }
 
 export function getNamedEntitiesFromArticleResponse(response) {
-  const personIds = namedEntitiesToListOfIds(response.persons || []);
-  const locationIds = namedEntitiesToListOfIds(response.locations || []);
-
   const personOffsets = getOffsets(response, 'person');
   const locationOffsets = getOffsets(response, 'location');
+
+  // NOTE: "location" and "person" entities do not correspond to the metnions offsets
+  // in another field. This means that some of the entities mentioned have not
+  // been disambiguated and we cannot rely on mention -> entity match. Until this
+  // is fixed we use mentions indexes as IDs.
+  // const locationIds = namedEntitiesToListOfIds(response.locations || []);
+  // const personIds = namedEntitiesToListOfIds(response.persons || []);
+
+  const personIds = personOffsets.map((_, index) => `person-${index}`);
+  const locationIds = locationOffsets.map((_, index) => `location-${index}`);
 
   const personEntities = getNamedEntities(personIds, personOffsets, 'person');
   const locationEntities = getNamedEntities(locationIds, locationOffsets, 'location');
