@@ -38,6 +38,15 @@ export function getNamedEntitiesFromArticleResponse(response) {
   return personEntities.concat(locationEntities);
 }
 
+export function passageToPassageEntity(passage) {
+  return {
+    id: passage.id,
+    kind: 'passage',
+    type: 'passage',
+    offset: { start: passage.offsetStart, end: passage.offsetEnd }
+  }
+}
+
 const SpecialEntitiesPriorityOrder = ['line', 'region'];
 
 function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, textLength) {
@@ -79,6 +88,10 @@ export const DefaultAnnotationConfiguration = Object.freeze({
     start: (entity, isContinuation) => `<span class="entity ${entity.type}${isContinuation ? ' continuation' : ''}" ${entity.id ? `data-id="${entity.id}"` : ''}>`,
     end: () => '</span>'
   },
+  passage: {
+    start: (entity, isContinuation) => `<span class="tr-passage ${isContinuation ? ' continuation' : ''}" ${entity.id ? `data-id="${entity.id}"` : ''}>`,
+    end: () => '</span>'
+  }
 })
 
 function getOpenTagForEntity(entity, configuration, isContinuation = false) {
@@ -115,11 +128,9 @@ export function annotateText(text, entities, lineBreaks, regionBreaks, configura
     const openSpecialEntities = specialEntities.filter(({ offset: { start }}) => start === breakpoint)
 
     const sorter = (a, b) => {
-      if (a.offset.end === breakpoint) return -1
-      if (b.offset.end === breakpoint) return 1
-      if (a.offset.start === breakpoint) return -1
-      if (b.offset.start === breakpoint) return -1
-      return 0
+      const aDiff = Math.abs(a.offset.end - breakpoint)
+      const bDiff = Math.abs(b.offset.end - breakpoint)
+      return bDiff - aDiff
     }
     const openOtherEntities = otherEntities
       .filter(({ offset: { start }}) => start === breakpoint)
@@ -135,7 +146,7 @@ export function annotateText(text, entities, lineBreaks, regionBreaks, configura
     })
 
     if (closeSpecialEntities.length > 0) {
-      otherEntities.filter(entityWontBeUsed).forEach(entity => {
+      otherEntities.filter(entityWontBeUsed).sort(sorter).forEach(entity => {
         const tag = getCloseTagForEntity(entity, configuration, true)
         items.push(tag)
       })
@@ -150,7 +161,7 @@ export function annotateText(text, entities, lineBreaks, regionBreaks, configura
       items.push(tag)
     })
     if (openSpecialEntities.length > 0) {
-      otherEntities.filter(entityWontBeUsed).forEach(entity => {
+      otherEntities.filter(entityWontBeUsed).sort(sorter).forEach(entity => {
         const tag = getOpenTagForEntity(entity, configuration, true)
         items.push(tag)
       })
