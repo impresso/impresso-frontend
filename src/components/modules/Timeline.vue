@@ -33,12 +33,12 @@ import Tooltip from './tooltips/Tooltip';
 
 const getTimeFormatForResolution = (resolution) => {
   switch (resolution) {
-    case 'day':
-      return '%d %b %Y';
-    case 'month':
-      return '%B %Y';
-    default:
-      return '%Y';
+  case 'day':
+    return '%d %b %Y';
+  case 'month':
+    return '%B %Y';
+  default:
+    return '%Y';
   }
 };
 

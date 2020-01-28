@@ -42,35 +42,35 @@ helpers.timeline.addEmptyIntervals = (values, unit = 'number') => {
   for (let i = 1, l = values.length; i < l; i += 1) {
     let diff;
     switch (unit) {
-      case 'year':
-        diff = Math.round((values[i].t - values[i - 1].t) / (365 * 24 * 60 * 60 * 1000));
-        break;
-      case 'month':
-        diff = Math.round((values[i].t - values[i - 1].t) / (30 * 24 * 60 * 60 * 1000));
-        break;
-      case 'day':
-        diff = Math.round((values[i].t - values[i - 1].t) / (24 * 60 * 60 * 1000));
-        break;
-      default:
-        diff = values[i].t - values[i - 1].t;
+    case 'year':
+      diff = Math.round((values[i].t - values[i - 1].t) / (365 * 24 * 60 * 60 * 1000));
+      break;
+    case 'month':
+      diff = Math.round((values[i].t - values[i - 1].t) / (30 * 24 * 60 * 60 * 1000));
+      break;
+    case 'day':
+      diff = Math.round((values[i].t - values[i - 1].t) / (24 * 60 * 60 * 1000));
+      break;
+    default:
+      diff = values[i].t - values[i - 1].t;
     }
     for (let j = 1; j < diff; j += 1) {
       let newValue;
       switch (unit) {
-        case 'year':
-          newValue = new Date(values[i - 1].t);
-          newValue.setFullYear(values[i - 1].t.getFullYear() + j);
-          break;
-        case 'month':
-          newValue = new Date(values[i - 1].t);
-          newValue.setMonth(values[i - 1].t.getMonth() + j);
-          break;
-        case 'day':
-          newValue = new Date(values[i - 1].t);
-          newValue.setMonth(values[i - 1].t.getDay() + j);
-          break;
-        default:
-          newValue = values[i - 1].t + j;
+      case 'year':
+        newValue = new Date(values[i - 1].t);
+        newValue.setFullYear(values[i - 1].t.getFullYear() + j);
+        break;
+      case 'month':
+        newValue = new Date(values[i - 1].t);
+        newValue.setMonth(values[i - 1].t.getMonth() + j);
+        break;
+      case 'day':
+        newValue = new Date(values[i - 1].t);
+        newValue.setMonth(values[i - 1].t.getDay() + j);
+        break;
+      default:
+        newValue = values[i - 1].t + j;
       }
       vs.push({
         t: newValue,
