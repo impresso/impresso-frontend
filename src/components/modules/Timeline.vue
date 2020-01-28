@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="d3-timeline" ref="timeline">
+  <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`">
     <tooltip :tooltip="tooltip">
       <slot :tooltip="tooltip">
         <div v-if="tooltip.item">
@@ -31,6 +31,17 @@ import ContrastTimeline from '@/d3-modules/ContrastTimeline';
 import Timeline from '@/d3-modules/Timeline';
 import Tooltip from './tooltips/Tooltip';
 
+const getTimeFormatForResolution = (resolution) => {
+  switch (resolution) {
+    case 'day':
+      return '%d %b %Y';
+    case 'month':
+      return '%B %Y';
+    default:
+      return '%Y';
+  }
+};
+
 export default {
   props: {
     values: Array,
@@ -44,6 +55,17 @@ export default {
       type: Boolean,
       default: true,
     },
+    height: {
+      type: String,
+      default: '85px',
+    },
+    resolution: {
+      type: String,
+      default: 'year',
+      validator(value) {
+        return [undefined, 'year', 'month', 'day'].includes(value);
+      },
+    },
   },
   data: () => ({
     tooltip: {
@@ -53,6 +75,12 @@ export default {
       item: {},
     },
   }),
+  computed: {
+    heightVal() {
+      if (typeof this.height === 'string') return this.height;
+      return 'auto';
+    },
+  },
   methods: {
     moveTooltip(data) {
       this.tooltip = {
@@ -77,6 +105,7 @@ export default {
           top: 15,
         },
         domain: this.domain,
+        format: getTimeFormatForResolution(this.resolution),
       });
     } else {
       this.timeline = new Timeline({
@@ -88,6 +117,7 @@ export default {
         },
         domain: this.domain,
         brushable: this.brushable,
+        format: getTimeFormatForResolution(this.resolution),
       });
     }
     this.timeline.on('mouseleave', () => {
@@ -182,6 +212,12 @@ export default {
         }
       },
     },
+    resolution: {
+      handler(resolution) {
+        this.timeline.updateTimeFormat(getTimeFormatForResolution(resolution));
+        this.timeline.draw();
+      },
+    },
   },
   components: {
     Tooltip,
@@ -194,7 +230,7 @@ export default {
 
   .d3-timeline{
     width: 100%;
-    height: 85px;
+    // height: 85px;
     position: relative;
 
     g.context path.curve {

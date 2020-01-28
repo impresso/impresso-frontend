@@ -7,6 +7,7 @@ import FaqPage from '../components/FaqPage';
 import TermsOfUsePage from '../components/TermsOfUsePage';
 import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
+import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import UserDashboardPage from '../components/UserDashboardPage';
@@ -61,6 +62,14 @@ const router = new Router({
       path: '/2019',
       name: '2019',
       component: HomePage,
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/search/ngrams',
+      name: 'searchNgrams',
+      component: SearchNgramsPage,
       meta: {
         requiresAuth: false,
       },

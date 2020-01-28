@@ -2,7 +2,7 @@
   <b-input-group>
     <b-form-input
     class="border-primary"
-    placeholder="search in image captions ..."
+    :placeholder="placeholder"
     v-model.trim="q"
     @keyup.enter="submit"
     @input.native="change"
@@ -20,6 +20,24 @@ export default {
   data: () => ({
     q: '',
   }),
+  props: {
+    placeholder: {
+      type: String,
+      default: 'search in image captions ...',
+    },
+    initial: {
+      type: String,
+      default: '',
+    },
+  },
+  watch: {
+    initial: {
+      handler(val) {
+        this.q = val;
+      },
+      immediate: true,
+    },
+  },
   methods: {
     change() {
       this.$emit('change', {
