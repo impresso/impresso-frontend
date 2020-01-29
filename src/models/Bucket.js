@@ -24,27 +24,27 @@ export default class Bucket {
     this.included = included;
 
     switch (type) {
-      case 'topic':
-        this.item = new Topic(item);
-        break;
-      case 'person':
-      case 'location':
-        this.item = new Entity(item);
-        break;
-      case 'newspaper':
-        this.item = new Newspaper(item);
-        break;
-      case 'collection':
-        this.item = new Collection(item);
-        break;
-      case 'year':
-        this.item = new Year(item);
-        break;
-      default:
-        this.item = {
-          uid: this.val,
-        };
-        break;
+    case 'topic':
+      this.item = new Topic(item);
+      break;
+    case 'person':
+    case 'location':
+      this.item = new Entity(item);
+      break;
+    case 'newspaper':
+      this.item = new Newspaper(item);
+      break;
+    case 'collection':
+      this.item = new Collection(item);
+      break;
+    case 'year':
+      this.item = new Year(item);
+      break;
+    default:
+      this.item = {
+        uid: this.val,
+      };
+      break;
     }
 
     if (!this.val.length) {

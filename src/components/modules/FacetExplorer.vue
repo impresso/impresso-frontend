@@ -87,12 +87,12 @@ export default {
     orderByOptions: {
       get() {
         switch (this.type) {
-          case 'topic' :
-            return ['name', '-name', 'model', '-model'];
-          case 'country' :
-            return ['date', '-date', 'relevance', '-relevance'];
-          default:
-            return ['name', 'count', 'count-mentions'];
+        case 'topic' :
+          return ['name', '-name', 'model', '-model'];
+        case 'country' :
+          return ['date', '-date', 'relevance', '-relevance'];
+        default:
+          return ['name', 'count', 'count-mentions'];
         }
       },
     },

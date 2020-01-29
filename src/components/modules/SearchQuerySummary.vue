@@ -90,28 +90,28 @@ export default {
     getLabel({ item, type }) {
       let t = '';
       switch (type) {
-        case 'daterange':
-          t = `from <span class="date">${this.$d(item.start, 'compact')}</span> to <span class="date">${this.$d(item.end, 'compact')}</span>`;
-          break;
-        case 'location':
-        case 'person':
-        case 'newspaper':
-        case 'collection':
-          t = item.name;
-          break;
-        case 'title':
-        case 'string':
-          t = `<span class="highlight precision-${item.precision}">${item.q}</span>${item.distance || ''}`;
-          break;
-        case 'topic':
-          t = `"${item.htmlExcerpt || ''}..."`;
-          break;
-        case 'year':
-          t = item.y;
-          break;
-        default:
-          t = this.$t(`buckets.${type}.${item.uid}`);
-          break;
+      case 'daterange':
+        t = `from <span class="date">${this.$d(item.start, 'compact')}</span> to <span class="date">${this.$d(item.end, 'compact')}</span>`;
+        break;
+      case 'location':
+      case 'person':
+      case 'newspaper':
+      case 'collection':
+        t = item.name;
+        break;
+      case 'title':
+      case 'string':
+        t = `<span class="highlight precision-${item.precision}">${item.q}</span>${item.distance || ''}`;
+        break;
+      case 'topic':
+        t = `"${item.htmlExcerpt || ''}..."`;
+        break;
+      case 'year':
+        t = item.y;
+        break;
+      default:
+        t = this.$t(`buckets.${type}.${item.uid}`);
+        break;
       }
       if (!t && item.uid) {
         t = item.uid;

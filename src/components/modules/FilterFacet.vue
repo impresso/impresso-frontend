@@ -66,7 +66,7 @@
 
 <script>
 import 'vue-awesome/icons/times';
-import BaseTitleBar from "../base/BaseTitleBar";
+import BaseTitleBar from '../base/BaseTitleBar';
 import FilterFacetBucket from './FilterFacetBucket';
 import FilterMonitor from './FilterMonitor';
 import InfoButton from '../base/InfoButton';
@@ -98,10 +98,7 @@ export default {
       return this.collapsible && !this.filtered;
     },
     currentStore() {
-      if (this.store === 'searchImages') {
-        return this.$store.state.searchImages;
-      }
-      return this.$store.state.search;
+      return this.$store.state[this.store];
     },
     isLoadingResults() {
       return this.currentStore.isLoadingResults;

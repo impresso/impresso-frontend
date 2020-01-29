@@ -13,6 +13,10 @@ config/*.js
 !config/prod.env.js
 !config/example.*.env.js
 tmp/
+.env*
+!.env
+!.env.development
+!.env.production
 
 # Editor directories and files
 .idea

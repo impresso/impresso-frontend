@@ -59,6 +59,10 @@ export default class Article extends ArticleBase {
     images = [],
     locations = [],
     persons = [],
+    contentLineBreaks = [],
+    regionBreaks = [],
+    mentions = [],
+    content = '',
   } = {}) {
     super({
       uid,
@@ -76,6 +80,10 @@ export default class Article extends ArticleBase {
       // to be added dinamically from TOC
       matches,
       images,
+      contentLineBreaks,
+      regionBreaks,
+      mentions,
+      content,
     });
     // missing data from ArticleBase
     this.country = String(country);

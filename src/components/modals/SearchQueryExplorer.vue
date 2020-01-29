@@ -38,9 +38,9 @@
 </template>
 
 <script>
-import SearchQuerySummary from "../modules/SearchQuerySummary";
-import ArticleItem from "../modules/lists/ArticleItem";
-import Pagination from "../modules/Pagination";
+import SearchQuerySummary from '../modules/SearchQuerySummary';
+import ArticleItem from '../modules/lists/ArticleItem';
+import Pagination from '../modules/Pagination';
 
 export default {
   props: {

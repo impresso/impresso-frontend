@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import ItemSelector from "../ItemSelector";
+import ItemSelector from '../ItemSelector';
 import ItemLabel from './ItemLabel';
 import VizBar from '../../base/VizBar';
 

@@ -7,8 +7,9 @@ export default class Region {
     articleUid = '',
     pageUid = '',
     coords = false,
-    g = [],
+    // g = [],
     iiifFragment = '',
+    isEmpty = false,
   } = {}) {
     this.articleUid = String(articleUid);
     this.pageUid = String(pageUid);
@@ -24,7 +25,8 @@ export default class Region {
       this.coords = false;
     }
 
-    this.g = g.map(line => String(line));
+    this.isEmpty = isEmpty;
+    // this.g = g.map(line => String(line));
 
     this.iiifFragment = String(iiifFragment);
   }

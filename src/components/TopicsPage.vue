@@ -23,13 +23,14 @@
       </template>
 
       <template v-slot:default>
-        <div class='topic item p-2 border-bottom' v-for="topic in topics" v-bind:key="topic.uid">
-          <div class='badge small-caps'>{{topic.language}}</div>
-          <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}" v-html="topic.getHtmlExcerpt({ token: q })" />
-          <item-selector :uid="topic.uid" :item="topic" type="topic"/>
-          <div class='small-caps'>{{topic.model}}</div>
+        <div>
+          <div class='topic item p-2 border-bottom' v-for="topic in topics" v-bind:key="topic.uid">
+            <div class='badge small-caps'>{{topic.language}}</div>
+            <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}" v-html="topic.getHtmlExcerpt({ token: q })" />
+            <item-selector :uid="topic.uid" :item="topic" type="topic"/>
+            <div class='small-caps'>{{topic.model}}</div>
+          </div>
         </div>
-
       </template>
     </list>
     <!-- main page -->

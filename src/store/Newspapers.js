@@ -93,7 +93,7 @@ export default {
           return res;
         }
         res.values = Helpers.timeline
-          .addEmptyYears(res.values.sort((a, b) => a.t - b.t));
+          .addEmptyIntervals(res.values.sort((a, b) => a.t - b.t));
         return res;
       })));
     },

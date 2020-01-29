@@ -1,0 +1,55 @@
+{
+  "root": true,
+  "env": {
+    "node": true
+  },
+  "extends": [
+    "plugin:vue/essential",
+    "@vue/airbnb",
+    "eslint:recommended"
+  ],
+  "rules": {
+    "no-console": [
+      "warn",
+      {
+        "allow": [
+          "info",
+          "warn",
+          "error"
+        ]
+      }
+    ],
+    "import/extensions": [
+      "error",
+      "always",
+      {
+        "js": "never",
+        "vue": "never"
+      }
+    ],
+    "import/no-cycle": 0,
+    "no-trailing-spaces": "error",
+    "quotes": [
+      "warn",
+      "single",
+      {
+        "allowTemplateLiterals": true
+      }
+    ],
+    "quote-props": [
+      "error",
+      "as-needed"
+    ],
+    "eqeqeq": [
+      "error",
+      "smart"
+    ],
+    "indent": [
+      "error",
+      2
+    ]
+  },
+  "parserOptions": {
+    "parser": "babel-eslint"
+  }
+}

@@ -75,26 +75,26 @@ export default {
       }
 
       switch (collectionsSortOrder) {
-        case '-created':
-          sortBy(state.collections, 'creationDate', 'desc');
-          break;
-        case 'created':
-          sortBy(state.collections, 'creationDate', 'asc');
-          break;
-        case '-modified':
-          sortBy(state.collections, 'lastModifiedDate', 'desc');
-          break;
-        case 'modified':
-          sortBy(state.collections, 'lastModifiedDate', 'asc');
-          break;
-        case '-name':
-          sortBy(state.collections, 'name', 'desc');
-          break;
-        case 'name':
-          sortBy(state.collections, 'name', 'asc');
-          break;
-        default:
-          break;
+      case '-created':
+        sortBy(state.collections, 'creationDate', 'desc');
+        break;
+      case 'created':
+        sortBy(state.collections, 'creationDate', 'asc');
+        break;
+      case '-modified':
+        sortBy(state.collections, 'lastModifiedDate', 'desc');
+        break;
+      case 'modified':
+        sortBy(state.collections, 'lastModifiedDate', 'asc');
+        break;
+      case '-name':
+        sortBy(state.collections, 'name', 'desc');
+        break;
+      case 'name':
+        sortBy(state.collections, 'name', 'asc');
+        break;
+      default:
+        break;
       }
 
       state.collectionsSortOrder = collectionsSortOrder;
