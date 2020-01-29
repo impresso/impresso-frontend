@@ -394,7 +394,7 @@ export default {
         return {
           type: 'intersection',
           filters: comparablesFilters
-            .reduce((acc, { filters } = {}) => acc.concat(filters), []),
+            .reduce((acc, filters = []) => acc.concat(filters), []),
         };
       case 2:
         return this.comparables[1];
