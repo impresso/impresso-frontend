@@ -15,7 +15,7 @@ export default {
     focusOnSearch: Boolean,
     tabs: {
       type: Array,
-      default: () => ['search', 'searchImages'],
+      default: () => ['search', 'searchImages', 'searchNgrams'],
     },
   },
   methods: {
@@ -43,7 +43,8 @@ export default {
   "en": {
     "tabs": {
       "search": "search articles",
-      "searchImages": "search images"
+      "searchImages": "search images",
+      "searchNgrams": "ngrams"
     }
   }
 }
