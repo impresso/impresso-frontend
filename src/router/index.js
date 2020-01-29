@@ -25,6 +25,7 @@ import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
 import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
+import ConnectedTextReuseClustersPage from '../components/ConnectedTextReuseClustersPage';
 import store from '../store';
 
 Vue.use(Router);
@@ -296,6 +297,15 @@ const router = new Router({
       meta: {
         requiresAuth: false,
       },
+    },
+    {
+      path: '/text-reuse-clusters/:id?',
+      component: ConnectedTextReuseClustersPage,
+      name: 'text-reuse-clusters',
+      meta: {
+        requiresAuth: false,
+      },
+      children: [],
     }],
 });
 
