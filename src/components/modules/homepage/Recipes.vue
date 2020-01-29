@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="recipes">
-    <div class="border-top border-tertiary" v-for="(recipe, i) in recipes" v-bind:key="i">
+    <div v-for="(recipe, i) in recipes" v-bind:key="i">
       <div class="container mb-5 ">
         <b-row
           v-if="recipe.img_src"
