@@ -40,8 +40,10 @@
                 </div>
               </div>
             </b-row>
-            <div class="passage-control" :style='{ top: `${hoverPassageLineTopOffset}px` }'>
-              XXX ({{hoverPassageLineTopOffset}}): {{selectedPassageId}}
+            <div class="passage-control"
+                 :style='{ top: `${hoverPassageLineTopOffset}px` }'
+                 v-if="selectedPassage">
+              {{Math.round(selectedPassage.lexicalOverlap)}}% Lexical Overlap
             </div>
           </b-container>
         </div>
@@ -87,16 +89,19 @@ export default {
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: undefined,
+      viewerTopOffset: 0,
     };
   },
   updated() {
-    [...document.querySelectorAll('.tr-passage')]
-      .map(element => {
-        element.removeEventListener('mouseenter', this.mouseenterPassageHandler)
-        element.addEventListener('mouseenter', this.mouseenterPassageHandler)
-        element.removeEventListener('mouseleave', this.mouseleavePassageHandler)
-        element.addEventListener('mouseleave', this.mouseleavePassageHandler)
-      })
+    const { height } = document.querySelector('#TheHeader').getBoundingClientRect();
+    this.viewerTopOffset = height;
+
+    [...document.querySelectorAll('.tr-passage')].map(element => {
+      element.removeEventListener('mouseenter', this.mouseenterPassageHandler)
+      element.addEventListener('mouseenter', this.mouseenterPassageHandler)
+      element.removeEventListener('mouseleave', this.mouseleavePassageHandler)
+      element.addEventListener('mouseleave', this.mouseleavePassageHandler)
+    })
   },
   computed: {
     articlePages() {
@@ -142,6 +147,12 @@ export default {
       })
 
       return regions;
+    },
+    selectedPassage() {
+      if (this.selectedPassageId) {
+        return this.textReusePassages.filter(({ id }) => id === this.selectedPassageId)[0]
+      }
+      return undefined
     }
   },
   props: ['article_uid'],
@@ -175,18 +186,29 @@ export default {
       const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
       const siblingElements = [...document.querySelectorAll(`.tr-passage`)]
 
-      siblingElements.map(element => element.classList.remove('active'))
+      siblingElements.map(element => {
+        element.classList.remove('active')
+        element.removeEventListener('click', this.passageClickHandler)
+      })
       peerElements.map(element => element.classList.add('active'))
 
+      e.target.addEventListener('click', this.passageClickHandler)
+
       this.selectedPassageId = id
-      this.hoverPassageLineTopOffset = top
+      this.hoverPassageLineTopOffset =  top - this.viewerTopOffset
     },
     mouseleavePassageHandler(e) {
       const { id } = e.target.dataset
       const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
 
       peerElements.map(element => element.classList.remove('active'))
+
+      e.target.removeEventListener('click', this.passageClickHandler)
+
       this.selectedPassageId = null
+    },
+    passageClickHandler() {
+      console.info(`Passage ${this.selectedPassageId} clicked. ${Math.random()}`)
     }
   },
   watch: {
@@ -255,25 +277,28 @@ export default {
 
     // &:hover, &.active {
     &.active {
-      border: 1px solid red;
+      border: 1px solid #11111199;
       background-color: #56CCF277;
       // box-shadow:inset 0px -24px 0px 0px transparentize(blue, 0.5);
     }
   }
 
   .passage-control {
-    border: 1px solid #aaa;
+    // border: 1px solid #aaa;
     border-radius: 4px;
     padding: 2px 4px;
     font-size: 13px;
     background: #eee;
     display: flex;
     width: 100px;
-    height: 25px;
+    // height: 25px;
     flex: 1;
     position: absolute;
     overflow: hidden;
-    right: 0px;
+    right: 6px;
+    text-transform: uppercase;
+    font-size: 12px;
+    text-align: center;
   }
 
   span.location::before {
