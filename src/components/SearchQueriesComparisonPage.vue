@@ -21,7 +21,7 @@
       </div>
       <!-- body -->
       <div class="aspects-container container-fluid">
-        <div class="row"
+        <div class="row aspect-row"
              v-for="([facetId, facetType], facetIdx) in facets"
              v-bind:key="facetIdx">
           <div class="one-third" :class="{
@@ -33,8 +33,18 @@
             <div class="col" v-if="isQueryLoading(queryIdx)">
               <loading-indicator class="col py-3" v-if="facetIdx === 0"/>
             </div>
-            <div class="col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) === undefined">
-              <div v-if="facetIdx === 0" style="text-align: center;">[Nothing found]</div>
+            <div class="col empty-col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) === undefined">
+              <div v-if="facetIdx === 0" style="text-align: center;">
+                <div v-if="queryIdx === 1">
+                  Two queries are required to compute intersection
+                </div>
+                <div v-if="queryIdx !== 1">
+                  <button class="btn mb-1 btn-outline-primary btn-sm"
+                          v-on:click="insertMostRecentSearchQuery(queryIdx)">
+                    Insert most recent search query
+                  </button>
+                </div>
+              </div>
             </div>
             <div class="col">
             <facet-overview-panel class="px-2"
@@ -120,7 +130,13 @@ const constructQueryParameters = (comparables, queryParameters) => {
 
 const deepEqual = (o1, o2) => JSON.stringify(o1) === JSON.stringify(o2);
 
-const DefaultQuery = { filters: [{ type: 'hasTextContents' }] };
+const comparableIsEmpty = (comparable) => {
+  if (comparable.type === 'query' && comparable.query === undefined) return true;
+  if (comparable.type === 'collection' && comparable.id === undefined) return true;
+  return false;
+};
+
+// const DefaultQuery = { filters: [{ type: 'hasTextContents' }] };
 
 const QueryLeftIndex = 0;
 const QueriesIntersectionIndex = 1;
@@ -160,9 +176,10 @@ export default {
     //       id is the ID of the collection if this is a collection
     //       query is a Search Query object.
     comparables: [
-      { type: 'query', query: DefaultQuery },
-      { type: 'query', query: DefaultQuery },
+      { type: 'query', query: undefined /* DefaultQuery */ },
+      { type: 'query', query: undefined /* DefaultQuery */ },
     ],
+    oldComparables: [], // vue.js does not keep a copy of the old arrays (https://vuejs.org/v2/api/#vm-watch)
   }),
   watch: {
     // query parameters updated - this drives state change
@@ -174,21 +191,22 @@ export default {
           if (parts.length === 2 && parts[0] === 'c') return { type: 'collection', id: parts[1] };
           try {
             const query = item === ''
-              ? DefaultQuery
+              ? undefined /* DefaultQuery */
               : protobuf.searchQuery.deserialize(item);
             return { type: 'query', query };
           } catch (e) {
             throw new Error(`Query ${idx} could not be parsed: ${e.message}`);
           }
         });
-        this.$set(this, 'comparables', comparables);
+        this.comparables = comparables;
       },
       immediate: true,
       deep: true,
     },
     // comparables are updated by the query paramters - fetching new data.
     comparables: {
-      async handler([left, right] = [], [oldLeft, oldRight] = []) {
+      handler([left, right] = []) {
+        const [oldLeft, oldRight] = this.oldComparables;
         const queries = [];
         if (!deepEqual(left, oldLeft)) {
           queries.push(this.updateQueryResult(QueryLeftIndex, left));
@@ -203,8 +221,8 @@ export default {
             this.updateQueriesIntersectionResult(QueriesIntersectionIndex, [left, right]),
           );
         }
-
-        return Promise.all(queries);
+        this.oldComparables = this.comparables.map(c => ({ ...c }));
+        return queries;
       },
       immediate: true,
       deep: true,
@@ -248,7 +266,10 @@ export default {
         facets: this.facets.map(([type]) => type),
       };
 
-      if (payload.queries.length < 2) return;
+      if (payload.queries.length < 2) {
+        this.$set(this.queriesResults, resultIndex, {});
+        return;
+      }
 
       this.loadingFlags[resultIndex] = true;
       try {
@@ -266,6 +287,11 @@ export default {
     },
     /** Fetch query data */
     async updateQueryResult(resultIndex, comparable) {
+      if (comparableIsEmpty(comparable)) {
+        this.$set(this.queriesResults, resultIndex, {});
+        return;
+      }
+
       const payload = {
         ...comparableToQuery(comparable),
         limit: 0,
@@ -354,17 +380,37 @@ export default {
       case 0:
         return this.comparables[0];
       case 1:
+        // eslint-disable-next-line no-case-declarations
+        const comparablesFilters = this.comparables
+          .map(comparableToQuery)
+          .filter(({ filters } = {}) => filters !== undefined)
+          .map(({ filters }) => filters);
+        if (comparablesFilters.length !== 2) {
+          return {
+            type: 'intersection',
+            filters: undefined,
+          };
+        }
         return {
           type: 'intersection',
-          filters: this.comparables
-            .map(comparableToQuery)
-            .reduce((acc, { filters }) => acc.concat(filters), []),
+          filters: comparablesFilters
+            .reduce((acc, filters = []) => acc.concat(filters), []),
         };
       case 2:
         return this.comparables[1];
       default:
         throw new Error(`Unexpected queryIndex: ${queryIndex}`);
       }
+    },
+    insertMostRecentSearchQuery(queryIdx) {
+      const recentSearchHash = this.$store.state.search.currentSearchHash;
+      const query = { ...this.$router.currentRoute.query };
+      if (queryIdx === 0) query.left = recentSearchHash;
+      if (queryIdx === 2) query.right = recentSearchHash;
+      this.$router.push({
+        name: 'compare',
+        query,
+      });
     },
   },
 };
@@ -396,6 +442,16 @@ export default {
     height: 100%;
     border-top: 1px solid #dee2e6;
     margin-top: 1px;
+  }
+  .aspect-row {
+    height: 100%;
+  }
+  .empty-col {
+    align-items: center;
+    display: flex;
+    justify-items: center;
+    justify-content: center;
+    height: 100%;
   }
 </style>
 
