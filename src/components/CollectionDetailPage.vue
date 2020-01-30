@@ -20,14 +20,14 @@
 
         <section class="ml-auto py-3">
 
-          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }">
+          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="float-right mb-1">
             <b-button
               variant="outline-info" size="sm"
               v-b-modal.confirmDelete>{{ $t('compare_collection') }}
             </b-button>
           </router-link>
 
-          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')" ref="edit_collection">
+          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')" class="d-block" ref="edit_collection">
             <div class="modal-edit pt-2 px-3 background-light">
               <label for="collectionName">Name</label>
               <input type="text" name="collectionName" class="form-control mb-3"
@@ -64,14 +64,14 @@
 
         </b-navbar-nav>
         <b-navbar-nav class="p-3">
-          <li><label >{{ $t('order by') }}</label>
+          <li><label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
 
         <b-navbar-nav class="p-3 border-left ml-auto">
           <li>
-            <label >{{ $t('label_display') }}</label>
+            <label class="mr-1">{{ $t('label_display') }}</label>
             <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
               <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
               <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
