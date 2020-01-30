@@ -28,7 +28,6 @@ export default {
     CollectionList,
   },
   data: () => ({
-    tab: {},
     collection: {},
   }),
   computed: {
@@ -37,10 +36,6 @@ export default {
     },
   },
   mounted() {
-    this.$store.commit('SET_HEADER_TITLE', {
-      subtitle: this.$t('collections'),
-      title: `@${this.user.username}`,
-    });
   },
   methods: {
   },
