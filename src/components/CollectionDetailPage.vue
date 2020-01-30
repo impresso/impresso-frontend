@@ -302,7 +302,9 @@ export default {
     },
     remove(collection) {
       this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
-        this.$store.dispatch('collections/LOAD_COLLECTIONS');
+        this.$router.push({
+          name: 'collections',
+        });
       });
     },
     save(collection) {
