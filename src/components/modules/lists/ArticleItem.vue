@@ -5,17 +5,17 @@
       <a v-else-if="showHref" v-on:click.prevent="onClick" v-html="item.title"></a>
       <span v-else v-html="item.title"></span>
     </h2>
-    <div v-else>
+    <!-- <div v-else>
       <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="$t('untitled')"></router-link>
       <a v-else-if="showHref" v-on:click.prevent="onClick">{{ $t('untitled') }}</a>
       <span v-else>{{ $t('untitled') }}</span>
-    </div>
+    </div> -->
     <div v-if="showMeta" class="article-meta">
       <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
         {{ item.newspaper.name}}
       </router-link>
-      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
-      <span class="date">{{ $d(item.date, "long") }}</span>
+      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/><br/>
+      <span class="date">{{ $d(item.date, "long") }}</span> &mdash;
       <span>{{ pages }}</span>
     </div>
 
