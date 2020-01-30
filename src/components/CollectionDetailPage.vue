@@ -366,7 +366,7 @@ export default {
     "display_button_tiles": "Tiles",
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
     "edit_collection": "Collection Settings",
-    "update_collection": "Update Collection",
+    "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection",
     "compare_collection": "Compare with ...",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?"
