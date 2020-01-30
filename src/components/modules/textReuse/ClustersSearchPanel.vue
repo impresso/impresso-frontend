@@ -8,7 +8,7 @@
 
     <div class="pt-2">
       <h6 class="label">{{$t('searchInPatternsLabel')}}</h6>
-      <search-input class="pt-2"/>
+      <search-input class="pt-2" @submit="onSubmitted"/>
     </div>
   </div>
 </template>
@@ -21,15 +21,21 @@ export default {
   }),
   components: {
     SearchInput,
+  },
+  methods: {
+    onSubmitted(v) {
+      console.info('Search input submitted', v)
+    }
   }
 };
 </script>
 
-<style lang="sass" scoped>
+<style lang="scss" scoped>
   @import "impresso-theme/src/scss/variables.sass";
-  .label
-    font-family: $font-family-sans-serif
-    font-variant: all-small-caps
+  .label {
+    font-family: $font-family-sans-serif;
+    font-variant: all-small-caps;
+  }
 </style>
 
 <i18n>
