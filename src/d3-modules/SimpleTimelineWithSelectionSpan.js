@@ -15,7 +15,7 @@ export default class SimpleTimelineWithSelectionSpan extends Basic {
     margin = {},
     dateLabelWidth = 30,
     dateFormat = '%Y',
-    lineWidth = 2,
+    lineWidth = 1,
     spanLabelFormatFn = DefaultSpanLabelFormatFn
   } = {}) {
     super({
