@@ -1,8 +1,8 @@
 <template lang="html">
   <i-layout id="ConnectedTextReuseClustersPage">
-    <i-layout-section width="400px" class="border-right p-2">
-      <div slot="header">
-        [cluster text search placeholder]
+    <i-layout-section width="400px" class="border-right">
+      <div slot="header" class="border-bottom p-2 pb-4">
+        <cluster-text-search-panel/>
         <autocomplete v-on:submit="submit" />
       </div>
       <div class="p-4">
@@ -16,9 +16,13 @@
 </template>
 
 <script>
+import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel'
 
 export default {
   data: () => ({
   }),
+  components: {
+    ClusterTextSearchPanel,
+  }
 };
 </script>
