@@ -1,24 +1,30 @@
 <template lang="html">
 <i-layout id="UserCollectionPage">
   <i-layout-section width="400px" class="border-right">
-    <div slot="header" class="pt-1 bg-light">
-      <base-tabs v-model="tab" class="pl-3" v-bind:tabs="tabs"></base-tabs>
-    </div>
-    <collection-list v-show="tab.name === 'collections'" v-model="collection"/>
+    <template v-slot:header>
+      <b-tabs pills class="mx-2 pt-2">
+        <template v-slot:tabs-end>
+          <b-nav-item class="pl-2 active"
+            active-class='none'
+            :to="{ name:'collections'}">{{$t('tabs.collections')}}</b-nav-item>
+        </template>
+      </b-tabs>
+    </template>
+    <template v-slot:default>
+      <collection-list />
+    </template>
   </i-layout-section>
-
-  <router-view/>
-
+  <i-layout-section>
+    <router-view />
+  </i-layout-section>
 </i-layout>
 </template>
 
 <script>
-import BaseTabs from './base/BaseTabs';
 import CollectionList from './modules/CollectionList';
 
 export default {
   components: {
-    BaseTabs,
     CollectionList,
   },
   data: () => ({
@@ -26,25 +32,6 @@ export default {
     collection: {},
   }),
   computed: {
-    tabs() {
-      return [
-        {
-          label: this.$t('tabs.collections'),
-          name: 'collections',
-          active: true,
-        },
-        {
-          label: this.$t('tabs.searches'),
-          name: 'searches',
-          disabled: false,
-        },
-        {
-          label: this.$t('tabs.labels'),
-          name: 'labels',
-          disabled: true,
-        },
-      ];
-    },
     user() {
       return this.$store.getters['user/user'];
     },
@@ -68,9 +55,7 @@ export default {
   "en": {
     "collections": "collections",
     "tabs": {
-        "collections": "My Collections",
-        "searches": "My Searches",
-        "labels": "My Labels"
+        "collections": "My Collections"
     }
   }
 }
