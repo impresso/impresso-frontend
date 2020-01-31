@@ -47,7 +47,7 @@
       <b-navbar-nav>
       <li>
         <label>{{$t('legend')}}</label>
-        <div class="d-inline-block pl-2" v-for="item in legend.nodeColor" :key="item">
+        <div class="d-inline-block pl-2" v-for="(item,i) in legend.nodeColor" :key="i">
           <div class='legend-node' v-bind:style="{backgroundColor: item.color}"></div>
           <span>{{item.name}} ({{$n(item.count)}})</span>
         </div>
@@ -102,7 +102,7 @@ export default {
       return this.$store.state.topics.items;
     },
     itemsIndex() {
-      return this.$store.state.topics.itemsIndex;
+      return this.$store.state.topics.visualizedItemsIndex;
     },
     linkBy: {
       get() {
@@ -271,36 +271,43 @@ export default {
   },
   watch: {
     itemsIndex: {
-      immediate: true,
-      deep: true,
       async handler(itemsIndex) {
-        // if there is no graph, load the graph first.
-        if (itemsIndex && !this.totalNodes) {
-          console.info('@itemsIndex updated, loading graph...');
-          await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH');
-          console.info('@itemsIndex updated, graph loaded.');
-        }
-        // re evaluate graph
+        // console.log('ohlalal', itemsIndex);
         if (this.graph) {
-          if (this.timerDelayGraphUpdate) {
-            clearTimeout(this.timerDelayGraphUpdate);
-          }
+          console.info('sosiodisodiosd', this.graph, itemsIndex);
 
-          console.info('@itemsIndex updated, update graph in 2s...');
-
-          this.timerDelayGraphUpdate = setTimeout(() => {
-            this.filteredNodes = this.getFilteredNodes();
-            this.filteredLinks = this.getFilteredLinks();
-
-            console.info('@itemsIndex n. filtered nodes:', this.filteredNodes.length);
-            console.info('@itemsIndex n. filtered links:', this.filteredLinks.length);
-
-            this.updateGraph({
-              nodes: this.filteredNodes,
-              links: this.filteredLinks,
-            });
-          }, 500);
+          this.updateGraph({
+            nodes: this.graphNodes,
+            links: [],
+          });
         }
+        // if there is no graph, load the graph first.
+        // if (itemsIndex && !this.totalNodes) {
+        //   console.info('@itemsIndex updated, loading graph...');
+        //   // await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH');
+        //   // console.info('@itemsIndex updated, graph loaded.');
+        // }
+        // // re evaluate graph
+        // if (this.graph) {
+        //   if (this.timerDelayGraphUpdate) {
+        //     clearTimeout(this.timerDelayGraphUpdate);
+        //   }
+        //
+        //   console.info('@itemsIndex updated, update graph in 2s...');
+        //
+        //   this.timerDelayGraphUpdate = setTimeout(() => {
+        //     this.filteredNodes = this.getFilteredNodes();
+        //     this.filteredLinks = this.getFilteredLinks();
+        //
+        //     console.info('@itemsIndex n. filtered nodes:', this.filteredNodes.length);
+        //     console.info('@itemsIndex n. filtered links:', this.filteredLinks.length);
+        //
+        //     this.updateGraph({
+        //       nodes: this.filteredNodes,
+        //       links: this.filteredLinks,
+        //     });
+        //   }, 500);
+        // }
       },
     },
     linkBy: {
