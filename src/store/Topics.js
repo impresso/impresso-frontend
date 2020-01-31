@@ -8,7 +8,9 @@ export default {
     orderBy: '-name',
     topicModel: '*',
     items: [],
+    visualizedItems: [],
     itemsIndex: {},
+    visualizedItemsIndex: {},
     pagination: {
       perPage: 200,
       currentPage: 1,
@@ -33,6 +35,9 @@ export default {
       state.items = items;
       state.itemsIndex = {};
       items.forEach((d, k) => {
+        if (state.visualizedItemsIndex[d.uid]) {
+          items[k].visualized = true;
+        }
         state.itemsIndex[d.uid] = k;
       });
     },
@@ -51,10 +56,42 @@ export default {
     UPDATE_GRAPH_LINK_MODE(state, mode) {
       state.graphLinkMode = mode;
     },
+    ADD_VISUALIZED_ITEM(state, item) {
+      if (typeof state.visualizedItemsIndex[item.uid] !== 'undefined') {
+        return;
+      }
+      state.visualizedItemsIndex = {
+        ...state.visualizedItemsIndex,
+        [item.uid]: state.visualizedItems.length,
+      };
+      // copy the item, we don't want to loose it.
+      const clonedTopic = new Topic({ ...item });
+      state.visualizedItems.push(clonedTopic);
+    },
+    REMOVE_VISUALIZED_ITEM(state, item) {
+      if (typeof state.visualizedItemsIndex[item.uid] === 'undefined') {
+        return;
+      }
+      const idx = state.visualizedItemsIndex[item.uid];
+      state.visualizedItems.splice(idx, 1);
+      // reset visualizedItemsIndex.
+      state.visualizedItemsIndex = {};
+      state.visualizedItems.forEach((d, k) => {
+        state.visualizedItemsIndex[d.uid] = k;
+      });
+      console.info(state.visualizedItemsIndex);
+    },
   },
   actions: {
     CHANGE_GRAPH_LINK_MODE({ commit }, mode) {
       commit('UPDATE_GRAPH_LINK_MODE', mode);
+    },
+    ADD_VISUALIZED_ITEM({ commit, state }, item) {
+      commit('ADD_VISUALIZED_ITEM', item);
+      commit('UPDATE_GRAPH_NODES', state.visualizedItems);
+    },
+    REMOVE_VISUALIZED_ITEM({ commit }, item) {
+      commit('REMOVE_VISUALIZED_ITEM', item);
     },
     LOAD_TOPICS_GRAPH({ commit }) {
       return services.topics.find({
