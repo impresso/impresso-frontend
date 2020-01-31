@@ -1,15 +1,21 @@
 <template lang="html">
   <i-layout id="TopicsPage">
-    <list :pagination-list="paginationList" v-on:change-page="changePage">
+    <list :pagination-list="paginationList" width="350px" v-on:change-page="changePage" :hidePagination="this.tab === 'visualized'">
       <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item class="pl-2 active"
+
+            <b-nav-item class="pl-2"
+              :class="{ active: tab === 'list' }"
               active-class='none'
               :to="{ name:'topics'}"><span v-html="$t('label_list', { total: $n(paginationList.totalRows) })"/></b-nav-item>
+            <b-nav-item class="pl-2"
+              :class="{ active: tab === 'visualized' }"
+              active-class='none'
+              :to="{ name:'topics', query: { tab: 'visualized' }}"><span v-html="$t('label_visualized_list', { total: $n(visualizedTopics.length) })"/></b-nav-item>
           </template>
         </b-tabs>
-        <div class='pb-2 px-3'>
+        <div class='pb-2 px-3' v-if="tab === 'list'">
           <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
           <label>{{ $t('select model') }}</label>
           <small><info-button name="how-topic" class="text-muted" /></small>
@@ -20,16 +26,24 @@
           <label>{{ $t('max_nodes') }}</label>
           <i-dropdown v-model="limit" v-bind:options="limitOptions" size="sm" variant="outline-primary"></i-dropdown>
         </div>
+        <div class='pt-3 pb-2 px-3' v-else>
+          <label>{{ $t('order_by') }}</label>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </div>
       </template>
 
       <template v-slot:default>
-        <div>
-          <div class='topic item p-2 border-bottom' v-for="topic in topics" v-bind:key="topic.uid">
-            <div class='badge small-caps'>{{topic.language}}</div>
-            <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}" v-html="topic.getHtmlExcerpt({ token: q })" />
-            <item-selector :uid="topic.uid" :item="topic" type="topic"/>
-            <div class='small-caps'>{{topic.model}}</div>
+        <div v-if="tab === 'list'">
+          <topic-item :item="topic" v-for="(topic, i) in topics" v-bind:key="i" class='p-2 border-bottom' />
+        </div>
+        <div v-else-if="!visualizedTopics.length" class="d-flex justify-content-center">
+          <div class="p-3 mt-1">
+            <p class="text-center"><em>This panel will contain the list of visualized topics.</em></p>
+            <p style="font-size: .9em">To select the items to visualize, please go to the <router-link :to="{ name: $route.name }">browse topic</router-link> panel and check the corresponding checkbox</p>
           </div>
+        </div>
+        <div v-else>
+          <topic-item :item="topic" v-for="(topic, i) in visualizedTopics" v-bind:key="i" class='p-2 border-bottom' />
         </div>
       </template>
     </list>
@@ -40,16 +54,21 @@
 
 <script>
 import List from './modules/lists/List';
-import ItemSelector from './modules/ItemSelector';
 import InfoButton from './base/InfoButton';
+import TopicItem from './modules/lists/TopicItem';
 
 export default {
   data: () => ({
     submitted: false,
     topicModels: [],
     q: '',
+    tab: 'list',
   }),
   computed: {
+    visualizedTopics() {
+      // list of visualized topics;
+      return this.$store.state.topics.visualizedItems;
+    },
     topics() {
       return this.$store.state.topics.items;
     },
@@ -150,11 +169,32 @@ export default {
         this.topicModels = [];
       }
     },
+    activateTab(t) {
+      if(t === 'visualized') {
+        this.tab = 'visualized';
+      } else {
+        this.tab = 'list';
+      }
+    },
+    toggleVisualized(item, checked) {
+      if (checked) {
+        this.$store.dispatch('topics/ADD_VISUALIZED_ITEM', item)
+      } else {
+        this.$store.dispatch('topics/REMOVE_VISUALIZED_ITEM', item)
+      }
+    },
   },
   mounted() {
+
     this.getTopics();
+    this.activateTab(this.$route.query.tab);
   },
   watch: {
+    $route: {
+      handler({ query }) {
+        this.activateTab(query.tab);
+      },
+    },
     q: {
       async handler(val) {
         await this.getTopics({
@@ -185,8 +225,8 @@ export default {
   },
   components: {
     List,
-    ItemSelector,
     InfoButton,
+    TopicItem,
   },
 };
 </script>
@@ -213,6 +253,7 @@ export default {
 {
   "en": {
     "label_list": "browse {total} topics",
+    "label_visualized_list": "{total} visualized",
     "order_by": "order by",
     "sort_name_asc": "Main word, A-Z",
     "sort_name_desc": "Main word, Z-A",
