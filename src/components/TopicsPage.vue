@@ -8,23 +8,29 @@
             <b-nav-item class="pl-2"
               :class="{ active: tab === 'list' }"
               active-class='none'
-              :to="{ name:'topics'}"><span v-html="$t('label_list', { total: $n(paginationList.totalRows) })"/></b-nav-item>
+              :to="goToQuery({ tab: 'list' })"><span v-html="$t('label_list', { total: $n(paginationList.totalRows) })"/></b-nav-item>
             <b-nav-item class="pl-2"
               :class="{ active: tab === 'visualized' }"
               active-class='none'
-              :to="{ name:'topics', query: { tab: 'visualized' }}"><span v-html="$t('label_visualized_list', { total: $n(visualizedTopics.length) })"/></b-nav-item>
+              :to="goToQuery({ tab: 'visualized' })"><span v-html="$tc('label_visualized_list', visualizedTopics.length, { total: $n(visualizedTopics.length) })"/></b-nav-item>
           </template>
         </b-tabs>
         <div class='pb-2 px-3' v-if="tab === 'list'">
-          <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
-          <label>{{ $t('select model') }}</label>
+          <b-form-input placeholder="filter topics ..." :value="q" v-on:change="changeQ" class="my-3"></b-form-input>
+          <b-form-checkbox v-if="countActiveFilters"
+            v-model="applyCurrentSearchFilters"
+          >filter list of topics if matches current search <br/>({{countActiveFilters}} filters)</b-form-checkbox>
+          <div v-else>
+            if you have a search filter, you can use this one to filter out stuff;
+          </div>
+          <!-- <label>{{ $t('select model') }}</label>
           <small><info-button name="how-topic" class="text-muted" /></small>
           <i-dropdown v-model="topicModel" v-bind:options="topicModelOptions" size="sm" variant="outline-primary"></i-dropdown>
-          <br/>
+          <br/> -->
           <!-- <label>{{ $t('order_by') }}</label> -->
           <!-- <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown> -->
-          <label>{{ $t('max_nodes') }}</label>
-          <i-dropdown v-model="limit" v-bind:options="limitOptions" size="sm" variant="outline-primary"></i-dropdown>
+          <!-- <label>{{ $t('max_nodes') }}</label> -->
+          <!-- <i-dropdown v-model="limit" v-bind:options="limitOptions" size="sm" variant="outline-primary"></i-dropdown> -->
         </div>
         <div class='pt-3 pb-2 px-3' v-else>
           <label>{{ $t('order_by') }}</label>
@@ -54,8 +60,9 @@
 
 <script>
 import List from './modules/lists/List';
-import InfoButton from './base/InfoButton';
+// import InfoButton from './base/InfoButton';
 import TopicItem from './modules/lists/TopicItem';
+// import Helpers from '@/plugins/Helpers';
 
 export default {
   data: () => ({
@@ -65,6 +72,24 @@ export default {
     tab: 'list',
   }),
   computed: {
+    isLoading() {
+      return this.$store.state.topics.isLoading;
+    },
+    applyCurrentSearchFilters: {
+      get() {
+        return this.$store.state.topics.applyCurrentSearchFilters;
+      },
+      set(value) {
+        this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+        this.loadTopics();
+      },
+    },
+    searchQuery() {
+      return this.$store.getters['search/getSearch'];
+    },
+    countActiveFilters() {
+      return this.$store.getters['search/countActiveFilters'];
+    },
     visualizedTopics() {
       // list of visualized topics;
       return this.$store.state.topics.visualizedItems;
@@ -144,30 +169,60 @@ export default {
 
   },
   methods: {
+    changeQ(value) {
+      console.info('changeQ', value);
+      if (value.trim().length > 1) {
+        this.$router.push({
+          name: this.$route.name,
+          params: this.$route.params,
+          query: {
+            ...this.$route.query,
+            q: value.trim(),
+          },
+        });
+      }
+    },
     changePage(page) {
-      return this.getTopics({
+      return this.loadTopics({
         page,
       });
     },
-    async getTopics({
+    goToQuery(query) {
+      return {
+        name:  this.$route.name,
+        params: this.$route.params,
+        query: {
+          ... this.$route.query,
+          ... query,
+        },
+      };
+    },
+    loadTopics({
       page = 1,
-      q = null,
       facets = 'topicmodel',
       filters = [],
     } = {}) {
-      const response = await this.$store.dispatch('topics/LOAD_TOPICS', {
+      const params = {
         limit: this.limit,
         page,
-        q,
         facets,
         filters,
-      });
-
-      if (response.info.facets && response.info.facets.topicmodel) {
-        this.topicModels = response.info.facets.topicmodel.buckets || [];
-      } else {
-        this.topicModels = [];
+      };
+      // add current search query filters if applicable.
+      if (this.applyCurrentSearchFilters && this.countActiveFilters) {
+        params.filters = params.filters.concat(this.searchQuery.getFilters());
       }
+      if (this.q && this.q.length > 1) {
+        params.q = this.q;
+      }
+      console.info('loadTopics - filters:', params.filters, '- q:', params.q);
+      this.$store.dispatch('topics/LOAD_TOPICS', params).then((response) => {
+        if (response.info.facets && response.info.facets.topicmodel) {
+          this.topicModels = response.info.facets.topicmodel.buckets || [];
+        } else {
+          this.topicModels = [];
+        }
+      });
     },
     activateTab(t) {
       if(t === 'visualized') {
@@ -183,26 +238,34 @@ export default {
         this.$store.dispatch('topics/REMOVE_VISUALIZED_ITEM', item)
       }
     },
+    initQ(q) {
+      this.q = String(q || '').trim();
+    },
   },
   mounted() {
-
-    this.getTopics();
-    this.activateTab(this.$route.query.tab);
+    console.info('TopicsPage mounted.');
+    this.initQ(this.$route.query.q);
+    this.loadTopics();
   },
   watch: {
     $route: {
       handler({ query }) {
+        console.info('TopicsPage @$route query:', query);
         this.activateTab(query.tab);
+        this.initQ(query.q);
+        this.loadTopics();
       },
     },
-    q: {
-      async handler(val) {
-        await this.getTopics({
-          page: 1,
-          q: val,
-        });
-      },
-    },
+    // q: {
+    //   handler(val) {
+    //     Helpers.debounce(this.loadTopics(), 500);
+    //     //
+    //     // return this.loadTopics({
+    //     //   page: 1,
+    //     //   q: val,
+    //     // });
+    //   },
+    // },
     topicModel: {
       async handler() {
         const query = {
@@ -219,13 +282,13 @@ export default {
           ];
         }
         // console.info('query', query);
-        await this.getTopics(query);
+        await this.loadTopics(query);
       },
     },
   },
   components: {
     List,
-    InfoButton,
+    // InfoButton,
     TopicItem,
   },
 };
@@ -253,7 +316,7 @@ export default {
 {
   "en": {
     "label_list": "browse {total} topics",
-    "label_visualized_list": "{total} visualized",
+    "label_visualized_list": "0 visualized | <span style='color: blue'>1</span> visualized | <span style='color: blue'>{total}</span> visualized",
     "order_by": "order by",
     "sort_name_asc": "Main word, A-Z",
     "sort_name_desc": "Main word, Z-A",
