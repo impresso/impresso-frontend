@@ -1,6 +1,13 @@
 import * as d3 from 'd3';
 import TopicWord from '@/models/TopicWord';
 
+const wordMapper = (token) => (d) => {
+  if (token) {
+    return (d.h ? `<span class="h">${d.w.split(token).join(`<b>${token}</b>`)}</span>` : d.w);
+  }
+  return (d.h ? `<span class="h">${d.w}</span>` : d.w);
+};
+
 export default class Topic {
   constructor({
     uid = '',
@@ -21,7 +28,13 @@ export default class Topic {
     this.model = String(model);
     this.words = words.filter(d => d.p > 0.0);
     this.excerpt = excerpt;
-    this.matches = matches.map(d => d.trim().split(' ').join(' · '));
+    if (matches.length) {
+      this.matches = matches
+        .map(d => d.trim().split(' '))
+        .reduce((acc, d) => acc.concat(d), []);
+    } else {
+      this.matches = matches;
+    }
     this.countItems = countItems;
     this.relatedTopics = relatedTopics;
     if (words.length && !(words[0] instanceof TopicWord)) {
@@ -61,16 +74,30 @@ export default class Topic {
   getHtmlExcerpt({
     token = null,
   } = {}) {
-    const wordMapper = (d) => {
-      if (token) {
-        return (d.h ? `<span class="h">${d.w.split(token).join(`<b>${token}</b>`)}</span>` : d.w);
-      }
-      return (d.h ? `<span class="h">${d.w}</span>` : d.w);
-    };
+    let ex = this.excerpt.map(wordMapper(token)).join(' · ');
+    if (this.matches.length) {
+      // is first match in excerpt?
+      const justwords = this.matches.join(' ').split(/<\/?em>|\s/).filter(d => d.length);
 
-    let ex = this.excerpt.map(wordMapper).join(' · ');
+      for (let i=0, l=this.excerpt.length; i < l; i += 1) {
+        if (this.excerpt[i].w === justwords[0]) {
+
+          const fullMatch = this.excerpt
+            .slice(0, i)
+            .map(d => d.w)
+            .concat(this.matches);
+          // console.info('getHtmlExcerpt', fullMatch);
+          if (fullMatch.length > 5) {
+            fullMatch.splice(5, 0, '<br/>');
+          }
+          return fullMatch.join(' · ');
+        }
+      }
+      return `${ex} ... ${this.matches.join(' · ')}`;
+    }
+
     if (this.highlighted) {
-      ex = `${ex} ... ${this.highlighted.map(wordMapper).join(' · ')}`;
+      ex = `${ex} ... ${this.highlighted.map(wordMapper(token)).join(' · ')}`;
     }
     return ex;
   }
