@@ -11,6 +11,8 @@ export default {
     visualizedItems: [],
     itemsIndex: {},
     visualizedItemsIndex: {},
+    applyCurrentSearchFilters: true,
+    isLoading: false,
     pagination: {
       perPage: 200,
       currentPage: 1,
@@ -81,8 +83,14 @@ export default {
       });
       console.info(state.visualizedItemsIndex);
     },
+    UPDATE_APPLY_CURRENT_SEARCH_FILTERS(state, value) {
+      state.applyCurrentSearchFilters = value;
+    },
   },
   actions: {
+    UPDATE_APPLY_CURRENT_SEARCH_FILTERS({ commit }, value) {
+      commit('UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+    },
     CHANGE_GRAPH_LINK_MODE({ commit }, mode) {
       commit('UPDATE_GRAPH_LINK_MODE', mode);
     },
@@ -202,10 +210,11 @@ export default {
           perPage: limit,
         });
       }
-
+      // console.info('topics/LOAD_TOPICS query:', query);
       return services.topics.find({
         query,
       }).then((res) => {
+        console.info('topics/LOAD_TOPICS res:', res);
         const data = res.data.map(d => new Topic(d, {
           highlight: query.q ? q.split('*').join('') : '',
         }));
