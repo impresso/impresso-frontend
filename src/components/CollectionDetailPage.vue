@@ -278,10 +278,6 @@ export default {
       }
       this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
         this.collection = res;
-        this.$store.commit('SET_HEADER_TITLE', {
-          subtitle: this.collection.name,
-          title: this.$t('Collection'),
-        });
       });
     },
     getCollection() {
