@@ -74,7 +74,7 @@
             <b-col cols="6" sm="12" md="6" lg="4" v-for="searchResult in searchResults" v-bind:key="searchResult.uid">
               <search-results-image-item
                 v-bind:searchResult="searchResult"
-                v-bind:checkbox="true"
+                v-bind:checkbox="false"
                 v-on:toggleSelected="toggleSelected"
                 v-bind:checked="isChecked(searchResult)"
                 v-on:click:search="onClickSearch" />

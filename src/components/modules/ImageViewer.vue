@@ -62,6 +62,5 @@ export default {
 .thumbnail {
     width: 100%;
     height: 250px;
-    cursor: move;
 }
 </style>

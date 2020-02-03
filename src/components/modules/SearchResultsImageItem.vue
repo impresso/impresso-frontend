@@ -2,7 +2,7 @@
   <div class="tile my-3 border">
     <div
       v-if="searchResult.regions && searchResult.regions[0]"
-      class="thumbnail bg-light clearfix"
+      class="thumbnail bg-secondary clearfix"
       :style="`background-image: url(${searchResult.regions[0].iiifFragment})`">
       <div v-if="isLoggedIn && checkbox" class="float-right pt-1 pl-1">
         <b-checkbox
@@ -10,8 +10,11 @@
           v-bind:checked="checked"
           v-on:change="$emit('toggleSelected', searchResult)" />
       </div>
-      <b-button variant="secondary" v-on:click="$emit('click:search', searchResult)" class="buttonFindSimilar" size="">
+      <!-- <b-button variant="secondary" v-on:click="$emit('click:search', searchResult)" class="buttonFindSimilar" size="">
         <icon name="search" />
+      </b-button> -->
+      <b-button variant="outline-primary" v-on:click="$emit('click:search', searchResult)" class="m-1 bg-light buttonFindSimilar pt-2" size="sm">
+        <span class="dripicons-camera"></span>
       </b-button>
     </div>
     <div
@@ -19,28 +22,22 @@
       class="thumbnail bg-dark clearfix">
       <p class="text-center small-caps text-light pt-4">{{ $t('iiif.missing') }}</p>
     </div>
-
-    <article-item :item="searchResult" show-href show-meta v-on:click:title="viewArticle" class="p-2"/>
+    <article-item :item="searchResult" show-meta class="p-2"/>
   </div>
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/search';
 import ArticleItem from './lists/ArticleItem';
 
 export default {
   components: {
-    Icon,
     ArticleItem,
   },
   props: ['searchResult', 'checkbox', 'checked'],
   computed: {
     isLoggedIn() {
       return this.$store.state.user.userData;
-    },
-    title() {
-      return this.$helpers.excerpt(this.searchResult.title) || this.$t('result.label.image.untitled');
     },
   },
   methods: {
@@ -76,13 +73,6 @@ export default {
     transition: 0.2s;
     border-color: black !important;
   }
-  .titleblock {
-    display:block;
-    &:hover {
-      text-decoration: none;
-      border-color: black !important;
-    }
-  }
   .thumbnail {
       background-position: center;
       background-size: contain;
@@ -90,9 +80,6 @@ export default {
       height: 20em;
       height: 30vh;
       position: relative;
-      input[type="checkbox"] {
-          width: 0;
-      }
       .buttonFindSimilar{
         position: absolute;
         bottom:0;
@@ -100,10 +87,7 @@ export default {
       }
   }
   h2 {
-    font-size: 1em;
-    font-weight: 500;
   }
-  overflow: hidden;
 }
 
 </style>

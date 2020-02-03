@@ -6,7 +6,7 @@
       <open-seadragon-viewer
         v-bind:handler="handler">
       </open-seadragon-viewer>
-      <div v-if="isAvaliable() && checkbox" class="float-right pt-1 pl-1">
+      <div v-if="isLoggedIn && checkbox" class="float-right pt-1 pl-1">
         <b-checkbox
           class="m-0 select-item"
           v-bind:checked="checked"
@@ -19,27 +19,24 @@
       slot="aside" >
       <p class="message">{{$t('login_message')}}</p>
     </div>
-    <a href="#" v-on:click.prevent="click" class="titleblock article-meta p-2 border-top">
-      <h2 v-show="article.title != ''" v-html="article.title" />
-      <div v-show="article.newspaper.name != ''" class="small-caps">
-        {{article.newspaper.name}}
-      </div>
-      <div class="small-caps">
-        {{$d(new Date(article.date), 'short')}}
-        (p. <span>{{article.pages.map(page => page.num).join('; ')}}</span>)
-      </div>
-    </a>
+    <article-item :item="article" show-meta class="p-2"/>
   </div>
 </template>
 
 <script>
 import Vue from 'vue';
 import OpenSeadragonViewer from './OpenSeadragonViewer';
+import ArticleItem from './lists/ArticleItem';
 
 export default {
   data: () => ({
     handler: new Vue(),
   }),
+  computed: {
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
+  },
   model: {
     prop: 'article',
   },
@@ -79,6 +76,7 @@ export default {
   },
   components: {
     OpenSeadragonViewer,
+    ArticleItem,
   },
   mounted() {
     this.init();
@@ -136,21 +134,9 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 .tile {
-  .titleblock {
-    display:block;
-    &:hover {
-      text-decoration: none;
-      border-color: black !important;
-    }
-  }
   .thumbnail {
       width: 100%;
       height: 250px;
-      cursor: move;
-  }
-  h2 {
-    font-size: 1em;
-    font-weight: 500;
   }
   overflow: hidden;
 }
