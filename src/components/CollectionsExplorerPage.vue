@@ -1,16 +1,17 @@
 <template lang="html">
   <i-layout-section>
-    <b-navbar type="light" variant="light" class="border-bottom py-0">
-      <b-navbar-nav class="py-3 pr-auto">
-        <strong>Collected items</strong> – List all items in all collections. (Currently limited to articles)
+    <b-navbar type="light" variant="light" class="py-0 border-bottom">
+      <b-navbar-nav class="py-3 pr-auto" v-html="$t('collected_items_title')">
       </b-navbar-nav>
     </b-navbar>
 
-    <b-navbar type="light" variant="light" class="border-bottom py-0">
-      <b-navbar-nav class="pr-auto">
-        <span>{{ $tc('articles', articles.length) }}</span>
+    <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+      <b-navbar-nav class="p-3 border-right">
+        <li>
+          <label v-html="$tc('items', collectionsMerged.countItems) "></label>
+        </li>
       </b-navbar-nav>
-      <b-navbar-nav class="pl-3 py-3 border-left flex-row">
+      <b-navbar-nav class="p-3">
         <label class="mr-1">{{$t("label_display")}}</label>
         <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
           <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -44,7 +45,7 @@
       </b-container>
     </div>
 
-    <pre>{{ this.collectionAll.items }}</pre>
+    <pre>{{ collectionsMerged }}</pre>
 
   </i-layout-section>
 </template>
@@ -76,31 +77,32 @@ export default {
         return this.$store.getters['collections/collections'];
       },
     },
-    collectionAll: {
-      get() {
-        let articles = 0;
-        let entities = 0;
-        let issues = 0;
-        let pages = 0;
-
-        this.collections.forEach((item) => {
-          articles += item.countArticles;
-          entities += item.countEntities;
-          issues += item.countIssues;
-          pages += item.countPages;
-        });
-
-        return new Collection({
-          uid: 'all',
-          name: 'All Collections',
-          description: 'This shows a combination of all your custom collections',
-          countArticles: articles,
-          countEntities: entities,
-          countPages: pages,
-          countIssues: issues,
-        });
-      },
-    },
+    // collectionAll: {
+    //   get() {
+    //     let articles = 0;
+    //     let entities = 0;
+    //     let issues = 0;
+    //     let pages = 0;
+    //
+    //     this.collections.forEach((item) => {
+    //
+    //       articles += item.countArticles;
+    //       entities += item.countEntities;
+    //       issues += item.countIssues;
+    //       pages += item.countPages;
+    //     });
+    //
+    //     return new Collection({
+    //       uid: 'all',
+    //       name: 'All Collections',
+    //       description: 'This shows a combination of all your custom collections',
+    //       countArticles: articles,
+    //       countEntities: entities,
+    //       countPages: pages,
+    //       countIssues: issues,
+    //     });
+    //   },
+    // },
     articles: {
       get() {
         return this.collectionsMerged.items.filter(item => (item.labels && item.labels[0] === 'article'));
@@ -108,15 +110,12 @@ export default {
     },
   },
   watch: {
-    collections() {
-      this.collections.forEach((item) => {
-        this.$store.dispatch('collections/LOAD_COLLECTION', item).then((res) => {
-          res.items.forEach((item_) => {
-            this.collectionsMerged.items.push(item_);
-          });
-        });
-      });
-    }
+    $route: {
+      immediate: true,
+      async handler() {
+        await this.getCollectionItems();
+      },
+    },
   },
   methods: {
     gotoArticle(article) {
@@ -130,29 +129,37 @@ export default {
         },
       });
     },
+    async getCollectionItems() {
+      this.collections.forEach((c) => {
+
+        this.collectionsMerged.countItems += c.countItems;
+
+        // const res = this.$store.dispatch('collections/LOAD_COLLECTION', c);
+        // this.collectionsMerged.items.push(res.items);
+
+        this.$store.dispatch('collections/LOAD_COLLECTION', c).then((res) => {
+          // console.log('res', res);
+          this.collectionsMerged.items.push(res.items);
+        });
+
+      });
+    }
   },
 };
 </script>
 
 <style lang="scss">
-.navbar-nav.flex-row {
-    flex-direction: row;
-    align-items: center;
-    label {
-      margin-bottom: 0;
-      line-height: 1.5;
-    }
-}
 </style>
 
 <i18n>
 {
   "en": {
     "collections": "collections",
+    "collected_items_title": "<strong>Collected items</strong> – List all items in personal collections.",
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
-    "articles": "No articles | One article | {n} articles"
+    "items": "No item | <b>1</b> item | <b>{n}</b> items"
   }
 }
 </i18n>
