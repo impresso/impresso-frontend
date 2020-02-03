@@ -104,6 +104,9 @@ export default {
     itemsIndex() {
       return this.$store.state.topics.visualizedItemsIndex;
     },
+    itemsVisualized() {
+      return this.$store.state.topics.visualizedItems;
+    },
     linkBy: {
       get() {
         return this.$store.state.topics.graphLinkMode;
@@ -270,16 +273,16 @@ export default {
     },
   },
   watch: {
-    itemsIndex: {
+    itemsVisualized: {
       async handler(itemsIndex) {
         // console.log('ohlalal', itemsIndex);
         if (this.graph) {
           console.info('sosiodisodiosd', this.graph, itemsIndex);
 
-          this.updateGraph({
-            nodes: this.graphNodes,
-            links: [],
-          });
+          // this.updateGraph({
+          //   nodes: this.graphNodes,
+          //   links: [],
+          // });
         }
         // if there is no graph, load the graph first.
         // if (itemsIndex && !this.totalNodes) {
