@@ -93,7 +93,20 @@ export default {
     REMOVE_VISUALIZED_ITEM({ commit }, item) {
       commit('REMOVE_VISUALIZED_ITEM', item);
     },
-    LOAD_TOPICS_GRAPH({ commit }) {
+    LOAD_TOPICS_GRAPH({ commit }, filters) {
+      return services.topicsGraph.find({
+        query: {
+          filters,
+        },
+      }).then(({ nodes, links }) => {
+        commit('UPDATE_GRAPH_LINKS', {
+          byCommonArticles: links,
+          byCommonWords: [],
+        });
+        commit('UPDATE_GRAPH_NODES', nodes);
+      });
+    },
+    EX_LOAD_TOPICS_GRAPH({ commit }) {
       return services.topics.find({
         query: {
           limit: 500,
