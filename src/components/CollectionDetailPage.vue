@@ -43,7 +43,9 @@
               <b-button
                 class="form-control mb-3"
                 variant="outline-danger" size="sm"
-                v-b-modal.confirmDelete>{{ $t('delete_collection') }}
+                v-on:click.alt="remove(collection)"
+                v-on:click.exact="$bvModal.show('confirmDelete')">
+                {{ $t('delete_collection') }}
               </b-button>
             </div>
           </b-dropdown>
@@ -371,7 +373,7 @@ export default {
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
     "edit_collection": "Collection Settings",
     "update_collection": "Update Collection Note",
-    "delete_collection": "Delete Collection",
+    "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "compare_collection": "Compare with ...",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?"
   },
