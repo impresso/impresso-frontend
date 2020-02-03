@@ -8,7 +8,10 @@
 
     <div class="pt-2">
       <h6 class="label">{{$t('searchInPatternsLabel')}}</h6>
-      <search-input class="pt-2" @submit="onSubmitted"/>
+      <search-input class="pt-2"
+                    @submit="onSubmitted"
+                    :initial="value"
+                    :placeholder="$t('placeholder')"/>
     </div>
   </div>
 </template>
@@ -19,12 +22,15 @@ import SearchInput from '@/components/modules/SearchInput'
 export default {
   data: () => ({
   }),
+  props: {
+    value: String
+  },
   components: {
     SearchInput,
   },
   methods: {
-    onSubmitted(v) {
-      console.info('Search input submitted', v)
+    onSubmitted({ q }) {
+      this.$emit('submit', q)
     }
   }
 };
@@ -42,7 +48,8 @@ export default {
 {
   "en": {
     "searchClustersLabel": "search clusters",
-    "searchInPatternsLabel": "search in text reuse patterns"
+    "searchInPatternsLabel": "search in text reuse patterns",
+    "placeholder": "search in text reuse patterns ..."
   }
 }
 </i18n>

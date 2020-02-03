@@ -1,28 +1,29 @@
 <template lang="html">
   <div class="d-flex flex-column">
     <!-- header -->
-    <div class="d-flex flex-row border-bottom pb-1">
+    <div class="d-flex flex-row border-bottom pb-1 align-items-end">
       <span class="label">
         {{$t('clusterLabel')}}
       </span>
-      <span class="label cluster-id pl-2">
+      <span class="label cluster-id pl-2 text-tertiary">
         #{{cluster.id}}
       </span>
     </div>
 
     <!-- subtitle -->
-    <div class="d-flex flex-row justify-content-between pb-1">
-      <div>
-        {{$tc('articlesCount', cluster.clusterSize, { count: cluster.clusterSize })}}
+    <div class="d-flex flex-row justify-content-between pb-1 pt-1">
+      <div class="small-caps cluster-size">
+        <span class="number">{{cluster.clusterSize}}</span> {{$tc('articlesCount', cluster.clusterSize)}}
       </div>
-      <div>
-        {{cluster.lexicalOverlap}}%
+      <div class="d-flex flex-column align-items-end">
+        <span class="number">{{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 2 })}}</span>
+        <span class="label text-tertiary label-overlap small-caps flex-shrink-1">lexical overlap</span>
       </div>
     </div>
 
     <!-- text sample -->
     <div class="d-flex flex-column pb-1" v-if="textSample != null">
-      <span class="label">{{$t('sampleLabel')}}</span>
+      <span class="small-caps cluster-size text-tertiary">{{$t('sampleLabel')}}</span>
       <p class="text-sample p-1">
         {{textSample}}
       </p>
@@ -64,9 +65,27 @@ export default {
 
   .text-sample {
     background-color: $clr-grey-800;
+    // background-image: linear-gradient(
+    //   to bottom,
+    //   rgba(darken($clr-grey-800, 50%), 0.0) 0%,
+    //   rgba(darken($clr-grey-800, 50%), 0.4) 70%,
+    //   rgba(darken($clr-grey-800, 50%), 0.7) 100%
+    // );
     font-size: 12px;
-    max-height: 100px;
+    max-height: 7rem;
     overflow-y: hidden;
+  }
+
+  .cluster-id {
+    font-size: 1.2em;
+  }
+
+  .cluster-size, .latest-sample, .label-overlap {
+    font-size: 0.8em;
+  }
+
+  .number {
+    font-weight: 600;
   }
 </style>
 
@@ -74,7 +93,7 @@ export default {
 {
   "en": {
     "clusterLabel": "cluster",
-    "articlesCount": "no articles | 1 article | {count} articles",
+    "articlesCount": "article | articles",
     "sampleLabel": "latest sample"
   }
 }

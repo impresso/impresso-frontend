@@ -3,8 +3,19 @@ import Basic from './Basic';
 
 const DefaultSpanLabelFormatFn = (spanStartDate, spanEndDate) => {
   if (spanStartDate == null || spanEndDate === null) return undefined
+
   const diffMs = spanEndDate - spanStartDate
   const diffYears = diffMs / (1000 * 60 * 60 * 24 * 365)
+  const diffMonths = diffMs / (1000 * 60 * 60 * 24 * 12)
+  const diffDays = diffMs / (1000 * 60 * 60 * 24)
+
+  if (diffYears < 1) {
+    if (diffMonths < 1) {
+      const diff = diffDays < 1 ? 1 : diffDays
+      return `${Math.floor(diff)} day${diff < 2 ? '' : 's'}`
+    }
+    return `${Math.floor(diffMonths)} month${diffMonths < 2 ? '' : 's'}`
+  }
   return `${Math.floor(diffYears)} year${diffYears < 2 ? '' : 's'}`
 }
 
@@ -67,10 +78,17 @@ export default class SimpleTimelineWithSelectionSpan extends Basic {
     selectionStart, selectionEnd,
     height
   }) {
+    let adjustedSelectionEnd;
+
+    if (selectionEnd) {
+      adjustedSelectionEnd = new Date(selectionEnd)
+      adjustedSelectionEnd.setDate(selectionEnd.getDate() + 1)
+    }
+
     this.timeLineScaler.domain([start, end])
     this.span = [start, end]
-    this.selectionSpan = selectionStart != null && selectionEnd != null
-      ? [selectionStart, selectionEnd]
+    this.selectionSpan = selectionStart != null && adjustedSelectionEnd != null
+      ? [selectionStart, adjustedSelectionEnd]
       : undefined;
     if (this.height != null) this.svg.height = height;
 
@@ -110,11 +128,18 @@ export default class SimpleTimelineWithSelectionSpan extends Basic {
 
     this.timeline.selectAll('line.selection')
       .data([this.selectionSpan].filter(s => s != null))
-      .join('path')
+      .join('rect')
       .attr('class', 'selection')
       .attr('stroke', this.lineStroke)
-      .attr('stroke-width', this.selectionWidth)
-      .attr('d', this.timeLineTransformer)
+      .attr('height', this.selectionWidth)
+      .attr('y', - this.selectionWidth / 2)
+      .attr('x', ([startDate]) => {
+        return this.timeLineScaler(startDate)
+      })
+      .attr('width', (d) => {
+        const [x0, x1] = d.map(this.timeLineScaler)
+        return x1 - x0 < 1 ? 1 : x1 - x0
+      })
 
     this.timeline.selectAll('text.span-label')
       .data([this.selectionSpan].filter(s => s != null))
