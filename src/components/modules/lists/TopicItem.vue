@@ -6,8 +6,12 @@
       <item-selector :uid="item.uid" :item="item" type="topic"/>
       <div class='small-caps'>{{item.model}} {{visualized}}</div>
     </div>
+    <!-- <div class="px-2">
+      <b-form-checkbox v-model="visualized"/>
+    </div> -->
     <div class="px-2" @click="toggleVisualized">
       <div class="topic-visualized" :class="{ active: visualized }"><div class="icon" :class="{ 'dripicons-checkmark': visualized }" /></div>
+
     </div>
   </div>
 </template>
@@ -20,8 +24,18 @@ export default {
     item: Object,
   },
   computed: {
-    visualized() {
-      return typeof this.$store.state.topics.visualizedItemsIndex[this.item.uid] != 'undefined';
+    visualized: {
+      get() {
+        return typeof this.$store.state.topics.visualizedItemsIndex[this.item.uid] != 'undefined';
+      },
+      // set(v) {
+      //   console.info('set visualized', v);
+      //   if (!v) {
+      //     this.$store.dispatch('topics/ADD_VISUALIZED_ITEM', this.item);
+      //   } else {
+      //     this.$store.dispatch('topics/REMOVE_VISUALIZED_ITEM', this.item);
+      //   }
+      // },
     },
   },
   methods: {
