@@ -170,14 +170,15 @@ export default {
   },
   methods: {
     changeQ(value) {
-      console.info('changeQ', value);
+      // console.info('changeQ', value);
       if (value.trim().length > 1) {
+        this.$router.push(this.goToQuery({ q: value.trim() }));
+      } else {
         this.$router.push({
-          name: this.$route.name,
+          name:  this.$route.name,
           params: this.$route.params,
           query: {
-            ...this.$route.query,
-            q: value.trim(),
+            tab: this.tab,
           },
         });
       }
