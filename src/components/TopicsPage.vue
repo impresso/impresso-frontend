@@ -216,7 +216,7 @@ export default {
       if (this.q && this.q.length > 1) {
         params.q = this.q;
       }
-      console.info('loadTopics - filters:', params.filters, '- q:', params.q);
+      // console.info('loadTopics - filters:', params.filters, '- q:', params.q);
       this.$store.dispatch('topics/LOAD_TOPICS', params).then((response) => {
         if (response.info.facets && response.info.facets.topicmodel) {
           this.topicModels = response.info.facets.topicmodel.buckets || [];
@@ -245,7 +245,7 @@ export default {
     },
   },
   mounted() {
-    console.info('TopicsPage mounted.');
+    // console.info('TopicsPage mounted.');
     this.initQ(this.$route.query.q);
     this.activateTab(this.$route.query.tab);
     this.loadTopics();
@@ -253,7 +253,7 @@ export default {
   watch: {
     $route: {
       handler({ query }) {
-        console.info('TopicsPage @$route query:', query);
+        // console.info('TopicsPage @$route query:', query);
         this.activateTab(query.tab);
         this.initQ(query.q);
         this.loadTopics();

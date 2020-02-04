@@ -110,7 +110,7 @@ export default {
     },
     graphLinks() {
       const mode = this.$store.state.topics.graphLinkMode;
-      console.info('graphLinks changed, mode:', mode);
+      // console.info('graphLinks changed, mode:', mode);
       return this.$store.state.topics.graphLinks[mode];
     },
     items() {
@@ -200,14 +200,14 @@ export default {
 
     this.graph
       .on('svg.click', (d) => {
-        console.info('svg.click', d);
+        // console.info('svg.click', d);
         this.tooltip = {
           ...d,
           isActive: false,
         };
       })
       .on('svg.zoom', (s) => {
-        console.info(s);
+        // console.info(s);
         this.zoomLevel = {
           ...s,
         };
@@ -258,20 +258,18 @@ export default {
 
       this.totalNodes = this.graphNodes.length;
       this.totalLinks = this.graphLinks.length;
-      console.info('updateGraph, available nodes:', this.totalNodes, 'available links:', this.totalLinks);
+      // console.info('updateGraph, available nodes:', this.totalNodes, 'available links:', this.totalLinks);
 
       this.graph.updateDimension({
         name: 'nodeColor',
         property: this.colorBy,
         values: nodes,
       });
-
       this.graph.updateDimension({
         name: 'nodeSize',
         property: this.sizeBy,
         values: nodes,
       });
-
       this.graph.update({
         nodes,
         links,
@@ -308,7 +306,7 @@ export default {
       }).filter(d => d);
     },
     loadGraph() {
-      console.info('loadGraph() nodes:', this.itemsVisualized.length, 'loading:',this.isGraphLoading);
+      // console.info('loadGraph() nodes:', this.itemsVisualized.length, 'loading:',this.isGraphLoading);
       // yes, load graph if it is not busy loading
       if (this.timers.debounceLoadGraph) {
         clearTimeout(this.timers.debounceLoadGraph);
@@ -332,6 +330,7 @@ export default {
       }
       return this.$store.dispatch('topics/LOAD_TOPICS_GRAPH', { filters })
         .then(() => {
+          // console.info('loadGraph() topics/LOAD_TOPICS_GRAPH resolved:', this.graphNodes):
           this.updateGraph({
             nodes: this.graphNodes,
             links: this.graphLinks,
@@ -349,8 +348,8 @@ export default {
       handler() {
         this.filteredLinks = this.getFilteredLinks();
         this.updateGraph({
-          nodes: this.filteredNodes,
-          links: this.filteredLinks,
+          nodes: this.graphNodes,
+          links: this.graphLinks,
         });
       },
     },
@@ -365,7 +364,7 @@ export default {
     },
     colorBy: {
       handler(property) {
-        console.info('change colorby', property);
+        // console.info('change colorby', property);
         this.graph.updateDimension({
           name: 'nodeColor',
           property,
@@ -376,7 +375,7 @@ export default {
     },
     sizeBy: {
       handler(property) {
-        console.info('change sizeby', property);
+        // console.info('change sizeby', property, this.graph.nodes.map(d => d[property]));
         this.graph.updateDimension({
           name: 'nodeSize',
           property,
