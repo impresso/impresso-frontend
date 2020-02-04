@@ -11,11 +11,12 @@ export default class Graph extends Basic {
       left: 10,
     },
     maxNodeRadius = 15,
-    maxDistance = 50,
+    maxDistance = 100,
     delay = 30000,
     fixAfterDrag = true,
     nodeLabel = d => d.id,
     identity = d => d.id,
+    showLabel = d => !!d,
     // override current behaviour if needed,
     dimensions = {},
   } = {}) {
@@ -66,7 +67,7 @@ export default class Graph extends Basic {
 
     this.nodeLabel = nodeLabel;
     this.identity = identity;
-
+    this.showLabel = showLabel;
     // initialize graphic elements
     this.zoomableLayer = this.svg.append('g');
 
@@ -211,7 +212,12 @@ export default class Graph extends Basic {
     this.nodesLayer.exit().remove();
 
     const nodesEnter = this.nodesLayer.enter().append('g')
-      .attr('class', d => d.type)
+      .attr('class', (d) => {
+        if(self.showLabel(d)) {
+          return `${d.type} v`;
+        }
+        return `${d.type} o`;
+      })
       .call(d3.drag()
         .on('start', datum => this.onDragStarted(datum))
         .on('drag', datum => this.onDragged(datum))
