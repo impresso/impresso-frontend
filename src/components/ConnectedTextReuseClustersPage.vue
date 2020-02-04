@@ -6,8 +6,10 @@
           @submit="handleSearchInputSubmitted"
           :value="searchText"/>
       </div>
-      <div :class="`pl-1 pr-2 mt-2 mb-2 d-flex flex-row ${isClusterSelected(item.cluster.id) ? 'active' : ''}`"
-           v-for="item in clusterItems"
+      <div :class="`pl-1 pr-2 mt-2 mb-2 d-flex flex-row \
+                  ${isClusterSelected(item.cluster.id) ? 'active' : ''} \
+                  ${isLastItem(index, clusterItems.length) ? 'pb-4' : ''}`"
+           v-for="(item, index) in clusterItems"
            :key="item.cluster.id"
            v-on:click="handleClusterSelected(item.cluster.id)">
         <span class="d-flex align-self-stretch flex-shrink-0 selection-indicator"/>
@@ -15,6 +17,14 @@
           class="pl-2 pt-1 pr-3 pb-2 details-panel"
           :cluster="item.cluster"
           :textSample="item.textSample"/>
+      </div>
+      <div class="fixed-pagination-footer p-1 m-0">
+        <pagination
+          :perPage="paginationPerPage"
+          :currentPage="paginationCurrentPage"
+          :totalRows="paginationTotalRows"
+          v-on:change="handlePaginationPageChanged"
+          class="float-left small-caps" />
       </div>
     </i-layout-section>
     <i-layout-section class="pt-2">
@@ -26,15 +36,30 @@
 <script>
 import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel'
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
+import Pagination from './modules/Pagination';
 import { textReuseClusters } from '@/services';
+
+const isLastItem = (index, total) => total - 1 === index
 
 export default {
   data: () => ({
-    clusterItems: []
+    clusterItems: [],
+    searchInfo: {
+      limit: 20,
+      offset: 0,
+      total: 0
+    }
   }),
+  props: {
+    paginationPerPage: {
+      type: Number,
+      default: 20
+    }
+  },
   components: {
     ClusterTextSearchPanel,
     ClusterDetailsPanel,
+    Pagination,
   },
   methods: {
     isClusterSelected(clusterId) {
@@ -42,33 +67,67 @@ export default {
     },
     handleClusterSelected(clusterId) {
       const { query } = this.$route
-      this.$router.replace({ params: { id: clusterId }, query }).catch(() => {})
+      const updatedQuery = Object.assign({}, query, { clusterId })
+      this.$router.replace({ query: updatedQuery }).catch(() => {})
     },
     handleSearchInputSubmitted(searchText) {
       if (searchText !== '') this.$router.push({ query: { q: searchText } }).catch(() => {})
-    }
+    },
+    handlePaginationPageChanged(page) {
+      const { query, params } = this.$route
+      const updatedQuery = Object.assign({}, query, { page: page - 1 })
+      this.$router.replace({ params, query: updatedQuery }).catch(() => {})
+    },
+    async executeSearch() {
+      const pageNumber = this.paginationCurrentPage - 1
+
+      if (!this.searchText) {
+        this.clusterItems = []
+        this.searchInfo = {
+          limit: this.paginationPerPage,
+          offset: 0,
+          total: 0
+        }
+      } else {
+        [this.clusterItems, this.searchInfo] = await textReuseClusters
+          .find({ query: {
+            text: this.searchText,
+            skip: this.paginationPerPage * pageNumber,
+            limit: this.paginationPerPage
+          }})
+          .then(result => {
+            return [result.clusters, result.info]
+          })
+      }
+    },
+    isLastItem
   },
   computed: {
     selectedClusterId() {
-      return this.$route.params.id
+      return this.$route.query.clusterId
     },
     searchText() {
       return this.$route.query.q
+    },
+    paginationCurrentPage() {
+      const { page = 0 } = this.$route.query
+      return parseInt(page, 10) + 1
+    },
+    paginationTotalRows() {
+      const { total } = this.searchInfo
+      return total
     }
   },
   watch: {
     searchText: {
-      async handler(text) {
-        if (!text) {
-          this.clusterItems = []
-        } else {
-          this.clusterItems = await textReuseClusters
-            .find({ query: { text } })
-            .then(result => {
-              console.info('CI', result)
-              return result.clusters
-            })
-        }
+      async handler() {
+        return this.executeSearch()
+      },
+      immediate: true
+    },
+    paginationCurrentPage: {
+      async handler() {
+        return this.executeSearch()
       },
       immediate: true
     }

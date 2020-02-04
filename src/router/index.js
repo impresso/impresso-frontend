@@ -299,7 +299,7 @@ const router = new Router({
       },
     },
     {
-      path: '/text-reuse-clusters/:id?',
+      path: '/text-reuse-clusters',
       component: ConnectedTextReuseClustersPage,
       name: 'text-reuse-clusters',
       meta: {
