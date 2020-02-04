@@ -10,7 +10,7 @@
         <b class='sans-serif'>{{excerpt}} ...</b>
 
         <a class='mt-3  btn btn-outline-primary btn-sm btn-block' v-on:click.prevent.stop="selectItem()">
-          <span v-if="isLoading">{{ $t('loading') }}</span>
+          <span v-if="isLoading">{{ $t('actions.loading') }}</span>
           <span v-else>{{ $t('actions.more') }}</span>
         </a>
         <!-- router-link :to="{ name: 'topic', params: { topic_uid: tooltip.item.uid} }" class="mt-3 btn-block btn btn-outline-primary btn-sm">related articles</router-link> -->
@@ -61,6 +61,8 @@ export default {
           item,
           type: 'topic',
         });
+      }).catch(() => {
+        this.isLoading = true;
       });
     },
   },
