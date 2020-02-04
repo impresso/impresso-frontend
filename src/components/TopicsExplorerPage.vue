@@ -6,8 +6,8 @@
           <span class="label small-caps">{{$t('summary')}}</span>
           <small><info-button name="why-topic" class="text-muted" /></small>
           <h3 class='mb-1' v-html="$t('topics_cooccurrence_graph', {
-            items: $n(this.filteredNodes.length),
-            rels: $n(this.filteredLinks.length),
+            items: $n(this.graphNodes.length),
+            rels: $n(this.graphLinks.length),
             nodes: $n(this.totalNodes),
             links: $n(this.totalLinks),
           })" />
@@ -43,7 +43,7 @@
     </div>
 
 <div slot="footer">
-    <b-navbar class="bg-light">
+    <b-navbar class="border-top">
       <b-navbar-nav>
       <li>
         <label>{{$t('legend')}}</label>
@@ -116,17 +116,17 @@ export default {
       },
     },
     linkByOptions() {
-      return ['byCommonWords', 'byCommonArticles'].map(value => ({
+      return ['byCommonArticles'].map(value => ({
         value,
         text: this.$t(value),
       }));
     },
     colorByOptions() {
       return [
-        {
-          value: 'model',
-          text: this.$t('topicmodel'),
-        },
+        // {
+        //   value: 'model',
+        //   text: this.$t('topicmodel'),
+        // },
         {
           value: 'language',
           text: this.$t('language'),
@@ -143,10 +143,10 @@ export default {
           value: 'degree',
           text: this.$t('degree'),
         },
-        {
-          value: 'hwp',
-          text: this.$t('highest word probability'),
-        },
+        // {
+        //   value: 'hwp',
+        //   text: this.$t('highest word probability'),
+        // },
       ];
     },
 
@@ -177,11 +177,12 @@ export default {
     this.graph = new Graph({
       element: '#d3-graph',
       nodeLabel: d => d.label, // excerpt.map(w => w.w).join('-'),
+      showLabel: d => !d.hide,
     });
 
     this.graph
       .on('svg.click', (d) => {
-        // console.info('svg.click', d);
+        console.info('svg.click', d);
         this.tooltip = {
           ...d,
           isActive: false,
@@ -418,7 +419,7 @@ export default {
     }
   }
 
-  .nodes > g.fix{
+  .nodes > g.fix, .nodes > g.v{
     text {
      display: block;
     }
