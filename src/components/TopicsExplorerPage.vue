@@ -156,6 +156,18 @@ export default {
     topicUid() {
       return this.$route.params.topic_uid;
     },
+    applyCurrentSearchFilters: {
+      get() {
+        return this.$store.state.topics.applyCurrentSearchFilters;
+      },
+      set(value) {
+        this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+        this.loadTopics();
+      },
+    },
+    countActiveFilters() {
+      return this.$store.getters['search/countActiveFilters'];
+    },
   },
   mounted() {
     this.$store.commit('SET_HEADER_TITLE', {
@@ -164,7 +176,7 @@ export default {
 
     this.graph = new Graph({
       element: '#d3-graph',
-      nodeLabel: d => d.excerpt.map(w => w.w).join('-'),
+      nodeLabel: d => d.label, // excerpt.map(w => w.w).join('-'),
     });
 
     this.graph
@@ -274,15 +286,25 @@ export default {
   },
   watch: {
     itemsVisualized: {
-      async handler(itemsIndex) {
-        // console.log('ohlalal', itemsIndex);
+      async handler(items) {
+        // console.log('ohlalal', items);
         if (this.graph) {
-          console.info('sosiodisodiosd', this.graph, itemsIndex);
-
-          // this.updateGraph({
-          //   nodes: this.graphNodes,
-          //   links: [],
-          // });
+          console.info('sosiodisodiosd', this.graph, items);
+          let filters= [
+            {
+              type: 'topic',
+              q: items.map(d => d.uid),
+            }
+          ];
+          if (this.countActiveFilters && this.applyCurrentSearchFilters) {
+            filters = filters.concat(this.$store.getters['search/getSearch'].getFilters());
+          }
+          // yes, load graph!
+          await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH', { filters });
+          this.updateGraph({
+            nodes: this.graphNodes,
+            links: this.graphLinks,
+          });
         }
         // if there is no graph, load the graph first.
         // if (itemsIndex && !this.totalNodes) {
