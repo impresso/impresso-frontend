@@ -15,7 +15,7 @@
     </div>
     <div
       v-else
-      class="error bg-light"
+      class="error-tile bg-light"
       slot="aside" >
       <p class="message">{{$t('login_message')}}</p>
     </div>
@@ -129,33 +129,6 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
-
-.tile {
-  .thumbnail {
-      width: 100%;
-      height: 250px;
-  }
-  .select-item {
-    position:absolute;
-    right: 0;
-    bottom: -13px;
-  }
-  overflow: hidden;
-}
-.error {
-    width: 100%;
-    height: 250px;
-    position: relative;
-    text-align: center;
-    .message{
-      margin-top: 119px;
-    }
-}
-
-</style>
 
 <i18n>
 {

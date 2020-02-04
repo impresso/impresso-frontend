@@ -175,7 +175,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
 .thumbnail {

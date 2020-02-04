@@ -1,7 +1,7 @@
 <template lang="html">
   <router-link :to="{ name: 'article', params: routerLinkParams }" class="titleblock article-meta p-2 border-top">
   <article :class="{ reference : asReference }">
-    <h2 v-if="item.title" class="mb-0 pr-4 article-title" v-html="item.title" />
+    <h2 v-if="item.title" class=" pr-4 article-title" v-html="item.title" />
     <div v-if="showMeta" class="article-meta">
       <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
         {{ item.newspaper.name}}

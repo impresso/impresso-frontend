@@ -315,6 +315,53 @@ $clr-grey-900: #ddd;
 }
 
 
+.tile {
+  div.overlay-region{
+    background: $clr-accent-secondary;
+    opacity: 0.25;
+  }
+  &:hover {
+    transition: 0.2s;
+    border-color: black !important;
+  }
+  .thumbnail {
+      background-position: center;
+      background-size: contain;
+      background-repeat: no-repeat;
+      height: 20em;
+      height: 30vh;
+      position: relative;
+      .buttonFindSimilar{
+        position: absolute;
+        bottom:0;
+        right:0;
+      }
+  }
+  h2 {
+    font-size: 1.2em;
+    font-weight: 500;
+  }
+  .article-matches,
+  .article-meta,
+  .article-excerpt {
+    font-size: 0.9em;
+  }
+  .select-item {
+    position: absolute;
+    right:0;
+    bottom: -13px;
+  }
+}
+.error-tile {
+    width: 100%;
+    height: 250px;
+    position: relative;
+    text-align: center;
+    .message{
+      margin-top: 119px;
+    }
+}
+
 .overlay-region {
   background-color: transparentize($clr-accent-secondary, 1);
   transition: background-color 300ms;

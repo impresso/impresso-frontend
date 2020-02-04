@@ -10,10 +10,11 @@
           v-bind:checked="checked"
           v-on:change="$emit('toggleSelected', searchResult)" />
       </div>
-      <!-- <b-button variant="secondary" v-on:click="$emit('click:search', searchResult)" class="buttonFindSimilar" size="">
-        <icon name="search" />
-      </b-button> -->
-      <b-button variant="outline-primary" v-on:click="$emit('click:search', searchResult)" class="m-1 bg-light buttonFindSimilar pt-2" size="sm">
+      <b-button
+        variant="outline-primary"
+        v-on:click="$emit('click:search', searchResult)"
+        v-b-tooltip.hover :title="$t('actions.find_similar_images')"
+        class="m-1 bg-light buttonFindSimilar pt-2" size="sm">
         <span class="dripicons-camera"></span>
       </b-button>
     </div>
@@ -60,34 +61,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
-
-.tile {
-  div.overlay-region{
-    background: $clr-accent-secondary;
-    opacity: 0.25;
-  }
-  &:hover {
-    transition: 0.2s;
-    border-color: black !important;
-  }
-  .thumbnail {
-      background-position: center;
-      background-size: contain;
-      background-repeat: no-repeat;
-      height: 20em;
-      height: 30vh;
-      position: relative;
-      .buttonFindSimilar{
-        position: absolute;
-        bottom:0;
-        right:0;
-      }
-  }
-  h2 {
-  }
-}
-
-</style>

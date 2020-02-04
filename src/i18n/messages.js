@@ -74,6 +74,7 @@ export default {
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
       login: 'log in',
+      find_similar_images: 'Find similar images',
     },
     filters: {
       daterange: {
