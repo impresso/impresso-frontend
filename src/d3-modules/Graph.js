@@ -89,7 +89,7 @@ export default class Graph extends Basic {
       .classed('nodes', true)
       .selectAll('circle');
 
-    this.linkForce = d3.forceLink().distance(maxDistance).strength(
+    this.linkForce = d3.forceLink().distance(maxDistance*2).strength(
       this.dimensions.linkStrength.accessor(),
     );
     // initialize force!
@@ -285,11 +285,11 @@ export default class Graph extends Basic {
     this.stopSimulation();
   }
 
-  update({ links, nodes }) {
+  update({ links, nodes, pristine=false }) {
     // make sure it has all the required properties
     if (nodes) {
       console.info('Graph.update, new nodes:', nodes.length, nodes[0]);
-      if (this.nodes && this.nodes.length) {
+      if (!pristine && this.nodes && this.nodes.length) {
         console.info('Graph.update, merge with existing nodes:', this.nodes.length);
         const nodesIds = this.nodes.map(d => d.id);
         this.nodes = nodes.map((d) => {
