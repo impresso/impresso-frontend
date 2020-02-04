@@ -130,6 +130,32 @@ export default {
         return loadedCollection;
       });
     },
+    LOAD_COLLECTIONS_ITEMS(context) {
+      return Promise.all([
+        services.collectionsItems.find({
+          query: {
+            resolve: 'item',
+            page: context.state.paginationCurrentPage,
+            limit: context.state.paginationPerPage,
+            // TODO Uncomment the following line when service is ready
+            // order_by: context.state.orderBy,
+          },
+        }),
+      ]).then((results) => {
+        const articles = [];
+        results[0].data.forEach((a) => {
+          if (!(a.item instanceof Article)) {
+            articles.push(new Article(a.item));
+          }
+        });
+        context.commit('UPDATE_COLLECTION_ITEMS', articles);
+        context.commit('UPDATE_PAGINATION_TOTAL_ROWS', {
+          paginationTotalRows: results[0].total,
+        });
+
+        return articles;
+      });
+    },
     LOAD_COLLECTIONS(context) {
       return new Promise((resolve) => {
         services.collections.find({

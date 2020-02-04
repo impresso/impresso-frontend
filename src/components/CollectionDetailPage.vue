@@ -63,8 +63,8 @@
           <li>
             <label v-html="$tc('articles', paginationTotalRows) "></label>
           </li>
-
         </b-navbar-nav>
+
         <b-navbar-nav class="p-3">
           <li><label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>

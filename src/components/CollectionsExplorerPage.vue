@@ -1,17 +1,22 @@
 <template lang="html">
   <i-layout-section>
     <b-navbar type="light" variant="light" class="py-0 border-bottom">
-      <b-navbar-nav class="py-3 pr-auto" v-html="$t('collected_items_title')">
+      <b-navbar-nav class="py-3 pr-auto" v-html="$t('collected_articles_title')">
       </b-navbar-nav>
     </b-navbar>
 
     <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
       <b-navbar-nav class="p-3 border-right">
         <li>
-          <label v-html="$tc('items', collectionsMerged.countItems) "></label>
+          <label v-html="$tc('items', paginationTotalRows) "></label>
         </li>
       </b-navbar-nav>
       <b-navbar-nav class="p-3">
+        <li><label class="mr-1">{{ $t('label_order') }}</label>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+        </li>
+      </b-navbar-nav>
+      <b-navbar-nav class="p-3 border-left ml-auto">
         <label class="mr-1">{{$t("label_display")}}</label>
         <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
           <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
@@ -21,31 +26,44 @@
     </b-navbar>
     <div class="collection-group">
       <b-container fluid>
-        <b-row v-if="displayStyle === 'list-not-implemented-because-buggy'">
-          <b-col
-            cols="12"
-            v-for="(article, i) in articles"
-            v-bind:key="i">
-            <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[i]" />
+        <b-row v-if="displayStyle === 'list'">
+          <b-col cols="12"
+            v-for="(article, index) in articles"
+            v-bind:key="`${index}-${article.uid}`">
+            <search-results-list-item
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
           </b-col>
         </b-row>
 
-        <b-row class="pb-5">
-          <b-col
-            cols="6"
-            sm="12"
-            md="4"
-            lg="3"
-            v-for="(article, i) in articles"
-            v-bind:key="i">
-            <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[i]" />
-            <!-- {{ article }} -->
+        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+          <b-col cols="6" sm="12" md="4" lg="3"
+            v-for="(article, index) in articles"
+            v-bind:key="`${index}-${article.uid}`">
+            <!-- {{article}} -->
+            <search-results-tiles-item
+              v-if="article.type === 'ar'"
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
+            <search-results-image-item
+              v-if="article.type !== 'ar'"
+              v-bind:searchResult="article"
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
           </b-col>
         </b-row>
       </b-container>
+      <div class="my-5" />
+      <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+        <pagination
+          size="sm"
+          v-bind:perPage="paginationPerPage"
+          v-bind:currentPage="paginationCurrentPage"
+          v-bind:totalRows="paginationTotalRows"
+          v-on:change="onInputPagination"
+          class="float-left small-caps" />
+      </div>
     </div>
-
-    <pre>{{ collectionsMerged }}</pre>
 
   </i-layout-section>
 </template>
@@ -54,16 +72,25 @@
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
+import SearchResultsImageItem from './modules/SearchResultsImageItem';
+import Pagination from './modules/Pagination';
 
 export default {
   components: {
     SearchResultsListItem,
     SearchResultsTilesItem,
+    SearchResultsImageItem,
+    Pagination,
   },
   data: () => ({
     collectionsMerged: new Collection(),
   }),
   computed: {
+    articles: {
+      get() {
+        return this.collectionsMerged.items.filter(item => (item.labels && item.labels[0] === 'article'));
+      },
+    },
     displayStyle: {
       get() {
         return this.$store.state.search.displayStyle;
@@ -77,35 +104,54 @@ export default {
         return this.$store.getters['collections/collections'];
       },
     },
-    // collectionAll: {
-    //   get() {
-    //     let articles = 0;
-    //     let entities = 0;
-    //     let issues = 0;
-    //     let pages = 0;
-    //
-    //     this.collections.forEach((item) => {
-    //
-    //       articles += item.countArticles;
-    //       entities += item.countEntities;
-    //       issues += item.countIssues;
-    //       pages += item.countPages;
-    //     });
-    //
-    //     return new Collection({
-    //       uid: 'all',
-    //       name: 'All Collections',
-    //       description: 'This shows a combination of all your custom collections',
-    //       countArticles: articles,
-    //       countEntities: entities,
-    //       countPages: pages,
-    //       countIssues: issues,
-    //     });
-    //   },
-    // },
-    articles: {
+    paginationPerPage: {
       get() {
-        return this.collectionsMerged.items.filter(item => (item.labels && item.labels[0] === 'article'));
+        return this.$store.state.collections.paginationPerPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.collections.paginationCurrentPage;
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.collections.paginationTotalRows;
+      },
+    },
+    orderByOptions: {
+      get() {
+        return [
+          {
+            value: 'dateAdded',
+            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_asc')}`,
+            disabled: true,
+          },
+          {
+            value: '-dateAdded',
+            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_desc')}`,
+            disabled: true,
+          },
+          {
+            value: 'itemDate',
+            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+            disabled: true,
+          },
+          {
+            value: '-itemDate',
+            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            disabled: true,
+          },
+        ];
+      },
+    },
+    orderBy: {
+      get() {
+        return this.$store.state.collections.orderBy;
+      },
+      set(val) {
+        this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
+        this.getCollectionItems(1);
       },
     },
   },
@@ -113,7 +159,7 @@ export default {
     $route: {
       immediate: true,
       async handler() {
-        await this.getCollectionItems();
+        await this.getCollectionsItems();
       },
     },
   },
@@ -129,21 +175,17 @@ export default {
         },
       });
     },
-    async getCollectionItems() {
-      this.collections.forEach((c) => {
-
-        this.collectionsMerged.countItems += c.countItems;
-
-        // const res = this.$store.dispatch('collections/LOAD_COLLECTION', c);
-        // this.collectionsMerged.items.push(res.items);
-
-        this.$store.dispatch('collections/LOAD_COLLECTION', c).then((res) => {
-          // console.log('res', res);
-          this.collectionsMerged.items.push(res.items);
-        });
-
+    getCollectionsItems(page) {
+      if (page !== undefined) {
+        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      }
+      this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
+        this.collectionsMerged.items = res;
       });
-    }
+    },
+    onInputPagination(page = 1) {
+      this.getCollectionsItems(page);
+    },
   },
 };
 </script>
@@ -155,7 +197,12 @@ export default {
 {
   "en": {
     "collections": "collections",
-    "collected_items_title": "<strong>Collected items</strong> – List all items in personal collections.",
+    "collected_articles_title": "<strong>Collected articles</strong> – List all articles in your personal collections.",
+    "label_order": "Order By",
+    "sort_date": "Item Date",
+    "sort_dateAdded": "Date Added",
+    "sort_asc": "Ascending",
+    "sort_desc": "Descending",
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
