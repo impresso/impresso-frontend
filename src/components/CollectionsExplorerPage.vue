@@ -1,6 +1,7 @@
 <template lang="html">
   <i-layout-section>
     <div slot="header">
+
       <b-navbar type="light" variant="light" class="border-bottom">
         <b-navbar-nav class="py-3 pr-auto" v-html="$t('collected_articles_title')">
         </b-navbar-nav>
@@ -26,8 +27,11 @@
         </b-navbar-nav>
       </b-navbar>
     </div>
+
     <div class="collection-group">
-      <b-container fluid>
+
+      <b-container fluid v-if="paginationTotalRows > 0">
+
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12"
             v-for="(article, index) in articles"
@@ -55,6 +59,14 @@
           </b-col>
         </b-row>
       </b-container>
+
+      <div
+        v-else
+        class="p-4">
+        <p class="text-center pt-4"><b>{{ $t('no_articles_collected')}}</b></p>
+        <p class="text-center">{{ $t('no_articles_collected_long')}}</p>
+      </div>
+
       <div class="my-5" />
       <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
@@ -115,6 +127,9 @@ export default {
       get() {
         return this.$store.state.collections.paginationCurrentPage;
       },
+      set(val) {
+        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', val);
+      },
     },
     paginationTotalRows: {
       get() {
@@ -161,6 +176,7 @@ export default {
     $route: {
       immediate: true,
       async handler() {
+        this.paginationCurrentPage = 1;
         await this.getCollectionsItems();
       },
     },
@@ -208,7 +224,9 @@ export default {
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
-    "items": "No item | <b>1</b> item | <b>{n}</b> items"
+    "items": "No item | <b>1</b> item | <b>{n}</b> items",
+    "no_articles_collected": "No items found in collection.",
+    "no_articles_collected_long": "Your collected articles will be listed here."
   }
 }
 </i18n>

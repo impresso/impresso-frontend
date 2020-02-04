@@ -58,7 +58,7 @@
 
       </b-navbar>
 
-      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom border-tertiary">
+      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
         <b-navbar-nav class="p-3 border-right">
           <li>
             <label v-html="$tc('articles', paginationTotalRows) "></label>
@@ -88,7 +88,7 @@
 
     <div class="collection-group">
 
-      <b-container fluid>
+      <b-container fluid v-if="paginationTotalRows > 0">
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12"
             v-for="(article, index) in articles"
@@ -116,6 +116,14 @@
           </b-col>
         </b-row>
       </b-container>
+
+      <div
+        v-else
+        class="p-4">
+        <p class="text-center pt-4"><b>{{ $t('no_articles_in_collection')}}</b></p>
+        <p class="text-center">{{ $t('no_articles_in_collection_long')}}</p>
+      </div>
+
       <div class="my-5" />
       <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
@@ -221,6 +229,9 @@ export default {
       get() {
         return this.$store.state.collections.paginationCurrentPage;
       },
+      set(val) {
+        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', val);
+      },
     },
     paginationTotalRows: {
       get() {
@@ -268,6 +279,7 @@ export default {
   },
   watch: {
     $route() {
+      this.paginationCurrentPage = 1;
       this.getCollection();
     },
   },
@@ -371,7 +383,9 @@ export default {
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "compare_collection": "Compare with ...",
-    "confirm_delete": "Are you sure you want to delete collection '{0}'?"
+    "confirm_delete": "Are you sure you want to delete collection '{0}'?",
+    "no_articles_in_collection": "No items in collection yet.",
+    "no_articles_in_collection_long": "Articles you add to collection will be listed here."
   },
   "nl": {
     "collections": "Sammelingen",
