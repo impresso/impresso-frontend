@@ -1,29 +1,31 @@
 <template lang="html">
   <i-layout-section>
-    <b-navbar type="light" variant="light" class="py-0 border-bottom">
-      <b-navbar-nav class="py-3 pr-auto" v-html="$t('collected_articles_title')">
-      </b-navbar-nav>
-    </b-navbar>
+    <div slot="header">
+      <b-navbar type="light" variant="light" class="border-bottom">
+        <b-navbar-nav class="py-3 pr-auto" v-html="$t('collected_articles_title')">
+        </b-navbar-nav>
+      </b-navbar>
 
-    <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
-      <b-navbar-nav class="p-3 border-right">
-        <li>
-          <label v-html="$tc('items', paginationTotalRows) "></label>
-        </li>
-      </b-navbar-nav>
-      <b-navbar-nav class="p-3">
-        <li><label class="mr-1">{{ $t('label_order') }}</label>
-          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-        </li>
-      </b-navbar-nav>
-      <b-navbar-nav class="p-3 border-left ml-auto">
-        <label class="mr-1">{{$t("label_display")}}</label>
-        <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-          <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-          <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-        </b-form-radio-group>
-      </b-navbar-nav>
-    </b-navbar>
+      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+        <b-navbar-nav class="p-3 border-right">
+          <li>
+            <label v-html="$tc('items', paginationTotalRows) "></label>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="p-3">
+          <li><label class="mr-1">{{ $t('label_order') }}</label>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="p-3 border-left ml-auto">
+          <label class="mr-1">{{$t("label_display")}}</label>
+          <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+            <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+            <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+          </b-form-radio-group>
+        </b-navbar-nav>
+      </b-navbar>
+    </div>
     <div class="collection-group">
       <b-container fluid>
         <b-row v-if="displayStyle === 'list'">
