@@ -14,7 +14,7 @@
         </div>
       </div>
       <b-container fluid class="inputList p-0 bg-light">
-        <ul>
+        <ul v-if="filteredCollections.length > 0">
           <li v-for="(collection, index) in filteredCollections" v-bind:key="index">
             <div
               class="m-0 px-3 py-2 border-bottom"
@@ -26,7 +26,7 @@
                   {{collection.name}}
                 </strong>
                 <div class="float-right">
-                  <!-- {{collection.countEntities}} {{$t('items')}} -->
+                  <!-- {{collection.countItems}} {{$t('items')}} -->
                 </div>
               </div>
               <div class="clearfix">
@@ -39,6 +39,12 @@
               </div>
             </div>
           </li>
+        </ul>
+        <ul v-else-if="collections.length === 0">
+          <p class="text-center p-4" v-html="$t('no_collection')" />
+        </ul>
+        <ul v-else>
+          <p class="text-center p-4" v-html="$t('no_match')" />
         </ul>
       </b-container>
       <div slot="footer" class="p-3 border-top">
@@ -150,8 +156,7 @@ export default {
     },
   },
   mounted() {
-    this.fetch().then(() => {
-    });
+    this.fetch();
   },
 };
 </script>
@@ -215,7 +220,9 @@ export default {
     "create_new": "Create Collection",
     "created": "Created:",
     "last_edited": "Last edited",
-    "items": "items"
+    "items": "items",
+    "no_collection": "<b>No collections yet !</b><br>Use input field below to create your first collection.",
+    "no_match": "No collection name matches your search filter."
   },
   "de": {
     "placeholder": "Filtern",
