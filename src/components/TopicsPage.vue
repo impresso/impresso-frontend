@@ -225,6 +225,7 @@ export default {
       });
     },
     activateTab(t) {
+      // console.info('activateTab', t);
       if(t === 'visualized') {
         this.tab = 'visualized';
       } else {
@@ -245,6 +246,7 @@ export default {
   mounted() {
     console.info('TopicsPage mounted.');
     this.initQ(this.$route.query.q);
+    this.activateTab(this.$route.query.tab);
     this.loadTopics();
   },
   watch: {
