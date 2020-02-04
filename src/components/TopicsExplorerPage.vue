@@ -1,37 +1,49 @@
 <template lang="html">
   <i-layout-section class="topics-explorer-page" main>
+    <!-- slot:header  -->
     <div slot="header">
-      <b-navbar  type="light" variant="light" class="border-bottom">
-        <section class='pt-2 pb-1'>
-          <span class="label small-caps">{{$t('summary')}}</span>
-          <small><info-button name="why-topic" class="text-muted" /></small>
-          <h3 class='mb-1' v-html="$t('topics_cooccurrence_graph', {
-            items: $n(this.graphNodes.length),
-            rels: $n(this.graphLinks.length),
-            nodes: $n(this.totalNodes),
+      <b-navbar>
+        <section :class="{'loading': isGraphLoading}">
+          <span class="label small-caps">
+            {{ $t('summary') }}
+          </span><info-button name="why-topic" class="text-muted" />
+          <h3 class='mb-1'><span v-if="!isGraphLoading" v-html="$t('topics_cooccurrence_graph', {
+            nodes: $n(this.itemsVisualized.length),
             links: $n(this.totalLinks),
-          })" />
+          })" /><span v-else v-html="$t('topics_cooccurrence_graph_loading', {
+            nodes: $n(this.itemsVisualized.length),
+          })"></span></h3>
+          <div v-if="countActiveFilters">
+            <b-form-checkbox
+              v-model="applyCurrentSearchFilters">
+            <span v-html="$t('itemStats', {
+                count: countActiveFilters
+              })"/></b-form-checkbox>
+            <search-query-summary class="border-left pl-2 border-tertiary m-0" :search-query='searchQuery'/>
+          </div>
         </section>
-      </b-navbar>
-      <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
 
-        <b-navbar-nav class="px-2 pt-2 pb-1 border-right">
-          <li ><label >{{ $t('color by') }}</label>
+      </b-navbar>
+
+      <b-navbar class="border-top border-bottom py-0 px-3">
+
+        <b-navbar-nav class="pl-0 pr-2 py-2 border-right">
+          <li><label class="pr-2">{{ $t('color by') }}</label>
             <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
-        <b-navbar-nav class="px-2 pt-2 pb-1  border-right">
-          <li ><label >{{ $t('connected') }}</label>
+        <b-navbar-nav class="p-2 border-right">
+          <li><label class="pr-2">{{ $t('connected') }}</label>
             <i-dropdown v-model="linkBy" v-bind:options="linkByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
-        <b-navbar-nav class="px-2 pt-2 pb-1 border-right">
-          <li><label >{{ $t('size by') }}</label>
+        <b-navbar-nav class="p-2 border-right">
+          <li><label class="pr-2">{{ $t('size by') }}</label>
             <i-dropdown v-model="sizeBy" v-bind:options="sizeByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
-        <b-navbar-nav class="px-2 pt-2 pb-1">
-          <li><label v-html="$t('zoom')" />
+        <b-navbar-nav class="p-2">
+          <li><label class="pr-2" v-html="$t('zoom')" />
             <b-button v-on:click="zoomReset()" variant="secondary" size="sm">{{ $t('actions.reset') }}</b-button>
           </li>
         </b-navbar-nav>
@@ -63,7 +75,7 @@ import Topic from '@/models/Topic';
 import Graph from '@/d3-modules/Graph';
 import Tooltip from './modules/tooltips/TopicsExplorerTooltip';
 import InfoButton from './base/InfoButton';
-
+import SearchQuerySummary from './modules/SearchQuerySummary';
 
 export default {
   data: () => ({
@@ -79,7 +91,7 @@ export default {
     totalNodes: 0,
     totalLinks: 0,
     // visual dimensions
-    colorBy: 'model',
+    colorBy: 'language',
     sizeBy: 'countItems',
     // legend
     legend: {
@@ -88,6 +100,9 @@ export default {
     filteredNodes: [],
     filteredLinks: [],
     zoomLevel: {},
+    timers: {},
+    //
+    isGraphLoading: false,
   }),
   computed: {
     graphNodes() {
@@ -162,8 +177,11 @@ export default {
       },
       set(value) {
         this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
-        this.loadTopics();
+        this.loadGraph();
       },
+    },
+    searchQuery() {
+      return this.$store.getters['search/getSearch'];
     },
     countActiveFilters() {
       return this.$store.getters['search/countActiveFilters'];
@@ -223,6 +241,10 @@ export default {
       });
 
     window.addEventListener('resize', this.onResize);
+
+    if (this.itemsVisualized.length) {
+      this.loadGraph();
+    }
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.onResize);
@@ -253,6 +275,7 @@ export default {
       this.graph.update({
         nodes,
         links,
+        pristine: true,
       });
     },
     zoomReset() {
@@ -284,57 +307,42 @@ export default {
         };
       }).filter(d => d);
     },
-  },
-  watch: {
-    itemsVisualized: {
-      async handler(items) {
-        // console.log('ohlalal', items);
-        if (this.graph) {
-          console.info('sosiodisodiosd', this.graph, items);
-          let filters= [
-            {
-              type: 'topic',
-              q: items.map(d => d.uid),
-            }
-          ];
-          if (this.countActiveFilters && this.applyCurrentSearchFilters) {
-            filters = filters.concat(this.$store.getters['search/getSearch'].getFilters());
-          }
-          // yes, load graph!
-          await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH', { filters });
+    loadGraph() {
+      console.info('loadGraph() nodes:', this.itemsVisualized.length, 'loading:',this.isGraphLoading);
+      // yes, load graph if it is not busy loading
+      if (this.timers.debounceLoadGraph) {
+        clearTimeout(this.timers.debounceLoadGraph);
+      }
+      if (this.isGraphLoading || !this.graph) {
+        this.timers.debounceLoadGraph = setTimeout(this.loadGraph, 500);
+        return;
+      }
+      this.isGraphLoading = true;
+      let filters = [];
+
+      if (this.itemsVisualized.length) {
+        filters.push({
+          type: 'topic',
+          context: 'visualize',
+          q: this.itemsVisualized.map(d => d.uid),
+        });
+      }
+      if (this.countActiveFilters && this.applyCurrentSearchFilters) {
+        filters = filters.concat(this.$store.getters['search/getSearch'].getFilters());
+      }
+      return this.$store.dispatch('topics/LOAD_TOPICS_GRAPH', { filters })
+        .then(() => {
           this.updateGraph({
             nodes: this.graphNodes,
             links: this.graphLinks,
           });
-        }
-        // if there is no graph, load the graph first.
-        // if (itemsIndex && !this.totalNodes) {
-        //   console.info('@itemsIndex updated, loading graph...');
-        //   // await this.$store.dispatch('topics/LOAD_TOPICS_GRAPH');
-        //   // console.info('@itemsIndex updated, graph loaded.');
-        // }
-        // // re evaluate graph
-        // if (this.graph) {
-        //   if (this.timerDelayGraphUpdate) {
-        //     clearTimeout(this.timerDelayGraphUpdate);
-        //   }
-        //
-        //   console.info('@itemsIndex updated, update graph in 2s...');
-        //
-        //   this.timerDelayGraphUpdate = setTimeout(() => {
-        //     this.filteredNodes = this.getFilteredNodes();
-        //     this.filteredLinks = this.getFilteredLinks();
-        //
-        //     console.info('@itemsIndex n. filtered nodes:', this.filteredNodes.length);
-        //     console.info('@itemsIndex n. filtered links:', this.filteredLinks.length);
-        //
-        //     this.updateGraph({
-        //       nodes: this.filteredNodes,
-        //       links: this.filteredLinks,
-        //     });
-        //   }, 500);
-        // }
-      },
+          this.isGraphLoading = false;
+        });
+    },
+  },
+  watch: {
+    itemsVisualized() {
+      this.loadGraph();
     },
     linkBy: {
       immediate: true,
@@ -381,6 +389,7 @@ export default {
   components: {
     Tooltip,
     InfoButton,
+    SearchQuerySummary,
   },
 };
 </script>
@@ -426,18 +435,27 @@ export default {
   }
 }
 
+section {
+  transition: opacity .4s ease-in-out;
+}
+section.loading{
+  pointer-events: none;
+  opacity: .7;
+}
 </style>
 <i18n>
 {
   "en": {
     "summary": "Explore the list of topics",
-    "topics_cooccurrence_graph": "Visualise <span class='number'>{items}</span> / <span class='number'>{nodes}</span> topics and their <span class='number'>{rels}</span> / <span class='number'>{links}</span> relationships",
+    "topics_cooccurrence_graph": "Visualize <span class='number'>{nodes}</span> topics and their <span class='number'>{links}</span> relationships",
+    "topics_cooccurrence_graph_loading": "...Loading visualization of <span class='number'>{nodes}</span> topics ...",
     "color by": "colored by",
     "topic model": "{item.name}",
     "countItems": "number of articles",
     "byCommonWords": "share at least one word",
     "byCommonArticles": "share at least one article",
-    "zoom": "zoom &amp; pan"
+    "zoom": "zoom &amp; pan",
+    "itemStats": "Filter using current search ({count} filters):"
   }
 }
 </i18n>
