@@ -2,8 +2,10 @@
   <div class="d-flex flex-column">
     <!-- image and text -->
     <div class="d-flex flex-row">
-      <div class="image">
-        [image {{passage.pageRegions}}]
+      <div class="image flex-shrink-1 d-flex">
+        <div class="d-flex flex-row flex-shrink-1 image-placeholder">
+          [image {{passage.pageRegions}}]
+        </div>
       </div>
       <div class="content">
         {{passage.content}}
@@ -67,5 +69,13 @@ export default {
   }
   .image {
     flex-basis: 40%;
+
+    .image-placeholder {
+      height: 100%;
+      max-height: 200px;
+      min-width: 100px;
+      background-color: #777;
+      color: #ccc;
+    }
   }
 </style>
