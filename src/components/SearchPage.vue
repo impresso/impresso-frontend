@@ -58,21 +58,6 @@
         </b-navbar-nav>
       </b-navbar>
 
-      <b-navbar variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
-        <div class="flex-grow-1">
-          <span class="small-caps">
-            {{ $tc('items_selected', selectedItems.length) }}
-          </span>
-          <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
-            {{ $t('Clear Selection') }}
-          </b-button>
-          <collection-add-to
-            :items="selectedItems"
-            :text="$tc('add_n_to_collection', selectedItems.length)"
-            class="addbulk bg-white float-right" />
-        </div>
-      </b-navbar>
-
       <b-navbar class="d-flex p-0 border-bottom bg-light">
         <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
           <ellipsis v-bind:initialHeight="60">
@@ -211,7 +196,6 @@ import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
-import CollectionAddTo from './modules/CollectionAddTo';
 import CollectionAddToList from './modules/CollectionAddToList';
 import Ellipsis from './modules/Ellipsis';
 import SearchPills from './SearchPills';
@@ -439,9 +423,6 @@ export default {
     isChecked(item) {
       return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
     },
-    onClearSelection() {
-      this.selectedItems = [];
-    },
     onClickResult(searchResult) {
       this.$router.push({
         name: 'article',
@@ -561,7 +542,6 @@ export default {
     'search-results-tiles-item': SearchResultsTilesItem,
     'search-facets': SearchFacets,
     'search-result-summary': SearchResultsSummary,
-    CollectionAddTo,
     CollectionAddToList,
     Ellipsis,
     SearchPills,
