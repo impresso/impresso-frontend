@@ -141,6 +141,7 @@ export const searchQueriesComparison = app.service('search-queries-comparison').
 export const errorCollector = app.service('errors-collector');
 export const articleTextReusePassages = app.service('articles/:id/text-reuse-passages');
 export const textReuseClusters = app.service('text-reuse-clusters');
+export const textReuseClusterPassages = app.service('text-reuse-cluster-passages');
 
 export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API;
 export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH;
