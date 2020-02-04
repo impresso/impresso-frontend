@@ -107,7 +107,7 @@ export default {
           filters,
         },
       }).then(({ nodes, links }) => {
-        console.info('topics/LOAD_TOPICS_GRAPH', nodes, links);
+        console.info('topics/LOAD_TOPICS_GRAPH results:', nodes, links);
         commit('UPDATE_GRAPH_LINKS', {
           byCommonArticles: links,
           byCommonWords: [],
@@ -115,75 +115,75 @@ export default {
         commit('UPDATE_GRAPH_NODES', nodes);
       });
     },
-    EX_LOAD_TOPICS_GRAPH({ commit }) {
-      return services.topics.find({
-        query: {
-          limit: 500,
-        },
-      }).then((results) => {
-        // temporary hack
-        // temporary hack: random connections between nodes...
-        const graphNodes = [];
-        const byCommonWords = [];
-        const byCommonArticles = [];
-        // console.info('link type', linkType, results.data.length);
-        const limit = 25;
-        const minWordsIncommon = 3;
-
-        for (let i = 0, l = results.data.length; i < l; i += 1) {
-          const t = new Topic(results.data[i]);
-          const relatedIndex = {};
-          // remap relatedTopics
-          t.relatedTopics.forEach((d) => {
-            relatedIndex[d.uid] = d.w;
-          });
-          t.id = t.uid;
-          t.degree = 0;
-
-          for (let j = i + 1; j < l; j += 1) {
-            if (relatedIndex[results.data[j].uid]) {
-              byCommonArticles.push({
-                id: [i, j].join('-'),
-                source: i,
-                target: j,
-                w: relatedIndex[results.data[j].uid],
-              });
-            }
-            const common = results.data[i].words
-              .filter((wi, k) => k < limit && results.data[j].words
-                .filter((wj, kj) => kj < limit)
-                .find(wj => wi.w === wj.w));
-            if (common.length > minWordsIncommon - 1) {
-              // console.info('combine', i, j, common);
-              byCommonWords.push({
-                id: [i, j].join('-'),
-                source: i,
-                target: j,
-                w: common.length,
-                c: common,
-              });
-              t.degree += 1;
-            }
-          }
-
-          graphNodes.push(t);
-        }
-
-        commit('UPDATE_GRAPH_LINKS', {
-          byCommonArticles,
-          byCommonWords,
-        });
-        commit('UPDATE_GRAPH_NODES', graphNodes);
-        // console.info('links', links);
-        return {
-          nodes: graphNodes,
-          links: {
-            byCommonArticles,
-            byCommonWords,
-          },
-        };
-      });
-    },
+    // EX_LOAD_TOPICS_GRAPH({ commit }) {
+    //   return services.topics.find({
+    //     query: {
+    //       limit: 500,
+    //     },
+    //   }).then((results) => {
+    //     // temporary hack
+    //     // temporary hack: random connections between nodes...
+    //     const graphNodes = [];
+    //     const byCommonWords = [];
+    //     const byCommonArticles = [];
+    //     // console.info('link type', linkType, results.data.length);
+    //     const limit = 25;
+    //     const minWordsIncommon = 3;
+    //
+    //     for (let i = 0, l = results.data.length; i < l; i += 1) {
+    //       const t = new Topic(results.data[i]);
+    //       const relatedIndex = {};
+    //       // remap relatedTopics
+    //       t.relatedTopics.forEach((d) => {
+    //         relatedIndex[d.uid] = d.w;
+    //       });
+    //       t.id = t.uid;
+    //       t.degree = 0;
+    //
+    //       for (let j = i + 1; j < l; j += 1) {
+    //         if (relatedIndex[results.data[j].uid]) {
+    //           byCommonArticles.push({
+    //             id: [i, j].join('-'),
+    //             source: i,
+    //             target: j,
+    //             w: relatedIndex[results.data[j].uid],
+    //           });
+    //         }
+    //         const common = results.data[i].words
+    //           .filter((wi, k) => k < limit && results.data[j].words
+    //             .filter((wj, kj) => kj < limit)
+    //             .find(wj => wi.w === wj.w));
+    //         if (common.length > minWordsIncommon - 1) {
+    //           // console.info('combine', i, j, common);
+    //           byCommonWords.push({
+    //             id: [i, j].join('-'),
+    //             source: i,
+    //             target: j,
+    //             w: common.length,
+    //             c: common,
+    //           });
+    //           t.degree += 1;
+    //         }
+    //       }
+    //
+    //       graphNodes.push(t);
+    //     }
+    //
+    //     commit('UPDATE_GRAPH_LINKS', {
+    //       byCommonArticles,
+    //       byCommonWords,
+    //     });
+    //     commit('UPDATE_GRAPH_NODES', graphNodes);
+    //     // console.info('links', links);
+    //     return {
+    //       nodes: graphNodes,
+    //       links: {
+    //         byCommonArticles,
+    //         byCommonWords,
+    //       },
+    //     };
+    //   });
+    // },
     LOAD_TOPICS({ commit }, {
       page = 1,
       limit,
