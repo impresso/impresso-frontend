@@ -81,7 +81,6 @@ export default {
       state.visualizedItems.forEach((d, k) => {
         state.visualizedItemsIndex[d.uid] = k;
       });
-      console.info(state.visualizedItemsIndex);
     },
     UPDATE_APPLY_CURRENT_SEARCH_FILTERS(state, value) {
       state.applyCurrentSearchFilters = value;
@@ -101,12 +100,14 @@ export default {
     REMOVE_VISUALIZED_ITEM({ commit }, item) {
       commit('REMOVE_VISUALIZED_ITEM', item);
     },
-    LOAD_TOPICS_GRAPH({ commit }, filters) {
+    LOAD_TOPICS_GRAPH({ commit }, { filters }) {
+      console.info('topics/LOAD_TOPICS_GRAPH with filters:', filters);
       return services.topicsGraph.find({
         query: {
           filters,
         },
       }).then(({ nodes, links }) => {
+        console.info('topics/LOAD_TOPICS_GRAPH', nodes, links);
         commit('UPDATE_GRAPH_LINKS', {
           byCommonArticles: links,
           byCommonWords: [],
@@ -214,7 +215,7 @@ export default {
       return services.topics.find({
         query,
       }).then((res) => {
-        console.info('topics/LOAD_TOPICS res:', res);
+        // console.info('topics/LOAD_TOPICS res:', res);
         const data = res.data.map(d => new Topic(d, {
           highlight: query.q ? q.split('*').join('') : '',
         }));
