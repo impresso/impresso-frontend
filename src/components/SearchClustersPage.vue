@@ -28,7 +28,27 @@
       </div>
     </i-layout-section>
     <i-layout-section class="pt-2">
-        [connected clusters placeholder]
+      <div v-if="selectedCluster !== undefined">
+        <!-- main header -->
+        <b-navbar>
+          <section>
+            <span class="label small-caps">
+              <span>&larr; {{$t("clustersLabel")}}</span>
+            </span>
+            <h3>{{$t('clusterLabel')}} #{{selectedCluster.id}}</h3>
+          </section>
+        </b-navbar>
+        <!-- main page -->
+        <router-view />
+      </div>
+
+      <div v-if="selectedCluster === undefined" style="height: 100%">
+        <div class="d-flex flex-row justify-content-center" style="height: 100%">
+          <div class="d-flex flex-column justify-content-center">
+            <span>[no cluster selected placeholder]</span>
+          </div>
+        </div>
+      </div>
     </i-layout-section>
   </i-layout>
 </template>
@@ -116,6 +136,11 @@ export default {
     paginationTotalRows() {
       const { total } = this.searchInfo
       return total
+    },
+    selectedCluster() {
+      const filteredClusters = this.clusterItems
+        .filter(({ cluster }) => cluster.id === this.selectedClusterId)
+      return filteredClusters.length > 0 ? filteredClusters[0].cluster : undefined
     }
   },
   watch: {
@@ -155,3 +180,12 @@ export default {
     cursor: pointer;
   }
 </style>
+
+<i18n>
+{
+  "en": {
+    "clustersLabel": "Text Reuse Clusters",
+    "clusterLabel": "Text Reuse Cluster"
+  }
+}
+</i18n>

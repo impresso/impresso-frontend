@@ -25,7 +25,8 @@ import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
 import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
-import ConnectedTextReuseClustersPage from '../components/ConnectedTextReuseClustersPage';
+import SearchClustersPage from '../components/SearchClustersPage';
+import TextReusePassagesPage from '../components/TextReusePassagesPage'
 import store from '../store';
 
 Vue.use(Router);
@@ -300,12 +301,19 @@ const router = new Router({
     },
     {
       path: '/text-reuse-clusters',
-      component: ConnectedTextReuseClustersPage,
+      component: SearchClustersPage,
       name: 'text-reuse-clusters',
       meta: {
         requiresAuth: false,
       },
-      children: [],
+      children: [{
+        path: '',
+        component: TextReusePassagesPage,
+        name: 'passages',
+        meta: {
+          requiresAuth: false,
+        },
+      }],
     }],
 });
 
