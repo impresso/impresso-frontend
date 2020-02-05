@@ -64,17 +64,30 @@
   </i-layout-section>
   <i-layout-section :class="{ ' ml-1px border-top border-left': showLines, 'border-tertiary': darkMode }">
     <div class="text-tertiary p-3">
-      <h1 class="huge m-4 mt-2">Media Monitoring of the <span class="text-accent">Past</span></h1>
+      <h1 class="huge m-4 my-2">Media Monitoring of the <span class="text-accent">Past</span></h1>
       <!-- <h1 class="text-white mt-5">Today, 100 years ago.</h1>
       This section lists front pages with the most important events. -->
 
       <h2 class="p-4 m-0">Mining 200 years <br/>of historical newspapers <info-button name="which-newspapers" class="ml-2 mt-1 d-inline-block" /></h2>
-      <p class="px-4 pb-4">
-        How can newspapers help understand the past? How to explore them?
-        <br>
-        Some examples to get you started!
-      </p>
-      <recipes :dark-mode="darkMode"/>
+      <section class="mx-4">
+        <p>
+          How can newspapers help understand the past? How to explore them?
+        </p>
+        <p class="p-3 my-3" style="background-color: #3e454c; font-size: 0.9em">
+          For legal reasons not all content is available in Open Access.
+          <br/> To gain full access, simply sign this
+          <a class="text-white" href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" target="_self"> Non-Disclosure-Agreement</a>
+          and email it to <a class="text-white" href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
+        </p>
+        <p class='text-center text-white'>
+          ... then here are a few examples to get you started!
+        </p>
+      </section>
+      <div class="border-bottom" style="position:relative">
+        <div class="arrow-down" style="position:absolute; left:50%; margin-left: -20px; top: -1px; border-top-color: #343a40"></div>
+      </div>
+      <div class="arrow-down mx-auto"></div>
+      <recipes :dark-mode="darkMode" class="mt-2"/>
     </div>
     <home-page-footer />
   </i-layout-section>
@@ -186,7 +199,14 @@ h1.huge {
   }
 }
 
+.arrow-down {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
 
+  border-top: 20px solid #fff;
+}
 </style>
 
 <i18n>
