@@ -8,8 +8,8 @@
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
-    <!--  body -->
 
+    <!--  body -->
     <div class="text-tertiary p-3 stats">
       <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
       <p class="small-caps mt-3">Impresso data rundown</p>
@@ -32,6 +32,13 @@
         <span class="number">530,086</span> named entities disambiguated
       </p>
       <p>More? Check on our <a class="text-white" href="https://impresso-project.ch/news/2020/01/23/state-corpus-january2020.html">blog</a></p>
+      <p>
+        info @ impresso-project [dot] ch<br/>
+        project website: <a href="/" target="_blank">impresso-project.ch</a> <br/>
+        github: <a href="https://github.com/impresso" target="_blank">impresso</a><br/>
+        twitter: <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a><br/>
+
+      </p>
       <div class="mb-2">
         <b-button
           :variant="showLines  ? 'primary' : 'outline-primary'" size="sm"
@@ -141,10 +148,6 @@ export default {
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-#HomePage2020{
-  background-size: cover;
-  height: 100vh;
-}
 .bg-dark {
   ul.nav.nav-pills .nav-item.active .nav-link {
     color: $clr-white;
@@ -175,6 +178,10 @@ export default {
 
   ul.nav.nav-pills {
     border-color: $clr-secondary;
+  }
+
+  .stats a {
+    color: $clr-white;
   }
 }
 
