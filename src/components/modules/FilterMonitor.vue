@@ -23,7 +23,7 @@
 
     <div v-else>
       <!--  context -->
-      <b-dropdown size="sm" variant="outline-primary">
+      <b-dropdown size="sm" variant="outline-primary" class="mr-1">
         <template slot="button-content">
           <span v-html="$t(`label.${type}.context.${filter.context}`)"/>
         </template>
@@ -129,7 +129,10 @@ export default {
     showEmbeddings: false,
   }),
   props: {
-    type: String, // being topic, newspaper, collection, language ...
+    type: {
+      type: String,
+      default: '',
+    }, // being topic, newspaper, collection, language ...
     store: {
       type: String,
       default: 'search',

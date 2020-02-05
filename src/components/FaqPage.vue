@@ -52,24 +52,27 @@ export default {
 </script>
 
 <style lang="scss">
-  img {
-    max-width: 100%;
-  }
-  .accordion-toggle {
-    cursor: n-resize;
-    &.collapsed {
-      cursor: s-resize;
-      &::before {
-        content: '+';
-      }
+  #faq-items{
+    img {
+      max-width: 100%;
+      zoom: 50%;
     }
-    &::before {
-      content: '-';
-      position: absolute;
-      margin-left:-1em;
-      font-size: 1.6em;
-      line-height: 0.7;
-      color: gray;
+    .accordion-toggle {
+      cursor: n-resize;
+      &.collapsed {
+        cursor: s-resize;
+        &::before {
+          content: '+';
+        }
+      }
+      &::before {
+        content: '-';
+        position: absolute;
+        margin-left:-1em;
+        font-size: 1.6em;
+        line-height: 0.7;
+        color: gray;
+      }
     }
   }
 </style>

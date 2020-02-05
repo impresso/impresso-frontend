@@ -524,7 +524,6 @@ export default {
       }
     },
     addFilterFromEmbedding(embedding) {
-      console.info('AE', embedding);
       const filter = { query: embedding, type: 'string', context: 'include' };
       this.$store.dispatch('search/ADD_FILTER', { filter });
       this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
@@ -610,10 +609,6 @@ export default {
 <i18n>
 {
   "en": {
-    "tabs": {
-      "text": "search articles",
-      "images": "search images"
-    },
     "label_display": "Display As",
     "label_order": "Order By",
     "label_group": "Group By",

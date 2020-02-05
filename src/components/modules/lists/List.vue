@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import Pagination from "../Pagination";
+import Pagination from '../Pagination';
 
 export default {
   props: {

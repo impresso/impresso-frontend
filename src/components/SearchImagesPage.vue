@@ -377,10 +377,6 @@ export default {
 <i18n>
   {
     "en": {
-      "tabs": {
-        "text": "search articles",
-        "images": "search images"
-      },
       "label_order": "Order By",
       "label_isFront": "Frontpage",
       "label_applyRandomPage": "start with random results page",
