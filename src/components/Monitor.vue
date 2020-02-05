@@ -28,48 +28,51 @@
           <!--  title -->
           <h2 class="mx-2">
             <item-label :item="item" :type="type" />
-            <span class="small-caps">{{ type }}</span>
+            <span class="small-caps pl-2">{{ type }}</span>
           </h2>
           <!--  timeline vis -->
-          <div v-if="itemTimelineDomain.length && !monitor.isPendingTimeline" style='position:relative'>
-            <timeline class='bg-light pb-2'
-              :values="itemTimeline"
-              :domain="itemTimelineDomain">
-              <div slot-scope="tooltipScope">
-                <div v-if="tooltipScope.tooltip.item">
-                  {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                  <b>{{ tooltipScope.tooltip.item.w }}</b> {{ monitor.groupBy }}
-                  <!-- <br />
-                  <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
-                  &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
-                  ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
-                  </span> -->
+          <div style="min-height: 80px">
+            <div v-if="itemTimelineDomain.length && !monitor.isPendingTimeline" style='position:relative;'>
+              <timeline class='bg-light pb-2'
+                :values="itemTimeline"
+                :domain="itemTimelineDomain">
+                <div slot-scope="tooltipScope">
+                  <div v-if="tooltipScope.tooltip.item">
+                    {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+                    <b>{{ tooltipScope.tooltip.item.w }}</b> {{ monitor.groupBy }}
+                    <!-- <br />
+                    <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
+                    &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
+                    ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
+                    </span> -->
+                  </div>
                 </div>
-              </div>
-            </timeline>
+              </timeline>
 
+            </div>
           </div>
           <!-- {{ path }}
           {{ searchQueryId }}
           {{ searchQueryFilters }} -->
-          <b-form-group class="mx-3">
-
-            <b-form-checkbox v-model="applyCurrentSearchFilters">
-              {{ $t('labels.applyCurrentSearchFilters') }}
-            </b-form-checkbox>
-          </b-form-group>
-          <p class="px-2">
-          <ellipsis  v-bind:initialHeight="70">
-            <span v-html="statsLabel"/>
-            <search-query-summary v-if="applyCurrentSearchFilters" class="pl-2 border-left border-tertiary" :search-query='searchQuery' />
-          </ellipsis>
-        </p>
+          <div class="mx-3">
+            <b-form-group class="m-0">
+              <b-form-checkbox v-model="applyCurrentSearchFilters">
+                <span v-html="$t('labels.applyCurrentSearchFilters', { count: countActiveFilters })"/>
+              </b-form-checkbox>
+            </b-form-group>
+              <p class="ml-1">
+                <ellipsis  v-bind:initialHeight="70">
+                  <span v-html="statsLabel"/>
+                  <search-query-summary v-if="applyCurrentSearchFilters" class="pl-2 border-left border-tertiary" :search-query='searchQuery' />
+                </ellipsis>
+              </p>
+          </div>
         </div>
         <div v-if="monitor.isPending" v-html="$t('loading')" />
         <div v-else >
           <div class="text-center m-2">
-            <b-button size="sm" variant="outline-primary" @click="applyFilter('include')">{{ $t('actions.addToCurrentFilters') }}</b-button>
-            <b-button size="sm" variant="outline-primary" @click="applyFilter('exclude')">{{ $t('actions.removeFromCurrentFilters') }}</b-button>
+            <b-button size="sm" class="mr-1" variant="outline-primary" @click="applyFilter('include')">{{ $t('actions.addToCurrentFilters') }}</b-button>
+            <b-button size="sm" class="ml-1" variant="outline-primary" @click="applyFilter('exclude')">{{ $t('actions.removeFromCurrentFilters') }}</b-button>
           </div>
 
           <!-- detailed label -->
@@ -179,11 +182,25 @@ export default {
         this.$store.state.monitor.timeline[this.$store.state.monitor.timeline.length - 1].t,
       ];
     },
+    countActiveFilters() {
+      return this.searchQuery.countActiveFilters();
+    },
     searchQuery() {
       return this.$store.getters['monitor/getCurrentSearchQuery'];
     },
     searchQueryFilters() {
       return this.$store.getters['monitor/getCurrentSearchFilters'];
+    },
+    searchQueryFiltersLabel() {
+      if (this.itemTimelineDomain.length !== 2) {
+        return this.$t('actions.loading');
+      }
+      const [from, to] = this.itemTimelineDomain;
+      return this.$t('itemStatsFiltered', {
+        count: this.countActiveFilters,
+        from,
+        to,
+      });
     },
     searchQueryId() {
       return this.$store.state.monitor.searchQueryId;
@@ -223,10 +240,14 @@ export default {
       return this.$route.name;
     },
     statsLabel() {
+      if (this.monitor.isPendingTimeline) {
+        return this.$t('actions.loading');
+      }
       let key = 'itemStats';
+
       if (!this.itemTimelineDomain.length) {
         key = 'itemStatsEmpty';
-      } else if (this.applyCurrentSearchFilters && this.searchQueryFilters.length > 1) {
+      } else if (this.applyCurrentSearchFilters && this.countActiveFilters) {
         key = 'itemStatsFiltered';
       }
       return this.$t(key, {
@@ -284,11 +305,11 @@ export default {
         "selectedItem": "current selection"
       },
       "labels": {
-        "applyCurrentSearchFilters": "filter by current search query"
+        "applyCurrentSearchFilters": "apply current search filters ({count} filters)"
       },
       "itemStatsEmpty": "No results apparently",
-      "itemStats": "<b class='number'>{count}</b> results from {from} to {to}",
-      "itemStatsFiltered": "<span class='number'>{count}</span> results from {from} to {to}, within current search:"
+      "itemStats": "<b class='number'>{count}</b> results in total (from {from} to {to})",
+      "itemStatsFiltered": "<b class='number'>{count}</b> results from {from} to {to}, within current search:"
     }
   }
 </i18n>

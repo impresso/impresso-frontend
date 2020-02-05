@@ -1,6 +1,6 @@
 {
   "name": "impresso-frontend",
-  "version": "2.2.3",
+  "version": "2.3.0",
   "description": "A Vue.js project",
   "author": "Thijs van Beek <thijs.vanbeek@uni.lu>",
   "private": true,
@@ -9,7 +9,7 @@
     "start": "npm run serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test": "npm run unit && npm run e2e"
+    "test": "jest ./test/spec"
   },
   "dependencies": {
     "@feathersjs/authentication-client": "4.3.3",
@@ -35,7 +35,7 @@
     "vue-awesome": "4.0.2",
     "vue-click-outside": "1.0.7",
     "vue-flatpickr-component": "8.1.5",
-    "vue-gtag": "^1.1.2",
+    "vue-gtag": "1.1.2",
     "vue-i18n": "8.15.3",
     "vue-router": "3.1.5",
     "vuex": "3.1.2",
@@ -48,52 +48,19 @@
     "@vue/cli-plugin-eslint": "4.1.0",
     "@vue/cli-service": "4.1.0",
     "@vue/eslint-config-airbnb": "5.0.2",
+    "@vue/test-utils": "1.0.0-beta.31",
     "babel-eslint": "10.0.3",
     "eslint": "5.16.0",
     "eslint-plugin-import": "2.20.0",
     "eslint-plugin-vue": "5.0.0",
-    "less": "^3.10.3",
+    "jest": "25.1.0",
+    "less": "3.10.3",
     "less-loader": "5.0.0",
     "node-sass": "4.13.1",
     "postcss-import": "12.0.1",
     "postcss-url": "8.0.0",
     "sass-loader": "8.0.2",
     "vue-template-compiler": "2.6.10"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "@vue/airbnb",
-      "eslint:recommended"
-    ],
-    "rules": {
-      "no-console": [
-        "warn",
-        {
-          "allow": [
-            "info",
-            "warn",
-            "error"
-          ]
-        }
-      ],
-      "import/extensions": [
-        "error",
-        "always",
-        {
-          "js": "never",
-          "vue": "never"
-        }
-      ],
-      "import/no-cycle": 0
-    },
-    "parserOptions": {
-      "parser": "babel-eslint"
-    }
   },
   "browserslist": [
     "> 1%",

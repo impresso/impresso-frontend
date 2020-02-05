@@ -32,5 +32,10 @@ export default {
       month: 'short',
       year: 'numeric',
     },
+    day: {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    },
   },
 };

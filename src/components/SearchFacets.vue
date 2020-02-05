@@ -134,10 +134,7 @@ export default {
       return this.$store.getters['explorer/getTemporaryFilter']();
     },
     currentStore() {
-      if (this.store === 'searchImages') {
-        return this.$store.state.searchImages;
-      }
-      return this.$store.state.search;
+      return this.$store.state[this.store];
     },
     displayStyle: {
       get() {
@@ -257,7 +254,7 @@ export default {
           t: parseInt(d.val, 10),
         }));
         // add zeroes
-        return Helpers.timeline.addEmptyYears(values);
+        return Helpers.timeline.addEmptyIntervals(values);
       },
     },
     facets: {
