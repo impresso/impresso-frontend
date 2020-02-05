@@ -43,7 +43,7 @@
           issue_uid: article.issue.uid,
           page_uid: article.pages[0].uid,
           article_uid: article.uid,
-        } }" class="btn btn-sm btn-outline-primary">
+        } }" class="btn btn-sm btn-outline-primary mr-1">
           {{$t('view')}}
         </router-link>
 
