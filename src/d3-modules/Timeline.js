@@ -161,6 +161,11 @@ export default class Timeline extends Line {
     }
   }
 
+  updateTimeFormat(format) {
+    this.timeFormat = d3.timeFormat(format);
+    this.timeParse = d3.timeParse(format);
+  }
+
   /**
    * Highlight current datum if any
    * @param  {[type]} datum [description]

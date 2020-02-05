@@ -148,12 +148,12 @@ export default {
   methods: {
     typeIcon(type) {
       switch (type) {
-        case 'collection': return 'suitcase';
-        case 'newspaper': return 'pamphlet';
-        case 'topic': return 'message';
-        case 'location': return 'location';
-        case 'person': return 'user';
-        default: return '';
+      case 'collection': return 'suitcase';
+      case 'newspaper': return 'pamphlet';
+      case 'topic': return 'message';
+      case 'location': return 'location';
+      case 'person': return 'user';
+      default: return '';
       }
     },
     hideSuggestions() {
@@ -229,19 +229,19 @@ export default {
     },
     keyup(event) {
       switch (event.key) {
-        case 'Enter':
-          this.submit(this.selectableSuggestions[this.selectedIndex]);
-          this.selectInput(event);
-          break;
-        case 'ArrowDown':
-          this.selectedIndex += 1;
-          break;
-        case 'ArrowUp':
-          this.selectedIndex -= 1;
-          break;
-        default:
-          // this.selected = this.suggestion;
-          break;
+      case 'Enter':
+        this.submit(this.selectableSuggestions[this.selectedIndex]);
+        this.selectInput(event);
+        break;
+      case 'ArrowDown':
+        this.selectedIndex += 1;
+        break;
+      case 'ArrowUp':
+        this.selectedIndex -= 1;
+        break;
+      default:
+        // this.selected = this.suggestion;
+        break;
       }
       if (this.selectedIndex > this.maxSelectedIndex) {
         this.selectedIndex = 0;

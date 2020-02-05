@@ -36,10 +36,7 @@
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
                 <div class='region py-3'>
-                  <!-- {{ i }} -->
-                  <p v-for="(contents, index) in region.g" v-bind:key="index">
-                    <span v-html="contents"></span>
-                  </p>
+                  <div v-html="regionsContent[i]"></div>
                 </div>
               </div>
             </b-row>
@@ -73,6 +70,10 @@ import { articlesSuggestions } from '@/services';
 import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import ArticleItem from './lists/ArticleItem';
+import {
+  getNamedEntitiesFromArticleResponse,
+  annotateText,
+} from '@/logic/articleAnnotations';
 
 export default {
   data() {
@@ -95,8 +96,30 @@ export default {
       return this.article.topics.filter(rel => rel.topic);
     },
     hasValidRegions() {
-      return !!this.article.regions.filter(region => region.g.length).length;
+      return !!this.article.regions.filter(({ isEmpty }) => !isEmpty).length;
     },
+    regionsContent() {
+      if (!this.article) return [];
+
+      const entities = getNamedEntitiesFromArticleResponse(this.article);
+      const lineBreaks = this.article.contentLineBreaks;
+      const regionBreaks = this.article.regionBreaks;
+
+      const annotatedText = annotateText(this.article.content, entities, lineBreaks, regionBreaks);
+
+      const regionStartIndices = annotatedText
+        .map((v, index) => (v === '<div class="region">' ? index : -1))
+        .filter(v => v >= 0);
+
+      const regions = regionStartIndices.map((startIndex, i) => {
+        var endIndex = i === regionStartIndices.length - 1
+          ? annotatedText.length
+          : regionStartIndices[i + 1]
+        return annotatedText.slice(startIndex, endIndex).join('\n');
+      })
+
+      return regions;
+    }
   },
   props: ['article_uid'],
   components: {
@@ -175,8 +198,15 @@ export default {
   span.location::before {
     content: '\e012';
   }
+  span.location.continuation::before {
+    content: '';
+  }
+
   span.person::before {
     content: '\e056';
+  }
+  span.person.continuation::before {
+    content: '';
   }
 
   .region-row {

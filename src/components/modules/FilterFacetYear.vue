@@ -35,7 +35,7 @@ import SkyLine from '@/d3-modules/SkyLine';
 
 import 'flatpickr/dist/flatpickr.css';
 
-import BaseTitleBar from "../base/BaseTitleBar";
+import BaseTitleBar from '../base/BaseTitleBar';
 import Tooltip from './FilterFacetYearTooltip';
 
 export default {
