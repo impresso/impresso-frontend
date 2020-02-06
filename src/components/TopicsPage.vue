@@ -19,7 +19,7 @@
           <b-form-input placeholder="filter topics ..." :value="q" v-on:change="changeQ" class="my-3"></b-form-input>
           <b-form-checkbox v-if="countActiveFilters"
             v-model="applyCurrentSearchFilters"
-          >filter list of topics if matches current search <br/>({{countActiveFilters}} filters)</b-form-checkbox>
+          ><span v-html="$t('label_applyCurrentSearchFilters', { countActiveFilters })" /></b-form-checkbox>
           <div v-else>
             if you have a search filter, you can use this one to filter out stuff;
           </div>
@@ -40,7 +40,15 @@
 
       <template v-slot:default>
         <div v-if="tab === 'list'">
-          <topic-item :item="topic" v-for="(topic, i) in topics" v-bind:key="i" class='p-2 border-bottom' />
+          <div v-if="!topics.length && q.length" class="p-3 mt-1">
+            <p class="text-center">
+              <em v-html="$t('label_topics_list_empty', { q })"/>
+            </p>
+            <p style="font-size: .9em" v-if="applyCurrentSearchFilters && countActiveFilters">
+              <span v-html="$t('label_uncheck_applyCurrentSearchFilters')"/>
+            </p>
+          </div>
+          <topic-item :item="topic" v-for="(topic, i) in topics" v-bind:key="i" class='p-3 border-bottom' />
         </div>
         <div v-else-if="!visualizedTopics.length" class="d-flex justify-content-center">
           <div class="p-3 mt-1">
@@ -49,7 +57,7 @@
           </div>
         </div>
         <div v-else>
-          <topic-item :item="topic" v-for="(topic, i) in visualizedTopics" v-bind:key="i" class='p-2 border-bottom' />
+          <topic-item :item="topic" v-for="(topic, i) in visualizedTopics" v-bind:key="i" class='p-3 border-bottom' />
         </div>
       </template>
     </list>
@@ -319,7 +327,10 @@ export default {
 {
   "en": {
     "label_list": "browse {total} topics",
+    "label_topics_list_empty": "There is no word in any topic containing <b>{q}</b>",
     "label_visualized_list": "0 visualized | <span style='color: blue'>1</span> visualized | <span style='color: blue'>{total}</span> visualized",
+    "label_uncheck_applyCurrentSearchFilters": "Try to uncheck the mention <em>[...]if matches current search</em>",
+    "label_applyCurrentSearchFilters": "filter list of topics if matches current search <br/>(<b>{countActiveFilters}</b> filters)",
     "order_by": "order by",
     "sort_name_asc": "Main word, A-Z",
     "sort_name_desc": "Main word, Z-A",
