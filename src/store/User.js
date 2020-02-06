@@ -33,6 +33,12 @@ export default {
         context.commit('CLEAR_USER');
       });
     },
+    GET_PROFILE() {
+      return services.me.find((profile) => {
+        console.info('user/GET_PROFILE', profile);
+        return profile
+      });
+    },
     LOGIN({ commit }, { email, password }) {
       return services.app.authenticate({
         strategy: 'local',
