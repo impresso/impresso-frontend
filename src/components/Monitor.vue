@@ -68,7 +68,7 @@
               </p>
           </div>
         </div>
-        <div v-if="monitor.isPending" v-html="$t('loading')" />
+        <div v-if="monitor.isPending" class="text-center m-3" v-html="$t('loading')" />
         <div v-else >
           <div class="text-center m-2">
             <b-button size="sm" class="mr-1" variant="outline-primary" @click="applyFilter('include')">{{ $t('actions.addToCurrentFilters') }}</b-button>
@@ -76,12 +76,14 @@
           </div>
 
           <!-- detailed label -->
-          <div v-if="['person', 'location'].indexOf(type) !== -1">
-            <wikidata-block :item="item" v-if="item.wikidataId" class="p-2"/>
-            <div class="m-2" v-else>{{ item }}</div>
-          </div>
-          <div v-else class="m-2" style="max-height: 150px; overflow: scroll">
-            <item-label :item="item" :type="type" detailed/>
+          <div class="mx-3">
+            <div v-if="['person', 'location'].indexOf(type) !== -1">
+              <wikidata-block :item="item" v-if="item.wikidataId" class="p-2"/>
+              <div class="m-2" v-else>{{ item }}</div>
+            </div>
+            <div v-else class="m-2" style="max-height: 150px; overflow: scroll">
+              <item-label :item="item" :type="type" detailed/>
+            </div>
           </div>
 
           <!-- button url  -->

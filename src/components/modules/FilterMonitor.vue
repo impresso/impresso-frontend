@@ -23,7 +23,7 @@
 
     <div v-else>
       <!--  context -->
-      <b-dropdown size="sm" variant="outline-primary">
+      <b-dropdown size="sm" variant="outline-primary" class="mr-1">
         <template slot="button-content">
           <span v-html="$t(`label.${type}.context.${filter.context}`)"/>
         </template>
