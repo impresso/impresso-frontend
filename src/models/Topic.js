@@ -74,28 +74,23 @@ export default class Topic {
   getHtmlExcerpt({
     token = null,
   } = {}) {
-    let ex = this.excerpt.map(wordMapper(token)).join(' · ');
     if (this.matches.length) {
-      // is first match in excerpt?
+      // highlight match in excerpt?
       const justwords = this.matches.join(' ').split(/<\/?em>|\s/).filter(d => d.length);
-
+      //
       for (let i=0, l=this.excerpt.length; i < l; i += 1) {
         if (this.excerpt[i].w === justwords[0]) {
-
-          const fullMatch = this.excerpt
+          return this.excerpt
             .slice(0, i)
             .map(d => d.w)
-            .concat(this.matches);
-          // console.info('getHtmlExcerpt', fullMatch);
-          if (fullMatch.length > 5) {
-            fullMatch.splice(5, 0, '<br/>');
-          }
-          return fullMatch.join(' · ');
+            .concat(this.matches)
+            .slice(0,5)
+            .join(' · ');
         }
       }
-      return `${ex} ... ${this.matches.join(' · ')}`;
     }
 
+    let ex = this.excerpt.map(wordMapper(token)).join(' · ');
     if (this.highlighted) {
       ex = `${ex} ... ${this.highlighted.map(wordMapper(token)).join(' · ')}`;
     }
