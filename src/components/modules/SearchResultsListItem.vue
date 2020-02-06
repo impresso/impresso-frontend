@@ -4,10 +4,10 @@
       v-if="isAvailable()"
       class="thumbnail bg-light border"
       slot="aside" >
-      <open-seadragon-viewer
-        v-bind:handler="handler"
-        v-b-visible="handleVisibilityChange">
-      </open-seadragon-viewer>
+      <lazy-open-seadragon-article-page-viewer
+        :viewerOptions="pageViewerOptions"
+        :overlays="pageViewerOverlays">
+      </lazy-open-seadragon-article-page-viewer>
     </div>
     <div
       v-else
@@ -64,20 +64,55 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import OpenSeadragonViewer from './OpenSeadragonViewer';
 import CollectionAddTo from './CollectionAddTo';
 import ArticleItem from './lists/ArticleItem';
+import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePageViewer'
+
+const RegionOverlayClass = 'overlay-region selected'
+const MatchOverlayClass = 'overlay-match'
 
 export default {
-  data: () => ({
-    handler: new Vue(),
-    isVisible: false, // by default the item is not visible in the browser viewport
-  }),
+  data: () => ({}),
   model: {
     prop: 'article',
   },
   props: ['article', 'checkbox', 'checked'],
+  computed: {
+    pageViewerOptions() {
+      return {
+        tileSources: [this.article.pages[0].iiif],
+        showNavigator: true,
+        navigatorAutoFade: false,
+        navigatorBackground: '#f8f9fa',
+        navigatorBottom: 0,
+        navigatorRight: 0,
+        navigatorSizeRatio: 0.25,
+        navigatorDisplayRegionColor: 'black',
+        navigatorBorderColor: '#dee2e6',
+        navigatorOpacity: 1,
+      }
+    },
+    pageViewerOverlays() {
+      if (!this.article.isCC) return
+      const { uid: firstPageUid } = this.article.pages[0]
+
+      const regionsOverlays = this.article.regions
+        .filter(({ pageUid }) => pageUid === firstPageUid)
+        .map(({ coords }) => {
+          const { x, y, w, h } = coords
+          return { x, y, w, h, class: RegionOverlayClass }
+        })
+
+      const matchesOverlays = this.article.matches
+        .filter(({ pageUid }) => pageUid === firstPageUid)
+        .map(({ coords }) => {
+          const [x, y, w, h] = coords
+          return { x, y, w, h, class: MatchOverlayClass }
+        })
+
+      return regionsOverlays.concat(matchesOverlays)
+    }
+  },
   methods: {
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
@@ -97,83 +132,18 @@ export default {
     click() {
       this.$emit('click');
     },
-    init() {
-      if (!this.isVisible || !this.article) return
-      const options = {
-        tileSources: [this.article.pages[0].iiif],
-        showNavigator: true,
-        navigatorAutoFade: false,
-        navigatorBackground: '#f8f9fa',
-        navigatorBottom: 0,
-        navigatorRight: 0,
-        navigatorSizeRatio: 0.25,
-        navigatorDisplayRegionColor: 'black',
-        navigatorBorderColor: '#dee2e6',
-        navigatorOpacity: 1,
-      };
-      this.handler.$emit('init', options);
-    },
     isAvailable() {
       if (this.article.issue.accessRights === 'OpenPublic') {
         return true;
       }
       return this.$store.state.user.userData;
-    },
-    handleVisibilityChange(isVisible) {
-      this.isVisible = isVisible
     }
   },
   components: {
-    OpenSeadragonViewer,
+    LazyOpenSeadragonArticlePageViewer,
     CollectionAddTo,
     ArticleItem,
-  },
-  mounted() {
-    this.handler.$on('tile-loaded', () => {
-      if (this.article.isCC) {
-        this.article.regions.forEach((region) => {
-          if (region.pageUid === this.article.pages[0].uid) {
-            if (region.coords.x) region.coords[0] = region.coords.x;
-            if (region.coords.y) region.coords[1] = region.coords.y;
-            if (region.coords.w) region.coords[2] = region.coords.w;
-            if (region.coords.h) region.coords[3] = region.coords.h;
-            const overlay = {
-              x: region.coords[0],
-              y: region.coords[1],
-              w: region.coords[2],
-              h: region.coords[3],
-              class: 'overlay-region selected',
-            };
-
-            this.handler.$emit('add-overlay', overlay);
-          }
-        });
-
-        this.article.matches.forEach((match) => {
-          if (match.pageUid === this.article.pages[0].uid) {
-            const overlay = {
-              x: match.coords[0],
-              y: match.coords[1],
-              w: match.coords[2],
-              h: match.coords[3],
-              class: 'overlay-match',
-            };
-
-            this.handler.$emit('add-overlay', overlay);
-          }
-        });
-
-        this.handler.$emit('fit-bounds-to-overlays');
-      }
-    });
-  },
-  watch: {
-    article() {
-      this.handler.$emit('destroy');
-      this.init()
-    },
-    isVisible() { this.init() }
-  },
+  }
 };
 </script>
 
