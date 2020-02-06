@@ -8,7 +8,7 @@
       </div>
     </template>
     <!-- </div> -->
-    <div class="items bg-light">
+    <div class="items bg-light" :class="{ 'with-pagination': !hidePagination }">
       <!-- main loop -->
       <slot></slot>
     </div>
@@ -61,6 +61,9 @@ export default {
 
 <style lang="scss">
   .items {
+    &.with-pagination{
+      margin-bottom: 3rem;
+    }
     .item.active {
       background: white;
       -webkit-box-shadow: inset 3px 0px #343a40, inset 0px 1px 0px #343a4063;
