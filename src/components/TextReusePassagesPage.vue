@@ -86,8 +86,14 @@ export default {
       this.$router.replace({ query: updatedQuery }).catch(() => {})
     },
     async executeSearch() {
+      const pageNumber = this.paginationCurrentPage - 1;
+
       [this.passageItems, this.paginationInfo] = await textReuseClusterPassages
-        .find({ query: { clusterId: this.clusterId }})
+        .find({ query: {
+          clusterId: this.clusterId,
+          skip: this.paginationPerPage * pageNumber,
+          limit: this.paginationPerPage
+        }})
         .then(({ passages, info }) => {
           return [
             passages.map(({ passage, newspaper, iiifUrls }) =>({
@@ -98,7 +104,6 @@ export default {
             info
           ]
         })
-      console.info(this.passageItems)
     }
   }
 }
