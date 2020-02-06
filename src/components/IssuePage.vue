@@ -127,7 +127,9 @@
                 <div v-else>{{$t('toggle_outlines_off')}}</div>
               </div>
             </b-button>
-            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
+            <b-button
+              @fullscreenchange="console.log('cccccccccccc')"
+              :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
               <div class="d-flex flex-row align-items-center">
                 <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
                 <div v-if="isFullscreen">{{$t('toggle_fullscreen_on')}}</div>

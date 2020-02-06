@@ -316,7 +316,7 @@ $clr-grey-900: #ddd;
 
 
 .tile {
-  .openseadragon-container {
+  .thumbnail .openseadragon-container {
     cursor: move;
   }
   .titleblock {

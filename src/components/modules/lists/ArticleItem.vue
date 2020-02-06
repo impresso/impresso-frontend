@@ -1,14 +1,14 @@
 <template lang="html">
   <article :class="{ reference : asReference }">
-    <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }">
-      <h2 v-if="item.title" class=" pr-4 article-title" v-html="item.title" />
-    </router-link>
+    <h2 v-if="showLink" class="pr-4 article-title">
+      <router-link :to="{ name: 'article', params: routerLinkParams }" v-html="item.title" />
+    </h2>
     <h2 v-else-if="item.title" class=" pr-4 article-title" v-html="item.title" />
     <div v-if="showMeta" class="article-meta">
       <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
         {{ item.newspaper.name}}
       </router-link>
-      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/><br/>
+      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/>&nbsp; &nbsp;
       <span class="date">{{ $d(item.date, "long") }}</span> &mdash;
       <span>{{ pages }}</span>
     </div>
