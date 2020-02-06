@@ -1,14 +1,16 @@
 <template lang="html">
   <div class="topic-item d-flex align-items-center">
     <div class="flex-grow-1">
-      <div class='badge small-caps'>{{item.language}}</div>
+      <div class='badge badge-language small-caps mr-1'>{{item.language}}</div>
       <router-link :to="{ name: 'topic', params: { topic_uid: item.uid }}" v-html="label" />
       <item-selector :uid="item.uid" :item="item" type="topic"/>
       <div class='small-caps'>{{item.model}}</div>
+      <div v-if="item.matches.length" class="small mr-2 mt-1 pl-2 topic-matches">
+        <span v-html="labelMatches" />
+      </div>
     </div>
     <div class="px-2" @click="toggleVisualized">
       <div class="topic-visualized" :class="{ active: visualized }"><div class="icon dripicons-preview" /></div>
-
     </div>
   </div>
 </template>
@@ -26,6 +28,10 @@ export default {
         n: this.$n(this.item.countItems),
       });
       return `${this.item.getHtmlExcerpt()} (${countlabel})`;
+    },
+    labelMatches() {
+      return this.item.matches.join(' · ');
+      // return this.item.matches.map(m => m.join(' · ')).join('<br>');
     },
     visualized() {
       return typeof this.$store.state.topics.visualizedItemsIndex[this.item.uid] != 'undefined';
@@ -47,6 +53,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.topic-matches{
+  border-left: 2px solid gold;
+}
 .topic-visualized{
   cursor: pointer;
   width:1.25rem;
