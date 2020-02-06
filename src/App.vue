@@ -316,6 +316,17 @@ $clr-grey-900: #ddd;
 
 
 .tile {
+  .openseadragon-container {
+    cursor: move;
+  }
+  .titleblock {
+    display:block;
+    &:hover {
+      text-decoration: none;
+      border-color: black !important;
+      background: transparentize($clr-accent-secondary, 0.4);
+    }
+  }
   div.overlay-region{
     background: $clr-accent-secondary;
     opacity: 0.25;
@@ -340,6 +351,9 @@ $clr-grey-900: #ddd;
   h2 {
     font-size: 1.2em;
     font-weight: 500;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
   .article-matches,
   .article-meta,

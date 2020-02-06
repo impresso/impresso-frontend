@@ -1,7 +1,9 @@
 <template lang="html">
-  <router-link :to="{ name: 'article', params: routerLinkParams }" class="titleblock article-meta p-2 border-top">
   <article :class="{ reference : asReference }">
-    <h2 v-if="item.title" class=" pr-4 article-title" v-html="item.title" />
+    <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }">
+      <h2 v-if="item.title" class=" pr-4 article-title" v-html="item.title" />
+    </router-link>
+    <h2 v-else-if="item.title" class=" pr-4 article-title" v-html="item.title" />
     <div v-if="showMeta" class="article-meta">
       <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
         {{ item.newspaper.name}}
@@ -67,7 +69,6 @@
     </div>
     <!-- {{ item.issue.accessRights }} -->
   </article>
-</router-link>
 </template>
 
 <script>
@@ -124,20 +125,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .titleblock {
-    display:block;
-    &:hover {
-      text-decoration: none;
-      border-color: black !important;
-    }
-  }
   .article-title {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    // display: block;
-    // background: red;
-    // max-height: 13.5em;
+    font-size: 1.2em;
   }
   .article-newspaper {
     font-weight: bold;

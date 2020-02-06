@@ -19,7 +19,11 @@
       slot="aside" >
       <p class="message">{{$t('login_message')}}</p>
     </div>
-    <article-item :item="article" show-meta class="p-2"/>
+    <router-link
+      class="titleblock article-meta p-2 border-top"
+      :to="{ name: 'article', params: routerLinkParams }">
+      <article-item :item="article" show-meta />
+    </router-link>
   </div>
 </template>
 
@@ -35,6 +39,18 @@ export default {
   computed: {
     isLoggedIn() {
       return this.$store.state.user.userData;
+    },
+    routerLinkParams() {
+      const params = {
+        article_uid: this.article.uid,
+        page_uid: this.article.pages[0].uid,
+      };
+      if (this.article.issue) {
+        params.issue_uid = this.article.issue.uid;
+      } else {
+        params.issue_uid = this.article.uid.match(/(^.+)-i/)[1];
+      }
+      return params;
     },
   },
   model: {

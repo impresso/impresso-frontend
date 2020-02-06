@@ -23,7 +23,11 @@
       class="thumbnail bg-dark clearfix">
       <p class="text-center small-caps text-light pt-4">{{ $t('iiif.missing') }}</p>
     </div>
-    <article-item :item="searchResult" show-meta class="p-2"/>
+    <router-link
+      class="titleblock article-meta p-2 border-top"
+      :to="{ name: 'article', params: routerLinkParams }">
+      <article-item :item="searchResult" show-meta />
+    </router-link>
   </div>
 </template>
 
@@ -39,6 +43,18 @@ export default {
   computed: {
     isLoggedIn() {
       return this.$store.state.user.userData;
+    },
+    routerLinkParams() {
+      const params = {
+        article_uid: this.searchResult.uid,
+        page_uid: this.searchResult.pages[0].uid,
+      };
+      if (this.searchResult.issue) {
+        params.issue_uid = this.searchResult.issue.uid;
+      } else {
+        params.issue_uid = this.searchResult.uid.match(/(^.+)-i/)[1];
+      }
+      return params;
     },
   },
   methods: {

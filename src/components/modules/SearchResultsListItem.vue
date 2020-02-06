@@ -48,6 +48,7 @@
         </router-link>
 
         <collection-add-to
+          class="ml-1"
           v-bind:item="article"
           v-bind:text="$t('add_to_collection')" />
       </div>
