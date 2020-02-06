@@ -5,7 +5,8 @@
       class="thumbnail bg-light border"
       slot="aside" >
       <open-seadragon-viewer
-        v-bind:handler="handler">
+        v-bind:handler="handler"
+        v-b-visible="handleVisibilityChange">
       </open-seadragon-viewer>
     </div>
     <div
@@ -71,6 +72,7 @@ import ArticleItem from './lists/ArticleItem';
 export default {
   data: () => ({
     handler: new Vue(),
+    isVisible: false, // by default the item is not visible in the browser viewport
   }),
   model: {
     prop: 'article',
@@ -96,6 +98,7 @@ export default {
       this.$emit('click');
     },
     init() {
+      if (!this.isVisible || !this.article) return
       const options = {
         tileSources: [this.article.pages[0].iiif],
         showNavigator: true,
@@ -108,7 +111,6 @@ export default {
         navigatorBorderColor: '#dee2e6',
         navigatorOpacity: 1,
       };
-
       this.handler.$emit('init', options);
     },
     isAvailable() {
@@ -117,6 +119,9 @@ export default {
       }
       return this.$store.state.user.userData;
     },
+    handleVisibilityChange(isVisible) {
+      this.isVisible = isVisible
+    }
   },
   components: {
     OpenSeadragonViewer,
@@ -124,8 +129,6 @@ export default {
     ArticleItem,
   },
   mounted() {
-    this.init();
-
     this.handler.$on('tile-loaded', () => {
       if (this.article.isCC) {
         this.article.regions.forEach((region) => {
@@ -165,12 +168,11 @@ export default {
     });
   },
   watch: {
-    article: {
-      handler() {
-        this.handler.$emit('destroy');
-        this.init();
-      },
+    article() {
+      this.handler.$emit('destroy');
+      this.init()
     },
+    isVisible() { this.init() }
   },
 };
 </script>
