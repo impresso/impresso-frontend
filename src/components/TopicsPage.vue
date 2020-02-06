@@ -1,35 +1,63 @@
 <template lang="html">
   <i-layout id="TopicsPage">
-    <list :pagination-list="paginationList" v-on:change-page="changePage">
+    <list :pagination-list="paginationList" width="350px" v-on:change-page="changePage" :hidePagination="this.tab === 'visualized'">
       <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item class="pl-2 active"
+
+            <b-nav-item class="pl-2"
+              :class="{ active: tab === 'list' }"
               active-class='none'
-              :to="{ name:'topics'}"><span v-html="$t('label_list', { total: $n(paginationList.totalRows) })"/></b-nav-item>
+              :to="goToQuery({ tab: 'list' })"><span v-html="$t('label_list', { total: $n(paginationList.totalRows) })"/></b-nav-item>
+            <b-nav-item class="pl-2"
+              :class="{ active: tab === 'visualized' }"
+              active-class='none'
+              :to="goToQuery({ tab: 'visualized' })"><span v-html="$tc('label_visualized_list', visualizedTopics.length, { total: $n(visualizedTopics.length) })"/></b-nav-item>
           </template>
         </b-tabs>
-        <div class='pb-2 px-3'>
-          <b-input placeholder="filter topics ..." v-model.trim="q" class="my-3"></b-input>
-          <label>{{ $t('select model') }}</label>
+        <div class='pb-2 px-3' v-if="tab === 'list'">
+          <b-form-input placeholder="filter topics ..." :value="q" v-on:change="changeQ" class="my-3"></b-form-input>
+          <b-form-checkbox v-if="countActiveFilters"
+            v-model="applyCurrentSearchFilters"
+          ><span v-html="$t('label_applyCurrentSearchFilters', { countActiveFilters })" /></b-form-checkbox>
+          <div v-else>
+            if you have a search filter, you can use this one to filter out stuff;
+          </div>
+          <!-- <label>{{ $t('select model') }}</label>
           <small><info-button name="how-topic" class="text-muted" /></small>
           <i-dropdown v-model="topicModel" v-bind:options="topicModelOptions" size="sm" variant="outline-primary"></i-dropdown>
-          <br/>
+          <br/> -->
           <!-- <label>{{ $t('order_by') }}</label> -->
           <!-- <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown> -->
-          <label>{{ $t('max_nodes') }}</label>
-          <i-dropdown v-model="limit" v-bind:options="limitOptions" size="sm" variant="outline-primary"></i-dropdown>
+          <!-- <label>{{ $t('max_nodes') }}</label> -->
+          <!-- <i-dropdown v-model="limit" v-bind:options="limitOptions" size="sm" variant="outline-primary"></i-dropdown> -->
+        </div>
+        <div class='pt-3 pb-2 px-3' v-else>
+          <label>{{ $t('order_by') }}</label>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
         </div>
       </template>
 
       <template v-slot:default>
-        <div>
-          <div class='topic item p-2 border-bottom' v-for="topic in topics" v-bind:key="topic.uid">
-            <div class='badge small-caps'>{{topic.language}}</div>
-            <router-link :to="{ name: 'topic', params: { topic_uid: topic.uid }}" v-html="topic.getHtmlExcerpt({ token: q })" />
-            <item-selector :uid="topic.uid" :item="topic" type="topic"/>
-            <div class='small-caps'>{{topic.model}}</div>
+        <div v-if="tab === 'list'">
+          <div v-if="!topics.length && q.length" class="p-3 mt-1">
+            <p class="text-center">
+              <em v-html="$t('label_topics_list_empty', { q })"/>
+            </p>
+            <p style="font-size: .9em" v-if="applyCurrentSearchFilters && countActiveFilters">
+              <span v-html="$t('label_uncheck_applyCurrentSearchFilters')"/>
+            </p>
           </div>
+          <topic-item :item="topic" v-for="(topic, i) in topics" v-bind:key="i" class='p-3 border-bottom' />
+        </div>
+        <div v-else-if="!visualizedTopics.length" class="d-flex justify-content-center">
+          <div class="p-3 mt-1">
+            <p class="text-center"><em>This panel will contain the list of visualized topics.</em></p>
+            <p style="font-size: .9em">To select the items to visualize, please go to the <router-link :to="{ name: $route.name }">browse topic</router-link> panel and check the corresponding checkbox</p>
+          </div>
+        </div>
+        <div v-else>
+          <topic-item :item="topic" v-for="(topic, i) in visualizedTopics" v-bind:key="i" class='p-3 border-bottom' />
         </div>
       </template>
     </list>
@@ -40,16 +68,40 @@
 
 <script>
 import List from './modules/lists/List';
-import ItemSelector from './modules/ItemSelector';
-import InfoButton from './base/InfoButton';
+// import InfoButton from './base/InfoButton';
+import TopicItem from './modules/lists/TopicItem';
+// import Helpers from '@/plugins/Helpers';
 
 export default {
   data: () => ({
     submitted: false,
     topicModels: [],
     q: '',
+    tab: 'list',
   }),
   computed: {
+    isLoading() {
+      return this.$store.state.topics.isLoading;
+    },
+    applyCurrentSearchFilters: {
+      get() {
+        return this.$store.state.topics.applyCurrentSearchFilters;
+      },
+      set(value) {
+        this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+        this.loadTopics();
+      },
+    },
+    searchQuery() {
+      return this.$store.getters['search/getSearch'];
+    },
+    countActiveFilters() {
+      return this.$store.getters['search/countActiveFilters'];
+    },
+    visualizedTopics() {
+      // list of visualized topics;
+      return this.$store.state.topics.visualizedItems;
+    },
     topics() {
       return this.$store.state.topics.items;
     },
@@ -125,44 +177,106 @@ export default {
 
   },
   methods: {
+    changeQ(value) {
+      // console.info('changeQ', value);
+      if (value.trim().length > 1) {
+        this.$router.push(this.goToQuery({ q: value.trim() }));
+      } else {
+        this.$router.push({
+          name:  this.$route.name,
+          params: this.$route.params,
+          query: {
+            tab: this.tab,
+          },
+        });
+      }
+    },
     changePage(page) {
-      return this.getTopics({
+      return this.loadTopics({
         page,
       });
     },
-    async getTopics({
+    goToQuery(query) {
+      return {
+        name:  this.$route.name,
+        params: this.$route.params,
+        query: {
+          ... this.$route.query,
+          ... query,
+        },
+      };
+    },
+    loadTopics({
       page = 1,
-      q = null,
       facets = 'topicmodel',
       filters = [],
     } = {}) {
-      const response = await this.$store.dispatch('topics/LOAD_TOPICS', {
+      const params = {
         limit: this.limit,
         page,
-        q,
         facets,
         filters,
-      });
-
-      if (response.info.facets && response.info.facets.topicmodel) {
-        this.topicModels = response.info.facets.topicmodel.buckets || [];
-      } else {
-        this.topicModels = [];
+      };
+      // add current search query filters if applicable.
+      if (this.applyCurrentSearchFilters && this.countActiveFilters) {
+        params.filters = params.filters.concat(this.searchQuery.getFilters());
       }
+      if (this.q && this.q.length > 1) {
+        params.q = this.q;
+      }
+      // console.info('loadTopics - filters:', params.filters, '- q:', params.q);
+      this.$store.dispatch('topics/LOAD_TOPICS', params).then((response) => {
+        if (response.info.facets && response.info.facets.topicmodel) {
+          this.topicModels = response.info.facets.topicmodel.buckets || [];
+        } else {
+          this.topicModels = [];
+        }
+      });
+    },
+    activateTab(t) {
+      // console.info('activateTab', t);
+      if(t === 'visualized') {
+        this.tab = 'visualized';
+      } else {
+        this.tab = 'list';
+      }
+    },
+    toggleVisualized(item, checked) {
+      if (checked) {
+        this.$store.dispatch('topics/ADD_VISUALIZED_ITEM', item)
+      } else {
+        this.$store.dispatch('topics/REMOVE_VISUALIZED_ITEM', item)
+      }
+    },
+    initQ(q) {
+      this.q = String(q || '').trim();
     },
   },
   mounted() {
-    this.getTopics();
+    // console.info('TopicsPage mounted.');
+    this.initQ(this.$route.query.q);
+    this.activateTab(this.$route.query.tab);
+    this.loadTopics();
   },
   watch: {
-    q: {
-      async handler(val) {
-        await this.getTopics({
-          page: 1,
-          q: val,
-        });
+    $route: {
+      handler({ query }) {
+        // console.info('TopicsPage @$route query:', query);
+        this.activateTab(query.tab);
+        this.initQ(query.q);
+        this.loadTopics();
       },
     },
+    // q: {
+    //   handler(val) {
+    //     Helpers.debounce(this.loadTopics(), 500);
+    //     //
+    //     // return this.loadTopics({
+    //     //   page: 1,
+    //     //   q: val,
+    //     // });
+    //   },
+    // },
     topicModel: {
       async handler() {
         const query = {
@@ -179,14 +293,14 @@ export default {
           ];
         }
         // console.info('query', query);
-        await this.getTopics(query);
+        await this.loadTopics(query);
       },
     },
   },
   components: {
     List,
-    ItemSelector,
-    InfoButton,
+    // InfoButton,
+    TopicItem,
   },
 };
 </script>
@@ -213,6 +327,10 @@ export default {
 {
   "en": {
     "label_list": "browse {total} topics",
+    "label_topics_list_empty": "There is no word in any topic containing <b>{q}</b>",
+    "label_visualized_list": "0 visualized | <span style='color: blue'>1</span> visualized | <span style='color: blue'>{total}</span> visualized",
+    "label_uncheck_applyCurrentSearchFilters": "Try to uncheck the mention <em>[...]if matches current search</em>",
+    "label_applyCurrentSearchFilters": "filter list of topics if matches current search <br/>(<b>{countActiveFilters}</b> filters)",
     "order_by": "order by",
     "sort_name_asc": "Main word, A-Z",
     "sort_name_desc": "Main word, Z-A",

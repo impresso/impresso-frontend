@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout-section width="300px">
+  <i-layout-section :width="width">
     <!-- <div slot="header" class="border-bottom border-tertiary bg-light"> -->
     <template v-slot:header>
       <!-- header -->
@@ -8,13 +8,13 @@
       </div>
     </template>
     <!-- </div> -->
-    <div class="items bg-light">
+    <div class="items bg-light" :class="{ 'with-pagination': !hidePagination }">
       <!-- main loop -->
       <slot></slot>
     </div>
     <!-- pagination! -->
     <template v-slot:footer>
-      <div class="fixed-pagination-footer p-1 m-0 mb-2">
+      <div class="fixed-pagination-footer p-1 m-0 mb-2" v-if="!hidePagination">
         <pagination
           v-bind:perPage="paginationList.perPage"
           v-bind:currentPage="paginationList.currentPage"
@@ -31,6 +31,11 @@ import Pagination from '../Pagination';
 
 export default {
   props: {
+    hidePagination: Boolean,
+    width: {
+      type: String,
+      default: '400px',
+    },
     items: {
       type: Array,
     },
@@ -56,6 +61,9 @@ export default {
 
 <style lang="scss">
   .items {
+    &.with-pagination{
+      margin-bottom: 3rem;
+    }
     .item.active {
       background: white;
       -webkit-box-shadow: inset 3px 0px #343a40, inset 0px 1px 0px #343a4063;
