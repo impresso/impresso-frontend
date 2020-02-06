@@ -25,12 +25,12 @@
            v-bind:key="index"
            class="mb-2 pb-1px page "
            v-bind:class="{activepage: pag.uid === selectedPageUid}">
-        <div class="p-3 d-block text-bold pagenumber"
+        <div class="d-block text-bold pagenumber"
         :ref="`page-${pag.uid}`" :data-id='pag.uid'>
-          {{$t('page')}} {{pag.num}}
+          <div class="p-3 border-bottom"><b>{{$t('page')}} {{pag.num}}</b></div>
           <b-media
             :ref="`article-${art.uid}`"
-            class="article "
+            class="article"
             v-for="(art, idx) in pag.articles"
             v-bind:key="idx"
             v-bind:class="{activepage: pag.uid === selectedPageUid, active: art.uid === selectedArticleUid}"
