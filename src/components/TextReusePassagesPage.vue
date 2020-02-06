@@ -1,11 +1,13 @@
 <template>
   <div>
-    <cluster-aspects-tab :passagesCount="passages.length"/>
+    <cluster-aspects-tab :passagesCount="passageItems.length"/>
     <section class="p-2">
       <passage-details-panel
-        v-for="passage in passages"
+        v-for="({ passage, newspaper, iiifUrls }) in passageItems"
         :key="passage.id"
         :passage="passage"
+        :newspaper="newspaper"
+        :iiif-url="iiifUrls[0]"
         class="p-2"/>
     </section>
     <div class="fixed-pagination-footer p-1 m-0"
@@ -32,7 +34,7 @@ const PageQueryParameter = 'passagePage'
 
 export default {
   data: () => ({
-    passages: [],
+    passageItems: [],
     paginationInfo: {
       limit: 20,
       offset: 0,
@@ -84,17 +86,19 @@ export default {
       this.$router.replace({ query: updatedQuery }).catch(() => {})
     },
     async executeSearch() {
-      [this.passages, this.paginationInfo] = await textReuseClusterPassages
+      [this.passageItems, this.paginationInfo] = await textReuseClusterPassages
         .find({ query: { clusterId: this.clusterId }})
         .then(({ passages, info }) => {
           return [
-            passages.map(passage =>({
-              ...passage,
-              newspaper: new Newspaper(passage.newspaper)
+            passages.map(({ passage, newspaper, iiifUrls }) =>({
+              passage,
+              newspaper: new Newspaper(newspaper),
+              iiifUrls
             })),
             info
           ]
         })
+      console.info(this.passageItems)
     }
   }
 }
