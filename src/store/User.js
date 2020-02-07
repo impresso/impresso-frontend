@@ -33,11 +33,11 @@ export default {
         context.commit('CLEAR_USER');
       });
     },
-    GET_PROFILE() {
-      return services.me.find((profile) => {
-        console.info('user/GET_PROFILE', profile);
-        return profile
-      });
+    GET_CURRENT_USER() {
+      return services.me.find().then(d => new User(d));
+    },
+    PATCH_CURRENT_USER() {
+      console.info('user/PATCH_CURRENT_USER placeholder');
     },
     LOGIN({ commit }, { email, password }) {
       return services.app.authenticate({
