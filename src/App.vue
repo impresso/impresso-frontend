@@ -373,6 +373,9 @@ $clr-grey-900: #ddd;
 .badge-info{
   background-color: #049dae;
 }
+.badge-language{
+  background-color: #e1e6ea;
+}
 // uncomment to add background to transparent footers
 // .fixed-pagination-footer::before{
 //   content: "";
