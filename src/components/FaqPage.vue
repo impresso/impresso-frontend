@@ -54,6 +54,7 @@ export default {
 <style lang="scss">
   img {
     max-width: 100%;
+    zoom: 50%;
   }
   .accordion-toggle {
     cursor: n-resize;
