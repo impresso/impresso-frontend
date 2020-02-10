@@ -6,7 +6,7 @@
           <div class="d-flex align-items-center my-5">
             <div class="colors-wrapper flex-shrink-1">
               <div v-if="user">
-                <div class="color" v-for="color in user.colors" v-bind:key="color" :style="getColorBandStyle(color)"></div>
+                <div class="color" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
               </div>
             </div>
             <div class="ml-4">
@@ -31,6 +31,7 @@
                 type="email"
                 required
                 placeholder="Enter email"
+                maxlength="30"
               ></b-form-input>
             </b-form-group>
 
@@ -41,8 +42,8 @@
                     id="firstname" name="firstname" autocomplete="firstname"
                     v-model="user.firstname"
                     required
-                    placeholder="Enter name"
-                  ></b-form-input>
+                    disabled
+                    maxlength="20"></b-form-input>
                 </b-form-group>
               </b-col>
               <b-col>
@@ -51,33 +52,38 @@
                     id="lastname" name="lastname" autocomplete="lastname"
                     v-model="user.lastname"
                     required
-                    placeholder="Enter name"
+                    disabled
+                    maxlength="20"
                   ></b-form-input>
                 </b-form-group>
               </b-col>
             </b-row>
 
-            <b-form-group id="input-group-4" :label="$t('form_pattern')" label-for="input-4">
-              <b-form-input
-                id="input-4"
-                v-model="patternAsText"
-                placeholder="Enter name"
-              ></b-form-input>
-            </b-form-group>
-
-
-            <b-form-group id="input-group-4" :label="$t('form_displayname')" label-for="input-4">
+            <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="input-4">
               <b-form-input
                 id="input-4"
                 v-model="user.displayName"
-                placeholder="Enter name"
-              ></b-form-input>
-              <slot name="description">
-                <span v-html="$t('form_displayname_description')"/>
-              </slot>
+                placeholder="User Type"
+                maxlength="20"></b-form-input>
             </b-form-group>
 
-            <b-button size="sm" type='submit' variant="outline-primary">Small Button</b-button>
+            <b-input-group id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="mb-4">
+              <b-form-input
+                id="pattern"
+                v-model="patternAsText"
+                maxlength="70"
+                placeholder="Enter color codes">
+              </b-form-input>
+              <b-input-group-append>
+                <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
+                <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
+                  {{$t('actions.generatePattern')}}
+                </b-button>
+              </b-input-group-append>
+            </b-input-group>
+
+            <b-button size="sm" type='submit' variant="outline-primary">{{$t('actions.updateUserData')}}</b-button>
+            <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
           </b-form>
         </b-col>
       </b-row>
@@ -92,25 +98,25 @@
                 id="current-password" name="current-password"
                 v-model="oldPassword"
                 placeholder="(current password)"
+                type="password"
               ></b-form-input>
-              <slot name="description">
-                <p class="description pt-2 small" v-html="$t('form_oldpassword_description')"/>
-              </slot>
             </b-form-group><!-- current password -->
             <!-- new password -->
-            <b-form-group id="input-group-changepwd-2" :label="$t('form_pattern')" label-for="password">
+            <b-form-group id="input-group-changepwd-2" :label="$t('form_newpassword')" label-for="password">
               <b-form-input
                 id="password" name="password"
                 v-model="newPassword"
                 placeholder="(new password)"
+                type="password"
               ></b-form-input>
             </b-form-group>
 
-            <b-form-group id="input-group-changepwd-3" :label="$t('form_pattern')" label-for="repeat-password">
+            <b-form-group id="input-group-changepwd-3" :label="$t('form_newpassword_repeat')" label-for="repeat-password">
               <b-form-input
                 id="repeat-password" name="repeat-password"
                 v-model="repeatPassword"
                 placeholder="(repeat new password)"
+                type="password"
               ></b-form-input>
             </b-form-group><!-- new password -->
 
@@ -123,12 +129,21 @@
 </template>
 
 <script>
+// import Vuelidate from 'vuelidate';
+
 export default {
   data: () => ({
     user: Object,
     oldPassword: '',
     newPassword: '',
     repeatPassword: '',
+    palettes:
+    [
+      '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
+      '#a9bdc8', '#677e96', '#4a9bb1', '#ccd6e6', '#4f615b', '#3d95a6', '#d3deec', '#3c4b54',
+      '#3e8696', '#dce5f4', '#45535f', '#4a818a', '#b2bdcc', '#2e4051', '#62797d'
+    ],
+    numColors: 5,
   }),
   methods: {
     onSubmitChangePassword() {
@@ -138,6 +153,23 @@ export default {
       console.info('UserPage.onSubmit()');
       // to be checked for validity...
       this.$store.dispatch('user/PATCH_CURRENT_USER', this.user);
+    },
+    confirmDelete() {
+      this.$bvModal.msgBoxConfirm(this.$t('Are you sure you want to permanently delete your profile?'))
+        .then((ok) => {
+          if (ok) {
+            this.$store.dispatch('user/REMOVE_CURRENT_USER', this.user);
+          }
+        });
+    },
+    onGeneratePattern() {
+      this.user.colors = [];
+      // let palette = Math.floor(Math.random()*this.palettes.length);
+      for (let i = 0; i < this.numColors; i ++) {
+        const mycolor = this.palettes[Math.floor(Math.random()*this.palettes.length)];
+        this.user.colors.push(mycolor);
+      }
+      this.user.pattern = this.user.colors;
     },
     getColorBandStyle(color) {
       const width = this.user.colors.length ? `${(100 / this.user.colors.length)}%` : '0%';
@@ -163,6 +195,7 @@ export default {
   async mounted() {
     this.user = await this.$store.dispatch('user/GET_CURRENT_USER');
     console.info('UserPage mounted.',  this.user);
+    if (this.user && this.user.pattern.length === 0) this.onGeneratePattern();
   },
 };
 </script>
@@ -199,8 +232,13 @@ export default {
   "en": {
     "form_firstname": "First name",
     "form_lastname": "Last name",
+    "form_pattern": "Pattern",
     "form_displayname": "User label",
-    "form_displayname_description": "User label"
+    "form_displayname_description": "User label",
+    "form_change_password": "Change Password",
+    "form_oldpassword": "Current Password",
+    "form_newpassword": "New Password",
+    "form_newpassword_repeat": "Repeat New Password"
   }
 }
 </i18n>
