@@ -68,7 +68,8 @@ export default {
       limit: 20,
       offset: 0,
       total: 0
-    }
+    },
+    selectedCluster: undefined
   }),
   props: {
     paginationPerPage: {
@@ -99,26 +100,17 @@ export default {
       this.$router.replace({ params, query: updatedQuery }).catch(() => {})
     },
     async executeSearch() {
-      const pageNumber = this.paginationCurrentPage - 1
+      const pageNumber = this.paginationCurrentPage - 1;
 
-      if (!this.searchText) {
-	this.clusterItems = []
-	this.searchInfo = {
-	  limit: this.paginationPerPage,
-	  offset: 0,
-	  total: 0
-	}
-      } else {
-	[this.clusterItems, this.searchInfo] = await textReuseClusters
-	  .find({ query: {
-	    text: this.searchText,
-	    skip: this.paginationPerPage * pageNumber,
-	    limit: this.paginationPerPage
-	  }})
-	  .then(result => {
-	    return [result.clusters, result.info]
-	  })
-      }
+      [this.clusterItems, this.searchInfo] = await textReuseClusters
+	.find({ query: {
+	  text: this.searchText,
+	  skip: this.paginationPerPage * pageNumber,
+	  limit: this.paginationPerPage
+	}})
+	.then(result => {
+	  return [result.clusters, result.info]
+	})
     },
     isLastItem
   },
@@ -136,11 +128,6 @@ export default {
     paginationTotalRows() {
       const { total } = this.searchInfo
       return total
-    },
-    selectedCluster() {
-      const filteredClusters = this.clusterItems
-	.filter(({ cluster }) => cluster.id === this.selectedClusterId)
-      return filteredClusters.length > 0 ? filteredClusters[0].cluster : undefined
     }
   },
   watch: {
@@ -153,6 +140,16 @@ export default {
     paginationCurrentPage: {
       async handler() {
 	return this.executeSearch()
+      }
+    },
+    selectedClusterId: {
+      async handler() {
+	const filteredClusters = this.clusterItems
+	  .filter(({ cluster }) => cluster.id === this.selectedClusterId)
+	if (filteredClusters.length > 0) this.selectedCluster = filteredClusters[0]
+
+	this.selectedCluster = await textReuseClusters.get(this.selectedClusterId)
+	  .then(({ cluster }) => cluster)
       },
       immediate: true
     }
