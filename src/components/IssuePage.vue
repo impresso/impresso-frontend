@@ -45,127 +45,126 @@
             </div>
           </div>
         </div>
-        <!--  ToC -->
-        <table-of-contents v-if="!isTabSearch && isTocReady"
-          :tableOfContents="issue"
-          :page="page"
-          :article="article"
-          :articles="matchingArticles"
-          v-on:click="gotoArticle" />
+      </div>
+      <!--  ToC -->
+      <table-of-contents v-if="!isTabSearch && isTocReady"
+        :tableOfContents="issue"
+        :page="page"
+        :article="article"
+        :articles="matchingArticles"
+        v-on:click="gotoArticle" />
 
-        <table-of-contents v-if="isTabSearch && isTocReady"
-          :tableOfContents="issue"
-          :page="page"
-          :article="article"
-          :articles="matchingArticles"
-          flatten
-          v-on:click="gotoArticle" />
+      <table-of-contents v-if="isTabSearch && isTocReady"
+        :tableOfContents="issue"
+        :page="page"
+        :article="article"
+        :articles="matchingArticles"
+        flatten
+        v-on:click="gotoArticle" />
 
-        <div class="fixed-pagination-footer p-1 m-0 mb-2" v-if="isTabSearch">
-          <pagination
-            v-bind:currentPage="matchesCurrentPage"
-            v-bind:perPage="matchesPerPage"
-            v-bind:totalRows="matchesTotalRows"
-            v-bind:showDescription="false"
-            v-on:change="onInputPagination"
-             />
-        </div>
-      </i-layout-section>
-      <!--  page openseadragon or article -->
-      <i-layout-section main>
-        <div slot="header" class="border-bottom">
-          <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
-            <section class='p-2 pl-3'>
-              <h3 v-if="issue" class="m-0">{{ issue.newspaper.name }} &mdash;
-                <span class="date small">
-                {{ $d(issue.date, 'long') }}
-                </span>
-              </h3>
-            </section>
-            <b-navbar-nav v-if="issue" class=" border">
-              <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
-              <b-button variant="light" size="sm"
-                v-bind:disabled="currentPageIndex === 0"
-                v-on:click="gotoPageIndex(currentPageIndex - 1)">
-                <div class="dripicons dripicons-media-previous pt-1"></div>
-              </b-button>
-              <div v-if="page" class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
-              <b-button variant="light" size="sm"
-                v-bind:disabled="(currentPageIndex + 1) === issue.pages.length"
-                v-on:click="gotoPageIndex(currentPageIndex + 1)">
-                <div class="dripicons dripicons-media-next pt-1"></div>
-              </b-button>
-            </b-navbar-nav>
-          </b-navbar>
-          <b-navbar type="light" variant="light" class="px-0 py-0">
-            <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
-              <div v-if="article">
-                <span class="badge bg-accent-secondary text-clr-white">{{ $t(`buckets.type.${article.type}`) }}</span>
-                <span class="badge">
-                  <span class='small-caps' id='selected-article-language'>{{ article.language }}</span> |
-                  <span>{{ articlePages }}</span>
-                  <b-tooltip target="selected-article-language" :title="$t(`buckets.language.${article.language}`)"></b-tooltip>
-                </span>
+      <div class="fixed-pagination-footer p-1 m-0 mb-2" v-if="isTabSearch">
+        <pagination
+          v-bind:currentPage="matchesCurrentPage"
+          v-bind:perPage="matchesPerPage"
+          v-bind:totalRows="matchesTotalRows"
+          v-bind:showDescription="false"
+          v-on:change="onInputPagination"
+           />
+      </div>
+    </i-layout-section>
+    <!--  page openseadragon or article -->
+    <i-layout-section main>
+      <div slot="header" class="border-bottom">
+        <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+          <section class='p-2 pl-3'>
+            <h3 v-if="issue" class="m-0">{{ issue.newspaper.name }} &mdash;
+              <span class="date small">
+              {{ $d(issue.date, 'long') }}
+              </span>
+            </h3>
+          </section>
+          <b-navbar-nav v-if="issue" class=" border">
+            <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
+            <b-button variant="light" size="sm"
+              v-bind:disabled="currentPageIndex === 0"
+              v-on:click="gotoPageIndex(currentPageIndex - 1)">
+              <div class="dripicons dripicons-media-previous pt-1"></div>
+            </b-button>
+            <div v-if="page" class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
+            <b-button variant="light" size="sm"
+              v-bind:disabled="(currentPageIndex + 1) === issue.pages.length"
+              v-on:click="gotoPageIndex(currentPageIndex + 1)">
+              <div class="dripicons dripicons-media-next pt-1"></div>
+            </b-button>
+          </b-navbar-nav>
+        </b-navbar>
+        <b-navbar type="light" variant="light" class="px-0 py-0">
+          <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
+            <div v-if="article">
+              <span class="badge bg-accent-secondary text-clr-white">{{ $t(`buckets.type.${article.type}`) }}</span>
+              <span class="badge">
+                <span class='small-caps' id='selected-article-language'>{{ article.language }}</span> |
+                <span>{{ articlePages }}</span>
+                <b-tooltip target="selected-article-language" :title="$t(`buckets.language.${article.language}`)"></b-tooltip>
+              </span>
+            </div>
+          </b-navbar-nav>
+          <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
+            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="image">{{ $t('facsimileView') }}&nbsp;<icon name="image"/></b-form-radio>
+              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/>&nbsp;{{ $t('closeReadingView') }}</b-form-radio>
+            </b-form-radio-group>
+            <small>
+              <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
+            </small>
+          </b-navbar-nav>
+
+          <b-navbar-nav v-show="mode === 'image'" class="py-2 px-3">
+            <b-button
+              :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
+              @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
+              <div class="d-flex flex-row align-items-center">
+                <div class="d-flex dripicons dripicons-preview mr-2" />
+                <div v-if="showOutlines">{{$t('toggle_outlines_on')}}</div>
+                <div v-else>{{$t('toggle_outlines_off')}}</div>
               </div>
-            </b-navbar-nav>
-            <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
-              <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="image">{{ $t('facsimileView') }}&nbsp;<icon name="image"/></b-form-radio>
-                <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/>&nbsp;{{ $t('closeReadingView') }}</b-form-radio>
-              </b-form-radio-group>
-              <small>
-                <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
-              </small>
-            </b-navbar-nav>
-
-            <b-navbar-nav v-show="mode === 'image'" class="py-2 px-3">
-              <b-button
-                :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
-                @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
-                <div class="d-flex flex-row align-items-center">
-                  <div class="d-flex dripicons dripicons-preview mr-2" />
-                  <div v-if="showOutlines">{{$t('toggle_outlines_on')}}</div>
-                  <div v-else>{{$t('toggle_outlines_off')}}</div>
-                </div>
-              </b-button>
-              <b-button
-                :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
-                <div class="d-flex flex-row align-items-center">
-                  <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
-                  <div v-if="isFullscreen">{{$t('toggle_fullscreen_on')}}</div>
-                  <div v-else>{{$t('toggle_fullscreen_off')}}</div>
-                </div>
-              </b-button>
-            </b-navbar-nav>
-         </b-navbar>
+            </b-button>
+            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
+              <div class="d-flex flex-row align-items-center">
+                <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
+                <div v-if="isFullscreen">{{$t('toggle_fullscreen_on')}}</div>
+                <div v-else>{{$t('toggle_fullscreen_off')}}</div>
+              </div>
+            </b-button>
+          </b-navbar-nav>
+       </b-navbar>
+      </div>
+      <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
+        <div class="align-self-center">
+          This content is available to logged-in people only.
+          <br/>
+          <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
         </div>
-        <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
-          <div class="align-self-center">
-            This content is available to logged-in people only.
-            <br/>
-            <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
-          </div>
-        </div>
-        <open-seadragon-viewer
-          :class="[
-            'bg-light',
-            showOutlines,
-          ]"
-          v-show="isContentAvailable && mode === 'image'"
-          v-bind:handler="handler" />
-        <issue-viewer-text v-if="article && article.uid && mode === 'text'"
-          v-bind:article_uid="article.uid"/>
-      </i-layout-section>
-      <i-layout-section width="120px" class="border-left" v-if="issue">
-        <thumbnail-slider
-          :bounds="bounds"
-          :issue="issue"
-          @click="gotoPage"
-          :displayMode="mode"
-          :page="page" />
-      </i-layout-section>
-    </i-layout>
-  </div>
+      </div>
+      <open-seadragon-viewer
+        :class="[
+          'bg-light',
+          showOutlines,
+        ]"
+        v-show="isContentAvailable && mode === 'image'"
+        v-bind:handler="handler" />
+      <issue-viewer-text v-if="article && article.uid && mode === 'text'"
+        v-bind:article_uid="article.uid"/>
+    </i-layout-section>
+    <i-layout-section width="120px" class="border-left" v-if="issue">
+      <thumbnail-slider
+        :bounds="bounds"
+        :issue="issue"
+        @click="gotoPage"
+        :displayMode="mode"
+        :page="page" />
+    </i-layout-section>
+  </i-layout>
 </template>
 
 <script>

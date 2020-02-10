@@ -117,7 +117,7 @@
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
             <b-dropdown-item
               target="_blank"
-              href="https://impresso-community.slack.com/join/shared_invite/enQtNTg5MzY2NDg2NTAyLWJkNWI5ZTU3ZGI1ZGE1YTg2YmViOWQ1OWMyYTRkMDY1OGM0MWUwNGQzYjYxYTA4ZGU0YzBjMGU4ZmQxNmY5Njc">
+              href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ">
               <icon name="slack"/>
               <span v-html="$t('join_slack_channel')"></span>
             </b-dropdown-item>
@@ -127,17 +127,20 @@
           <b-nav-item class="small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
-    <b-alert :show="showAlert" dismissible v-html="''" variant="warning" class="m-0 px-3">
-      <div v-for="(error, idx) in alertMessage" v-bind:key="idx">
+    <b-alert :show="showAlert" dismissible variant="warning" class="m-0 px-3">
+      <div v-for="(error, idx) in errorMessages" v-bind:key="idx">
         <span>
           <span v-if="error.name === 'NotAuthenticated'">{{ $t('errors.Notauthenticated') }}</span>
           <span v-else-if="error.name === 'BadGateway'">{{ $t(`errors.BadGateway.${error.message}`) }}</span>
           <span v-else-if="error.name === 'TypeError'">{{ $t(`errors.TypeError`) }} {{ error.message }}</span>
           <span v-else-if="error.name === 'Timeout'">{{ $t(`errors.Timeout`) }} {{ error.message }}</span>
-          <span v-else-if="error.name === 'BadRequest' && error.message === 'Login incorrect'">{{ $t(`errors.BadRequest`) }} {{ error.message }}</span>
+          <span v-else-if="error.name === 'BadRequest'">
+              {{ $t(`errors.BadRequest`) }}
+              <span v-if="error.message === 'Login incorrect'">{{ error.message }}</span>
+          </span>
           <span v-else>{{ error }}</span>
         </span>
-        <span v-if="error.route.length">{{ $t(['paths', ...error.route].join('.')) }}</span>
+        <span v-if="error.route.length">&nbsp;{{ $t(['paths', ...error.route].join('.')) }}</span>
       </div>
     </b-alert>
   </div>
@@ -223,7 +226,7 @@ export default {
     showAlert() {
       return this.$store.state.errorMessages.length > 0;
     },
-    alertMessage() {
+    errorMessages() {
       return this.$store.state.errorMessages;
     },
     processingStatus() {

@@ -19,6 +19,8 @@ export default {
   mounted() {
     if (this.handler) {
       this.handler.$on('init', (options = {}) => {
+        if (this.viewer) return
+
         this.viewer = OpenSeadragon({
           immediateRender: true,
           element: this.$el,
