@@ -2,7 +2,7 @@
   <main id="UserDashboard">
     <b-container>
       <b-row>
-        <b-col>
+        <b-col md="6" offset-md="3">
           <div class="d-flex align-items-center my-5">
             <div class="colors-wrapper flex-shrink-1">
               <div v-if="user">
@@ -82,7 +82,7 @@
               </b-input-group-append>
             </b-input-group>
 
-            <b-button size="sm" type='submit' variant="outline-primary">{{$t('actions.updateUserData')}}</b-button>
+            <b-button size="sm" type='submit' variant="outline-primary">{{$t('actions.applyChanges')}}</b-button>
             <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
           </b-form>
         </b-col>
@@ -90,7 +90,7 @@
 
       <h2 class="border-bottom mt-5 mb-3 pb-3">{{ $t('form_change_password') }}</h2>
       <b-row class="mb-5">
-        <b-col>
+        <b-col md="6" offset-md="3">
           <b-form @submit.prevent="onSubmitChangePassword">
             <!-- current password -->
             <b-form-group id="input-group-changepwd-1" :label="$t('form_oldpassword')" label-for="current-password">
@@ -120,7 +120,7 @@
               ></b-form-input>
             </b-form-group><!-- new password -->
 
-            <b-button size="sm" type='submit' variant="outline-primary">{{ $t('actions.changePassword') }}</b-button>
+            <b-button size="sm" type='submit' variant="outline-primary">{{ $t('actions.applyChanges') }}</b-button>
           </b-form>
         </b-col>
       </b-row>
