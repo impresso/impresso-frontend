@@ -77,6 +77,7 @@ export default {
       login: 'log in',
       generatePattern: 'Generate Pattern',
       requestNewPassword: 'Request New Password',
+      requestAccount: 'Request User Account',
     },
     filters: {
       daterange: {
