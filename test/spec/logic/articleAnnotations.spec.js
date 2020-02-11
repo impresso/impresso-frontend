@@ -3,11 +3,23 @@ import assert from 'assert';
 
 import {
   getNamedEntitiesFromArticleResponse,
-  getAnnotateTextTree,
-  DefaultAnnotationConfiguration
+  getAnnotateTextTree
 } from '../../../src/logic/articleAnnotations';
 
-const TestAnnotationConfiguration = Object.assign({}, DefaultAnnotationConfiguration, {
+
+const TestAnnotationConfiguration = Object.freeze({
+  line: {
+    start: () => '<p class="line">',
+    end: () => '</p>'
+  },
+  region: {
+    start: () => '<div class="region">',
+    end: () => '</div>'
+  },
+  passage: {
+    start: (entity, isContinuation) => `<span class="tr-passage ${isContinuation ? ' continuation' : ''}" ${entity.id ? `data-id="${entity.id}"` : ''}>`,
+    end: () => '</span>'
+  },
   namedEntity: {
     start: (entity, isContinuation) => `<span class="entity ${entity.type}${isContinuation ? ' continuation' : ''}">`,
     end: () => '</span>'

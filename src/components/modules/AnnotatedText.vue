@@ -28,7 +28,7 @@ const getDataId = item => item.entity.id != null ? item.entity.id : undefined
 const flattenChildrenDeep = children => children.flatMap(child => (Array.isArray(child.children) && child.children.length) > 0 ? [child].concat(flattenChildrenDeep(child.children)) : child)
 
 
-const getStartingAndFinishingPassages = item => {
+const getBorderlinePassages = item => {
   const passages = flattenChildrenDeep(item.children)
     .filter(child => child.entity && child.entity.kind === 'passage')
   const startingPassages = passages
@@ -36,50 +36,85 @@ const getStartingAndFinishingPassages = item => {
   const finishingPassages = passages
     .filter(({ isLast }) => isLast)
 
-  return { startingPassages, finishingPassages }
+  return startingPassages.concat(finishingPassages)
 }
 
-const TagColourPalette = [
-  '#b7effb',
-  '#c7f2cc',
-  '#e3c6f0',
-  '#fdd0e4',
-  '#baf6ff'
-]
+const getClusterTagStyle = (entity, colourMap) => {
+  const backgroundColor = colourMap[entity.clusterId]
+  return { backgroundColor }
+}
 
-const getColour = (/*entity*/) => {
-  const index = Math.floor(Math.random() * TagColourPalette.length)
-  return TagColourPalette[index]
+const StartPassageTag = 'S'
+const EndPassageTag = 'E'
+
+const getPassageTag = isLast => isLast ? EndPassageTag : StartPassageTag
+
+const renderChildren = (h, context, child) => (
+  <annotated-text
+    children={child.children}
+    cluster-colours={context.props.clusterColours}
+    selected-cluster-id={context.props.selectedClusterId}/>
+)
+
+const renderClusterTags = (h, context, child) => {
+  if (child.entity.kind !== 'line') return ''
+
+  const { onClusterSelected = (() => ({})) } = context.listeners
+
+  return getBorderlinePassages(child).map(({ entity, isLast }) => (
+    <span
+      class="cluster-tag m-1"
+      style={getClusterTagStyle(entity, context.props.clusterColours)}
+      onClick={() => onClusterSelected(entity.clusterId)}>
+      {getPassageTag(isLast)}
+    </span>
+  ))
 }
 
 export default {
   name: 'annotated-text',
   functional: true,
   props: {
-    children: Array
+    children: Array,
+    clusterColours: {
+      type: Object,
+      default: () => ({})
+    },
+    selectedClusterId: String
   },
   render (h, context) {
     return (context.props.children || []).map(child => {
       if (typeof child === 'string') return child
 
+      // if (context.props.selectedClusterId) console.info('***', context.props.selectedClusterId)
+      // if (child.entity.clusterId !== undefined) console.info('***>', context, child.entity.clusterId)
+
+      if (child.entity.kind === 'passage' && child.entity.clusterId !== context.props.selectedClusterId) {
+        return [
+          renderChildren(h, context, child),
+          renderClusterTags(h, context, child)
+        ]
+      }
+
       const Tag = getItemTag(child)
-      const isLine = false // WIP
-      // const isLine = child.entity.kind === 'line'
-
-      const { startingPassages, finishingPassages } = getStartingAndFinishingPassages(child)
-
       return (
         <Tag class={getItemClasses(child)} data-id={getDataId(child)}>
-          <annotated-text children={child.children}/>
-          {
-            isLine ? startingPassages.map(({ entity }) => <span style={`color: ${getColour(entity)}`}>&rarr;</span>) : ''
-          }
-          {
-            isLine ? finishingPassages.map(({ entity }) => <span style={`color: ${getColour(entity)}`}>&larr;</span>) : ''
-          }
+          {renderChildren(h, context, child)}
+          {renderClusterTags(h, context, child)}
         </Tag>
       )
     })
   }
 }
 </script>
+
+<style lang="scss" scoped>
+  .cluster-tag {
+    font-weight: bold;
+    width: 1em;
+    display: inline-block;
+    text-align: center;
+    color: #333;
+    cursor: pointer;
+  }
+</style>

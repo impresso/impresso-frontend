@@ -36,7 +36,11 @@
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
                 <div class='region py-3'>
-                  <annotated-text :children="regionsAnnotationTree[i].children" />
+                  <annotated-text
+                    :children="regionsAnnotationTree[i].children"
+                    :cluster-colours="clusterColourMap"
+                    :selected-cluster-id="selectedClusterId"
+                    @onClusterSelected="clusterSelectedHandler"/>
                 </div>
               </div>
             </b-row>
@@ -70,6 +74,7 @@
 </template>
 
 <script>
+import { schemeSet3 as colourScheme } from 'd3'
 import Icon from 'vue-awesome/components/Icon';
 import { articlesSuggestions, articleTextReusePassages } from '@/services';
 import CollectionAddTo from './CollectionAddTo';
@@ -92,6 +97,7 @@ export default {
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: undefined,
       viewerTopOffset: 0,
+      selectedClusterId: undefined // TODO: move to query parameters
     };
   },
   updated() {
@@ -120,6 +126,13 @@ export default {
     },
     hasValidRegions() {
       return !!this.article.regions.filter(({ isEmpty }) => !isEmpty).length;
+    },
+    clusterColourMap() {
+      const clusterIds = [...new Set(this.textReusePassages.map(({ clusterId }) => clusterId))]
+      return clusterIds.reduce((map, id, idx) => {
+        map[id] = colourScheme[idx]
+        return map
+      }, {})
     },
     regionsAnnotationTree() {
       if (!this.article) return [];
@@ -199,6 +212,10 @@ export default {
     },
     passageClickHandler() {
       console.info(`Passage ${this.selectedPassageId} clicked. ${Math.random()}`)
+    },
+    clusterSelectedHandler(clusterId) {
+      console.info('Cluster selected', clusterId, typeof clusterId)
+      this.selectedClusterId = clusterId
     }
   },
   watch: {

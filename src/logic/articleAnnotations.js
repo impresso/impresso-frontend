@@ -41,6 +41,7 @@ export function getNamedEntitiesFromArticleResponse(response) {
 export function passageToPassageEntity(passage) {
   return {
     id: passage.id,
+    clusterId: passage.clusterId,
     kind: 'passage',
     type: 'passage',
     offset: { start: passage.offsetStart, end: passage.offsetEnd }
@@ -74,25 +75,6 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     .concat(lineEntities)
     .concat(regionEntities)
 }
-
-export const DefaultAnnotationConfiguration = Object.freeze({
-  line: {
-    start: () => '<p class="line">',
-    end: () => '</p>'
-  },
-  region: {
-    start: () => '<div class="region">',
-    end: () => '</div>'
-  },
-  namedEntity: {
-    start: (entity, isContinuation) => `<span class="entity ${entity.type}${isContinuation ? ' continuation' : ''}" ${entity.id ? `data-id="${entity.id}"` : ''}>`,
-    end: () => '</span>'
-  },
-  passage: {
-    start: (entity, isContinuation) => `<span class="tr-passage ${isContinuation ? ' continuation' : ''}" ${entity.id ? `data-id="${entity.id}"` : ''}>`,
-    end: () => '</span>'
-  }
-})
 
 const withTextParts = (item, text, [boundaryStart, boundaryEnd] = []) => {
   let [itemStartOffset, itemEndOffset] = item.entity != null
