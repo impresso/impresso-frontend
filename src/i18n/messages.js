@@ -76,6 +76,7 @@ export default {
       select_collection: 'Select a collection',
       login: 'log in',
       generatePattern: 'Generate Pattern',
+      requestNewPassword: 'Request New Password',
     },
     filters: {
       daterange: {

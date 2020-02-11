@@ -18,110 +18,138 @@
               </div>
             </div>
           </div>
-          <b-form @submit.prevent="onSubmit" v-if="user.uid">
-            <b-form-group
-              id="input-group-1"
-              label="Email address:"
-              label-for="email"
-              description="We'll never share your email with anyone else."
-            >
-              <b-form-input
-                id="email" name="email" autocomplete="home email"
-                v-model="user.email"
-                type="email"
-                required
-                placeholder="Enter email"
-                maxlength="30"
-              ></b-form-input>
-            </b-form-group>
 
-            <b-row>
-              <b-col>
-                <b-form-group id="input-group-2" :label="$t('form_firstname')" label-for="firstname">
+          <ValidationObserver v-slot="{ invalid }">
+
+            <b-form @submit.prevent="onSubmit" v-if="user.uid">
+
+              <b-form-group label="User Name">
+                <b-form-input id="username" name="username" disabled v-model="user.username" />
+              </b-form-group>
+
+              <validation-provider name="email" rules="required|email" v-slot="{ errors }">
+                <b-form-group
+                  id="input-group-1"
+                  label="Email address"
+                  label-for="email"
+                  :description="errors[0]">
                   <b-form-input
-                    id="firstname" name="firstname" autocomplete="firstname"
-                    v-model="user.firstname"
-                    required
-                    disabled
-                    maxlength="20"></b-form-input>
-                </b-form-group>
-              </b-col>
-              <b-col>
-                <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
-                  <b-form-input
-                    id="lastname" name="lastname" autocomplete="lastname"
-                    v-model="user.lastname"
-                    required
-                    disabled
-                    maxlength="20"
+                    id="email" name="email" autocomplete="home email"
+                    v-model.trim="user.email"
                   ></b-form-input>
+                  <b-row>
+                    <span>{{ errors }}</span>
+                  </b-row>
                 </b-form-group>
-              </b-col>
-            </b-row>
+              </validation-provider>
 
-            <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="input-4">
-              <b-form-input
-                id="input-4"
-                v-model="user.displayName"
-                placeholder="User Type"
-                maxlength="20"></b-form-input>
-            </b-form-group>
+              <b-row>
+                <b-col>
+                  <b-form-group id="input-group-2" :label="$t('form_firstname')" label-for="firstname">
+                    <b-form-input
+                      id="firstname" name="firstname" autocomplete="firstname"
+                      v-model="user.firstname"
+                      required
+                      disabled
+                      maxlength="20"></b-form-input>
+                  </b-form-group>
+                </b-col>
+                <b-col>
+                  <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
+                    <b-form-input
+                      id="lastname" name="lastname" autocomplete="lastname"
+                      v-model="user.lastname"
+                      required
+                      disabled
+                      maxlength="20"
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+              </b-row>
 
-            <b-input-group id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="mb-4">
-              <b-form-input
-                id="pattern"
-                v-model="patternAsText"
-                maxlength="70"
-                placeholder="Enter color codes">
-              </b-form-input>
-              <b-input-group-append>
-                <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
-                <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
-                  {{$t('actions.generatePattern')}}
-                </b-button>
-              </b-input-group-append>
-            </b-input-group>
+              <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="input-4">
+                <b-form-input
+                  id="input-4"
+                  v-model="user.displayName"
+                  maxlength="20"></b-form-input>
+              </b-form-group>
 
-            <b-button size="sm" type='submit' variant="outline-primary">{{$t('actions.applyChanges')}}</b-button>
-            <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
-          </b-form>
+              <b-input-group id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="mb-4">
+                <b-form-input
+                  id="pattern"
+                  v-model="patternAsText"
+                  maxlength="70">
+                </b-form-input>
+                <b-input-group-append>
+                  <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
+                  <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
+                    {{$t('actions.generatePattern')}}
+                  </b-button>
+                </b-input-group-append>
+              </b-input-group>
+
+              <b-button size="sm" type='submit' variant="outline-primary" :disabled="invalid">{{$t('actions.applyChanges')}}</b-button>
+              <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
+
+            </b-form>
+
+          </ValidationObserver>
         </b-col>
       </b-row>
 
       <h2 class="border-bottom mt-5 mb-3 pb-3">{{ $t('form_change_password') }}</h2>
       <b-row class="mb-5">
         <b-col md="6" offset-md="3">
-          <b-form @submit.prevent="onSubmitChangePassword">
-            <!-- current password -->
-            <b-form-group id="input-group-changepwd-1" :label="$t('form_oldpassword')" label-for="current-password">
-              <b-form-input
-                id="current-password" name="current-password"
-                v-model="oldPassword"
-                placeholder="(current password)"
-                type="password"
-              ></b-form-input>
-            </b-form-group><!-- current password -->
-            <!-- new password -->
-            <b-form-group id="input-group-changepwd-2" :label="$t('form_newpassword')" label-for="password">
-              <b-form-input
-                id="password" name="password"
-                v-model="newPassword"
-                placeholder="(new password)"
-                type="password"
-              ></b-form-input>
-            </b-form-group>
+          <ValidationObserver v-slot="{ invalid }">
+            <b-form @submit.prevent="onSubmitChangePassword">
+              <!-- current password -->
+              <ValidationProvider name="current-password" rules="required" v-slot="{ errors }">
+                <b-form-group
+                  id="input-group-changepwd-1"
+                  :label="$t('form_oldpassword')"
+                  label-for="current-password"
+                  :description="errors[0]">
+                  <b-form-input
+                    id="current-password" name="current-password"
+                    v-model="oldPassword"
+                    type="password" />
+                </b-form-group><!-- current password -->
+              </ValidationProvider>
+              <!-- new password -->
+              <ValidationObserver>
+                <ValidationProvider rules="required|min:12" v-slot="{ errors }" vid="repeatPassword">
+                <b-form-group
+                  id="input-group-changepwd-2"
+                  :label="$t('form_newpassword')"
+                  label-for="password"
+                  :description="errors[0]">
+                  <b-form-input
+                    id="password" name="password"
+                    v-model="newPassword"
+                    type="password"
+                    maxlength="80"
+                    :description="errors[0]"
+                  ></b-form-input>
+                </b-form-group>
+                </ValidationProvider>
 
-            <b-form-group id="input-group-changepwd-3" :label="$t('form_newpassword_repeat')" label-for="repeat-password">
-              <b-form-input
-                id="repeat-password" name="repeat-password"
-                v-model="repeatPassword"
-                placeholder="(repeat new password)"
-                type="password"
-              ></b-form-input>
-            </b-form-group><!-- new password -->
-
-            <b-button size="sm" type='submit' variant="outline-primary">{{ $t('actions.applyChanges') }}</b-button>
-          </b-form>
+                <ValidationProvider rules="required|confirmed:repeatPassword" v-slot="{ errors }">
+                  <b-form-group
+                    id="input-group-changepwd-3"
+                    :label="$t('form_newpassword_repeat')"
+                    label-for="repeat-password"
+                    :description="errors[0]">
+                    <b-form-input
+                      id="repeat-password" name="repeat-password"
+                      v-model="repeatPassword"
+                      maxlength="80"
+                      type="password" />
+                  </b-form-group>
+                </ValidationProvider>
+              </ValidationObserver><!-- new password -->
+              <b-button size="sm" type='submit' :disabled="invalid" variant="outline-primary">{{ $t('actions.requestNewPassword') }}</b-button>
+            </b-form>
+          </ValidationObserver>
         </b-col>
       </b-row>
     </b-container>
@@ -129,7 +157,26 @@
 </template>
 
 <script>
-// import Vuelidate from 'vuelidate';
+import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
+import { required, email, confirmed, min } from 'vee-validate/dist/rules';
+
+extend('required', {
+  ...required,
+  message: 'This field is required'
+});
+
+extend('email', email);
+
+extend('confirmed', {
+  ...confirmed,
+  message: 'Passwords do not match'
+});
+
+extend('min', {
+  ...min,
+  message: 'Password must be at least 12 characters long'
+});
+
 
 export default {
   data: () => ({
@@ -137,6 +184,7 @@ export default {
     oldPassword: '',
     newPassword: '',
     repeatPassword: '',
+    errors: [],
     palettes:
     [
       '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
@@ -145,6 +193,10 @@ export default {
     ],
     numColors: 5,
   }),
+  components: {
+    ValidationProvider,
+    ValidationObserver,
+  },
   methods: {
     onSubmitChangePassword() {
       console.info('UserPage.onSubmitChangePassword()');
