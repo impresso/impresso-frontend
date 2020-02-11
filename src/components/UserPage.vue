@@ -37,9 +37,6 @@
                     id="email" name="email" autocomplete="home email"
                     v-model.trim="user.email"
                   ></b-form-input>
-                  <b-row>
-                    <span>{{ errors }}</span>
-                  </b-row>
                 </b-form-group>
               </validation-provider>
 
