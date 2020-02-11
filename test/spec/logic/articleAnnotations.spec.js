@@ -3,7 +3,7 @@ import assert from 'assert';
 
 import {
   getNamedEntitiesFromArticleResponse,
-  annotateText,
+  getAnnotateTextTree,
   DefaultAnnotationConfiguration
 } from '../../../src/logic/articleAnnotations';
 
@@ -535,15 +535,32 @@ describe('getNamedEntitiesFromArticleResponse', () => {
   });
 });
 
-describe('annotateText', () => {
+describe('getAnnotateTextTree', () => {
+
+  const flattenDeep = (arr) => arr.flatMap((subArray) => Array.isArray(subArray) ? flattenDeep(subArray) : subArray)
+
+  function annotationTreeAsText(item, annotationConfiguration) {
+    if (typeof item === 'string') return [item]
+    let textParts = []
+    if (item.entity) textParts.push(annotationConfiguration[item.entity.kind].start(item.entity, item.isContinuation))
+
+    textParts.push(item.children.map(child => annotationTreeAsText(child, annotationConfiguration)))
+
+    if (item.entity) textParts.push(annotationConfiguration[item.entity.kind].end())
+
+    return flattenDeep(textParts).join('')
+  }
+
   it('annotates a text with a single region', () => {
     const entities = getNamedEntitiesFromArticleResponse(articleResponse);
     const lineBreaks = articleResponse.contentLineBreaks;
     const regionBreaks = articleResponse.regionBreaks;
 
-    const annotatedText = annotateText(articleResponse.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
+    const elementsTree = getAnnotateTextTree(articleResponse.content, entities, lineBreaks, regionBreaks);
+    // console.log(elementsTree)
+    const annotatedText = annotationTreeAsText(elementsTree, TestAnnotationConfiguration)
 
-    assert.deepStrictEqual(annotatedText, expectedAnnotatedText);
+    assert.deepStrictEqual(annotatedText, expectedAnnotatedText.join(''));
   })
 
   it('annotates a text with multiple regions', () => {
@@ -551,9 +568,11 @@ describe('annotateText', () => {
     const lineBreaks = articleResponseWithMultipleRegions.contentLineBreaks;
     const regionBreaks = articleResponseWithMultipleRegions.regionBreaks;
 
-    const annotatedText = annotateText(articleResponseWithMultipleRegions.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
+    const elementsTree = getAnnotateTextTree(articleResponseWithMultipleRegions.content, entities, lineBreaks, regionBreaks);
+    // console.log(elementsTree)
+    const annotatedText = annotationTreeAsText(elementsTree, TestAnnotationConfiguration)
 
-    assert.deepStrictEqual(annotatedText, expectedAnnotatedTextWithMultipleRegions);
+    assert.deepStrictEqual(annotatedText, expectedAnnotatedTextWithMultipleRegions.join(''));
   })
 
   it('annotates a text with a multiline entity', () => {
@@ -561,7 +580,9 @@ describe('annotateText', () => {
     const lineBreaks = articleResponseWithMultilineEntity.contentLineBreaks;
     const regionBreaks = articleResponseWithMultilineEntity.regionBreaks;
 
-    const annotatedText = annotateText(articleResponseWithMultilineEntity.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
+    const elementsTree = getAnnotateTextTree(articleResponseWithMultilineEntity.content, entities, lineBreaks, regionBreaks);
+    const annotatedText = annotationTreeAsText(elementsTree, TestAnnotationConfiguration)
+
     const expectedAnnotatedText = [
       '<div class="region">',
       '<p class="line">',
@@ -632,6 +653,6 @@ describe('annotateText', () => {
       '</div>',
     ];
 
-    assert.deepStrictEqual(annotatedText, expectedAnnotatedText);
+    assert.deepStrictEqual(annotatedText, expectedAnnotatedText.join(''));
   })
 });

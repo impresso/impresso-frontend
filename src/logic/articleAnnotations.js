@@ -94,97 +94,86 @@ export const DefaultAnnotationConfiguration = Object.freeze({
   }
 })
 
-function getOpenTagForEntity(entity, configuration, isContinuation = false) {
-  const tagTemplate = configuration[entity.kind]['start'];
-  return tagTemplate(entity, isContinuation);
+const withTextParts = (item, text, [boundaryStart, boundaryEnd] = []) => {
+  let [itemStartOffset, itemEndOffset] = item.entity != null
+    ? [item.entity.offset.start, item.entity.offset.end]
+    : [0, text.length]
+
+  if (boundaryStart != null && boundaryStart > itemStartOffset) itemStartOffset = boundaryStart
+  if (boundaryEnd != null && boundaryEnd < itemEndOffset) itemEndOffset = boundaryEnd
+
+  let lastOffset = itemStartOffset
+
+  const childrenWithText = item.children.reduce((acc, child) => {
+    const { start, end } = child.entity.offset
+    if (start - lastOffset > 0) {
+      acc.push(text.slice(lastOffset, start))
+    }
+    acc.push(withTextParts(child, text, [itemStartOffset, itemEndOffset]))
+    lastOffset = end
+    return acc
+  }, [])
+
+  if (itemEndOffset - lastOffset > 0) {
+    childrenWithText.push(text.slice(lastOffset, itemEndOffset))
+  }
+
+  item.children = childrenWithText
+
+  return item
 }
 
-function getCloseTagForEntity(entity, configuration, isContinuation = false) {
-  const tagTemplate = configuration[entity.kind]['end'];
-  return tagTemplate(entity, isContinuation);
-}
+export function getAnnotateTextTree(text, entities, lineBreaks, regionBreaks) {
+  const expandedEntities = expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text.length);
 
-const getEntitiesForPosition = (entities, position) => entities
-  .filter(({ offset: { start, end }}) => position >= start && position <= end)
-  .sort(({ kind: kindA }, { kind: kindB }) => {
-    const [priorityA, priorityB] = [kindA, kindB].map(i => SpecialEntitiesPriorityOrder.indexOf(i));
-    return priorityB - priorityA;
+  const sortedEntities = expandedEntities
+    .sort(({ offset: offsetA }, { offset: offsetB }) => {
+      if (offsetA.start !== offsetB.start) return offsetA.start - offsetB.start
+      const [lengthA, lengthB] = [offsetA, offsetB].map(({ start, end }) => end - start)
+      return lengthB - lengthA
+    })
+    .sort(({ kind: kindA }, { kind: kindB }) => {
+      const [priorityA, priorityB] = [kindA, kindB].map(i => SpecialEntitiesPriorityOrder.indexOf(i));
+      return priorityB - priorityA;
+    })
+
+  const breakpoints = [...new Set(sortedEntities.map(({ offset: { start, end }}) => [start, end]).flat().sort((a, b) => a - b))]
+
+  const rootItem = { children: [] };
+  let itemsStack = [rootItem];
+
+  const isInStack = entity => itemsStack.filter(({ entity: e }) => JSON.stringify(entity) === JSON.stringify(e)).length > 0
+
+  const getEntitiesMatchingBreakpoint = (entities, breakpoint) => entities
+    .filter(({ offset: { start, end }}) => breakpoint >= start && breakpoint < end)
+
+  breakpoints.map(breakpoint => {
+    let closeIndex
+    itemsStack.forEach(({ entity }, index) => {
+      if (closeIndex === undefined && entity && entity.offset.end <= breakpoint) closeIndex = index
+    })
+
+    if (closeIndex != null) {
+      const finishedItems = itemsStack.filter(({ entity }) => entity && entity.offset.end <= breakpoint)
+      itemsStack = itemsStack.slice(0, closeIndex)
+      finishedItems.forEach(item => { item.isLast = true })
+    }
+
+    const matchingEntities = getEntitiesMatchingBreakpoint(sortedEntities, breakpoint)
+
+    matchingEntities.forEach(entity => {
+      if (!isInStack(entity)) {
+        const isContinuation = entity.offset.start < breakpoint
+        const item = { entity, children: [], isContinuation }
+        itemsStack[itemsStack.length - 1].children.push(item)
+        itemsStack.push(item)
+      }
+    })
   });
 
-export function annotateText(text, entities, lineBreaks, regionBreaks, configuration = DefaultAnnotationConfiguration) {
-  const expandedEntities = expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text.length);
-  const breakpoints = [...new Set(expandedEntities.map(({ offset: { start, end }}) => [start, end]).flat().sort((a, b) => a - b))]
+  const rootItemWithText = withTextParts(rootItem, text)
 
-  const items = breakpoints.reduce((acc, breakpoint, idx) => {
-    let items = []
-    const entities = getEntitiesForPosition(expandedEntities, breakpoint);
-    const subtext = idx < breakpoints.length - 1 ? text.slice(breakpoint, breakpoints[idx + 1]) : undefined
-    const specialEntities = entities
-      .filter(({ kind }) => SpecialEntitiesPriorityOrder.includes(kind))
-    const otherEntities = entities
-      .filter(({ kind }) => !SpecialEntitiesPriorityOrder.includes(kind))
+  // console.info('root item with text', JSON.stringify(rootItemWithText, null, 2))
 
-    const closeSpecialEntities = specialEntities.filter(({ offset: { end }}) => end === breakpoint).reverse()
-    const openSpecialEntities = specialEntities.filter(({ offset: { start }}) => start === breakpoint)
-
-    const sorter = (a, b) => {
-      const aDiff = Math.abs(a.offset.end - breakpoint)
-      const bDiff = Math.abs(b.offset.end - breakpoint)
-      return bDiff - aDiff
-    }
-    const openOtherEntities = otherEntities
-      .filter(({ offset: { start }}) => start === breakpoint)
-      .sort(sorter)
-    const closeOtherEntities = otherEntities
-      .filter(({ offset: { end }}) => end === breakpoint)
-      .sort(sorter)
-
-    const entityWontBeUsed = entity => !openOtherEntities.includes(entity) && !closeOtherEntities.includes(entity)
-
-    closeOtherEntities.forEach(entity => {
-      items.push(getCloseTagForEntity(entity, configuration, false))
-    })
-
-    if (closeSpecialEntities.length > 0) {
-      otherEntities.filter(entityWontBeUsed).sort(sorter).forEach(entity => {
-        const tag = getCloseTagForEntity(entity, configuration, true)
-        items.push(tag)
-      })
-    }
-    closeSpecialEntities.forEach(entity => {
-      const tag = getCloseTagForEntity(entity, configuration, false)
-      items.push(tag)
-    })
-
-    openSpecialEntities.forEach(entity => {
-      const tag = getOpenTagForEntity(entity, configuration, false)
-      items.push(tag)
-    })
-    if (openSpecialEntities.length > 0) {
-      otherEntities.filter(entityWontBeUsed).sort(sorter).forEach(entity => {
-        const tag = getOpenTagForEntity(entity, configuration, true)
-        items.push(tag)
-      })
-    }
-
-    openOtherEntities.forEach(entity => {
-      items.push(getOpenTagForEntity(entity, configuration, false))
-    })
-
-    if (subtext !== undefined) items.push(subtext)
-
-    // console.info('^^', {
-    //   closeSpecialEntities,
-    //   openSpecialEntities,
-    //   openOtherEntities,
-    //   closeOtherEntities,
-    //   otherEntities,
-    //   subtext,
-    //   items
-    // });
-
-    return acc.concat(items)
-  }, []);
-
-  return items;
+  return rootItemWithText
 }
