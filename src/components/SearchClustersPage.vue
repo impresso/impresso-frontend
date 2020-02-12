@@ -4,6 +4,8 @@
       <div slot="header" class="border-bottom p-2 pb-4">
 	<cluster-text-search-panel
 	  @submit="handleSearchInputSubmitted"
+	  @orderByChanged="handleOrderByChanged"
+	  :orderBy="orderByValue"
 	  :value="searchText"/>
       </div>
       <div :class="`pl-1 pr-2 mt-2 mb-2 d-flex flex-row \
@@ -61,6 +63,13 @@ import { textReuseClusters } from '@/services';
 
 const isLastItem = (index, total) => total - 1 === index
 
+const QueryParameters = Object.freeze({
+  ClusterId: 'clusterId',
+  SearchText: 'q',
+  PageNumber: 'page',
+  OrderBy: 'orderBy'
+})
+
 export default {
   data: () => ({
     clusterItems: [],
@@ -87,26 +96,36 @@ export default {
       return clusterId === this.selectedClusterId;
     },
     handleClusterSelected(clusterId) {
-      const { query } = this.$route
-      const updatedQuery = Object.assign({}, query, { clusterId })
-      this.$router.replace({ query: updatedQuery }).catch(() => {})
+      this.$navigation.updateQueryParameters({
+	[QueryParameters.ClusterId]: clusterId
+      })
     },
     handleSearchInputSubmitted(searchText) {
-      if (searchText !== '') this.$router.push({ query: { q: searchText } }).catch(() => {})
+      if (searchText === '') return
+      this.$navigation.updateQueryParametersWithHistory({
+	[QueryParameters.SearchText]: searchText
+      })
     },
     handlePaginationPageChanged(page) {
-      const { query, params } = this.$route
-      const updatedQuery = Object.assign({}, query, { page: page - 1 })
-      this.$router.replace({ params, query: updatedQuery }).catch(() => {})
+      this.$navigation.updateQueryParameters({
+	[QueryParameters.PageNumber]: page - 1
+      })
+    },
+    handleOrderByChanged(orderByValue) {
+      this.$navigation.updateQueryParameters({
+	[QueryParameters.OrderBy]: orderByValue
+      })
     },
     async executeSearch() {
       const pageNumber = this.paginationCurrentPage - 1;
+      const orderBy = this.orderByValue;
 
       [this.clusterItems, this.searchInfo] = await textReuseClusters
 	.find({ query: {
 	  text: this.searchText,
 	  skip: this.paginationPerPage * pageNumber,
-	  limit: this.paginationPerPage
+	  limit: this.paginationPerPage,
+	  orderBy
 	}})
 	.then(result => {
 	  return [result.clusters, result.info]
@@ -116,18 +135,21 @@ export default {
   },
   computed: {
     selectedClusterId() {
-      return this.$route.query.clusterId
+      return this.$route.query[QueryParameters.ClusterId]
     },
     searchText() {
-      return this.$route.query.q
+      return this.$route.query[QueryParameters.SearchText]
     },
     paginationCurrentPage() {
-      const { page = 0 } = this.$route.query
+      const { [QueryParameters.PageNumber]: page = 0 } = this.$route.query
       return parseInt(page, 10) + 1
     },
     paginationTotalRows() {
       const { total } = this.searchInfo
       return total
+    },
+    orderByValue() {
+      return this.$route.query[QueryParameters.OrderBy]
     }
   },
   watch: {
@@ -153,6 +175,9 @@ export default {
 	  .then(({ cluster }) => cluster)
       },
       immediate: true
+    },
+    orderByValue: {
+      async handler() { return this.executeSearch() }
     }
   }
 };
