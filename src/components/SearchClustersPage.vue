@@ -144,6 +144,7 @@ export default {
     },
     selectedClusterId: {
       async handler() {
+        if (this.selectedClusterId == null) return
         const filteredClusters = this.clusterItems
           .filter(({ cluster }) => cluster.id === this.selectedClusterId)
         if (filteredClusters.length > 0) this.selectedCluster = filteredClusters[0]
