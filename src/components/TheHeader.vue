@@ -45,6 +45,9 @@
         <b-nav-item v-bind:to="{ name: 'compare'}" active-class="active">
           {{$t("label_compare")}}
         </b-nav-item>
+	<b-nav-item v-bind:to="{ name: 'text-reuse-clusters-passages'}" active-class="active">
+	  {{$t("label_text_reuse")}}
+	</b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
@@ -564,6 +567,7 @@ export default {
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_compare": "Inspect & Compare",
+    "label_text_reuse": "Text reuse",
     "label_current_search": "browse results",
     "label_faq": "FAQ",
     "label_terms_of_use": "Terms of Use",

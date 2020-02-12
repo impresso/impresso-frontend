@@ -309,7 +309,7 @@ const router = new Router({
       children: [{
 	path: '',
 	component: TextReusePassagesPage,
-	name: 'passages',
+	name: 'text-reuse-clusters-passages',
 	meta: {
 	  requiresAuth: false,
 	},
