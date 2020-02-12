@@ -10,6 +10,7 @@ import ImpressoLayout from '@/plugins/Layout';
 import TawkTo from '@/plugins/TawkTo';
 import EventBus from '@/plugins/EventBus';
 import MetaTags from '@/plugins/MetaTags';
+import Navigation from '@/plugins/Navigation';
 
 import * as services from '@/services';
 
@@ -30,6 +31,7 @@ Vue.use(Helpers);
 Vue.use(EventBus);
 Vue.use(ImpressoLayout);
 Vue.use(MetaTags, { suffix: 'impresso' });
+Vue.use(Navigation);
 if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
   Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID });
 }
