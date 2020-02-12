@@ -86,9 +86,6 @@ export default {
     return (context.props.children || []).map(child => {
       if (typeof child === 'string') return child
 
-      // if (context.props.selectedClusterId) console.info('***', context.props.selectedClusterId)
-      // if (child.entity.clusterId !== undefined) console.info('***>', context, child.entity.clusterId)
-
       if (child.entity.kind === 'passage' && child.entity.clusterId !== context.props.selectedClusterId) {
         return [
           renderChildren(h, context, child),

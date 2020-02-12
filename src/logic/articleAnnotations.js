@@ -91,7 +91,7 @@ const withTextParts = (item, text, [boundaryStart, boundaryEnd] = []) => {
     if (start - lastOffset > 0) {
       acc.push(text.slice(lastOffset, start))
     }
-    acc.push(withTextParts(child, text, [itemStartOffset, itemEndOffset]))
+    acc.push(withTextParts(child, text, [lastOffset, itemEndOffset]))
     lastOffset = end
     return acc
   }, [])
