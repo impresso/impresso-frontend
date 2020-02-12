@@ -96,8 +96,7 @@ export default {
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: undefined,
-      viewerTopOffset: 0,
-      selectedClusterId: undefined // TODO: move to query parameters
+      viewerTopOffset: 0
     };
   },
   updated() {
@@ -155,6 +154,9 @@ export default {
         return this.textReusePassages.filter(({ id }) => id === this.selectedPassageId)[0]
       }
       return undefined
+    },
+    selectedClusterId() {
+      return this.$route.query.trClusterId
     }
   },
   props: ['article_uid'],
@@ -211,11 +213,17 @@ export default {
       this.selectedPassageId = null
     },
     passageClickHandler() {
-      console.info(`Passage ${this.selectedPassageId} clicked. ${Math.random()}`)
+      this.$router.push({
+        name: 'text-reuse-clusters-passages',
+        query: {
+          clusterId: this.selectedClusterId
+        }
+      })
     },
-    clusterSelectedHandler(clusterId) {
-      console.info('Cluster selected', clusterId, typeof clusterId)
-      this.selectedClusterId = clusterId
+    clusterSelectedHandler(trClusterId) {
+      const { query } = this.$route
+      const updatedQuery = Object.assign({}, query, { trClusterId })
+      this.$router.replace({ query: updatedQuery }).catch(() => {})
     }
   },
   watch: {
@@ -275,18 +283,13 @@ export default {
   }
 
   .tr-passage {
-    padding: 0 2px 0 2px;
-    background-color: #56CCF222;
-    border: 1px solid #56CCF277;
-    // box-shadow:inset 0px -24px 0px 0px transparentize(blue, 0.5);
-    transition: background-color 0.2s ease; //#33ffff333 0.2s;
+    // padding: 0 2px 0 2px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
     cursor: pointer;
 
-    // &:hover, &.active {
     &.active {
-      border: 1px solid #11111199;
-      background-color: #56CCF277;
-      // box-shadow:inset 0px -24px 0px 0px transparentize(blue, 0.5);
+      opacity: 1;
     }
   }
 

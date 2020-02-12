@@ -23,6 +23,15 @@ const getItemClasses = item => {
   }
 }
 
+const getItemStyles = (item, colourMap) => {
+  switch (item.entity.kind) {
+  case 'passage':
+    return { backgroundColor: colourMap[item.entity.clusterId] }
+  default:
+    return {}
+  }
+}
+
 const getDataId = item => item.entity.id != null ? item.entity.id : undefined
 
 const flattenChildrenDeep = children => children.flatMap(child => (Array.isArray(child.children) && child.children.length) > 0 ? [child].concat(flattenChildrenDeep(child.children)) : child)
@@ -95,7 +104,10 @@ export default {
 
       const Tag = getItemTag(child)
       return (
-        <Tag class={getItemClasses(child)} data-id={getDataId(child)}>
+        <Tag
+          class={getItemClasses(child)}
+          data-id={getDataId(child)}
+          style={getItemStyles(child, context.props.clusterColours)}>
           {renderChildren(h, context, child)}
           {renderClusterTags(h, context, child)}
         </Tag>
@@ -105,7 +117,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style>
   .cluster-tag {
     font-weight: bold;
     width: 1em;
