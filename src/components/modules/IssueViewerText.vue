@@ -36,7 +36,11 @@
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
                 <div class='region py-3'>
-                  <div v-html="regionsContent[i]"></div>
+		  <annotated-text
+		    :children="regionsAnnotationTree[i].children"
+		    :cluster-colours="clusterColourMap"
+		    :selected-cluster-id="selectedClusterId"
+		    @onClusterSelected="clusterSelectedHandler"/>
                 </div>
               </div>
             </b-row>
@@ -70,14 +74,17 @@
 </template>
 
 <script>
+import { schemeSet3 as colourScheme } from 'd3'
 import Icon from 'vue-awesome/components/Icon';
 import { articlesSuggestions, articleTextReusePassages } from '@/services';
 import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import ArticleItem from './lists/ArticleItem';
+import AnnotatedText from './AnnotatedText'
+
 import {
   getNamedEntitiesFromArticleResponse,
-  annotateText,
+  getAnnotateTextTree,
   passageToPassageEntity,
 } from '@/logic/articleAnnotations';
 
@@ -89,7 +96,7 @@ export default {
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: undefined,
-      viewerTopOffset: 0,
+      viewerTopOffset: 0
     };
   },
   updated() {
@@ -119,7 +126,14 @@ export default {
     hasValidRegions() {
       return !!this.article.regions.filter(({ isEmpty }) => !isEmpty).length;
     },
-    regionsContent() {
+    clusterColourMap() {
+      const clusterIds = [...new Set(this.textReusePassages.map(({ clusterId }) => clusterId))]
+      return clusterIds.reduce((map, id, idx) => {
+	map[id] = colourScheme[idx]
+	return map
+      }, {})
+    },
+    regionsAnnotationTree() {
       if (!this.article) return [];
 
       const entities = getNamedEntitiesFromArticleResponse(this.article);
@@ -128,31 +142,21 @@ export default {
       const lineBreaks = this.article.contentLineBreaks;
       const regionBreaks = this.article.regionBreaks;
 
-      const annotatedText = annotateText(
+      return getAnnotateTextTree(
 	this.article.content,
 	entities.concat(passageEntities),
 	lineBreaks,
 	regionBreaks
-      );
-
-      const regionStartIndices = annotatedText
-        .map((v, index) => (v === '<div class="region">' ? index : -1))
-        .filter(v => v >= 0);
-
-      const regions = regionStartIndices.map((startIndex, i) => {
-        var endIndex = i === regionStartIndices.length - 1
-          ? annotatedText.length
-          : regionStartIndices[i + 1]
-        return annotatedText.slice(startIndex, endIndex).join('\n');
-      })
-
-      return regions;
+      ).children;
     },
     selectedPassage() {
       if (this.selectedPassageId) {
 	return this.textReusePassages.filter(({ id }) => id === this.selectedPassageId)[0]
       }
       return undefined
+    },
+    selectedClusterId() {
+      return this.$route.query.trClusterId
     }
   },
   props: ['article_uid'],
@@ -161,6 +165,7 @@ export default {
     CollectionAddTo,
     SearchResultsSimilarItem,
     Icon,
+    AnnotatedText,
   },
   methods: {
     commonTopics(suggestionTopics) {
@@ -208,7 +213,17 @@ export default {
       this.selectedPassageId = null
     },
     passageClickHandler() {
-      console.info(`Passage ${this.selectedPassageId} clicked. ${Math.random()}`)
+      this.$router.push({
+	name: 'text-reuse-clusters-passages',
+	query: {
+	  clusterId: this.selectedClusterId
+	}
+      })
+    },
+    clusterSelectedHandler(trClusterId) {
+      const { query } = this.$route
+      const updatedQuery = Object.assign({}, query, { trClusterId })
+      this.$router.replace({ query: updatedQuery }).catch(() => {})
     }
   },
   watch: {
@@ -268,18 +283,13 @@ export default {
   }
 
   .tr-passage {
-    padding: 0 2px 0 2px;
-    background-color: #56CCF222;
-    border: 1px solid #56CCF277;
-    // box-shadow:inset 0px -24px 0px 0px transparentize(blue, 0.5);
-    transition: background-color 0.2s ease; //#33ffff333 0.2s;
+    // padding: 0 2px 0 2px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
     cursor: pointer;
 
-    // &:hover, &.active {
     &.active {
-      border: 1px solid #11111199;
-      background-color: #56CCF277;
-      // box-shadow:inset 0px -24px 0px 0px transparentize(blue, 0.5);
+      opacity: 1;
     }
   }
 
