@@ -3,27 +3,27 @@
     <cluster-aspects-tab :passagesCount="passageItems.length"/>
     <section class="p-2">
       <div class="p-2 border-bottom mb-2">
-	<i-dropdown v-model="orderByModel"
-		  :options="orderByOptions"
-		  size="sm"
-		  variant="outline-primary" />
+  <i-dropdown v-model="orderByModel"
+      :options="orderByOptions"
+      size="sm"
+      variant="outline-primary" />
       </div>
       <passage-details-panel
-	v-for="({ passage, newspaper, iiifUrls }) in passageItems"
-	:key="passage.id"
-	:passage="passage"
-	:newspaper="newspaper"
-	:iiif-url="iiifUrls[0]"
-	class="p-2"/>
+  v-for="({ passage, newspaper, iiifUrls }) in passageItems"
+  :key="passage.id"
+  :passage="passage"
+  :newspaper="newspaper"
+  :iiif-url="iiifUrls[0]"
+  class="p-2"/>
     </section>
     <div class="fixed-pagination-footer p-1 m-0"
-	 v-if="paginationTotalRows > paginationPerPage">
+   v-if="paginationTotalRows > paginationPerPage">
       <pagination
-	:perPage="paginationPerPage"
-	:currentPage="paginationCurrentPage"
-	:totalRows="paginationTotalRows"
-	v-on:change="handlePaginationPageChanged"
-	class="float-left small-caps" />
+  :perPage="paginationPerPage"
+  :currentPage="paginationCurrentPage"
+  :totalRows="paginationTotalRows"
+  v-on:change="handlePaginationPageChanged"
+  class="float-left small-caps" />
     </div>
   </div>
 </template>
@@ -79,44 +79,44 @@ export default {
     },
     orderByModel: {
       get() {
-	return this.$route.query[QueryParameters.OrderBy] || '';
+        return this.$route.query[QueryParameters.OrderBy] || '';
       },
       set(val) {
-	this.$navigation.updateQueryParameters({
-	  [QueryParameters.OrderBy]: val === '' ? undefined : val
-	})
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.OrderBy]: val === '' ? undefined : val
+        })
       },
     },
     orderByOptions() {
       return [
-	{
-	  value: '',
-	  text: this.$t('sort.default'),
-	  disabled: false,
-	},
-	{
-	  value: `-${SortingMethod.Date}`,
-	  text: `${this.$t('sort.date')} ${this.$t('sort.desc')}`,
-	  disabled: false,
-	},
-	{
-	  value: SortingMethod.Date,
-	  text: `${this.$t('sort.date')} ${this.$t('sort.asc')}`,
-	  disabled: false,
-	}
+        {
+          value: '',
+          text: this.$t('sort.default'),
+          disabled: false,
+        },
+        {
+          value: `-${SortingMethod.Date}`,
+          text: `${this.$t('sort.date')} ${this.$t('sort.desc')}`,
+          disabled: false,
+        },
+        {
+          value: SortingMethod.Date,
+          text: `${this.$t('sort.date')} ${this.$t('sort.asc')}`,
+          disabled: false,
+        }
       ];
     }
   },
   watch: {
     clusterId: {
       async handler() {
-	return this.executeSearch()
+        return this.executeSearch()
       },
       immediate: true
     },
     paginationCurrentPage: {
       async handler() {
-	return this.executeSearch()
+        return this.executeSearch()
       },
       immediate: true
     },
@@ -127,7 +127,7 @@ export default {
   methods: {
     handlePaginationPageChanged(page) {
       this.$navigation.updateQueryParameters({
-	[QueryParameters.Page]: page - 1
+        [QueryParameters.Page]: page - 1
       })
     },
     async executeSearch() {
@@ -135,22 +135,22 @@ export default {
       const orderBy = this.orderByModel;
 
       [this.passageItems, this.paginationInfo] = await textReuseClusterPassages
-	.find({ query: {
-	  clusterId: this.clusterId,
-	  skip: this.paginationPerPage * pageNumber,
-	  limit: this.paginationPerPage,
-	  orderBy
-	}})
-	.then(({ passages, info }) => {
-	  return [
-	    passages.map(({ passage, newspaper, iiifUrls }) =>({
-	      passage,
-	      newspaper: new Newspaper(newspaper),
-	      iiifUrls
-	    })),
-	    info
-	  ]
-	})
+        .find({ query: {
+          clusterId: this.clusterId,
+          skip: this.paginationPerPage * pageNumber,
+          limit: this.paginationPerPage,
+          orderBy
+        }})
+        .then(({ passages, info }) => {
+          return [
+            passages.map(({ passage, newspaper, iiifUrls }) =>({
+              passage,
+              newspaper: new Newspaper(newspaper),
+              iiifUrls
+            })),
+            info
+          ]
+        })
     }
   }
 }

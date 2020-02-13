@@ -36,7 +36,7 @@ export default {
   install(Vue) {
     Vue.mixin({
       created() {
-	this.$navigation = new Navigation(this)
+        this.$navigation = new Navigation(this)
       }
     })
   }
