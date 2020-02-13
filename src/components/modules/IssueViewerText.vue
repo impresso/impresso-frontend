@@ -45,8 +45,8 @@
               </div>
             </b-row>
 	    <div class="passage-control"
-		 :style='{ top: `${hoverPassageLineTopOffset}px` }'
-		 v-if="selectedPassage">
+	      :style='{ top: `${hoverPassageLineTopOffset}px` }'
+	      v-if="selectedPassage">
 	      {{Math.round(selectedPassage.lexicalOverlap)}}% Lexical Overlap
 	    </div>
           </b-container>
