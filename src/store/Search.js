@@ -83,6 +83,9 @@ export default {
     getCurrentSearchHash(state) {
       return state.currentSearchHash;
     },
+    countActiveFilters(state) {
+      return state.search.countActiveFilters();
+    },
     results(state) {
       return state.results.map((result) => {
         if (result instanceof Article) {

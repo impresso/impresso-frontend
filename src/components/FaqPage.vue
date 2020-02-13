@@ -32,11 +32,25 @@
 <script>
 import content from '@/assets/faqpage.json';
 
+const ApiVersionLine = apiVersion => `
+API: v${apiVersion.version}, 
+Revision <a href="https://github.com/impresso/impresso-middle-layer/commit/${apiVersion.revision}" target="_blank">${apiVersion.revision}</a>, 
+"${apiVersion.branch}" branch.
+`
+
+const WebappVersionLine = `
+Web App: v${process.env.VUE_APP_VERSION},
+Revision <a href="https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}" target="_blank">${process.env.VUE_APP_GIT_REVISION}</a>, 
+"${process.env.VUE_APP_GIT_BRANCH}" branch.
+`
+
 export default {
   computed: {
     faq: {
       get() {
-        return content[this.activeLanguageCode];
+        const faqContent = content[this.activeLanguageCode];
+        faqContent.groups.push(this.getVersionGroup())
+        return faqContent
       },
     },
     activeLanguageCode() {
@@ -47,6 +61,22 @@ export default {
     isOpen(term) {
       return this.$route.hash === `#${term}`;
     },
+    getVersionGroup() {
+      return {
+        title: this.$t('title.version'),
+        faq: [
+          {
+            id: 'version-of-impresso',
+            title: this.$t('title.whichVersion'),
+            summary: this.$t('summary.version'),
+            description: [
+              WebappVersionLine,
+              ApiVersionLine(window.impressoApiVersion)
+            ]
+          }
+        ]
+      }
+    }
   },
 };
 </script>
@@ -76,3 +106,17 @@ export default {
     }
   }
 </style>
+
+<i18n>
+{
+  "en": {
+    "title": {
+      "version": "Version",
+      "whichVersion": "Which version of Impresso am I using"
+    },
+    "summary": {
+      "version": "Version of the web application and API. Use this to report issues."
+    }
+  }
+}
+</i18n>
