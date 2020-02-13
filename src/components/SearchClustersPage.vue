@@ -11,9 +11,9 @@
       <div :class="`pl-1 pr-2 mt-2 mb-2 d-flex flex-row \
 		  ${isClusterSelected(item.cluster.id) ? 'active' : ''} \
 		  ${isLastItem(index, clusterItems.length) ? 'pb-4' : ''}`"
-	   v-for="(item, index) in clusterItems"
-	   :key="item.cluster.id"
-	   v-on:click="handleClusterSelected(item.cluster.id)">
+	    v-for="(item, index) in clusterItems"
+	    :key="item.cluster.id"
+	    v-on:click="handleClusterSelected(item.cluster.id)">
 	<span class="d-flex align-self-stretch flex-shrink-0 selection-indicator"/>
 	<cluster-details-panel
 	  class="pl-2 pt-1 pr-3 pb-2 details-panel"

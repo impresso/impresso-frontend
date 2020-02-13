@@ -3,27 +3,27 @@
     <cluster-aspects-tab :passagesCount="passageItems.length"/>
     <section class="p-2">
       <div class="p-2 border-bottom mb-2">
-	<i-dropdown v-model="orderByModel"
-		  :options="orderByOptions"
-		  size="sm"
-		  variant="outline-primary" />
+  <i-dropdown v-model="orderByModel"
+      :options="orderByOptions"
+      size="sm"
+      variant="outline-primary" />
       </div>
       <passage-details-panel
-	v-for="({ passage, newspaper, iiifUrls }) in passageItems"
-	:key="passage.id"
-	:passage="passage"
-	:newspaper="newspaper"
-	:iiif-url="iiifUrls[0]"
-	class="p-2"/>
+  v-for="({ passage, newspaper, iiifUrls }) in passageItems"
+  :key="passage.id"
+  :passage="passage"
+  :newspaper="newspaper"
+  :iiif-url="iiifUrls[0]"
+  class="p-2"/>
     </section>
     <div class="fixed-pagination-footer p-1 m-0"
-	 v-if="paginationTotalRows > paginationPerPage">
+   v-if="paginationTotalRows > paginationPerPage">
       <pagination
-	:perPage="paginationPerPage"
-	:currentPage="paginationCurrentPage"
-	:totalRows="paginationTotalRows"
-	v-on:change="handlePaginationPageChanged"
-	class="float-left small-caps" />
+  :perPage="paginationPerPage"
+  :currentPage="paginationCurrentPage"
+  :totalRows="paginationTotalRows"
+  v-on:change="handlePaginationPageChanged"
+  class="float-left small-caps" />
     </div>
   </div>
 </template>
