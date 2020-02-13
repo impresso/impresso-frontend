@@ -97,18 +97,21 @@ Promise.race([
     services.version.find().then((res) => ({
       version: res.version,
       dataVersion: res.solr.dataVersion,
+      apiVersion: res.apiVersion
     }))
   ]).catch((err) => {
     console.error(err);
     return {
       version: 'n/a',
       dataVersion: 'n/a',
+      apiVersion: {}
     };
   });
-}).then(({ version, dataVersion }) => {
+}).then(({ version, dataVersion, apiVersion = {} }) => {
   console.info(`Version services:${version}, data:${dataVersion}`);
   window.impressoVersion = version;
   window.impressoDataVersion = dataVersion;
+  window.impressoApiVersion = apiVersion
 
   window.app = new Vue({
     el: '#app',
