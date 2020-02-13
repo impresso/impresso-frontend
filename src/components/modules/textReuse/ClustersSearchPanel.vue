@@ -2,23 +2,23 @@
   <div>
     <b-nav tabs class="tabbed-nav pl-2 pt-1 align-items-end">
       <b-nav-item class="small-caps" :active="true">
-	{{$t('searchClustersLabel')}}
+  {{$t('searchClustersLabel')}}
       </b-nav-item>
     </b-nav>
 
     <div class="pt-2">
       <h6 class="label">{{$t('searchInPatternsLabel')}}</h6>
       <search-input class="pt-2"
-		    @submit="onSubmitted"
-		    :initial="value"
-		    :placeholder="$t('placeholder')"/>
+	@submit="onSubmitted"
+	:initial="value"
+	:placeholder="$t('placeholder')"/>
     </div>
 
     <div class="pt-2">
       <i-dropdown v-model="orderByModel"
-		  :options="orderByOptions"
-		  size="sm"
-		  variant="outline-primary" />
+      :options="orderByOptions"
+      size="sm"
+      variant="outline-primary" />
     </div>
   </div>
 </template>
