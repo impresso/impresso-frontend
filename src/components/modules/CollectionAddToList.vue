@@ -108,27 +108,48 @@ export default {
     },
     toggleActive(collection) {
       const items = this.items ? this.items : [this.item];
+      let itemsFiltered = [];
       const checked = this.isIndeterminate(collection) === 'checked';
-      items.forEach((item) => {
-        const idx = item.collections.findIndex(c => (c.uid === collection.uid));
-        if (checked && idx !== -1) {
-          this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
-            collection,
-            item,
-          }).then(() => {
-            item.collections.splice(idx, 1);
-          });
-        }
-        if (!checked && idx === -1) {
-          this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
-            collection,
-            item,
-            contentType: 'article',
-          }).then(() => {
+
+      if (!checked) {
+        // add items to collection
+
+        items.forEach((item) => {
+          const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+          if (idx === -1) {
+            itemsFiltered.push(item);
+          }
+        });
+        this.$store.dispatch('collections/ADD_COLLECTION_ITEMS', {
+          items: itemsFiltered,
+          collection,
+          contentType: 'article',
+        }).then(() => {
+          itemsFiltered.forEach((item) => {
             item.collections.push(collection);
           });
-        }
-      });
+        });
+      }
+      if(checked) {
+        // remove items from collection
+
+        items.forEach((item) => {
+          const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+          if (idx !== -1) {
+            itemsFiltered.push(item);
+          }
+        });
+        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEMS', {
+          items: itemsFiltered,
+          collection,
+          contentType: 'article',
+        }).then(() => {
+          itemsFiltered.forEach((item) => {
+            const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+            item.collections.splice(idx, 1);
+          });
+        });
+      } // end remove items from collection
     },
     addCollection(collectionName) {
       if (!this.isDisabled) {
