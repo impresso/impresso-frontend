@@ -108,18 +108,20 @@ export default {
     },
     toggleActive(collection) {
       const items = this.items ? this.items : [this.item];
-      let itemsFiltered = [];
+      const itemsFiltered = [];
       const checked = this.isIndeterminate(collection) === 'checked';
+
+      items.forEach((item) => {
+        const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+        if(checked && idx !== -1) {
+          itemsFiltered.push(item);
+        } else if (!checked && idx === -1) {
+          itemsFiltered.push(item);
+        }
+      });
 
       if (!checked) {
         // add items to collection
-
-        items.forEach((item) => {
-          const idx = item.collections.findIndex(c => (c.uid === collection.uid));
-          if (idx === -1) {
-            itemsFiltered.push(item);
-          }
-        });
         this.$store.dispatch('collections/ADD_COLLECTION_ITEMS', {
           items: itemsFiltered,
           collection,
@@ -129,16 +131,8 @@ export default {
             item.collections.push(collection);
           });
         });
-      }
-      if(checked) {
+      } else {
         // remove items from collection
-
-        items.forEach((item) => {
-          const idx = item.collections.findIndex(c => (c.uid === collection.uid));
-          if (idx !== -1) {
-            itemsFiltered.push(item);
-          }
-        });
         this.$store.dispatch('collections/REMOVE_COLLECTION_ITEMS', {
           items: itemsFiltered,
           collection,
