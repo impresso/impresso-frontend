@@ -111,7 +111,7 @@
                 </div>
               </div>
             </template>
-            <!-- <b-dropdown-item disabled v-bind:to="{ name: 'dashboard'}">{{$t("dashboard")}}</b-dropdown-item> -->
+            <b-dropdown-item v-bind:to="{ name: 'user'}">{{$t('profile')}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
             <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
@@ -556,6 +556,7 @@ export default {
     "logout": "Logout",
     "dashboard": "Dashboard",
     "collections": "Collections",
+    "pofile": "Profile",
     "label_home": "Home",
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
     "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",

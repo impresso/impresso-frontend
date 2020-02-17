@@ -61,6 +61,7 @@ export default {
       more: 'more...',
       searchMore: 'open in search page...',
       remove: 'remove',
+      removeAccount: 'Delete account',
       clear: 'clear',
       close: 'close',
       loading: 'loading...',
@@ -74,6 +75,9 @@ export default {
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
       login: 'log in',
+      generatePattern: 'Generate Pattern',
+      requestNewPassword: 'Request New Password',
+      requestAccount: 'Request User Account',
     },
     filters: {
       daterange: {
