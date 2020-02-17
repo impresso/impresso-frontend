@@ -36,8 +36,8 @@ export default {
     GET_CURRENT_USER() {
       return services.me.find().then(d => new User(d));
     },
-    CHANGE_PASSWORD(context, { uid, oldPassword, newPassword}) {
-      return services.me.patch(uid, { oldPassword, newPassword }).then((res) => {
+    CHANGE_PASSWORD(context, { uid, previousPassword, newPassword}) {
+      return services.me.patch(uid, { previousPassword, newPassword }).then((res) => {
         console.info('user/CHANGE_PASSWORD received:', res);
         return true;
       });
