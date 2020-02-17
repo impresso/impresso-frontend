@@ -129,7 +129,7 @@ export default {
     clusterColourMap() {
       const clusterIds = [...new Set(this.textReusePassages.map(({ clusterId }) => clusterId))]
       return clusterIds.reduce((map, id, idx) => {
-        map[id] = colourScheme[idx]
+        map[id] = colourScheme[idx + 1] // ignore first color, too little contrast
         return map
       }, {})
     },
@@ -223,7 +223,11 @@ export default {
     clusterSelectedHandler(trClusterId) {
       const { query } = this.$route
       const updatedQuery = Object.assign({}, query, { trClusterId })
-      this.$router.replace({ query: updatedQuery }).catch(() => {})
+      if (query.trClusterId === updatedQuery.trClusterId) {
+        this.$router.replace({ query: '' }).catch(() => {})
+      } else {
+        this.$router.replace({ query: updatedQuery }).catch(() => {})
+      }
     }
   },
   watch: {
