@@ -39,15 +39,13 @@ export default {
     CHANGE_PASSWORD(context, { uid, oldPassword, newPassword}) {
       return services.me.patch(uid, { oldPassword, newPassword }).then((res) => {
         console.info('user/CHANGE_PASSWORD received:', res);
-      }).catch((err) => {
-        console.error('user/CHANGE_PASSWORD received:', err);
+        return true;
       });
     },
     UPDATE_CURRENT_USER(context, user) {
-      return services.me.update(user.uid, user).then((res) => {
-        console.info('user/UPDATE_CURRENT_USER received:', res);
-      }).catch((err) => {
-        console.error('user/UPDATE_CURRENT_USER received:', err);
+      return services.me.update(user.uid, user).then((d) => {
+        console.info('user/UPDATE_CURRENT_USER received:', d);
+        return new User(d);
       });
     },
     LOGIN({ commit }, { email, password }) {
