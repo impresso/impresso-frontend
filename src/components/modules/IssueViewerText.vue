@@ -26,7 +26,8 @@
           <b-container fluid
             v-else
             class="region-row mt-3 mb-3">
-            <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
+            <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i"
+              v-b-tooltip.top.hover :title="regionTitle">
               <div v-if="article.isCC" class="col col-sm-5 bg-white border">
                 <div class="py-3">
                   <img v-bind:src="region.iiifFragment" style="width: 100%" />
@@ -41,14 +42,9 @@
                     :cluster-colours="clusterColourMap"
                     :selected-cluster-id="selectedClusterId"
                     @onClusterSelected="clusterSelectedHandler"/>
-                </div>
+                  </div>
               </div>
             </b-row>
-            <div class="passage-control"
-              :style='{ top: `${hoverPassageLineTopOffset}px` }'
-              v-if="selectedPassage">
-              {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
-            </div>
           </b-container>
         </div>
         <hr class="py-4">
@@ -148,6 +144,12 @@ export default {
         lineBreaks,
         regionBreaks
       ).children;
+    },
+    regionTitle() {
+      if (this.selectedPassage) {
+        return this.$t('cluster_tooltip', { size: this.selectedPassage.clusterSize })
+      }
+      return false
     },
     selectedPassage() {
       if (this.selectedPassageId) {
@@ -297,24 +299,6 @@ export default {
     }
   }
 
-  .passage-control {
-    // border: 1px solid #aaa;
-    border-radius: 4px;
-    padding: 2px 4px;
-    font-size: 13px;
-    background: #eee;
-    display: flex;
-    width: 100px;
-    // height: 25px;
-    flex: 1;
-    position: absolute;
-    overflow: hidden;
-    right: 6px;
-    text-transform: uppercase;
-    font-size: 12px;
-    text-align: center;
-  }
-
   span.location::before {
     content: '\e012';
   }
@@ -353,7 +337,7 @@ export default {
     "page": "pag. {num}",
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ...",
-    "cluster_tooltip": "Text reuse cluster with {size} passages"
+    "cluster_tooltip": "View all {size} articles containing this passage"
   }
 }
 </i18n>
