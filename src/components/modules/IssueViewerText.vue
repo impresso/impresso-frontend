@@ -40,6 +40,11 @@
                 </div>
               </div>
             </b-row>
+	    <div class="passage-control"
+		 :style='{ top: `${hoverPassageLineTopOffset}px` }'
+		 v-if="selectedPassage">
+	      {{Math.round(selectedPassage.lexicalOverlap)}}% Lexical Overlap
+	    </div>
           </b-container>
         </div>
         <hr class="py-4">
@@ -66,13 +71,14 @@
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
-import { articlesSuggestions } from '@/services';
+import { articlesSuggestions, articleTextReusePassages } from '@/services';
 import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import ArticleItem from './lists/ArticleItem';
 import {
   getNamedEntitiesFromArticleResponse,
   annotateText,
+  passageToPassageEntity,
 } from '@/logic/articleAnnotations';
 
 export default {
@@ -80,7 +86,22 @@ export default {
     return {
       article: null,
       articlesSuggestions: [],
+      textReusePassages: [],
+      selectedPassageId: undefined,
+      hoverPassageLineTopOffset: undefined,
+      viewerTopOffset: 0,
     };
+  },
+  updated() {
+    const { height } = document.querySelector('#TheHeader').getBoundingClientRect();
+    this.viewerTopOffset = height;
+
+    [...document.querySelectorAll('.tr-passage')].map(element => {
+      element.removeEventListener('mouseenter', this.mouseenterPassageHandler)
+      element.addEventListener('mouseenter', this.mouseenterPassageHandler)
+      element.removeEventListener('mouseleave', this.mouseleavePassageHandler)
+      element.addEventListener('mouseleave', this.mouseleavePassageHandler)
+    })
   },
   computed: {
     articlePages() {
@@ -102,10 +123,17 @@ export default {
       if (!this.article) return [];
 
       const entities = getNamedEntitiesFromArticleResponse(this.article);
+      const passageEntities = this.textReusePassages.map(passageToPassageEntity)
+
       const lineBreaks = this.article.contentLineBreaks;
       const regionBreaks = this.article.regionBreaks;
 
-      const annotatedText = annotateText(this.article.content, entities, lineBreaks, regionBreaks);
+      const annotatedText = annotateText(
+	this.article.content,
+	entities.concat(passageEntities),
+	lineBreaks,
+	regionBreaks
+      );
 
       const regionStartIndices = annotatedText
         .map((v, index) => (v === '<div class="region">' ? index : -1))
@@ -119,6 +147,12 @@ export default {
       })
 
       return regions;
+    },
+    selectedPassage() {
+      if (this.selectedPassageId) {
+	return this.textReusePassages.filter(({ id }) => id === this.selectedPassageId)[0]
+      }
+      return undefined
     }
   },
   props: ['article_uid'],
@@ -146,13 +180,47 @@ export default {
         });
       }
     },
+    mouseenterPassageHandler(e) {
+      const { id } = e.target.dataset
+      const { top } = e.target.getBoundingClientRect()
+      const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
+      const siblingElements = [...document.querySelectorAll(`.tr-passage`)]
+
+      siblingElements.map(element => {
+	element.classList.remove('active')
+	element.removeEventListener('click', this.passageClickHandler)
+      })
+      peerElements.map(element => element.classList.add('active'))
+
+      e.target.addEventListener('click', this.passageClickHandler)
+
+      this.selectedPassageId = id
+      this.hoverPassageLineTopOffset =  top - this.viewerTopOffset
+    },
+    mouseleavePassageHandler(e) {
+      const { id } = e.target.dataset
+      const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
+
+      peerElements.map(element => element.classList.remove('active'))
+
+      e.target.removeEventListener('click', this.passageClickHandler)
+
+      this.selectedPassageId = null
+    },
+    passageClickHandler() {
+      console.info(`Passage ${this.selectedPassageId} clicked. ${Math.random()}`)
+    }
   },
   watch: {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
         this.articlesSuggestions = [];
-        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
+	[this.article, this.textReusePassages] = await Promise.all([
+	  this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
+	  articleTextReusePassages.find({ query: { id: articleUid }})
+	    .then(({ passages }) => passages)
+	])
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
         });
@@ -177,6 +245,10 @@ export default {
     font-size: inherit;
   }
 
+  .line {
+    margin-top: 2px;
+  }
+
   span.location,
   span.person{
     box-shadow:inset 0px -2px 0px 0px transparentize($clr-tertiary, 0.5);
@@ -193,6 +265,40 @@ export default {
     &:hover {
       box-shadow:inset 0px -24px 0px 0px transparentize($clr-tertiary, 0.5);
     }
+  }
+
+  .tr-passage {
+    padding: 0 2px 0 2px;
+    background-color: #56CCF222;
+    border: 1px solid #56CCF277;
+    // box-shadow:inset 0px -24px 0px 0px transparentize(blue, 0.5);
+    transition: background-color 0.2s ease; //#33ffff333 0.2s;
+    cursor: pointer;
+
+    // &:hover, &.active {
+    &.active {
+      border: 1px solid #11111199;
+      background-color: #56CCF277;
+      // box-shadow:inset 0px -24px 0px 0px transparentize(blue, 0.5);
+    }
+  }
+
+  .passage-control {
+    // border: 1px solid #aaa;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 13px;
+    background: #eee;
+    display: flex;
+    width: 100px;
+    // height: 25px;
+    flex: 1;
+    position: absolute;
+    overflow: hidden;
+    right: 6px;
+    text-transform: uppercase;
+    font-size: 12px;
+    text-align: center;
   }
 
   span.location::before {
