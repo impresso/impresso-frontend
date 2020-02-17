@@ -36,8 +36,19 @@ export default {
     GET_CURRENT_USER() {
       return services.me.find().then(d => new User(d));
     },
-    PATCH_CURRENT_USER() {
-      console.info('user/PATCH_CURRENT_USER placeholder');
+    CHANGE_PASSWORD(context, { uid, oldPassword, newPassword}) {
+      return services.me.patch(uid, { oldPassword, newPassword }).then((res) => {
+        console.info('user/CHANGE_PASSWORD received:', res);
+      }).catch((err) => {
+        console.error('user/CHANGE_PASSWORD received:', err);
+      });
+    },
+    UPDATE_CURRENT_USER(context, user) {
+      return services.me.update(user.uid, user).then((res) => {
+        console.info('user/UPDATE_CURRENT_USER received:', res);
+      }).catch((err) => {
+        console.error('user/UPDATE_CURRENT_USER received:', err);
+      });
     },
     LOGIN({ commit }, { email, password }) {
       return services.app.authenticate({
