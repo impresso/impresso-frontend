@@ -104,7 +104,7 @@
                   :description="errors[0]">
                   <b-form-input
                     id="current-password" name="current-password"
-                    v-model="oldPassword"
+                    v-model="previousPassword"
                     type="password" />
                 </b-form-group><!-- current password -->
               </ValidationProvider>
@@ -174,7 +174,7 @@ extend('min', {
 export default {
   data: () => ({
     user: Object,
-    oldPassword: '',
+    previousPassword: '',
     newPassword: '',
     repeatPassword: '',
     errors: [],
@@ -194,7 +194,7 @@ export default {
     onSubmitChangePassword() {
       this.$store.dispatch('user/CHANGE_PASSWORD', {
         uid: this.user.uid,
-        oldPassword: this.oldPassword,
+        previousPassword: this.previousPassword,
         newPassword: this.newPassword,
       });
     },
