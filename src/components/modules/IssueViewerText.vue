@@ -47,7 +47,7 @@
             <div class="passage-control"
               :style='{ top: `${hoverPassageLineTopOffset}px` }'
               v-if="selectedPassage">
-              {{Math.round(selectedPassage.lexicalOverlap)}}% Lexical Overlap
+              {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
             </div>
           </b-container>
         </div>
@@ -348,7 +348,8 @@ export default {
     "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",
     "page": "pag. {num}",
     "pages": "pp. {nums}",
-    "add_to_collection": "Add to Collection ..."
+    "add_to_collection": "Add to Collection ...",
+    "cluster_tooltip": "Text reuse cluster with {size} passages"
   }
 }
 </i18n>
