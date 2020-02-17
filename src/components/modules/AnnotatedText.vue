@@ -96,21 +96,21 @@ export default {
       if (typeof child === 'string') return child
 
       if (child.entity.kind === 'passage' && child.entity.clusterId !== context.props.selectedClusterId) {
-	return [
-	  renderChildren(h, context, child),
-	  renderClusterTags(h, context, child)
-	]
+        return [
+          renderChildren(h, context, child),
+          renderClusterTags(h, context, child)
+        ]
       }
 
       const Tag = getItemTag(child)
       return (
-	<Tag
-	  class={getItemClasses(child)}
-	  data-id={getDataId(child)}
-	  style={getItemStyles(child, context.props.clusterColours)}>
-	  {renderChildren(h, context, child)}
-	  {renderClusterTags(h, context, child)}
-	</Tag>
+        <Tag
+          class={getItemClasses(child)}
+          data-id={getDataId(child)}
+          style={getItemStyles(child, context.props.clusterColours)}>
+          {renderChildren(h, context, child)}
+          {renderClusterTags(h, context, child)}
+        </Tag>
       )
     })
   }

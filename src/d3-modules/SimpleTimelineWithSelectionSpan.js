@@ -65,10 +65,10 @@ export default class SimpleTimelineWithSelectionSpan extends Basic {
     this.svg.width = this.width;
     if (this.timeLineScaler) {
       this.timeLineScaler
-	.range([
-	  this.margin.left + this.dateLabelWidth,
-	  this.width - this.margin.left - this.margin.right - this.dateLabelWidth
-	])
+        .range([
+          this.margin.left + this.dateLabelWidth,
+          this.width - this.margin.left - this.margin.right - this.dateLabelWidth
+        ])
       this.render()
     }
   }
@@ -134,20 +134,20 @@ export default class SimpleTimelineWithSelectionSpan extends Basic {
       .attr('height', this.selectionWidth)
       .attr('y', - this.selectionWidth / 2)
       .attr('x', ([startDate]) => {
-	return this.timeLineScaler(startDate)
+        return this.timeLineScaler(startDate)
       })
       .attr('width', (d) => {
-	const [x0, x1] = d.map(this.timeLineScaler)
-	return x1 - x0 < 1 ? 1 : x1 - x0
+        const [x0, x1] = d.map(this.timeLineScaler)
+        return x1 - x0 < 1 ? 1 : x1 - x0
       })
 
     this.timeline.selectAll('text.span-label')
       .data([this.selectionSpan].filter(s => s != null))
       .join('text')
       .attr('x', ([startDate, endDate]) => {
-	const diffMs = endDate - startDate
-	const middleDate = new Date(startDate.getTime() + diffMs / 2)
-	return this.timeLineScaler(middleDate)
+        const diffMs = endDate - startDate
+        const middleDate = new Date(startDate.getTime() + diffMs / 2)
+        return this.timeLineScaler(middleDate)
       })
       .attr('text-anchor', 'middle')
       .attr('font-size', this.fontSize)
