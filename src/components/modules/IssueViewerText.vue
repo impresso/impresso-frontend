@@ -36,19 +36,19 @@
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
                 <div class='region py-3'>
-		  <annotated-text
-		    :children="regionsAnnotationTree[i].children"
-		    :cluster-colours="clusterColourMap"
-		    :selected-cluster-id="selectedClusterId"
-		    @onClusterSelected="clusterSelectedHandler"/>
+                  <annotated-text
+                    :children="regionsAnnotationTree[i].children"
+                    :cluster-colours="clusterColourMap"
+                    :selected-cluster-id="selectedClusterId"
+                    @onClusterSelected="clusterSelectedHandler"/>
                 </div>
               </div>
             </b-row>
-	    <div class="passage-control"
-	      :style='{ top: `${hoverPassageLineTopOffset}px` }'
-	      v-if="selectedPassage">
-	      {{Math.round(selectedPassage.lexicalOverlap)}}% Lexical Overlap
-	    </div>
+            <div class="passage-control"
+              :style='{ top: `${hoverPassageLineTopOffset}px` }'
+              v-if="selectedPassage">
+              {{Math.round(selectedPassage.lexicalOverlap)}}% Lexical Overlap
+            </div>
           </b-container>
         </div>
         <hr class="py-4">
@@ -129,8 +129,8 @@ export default {
     clusterColourMap() {
       const clusterIds = [...new Set(this.textReusePassages.map(({ clusterId }) => clusterId))]
       return clusterIds.reduce((map, id, idx) => {
-	map[id] = colourScheme[idx]
-	return map
+        map[id] = colourScheme[idx]
+        return map
       }, {})
     },
     regionsAnnotationTree() {
@@ -143,15 +143,15 @@ export default {
       const regionBreaks = this.article.regionBreaks;
 
       return getAnnotateTextTree(
-	this.article.content,
-	entities.concat(passageEntities),
-	lineBreaks,
-	regionBreaks
+        this.article.content,
+        entities.concat(passageEntities),
+        lineBreaks,
+        regionBreaks
       ).children;
     },
     selectedPassage() {
       if (this.selectedPassageId) {
-	return this.textReusePassages.filter(({ id }) => id === this.selectedPassageId)[0]
+        return this.textReusePassages.filter(({ id }) => id === this.selectedPassageId)[0]
       }
       return undefined
     },
@@ -192,8 +192,8 @@ export default {
       const siblingElements = [...document.querySelectorAll(`.tr-passage`)]
 
       siblingElements.map(element => {
-	element.classList.remove('active')
-	element.removeEventListener('click', this.passageClickHandler)
+        element.classList.remove('active')
+        element.removeEventListener('click', this.passageClickHandler)
       })
       peerElements.map(element => element.classList.add('active'))
 
@@ -214,10 +214,10 @@ export default {
     },
     passageClickHandler() {
       this.$router.push({
-	name: 'text-reuse-clusters-passages',
-	query: {
-	  clusterId: this.selectedClusterId
-	}
+        name: 'text-reuse-clusters-passages',
+        query: {
+          clusterId: this.selectedClusterId
+        }
       })
     },
     clusterSelectedHandler(trClusterId) {
@@ -231,11 +231,11 @@ export default {
       immediate: true,
       async handler(articleUid) {
         this.articlesSuggestions = [];
-	[this.article, this.textReusePassages] = await Promise.all([
-	  this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
-	  articleTextReusePassages.find({ query: { id: articleUid }})
-	    .then(({ passages }) => passages)
-	])
+        [this.article, this.textReusePassages] = await Promise.all([
+          this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
+          articleTextReusePassages.find({ query: { id: articleUid }})
+            .then(({ passages }) => passages)
+        ])
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
         });
