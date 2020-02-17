@@ -23,10 +23,6 @@
 
             <b-form @submit.prevent="onSubmit" v-if="user.uid">
 
-              <b-form-group label="User Name">
-                <b-form-input id="username" name="username" disabled v-model="user.username" />
-              </b-form-group>
-
               <validation-provider name="email" rules="required|email" v-slot="{ errors }">
                 <b-form-group
                   id="input-group-1"
@@ -47,7 +43,6 @@
                       id="firstname" name="firstname" autocomplete="firstname"
                       v-model="user.firstname"
                       required
-                      disabled
                       maxlength="20"></b-form-input>
                   </b-form-group>
                 </b-col>
@@ -57,7 +52,6 @@
                       id="lastname" name="lastname" autocomplete="lastname"
                       v-model="user.lastname"
                       required
-                      disabled
                       maxlength="20"
                     ></b-form-input>
                   </b-form-group>
@@ -86,7 +80,9 @@
               </b-input-group>
 
               <b-button size="sm" type='submit' variant="outline-primary" :disabled="invalid">{{$t('actions.applyChanges')}}</b-button>
-              <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
+              <!-- (TODO)
+                <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
+              -->
 
             </b-form>
 
