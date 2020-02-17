@@ -192,12 +192,16 @@ export default {
   },
   methods: {
     onSubmitChangePassword() {
-      console.info('UserPage.onSubmitChangePassword()');
+      this.$store.dispatch('user/CHANGE_PASSWORD', {
+        uid: this.user.uid,
+        oldPassword: this.oldPassword,
+        newPassword: this.newPassword,
+      });
     },
     onSubmit() {
-      console.info('UserPage.onSubmit()');
-      // to be checked for validity...
-      this.$store.dispatch('user/PATCH_CURRENT_USER', this.user);
+      this.$store.dispatch('user/UPDATE_CURRENT_USER', this.user).then((user) => {
+        this.user = user;
+      });
     },
     confirmDelete() {
       this.$bvModal.msgBoxConfirm(this.$t('Are you sure you want to permanently delete your profile?'))
