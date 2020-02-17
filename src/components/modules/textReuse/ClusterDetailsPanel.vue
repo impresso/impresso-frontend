@@ -40,8 +40,8 @@
     <div class="d-flex flex-row" v-if="textSample != null">
       <timeline-with-span
         :height="30"
-        :startDate="new Date('1818-01-01')"
-        :endDate="new Date('2019-01-01')"
+        :startDate="impressoCollectionStartDate"
+        :endDate="impressoCollectionEndDate"
         :spanStartDate="new Date(cluster.timeCoverage.from)"
         :spanEndDate="new Date(cluster.timeCoverage.to)" />
     </div>
@@ -63,6 +63,14 @@ export default {
   },
   components: {
     TimelineWithSpan
+  },
+  computed: {
+    impressoCollectionStartDate() {
+      return new Date(window.impressoDocumentsDateSpan.firstDate)
+    },
+    impressoCollectionEndDate() {
+      return new Date(window.impressoDocumentsDateSpan.lastDate)
+    },
   }
 }
 </script>
