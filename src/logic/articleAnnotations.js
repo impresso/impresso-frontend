@@ -145,10 +145,10 @@ export function getAnnotateTextTree(text, entities, lineBreaks, regionBreaks) {
 
     matchingEntities.forEach(entity => {
       if (!isInStack(entity)) {
-	const isContinuation = entity.offset.start < breakpoint
-	const item = { entity, children: [], isContinuation }
-	itemsStack[itemsStack.length - 1].children.push(item)
-	itemsStack.push(item)
+        const isContinuation = entity.offset.start < breakpoint
+        const item = { entity, children: [], isContinuation }
+        itemsStack[itemsStack.length - 1].children.push(item)
+        itemsStack.push(item)
       }
     })
   });

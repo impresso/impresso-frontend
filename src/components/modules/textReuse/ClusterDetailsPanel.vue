@@ -3,28 +3,28 @@
     <!-- header -->
     <div class="d-flex flex-row border-bottom pb-1 align-items-end">
       <span class="label">
-	{{$t('clusterLabel')}}
+        {{$t('clusterLabel')}}
       </span>
       <span class="label cluster-id pl-2 text-tertiary">
-	#{{cluster.id}}
+        #{{cluster.id}}
       </span>
     </div>
 
     <!-- subtitle -->
     <div class="d-flex flex-row justify-content-between pb-1 pt-1">
       <div class="d-flex flex-column">
-	<div class="small-caps cluster-size">
-	  <span class="number">{{cluster.clusterSize}}</span> {{$tc('articlesCount', cluster.clusterSize)}}
-	</div>
-	<div class="label small-caps timespan">
-	  {{$d(new Date(cluster.timeCoverage.from), 'short')}}
-	  <small>to</small>
-	  {{$d(new Date(cluster.timeCoverage.to), 'short')}}
-	</div>
+        <div class="small-caps cluster-size">
+          <span class="number">{{cluster.clusterSize}}</span> {{$tc('articlesCount', cluster.clusterSize)}}
+        </div>
+        <div class="label small-caps timespan">
+          {{$d(new Date(cluster.timeCoverage.from), 'short')}}
+          <small>to</small>
+          {{$d(new Date(cluster.timeCoverage.to), 'short')}}
+        </div>
       </div>
       <div class="d-flex flex-column align-items-end">
-	<span class="number">{{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 2 })}}</span>
-	<span class="label text-tertiary label-overlap small-caps flex-shrink-1">lexical overlap</span>
+        <span class="number">{{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 2 })}}</span>
+        <span class="label text-tertiary label-overlap small-caps flex-shrink-1">lexical overlap</span>
       </div>
     </div>
 
@@ -32,18 +32,18 @@
     <div class="d-flex flex-column pb-1" v-if="textSample != null">
       <span class="small-caps cluster-size text-tertiary">{{$t('sampleLabel')}}</span>
       <p class="text-sample p-1">
-	{{textSample}}
+        {{textSample}}
       </p>
     </div>
 
     <!-- time span -->
     <div class="d-flex flex-row" v-if="textSample != null">
       <timeline-with-span
-	:height="30"
-	:startDate="impressoCollectionStartDate"
-	:endDate="impressoCollectionEndDate"
-	:spanStartDate="new Date(cluster.timeCoverage.from)"
-	:spanEndDate="new Date(cluster.timeCoverage.to)" />
+        :height="30"
+        :startDate="impressoCollectionStartDate"
+        :endDate="impressoCollectionEndDate"
+        :spanStartDate="new Date(cluster.timeCoverage.from)"
+        :spanEndDate="new Date(cluster.timeCoverage.to)" />
     </div>
   </div>
 </template>

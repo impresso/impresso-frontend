@@ -313,15 +313,15 @@ const router = new Router({
       component: SearchClustersPage,
       name: 'text-reuse-clusters',
       meta: {
-	requiresAuth: false,
+        requiresAuth: false,
       },
       children: [{
-	path: '',
-	component: TextReusePassagesPage,
-	name: 'text-reuse-clusters-passages',
-	meta: {
-	  requiresAuth: false,
-	},
+        path: '',
+        component: TextReusePassagesPage,
+        name: 'text-reuse-clusters-passages',
+        meta: {
+          requiresAuth: false,
+        },
       }],
     }],
 });
