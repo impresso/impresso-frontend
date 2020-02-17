@@ -99,21 +99,24 @@ Promise.race([
     services.version.find().then((res) => ({
       version: res.version,
       dataVersion: res.solr.dataVersion,
-      apiVersion: res.apiVersion
+      apiVersion: res.apiVersion,
+      documentsDateSpan: res.documentsDateSpan,
     }))
   ]).catch((err) => {
     console.error(err);
     return {
       version: 'n/a',
       dataVersion: 'n/a',
+      documentsDateSpan: { firstDate: '1700-01-01', lastDate: new Date().toISOString() },
       apiVersion: {}
     };
   });
-}).then(({ version, dataVersion, apiVersion = {} }) => {
+}).then(({ version, dataVersion, documentsDateSpan, apiVersion = {} }) => {
   console.info(`Version services:${version}, data:${dataVersion}`);
   window.impressoVersion = version;
   window.impressoDataVersion = dataVersion;
   window.impressoApiVersion = apiVersion
+  window.impressoDocumentsDateSpan = documentsDateSpan
 
   window.app = new Vue({
     el: '#app',
