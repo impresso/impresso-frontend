@@ -134,6 +134,10 @@ export default {
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
     errors: {
+      changePassword: {
+        wrongcredentials: 'Wrong credentials provided...',
+        NotValidRegex: 'The new password is too easy to guess!',
+      },
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',
       BadRequest: 'Bad request.',
