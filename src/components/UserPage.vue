@@ -103,7 +103,6 @@
                   {{ $t('form_password_changed_failed') }}
                 </b-alert>
               </div>
-              {{ previousPasswordState }}
               <!-- current password -->
               <ValidationProvider rules="required|min:10" v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
