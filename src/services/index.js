@@ -8,6 +8,7 @@ import articlesSuggestionsHooks from './hooks/articlesSuggestions';
 import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
 import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
+import NamesService from './names';
 
 
 const MiddleLayerApiBase = `${process.env.VUE_APP_MIDDLELAYER_API}`;
@@ -150,3 +151,5 @@ export const textReuseClusterPassages = app.service('text-reuse-cluster-passages
 export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API;
 export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH;
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('');
+
+export const namesService = new NamesService()
