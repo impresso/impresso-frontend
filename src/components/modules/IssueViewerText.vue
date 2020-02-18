@@ -44,10 +44,14 @@
                 </div>
               </div>
             </b-row>
-            <div class="passage-control"
+            <div
               :style='{ top: `${hoverPassageLineTopOffset}px` }'
+              class="passage-control bs-tooltip-top"
+              role="tooltip"
               v-if="selectedPassage">
-              {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
+              <div class="tooltip-inner">
+                {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
+              </div>
             </div>
           </b-container>
         </div>
@@ -74,7 +78,6 @@
 </template>
 
 <script>
-import { schemeSet3 as colourScheme } from 'd3'
 import Icon from 'vue-awesome/components/Icon';
 import { articlesSuggestions, articleTextReusePassages } from '@/services';
 import CollectionAddTo from './CollectionAddTo';
@@ -87,6 +90,12 @@ import {
   getAnnotateTextTree,
   passageToPassageEntity,
 } from '@/logic/articleAnnotations';
+
+const colourScheme =  [
+  '#8dd3c7', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5',
+  '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f'
+];
+
 
 export default {
   data() {
@@ -222,7 +231,9 @@ export default {
     },
     clusterSelectedHandler(trClusterId) {
       const { query } = this.$route
-      const updatedQuery = Object.assign({}, query, { trClusterId })
+      const updatedQuery = Object.assign({}, query, {
+        trClusterId: query.trClusterId === trClusterId ? undefined : trClusterId
+      })
       this.$router.replace({ query: updatedQuery }).catch(() => {})
     }
   },
@@ -282,8 +293,12 @@ export default {
     }
   }
 
+  .passage-control {
+    position: absolute;
+    right: 0.5em;
+    max-width: 8em;
+  }
   .tr-passage {
-    // padding: 0 2px 0 2px;
     opacity: 0.8;
     transition: opacity 0.2s ease;
     cursor: pointer;
@@ -291,24 +306,6 @@ export default {
     &.active {
       opacity: 1;
     }
-  }
-
-  .passage-control {
-    // border: 1px solid #aaa;
-    border-radius: 4px;
-    padding: 2px 4px;
-    font-size: 13px;
-    background: #eee;
-    display: flex;
-    width: 100px;
-    // height: 25px;
-    flex: 1;
-    position: absolute;
-    overflow: hidden;
-    right: 6px;
-    text-transform: uppercase;
-    font-size: 12px;
-    text-align: center;
   }
 
   span.location::before {
@@ -349,7 +346,7 @@ export default {
     "page": "pag. {num}",
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ...",
-    "cluster_tooltip": "Text reuse cluster with {size} passages"
+    "cluster_tooltip": "View all {size} articles containing this passage"
   }
 }
 </i18n>

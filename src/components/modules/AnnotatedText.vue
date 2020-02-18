@@ -49,14 +49,19 @@ const getBorderlinePassages = item => {
 }
 
 const getClusterTagStyle = (entity, colourMap) => {
-  const backgroundColor = colourMap[entity.clusterId]
+  const borderColor = colourMap[entity.clusterId]
+  return { borderColor }
+}
+const getClusterInnerTagStyle = (context, entity, colourMap) => {
+  const backgroundColor = context.props.selectedClusterId === entity.clusterId ? colourMap[entity.clusterId] : 'transparent';
   return { backgroundColor }
 }
-
-const StartPassageTag = 'S'
-const EndPassageTag = 'E'
-
-const getPassageTag = isLast => isLast ? EndPassageTag : StartPassageTag
+//
+// const StartPassageTag = 'S'
+// const EndPassageTag = 'E'
+//
+// const getPassageTag = isLast => isLast ? EndPassageTag : StartPassageTag
+const getClusterClass = isLast => isLast ? 'ending' : 'starting';
 
 const renderChildren = (h, context, child) => (
   <annotated-text
@@ -74,8 +79,9 @@ const renderClusterTags = (h, context, child) => {
     <span
       class="cluster-tag m-1"
       style={getClusterTagStyle(entity, context.props.clusterColours)}
-      onClick={() => onClusterSelected(entity.clusterId)}>
-      {getPassageTag(isLast)}
+      onClick={() => { onClusterSelected(entity.clusterId); }}>
+      <span class={getClusterClass(isLast)} style={getClusterTagStyle(entity, context.props.clusterColours)} />
+      <span class="select" style={getClusterInnerTagStyle(context, entity, context.props.clusterColours)} />
     </span>
   ))
 }
@@ -117,13 +123,33 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
   .cluster-tag {
-    font-weight: bold;
+    position: relative;
     width: 1em;
-    display: inline-block;
+    height: 1em;
+    border-radius: 50%;
     text-align: center;
-    color: #333;
     cursor: pointer;
+    float: right;
+    border: 2px solid;
+    background: transparent;
+    .select {
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin: 2px;
+    }
+    .starting, .ending {
+      position: absolute;
+      border: 1px solid;
+      height: 10px;
+      left: 5px;
+      top: 12px;
+    }
+    .ending {
+      top: -10px;
+    }
   }
 </style>
