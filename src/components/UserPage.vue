@@ -106,18 +106,18 @@
               {{ previousPasswordState }}
               <!-- current password -->
               <ValidationProvider rules="required|min:10" v-slot="{ errors }" vid="repeatPassword">
-              <b-form-group
-                id="input-group-changepwd-1"
-                :label="$t('form_oldpassword')"
-                label-for="current-password"
-                :description="errors[0]"
-                >
-                <b-form-input
-                  id="current-password" name="current-password"
-                  v-model="previousPassword"
-                  type="password" />
-              </b-form-group>
-            </ValidationProvider><!-- current password -->
+                <b-form-group
+                  id="input-group-changepwd-1"
+                  :label="$t('form_oldpassword')"
+                  label-for="current-password"
+                  :description="errors[0]"
+                  >
+                  <b-form-input
+                    id="current-password" name="current-password"
+                    v-model="previousPassword"
+                    type="password" />
+                </b-form-group>
+              </ValidationProvider><!-- current password -->
               <!-- new password -->
               <ValidationObserver>
                 <!-- dd rule:
