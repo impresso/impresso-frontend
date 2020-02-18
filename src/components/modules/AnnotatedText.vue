@@ -56,11 +56,12 @@ const getClusterInnerTagStyle = (context, entity, colourMap) => {
   const backgroundColor = context.props.selectedClusterId === entity.clusterId ? colourMap[entity.clusterId] : 'transparent';
   return { backgroundColor }
 }
-
+//
 // const StartPassageTag = 'S'
 // const EndPassageTag = 'E'
-
+//
 // const getPassageTag = isLast => isLast ? EndPassageTag : StartPassageTag
+const getClusterClass = isLast => isLast ? 'ending' : 'starting';
 
 const renderChildren = (h, context, child) => (
   <annotated-text
@@ -74,12 +75,13 @@ const renderClusterTags = (h, context, child) => {
 
   const { onClusterSelected = (() => ({})) } = context.listeners
 
-  return getBorderlinePassages(child).map(({ entity }) => (
+  return getBorderlinePassages(child).map(({ entity, isLast }) => (
     <span
       class="cluster-tag m-1"
       style={getClusterTagStyle(entity, context.props.clusterColours)}
-      onClick={() => onClusterSelected(entity.clusterId)}>
-      <span style={getClusterInnerTagStyle(context, entity, context.props.clusterColours)} />
+      onClick={() => { onClusterSelected(entity.clusterId); }}>
+      <span class={getClusterClass(isLast)} style={getClusterTagStyle(entity, context.props.clusterColours)} />
+      <span class="select" style={getClusterInnerTagStyle(context, entity, context.props.clusterColours)} />
     </span>
   ))
 }
@@ -123,6 +125,7 @@ export default {
 
 <style lang="scss">
   .cluster-tag {
+    position: relative;
     width: 1em;
     height: 1em;
     border-radius: 50%;
@@ -131,12 +134,22 @@ export default {
     float: right;
     border: 2px solid;
     background: transparent;
-    span {
+    .select {
       display: block;
       width: 8px;
       height: 8px;
       border-radius: 50%;
       margin: 2px;
+    }
+    .starting, .ending {
+      position: absolute;
+      border: 1px solid;
+      height: 10px;
+      left: 5px;
+      top: 12px;
+    }
+    .ending {
+      top: -10px;
     }
   }
 </style>

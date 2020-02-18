@@ -35,8 +35,7 @@
               <div
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
-                <div class='region py-3'
-                  v-b-tooltip.top :title="regionTitle">
+                <div class='region py-3'>
                   <annotated-text
                     :children="regionsAnnotationTree[i].children"
                     :cluster-colours="clusterColourMap"
@@ -45,6 +44,15 @@
                 </div>
               </div>
             </b-row>
+            <div
+              :style='{ top: `${hoverPassageLineTopOffset}px` }'
+              class="passage-control bs-tooltip-top"
+              role="tooltip"
+              v-if="selectedPassage">
+              <div class="tooltip-inner">
+                {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
+              </div>
+            </div>
           </b-container>
         </div>
         <hr class="py-4">
@@ -70,7 +78,6 @@
 </template>
 
 <script>
-import { schemeSet3 as colourScheme } from 'd3'
 import Icon from 'vue-awesome/components/Icon';
 import { articlesSuggestions, articleTextReusePassages } from '@/services';
 import CollectionAddTo from './CollectionAddTo';
@@ -83,6 +90,12 @@ import {
   getAnnotateTextTree,
   passageToPassageEntity,
 } from '@/logic/articleAnnotations';
+
+const colourScheme =  [
+  '#8dd3c7', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5',
+  '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f'
+];
+
 
 export default {
   data() {
@@ -125,7 +138,7 @@ export default {
     clusterColourMap() {
       const clusterIds = [...new Set(this.textReusePassages.map(({ clusterId }) => clusterId))]
       return clusterIds.reduce((map, id, idx) => {
-        map[id] = colourScheme[idx + 1] // ignore first color, too little contrast
+        map[id] = colourScheme[idx]
         return map
       }, {})
     },
@@ -144,12 +157,6 @@ export default {
         lineBreaks,
         regionBreaks
       ).children;
-    },
-    regionTitle() {
-      if (this.selectedPassage) {
-        return this.$t('cluster_tooltip', { size: this.selectedPassage.clusterSize });
-      }
-      return false;
     },
     selectedPassage() {
       if (this.selectedPassageId) {
@@ -224,12 +231,10 @@ export default {
     },
     clusterSelectedHandler(trClusterId) {
       const { query } = this.$route
-      const updatedQuery = Object.assign({}, query, { trClusterId })
-      if (query.trClusterId === updatedQuery.trClusterId) {
-        this.$router.replace({ query: '' }).catch(() => {})
-      } else {
-        this.$router.replace({ query: updatedQuery }).catch(() => {})
-      }
+      const updatedQuery = Object.assign({}, query, {
+        trClusterId: query.trClusterId === trClusterId ? undefined : trClusterId
+      })
+      this.$router.replace({ query: updatedQuery }).catch(() => {})
     }
   },
   watch: {
@@ -288,8 +293,12 @@ export default {
     }
   }
 
+  .passage-control {
+    position: absolute;
+    right: 0.5em;
+    max-width: 8em;
+  }
   .tr-passage {
-    // padding: 0 2px 0 2px;
     opacity: 0.8;
     transition: opacity 0.2s ease;
     cursor: pointer;
