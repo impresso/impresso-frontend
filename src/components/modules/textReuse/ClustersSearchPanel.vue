@@ -14,6 +14,12 @@
         :placeholder="$t('placeholder')"/>
     </div>
 
+    <div class="pt-2" v-if="filters.length > 0">
+      <b-form-checkbox v-model="filtersEnabledModel">
+        <search-query-summary :searchQuery="filtersAsSearchQuery"/>
+      </b-form-checkbox>
+    </div>
+
     <div class="pt-2">
       <i-dropdown v-model="orderByModel"
       :options="orderByOptions"
@@ -25,6 +31,8 @@
 
 <script>
 import SearchInput from '@/components/modules/SearchInput'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
+import SearchQuery from '@/models/SearchQuery'
 
 const SortingMethod = {
   PassagesCount: 'passages-count'
@@ -37,10 +45,19 @@ export default {
     value: String,
     orderBy: {
       type: String,
+    },
+    filters: {
+      type: Array,
+      default: () => []
+    },
+    filtersEnabled: {
+      type: Boolean,
+      default: true
     }
   },
   components: {
     SearchInput,
+    SearchQuerySummary,
   },
   methods: {
     onSubmitted({ q }) {
@@ -74,6 +91,13 @@ export default {
           disabled: false,
         }
       ];
+    },
+    filtersEnabledModel: {
+      get() { return this.filtersEnabled },
+      set(val) { this.$emit('filtersEnabledChanged', val) }
+    },
+    filtersAsSearchQuery() {
+      return new SearchQuery({ filters: this.filters })
     }
   }
 };

@@ -101,6 +101,7 @@ Promise.race([
       dataVersion: res.solr.dataVersion,
       apiVersion: res.apiVersion,
       documentsDateSpan: res.documentsDateSpan,
+      newspapers: res.newspapers
     }))
   ]).catch((err) => {
     console.error(err);
@@ -108,15 +109,17 @@ Promise.race([
       version: 'n/a',
       dataVersion: 'n/a',
       documentsDateSpan: { firstDate: '1700-01-01', lastDate: new Date().toISOString() },
-      apiVersion: {}
+      apiVersion: {},
+      newspapers: {}
     };
   });
-}).then(({ version, dataVersion, documentsDateSpan, apiVersion = {} }) => {
+}).then(({ version, dataVersion, documentsDateSpan, newspapers, apiVersion = {} }) => {
   console.info(`Version services:${version}, data:${dataVersion}`);
   window.impressoVersion = version;
   window.impressoDataVersion = dataVersion;
   window.impressoApiVersion = apiVersion
   window.impressoDocumentsDateSpan = documentsDateSpan
+  window.impressoNewspapers = newspapers
 
   window.app = new Vue({
     el: '#app',

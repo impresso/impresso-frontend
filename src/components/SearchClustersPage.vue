@@ -5,8 +5,11 @@
         <cluster-text-search-panel
           @submit="handleSearchInputSubmitted"
           @orderByChanged="handleOrderByChanged"
+          @filtersEnabledChanged="handleFiltersEnabledChanged"
           :orderBy="orderByValue"
-          :value="searchText"/>
+          :value="searchText"
+          :filters="searchFilters"
+          :filters-enabled="searchFiltersEnabled"/>
       </div>
       <div :class="`pl-1 pr-2 mt-2 mb-2 d-flex flex-row \
         ${isClusterSelected(item.cluster.id) ? 'active' : ''} \
@@ -56,18 +59,28 @@
 </template>
 
 <script>
+import { protobuf } from 'impresso-jscommons';
 import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel'
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
+
 import Pagination from './modules/Pagination';
 import { textReuseClusters } from '@/services';
 
 const isLastItem = (index, total) => total - 1 === index
 
+const serializeFilters = filters => protobuf.searchQuery.serialize({ filters })
+const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
+
+const SupportedFilterTypes = ['daterange', 'newspaper']
+const supportedFiltersFilter = filter => SupportedFilterTypes.includes(filter.type)
+
 const QueryParameters = Object.freeze({
   ClusterId: 'clusterId',
   SearchText: 'q',
   PageNumber: 'page',
-  OrderBy: 'orderBy'
+  OrderBy: 'orderBy',
+  SearchFiltersEnabled: 'filtersOn',
+  SearchFilters: 'filters'
 })
 
 export default {
@@ -89,7 +102,25 @@ export default {
   components: {
     ClusterTextSearchPanel,
     ClusterDetailsPanel,
-    Pagination,
+    Pagination
+  },
+  mounted() {
+    // On page load see if there are any filters present in the query parameters
+    // If not, set them from the current search filters from the store
+    if (this.$route.query[QueryParameters.SearchFilters] == null) {
+      const searchQuery = this.$store.getters['search/getSearch'];
+      const filters = searchQuery
+        ? searchQuery.filters
+          .map(filter => filter.getQuery())
+          .filter(supportedFiltersFilter)
+        : [];
+      if (filters.length > 0) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.SearchFilters]: serializeFilters(filters),
+          [QueryParameters.SearchFiltersEnabled]: 1
+        })
+      }
+    }
   },
   methods: {
     isClusterSelected(clusterId) {
@@ -116,20 +147,10 @@ export default {
         [QueryParameters.OrderBy]: orderByValue
       })
     },
-    async executeSearch() {
-      const pageNumber = this.paginationCurrentPage - 1;
-      const orderBy = this.orderByValue;
-
-      [this.clusterItems, this.searchInfo] = await textReuseClusters
-        .find({ query: {
-          text: this.searchText,
-          skip: this.paginationPerPage * pageNumber,
-          limit: this.paginationPerPage,
-          orderBy
-        }})
-        .then(result => {
-          return [result.clusters, result.info]
-        })
+    handleFiltersEnabledChanged(filtersAreEnabled) {
+      this.$navigation.updateQueryParameters({
+        [QueryParameters.SearchFiltersEnabled]: filtersAreEnabled ? 1 : undefined
+      })
     },
     isLastItem
   },
@@ -150,19 +171,41 @@ export default {
     },
     orderByValue() {
       return this.$route.query[QueryParameters.OrderBy]
+    },
+    searchFilters() {
+      const serializedFilters = this.$route.query[QueryParameters.SearchFilters]
+      return serializedFilters
+        ? deserializeFilters(serializedFilters)
+        : []
+    },
+    searchFiltersEnabled() {
+      return Boolean(this.$route.query[QueryParameters.SearchFiltersEnabled])
+    },
+    searchApiQueryParameters() {
+      const pageNumber = this.paginationCurrentPage - 1;
+      const orderBy = this.orderByValue;
+      const filters = this.searchFiltersEnabled
+        ? serializeFilters(this.searchFilters)
+        : undefined;
+      return {
+        text: this.searchText,
+        skip: this.paginationPerPage * pageNumber,
+        limit: this.paginationPerPage,
+        orderBy,
+        filters
+      }
     }
   },
   watch: {
-    searchText: {
-      async handler() {
-        return this.executeSearch()
+    searchApiQueryParameters: {
+      async handler(query) {
+        [this.clusterItems, this.searchInfo] = await textReuseClusters
+          .find({ query })
+          .then(result => {
+            return [result.clusters, result.info]
+          })
       },
       immediate: true
-    },
-    paginationCurrentPage: {
-      async handler() {
-        return this.executeSearch()
-      }
     },
     selectedClusterId: {
       async handler() {
@@ -175,9 +218,6 @@ export default {
           .then(({ cluster }) => cluster)
       },
       immediate: true
-    },
-    orderByValue: {
-      async handler() { return this.executeSearch() }
     }
   }
 };
