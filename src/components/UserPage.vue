@@ -95,21 +95,41 @@
         <b-col md="6" offset-md="3">
           <ValidationObserver v-slot="{ invalid }">
             <b-form @submit.prevent="onSubmitChangePassword">
+              <div v-if="passwordSubmitted">
+                <b-alert v-if="passwordSubmittedSuccess" variant="success" show>{{ $t('form_password_changed') }}</b-alert>
+                <b-alert v-else variant="danger" show>
+                  <b>{{ $t(`errors.changePassword.${passwordSubmittedError}`)}}</b>
+                  <br>
+                  {{ $t('form_password_changed_failed') }}
+                </b-alert>
+              </div>
               <!-- current password -->
-              <ValidationProvider name="current-password" rules="required" v-slot="{ errors }">
-                <b-form-group
-                  id="input-group-changepwd-1"
-                  :label="$t('form_oldpassword')"
-                  label-for="current-password"
-                  :description="errors[0]">
-                  <b-form-input
-                    id="current-password" name="current-password"
-                    v-model="previousPassword"
-                    type="password" />
-                </b-form-group><!-- current password -->
-              </ValidationProvider>
+              <b-form-group
+                id="input-group-changepwd-1"
+                :label="$t('form_oldpassword')"
+                label-for="current-password"
+                :description="errors[0]"
+                :state="previousPasswordState"
+                >
+                <b-form-input
+                  id="current-password" name="current-password"
+                  v-model="previousPassword"
+                  type="password" />
+              </b-form-group><!-- current password -->
               <!-- new password -->
               <ValidationObserver>
+                <!-- dd rule:
+                  Use the following Regex to satisfy the below conditions:
+
+                  Conditions: 1] Min 1 uppercase letter.
+                              2] Min 1 lowercase letter.
+                              3] Min 1 special character.
+                              4] Min 1 number.
+                              5] Min 12 characters.
+                              6] Max 42 characters.
+
+                  Regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{12,42}$/
+                -->
                 <ValidationProvider rules="required|min:12" v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-2"
@@ -177,6 +197,10 @@ export default {
     previousPassword: '',
     newPassword: '',
     repeatPassword: '',
+    // form results
+    passwordSubmitted: false,
+    passwordSubmittedSuccess: false,
+    passwordSubmittedError: '',
     errors: [],
     palettes:
     [
@@ -192,10 +216,25 @@ export default {
   },
   methods: {
     onSubmitChangePassword() {
+      this.passwordSubmitted = false;
+      this.passwordSubmittedError = '';
       this.$store.dispatch('user/CHANGE_PASSWORD', {
         uid: this.user.uid,
         previousPassword: this.previousPassword,
         newPassword: this.newPassword,
+      }).then(() => {
+        this.passwordSubmitted = true;
+        this.passwordSubmittedSuccess = true;
+        console.info('UserPage.onSubmitChangePassword() SUCCESS, Password changed!');
+      }).catch((err) => {
+        this.passwordSubmitted = true;
+        this.passwordSubmittedSuccess = false;
+        if (err.data && err.data.newPassword) {
+          this.passwordSubmittedError = err.data.newPassword.code;
+        } else {
+          this.passwordSubmittedError = err.message.toLowerCase().split(' ').join('');
+        }
+        console.warn('UserPage.onSubmitChangePassword() failed, error: ', err);
       });
     },
     onSubmit() {
@@ -229,6 +268,21 @@ export default {
     },
   },
   computed: {
+    previousPasswordState() {
+      if (!this.passwordSubmitted) {
+        return null;
+      }
+      return this.passwordSubmittedSuccess;
+    },
+    invalidFeedback() {
+      if (this.previousPassword.length > 6) {
+        return '';
+      } else if (this.name.length > 0) {
+        return 'Enter at least 4 characters'
+      } else {
+        return 'Please enter something'
+      }
+    },
     patternAsText: {
       get() {
         if (this.user) {
@@ -287,7 +341,9 @@ export default {
     "form_change_password": "Change Password",
     "form_oldpassword": "Current Password",
     "form_newpassword": "New Password",
-    "form_newpassword_repeat": "Repeat New Password"
+    "form_newpassword_repeat": "Repeat New Password",
+    "form_password_changed": "Bravo! Your password has been updated.",
+    "form_password_changed_failed": "Please check the values you have entered."
   }
 }
 </i18n>
