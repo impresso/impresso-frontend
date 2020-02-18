@@ -243,7 +243,7 @@ export default {
       return name === '' ? this.user.username : name;
     },
     userRole() {
-      if (this.user.displayName.length) {
+      if (this.user.displayName && this.user.displayName.length) {
         return this.user.displayName;
       }
       return this.user.isStaff ? this.$t('staff') : this.$t('researcher');
