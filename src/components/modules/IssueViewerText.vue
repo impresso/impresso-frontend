@@ -26,8 +26,7 @@
           <b-container fluid
             v-else
             class="region-row mt-3 mb-3">
-            <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i"
-              v-b-tooltip.top.hover :title="regionTitle">
+            <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
               <div v-if="article.isCC" class="col col-sm-5 bg-white border">
                 <div class="py-3">
                   <img v-bind:src="region.iiifFragment" style="width: 100%" />
@@ -36,13 +35,14 @@
               <div
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
-                <div class='region py-3'>
+                <div class='region py-3'
+                  v-b-tooltip.top :title="regionTitle">
                   <annotated-text
                     :children="regionsAnnotationTree[i].children"
                     :cluster-colours="clusterColourMap"
                     :selected-cluster-id="selectedClusterId"
                     @onClusterSelected="clusterSelectedHandler"/>
-                  </div>
+                </div>
               </div>
             </b-row>
           </b-container>
@@ -147,9 +147,9 @@ export default {
     },
     regionTitle() {
       if (this.selectedPassage) {
-        return this.$t('cluster_tooltip', { size: this.selectedPassage.clusterSize })
+        return this.$t('cluster_tooltip', { size: this.selectedPassage.clusterSize });
       }
-      return false
+      return false;
     },
     selectedPassage() {
       if (this.selectedPassageId) {
