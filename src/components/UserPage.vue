@@ -103,19 +103,21 @@
                   {{ $t('form_password_changed_failed') }}
                 </b-alert>
               </div>
+              {{ previousPasswordState }}
               <!-- current password -->
+              <ValidationProvider rules="required|min:10" v-slot="{ errors }" vid="repeatPassword">
               <b-form-group
                 id="input-group-changepwd-1"
                 :label="$t('form_oldpassword')"
                 label-for="current-password"
                 :description="errors[0]"
-                :state="previousPasswordState"
                 >
                 <b-form-input
                   id="current-password" name="current-password"
                   v-model="previousPassword"
                   type="password" />
-              </b-form-group><!-- current password -->
+              </b-form-group>
+            </ValidationProvider><!-- current password -->
               <!-- new password -->
               <ValidationObserver>
                 <!-- dd rule:
@@ -268,21 +270,6 @@ export default {
     },
   },
   computed: {
-    previousPasswordState() {
-      if (!this.passwordSubmitted) {
-        return null;
-      }
-      return this.passwordSubmittedSuccess;
-    },
-    invalidFeedback() {
-      if (this.previousPassword.length > 6) {
-        return '';
-      } else if (this.name.length > 0) {
-        return 'Enter at least 4 characters'
-      } else {
-        return 'Please enter something'
-      }
-    },
     patternAsText: {
       get() {
         if (this.user) {
