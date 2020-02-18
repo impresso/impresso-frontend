@@ -1,6 +1,6 @@
 <template lang="html">
   <div :class="status">
-    <b-modal v-on:hidden="onHidden" id="facet-explorer-modal" ref="facet-explorer-modal">
+    <b-modal v-on:hidden="onHidden" :id="id" ref="facet-explorer-modal" class="facet-explorer-modal">
       <template v-slot:modal-header class="mt-2 mr-0">
         <div>
           <div class="tb-title small-caps font-weight-bold">{{ $t('explore') }}</div>
@@ -38,10 +38,16 @@
           </div>
         </div>
       </template>
+      <div
+        v-if='isLoading'
+        class="position-absolute w-100 h-100"
+        style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
+        <i-spinner class="text-center pt-4" />
+      </div>
       <facet-explorer
-        :initial-type="type"
-        :q="q"
-        v-on:submit-buckets="onSubmitBuckets"
+        :filter-type="type"
+        :buckets="buckets"
+        v-model="filter"
         class="my-0 mb-3 px-2"/>
         <div v-if="paginationTotalRows > paginationPerPage" class="p-3">
           <div
@@ -68,17 +74,12 @@ import FacetExplorer from './modules/FacetExplorer';
 import Pagination from './modules/Pagination';
 
 export default {
+  data: () => ({
+    id: undefined
+  }),
   methods: {
-    onSubmitBuckets({ type, q }) {
-      console.info('explorer @onSubmitBuckets filter:', type, q, this.$route);
-      this.$store.dispatch('explorer/ADD_FILTER', {
-        type,
-        q,
-      });
-      this.search();
-    },
     onHide() {
-      this.$bvModal.hide('facet-explorer-modal');
+      this.$bvModal.hide(this.id);
     },
     onHidden() {
       this.$store.dispatch('explorer/HIDE');
@@ -117,8 +118,23 @@ export default {
     mode() {
       return this.$store.state.explorer.mode;
     },
-    filters() {
-      return this.$store.state.explorer.filters;
+    filters: {
+      get() { return this.$store.state.explorer.filters },
+    },
+    filter: {
+      get() {
+        // TODO: watch out multiple filters of the same type
+        return this.filters.filter(({ type }) => type === this.type)[0]
+      },
+      set(filter) {
+        this.$store.dispatch('explorer/ADD_FILTER', filter);
+        this.search();
+      }
+    },
+    buckets: {
+      get() {
+        return this.$store.state.buckets.items;
+      },
     },
     paginationPerPage: {
       get() {
@@ -165,6 +181,7 @@ export default {
     },
   },
   mounted() {
+    this.id = `facet-explorer-modal-${this._uid}`
     this.$store.dispatch('explorer/HIDE');
   },
   components: {
@@ -175,7 +192,7 @@ export default {
     status: {
       handler(val) {
         if (val === 'on') {
-          this.$bvModal.show('facet-explorer-modal');
+          this.$bvModal.show(this.id);
           this.search();
         }
       },
@@ -185,7 +202,7 @@ export default {
 </script>
 
 <style lang="scss">
-  #facet-explorer-modal{
+  .facet-explorer-modal {
     .modal-body{
       padding: 0;
     }
