@@ -55,6 +55,7 @@ export default {
     is_locked() {
       return this.$store.state.processingLocked;
     },
+    /* TODO: All methods below that use "explorer" store will be removed soon */
     explorerFilters: {
       get() { return this.$store.state.explorer.filters },
       /** @param {import('./models/models').Filter[]} filters */
@@ -82,6 +83,7 @@ export default {
         this.$store.dispatch('search/ADD_FILTER', { filter });
       }
     },
+    /* TODO: All methods below that use "explorer" store will be removed soon */
     handleExplorerHide() {
       this.$store.dispatch('explorer/HIDE');
     }
