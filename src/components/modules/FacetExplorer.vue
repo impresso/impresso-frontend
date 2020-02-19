@@ -28,12 +28,12 @@
 </template>
 
 <script>
-// @ts-check
-
-// @ts-ignore
 import ItemLabel from './lists/ItemLabel'
-// @ts-ignore
 import ItemSelector from './ItemSelector'
+
+function getEntitiesForIds(ids, entities) {
+  return ids.map(id => entities.find(entity => entity && entity.uid  === id))
+}
 
 export default {
   model: {
@@ -41,10 +41,13 @@ export default {
     event: 'change'
   },
   data: () => ({
+    /** @type {string[]} */
     selectedIds: [],
+    selectedIdsEntities: []
   }),
   props: {
     filter: {
+      /** @type {import('vue').PropType<import('../../models/models').Filter>} */
       type: Object
     },
     filterType: {
@@ -75,28 +78,33 @@ export default {
     },
     selectedIdsChanged() {
       const a = JSON.stringify([...this.selectedIds].sort())
-      // @ts-ignore
       const b = JSON.stringify([...this.filterIds].sort())
       return a !== b
     }
   },
   methods: {
     applyFilter() {
+      const entities = getEntitiesForIds(
+        this.selectedIds,
+        this.selectedIdsEntities.concat(this.buckets.map(({ item }) => item))
+      )
+
       const originalFilter = this.filter
         ? this.filter
         : { type: this.filterType }
       const updatedFilter = Object.assign({}, originalFilter, {
-        q: this.selectedIds
+        q: this.selectedIds,
+        items: entities
       })
-
       this.$emit('change', updatedFilter)
     },
   },
   watch: {
     filter: {
       handler() {
-        // @ts-ignore
+        const entities = this.filter ? this.filter.items : []
         this.selectedIds = this.filterIds
+        this.selectedIdsEntities = getEntitiesForIds(this.filterIds, entities)
       },
       immediate: true
     }

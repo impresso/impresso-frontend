@@ -126,7 +126,7 @@ export default {
       return included;
     },
     includedIds() {
-      return this.included.reduce((acc, filter) => acc.concat(filter.qh), []);
+      return this.included.reduce((acc, filter) => acc.concat(Array.isArray(filter.q) ? filter.q : [filter.q]), []);
     },
     excluded() {
       if (!this.filtered) {

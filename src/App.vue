@@ -7,7 +7,10 @@
     <router-view />
   </div>
   <div id="app-explorer" class="fullscreen">
-    <explorer/>
+    <explorer v-model="explorerFilters"
+              :isVisible="explorerVisible"
+              @onHide="handleExplorerHide"
+              :searching-enabled="explorerSearchingEnabled"/>
   </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
@@ -52,6 +55,25 @@ export default {
     is_locked() {
       return this.$store.state.processingLocked;
     },
+    explorerFilters: {
+      get() { return this.$store.state.explorer.filters },
+      /** @param {import('./models/models').Filter[]} filters */
+      set(filters) {
+        const currentFilters = this.$store.state.explorer.filters
+        filters.forEach(filter => {
+          const exists = currentFilters.filter(f => JSON.stringify(f) === JSON.stringify(filter)).length
+          if (!exists) {
+            this.$store.dispatch('explorer/ADD_FILTER', filter)
+          }
+        })
+      },
+    },
+    explorerSearchingEnabled() {
+      return this.$store.state.explorer.mode === 'search'
+    },
+    explorerVisible() {
+      return this.$store.state.explorer.status === 'on'
+    }
   },
   methods: {
     onEventBusAddFilter({ filter, searchQueryId }) {
@@ -60,6 +82,9 @@ export default {
         this.$store.dispatch('search/ADD_FILTER', { filter });
       }
     },
+    handleExplorerHide() {
+      this.$store.dispatch('explorer/HIDE');
+    }
   },
   mounted() {
     window.addEventListener('click', () => {
