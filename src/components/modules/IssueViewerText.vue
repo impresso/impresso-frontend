@@ -297,6 +297,7 @@ export default {
     position: absolute;
     right: 0.5em;
     max-width: 8em;
+    pointer-events: none;
   }
   .tr-passage {
     opacity: 0.8;
