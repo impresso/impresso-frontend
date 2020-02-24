@@ -10,7 +10,8 @@ import SearchPage from '../components/SearchPage';
 import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
-import UserDashboardPage from '../components/UserDashboardPage';
+import UserPage from '../components/UserPage';
+import UserRegisterPage from '../components/UserRegisterPage';
 import CollectionsPage from '../components/CollectionsPage';
 import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
@@ -131,13 +132,21 @@ const router = new Router({
       },
     },
     {
-      path: '/user/dashboard',
-      redirect: '/collections',
-      name: 'dashboard',
-      component: UserDashboardPage,
+      path: '/user',
+      name: 'user',
+      component: UserPage,
       meta: {
         realm: 'user',
         requiresAuth: true,
+      },
+    },
+    {
+      path: '/user/register',
+      name: 'register',
+      component: UserRegisterPage,
+      meta: {
+        realm: 'user',
+        requiresAuth: false,
       },
     },
     {

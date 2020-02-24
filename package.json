@@ -1,6 +1,6 @@
 {
   "name": "impresso-frontend",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "A Vue.js project",
   "author": "Thijs van Beek <thijs.vanbeek@uni.lu>",
   "private": true,
@@ -31,6 +31,7 @@
     "socket.io-client": "2.3.0",
     "svg-overlay": "github:openseadragon/svg-overlay",
     "uuid": "3.4.0",
+    "vee-validate": "^3.2.4",
     "vue": "2.6.10",
     "vue-awesome": "4.0.2",
     "vue-click-outside": "1.0.7",
