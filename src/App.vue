@@ -6,12 +6,6 @@
   <div id="app-content">
     <router-view />
   </div>
-  <div id="app-explorer" class="fullscreen">
-    <explorer v-model="explorerFilters"
-              :isVisible="explorerVisible"
-              @onHide="handleExplorerHide"
-              :searching-enabled="explorerSearchingEnabled"/>
-  </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
@@ -29,7 +23,6 @@
 import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
 import Monitor from './components/Monitor';
-import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 import CookieDisclaimer from './components/modals/CookieDisclaimer';
@@ -39,7 +32,6 @@ export default {
   components: {
     TheHeader,
     Monitor,
-    Explorer,
     DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
@@ -54,26 +46,6 @@ export default {
     },
     is_locked() {
       return this.$store.state.processingLocked;
-    },
-    /* TODO: All methods below that use "explorer" store will be removed soon */
-    explorerFilters: {
-      get() { return this.$store.state.explorer.filters },
-      /** @param {import('./models/models').Filter[]} filters */
-      set(filters) {
-        const currentFilters = this.$store.state.explorer.filters
-        filters.forEach(filter => {
-          const exists = currentFilters.filter(f => JSON.stringify(f) === JSON.stringify(filter)).length
-          if (!exists) {
-            this.$store.dispatch('explorer/ADD_FILTER', filter)
-          }
-        })
-      },
-    },
-    explorerSearchingEnabled() {
-      return this.$store.state.explorer.mode === 'search'
-    },
-    explorerVisible() {
-      return this.$store.state.explorer.status === 'on'
     }
   },
   methods: {
@@ -82,10 +54,6 @@ export default {
       if (!searchQueryId || !searchQueryId.length) {
         this.$store.dispatch('search/ADD_FILTER', { filter });
       }
-    },
-    /* TODO: All methods below that use "explorer" store will be removed soon */
-    handleExplorerHide() {
-      this.$store.dispatch('explorer/HIDE');
     }
   },
   mounted() {

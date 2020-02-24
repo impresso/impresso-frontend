@@ -88,13 +88,22 @@
       </div>
     </b-dropdown>
     <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="addFilter">{{ $t('actions.addFilter') }}</b-button>
+
+    <explorer v-model="explorerFilters"
+      :is-visible="explorerVisible"
+      @onHide="handleExplorerHide"
+      :searching-enabled="false"/>
   </div>
 </template>
 
 <script>
 import FilterMonitor from './modules/FilterMonitor';
+import Explorer from './Explorer';
 
 export default {
+  data: () => ({
+    explorerVisible: false
+  }),
   props: {
     excludedTypes: {
       type: Array,
@@ -124,9 +133,6 @@ export default {
     },
   },
   computed: {
-    temporaryFilter() {
-      return this.$store.getters['explorer/getTemporaryFilter'](this.searchQueryId);
-    },
     pills: {
       get() {
         const filters = this.searchFilters !== undefined
@@ -150,6 +156,18 @@ export default {
         ];
       },
     },
+    explorerFilters: {
+      get() { return this.pills },
+      set(filters) {
+        const currentFilters = this.pills
+        filters.forEach(filter => {
+          const exists = currentFilters.filter(f => JSON.stringify(f) === JSON.stringify(filter)).length
+          if (!exists) {
+            this.onAddFilter(filter)
+          }
+        })
+      }
+    }
   },
   methods: {
     labelByItems({
@@ -200,27 +218,16 @@ export default {
       this.$emit('add', filter);
     },
     addFilter() {
-      this.$store.dispatch('explorer/SET_SEARCH_QUERY_ID', this.searchQueryId);
-      this.$store.dispatch('explorer/SHOW', {
-        mode: 'facets',
-        filters: this.searchFilters,
-      });
+      this.explorerVisible = true
     },
+    handleExplorerHide() {
+      this.explorerVisible = false
+    }
   },
   components: {
     FilterMonitor,
-  },
-  watch: {
-    temporaryFilter: { // user uploaded image id
-      handler(filter) {
-        if (filter) {
-          this.onAddFilter(filter);
-        }
-        return filter;
-      },
-      immediate: true,
-    },
-  },
+    Explorer
+  }
 };
 </script>
 

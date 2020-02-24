@@ -61,6 +61,12 @@
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
         @click="showModal" />
     </div>
+
+    <explorer v-model="explorerFilters"
+              :is-visible="explorerVisible"
+              @onHide="handleExplorerHide"
+              :searching-enabled="false"
+              :initial-type="facet.type"/>
   </div>
 </template>
 
@@ -70,6 +76,7 @@ import BaseTitleBar from '../base/BaseTitleBar';
 import FilterFacetBucket from './FilterFacetBucket';
 import FilterMonitor from './FilterMonitor';
 import InfoButton from '../base/InfoButton';
+import Explorer from '../Explorer';
 
 export default {
   data: () => ({
@@ -78,6 +85,7 @@ export default {
     operators: ['or', 'and'],
     exploreFacet: {},
     isCollapsed: true,
+    explorerVisible: false,
   }),
   props: {
     store: {
@@ -144,6 +152,19 @@ export default {
       }
       return this.facet.buckets.filter(b => this.includedIds.indexOf(b.val) === -1);
     },
+    explorerFilters: {
+      get() { return this.currentStore.search.filters.map(f => ({ ...f.getQuery(), items: f.items })) },
+      /** @param {import('../../models/models').Filter[]} filters */
+      set(filters) {
+        const currentFilters = this.currentStore.search.filters.map(f => ({ ...f.getQuery(), items: f.items }))
+        filters.forEach(filter => {
+          const exists = currentFilters.filter(f => JSON.stringify(f) === JSON.stringify(filter)).length
+          if (!exists) {
+            this.updateFilter(filter)
+          }
+        })
+      }
+    }
   },
   methods: {
     toggleVisibility() {
@@ -177,31 +198,31 @@ export default {
       console.info('submit', this.facet.type, this.selectedIds);
       this.$emit('submit-buckets', {
         type: this.facet.type,
-        ids: this.selectedIds,
+        q: this.selectedIds,
       });
       this.clearSelectedItems();
     },
     updateFilter(filter) {
-      this.$emit('update-filter', filter);
+      this.$emit('submit-buckets', filter);
+      // this.$emit('update-filter', filter);
     },
     resetFilterType() {
       this.clearSelectedItems();
       this.$emit('reset-filter', this.facet.type);
     },
     showModal() {
-      console.info('Opening Explorer for type:', this.facet.type);
-      this.$store.dispatch('explorer/SHOW', {
-        type: this.facet.type,
-        mode: 'facets',
-        filters: this.currentStore.search.filters,
-      });
+      this.explorerVisible = true
     },
+    handleExplorerHide() {
+      this.explorerVisible = false
+    }
   },
   components: {
     BaseTitleBar,
     FilterFacetBucket,
     FilterMonitor,
     InfoButton,
+    Explorer
   },
 };
 </script>

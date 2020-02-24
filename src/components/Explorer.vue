@@ -182,7 +182,8 @@ export default {
     },
     // Only used when "searchingEnabled" is on
     initialSearchQuery: String,
-    isVisible: Boolean
+    isVisible: Boolean,
+    initialType: String
   },
   methods: {
     openDialog() { this.$bvModal.show(this.id) },
@@ -278,7 +279,14 @@ export default {
       },
       immediate: true
     },
-    currentType() { this.currentPage = 1 }
+    currentType() { this.currentPage = 1 },
+    initialType: {
+      handler() {
+        if (this.initialType == null) return
+        this.currentType = this.initialType
+      },
+      immediate: true
+    }
   },
 };
 </script>
