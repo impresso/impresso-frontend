@@ -48,20 +48,17 @@ const getBorderlinePassages = item => {
   return startingPassages.concat(finishingPassages)
 }
 
-const getClusterTagStyle = (entity, colourMap) => {
-  const borderColor = colourMap[entity.clusterId]
-  return { borderColor }
+const getClusterTagStyle = (entity, colourMap, offsetRight) => {
+  const borderColor = colourMap[entity.clusterId];
+  const right = (offsetRight * 8) + 'px';
+  return { borderColor, right }
 }
 const getClusterInnerTagStyle = (context, entity, colourMap) => {
   const backgroundColor = context.props.selectedClusterId === entity.clusterId ? colourMap[entity.clusterId] : 'transparent';
   return { backgroundColor }
 }
-//
-// const StartPassageTag = 'S'
-// const EndPassageTag = 'E'
-//
-// const getPassageTag = isLast => isLast ? EndPassageTag : StartPassageTag
-const getClusterClass = isLast => isLast ? 'ending' : 'starting';
+
+const getClusterClass = isLast => isLast ? 'cluster-tag ending' : 'cluster-tag starting';
 
 const renderChildren = (h, context, child) => (
   <annotated-text
@@ -75,15 +72,28 @@ const renderClusterTags = (h, context, child) => {
 
   const { onClusterSelected = (() => ({})) } = context.listeners
 
+  const clusterIndexes = Object.keys(context.props.clusterColours);
+  const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId);
+
   return getBorderlinePassages(child).map(({ entity, isLast }) => (
     <span
-      class="cluster-tag m-1"
-      style={getClusterTagStyle(entity, context.props.clusterColours)}
+      class={getClusterClass(isLast)}
+      style={getClusterTagStyle(entity, context.props.clusterColours, getClusterIndex(entity.clusterId))}
       onClick={() => { onClusterSelected(entity.clusterId); }}>
-      <span class={getClusterClass(isLast)} style={getClusterTagStyle(entity, context.props.clusterColours)} />
       <span class="select" style={getClusterInnerTagStyle(context, entity, context.props.clusterColours)} />
     </span>
   ))
+}
+
+const renderVericalLine = (h, context, child) => {
+
+  if (child.entity.kind !== 'passage') return;
+
+  const clusterIndexes = Object.keys(context.props.clusterColours);
+  const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId);
+  const offsetRight = getClusterIndex(child.entity.clusterId);
+
+  return <span class="vertical-line" style={`backgroundColor: ${context.props.clusterColours[child.entity.clusterId]}; right: ${(offsetRight * 8)}px`} />
 }
 
 export default {
@@ -104,7 +114,8 @@ export default {
       if (child.entity.kind === 'passage' && child.entity.clusterId !== context.props.selectedClusterId) {
         return [
           renderChildren(h, context, child),
-          renderClusterTags(h, context, child)
+          renderClusterTags(h, context, child),
+          renderVericalLine(h, context, child)
         ]
       }
 
@@ -116,6 +127,7 @@ export default {
           style={getItemStyles(child, context.props.clusterColours)}>
           {renderChildren(h, context, child)}
           {renderClusterTags(h, context, child)}
+          {renderVericalLine(h, context, child)}
         </Tag>
       )
     })
@@ -124,32 +136,38 @@ export default {
 </script>
 
 <style lang="scss">
-  .cluster-tag {
+  p.line {
     position: relative;
-    width: 1em;
-    height: 1em;
+    .vertical-line {
+      position: absolute;
+      height: calc(100% + 2px);
+      width: 2px;
+      margin-right: -20px;
+      pointer-events: none;
+    }
+  }
+  .cluster-tag {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    margin-right: -25px;
     border-radius: 50%;
-    text-align: center;
     cursor: pointer;
-    float: right;
     border: 2px solid;
-    background: transparent;
+    background: white;
+    &:hover {
+      transform: scale(1.5);
+      z-index: 1;
+    }
     .select {
       display: block;
-      width: 8px;
-      height: 8px;
+      width: 4px;
+      height: 4px;
       border-radius: 50%;
       margin: 2px;
     }
-    .starting, .ending {
-      position: absolute;
-      border: 1px solid;
-      height: 10px;
-      left: 5px;
-      top: 12px;
-    }
-    .ending {
-      top: -10px;
+    &.ending {
+      top: 16px;
     }
   }
 </style>
