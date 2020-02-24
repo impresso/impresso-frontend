@@ -70,7 +70,6 @@ export default {
         }
       }
       if (this.show) {
-        this.$store.dispatch('explorer/SET_CURRENT_INFO_BUTTON', this.targetId);
         this.$root.$emit('bv::show::popover', this.targetId);
       }
     },

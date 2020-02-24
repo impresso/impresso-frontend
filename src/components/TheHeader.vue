@@ -277,9 +277,6 @@ export default {
     updateLastNotificationDate() {
       this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE');
     },
-    openExplorer() {
-      this.$store.dispatch('explorer/SHOW', {});
-    },
     openSearchQueryExplorer() {
       this.$store.dispatch('searchQueryExplorer/TOGGLE');
     },

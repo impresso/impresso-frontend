@@ -120,8 +120,12 @@
 </template>
 
 <script>
-import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
-import { required, email, confirmed, ext } from 'vee-validate/dist/rules';
+import {
+  ValidationProvider,
+  ValidationObserver,
+  extend
+} from 'vee-validate';
+import { required, email, confirmed, ext } from 'vee-validate/dist/rules'
 
 extend('required', {
   ...required,
