@@ -131,7 +131,9 @@
 
                   Regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{12,42}$/
                 -->
-                <ValidationProvider name="Password" :rules="{ min: 8, regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/}" v-slot="{ errors }" vid="repeatPassword">
+                <ValidationProvider name="Password"
+                  :rules="{ min: 8, regex: /^(?=.*?[A-Z])(?=.*[a-z])(?=.*[\d])(?=.*[\W_])(?!.*\s).{8,}$/ }"
+                  v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-2"
                   :label="$t('form_newpassword')"
@@ -194,7 +196,7 @@ extend('min', {
 
 extend('regex', {
   ...regex,
-  message: 'Password must contain at least one uppercase letter, one lowercase letter and one number'
+  message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
 });
 
 
