@@ -423,12 +423,14 @@ export default {
         color: $clr-grey-800;
         &.active {
           color: $clr-white;
+          border-bottom: 3px solid $clr-bg-primary;
+          background-color: $clr-secondary;
         }
     }
     .navbar-dark .navbar-nav .nav-link:focus,
     .navbar-dark .navbar-nav .nav-link:hover {
         color: $clr-white;
-        background: transparent;
+        background-color: $clr-secondary;
     }
     &::before {
         position: absolute;
