@@ -472,16 +472,14 @@ export default {
         color: $clr-grey-800;
         font-size:0.9em;
         padding: .5rem 1rem;
+        &.disabled{
+          text-decoration: line-through;
+        }
+        &.router-link-active{
+          color: $clr-white !important;
+          background: $clr-secondary !important;
+        }
       }
-      .dropdown-item.disabled{
-        text-decoration: line-through;
-      }
-
-      .dropdown-item.active{
-        color: $clr-white;
-        background: $clr-grey-400;
-      }
-
       .btn-outline-primary{
         border: 1px solid #caccce;
         color: #caccce;
