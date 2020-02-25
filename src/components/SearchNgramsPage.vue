@@ -1,73 +1,117 @@
 <template>
   <i-layout id="SearchNgramsPage">
     <!-- sidebar -->
-    <i-layout-section width="400px" class="border-right">
+    <i-layout-section width="400px">
       <!--  header -->
       <div slot="header" class="border-bottom bg-light">
         <search-tabs/>
-
         <div class="py-3 px-3">
-          <search-input
-            @submit="onNgramsSubmitted"
-            placeholder="search ngrams ..."
-            :initial="unigram">
-          </search-input>
+          <search-pills
+            v-on:remove="onRemoveFilter"
+            v-on:add="onAddFilter"
+            :search-filters="searchQuery.filters"
+          />
+          <!-- <autocomplete v-on:submit="onAddFilter" /> -->
         </div>
       </div>
       <!--  facets -->
       <div class="pt-3">
+        <p class="mx-3">
+          <em>{{ $t('label.availableFacets') }}&nbsp;</em>
+          <info-button name="how-ngram-work-use-of-facets"  />
+        </p>
         <search-facets
           store="searchNgrams"
-          @submit-facet="onFacetSubmitted"
+          @submit-facet="onAddFilter"
           @update-filter="onFilterUpdated"
           @reset-filter="onFilterReset"/>
       </div>
     </i-layout-section>
 
     <!-- main section -->
-    <i-layout-section class="border-left border-top ml-1px mt-1px" main>
-
-      <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
-        <b-navbar-nav class="border-right flex-grow-1  py-2 ">
+    <i-layout-section main>
+      <div slot="header">
+      <b-navbar class="d-flex p-0 border-bottom align-items-center">
+        <b-navbar-nav class="border-right flex-grow-1 px-2 pl-3 py-2 ">
           <section class="search-results-summary text-serif textbox-fancy border-tertiary">
-            <span v-if="!unigram">Enter unigram</span>
-            <span v-if="unigram" v-html="$tc('numbers.unigramMentions', trend.total || 0, { unigram, n: trend.total })"></span>
-            <router-link
-              v-if="unigram && trend.total > 0"
-              class="btn btn-outline-primary btn-sm"
-              :to="searchPageLink">
-              {{ $t('label.seeArticles') }}
-            </router-link>
+            <label>ngrams viewer</label>
+            <ellipsis v-bind:initialHeight="60">
+              <span v-if="unigram" v-html="$tc('numbers.unigramMentions', trend.total || 0, {
+                unigram,
+                n: $n(trend.total),
+              })"></span>
+              <span v-else v-html="$t('label.noUnigram')" />
+              &nbsp;
+              <span v-html="$tc('numbers.articles', trendBackground.total, {
+                  n: $n(trendBackground.total),
+                })" />
+              &nbsp;
+              <search-query-summary class="d-inline" :search-query="searchQuery"/>
+            </ellipsis>
+
           </section>
         </b-navbar-nav>
+        <b-navbar-nav class="ml-auto px-2">
+          <router-link
+            :disabled="!unigram"
+            class="btn btn-outline-primary btn-sm"
+            :to="searchPageLink">
+            {{ $t('label.seeArticles') }}
+          </router-link>
+        </b-navbar-nav>
       </b-navbar>
-
+      <b-navbar class="border-bottom">
+        <span style="white-space:nowrap" class="mr-3">Enter unigram</span>
+        <search-input
+          @submit="onNgramsSubmitted"
+          placeholder="search ngrams ..."
+          :initial="unigram">
+        </search-input>
+      </b-navbar>
+    </div>
+    <div class="m-3">
+      <base-title-bar class="my-3">
+        <span v-html="$t('label.timeline.unigramTitle')"/>
+        <div slot="description">
+        {{$t('label.timeline.unigramDescription')}}
+        </div>
+      </base-title-bar>
       <timeline
             v-if="trend.total > 0"
             :contrast="false"
             :values="timelineValues"
             :brushable="false"
-            :height="'80%'"
+            height="300px"
             :resolution="timelineResolution">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
             {{ $d(tooltipScope.tooltip.item.t, timelineResolution, 'en') }} &middot;
-            <b v-html="$tc('numbers.unigramMentions', tooltipScope.tooltip.item.w, {
+            <span v-html="$tc('numbers.unigramMentions', tooltipScope.tooltip.item.w, {
               unigram,
               n: $n(tooltipScope.tooltip.item.w),
-            })"/>
+            })"/>&nbsp;
+            <span v-html="$tc('numbers.articles', getArticlesInYear(tooltipScope.tooltip.item.t), {
+                n: getArticlesInYear(tooltipScope.tooltip.item.t),
+            })"></span>
           </div>
         </div>
       </timeline>
+    </div>
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
 import SearchTabs from '@/components/modules/SearchTabs';
+// import Autocomplete from '@/components/Autocomplete';
+import InfoButton from '@/components/base/InfoButton';
+import BaseTitleBar from '@/components/base/BaseTitleBar';
+import SearchPills from '@/components/SearchPills';
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
 import SearchFacets from '@/components/SearchFacets';
 import SearchInput from '@/components/modules/SearchInput';
 import Timeline from '@/components/modules/Timeline';
+import Ellipsis from '@/components/modules/Ellipsis';
 import Helpers from '@/plugins/Helpers';
 
 export default {
@@ -77,44 +121,67 @@ export default {
     SearchFacets,
     SearchInput,
     Timeline,
-  },
-  mounted() {
-    this.executeSearch();
+    SearchQuerySummary,
+    Ellipsis,
+    SearchPills,
+    InfoButton,
+    BaseTitleBar,
+    // Autocomplete,
   },
   watch: {
     '$route.query': {
-      async handler(val) {
-        await this.$store.dispatch('searchNgrams/PULL_SEARCH_PARAMS', val);
+      handler(val) {
+        console.info('searchNgramsPage @$route.query changed:', val);
+        this.executeSearch();
       },
       deep: true,
       immediate: true,
     },
-    filters: {
-      async handler() {
-        await this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-      },
-      deep: true,
-    },
+    // '$route.query': {
+    //   handler(val) {
+    //     return this.$store.dispatch('searchNgrams/PULL_SEARCH_PARAMS', val);
+    //   },
+    //   deep: true,
+    //   immediate: true,
+    // },
+    // filters: {
+    //   async handler() {
+    //     await this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+    //   },
+    //   deep: true,
+    // },
   },
   methods: {
+    getArticlesInYear(d) {
+      if (!d) {
+        return 0;
+      }
+      const y = d.getFullYear();
+      return this.trendBackground.values[y] || 0;
+    },
     executeSearch() {
-      this.$store.dispatch('searchNgrams/SEARCH');
+      this.$store.dispatch('searchNgrams/PULL_SEARCH_PARAMS', this.$route.query);
     },
     onNgramsSubmitted({ q }) {
       this.$store.commit('searchNgrams/SET_UNIGRAM', q);
-      this.executeSearch();
+      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
     },
-    onFacetSubmitted(facet) {
+    onAddFilter(facet) {
       this.$store.commit('searchNgrams/ADD_FILTER', facet);
-      this.executeSearch();
+      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+    },
+    onRemoveFilter(filter) {
+      console.info('onRemoveFilter', filter);
+      this.$store.dispatch('searchNgrams/REMOVE_FILTER', { filter });
+      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
     },
     onFilterUpdated(filter) {
       this.$store.commit('searchNgrams/UPDATE_FILTER', filter);
-      this.executeSearch();
+      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
     },
     onFilterReset(type) {
       this.$store.commit('searchNgrams/RESET_FILTER', type);
-      this.executeSearch();
+      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
     },
   },
   computed: {
@@ -127,8 +194,14 @@ export default {
         .map(([d, val]) => ({ t: new Date(d), w: val }));
       return Helpers.timeline.addEmptyIntervals(v, this.trend.timeInterval).sort((a, b) => a.t - b.t);
     },
+    searchQuery() {
+      return  this.$store.state.searchNgrams.search;
+    },
     trend() {
       return this.$store.state.searchNgrams.trend;
+    },
+    trendBackground() {
+      return this.$store.state.searchNgrams.trendBackground;
     },
     unigram() {
       return this.$store.state.searchNgrams.unigram;
@@ -164,7 +237,13 @@ export default {
         "ngrams": "ngrams"
       },
       "label": {
-        "seeArticles": "See articles"
+        "timeline": {
+          "unigramTitle": "Number of unigram mentions per year",
+          "unigramDescription": " "
+        },
+        "seeArticles": "See articles",
+        "noUnigram": "... look for a specific <em>unigram</em> in",
+        "availableFacets": "Available filters for ngram analysis"
       }
     }
   }
