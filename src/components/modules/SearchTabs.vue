@@ -20,10 +20,7 @@ export default {
   },
   methods: {
     currentSearchQueryParams(tab) {
-      if (tab === 'search') {
-        return this.$store.state.search.search.getSerialized();
-      }
-      return this.$store.state.searchImages.search.getSerialized();
+      return this.$store.state[tab].search.getSerialized();
     },
     isActive(tab) {
       if (this.focusOnSearch) {
