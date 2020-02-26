@@ -81,7 +81,7 @@ export default {
     },
     filters: {
       daterange: {
-        item: 'from <b>{start}</b> to <b>{end}</b>',
+        item: 'from <span class="date">{start}</span> to <span class="date">{end}</span>',
       },
     },
     types: {
@@ -243,7 +243,7 @@ export default {
         empty: '(no results)',
         context: {
           include: 'content available as',
-          exclude: 'content <b>NOT</b> avaiable as',
+          exclude: 'content <b>NOT</b> available as',
         },
       },
       partner: {
@@ -294,6 +294,7 @@ export default {
     },
     more_info: 'More Info',
     currentSearch: 'current search',
+    lexicalOverlap: 'lexical overlap',
   },
   nl: {
     language: 'Taal',
