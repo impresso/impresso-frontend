@@ -19,6 +19,15 @@
             </div>
           </div>
 
+          <div v-if="userSubmitted">
+            <b-alert v-if="userSubmittedSuccess" variant="success" show dismissible>{{ $t('form_user_changed') }}</b-alert>
+            <b-alert v-else variant="danger" show dismissible>
+              <!-- <b>{{ $t(`errors.changeUser.${userSubmittedError}`)}}</b>
+              <br> -->
+              {{ $t('form_user_changed_failed') }}
+            </b-alert>
+          </div>
+
           <ValidationObserver v-slot="{ invalid }">
 
             <b-form @submit.prevent="onSubmit" v-if="user.uid">
@@ -96,8 +105,8 @@
           <ValidationObserver v-slot="{ invalid }">
             <b-form @submit.prevent="onSubmitChangePassword">
               <div v-if="passwordSubmitted">
-                <b-alert v-if="passwordSubmittedSuccess" variant="success" show>{{ $t('form_password_changed') }}</b-alert>
-                <b-alert v-else variant="danger" show>
+                <b-alert v-if="passwordSubmittedSuccess" variant="success" show dismissible>{{ $t('form_password_changed') }}</b-alert>
+                <b-alert v-else variant="danger" show dismissible>
                   <b>{{ $t(`errors.changePassword.${passwordSubmittedError}`)}}</b>
                   <br>
                   {{ $t('form_password_changed_failed') }}
@@ -210,6 +219,10 @@ export default {
     passwordSubmitted: false,
     passwordSubmittedSuccess: false,
     passwordSubmittedError: '',
+    // form results
+    userSubmitted: false,
+    userSubmittedSuccess: false,
+    userSubmittedError: '',
     errors: [],
     palettes:
     [
@@ -247,8 +260,15 @@ export default {
       });
     },
     onSubmit() {
+      this.userSubmitted = false;
       this.$store.dispatch('user/UPDATE_CURRENT_USER', this.user).then((user) => {
+        this.userSubmittedSuccess = true;
         this.user = user;
+      }).catch((err) => {
+        this.userSubmittedSuccess = false;
+        this.userSubmittedError = err;
+      }).then(() => {
+        this.userSubmitted = true;
       });
     },
     confirmDelete() {
@@ -337,7 +357,9 @@ export default {
     "form_newpassword": "New Password",
     "form_newpassword_repeat": "Repeat New Password",
     "form_password_changed": "Bravo! Your password has been updated.",
-    "form_password_changed_failed": "Please check the values you have entered."
+    "form_password_changed_failed": "Please check the values you have entered.",
+    "form_user_changed": "Your profile has been updated.",
+    "form_user_changed_failed": "Please check the values you have entered."
   }
 }
 </i18n>
