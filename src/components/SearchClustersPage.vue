@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout id="ConnectedTextReuseClustersPage">
+  <i-layout id="SearchClustersPage">
     <list :pagination-list="paginationList" width="350px" v-on:change-page="handlePaginationPageChanged">
       <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
@@ -9,6 +9,7 @@
               <span v-html="$tc('searchClustersLabel', paginationList.totalRows, {
                 n: $n(paginationList.totalRows),
               })"/>
+              <span v-if="isLoading" class=""> &mdash; {{ $t('actions.loading') }}</span>
             </b-nav-item>
           </template>
         </b-tabs>
@@ -25,6 +26,7 @@
 
       <template v-slot:default>
         <div class="d-flex flex-row" :class="{
+            loading: isLoading,
             active: isClusterSelected(item.cluster.id),
             'pb-4': isLastItem(index, clusterItems.length),
           }"
@@ -104,6 +106,7 @@ export default {
       totalRows: 0,
       perPage: 20,
     },
+    isLoading: false,
     selectedCluster: undefined,
   }),
   props: {
@@ -134,6 +137,9 @@ export default {
         })
       }
     }
+    this.loadClusters({
+      query: this.searchApiQueryParameters,
+    })
   },
   methods: {
     isClusterSelected(clusterId) {
@@ -147,7 +153,8 @@ export default {
     handleSearchInputSubmitted(searchText) {
       if (searchText === '') return
       this.$navigation.updateQueryParametersWithHistory({
-        [QueryParameters.SearchText]: searchText
+        [QueryParameters.SearchText]: searchText,
+        [QueryParameters.PageNumber]: 1,
       })
     },
     handlePaginationPageChanged(page) {
@@ -166,7 +173,21 @@ export default {
         [QueryParameters.SearchFiltersEnabled]: filtersAreEnabled ? 1 : undefined
       })
     },
-    isLastItem
+    isLastItem,
+    async loadClusters({ query }) {
+      this.isLoading = true;
+      [this.clusterItems, this.searchInfo] = await textReuseClusters
+        .find({ query })
+        .then(result => [result.clusters, result.info]);
+      console.info('loadClusters() success: ', this.searchInfo);
+      // updte pagination list.
+      this.paginationList = {
+        currentPage: query.page,
+        totalRows: this.searchInfo.total,
+        perPage: this.paginationPerPage,
+      };
+      this.isLoading = false;
+    },
   },
   computed: {
     selectedClusterId() {
@@ -187,34 +208,28 @@ export default {
     searchFiltersEnabled() {
       return Boolean(this.$route.query[QueryParameters.SearchFiltersEnabled])
     },
+    paginationCurrentPage() {
+      const { [QueryParameters.PageNumber]: page = 1 } = this.$route.query
+      return parseInt(page, 10);
+    },
+    searchApiQueryParameters() {
+      const filters = this.searchFiltersEnabled
+        ? serializeFilters(this.searchFilters)
+        : undefined;
+
+      return {
+        text: this.searchText,
+        page: this.paginationCurrentPage,
+        skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
+        limit: this.paginationPerPage,
+        orderBy: this.orderByValue,
+        filters,
+      };
+    },
   },
   watch: {
-    '$route.query': {
-      async handler(query) {
-        const currentPage = parseInt(query[QueryParameters.PageNumber], 10) || 1;
-        const filters = this.searchFiltersEnabled
-          ? serializeFilters(this.searchFilters)
-          : undefined;
-        console.info('@$route.query', query, currentPage);
-        [this.clusterItems, this.searchInfo] = await textReuseClusters
-          .find({
-            query: {
-              text: this.searchText,
-              skip: (currentPage - 1) * this.paginationPerPage,
-              limit: this.paginationPerPage,
-              orderBy: this.orderByValue,
-              filters,
-            },
-          })
-          .then(result => [result.clusters, result.info]);
-        this.paginationList = {
-          currentPage,
-          totalRows: this.searchInfo.total,
-          perPage: this.paginationPerPage
-        };
-      },
-      immediate: true,
-      deep: true,
+    searchApiQueryParameters(query) {
+      this.loadClusters({ query });
     },
     selectedClusterId: {
       async handler() {
