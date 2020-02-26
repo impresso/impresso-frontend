@@ -1,17 +1,18 @@
 <template lang="html">
   <div>
-    <search-input class="my-3"
+    <search-input class="mt-3"
         @submit="onSubmitted"
         :initial="value"
         :placeholder="$t('placeholder')"/>
 
-    <div class="pt-2" v-if="filters.length > 0">
+    <div class="mt-2" v-if="filters.length > 0">
       <b-form-checkbox v-model="filtersEnabledModel">
         <search-query-summary :searchQuery="filtersAsSearchQuery"/>
       </b-form-checkbox>
     </div>
 
-    <div class="pt-2">
+    <div class="mt-3">
+      <label class="mr-2">{{$t('sortBy')}}</label>
       <i-dropdown v-model="orderByModel"
       :options="orderByOptions"
       size="sm"
