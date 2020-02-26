@@ -99,10 +99,18 @@ export default {
       offset: 0,
       total: 0
     },
-    selectedCluster: undefined
+    paginationList: {
+      currentPage: 1,
+      totalRows: 0,
+      perPage: 20,
+    },
+    selectedCluster: undefined,
   }),
   props: {
-    paginationPerPage: Number,
+    paginationPerPage: {
+      type: Number,
+      default: 20,
+    },
   },
   components: {
     ClusterTextSearchPanel,
@@ -144,12 +152,13 @@ export default {
     },
     handlePaginationPageChanged(page) {
       this.$navigation.updateQueryParameters({
-        [QueryParameters.PageNumber]: page - 1
+        [QueryParameters.PageNumber]: page,
       })
     },
     handleOrderByChanged(orderByValue) {
       this.$navigation.updateQueryParameters({
-        [QueryParameters.OrderBy]: orderByValue
+        [QueryParameters.OrderBy]: orderByValue,
+        [QueryParameters.PageNumber]: 1,
       })
     },
     handleFiltersEnabledChanged(filtersAreEnabled) {
@@ -160,14 +169,6 @@ export default {
     isLastItem
   },
   computed: {
-    paginationList() {
-      const { [QueryParameters.PageNumber]: page = 0 } = this.$route.query
-      return {
-        currentPage: parseInt(page, 10) + 1,
-        totalRows: this.searchInfo.total,
-        perPage: this.paginationPerPage || 20,
-      };
-    },
     selectedClusterId() {
       return this.$route.query[QueryParameters.ClusterId]
     },
@@ -186,31 +187,34 @@ export default {
     searchFiltersEnabled() {
       return Boolean(this.$route.query[QueryParameters.SearchFiltersEnabled])
     },
-    searchApiQueryParameters() {
-      const pageNumber = this.paginationCurrentPage - 1;
-      const orderBy = this.orderByValue;
-      const filters = this.searchFiltersEnabled
-        ? serializeFilters(this.searchFilters)
-        : undefined;
-      return {
-        text: this.searchText,
-        skip: this.paginationPerPage * pageNumber,
-        limit: this.paginationPerPage,
-        orderBy,
-        filters
-      }
-    }
   },
   watch: {
-    searchApiQueryParameters: {
+    '$route.query': {
       async handler(query) {
+        const currentPage = parseInt(query[QueryParameters.PageNumber], 10) || 1;
+        const filters = this.searchFiltersEnabled
+          ? serializeFilters(this.searchFilters)
+          : undefined;
+        console.info('@$route.query', query, currentPage);
         [this.clusterItems, this.searchInfo] = await textReuseClusters
-          .find({ query })
-          .then(result => {
-            return [result.clusters, result.info]
+          .find({
+            query: {
+              text: this.searchText,
+              skip: (currentPage - 1) * this.paginationPerPage,
+              limit: this.paginationPerPage,
+              orderBy: this.orderByValue,
+              filters,
+            },
           })
+          .then(result => [result.clusters, result.info]);
+        this.paginationList = {
+          currentPage,
+          totalRows: this.searchInfo.total,
+          perPage: this.paginationPerPage
+        };
       },
-      immediate: true
+      immediate: true,
+      deep: true,
     },
     selectedClusterId: {
       async handler() {
@@ -252,7 +256,7 @@ export default {
 <i18n>
 {
   "en": {
-    "searchClustersLabel": "browse clusters | browse clusters (1) | browse clusters ({n})",
+    "searchClustersLabel": "browse clusters | browse clusters (1) | browse {n} clusters",
     "clustersLabel": "Text Reuse Clusters",
     "clusterLabel": "Text Reuse Cluster"
   }
