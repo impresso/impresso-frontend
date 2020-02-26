@@ -6,9 +6,6 @@
   <div id="app-content">
     <router-view />
   </div>
-  <div id="app-explorer" class="fullscreen">
-    <explorer/>
-  </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
@@ -26,7 +23,6 @@
 import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
 import Monitor from './components/Monitor';
-import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 import CookieDisclaimer from './components/modals/CookieDisclaimer';
@@ -36,7 +32,6 @@ export default {
   components: {
     TheHeader,
     Monitor,
-    Explorer,
     DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
@@ -51,7 +46,7 @@ export default {
     },
     is_locked() {
       return this.$store.state.processingLocked;
-    },
+    }
   },
   methods: {
     onEventBusAddFilter({ filter, searchQueryId }) {
@@ -59,7 +54,7 @@ export default {
       if (!searchQueryId || !searchQueryId.length) {
         this.$store.dispatch('search/ADD_FILTER', { filter });
       }
-    },
+    }
   },
   mounted() {
     window.addEventListener('click', () => {

@@ -130,9 +130,6 @@ export default {
     percentage: false,
   }),
   computed: {
-    temporaryFilter() {
-      return this.$store.getters['explorer/getTemporaryFilter']();
-    },
     currentStore() {
       return this.$store.state[this.store];
     },
@@ -327,11 +324,9 @@ export default {
     resetFilter(type) {
       this.$emit('reset-filter', type);
     },
-    submitBuckets({ type, context, ids }) {
+    submitBuckets(filter) {
       this.$emit('submit-facet', {
-        type,
-        context,
-        q: ids,
+        ...filter,
         exclusive: true,
       });
     },
@@ -370,14 +365,6 @@ export default {
           context,
         });
       }
-    },
-  },
-  watch: {
-    temporaryFilter: { // user uploaded image id
-      handler(filter) {
-        console.info('@temporaryFilter', filter);
-      },
-      immediate: true,
     },
   },
   components: {

@@ -41,10 +41,13 @@ export default {
         ignoreErrors: true,
       });
     },
-    UPDATE_CURRENT_USER(context, user) {
-      return services.me.update(user.uid, user).then((d) => {
-        console.info('user/UPDATE_CURRENT_USER received:', d);
-        return new User(d);
+    UPDATE_CURRENT_USER({ commit }, user) {
+      return services.me.update(user.uid, user, {
+        ignoreErrors: true,
+      }).then((d) => {
+        const user = new User(d);
+        commit('SET_USER', user);
+        return user;
       });
     },
     LOGIN({ commit }, { email, password }) {
