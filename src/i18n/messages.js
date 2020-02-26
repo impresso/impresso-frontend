@@ -292,6 +292,7 @@ export default {
         desc: 'publication date, most recent first',
       },
     },
+    sortBy: 'order by',
     more_info: 'More Info',
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',
