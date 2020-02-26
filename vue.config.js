@@ -66,7 +66,7 @@ module.exports = {
       // entry for the page
       entry: 'src/widget/main.js',
       // the source template
-      template: 'public/index.html',
+      template: 'public/widget.html',
       // output as dist/index.html
       filename: 'widget/index.html',
     }
