@@ -556,7 +556,7 @@ export default {
     "logout": "Logout",
     "dashboard": "Dashboard",
     "collections": "Collections",
-    "pofile": "Profile",
+    "profile": "Profile",
     "label_home": "Home",
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
     "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
