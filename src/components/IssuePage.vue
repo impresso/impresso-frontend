@@ -29,12 +29,9 @@
             })"/>
           </div>
           <div v-if="isTabSearch">
-            <p if="applyCurrentSearchFilters">
-              <search-pills
-                :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']"
-                @remove="onRemoveFilter"
-              />
-            </p>
+            <search-pills :filters="filters"
+                          @changed="handleFiltersChanged"
+                          :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']" />
             <b-input-group>
               <b-form-input
               placeholder="search for ..."
@@ -45,14 +42,14 @@
         </div>
       </div>
       <!--  ToC -->
-      <table-of-contents v-if="!isTabSearch && isTocReady"
+      <table-of-contents v-if="!isTabSearch && isTocReady && article"
         :tableOfContents="issue"
         :page="page"
         :article="article"
         :articles="matchingArticles"
         v-on:click="gotoArticle" />
 
-      <table-of-contents v-if="isTabSearch && isTocReady"
+      <table-of-contents v-if="isTabSearch && isTocReady && article"
         :tableOfContents="issue"
         :page="page"
         :article="article"
@@ -180,6 +177,7 @@ import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 import Pagination from './modules/Pagination';
 import InfoButton from './base/InfoButton';
+import { toCanonicalFilter } from '../logic/filters'
 
 export default {
   data: () => ({
@@ -211,6 +209,7 @@ export default {
     //
     matches: [],
     tocArticles: [],
+    issueFilters: []
   }),
   mounted() {
     window.addEventListener('keyup', (e) => {
@@ -231,6 +230,9 @@ export default {
     });
   },
   computed: {
+    currentSearchFilters() {
+      return this.$store.getters['search/getSearch'].filters
+    },
     isContentAvailable() {
       if (this.issue) {
         if (this.issue.accessRight === 'OpenPublic') {
@@ -298,9 +300,26 @@ export default {
         this.$store.commit('issue/UPDATE_OUTLINES', showOutlines);
       },
     },
+    filters: {
+      get() {
+        let filters = [...this.issueFilters];
+        if (this.issue != null) {
+          filters.push({
+            type: 'issue',
+            q: this.issue.uid,
+          })
+        }
+        return filters
+      },
+      set(filters) {
+        this.issueFilters = filters.filter(({ type }) => type !== 'issue')
+      }
+    },
   },
   methods: {
     async init() {
+      this.issueFilters = [...this.currentSearchFilters]
+
       if (this.$route.query.tab === 'search') {
         this.tab = 'search';
       } else {
@@ -426,24 +445,6 @@ export default {
           tab,
         },
       });
-    },
-    getSearchFilters() {
-      let filters = [];
-      if (this.applyCurrentSearchFilters) {
-        filters = this.$store.getters['search/getSearch'].getFilters();
-      }
-      if (this.q.length) {
-        filters.push({
-          type: 'string',
-          q: this.q,
-        });
-      }
-      return filters.concat([
-        {
-          type: 'issue',
-          q: this.issue.uid,
-        },
-      ]);
     },
     updateMarginalia() {
       console.info('Update page marginalia');
@@ -645,8 +646,8 @@ export default {
         }
       });
     },
-    onRemoveFilter(filter) {
-      this.$store.commit('search/REMOVE_FILTER', filter);
+    handleFiltersChanged(filters) {
+      this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', filters);
       this.search();
     },
     onInputPagination(page) {
@@ -654,14 +655,20 @@ export default {
       this.search();
     },
     search() {
-      const filters = this.getSearchFilters();
+      const filters = [...this.filters];
+      if (this.q.length > 0) {
+        filters.push({
+          type: 'string',
+          q: this.q,
+        });
+      }
+
       if (!filters.length) {
         // console.info('-> search() skip, q is empty.');
         return;
       }
-      // console.info('-> search() with filters:', filters);
       this.$store.dispatch('search/GET_SEARCH_RESULTS', {
-        filters,
+        filters: filters.map(toCanonicalFilter),
         orderBy: 'id',
         groupBy: 'raw',
         page: this.matchesCurrentPage,
@@ -669,7 +676,6 @@ export default {
         this.isSearchLoaded = true;
         this.matches = result.data;
         this.matchesTotalRows = result.total;
-        // console.info(result);
         // console.info('-> search() success for q:', this.q);
       });
     },

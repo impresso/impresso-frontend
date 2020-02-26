@@ -5,7 +5,8 @@
       <div slot="header" class="border-bottom bg-light">
         <search-tabs />
         <div class="py-3 px-3">
-          <search-pills :search-filters="filters" store-module-name="searchImages" v-on:remove="onRemoveFilter"/>
+          <search-pills :filters="filters"
+              @changed="handleFiltersChanged" />
           <b-media v-if="similarToImage" class="pb-3">
             <div style="width:128px;" slot="aside">
               <b-img v-if="similarToImage.regions.length"
@@ -208,6 +209,10 @@ export default {
     },
   },
   methods: {
+    handleFiltersChanged(filters) {
+      this.$store.dispatch('searchImages/UPDATE_SEARCH_QUERY_FILTERS', filters);
+      this.$store.dispatch('searchImages/PUSH_SEARCH_PARAMS');
+    },
     search(page) {
       this.$store.state.searchImages.results = [];
       this.$store.dispatch('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));

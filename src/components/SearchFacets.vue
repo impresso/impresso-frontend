@@ -42,8 +42,10 @@
         </div>
       </timeline>
 
-      <div v-for="(filter, index) in daterangeFilters" :key="index" class="bg-light border p-2 mt-2">
-        <filter-monitor :store="store" :filter="filter" type="daterange" />
+      <div v-for="({ filter, filterIndex }) in daterangeFilters" :key="filterIndex" class="bg-light border p-2 mt-2">
+        <filter-monitor
+          :filter="filter"
+          @changed="filterAppliedHandler(filterIndex, $event)" />
       </div>
       <div v-if="!daterangeFilters.length">
         <b-button size="sm" variant="outline-primary" @click="addDaterangeFilter">
@@ -148,16 +150,18 @@ export default {
       }));
     },
     daterangeFilters() {
-      return this.currentStore.search.filters.filter(d => d.type === 'daterange');
+      return this.currentStore.search.filters
+        .map((filter, filterIndex) => ({ filter, filterIndex }))
+        .filter(({ filter: { type } }) => type === 'daterange');
     },
     daterangeIncluded() {
-      return this.daterangeFilters.filter(d => d.context === 'include');
+      return this.daterangeFilters.filter(({ filter: { context } }) => context === 'include');
     },
     daterangeSelected() {
       if (!this.daterangeFilters.length) {
         return null;
       }
-      return this.daterangeFilters[this.daterangeSelectedIndex];
+      return this.daterangeFilters[this.daterangeSelectedIndex].filter;
     },
     startDate() {
       return new Date(`${this.startYear}-01-01`);
@@ -366,6 +370,10 @@ export default {
         });
       }
     },
+    filterAppliedHandler(index, filter) {
+      this.$store.dispatch(`${this.store}/MERGE_FILTER_AT_INDEX`, { index, filter })
+      this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, {})
+    }
   },
   components: {
     BaseTitleBar,

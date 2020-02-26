@@ -5,11 +5,8 @@
     <div slot="header" class="border-bottom">
       <search-tabs />
       <div class="py-3 px-3">
-        <search-pills
-          v-on:remove="onRemoveFilter"
-          v-on:add="onAddFilter"
-          :search-filters="filters"
-        />
+        <search-pills :filters="filters"
+                      @changed="handleFiltersChanged" />
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
@@ -218,7 +215,6 @@ import SearchPills from './SearchPills';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
 import SearchTabs from './modules/SearchTabs';
 import InfoButton from './base/InfoButton';
-// const uuid = require('uuid');
 
 export default {
   data: () => ({
@@ -353,6 +349,10 @@ export default {
     },
   },
   methods: {
+    handleFiltersChanged(filters) {
+      this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', filters);
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+    },
     compare() {
       this.$router.push({
         name: 'compare',

@@ -9,7 +9,7 @@
         v-bind:class="{active: art.uid === selectedArticleUid}"
         v-on:click.prevent="onClick(art, art.pages[0])">
         <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3"/>
-        <article-item :item="article" class="p-3 clearfix"
+        <article-item :item="art" class="p-3 clearfix"
           show-excerpt
           show-entities
           show-size
@@ -91,7 +91,7 @@ export default {
       type: Object,
     },
     article: {
-      type: Object,
+      type: Object
     },
   },
   components: {
