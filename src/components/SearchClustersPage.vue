@@ -1,8 +1,19 @@
 <template lang="html">
   <i-layout id="ConnectedTextReuseClustersPage">
-    <i-layout-section width="400px" class="border-right">
-      <div slot="header" class="border-bottom p-2 pb-4">
+    <list :pagination-list="paginationList" width="350px" v-on:change-page="handlePaginationPageChanged">
+      <template v-slot:header>
+        <b-tabs pills class="mx-2 pt-2">
+          <template v-slot:tabs-end>
+            <b-nav-item class="pl-2 active"
+              active-class='none'>
+              <span v-html="$tc('searchClustersLabel', paginationList.totalRows, {
+                n: $n(paginationList.totalRows),
+              })"/>
+            </b-nav-item>
+          </template>
+        </b-tabs>
         <cluster-text-search-panel
+          class="pb-2 px-3"
           @submit="handleSearchInputSubmitted"
           @orderByChanged="handleOrderByChanged"
           @filtersEnabledChanged="handleFiltersEnabledChanged"
@@ -10,29 +21,26 @@
           :value="searchText"
           :filters="searchFilters"
           :filters-enabled="searchFiltersEnabled"/>
-      </div>
-      <div :class="`pl-1 pr-2 mt-2 mb-2 d-flex flex-row \
-        ${isClusterSelected(item.cluster.id) ? 'active' : ''} \
-        ${isLastItem(index, clusterItems.length) ? 'pb-4' : ''}`"
-        v-for="(item, index) in clusterItems"
-        :key="item.cluster.id"
-        v-on:click="handleClusterSelected(item.cluster.id)">
-        <span class="d-flex align-self-stretch flex-shrink-0 selection-indicator"/>
-        <cluster-details-panel
-          class="pl-2 pt-1 pr-3 pb-2 details-panel"
-          :cluster="item.cluster"
-          :textSample="item.textSample"/>
-      </div>
-      <div class="fixed-pagination-footer p-1 m-0">
-        <pagination
-          :perPage="paginationPerPage"
-          :currentPage="paginationCurrentPage"
-          :totalRows="paginationTotalRows"
-          v-on:change="handlePaginationPageChanged"
-          class="float-left small-caps" />
-      </div>
-    </i-layout-section>
-    <i-layout-section class="pt-2">
+      </template>
+
+      <template v-slot:default>
+        <div class="d-flex flex-row" :class="{
+            active: isClusterSelected(item.cluster.id),
+            'pb-4': isLastItem(index, clusterItems.length),
+          }"
+          v-for="(item, index) in clusterItems"
+          :key="item.cluster.id"
+          v-on:click="handleClusterSelected(item.cluster.id)">
+            <span class="d-flex align-self-stretch flex-shrink-0 selection-indicator"/>
+            <cluster-details-panel
+              class="p-3 details-panel border-bottom"
+              :class="{ selected: isClusterSelected(item.cluster.id) }"
+              :cluster="item.cluster"
+              :textSample="item.textSample"/>
+        </div>
+      </template>
+    </list>
+    <i-layout-section class="pt-2" main>
       <div v-if="selectedCluster !== undefined">
         <!-- main header -->
         <b-navbar>
@@ -63,7 +71,7 @@ import { protobuf } from 'impresso-jscommons';
 import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel'
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
 
-import Pagination from './modules/Pagination';
+import List from './modules/lists/List';
 import { textReuseClusters } from '@/services';
 
 const isLastItem = (index, total) => total - 1 === index
@@ -94,15 +102,12 @@ export default {
     selectedCluster: undefined
   }),
   props: {
-    paginationPerPage: {
-      type: Number,
-      default: 20
-    }
+    paginationPerPage: Number,
   },
   components: {
     ClusterTextSearchPanel,
     ClusterDetailsPanel,
-    Pagination
+    List,
   },
   mounted() {
     // On page load see if there are any filters present in the query parameters
@@ -155,19 +160,19 @@ export default {
     isLastItem
   },
   computed: {
+    paginationList() {
+      const { [QueryParameters.PageNumber]: page = 0 } = this.$route.query
+      return {
+        currentPage: parseInt(page, 10) + 1,
+        totalRows: this.searchInfo.total,
+        perPage: this.paginationPerPage || 20,
+      };
+    },
     selectedClusterId() {
       return this.$route.query[QueryParameters.ClusterId]
     },
     searchText() {
       return this.$route.query[QueryParameters.SearchText]
-    },
-    paginationCurrentPage() {
-      const { [QueryParameters.PageNumber]: page = 0 } = this.$route.query
-      return parseInt(page, 10) + 1
-    },
-    paginationTotalRows() {
-      const { total } = this.searchInfo
-      return total
     },
     orderByValue() {
       return this.$route.query[QueryParameters.OrderBy]
@@ -247,6 +252,7 @@ export default {
 <i18n>
 {
   "en": {
+    "searchClustersLabel": "browse clusters | browse clusters (1) | browse clusters ({n})",
     "clustersLabel": "Text Reuse Clusters",
     "clusterLabel": "Text Reuse Cluster"
   }
