@@ -1,43 +1,43 @@
 <template lang="html">
-  <div class="d-flex flex-column">
+  <div class="cluster-details-panel">
     <!-- header -->
-    <div class="d-flex flex-row border-bottom pb-1 align-items-end">
-      <span class="label">
-        {{$t('clusterLabel')}}
-      </span>
-      <span class="label cluster-id pl-2 text-tertiary">
-        #{{cluster.id}}
-      </span>
+    <div class="d-flex">
+      <div class="flex-grow-1">
+        <div class='badge badge-language small-caps mr-1'>{{ $t('clusterLabel') }}</div>
+        <span>
+          #{{ cluster.id }}
+        </span>
+      </div>
+      <div class="text-right">
+        <div class="lexical-overlap" v-b-tooltip.hover :title="$t('lexicalOverlap')">
+          {{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 2 })}}
+        </div>
+      </div>
     </div>
 
     <!-- subtitle -->
-    <div class="d-flex flex-row justify-content-between pb-1 pt-1">
-      <div class="d-flex flex-column">
-        <div class="small-caps cluster-size">
-          <span class="number">{{cluster.clusterSize}}</span> {{$tc('articlesCount', cluster.clusterSize)}}
-        </div>
-        <div class="label small-caps timespan">
-          {{$d(new Date(cluster.timeCoverage.from), 'short')}}
-          <small>to</small>
-          {{$d(new Date(cluster.timeCoverage.to), 'short')}}
-        </div>
-      </div>
-      <div class="d-flex flex-column align-items-end">
-        <span class="number">{{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 2 })}}</span>
-        <span class="label text-tertiary label-overlap small-caps flex-shrink-1">lexical overlap</span>
-      </div>
+    <div class="cluster-subtitle p-2">
+      <div class="size small-caps" v-html="$tc('numbers.articles', cluster.clusterSize, {
+        n: $n(cluster.clusterSize),
+      })"/>
+      <div class="time-coverage" v-html="$t('filters.daterange.item', {
+        start: $d(new Date(cluster.timeCoverage.from), 'short'),
+        end: $d(new Date(cluster.timeCoverage.to), 'short')
+      })"/>
     </div>
 
-    <!-- text sample -->
-    <div class="d-flex flex-column pb-1" v-if="textSample != null">
-      <span class="small-caps cluster-size text-tertiary">{{$t('sampleLabel')}}</span>
-      <p class="text-sample p-1">
-        {{textSample}}
-      </p>
-    </div>
+    <div v-if="textSample != null">
+      <!-- text sample -->
+      <div class="my-2" >
+        <span class="small-caps">{{$t('sampleLabel')}}</span>
+        <ellipsis v-bind:initialHeight="80" @click.prevent.stop>
+          <p class="text-sample">
+            <span>{{textSample}}</span>
+          </p>
+        </ellipsis>
+      </div>
 
-    <!-- time span -->
-    <div class="d-flex flex-row" v-if="textSample != null">
+      <!-- time span -->
       <timeline-with-span
         :height="30"
         :startDate="impressoCollectionStartDate"
@@ -49,7 +49,8 @@
 </template>
 
 <script>
-import TimelineWithSpan from '@/components/modules/textReuse/TimelineWithSpan'
+import TimelineWithSpan from '@/components/modules/textReuse/TimelineWithSpan';
+import Ellipsis from '@/components/modules/Ellipsis';
 
 export default {
   props: {
@@ -62,7 +63,8 @@ export default {
     }
   },
   components: {
-    TimelineWithSpan
+    TimelineWithSpan,
+    Ellipsis,
   },
   computed: {
     impressoCollectionStartDate() {
@@ -75,32 +77,48 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
 
-  .text-sample {
-    background-color: $clr-grey-800;
-    // background-image: linear-gradient(
-    //   to bottom,
-    //   rgba(darken($clr-grey-800, 50%), 0.0) 0%,
-    //   rgba(darken($clr-grey-800, 50%), 0.4) 70%,
-    //   rgba(darken($clr-grey-800, 50%), 0.7) 100%
-    // );
-    font-size: 12px;
-    max-height: 7rem;
-    overflow-y: hidden;
-  }
+  .cluster-details-panel {
+    &.selected, &:hover{
+      .text-sample > span{
+        background-color: #c5e8f3;
+      }
+    }
 
-  .cluster-id {
-    font-size: 1.2em;
-  }
+    .text-sample {
+      & > span{
+        background-color: lighten($clr-grey-800, 10%);
+      }
+      font-size: .9em;
+      line-height: 20px;
+    }
 
-  .cluster-size, .latest-sample, .label-overlap, .timespan {
-    font-size: 0.8em;
-  }
+    .lexical-overlap {
+      background: #dee2e6;
+      border-radius: 5px;
+      font-weight: normal;
+      padding: 0 4px;
+      font-size: .9em;
+    }
 
-  .number {
-    font-weight: 600;
+    .cluster-subtitle {
+      line-height: 1em;
+
+      .date {
+        text-transform: lowercase;
+        font-variant: small-caps;
+      }
+
+      .time-coverage {
+        font-size: 14px; // to match small-caps font-size
+      }
+    }
+
+    .number {
+      font-weight: 600;
+    }
   }
 </style>
 
