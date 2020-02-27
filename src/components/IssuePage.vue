@@ -139,7 +139,7 @@
       </div>
       <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
         <div class="align-self-center">
-          This content is available to logged-in people only.
+          <p>{{ $t('errors.loggedInOnly') }}</p>
           <br/>
           <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
         </div>
