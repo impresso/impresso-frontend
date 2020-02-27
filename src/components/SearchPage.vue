@@ -17,7 +17,7 @@
     <!--  body -->
     <div class="pt-3">
 
-      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings <info-button class="ml-1" name="how-are-word-embeddings-generated" />
+      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">{{ $t('label_embeddings') }} <info-button class="ml-1" name="how-are-word-embeddings-generated" />
       </b-button>
 
       <b-form-group class="mx-3">
@@ -613,6 +613,7 @@ export default {
     "label_order": "Order By",
     "label_group": "Group By",
     "label_isFront": "Frontpage",
+    "label_embeddings": "find similar words",
     "label_hasTextContents": "Contains Text",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
