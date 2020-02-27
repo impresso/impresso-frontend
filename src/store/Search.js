@@ -454,6 +454,7 @@ export default {
         query: {
           filters,
           group_by: 'articles',
+          limit: 500,
         },
       }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
     },
