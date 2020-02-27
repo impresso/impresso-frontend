@@ -7,9 +7,8 @@
         <search-tabs/>
         <div class="py-3 px-3">
           <search-pills
-            v-on:remove="onRemoveFilter"
-            v-on:add="onAddFilter"
-            :search-filters="searchQuery.filters"
+            :filters="searchQuery.filters"
+            @changed="handleFiltersChanged"
           />
           <!-- <autocomplete v-on:submit="onAddFilter" /> -->
         </div>
@@ -166,13 +165,12 @@ export default {
       this.$store.commit('searchNgrams/SET_UNIGRAM', q);
       this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
     },
-    onAddFilter(facet) {
-      this.$store.commit('searchNgrams/ADD_FILTER', facet);
+    handleFiltersChanged(filters) {
+      this.$store.dispatch('searchNgrams/UPDATE_SEARCH_QUERY_FILTERS', filters)
       this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
     },
-    onRemoveFilter(filter) {
-      console.info('onRemoveFilter', filter);
-      this.$store.dispatch('searchNgrams/REMOVE_FILTER', { filter });
+    onAddFilter(facet) {
+      this.$store.commit('searchNgrams/ADD_FILTER', facet);
       this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
     },
     onFilterUpdated(filter) {

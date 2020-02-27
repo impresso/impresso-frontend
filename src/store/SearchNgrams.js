@@ -156,6 +156,9 @@ const actions = {
     //   }
     // });
   },
+  UPDATE_SEARCH_QUERY_FILTERS({ commit }, filters) {
+    commit('UPDATE_SEARCH_QUERY_FILTERS', filters)
+  }
 };
 
 /** @type {import("vuex").GetterTree<State>} */
