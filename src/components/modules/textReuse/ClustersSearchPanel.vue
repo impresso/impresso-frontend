@@ -1,26 +1,18 @@
 <template lang="html">
   <div>
-    <b-nav tabs class="tabbed-nav pl-2 pt-1 align-items-end">
-      <b-nav-item class="small-caps" :active="true">
-        {{$t('searchClustersLabel')}}
-      </b-nav-item>
-    </b-nav>
-
-    <div class="pt-2">
-      <h6 class="label">{{$t('searchInPatternsLabel')}}</h6>
-      <search-input class="pt-2"
+    <search-input class="mt-3"
         @submit="onSubmitted"
         :initial="value"
         :placeholder="$t('placeholder')"/>
-    </div>
 
-    <div class="pt-2" v-if="filters.length > 0">
+    <div class="mt-2" v-if="filters.length > 0">
       <b-form-checkbox v-model="filtersEnabledModel">
         <search-query-summary :searchQuery="filtersAsSearchQuery"/>
       </b-form-checkbox>
     </div>
 
-    <div class="pt-2">
+    <div class="mt-3">
+      <label class="mr-2">{{$t('sortBy')}}</label>
       <i-dropdown v-model="orderByModel"
       :options="orderByOptions"
       size="sm"
@@ -114,7 +106,6 @@ export default {
 <i18n>
 {
   "en": {
-    "searchClustersLabel": "search clusters",
     "searchInPatternsLabel": "search in text reuse patterns",
     "placeholder": "search in text reuse patterns ...",
     "sort": {

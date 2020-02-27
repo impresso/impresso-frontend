@@ -1,9 +1,11 @@
 <template>
-  <b-nav tabs class="tabbed-nav pl-2 pt-1 align-items-end">
-    <b-nav-item class="small-caps" :active="true">
-      {{$tc('tabs.passages', passagesCount, { count: passagesCount })}}
-    </b-nav-item>
-  </b-nav>
+  <b-tabs pills class="mx-3">
+    <template v-slot:tabs-end>
+      <b-nav-item class="pl-2" :active="true">
+        {{$tc('tabs.passages', passagesCount, { count: passagesCount })}}
+      </b-nav-item>
+    </template>
+  </b-tabs>
 </template>
 
 <script>

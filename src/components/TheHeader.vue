@@ -45,7 +45,7 @@
         <b-nav-item v-bind:to="{ name: 'compare'}" active-class="active">
           {{$t("label_compare")}}
         </b-nav-item>
-	<b-nav-item v-bind:to="{ name: 'text-reuse-clusters-passages'}" active-class="active">
+        <b-nav-item v-bind:to="{ name: 'text-reuse-cluster-detail'}" active-class="active">
 	  {{$t("label_text_reuse")}}
 	</b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
