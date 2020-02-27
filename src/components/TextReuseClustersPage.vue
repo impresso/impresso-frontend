@@ -80,11 +80,6 @@ export default {
       offset: 0,
       total: 0
     },
-    paginationList: {
-      currentPage: 1,
-      totalRows: 0,
-      perPage: 20,
-    },
     isLoading: false,
     selectedCluster: undefined,
   }),
@@ -116,9 +111,6 @@ export default {
         })
       }
     }
-    this.loadClusters({
-      query: this.searchApiQueryParameters,
-    })
   },
   methods: {
     isClusterSelected(clusterId) {
@@ -159,16 +151,17 @@ export default {
         .find({ query })
         .then(result => [result.clusters, result.info]);
       console.info('loadClusters() success: ', this.searchInfo);
-      // updte pagination list.
-      this.paginationList = {
-        currentPage: query.page,
-        totalRows: this.searchInfo.total,
-        perPage: this.paginationPerPage,
-      };
       this.isLoading = false;
     },
   },
   computed: {
+    paginationList() {
+      return {
+        currentPage: this.paginationCurrentPage,
+        totalRows: this.searchInfo.total,
+        perPage: this.paginationPerPage,
+      };
+    },
     selectedClusterId() {
       return this.$route.query[QueryParameters.ClusterId]
     },
@@ -207,8 +200,11 @@ export default {
     },
   },
   watch: {
-    searchApiQueryParameters(query) {
-      this.loadClusters({ query });
+    searchApiQueryParameters: {
+      handler(query) {
+        this.loadClusters({ query });
+      },
+      immediate: true,
     },
     selectedClusterId: {
       async handler() {
