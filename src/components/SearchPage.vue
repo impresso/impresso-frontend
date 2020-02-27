@@ -161,7 +161,7 @@
     </b-modal>
 
     <b-modal hide-footer id="embeddings" ref="embeddings"
-      v-bind:title="$t('Find words similar to ...')">
+      v-bind:title="$t('label_embeddings')">
       <embeddings-search @embdding-selected="addFilterFromEmbedding" />
     </b-modal>
 
