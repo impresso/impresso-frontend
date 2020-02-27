@@ -138,6 +138,7 @@ export default {
         wrongcredentials: 'Wrong credentials provided...',
         NotValidRegex: 'The new password is too easy to guess!',
       },
+      loggedInOnly: 'You need to be logged in to access this content.',
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',
       BadRequest: 'Bad request.',
