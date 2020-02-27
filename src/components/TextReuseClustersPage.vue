@@ -42,29 +42,8 @@
         </div>
       </template>
     </list>
-    <i-layout-section class="pt-2" main>
-      <div v-if="selectedCluster !== undefined">
-        <!-- main header -->
-        <b-navbar>
-          <section>
-            <span class="label small-caps">
-              <span>&larr; {{$t("clustersLabel")}}</span>
-            </span>
-            <h3>{{$t('clusterLabel')}} #{{selectedCluster.id}}</h3>
-          </section>
-        </b-navbar>
-        <!-- main page -->
-        <router-view />
-      </div>
-
-      <div v-if="selectedCluster === undefined" style="height: 100%">
-        <div class="d-flex flex-row justify-content-center" style="height: 100%">
-          <div class="d-flex flex-column justify-content-center">
-            <span>[no cluster selected placeholder]</span>
-          </div>
-        </div>
-      </div>
-    </i-layout-section>
+    <!-- main page -->
+    <router-view :cluster="selectedCluster"/>
   </i-layout>
 </template>
 

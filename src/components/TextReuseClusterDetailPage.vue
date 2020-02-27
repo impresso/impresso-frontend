@@ -1,31 +1,61 @@
 <template>
-  <div>
-    <cluster-aspects-tab :passagesCount="passageItems.length"/>
-    <section class="p-2">
-      <div class="p-2 border-bottom mb-2">
-        <i-dropdown v-model="orderByModel"
-          :options="orderByOptions"
-          size="sm"
-          variant="outline-primary" />
+  <i-layout-section main>
+    <!-- slot:header -->
+    <div slot="header">
+      <div v-if="cluster && clusterId">
+        <b-navbar >
+          <section>
+            <span class="label small-caps">
+              <span>&larr; {{$t("clustersLabel")}}</span>
+            </span>
+            <h3>{{$t('clusterLabel')}} #{{cluster.id}}</h3>
+          </section>
+        </b-navbar>
+
+        <cluster-aspects-tab :passagesCount="passageItems.length"/>
+
+        <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
+          <b-navbar-nav>
+            <b-nav-form class="p-2 border-right">
+              <label class="mr-2">{{ $t('order by') }}</label>
+              <i-dropdown v-model="orderByModel"
+                :options="orderByOptions"
+                size="sm"
+                variant="outline-primary" />
+            </b-nav-form>
+          </b-navbar-nav>
+        </b-navbar>
       </div>
-      <passage-details-panel
-        v-for="({ passage, newspaper, iiifUrls }) in passageItems"
-        :key="passage.id"
-        :passage="passage"
-        :newspaper="newspaper"
-        :iiif-url="iiifUrls[0]"
-        class="p-2"/>
-    </section>
-    <div class="fixed-pagination-footer p-1 m-0"
-       v-if="paginationTotalRows > paginationPerPage">
-      <pagination
-        :perPage="paginationPerPage"
-        :currentPage="paginationCurrentPage"
-        :totalRows="paginationTotalRows"
-        v-on:change="handlePaginationPageChanged"
-        class="float-left small-caps" />
     </div>
-  </div>
+
+    <div v-if="!cluster" style="height: 100%">
+      <div class="d-flex flex-row justify-content-center" style="height: 100%">
+        <div class="d-flex flex-column justify-content-center">
+          <span>[no cluster selected placeholder]</span>
+        </div>
+      </div>
+    </div>
+    <div v-else-if="clusterId">
+      <section class="p-2">
+        <passage-details-panel
+          v-for="({ passage, newspaper, iiifUrls }) in passageItems"
+          :key="passage.id"
+          :passage="passage"
+          :newspaper="newspaper"
+          :iiif-url="iiifUrls[0]"
+          class="p-2"/>
+      </section>
+      <div class="fixed-pagination-footer p-1 m-0"
+         v-if="paginationTotalRows > paginationPerPage">
+        <pagination
+          :perPage="paginationPerPage"
+          :currentPage="paginationCurrentPage"
+          :totalRows="paginationTotalRows"
+          v-on:change="handlePaginationPageChanged"
+          class="float-left small-caps" />
+      </div>
+    </div>
+  </i-layout-section>
 </template>
 
 <script>
@@ -55,6 +85,7 @@ export default {
     }
   }),
   props: {
+    cluster: Object,
     paginationPerPage: {
       type: Number,
       default: 20
@@ -109,8 +140,10 @@ export default {
   },
   watch: {
     clusterId: {
-      async handler() {
-        return this.executeSearch()
+      async handler(val) {
+        if(val) {
+          return this.executeSearch();
+        }
       },
       immediate: true
     },
@@ -133,7 +166,9 @@ export default {
     async executeSearch() {
       const pageNumber = this.paginationCurrentPage - 1;
       const orderBy = this.orderByModel;
-
+      if (!this.clusterId) {
+        return;
+      }
       [this.passageItems, this.paginationInfo] = await textReuseClusterPassages
         .find({ query: {
           clusterId: this.clusterId,
