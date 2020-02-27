@@ -42,14 +42,14 @@
         </div>
       </div>
       <!--  ToC -->
-      <table-of-contents v-if="!isTabSearch && isTocReady && article"
+      <table-of-contents v-if="!isTabSearch && isTocReady"
         :tableOfContents="issue"
         :page="page"
         :article="article"
         :articles="matchingArticles"
         v-on:click="gotoArticle" />
 
-      <table-of-contents v-if="isTabSearch && isTocReady && article"
+      <table-of-contents v-if="isTabSearch && isTocReady"
         :tableOfContents="issue"
         :page="page"
         :article="article"
@@ -647,7 +647,7 @@ export default {
       });
     },
     handleFiltersChanged(filters) {
-      this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', filters);
+      this.issueFilters = filters.slice(0, filters.length - 1)
       this.search();
     },
     onInputPagination(page) {

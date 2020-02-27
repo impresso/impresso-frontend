@@ -110,15 +110,15 @@ export default {
       });
     },
     scrollToActivePage() {
-      if (!this.$refs[`page-${this.selectedPageUid}`]) {
+      const elementsList = this.$refs[`page-${this.selectedPageUid}`]
+      const elm = elementsList ? elementsList[0] : undefined
+
+      if (!elm) {
         console.warn(`Cannot scrollToActivePage: ${this.selectedPageUid} not ready or not found`);
         clearTimeout(this.retryTimer);
         this.retryTimer = setTimeout(this.scrollToActivePage, 500);
       } else {
-        console.info('scroll to page', this.selectedPageUid);
-        const elm = this.$refs[`page-${this.selectedPageUid}`][0];
         const parent = this.$refs.TableOfContents.parentNode;
-        console.info('ELM', elm.offsetTop);
         const elmRelativeTop = elm.offsetTop - parent.offsetTop;
         parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
       }
