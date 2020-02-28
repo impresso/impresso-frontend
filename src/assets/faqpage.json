@@ -272,12 +272,21 @@
           },
           {
             "id": "how-ngram-work-availble-filters",
-            "title": "Only a few filters are allowed",
+            "title": "This hgram trends page has limited search filters",
             "summary": "At the moment we are not allowing to filter by full text search queries while getting ngram frequencies.",
             "description": [
               "to be completed."
             ]
           },
+          {
+            "id": "how-searchImages-work-availble-filters",
+            "title": "The search images page has limited search filters",
+            "summary": "At the moment we are not allowing to filter by other metadata than newspapers while getting images.",
+            "description": [
+              "to be completed."
+            ]
+          },
+
           {
             "id": "relative-vs-absolute-year-graph",
             "title": "How is it plotted?",
