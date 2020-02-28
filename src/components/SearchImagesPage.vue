@@ -5,7 +5,7 @@
       <div slot="header" class="border-bottom bg-light">
         <search-tabs />
         <div class="py-3 px-3">
-          <search-pills :filters="filters"
+          <search-pills :filters="allowedFilters"
               @changed="handleFiltersChanged" />
           <b-media v-if="similarToImage" class="pb-3">
             <div style="width:128px;" slot="aside">
@@ -143,10 +143,8 @@ export default {
         this.$store.dispatch('searchImages/SET_RANDOM_PAGE', val);
       },
     },
-    filters: {
-      get() {
-        return this.$store.state.searchImages.search.filters;
-      },
+    allowedFilters() {
+      return this.searchQuery.getFilters(['string', 'regex']);
     },
     isFront: {
       get() {
