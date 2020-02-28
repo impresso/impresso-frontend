@@ -11,7 +11,7 @@
             @changed="handleFiltersChanged"
           />
           <span v-if="filtersRemoved">
-            <em class="small" v-html="$tc('filtersRemoved', filtersRemoved, {
+            <em class="small" v-html="$tc('numbers.filtersRemoved', filtersRemoved, {
               n: filtersRemoved,
             })"/>
             &nbsp;
@@ -225,7 +225,6 @@ export default {
 <i18n>
   {
     "en": {
-      "filtersRemoved": "no message | * 1 filter has been removed. | * {n} filters have been removed.",
       "tabs": {
         "text": "search articles",
         "images": "search images",
