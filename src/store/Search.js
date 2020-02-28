@@ -338,9 +338,10 @@ export default {
         });
       });
     },
-    GET_SEARCH_RESULTS({ state }, { groupBy, orderBy, page, limit, filters = [] } = {}) {
+    GET_SEARCH_RESULTS({ state }, { groupBy, orderBy, page, limit, filters = [], facets = [], } = {}) {
       const query = {
         filters,
+        facets,
         group_by: groupBy || state.groupBy,
         page: page || state.paginationCurrentPage,
         limit: limit || state.paginationPerPage,
