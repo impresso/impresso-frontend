@@ -1,9 +1,9 @@
 <template lang="html">
   <b-tabs pills class="mx-2 pt-2">
     <template v-slot:tabs-end>
-      <b-nav-item v-for="tab in tabs" v-bind:key="tab" active-class='none'
+      <b-nav-item v-for="(tab, i) in tabs" v-bind:key="i" active-class='none'
         :class="{ active: isActive(tab) }"
-        :to="{ name: tab, query: currentSearchQueryParams(tab) }"><span v-html="$t(`tabs.${tab}`)"/>
+        :to="{ name: tab, query: currentSearchQueryParams }"><span v-html="$t(`tabs.${tab}`)"/>
       </b-nav-item>
     </template>
   </b-tabs>
@@ -18,15 +18,21 @@ export default {
       default: () => ['search', 'searchImages', 'searchNgrams'],
     },
   },
-  methods: {
-    currentSearchQueryParams(tab) {
-      return this.$store.state[tab].search.getSerialized();
-    },
-    isActive(tab) {
-      if (this.focusOnSearch) {
-        return tab === 'search';
+  computed: {
+    selectedTab() {
+      if (this.tabs.includes(this.$route.name)) {
+        return this.$route.name;
       }
-      return this.$route.name === tab;
+      return 'search';
+    },
+    currentSearchQueryParams() {
+      const searchQuery = this.$store.state[this.selectedTab].search;
+      return searchQuery.getSerialized();
+    },
+  },
+  methods: {
+    isActive(tab) {
+      return this.selectedTab === tab;
     },
   },
 };
