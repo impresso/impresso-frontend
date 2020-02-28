@@ -7,9 +7,16 @@
         <search-tabs/>
         <div class="py-3 px-3">
           <search-pills
-            :filters="searchQuery.filters"
+            :filters="allowedFilters"
             @changed="handleFiltersChanged"
           />
+          <span v-if="filtersRemoved">
+            <em class="small" v-html="$tc('filtersRemoved', filtersRemoved, {
+              n: filtersRemoved,
+            })"/>
+            &nbsp;
+            <info-button name="how-ngram-work-availble-filters"  />
+          </span>
           <!-- <autocomplete v-on:submit="onAddFilter" /> -->
         </div>
       </div>
@@ -45,7 +52,7 @@
                   n: $n(trendBackground.total),
                 })" />
               &nbsp;
-              <search-query-summary class="d-inline" :search-query="searchQuery"/>
+              <search-query-summary class="d-inline" :search-query="{ filters: allowedFilters }"/>
             </ellipsis>
 
           </section>
@@ -136,19 +143,6 @@ export default {
       deep: true,
       immediate: true,
     },
-    // '$route.query': {
-    //   handler(val) {
-    //     return this.$store.dispatch('searchNgrams/PULL_SEARCH_PARAMS', val);
-    //   },
-    //   deep: true,
-    //   immediate: true,
-    // },
-    // filters: {
-    //   async handler() {
-    //     await this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    //   },
-    //   deep: true,
-    // },
   },
   methods: {
     getArticlesInYear(d) {
@@ -192,9 +186,6 @@ export default {
         .map(([d, val]) => ({ t: new Date(d), w: val }));
       return Helpers.timeline.addEmptyIntervals(v, this.trend.timeInterval).sort((a, b) => a.t - b.t);
     },
-    searchQuery() {
-      return  this.$store.state.searchNgrams.search;
-    },
     trend() {
       return this.$store.state.searchNgrams.trend;
     },
@@ -204,19 +195,24 @@ export default {
     unigram() {
       return this.$store.state.searchNgrams.unigram;
     },
-    filters() {
-      return this.$store.state.searchNgrams.search.filters;
+    searchQuery() {
+      return this.$store.state.searchNgrams.search;
+    },
+    allowedFilters() {
+      return this.searchQuery.filters.filter(d => !['string', 'regex'].includes(d.type));
+    },
+    filtersRemoved() {
+      return this.searchQuery.filters.length - this.allowedFilters.length;
     },
     timelineResolution() {
       return this.trend.timeInterval;
     },
     searchPageLink() {
-      const filters = this.$store.state.searchNgrams.search.getFilters();
-      filters.push({
+      const filters = [...this.allowedFilters, {
         type: 'string',
         precision: 'exact',
         q: this.unigram,
-      });
+      }];
       const query = {
         f: JSON.stringify(filters),
       };
@@ -229,6 +225,7 @@ export default {
 <i18n>
   {
     "en": {
+      "filtersRemoved": "no message | * 1 filter has been removed. | * {n} filters have been removed.",
       "tabs": {
         "text": "search articles",
         "images": "search images",
