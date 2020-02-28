@@ -271,6 +271,14 @@
             ]
           },
           {
+            "id": "how-ngram-work-availble-filters",
+            "title": "Only a few filters are allowed",
+            "summary": "At the moment we are not allowing to filter by full text search queries while getting ngram frequencies.",
+            "description": [
+              "to be completed."
+            ]
+          },
+          {
             "id": "relative-vs-absolute-year-graph",
             "title": "How is it plotted?",
             "summary": "SUM displays the absolute frequencies of result hits, whereas % shows the relative number of hits, compared to all articles from the impresso corpus.",
