@@ -103,6 +103,7 @@ const actions = {
         total,
         values,
       });
+      commit('UPDATE_QUERY_COMPONENTS', info.queryComponents);
       facets.forEach((type) => {
         commit('UPDATE_FACET', {
           type,
@@ -135,7 +136,7 @@ const actions = {
     if (state.unigram === undefined) return;
     const query = {
       ngrams: [state.unigram],
-      filters: state.search.getFilters(),
+      filters: state.search.getFilters(['string', 'regex']),
       // facets: AvailableFacets,
     };
     const results = await ngramTrendsService.create(query);
@@ -221,6 +222,9 @@ const mutations = {
   },
   UPDATE_FILTER_ITEM({ search }, { filter, item, uid }) {
     search.updateFilterItem({ filter, item, uid });
+  },
+  UPDATE_QUERY_COMPONENTS({ search }, queryComponents) {
+    search.enrichFilters(queryComponents);
   },
 };
 
