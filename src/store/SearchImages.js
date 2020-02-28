@@ -270,7 +270,11 @@ export default {
     },
     SEARCH({ state, commit, getters }, { filters = [] } = {}) {
       const query = {
-        filters: getters.getSearch.getFilters().concat(filters),
+        filters: getters.getSearch.getFilters().filter(d => [
+          'newspaper',
+          'isFront',
+          'daterange',
+        ].includes(d.type)).concat(filters),
         facets: state.facetTypes,
         group_by: state.groupBy,
         page: state.paginationCurrentPage,
