@@ -73,7 +73,7 @@ const actions = {
     }
     commit('SET_UNIGRAM', query.unigram);
     // get combined filters
-    const filters = state.search.getFilters();
+    const filters = state.search.getFilters(['string', 'regex']);
     const facets = ['year', 'newspaper', 'topic', 'person', 'location', 'type', 'language'];
 
     if (state.unigram && state.unigram.length) {
@@ -94,7 +94,7 @@ const actions = {
     }).then(({ info, total }) => {
       console.info('searchNgrams/PULL_SEARCH_PARAMS filters:', info, total);
       const values = {};
-      if (info.facets.year) {
+      if (info.facets && info.facets.year) {
         info.facets.year.buckets.forEach((d) => {
           values[d.val] = d.count;
         });
@@ -105,10 +105,11 @@ const actions = {
       });
       commit('UPDATE_QUERY_COMPONENTS', info.queryComponents);
       facets.forEach((type) => {
+        const facet = info.facets ? info.facets[type] : undefined;
         commit('UPDATE_FACET', {
           type,
-          buckets: info.facets[type].buckets,
-          numBuckets: info.facets[type].numBuckets,
+          buckets: facet ? facet.buckets : [],
+          numBuckets: facet ? facet.numBuckets : 0,
         });
       });
     });
