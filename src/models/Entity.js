@@ -48,7 +48,7 @@ export default class Entity {
   static getNameFromUid(uid) {
     return uid.replace(/^aida-\d+-\d+-/, '')
       .split('_').join(' ')
-      .replace(/\$([0-9a-z]+)\$/g, (m, c) => decodeURI(`%${c}`));
+      .replace(/\$([0-9a-z]+)\$/g, (m, c) => decodeURIComponent(`%${c}`));
   }
 
   static getTypeFromUid(uid) {

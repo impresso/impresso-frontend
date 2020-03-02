@@ -246,6 +246,9 @@ export default {
       return name === '' ? this.user.username : name;
     },
     userRole() {
+      if (this.user.displayName && this.user.displayName.length) {
+        return this.user.displayName;
+      }
       return this.user.isStaff ? this.$t('staff') : this.$t('researcher');
     },
     userPicture() {
@@ -276,9 +279,6 @@ export default {
   methods: {
     updateLastNotificationDate() {
       this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE');
-    },
-    openExplorer() {
-      this.$store.dispatch('explorer/SHOW', {});
     },
     openSearchQueryExplorer() {
       this.$store.dispatch('searchQueryExplorer/TOGGLE');
@@ -559,7 +559,7 @@ export default {
     "logout": "Logout",
     "dashboard": "Dashboard",
     "collections": "Collections",
-    "pofile": "Profile",
+    "profile": "Profile",
     "label_home": "Home",
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
     "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",

@@ -110,6 +110,9 @@ export default {
     UPDATE_FILTER_ITEM(state, { filter, item, uid }) {
       state.search.updateFilterItem({ filter, item, uid });
     },
+    MERGE_FILTER_AT_INDEX(state, { index, filter }) {
+      state.search.mergeFilterAtIndex(filter, index)
+    },
     STORE_SEARCH(state) {
       state.imageSearches.push(state.search);
       state.search = new SearchQuery(state.search);
@@ -169,6 +172,9 @@ export default {
     },
   },
   actions: {
+    UPDATE_SEARCH_QUERY_FILTERS({ commit }, filters) {
+      commit('UPDATE_SEARCH_QUERY_FILTERS', filters)
+    },
     /**
      * Print search params to current URL
      * @param {[type]} context [description]
@@ -253,6 +259,9 @@ export default {
     UPDATE_FILTER({ commit }, message) {
       commit('UPDATE_FILTER', message);
     },
+    MERGE_FILTER_AT_INDEX({ commit }, message) {
+      commit('MERGE_FILTER_AT_INDEX', message)
+    },
     SET_RANDOM_PAGE({ commit }, value) {
       commit('SET_RANDOM_PAGE', value);
     },
@@ -261,7 +270,11 @@ export default {
     },
     SEARCH({ state, commit, getters }, { filters = [] } = {}) {
       const query = {
-        filters: getters.getSearch.getFilters().concat(filters),
+        filters: getters.getSearch.getFilters().filter(d => [
+          'newspaper',
+          'isFront',
+          'daterange',
+        ].includes(d.type)).concat(filters),
         facets: state.facetTypes,
         group_by: state.groupBy,
         page: state.paginationCurrentPage,

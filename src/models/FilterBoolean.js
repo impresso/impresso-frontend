@@ -5,6 +5,10 @@ import Filter from '@/models/FilterBase';
  */
 
 export default class FilterBoolean extends Filter {
+  constructor(options) {
+    super(options)
+    this.q = undefined
+  }
   getName() {
     return this.item.name;
   }

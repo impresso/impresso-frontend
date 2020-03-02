@@ -6,9 +6,6 @@
   <div id="app-content">
     <router-view />
   </div>
-  <div id="app-explorer" class="fullscreen">
-    <explorer/>
-  </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
@@ -26,7 +23,6 @@
 import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
 import Monitor from './components/Monitor';
-import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 import CookieDisclaimer from './components/modals/CookieDisclaimer';
@@ -36,7 +32,6 @@ export default {
   components: {
     TheHeader,
     Monitor,
-    Explorer,
     DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
@@ -51,7 +46,7 @@ export default {
     },
     is_locked() {
       return this.$store.state.processingLocked;
-    },
+    }
   },
   methods: {
     onEventBusAddFilter({ filter, searchQueryId }) {
@@ -59,7 +54,7 @@ export default {
       if (!searchQueryId || !searchQueryId.length) {
         this.$store.dispatch('search/ADD_FILTER', { filter });
       }
-    },
+    }
   },
   mounted() {
     window.addEventListener('click', () => {
@@ -259,6 +254,11 @@ $clr-grey-900: #ddd;
     max-width: auto;
     text-align: left;
     box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
+
+    .number{
+      color: white;
+      font-weight: bold;
+    }
 }
 .dropdown-menu {
     padding: 0;
@@ -376,6 +376,24 @@ $clr-grey-900: #ddd;
 .badge-language{
   background-color: #e1e6ea;
 }
+.ngram-highlight{
+  background-color: #17191c;
+  color: white;
+  font-family: "questa-sans", sans-serif;
+
+  &::after{
+    content: '"';
+  }
+  &::before{
+    content: '"';
+  }
+}
+
+.search-results-summary .ngram-highlight{
+  padding: 0 .25rem;
+  margin: 0 .25rem;
+}
+
 // uncomment to add background to transparent footers
 // .fixed-pagination-footer::before{
 //   content: "";
@@ -404,5 +422,6 @@ $clr-grey-900: #ddd;
     transform: scale(1);
   }
 }
+
 
 </style>

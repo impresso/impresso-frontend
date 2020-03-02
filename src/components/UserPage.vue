@@ -19,6 +19,15 @@
             </div>
           </div>
 
+          <div v-if="userSubmitted">
+            <b-alert v-if="userSubmittedSuccess" variant="success" show dismissible>{{ $t('form_user_changed') }}</b-alert>
+            <b-alert v-else variant="danger" show dismissible>
+              <!-- <b>{{ $t(`errors.changeUser.${userSubmittedError}`)}}</b>
+              <br> -->
+              {{ $t('form_user_changed_failed') }}
+            </b-alert>
+          </div>
+
           <ValidationObserver v-slot="{ invalid }">
 
             <b-form @submit.prevent="onSubmit" v-if="user.uid">
@@ -95,22 +104,45 @@
         <b-col md="6" offset-md="3">
           <ValidationObserver v-slot="{ invalid }">
             <b-form @submit.prevent="onSubmitChangePassword">
+              <div v-if="passwordSubmitted">
+                <b-alert v-if="passwordSubmittedSuccess" variant="success" show dismissible>{{ $t('form_password_changed') }}</b-alert>
+                <b-alert v-else variant="danger" show dismissible>
+                  <b>{{ $t(`errors.changePassword.${passwordSubmittedError}`)}}</b>
+                  <br>
+                  {{ $t('form_password_changed_failed') }}
+                </b-alert>
+              </div>
               <!-- current password -->
-              <ValidationProvider name="current-password" rules="required" v-slot="{ errors }">
+              <ValidationProvider name="Password" rules="required|min:8" v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-1"
                   :label="$t('form_oldpassword')"
                   label-for="current-password"
-                  :description="errors[0]">
+                  :description="errors[0]"
+                  >
                   <b-form-input
                     id="current-password" name="current-password"
-                    v-model="oldPassword"
+                    v-model="previousPassword"
                     type="password" />
-                </b-form-group><!-- current password -->
-              </ValidationProvider>
+                </b-form-group>
+              </ValidationProvider><!-- current password -->
               <!-- new password -->
               <ValidationObserver>
-                <ValidationProvider rules="required|min:12" v-slot="{ errors }" vid="repeatPassword">
+                <!-- dd rule:
+                  Use the following Regex to satisfy the below conditions:
+
+                  Conditions: 1] Min 1 uppercase letter.
+                              2] Min 1 lowercase letter.
+                              3] Min 1 special character.
+                              4] Min 1 number.
+                              5] Min 12 characters.
+                              6] Max 42 characters.
+
+                  Regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{12,42}$/
+                -->
+                <ValidationProvider name="Password"
+                  :rules="{ min: 8, regex: /^(?=.*?[A-Z])(?=.*[a-z])(?=.*[\d])(?=.*[\W_])(?!.*\s).{8,}$/ }"
+                  v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-2"
                   :label="$t('form_newpassword')"
@@ -151,7 +183,7 @@
 
 <script>
 import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
-import { required, email, confirmed, min } from 'vee-validate/dist/rules';
+import { required, email, confirmed, min, regex } from 'vee-validate/dist/rules';
 
 extend('required', {
   ...required,
@@ -167,16 +199,30 @@ extend('confirmed', {
 
 extend('min', {
   ...min,
-  message: 'Password must be at least 12 characters long'
+  params: ['length'],
+  message: 'Password must have at least {length} characters'
+});
+
+extend('regex', {
+  ...regex,
+  message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
 });
 
 
 export default {
   data: () => ({
     user: Object,
-    oldPassword: '',
+    previousPassword: '',
     newPassword: '',
     repeatPassword: '',
+    // form results
+    passwordSubmitted: false,
+    passwordSubmittedSuccess: false,
+    passwordSubmittedError: '',
+    // form results
+    userSubmitted: false,
+    userSubmittedSuccess: false,
+    userSubmittedError: '',
     errors: [],
     palettes:
     [
@@ -192,15 +238,37 @@ export default {
   },
   methods: {
     onSubmitChangePassword() {
+      this.passwordSubmitted = false;
+      this.passwordSubmittedError = '';
       this.$store.dispatch('user/CHANGE_PASSWORD', {
         uid: this.user.uid,
-        oldPassword: this.oldPassword,
+        previousPassword: this.previousPassword,
         newPassword: this.newPassword,
+      }).then(() => {
+        this.passwordSubmitted = true;
+        this.passwordSubmittedSuccess = true;
+        console.info('UserPage.onSubmitChangePassword() SUCCESS, Password changed!');
+      }).catch((err) => {
+        this.passwordSubmitted = true;
+        this.passwordSubmittedSuccess = false;
+        if (err.data && err.data.newPassword) {
+          this.passwordSubmittedError = err.data.newPassword.code;
+        } else {
+          this.passwordSubmittedError = err.message.toLowerCase().split(' ').join('');
+        }
+        console.warn('UserPage.onSubmitChangePassword() failed, error: ', err);
       });
     },
     onSubmit() {
+      this.userSubmitted = false;
       this.$store.dispatch('user/UPDATE_CURRENT_USER', this.user).then((user) => {
+        this.userSubmittedSuccess = true;
         this.user = user;
+      }).catch((err) => {
+        this.userSubmittedSuccess = false;
+        this.userSubmittedError = err;
+      }).then(() => {
+        this.userSubmitted = true;
       });
     },
     confirmDelete() {
@@ -287,7 +355,11 @@ export default {
     "form_change_password": "Change Password",
     "form_oldpassword": "Current Password",
     "form_newpassword": "New Password",
-    "form_newpassword_repeat": "Repeat New Password"
+    "form_newpassword_repeat": "Repeat New Password",
+    "form_password_changed": "Bravo! Your password has been updated.",
+    "form_password_changed_failed": "Please check the values you have entered.",
+    "form_user_changed": "Your profile has been updated.",
+    "form_user_changed_failed": "Please check the values you have entered."
   }
 }
 </i18n>
