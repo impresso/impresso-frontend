@@ -1,15 +1,16 @@
 <template lang="html">
   <div>
+    <div class="mt-2" v-if="filters.length > 0">
+      <search-pills :filters="filters"
+        :enableAddFilter=true
+        :includedFilterTypes="supportedFilterTypes"
+        @changed="handleFiltersChanged" />
+    </div>
+
     <search-input class="mt-3"
         @submit="onSubmitted"
         :initial="value"
         :placeholder="$t('placeholder')"/>
-
-    <div class="mt-2" v-if="filters.length > 0">
-      <b-form-checkbox v-model="filtersEnabledModel">
-        <search-query-summary :searchQuery="filtersAsSearchQuery"/>
-      </b-form-checkbox>
-    </div>
 
     <div class="mt-3">
       <label class="mr-2">{{$t('sortBy')}}</label>
@@ -23,8 +24,7 @@
 
 <script>
 import SearchInput from '@/components/modules/SearchInput'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
-import SearchQuery from '@/models/SearchQuery'
+import SearchPills from '@/components//SearchPills';
 
 const SortingMethod = {
   PassagesCount: 'passages-count'
@@ -42,18 +42,21 @@ export default {
       type: Array,
       default: () => []
     },
-    filtersEnabled: {
-      type: Boolean,
-      default: true
+    supportedFilterTypes: {
+      type: Array,
+      default: () => []
     }
   },
   components: {
     SearchInput,
-    SearchQuerySummary,
+    SearchPills
   },
   methods: {
     onSubmitted({ q }) {
       this.$emit('submit', q)
+    },
+    handleFiltersChanged(filters) {
+      this.$emit('filtersChanged', filters)
     }
   },
   computed: {
@@ -83,13 +86,6 @@ export default {
           disabled: false,
         }
       ];
-    },
-    filtersEnabledModel: {
-      get() { return this.filtersEnabled },
-      set(val) { this.$emit('filtersEnabledChanged', val) }
-    },
-    filtersAsSearchQuery() {
-      return new SearchQuery({ filters: this.filters })
     }
   }
 };

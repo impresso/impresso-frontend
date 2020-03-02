@@ -78,7 +78,7 @@
     </div>
     <div v-for="(item, idx) in filter.items" :key="idx" class="mt-2">
       <div v-if="type === 'daterange'">
-        <filter-daterange :daterange="item" @change="editedFilter.q = $event.item.uid"></filter-daterange>
+        <filter-daterange :start="new Date(item.start)" :end="new Date(item.end)" @changed="handleDaterangeChanged"/>
       </div>
       <b-form-checkbox v-else v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
         <item-label :item="item" :type="type"/>
@@ -232,6 +232,10 @@ export default {
       this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
       this.editedFilter.precisions = 'soft'
     },
+    handleDaterangeChanged({ item, q }) {
+      this.editedFilter.q = q
+      this.editedFilter.items = [item]
+    }
   },
   components: {
     FilterDaterange,

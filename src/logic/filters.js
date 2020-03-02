@@ -16,3 +16,7 @@ export function toCanonicalFilter(filter) {
 export function toSerializedFilter(filter) {
   return protobuf.filter.serialize(toCanonicalFilter(filter))
 }
+
+export function toSerializedFilters(filters) {
+  return protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
+}

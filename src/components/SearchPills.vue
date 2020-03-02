@@ -87,13 +87,16 @@
     <explorer v-model="explorerFilters"
       :is-visible="explorerVisible"
       @onHide="handleExplorerHide"
-      :searching-enabled="false"/>
+      :searching-enabled="false"
+      :included-types="includedFilterTypes"/>
   </div>
 </template>
 
 <script>
 import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
+import { filtersItems } from '../services'
+import { toSerializedFilters } from '../logic/filters'
 
 /**
  * Use `v-model`.
@@ -104,12 +107,18 @@ export default {
     event: 'changed'
   },
   data: () => ({
-    explorerVisible: false
+    explorerVisible: false,
+    filtersWithItems: undefined
   }),
   props: {
     excludedTypes: {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
+    },
+    includedFilterTypes: {
+      /* included filter types override excluded types */
+      type: Array,
+      default: () => undefined
     },
     enableAddFilter: {
       type: Boolean,
@@ -123,13 +132,21 @@ export default {
   },
   computed: {
     pills() {
-      return this.filters
+      /* included filter types override excluded types */
+      const filterFn = this.includedFilterTypes
+        ? ({ filter: { type } }) => this.includedFilterTypes.includes(type)
+        : ({ filter: { type } }) => !this.excludedTypes.includes(type)
+      return this.enrichedFilters
         .map((filter, filterIndex) => ({ filter, filterIndex }))
-        .filter(({ filter: { type } }) => !this.excludedTypes.includes(type))
+        .filter(filterFn)
     },
     explorerFilters: {
-      get() { return this.filters },
+      get() { return this.enrichedFilters },
       set(filters) { this.$emit('changed', filters) }
+    },
+    enrichedFilters() {
+      if (this.filtersWithItems != null) return this.filtersWithItems
+      return this.filters
     }
   },
   methods: {
@@ -170,8 +187,8 @@ export default {
       max = 1,
     } = {}) {
       let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
-        start: this.$d(d.start, 'compact'),
-        end: this.$d(d.end, 'compact'),
+        start: this.$d(new Date(d.start), 'compact'),
+        end: this.$d(new Date(d.end), 'compact'),
       })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
@@ -190,6 +207,16 @@ export default {
   components: {
     FilterMonitor,
     Explorer
+  },
+  watch: {
+    filters: {
+      async handler(filters) {
+        const serializedFilters = toSerializedFilters(filters || [])
+        const { filtersWithItems } = await filtersItems.find({ query: { filters: serializedFilters }})
+        this.filtersWithItems = filtersWithItems.map(({ filter, items }) => ({ ...filter, items }))
+      },
+      immediate: true
+    }
   }
 };
 </script>

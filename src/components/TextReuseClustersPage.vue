@@ -17,11 +17,11 @@
           class="pb-2 px-3"
           @submit="handleSearchInputSubmitted"
           @orderByChanged="handleOrderByChanged"
-          @filtersEnabledChanged="handleFiltersEnabledChanged"
           :orderBy="orderByValue"
           :value="searchText"
           :filters="searchFilters"
-          :filters-enabled="searchFiltersEnabled"/>
+          :supported-filter-types="supportedFilterTypes"
+          @filtersChanged="handleFiltersChanged"/>
       </template>
 
       <template v-slot:default>
@@ -56,10 +56,11 @@ import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPa
 
 import List from './modules/lists/List';
 import { textReuseClusters } from '@/services';
+import { toCanonicalFilter } from '../logic/filters';
 
 const isLastItem = (index, total) => total - 1 === index
 
-const serializeFilters = filters => protobuf.searchQuery.serialize({ filters })
+const serializeFilters = filters => protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
 const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
 
 const SupportedFilterTypes = ['daterange', 'newspaper']
@@ -70,7 +71,6 @@ const QueryParameters = Object.freeze({
   SearchText: 'q',
   PageNumber: 'page',
   OrderBy: 'orderBy',
-  SearchFiltersEnabled: 'filtersOn',
   SearchFilters: 'filters'
 })
 
@@ -111,7 +111,6 @@ export default {
       if (filters.length > 0) {
         this.$navigation.updateQueryParameters({
           [QueryParameters.SearchFilters]: serializeFilters(filters),
-          [QueryParameters.SearchFiltersEnabled]: 1
         })
       }
     }
@@ -153,9 +152,9 @@ export default {
         [QueryParameters.PageNumber]: 1,
       })
     },
-    handleFiltersEnabledChanged(filtersAreEnabled) {
+    handleFiltersChanged(filters) {
       this.$navigation.updateQueryParameters({
-        [QueryParameters.SearchFiltersEnabled]: filtersAreEnabled ? 1 : undefined
+        [QueryParameters.SearchFilters]: serializeFilters(filters)
       })
     },
     isLastItem,
@@ -193,6 +192,7 @@ export default {
     }
   },
   computed: {
+    supportedFilterTypes() { return SupportedFilterTypes },
     paginationList() {
       return {
         currentPage: this.paginationCurrentPage,
@@ -215,9 +215,6 @@ export default {
         ? deserializeFilters(serializedFilters)
         : []
     },
-    searchFiltersEnabled() {
-      return Boolean(this.$route.query[QueryParameters.SearchFiltersEnabled])
-    },
     paginationCurrentPage() {
       const { [QueryParameters.PageNumber]: page = 1 } = this.$route.query
       return parseInt(page, 10);
@@ -233,9 +230,7 @@ export default {
         }
       }
 
-      const filters = this.searchFiltersEnabled
-        ? serializeFilters(this.searchFilters)
-        : undefined;
+      const filters = serializeFilters(this.searchFilters)
 
       return {
         method: 'searchClusters',
@@ -248,7 +243,7 @@ export default {
           filters,
         }
       };
-    },
+    }
   },
   watch: {
     searchApiQueryParameters: {

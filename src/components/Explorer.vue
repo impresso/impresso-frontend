@@ -156,6 +156,11 @@ async function search({
   }
 }
 
+const AllSupportedFilterTypes = [
+  'location', 'country', 'person', 'language',
+  'topic', 'newspaper', 'collection', 'year', 'month',
+]
+
 export default {
   model: {
     prop: 'filters',
@@ -183,7 +188,11 @@ export default {
     // Only used when "searchingEnabled" is on
     initialSearchQuery: String,
     isVisible: Boolean,
-    initialType: String
+    initialType: String,
+    includedTypes: {
+      type: Array,
+      default: () => undefined
+    }
   },
   methods: {
     openDialog() { this.$bvModal.show(this.id) },
@@ -226,13 +235,13 @@ export default {
       set(q) { this.searchQuery = q }
     },
     typeOptions() {
+      if (this.includedTypes) {
+        return this.includedTypes.filter(type => AllSupportedFilterTypes.includes(type))
+      }
       if (this.searchingEnabled) {
         return ['newspaper', 'person', 'location', 'topic', 'collection'];
       }
-      return [
-        'location', 'country', 'person', 'language',
-        'topic', 'newspaper', 'collection', 'year', 'month',
-      ];
+      return AllSupportedFilterTypes;
     },
     searchParameters() {
       const {
@@ -282,8 +291,11 @@ export default {
     currentType() { this.currentPage = 1 },
     initialType: {
       handler() {
-        if (this.initialType == null) return
-        this.currentType = this.initialType
+        if (this.initialType == null) {
+          this.currentType = this.typeOptions[0]
+        } else {
+          this.currentType = this.initialType
+        }
       },
       immediate: true
     }
