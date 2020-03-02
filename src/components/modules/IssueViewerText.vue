@@ -109,10 +109,10 @@ export default {
     };
   },
   updated() {
-    const { height } = document.querySelector('#TheHeader').getBoundingClientRect();
-    this.viewerTopOffset = height;
+    const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
+    this.viewerTopOffset = height
 
-    [...document.querySelectorAll('.tr-passage')].map(element => {
+    document.querySelectorAll('.tr-passage').forEach(element => {
       element.removeEventListener('mouseenter', this.mouseenterPassageHandler)
       element.addEventListener('mouseenter', this.mouseenterPassageHandler)
       element.removeEventListener('mouseleave', this.mouseleavePassageHandler)
@@ -223,7 +223,7 @@ export default {
     },
     passageClickHandler() {
       this.$router.push({
-        name: 'text-reuse-clusters-passages',
+        name: 'text-reuse-clusters',
         query: {
           clusterId: this.selectedClusterId
         }
