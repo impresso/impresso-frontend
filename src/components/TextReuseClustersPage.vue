@@ -19,7 +19,7 @@
           @orderByChanged="handleOrderByChanged"
           :orderBy="orderByValue"
           :value="searchText"
-          :filters="searchFilters"
+          :filters="enrichedFilters"
           :supported-filter-types="supportedFilterTypes"
           @filtersChanged="handleFiltersChanged"/>
       </template>
@@ -55,8 +55,8 @@ import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearc
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
 
 import List from './modules/lists/List';
-import { textReuseClusters } from '@/services';
-import { toCanonicalFilter } from '../logic/filters';
+import { textReuseClusters, filtersItems } from '@/services';
+import { toCanonicalFilter, toSerializedFilters } from '../logic/filters';
 
 const isLastItem = (index, total) => total - 1 === index
 
@@ -85,7 +85,10 @@ export default {
       total: 0
     },
     isLoading: false,
+    // cluster selected in the search panel
     selectedCluster: undefined,
+    // filters enriched with items once they are fetched
+    filtersWithItems: undefined
   }),
   props: {
     paginationPerPage: {
@@ -215,6 +218,11 @@ export default {
         ? deserializeFilters(serializedFilters)
         : []
     },
+    enrichedFilters() {
+      return this.filtersWithItems != null
+        ? this.filtersWithItems
+        : this.searchFilters
+    },
     paginationCurrentPage() {
       const { [QueryParameters.PageNumber]: page = 1 } = this.$route.query
       return parseInt(page, 10);
@@ -262,6 +270,15 @@ export default {
 
         this.selectedCluster = await textReuseClusters.get(this.selectedClusterId)
           .then(({ cluster }) => cluster)
+      },
+      immediate: true
+    },
+    searchFilters: {
+      async handler(filters) {
+        this.filtersWithItems = undefined
+        const serializedFilters = toSerializedFilters(filters || [])
+        const { filtersWithItems } = await filtersItems.find({ query: { filters: serializedFilters }})
+        this.filtersWithItems = filtersWithItems.map(({ filter, items }) => ({ ...filter, items }))
       },
       immediate: true
     }

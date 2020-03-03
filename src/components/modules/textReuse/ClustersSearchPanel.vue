@@ -31,8 +31,7 @@ const SortingMethod = {
 }
 
 export default {
-  data: () => ({
-  }),
+  data: () => ({}),
   props: {
     value: String,
     orderBy: {

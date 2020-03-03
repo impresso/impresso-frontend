@@ -95,8 +95,6 @@
 <script>
 import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
-import { filtersItems } from '../services'
-import { toSerializedFilters } from '../logic/filters'
 
 /**
  * Use `v-model`.
@@ -107,8 +105,7 @@ export default {
     event: 'changed'
   },
   data: () => ({
-    explorerVisible: false,
-    filtersWithItems: undefined
+    explorerVisible: false
   }),
   props: {
     excludedTypes: {
@@ -136,17 +133,13 @@ export default {
       const filterFn = this.includedFilterTypes
         ? ({ filter: { type } }) => this.includedFilterTypes.includes(type)
         : ({ filter: { type } }) => !this.excludedTypes.includes(type)
-      return this.enrichedFilters
+      return this.filters
         .map((filter, filterIndex) => ({ filter, filterIndex }))
         .filter(filterFn)
     },
     explorerFilters: {
-      get() { return this.enrichedFilters },
+      get() { return this.filters },
       set(filters) { this.$emit('changed', filters) }
-    },
-    enrichedFilters() {
-      if (this.filtersWithItems != null) return this.filtersWithItems
-      return this.filters
     }
   },
   methods: {
@@ -207,16 +200,6 @@ export default {
   components: {
     FilterMonitor,
     Explorer
-  },
-  watch: {
-    filters: {
-      async handler(filters) {
-        const serializedFilters = toSerializedFilters(filters || [])
-        const { filtersWithItems } = await filtersItems.find({ query: { filters: serializedFilters }})
-        this.filtersWithItems = filtersWithItems.map(({ filter, items }) => ({ ...filter, items }))
-      },
-      immediate: true
-    }
   }
 };
 </script>
