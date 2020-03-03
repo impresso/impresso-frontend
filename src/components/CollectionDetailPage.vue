@@ -1,7 +1,7 @@
 <template lang="html">
   <i-layout-section v-if="$route.params.collection_uid">
 
-    <div slot="header">
+    <div slot="header" v-if="!fetching">
       <b-navbar type="light" variant="light" class="border-bottom">
 
         <section>
@@ -88,7 +88,11 @@
 
     <div class="collection-group">
 
-      <b-container fluid v-if="paginationTotalRows > 0">
+      <div v-if="fetching">
+        <i-spinner class="text-center m-5 p-5" />
+      </div>
+
+      <b-container v-else-if="paginationTotalRows > 0" fluid>
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12"
             v-for="(article, index) in articles"
@@ -125,7 +129,7 @@
       </div>
 
       <div class="my-5" />
-      <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+      <div v-if="!fetching && paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
           size="sm"
           v-bind:perPage="paginationPerPage"
@@ -187,6 +191,11 @@ export default {
     Pagination,
   },
   computed: {
+    fetching: {
+      get() {
+        return this.$store.state.processingStatus;
+      },
+    },
     collections: {
       get() {
         return this.$store.getters['collections/collections'];

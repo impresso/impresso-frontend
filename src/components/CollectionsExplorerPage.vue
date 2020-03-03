@@ -30,7 +30,9 @@
 
     <div class="collection-group">
 
-      <i-spinner v-if="fetching" class="text-center m-5 p-5" />
+        <div v-if="fetching">
+          <i-spinner class="text-center m-5 p-5" />
+        </div>
 
       <b-container v-else fluid>
 
@@ -48,7 +50,7 @@
           <b-col cols="6" sm="12" md="4" lg="3"
             v-for="(article, index) in articles"
             v-bind:key="`${index}-${article.uid}`">
-            <!-- {{article}} -->
+            {{article.uid}}
             <search-results-tiles-item
               v-if="article.type === 'ar'"
               v-on:click="gotoArticle(article)"
@@ -61,7 +63,7 @@
           </b-col>
         </b-row>
 
-        <b-row v-if="paginationTotalRows > 0">
+        <b-row v-if="paginationTotalRows === 0">
           <p class="text-center pt-4"><b>{{ $t('no_articles_collected')}}</b></p>
           <p class="text-center">{{ $t('no_articles_collected_long')}}</p>
         </b-row>
@@ -69,7 +71,7 @@
       </b-container>
 
       <div class="my-5" />
-      <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+      <div v-if="!fetching && paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
           size="sm"
           v-bind:perPage="paginationPerPage"
