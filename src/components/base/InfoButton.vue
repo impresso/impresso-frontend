@@ -33,9 +33,11 @@ export default {
   ],
   data: () => ({
     show: false,
-    currentTargetId: null,
   }),
   computed: {
+    currentTargetId() {
+      return this.$store.state.explorer.currentInfoButtonId;
+    },
     targetId() {
       return `ib_${this.target || this.name}`;
     },

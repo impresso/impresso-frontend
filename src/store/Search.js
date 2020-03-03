@@ -215,14 +215,8 @@ export default {
     UPDATE_SEARCH_IS_PRISTINE(state, value) {
       state.currentSearchIsPristine = Boolean(value);
     },
-    MERGE_FILTER_AT_INDEX(state, { index, filter }) {
-      state.search.mergeFilterAtIndex(filter, index)
-    }
   },
   actions: {
-    UPDATE_SEARCH_QUERY_FILTERS({ commit }, filters) {
-      commit('UPDATE_SEARCH_QUERY_FILTERS', filters)
-    },
     /**
      * Print search params to current URL
      * @param {[type]} context [description]
@@ -338,10 +332,9 @@ export default {
         });
       });
     },
-    GET_SEARCH_RESULTS({ state }, { groupBy, orderBy, page, limit, filters = [], facets = [], } = {}) {
+    GET_SEARCH_RESULTS({ state }, { groupBy, orderBy, page, limit, filters = [] } = {}) {
       const query = {
         filters,
-        facets,
         group_by: groupBy || state.groupBy,
         page: page || state.paginationCurrentPage,
         limit: limit || state.paginationPerPage,
@@ -456,15 +449,11 @@ export default {
     UPDATE_FILTER_ITEM({ commit }, message) {
       commit('UPDATE_FILTER_ITEM', message);
     },
-    MERGE_FILTER_AT_INDEX({ commit }, message) {
-      commit('MERGE_FILTER_AT_INDEX', message)
-    },
     LOAD_TIMELINE(context, { filters = [], granularity = 'year' } = {}) {
       return services.searchFacets.get(granularity, {
         query: {
           filters,
           group_by: 'articles',
-          limit: 500,
         },
       }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
     },

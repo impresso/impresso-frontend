@@ -1,7 +1,7 @@
 <template lang="html">
   <div class='search-pills'>
     <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
-      v-for="({ filter, filterIndex }) in pills" :key="filterIndex">
+      v-for="(filter, index) in pills" :key="index">
       <!--  button content -->
       <template slot="button-content">
         <!-- badge: initial type instead of icons -->
@@ -67,22 +67,27 @@
           v-if="filter.type === 'daterange'"
           :class="filter.context" v-html="labelByDaterangeItems({ items: filter.items, max: 2 })">
         </span>
+        <!-- <span class="filter-icon filter-remove dripicons-cross" @click="onRemoveFilter(filter)"></span> -->
       </template>
 
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $tc(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}</div>
         <filter-monitor checkbox
+                        :store="storeModuleName"
                         :filter="filter"
-                        @changed="handleFilterUpdated(filterIndex, $event)"
-                        :operators="['AND', 'OR']" />
+                        :type="filter.type"
+                        :search-query-id="searchQueryId"
+                        :operators="['AND', 'OR']"
+                        :skip-push-search-params="skipPushSearchParams"
+                        @filter-applied="onFilterApplied" />
       </div>
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
-        <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex, filter)">{{$t('actions.remove')}}</b-button>
+        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
-    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addFilter') }}</b-button>
+    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="addFilter">{{ $t('actions.addFilter') }}</b-button>
 
     <explorer v-model="explorerFilters"
       :is-visible="explorerVisible"
@@ -95,14 +100,7 @@
 import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
 
-/**
- * Use `v-model`.
- */
 export default {
-  model: {
-    prop: 'filters',
-    event: 'changed'
-  },
   data: () => ({
     explorerVisible: false
   }),
@@ -111,37 +109,67 @@ export default {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
     },
+    storeModuleName: {
+      type: String,
+      default: 'search',
+    },
+    searchQueryId: {
+      // [Optional] ID of the search query the filter belongs to.
+      // This ID is dispatched to the the store by filter monitor.
+      type: String,
+      default: undefined,
+    },
+    skipPushSearchParams: {
+      type: Boolean,
+      default: false,
+    },
+    searchFilters: {
+      type: Array,
+      default: undefined,
+    },
     enableAddFilter: {
       type: Boolean,
       default: false,
     },
-    filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
-      type: Array,
-      default: () => []
-    },
   },
   computed: {
-    pills() {
-      return this.filters
-        .map((filter, filterIndex) => ({ filter, filterIndex }))
-        .filter(({ filter: { type } }) => !this.excludedTypes.includes(type))
+    pills: {
+      get() {
+        const filters = this.searchFilters !== undefined
+          ? this.searchFilters
+          : this.$store.state[this.storeModuleName].search.filters;
+        return filters.filter(d => this.excludedTypes.indexOf(d.type) === -1);
+        // .sort((a, b) => (a.type > b.type ? 1 : -1));
+      },
+    },
+    filterContextOptions: {
+      get() {
+        return [
+          {
+            value: 'include',
+            text: this.$t('context.include'),
+          },
+          {
+            value: 'exclude',
+            text: this.$t('context.exclude'),
+          },
+        ];
+      },
     },
     explorerFilters: {
-      get() { return this.filters },
-      set(filters) { this.$emit('changed', filters) }
+      get() { return this.pills },
+      set(filters) {
+        const currentFilters = this.pills
+        filters.forEach(filter => {
+          const exists = currentFilters.filter(f => JSON.stringify(f) === JSON.stringify(filter)).length
+          if (!exists) {
+            this.onAddFilter(filter)
+          }
+        })
+      }
     }
   },
   methods: {
-    handleFilterUpdated(index, filter) {
-      const newFilters = [...this.filters]
-      newFilters[index] = filter
-      this.$emit('changed', newFilters)
-    },
-    handleFilterRemoved(index) {
-      const newFilters = this.filters.filter((f, idx) => idx !== index)
-      this.$emit('changed', newFilters)
-    },
     labelByItems({
       items = [],
       prop = 'name',
@@ -180,7 +208,16 @@ export default {
       }
       return labels;
     },
-    showFilterExplorer() {
+    onRemoveFilter(filter) {
+      this.$emit('remove', filter);
+    },
+    onFilterApplied(filter) {
+      this.$emit('update', filter);
+    },
+    onAddFilter(filter) {
+      this.$emit('add', filter);
+    },
+    addFilter() {
       this.explorerVisible = true
     },
     handleExplorerHide() {

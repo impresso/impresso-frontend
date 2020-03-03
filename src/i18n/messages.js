@@ -111,8 +111,7 @@ export default {
         countItems: '{countItems} saved items',
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
-      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> in | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> in | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> in ',
-      filtersRemoved: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
+      unigramMentions: 'no mentions of "{unigram}" | <span class="number">1</span> mention of "{unigram}" | <span class="number">{n}</span> mentions of "{unigram}"',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -139,7 +138,6 @@ export default {
         wrongcredentials: 'Wrong credentials provided...',
         NotValidRegex: 'The new password is too easy to guess!',
       },
-      loggedInOnly: 'You need to be logged in to access this content.',
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',
       BadRequest: 'Bad request.',

@@ -97,29 +97,24 @@ export default class SearchQuery {
   }
 
   mergeFilterAtIndex(filter, idx) {
-    const originalFilter = this.filters[idx]
-
-    originalFilter.q = filter.q
-    originalFilter.op = filter.op
-    originalFilter.precision = filter.precision
-    originalFilter.distance = filter.distance
-    originalFilter.context = filter.context
-
     if (filter.items) {
       const uids = [];
       const items = [];
       // combine the two lists of items;
-      originalFilter.items.concat(filter.items).forEach((d) => {
+      this.filters[idx].items.concat(filter.items).forEach((d) => {
         if (!uids.includes(d.uid)) {
           uids.push(d.uid);
           items.push(d);
         }
       });
-      originalFilter.setItems(items);
-      originalFilter.q = uids;
+      this.filters[idx].setItems(items);
+      this.filters[idx].q = uids;
+      // recalculate hash and reset at filtersIds index:
+      this.filtersIds[idx] = this.filters[idx].getHash();
+      console.info('mergeFilterAtIndex(): Filters merged correctly.');
+    } else {
+      console.warn('cannot use mergeFilterAtIndex without items');
     }
-    // recalculate hash and reset at filtersIds index:
-    this.filtersIds[idx] = originalFilter.getHash();
   }
 
   enrichFilters(filters) {
