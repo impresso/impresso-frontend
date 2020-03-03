@@ -6,12 +6,12 @@
         <template v-slot:tabs-end>
           <b-nav-item class="pl-2 active"
             active-class='none'
-            :to="{ name:'collections'}">{{$t('tabs.collections')}}</b-nav-item>
+            :to="{ name:'collections'}">{{ $t('tabs.collections', {total: $n(filteredCollections)}) }}</b-nav-item>
         </template>
       </b-tabs>
     </template>
     <template v-slot:default>
-      <collection-list />
+      <collection-list @total-change="handleTotal" />
     </template>
   </i-layout-section>
   <i-layout-section>
@@ -29,6 +29,7 @@ export default {
   },
   data: () => ({
     collection: {},
+    filteredCollections: 100,
   }),
   computed: {
     user() {
@@ -38,6 +39,9 @@ export default {
   mounted() {
   },
   methods: {
+    handleTotal(e) {
+      this.filteredCollections = e;
+    },
   },
 };
 </script>
@@ -50,7 +54,7 @@ export default {
   "en": {
     "collections": "collections",
     "tabs": {
-        "collections": "My Collections"
+        "collections": "My Collections ({total})"
     }
   }
 }
