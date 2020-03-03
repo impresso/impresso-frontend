@@ -10,6 +10,8 @@ const AvailableFacets = [
   'year',
   'language',
   'newspaper',
+  'person',
+  'location',
   'type',
   'country',
   'topic',
@@ -37,6 +39,9 @@ const state = {
   groupBy: 'articles',
   unigram: undefined,
   trend: {},
+  trendBackground: {
+    values: {},
+  },
 };
 
 /** @type {import("vuex").ActionTree<State>} */
@@ -45,8 +50,9 @@ const actions = {
    * Update URL query parameters.
    */
   PUSH_SEARCH_PARAMS({ state }) {
+    const filters = state.search.getFilters();
     const query = {
-      f: JSON.stringify(state.search.getFilters()),
+      f: JSON.stringify(filters),
       unigram: state.unigram,
     };
     router.push({ name: 'searchNgrams', query })
@@ -59,13 +65,54 @@ const actions = {
   /**
    * Update state from URL query parameters.
    */
-  PULL_SEARCH_PARAMS({ commit, dispatch }, query) {
+  PULL_SEARCH_PARAMS({ commit, dispatch, state }, query) {
     try {
       commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
     } catch (error) {
       if (!(error instanceof SyntaxError)) throw error;
     }
-    commit('SET_UNIGRAM', query.unigram || 'impresso');
+    commit('SET_UNIGRAM', query.unigram);
+    // get combined filters
+    const filters = state.search.getFilters(['string', 'regex']);
+    const facets = ['year', 'newspaper', 'topic', 'person', 'location', 'type', 'language'];
+
+    if (state.unigram && state.unigram.length) {
+      filters.push({
+        type: 'string',
+        q: state.unigram,
+      });
+    }
+    // filters should contain unigram, too.
+    console.info('searchNgrams/PULL_SEARCH_PARAMS filters:', filters);
+    // get background years adn total amount of articles.
+    dispatch('search/GET_SEARCH_RESULTS', {
+      filters,
+      limit: 0,
+      facets,
+    }, {
+      root: true,
+    }).then(({ info, total }) => {
+      console.info('searchNgrams/PULL_SEARCH_PARAMS filters:', info, total);
+      const values = {};
+      if (info.facets && info.facets.year) {
+        info.facets.year.buckets.forEach((d) => {
+          values[d.val] = d.count;
+        });
+      }
+      commit('SET_TREND_BACKGROUND', {
+        total,
+        values,
+      });
+      commit('UPDATE_QUERY_COMPONENTS', info.queryComponents);
+      facets.forEach((type) => {
+        const facet = info.facets ? info.facets[type] : undefined;
+        commit('UPDATE_FACET', {
+          type,
+          buckets: facet ? facet.buckets : [],
+          numBuckets: facet ? facet.numBuckets : 0,
+        });
+      });
+    });
     dispatch('SEARCH');
   },
   ADD_FILTER({ commit }, { filter }) {
@@ -90,8 +137,8 @@ const actions = {
     if (state.unigram === undefined) return;
     const query = {
       ngrams: [state.unigram],
-      filters: state.search.getFilters(),
-      facets: AvailableFacets,
+      filters: state.search.getFilters(['string', 'regex']),
+      // facets: AvailableFacets,
     };
     const results = await ngramTrendsService.create(query);
     commit('SET_TREND', {
@@ -101,16 +148,19 @@ const actions = {
       timeInterval: results.timeInterval,
     });
 
-    AvailableFacets.forEach((type) => {
-      if (results.info.facets[type]) {
-        commit('UPDATE_FACET', {
-          type,
-          buckets: results.info.facets[type].buckets,
-          numBuckets: results.info.facets[type].numBuckets,
-        });
-      }
-    });
+    // AvailableFacets.forEach((type) => {
+    //   if (results.info.facets[type]) {
+    //     commit('UPDATE_FACET', {
+    //       type,
+    //       buckets: results.info.facets[type].buckets,
+    //       numBuckets: results.info.facets[type].numBuckets,
+    //     });
+    //   }
+    // });
   },
+  UPDATE_SEARCH_QUERY_FILTERS({ commit }, filters) {
+    commit('UPDATE_SEARCH_QUERY_FILTERS', filters)
+  }
 };
 
 /** @type {import("vuex").GetterTree<State>} */
@@ -138,6 +188,9 @@ const mutations = {
       console.error('Could not find any `facet` having type:', type);
     }
   },
+  REMOVE_FILTER({ search }, filter) {
+    search.removeFilter(filter);
+  },
   ADD_FILTER({ search }, filter) {
     search.addFilter({ ...filter });
   },
@@ -162,11 +215,17 @@ const mutations = {
   SET_TREND(state, trend) {
     Vue.set(state, 'trend', trend);
   },
+  SET_TREND_BACKGROUND(state, trendBackground) {
+    Vue.set(state, 'trendBackground', trendBackground);
+  },
   RESET_FILTER({ search }, type) {
     search.resetFilter(type);
   },
   UPDATE_FILTER_ITEM({ search }, { filter, item, uid }) {
     search.updateFilterItem({ filter, item, uid });
+  },
+  UPDATE_QUERY_COMPONENTS({ search }, queryComponents) {
+    search.enrichFilters(queryComponents);
   },
 };
 

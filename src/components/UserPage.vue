@@ -113,7 +113,7 @@
                 </b-alert>
               </div>
               <!-- current password -->
-              <ValidationProvider rules="required|min:10" v-slot="{ errors }" vid="repeatPassword">
+              <ValidationProvider name="Password" rules="required|min:8" v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-1"
                   :label="$t('form_oldpassword')"
@@ -140,7 +140,9 @@
 
                   Regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{12,42}$/
                 -->
-                <ValidationProvider rules="required|min:12" v-slot="{ errors }" vid="repeatPassword">
+                <ValidationProvider name="Password"
+                  :rules="{ min: 8, regex: /^(?=.*?[A-Z])(?=.*[a-z])(?=.*[\d])(?=.*[\W_])(?!.*\s).{8,}$/ }"
+                  v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-2"
                   :label="$t('form_newpassword')"
@@ -180,12 +182,8 @@
 </template>
 
 <script>
-import {
-  ValidationProvider,
-  ValidationObserver,
-  extend
-} from 'vee-validate'
-import { required, email, confirmed, min } from 'vee-validate/dist/rules'
+import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
+import { required, email, confirmed, min, regex } from 'vee-validate/dist/rules';
 
 extend('required', {
   ...required,
@@ -201,7 +199,13 @@ extend('confirmed', {
 
 extend('min', {
   ...min,
-  message: 'Password must be at least 12 characters long'
+  params: ['length'],
+  message: 'Password must have at least {length} characters'
+});
+
+extend('regex', {
+  ...regex,
+  message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
 });
 
 

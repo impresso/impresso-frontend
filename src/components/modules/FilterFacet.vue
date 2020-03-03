@@ -41,13 +41,17 @@
       </div>
     </base-title-bar>
     <div v-for="(filter, index) in included" :key="index" class="bg-light border p-2">
-      <filter-monitor v-if='index === included.length - 1' :store="store" :filter="filter" :type="facet.type" :operators="facet.operators"
+      <filter-monitor
         :items-to-add="selectedItems"
-        @filter-applied="clearSelectedItems"/>
-      <filter-monitor v-else :filter="filter" :store="store" :type="facet.type" :operators="facet.operators" />
+        :filter="filter"
+        :operators="facet.operators"
+        @changed="handleFilterChanged($event, filter)" />
     </div>
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
-      <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
+      <filter-monitor
+        :filter="filter"
+        :operators="facet.operators"
+        @changed="handleFilterChanged($event, filter)" />
     </div>
     <div v-if="showBuckets">
       <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
@@ -77,6 +81,7 @@ import FilterFacetBucket from './FilterFacetBucket';
 import FilterMonitor from './FilterMonitor';
 import InfoButton from '../base/InfoButton';
 import Explorer from '../Explorer';
+import { toSerializedFilter } from '../../logic/filters'
 
 export default {
   data: () => ({
@@ -167,6 +172,24 @@ export default {
     }
   },
   methods: {
+    handleFilterChanged(filter, oldFilter) {
+      if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
+        if (!filter.q || filter.q.length === 0) {
+          return this.$store.dispatch(`${this.store}/RESET_FILTER`, { type: filter.type })
+        }
+
+        this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
+          filter: oldFilter,
+          q: filter.q,
+          op: filter.op,
+          context: filter.context,
+          precision: filter.precision,
+          distance: filter.distance
+        })
+        this.selectedItems = [];
+        this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, {})
+      }
+    },
     toggleVisibility() {
       this.isCollapsed = !this.isCollapsed;
     },
@@ -193,6 +216,7 @@ export default {
     clearSelectedItems() {
       this.selectedIds = [];
       this.selectedItems = [];
+      this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, {})
     },
     applyFilter() {
       console.info('submit', this.facet.type, this.selectedIds);
