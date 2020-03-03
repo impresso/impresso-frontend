@@ -54,12 +54,20 @@
         </div>
       </div>
     </div>
+
+    <explorer v-model="explorerFilters"
+          :is-visible="explorerVisible"
+          @onHide="handleExplorerHide"
+          :searching-enabled="true"
+          :initial-search-query="q"
+          :initial-type="suggestionType"/>
   </section>
 </template>
 
 <script>
 import ClickOutside from 'vue-click-outside';
 import SuggestionFactory from '@/models/SuggestionFactory';
+import Explorer from './Explorer';
 
 const AVAILABLE_TYPES = [
   'mention',
@@ -89,6 +97,8 @@ export default {
     maxSelectedIndex: 0,
     selectableSuggestions: [],
     showSuggestions: false,
+    explorerVisible: false,
+    suggestionType: undefined
   }),
   props: {
     variant: {
@@ -144,8 +154,18 @@ export default {
     suggestionTypes() {
       return AVAILABLE_TYPES.filter(d => !!this.suggestionIndex[d]);
     },
+    explorerFilters: {
+      get() { return [] },
+      set(filters) {
+        const filter = filters[0]
+        this.$emit('submit', filter)
+      }
+    }
   },
   methods: {
+    handleExplorerHide() {
+      this.explorerVisible = false
+    },
     typeIcon(type) {
       switch (type) {
       case 'collection': return 'suitcase';
@@ -195,12 +215,8 @@ export default {
     submit(suggestion) {
       if (suggestion.fake) {
         if (this.q.length) {
-          // open explorer
-          this.$store.dispatch('explorer/SHOW', {
-            mode: 'search',
-            type: suggestion.type,
-            q: this.q,
-          });
+          this.explorerVisible = true
+          this.suggestionType = suggestion.type
         }
       } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
         if (this.q.length) {
@@ -251,6 +267,7 @@ export default {
     },
   },
   components: {
+    Explorer
   },
   directives: {
     ClickOutside,

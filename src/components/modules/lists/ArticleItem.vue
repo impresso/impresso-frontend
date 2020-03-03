@@ -84,7 +84,10 @@ import VizBar from '../../base/VizBar';
 
 export default {
   props: {
-    item: Object,
+    item: {
+      type: Object,
+      required: true
+    },
     showExcerpt: Boolean,
     showMatches: Boolean,
     showPages: Boolean,

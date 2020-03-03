@@ -20,7 +20,6 @@ export default class FilterItems extends Filter {
     } else {
       this.q = String(q).split(',');
     }
-    this.qh = this.q;
     this.op = op;
 
     if (!items.length) {
