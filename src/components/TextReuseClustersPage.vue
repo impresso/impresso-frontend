@@ -25,20 +25,22 @@
       </template>
 
       <template v-slot:default>
-        <div class="d-flex flex-row" :class="{
-            loading: isLoading,
-            active: isClusterSelected(item.cluster.id),
-            'pb-4': isLastItem(index, clusterItems.length),
-          }"
-          v-for="(item, index) in clusterItems"
-          :key="item.cluster.id"
-          v-on:click="handleClusterSelected(item.cluster.id)">
-            <span class="d-flex align-self-stretch flex-shrink-0 selection-indicator"/>
-            <cluster-details-panel
-              class="p-3 details-panel border-bottom"
-              :class="{ selected: isClusterSelected(item.cluster.id) }"
-              :cluster="item.cluster"
-              :textSample="item.textSample"/>
+        <div>
+          <div class="d-flex flex-row" :class="{
+              loading: isLoading,
+              active: isClusterSelected(item.cluster.id),
+              'pb-4': isLastItem(index, clusterItems.length),
+            }"
+            v-for="(item, index) in clusterItems"
+            :key="item.cluster.id"
+            v-on:click="handleClusterSelected(item.cluster.id)">
+              <span class="d-flex align-self-stretch flex-shrink-0 selection-indicator"/>
+              <cluster-details-panel
+                class="p-3 details-panel border-bottom"
+                :class="{ selected: isClusterSelected(item.cluster.id) }"
+                :cluster="item.cluster"
+                :textSample="item.textSample"/>
+          </div>
         </div>
       </template>
     </list>
@@ -71,6 +73,8 @@ const QueryParameters = Object.freeze({
   SearchFiltersEnabled: 'filtersOn',
   SearchFilters: 'filters'
 })
+
+const ClusterIdSearchPattern = /^#(\d+)$/
 
 export default {
   data: () => ({
@@ -111,6 +115,16 @@ export default {
         })
       }
     }
+
+    // If cluster Id is provided but search query is not, we cannot guarantee
+    // that this cluster will be highlighted in the clusters search sidebar.
+    // Therefore we set the formatted cluster Id as a query which will trigger
+    // search for this cluster only (see searchApiQueryParameters)
+    if (this.$route.query[QueryParameters.ClusterId] != null && this.$route.query[QueryParameters.SearchText] == null) {
+      this.$navigation.updateQueryParameters({
+        [QueryParameters.SearchText]: `#${this.$route.query[QueryParameters.ClusterId]}`
+      })
+    }
   },
   methods: {
     isClusterSelected(clusterId) {
@@ -145,14 +159,38 @@ export default {
       })
     },
     isLastItem,
+    /**
+     * Load clusters that match the query constraints.
+     */
     async loadClusters({ query }) {
       this.isLoading = true;
-      [this.clusterItems, this.searchInfo] = await textReuseClusters
-        .find({ query })
-        .then(result => [result.clusters, result.info]);
-      console.info('loadClusters() success: ', this.searchInfo);
-      this.isLoading = false;
+      try {
+        [this.clusterItems, this.searchInfo] = await textReuseClusters
+          .find({ query })
+          .then(result => [result.clusters, result.info])
+      } finally {
+        this.isLoading = false
+      }
     },
+    /**
+     * Load single cluster item by cluster ID and treat it as a list of
+     * cluster item with 0 or 1 element.
+     */
+    async loadSingleCluster(id) {
+      this.isLoading = true;
+      try {
+        const cluster = await textReuseClusters.get(id)
+        this.clusterItems = [cluster]
+        this.searchInfo = { limit: this.paginationPerPage, offset: 0, total: 1 }
+      } catch (error) {
+        if (error.name !== 'NotFound') throw error
+
+        this.clusterItems = []
+        this.searchInfo = { limit: this.paginationPerPage, offset: 0, total: 0 }
+      } finally {
+        this.isLoading = false;
+      }
+    }
   },
   computed: {
     paginationList() {
@@ -185,24 +223,38 @@ export default {
       return parseInt(page, 10);
     },
     searchApiQueryParameters() {
+      // If search text is a specially formatted Cluster Id, then
+      // skip full search and instead retrieve only this cluster.
+      if (this.searchText && this.searchText.trim().match(ClusterIdSearchPattern)) {
+        const clusterId = this.searchText.trim().match(ClusterIdSearchPattern)[1]
+        return {
+          method: 'singleCluster',
+          clusterId
+        }
+      }
+
       const filters = this.searchFiltersEnabled
         ? serializeFilters(this.searchFilters)
         : undefined;
 
       return {
-        text: this.searchText,
-        page: this.paginationCurrentPage,
-        skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
-        limit: this.paginationPerPage,
-        orderBy: this.orderByValue,
-        filters,
+        method: 'searchClusters',
+        query: {
+          text: this.searchText,
+          page: this.paginationCurrentPage,
+          skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
+          limit: this.paginationPerPage,
+          orderBy: this.orderByValue,
+          filters,
+        }
       };
     },
   },
   watch: {
     searchApiQueryParameters: {
-      handler(query) {
-        this.loadClusters({ query });
+      handler({ method, clusterId, query }) {
+        if (method === 'singleCluster') return this.loadSingleCluster(clusterId)
+        return this.loadClusters({ query });
       },
       immediate: true,
     },
