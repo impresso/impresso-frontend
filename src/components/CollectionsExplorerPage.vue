@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout-section>
-    <div slot="header">
+    <div slot="header" v-if="!fetching">
 
       <b-navbar type="light" variant="light" class="border-bottom">
         <b-navbar-nav class="py-3 pr-auto" v-html="$t('collected_articles_title')">
@@ -30,7 +30,9 @@
 
     <div class="collection-group">
 
-      <b-container fluid v-if="paginationTotalRows > 0">
+      <i-spinner v-if="fetching" class="text-center m-5 p-5" />
+
+      <b-container v-else fluid>
 
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12"
@@ -58,14 +60,13 @@
               v-model="articles[index]" />
           </b-col>
         </b-row>
-      </b-container>
 
-      <div
-        v-else
-        class="p-4">
-        <p class="text-center pt-4"><b>{{ $t('no_articles_collected')}}</b></p>
-        <p class="text-center">{{ $t('no_articles_collected_long')}}</p>
-      </div>
+        <b-row v-if="paginationTotalRows > 0">
+          <p class="text-center pt-4"><b>{{ $t('no_articles_collected')}}</b></p>
+          <p class="text-center">{{ $t('no_articles_collected_long')}}</p>
+        </b-row>
+
+      </b-container>
 
       <div class="my-5" />
       <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
@@ -100,6 +101,11 @@ export default {
     collectionsMerged: new Collection(),
   }),
   computed: {
+    fetching: {
+      get() {
+        return this.$store.state.processingStatus;
+      },
+    },
     articles: {
       get() {
         return this.collectionsMerged.items.filter(item => (item.labels && item.labels[0] === 'article'));
