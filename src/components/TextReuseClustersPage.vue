@@ -262,13 +262,13 @@ export default {
       immediate: true,
     },
     selectedClusterId: {
-      async handler() {
-        if (this.selectedClusterId == null) return
+      async handler(selectedClusterId) {
+        if (selectedClusterId == null) return
         const filteredClusters = this.clusterItems
-          .filter(({ cluster }) => cluster.id === this.selectedClusterId)
+          .filter(({ cluster }) => cluster.id === selectedClusterId)
         if (filteredClusters.length > 0) this.selectedCluster = filteredClusters[0]
 
-        this.selectedCluster = await textReuseClusters.get(this.selectedClusterId)
+        this.selectedCluster = await textReuseClusters.get(selectedClusterId)
           .then(({ cluster }) => cluster)
       },
       immediate: true
