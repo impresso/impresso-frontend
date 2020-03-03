@@ -101,13 +101,9 @@ export default {
   },
   data: () => ({
     collectionsMerged: new Collection(),
+    fetching: false,
   }),
   computed: {
-    fetching: {
-      get() {
-        return this.$store.state.processingStatus;
-      },
-    },
     articles: {
       get() {
         return this.collectionsMerged.items.filter(item => (item.labels && item.labels[0] === 'article'));
@@ -202,11 +198,13 @@ export default {
       });
     },
     getCollectionsItems(page) {
+      this.fetching = true;
       if (page !== undefined) {
         this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
       this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
         this.collectionsMerged.items = res;
+        this.fetching = false;
       });
     },
     onInputPagination(page = 1) {
