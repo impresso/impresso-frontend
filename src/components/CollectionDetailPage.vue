@@ -183,6 +183,7 @@ export default {
   data: () => ({
     tab: {},
     collection: new Collection(),
+    fetching: false,
   }),
   components: {
     SearchResultsListItem,
@@ -191,11 +192,6 @@ export default {
     Pagination,
   },
   computed: {
-    fetching: {
-      get() {
-        return this.$store.state.processingStatus;
-      },
-    },
     collections: {
       get() {
         return this.$store.getters['collections/collections'];
@@ -294,11 +290,13 @@ export default {
   },
   methods: {
     getCollectionItems(page) {
+      this.fetching = true;
       if (page !== undefined) {
         this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
       this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
         this.collection = res;
+        this.fetching = false;
       });
     },
     getCollection() {
