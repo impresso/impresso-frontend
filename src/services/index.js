@@ -46,6 +46,8 @@ const needsLockScreen = p => [
   'ngram-trends.create',
 ].includes(p);
 
+const silentErrorCodes = [404]
+
 app.hooks({
   before: {
     all: [
@@ -83,7 +85,7 @@ app.hooks({
             console.warn('app.hooks.error.all:ignoreErrors',  context.error);
           } else if (route === 'authentication.remove' && context.error.name === 'NotAuthenticated') {
             console.info('Ingore NotAuthenticated error on "authentication.remove" route.');
-          } else {
+          } else if (!silentErrorCodes.includes(context.error.code)) {
             window.app.$store.dispatch('DISPLAY_ERROR', {
               error: context.error,
               origin: 'app.hooks.error.all',
