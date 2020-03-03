@@ -7,6 +7,7 @@
 
 <script>
 import Helpers from '../../plugins/Helpers';
+import { namesService } from '../../services'
 
 export default {
   props: {
@@ -18,9 +19,11 @@ export default {
     },
   },
   data: () => ({
+    newspaperLabels: undefined
   }),
   computed: {
     reducedSummary() {
+      if (this.newspaperLabels == null) return '';
       if (!this.searchQuery) {
         console.error('No search query defined');
         return '';
@@ -83,11 +86,24 @@ export default {
       return '';
     },
   },
+  watch: {
+    searchQuery: {
+      async handler() {
+        // NOTE: This is an ugly workaround for cases when filters do not have labels.
+        const newspaperLabels = {}
+        for (const filter of this.searchQuery.filters.filter(({ type }) => type === 'newspaper')) {
+          newspaperLabels[filter.q] = await namesService.getNewspaperLabel(filter.q)
+        }
+        this.newspaperLabels = newspaperLabels
+      },
+      immediate: true
+    }
+  },
   methods: {
     isEnumerable(type) {
       return this.enumerables.includes(type);
     },
-    getLabel({ item, type }) {
+    getLabel({ item, type, filter }) {
       let t = '';
       switch (type) {
       case 'daterange':
@@ -95,9 +111,15 @@ export default {
         break;
       case 'location':
       case 'person':
-      case 'newspaper':
       case 'collection':
         t = item.name;
+        break;
+      case 'newspaper':
+        if (item.name) {
+          t = item.name
+        } else {
+          t = (this.newspaperLabels || {})[filter.q] || filter.q
+        }
         break;
       case 'title':
       case 'string':
@@ -126,6 +148,7 @@ export default {
           this.getLabel({
             item,
             type: filter.type,
+            filter
           }),
           '</span>',
         ].join('')).join(` <span class="operator">${operator}</span> `);
@@ -133,6 +156,7 @@ export default {
         return this.getLabel({
           item: filter,
           type: filter.type,
+          filter
         });
       }
       console.warn('filter not valid:', filter);

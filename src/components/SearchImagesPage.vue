@@ -5,7 +5,15 @@
       <div slot="header" class="border-bottom bg-light">
         <search-tabs />
         <div class="py-3 px-3">
-          <search-pills :search-filters="filters" store-module-name="searchImages" v-on:remove="onRemoveFilter"/>
+          <search-pills :filters="filters"
+              @changed="handleFiltersChanged" />
+          <span v-if="filtersRemoved">
+            <em class="small" v-html="$tc('numbers.filtersRemoved', filtersRemoved, {
+              n: filtersRemoved,
+            })"/>
+            &nbsp;
+            <info-button name="how-searchImages-work-availble-filters"  />
+          </span>
           <b-media v-if="similarToImage" class="pb-3">
             <div style="width:128px;" slot="aside">
               <b-img v-if="similarToImage.regions.length"
@@ -53,9 +61,8 @@
           <b-navbar-nav class="border-right flex-grow-1  py-2 ">
             <ellipsis v-bind:initialHeight="60">
               <search-results-summary
-                @onSummary="onSummary"
                 group-by="images"
-                :searchQuery="searchQuery"
+                :searchQuery="{ filters }"
                 :totalRows="paginationTotalRows" />
             </ellipsis>
           </b-navbar-nav>
@@ -108,6 +115,7 @@ import Ellipsis from './modules/Ellipsis';
 import SearchInput from './modules/SearchInput';
 import SearchPills from './SearchPills';
 import SearchTabs from './modules/SearchTabs';
+import InfoButton from '@/components/base/InfoButton';
 
 export default {
   props: {
@@ -125,6 +133,7 @@ export default {
     SearchPills,
     FilterImageUpload,
     SearchTabs,
+    InfoButton,
   },
   data: () => ({
     q: '',
@@ -142,10 +151,18 @@ export default {
         this.$store.dispatch('searchImages/SET_RANDOM_PAGE', val);
       },
     },
-    filters: {
-      get() {
-        return this.$store.state.searchImages.search.filters;
-      },
+    searchQuery() {
+      return this.$store.state.searchImages.search;
+    },
+    filters() {
+      return this.searchQuery.filters.filter(({ type }) => [
+        'newspaper',
+        'isFront',
+        'daterange',
+      ].includes(type));
+    },
+    filtersRemoved() {
+      return this.searchQuery.filters.length - this.filters.length;
     },
     isFront: {
       get() {
@@ -159,9 +176,6 @@ export default {
       get() {
         return this.$store.getters['searchImages/results'];
       },
-    },
-    searchQuery() {
-      return this.$store.state.searchImages.search;
     },
     queryComponents: {
       get() {
@@ -208,6 +222,10 @@ export default {
     },
   },
   methods: {
+    handleFiltersChanged(filters) {
+      this.$store.dispatch('searchImages/UPDATE_SEARCH_QUERY_FILTERS', filters);
+      this.$store.dispatch('searchImages/PUSH_SEARCH_PARAMS');
+    },
     search(page) {
       this.$store.state.searchImages.results = [];
       this.$store.dispatch('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));

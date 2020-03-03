@@ -9,7 +9,7 @@
         v-bind:class="{active: art.uid === selectedArticleUid}"
         v-on:click.prevent="onClick(art, art.pages[0])">
         <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3"/>
-        <article-item :item="article" class="p-3 clearfix"
+        <article-item :item="art" class="p-3 clearfix"
           show-excerpt
           show-entities
           show-size
@@ -25,12 +25,12 @@
            v-bind:key="index"
            class="mb-2 pb-1px page "
            v-bind:class="{activepage: pag.uid === selectedPageUid}">
-        <div class="p-3 d-block text-bold pagenumber"
+        <div class="d-block text-bold pagenumber"
         :ref="`page-${pag.uid}`" :data-id='pag.uid'>
-          {{$t('page')}} {{pag.num}}
+          <div class="p-3 border-bottom"><b>{{$t('page')}} {{pag.num}}</b></div>
           <b-media
             :ref="`article-${art.uid}`"
-            class="article "
+            class="article"
             v-for="(art, idx) in pag.articles"
             v-bind:key="idx"
             v-bind:class="{activepage: pag.uid === selectedPageUid, active: art.uid === selectedArticleUid}"
@@ -91,7 +91,7 @@ export default {
       type: Object,
     },
     article: {
-      type: Object,
+      type: Object
     },
   },
   components: {
@@ -110,15 +110,15 @@ export default {
       });
     },
     scrollToActivePage() {
-      if (!this.$refs[`page-${this.selectedPageUid}`]) {
+      const elementsList = this.$refs[`page-${this.selectedPageUid}`]
+      const elm = elementsList ? elementsList[0] : undefined
+
+      if (!elm) {
         console.warn(`Cannot scrollToActivePage: ${this.selectedPageUid} not ready or not found`);
         clearTimeout(this.retryTimer);
         this.retryTimer = setTimeout(this.scrollToActivePage, 500);
       } else {
-        console.info('scroll to page', this.selectedPageUid);
-        const elm = this.$refs[`page-${this.selectedPageUid}`][0];
         const parent = this.$refs.TableOfContents.parentNode;
-        console.info('ELM', elm.offsetTop);
         const elmRelativeTop = elm.offsetTop - parent.offsetTop;
         parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
       }

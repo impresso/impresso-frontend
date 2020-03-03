@@ -5,11 +5,8 @@
     <div slot="header" class="border-bottom">
       <search-tabs />
       <div class="py-3 px-3">
-        <search-pills
-          v-on:remove="onRemoveFilter"
-          v-on:add="onAddFilter"
-          :search-filters="filters"
-        />
+        <search-pills :filters="filters"
+                      @changed="handleFiltersChanged" />
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
@@ -17,7 +14,7 @@
     <!--  body -->
     <div class="pt-3">
 
-      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings <info-button class="ml-1" name="how-are-word-embeddings-generated" />
+      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">{{ $t('label_embeddings') }} <info-button class="ml-1" name="how-are-word-embeddings-generated" />
       </b-button>
 
       <b-form-group class="mx-3">
@@ -161,7 +158,7 @@
     </b-modal>
 
     <b-modal hide-footer id="embeddings" ref="embeddings"
-      v-bind:title="$t('Find words similar to ...')">
+      v-bind:title="$t('label_embeddings')">
       <embeddings-search @embdding-selected="addFilterFromEmbedding" />
     </b-modal>
 
@@ -218,7 +215,6 @@ import SearchPills from './SearchPills';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
 import SearchTabs from './modules/SearchTabs';
 import InfoButton from './base/InfoButton';
-// const uuid = require('uuid');
 
 export default {
   data: () => ({
@@ -353,6 +349,10 @@ export default {
     },
   },
   methods: {
+    handleFiltersChanged(filters) {
+      this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', filters);
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+    },
     compare() {
       this.$router.push({
         name: 'compare',
@@ -613,6 +613,7 @@ export default {
     "label_order": "Order By",
     "label_group": "Group By",
     "label_isFront": "Frontpage",
+    "label_embeddings": "find similar words",
     "label_hasTextContents": "Contains Text",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
