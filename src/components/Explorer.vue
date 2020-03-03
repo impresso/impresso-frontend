@@ -17,24 +17,22 @@
                   variant="outline-primary" size="sm"
                   v-on:click="handleTypeChange(availableType)"
                   v-bind:class="{ 'active' : currentType === availableType }">
-          {{ availableType }}
+          {{ $t(`labels.${availableType}`) }}
         </b-button>
-        <div>
-          <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
-            <b-input-group>
-              <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
-                            v-model.trim="searchQueryModel"
-                            autofocus/>
-              <b-input-group-append>
-                <b-btn class="pt-2 pb-1 px-2"
-                       variant="outline-primary"
-                       v-on:click="search">
-                  <div class="search-submit dripicons-search"></div>
-                </b-btn>
-              </b-input-group-append>
-            </b-input-group>
-          </form>
-        </div>
+        <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
+          <b-input-group>
+            <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
+                          v-model.trim="searchQueryModel"
+                          autofocus/>
+            <b-input-group-append>
+              <b-btn class="pt-2 pb-1 px-2"
+                      variant="outline-primary"
+                      v-on:click="search">
+                <div class="search-submit dripicons-search"></div>
+              </b-btn>
+            </b-input-group-append>
+          </b-input-group>
+        </form>
       </div>
     </template>
     <div v-if='isLoading'
@@ -159,6 +157,12 @@ async function search({
 const AllSupportedFilterTypes = [
   'location', 'country', 'person', 'language',
   'topic', 'newspaper', 'collection', 'year', 'month',
+  'trClusterSize'
+]
+
+const DefaultFilterTypes = [
+  'location', 'country', 'person', 'language',
+  'topic', 'newspaper', 'collection', 'year', 'month'
 ]
 
 export default {
@@ -241,7 +245,7 @@ export default {
       if (this.searchingEnabled) {
         return ['newspaper', 'person', 'location', 'topic', 'collection'];
       }
-      return AllSupportedFilterTypes;
+      return DefaultFilterTypes;
     },
     searchParameters() {
       const {
@@ -321,6 +325,18 @@ export default {
       "searchField": {
         "placeholder": "...|There is only one choice...|Search one of {n} available choices",
         "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
+      },
+      "labels": {
+        "location": "location",
+        "country": "country",
+        "person": "person",
+        "language": "language",
+        "topic": "topic",
+        "newspaper": "newspaper",
+        "collection": "collection",
+        "year": "year",
+        "month": "month",
+        "trClusterSize": "text reuse cluster size"
       }
     }
   }

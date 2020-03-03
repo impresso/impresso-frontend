@@ -22,6 +22,7 @@
             {'dripicons-print': filter.type === 'country'},
             {'dripicons-shopping-bag': filter.type === 'accessRight'},
             {'dripicons-store': filter.type === 'partner'},
+            {'dripicons-scale': numericTypes.includes(filter.type)},
 
           ]" />
         <!--  type:string -->
@@ -62,6 +63,13 @@
           :class="filter.context">
         </span>
 
+        <!--  type: (with slider) -->
+        <span class="label sp-collection"
+          v-if="numericTypes.includes(filter.type)"
+          v-html="labelForNumeric({ items: filter.items, type: filter.type })"
+          :class="filter.context">
+        </span>
+
         <!--  type:daterange -->
         <span class="label sp-daterange"
           v-if="filter.type === 'daterange'"
@@ -95,6 +103,13 @@
 <script>
 import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
+
+const NumericTypesLabels = Object.freeze({
+  trClusterSize: 'Cluster size'
+})
+
+const NumericTypesFormats = Object.freeze({
+})
 
 /**
  * Use `v-model`.
@@ -140,7 +155,8 @@ export default {
     explorerFilters: {
       get() { return this.filters },
       set(filters) { this.$emit('changed', filters) }
-    }
+    },
+    numericTypes() { return Object.keys(NumericTypesLabels) }
   },
   methods: {
     handleFilterUpdated(index, filter) {
@@ -189,6 +205,17 @@ export default {
         });
       }
       return labels;
+    },
+    labelForNumeric({ items = [], type }) {
+      const { start, end } = items[0] || {}
+      const label = NumericTypesLabels[type]
+      const format = NumericTypesFormats[type] || 'short'
+
+      return this.$t('label.range.item', {
+        label,
+        start: this.$n(start, format),
+        end: this.$n(end, format)
+      })
     },
     showFilterExplorer() {
       this.explorerVisible = true
@@ -321,6 +348,10 @@ export default {
         "daterange": {
           "title": "filter by date of publication",
           "item": "From {start} to {end}"
+        },
+        "range": {
+          "title": "filter by {label}",
+          "item": "{label} between {start} and {end}"
         }
       },
       "items": {

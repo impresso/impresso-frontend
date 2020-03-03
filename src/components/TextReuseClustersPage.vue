@@ -63,7 +63,11 @@ const isLastItem = (index, total) => total - 1 === index
 const serializeFilters = filters => protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
 const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
 
-const SupportedFilterTypes = ['daterange', 'newspaper']
+const SupportedFilterTypes = [
+  'daterange',
+  'newspaper',
+  'trClusterSize'
+]
 const supportedFiltersFilter = filter => SupportedFilterTypes.includes(filter.type)
 
 const QueryParameters = Object.freeze({

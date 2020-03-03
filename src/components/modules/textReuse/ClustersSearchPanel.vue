@@ -24,7 +24,7 @@
 
 <script>
 import SearchInput from '@/components/modules/SearchInput'
-import SearchPills from '@/components//SearchPills';
+import SearchPills from '@/components/SearchPills';
 
 const SortingMethod = {
   PassagesCount: 'passages-count'
