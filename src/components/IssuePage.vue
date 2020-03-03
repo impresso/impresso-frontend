@@ -212,6 +212,9 @@ export default {
     issueFilters: []
   }),
   mounted() {
+    window.addEventListener('fullscreenchange', () => {
+      this.isFullscreen = !this.isFullscreen;
+    });
     window.addEventListener('keyup', (e) => {
       switch (e.key) {
       case 'ArrowLeft':
@@ -723,12 +726,10 @@ export default {
     toggleFullscreen() {
       if (!document.fullscreenElement) {
         this.$refs.issuePage.$el.requestFullscreen().then(() => {
-          this.isFullscreen = true;
         }).catch((err) => {
           console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
         });
       } else {
-        this.isFullscreen = false;
         document.exitFullscreen();
       }
     },
