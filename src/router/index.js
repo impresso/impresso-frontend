@@ -154,7 +154,6 @@ const router = new Router({
     {
       path: '/collections',
       component: CollectionsPage,
-      name: 'collections',
       props: true,
       children: [{
         path: '',
