@@ -33,9 +33,11 @@ export default {
   ],
   data: () => ({
     show: false,
-    currentTargetId: null,
   }),
   computed: {
+    currentTargetId() {
+      return this.$store.state.explorer.currentInfoButtonId;
+    },
     targetId() {
       return `ib_${this.target || this.name}`;
     },
@@ -68,6 +70,7 @@ export default {
         }
       }
       if (this.show) {
+        this.$store.dispatch('explorer/SET_CURRENT_INFO_BUTTON', this.targetId);
         this.$root.$emit('bv::show::popover', this.targetId);
       }
     },

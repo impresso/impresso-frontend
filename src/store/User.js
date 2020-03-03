@@ -33,23 +33,6 @@ export default {
         context.commit('CLEAR_USER');
       });
     },
-    GET_CURRENT_USER() {
-      return services.me.find().then(d => new User(d));
-    },
-    CHANGE_PASSWORD(context, { uid, previousPassword, newPassword}) {
-      return services.me.patch(uid, { previousPassword, newPassword }, {
-        ignoreErrors: true,
-      });
-    },
-    UPDATE_CURRENT_USER({ commit }, user) {
-      return services.me.update(user.uid, user, {
-        ignoreErrors: true,
-      }).then((d) => {
-        const user = new User(d);
-        commit('SET_USER', user);
-        return user;
-      });
-    },
     LOGIN({ commit }, { email, password }) {
       return services.app.authenticate({
         strategy: 'local',

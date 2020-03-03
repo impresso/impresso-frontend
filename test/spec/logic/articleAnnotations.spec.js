@@ -3,23 +3,11 @@ import assert from 'assert';
 
 import {
   getNamedEntitiesFromArticleResponse,
-  getAnnotateTextTree
+  annotateText,
+  DefaultAnnotationConfiguration
 } from '../../../src/logic/articleAnnotations';
 
-
-const TestAnnotationConfiguration = Object.freeze({
-  line: {
-    start: () => '<p class="line">',
-    end: () => '</p>'
-  },
-  region: {
-    start: () => '<div class="region">',
-    end: () => '</div>'
-  },
-  passage: {
-    start: (entity, isContinuation) => `<span class="tr-passage ${isContinuation ? ' continuation' : ''}" ${entity.id ? `data-id="${entity.id}"` : ''}>`,
-    end: () => '</span>'
-  },
+const TestAnnotationConfiguration = Object.assign({}, DefaultAnnotationConfiguration, {
   namedEntity: {
     start: (entity, isContinuation) => `<span class="entity ${entity.type}${isContinuation ? ' continuation' : ''}">`,
     end: () => '</span>'
@@ -547,32 +535,15 @@ describe('getNamedEntitiesFromArticleResponse', () => {
   });
 });
 
-describe('getAnnotateTextTree', () => {
-
-  const flattenDeep = (arr) => arr.flatMap((subArray) => Array.isArray(subArray) ? flattenDeep(subArray) : subArray)
-
-  function annotationTreeAsText(item, annotationConfiguration) {
-    if (typeof item === 'string') return [item]
-    let textParts = []
-    if (item.entity) textParts.push(annotationConfiguration[item.entity.kind].start(item.entity, item.isContinuation))
-
-    textParts.push(item.children.map(child => annotationTreeAsText(child, annotationConfiguration)))
-
-    if (item.entity) textParts.push(annotationConfiguration[item.entity.kind].end())
-
-    return flattenDeep(textParts).join('')
-  }
-
+describe('annotateText', () => {
   it('annotates a text with a single region', () => {
     const entities = getNamedEntitiesFromArticleResponse(articleResponse);
     const lineBreaks = articleResponse.contentLineBreaks;
     const regionBreaks = articleResponse.regionBreaks;
 
-    const elementsTree = getAnnotateTextTree(articleResponse.content, entities, lineBreaks, regionBreaks);
-    // console.log(elementsTree)
-    const annotatedText = annotationTreeAsText(elementsTree, TestAnnotationConfiguration)
+    const annotatedText = annotateText(articleResponse.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
 
-    assert.deepStrictEqual(annotatedText, expectedAnnotatedText.join(''));
+    assert.deepStrictEqual(annotatedText, expectedAnnotatedText);
   })
 
   it('annotates a text with multiple regions', () => {
@@ -580,11 +551,9 @@ describe('getAnnotateTextTree', () => {
     const lineBreaks = articleResponseWithMultipleRegions.contentLineBreaks;
     const regionBreaks = articleResponseWithMultipleRegions.regionBreaks;
 
-    const elementsTree = getAnnotateTextTree(articleResponseWithMultipleRegions.content, entities, lineBreaks, regionBreaks);
-    // console.log(elementsTree)
-    const annotatedText = annotationTreeAsText(elementsTree, TestAnnotationConfiguration)
+    const annotatedText = annotateText(articleResponseWithMultipleRegions.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
 
-    assert.deepStrictEqual(annotatedText, expectedAnnotatedTextWithMultipleRegions.join(''));
+    assert.deepStrictEqual(annotatedText, expectedAnnotatedTextWithMultipleRegions);
   })
 
   it('annotates a text with a multiline entity', () => {
@@ -592,9 +561,7 @@ describe('getAnnotateTextTree', () => {
     const lineBreaks = articleResponseWithMultilineEntity.contentLineBreaks;
     const regionBreaks = articleResponseWithMultilineEntity.regionBreaks;
 
-    const elementsTree = getAnnotateTextTree(articleResponseWithMultilineEntity.content, entities, lineBreaks, regionBreaks);
-    const annotatedText = annotationTreeAsText(elementsTree, TestAnnotationConfiguration)
-
+    const annotatedText = annotateText(articleResponseWithMultilineEntity.content, entities, lineBreaks, regionBreaks, TestAnnotationConfiguration);
     const expectedAnnotatedText = [
       '<div class="region">',
       '<p class="line">',
@@ -665,6 +632,6 @@ describe('getAnnotateTextTree', () => {
       '</div>',
     ];
 
-    assert.deepStrictEqual(annotatedText, expectedAnnotatedText.join(''));
+    assert.deepStrictEqual(annotatedText, expectedAnnotatedText);
   })
 });

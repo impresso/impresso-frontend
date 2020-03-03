@@ -211,19 +211,6 @@ export default {
         }],
       });
     },
-    ADD_COLLECTION_ITEMS(context, {
-      items,
-      collection,
-      contentType,
-    }) {
-      return services.collectionsItems.create({
-        collection_uid: collection.uid,
-        items: items.map(item => ({
-          uid: item.uid,
-          content_type: contentType,
-        })),
-      });
-    },
     REMOVE_COLLECTION_ITEM(context, {
       item,
       collection,
@@ -237,19 +224,6 @@ export default {
             content_type: contentType,
             uid: item.uid,
           }],
-        },
-      });
-    },
-    REMOVE_COLLECTION_ITEMS(context, {
-      items,
-      collection,
-    }) {
-      return services.collectionsItems.remove(null, {
-        query: {
-          collection_uid: collection.uid,
-          items: items.map(item => ({
-            uid: item.uid,
-          })),
         },
       });
     },

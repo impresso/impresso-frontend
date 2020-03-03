@@ -11,12 +11,11 @@ export default class Graph extends Basic {
       left: 10,
     },
     maxNodeRadius = 15,
-    maxDistance = 100,
+    maxDistance = 50,
     delay = 30000,
     fixAfterDrag = true,
     nodeLabel = d => d.id,
     identity = d => d.id,
-    showLabel = d => !!d,
     // override current behaviour if needed,
     dimensions = {},
   } = {}) {
@@ -67,7 +66,7 @@ export default class Graph extends Basic {
 
     this.nodeLabel = nodeLabel;
     this.identity = identity;
-    this.showLabel = showLabel;
+
     // initialize graphic elements
     this.zoomableLayer = this.svg.append('g');
 
@@ -89,7 +88,7 @@ export default class Graph extends Basic {
       .classed('nodes', true)
       .selectAll('circle');
 
-    this.linkForce = d3.forceLink().distance(maxDistance*2).strength(
+    this.linkForce = d3.forceLink().distance(maxDistance).strength(
       this.dimensions.linkStrength.accessor(),
     );
     // initialize force!
@@ -212,12 +211,7 @@ export default class Graph extends Basic {
     this.nodesLayer.exit().remove();
 
     const nodesEnter = this.nodesLayer.enter().append('g')
-      .attr('class', (d) => {
-        if(self.showLabel(d)) {
-          return `${d.type} v`;
-        }
-        return `${d.type} o`;
-      })
+      .attr('class', d => d.type)
       .call(d3.drag()
         .on('start', datum => this.onDragStarted(datum))
         .on('drag', datum => this.onDragged(datum))
@@ -285,11 +279,11 @@ export default class Graph extends Basic {
     this.stopSimulation();
   }
 
-  update({ links, nodes, pristine=false }) {
+  update({ links, nodes }) {
     // make sure it has all the required properties
     if (nodes) {
       console.info('Graph.update, new nodes:', nodes.length, nodes[0]);
-      if (!pristine && this.nodes && this.nodes.length) {
+      if (this.nodes && this.nodes.length) {
         console.info('Graph.update, merge with existing nodes:', this.nodes.length);
         const nodesIds = this.nodes.map(d => d.id);
         this.nodes = nodes.map((d) => {

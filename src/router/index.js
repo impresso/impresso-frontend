@@ -10,8 +10,7 @@ import SearchPage from '../components/SearchPage';
 import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
-import UserPage from '../components/UserPage';
-import UserRegisterPage from '../components/UserRegisterPage';
+import UserDashboardPage from '../components/UserDashboardPage';
 import CollectionsPage from '../components/CollectionsPage';
 import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
@@ -26,8 +25,6 @@ import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
 import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
-import SearchClustersPage from '../components/SearchClustersPage';
-import TextReusePassagesPage from '../components/TextReusePassagesPage'
 import store from '../store';
 
 Vue.use(Router);
@@ -134,21 +131,13 @@ const router = new Router({
       },
     },
     {
-      path: '/user',
-      name: 'user',
-      component: UserPage,
+      path: '/user/dashboard',
+      redirect: '/collections',
+      name: 'dashboard',
+      component: UserDashboardPage,
       meta: {
         realm: 'user',
         requiresAuth: true,
-      },
-    },
-    {
-      path: '/user/register',
-      name: 'register',
-      component: UserRegisterPage,
-      meta: {
-        realm: 'user',
-        requiresAuth: false,
       },
     },
     {
@@ -307,22 +296,6 @@ const router = new Router({
       meta: {
         requiresAuth: false,
       },
-    },
-    {
-      path: '/text-reuse-clusters',
-      component: SearchClustersPage,
-      name: 'text-reuse-clusters',
-      meta: {
-        requiresAuth: false,
-      },
-      children: [{
-        path: '',
-        component: TextReusePassagesPage,
-        name: 'text-reuse-clusters-passages',
-        meta: {
-          requiresAuth: false,
-        },
-      }],
     }],
 });
 

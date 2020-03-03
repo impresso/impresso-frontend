@@ -2,13 +2,14 @@
   <div>
     <div class="mb-1 border-bottom">
       <!-- The Loop -->
-      <b-form-checkbox-group v-model="selectedIds"
-                             class="position-relative p-2"
-                             style="min-height: 4em; max-height: 16em; overflow: scroll">
-        <b-form-checkbox v-for="(bucket, idx) in buckets"
-                         v-bind:key="idx"
-                         :value="bucket.val"
-                         class="d-block">
+      <b-form-checkbox-group v-model="selectedIds" class="position-relative p-2" style="min-height: 4em; max-height: 16em; overflow: scroll">
+        <div
+          v-if='isLoading'
+          class="position-absolute w-100 h-100"
+          style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
+          <i-spinner class="text-center pt-4" />
+        </div>
+        <b-form-checkbox v-for="(bucket, idx) in buckets" v-bind:key="idx" :value="bucket.val" class="d-block">
           <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
           <span v-if="bucket.count > -1">
             (<span v-html="$tc('numbers.results', bucket.count, { n : $n(bucket.count) })"/>)
@@ -21,93 +22,90 @@
       </b-form-checkbox-group>
     </div>
     <!-- Apply! -->
-    <b-button v-if='selectedIdsChanged' @click="applyFilter()" class="w-100 my-2 btn btn-sm btn-outline-primary"
+    <b-button v-if='selectedIds.length' @click="applyFilter()" class="w-100 my-2 btn btn-sm btn-outline-primary"
       v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
 
   </div>
 </template>
 
 <script>
-import ItemLabel from './lists/ItemLabel'
-import ItemSelector from './ItemSelector'
-
-function getEntitiesForIds(ids, entities) {
-  return ids.map(id => entities.find(entity => entity && entity.uid  === id))
-}
+import ItemLabel from './lists/ItemLabel';
+import ItemSelector from './ItemSelector';
 
 export default {
-  model: {
-    prop: 'filter',
-    event: 'change'
-  },
   data: () => ({
-    /** @type {string[]} */
     selectedIds: [],
-    selectedIdsEntities: []
   }),
   props: {
-    filter: {
-      /** @type {import('vue').PropType<import('../../models/models').Filter>} */
-      type: Object
-    },
-    filterType: {
+    q: {
       type: String,
-      required: true
+      default: '',
     },
-    buckets: {
-      type: Array,
+    store: {
+      type: String,
+      default: 'search',
+    },
+    facet: {
+      type: Object,
+    },
+    initialType: {
+      type: String,
       required: true,
-      default: () => []
-    }
-  },
-  mounted() {
-    if (this.filter && this.filter.type && this.filterType !== this.filterType)
-      throw new Error('"filter" type must be equal to "filterType"')
+    },
   },
   computed: {
-    // Filter type https://github.com/impresso/impresso-jscommons/blob/master/proto/query.proto#L19-L45
-    type() {
-      return this.filter && this.filter.type
-        ? this.filter.type
-        : this.filterType
+    type: {
+      get() {
+        return this.$store.state.buckets.type;
+      },
     },
-    filterIds() {
-      return this.filter && Array.isArray(this.filter.q)
-        ? this.filter.q
-        : []
+    isTypeSearchable: {
+      get() {
+        return this.$store.state.buckets.searchables.includes(this.type);
+      },
     },
-    selectedIdsChanged() {
-      const a = JSON.stringify([...this.selectedIds].sort())
-      const b = JSON.stringify([...this.filterIds].sort())
-      return a !== b
-    }
+    typeOptions: {
+      get() {
+        return this.$store.state.buckets.typeOptions;
+      },
+    },
+    buckets: {
+      get() {
+        return this.$store.state.buckets.items;
+      },
+    },
+    isLoading: {
+      get() {
+        return this.$store.state.buckets.isLoading;
+      },
+    },
+    orderBy: {
+      get() {
+        return this.$store.state.buckets.orderBy;
+      },
+    },
+    orderByOptions: {
+      get() {
+        switch (this.type) {
+        case 'topic' :
+          return ['name', '-name', 'model', '-model'];
+        case 'country' :
+          return ['date', '-date', 'relevance', '-relevance'];
+        default:
+          return ['name', 'count', 'count-mentions'];
+        }
+      },
+    },
   },
   methods: {
     applyFilter() {
-      const entities = getEntitiesForIds(
-        this.selectedIds,
-        this.selectedIdsEntities.concat(this.buckets.map(({ item }) => item))
-      )
-
-      const originalFilter = this.filter
-        ? this.filter
-        : { type: this.filterType }
-      const updatedFilter = Object.assign({}, originalFilter, {
+      console.info('submit', this.type, this.selectedIds);
+      this.$emit('submit-buckets', {
+        type: this.type,
         q: this.selectedIds,
-        items: entities
-      })
-      this.$emit('change', updatedFilter)
+      });
+      this.selectedIds = [];
     },
-  },
-  watch: {
-    filter: {
-      handler() {
-        const entities = this.filter ? this.filter.items : []
-        this.selectedIds = this.filterIds
-        this.selectedIdsEntities = getEntitiesForIds(this.filterIds, entities)
-      },
-      immediate: true
-    }
   },
   components: {
     ItemLabel,
@@ -130,6 +128,30 @@ export default {
 <i18n>
 {
   "en": {
+    "searchField": {
+      "placeholder": "...|There is only one choice...|Search one of {n} available choices",
+      "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
+    },
+    "switchTypes": {
+      "collection": "all collections",
+      "country": "all publication countries",
+      "newspaper": "all newspapers",
+      "language": "all languages",
+      "location": "all locations mentioned",
+      "person": "all people mentioned",
+      "topic": "all topics computed"
+    },
+    "orderBy": {
+      "title": "Order by",
+      "name": "Name (a-z)",
+      "-name": "Name (z-a)",
+      "model": "Model (asc)",
+      "-model": "Model (desc)",
+      "count": "Count (most)",
+      "-count": "Count (least)",
+      "count-mentions": "Mentions (most)",
+      "-count-mentions": "Mentions (least)"
+    }
   }
 }
 </i18n>

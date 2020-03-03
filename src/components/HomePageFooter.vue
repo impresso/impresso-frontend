@@ -53,7 +53,7 @@
       <div class="line my-4"></div>
 
       <div class="row text-center">
-        <div class="logo col-sm-12">
+        <div class="col-sm-12">
           <a href="http://www.snf.ch/en/Pages/default.aspx" target="_blank" title="Swiss National Science Foundation">
             <img src="https://impresso-project.ch/assets/images/snf-rgb-e-logo.png">
           </a>
@@ -67,24 +67,24 @@
           <div class="logo smaller">
             <a href="https://impresso-project.ch/consortium/#snl" title="Swiss National Library, SNL">
               <img src="https://impresso-project.ch/assets/images/snl-logo.png">
-              <p>Swiss National Library, SNL</p>
             </a>
+            <p>Swiss National Library, SNL</p>
           </div>
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
             <a href="https://impresso-project.ch/consortium/#bnl" title="National Library of Luxembourg, BnL.">
               <img src="https://impresso-project.ch/assets/images/bnl-logo.png">
-              <p>National Library of Luxembourg, BnL.</p>
             </a>
+            <p>National Library of Luxembourg, BnL.</p>
           </div>
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
             <a href="https://impresso-project.ch/consortium/#aev" title="State Archives of Valais, AEV.">
               <img src="https://impresso-project.ch/assets/images/aev-logo.png">
-              <p>State Archives of Valais, AEV.</p>
             </a>
+            <p>State Archives of Valais, AEV.</p>
           </div>
         </div>
 
@@ -92,40 +92,40 @@
           <div class="logo smaller">
             <a href="https://impresso-project.ch/consortium/#swa" title="Swiss Economic Archives, SWA.">
               <img src="https://impresso-project.ch/assets/images/unibasel-logo.jpg">
-              <p>Swiss Economic Archives, SWA.</p>
             </a>
+            <p>Swiss Economic Archives, SWA.</p>
           </div>
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
             <a href="https://impresso-project.ch/consortium/#le-temps" title="Le Temps">
               <img src="https://impresso-project.ch/assets/images/letemps-logo.svg">
-              <p>Le Temps</p>
             </a>
+            <p>Le Temps</p>
           </div>
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
             <a href="https://impresso-project.ch/consortium/#nzz" title="Neue Zürcher Zeitung, NZZ.">
               <img src="https://impresso-project.ch/assets/images/nzz-logo.png">
-              <p>Neue Zürcher Zeitung, NZZ.</p>
             </a>
+            <p>Neue Zürcher Zeitung, NZZ.</p>
           </div>
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
             <a href="/consortium/#unil" title="History department, University of Lausanne, UNIL.">
               <img src="https://impresso-project.ch/assets/images/unil-logo.png">
-              <p>History department, <br/>University of Lausanne, UNIL.</p>
             </a>
+            <p>History department, University of Lausanne, UNIL.</p>
           </div>
         </div>
         <div class="col-sm-3">
           <div class="logo smaller">
             <a href="https://impresso-project.ch/consortium/#infoclio" title="infoclio">
               <img src="https://impresso-project.ch/assets/images/infoclio-ch-logo.jpeg">
-              <p>infoclio</p>
             </a>
+            <p>infoclio</p>
           </div>
         </div>
       </div>
@@ -145,26 +145,9 @@ footer{
     a{
       display: block;
       margin-bottom: 20px;
-      height: 130px;
-      position: relative;
       img {
         max-width: 100%;
         max-height: 70px;
-        filter: grayscale(1);
-      }
-      p {
-        position: absolute;
-        width: 100%;
-        bottom: 0;
-        color: lighten(black, 50%);
-      }
-      &:hover {
-        img {
-          filter: grayscale(0);
-        }
-        p {
-          color: black;
-        }
       }
     }
   }

@@ -41,17 +41,13 @@
       </div>
     </base-title-bar>
     <div v-for="(filter, index) in included" :key="index" class="bg-light border p-2">
-      <filter-monitor
+      <filter-monitor v-if='index === included.length - 1' :store="store" :filter="filter" :type="facet.type" :operators="facet.operators"
         :items-to-add="selectedItems"
-        :filter="filter"
-        :operators="facet.operators"
-        @changed="handleFilterChanged($event, filter)" />
+        @filter-applied="clearSelectedItems"/>
+      <filter-monitor v-else :filter="filter" :store="store" :type="facet.type" :operators="facet.operators" />
     </div>
     <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
-      <filter-monitor
-        :filter="filter"
-        :operators="facet.operators"
-        @changed="handleFilterChanged($event, filter)" />
+      <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
     </div>
     <div v-if="showBuckets">
       <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
@@ -65,12 +61,6 @@
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
         @click="showModal" />
     </div>
-
-    <explorer v-model="explorerFilters"
-              :is-visible="explorerVisible"
-              @onHide="handleExplorerHide"
-              :searching-enabled="false"
-              :initial-type="facet.type"/>
   </div>
 </template>
 
@@ -80,8 +70,6 @@ import BaseTitleBar from '../base/BaseTitleBar';
 import FilterFacetBucket from './FilterFacetBucket';
 import FilterMonitor from './FilterMonitor';
 import InfoButton from '../base/InfoButton';
-import Explorer from '../Explorer';
-import { toSerializedFilter } from '../../logic/filters'
 
 export default {
   data: () => ({
@@ -90,7 +78,6 @@ export default {
     operators: ['or', 'and'],
     exploreFacet: {},
     isCollapsed: true,
-    explorerVisible: false,
   }),
   props: {
     store: {
@@ -139,7 +126,7 @@ export default {
       return included;
     },
     includedIds() {
-      return this.included.reduce((acc, filter) => acc.concat(Array.isArray(filter.q) ? filter.q : [filter.q]), []);
+      return this.included.reduce((acc, filter) => acc.concat(filter.qh), []);
     },
     excluded() {
       if (!this.filtered) {
@@ -157,39 +144,8 @@ export default {
       }
       return this.facet.buckets.filter(b => this.includedIds.indexOf(b.val) === -1);
     },
-    explorerFilters: {
-      get() { return this.currentStore.search.filters.map(f => ({ ...f.getQuery(), items: f.items })) },
-      /** @param {import('../../models/models').Filter[]} filters */
-      set(filters) {
-        const currentFilters = this.currentStore.search.filters.map(f => ({ ...f.getQuery(), items: f.items }))
-        filters.forEach(filter => {
-          const exists = currentFilters.filter(f => JSON.stringify(f) === JSON.stringify(filter)).length
-          if (!exists) {
-            this.updateFilter(filter)
-          }
-        })
-      }
-    }
   },
   methods: {
-    handleFilterChanged(filter, oldFilter) {
-      if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
-        if (!filter.q || filter.q.length === 0) {
-          return this.$store.dispatch(`${this.store}/RESET_FILTER`, { type: filter.type })
-        }
-
-        this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
-          filter: oldFilter,
-          q: filter.q,
-          op: filter.op,
-          context: filter.context,
-          precision: filter.precision,
-          distance: filter.distance
-        })
-        this.selectedItems = [];
-        this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, {})
-      }
-    },
     toggleVisibility() {
       this.isCollapsed = !this.isCollapsed;
     },
@@ -216,37 +172,36 @@ export default {
     clearSelectedItems() {
       this.selectedIds = [];
       this.selectedItems = [];
-      this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, {})
     },
     applyFilter() {
       console.info('submit', this.facet.type, this.selectedIds);
       this.$emit('submit-buckets', {
         type: this.facet.type,
-        q: this.selectedIds,
+        ids: this.selectedIds,
       });
       this.clearSelectedItems();
     },
     updateFilter(filter) {
-      this.$emit('submit-buckets', filter);
-      // this.$emit('update-filter', filter);
+      this.$emit('update-filter', filter);
     },
     resetFilterType() {
       this.clearSelectedItems();
       this.$emit('reset-filter', this.facet.type);
     },
     showModal() {
-      this.explorerVisible = true
+      console.info('Opening Explorer for type:', this.facet.type);
+      this.$store.dispatch('explorer/SHOW', {
+        type: this.facet.type,
+        mode: 'facets',
+        filters: this.currentStore.search.filters,
+      });
     },
-    handleExplorerHide() {
-      this.explorerVisible = false
-    }
   },
   components: {
     BaseTitleBar,
     FilterFacetBucket,
     FilterMonitor,
     InfoButton,
-    Explorer
   },
 };
 </script>

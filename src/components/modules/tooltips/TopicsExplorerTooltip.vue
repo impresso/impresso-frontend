@@ -9,10 +9,7 @@
         <span class='badge'> {{tooltip.item.language}}</span>
         <b class='sans-serif'>{{excerpt}} ...</b>
 
-        <a class='mt-3  btn btn-outline-primary btn-sm btn-block' v-on:click.prevent.stop="selectItem()">
-          <span v-if="isLoading">{{ $t('actions.loading') }}</span>
-          <span v-else>{{ $t('actions.more') }}</span>
-        </a>
+        <a class='mt-3  btn btn-outline-primary btn-sm btn-block' v-on:click.prevent.stop="selectItem()">{{ $t('actions.more') }}</a>
         <!-- router-link :to="{ name: 'topic', params: { topic_uid: tooltip.item.uid} }" class="mt-3 btn-block btn btn-outline-primary btn-sm">related articles</router-link> -->
       </div>
     </div>
@@ -34,9 +31,6 @@ export default {
     },
   },
   props: ['tooltip', 'isActive'],
-  data: () => ({
-    isLoading: false,
-  }),
   computed: {
     style() {
       return {
@@ -49,20 +43,10 @@ export default {
   },
   methods: {
     selectItem() {
-      if (this.isLoading) {
-        console.warn('Topic tooltip still loading Topic item...');
-        return;
-      }
-      this.isLoading = true;
-      this.$store.dispatch('topics/LOAD_TOPIC', this.tooltip.item.uid).then((item) => {
-        this.isLoading = false;
-        this.tooltip.isActive = false;
-        this.$store.dispatch('monitor/SET_ITEM', {
-          item,
-          type: 'topic',
-        });
-      }).catch(() => {
-        this.isLoading = true;
+      this.tooltip.isActive = false;
+      this.$store.dispatch('monitor/SET_ITEM', {
+        item: this.tooltip.item,
+        type: 'topic',
       });
     },
   },

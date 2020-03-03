@@ -1,13 +1,6 @@
 import * as d3 from 'd3';
 import TopicWord from '@/models/TopicWord';
 
-const wordMapper = (token) => (d) => {
-  if (token) {
-    return (d.h ? `<span class="h">${d.w.split(token).join(`<b>${token}</b>`)}</span>` : d.w);
-  }
-  return (d.h ? `<span class="h">${d.w}</span>` : d.w);
-};
-
 export default class Topic {
   constructor({
     uid = '',
@@ -28,13 +21,7 @@ export default class Topic {
     this.model = String(model);
     this.words = words.filter(d => d.p > 0.0);
     this.excerpt = excerpt;
-    if (matches.length) {
-      this.matches = matches
-        .map(d => d.trim().split(' '))
-        .reduce((acc, d) => acc.concat(d), []);
-    } else {
-      this.matches = matches;
-    }
+    this.matches = matches.map(d => d.trim().split(' ').join(' · '));
     this.countItems = countItems;
     this.relatedTopics = relatedTopics;
     if (words.length && !(words[0] instanceof TopicWord)) {
@@ -74,25 +61,16 @@ export default class Topic {
   getHtmlExcerpt({
     token = null,
   } = {}) {
-    if (this.matches.length) {
-      // highlight match in excerpt?
-      const justwords = this.matches.join(' ').split(/<\/?em>|\s/).filter(d => d.length);
-      //
-      for (let i=0, l=this.excerpt.length; i < l; i += 1) {
-        if (this.excerpt[i].w === justwords[0]) {
-          return this.excerpt
-            .slice(0, i)
-            .map(d => d.w)
-            .concat(this.matches)
-            .slice(0,5)
-            .join(' · ');
-        }
+    const wordMapper = (d) => {
+      if (token) {
+        return (d.h ? `<span class="h">${d.w.split(token).join(`<b>${token}</b>`)}</span>` : d.w);
       }
-    }
+      return (d.h ? `<span class="h">${d.w}</span>` : d.w);
+    };
 
-    let ex = this.excerpt.map(wordMapper(token)).join(' · ');
+    let ex = this.excerpt.map(wordMapper).join(' · ');
     if (this.highlighted) {
-      ex = `${ex} ... ${this.highlighted.map(wordMapper(token)).join(' · ')}`;
+      ex = `${ex} ... ${this.highlighted.map(wordMapper).join(' · ')}`;
     }
     return ex;
   }

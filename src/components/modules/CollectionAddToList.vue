@@ -108,42 +108,27 @@ export default {
     },
     toggleActive(collection) {
       const items = this.items ? this.items : [this.item];
-      const itemsFiltered = [];
       const checked = this.isIndeterminate(collection) === 'checked';
-
       items.forEach((item) => {
         const idx = item.collections.findIndex(c => (c.uid === collection.uid));
-        if(checked && idx !== -1) {
-          itemsFiltered.push(item);
-        } else if (!checked && idx === -1) {
-          itemsFiltered.push(item);
-        }
-      });
-
-      if (!checked) {
-        // add items to collection
-        this.$store.dispatch('collections/ADD_COLLECTION_ITEMS', {
-          items: itemsFiltered,
-          collection,
-          contentType: 'article',
-        }).then(() => {
-          itemsFiltered.forEach((item) => {
-            item.collections.push(collection);
-          });
-        });
-      } else {
-        // remove items from collection
-        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEMS', {
-          items: itemsFiltered,
-          collection,
-          contentType: 'article',
-        }).then(() => {
-          itemsFiltered.forEach((item) => {
-            const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+        if (checked && idx !== -1) {
+          this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+            collection,
+            item,
+          }).then(() => {
             item.collections.splice(idx, 1);
           });
-        });
-      } // end remove items from collection
+        }
+        if (!checked && idx === -1) {
+          this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
+            collection,
+            item,
+            contentType: 'article',
+          }).then(() => {
+            item.collections.push(collection);
+          });
+        }
+      });
     },
     addCollection(collectionName) {
       if (!this.isDisabled) {

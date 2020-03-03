@@ -38,16 +38,6 @@ export function getNamedEntitiesFromArticleResponse(response) {
   return personEntities.concat(locationEntities);
 }
 
-export function passageToPassageEntity(passage) {
-  return {
-    id: passage.id,
-    clusterId: passage.clusterId,
-    kind: 'passage',
-    type: 'passage',
-    offset: { start: passage.offsetStart, end: passage.offsetEnd }
-  }
-}
-
 const SpecialEntitiesPriorityOrder = ['line', 'region'];
 
 function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, textLength) {
@@ -76,86 +66,114 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     .concat(regionEntities)
 }
 
-const withTextParts = (item, text, [boundaryStart, boundaryEnd] = []) => {
-  let [itemStartOffset, itemEndOffset] = item.entity != null
-    ? [item.entity.offset.start, item.entity.offset.end]
-    : [0, text.length]
+export const DefaultAnnotationConfiguration = Object.freeze({
+  line: {
+    start: () => '<p class="line">',
+    end: () => '</p>'
+  },
+  region: {
+    start: () => '<div class="region">',
+    end: () => '</div>'
+  },
+  namedEntity: {
+    start: (entity, isContinuation) => `<span class="entity ${entity.type}${isContinuation ? ' continuation' : ''}" ${entity.id ? `data-id="${entity.id}"` : ''}>`,
+    end: () => '</span>'
+  },
+})
 
-  if (boundaryStart != null && boundaryStart > itemStartOffset) itemStartOffset = boundaryStart
-  if (boundaryEnd != null && boundaryEnd < itemEndOffset) itemEndOffset = boundaryEnd
-
-  let lastOffset = itemStartOffset
-
-  const childrenWithText = item.children.reduce((acc, child) => {
-    const { start, end } = child.entity.offset
-    if (start - lastOffset > 0) {
-      acc.push(text.slice(lastOffset, start))
-    }
-    acc.push(withTextParts(child, text, [lastOffset, itemEndOffset]))
-    lastOffset = end
-    return acc
-  }, [])
-
-  if (itemEndOffset - lastOffset > 0) {
-    childrenWithText.push(text.slice(lastOffset, itemEndOffset))
-  }
-
-  item.children = childrenWithText
-
-  return item
+function getOpenTagForEntity(entity, configuration, isContinuation = false) {
+  const tagTemplate = configuration[entity.kind]['start'];
+  return tagTemplate(entity, isContinuation);
 }
 
-export function getAnnotateTextTree(text, entities, lineBreaks, regionBreaks) {
-  const expandedEntities = expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text.length);
+function getCloseTagForEntity(entity, configuration, isContinuation = false) {
+  const tagTemplate = configuration[entity.kind]['end'];
+  return tagTemplate(entity, isContinuation);
+}
 
-  const sortedEntities = expandedEntities
-    .sort(({ offset: offsetA }, { offset: offsetB }) => {
-      if (offsetA.start !== offsetB.start) return offsetA.start - offsetB.start
-      const [lengthA, lengthB] = [offsetA, offsetB].map(({ start, end }) => end - start)
-      return lengthB - lengthA
-    })
-    .sort(({ kind: kindA }, { kind: kindB }) => {
-      const [priorityA, priorityB] = [kindA, kindB].map(i => SpecialEntitiesPriorityOrder.indexOf(i));
-      return priorityB - priorityA;
-    })
-
-  const breakpoints = [...new Set(sortedEntities.map(({ offset: { start, end }}) => [start, end]).flat().sort((a, b) => a - b))]
-
-  const rootItem = { children: [] };
-  let itemsStack = [rootItem];
-
-  const isInStack = entity => itemsStack.filter(({ entity: e }) => JSON.stringify(entity) === JSON.stringify(e)).length > 0
-
-  const getEntitiesMatchingBreakpoint = (entities, breakpoint) => entities
-    .filter(({ offset: { start, end }}) => breakpoint >= start && breakpoint < end)
-
-  breakpoints.map(breakpoint => {
-    let closeIndex
-    itemsStack.forEach(({ entity }, index) => {
-      if (closeIndex === undefined && entity && entity.offset.end <= breakpoint) closeIndex = index
-    })
-
-    if (closeIndex != null) {
-      const finishedItems = itemsStack.filter(({ entity }) => entity && entity.offset.end <= breakpoint)
-      itemsStack = itemsStack.slice(0, closeIndex)
-      finishedItems.forEach(item => { item.isLast = true })
-    }
-
-    const matchingEntities = getEntitiesMatchingBreakpoint(sortedEntities, breakpoint)
-
-    matchingEntities.forEach(entity => {
-      if (!isInStack(entity)) {
-        const isContinuation = entity.offset.start < breakpoint
-        const item = { entity, children: [], isContinuation }
-        itemsStack[itemsStack.length - 1].children.push(item)
-        itemsStack.push(item)
-      }
-    })
+const getEntitiesForPosition = (entities, position) => entities
+  .filter(({ offset: { start, end }}) => position >= start && position <= end)
+  .sort(({ kind: kindA }, { kind: kindB }) => {
+    const [priorityA, priorityB] = [kindA, kindB].map(i => SpecialEntitiesPriorityOrder.indexOf(i));
+    return priorityB - priorityA;
   });
 
-  const rootItemWithText = withTextParts(rootItem, text)
+export function annotateText(text, entities, lineBreaks, regionBreaks, configuration = DefaultAnnotationConfiguration) {
+  const expandedEntities = expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text.length);
+  const breakpoints = [...new Set(expandedEntities.map(({ offset: { start, end }}) => [start, end]).flat().sort((a, b) => a - b))]
 
-  // console.info('root item with text', JSON.stringify(rootItemWithText, null, 2))
+  const items = breakpoints.reduce((acc, breakpoint, idx) => {
+    let items = []
+    const entities = getEntitiesForPosition(expandedEntities, breakpoint);
+    const subtext = idx < breakpoints.length - 1 ? text.slice(breakpoint, breakpoints[idx + 1]) : undefined
+    const specialEntities = entities
+      .filter(({ kind }) => SpecialEntitiesPriorityOrder.includes(kind))
+    const otherEntities = entities
+      .filter(({ kind }) => !SpecialEntitiesPriorityOrder.includes(kind))
 
-  return rootItemWithText
+    const closeSpecialEntities = specialEntities.filter(({ offset: { end }}) => end === breakpoint).reverse()
+    const openSpecialEntities = specialEntities.filter(({ offset: { start }}) => start === breakpoint)
+
+    const sorter = (a, b) => {
+      if (a.offset.end === breakpoint) return -1
+      if (b.offset.end === breakpoint) return 1
+      if (a.offset.start === breakpoint) return -1
+      if (b.offset.start === breakpoint) return -1
+      return 0
+    }
+    const openOtherEntities = otherEntities
+      .filter(({ offset: { start }}) => start === breakpoint)
+      .sort(sorter)
+    const closeOtherEntities = otherEntities
+      .filter(({ offset: { end }}) => end === breakpoint)
+      .sort(sorter)
+
+    const entityWontBeUsed = entity => !openOtherEntities.includes(entity) && !closeOtherEntities.includes(entity)
+
+    closeOtherEntities.forEach(entity => {
+      items.push(getCloseTagForEntity(entity, configuration, false))
+    })
+
+    if (closeSpecialEntities.length > 0) {
+      otherEntities.filter(entityWontBeUsed).forEach(entity => {
+        const tag = getCloseTagForEntity(entity, configuration, true)
+        items.push(tag)
+      })
+    }
+    closeSpecialEntities.forEach(entity => {
+      const tag = getCloseTagForEntity(entity, configuration, false)
+      items.push(tag)
+    })
+
+    openSpecialEntities.forEach(entity => {
+      const tag = getOpenTagForEntity(entity, configuration, false)
+      items.push(tag)
+    })
+    if (openSpecialEntities.length > 0) {
+      otherEntities.filter(entityWontBeUsed).forEach(entity => {
+        const tag = getOpenTagForEntity(entity, configuration, true)
+        items.push(tag)
+      })
+    }
+
+    openOtherEntities.forEach(entity => {
+      items.push(getOpenTagForEntity(entity, configuration, false))
+    })
+
+    if (subtext !== undefined) items.push(subtext)
+
+    // console.info('^^', {
+    //   closeSpecialEntities,
+    //   openSpecialEntities,
+    //   openOtherEntities,
+    //   closeOtherEntities,
+    //   otherEntities,
+    //   subtext,
+    //   items
+    // });
+
+    return acc.concat(items)
+  }, []);
+
+  return items;
 }
