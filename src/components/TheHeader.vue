@@ -46,8 +46,8 @@
           {{$t("label_compare")}}
         </b-nav-item>
         <b-nav-item v-bind:to="{ name: 'text-reuse-cluster-detail'}" active-class="active">
-	  {{$t("label_text_reuse")}}
-	</b-nav-item>
+          {{$t("label_text_reuse")}}
+        </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
