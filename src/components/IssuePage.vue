@@ -114,8 +114,10 @@
             </small>
           </b-navbar-nav>
 
-          <b-navbar-nav v-show="mode === 'image'" class="py-2 px-3">
+          <b-navbar-nav class="py-2 px-3">
             <b-button
+              v-show="mode === 'image'"
+              class="mr-2"
               :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
               @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
               <div class="d-flex flex-row align-items-center">
@@ -124,7 +126,7 @@
                 <div v-else>{{$t('toggle_outlines_off')}}</div>
               </div>
             </b-button>
-            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
+            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="mr-3">
               <div class="d-flex flex-row align-items-center">
                 <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
                 <div v-if="isFullscreen">{{$t('toggle_fullscreen_on')}}</div>
