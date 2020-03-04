@@ -66,7 +66,8 @@ const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize
 const SupportedFilterTypes = [
   'daterange',
   'newspaper',
-  'trClusterSize'
+  'textReuseClusterSize',
+  'textReuseLexicalOverlap'
 ]
 const supportedFiltersFilter = filter => SupportedFilterTypes.includes(filter.type)
 

@@ -1,10 +1,11 @@
 <template lang="html">
   <div>
-    <div class="mt-2" v-if="filters.length > 0">
+    <div class="mt-2">
       <search-pills :filters="filters"
         :enableAddFilter=true
         :includedFilterTypes="supportedFilterTypes"
-        @changed="handleFiltersChanged" />
+        @changed="handleFiltersChanged"
+        :index="'tr_clusters'" />
     </div>
 
     <search-input class="mt-3"

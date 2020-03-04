@@ -120,8 +120,8 @@ async function search({
   type,
   searchQuery,
   currentPage,
-  pageSize,
-}) {
+  pageSize
+}, index) {
   const service = TypeToServiceMap[type]
   if (searchingEnabled) {
     const query = buildEntitySearchQuery(currentPage, pageSize, type, searchQuery)
@@ -136,11 +136,11 @@ async function search({
     }
   } else {
     const query = {
-      group_by: 'articles',
       filters: filters,
       page: currentPage,
       limit: pageSize,
       order_by: '-count',
+      index
     };
     const response = await searchFacets.get(type, { query })
     const result = response[0]
@@ -157,7 +157,7 @@ async function search({
 const AllSupportedFilterTypes = [
   'location', 'country', 'person', 'language',
   'topic', 'newspaper', 'collection', 'year', 'month',
-  'trClusterSize'
+  'textReuseClusterSize', 'textReuseLexicalOverlap'
 ]
 
 const DefaultFilterTypes = [
@@ -196,6 +196,10 @@ export default {
     includedTypes: {
       type: Array,
       default: () => undefined
+    },
+    index: {
+      type: String,
+      default: 'search'
     }
   },
   methods: {
@@ -206,7 +210,7 @@ export default {
       if (!this.isVisible) return
       try {
         this.isLoading = true
-        const { totalResults, buckets } = await search(this.searchParameters)
+        const { totalResults, buckets } = await search(this.searchParameters, this.index)
         this.totalResults = totalResults
         this.buckets = buckets
       } finally {

@@ -96,7 +96,8 @@
       :is-visible="explorerVisible"
       @onHide="handleExplorerHide"
       :searching-enabled="false"
-      :included-types="includedFilterTypes"/>
+      :included-types="includedFilterTypes"
+      :index="index"/>
   </div>
 </template>
 
@@ -105,7 +106,7 @@ import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
 
 const NumericTypesLabels = Object.freeze({
-  trClusterSize: 'Cluster size'
+  textReuseClusterSize: 'Cluster size'
 })
 
 const NumericTypesFormats = Object.freeze({
@@ -141,6 +142,10 @@ export default {
       type: Array,
       default: () => []
     },
+    index: {
+      type: String,
+      default: 'search'
+    }
   },
   computed: {
     pills() {
