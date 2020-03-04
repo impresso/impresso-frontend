@@ -40,8 +40,15 @@
          style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
       <i-spinner class="text-center pt-4" />
     </div>
-    <facet-explorer :filter-type="currentType"
+    <facet-explorer v-if="!RangeFacets.includes(currentType)"
+                    :filter-type="currentType"
                     :buckets="buckets"
+                    v-model="filter"
+                    class="my-0 mb-3 px-2"/>
+    <range-facet-explorer v-if="RangeFacets.includes(currentType)"
+                    :filter-type="currentType"
+                    :buckets="buckets"
+                    :range="range"
                     v-model="filter"
                     class="my-0 mb-3 px-2"/>
       <div v-if="totalResults > pageSize" class="p-3">
@@ -74,6 +81,7 @@ import {
   searchFacets
 } from '@/services'
 import FacetExplorer from './modules/FacetExplorer';
+import RangeFacetExplorer from './modules/RangeFacetExplorer';
 import Pagination from './modules/Pagination';
 import Bucket from '@/models/Bucket';
 
@@ -84,6 +92,11 @@ const TypeToServiceMap = Object.freeze({
   newspaper: newspapers,
   collection: collections
 })
+
+const RangeFacets = [
+  'textReuseClusterSize',
+  'textReuseLexicalOverlap'
+]
 
 const PageSize = 20
 
@@ -149,7 +162,9 @@ async function search({
       buckets: result.buckets.map(d => new Bucket({
         ...d,
         type
-      }))
+      })),
+      range: Number.isFinite(result.min) && Number.isFinite(result.max)
+        ? [result.min, result.max] : undefined
     }
   }
 }
@@ -179,8 +194,10 @@ export default {
     currentPage: 1,
     totalResults: 0,
     buckets: [],
+    range: [],
     isLoading: false,
-    pageSize: PageSize
+    pageSize: PageSize,
+    RangeFacets
   }),
   props: {
     /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
@@ -210,9 +227,10 @@ export default {
       if (!this.isVisible) return
       try {
         this.isLoading = true
-        const { totalResults, buckets } = await search(this.searchParameters, this.index)
+        const { totalResults, buckets, range } = await search(this.searchParameters, this.index)
         this.totalResults = totalResults
         this.buckets = buckets
+        if (range != null) this.range = range
       } finally {
         this.isLoading = false
       }
@@ -276,6 +294,7 @@ export default {
   components: {
     FacetExplorer,
     Pagination,
+    RangeFacetExplorer,
   },
   watch: {
     searchParameters: {
@@ -340,7 +359,8 @@ export default {
         "collection": "collection",
         "year": "year",
         "month": "month",
-        "trClusterSize": "text reuse cluster size"
+        "textReuseClusterSize": "text reuse cluster size",
+        "textReuseLexicalOverlap": "text reuse lexical overlap"
       }
     }
   }
