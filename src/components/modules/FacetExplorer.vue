@@ -31,7 +31,7 @@
 import ItemLabel from './lists/ItemLabel'
 import ItemSelector from './ItemSelector'
 
-function getEntitiesForIds(ids, entities) {
+function getEntitiesForIds(ids, entities = []) {
   return ids.map(id => entities.find(entity => entity && entity.uid  === id))
 }
 

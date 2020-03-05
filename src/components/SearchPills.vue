@@ -104,7 +104,7 @@
 <script>
 import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
-import { NumericRangeFacets } from '@/logic/filters'
+import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 
 /**
  * Use `v-model`.
@@ -159,6 +159,11 @@ export default {
   },
   methods: {
     handleFilterUpdated(index, filter) {
+      // If this filter has no items selected - remove the filter
+      if (!RangeFacets.includes(filter.type) && Array.isArray(filter.q) && filter.q.length === 0) {
+        return this.handleFilterRemoved(index)
+      }
+
       const newFilters = [...this.filters]
       newFilters[index] = filter
       this.$emit('changed', newFilters)

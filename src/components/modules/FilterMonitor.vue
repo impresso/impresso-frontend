@@ -46,7 +46,7 @@
       </b-dropdown>
     </div>
     <!-- for strings -->
-    <div v-if="['string', 'title'].indexOf(type) !== -1">
+    <div v-if="StringTypes.includes(type)">
       <b-form-group :label="$t(`label.${type}.value`)">
         <b-form-input
           size="sm"
@@ -132,6 +132,8 @@ import {
   NumericRangeFacets
 } from '../../logic/filters'
 
+const StringTypes = ['string', 'title']
+
 /**
  * Changes filter after 'apply' button is clicked.
  * Use with `v-model`.
@@ -146,7 +148,8 @@ export default {
     editedFilter: {},
     excludedItemsIds: [],
     RangeFacets,
-    NumericRangeFacets
+    NumericRangeFacets,
+    StringTypes
   }),
   props: {
     operators: {
@@ -221,7 +224,9 @@ export default {
   },
   methods: {
     applyChanges() {
-      if (Array.isArray(this.editedFilter.q) && !RangeFacets.includes(this.editedFilter.type)) {
+      const { type } = this.editedFilter
+
+      if (!StringTypes.includes(type) && !RangeFacets.includes(type)) {
         const allItemsDictonary = this.filter.items.concat(this.itemsToAdd).reduce((acc, item) => {
           acc[item.uid] = item
           return acc
@@ -229,6 +234,7 @@ export default {
         const availableItemsIds = [...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid))]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
         const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
+
         this.$emit('changed', {
           ...this.editedFilter,
           items: selectedItems,
