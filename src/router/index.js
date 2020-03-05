@@ -152,12 +152,10 @@ const router = new Router({
     {
       path: '/collections',
       component: CollectionsPage,
-      name: 'collections',
-      props: true,
       children: [{
-        path: 'collections',
+        path: '',
         component: CollectionsExplorerPage,
-        name: 'collectionsExplorer',
+        name: 'collections',
         meta: {
           requiresAuth: true,
           realm: 'user',
