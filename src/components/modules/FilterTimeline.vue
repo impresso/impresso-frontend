@@ -21,7 +21,7 @@
     </base-title-bar>
 
     <!--  timeline vis -->
-    <timeline class='bg-light pb-2'
+    <timeline class='bg-light pb-2 mb-3'
       :values="values"
       :brush="brush"
       :domain="[startYear, endYear]"
@@ -40,16 +40,39 @@
       </div>
     </timeline>
 
-    <div v-if="!filters.length" class="pt-3">
-      <b-button size="sm" variant="outline-primary" @click="addDaterangeFilter">
+    <div v-if="!temporaryFilter && !filters.length">
+      <b-button size="sm" variant="outline-primary" @click="addTemporaryDaterangeFilter">
       {{ $t('label.daterange.pick') }}
       </b-button>
     </div>
+
+    <div class="border p-2 bg-white" v-for="(filter, i) in filters" :key='i' >
+      <filter-monitor
+        :filter="filter"
+        @changed="updateDaterangeFilterAtIndex($event, i)" />
+
+    </div>
     <!-- temporary filter -->
-    <filter-monitor
-      v-if="temporaryFilter" class="border p-2 mt-2"
-      :filter="temporaryFilter"
-      @changed="updateDaterangeFilter" />
+    <div class="border p-2" v-if="temporaryFilter"
+    >
+      <filter-monitor
+        :filter="temporaryFilter"
+        @daterange-changed="updateTemporaryFilter"
+        />
+
+      <b-row no-gutters>
+        <b-col class="pr-1">
+          <b-button   size="sm" block variant="outline-primary" @click="removeTemporaryDaterangeFilter">
+          {{ $t('actions.dismiss') }}
+          </b-button>
+        </b-col>
+        <b-col class="pl-1">
+          <b-button  size="sm" block variant="outline-primary" @click="addDaterangeFilter">
+          {{ $t('actions.apply') }}
+          </b-button>
+        </b-col>
+      </b-row>
+    </div>
   </div>
 </template>
 
@@ -95,13 +118,13 @@ export default {
   },
   computed: {
     brush() {
-      if (this.selectedFilter) {
+      if (this.temporaryFilter) {
         return [
-          this.selectedFilter.items[0].start,
-          this.selectedFilter.items[0].end,
+          this.temporaryFilter.items[0].start,
+          this.temporaryFilter.items[0].end,
         ];
       }
-      return null;
+      return [];
     },
     startDate() {
       return new Date(`${this.startYear}-01-01`);
@@ -145,10 +168,30 @@ export default {
     resetFilters() {
       this.$emit('reset-filters', 'daterange');
     },
-    updateDaterangeFilter() {
-      console.info('updateDaterangeFilter');
+    updateDaterangeFilterAtIndex(updatedFilter, i) {
+      this.$emit('changed', this.filters
+        .map((filter, j) => {
+          if (i === j) {
+            return updatedFilter;
+          }
+          return filter;
+        }));
+    },
+    updateTemporaryFilter(f) {
+      console.info('updateTemporaryFilter', f);
+      this.temporaryFilter = new FilterDaterange({
+        type: 'daterange',
+        q:[f.q],
+      });
     },
     addDaterangeFilter() {
+      this.updateDaterangeFilters();
+      this.temporaryFilter = null;
+    },
+    removeTemporaryDaterangeFilter() {
+      this.temporaryFilter = null;
+    },
+    addTemporaryDaterangeFilter() {
       if (this.temporaryFilter) {
         return;
       }
@@ -186,30 +229,6 @@ export default {
         });
         this.temporaryFilter.hasChanges = true;
       }
-      // let changed = false;
-      // if (this.startDaterange !== data.minValue) {
-      //   changed = true;
-      //   this.startDaterange = data.minValue;
-      // }
-      // if (this.endDaterange !== data.maxValue) {
-      //   changed = true;
-      //   this.endDaterange = data.maxValue;
-      // }
-      // if (!changed) {
-      //   return;
-      // }
-      // const item = new Daterange({
-      //   start: this.startDaterange,
-      //   end: this.endDaterange,
-      // });
-      // item.checked = true;
-      // if (this.daterangeSelected) {
-      //   this.$store.commit(`${this.store}/UPDATE_FILTER_ITEM`, {
-      //     filter: this.daterangeSelected,
-      //     item,
-      //     uid: this.daterangeSelected.items[this.daterangeSelectedItemIndex].uid,
-      //   });
-      // }
     },
   },
 };
@@ -252,7 +271,7 @@ export default {
         "percent": "%"
       },
       "daterange": {
-        "pick": "add filter ...",
+        "pick": "add new date filter ...",
         "start": "from",
         "end": "to",
         "apply": "add as filter"
