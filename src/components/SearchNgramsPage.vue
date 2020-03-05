@@ -1,39 +1,12 @@
 <template>
   <i-layout id="SearchNgramsPage">
-    <!-- sidebar -->
-    <i-layout-section width="400px">
-      <!--  header -->
-      <div slot="header" class="border-bottom bg-light">
-        <search-tabs/>
-        <div class="py-3 px-3">
-          <search-pills
-            :filters="allowedFilters"
-            @changed="handleFiltersChanged"
-          />
-          <span v-if="filtersRemoved">
-            <em class="small" v-html="$tc('numbers.filtersRemoved', filtersRemoved, {
-              n: filtersRemoved,
-            })"/>
-            &nbsp;
-            <info-button name="how-ngram-work-availble-filters"  />
-          </span>
-          <!-- <autocomplete v-on:submit="onAddFilter" /> -->
-        </div>
-      </div>
-      <!--  facets -->
-      <div class="pt-3">
-        <p class="mx-3">
-          <em>{{ $t('label.availableFacets') }}&nbsp;</em>
-          <info-button name="how-ngram-work-use-of-facets"  />
-        </p>
-        <search-facets
-          store="searchNgrams"
-          @submit-facet="onAddFilter"
-          @update-filter="onFilterUpdated"
-          @reset-filter="onFilterReset"/>
-      </div>
-    </i-layout-section>
-
+    <!-- sidebar (contains i-layout-section) -->
+    <search-sidebar
+      :filters="filters"
+      :excludedTypes="excludedTypes"
+      store="searchNgrams"
+      @changed="handleFiltersChanged"
+    />
     <!-- main section -->
     <i-layout-section main>
       <div slot="header">
@@ -108,13 +81,14 @@
 </template>
 
 <script>
-import SearchTabs from '@/components/modules/SearchTabs';
+import SearchSidebar from '@/components/modules/SearchSidebar';
+// import SearchTabs from '@/components/modules/SearchTabs';
 // import Autocomplete from '@/components/Autocomplete';
-import InfoButton from '@/components/base/InfoButton';
+// import InfoButton from '@/components/base/InfoButton';
 import BaseTitleBar from '@/components/base/BaseTitleBar';
-import SearchPills from '@/components/SearchPills';
+// import SearchPills from '@/components/SearchPills';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
-import SearchFacets from '@/components/SearchFacets';
+// import SearchFacets from '@/components/SearchFacets';
 import SearchInput from '@/components/modules/SearchInput';
 import Timeline from '@/components/modules/Timeline';
 import Ellipsis from '@/components/modules/Ellipsis';
@@ -123,17 +97,21 @@ import Helpers from '@/plugins/Helpers';
 export default {
   name: 'SearchNgramsPage',
   components: {
-    SearchTabs,
-    SearchFacets,
+    // SearchTabs,
+    // SearchFacets,
     SearchInput,
     Timeline,
     SearchQuerySummary,
     Ellipsis,
-    SearchPills,
-    InfoButton,
+    // SearchPills,
+    // InfoButton,
     BaseTitleBar,
+    SearchSidebar,
     // Autocomplete,
   },
+  data: () => ({
+    excludedTypes: ['string', 'regex'],
+  }),
   watch: {
     '$route.query': {
       handler(val) {
@@ -198,11 +176,11 @@ export default {
     searchQuery() {
       return this.$store.state.searchNgrams.search;
     },
-    allowedFilters() {
-      return this.searchQuery.filters.filter(d => !['string', 'regex'].includes(d.type));
+    filters() {
+      return this.searchQuery.filters;
     },
-    filtersRemoved() {
-      return this.searchQuery.filters.length - this.allowedFilters.length;
+    allowedFilters() {
+      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
     },
     timelineResolution() {
       return this.trend.timeInterval;
