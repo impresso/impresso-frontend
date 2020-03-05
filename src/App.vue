@@ -159,8 +159,8 @@ ul.nav.nav-pills .nav-item{
       font-variant: small-caps;
       margin-bottom: -1px;
       border: 1px solid transparent;
-
-      color: #a8b3bd;
+      font-size: 15px; // like small-caps
+      color: #6e8091;
     }
     &.active .nav-link{
       color: black;
