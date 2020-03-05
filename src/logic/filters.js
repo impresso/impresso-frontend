@@ -20,3 +20,15 @@ export function toSerializedFilter(filter) {
 export function toSerializedFilters(filters) {
   return protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
 }
+
+export const NumericRangeFacets = [
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta'
+]
+
+export const TimeRangeFacets = [
+  'daterange'
+]
+
+export const RangeFacets = NumericRangeFacets.concat(TimeRangeFacets)

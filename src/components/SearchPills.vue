@@ -104,13 +104,7 @@
 <script>
 import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
-
-const NumericTypesLabels = Object.freeze({
-  textReuseClusterSize: 'Cluster size'
-})
-
-const NumericTypesFormats = Object.freeze({
-})
+import { NumericRangeFacets } from '@/logic/filters'
 
 /**
  * Use `v-model`.
@@ -161,7 +155,7 @@ export default {
       get() { return this.filters },
       set(filters) { this.$emit('changed', filters) }
     },
-    numericTypes() { return Object.keys(NumericTypesLabels) }
+    numericTypes() { return NumericRangeFacets }
   },
   methods: {
     handleFilterUpdated(index, filter) {
@@ -213,13 +207,12 @@ export default {
     },
     labelForNumeric({ items = [], type }) {
       const { start, end } = items[0] || {}
-      const label = NumericTypesLabels[type]
-      const format = NumericTypesFormats[type] || 'short'
+      const label = this.$t(`label.${type}.item`)
 
       return this.$t('label.range.item', {
         label,
-        start: this.$n(start, format),
-        end: this.$n(end, format)
+        start: this.$n(start),
+        end: this.$n(end)
       })
     },
     showFilterExplorer() {
@@ -357,6 +350,18 @@ export default {
         "range": {
           "title": "filter by {label}",
           "item": "{label} between {start} and {end}"
+        },
+        "textReuseClusterSize": {
+          "title": "filter by text reuse cluster size",
+          "item": "Cluster size"
+        },
+        "textReuseClusterLexicalOverlap": {
+          "title": "filter by text reuse cluster lexical overlap",
+          "item": "Lexical overlap"
+        },
+        "textReuseClusterDayDelta": {
+          "title": "filter by text reuse time span in days",
+          "item": "Text reuse time span"
         }
       },
       "items": {

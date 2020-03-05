@@ -84,6 +84,7 @@ import FacetExplorer from './modules/FacetExplorer';
 import RangeFacetExplorer from './modules/RangeFacetExplorer';
 import Pagination from './modules/Pagination';
 import Bucket from '@/models/Bucket';
+import { RangeFacets } from '@/logic/filters'
 
 const TypeToServiceMap = Object.freeze({
   person: entities,
@@ -92,11 +93,6 @@ const TypeToServiceMap = Object.freeze({
   newspaper: newspapers,
   collection: collections
 })
-
-const RangeFacets = [
-  'textReuseClusterSize',
-  'textReuseLexicalOverlap'
-]
 
 const PageSize = 20
 
@@ -172,7 +168,8 @@ async function search({
 const AllSupportedFilterTypes = [
   'location', 'country', 'person', 'language',
   'topic', 'newspaper', 'collection', 'year', 'month',
-  'textReuseClusterSize', 'textReuseLexicalOverlap'
+  'textReuseClusterSize', 'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta'
 ]
 
 const DefaultFilterTypes = [
@@ -226,6 +223,7 @@ export default {
     async search() {
       if (!this.isVisible) return
       try {
+        this.buckets = []
         this.isLoading = true
         const { totalResults, buckets, range } = await search(this.searchParameters, this.index)
         this.totalResults = totalResults
@@ -360,7 +358,8 @@ export default {
         "year": "year",
         "month": "month",
         "textReuseClusterSize": "text reuse cluster size",
-        "textReuseLexicalOverlap": "text reuse lexical overlap"
+        "textReuseClusterLexicalOverlap": "text reuse cluster lexical overlap",
+        "textReuseClusterDayDelta": "text reuse cluster span in days"
       }
     }
   }

@@ -67,7 +67,8 @@ const SupportedFilterTypes = [
   'daterange',
   'newspaper',
   'textReuseClusterSize',
-  'textReuseLexicalOverlap'
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta'
 ]
 const supportedFiltersFilter = filter => SupportedFilterTypes.includes(filter.type)
 
