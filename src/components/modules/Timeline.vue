@@ -188,14 +188,14 @@ export default {
       },
     },
     brush: {
-      immediate: false,
+      immediate: true,
       handler(val) {
         if (this.timeline && val.length) {
+          const [ min, max ] = val;
           this.timeline.brushTo({
-            min: val[0],
-            max: val[1],
+            min,
+            max,
           });
-          // this.timeline.drawBrush();
         }
       },
     },
@@ -203,7 +203,6 @@ export default {
       immediate: false,
       deep: true,
       handler(data) {
-        // console.info('Timeline component received data:', data.length);
         if (this.timeline) {
           this.timeline.update({
             data,
