@@ -64,6 +64,7 @@ export default {
       removeAccount: 'Delete account',
       clear: 'clear',
       close: 'close',
+      dismiss: 'dismiss',
       loading: 'loading...',
       reset: 'Reset',
       apply: 'Apply',
