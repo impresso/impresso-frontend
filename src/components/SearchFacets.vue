@@ -128,10 +128,6 @@ export default {
     },
   },
   methods: {
-    selectDaterangeFilter(filter) {
-      console.info('selectedDaterangeFilter', filter);
-      this.selectedDaterangeFilter = filter;
-    },
     getFacetFilters(type) {
       return this.filters.filter(d => d.type === type);
     },
@@ -141,11 +137,10 @@ export default {
     resetFilters(type) {
       this.$emit('changed', this.filters.filter(d => d.type !== type));
     },
-    updateDaterangeFilters(filters) {
-      console.info('updateDaterangeFilters (single filter)', filters);
-      //
-      // this.$store.dispatch(`${this.store}/MERGE_FILTER_AT_INDEX`, { index, filter })
-      // this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, {})
+    updateDaterangeFilters(daterangeFilters) {
+      this.$emit('changed', this.filters
+        .filter(({ type }) => type !== 'daterange')
+        .concat(daterangeFilters));
     },
     updateFilter(filter) {
       this.$emit('changed', this.filters.map((d) => {
