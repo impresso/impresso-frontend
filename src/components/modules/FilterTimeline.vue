@@ -49,6 +49,7 @@
     <div class="border p-2 bg-white" v-for="(filter, i) in filters" :key='i' >
       <filter-monitor
         :filter="filter"
+        @daterange-changed="updateBrush($event)"
         @changed="updateDaterangeFilterAtIndex($event, i)" />
 
     </div>
@@ -107,6 +108,7 @@ export default {
   },
   data: () => ({
     temporaryFilter: null,
+    selectedFilterBrush: [],
     selectedFilterIndex: -1,
     displayStyle: 'sum',
   }),
@@ -124,6 +126,12 @@ export default {
           this.temporaryFilter.items[0].end,
         ];
       }
+      if (this.filters.length) {
+        return [
+          this.filters[0].items[0].start,
+          this.filters[0].items[0].end,
+        ];
+      }
       return [];
     },
     startDate() {
@@ -131,14 +139,6 @@ export default {
     },
     endDate() {
       return new Date(`${this.endYear}-12-31`);
-    },
-    daterangeFilters() {
-      if (this.temporaryFilter) {
-        return [
-          this.temporaryFilter,
-        ].concat(this.filters);
-      }
-      return [].concat(this.filters);
     },
     startDaterange() {
       let d;
@@ -167,6 +167,7 @@ export default {
   methods: {
     resetFilters() {
       this.$emit('reset-filters', 'daterange');
+      this.selectedFilterBrush = [];
     },
     updateDaterangeFilterAtIndex(updatedFilter, i) {
       this.$emit('changed', this.filters
@@ -184,8 +185,15 @@ export default {
         q:[f.q],
       });
     },
+    updateBrush(filter) {
+      const daterange = new Daterange({
+        daterange: filter.q,
+      });
+      console.info('updateBrush', filter, daterange);
+      this.selectedFilterBrush = [daterange.start, daterange.end];
+    },
     addDaterangeFilter() {
-      this.updateDaterangeFilters();
+      this.$emit('changed', [ this.temporaryFilter ].concat(this.filters));
       this.temporaryFilter = null;
     },
     removeTemporaryDaterangeFilter() {
