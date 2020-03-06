@@ -47,6 +47,11 @@ export default {
       type: Array,
       default: () => [],
     },
+    facets: {
+      /** @type {import('vue').PropType<import('../models/models').Facet[]>} */
+      type: Array,
+      default: () => [],
+    },
     startYear: {
       type: Number,
       default: 1737,
@@ -105,25 +110,6 @@ export default {
         }));
         // add zeroes
         return Helpers.timeline.addEmptyIntervals(values);
-      },
-    },
-    facets: {
-      get() {
-        let ignoreFacets = ['year', 'accessRight', 'partner'];
-        if (window.impressoDataVersion > 1) {
-          ignoreFacets = ['year'];
-        }
-        return this.currentStore.facets
-          .filter(d => !ignoreFacets.includes(d.type))
-          .map((d) => {
-            d.isFiltered = this.currentStore.search.filtersIndex[d.type];
-            return d;
-          })
-          .sort((a, b) => {
-            const indexA = this.facetsOrder.indexOf(a.type);
-            const indexB = this.facetsOrder.indexOf(b.type);
-            return indexA - indexB;
-          });
       },
     },
   },
