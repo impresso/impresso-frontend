@@ -1,47 +1,36 @@
 <template lang="html">
   <i-layout id="SearchPage">
-    <i-layout-section width="400px">
-      <!--  header -->
-      <div slot="header" class="border-bottom bg-light">
-        <search-tabs />
-        <div class="py-3 px-3">
-          <search-pills :filters="filters"
-              @changed="handleFiltersChanged" />
-          <span v-if="filtersRemoved">
-            <em class="small" v-html="$tc('numbers.filtersRemoved', filtersRemoved, {
-              n: filtersRemoved,
-            })"/>
-            &nbsp;
-            <info-button name="how-searchImages-work-availble-filters"  />
-          </span>
-          <b-media v-if="similarToImage" class="pb-3">
-            <div style="width:128px;" slot="aside">
-              <b-img v-if="similarToImage.regions.length"
-                fluid-grow
-                v-bind:src="similarToImage.regions[0].iiifFragment" />
-            </div>
-            <h4>{{similarToImage.newspaper.name}}</h4>
-            <p>{{$d(new Date(similarToImage.date), 'long')}}</p>
-            <b-button variant="danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">Remove</b-button>
-          </b-media>
-          <filter-image-upload
-            v-if="enableUpload"
-            v-on:load="search(1)"
-            v-on:remove="search(1)" />
+    <search-sidebar width="400px"
+      :filters="filters"
+      :filters-removed="filtersRemoved"
+      :facets="facets"
+      :excludedTypes="excludedTypes"
+      store="searchImages"
+      @changed="handleFiltersChanged">
+      <div slot="header">
+        <b-media v-if="similarToImage" class="pb-3">
+          <div style="width:128px;" slot="aside">
+            <b-img v-if="similarToImage.regions.length"
+              fluid-grow
+              v-bind:src="similarToImage.regions[0].iiifFragment" />
+          </div>
+          <h4>{{similarToImage.newspaper.name}}</h4>
+          <p>{{$d(new Date(similarToImage.date), 'long')}}</p>
+          <b-button variant="danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">Remove</b-button>
+        </b-media>
+        <filter-image-upload
+          v-if="enableUpload"
+          v-on:load="search(1)"
+          v-on:remove="search(1)" />
+        <search-input @submit="onSearchQuery"></search-input>
+      </div>
+      <b-form-group class="mx-3">
+        <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+          {{$t('label.isFront')}}
+        </b-form-checkbox>
+      </b-form-group>
+    </search-sidebar>
 
-          <search-input @submit="onSearchQuery"></search-input>
-        </div>
-      </div>
-      <!--  body -->
-      <div class="pt-3">
-        <b-form-group class="px-3 py-1">
-          <b-form-checkbox v-model="isFront" switch v-bind:value="true">
-            {{$t('label_isFront')}}
-          </b-form-checkbox>
-        </b-form-group>
-        <search-facets store="searchImages" @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter" percent-prop="m"/>
-      </div>
-    </i-layout-section>
     <i-layout-section main>
       <!-- header -->
       <div slot="header">
@@ -109,13 +98,21 @@ import * as services from '@/services';
 import FilterImageUpload from './modules/FilterImageUpload';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import Pagination from './modules/Pagination';
-import SearchFacets from './SearchFacets';
+import SearchSidebar from '@/components/modules/SearchSidebar';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import Ellipsis from './modules/Ellipsis';
 import SearchInput from './modules/SearchInput';
-import SearchPills from './SearchPills';
-import SearchTabs from './modules/SearchTabs';
-import InfoButton from '@/components/base/InfoButton';
+
+
+const ALLOWED_FILTER_TYPES = [
+  'newspaper',
+  'isFront',
+  'daterange',
+];
+
+const ALLOWED_FACET_TYPES = [
+  'newspaper',
+];
 
 export default {
   props: {
@@ -126,14 +123,11 @@ export default {
   components: {
     SearchResultsImageItem,
     Pagination,
-    SearchFacets,
     SearchInput,
     SearchResultsSummary,
     Ellipsis,
-    SearchPills,
     FilterImageUpload,
-    SearchTabs,
-    InfoButton,
+    SearchSidebar,
   },
   data: () => ({
     q: '',
@@ -155,14 +149,19 @@ export default {
       return this.$store.state.searchImages.search;
     },
     filters() {
-      return this.searchQuery.filters.filter(({ type }) => [
-        'newspaper',
-        'isFront',
-        'daterange',
-      ].includes(type));
+      return this.searchQuery.filters.filter(({ type }) => ALLOWED_FILTER_TYPES.includes(type));
     },
     filtersRemoved() {
-      return this.searchQuery.filters.length - this.filters.length;
+      return this.searchQuery.filters.filter(d => !ALLOWED_FILTER_TYPES.includes(d.type));
+    },
+    facets() {
+      return this.$store.state.searchImages.facets
+        .filter(({ type }) => ALLOWED_FACET_TYPES.includes(type));
+    },
+    excludedTypes() {
+      return this.searchQuery.filters
+        .map(d => d.type)
+        .filter(type => !ALLOWED_FILTER_TYPES.includes(type));
     },
     isFront: {
       get() {
