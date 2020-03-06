@@ -5,7 +5,7 @@
       <search-tabs/>
       <div class="py-3 px-3">
         <search-pills
-          :filters="filtersAvailable"
+          :filters="filters"
           @changed="handleFiltersChanged"
         />
         <span v-if="filtersRemoved.length">
@@ -15,14 +15,21 @@
           &nbsp;
           <info-button :name="infoButtonName" />
         </span>
-        <!-- slot here for autocomplete / other stuff. -->
+        <slot name="header">
+          <!-- extra header -->
+        </slot>
       </div>
     </div>
     <!-- body (aka) facets -->
     <div class="pt-3">
+      <slot>
+        <!-- slot here for extra facets -->
+      </slot>
+
       <search-facets
         :store="store"
-        :filters="filtersAvailable"
+        :facets="facets"
+        :filters="filters"
         @changed="handleFiltersChanged"/>
         <!-- @submit-facet="onAddFilter"
         @update-filter="onFilterUpdated"
@@ -55,6 +62,16 @@ export default {
       type: Array,
       default: () => [],
     },
+    facets: {
+      /** @type {import('vue').PropType<import('../models/models').Facet[]>} */
+      type: Array,
+      default: () => [],
+    },
+    filtersRemoved: {
+      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      type: Array,
+      default: () => [],
+    },
   },
   methods: {
     handleFiltersChanged(filters) {
@@ -63,12 +80,6 @@ export default {
     },
   },
   computed: {
-    filtersRemoved() {
-      return this.filters.filter(d => this.excludedTypes.includes(d.type));
-    },
-    filtersAvailable() {
-      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
-    },
     infoButtonName() {
       return ['how-', this.store, '-work-with-search-filters'].join('');
     },
