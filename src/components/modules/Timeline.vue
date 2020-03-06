@@ -153,8 +153,16 @@ export default {
         data: this.values,
       });
 
-
       this.timeline.draw();
+      // check brush
+      if (this.brush.length) {
+        const [ min, max ] = this.brush;
+        this.timeline.brushTo({
+          min,
+          max,
+        });
+      }
+
       setTimeout(this.onChangeDomain, 5000);
     }
     window.addEventListener('resize', this.onResize);
@@ -188,7 +196,7 @@ export default {
       },
     },
     brush: {
-      immediate: true,
+      immediate: false,
       handler(val) {
         if (this.timeline && val.length) {
           const [ min, max ] = val;
