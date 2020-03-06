@@ -219,7 +219,12 @@ export default {
     },
     onTimelineBrushed(data) {
       if (!this.temporaryFilter) {
-        return;
+        if (!this.filters) { // create a emporary filter...
+          this.addTemporaryDaterangeFilter();
+        } else {
+          // create a clone of our filter...
+          return;
+        }
       }
       const value = `${data.minValue}T00:00:00Z TO ${data.maxValue}T23:59:59Z`;
       // console.info('',value, '\n', this.temporaryFilter.q[0]);
