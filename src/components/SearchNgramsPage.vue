@@ -2,11 +2,19 @@
   <i-layout id="SearchNgramsPage">
     <!-- sidebar (contains i-layout-section) -->
     <search-sidebar
-      :filters="filters"
+      :filters="filtersAvailable"
+      :filters-removed="filtersRemoved"
+      :facets="facets"
       :excludedTypes="excludedTypes"
       store="searchNgrams"
       @changed="handleFiltersChanged"
-    />
+    >
+    <b-form-group class="mx-3">
+      <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+        {{$t('label.isFront')}}
+      </b-form-checkbox>
+    </b-form-group>
+  </search-sidebar>
     <!-- main section -->
     <i-layout-section main>
       <div slot="header">
@@ -179,6 +187,42 @@ export default {
     filters() {
       return this.searchQuery.filters;
     },
+    filtersRemoved() {
+      return this.filters.filter(d => this.excludedTypes.includes(d.type));
+    },
+    filtersAvailable() {
+      // this is here because we need all filters to return how many filters have been removed...
+      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
+    },
+    isFront: {
+      get() {
+        return this.filters.filter(d => d.type === 'isFront').length > 0;
+      },
+      set(val) {
+        if (val) {
+          this.onAddFilter({ type: 'isFront' });
+        } else {
+          this.onFilterReset('isFront');
+        }
+      },
+    },
+    facets() {
+      let ignoreFacets = ['year', 'accessRight', 'partner'];
+      if (window.impressoDataVersion > 1) {
+        ignoreFacets = ['year'];
+      }
+      return this.$store.state.searchNgrams.facets
+        .filter(d => !ignoreFacets.includes(d.type))
+        .map((d) => {
+          d.isFiltered = this.$store.state.searchNgrams.search.filtersIndex[d.type];
+          return d;
+        })
+        // .sort((a, b) => {
+        //   const indexA = this.facetsOrder.indexOf(a.type);
+        //   const indexB = this.facetsOrder.indexOf(b.type);
+        //   return indexA - indexB;
+        // });
+    },
     allowedFilters() {
       return this.filters.filter(d => !this.excludedTypes.includes(d.type));
     },
@@ -209,6 +253,7 @@ export default {
         "ngrams": "ngrams"
       },
       "label": {
+        "isFront": "is on front page",
         "timeline": {
           "unigramTitle": "Number of unigram mentions per year",
           "unigramDescription": " "
