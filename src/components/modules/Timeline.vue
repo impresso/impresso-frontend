@@ -155,7 +155,7 @@ export default {
 
       this.timeline.draw();
       // check brush
-      if (this.brush.length) {
+      if (this.brush && this.brush.length) {
         const [ min, max ] = this.brush;
         this.timeline.brushTo({
           min,
