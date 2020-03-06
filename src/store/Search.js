@@ -25,6 +25,9 @@ export default {
         type: 'type',
       }),
       new Facet({
+        type: 'collection',
+      }),
+      new Facet({
         type: 'country',
       }),
       new Facet({
@@ -44,9 +47,6 @@ export default {
       new Facet({
         type: 'topic',
         operators: ['OR', 'AND'],
-      }),
-      new Facet({
-        type: 'collection',
       }),
       new Facet({
         type: 'accessRight',
