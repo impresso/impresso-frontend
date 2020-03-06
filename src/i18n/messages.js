@@ -171,6 +171,7 @@ export default {
       },
     },
     label: {
+      isFront: 'only results on the front page',
       year: {
         title: 'Year | Year | Years',
       },
