@@ -56,7 +56,7 @@
         </search-input>
       </b-navbar>
     </div>
-    <div class="m-3">
+    <div class="m-3" v-if="unigram">
       <base-title-bar class="my-3">
         <span v-html="$t('label.timeline.unigramTitle')"/>
         <div slot="description">
@@ -83,6 +83,10 @@
           </div>
         </div>
       </timeline>
+    </div>
+    <!-- without unigram -->
+    <div v-else class="d-flex align-items-center justify-content-center h-100">
+      <em v-html="$t('missingUnigram')"></em>
     </div>
     </i-layout-section>
   </i-layout>
@@ -252,8 +256,8 @@ export default {
         "images": "search images",
         "ngrams": "ngrams"
       },
+      "missingUnigram": " ... (no unigram has been selected)",
       "label": {
-        "isFront": "is on front page",
         "timeline": {
           "unigramTitle": "Number of unigram mentions per year",
           "unigramDescription": " "
