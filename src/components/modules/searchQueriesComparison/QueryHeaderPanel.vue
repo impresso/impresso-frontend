@@ -14,15 +14,17 @@
              :title="getTabLabel('query')"
              @click="typeChanged('query')">
         <div class="px-1 pb-2">
-          <search-pills v-on:remove="onRemoveFilter"
+          <search-pills enable-add-filter
+                        :filters="searchQuery.filters"
+                        @changed="handleFiltersChanged" />
+          <!-- v-on:remove="onRemoveFilter"
                         v-on:update="onUpdateFilter"
                         v-on:add="onAddFilter"
                         :skip-push-search-params="true"
                         :search-filters="searchQuery.filters"
                         store-module-name="queryComparison"
                         :search-query-id="comparableId"
-                        enable-add-filter
-                        />
+           -->
           <autocomplete v-on:submit="onSuggestion" />
         </div>
       </b-tab>
@@ -156,7 +158,7 @@ export default {
       },
       immediate: true,
       deep: true,
-    },
+    }
   },
   mounted() {
     this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, ({ filter, searchQueryId }) => {
@@ -166,6 +168,11 @@ export default {
     });
   },
   methods: {
+    handleFiltersChanged(filters) {
+      const { comparableId: searchQueryId } = this;
+      this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
+      this.comparable.query = this.canonicalSearchQuery;
+    },
     onCollectionSelected(id) {
       const comparable = Object.assign({}, this.comparable, { id });
       this.$emit('comparable-changed', comparable);

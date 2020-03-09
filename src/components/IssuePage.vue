@@ -29,12 +29,9 @@
             })"/>
           </div>
           <div v-if="isTabSearch">
-            <p if="applyCurrentSearchFilters">
-              <search-pills
-                :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']"
-                @remove="onRemoveFilter"
-              />
-            </p>
+            <search-pills :filters="filters"
+                          @changed="handleFiltersChanged"
+                          :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']" />
             <b-input-group>
               <b-form-input
               placeholder="search for ..."
@@ -117,8 +114,10 @@
             </small>
           </b-navbar-nav>
 
-          <b-navbar-nav v-show="mode === 'image'" class="py-2 px-3">
+          <b-navbar-nav class="py-2 px-3">
             <b-button
+              v-show="mode === 'image'"
+              class="mr-2"
               :variant="showOutlines !== '' ? 'primary' : 'outline-primary'" size="sm"
               @click="showOutlines = (showOutlines === '') ? 'show-outlines' : ''">
               <div class="d-flex flex-row align-items-center">
@@ -127,7 +126,7 @@
                 <div v-else>{{$t('toggle_outlines_off')}}</div>
               </div>
             </b-button>
-            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="ml-3">
+            <b-button :variant="isFullscreen ? 'primary' : 'outline-primary'" size="sm" @click="toggleFullscreen" class="mr-3">
               <div class="d-flex flex-row align-items-center">
                 <div class="mr-2 d-flex dripicons" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
                 <div v-if="isFullscreen">{{$t('toggle_fullscreen_on')}}</div>
@@ -139,7 +138,7 @@
       </div>
       <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
         <div class="align-self-center">
-          This content is available to logged-in people only.
+          <p>{{ $t('errors.loggedInOnly') }}</p>
           <br/>
           <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
         </div>
@@ -180,6 +179,7 @@ import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 import Pagination from './modules/Pagination';
 import InfoButton from './base/InfoButton';
+import { toCanonicalFilter } from '../logic/filters'
 
 export default {
   data: () => ({
@@ -211,8 +211,12 @@ export default {
     //
     matches: [],
     tocArticles: [],
+    issueFilters: []
   }),
   mounted() {
+    window.addEventListener('fullscreenchange', () => {
+      this.isFullscreen = !this.isFullscreen;
+    });
     window.addEventListener('keyup', (e) => {
       switch (e.key) {
       case 'ArrowLeft':
@@ -231,6 +235,9 @@ export default {
     });
   },
   computed: {
+    currentSearchFilters() {
+      return this.$store.getters['search/getSearch'].filters
+    },
     isContentAvailable() {
       if (this.issue) {
         if (this.issue.accessRight === 'OpenPublic') {
@@ -298,9 +305,26 @@ export default {
         this.$store.commit('issue/UPDATE_OUTLINES', showOutlines);
       },
     },
+    filters: {
+      get() {
+        let filters = [...this.issueFilters];
+        if (this.issue != null) {
+          filters.push({
+            type: 'issue',
+            q: this.issue.uid,
+          })
+        }
+        return filters
+      },
+      set(filters) {
+        this.issueFilters = filters.filter(({ type }) => type !== 'issue')
+      }
+    },
   },
   methods: {
     async init() {
+      this.issueFilters = [...this.currentSearchFilters]
+
       if (this.$route.query.tab === 'search') {
         this.tab = 'search';
       } else {
@@ -426,24 +450,6 @@ export default {
           tab,
         },
       });
-    },
-    getSearchFilters() {
-      let filters = [];
-      if (this.applyCurrentSearchFilters) {
-        filters = this.$store.getters['search/getSearch'].getFilters();
-      }
-      if (this.q.length) {
-        filters.push({
-          type: 'string',
-          q: this.q,
-        });
-      }
-      return filters.concat([
-        {
-          type: 'issue',
-          q: this.issue.uid,
-        },
-      ]);
     },
     updateMarginalia() {
       console.info('Update page marginalia');
@@ -645,8 +651,8 @@ export default {
         }
       });
     },
-    onRemoveFilter(filter) {
-      this.$store.commit('search/REMOVE_FILTER', filter);
+    handleFiltersChanged(filters) {
+      this.issueFilters = filters.slice(0, filters.length - 1)
       this.search();
     },
     onInputPagination(page) {
@@ -654,14 +660,20 @@ export default {
       this.search();
     },
     search() {
-      const filters = this.getSearchFilters();
+      const filters = [...this.filters];
+      if (this.q.length > 0) {
+        filters.push({
+          type: 'string',
+          q: this.q,
+        });
+      }
+
       if (!filters.length) {
         // console.info('-> search() skip, q is empty.');
         return;
       }
-      // console.info('-> search() with filters:', filters);
       this.$store.dispatch('search/GET_SEARCH_RESULTS', {
-        filters,
+        filters: filters.map(toCanonicalFilter),
         orderBy: 'id',
         groupBy: 'raw',
         page: this.matchesCurrentPage,
@@ -669,7 +681,6 @@ export default {
         this.isSearchLoaded = true;
         this.matches = result.data;
         this.matchesTotalRows = result.total;
-        // console.info(result);
         // console.info('-> search() success for q:', this.q);
       });
     },
@@ -717,12 +728,10 @@ export default {
     toggleFullscreen() {
       if (!document.fullscreenElement) {
         this.$refs.issuePage.$el.requestFullscreen().then(() => {
-          this.isFullscreen = true;
         }).catch((err) => {
           console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
         });
       } else {
-        this.isFullscreen = false;
         document.exitFullscreen();
       }
     },

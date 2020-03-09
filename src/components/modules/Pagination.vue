@@ -71,7 +71,6 @@ export default {
       this.$emit('change', val);
     },
     onInput(val) {
-      console.info('onInput!', val);
       this.$emit('input', val);
     },
   },

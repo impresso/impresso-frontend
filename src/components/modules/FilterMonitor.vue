@@ -5,18 +5,16 @@
       <b-form-group>
         <b-form-radio-group
           switches
-          v-model="filter.context"
-          v-bind:options="checkboxContexts"
-          @change="changeFilterContext($event)">
+          v-model="currentContext"
+          v-bind:options="checkboxContexts">
         </b-form-radio-group>
       </b-form-group>
       <!--  operator -->
-      <b-form-group v-if="filter.context === 'include' && filter.items && filter.items.length > 1">
+      <b-form-group v-if="currentContext === 'include' && availableItems.length > 1">
         <b-form-radio-group
           switches
-          v-model="filter.op"
-          v-bind:options="checkboxOperators"
-          @change="changeFilterOperator($event)">
+          v-model="editedFilter.op"
+          v-bind:options="checkboxOperators">
         </b-form-radio-group>
       </b-form-group>
     </div>
@@ -25,37 +23,35 @@
       <!--  context -->
       <b-dropdown size="sm" variant="outline-primary" class="mr-1">
         <template slot="button-content">
-          <span v-html="$t(`label.${type}.context.${filter.context}`)"/>
+          <span v-html="$t(`label.${type}.context.${currentContext}`)"/>
         </template>
         <b-dropdown-item
           v-for="option in contexts"
-          v-bind:active="filter.context === option"
+          v-bind:active="currentContext === option"
           v-bind:key="option"
-          v-on:click="changeFilterContext(option)"
+          v-on:click="currentContext = option"
         ><span class="small" v-html="$t(`label.${type}.context.${option}`)"></span></b-dropdown-item>
       </b-dropdown>
       <!--  operator -->
       <b-dropdown v-if="operators.length > 1" size="sm" variant="outline-primary">
         <template slot="button-content">
-          <span v-html="$t(`op.${filter.op}.${filter.context}`)"/>
+          <span v-html="$t(`op.${editedFilter.op}.${currentContext}`)"/>
         </template>
         <b-dropdown-item
           v-for="option in operators"
-          v-bind:active="filter.op === option"
+          v-bind:active="editedFilter.op === option"
           v-bind:key="option"
-          v-on:click="changeFilterOperator(option)"
-        ><span class="small" v-html="$t(`op.${option}.${filter.context}`)"></span></b-dropdown-item>
+          v-on:click="editedFilter.op = option"
+        ><span class="small" v-html="$t(`op.${option}.${currentContext}`)"></span></b-dropdown-item>
       </b-dropdown>
     </div>
     <!-- for strings -->
-    <div v-if="['string', 'title'].indexOf(filter.type) !== -1">
-      <b-form-group :label="$t(`label.${filter.type}.value`)">
+    <div v-if="StringTypes.includes(type)">
+      <b-form-group :label="$t(`label.${type}.value`)">
         <b-form-input
           size="sm"
           placeholder=""
-          :value="filter.q"
-          @input.native="changeFilterQ($event.target.value)"
-          @change="changeFilterQ($event)">
+          v-model="editedFilter.q">
         </b-form-input>
       </b-form-group>
 
@@ -67,7 +63,7 @@
           {{$t('embeddings.find')}}
         </b-button>
         <embeddings-search v-if="showEmbeddings"
-                           v-bind:filter="filter"
+                           v-bind:filter="editedFilter"
                            @embdding-selected="addEmbeddingSuggestion"/>
       </div>
 
@@ -75,25 +71,25 @@
       <b-form-group v-if="checkbox">
         <b-form-radio-group
           switches
-          v-model="filter.precision"
-          v-bind:options="checkboxPrecisions"
-          @change="changeFilterPrecision($event)">
+          :options="checkboxPrecisions"
+          v-model="editedFilter.precision">
         </b-form-radio-group>
       </b-form-group>
     </div>
-    <div v-for="item in filter.items" :key="item.uid" class="mt-2">
-      <div v-if="type === 'daterange'">
-        <filter-daterange :daterange="item" @change="updateFilterItem($event.item, $event.uid)"></filter-daterange>
+    <div v-for="(item, idx) in filter.items" :key="idx" class="mt-2">
+      <div v-if="RangeFacets.includes(type)">
+        <filter-number-range v-if="NumericRangeFacets.includes(type)" :start="parseInt(item.start, 10)" :end="parseInt(item.end, 10)" @changed="handleRangeChanged"/>
+        <filter-daterange v-else :start="new Date(item.start)" :end="new Date(item.end)" @changed="handleRangeChanged"/>
       </div>
-      <b-form-checkbox v-else v-model="item.checked" @change="toggleFilterItem($event, item)">
+      <b-form-checkbox v-else v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
         <item-label :item="item" :type="type"/>
-        <span v-if="!item.uid.length">...</span>
+        <span v-if="!item.uid">...</span>
         <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
-        <item-selector :uid="item.uid" :item="item" :type="filter.type"/>
+        <item-selector :uid="item.uid" :item="item" :type="type"/>
       </b-form-checkbox>
     </div>
     <div class="items-to-add" v-if="itemsToAdd.length">
-      <div v-for="item in itemsToAdd" :key="item.uid">
+      <div v-for="(item, idx) in itemsToAdd" :key="idx">
         <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
         <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
         <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
@@ -102,12 +98,18 @@
       </div>
     </div>
 
-    <b-button class="mt-2" v-if="filter.touched || itemsToAdd.length" block size="sm" variant="outline-primary" @click="applyFilter()">
-      <span v-if="filter.items && (itemsToAdd.length || filter.items.length - filter.q.length)">
+    <b-button
+      class="mt-2"
+      v-if="hasChanges"
+      block
+      size="sm"
+      variant="outline-primary"
+      @click="applyChanges()">
+      <span v-if="itemsToAdd.length > 0 || excludedItemsIds.length > 0">
         {{
           $t('actions.applyChangesDetailed', {
             added: itemsToAdd.length,
-            removed: filter.items.length - filter.q.length
+            removed: excludedItemsIds.length
           })
         }}
       </span>
@@ -118,35 +120,38 @@
 
 <script>
 import FilterDaterange from './FilterDateRange';
+import FilterNumberRange from './FilterNumberRange';
 import ItemSelector from './ItemSelector';
 import ItemLabel from './lists/ItemLabel';
 import CollectionItem from './lists/CollectionItem';
 import EmbeddingsSearch from './EmbeddingsSearch';
+import {
+  toCanonicalFilter,
+  toSerializedFilter,
+  RangeFacets,
+  NumericRangeFacets
+} from '../../logic/filters'
 
+const StringTypes = ['string', 'title']
+
+/**
+ * Changes filter after 'apply' button is clicked.
+ * Use with `v-model`.
+ */
 export default {
+  model: {
+    prop: 'filter',
+    event: 'changed'
+  },
   data: () => ({
-    q: '',
     showEmbeddings: false,
+    editedFilter: {},
+    excludedItemsIds: [],
+    RangeFacets,
+    NumericRangeFacets,
+    StringTypes
   }),
   props: {
-    type: {
-      type: String,
-      default: '',
-    }, // being topic, newspaper, collection, language ...
-    store: {
-      type: String,
-      default: 'search',
-    },
-    searchQueryId: {
-      // [Optional] ID of the search query the filter belongs to.
-      // This ID is dispatched to the the store.
-      type: String,
-      default: undefined,
-    },
-    skipPushSearchParams: {
-      type: Boolean,
-      default: false,
-    },
     operators: {
       type: Array,
       default: () => ['OR'],
@@ -159,17 +164,32 @@ export default {
       type: Array,
       default: () => ['fuzzy', 'exact', 'soft'],
     },
+    /* Render context, operators as checkboxes */
     checkbox: {
       type: Boolean,
       default: false,
     },
+    /** @type {import('vue').PropType<import('../../models/models').Filter>} */
     filter: Object,
+    /* filter items to be added to the filter when confirm button is clicked */
     itemsToAdd: {
-      type: Array, // from outside
+      /** @type {import('vue').PropType<Array<import('../../models/models').Entity>>} */
+      type: Array,
       default: () => [],
     },
   },
   computed: {
+    checkedItems() {
+      return this.availableItems.reduce((acc, item) => {
+        acc[item.uid] = !this.excludedItemsIds.includes(item.uid)
+        return acc
+      }, {})
+    },
+    availableItems() {
+      const filterItems = this.filter.items || []
+      return filterItems.concat(this.itemsToAdd)
+    },
+    type() { return this.filter.type || '' },
     checkboxPrecisions() {
       return this.precisions.map(value => ({
         text: this.$t(`label.${this.type}.precision.${value}`),
@@ -184,122 +204,62 @@ export default {
     },
     checkboxOperators() {
       return this.operators.map(value => ({
-        text: this.$t(`op.${value}.${this.filter.context}`),
+        text: this.$t(`op.${value}.${this.currentContext}`),
         value,
       }));
     },
-    hasMultipleWords() {
-      if (typeof this.filter.q === 'string') {
-        return this.filter.q.trim().split(/\s/).length > 1;
-      }
-      return false;
+    hasChanges() {
+      return this.itemsToAdd.length > 0
+        || this.excludedItemsIds.length > 0
+        || toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
     },
+    currentContext: {
+      get() {
+        return this.editedFilter.context
+          ? this.editedFilter.context
+          : 'include'
+      },
+      set(value) { this.editedFilter.context = value }
+    }
   },
   methods: {
-    applyFilter() {
-      this.updateFilter({});
-      const { searchQueryId, filter } = this;
-      this.$emit('filter-applied', filter);
-      if (!this.skipPushSearchParams) {
-        this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, { searchQueryId });
-      }
-    },
-    updateFilter({ op, context }) {
-      let q;
-      if (this.filter.items) {
-        // caclulate new q every time. if it's empty
-        q = this.filter.items.concat(this.itemsToAdd).reduce((acc, d) => {
-          // console.info('methods.updateFilter: adding uid:', d.uid, d.checked);
-          if (d.checked) {
-            acc.push(d.uid);
-          }
-          return acc;
-        }, []);
+    applyChanges() {
+      const { type } = this.editedFilter
+
+      if (!StringTypes.includes(type) && !RangeFacets.includes(type)) {
+        const allItemsDictonary = this.filter.items.concat(this.itemsToAdd).reduce((acc, item) => {
+          acc[item.uid] = item
+          return acc
+        }, {})
+        const availableItemsIds = [...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid))]
+        const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
+        const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
+
+        this.$emit('changed', {
+          ...this.editedFilter,
+          items: selectedItems,
+          q: selectedItemsIds
+        })
       } else {
-        q = this.filter.q;
+        this.$emit('changed', this.editedFilter)
       }
-
-      const { searchQueryId, filter } = this;
-
-      if (!q.length) {
-        this.$store.dispatch(`${this.store}/REMOVE_FILTER`, {
-          filter,
-          searchQueryId,
-        });
-        this.$emit('filter-removed');
-        return;
+    },
+    toggleFilterItem(selected, uid) {
+      if (selected) {
+        this.excludedItemsIds = this.excludedItemsIds.filter(id => id !== uid)
+      } else {
+        this.excludedItemsIds = this.excludedItemsIds.concat(uid)
       }
-
-      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
-        filter,
-        searchQueryId,
-        q,
-        op,
-        context,
-      });
-      this.$emit('filter-updated');
-    },
-    changeFilterQ(q) {
-      const { searchQueryId, filter } = this;
-      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
-        filter,
-        searchQueryId,
-        q,
-      });
-      this.$emit('filter-updated');
-    },
-    changeFilterOperator(op) {
-      this.updateFilter({ op });
-    },
-    changeFilterContext(context) {
-      // console.info('@changeFilterContext', context);
-      this.updateFilter({ context });
-    },
-    changeFilterPrecision(precision) {
-      const { searchQueryId, filter } = this;
-      // console.info('@changeFilterContext', context);
-      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
-        filter,
-        searchQueryId,
-        precision,
-      });
-      this.$emit('filter-updated');
-    },
-    changeFilterDistance(distance) {
-      const { searchQueryId, filter } = this;
-      // console.info('@changeFilterContext', context);
-      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
-        filter,
-        searchQueryId,
-        distance,
-      });
-      this.$emit('filter-updated');
-    },
-    toggleFilterItem(checked, item) {
-      item.checked = checked;
-      this.updateFilterItem(item);
-    },
-    updateFilterItem(item, uid) {
-      const { searchQueryId, filter } = this;
-      this.$store.dispatch(`${this.store}/UPDATE_FILTER_ITEM`, {
-        filter,
-        searchQueryId,
-        item,
-        uid,
-      });
-      console.info('updateFilterItem', filter);
-      this.$emit('filter-updated');
     },
     addEmbeddingSuggestion(embedding) {
-      const { searchQueryId, filter } = this;
-      this.$store.dispatch(`${this.store}/UPDATE_FILTER`, {
-        filter,
-        searchQueryId,
-        precision: 'soft',
-        q: `${filter.q} ${embedding}`,
-      });
-      this.$emit('filter-updated');
+      this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
+      this.editedFilter.precisions = 'soft'
     },
+    handleRangeChanged({ item, q }) {
+      this.editedFilter.q = q
+      this.editedFilter.items = [item]
+      if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);
+    }
   },
   components: {
     FilterDaterange,
@@ -307,7 +267,27 @@ export default {
     EmbeddingsSearch,
     ItemLabel,
     ItemSelector,
+    FilterNumberRange
   },
+  watch: {
+    /**
+     * When filter changes, make a copy in `editedFilter`.
+     * This is the filter we will be changing until the `apply` button is clicked.
+     */
+    filter: {
+      handler() {
+        if (toSerializedFilter(this.editedFilter) === toSerializedFilter(this.filter)) return
+
+        this.editedFilter = toCanonicalFilter(this.filter)
+        if (this.itemsToAdd) {
+          this.editedFilter.q = this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+        }
+        this.excludedItemsIds = []
+      },
+      immediate: true,
+      deep: true
+    }
+  }
 };
 </script>
 
@@ -439,6 +419,33 @@ label.custom-control-label {
         "context": {
           "include": "Published between",
           "exclude": "<b>NOT</b> published between"
+        }
+      },
+      "textReuseClusterSize": {
+        "title": "filter by text reuse cluster size",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "cluster size between",
+          "exclude": "cluster size <b>NOT</b> between"
+        }
+      },
+      "textReuseClusterLexicalOverlap": {
+        "title": "filter by text reuse cluster lexical overlap",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "lexical overlap between",
+          "exclude": "lexical overlap <b>NOT</b> between"
+        }
+      },
+      "textReuseClusterDayDelta": {
+        "title": "filter by text reuse cluster time span (days)",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "time span between",
+          "exclude": "time span <b>NOT</b> between"
         }
       }
     }

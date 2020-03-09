@@ -1,50 +1,86 @@
 <template lang="html">
   <i-layout-section>
-    <b-navbar type="light" variant="light" class="border-bottom py-0">
-      <b-navbar-nav class="py-3 pr-auto">
-        <strong>Collected items</strong> – List all items in all collections. (Currently limited to articles)
-      </b-navbar-nav>
-    </b-navbar>
+    <div slot="header" v-if="!fetching">
 
-    <b-navbar type="light" variant="light" class="border-bottom py-0">
-      <b-navbar-nav class="pr-auto">
-        <span>{{ $tc('articles', articles.length) }}</span>
-      </b-navbar-nav>
-      <b-navbar-nav class="pl-3 py-3 border-left flex-row">
-        <label class="mr-2">{{$t("label_display")}}</label>
-        <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-          <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-          <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-        </b-form-radio-group>
-      </b-navbar-nav>
-    </b-navbar>
-    <div class="collection-group">
-      <b-container fluid>
-        <b-row v-if="displayStyle === 'list-not-implemented-because-buggy'">
-          <b-col
-            cols="12"
-            v-for="(article, i) in articles"
-            v-bind:key="i">
-            <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[i]" />
-          </b-col>
-        </b-row>
+      <b-navbar type="light" variant="light" class="border-bottom">
+        <b-navbar-nav class="py-3 pr-auto" v-html="$t('collected_articles_title')">
+        </b-navbar-nav>
+      </b-navbar>
 
-        <b-row class="pb-5">
-          <b-col
-            cols="6"
-            sm="12"
-            md="4"
-            lg="3"
-            v-for="(article, i) in articles"
-            v-bind:key="i">
-            <search-results-tiles-item v-on:click="gotoArticle(article)" v-model="articles[i]" />
-            <!-- {{ article }} -->
-          </b-col>
-        </b-row>
-      </b-container>
+      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+        <b-navbar-nav class="p-3 border-right">
+          <li>
+            <label v-html="$tc('items', paginationTotalRows) "></label>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="p-3">
+          <li><label class="mr-1">{{ $t('label_order') }}</label>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
+        </b-navbar-nav>
+        <b-navbar-nav class="p-3 border-left ml-auto">
+          <label class="mr-1">{{$t("label_display")}}</label>
+          <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+            <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+            <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+          </b-form-radio-group>
+        </b-navbar-nav>
+      </b-navbar>
     </div>
 
-    <pre>{{ this.collectionAll.items }}</pre>
+    <div class="collection-group">
+
+        <div v-if="fetching">
+          <i-spinner class="text-center m-5 p-5" />
+        </div>
+
+      <b-container v-else fluid>
+
+        <b-row v-if="displayStyle === 'list'">
+          <b-col cols="12"
+            v-for="(article, index) in articles"
+            v-bind:key="`${index}-${article.uid}`">
+            <search-results-list-item
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
+          </b-col>
+        </b-row>
+
+        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
+          <b-col cols="6" sm="12" md="4" lg="3"
+            v-for="(article, index) in articles"
+            v-bind:key="`${index}-${article.uid}`">
+            {{article.uid}}
+            <search-results-tiles-item
+              v-if="article.type === 'ar'"
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
+            <search-results-image-item
+              v-if="article.type !== 'ar'"
+              v-bind:searchResult="article"
+              v-on:click="gotoArticle(article)"
+              v-model="articles[index]" />
+          </b-col>
+        </b-row>
+
+        <b-row v-if="paginationTotalRows === 0">
+          <p class="text-center pt-4"><b>{{ $t('no_articles_collected')}}</b></p>
+          <p class="text-center">{{ $t('no_articles_collected_long')}}</p>
+        </b-row>
+
+      </b-container>
+
+      <div class="my-5" />
+      <div v-if="!fetching && paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+        <pagination
+          size="sm"
+          v-bind:perPage="paginationPerPage"
+          v-bind:currentPage="paginationCurrentPage"
+          v-bind:totalRows="paginationTotalRows"
+          v-on:change="onInputPagination"
+          class="float-left small-caps" />
+      </div>
+    </div>
 
   </i-layout-section>
 </template>
@@ -53,16 +89,30 @@
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
+import SearchResultsImageItem from './modules/SearchResultsImageItem';
+import Pagination from './modules/Pagination';
 
 export default {
   components: {
     SearchResultsListItem,
     SearchResultsTilesItem,
+    SearchResultsImageItem,
+    Pagination,
   },
   data: () => ({
     collectionsMerged: new Collection(),
   }),
   computed: {
+    fetching: {
+      get() {
+        return this.$store.state.processingStatus;
+      },
+    },
+    articles: {
+      get() {
+        return this.collectionsMerged.items.filter(item => (item.labels && item.labels[0] === 'article'));
+      },
+    },
     displayStyle: {
       get() {
         return this.$store.state.search.displayStyle;
@@ -76,47 +126,68 @@ export default {
         return this.$store.getters['collections/collections'];
       },
     },
-    collectionAll: {
+    paginationPerPage: {
       get() {
-        let articles = 0;
-        let entities = 0;
-        let issues = 0;
-        let pages = 0;
-
-        this.collections.forEach((item) => {
-          articles += item.countArticles;
-          entities += item.countEntities;
-          issues += item.countIssues;
-          pages += item.countPages;
-        });
-
-        return new Collection({
-          uid: 'all',
-          name: 'All Collections',
-          description: 'This shows a combination of all your custom collections',
-          countArticles: articles,
-          countEntities: entities,
-          countPages: pages,
-          countIssues: issues,
-        });
+        return this.$store.state.collections.paginationPerPage;
       },
     },
-    articles: {
+    paginationCurrentPage: {
       get() {
-        return this.collectionsMerged.items.filter(item => (item.labels && item.labels[0] === 'article'));
+        return this.$store.state.collections.paginationCurrentPage;
+      },
+      set(val) {
+        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', val);
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.collections.paginationTotalRows;
+      },
+    },
+    orderByOptions: {
+      get() {
+        return [
+          {
+            value: 'dateAdded',
+            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_asc')}`,
+            disabled: true,
+          },
+          {
+            value: '-dateAdded',
+            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_desc')}`,
+            disabled: true,
+          },
+          {
+            value: 'itemDate',
+            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+            disabled: true,
+          },
+          {
+            value: '-itemDate',
+            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            disabled: true,
+          },
+        ];
+      },
+    },
+    orderBy: {
+      get() {
+        return this.$store.state.collections.orderBy;
+      },
+      set(val) {
+        this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
+        this.getCollectionItems(1);
       },
     },
   },
   watch: {
-    collections() {
-      this.collections.forEach((item) => {
-        this.$store.dispatch('collections/LOAD_COLLECTION', item).then((res) => {
-          res.items.forEach((item_) => {
-            this.collectionsMerged.items.push(item_);
-          });
-        });
-      });
-    }
+    $route: {
+      immediate: true,
+      async handler() {
+        this.paginationCurrentPage = 1;
+        await this.getCollectionsItems();
+      },
+    },
   },
   methods: {
     gotoArticle(article) {
@@ -130,29 +201,40 @@ export default {
         },
       });
     },
+    getCollectionsItems(page) {
+      if (page !== undefined) {
+        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      }
+      this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
+        this.collectionsMerged.items = res;
+      });
+    },
+    onInputPagination(page = 1) {
+      this.getCollectionsItems(page);
+    },
   },
 };
 </script>
 
 <style lang="scss">
-.navbar-nav.flex-row {
-    flex-direction: row;
-    align-items: center;
-    label {
-      margin-bottom: 0;
-      line-height: 1.5;
-    }
-}
 </style>
 
 <i18n>
 {
   "en": {
     "collections": "collections",
+    "collected_articles_title": "<strong>Collected articles</strong> – List all articles in your personal collections.",
+    "label_order": "Order By",
+    "sort_date": "Item Date",
+    "sort_dateAdded": "Date Added",
+    "sort_asc": "Ascending",
+    "sort_desc": "Descending",
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
-    "articles": "No articles | One article | {n} articles"
+    "items": "No item | <b>1</b> item | <b>{n}</b> items",
+    "no_articles_collected": "No items found in collection.",
+    "no_articles_collected_long": "Your collected articles will be listed here."
   }
 }
 </i18n>

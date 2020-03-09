@@ -1,14 +1,21 @@
 <template lang="html">
-  <div class="">
+  <div class="filter-facet">
     <base-title-bar>
-      {{$t(`label.${facet.type}.filterTitle`)}}
+      {{
+        $t(`label.${facet.type}.filterTitle`)
+      }}
+      {{
+        $tc('numbers.options', facet.numBuckets, {
+          n: $n(facet.numBuckets),
+        })
+      }}
       <info-button class="ml-1" v-if="facet.type === 'person' || facet.type === 'location'"
         :target="facet.type"
         name="what-is-nep" />
       <info-button v-if="facet.type === 'newspaper'" name="which-newspapers" class="ml-1" />
       <info-button v-if="facet.type === 'topic'" name="how-to-read-the-topics" class="ml-1" />
       <div slot="options">
-        <b-button v-show="filtered" size="sm" variant="outline-primary" @click="resetFilterType">
+        <b-button v-show="isFiltered" size="sm" variant="outline-primary" @click="resetFilters">
           {{ $t(`actions.reset`) }}
         </b-button>
         <b-button v-if="isCollapsible" size="sm" variant="outline-icon" @click="toggleVisibility">
@@ -16,171 +23,151 @@
         </b-button>
       </div>
       <div slot="description">
-        <span v-if="filtered">
-          {{$t(`label.${facet.type}.filtered`)}}
-        </span>
-        <span v-else>
-          <span v-if="selectedIds.length">
-            <span v-html="$t(`label.${facet.type}.selected`, {count: selectedIds.length})" />
-            <b-button size="sm" variant="outline-primary" @click="applyFilter">
-              {{ $t(`actions.apply`) }}
-            </b-button>
+        <div v-if="isFiltered" v-html="$t(`label.${facet.type}.filtered`)" />
+        <div v-else-if="selectedBucketsIds.length">
+          <span v-html="$t(`label.${facet.type}.selected`, {count: selectedBucketsIds.length})" />
+          <b-button size="sm" variant="outline-primary" @click="createFilter">
+            {{ $t(`actions.apply`) }}
+          </b-button>
+        </div>
+        <div v-else>
+          <span v-if="isLoading">
+            {{ $t('actions.loading') }}
+          </span>
+          <span v-else-if="!isLoading && !facet.buckets.length">
+            {{$t(`label.${facet.type}.empty`)}}
           </span>
           <span v-else>
-            <span v-if="isLoadingResults">
-              {{ $t('actions.loading') }}
-            </span>
-            <span v-if="!isLoadingResults && !this.facet.buckets.length">
-              {{$t(`label.${facet.type}.empty`)}}
-            </span>
-            <span v-else>
-              {{$t(`label.${facet.type}.description`)}}
-            </span>
+            {{$t(`label.${facet.type}.description`)}}
           </span>
-        </span>
-      </div>
+        </div>
+      </div><!-- .description -->
     </base-title-bar>
-    <div v-for="(filter, index) in included" :key="index" class="bg-light border p-2">
-      <filter-monitor v-if='index === included.length - 1' :store="store" :filter="filter" :type="facet.type" :operators="facet.operators"
-        :items-to-add="selectedItems"
-        @filter-applied="clearSelectedItems"/>
-      <filter-monitor v-else :filter="filter" :store="store" :type="facet.type" :operators="facet.operators" />
-    </div>
-    <div v-for="(filter, index) in excluded" :key="index" class="bg-light border p-2">
-      <filter-monitor :store="store" :filter="filter" :type="facet.type" :operators="facet.operators" />
-    </div>
+    <div v-for="(filter, index) in filtersIncluded" :key="index" class="bg-white border p-2">
+      <filter-monitor
+        :items-to-add="selectedBucketsItems"
+        :filter="filter"
+        :operators="facet.operators"
+        @changed="updateFilter($event, filter)" />
+    </div><!-- v-for="(filter, index) in filtersIncluded" -->
+    <div v-for="(filter, index) in filtersExcluded" :key="index" class="bg-light border p-2">
+      <filter-monitor
+        :filter="filter"
+        :operators="facet.operators"
+        @changed="updateFilter($event, filter)" />
+    </div><!-- v-for="(filter, index) in filtersExcluded" -->
     <div v-if="showBuckets">
-      <filter-facet-bucket v-for="bucket in unfiltered" :key="bucket.val"
-        :loading="isLoadingResults"
+      <filter-facet-bucket v-for="bucket in unfilteredBuckets" :key="bucket.val"
+        :loading="isLoading"
         :bucket="bucket"
         :type="facet.type"
         @toggle-bucket="toggleBucket"/>
-      <b-button
-        v-if="facet.numBuckets > -1"
-        v-html="$t('actions.more')"
-        size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        @click="showModal" />
     </div>
 
-    <explorer v-model="explorerFilters"
-              :is-visible="explorerVisible"
-              @onHide="handleExplorerHide"
-              :searching-enabled="false"
-              :initial-type="facet.type"/>
   </div>
 </template>
 
 <script>
-import 'vue-awesome/icons/times';
-import BaseTitleBar from '../base/BaseTitleBar';
-import FilterFacetBucket from './FilterFacetBucket';
-import FilterMonitor from './FilterMonitor';
-import InfoButton from '../base/InfoButton';
-import Explorer from '../Explorer';
+import BaseTitleBar from '@/components/base/BaseTitleBar';
+import FilterFacetBucket from '@/components/modules/FilterFacetBucket';
+import FilterMonitor from '@/components/modules/FilterMonitor';
+import InfoButton from '@/components/base/InfoButton';
+import { toSerializedFilter } from '@/logic/filters'
 
 export default {
   data: () => ({
-    selectedIds: [],
-    selectedItems: [],
-    operators: ['or', 'and'],
-    exploreFacet: {},
-    isCollapsed: true,
-    explorerVisible: false,
+    isCollapsed: false,
+    selectedBucketsIds: [],
+    selectedBucketsItems: [],
   }),
   props: {
-    store: {
-      type: String,
-      default: 'search',
-    },
     facet: Object,
+    facetFilters: {
+      type: Array,
+      default: () => [],
+    },
+    isLoading: Boolean,
     collapsible: Boolean,
   },
   computed: {
     showBuckets() {
-      if (!this.isCollapsible) {
-        return true;
-      }
-      return !this.isCollapsed;
+      // always show if iscollaplible is selected.
+      return this.isCollapsible ? !this.isCollapsed : true;
     },
     isCollapsible() {
-      return this.collapsible && !this.filtered;
+      return this.collapsible && !this.isFiltered;
     },
-    currentStore() {
-      return this.$store.state[this.store];
+    isFiltered() {
+      return this.facetFilters.length;
     },
-    isLoadingResults() {
-      return this.currentStore.isLoadingResults;
-    },
-    filtered() {
-      return this.currentStore.search.filtersIndex[this.facet.type];
-    },
-    included() {
-      if (!this.filtered) {
+    filtersIncluded() {
+      if (!this.facetFilters.length) {
         return [];
       }
-      const included = this.currentStore.search
-        .filtersIndex[this.facet.type]
-        .filter(d => d.context !== 'exclude');
-      // enrich included filter with matching buckets.
-      included.forEach((filter) => {
-        filter.items.forEach((d, i) => {
-          const bucket = this.facet.buckets.find(b => b.val === d.uid);
-
-          if (bucket && filter.items[i]) {
-            filter.items[i].count = bucket.count;
-          }
-        });
+      // add count if selected items is in one of the buckets.
+      return this.facetFilters
+        .filter(({ context }) => context === 'include')
+        .map(filter => ({
+          ...filter,
+          items: filter.items.map((item) => {
+            if (this.bucketsIndex[item.uid]) {
+              return {
+                ...item,
+                count: this.bucketsIndex[item.uid].count,
+              }
+            }
+            return item;
+          }),
+        }));
+    },
+    /**
+     * List items ids included into current filters.
+     * @return {Array} array of items uids
+     */
+    filtersIncludedItemsIds() {
+      return this.filtersIncluded
+        .reduce((acc, filter) => acc.concat(
+          Array.isArray(filter.q) ? filter.q : [filter.q]), [],
+        );
+    },
+    filtersExcluded() {
+      if (!this.facetFilters.length) {
+        return [];
+      }
+      return this.facetFilters.filter(({ context }) => context === 'exclude');
+    },
+    bucketsIndex() {
+      const index = {};
+      this.facet.buckets.forEach(({ item, count }) => {
+        index[item.uid] = { count };
       });
-      return included;
-    },
-    includedIds() {
-      return this.included.reduce((acc, filter) => acc.concat(Array.isArray(filter.q) ? filter.q : [filter.q]), []);
-    },
-    excluded() {
-      if (!this.filtered) {
-        return [];
-      }
-      return this.filtered.filter(d => d.context === 'exclude');
+      return index;
     },
     /**
      * List facet buckets NOT included in a filter
      * @return {Array} array of buckets
      */
-    unfiltered() {
-      if (!this.filtered || !this.included) {
+    unfilteredBuckets() {
+      if (!this.isFiltered || !this.filtersIncluded) {
         return this.facet.buckets;
       }
-      return this.facet.buckets.filter(b => this.includedIds.indexOf(b.val) === -1);
+      return this.facet.buckets
+        .filter(b => !this.filtersIncludedItemsIds.includes(b.val));
     },
-    explorerFilters: {
-      get() { return this.currentStore.search.filters.map(f => ({ ...f.getQuery(), items: f.items })) },
-      /** @param {import('../../models/models').Filter[]} filters */
-      set(filters) {
-        const currentFilters = this.currentStore.search.filters.map(f => ({ ...f.getQuery(), items: f.items }))
-        filters.forEach(filter => {
-          const exists = currentFilters.filter(f => JSON.stringify(f) === JSON.stringify(filter)).length
-          if (!exists) {
-            this.updateFilter(filter)
-          }
-        })
-      }
-    }
   },
   methods: {
     toggleVisibility() {
       this.isCollapsed = !this.isCollapsed;
     },
     toggleBucket(bucket) {
-      const idx = this.selectedIds.indexOf(bucket.val);
+      const idx = this.selectedBucketsIds.indexOf(bucket.val);
       if (idx !== -1 && !bucket.checked) { // remove.
-        this.selectedIds.splice(idx, 1);
-        this.selectedItems.splice(idx, 1);
-        bucket.checked = false;
+        this.selectedBucketsIds.splice(idx, 1);
+        this.selectedBucketsItems.splice(idx, 1);
       } else if (idx === -1 && bucket.checked) { // add.
-        bucket.checked = true;
-        this.selectedIds.push(bucket.val);
+        this.selectedBucketsIds.push(bucket.val);
         if (bucket.item) {
-          this.selectedItems.push({
+          this.selectedBucketsItems.push({
             checked: true,
             ...bucket.item,
             count: bucket.count,
@@ -190,50 +177,44 @@ export default {
         }
       } // nothing else matters
     },
-    clearSelectedItems() {
-      this.selectedIds = [];
-      this.selectedItems = [];
+    resetFilters() {
+      this.$emit('reset-filters', this.facet.type);
     },
-    applyFilter() {
-      console.info('submit', this.facet.type, this.selectedIds);
-      this.$emit('submit-buckets', {
+    updateFilter(filter, oldFilter) {
+      if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
+        // hash differs, filter has been changed
+        if (!filter.q || filter.q.length === 0) {
+          this.resetFilters();
+        } else {
+          this.clearSelectedItems();
+          this.$emit('update-filter', {
+            ...filter,
+            key: oldFilter.key,
+          });
+        }
+      }
+    },
+    createFilter() {
+      this.$emit('create-filter', {
         type: this.facet.type,
-        q: this.selectedIds,
+        q: this.selectedBucketsIds,
+        items: this.selectedBucketsItems,
       });
       this.clearSelectedItems();
     },
-    updateFilter(filter) {
-      this.$emit('submit-buckets', filter);
-      // this.$emit('update-filter', filter);
+    clearSelectedItems() {
+      this.selectedBucketsIds = [];
+      this.selectedBucketsItems = [];
     },
-    resetFilterType() {
-      this.clearSelectedItems();
-      this.$emit('reset-filter', this.facet.type);
-    },
-    showModal() {
-      this.explorerVisible = true
-    },
-    handleExplorerHide() {
-      this.explorerVisible = false
-    }
   },
   components: {
     BaseTitleBar,
-    FilterFacetBucket,
-    FilterMonitor,
     InfoButton,
-    Explorer
-  },
+    FilterMonitor,
+    FilterFacetBucket,
+  }
 };
 </script>
 
-<style scoped lang="less">
+<style lang="css" scoped>
 </style>
-<i18n>
-{
-  "en": {
-    "show-more": "Show More",
-    "explore": "Explore {type}"
-  }
-}
-</i18n>

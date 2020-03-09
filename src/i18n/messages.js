@@ -64,6 +64,7 @@ export default {
       removeAccount: 'Delete account',
       clear: 'clear',
       close: 'close',
+      dismiss: 'dismiss',
       loading: 'loading...',
       reset: 'Reset',
       apply: 'Apply',
@@ -81,7 +82,7 @@ export default {
     },
     filters: {
       daterange: {
-        item: 'from <b>{start}</b> to <b>{end}</b>',
+        item: 'from <span class="date">{start}</span> to <span class="date">{end}</span>',
       },
     },
     types: {
@@ -99,6 +100,7 @@ export default {
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
+      options: ' | (1 option) | ({n} options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
       images: 'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
@@ -111,7 +113,8 @@ export default {
         countItems: '{countItems} saved items',
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
-      unigramMentions: 'no mentions of "{unigram}" | <span class="number">1</span> mention of "{unigram}" | <span class="number">{n}</span> mentions of "{unigram}"',
+      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> in | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> in | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> in ',
+      filtersRemoved: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -138,6 +141,7 @@ export default {
         wrongcredentials: 'Wrong credentials provided...',
         NotValidRegex: 'The new password is too easy to guess!',
       },
+      loggedInOnly: 'You need to be logged in to access this content.',
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',
       BadRequest: 'Bad request.',
@@ -167,6 +171,7 @@ export default {
       },
     },
     label: {
+      isFront: 'only results on the front page',
       year: {
         title: 'Year | Year | Years',
       },
@@ -247,7 +252,7 @@ export default {
         empty: '(no results)',
         context: {
           include: 'content available as',
-          exclude: 'content <b>NOT</b> avaiable as',
+          exclude: 'content <b>NOT</b> available as',
         },
       },
       partner: {
@@ -296,8 +301,10 @@ export default {
         desc: 'publication date, most recent first',
       },
     },
+    sortBy: 'order by',
     more_info: 'More Info',
     currentSearch: 'current search',
+    lexicalOverlap: 'lexical overlap',
   },
   nl: {
     language: 'Taal',

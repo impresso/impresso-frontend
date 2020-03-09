@@ -1,7 +1,7 @@
 <template lang="html">
   <div class='search-pills'>
     <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
-      v-for="(filter, index) in pills" :key="index">
+      v-for="({ filter, filterIndex }) in pills" :key="filterIndex">
       <!--  button content -->
       <template slot="button-content">
         <!-- badge: initial type instead of icons -->
@@ -22,6 +22,7 @@
             {'dripicons-print': filter.type === 'country'},
             {'dripicons-shopping-bag': filter.type === 'accessRight'},
             {'dripicons-store': filter.type === 'partner'},
+            {'dripicons-scale': numericTypes.includes(filter.type)},
 
           ]" />
         <!--  type:string -->
@@ -62,45 +63,57 @@
           :class="filter.context">
         </span>
 
+        <!--  type: (with slider) -->
+        <span class="label sp-collection"
+          v-if="numericTypes.includes(filter.type)"
+          v-html="labelForNumeric({ items: filter.items, type: filter.type })"
+          :class="filter.context">
+        </span>
+
         <!--  type:daterange -->
         <span class="label sp-daterange"
           v-if="filter.type === 'daterange'"
           :class="filter.context" v-html="labelByDaterangeItems({ items: filter.items, max: 2 })">
         </span>
-        <!-- <span class="filter-icon filter-remove dripicons-cross" @click="onRemoveFilter(filter)"></span> -->
       </template>
 
       <div class="p-2 pb-1 sp-contents">
         <div class="description">{{ $tc(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}</div>
         <filter-monitor checkbox
-                        :store="storeModuleName"
                         :filter="filter"
-                        :type="filter.type"
-                        :search-query-id="searchQueryId"
-                        :operators="['AND', 'OR']"
-                        :skip-push-search-params="skipPushSearchParams"
-                        @filter-applied="onFilterApplied" />
+                        @changed="handleFilterUpdated(filterIndex, $event)"
+                        :operators="['AND', 'OR']" />
       </div>
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
-        <b-button block size="sm" variant="outline-primary" @click="onRemoveFilter(filter)">{{$t('actions.remove')}}</b-button>
+        <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex, filter)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
-    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="addFilter">{{ $t('actions.addFilter') }}</b-button>
+    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addFilter') }}</b-button>
 
     <explorer v-model="explorerFilters"
       :is-visible="explorerVisible"
       @onHide="handleExplorerHide"
-      :searching-enabled="false"/>
+      :searching-enabled="false"
+      :included-types="includedFilterTypes"
+      :index="index"/>
   </div>
 </template>
 
 <script>
 import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
+import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 
+/**
+ * Use `v-model`.
+ */
 export default {
+  model: {
+    prop: 'filters',
+    event: 'changed'
+  },
   data: () => ({
     explorerVisible: false
   }),
@@ -109,67 +122,56 @@ export default {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
     },
-    storeModuleName: {
-      type: String,
-      default: 'search',
-    },
-    searchQueryId: {
-      // [Optional] ID of the search query the filter belongs to.
-      // This ID is dispatched to the the store by filter monitor.
-      type: String,
-      default: undefined,
-    },
-    skipPushSearchParams: {
-      type: Boolean,
-      default: false,
-    },
-    searchFilters: {
+    includedFilterTypes: {
+      /* included filter types override excluded types */
       type: Array,
-      default: undefined,
+      default: () => undefined
     },
     enableAddFilter: {
       type: Boolean,
       default: false,
     },
-  },
-  computed: {
-    pills: {
-      get() {
-        const filters = this.searchFilters !== undefined
-          ? this.searchFilters
-          : this.$store.state[this.storeModuleName].search.filters;
-        return filters.filter(d => this.excludedTypes.indexOf(d.type) === -1);
-        // .sort((a, b) => (a.type > b.type ? 1 : -1));
-      },
+    filters: {
+      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      type: Array,
+      default: () => []
     },
-    filterContextOptions: {
-      get() {
-        return [
-          {
-            value: 'include',
-            text: this.$t('context.include'),
-          },
-          {
-            value: 'exclude',
-            text: this.$t('context.exclude'),
-          },
-        ];
-      },
-    },
-    explorerFilters: {
-      get() { return this.pills },
-      set(filters) {
-        const currentFilters = this.pills
-        filters.forEach(filter => {
-          const exists = currentFilters.filter(f => JSON.stringify(f) === JSON.stringify(filter)).length
-          if (!exists) {
-            this.onAddFilter(filter)
-          }
-        })
-      }
+    index: {
+      type: String,
+      default: 'search'
     }
   },
+  computed: {
+    pills() {
+      /* included filter types override excluded types */
+      const filterFn = this.includedFilterTypes
+        ? ({ filter: { type } }) => this.includedFilterTypes.includes(type)
+        : ({ filter: { type } }) => !this.excludedTypes.includes(type)
+      return this.filters
+        .map((filter, filterIndex) => ({ filter, filterIndex }))
+        .filter(filterFn)
+    },
+    explorerFilters: {
+      get() { return this.filters },
+      set(filters) { this.$emit('changed', filters) }
+    },
+    numericTypes() { return NumericRangeFacets }
+  },
   methods: {
+    handleFilterUpdated(index, filter) {
+      // If this filter has no items selected - remove the filter
+      if (!RangeFacets.includes(filter.type) && Array.isArray(filter.q) && filter.q.length === 0) {
+        return this.handleFilterRemoved(index)
+      }
+
+      const newFilters = [...this.filters]
+      newFilters[index] = filter
+      this.$emit('changed', newFilters)
+    },
+    handleFilterRemoved(index) {
+      const newFilters = this.filters.filter((f, idx) => idx !== index)
+      this.$emit('changed', newFilters)
+    },
     labelByItems({
       items = [],
       prop = 'name',
@@ -198,8 +200,8 @@ export default {
       max = 1,
     } = {}) {
       let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
-        start: this.$d(d.start, 'compact'),
-        end: this.$d(d.end, 'compact'),
+        start: this.$d(new Date(d.start), 'compact'),
+        end: this.$d(new Date(d.end), 'compact'),
       })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
@@ -208,16 +210,17 @@ export default {
       }
       return labels;
     },
-    onRemoveFilter(filter) {
-      this.$emit('remove', filter);
+    labelForNumeric({ items = [], type }) {
+      const { start, end } = items[0] || {}
+      const label = this.$t(`label.${type}.item`)
+
+      return this.$t('label.range.item', {
+        label,
+        start: this.$n(start),
+        end: this.$n(end)
+      })
     },
-    onFilterApplied(filter) {
-      this.$emit('update', filter);
-    },
-    onAddFilter(filter) {
-      this.$emit('add', filter);
-    },
-    addFilter() {
+    showFilterExplorer() {
       this.explorerVisible = true
     },
     handleExplorerHide() {
@@ -348,6 +351,22 @@ export default {
         "daterange": {
           "title": "filter by date of publication",
           "item": "From {start} to {end}"
+        },
+        "range": {
+          "title": "filter by {label}",
+          "item": "{label} between {start} and {end}"
+        },
+        "textReuseClusterSize": {
+          "title": "filter by text reuse cluster size",
+          "item": "Cluster size"
+        },
+        "textReuseClusterLexicalOverlap": {
+          "title": "filter by text reuse cluster lexical overlap",
+          "item": "Lexical overlap"
+        },
+        "textReuseClusterDayDelta": {
+          "title": "filter by text reuse time span in days",
+          "item": "Text reuse time span"
         }
       },
       "items": {

@@ -1,7 +1,7 @@
 <template lang="html">
   <i-layout-section v-if="$route.params.collection_uid">
 
-    <div slot="header">
+    <div slot="header" v-if="!fetching">
       <b-navbar type="light" variant="light" class="border-bottom">
 
         <section>
@@ -20,14 +20,14 @@
 
         <section class="ml-auto py-3">
 
-          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }">
+          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="float-right mb-1">
             <b-button
               variant="outline-info" size="sm"
               v-b-modal.confirmDelete>{{ $t('compare_collection') }}
             </b-button>
           </router-link>
 
-          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')" ref="edit_collection">
+          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')" class="d-block" ref="edit_collection">
             <div class="modal-edit pt-2 px-3 background-light">
               <label for="collectionName">Name</label>
               <input type="text" name="collectionName" class="form-control mb-3"
@@ -43,7 +43,9 @@
               <b-button
                 class="form-control mb-3"
                 variant="outline-danger" size="sm"
-                v-b-modal.confirmDelete>{{ $t('delete_collection') }}
+                v-on:click.alt="remove(collection)"
+                v-on:click.exact="$bvModal.show('confirmDelete')">
+                {{ $t('delete_collection') }}
               </b-button>
             </div>
           </b-dropdown>
@@ -56,22 +58,22 @@
 
       </b-navbar>
 
-      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom border-tertiary">
+      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
         <b-navbar-nav class="p-3 border-right">
           <li>
             <label v-html="$tc('articles', paginationTotalRows) "></label>
           </li>
-
         </b-navbar-nav>
+
         <b-navbar-nav class="p-3">
-          <li><label >{{ $t('order by') }}</label>
+          <li><label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
 
         <b-navbar-nav class="p-3 border-left ml-auto">
           <li>
-            <label >{{ $t('label_display') }}</label>
+            <label class="mr-1">{{ $t('label_display') }}</label>
             <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
               <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
               <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
@@ -86,7 +88,11 @@
 
     <div class="collection-group">
 
-      <b-container fluid>
+      <div v-if="fetching">
+        <i-spinner class="text-center m-5 p-5" />
+      </div>
+
+      <b-container v-else-if="paginationTotalRows > 0" fluid>
         <b-row v-if="displayStyle === 'list'">
           <b-col cols="12"
             v-for="(article, index) in articles"
@@ -114,8 +120,16 @@
           </b-col>
         </b-row>
       </b-container>
+
+      <div
+        v-else
+        class="p-4">
+        <p class="text-center pt-4"><b>{{ $t('no_articles_in_collection')}}</b></p>
+        <p class="text-center">{{ $t('no_articles_in_collection_long')}}</p>
+      </div>
+
       <div class="my-5" />
-      <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+      <div v-if="!fetching && paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
         <pagination
           size="sm"
           v-bind:perPage="paginationPerPage"
@@ -169,6 +183,7 @@ export default {
   data: () => ({
     tab: {},
     collection: new Collection(),
+    fetching: false,
   }),
   components: {
     SearchResultsListItem,
@@ -219,6 +234,9 @@ export default {
       get() {
         return this.$store.state.collections.paginationCurrentPage;
       },
+      set(val) {
+        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', val);
+      },
     },
     paginationTotalRows: {
       get() {
@@ -266,20 +284,19 @@ export default {
   },
   watch: {
     $route() {
+      this.paginationCurrentPage = 1;
       this.getCollection();
     },
   },
   methods: {
     getCollectionItems(page) {
+      this.fetching = true;
       if (page !== undefined) {
         this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
       this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
         this.collection = res;
-        this.$store.commit('SET_HEADER_TITLE', {
-          subtitle: this.collection.name,
-          title: this.$t('Collection'),
-        });
+        this.fetching = false;
       });
     },
     getCollection() {
@@ -302,7 +319,11 @@ export default {
     },
     remove(collection) {
       this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
-        this.$store.dispatch('collections/LOAD_COLLECTIONS');
+        this.$store.dispatch('collections/LOAD_COLLECTIONS').then(() => {
+          this.$router.push({
+            name: 'collections',
+          });
+        });
       });
     },
     save(collection) {
@@ -366,10 +387,12 @@ export default {
     "display_button_tiles": "Tiles",
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
     "edit_collection": "Collection Settings",
-    "update_collection": "Update Collection",
-    "delete_collection": "Delete Collection",
+    "update_collection": "Update Collection Note",
+    "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "compare_collection": "Compare with ...",
-    "confirm_delete": "Are you sure you want to delete collection '{0}'?"
+    "confirm_delete": "Are you sure you want to delete collection '{0}'?",
+    "no_articles_in_collection": "No items in collection yet.",
+    "no_articles_in_collection_long": "Articles you add to collection will be listed here."
   },
   "nl": {
     "collections": "Sammelingen",

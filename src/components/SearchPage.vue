@@ -1,41 +1,25 @@
 <template>
 <i-layout id="SearchPage">
-  <i-layout-section width="400px">
-    <!--  header -->
-    <div slot="header" class="border-bottom">
-      <search-tabs />
-      <div class="py-3 px-3">
-        <search-pills
-          v-on:remove="onRemoveFilter"
-          v-on:add="onAddFilter"
-          :search-filters="filters"
-        />
-        <autocomplete v-on:submit="onSuggestion" />
-      </div>
+  <search-sidebar width="400px"
+    :filters="filters"
+    :facets="facets"
+    store="search"
+    @changed="handleFiltersChanged"
+  >
+    <div slot="header">
+      <autocomplete v-on:submit="onSuggestion" />
     </div>
-
-    <!--  body -->
-    <div class="pt-3">
-
-      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">Embeddings <info-button class="ml-1" name="how-are-word-embeddings-generated" />
+    <div>
+      <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">{{ $t('label_embeddings') }} <info-button class="ml-1" name="how-are-word-embeddings-generated" />
       </b-button>
-
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
           {{$t('label_isFront')}}
         </b-form-checkbox>
       </b-form-group>
-
-      <!-- <search-filters v-on:remove-filter="search(1)" v-on:submit-filter="search(1)" /> -->
-      <search-facets @submit-facet="onFacet" @update-filter="onUpdateFilter" @reset-filter="onResetFilter" percent-prop="a"/>
     </div>
-    <!-- <div slot="footer">
-      <b-button-group class="d-flex bg-white p-3 border-top border-tertiary">
-        <b-button class="small-caps mr-2 w-75" variant="outline-primary" size="md" v-on:click="search(1)">Search</b-button>
-        <b-button class="small-caps w-25" variant="outline-danger" size="md" v-on:click="reset">Clear</b-button>
-      </b-button-group>
-    </div> -->
-  </i-layout-section>
+  </search-sidebar>
+
   <i-layout-section main>
     <div slot="header">
       <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
@@ -76,7 +60,7 @@
       <b-navbar class="d-flex p-0 border-bottom bg-light">
         <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
           <ellipsis v-bind:initialHeight="60">
-            <search-result-summary
+            <search-results-summary
               @onSummary="onSummary"
               :group-by="groupBy"
               :search-query="searchQuery"
@@ -161,7 +145,7 @@
     </b-modal>
 
     <b-modal hide-footer id="embeddings" ref="embeddings"
-      v-bind:title="$t('Find words similar to ...')">
+      v-bind:title="$t('label_embeddings')">
       <embeddings-search @embdding-selected="addFilterFromEmbedding" />
     </b-modal>
 
@@ -207,18 +191,28 @@
 import { protobuf } from 'impresso-jscommons';
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
-import SearchFacets from './SearchFacets';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import CollectionAddTo from './modules/CollectionAddTo';
 import CollectionAddToList from './modules/CollectionAddToList';
 import Ellipsis from './modules/Ellipsis';
-import SearchPills from './SearchPills';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
-import SearchTabs from './modules/SearchTabs';
+import SearchSidebar from '@/components/modules/SearchSidebar';
 import InfoButton from './base/InfoButton';
-// const uuid = require('uuid');
+
+const ALLOWED_FACET_TYPES = [
+  'language',
+  'newspaper',
+  'type',
+  'country',
+  'topic',
+  'collection',
+  'accessRight',
+  'partner',
+  'person',
+  'location',
+]
 
 export default {
   data: () => ({
@@ -340,6 +334,10 @@ export default {
         return this.$store.state.search.search.filters;
       },
     },
+    facets() {
+      return this.$store.state.search.facets
+        .filter(({ type }) => ALLOWED_FACET_TYPES.includes(type));
+    },
     currentSearchHash() {
       return this.$store.state.search.currentSearchHash;
     },
@@ -353,6 +351,10 @@ export default {
     },
   },
   methods: {
+    handleFiltersChanged(filters) {
+      this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', filters);
+      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+    },
     compare() {
       this.$router.push({
         name: 'compare',
@@ -557,16 +559,14 @@ export default {
   components: {
     Autocomplete,
     Pagination,
-    'search-results-list-item': SearchResultsListItem,
-    'search-results-tiles-item': SearchResultsTilesItem,
-    'search-facets': SearchFacets,
-    'search-result-summary': SearchResultsSummary,
+    SearchResultsListItem,
+    SearchResultsTilesItem,
+    SearchResultsSummary,
     CollectionAddTo,
     CollectionAddToList,
     Ellipsis,
-    SearchPills,
     EmbeddingsSearch,
-    SearchTabs,
+    SearchSidebar,
     InfoButton,
   },
   mounted() {
@@ -613,6 +613,7 @@ export default {
     "label_order": "Order By",
     "label_group": "Group By",
     "label_isFront": "Frontpage",
+    "label_embeddings": "find similar words",
     "label_hasTextContents": "Contains Text",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
