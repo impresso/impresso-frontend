@@ -26,6 +26,7 @@ import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
 import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
+
 import store from '../store';
 
 Vue.use(Router);
@@ -303,6 +304,22 @@ const router = new Router({
       meta: {
         requiresAuth: false,
       },
+    },
+    {
+      path: '/text-reuse-clusters',
+      component: () => import(/* webpackChunkName: "img" */ '../components/TextReuseClustersPage.vue'),
+      name: 'text-reuse-clusters',
+      meta: {
+        requiresAuth: false,
+      },
+      children: [{
+        path: '',
+        component: () => import(/* webpackChunkName: "img" */ '../components/TextReuseClusterDetailPage.vue'),
+        name: 'text-reuse-cluster-detail',
+        meta: {
+          requiresAuth: false,
+        },
+      }],
     }],
 });
 

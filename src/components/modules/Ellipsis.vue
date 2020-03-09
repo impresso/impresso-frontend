@@ -1,10 +1,10 @@
 <template lang="html">
   <div class="ellipsis">
-    <div class="contents" ref="contents" v-bind:style="`max-height:${height}px`">
+    <div class="contents" ref="contents" :data-h="contentHeight" v-bind:style="`max-height:${height}px`">
       <slot></slot>
     </div>
     <div class="more" v-bind:style="gradientStyle" v-if="contentHeight > initialHeight">
-      <b-button size="sm" variant="outline-primary" v-on:click="onClick">
+      <b-button size="sm" variant="outline-primary" v-on:click.prevent.stop="onClick">
         {{$t(this.isCollapsed ? 'more' : 'less')}}</b-button>
     </div>
   </div>

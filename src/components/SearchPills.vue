@@ -22,6 +22,7 @@
             {'dripicons-print': filter.type === 'country'},
             {'dripicons-shopping-bag': filter.type === 'accessRight'},
             {'dripicons-store': filter.type === 'partner'},
+            {'dripicons-scale': numericTypes.includes(filter.type)},
 
           ]" />
         <!--  type:string -->
@@ -62,6 +63,13 @@
           :class="filter.context">
         </span>
 
+        <!--  type: (with slider) -->
+        <span class="label sp-collection"
+          v-if="numericTypes.includes(filter.type)"
+          v-html="labelForNumeric({ items: filter.items, type: filter.type })"
+          :class="filter.context">
+        </span>
+
         <!--  type:daterange -->
         <span class="label sp-daterange"
           v-if="filter.type === 'daterange'"
@@ -87,13 +95,16 @@
     <explorer v-model="explorerFilters"
       :is-visible="explorerVisible"
       @onHide="handleExplorerHide"
-      :searching-enabled="false"/>
+      :searching-enabled="false"
+      :included-types="includedFilterTypes"
+      :index="index"/>
   </div>
 </template>
 
 <script>
 import FilterMonitor from './modules/FilterMonitor';
 import Explorer from './Explorer';
+import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 
 /**
  * Use `v-model`.
@@ -111,6 +122,11 @@ export default {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
     },
+    includedFilterTypes: {
+      /* included filter types override excluded types */
+      type: Array,
+      default: () => undefined
+    },
     enableAddFilter: {
       type: Boolean,
       default: false,
@@ -120,20 +136,34 @@ export default {
       type: Array,
       default: () => []
     },
+    index: {
+      type: String,
+      default: 'search'
+    }
   },
   computed: {
     pills() {
+      /* included filter types override excluded types */
+      const filterFn = this.includedFilterTypes
+        ? ({ filter: { type } }) => this.includedFilterTypes.includes(type)
+        : ({ filter: { type } }) => !this.excludedTypes.includes(type)
       return this.filters
         .map((filter, filterIndex) => ({ filter, filterIndex }))
-        .filter(({ filter: { type } }) => !this.excludedTypes.includes(type))
+        .filter(filterFn)
     },
     explorerFilters: {
       get() { return this.filters },
       set(filters) { this.$emit('changed', filters) }
-    }
+    },
+    numericTypes() { return NumericRangeFacets }
   },
   methods: {
     handleFilterUpdated(index, filter) {
+      // If this filter has no items selected - remove the filter
+      if (!RangeFacets.includes(filter.type) && Array.isArray(filter.q) && filter.q.length === 0) {
+        return this.handleFilterRemoved(index)
+      }
+
       const newFilters = [...this.filters]
       newFilters[index] = filter
       this.$emit('changed', newFilters)
@@ -170,8 +200,8 @@ export default {
       max = 1,
     } = {}) {
       let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
-        start: this.$d(d.start, 'compact'),
-        end: this.$d(d.end, 'compact'),
+        start: this.$d(new Date(d.start), 'compact'),
+        end: this.$d(new Date(d.end), 'compact'),
       })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
@@ -179,6 +209,16 @@ export default {
         });
       }
       return labels;
+    },
+    labelForNumeric({ items = [], type }) {
+      const { start, end } = items[0] || {}
+      const label = this.$t(`label.${type}.item`)
+
+      return this.$t('label.range.item', {
+        label,
+        start: this.$n(start),
+        end: this.$n(end)
+      })
     },
     showFilterExplorer() {
       this.explorerVisible = true
@@ -311,6 +351,22 @@ export default {
         "daterange": {
           "title": "filter by date of publication",
           "item": "From {start} to {end}"
+        },
+        "range": {
+          "title": "filter by {label}",
+          "item": "{label} between {start} and {end}"
+        },
+        "textReuseClusterSize": {
+          "title": "filter by text reuse cluster size",
+          "item": "Cluster size"
+        },
+        "textReuseClusterLexicalOverlap": {
+          "title": "filter by text reuse cluster lexical overlap",
+          "item": "Lexical overlap"
+        },
+        "textReuseClusterDayDelta": {
+          "title": "filter by text reuse time span in days",
+          "item": "Text reuse time span"
         }
       },
       "items": {

@@ -23,7 +23,7 @@
     "filepond-plugin-file-validate-size": "2.2.0",
     "filepond-plugin-file-validate-type": "1.2.4",
     "flatpickr": "4.6.3",
-    "impresso-jscommons": "git+https://git@github.com/impresso/impresso-jscommons.git#master",
+    "impresso-jscommons": "git+https://git@github.com/impresso/impresso-jscommons.git#v1.1.0",
     "impresso-theme": "git+https://git@github.com/impresso/impresso-theme.git",
     "markdown-it": "10.0.0",
     "markdown-it-decorate": "1.2.2",
@@ -39,6 +39,7 @@
     "vue-gtag": "1.1.2",
     "vue-i18n": "8.15.3",
     "vue-router": "3.1.5",
+    "vue-slider-component": "^3.1.1",
     "vuex": "3.1.2",
     "vuex-persistedstate": "2.7.0",
     "webfontloader": "1.6.28"

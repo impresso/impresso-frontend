@@ -2,12 +2,12 @@
     <div class="row">
       <div class="col-6">
         <b-form-input v-model="startDate" ></b-form-input>
-        <label>{{ $d(daterange.start, 'long') }} </label>
+        <label>{{ $d(start, 'long') }} </label>
 
       </div>
       <div class="col-6">
         <b-form-input v-model="endDate"></b-form-input>
-        <label>{{ $d(daterange.end, 'long') }}</label>
+        <label>{{ $d(end, 'long') }}</label>
 
       </div>
     </div>
@@ -16,68 +16,44 @@
 <script>
 import Daterange from '@/models/Daterange';
 
+const DateRegex = /^\d{4}-[0-1]\d-[0-3]\d$/;
+
+const parseDate = date => {
+  if (DateRegex.test(date)) return new Date(date)
+}
+
 export default {
   props: {
-    daterange: {
-      type: Object,
-    },
+    start: Date,
+    end: Date,
   },
   computed: {
     startDate: {
       get() {
-        return this.daterange.start.toISOString().split('T').shift();
+        return this.start.toISOString().split('T').shift();
       },
       set(start) {
-        this.updateDaterange({ start });
+        this.updateDaterange({ start: parseDate(start), end: this.end });
       },
     },
     endDate: {
       get() {
-        return this.daterange.end.toISOString().split('T').shift();
+        return this.end.toISOString().split('T').shift();
       },
       set(end) {
-        this.updateDaterange({ end });
+        this.updateDaterange({ start: this.start, end: parseDate(end) });
       },
     },
   },
   methods: {
     updateDaterange({ start, end }) {
-      const reg = /^\d{4}-[0-1]\d-[0-3]\d$/;
-      let item;
-      // if value is complete, should be a valid YYYY-MM-dd date.
-      if (start && reg.test(start)) {
-        const d = new Date(start);
-        if (!isNaN(d.valueOf())) {
-          item = new Daterange({
-            start: d,
-            end: this.daterange.end,
-          });
-        }
-      } else if (end && reg.test(end)) {
-        const d = new Date(end);
-        if (!isNaN(d.valueOf())) {
-          item = new Daterange({
-            start: this.daterange.start,
-            end: d,
-          });
-        }
-      }
-      // if start or end are not correct or there's nothing new, just skip
-      if (!item || this.daterange.uid === item.uid) {
-        return;
-      }
-      // check by default tne new item;
-      item.checked = true;
-      console.info('updateDaterange emit "change" \n', this.daterange.uid, '\nto:\n', item.uid);
-      this.$emit('change', {
-        item,
-        uid: this.daterange.uid,
-      });
+      this.$emit('changed', {
+        item: { start, end },
+        q:  new Daterange({ start, end }).getValue()
+      })
     },
-  },
-  components: {
-  },
-};
+  }
+}
 </script>
 
 <style lang="scss" scoped>

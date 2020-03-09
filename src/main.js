@@ -10,6 +10,7 @@ import ImpressoLayout from '@/plugins/Layout';
 import TawkTo from '@/plugins/TawkTo';
 import EventBus from '@/plugins/EventBus';
 import MetaTags from '@/plugins/MetaTags';
+import Navigation from '@/plugins/Navigation';
 
 import * as services from '@/services';
 
@@ -30,6 +31,7 @@ Vue.use(Helpers);
 Vue.use(EventBus);
 Vue.use(ImpressoLayout);
 Vue.use(MetaTags, { suffix: 'impresso' });
+Vue.use(Navigation);
 if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
   Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID });
 }
@@ -97,21 +99,27 @@ Promise.race([
     services.version.find().then((res) => ({
       version: res.version,
       dataVersion: res.solr.dataVersion,
-      apiVersion: res.apiVersion
+      apiVersion: res.apiVersion,
+      documentsDateSpan: res.documentsDateSpan,
+      newspapers: res.newspapers
     }))
   ]).catch((err) => {
     console.error(err);
     return {
       version: 'n/a',
       dataVersion: 'n/a',
-      apiVersion: {}
+      documentsDateSpan: { firstDate: '1700-01-01', lastDate: new Date().toISOString() },
+      apiVersion: {},
+      newspapers: {}
     };
   });
-}).then(({ version, dataVersion, apiVersion = {} }) => {
+}).then(({ version, dataVersion, documentsDateSpan, newspapers, apiVersion = {} }) => {
   console.info(`Version services:${version}, data:${dataVersion}`);
   window.impressoVersion = version;
   window.impressoDataVersion = dataVersion;
   window.impressoApiVersion = apiVersion
+  window.impressoDocumentsDateSpan = documentsDateSpan
+  window.impressoNewspapers = newspapers
 
   window.app = new Vue({
     el: '#app',
