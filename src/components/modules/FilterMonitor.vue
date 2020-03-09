@@ -255,7 +255,7 @@ export default {
       this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
       this.editedFilter.precisions = 'soft'
     },
-    handleRangeChanged({ item, q, type }) {
+    handleRangeChanged({ item, q }) {
       this.editedFilter.q = q
       this.editedFilter.items = [item]
       if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);

@@ -310,15 +310,15 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "img" */ '../components/TextReuseClustersPage.vue'),
       name: 'text-reuse-clusters',
       meta: {
-	requiresAuth: false,
+        requiresAuth: false,
       },
       children: [{
-	path: '',
+        path: '',
         component: () => import(/* webpackChunkName: "img" */ '../components/TextReuseClusterDetailPage.vue'),
         name: 'text-reuse-cluster-detail',
-	meta: {
-	  requiresAuth: false,
-	},
+        meta: {
+          requiresAuth: false,
+        },
       }],
     }],
 });
