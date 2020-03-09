@@ -242,10 +242,14 @@ export default {
       immediate: true,
       async handler(articleUid) {
         this.articlesSuggestions = [];
+
+        const trPromise = localStorage.impressoTextReuseEnabled === 'true'
+          ? articleTextReusePassages.find({ query: { id: articleUid }}).then(({ passages }) => passages)
+          : Promise.resolve([]);
+
         [this.article, this.textReusePassages] = await Promise.all([
           this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
-          articleTextReusePassages.find({ query: { id: articleUid }})
-            .then(({ passages }) => passages)
+          trPromise
         ])
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
