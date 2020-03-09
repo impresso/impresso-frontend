@@ -1,39 +1,20 @@
 <template>
   <i-layout id="SearchNgramsPage">
-    <!-- sidebar -->
-    <i-layout-section width="400px">
-      <!--  header -->
-      <div slot="header" class="border-bottom bg-light">
-        <search-tabs/>
-        <div class="py-3 px-3">
-          <search-pills
-            :filters="allowedFilters"
-            @changed="handleFiltersChanged"
-          />
-          <span v-if="filtersRemoved">
-            <em class="small" v-html="$tc('numbers.filtersRemoved', filtersRemoved, {
-              n: filtersRemoved,
-            })"/>
-            &nbsp;
-            <info-button name="how-ngram-work-availble-filters"  />
-          </span>
-          <!-- <autocomplete v-on:submit="onAddFilter" /> -->
-        </div>
-      </div>
-      <!--  facets -->
-      <div class="pt-3">
-        <p class="mx-3">
-          <em>{{ $t('label.availableFacets') }}&nbsp;</em>
-          <info-button name="how-ngram-work-use-of-facets"  />
-        </p>
-        <search-facets
-          store="searchNgrams"
-          @submit-facet="onAddFilter"
-          @update-filter="onFilterUpdated"
-          @reset-filter="onFilterReset"/>
-      </div>
-    </i-layout-section>
-
+    <!-- sidebar (contains i-layout-section) -->
+    <search-sidebar
+      :filters="filtersAvailable"
+      :filters-removed="filtersRemoved"
+      :facets="facets"
+      :excludedTypes="excludedTypes"
+      store="searchNgrams"
+      @changed="handleFiltersChanged"
+    >
+    <b-form-group class="mx-3">
+      <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+        {{$t('label.isFront')}}
+      </b-form-checkbox>
+    </b-form-group>
+  </search-sidebar>
     <!-- main section -->
     <i-layout-section main>
       <div slot="header">
@@ -75,7 +56,7 @@
         </search-input>
       </b-navbar>
     </div>
-    <div class="m-3">
+    <div class="m-3" v-if="unigram">
       <base-title-bar class="my-3">
         <span v-html="$t('label.timeline.unigramTitle')"/>
         <div slot="description">
@@ -103,18 +84,23 @@
         </div>
       </timeline>
     </div>
+    <!-- without unigram -->
+    <div v-else class="d-flex align-items-center justify-content-center h-100">
+      <em v-html="$t('missingUnigram')"></em>
+    </div>
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
-import SearchTabs from '@/components/modules/SearchTabs';
+import SearchSidebar from '@/components/modules/SearchSidebar';
+// import SearchTabs from '@/components/modules/SearchTabs';
 // import Autocomplete from '@/components/Autocomplete';
-import InfoButton from '@/components/base/InfoButton';
+// import InfoButton from '@/components/base/InfoButton';
 import BaseTitleBar from '@/components/base/BaseTitleBar';
-import SearchPills from '@/components/SearchPills';
+// import SearchPills from '@/components/SearchPills';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
-import SearchFacets from '@/components/SearchFacets';
+// import SearchFacets from '@/components/SearchFacets';
 import SearchInput from '@/components/modules/SearchInput';
 import Timeline from '@/components/modules/Timeline';
 import Ellipsis from '@/components/modules/Ellipsis';
@@ -123,17 +109,21 @@ import Helpers from '@/plugins/Helpers';
 export default {
   name: 'SearchNgramsPage',
   components: {
-    SearchTabs,
-    SearchFacets,
+    // SearchTabs,
+    // SearchFacets,
     SearchInput,
     Timeline,
     SearchQuerySummary,
     Ellipsis,
-    SearchPills,
-    InfoButton,
+    // SearchPills,
+    // InfoButton,
     BaseTitleBar,
+    SearchSidebar,
     // Autocomplete,
   },
+  data: () => ({
+    excludedTypes: ['string', 'regex'],
+  }),
   watch: {
     '$route.query': {
       handler(val) {
@@ -198,11 +188,47 @@ export default {
     searchQuery() {
       return this.$store.state.searchNgrams.search;
     },
-    allowedFilters() {
-      return this.searchQuery.filters.filter(d => !['string', 'regex'].includes(d.type));
+    filters() {
+      return this.searchQuery.filters;
     },
     filtersRemoved() {
-      return this.searchQuery.filters.length - this.allowedFilters.length;
+      return this.filters.filter(d => this.excludedTypes.includes(d.type));
+    },
+    filtersAvailable() {
+      // this is here because we need all filters to return how many filters have been removed...
+      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
+    },
+    isFront: {
+      get() {
+        return this.filters.filter(d => d.type === 'isFront').length > 0;
+      },
+      set(val) {
+        if (val) {
+          this.onAddFilter({ type: 'isFront' });
+        } else {
+          this.onFilterReset('isFront');
+        }
+      },
+    },
+    facets() {
+      let ignoreFacets = ['year', 'accessRight', 'partner'];
+      if (window.impressoDataVersion > 1) {
+        ignoreFacets = ['year'];
+      }
+      return this.$store.state.searchNgrams.facets
+        .filter(d => !ignoreFacets.includes(d.type))
+        .map((d) => {
+          d.isFiltered = this.$store.state.searchNgrams.search.filtersIndex[d.type];
+          return d;
+        })
+        // .sort((a, b) => {
+        //   const indexA = this.facetsOrder.indexOf(a.type);
+        //   const indexB = this.facetsOrder.indexOf(b.type);
+        //   return indexA - indexB;
+        // });
+    },
+    allowedFilters() {
+      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
     },
     timelineResolution() {
       return this.trend.timeInterval;
@@ -230,6 +256,7 @@ export default {
         "images": "search images",
         "ngrams": "ngrams"
       },
+      "missingUnigram": " ... (no unigram has been selected)",
       "label": {
         "timeline": {
           "unigramTitle": "Number of unigram mentions per year",

@@ -1,109 +1,56 @@
 <template lang="html">
   <div id="search-facets">
-    <div class="border-top mx-3 py-2 mb-2">
-      <!--  timeline title -->
-      <base-title-bar>{{$t(`label.timeline.${groupByLabel}`)}}
-        <div slot="options">
-          <b-button v-show="daterangeFilters.length" size="sm" variant="outline-primary" @click="resetFilter('daterange')">
-            {{ $t('actions.reset') }}
-          </b-button>
-        </div>
-        <div slot="description">
-          <span v-if="daterangeFilters.length">
-            {{$t(`label.timelineDescription.${groupByLabel}.filtered.${displayStyle}`)}}
-          </span>
-          <span v-else>
-              {{$t(`label.timelineDescription.${groupByLabel}.description.${displayStyle}`)}}
-          </span>
-          <b-nav-form>
-            <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
-            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
-          </b-nav-form>
-        </div>
-      </base-title-bar>
-
-      <!--  timeline vis -->
-      <timeline class='bg-light pb-2'
-        :values="values"
-        :brush="[startDaterange, endDaterange]"
-        :domain="[startYear, endYear]"
-        :percentage="percentage"
-        @brushed="onTimelineBrushed">
-        <div slot-scope="tooltipScope">
-          <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ $n(tooltipScope.tooltip.item.w) }}</b> {{ groupByLabel }}
-            <!-- <br />
-            <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
-            &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
-            ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
-            </span> -->
-          </div>
-        </div>
-      </timeline>
-
-      <div v-for="({ filter, filterIndex }) in daterangeFilters" :key="filterIndex" class="bg-light border p-2 mt-2">
-        <filter-monitor
-          :filter="filter"
-          @changed="filterAppliedHandler(filterIndex, $event)" />
-      </div>
-      <div v-if="!daterangeFilters.length">
-        <b-button size="sm" variant="outline-primary" @click="addDaterangeFilter">
-        {{ $t('label.daterange.pick') }}
-        </b-button>
-      </div>
-      <!--  daterange filters -->
-      <div v-if="daterange.isActive">
-        <div class="p-2">
-          <div class="row">
-            <div class="col-6">
-              <label>{{$t('label.daterange.start')}}</label>
-              <b-form-input v-model="startDaterange"></b-form-input>
-              <!-- <flat-pickr :config="{startDate, endDate, allowInput: true}"  v-model="daterange.start"  class="form-control"></flat-pickr> -->
-            </div>
-            <div class="col-6">
-              <label>{{$t('label.daterange.end')}}</label>
-              <b-form-input v-model="endDaterange"></b-form-input>
-              <!-- <flat-pickr :config="{startDate, endDate, allowInput: true}" v-model="daterange.end" class="form-control"></flat-pickr> -->
-            </div>
-            <div class="col-12 mt-2">
-              <b-button block size="sm" variant="outline-primary" @click="submitDaterange">{{$t('label.daterange.apply')}}</b-button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-for="(facet, index) in facets" :key="index" class="border-top py-2 mx-3">
-      <filter-facet :facet="facet"
-        :store="store"
-        @submit-buckets="submitBuckets"
-        @update-filter="updateFilter"
-        @reset-filter="resetFilter"
-        collapsible/>
-    </div>
+    <filter-timeline
+      class="border-top mx-3 py-2 mb-2"
+      :filters="daterangeFilters"
+      :values="values"
+      :min-date="minDate"
+      :max-date="maxDate"
+      :start-year="startYear"
+      :end-year="endYear"
+      :group-by="groupBy"
+      @reset-filters="resetFilters"
+      @changed="updateDaterangeFilters"
+    />
+    <filter-facet
+      class="border-top py-2 mx-3"
+      v-for="(facet, index) in facets"
+      :key="index"
+      :facet="facet"
+      :facet-filters="getFacetFilters(facet.type)"
+      @update-filter="updateFilter"
+      @create-filter="createFilter"
+      @reset-filters="resetFilters"
+      collapsible/>
   </div>
 </template>
 
 <script>
-// import 'flatpickr/dist/flatpickr.css';
-// import flatPickr from 'vue-flatpickr-component';
-import Daterange from '@/models/Daterange';
 import Helpers from '@/plugins/Helpers';
 
-import FilterFacet from './modules/FilterFacet';
-import FilterMonitor from './modules/FilterMonitor';
-import BaseTitleBar from './base/BaseTitleBar';
-import Timeline from './modules/Timeline';
-import InfoButton from './base/InfoButton';
+import FilterFacet from '@/components/modules/FilterFacet';
+import FilterTimeline from '@/components/modules/FilterTimeline';
 
-const TIMELINE_PERCENT = 'percent';
-const TIMELINE_SUM = 'sum';
 
 export default {
   props: {
     store: {
       type: String,
       default: 'search',
+    },
+    groupBy: {
+      type: String,
+      default: 'articles',
+    },
+    filters: {
+      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      type: Array,
+      default: () => [],
+    },
+    facets: {
+      /** @type {import('vue').PropType<import('../models/models').Facet[]>} */
+      type: Array,
+      default: () => [],
     },
     startYear: {
       type: Number,
@@ -118,108 +65,20 @@ export default {
     },
   },
   data: () => ({
-    daterange: {
-      context: 'include',
-      isActive: false,
-      start: null,
-      end: null,
-    },
     facetsOrder: ['type', 'person', 'location', 'topic', 'language', 'newspaper', 'country', 'partner', 'accessRight'],
     selectedFacet: false,
-    facetExplorerType: '',
-    daterangeSelectedIndex: 0,
-    daterangeSelectedItemIndex: 0,
-    percentage: false,
+    selectedDaterangeFilter: null,
   }),
   computed: {
     currentStore() {
       return this.$store.state[this.store];
     },
-    displayStyle: {
-      get() {
-        return this.percentage ? TIMELINE_PERCENT : TIMELINE_SUM;
-      },
-      set(v) {
-        this.percentage = v === TIMELINE_PERCENT;
-      },
-    },
-    displayStyleOptions() {
-      return [TIMELINE_PERCENT, TIMELINE_SUM].map(value => ({
-        text: this.$t(`label.display.${value}`),
-        value,
-      }));
-    },
     daterangeFilters() {
-      return this.currentStore.search.filters
-        .map((filter, filterIndex) => ({ filter, filterIndex }))
-        .filter(({ filter: { type } }) => type === 'daterange');
+      return this.filters
+        .filter(({ type }) => type === 'daterange');
     },
     daterangeIncluded() {
       return this.daterangeFilters.filter(({ filter: { context } }) => context === 'include');
-    },
-    daterangeSelected() {
-      if (!this.daterangeFilters.length) {
-        return null;
-      }
-      return this.daterangeFilters[this.daterangeSelectedIndex].filter;
-    },
-    startDate() {
-      return new Date(`${this.startYear}-01-01`);
-    },
-    endDate() {
-      return new Date(`${this.endYear}-12-31`);
-    },
-    startDaterange: {
-      get() {
-        let d;
-        if (!this.daterange.start) {
-          d = this.minDate.toISOString();
-        } else {
-          d = this.daterange.start.toISOString();
-        }
-        return d.split('T').shift();
-      },
-      set(val) {
-        // if value is complete
-        if (!/^\d{4}-[0-1]\d-[0-3]\d$/.test(val)) {
-          // ignore non finished dates!
-          // YYYY-MM-dd
-          return;
-        }
-        const d = new Date(val);
-        // check that the date is valid
-        if (isNaN(d.valueOf())) {
-          // invalid date, just ignore
-          return;
-        }
-        this.daterange.start = d;
-      },
-    },
-    endDaterange: {
-      get() {
-        let d;
-        if (!this.daterange.end) {
-          d = this.maxDate.toISOString();
-        } else {
-          d = this.daterange.end.toISOString();
-        }
-        return d.split('T').shift();
-      },
-      set(val) {
-        // if value is complete
-        if (!/^\d{4}-[0-1]\d-[0-3]\d$/.test(val)) {
-          // ignore non finished dates!
-          // YYYY-MM-dd
-          return;
-        }
-        const d = new Date(val);
-        // check that the date is valid
-        if (isNaN(d.valueOf())) {
-          // invalid date, just ignore
-          return;
-        }
-        this.daterange.end = d;
-      },
     },
     minDate() {
       if (this.values.length) {
@@ -234,11 +93,6 @@ export default {
         return new Date(`${y}-12-31`);
       }
       return new Date(`${this.endYear}-12-31`);
-    },
-    groupByLabel: {
-      get() {
-        return this.$t(`groupBy.${this.currentStore.groupBy}`);
-      },
     },
     values: {
       get() {
@@ -258,131 +112,34 @@ export default {
         return Helpers.timeline.addEmptyIntervals(values);
       },
     },
-    facets: {
-      get() {
-        let ignoreFacets = ['year', 'accessRight', 'partner'];
-        if (window.impressoDataVersion > 1) {
-          ignoreFacets = ['year'];
-        }
-        return this.currentStore.facets
-          .filter(d => !ignoreFacets.includes(d.type))
-          .map((d) => {
-            d.isFiltered = this.currentStore.search.filtersIndex[d.type];
-            return d;
-          })
-          .sort((a, b) => {
-            const indexA = this.facetsOrder.indexOf(a.type);
-            const indexB = this.facetsOrder.indexOf(b.type);
-            return indexA - indexB;
-          });
-      },
-    },
   },
   methods: {
-    onTimelineBrushed(data) {
-      let changed = false;
-      if (this.startDaterange !== data.minValue) {
-        changed = true;
-        this.startDaterange = data.minValue;
-      }
-      if (this.endDaterange !== data.maxValue) {
-        changed = true;
-        this.endDaterange = data.maxValue;
-      }
-      if (!changed) {
-        return;
-      }
-      const item = new Daterange({
-        start: this.startDaterange,
-        end: this.endDaterange,
-      });
-      item.checked = true;
-      if (this.daterangeSelected) {
-        this.$store.commit(`${this.store}/UPDATE_FILTER_ITEM`, {
-          filter: this.daterangeSelected,
-          item,
-          uid: this.daterangeSelected.items[this.daterangeSelectedItemIndex].uid,
-        });
-      }
+    getFacetFilters(type) {
+      return this.filters.filter(d => d.type === type);
     },
-    addDaterangeFilter() {
-      // this.daterange.start = new Date(this.minDate);
-      // this.daterange.end = new Date(this.maxDate);
-      // this.daterange.isActive = !this.daterange.isActive;
-      // create new daterangefilter if theres none
-      if (!this.daterangeIncluded.length) {
-        const dr = new Daterange({
-          start: this.startDaterange,
-          end: this.endDaterange,
-        });
-
-        this.$store.commit(`${this.store}/ADD_FILTER`, {
-          type: 'daterange',
-          q: dr.getValue(),
-        });
-      }
+    createFilter(filter) {
+      this.$emit('changed', this.filters.concat([filter]));
+    },
+    resetFilters(type) {
+      this.$emit('changed', this.filters.filter(d => d.type !== type));
+    },
+    updateDaterangeFilters(daterangeFilters) {
+      this.$emit('changed', this.filters
+        .filter(({ type }) => type !== 'daterange')
+        .concat(daterangeFilters));
     },
     updateFilter(filter) {
-      this.$emit('update-filter', filter);
+      this.$emit('changed', this.filters.map((d) => {
+        if (d.key === filter.key) {
+          return filter;
+        }
+        return d;
+      }));
     },
-    resetFilter(type) {
-      this.$emit('reset-filter', type);
-    },
-    submitBuckets(filter) {
-      this.$emit('submit-facet', {
-        ...filter,
-        exclusive: true,
-      });
-    },
-    submitDaterange() {
-      console.info('submit-facet', this.daterange.start, this.daterange.end);
-      this.$emit('submit-facet', {
-        type: 'daterange',
-        start: new Date(this.daterange.start),
-        end: new Date(this.daterange.end),
-        context: this.daterange.context,
-      });
-    },
-    /**
-     * Add facet to data
-     * @param {[type]} facet               [description]
-     * @param {[type]} bucket              [description]
-     * @param {String} [context='include'] [description]
-     */
-    // addFacet(facet, bucket, context = 'include'){
-    //
-    // },
-    submitFacet(facet, bucket, context = 'include') {
-      if (facet.type === 'topic') {
-        this.$emit('submit-facet', {
-          type: facet.type,
-          item: bucket.item,
-          h: bucket.val,
-          q: bucket.val,
-          context,
-        });
-      } else if (['newspaper', 'language', 'collection'].includes(facet.type)) {
-        this.$emit('submit-facet', {
-          q: bucket.val,
-          type: facet.type,
-          item: bucket.item,
-          context,
-        });
-      }
-    },
-    filterAppliedHandler(index, filter) {
-      this.$store.dispatch(`${this.store}/MERGE_FILTER_AT_INDEX`, { index, filter })
-      this.$store.dispatch(`${this.store}/PUSH_SEARCH_PARAMS`, {})
-    }
   },
   components: {
-    BaseTitleBar,
-    Timeline,
-    // flatPickr,
+    FilterTimeline,
     FilterFacet,
-    FilterMonitor,
-    InfoButton,
-    // FacetExplorer,
   },
 };
 </script>
@@ -421,44 +178,6 @@ export default {
 <i18n>
   {
     "en": {
-      "label": {
-        "timeline": {
-          "articles": "publication date",
-          "images": "publication date"
-        },
-        "timelineDescription": {
-          "articles": {
-            "description": {
-              "sum": "Number of articles per year",
-              "percent": "Percentage of articles per year"
-            },
-            "filtered": {
-              "sum": "Number of articles per year (filtered)",
-              "percent": "Percentage of articles per year (filtered)"
-            }
-          },
-          "images": {
-            "description": {
-              "sum": "Number of images extracted per year",
-              "percent": "Percentage of number of images per year"
-            },
-            "filtered": {
-              "sum": "Number of images per year (filtered)",
-              "percent": "Percentage of number of images per year (filtered)"
-            }
-          }
-        },
-        "display": {
-          "sum": "sum",
-          "percent": "%"
-        },
-        "daterange": {
-          "pick": "add filter ...",
-          "start": "from",
-          "end": "to",
-          "apply": "add as filter"
-        }
-      },
       "groupBy": {
         "articles": "articles",
         "images": "images"

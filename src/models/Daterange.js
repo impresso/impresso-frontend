@@ -16,8 +16,8 @@ export default class Daterange {
       this.start = new Date(range[0]);
       this.end = new Date(range[1]);
     } else {
-      this.start = new Date(start);
-      this.end = new Date(end);
+      this.start = start instanceof Date ? start : new Date(start);
+      this.end = end instanceof Date ? end : new Date(end);
     }
     // make sure we only use dates, not times
     this.start.setUTCHours(0, 0, 0, 0);
@@ -28,8 +28,7 @@ export default class Daterange {
   getValue() {
     return [
       this.start.toISOString().replace('.000Z', 'Z'),
-      'TO',
       this.end.toISOString().replace('.000Z', 'Z'),
-    ].join(' ');
+    ].join(' TO ');
   }
 }

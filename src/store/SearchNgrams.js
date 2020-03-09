@@ -12,9 +12,9 @@ const AvailableFacets = [
   'newspaper',
   'person',
   'location',
+  'topic',
   'type',
   'country',
-  'topic',
 ];
 
 const FacetsOperators = {
