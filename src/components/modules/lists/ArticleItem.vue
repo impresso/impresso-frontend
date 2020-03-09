@@ -16,7 +16,7 @@
       </router-link>
       <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
       <span class="date">{{ $d(item.date, "long") }}</span>
-      <span>{{ pages }}</span>
+      <span> – {{ pages }}</span>
     </div>
 
 
