@@ -251,9 +251,14 @@ export default {
         break;
       case 'ArrowDown':
         this.selectedIndex += 1;
+        this.showSuggestions = this.q.length > 0;
         break;
       case 'ArrowUp':
         this.selectedIndex -= 1;
+        this.showSuggestions = this.q.length > 0;
+        break;
+      case 'Escape':
+        this.hideSuggestions();
         break;
       default:
         // this.selected = this.suggestion;
