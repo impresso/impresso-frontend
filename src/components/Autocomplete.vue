@@ -329,7 +329,6 @@ export default {
           flex: 1;
         }
       }
-      &:hover,
       &.selected {
         background: rgba($clr-accent-secondary, 0.5);
         border-color: rgba($clr-accent-secondary, 0.75);
