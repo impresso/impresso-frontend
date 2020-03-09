@@ -1,8 +1,9 @@
 <template lang="html">
   <i-layout-section v-if="$route.params.collection_uid">
 
-    <div slot="header" v-if="!fetching">
-      <b-navbar type="light" variant="light" class="border-bottom">
+    <div slot="header">
+
+      <b-navbar type="light" variant="light">
 
         <section>
 
@@ -55,22 +56,25 @@
         <b-modal id="confirmDelete" v-on:ok="remove(collection)">
           {{this.$t('confirm_delete', [collection.name])}}
         </b-modal>
-
       </b-navbar>
 
-      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
-        <b-navbar-nav class="p-3 border-right">
-          <li>
-            <label v-html="$tc('articles', paginationTotalRows) "></label>
-          </li>
-        </b-navbar-nav>
+      <b-tabs pills class="mx-3">
+        <template v-slot:tabs-end>
+          <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
+            :class="{ active: tabItem.name === tab.name }"
+            active-class='none'
+            :to="{ name: 'collection', params: { collection_uid: $route.params.collection_uid }, query: { tab: tabItem.name }}">
+            <span v-html="tabItem.label"/>
+          </b-nav-item>
+        </template>
+      </b-tabs>
 
+      <b-navbar v-if="tab.name === TAB_ARTICLES" type="light" variant="light" class="px-0 py-0 border-bottom">
         <b-navbar-nav class="p-3">
           <li><label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </li>
         </b-navbar-nav>
-
         <b-navbar-nav class="p-3 border-left ml-auto">
           <li>
             <label class="mr-1">{{ $t('label_display') }}</label>
@@ -80,13 +84,11 @@
             </b-form-radio-group>
           </li>
         </b-navbar-nav>
-
-
       </b-navbar>
+
     </div>
 
-
-    <div class="collection-group">
+    <div v-if="tab.name === TAB_ARTICLES" class="collection-group">
 
       <div v-if="fetching">
         <i-spinner class="text-center m-5 p-5" />
@@ -140,6 +142,11 @@
       </div>
     </div>
 
+    <div v-else class="p-3">
+      <pre>
+        {{ collection }}
+      </pre>
+    </div>
 
     <div v-if="entities.length > 0" class="collection-group">
       <hr>
@@ -179,11 +186,16 @@ import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import Pagination from './modules/Pagination';
 
+const TAB_ARTICLES = 'articles';
+const TAB_OVERVIEW = 'overview';
+
 export default {
   data: () => ({
     tab: {},
     collection: new Collection(),
     fetching: false,
+    TAB_ARTICLES,
+    TAB_OVERVIEW,
   }),
   components: {
     SearchResultsListItem,
@@ -278,14 +290,36 @@ export default {
         this.getCollectionItems(1);
       },
     },
-  },
-  mounted() {
-    this.getCollection();
+    tabs() {
+      return [
+        {
+          label: this.$t('tabs.overview'),
+          name: TAB_OVERVIEW,
+        },
+        {
+          label: this.$tc('tabs.relatedArticles', this.collection.countItems, {
+            count: this.$n(this.paginationTotalRows),
+          }),
+          name: TAB_ARTICLES,
+        },
+      ];
+    },
   },
   watch: {
-    $route() {
-      this.paginationCurrentPage = 1;
-      this.getCollection();
+    $route: {
+      immediate: true,
+      async handler({ query }) {
+        await this.getCollection();
+        // set active tab
+        const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
+        this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
+        // reset item list
+        if (this.tab.name === TAB_ARTICLES) {
+          this.paginationCurrentPage = 1;
+        } else {
+          // await this.loadTimeline();
+        }
+      },
     },
   },
   methods: {
@@ -296,6 +330,7 @@ export default {
       }
       this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
         this.collection = res;
+        console.log(this.collection);
         this.fetching = false;
       });
     },
