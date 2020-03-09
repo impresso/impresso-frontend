@@ -17,11 +17,11 @@
           class="pb-2 px-3"
           @submit="handleSearchInputSubmitted"
           @orderByChanged="handleOrderByChanged"
-          @filtersEnabledChanged="handleFiltersEnabledChanged"
           :orderBy="orderByValue"
           :value="searchText"
-          :filters="searchFilters"
-          :filters-enabled="searchFiltersEnabled"/>
+          :filters="enrichedFilters"
+          :supported-filter-types="supportedFilterTypes"
+          @filtersChanged="handleFiltersChanged"/>
       </template>
 
       <template v-slot:default>
@@ -55,14 +55,21 @@ import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearc
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
 
 import List from './modules/lists/List';
-import { textReuseClusters } from '@/services';
+import { textReuseClusters, filtersItems } from '@/services';
+import { toCanonicalFilter, toSerializedFilters } from '../logic/filters';
 
 const isLastItem = (index, total) => total - 1 === index
 
-const serializeFilters = filters => protobuf.searchQuery.serialize({ filters })
+const serializeFilters = filters => protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
 const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
 
-const SupportedFilterTypes = ['daterange', 'newspaper']
+const SupportedFilterTypes = [
+  'daterange',
+  'newspaper',
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta'
+]
 const supportedFiltersFilter = filter => SupportedFilterTypes.includes(filter.type)
 
 const QueryParameters = Object.freeze({
@@ -70,7 +77,6 @@ const QueryParameters = Object.freeze({
   SearchText: 'q',
   PageNumber: 'page',
   OrderBy: 'orderBy',
-  SearchFiltersEnabled: 'filtersOn',
   SearchFilters: 'filters'
 })
 
@@ -85,7 +91,10 @@ export default {
       total: 0
     },
     isLoading: false,
+    // cluster selected in the search panel
     selectedCluster: undefined,
+    // filters enriched with items once they are fetched
+    filtersWithItems: undefined
   }),
   props: {
     paginationPerPage: {
@@ -111,7 +120,6 @@ export default {
       if (filters.length > 0) {
         this.$navigation.updateQueryParameters({
           [QueryParameters.SearchFilters]: serializeFilters(filters),
-          [QueryParameters.SearchFiltersEnabled]: 1
         })
       }
     }
@@ -153,9 +161,9 @@ export default {
         [QueryParameters.PageNumber]: 1,
       })
     },
-    handleFiltersEnabledChanged(filtersAreEnabled) {
+    handleFiltersChanged(filters) {
       this.$navigation.updateQueryParameters({
-        [QueryParameters.SearchFiltersEnabled]: filtersAreEnabled ? 1 : undefined
+        [QueryParameters.SearchFilters]: serializeFilters(filters)
       })
     },
     isLastItem,
@@ -193,6 +201,7 @@ export default {
     }
   },
   computed: {
+    supportedFilterTypes() { return SupportedFilterTypes },
     paginationList() {
       return {
         currentPage: this.paginationCurrentPage,
@@ -215,8 +224,10 @@ export default {
         ? deserializeFilters(serializedFilters)
         : []
     },
-    searchFiltersEnabled() {
-      return Boolean(this.$route.query[QueryParameters.SearchFiltersEnabled])
+    enrichedFilters() {
+      return this.filtersWithItems != null
+        ? this.filtersWithItems
+        : this.searchFilters
     },
     paginationCurrentPage() {
       const { [QueryParameters.PageNumber]: page = 1 } = this.$route.query
@@ -233,9 +244,7 @@ export default {
         }
       }
 
-      const filters = this.searchFiltersEnabled
-        ? serializeFilters(this.searchFilters)
-        : undefined;
+      const filters = serializeFilters(this.searchFilters)
 
       return {
         method: 'searchClusters',
@@ -248,7 +257,7 @@ export default {
           filters,
         }
       };
-    },
+    }
   },
   watch: {
     searchApiQueryParameters: {
@@ -259,14 +268,23 @@ export default {
       immediate: true,
     },
     selectedClusterId: {
-      async handler() {
-        if (this.selectedClusterId == null) return
+      async handler(selectedClusterId) {
+        if (selectedClusterId == null) return
         const filteredClusters = this.clusterItems
-          .filter(({ cluster }) => cluster.id === this.selectedClusterId)
+          .filter(({ cluster }) => cluster.id === selectedClusterId)
         if (filteredClusters.length > 0) this.selectedCluster = filteredClusters[0]
 
-        this.selectedCluster = await textReuseClusters.get(this.selectedClusterId)
+        this.selectedCluster = await textReuseClusters.get(selectedClusterId)
           .then(({ cluster }) => cluster)
+      },
+      immediate: true
+    },
+    searchFilters: {
+      async handler(filters) {
+        this.filtersWithItems = undefined
+        const serializedFilters = toSerializedFilters(filters || [])
+        const { filtersWithItems } = await filtersItems.find({ query: { filters: serializedFilters }})
+        this.filtersWithItems = filtersWithItems.map(({ filter, items }) => ({ ...filter, items }))
       },
       immediate: true
     }

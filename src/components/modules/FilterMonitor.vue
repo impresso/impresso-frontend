@@ -5,12 +5,12 @@
       <b-form-group>
         <b-form-radio-group
           switches
-          v-model="editedFilter.context"
+          v-model="currentContext"
           v-bind:options="checkboxContexts">
         </b-form-radio-group>
       </b-form-group>
       <!--  operator -->
-      <b-form-group v-if="editedFilter.context === 'include' && availableItems.length > 1">
+      <b-form-group v-if="currentContext === 'include' && availableItems.length > 1">
         <b-form-radio-group
           switches
           v-model="editedFilter.op"
@@ -23,30 +23,30 @@
       <!--  context -->
       <b-dropdown size="sm" variant="outline-primary" class="mr-1">
         <template slot="button-content">
-          <span v-html="$t(`label.${type}.context.${editedFilter.context}`)"/>
+          <span v-html="$t(`label.${type}.context.${currentContext}`)"/>
         </template>
         <b-dropdown-item
           v-for="option in contexts"
-          v-bind:active="editedFilter.context === option"
+          v-bind:active="currentContext === option"
           v-bind:key="option"
-          v-on:click="editedFilter.context = option"
+          v-on:click="currentContext = option"
         ><span class="small" v-html="$t(`label.${type}.context.${option}`)"></span></b-dropdown-item>
       </b-dropdown>
       <!--  operator -->
       <b-dropdown v-if="operators.length > 1" size="sm" variant="outline-primary">
         <template slot="button-content">
-          <span v-html="$t(`op.${editedFilter.op}.${editedFilter.context}`)"/>
+          <span v-html="$t(`op.${editedFilter.op}.${currentContext}`)"/>
         </template>
         <b-dropdown-item
           v-for="option in operators"
           v-bind:active="editedFilter.op === option"
           v-bind:key="option"
           v-on:click="editedFilter.op = option"
-        ><span class="small" v-html="$t(`op.${option}.${editedFilter.context}`)"></span></b-dropdown-item>
+        ><span class="small" v-html="$t(`op.${option}.${currentContext}`)"></span></b-dropdown-item>
       </b-dropdown>
     </div>
     <!-- for strings -->
-    <div v-if="['string', 'title'].indexOf(type) !== -1">
+    <div v-if="StringTypes.includes(type)">
       <b-form-group :label="$t(`label.${type}.value`)">
         <b-form-input
           size="sm"
@@ -77,12 +77,13 @@
       </b-form-group>
     </div>
     <div v-for="(item, idx) in filter.items" :key="idx" class="mt-2">
-      <div v-if="type === 'daterange'">
-        <filter-daterange :daterange="item" @change="changeDaterangeFilter"></filter-daterange>
+      <div v-if="RangeFacets.includes(type)">
+        <filter-number-range v-if="NumericRangeFacets.includes(type)" :start="parseInt(item.start, 10)" :end="parseInt(item.end, 10)" @changed="handleRangeChanged"/>
+        <filter-daterange v-else :start="new Date(item.start)" :end="new Date(item.end)" @changed="handleRangeChanged"/>
       </div>
       <b-form-checkbox v-else v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
         <item-label :item="item" :type="type"/>
-        <span v-if="!item.uid.length">...</span>
+        <span v-if="!item.uid">...</span>
         <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
         <item-selector :uid="item.uid" :item="item" :type="type"/>
       </b-form-checkbox>
@@ -119,11 +120,19 @@
 
 <script>
 import FilterDaterange from './FilterDateRange';
+import FilterNumberRange from './FilterNumberRange';
 import ItemSelector from './ItemSelector';
 import ItemLabel from './lists/ItemLabel';
 import CollectionItem from './lists/CollectionItem';
 import EmbeddingsSearch from './EmbeddingsSearch';
-import { toCanonicalFilter, toSerializedFilter } from '../../logic/filters'
+import {
+  toCanonicalFilter,
+  toSerializedFilter,
+  RangeFacets,
+  NumericRangeFacets
+} from '../../logic/filters'
+
+const StringTypes = ['string', 'title']
 
 /**
  * Changes filter after 'apply' button is clicked.
@@ -137,7 +146,10 @@ export default {
   data: () => ({
     showEmbeddings: false,
     editedFilter: {},
-    excludedItemsIds: []
+    excludedItemsIds: [],
+    RangeFacets,
+    NumericRangeFacets,
+    StringTypes
   }),
   props: {
     operators: {
@@ -192,7 +204,7 @@ export default {
     },
     checkboxOperators() {
       return this.operators.map(value => ({
-        text: this.$t(`op.${value}.${this.filter.context}`),
+        text: this.$t(`op.${value}.${this.currentContext}`),
         value,
       }));
     },
@@ -200,11 +212,21 @@ export default {
       return this.itemsToAdd.length > 0
         || this.excludedItemsIds.length > 0
         || toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
+    },
+    currentContext: {
+      get() {
+        return this.editedFilter.context
+          ? this.editedFilter.context
+          : 'include'
+      },
+      set(value) { this.editedFilter.context = value }
     }
   },
   methods: {
     applyChanges() {
-      if (Array.isArray(this.editedFilter.q)) {
+      const { type } = this.editedFilter
+
+      if (!StringTypes.includes(type) && !RangeFacets.includes(type)) {
         const allItemsDictonary = this.filter.items.concat(this.itemsToAdd).reduce((acc, item) => {
           acc[item.uid] = item
           return acc
@@ -212,6 +234,7 @@ export default {
         const availableItemsIds = [...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid))]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
         const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
+
         this.$emit('changed', {
           ...this.editedFilter,
           items: selectedItems,
@@ -228,14 +251,15 @@ export default {
         this.excludedItemsIds = this.excludedItemsIds.concat(uid)
       }
     },
-    changeDaterangeFilter({item}) {
-      this.editedFilter.q = item.uid;
-      this.$emit('daterange-changed', this.editedFilter);
-    },
     addEmbeddingSuggestion(embedding) {
       this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
       this.editedFilter.precisions = 'soft'
     },
+    handleRangeChanged({ item, q, type }) {
+      this.editedFilter.q = q
+      this.editedFilter.items = [item]
+      if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);
+    }
   },
   components: {
     FilterDaterange,
@@ -243,6 +267,7 @@ export default {
     EmbeddingsSearch,
     ItemLabel,
     ItemSelector,
+    FilterNumberRange
   },
   watch: {
     /**
@@ -394,6 +419,33 @@ label.custom-control-label {
         "context": {
           "include": "Published between",
           "exclude": "<b>NOT</b> published between"
+        }
+      },
+      "textReuseClusterSize": {
+        "title": "filter by text reuse cluster size",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "cluster size between",
+          "exclude": "cluster size <b>NOT</b> between"
+        }
+      },
+      "textReuseClusterLexicalOverlap": {
+        "title": "filter by text reuse cluster lexical overlap",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "lexical overlap between",
+          "exclude": "lexical overlap <b>NOT</b> between"
+        }
+      },
+      "textReuseClusterDayDelta": {
+        "title": "filter by text reuse cluster time span (days)",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "time span between",
+          "exclude": "time span <b>NOT</b> between"
         }
       }
     }

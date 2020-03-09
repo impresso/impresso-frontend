@@ -17,24 +17,22 @@
                   variant="outline-primary" size="sm"
                   v-on:click="handleTypeChange(availableType)"
                   v-bind:class="{ 'active' : currentType === availableType }">
-          {{ availableType }}
+          {{ $t(`labels.${availableType}`) }}
         </b-button>
-        <div>
-          <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
-            <b-input-group>
-              <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
-                            v-model.trim="searchQueryModel"
-                            autofocus/>
-              <b-input-group-append>
-                <b-btn class="pt-2 pb-1 px-2"
-                       variant="outline-primary"
-                       v-on:click="search">
-                  <div class="search-submit dripicons-search"></div>
-                </b-btn>
-              </b-input-group-append>
-            </b-input-group>
-          </form>
-        </div>
+        <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
+          <b-input-group>
+            <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
+                          v-model.trim="searchQueryModel"
+                          autofocus/>
+            <b-input-group-append>
+              <b-btn class="pt-2 pb-1 px-2"
+                      variant="outline-primary"
+                      v-on:click="search">
+                <div class="search-submit dripicons-search"></div>
+              </b-btn>
+            </b-input-group-append>
+          </b-input-group>
+        </form>
       </div>
     </template>
     <div v-if='isLoading'
@@ -42,8 +40,15 @@
          style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
       <i-spinner class="text-center pt-4" />
     </div>
-    <facet-explorer :filter-type="currentType"
+    <facet-explorer v-if="!RangeFacets.includes(currentType)"
+                    :filter-type="currentType"
                     :buckets="buckets"
+                    v-model="filter"
+                    class="my-0 mb-3 px-2"/>
+    <range-facet-explorer v-if="RangeFacets.includes(currentType)"
+                    :filter-type="currentType"
+                    :buckets="buckets"
+                    :range="range"
                     v-model="filter"
                     class="my-0 mb-3 px-2"/>
       <div v-if="totalResults > pageSize" class="p-3">
@@ -76,8 +81,10 @@ import {
   searchFacets
 } from '@/services'
 import FacetExplorer from './modules/FacetExplorer';
+import RangeFacetExplorer from './modules/RangeFacetExplorer';
 import Pagination from './modules/Pagination';
 import Bucket from '@/models/Bucket';
+import { RangeFacets } from '@/logic/filters'
 
 const TypeToServiceMap = Object.freeze({
   person: entities,
@@ -122,8 +129,8 @@ async function search({
   type,
   searchQuery,
   currentPage,
-  pageSize,
-}) {
+  pageSize
+}, index) {
   const service = TypeToServiceMap[type]
   if (searchingEnabled) {
     const query = buildEntitySearchQuery(currentPage, pageSize, type, searchQuery)
@@ -138,11 +145,11 @@ async function search({
     }
   } else {
     const query = {
-      group_by: 'articles',
       filters: filters,
       page: currentPage,
       limit: pageSize,
       order_by: '-count',
+      index
     };
     const response = await searchFacets.get(type, { query })
     const result = response[0]
@@ -151,10 +158,24 @@ async function search({
       buckets: result.buckets.map(d => new Bucket({
         ...d,
         type
-      }))
+      })),
+      range: Number.isFinite(result.min) && Number.isFinite(result.max)
+        ? [result.min, result.max] : undefined
     }
   }
 }
+
+const AllSupportedFilterTypes = [
+  'location', 'country', 'person', 'language',
+  'topic', 'newspaper', 'collection', 'year', 'month',
+  'textReuseClusterSize', 'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta'
+]
+
+const DefaultFilterTypes = [
+  'location', 'country', 'person', 'language',
+  'topic', 'newspaper', 'collection', 'year', 'month'
+]
 
 export default {
   model: {
@@ -170,8 +191,10 @@ export default {
     currentPage: 1,
     totalResults: 0,
     buckets: [],
+    range: [],
     isLoading: false,
-    pageSize: PageSize
+    pageSize: PageSize,
+    RangeFacets
   }),
   props: {
     /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
@@ -183,7 +206,15 @@ export default {
     // Only used when "searchingEnabled" is on
     initialSearchQuery: String,
     isVisible: Boolean,
-    initialType: String
+    initialType: String,
+    includedTypes: {
+      type: Array,
+      default: () => undefined
+    },
+    index: {
+      type: String,
+      default: 'search'
+    }
   },
   methods: {
     openDialog() { this.$bvModal.show(this.id) },
@@ -192,10 +223,12 @@ export default {
     async search() {
       if (!this.isVisible) return
       try {
+        this.buckets = []
         this.isLoading = true
-        const { totalResults, buckets } = await search(this.searchParameters)
+        const { totalResults, buckets, range } = await search(this.searchParameters, this.index)
         this.totalResults = totalResults
         this.buckets = buckets
+        if (range != null) this.range = range
       } finally {
         this.isLoading = false
       }
@@ -226,13 +259,13 @@ export default {
       set(q) { this.searchQuery = q }
     },
     typeOptions() {
+      if (this.includedTypes) {
+        return this.includedTypes.filter(type => AllSupportedFilterTypes.includes(type))
+      }
       if (this.searchingEnabled) {
         return ['newspaper', 'person', 'location', 'topic', 'collection'];
       }
-      return [
-        'location', 'country', 'person', 'language',
-        'topic', 'newspaper', 'collection', 'year', 'month',
-      ];
+      return DefaultFilterTypes;
     },
     searchParameters() {
       const {
@@ -259,6 +292,7 @@ export default {
   components: {
     FacetExplorer,
     Pagination,
+    RangeFacetExplorer,
   },
   watch: {
     searchParameters: {
@@ -282,8 +316,11 @@ export default {
     currentType() { this.currentPage = 1 },
     initialType: {
       handler() {
-        if (this.initialType == null) return
-        this.currentType = this.initialType
+        if (this.initialType == null) {
+          this.currentType = this.typeOptions[0]
+        } else {
+          this.currentType = this.initialType
+        }
       },
       immediate: true
     }
@@ -309,6 +346,20 @@ export default {
       "searchField": {
         "placeholder": "...|There is only one choice...|Search one of {n} available choices",
         "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
+      },
+      "labels": {
+        "location": "location",
+        "country": "country",
+        "person": "person",
+        "language": "language",
+        "topic": "topic",
+        "newspaper": "newspaper",
+        "collection": "collection",
+        "year": "year",
+        "month": "month",
+        "textReuseClusterSize": "text reuse cluster size",
+        "textReuseClusterLexicalOverlap": "text reuse cluster lexical overlap",
+        "textReuseClusterDayDelta": "text reuse cluster span in days"
       }
     }
   }

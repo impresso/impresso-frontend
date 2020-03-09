@@ -1,5 +1,8 @@
 export interface Entity {
-  uid: string
+  uid: string,
+
+  start?: Number,
+  end?: Number
 }
 
 export interface Filter {
