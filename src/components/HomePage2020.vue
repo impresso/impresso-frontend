@@ -80,12 +80,17 @@
         <p>
           How can newspapers help understand the past? How to explore them?
         </p>
-        <p class="p-3 my-3" style="background-color: #3e454c; font-size: 0.9em">
+        <div class="p-3 my-3" style="background-color: #3e454c; font-size: 0.9em; border-left: 2px solid white;">
+        <p>
           For legal reasons not all content is available in Open Access.
-          <br/> To gain full access, simply sign this
+          <br/> To <b class="text-white">gain full access</b>, simply sign this
           <a class="text-white" href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" target="_self"> Non-Disclosure-Agreement</a>
           and email it to <a class="text-white" href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
         </p>
+        <b-button :variant="darkMode ? 'primary' : 'outline-primary'" size="sm" href="mailto:info@impresso-project.ch">
+          Request full access
+        </b-button>
+        </div>
         <p class='text-center text-white'>
           ... then here are a few examples to get you started!
         </p>
