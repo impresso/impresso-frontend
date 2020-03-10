@@ -12,9 +12,8 @@
           </span>
 
           <h3>{{collection.name}}</h3>
-          <p>
-            {{collection.description}}
-          </p>
+
+          <p>{{collection.description}}</p>
 
         </section>
 
@@ -69,21 +68,41 @@
         </template>
       </b-tabs>
 
-      <b-navbar v-if="tab.name === TAB_ARTICLES" type="light" variant="light" class="px-0 py-0 border-bottom">
-        <b-navbar-nav class="p-3">
-          <li><label class="mr-1">{{ $t('label_order') }}</label>
+      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+
+
+
+        <b-navbar-nav class="ml-2">
+          <b-nav-form class="p-2">
+            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
+              {{ $t('actions.addToCurrentFilters') }}
+            </b-button>
+          </b-nav-form>
+          <b-nav-form class="p-2  border-right">
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+              {{ $t('actions.searchMore') }}
+            </router-link>
+          </b-nav-form>
+        </b-navbar-nav>
+
+
+
+        <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
+          <b-navbar-form class="p-2 border-right">
+            <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li>
+          </b-navbar-form>
+          <b-navbar-form class="p-2 ml-auto">
+            <li class="ml-auto">
+              <label class="mr-1">{{ $t('label_display') }}</label>
+              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+              </b-form-radio-group>
+            </li>
+          </b-navbar-form>
         </b-navbar-nav>
-        <b-navbar-nav class="p-3 border-left ml-auto">
-          <li>
-            <label class="mr-1">{{ $t('label_display') }}</label>
-            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-            </b-form-radio-group>
-          </li>
-        </b-navbar-nav>
+
       </b-navbar>
 
     </div>
@@ -142,21 +161,46 @@
       </div>
     </div>
 
+
+
+
     <div v-else class="p-3">
-      <pre>
-        {{ collection }}
-      </pre>
+
+
+      <timeline
+            :domain="[startYear, endYear]"
+            :values="timevalues">
+        <div slot-scope="tooltipScope">
+          <div v-if="tooltipScope.tooltip.item">
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w }}</b>
+          </div>
+        </div>
+      </timeline>
+
+
+
+
     </div>
 
-    <div v-if="entities.length > 0" class="collection-group">
-      <hr>
-      <h4>Entities</h4>
-      <div class="grid">
-        <div class="item" v-for="(entity, index) in entities" v-bind:key="index">
-          {{entity}}
-        </div>
-      </div>
+
+    <div v-if="locations.length" class="m-3 small">
+      <b-badge variant="light" class="mr-1 small-caps bg-medium">Top Locations</b-badge>
+      <span v-for="(location, idx) in locations" v-bind:key="idx">
+        <item-label :item="location.item" type="location" /> ({{location.count}})
+        <item-selector :uid="location.uid" :item="location" type="location"/>
+        <span v-if="idx !== locations.length - 1">, </span>
+      </span>
     </div>
+    <div v-if="persons.length" class="m-3 small">
+      <b-badge variant="light" class="mr-1 small-caps bg-medium">Top Persons</b-badge>
+      <span v-for="(person, idx) in persons" v-bind:key="idx">
+        <item-label :item="person.item" type="person" /> ({{person.count}})
+        <item-selector :uid="person.uid" :item="person" type="person"/>
+        <span v-if="idx !== persons.length - 1">, </span>
+      </span>
+    </div>
+
 
     <div v-if="issues.length > 0" class="collection-group">
       <h4>Issues</h4>
@@ -176,6 +220,19 @@
       </div>
     </div>
 
+    <div v-if="topics.length > 0" class="collection-group m-3">
+      <h4>Topics</h4>
+      <div class="grid">
+        <div class="item" v-for="(topic, index) in topics" v-bind:key="index">
+          <topic-item :item="topic.item" class='p-3 border-bottom' />
+        </div>
+      </div>
+    </div>
+
+    <pre>
+      {{ collection }}
+    </pre>
+
   </i-layout-section>
 </template>
 
@@ -185,25 +242,61 @@ import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import Pagination from './modules/Pagination';
+import SearchQuery from '@/models/SearchQuery';
+import Timeline from './modules/Timeline';
+import TopicItem from './modules/lists/TopicItem';
+import ItemLabel from './modules/lists/ItemLabel';
+import ItemSelector from './modules/ItemSelector';
+
+
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
 
 export default {
+  props: {
+    startYear: {
+      type: Number,
+      default: 1740,
+    },
+    endYear: {
+      type: Number,
+      default: 2020,
+    },
+  },
   data: () => ({
     tab: {},
     collection: new Collection(),
     fetching: false,
     TAB_ARTICLES,
     TAB_OVERVIEW,
+    timevalues: [],
+    topics: [],
+    persons: [],
+    locations: [],
   }),
   components: {
     SearchResultsListItem,
     SearchResultsTilesItem,
     SearchResultsImageItem,
     Pagination,
+    Timeline,
+    TopicItem,
+    ItemLabel,
+    ItemSelector,
   },
   computed: {
+    searchPageLink() {
+      if (!this.collection) {
+        return { name: 'search' };
+      }
+      return {
+        name: 'search',
+        query: SearchQuery.serialize({
+          filters: [{ type: 'collection', q: this.collection.uid }],
+        }),
+      };
+    },
     collections: {
       get() {
         return this.$store.getters['collections/collections'];
@@ -222,11 +315,11 @@ export default {
         return this.collection.items.filter(item => (item.labels && item.labels[0] === 'page'));
       },
     },
-    entities: {
-      get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'entity'));
-      },
-    },
+    // entities: {
+    //   get() {
+    //     return this.collection.items.filter(item => (item.labels && item.labels[0] === 'entity'));
+    //   },
+    // },
     articles: {
       get() {
         return this.$store.getters['collections/collectionItems'];
@@ -298,7 +391,7 @@ export default {
         },
         {
           label: this.$tc('tabs.relatedArticles', this.collection.countItems, {
-            count: this.$n(this.paginationTotalRows),
+            count: this.$n(this.collection.countItems),
           }),
           name: TAB_ARTICLES,
         },
@@ -309,16 +402,23 @@ export default {
     $route: {
       immediate: true,
       async handler({ query }) {
-        await this.getCollection();
+        if (this.collection.uid !== this.$route.params.collection_uid) {
+          this.timevalues = [];
+          this.paginationCurrentPage = 1;
+          this.getCollection();
+          await this.getCollectionItems();
+          await this.loadTimeline();
+          await this.loadEntities();
+          await this.loadTopics();
+        }
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
         // reset item list
-        if (this.tab.name === TAB_ARTICLES) {
-          this.paginationCurrentPage = 1;
-        } else {
-          // await this.loadTimeline();
-        }
+        // if (this.tab.name === TAB_ARTICLES && this.collection.items === []) {
+        // }
+        // if (this.tab.name === TAB_OVERVIEW && this.timevalues === []) {
+        // }
       },
     },
   },
@@ -338,7 +438,6 @@ export default {
         uid: this.$route.params.collection_uid,
         items: [],
       };
-      this.getCollectionItems();
     },
     gotoArticle(article) {
       this.$router.push({
@@ -396,6 +495,34 @@ export default {
     },
     onInputPagination(page = 1) {
       this.getCollectionItems(page);
+    },
+    applyFilter(context = 'include') {
+      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
+      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
+        searchQueryId: '',
+        filter: {
+          type: 'collection',
+          q: [this.collection.uid],
+          items: [this.collection],
+        },
+      });
+    },
+    loadTimeline() {
+      return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
+        this.timevalues = values;
+      });
+    },
+    loadTopics() {
+      return this.$store.dispatch('collections/LOAD_TOPICS', this.$route.params.collection_uid).then((values) => {
+        this.topics = values.buckets;
+      });
+    },
+    loadEntities() {
+      return this.$store.dispatch('collections/LOAD_ENTITIES', this.$route.params.collection_uid).then(([locationFacet, personFacet]) => {
+        this.locations = locationFacet.buckets;
+        this.persons = personFacet.buckets;
+        console.log(personFacet);
+      });
     },
   },
 };
