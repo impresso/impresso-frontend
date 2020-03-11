@@ -123,7 +123,7 @@ export default {
         break;
       case 'title':
       case 'string':
-        t = `<span class="highlight precision-${item.precision}">${item.q}</span>${item.distance || ''}`;
+        t = `<span class="highlight precision-${item.precision}">${item.uid || item.q}</span>${item.distance || ''}`;
         break;
       case 'topic':
         t = `"${item.htmlExcerpt || ''}..."`;
