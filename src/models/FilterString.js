@@ -4,22 +4,38 @@
  * @param {String} query The search query
  */
 
-import Filter from '@/models/FilterBase';
+import FilterItems from '@/models/FilterItems';
 import * as precisions from './Precisions';
 import * as contexts from './Contexts';
 
-export default class FilterString extends Filter {
+class StringItem {
+  constructor({
+    uid = '',
+  }) {
+    this.uid = uid;
+    this.isValid = typeof this.uid === 'string' && this.uid.trim().length > 0;
+  }
+}
+
+export default class FilterString extends FilterItems {
   constructor(args) {
     super(args);
-    this.q = String(args.q || args.query);
     this.precision = precisions[(args.precision || 'exact').toUpperCase()];
     this.distance = Math.max(0, Math.min(parseInt(args.distance || 0, 10), 10));
+  }
+
+  setItems(items = []) {
+    this.items = items.map((uid) => {
+      const item = new StringItem({ uid });
+      item.checked = true;
+      return item;
+    }).filter(item => item.isValid);
   }
 
   getQuery() {
     const query = {
       type: this.type,
-      q: this.q,
+      q: this.items.map(d => d.uid),
       precision: this.precision,
     };
 
