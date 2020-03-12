@@ -15,7 +15,7 @@
     "@feathersjs/authentication-client": "4.3.3",
     "@feathersjs/feathers": "4.3.3",
     "@feathersjs/socketio-client": "4.3.3",
-    "bootstrap-vue": "2.6.1",
+    "bootstrap-vue": "2.2.2",
     "core-js": "3.6.4",
     "d3": "5.15.0",
     "dripicons": "2.0.0",
