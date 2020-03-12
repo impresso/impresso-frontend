@@ -5,7 +5,7 @@
       <div class="flex-grow-1">
         <div class='badge badge-language small-caps mr-1'>{{ $t('clusterLabel') }}</div>
         <span>
-          #{{ cluster.id }}
+          #{{ clusterId }}
         </span>
       </div>
       <div class="text-right">
@@ -73,6 +73,13 @@ export default {
     impressoCollectionEndDate() {
       return new Date(window.impressoDocumentsDateSpan.lastDate)
     },
+    clusterId() {
+      if (this.cluster && this.cluster.id) {
+        const parts = this.cluster.id.split('-')
+        return parts[parts.length - 1]
+      }
+      return ''
+    }
   }
 }
 </script>
