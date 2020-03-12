@@ -213,26 +213,13 @@ export default {
     tocArticles: [],
     issueFilters: []
   }),
-  mounted() {
-    window.addEventListener('fullscreenchange', () => {
-      this.isFullscreen = !this.isFullscreen;
-    });
-    window.addEventListener('keyup', (e) => {
-      switch (e.key) {
-      case 'ArrowLeft':
-      case 'ArrowUp':
-        e.preventDefault();
-        this.gotoPageIndex(this.currentPageIndex - 1);
-        break;
-      case 'ArrowRight':
-      case 'ArrowDown':
-        e.preventDefault();
-        this.gotoPageIndex(this.currentPageIndex + 1);
-        break;
-      default:
-        break;
-      }
-    });
+  created() {
+    window.addEventListener('fullscreenchange', this.fullscreenChange);
+    window.addEventListener('keydown', this.keyDown);
+  },
+  destroyed() {
+    window.removeEventListener('fullscreenchange', this.fullscreenChange);
+    window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
     currentSearchFilters() {
@@ -724,6 +711,25 @@ export default {
           tab: this.tab,
         },
       });
+    },
+    keyDown(e) {
+      switch (e.key) {
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        e.preventDefault();
+        this.gotoPageIndex(this.currentPageIndex - 1);
+        break;
+      case 'ArrowRight':
+      case 'ArrowDown':
+        e.preventDefault();
+        this.gotoPageIndex(this.currentPageIndex + 1);
+        break;
+      default:
+        break;
+      }
+    },
+    fullscreenChange() {
+      this.isFullscreen = !this.isFullscreen;
     },
     toggleFullscreen() {
       if (!document.fullscreenElement) {
