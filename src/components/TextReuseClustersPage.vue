@@ -80,7 +80,7 @@ const QueryParameters = Object.freeze({
   SearchFilters: 'filters'
 })
 
-const ClusterIdSearchPattern = /^#(\d+)$/
+const ClusterIdSearchPattern = /^#([\w\d-_@]+)$/
 
 export default {
   data: () => ({
@@ -144,7 +144,6 @@ export default {
       })
     },
     handleSearchInputSubmitted(searchText) {
-      if (searchText === '') return
       this.$navigation.updateQueryParametersWithHistory({
         [QueryParameters.SearchText]: searchText,
         [QueryParameters.PageNumber]: 1,
@@ -276,6 +275,10 @@ export default {
 
         this.selectedCluster = await textReuseClusters.get(selectedClusterId)
           .then(({ cluster }) => cluster)
+          .catch(error => {
+            if (error.name !== 'NotFound') throw error
+            return undefined
+          })
       },
       immediate: true
     },
