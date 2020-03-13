@@ -32,13 +32,16 @@
         <span class="number">530,086</span> named entities disambiguated
       </p>
       <p>More? Check on our <a class="text-white" href="https://impresso-project.ch/news/2020/01/23/state-corpus-january2020.html">blog</a></p>
-      <p>
-        info @ impresso-project [dot] ch<br/>
-        project website: <a href="/" target="_blank">impresso-project.ch</a> <br/>
-        github: <a href="https://github.com/impresso" target="_blank">impresso</a><br/>
-        twitter: <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a><br/>
 
-      </p>
+      <div class="pl-3 my-3 border-left" style="border-width: 2px !important;">
+        info @ impresso-project [dot] ch
+        <br/>
+        project website: <a href="/" target="_blank">impresso-project.ch</a>
+        <br/>
+        <img src="@/assets/img/GitHub-Mark-Light-32px.png" class="mr-2" style="max-height:1em"> github: <a href="https://github.com/impresso" target="_blank">impresso</a>
+        <br/>
+        <img src="@/assets/img/Twitter_Logo_WhiteOnImage.png" class="mr-2" style="max-height:1em"> twitter: <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
+      </div>
       <div class="mb-2">
         <b-button
           :variant="showLines  ? 'primary' : 'outline-primary'" size="sm"
@@ -71,21 +74,44 @@
   </i-layout-section>
   <i-layout-section :class="{ ' ml-1px border-top border-left': showLines, 'border-tertiary': darkMode }">
     <div class="text-tertiary p-3">
-      <h1 class="huge m-4 my-2">Media Monitoring of the <span class="text-accent">Past</span></h1>
+      <h1 class="huge m-4 my-2">Media Monitoring <br/>of the <span class="text-accent">Past</span></h1>
       <!-- <h1 class="text-white mt-5">Today, 100 years ago.</h1>
       This section lists front pages with the most important events. -->
 
       <h2 class="p-4 m-0">Mining 200 years <br/>of historical newspapers <info-button name="which-newspapers" class="ml-2 mt-1 d-inline-block" /></h2>
       <section class="mx-4">
-        <p>
+        <p style="font-size:1.2em">
           How can newspapers help understand the past? How to explore them?
         </p>
-        <p class="p-3 my-3" style="background-color: #3e454c; font-size: 0.9em">
-          For legal reasons not all content is available in Open Access.
-          <br/> To gain full access, simply sign this
-          <a class="text-white" href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" target="_self"> Non-Disclosure-Agreement</a>
-          and email it to <a class="text-white" href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
-        </p>
+        <div class="p-3 mb-3 mt-5 enhance-contents position-relative">
+          <div class="starburst-mask">
+            <div class="starburst-wrapper">
+              <div class="position-absolute text">
+                Gain full Access for <b>free</b>!<br/>
+                <div class="dripicons-jewel"></div>
+              </div>
+              <div class="position-absolute rotating">
+                <div class="starburst example" id="example-2"><span>&nbsp;</span></div>
+              </div>
+            </div>
+          </div>
+
+          <p>
+            For legal reasons not all content is available in Open Access.
+            <br/> To <b class="text-white">gain full access</b>:
+
+          </p>
+          <b-button :variant="darkMode ? 'primary' : 'outline-primary'" size="sm"
+            href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" target="_self">
+            <div class="d-flex flex-row align-items-center">
+              <div class="d-flex dripicons dripicons-download mr-2" />
+              <div>{{$t('download_nda')}}</div>
+            </div>
+          </b-button>
+          <p class="mb-0 mt-3">
+            ... and return the signed form to <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">info@impresso-project.ch</a>
+          </p>
+        </div>
         <p class='text-center text-white'>
           ... then here are a few examples to get you started!
         </p>
@@ -178,6 +204,10 @@ export default {
 
   ul.nav.nav-pills {
     border-color: $clr-secondary;
+
+    .nav-item .nav-link{
+      color: #bec0c2;
+    }
   }
 
   .stats a {
@@ -204,6 +234,11 @@ h1.huge {
   &.border-tertiary, .border-tertiary{
     border-color: #ffffff47 !important;
   }
+  .enhance-contents {
+    background-color: #3e454c;
+    font-size: 1em;
+    border-left: 2px solid #F4D062;
+  }
 }
 
 .arrow-down {
@@ -214,6 +249,127 @@ h1.huge {
 
   border-top: 20px solid #fff;
 }
+
+.starburst {
+  background-color: #eb5543;
+  width: 6rem;
+  height: 6rem;
+  text-align: center;
+  color: #fff;
+  transform: rotate(-45deg);
+  transition: background-color .5s ease-in-out;
+}
+.starburst,
+.starburst span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.starburst span {
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.starburst:before,
+.starburst:after ,
+.starburst span:before,
+.starburst span:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  z-index: -1;
+  transform: rotate(30deg);
+}
+
+.starburst:after {
+  transform: rotate(-30deg);
+}
+
+.starburst span:after {
+  transform: rotate(30deg);
+}
+.starburst span:before {
+  transform: rotate(-30deg);
+}
+
+.starburst-mask {
+  position:absolute;
+  top: -12rem;
+  left: 5rem;
+  margin-left: -6rem;
+  height:12rem;
+  width: 12rem;
+  overflow: hidden;
+  background: transparent;
+
+  .starburst-wrapper {
+    pointer-events: none;
+    position: absolute;
+    bottom: .5rem;
+    left: 50%;
+    margin-left: -3rem;
+    transition: transform .6s cubic-bezier(.8,-.5,.2,1.4);
+  }
+
+  .starburst-wrapper .text{
+    color: black;
+    font-size: 1em;
+    z-index: 1;
+    font-variant: all-small-caps;
+    width: 6rem;
+    /* background: white; */
+    height: 6rem;
+    line-height: 1em;
+    text-align: center;
+    transform: rotate(-5deg);
+    border-radius: 50%;
+    padding-top: 1.15rem;
+  }
+  &:hover {
+    .starburst-wrapper {
+      transform: translateY(-5rem);
+    }
+    .starburst {
+      background-color: #F4D062;
+    }
+  }
+}
+.enhance-contents:hover {
+  .starburst-wrapper {
+    transform: translateY(-5rem);
+  }
+  .starburst {
+    background-color: #F4D062;
+  }
+}
+
+@-webkit-keyframes rotating {
+  // safari and chrome
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.rotating {
+  animation: rotating 15s linear infinite;
+}
 </style>
 
 <i18n>
@@ -222,7 +378,8 @@ h1.huge {
     "toggle_lines_off": "lines: off",
     "toggle_lines_on": "lines: on",
     "toggle_darkmode_off": "dark mode: off",
-    "toggle_darkmode_on": "dark mode: on"
+    "toggle_darkmode_on": "dark mode: on",
+    "download_nda": "download Non-Disclosure-Agreement form"
   }
 }
 </i18n>

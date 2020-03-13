@@ -22,13 +22,10 @@
           <span class="icon-link" :class="{ 'dripicons-plus': isCollapsed, 'dripicons-minus': !isCollapsed }"></span>
         </b-button>
       </div>
-      <div slot="description">
+      <div slot="description" class="mb-2">
         <div v-if="isFiltered" v-html="$t(`label.${facet.type}.filtered`)" />
         <div v-else-if="selectedBucketsIds.length">
           <span v-html="$t(`label.${facet.type}.selected`, {count: selectedBucketsIds.length})" />
-          <b-button size="sm" variant="outline-primary" @click="createFilter">
-            {{ $t(`actions.apply`) }}
-          </b-button>
         </div>
         <div v-else>
           <span v-if="isLoading">
@@ -63,7 +60,11 @@
         :type="facet.type"
         @toggle-bucket="toggleBucket"/>
     </div>
-
+    <div class="d-flex mt-2" v-if="selectedBucketsIds.length && !isFiltered">
+      <b-button size="sm" variant="outline-primary" class="w-100" @click="createFilter">
+        {{ $t(`actions.apply`) }}
+      </b-button>
+    </div>
   </div>
 </template>
 
