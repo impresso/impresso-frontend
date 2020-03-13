@@ -35,6 +35,7 @@ export default class FilterString extends FilterItems {
   getQuery() {
     const query = {
       type: this.type,
+      op: this.op,
       q: this.items.map(d => d.uid),
       precision: this.precision,
     };
