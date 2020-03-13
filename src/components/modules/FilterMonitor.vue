@@ -283,7 +283,6 @@ export default {
           ...this.editedFilter,
           q: this.editedFilter.q.concat(this.validStringsToAdd.map(d => d.uid)),
         };
-        console.info('applyChanges', newFilter);
         this.$emit('changed', newFilter);
         this.stringsToAdd = [];
       } else {
