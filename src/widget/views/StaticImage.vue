@@ -17,7 +17,22 @@ const options = {
   },
   backgroundSize: {
     default: 'normal',
-    validate: (d) => ['contain', 'normal', 'cover'].indexOf(d) !== -1,
+    validate: (d) => ['contain', 'normal', 'cover'].includes(d),
+  },
+  cssFilter: {
+    default: [],
+    validate: (d) => [
+      'contrast-0.5',
+      'contrast-0.75',
+      'contrast-1.5',
+      'contrast-1.75',
+      'brightness-0.5',
+      'brightness-0.75',
+      'brightness-1.5',
+      'brightness-1.75',
+      'brightness-2',
+    ].includes(d),
+    transform: (d) => d.split('-'),
   },
 };
 // https://impresso-project.ch/api/proxy/iiif/EXP-1958-03-15-a-p0020/90,1844,408,515/full/0/default.png
@@ -28,13 +43,17 @@ export default {
   props: {
     backgroundSize: String,
     backgroundColor: String,
+    cssFilter: String,
   },
   methods: {
     validateOrIgnore(prop) {
       if (options[prop].validate(this[prop])) {
+        if (typeof options[prop].transform === 'function') {
+          return options[prop].transform(this[prop]);
+        }
         return this[prop];
       }
-      console.warn('validateOrIgnore() value for:', prop,'is not valid:', this[prop]);
+      console.warn('validateOrIgnore() value for:', prop, 'is not valid:', this[prop]);
       return options[prop].default;
     },
   },
@@ -68,14 +87,22 @@ export default {
       };
     },
     getImageStyle() {
-      if (this.imageURL) {
+      if (!this.imageURL) {
+        return {};
+      }
+      const style = {
+        backgroundSize: this.validateOrIgnore('backgroundSize'),
+        backgroundImage: `url(${this.imageURL})`,
+        // https://live.staticflickr.com/7821/32349026587_077df84709_w_d.jpg)',
+      };
+      const [filter, value] = this.validateOrIgnore('cssFilter');
+      if (filter) {
         return {
-          backgroundSize: this.validateOrIgnore('backgroundSize'),
-          backgroundImage: `url(${this.imageURL})`,
-          // https://live.staticflickr.com/7821/32349026587_077df84709_w_d.jpg)',
+          ...style,
+          filter: `${filter}(${value})`,
         };
       }
-      return {}
+      return style;
     },
   },
 };

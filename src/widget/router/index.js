@@ -21,6 +21,7 @@ const routes = [
     props: ({ query }) => ({
       backgroundColor: query.backgroundColor,
       backgroundSize: query.backgroundSize,
+      cssFilter: query.cssFilter,
     }),
   },
   {
