@@ -1,6 +1,5 @@
 <template>
-  <div>
-    this is the app
+  <div class="h-100 v-100">
     <router-view/>
   </div>
 </template>
