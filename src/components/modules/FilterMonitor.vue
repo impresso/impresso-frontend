@@ -86,7 +86,7 @@
             v-model="item.uid" @click.prevent.stop >
           </b-form-input>
           <b-button class="dripicons-cross" variant="transparent" size="sm" style="padding:0.25rem 0.5rem 0 0.5rem"
-            @click="removeStringItem(idx)"
+            @click.prevent.stop="removeStringItem(idx)"
           />
         </b-form>
       </div>
