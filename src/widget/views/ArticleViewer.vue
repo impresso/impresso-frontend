@@ -166,9 +166,7 @@ export default {
 </script>
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
-.image{
-  background: #dbdbdb;
-}
+
 div.overlay-region{
   // background-color: $clr-accent-secondary;
   background-color: var(--overlay-color);
