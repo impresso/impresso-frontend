@@ -1,6 +1,6 @@
 <template>
   <div class="h-100 v-100">
-    <router-view/>
+    <router-view class="h-100 v-100 wrapper"/>
   </div>
 </template>
 
@@ -33,16 +33,64 @@
 .v-100 {
   width: 100%!important;
 }
+
+.mb-0, .my-0 {
+  margin-bottom: 0!important;
+}
+.mb-1, .my-1 {
+  margin-bottom: .25rem!important;
+}
+.mb-2, .my-2 {
+  margin-bottom: .5rem!important;
+}
+.pb-0, .py-0 {
+  padding-bottom: 0!important;
+}
+.p-2 {
+  padding: .5rem!important;
+}
+.p-3 {
+  padding: 1rem!important;
+}
+.pl-3, .px-3 {
+  padding-left: 1rem!important;
+}
+.pl-2, .px-2 {
+  padding-left: .5rem!important;
+}
+.pb-2, .py-2 {
+  padding-bottom: .5rem!important;
+}
+
 body,html{
   height: 100%;
   margin: 0;
 }
 
+h1{
+  margin: 0;
+  padding: 0;
+}
 body{
   background:none transparent;
 }
 
 .position-fixed{
   position: fixed;
+}
+
+.wrapper{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  .image {
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-grow: 1;
+  }
+  .caption {
+    flex-shrink: 0;
+  }
 }
 </style>
