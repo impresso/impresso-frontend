@@ -1,40 +1,14 @@
 <template lang="html">
-  <div class="h-100 v-100" :style="getBackgroundStyle">
-    <div class="image h-100 v-100" :style="getImageStyle"></div>
-    <div class="position-fixed footer p-3">{{ pageUid }}, {{coords}}</div>
+  <div :style="getBackgroundStyle">
+    <div class="image" :style="getImageStyle"></div>
+    <div class="caption">{{ pageUid }}, {{coords}}</div>
   </div>
 </template>
 
 <script>
 import { pages } from '@/services';
+import { DefaultCoords, validateOrIgnore } from '../logic/props';
 
-const DefaultCoords = '0,0,200,200';
-
-const options = {
-  backgroundColor: {
-    default: 'transparent',
-    validate: (d) => /^#\d{2,6}|black|white|grey$/.test(d),
-  },
-  backgroundSize: {
-    default: 'normal',
-    validate: (d) => ['contain', 'normal', 'cover'].includes(d),
-  },
-  cssFilter: {
-    default: [],
-    validate: (d) => [
-      'contrast-0.5',
-      'contrast-0.75',
-      'contrast-1.5',
-      'contrast-1.75',
-      'brightness-0.5',
-      'brightness-0.75',
-      'brightness-1.5',
-      'brightness-1.75',
-      'brightness-2',
-    ].includes(d),
-    transform: (d) => d.split('-'),
-  },
-};
 // https://impresso-project.ch/api/proxy/iiif/EXP-1958-03-15-a-p0020/90,1844,408,515/full/0/default.png
 export default {
   data: () => ({
@@ -44,18 +18,6 @@ export default {
     backgroundSize: String,
     backgroundColor: String,
     cssFilter: String,
-  },
-  methods: {
-    validateOrIgnore(prop) {
-      if (options[prop].validate(this[prop])) {
-        if (typeof options[prop].transform === 'function') {
-          return options[prop].transform(this[prop]);
-        }
-        return this[prop];
-      }
-      console.warn('validateOrIgnore() value for:', prop, 'is not valid:', this[prop]);
-      return options[prop].default;
-    },
   },
   mounted() {
     console.info('@mounted', this.link);
@@ -83,7 +45,10 @@ export default {
     },
     getBackgroundStyle() {
       return {
-        backgroundColor: this.validateOrIgnore('backgroundColor'),
+        backgroundColor: validateOrIgnore(
+          'backgroundColor',
+          this.backgroundColor,
+        ),
       };
     },
     getImageStyle() {
@@ -91,11 +56,17 @@ export default {
         return {};
       }
       const style = {
-        backgroundSize: this.validateOrIgnore('backgroundSize'),
+        backgroundSize: validateOrIgnore(
+          'backgroundSize',
+          this.backgroundSize,
+        ),
         backgroundImage: `url(${this.imageURL})`,
         // https://live.staticflickr.com/7821/32349026587_077df84709_w_d.jpg)',
       };
-      const [filter, value] = this.validateOrIgnore('cssFilter');
+      const [filter, value] = validateOrIgnore(
+        'cssFilter',
+        this.cssFilter,
+      );
       if (filter) {
         return {
           ...style,
@@ -107,15 +78,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-  .image{
-    background-repeat: no-repeat;
-    background-position: center;
-  }
-  .footer{
-    bottom: 0;
-    padding: 2rem;
-    background-color: gold;
-  }
-</style>
