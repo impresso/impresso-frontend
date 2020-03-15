@@ -3,6 +3,15 @@ import VueRouter from 'vue-router';
 
 Vue.use(VueRouter);
 
+const propsFromRoute = ({ query }) => ({
+  backgroundColor: query.backgroundColor,
+  backgroundSize: query.backgroundSize,
+  cssFilter: query.cssFilter,
+  overlayBackgroundColor: query.overlayBackgroundColor,
+  coordsMargin: query.coordsMargin,
+  coords: query.coords,
+})
+
 const routes = [
   {
     path: '/',
@@ -18,11 +27,13 @@ const routes = [
     path: '/p/:pageUid/:coords/',
     name: 'StaticImage',
     component: () => import(/* webpackChunkName: "img" */ '../views/StaticImage.vue'),
-    props: ({ query }) => ({
-      backgroundColor: query.backgroundColor,
-      backgroundSize: query.backgroundSize,
-      cssFilter: query.cssFilter,
-    }),
+    props: propsFromRoute,
+  },
+  {
+    path: '/p/:pageUid/a/:articleUid/',
+    name: 'ArticleViewer',
+    component: () => import(/* webpackChunkName: "img" */ '../views/ArticleViewer.vue'),
+    props: propsFromRoute,
   },
   {
     path: '/about',
