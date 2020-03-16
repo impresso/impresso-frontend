@@ -24,7 +24,7 @@ export default class FilterString extends FilterItems {
     super(args);
     this.precision = precisions[(args.precision || 'exact').toUpperCase()];
     this.distance = Math.max(0, Math.min(parseInt(args.distance || 0, 10), 10));
-    console.info('FilterString built', this.q, this.items);
+    // console.info('FilterString built', this.q, this.items, args);
   }
 
   setItems(items = []) {
