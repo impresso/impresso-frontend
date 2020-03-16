@@ -218,6 +218,12 @@ export default {
           this.explorerVisible = true
           this.suggestionType = suggestion.type
         }
+      } else if (suggestion.type === 'mention') {
+        this.$emit('submit', {
+          type: suggestion.type,
+          q: [suggestion.item.name],
+          op: 'AND',
+        });
       } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
         if (this.q.length) {
           console.info('Submit \'string\' suggestion, q:', this.q);
