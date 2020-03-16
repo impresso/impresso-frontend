@@ -77,7 +77,8 @@ export default {
   "en": {
     "copy_to_clipboard" : "Copy to clipboard",
     "url_copied_title" : "URL copied to clipboard",
-    "url_copied_message" : "{n} copied to clipboard"
+    "url_copied_message" : "{n} copied to clipboard",
+    "modal_title_share_article" : "Share a link to this article"
   }
 }
 </i18n>
