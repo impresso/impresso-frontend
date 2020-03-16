@@ -17,6 +17,7 @@
       v-for="(facet, index) in facets"
       :key="index"
       :facet="facet"
+      :filters="filters"
       :facet-filters="getFacetFilters(facet.type)"
       @update-filter="updateFilter"
       @create-filter="createFilter"
