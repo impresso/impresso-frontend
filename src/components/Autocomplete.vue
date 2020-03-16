@@ -208,7 +208,7 @@ export default {
       if (this.q.length) {
         this.submit(SuggestionFactory.create({
           type,
-          q: q || this.q,
+          q: [q || this.q],
         }));
       }
     },
@@ -228,7 +228,8 @@ export default {
           }
           this.$emit('submit', {
             type: suggestion.type,
-            q: suggestion.q || this.q,
+            q: [suggestion.q || this.q],
+            op: 'AND',
           });
         }
       } else {
