@@ -281,7 +281,9 @@ export default {
       } else if (StringTypes.includes(type)) {
         const newFilter = {
           ...this.editedFilter,
-          q: this.editedFilter.q.concat(this.validStringsToAdd.map(d => d.uid)),
+          q: this.editedFilter.q
+            .filter((d) => !this.excludedItemsIds.includes(d))
+            .concat(this.validStringsToAdd.map(d => d.uid)),
         };
         this.$emit('changed', newFilter);
         this.stringsToAdd = [];
