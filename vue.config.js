@@ -53,5 +53,23 @@ module.exports = {
       .loader('@kazupon/vue-i18n-loader')
       .end();
   },
+  pages: {
+    index: {
+      // entry for the page
+      entry: 'src/main.js',
+      // the source template
+      template: 'public/index.html',
+      // output as dist/index.html
+      filename: 'index.html',
+    },
+    widget: {
+      // entry for the page
+      entry: 'src/widget/main.js',
+      // the source template
+      template: 'public/widget.html',
+      // output as dist/index.html
+      filename: 'widget/index.html',
+    }
+  },
   publicPath: getPublicPath()
 }
