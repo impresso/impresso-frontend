@@ -4,11 +4,9 @@
       {{
         $t(`label.${facet.type}.filterTitle`)
       }}
-      {{
-        $tc('numbers.options', facet.numBuckets, {
-          n: $n(facet.numBuckets),
-        })
-      }}
+      <span v-if="facet.numBuckets > -1" v-html="$tc('numbers.options', facet.numBuckets, {
+        n: $n(facet.numBuckets),
+      })" />
       <info-button class="ml-1" v-if="facet.type === 'person' || facet.type === 'location'"
         :target="facet.type"
         name="what-is-nep" />
@@ -59,6 +57,11 @@
         :bucket="bucket"
         :type="facet.type"
         @toggle-bucket="toggleBucket"/>
+      <b-button
+        v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
+        v-html="$t('actions.more')"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        @click="showAllBuckets" />
     </div>
     <div class="d-flex mt-2" v-if="selectedBucketsIds.length && !isFiltered">
       <b-button size="sm" variant="outline-primary" class="w-100" @click="createFilter">
@@ -180,6 +183,9 @@ export default {
     },
     resetFilters() {
       this.$emit('reset-filters', this.facet.type);
+    },
+    showAllBuckets() {
+      console.info('showAllBuckets() placeholder');
     },
     updateFilter(filter, oldFilter) {
       if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
