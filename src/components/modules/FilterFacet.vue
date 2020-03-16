@@ -61,13 +61,19 @@
         v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
         v-html="$t('actions.more')"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        @click="showAllBuckets" />
+        @click="showExplorer" />
     </div>
     <div class="d-flex mt-2" v-if="selectedBucketsIds.length && !isFiltered">
       <b-button size="sm" variant="outline-primary" class="w-100" @click="createFilter">
         {{ $t(`actions.apply`) }}
       </b-button>
     </div>
+    <!-- @onHide="handleExplorerHide" -->
+    <explorer v-model="explorerFilters"
+      :is-visible="explorerVisible"
+      :searching-enabled="true"
+      @onHide="handleExplorerHide"
+      :included-types="[facet.type]" />
   </div>
 </template>
 
@@ -77,12 +83,15 @@ import FilterFacetBucket from '@/components/modules/FilterFacetBucket';
 import FilterMonitor from '@/components/modules/FilterMonitor';
 import InfoButton from '@/components/base/InfoButton';
 import { toSerializedFilter } from '@/logic/filters'
+import Explorer from '@/components/Explorer';
+
 
 export default {
   data: () => ({
     isCollapsed: false,
     selectedBucketsIds: [],
     selectedBucketsItems: [],
+    explorerVisible: false,
   }),
   props: {
     facet: Object,
@@ -90,10 +99,25 @@ export default {
       type: Array,
       default: () => [],
     },
+    filters: {
+      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      type: Array,
+      default: () => [],
+    },
     isLoading: Boolean,
     collapsible: Boolean,
   },
   computed: {
+    explorerFilters: {
+      get() {
+        console.info('Current search filters:', this.filters);
+        return this.filters;
+      },
+      set(filters) {
+        console.info('Changed filters', filters);
+        //this.$emit('changed', filters)
+      },
+    },
     showBuckets() {
       // always show if iscollaplible is selected.
       return this.isCollapsible ? !this.isCollapsed : true;
@@ -184,8 +208,11 @@ export default {
     resetFilters() {
       this.$emit('reset-filters', this.facet.type);
     },
-    showAllBuckets() {
-      console.info('showAllBuckets() placeholder');
+    showExplorer() {
+      this.explorerVisible = true;
+    },
+    handleExplorerHide() {
+      this.explorerVisible = false;
     },
     updateFilter(filter, oldFilter) {
       if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
@@ -219,6 +246,7 @@ export default {
     InfoButton,
     FilterMonitor,
     FilterFacetBucket,
+    Explorer,
   }
 };
 </script>
