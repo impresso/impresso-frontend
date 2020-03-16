@@ -25,13 +25,12 @@
             {'dripicons-scale': numericTypes.includes(filter.type)},
 
           ]" />
-        <!--  type:string -->
-        <span class="label sp-string" v-if="filter.type === 'string'" :class="[filter.precision,filter.context]">
-          {{filter.q}}
-        </span>
-        <!--  type:string -->
-        <span class="label sp-title" v-if="filter.type === 'title'" >
-          <span class="sp-string" :class="filter.precision">{{filter.q}}</span>
+        <!--  type:string, type:title -->
+        <span class="label sp-string sp-title"
+          v-if="['string', 'title'].includes(filter.type)"
+          v-html="labelByItems({ items: filter.items, max: 2, prop: 'uid', op: filter.op })"
+          :class="[filter.context, filter.precision]"
+          >
         </span>
         <!--  type:topic -->
         <span class="label sp-topic"
