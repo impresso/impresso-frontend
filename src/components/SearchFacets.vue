@@ -17,11 +17,9 @@
       v-for="(facet, index) in facets"
       :key="index"
       :facet="facet"
-      :filters="filters"
+      :context-filters="filters"
       :facet-filters="getFacetFilters(facet.type)"
-      @update-filter="updateFilter"
-      @create-filter="createFilter"
-      @reset-filters="resetFilters"
+      @changed="filters => facetFiltersUpdated(facet.type, filters)"
       collapsible/>
   </div>
 </template>
@@ -118,9 +116,6 @@ export default {
     getFacetFilters(type) {
       return this.filters.filter(d => d.type === type);
     },
-    createFilter(filter) {
-      this.$emit('changed', this.filters.concat([filter]));
-    },
     resetFilters(type) {
       this.$emit('changed', this.filters.filter(d => d.type !== type));
     },
@@ -129,13 +124,24 @@ export default {
         .filter(({ type }) => type !== 'daterange')
         .concat(daterangeFilters));
     },
-    updateFilter(filter) {
-      this.$emit('changed', this.filters.map((d) => {
-        if (d.key === filter.key) {
-          return filter;
-        }
-        return d;
-      }));
+    facetFiltersUpdated(type, updatedFilters) {
+      let updatedFiltersIndex = 0
+
+      const mergedFilters = this.filters
+        .map(filter => {
+          if (filter.type === type) {
+            if (updatedFiltersIndex < (updatedFilters.length - 1)) {
+              updatedFiltersIndex += 1
+              return updatedFilters[updatedFiltersIndex - 1]
+            }
+            return undefined
+          }
+          return filter
+        })
+        .filter(filter => filter != null)
+      const remainingUpdatedFilters = updatedFilters.slice(updatedFiltersIndex)
+
+      this.$emit('changed', mergedFilters.concat(remainingUpdatedFilters))
     },
   },
   components: {

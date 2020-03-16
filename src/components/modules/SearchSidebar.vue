@@ -58,17 +58,17 @@ export default {
       default: () => [],
     },
     filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<import('../../models/models').Filter[]>} */
       type: Array,
       default: () => [],
     },
     facets: {
-      /** @type {import('vue').PropType<import('../models/models').Facet[]>} */
+      /** @type {import('vue').PropType<import('../../models/models').Facet[]>} */
       type: Array,
       default: () => [],
     },
     filtersRemoved: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<import('../../models/models').Filter[]>} */
       type: Array,
       default: () => [],
     },

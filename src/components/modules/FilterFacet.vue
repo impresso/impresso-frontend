@@ -38,19 +38,19 @@
         </div>
       </div><!-- .description -->
     </base-title-bar>
-    <div v-for="(filter, index) in filtersIncluded" :key="index" class="bg-white border p-2">
+    <div v-for="({ filter, filterIndex }) in includedFilterItems" :key="filterIndex" class="bg-white border p-2">
       <filter-monitor
         :items-to-add="selectedBucketsItems"
         :filter="filter"
         :operators="facet.operators"
-        @changed="updateFilter($event, filter)" />
-    </div><!-- v-for="(filter, index) in filtersIncluded" -->
-    <div v-for="(filter, index) in filtersExcluded" :key="index" class="bg-light border p-2">
+        @changed="filter => updateFilter(filterIndex, filter)" />
+    </div>
+    <div v-for="({ filter, filterIndex }) in excludedFilterItems" :key="filterIndex" class="bg-light border p-2">
       <filter-monitor
         :filter="filter"
         :operators="facet.operators"
-        @changed="updateFilter($event, filter)" />
-    </div><!-- v-for="(filter, index) in filtersExcluded" -->
+        @changed="filter => updateFilter(filterIndex, filter)" />
+    </div>
     <div v-if="showBuckets">
       <filter-facet-bucket v-for="bucket in unfilteredBuckets" :key="bucket.val"
         :loading="isLoading"
@@ -68,7 +68,6 @@
         {{ $t(`actions.apply`) }}
       </b-button>
     </div>
-    <!-- @onHide="handleExplorerHide" -->
     <explorer v-model="explorerFilters"
       :is-visible="explorerVisible"
       :searching-enabled="true"
@@ -87,6 +86,17 @@ import Explorer from '@/components/Explorer';
 
 
 export default {
+  /**
+   * Model is a list of 0 or more filters of the same type (type
+   * that matches the facet type). Model is changed whenver:
+   * - filters are modified
+   * - new filter is created (the model was an empty array before)
+   * - filters were removed (the model contained at least one filter but became an empty array)
+   */
+  model: {
+    prop: 'facetFilters',
+    event: 'changed'
+  },
   data: () => ({
     isCollapsed: false,
     selectedBucketsIds: [],
@@ -99,8 +109,9 @@ export default {
       type: Array,
       default: () => [],
     },
-    filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+    /* filters used to narrow down the search for new facet filters option in explorer */
+    contextFilters: {
+      /** @type {import('vue').PropType<import('../../models/models').Filter[]>} */
       type: Array,
       default: () => [],
     },
@@ -109,14 +120,8 @@ export default {
   },
   computed: {
     explorerFilters: {
-      get() {
-        console.info('Current search filters:', this.filters);
-        return this.filters;
-      },
-      set(filters) {
-        console.info('Changed filters', filters);
-        //this.$emit('changed', filters)
-      },
+      get() { return this.contextFilters },
+      set(filters) { this.$emit('changed', filters) },
     },
     showBuckets() {
       // always show if iscollaplible is selected.
@@ -128,24 +133,28 @@ export default {
     isFiltered() {
       return this.facetFilters.length;
     },
-    filtersIncluded() {
+    includedFilterItems() {
       if (!this.facetFilters.length) {
         return [];
       }
       // add count if selected items is in one of the buckets.
       return this.facetFilters
-        .filter(({ context }) => context === 'include')
-        .map(filter => ({
-          ...filter,
-          items: filter.items.map((item) => {
-            if (this.bucketsIndex[item.uid]) {
-              return {
-                ...item,
-                count: this.bucketsIndex[item.uid].count,
+        .map((filter, filterIndex) => ({ filter, filterIndex }))
+        .filter(({ filter: { context } }) => context === 'include')
+        .map(({ filter, filterIndex }) => ({
+          filter: {
+            ...filter,
+            items: filter.items.map((item) => {
+              if (this.bucketsIndex[item.uid]) {
+                return {
+                  ...item,
+                  count: this.bucketsIndex[item.uid].count,
+                }
               }
-            }
-            return item;
-          }),
+              return item;
+            }),
+          },
+          filterIndex
         }));
     },
     /**
@@ -153,16 +162,15 @@ export default {
      * @return {Array} array of items uids
      */
     filtersIncludedItemsIds() {
-      return this.filtersIncluded
-        .reduce((acc, filter) => acc.concat(
+      return this.includedFilterItems
+        .reduce((acc, { filter }) => acc.concat(
           Array.isArray(filter.q) ? filter.q : [filter.q]), [],
         );
     },
-    filtersExcluded() {
-      if (!this.facetFilters.length) {
-        return [];
-      }
-      return this.facetFilters.filter(({ context }) => context === 'exclude');
+    excludedFilterItems() {
+      return this.facetFilters
+        .map((filter, filterIndex) => ({ filter, filterIndex }))
+        .filter(({ filter: { context } }) => context === 'exclude');
     },
     bucketsIndex() {
       const index = {};
@@ -176,7 +184,7 @@ export default {
      * @return {Array} array of buckets
      */
     unfilteredBuckets() {
-      if (!this.isFiltered || !this.filtersIncluded) {
+      if (!this.isFiltered || !this.includedFilterItems) {
         return this.facet.buckets;
       }
       return this.facet.buckets
@@ -206,7 +214,7 @@ export default {
       } // nothing else matters
     },
     resetFilters() {
-      this.$emit('reset-filters', this.facet.type);
+      this.$emit('changed', []);
     },
     showExplorer() {
       this.explorerVisible = true;
@@ -214,26 +222,30 @@ export default {
     handleExplorerHide() {
       this.explorerVisible = false;
     },
-    updateFilter(filter, oldFilter) {
+    updateFilter(filterIndex, filter) {
+      const oldFilter = this.facetFilters[filterIndex]
+
       if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
-        // hash differs, filter has been changed
         if (!filter.q || filter.q.length === 0) {
-          this.resetFilters();
+          const newFilters = this.facetFilters
+            .filter((f, index) => index !== filterIndex);
+          this.$emit('changed', newFilters);
         } else {
           this.clearSelectedItems();
-          this.$emit('update-filter', {
-            ...filter,
-            key: oldFilter.key,
-          });
+          const newFilters = this.facetFilters.map((f, index) => {
+            if (index === filterIndex) return filter;
+            return f;
+          })
+          this.$emit('changed', newFilters);
         }
       }
     },
     createFilter() {
-      this.$emit('create-filter', {
+      this.$emit('changed', this.facetFilters.concat([{
         type: this.facet.type,
         q: this.selectedBucketsIds,
         items: this.selectedBucketsItems,
-      });
+      }]));
       this.clearSelectedItems();
     },
     clearSelectedItems() {
