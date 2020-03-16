@@ -394,6 +394,16 @@ $clr-grey-900: #ddd;
   margin: 0 .25rem;
 }
 
+.toast {
+  .toast-header,
+  .toast-body {
+    padding: 0.25em 0.5em;
+  }
+  overflow: hidden;
+  border: 1px solid;
+}
+
+
 // uncomment to add background to transparent footers
 // .fixed-pagination-footer::before{
 //   content: "";
