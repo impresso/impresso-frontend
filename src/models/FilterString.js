@@ -11,8 +11,10 @@ import * as contexts from './Contexts';
 class StringItem {
   constructor({
     uid = '',
+    checked = true,
   }) {
     this.uid = uid;
+    this.checked = Boolean(checked);
     this.isValid = typeof this.uid === 'string' && this.uid.trim().length > 0;
   }
 }
@@ -22,14 +24,18 @@ export default class FilterString extends FilterItems {
     super(args);
     this.precision = precisions[(args.precision || 'exact').toUpperCase()];
     this.distance = Math.max(0, Math.min(parseInt(args.distance || 0, 10), 10));
+    console.info('FilterString built', this.q, this.items);
   }
 
   setItems(items = []) {
-    this.items = items.map((uid) => {
-      const item = new StringItem({ uid });
-      item.checked = true;
-      return item;
-    }).filter(item => item.isValid);
+    this.items = items
+      .map((uid) => {
+        if (uid instanceof StringItem) {
+          return uid;
+        }
+        return new StringItem({ uid });
+      })
+      .filter(item => item.isValid);
   }
 
   getQuery() {
