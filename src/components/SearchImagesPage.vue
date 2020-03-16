@@ -108,6 +108,7 @@ const ALLOWED_FILTER_TYPES = [
   'newspaper',
   'isFront',
   'daterange',
+  'title',
 ];
 
 const ALLOWED_FACET_TYPES = [
@@ -258,7 +259,6 @@ export default {
         .replace('Found', this.$t('Based on search query with'));
     },
     onSearchQuery({ q }) {
-      console.info('@onSearchQuery', q);
       this.$store.commit('searchImages/ADD_FILTER', {
         type: 'title',
         q,

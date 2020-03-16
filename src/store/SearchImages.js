@@ -274,6 +274,7 @@ export default {
           'newspaper',
           'isFront',
           'daterange',
+          'title',
         ].includes(d.type)).concat(filters),
         facets: state.facetTypes,
         group_by: state.groupBy,

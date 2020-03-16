@@ -208,7 +208,7 @@ export default {
       if (this.q.length) {
         this.submit(SuggestionFactory.create({
           type,
-          q: q || this.q,
+          q: [q || this.q],
         }));
       }
     },
@@ -218,6 +218,12 @@ export default {
           this.explorerVisible = true
           this.suggestionType = suggestion.type
         }
+      } else if (suggestion.type === 'mention') {
+        this.$emit('submit', {
+          type: suggestion.type,
+          q: [suggestion.item.name],
+          op: 'AND',
+        });
       } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
         if (this.q.length) {
           console.info('Submit \'string\' suggestion, q:', this.q);
@@ -228,7 +234,8 @@ export default {
           }
           this.$emit('submit', {
             type: suggestion.type,
-            q: suggestion.q || this.q,
+            q: [suggestion.q || this.q],
+            op: 'AND',
           });
         }
       } else {
