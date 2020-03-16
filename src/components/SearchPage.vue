@@ -384,7 +384,8 @@ export default {
         .replace('Found', this.$t('Based on search query with'));
     },
     onSuggestion(filter) {
-      this.$store.dispatch('search/ADD_FILTER', { filter });
+      console.info('onSuggestion() received filter:', filter);
+      this.handleFiltersChanged(this.filters.concat([ filter ]));
     },
     onFacet(filter) {
       console.info('@onFacet', filter);
