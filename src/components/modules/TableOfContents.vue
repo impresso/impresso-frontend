@@ -57,7 +57,7 @@
                 v-bind:key="i"
               />
             </div>
-            <div class="ml-3 mb-3" v-if="art.uid === selectedArticleUid">
+            <div class="ml-3 mb-3" v-if="art.uid === selectedArticleUid && art.isCC">
               <b-button
                 variant="outline-primary" size="sm"
                 v-on:click.stop.prevent="showModalShareArticle()"

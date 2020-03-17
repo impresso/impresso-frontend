@@ -52,7 +52,7 @@
           v-bind:item="article"
           v-bind:text="$t('add_to_collection')" />
 
-        <div class="shareArticleControl d-inline ml-1">
+        <div v-if="article.isCC" class="shareArticleControl d-inline ml-1">
           <b-button
             variant="outline-secondary" size="sm"
             v-on:click="showModalShareArticle()"
