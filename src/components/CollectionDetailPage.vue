@@ -78,7 +78,7 @@
               {{ $t('actions.addToCurrentFilters') }}
             </b-button>
           </b-nav-form>
-          <b-nav-form class="p-2  border-right">
+          <b-nav-form class="py-2 pr-2  border-right">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
@@ -164,8 +164,7 @@
 
 
 
-    <div v-else class="p-3">
-
+    <div v-else class="p-3 container">
 
       <timeline
             :domain="[startYear, endYear]"
@@ -178,29 +177,19 @@
         </div>
       </timeline>
 
-
-
+      <div class="row">
+        <div v-for="(facet, idx) in facets" v-bind:key="idx" class="col-6 my-3">
+          <stacked-bars-panel
+            class=""
+            :label="facet.type"
+            :buckets="facet.buckets"
+            :facet-type="facet.type"/>
+        </div>
+      </div>
 
     </div>
 
-
-    <div v-if="locations.length" class="m-3 small">
-      <b-badge variant="light" class="mr-1 small-caps bg-medium">Top Locations</b-badge>
-      <span v-for="(location, idx) in locations" v-bind:key="idx">
-        <item-label :item="location.item" type="location" /> ({{location.count}})
-        <item-selector :uid="location.uid" :item="location" type="location"/>
-        <span v-if="idx !== locations.length - 1">, </span>
-      </span>
-    </div>
-    <div v-if="persons.length" class="m-3 small">
-      <b-badge variant="light" class="mr-1 small-caps bg-medium">Top Persons</b-badge>
-      <span v-for="(person, idx) in persons" v-bind:key="idx">
-        <item-label :item="person.item" type="person" /> ({{person.count}})
-        <item-selector :uid="person.uid" :item="person" type="person"/>
-        <span v-if="idx !== persons.length - 1">, </span>
-      </span>
-    </div>
-
+<!--
 
     <div v-if="issues.length > 0" class="collection-group">
       <h4>Issues</h4>
@@ -218,20 +207,7 @@
           <open-seadragon-viewer v-model="page.iiif" />
         </div>
       </div>
-    </div>
-
-    <div v-if="topics.length > 0" class="collection-group m-3">
-      <h4>Topics</h4>
-      <div class="grid">
-        <div class="item" v-for="(topic, index) in topics" v-bind:key="index">
-          <topic-item :item="topic.item" class='p-3 border-bottom' />
-        </div>
-      </div>
-    </div>
-
-    <pre>
-      {{ collection }}
-    </pre>
+    </div> -->
 
   </i-layout-section>
 </template>
@@ -244,9 +220,7 @@ import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import Pagination from './modules/Pagination';
 import SearchQuery from '@/models/SearchQuery';
 import Timeline from './modules/Timeline';
-import TopicItem from './modules/lists/TopicItem';
-import ItemLabel from './modules/lists/ItemLabel';
-import ItemSelector from './modules/ItemSelector';
+import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 
 
 
@@ -271,9 +245,8 @@ export default {
     TAB_ARTICLES,
     TAB_OVERVIEW,
     timevalues: [],
-    topics: [],
-    persons: [],
-    locations: [],
+    facets: [],
+    facetTypes: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic', 'partner', 'accessRight'],
   }),
   components: {
     SearchResultsListItem,
@@ -281,9 +254,10 @@ export default {
     SearchResultsImageItem,
     Pagination,
     Timeline,
-    TopicItem,
-    ItemLabel,
-    ItemSelector,
+    // TopicItem,
+    // ItemLabel,
+    // ItemSelector,
+    StackedBarsPanel,
   },
   computed: {
     searchPageLink() {
@@ -315,11 +289,11 @@ export default {
         return this.collection.items.filter(item => (item.labels && item.labels[0] === 'page'));
       },
     },
-    // entities: {
-    //   get() {
-    //     return this.collection.items.filter(item => (item.labels && item.labels[0] === 'entity'));
-    //   },
-    // },
+    entities: {
+      get() {
+        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'entity'));
+      },
+    },
     articles: {
       get() {
         return this.$store.getters['collections/collectionItems'];
@@ -404,12 +378,19 @@ export default {
       async handler({ query }) {
         if (this.collection.uid !== this.$route.params.collection_uid) {
           this.timevalues = [];
+          this.facets = [];
           this.paginationCurrentPage = 1;
           this.getCollection();
           await this.getCollectionItems();
           await this.loadTimeline();
-          await this.loadEntities();
-          await this.loadTopics();
+          this.facetTypes.forEach((type) => {
+            this.loadFacets(type);
+          });
+          //
+          // await this.loadFacets('newspaper');
+          // await this.loadFacets('topic');
+          // await this.loadFacets('location');
+          // await this.loadFacets('person');
         }
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
@@ -512,17 +493,33 @@ export default {
         this.timevalues = values;
       });
     },
-    loadTopics() {
-      return this.$store.dispatch('collections/LOAD_TOPICS', this.$route.params.collection_uid).then((values) => {
-        this.topics = values.buckets;
-      });
-    },
-    loadEntities() {
-      return this.$store.dispatch('collections/LOAD_ENTITIES', this.$route.params.collection_uid).then(([locationFacet, personFacet]) => {
-        this.locations = locationFacet.buckets;
-        this.persons = personFacet.buckets;
-        console.log(personFacet);
-      });
+    // loadFacets(type) {
+    //   return this.$store.dispatch('collections/LOAD_FACETS',
+    //     {
+    //       q: this.$route.params.collection_uid,
+    //       type: type,
+    //     }).then((r) => {
+    //     this.facets.push(r);
+    //     console.log(r);
+    //   });
+    // },
+    // loadTopics() {
+    //   return this.$store.dispatch('collections/LOAD_TOPICS', this.$route.params.collection_uid).then((topics) => {
+    //     this.facets.push(topics);
+    //   });
+    // },
+    // loadEntities() {
+    //   return this.$store.dispatch('collections/LOAD_ENTITIES', this.$route.params.collection_uid).then(([locationFacet, personFacet]) => {
+    //     this.facets.push(locationFacet, personFacet);
+    //     // console.log(this.facets);
+    //   });
+    // },
+    loadFacets(facetType) {
+      return this.$store.dispatch('collections/LOAD_FACETS', {q: this.$route.params.collection_uid, type: facetType})
+        .then((r) => {
+          this.facets.push(r);
+          // console.log(this.facets);
+        });
     },
   },
 };
