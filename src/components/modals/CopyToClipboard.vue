@@ -33,8 +33,11 @@ export default {
       // const a = document.createElement('a');
       // a.href='.';
       // const baseURL = a.href;
-      const baseURL = window.location.origin + '/';
-      return baseURL + `widget/#/p/${this.article.pages[0].uid}/a/${this.article.uid}/?&backgroundSize=contain&backgroundColor=#eeeeee&cssFilter=contrast-1.5&overlayBackgroundColor=rgba(86,204,242,0.2)`;
+      // const baseURL = window.location.origin + '/';
+      const baseURL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ?
+        window.location.origin : 'https://dev.impresso-project.ch/app';
+
+      return baseURL + `/widget/#/p/${this.article.pages[0].uid}/a/${this.article.uid}/`;
     },
   },
   mounted() {
