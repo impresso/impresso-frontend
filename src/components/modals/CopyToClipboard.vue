@@ -30,12 +30,8 @@ export default {
   props: ['article'],
   computed: {
     widgetLink() {
-      // const a = document.createElement('a');
-      // a.href='.';
-      // const baseURL = a.href;
-      // const baseURL = window.location.origin + '/';
       const baseURL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ?
-        window.location.origin : 'https://dev.impresso-project.ch/app';
+        window.location.origin : window.location.origin + '/app';
 
       return baseURL + `/widget/#/p/${this.article.pages[0].uid}/a/${this.article.uid}/`;
     },
