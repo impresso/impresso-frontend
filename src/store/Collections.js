@@ -191,32 +191,18 @@ export default {
         query,
       }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
     },
-    LOAD_TOPICS(context, collectionId) {
+    LOAD_FACETS(context, payload) {
+      const facetType = payload.type;
       const query = {
         filters: [{
           type: 'collection',
-          q: collectionId,
+          q: payload.q,
         }],
         group_by: 'articles',
       };
-      return services.searchFacets.get('topic', {
+      return services.searchFacets.get(facetType, {
         query,
-      }).then(([topic]) => new Facet(topic));
-    },
-    LOAD_ENTITIES(context, q) {
-      const query = {
-        filters: [{
-          type: 'collection',
-          q,
-        }],
-        group_by: 'articles',
-      };
-      return services.searchFacets.get('location,person', {
-        query,
-      }).then(([location, person]) => [
-        new Facet(location),
-        new Facet(person),
-      ]);
+      }).then(([facetType]) => new Facet(facetType));
     },
     EDIT_COLLECTION(context, payload) {
       return new Promise((resolve) => {
