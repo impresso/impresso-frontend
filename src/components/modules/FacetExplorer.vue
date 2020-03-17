@@ -1,6 +1,6 @@
 <template lang="html">
   <div>
-    <div class="mb-1 border-bottom">
+    <div>
       <!-- The Loop -->
       <b-form-checkbox-group v-model="selectedIds"
                              class="position-relative p-2"
