@@ -88,11 +88,11 @@
 
 
         <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
-          <b-navbar-form class="p-2 border-right">
+          <!-- <b-navbar-form class="p-2 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </b-navbar-form>
-          <b-navbar-form class="p-2 ml-auto">
+          </b-navbar-form> -->
+          <ul class="p-2 ml-auto">
             <li class="ml-auto">
               <label class="mr-1">{{ $t('label_display') }}</label>
               <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
@@ -100,7 +100,7 @@
                 <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
               </b-form-radio-group>
             </li>
-          </b-navbar-form>
+          </ul>
         </b-navbar-nav>
 
       </b-navbar>
@@ -164,7 +164,7 @@
 
 
 
-    <div v-else class="p-3 container">
+    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3 container">
 
       <timeline
             :domain="[startYear, endYear]"
@@ -254,9 +254,6 @@ export default {
     SearchResultsImageItem,
     Pagination,
     Timeline,
-    // TopicItem,
-    // ItemLabel,
-    // ItemSelector,
     StackedBarsPanel,
   },
   computed: {
@@ -284,26 +281,21 @@ export default {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
-    pages: {
-      get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'page'));
-      },
-    },
-    entities: {
-      get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'entity'));
-      },
-    },
+    // pages: {
+    //   get() {
+    //     return this.collection.items.filter(item => (item.labels && item.labels[0] === 'page'));
+    //   },
+    // },
     articles: {
       get() {
         return this.$store.getters['collections/collectionItems'];
       },
     },
-    issues: {
-      get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
-      },
-    },
+    // issues: {
+    //   get() {
+    //     return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
+    //   },
+    // },
     paginationPerPage: {
       get() {
         return this.$store.state.collections.paginationPerPage;
@@ -322,41 +314,41 @@ export default {
         return this.$store.state.collections.paginationTotalRows;
       },
     },
-    orderByOptions: {
-      get() {
-        return [
-          {
-            value: 'dateAdded',
-            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_asc')}`,
-            disabled: true,
-          },
-          {
-            value: '-dateAdded',
-            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_desc')}`,
-            disabled: true,
-          },
-          {
-            value: 'itemDate',
-            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
-            disabled: true,
-          },
-          {
-            value: '-itemDate',
-            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
-            disabled: true,
-          },
-        ];
-      },
-    },
-    orderBy: {
-      get() {
-        return this.$store.state.collections.orderBy;
-      },
-      set(val) {
-        this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
-        this.getCollectionItems(1);
-      },
-    },
+    // orderByOptions: {
+    //   get() {
+    //     return [
+    //       {
+    //         value: 'dateAdded',
+    //         text: `${this.$t('sort_dateAdded')} ${this.$t('sort_asc')}`,
+    //         disabled: true,
+    //       },
+    //       {
+    //         value: '-dateAdded',
+    //         text: `${this.$t('sort_dateAdded')} ${this.$t('sort_desc')}`,
+    //         disabled: true,
+    //       },
+    //       {
+    //         value: 'itemDate',
+    //         text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+    //         disabled: true,
+    //       },
+    //       {
+    //         value: '-itemDate',
+    //         text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+    //         disabled: true,
+    //       },
+    //     ];
+    //   },
+    // },
+    // orderBy: {
+    //   get() {
+    //     return this.$store.state.collections.orderBy;
+    //   },
+    //   set(val) {
+    //     this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
+    //     this.getCollectionItems(1);
+    //   },
+    // },
     tabs() {
       return [
         {
@@ -364,7 +356,7 @@ export default {
           name: TAB_OVERVIEW,
         },
         {
-          label: this.$tc('tabs.relatedArticles', this.collection.countItems, {
+          label: this.$tc('tabs.articles', this.collection.countItems, {
             count: this.$n(this.collection.countItems),
           }),
           name: TAB_ARTICLES,
