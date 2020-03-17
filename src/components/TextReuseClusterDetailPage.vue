@@ -8,7 +8,7 @@
             <span class="label small-caps">
               <span>&larr; {{$t("clustersLabel")}}</span>
             </span>
-            <h3>{{$t('clusterLabel')}} #{{cluster.id}}</h3>
+            <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}}</h3>
           </section>
         </b-navbar>
 
@@ -136,6 +136,13 @@ export default {
           disabled: false,
         }
       ];
+    },
+    clusterIdLabel() {
+      if (this.cluster && this.cluster.id) {
+        const parts = this.cluster.id.split('-')
+        return parts[parts.length - 1]
+      }
+      return ''
     }
   },
   watch: {
@@ -199,7 +206,9 @@ export default {
       "date": "Date",
       "asc": "↑",
       "desc": "↓"
-    }
+    },
+    "clustersLabel": "Clusters",
+    "clusterLabel": "Cluster"
   }
 }
 </i18n>

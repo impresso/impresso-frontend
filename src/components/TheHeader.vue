@@ -47,8 +47,7 @@
         </b-nav-item>
         <b-nav-item
           v-bind:to="{ name: 'text-reuse-cluster-detail'}"
-          active-class="active"
-          v-if="textReuseEnabled">
+          active-class="active">
           {{$t("label_text_reuse")}}
         </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
@@ -277,9 +276,6 @@ export default {
     },
     version() {
       return [window.impressoVersion, window.impressoDataVersion].join('/');
-    },
-    textReuseEnabled() {
-      return localStorage.impressoTextReuseEnabled === 'true'
     }
   },
   methods: {

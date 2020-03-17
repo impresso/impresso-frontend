@@ -20,7 +20,7 @@
         <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
             @click="submitInitialSuggestion(suggestion)"
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
-          <div class="suggestion-string" :class="`suggestion-${suggestion.type}`">
+          <div :class="`suggestion-${suggestion.type}`">
             <span v-if='suggestion.h' v-html='suggestion.h'/>
             <span v-else>...<b>{{ q }}</b></span>
             <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
@@ -208,7 +208,7 @@ export default {
       if (this.q.length) {
         this.submit(SuggestionFactory.create({
           type,
-          q: q || this.q,
+          q: [q || this.q],
         }));
       }
     },
@@ -218,6 +218,12 @@ export default {
           this.explorerVisible = true
           this.suggestionType = suggestion.type
         }
+      } else if (suggestion.type === 'mention') {
+        this.$emit('submit', {
+          type: suggestion.type,
+          q: [suggestion.item.name],
+          op: 'AND',
+        });
       } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
         if (this.q.length) {
           console.info('Submit \'string\' suggestion, q:', this.q);
@@ -228,7 +234,8 @@ export default {
           }
           this.$emit('submit', {
             type: suggestion.type,
-            q: suggestion.q || this.q,
+            q: [suggestion.q || this.q],
+            op: 'AND',
           });
         }
       } else {
@@ -251,9 +258,14 @@ export default {
         break;
       case 'ArrowDown':
         this.selectedIndex += 1;
+        this.showSuggestions = this.q.length > 0;
         break;
       case 'ArrowUp':
         this.selectedIndex -= 1;
+        this.showSuggestions = this.q.length > 0;
+        break;
+      case 'Escape':
+        this.hideSuggestions();
         break;
       default:
         // this.selected = this.suggestion;
@@ -329,7 +341,6 @@ export default {
           flex: 1;
         }
       }
-      &:hover,
       &.selected {
         background: rgba($clr-accent-secondary, 0.5);
         border-color: rgba($clr-accent-secondary, 0.75);

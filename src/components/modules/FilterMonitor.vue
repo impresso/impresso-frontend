@@ -45,59 +45,86 @@
         ><span class="small" v-html="$t(`op.${option}.${currentContext}`)"></span></b-dropdown-item>
       </b-dropdown>
     </div>
-    <!-- for strings -->
-    <div v-if="StringTypes.includes(type)">
-      <b-form-group :label="$t(`label.${type}.value`)">
-        <b-form-input
-          size="sm"
-          placeholder=""
-          v-model="editedFilter.q">
-        </b-form-input>
-      </b-form-group>
-
-      <div class="mb-3">
-        <b-button
-          size="sm" variant="outline-primary" class="border bg-light w-100"
-          v-on:click="showEmbeddings = !showEmbeddings;"
-          v-bind:class="{ 'border-bottom-0': showEmbeddings }">
-          {{$t('embeddings.find')}}
-        </b-button>
-        <embeddings-search v-if="showEmbeddings"
-                           v-bind:filter="editedFilter"
-                           @embdding-selected="addEmbeddingSuggestion"/>
+    <div class="items" :class="{ reduced: tooManyItems }">
+      <div v-for="(item, idx) in filter.items" :key="idx" class="mt-2">
+        <div v-if="RangeFacets.includes(type)">
+          <filter-number-range v-if="NumericRangeFacets.includes(type)" :start="parseInt(item.start, 10)" :end="parseInt(item.end, 10)" @changed="handleRangeChanged"/>
+          <filter-daterange v-else :start="new Date(item.start)" :end="new Date(item.end)" @changed="handleRangeChanged"/>
+        </div>
+        <b-form-checkbox v-else-if="StringTypes.includes(type)" v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
+          <b-form-input
+            size="sm"
+            placeholder=""
+            class="accepted"
+            v-model="item.uid" @click.prevent.stop @change="changeStringFilterItemAtIndex($event, idx)">
+          </b-form-input>
+        </b-form-checkbox>
+        <b-form-checkbox v-else v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
+          <item-label :item="item" :type="type"/>
+          <span v-if="!item.uid">...</span>
+          <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+          <item-selector :uid="item.uid" :item="item" :type="type"/>
+        </b-form-checkbox>
       </div>
-
-      <!--  context -->
-      <b-form-group v-if="checkbox">
-        <b-form-radio-group
-          switches
-          :options="checkboxPrecisions"
-          v-model="editedFilter.precision">
-        </b-form-radio-group>
-      </b-form-group>
-    </div>
-    <div v-for="(item, idx) in filter.items" :key="idx" class="mt-2">
-      <div v-if="RangeFacets.includes(type)">
-        <filter-number-range v-if="NumericRangeFacets.includes(type)" :start="parseInt(item.start, 10)" :end="parseInt(item.end, 10)" @changed="handleRangeChanged"/>
-        <filter-daterange v-else :start="new Date(item.start)" :end="new Date(item.end)" @changed="handleRangeChanged"/>
+      <!-- bucket items -->
+      <div class="items-to-add  mt-2" v-if="itemsToAdd.length">
+        <div v-for="(item, idx) in itemsToAdd" :key="idx">
+          <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
+          <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
+          <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
+          <collection-item v-if="type === 'collection'" :item="item" />
+          <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+        </div>
       </div>
-      <b-form-checkbox v-else v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
-        <item-label :item="item" :type="type"/>
-        <span v-if="!item.uid">...</span>
-        <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
-        <item-selector :uid="item.uid" :item="item" :type="type"/>
-      </b-form-checkbox>
-    </div>
-    <div class="items-to-add" v-if="itemsToAdd.length">
-      <div v-for="(item, idx) in itemsToAdd" :key="idx">
-        <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
-        <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
-        <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
-        <collection-item v-if="type === 'collection'" :item="item" />
-        <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+      <!-- string to add -->
+      <div class="strings-to-add m-2 ml-4" v-if="stringsToAdd.length">
+        <b-form inline v-for="(item, idx) in stringsToAdd" :key="idx"
+          class="mb-2">
+          <b-form-input
+            size="sm"
+            placeholder="..." class="mr-1"
+            v-model="item.uid" @click.prevent.stop >
+          </b-form-input>
+          <b-button class="dripicons-cross" variant="transparent" size="sm" style="padding:0.25rem 0.5rem 0 0.5rem"
+            @click.prevent.stop="removeStringItem(idx)"
+          />
+        </b-form>
       </div>
     </div>
+    <!-- add new string as an OR filter -->
+    <div class="mt-3" v-if="StringTypes.includes(type)">
+      <b-row no-gutters>
+        <b-col cols="6">
+          <div class="mr-1">
+            <b-button size="sm" variant="outline-primary" block
+              @click.prevent.stop="addStringItem(type)" :disabled="hasEmptyStringItems">
+                {{$t('actions.addItem')}}
+            </b-button>
+          </div>
+        </b-col>
+        <b-col cols="6">
+          <div class="ml-1">
+            <b-button size="sm" variant="outline-primary" block
+              v-on:click.prevent="showEmbeddings = !showEmbeddings;"
+              >
+                {{$t('actions.addUsingEmbeddings')}}
+            </b-button>
+          </div>
+        </b-col>
+      </b-row>
+      <embeddings-search v-if="showEmbeddings"
+                         v-bind:filter="editedFilter"
+                         @click.stop.prevent
+                         @embdding-selected="addEmbeddingSuggestion"/>
 
+      <!-- <b-form-group v-if="checkbox">
+       <b-form-radio-group
+         switches
+         :options="checkboxPrecisions"
+         v-model="editedFilter.precision">
+       </b-form-radio-group>
+      </b-form-group> -->
+    </div>
     <b-button
       class="mt-2"
       v-if="hasChanges"
@@ -105,10 +132,10 @@
       size="sm"
       variant="outline-primary"
       @click="applyChanges()">
-      <span v-if="itemsToAdd.length > 0 || excludedItemsIds.length > 0">
+      <span v-if="validStringsToAdd.length > 0 || itemsToAdd.length > 0 || excludedItemsIds.length > 0">
         {{
           $t('actions.applyChangesDetailed', {
-            added: itemsToAdd.length,
+            added: validStringsToAdd.length || itemsToAdd.length,
             removed: excludedItemsIds.length
           })
         }}
@@ -147,6 +174,7 @@ export default {
     showEmbeddings: false,
     editedFilter: {},
     excludedItemsIds: [],
+    stringsToAdd: [],
     RangeFacets,
     NumericRangeFacets,
     StringTypes
@@ -179,6 +207,15 @@ export default {
     },
   },
   computed: {
+    tooManyItems() {
+      return this.stringsToAdd.length + this.filter.items.length + this.itemsToAdd.length > 5;
+    },
+    hasEmptyStringItems() {
+      return this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.uid.length === 0).length > 0;
+    },
+    validStringsToAdd() {
+      return this.stringsToAdd.filter(d => d.checked && d.uid.length);
+    },
     checkedItems() {
       return this.availableItems.reduce((acc, item) => {
         acc[item.uid] = !this.excludedItemsIds.includes(item.uid)
@@ -210,6 +247,7 @@ export default {
     },
     hasChanges() {
       return this.itemsToAdd.length > 0
+        || this.validStringsToAdd.length > 0
         || this.excludedItemsIds.length > 0
         || toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
     },
@@ -240,9 +278,35 @@ export default {
           items: selectedItems,
           q: selectedItemsIds
         })
+      } else if (StringTypes.includes(type)) {
+        const newFilter = {
+          ...this.editedFilter,
+          q: this.editedFilter.q
+            .filter((d) => !this.excludedItemsIds.includes(d))
+            .concat(this.validStringsToAdd.map(d => d.uid)),
+        };
+        this.$emit('changed', newFilter);
+        this.stringsToAdd = [];
       } else {
         this.$emit('changed', this.editedFilter)
       }
+    },
+    addStringItem() {
+      this.stringsToAdd.push({
+        uid: '',
+        checked: true,
+      });
+    },
+    removeStringItem(idx) {
+      this.stringsToAdd.splice(idx, 1);
+    },
+    changeStringFilterItemAtIndex(value, idx) {
+      this.editedFilter.q = this.filter.items.map((d, i) => {
+        if(i === idx) {
+          return value;
+        }
+        return d.uid;
+      }).filter(d => d.length);
     },
     toggleFilterItem(selected, uid) {
       if (selected) {
@@ -252,8 +316,12 @@ export default {
       }
     },
     addEmbeddingSuggestion(embedding) {
-      this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
-      this.editedFilter.precisions = 'soft'
+      this.stringsToAdd.push({
+        uid: embedding,
+        checked: true,
+      })
+      // this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
+      // this.editedFilter.precisions = 'soft'
     },
     handleRangeChanged({ item, q }) {
       this.editedFilter.q = q
@@ -292,19 +360,23 @@ export default {
 </script>
 
 <style lang="scss">
+.items .form-control.accepted {
+  color: #343a40;
+}
 .items-to-add {
   background: yellow;
 }
 label.custom-control-label {
   font-variant: none;
 }
+.reduced {
+  max-height: 200px;
+  overflow:scroll;
+}
 </style>
 <i18n>
 {
   "en": {
-    "embeddings": {
-      "find": "Find Similar Words"
-    },
     "op": {
       "OR": {
         "include": "at least <b>one</b> of the following",
@@ -314,6 +386,10 @@ label.custom-control-label {
         "include": "<b>all</b> of the following",
         "exclude": "<b>all</b> of the following"
       }
+    },
+    "actions": {
+      "addItem": "add new ...",
+      "addUsingEmbeddings": "add similar ..."
     },
     "label": {
       "title": {
