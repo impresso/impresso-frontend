@@ -59,7 +59,7 @@
         @toggle-bucket="toggleBucket"/>
       <b-button
         v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
-        v-html="$t('actions.more')"
+        v-html="$t('actions.browseAll')"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
         @click="showExplorer" />
     </div>
