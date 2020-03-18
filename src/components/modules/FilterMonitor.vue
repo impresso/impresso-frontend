@@ -208,7 +208,8 @@ export default {
   },
   computed: {
     tooManyItems() {
-      return this.stringsToAdd.length + this.filter.items.length + this.itemsToAdd.length > 5;
+      const filterItems = this.filter.items || []
+      return this.stringsToAdd.length + filterItems.length + this.itemsToAdd.length > 5;
     },
     hasEmptyStringItems() {
       return this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.uid.length === 0).length > 0;
