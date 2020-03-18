@@ -57,6 +57,7 @@ export default {
       addFilter: 'add filter...',
       agree: 'I agree to the terms of use',
       accept: 'accept',
+      browseAll: 'show all ...',
       compare: 'compare ...',
       more: 'more...',
       searchMore: 'open in search page...',
