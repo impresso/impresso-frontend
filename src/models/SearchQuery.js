@@ -105,16 +105,23 @@ export default class SearchQuery {
     originalFilter.distance = filter.distance
     originalFilter.context = filter.context
 
-    if (filter.items) {
+    // NOTE: Hotfix. There is a discrepancy between items ids in `q`
+    // and ids in `items`. Get rid of items that are not present in `q`.
+    // One of the cases where it happens is when filtering by id of a collection
+    // not owned by current user.
+    const mergeableItems = (filter.items || []).filter(item => filter.q.includes(item.uid))
+
+    if (mergeableItems.length > 0) {
       const uids = [];
       const items = [];
       // combine the two lists of items;
-      originalFilter.items.concat(filter.items).forEach((d) => {
+      originalFilter.items.concat(mergeableItems).forEach((d) => {
         if (!uids.includes(d.uid)) {
           uids.push(d.uid);
           items.push(d);
         }
       });
+
       originalFilter.setItems(items);
       originalFilter.q = uids;
     }
