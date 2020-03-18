@@ -52,11 +52,18 @@
           v-bind:item="article"
           v-bind:text="$t('add_to_collection')" />
 
-        <div v-if="article.isCC" class="shareArticleControl d-inline ml-1">
+        <div v-if="article.issue.accessRights === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
           <b-button
-            variant="outline-secondary" size="sm"
+            variant="outline-success" size="sm"
             v-on:click="showModalShareArticle()"
-            >{{ $t('share_article') }}
+            :title="$t('share_article')"
+            >
+            <div class="d-flex flex-row align-items-center">
+              <div class="d-flex dripicons dripicons-export mr-1" />
+              <div>
+                {{$t('share_article')}}
+              </div>
+            </div>
           </b-button>
         </div>
       </div>

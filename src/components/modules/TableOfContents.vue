@@ -57,10 +57,12 @@
                 v-bind:key="i"
               />
             </div>
-            <div class="ml-3 mb-3" v-if="art.uid === selectedArticleUid && art.isCC">
+            <div class="ml-3 mb-3"
+              v-if="art.uid === selectedArticleUid
+                && article.issue.accessRights === 'OpenPublic'">
               <b-button
-                variant="outline-primary" size="sm"
-                v-on:click.stop.prevent="showModalShareArticle()"
+                variant="outline-success" size="sm"
+                v-on:click.prevent="showModalShareArticle()"
                 >
                 <div class="d-flex flex-row align-items-center">
                   <div class="d-flex dripicons dripicons-export mr-2" />
