@@ -59,6 +59,7 @@ export default {
       accept: 'accept',
       browseAll: 'show all ...',
       compare: 'compare ...',
+      share: 'share...',
       more: 'more...',
       searchMore: 'open in search page...',
       remove: 'remove',

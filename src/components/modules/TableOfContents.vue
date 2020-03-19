@@ -65,9 +65,9 @@
                 v-on:click.prevent="showModalShareArticle()"
                 >
                 <div class="d-flex flex-row align-items-center">
-                  <div class="d-flex dripicons dripicons-export mr-2" />
+                  <div class="d-flex dripicons dripicons-web mr-2" />
                   <div>
-                    {{$t('share_article')}}
+                    {{$t('actions.share')}}
                   </div>
                 </div>
               </b-button>
@@ -192,7 +192,6 @@ export default {
       this.showModalShare = true;
     },
     hideModalShareArticle() {
-      console.log('hidden');
       this.showModalShare = false;
     },
   },
