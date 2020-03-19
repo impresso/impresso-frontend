@@ -6,7 +6,6 @@
       class="widgetLink border">
       <p>Your browser does not support iframes.</p>
     </iframe>
-
     <b-input-group prepend="URL">
       <b-form-input id="inputLink" ref="inputLink" readonly v-model="widgetLink" />
       <template v-slot:append>
@@ -24,16 +23,17 @@
 
 <script>
 export default {
+  data: () => ({
+    publicPath: process.env.NODE_ENV === 'production' ? '/app/' : '/',
+  }),
   model: {
     prop: 'article',
   },
   props: ['article'],
   computed: {
     widgetLink() {
-      const baseURL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ?
-        window.location.origin : window.location.origin + '/app';
-
-      return baseURL + `/widget/#/p/${this.article.pages[0].uid}/a/${this.article.uid}/`;
+      const baseURL = window.location.origin + this.publicPath;
+      return baseURL + `widget/#/p/${this.article.pages[0].uid}/a/${this.article.uid}/`;
     },
   },
   mounted() {
