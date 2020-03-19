@@ -131,7 +131,10 @@ const constructQueryParameters = (comparables, queryParameters) => {
 const deepEqual = (o1, o2) => JSON.stringify(o1) === JSON.stringify(o2);
 
 const comparableIsEmpty = (comparable) => {
-  if (comparable.type === 'query' && comparable.query === undefined) return true;
+  if (comparable.type === 'query' ) {
+    if (comparable.query === undefined) return true;
+    if (comparable.query.filters == null || comparable.query.filters.length === 0) return true;
+  }
   if (comparable.type === 'collection' && comparable.id === undefined) return true;
   return false;
 };
@@ -261,7 +264,7 @@ export default {
       const payload = {
         queries: comparables
           .map(comparableToQuery)
-          .filter(query => query !== null && query !== undefined),
+          .filter(query => query != null && query.filters.length > 0),
         limit: 0,
         facets: this.facets.map(([type]) => type),
       };
