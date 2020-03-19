@@ -225,7 +225,8 @@ ul.article-matches {
   "en": {
     "view": "View",
     "add_to_collection": "Add to Collection ...",
-    "login_message": "Login to view image"
+    "login_message": "Login to view image",
+    "share_article": "Share ..."
   }
 }
 </i18n>

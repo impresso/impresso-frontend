@@ -4,18 +4,11 @@
     <h2 class="sans font-weight-bold">{{ $t('embed')}}</h2>
     <b-form-textarea id="inputLink" ref="inputLink" readonly v-model="iframeCode" class="mb-2"/>
 
-    <iframe :src="widgetLink"
-      class="widgetLink border">
-      <p>Your browser does not support iframes.</p>
-    </iframe>
-    <b-input-group prepend="URL">
-      <b-form-input id="inputLink" ref="inputLink" readonly v-model="widgetLink" />
-      <template v-slot:append>
-        <b-button
-          variant="outline-primary" size="sm"
-          v-on:click="copyArticleUrlToClipboard()"
-          >{{ $t('copy_to_clipboard') }}
-        </b-button>
+    <b-button
+      variant="outline-primary" size="sm"
+      v-on:click="copyArticleUrlToClipboard()"
+      >{{ $t('copy_to_clipboard') }}
+    </b-button>
 
     <b-row no-gutters class="mt-4">
       <b-col cols="8">
@@ -31,7 +24,7 @@
             <b-input-group size="sm" prepend="#" class="mb-2 mr-sm-2 mb-sm-0">
               <b-input id="form-input-bgcolor" :value="backgroundColor"
                 @input="debounceInput($event, 'backgroundColor')"></b-input>
-    </b-input-group>
+            </b-input-group>
             <small id="form-input-bgcolor-help" class="form-text text-muted">{{ $t('options_bgcolor_help') }}</small>
 
             <label for="form-input-ovcolor" class="mt-2">{{ $t('options_ovcolor') }}</label>
@@ -148,7 +141,7 @@ export default {
     "copy_to_clipboard" : "Copy to clipboard",
     "url_copied_title" : "URL copied to clipboard",
     "url_copied_message" : "{n} copied to clipboard",
-    "modal_title_share_article" : "Share a link to this article",
+    "modal_title_share_article" : "Share newspaper article",
     "options_bgcolor": "background color",
     "options_bgcolor_help": "format hex RGB",
     "options_ovcolor": "highlight color",

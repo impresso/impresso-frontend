@@ -254,7 +254,8 @@ export default {
   "en": {
     "page": "Page",
     "no_title": "No title",
-    "add_to_collection": "Add to Collection ..."
+    "add_to_collection": "Add to Collection ...",
+    "share_article": "Share ..."
   },
   "nl": {
     "page": "Pagina",
