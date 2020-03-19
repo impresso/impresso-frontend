@@ -59,7 +59,7 @@
             </div>
             <div class="ml-3 mb-3"
               v-if="art.uid === selectedArticleUid
-                && article.accessRight === 'OpenPublic'">
+                && art.accessRight === 'OpenPublic'">
               <b-button
                 variant="outline-success" size="sm"
                 v-on:click.prevent="showModalShareArticle()"
