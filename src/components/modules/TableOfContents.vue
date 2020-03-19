@@ -7,7 +7,7 @@
         v-for="(art, idx) in articles"
         v-bind:key="idx"
         v-bind:class="{active: art.uid === selectedArticleUid}"
-        v-on:click.prevent="onClick(art, art.pages[0])">
+        v-on:click.stop.prevent="onClick(art, art.pages[0])">
         <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3"/>
         <article-item :item="art" class="p-3 clearfix"
           show-excerpt
@@ -34,7 +34,7 @@
             v-for="(art, idx) in pag.articles"
             v-bind:key="idx"
             v-bind:class="{activepage: pag.uid === selectedPageUid, active: art.uid === selectedArticleUid}"
-            v-on:click.prevent="onClick(art, pag)">
+            v-on:click.stop.prevent="onClick(art, pag)">
             <div>
               <image-item
                 :height="200"
@@ -57,10 +57,26 @@
                 v-bind:key="i"
               />
             </div>
+            <div class="ml-3 mb-3"
+              v-if="art.uid === selectedArticleUid
+                && article.accessRight === 'OpenPublic'">
+              <b-button
+                variant="outline-success" size="sm"
+                v-on:click.prevent="showModalShareArticle()"
+                >
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons dripicons-export mr-2" />
+                  <div>
+                    {{$t('share_article')}}
+                  </div>
+                </div>
+              </b-button>
+            </div>
           </b-media>
         </div>
       </div>
     </div>
+    <copy-to-clipboard :article="article" v-if="showModalShare" @closed="hideModalShareArticle" />
   </div>
 </template>
 
@@ -69,12 +85,15 @@
 import ArticleItem from './lists/ArticleItem';
 import ImageItem from './lists/ImageItem';
 
+import CopyToClipboard from '../modals/CopyToClipboard';
+
 export default {
   data: () => ({
     // if all pages have been loaded.
     retryTimer: 0,
     selectedArticleUid: '',
     selectedPageUid: '',
+    showModalShare: false,
   }),
   props: {
     articles: {
@@ -97,6 +116,7 @@ export default {
   components: {
     ArticleItem,
     ImageItem,
+    CopyToClipboard,
   },
   methods: {
     orderedTopics(topics) {
@@ -168,6 +188,13 @@ export default {
         });
       }
     },
+    showModalShareArticle() {
+      this.showModalShare = true;
+    },
+    hideModalShareArticle() {
+      console.log('hidden');
+      this.showModalShare = false;
+    },
   },
   filters: {
     substring: (val, count = 10) => {
@@ -228,7 +255,8 @@ export default {
   "en": {
     "page": "Page",
     "no_title": "No title",
-    "add_to_collection": "Add to Collection ..."
+    "add_to_collection": "Add to Collection ...",
+    "share_article": "Share ..."
   },
   "nl": {
     "page": "Pagina",

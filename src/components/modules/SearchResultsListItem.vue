@@ -51,6 +51,21 @@
         <collection-add-to
           v-bind:item="article"
           v-bind:text="$t('add_to_collection')" />
+
+        <div v-if="article.issue.accessRights === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
+          <b-button
+            variant="outline-success" size="sm"
+            v-on:click="showModalShareArticle()"
+            :title="$t('share_article')"
+            >
+            <div class="d-flex flex-row align-items-center">
+              <div class="d-flex dripicons dripicons-export mr-1" />
+              <div>
+                {{$t('share_article')}}
+              </div>
+            </div>
+          </b-button>
+        </div>
       </div>
       <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
         <b-checkbox
@@ -60,19 +75,25 @@
       </div>
     </div>
 
+    <copy-to-clipboard :article="article" v-if="showModalShare" @closed="hideModalShareArticle" />
+
   </b-media>
+
 </template>
 
 <script>
 import CollectionAddTo from './CollectionAddTo';
 import ArticleItem from './lists/ArticleItem';
-import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePageViewer'
+import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePageViewer';
+import CopyToClipboard from '../modals/CopyToClipboard';
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
 
 export default {
-  data: () => ({}),
+  data: () => ({
+    showModalShare: false,
+  }),
   model: {
     prop: 'article',
   },
@@ -111,7 +132,7 @@ export default {
         })
 
       return regionsOverlays.concat(matchesOverlays)
-    }
+    },
   },
   methods: {
     onRemoveCollection(collection, item) {
@@ -133,16 +154,24 @@ export default {
       this.$emit('click');
     },
     isAvailable() {
-      if (this.article.issue.accessRights === 'OpenPublic') {
+      if (this.article.accessRight === 'OpenPublic') {
         return true;
       }
       return this.$store.state.user.userData;
-    }
+    },
+    showModalShareArticle() {
+      this.showModalShare = true;
+    },
+    hideModalShareArticle() {
+      console.log('hidden');
+      this.showModalShare = false;
+    },
   },
   components: {
     LazyOpenSeadragonArticlePageViewer,
     CollectionAddTo,
     ArticleItem,
+    CopyToClipboard,
   }
 };
 </script>
@@ -197,7 +226,8 @@ ul.article-matches {
   "en": {
     "view": "View",
     "add_to_collection": "Add to Collection ...",
-    "login_message": "Login to view image"
+    "login_message": "Login to view image",
+    "share_article": "Share ..."
   }
 }
 </i18n>
