@@ -192,7 +192,6 @@ export default {
       this.showModalShare = true;
     },
     hideModalShareArticle() {
-      console.log('hidden');
       this.showModalShare = false;
     },
   },
