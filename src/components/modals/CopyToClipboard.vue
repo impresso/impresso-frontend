@@ -23,9 +23,6 @@
 
 <script>
 export default {
-  data: () => ({
-    publicPath: process.env.NODE_ENV === 'production' ? '/app/' : '/',
-  }),
   model: {
     prop: 'article',
   },
