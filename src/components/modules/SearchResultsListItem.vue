@@ -59,9 +59,9 @@
             :title="$t('share_article')"
             >
             <div class="d-flex flex-row align-items-center">
-              <div class="d-flex dripicons dripicons-export mr-1" />
+              <div class="d-flex dripicons dripicons-web mr-1" />
               <div>
-                {{$t('share_article')}}
+                {{$t('actions.share')}}
               </div>
             </div>
           </b-button>
@@ -226,8 +226,7 @@ ul.article-matches {
   "en": {
     "view": "View",
     "add_to_collection": "Add to Collection ...",
-    "login_message": "Login to view image",
-    "share_article": "Share ..."
+    "login_message": "Login to view image"
   }
 }
 </i18n>
