@@ -92,8 +92,8 @@ export default {
       }
     },
     widgetLink() {
-      const baseURL = window.location.origin + this.publicPath;
-      return baseURL + `widget/#/p/${this.article.pages[0].uid}/a/${this.article.uid}/`;
+      const { base: urlPrefix } = this.$router.options
+      return `${window.location.origin}${urlPrefix}widget/#/p/${this.article.pages[0].uid}/a/${this.article.uid}/?${this.customisation}`;
     },
   },
   mounted() {
