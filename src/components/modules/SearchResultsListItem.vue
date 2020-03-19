@@ -154,7 +154,7 @@ export default {
       this.$emit('click');
     },
     isAvailable() {
-      if (this.article.issue.accessRights === 'OpenPublic') {
+      if (this.article.accessRight === 'OpenPublic') {
         return true;
       }
       return this.$store.state.user.userData;
