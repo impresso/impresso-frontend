@@ -370,10 +370,12 @@ export default {
       comparables[comparableIdx] = comparable;
 
       const queryParameters = constructQueryParameters(comparables, this.$route.query);
-      this.$router.push({
-        name: 'compare',
-        query: queryParameters,
-      });
+      if (JSON.stringify(this.$route.query) !== JSON.stringify(queryParameters)) {
+        this.$router.push({
+          name: 'compare',
+          query: queryParameters,
+        });
+      }
     },
     comparableForQuery(queryIndex) {
       switch (queryIndex) {
@@ -407,10 +409,12 @@ export default {
       const query = { ...this.$router.currentRoute.query };
       if (queryIdx === 0) query.left = recentSearchHash;
       if (queryIdx === 2) query.right = recentSearchHash;
-      this.$router.push({
-        name: 'compare',
-        query,
-      });
+      if (JSON.stringify(this.$route.query) !== JSON.stringify(query)) {
+        this.$router.push({
+          name: 'compare',
+          query: query,
+        });
+      }
     },
   },
 };
