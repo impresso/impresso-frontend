@@ -9,12 +9,18 @@
       v-on:focus.native="selectInput"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn v-bind:variant="variant" class="px-2"
-          v-on:click="submitInitialSuggestion({type: 'string'})">
+        <b-btn variant="outline-primary" class="px-2"
+          @click="submitInitialSuggestion({type: 'string'})">
           <div class="search-submit dripicons-search"></div>
+        </b-btn>
+        <b-btn variant="outline-primary" class="small-caps"
+          @click="showExplorer">
+
+            <div class="d-flex">{{ $t('actions.addFilter') }}</div>
         </b-btn>
       </b-input-group-append>
     </b-input-group>
+
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
       <div class="border-bottom ">
         <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
@@ -163,6 +169,9 @@ export default {
     }
   },
   methods: {
+    showExplorer() {
+      this.explorerVisible = true;
+    },
     handleExplorerHide() {
       this.explorerVisible = false
     },
@@ -292,12 +301,18 @@ export default {
 .search-bar{
   position: relative;
   input.form-control.search-input {
+    border-color: black;
+    background: transparent;
+    position: relative;
+    color: black;
+
     &:focus {
-      box-shadow: none;
-      border: 1px solid $clr-secondary;
+      // box-shadow: none;
+      background: white;
+      // border: 1px solid $clr-secondary;
     }
     &.has-suggestions {
-      border: 1px solid $clr-secondary;
+      // border: 1px solid $clr-secondary;
       border-bottom: 0;
     }
   }
@@ -352,7 +367,20 @@ export default {
 .search-bar .input-group > .form-control{
   border-top-width: 0;
   border-left-width: 0;
+  z-index: 1;
 }
+
+// .search-bar .input-group-append::before {
+//   content: '';
+//   position: absolute;
+//   left: 0.125rem;
+//   bottom: 0.25rem;
+//   top: 0.25rem;
+//   z-index: 0;
+//   background: rgb(253,233,119);
+//   background: linear-gradient(90deg, rgba(253,233,119,1) 0%, rgba(253,233,119,0) 100%);
+//   width: 100px;
+// }
 </style>
 
 <i18n>
