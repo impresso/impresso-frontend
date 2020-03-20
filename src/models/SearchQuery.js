@@ -70,7 +70,7 @@ export default class SearchQuery {
     return null;
   }
 
-  addFilter(filter) {
+  addFilter(filter, skipMerge) {
     const filterized = filterize(filter);
     const hash = filterized.getHash();
     // check if the filter do not exists.
@@ -78,7 +78,7 @@ export default class SearchQuery {
       // if it does not exist, check if a filter with the same type and context exists.
       const similarFilterIdx = this.filters.findIndex(d => d.context === filterized.context && d.type === filterized.type);
 
-      if (!Array.isArray(filterized.items) || similarFilterIdx === -1) {
+      if (!Array.isArray(filterized.items) || similarFilterIdx === -1 || skipMerge) {
         this.filtersIds.push(hash);
         this.filters.push(filterized);
         // add to filter index dictionary (by filter type), create the index
@@ -145,11 +145,11 @@ export default class SearchQuery {
     });
   }
 
-  updateFilters(filters) {
+  updateFilters(filters, skipMerge) {
     this.filtersIds = [];
     this.filters = [];
     this.filtersIndex = {};
-    filters.forEach(d => this.addFilter(d));
+    filters.forEach(d => this.addFilter(d, skipMerge));
   }
 
   updateFilter({ filter, q, op, items, context, precision, distance }) {

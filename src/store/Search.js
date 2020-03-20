@@ -101,8 +101,8 @@ export default {
   },
   mutations: {
     // general settings
-    UPDATE_SEARCH_QUERY_FILTERS(state, filters) {
-      state.search.updateFilters(filters);
+    UPDATE_SEARCH_QUERY_FILTERS(state, { filters, merge = true }) {
+      state.search.updateFilters(filters, !merge);
     },
     UPDATE_SEARCH_ORDER_BY(state, orderBy) {
       state.orderBy = orderBy;
@@ -221,7 +221,7 @@ export default {
   },
   actions: {
     UPDATE_SEARCH_QUERY_FILTERS({ commit }, filters) {
-      commit('UPDATE_SEARCH_QUERY_FILTERS', filters)
+      commit('UPDATE_SEARCH_QUERY_FILTERS', { filters })
     },
     /**
      * Print search params to current URL
@@ -256,7 +256,7 @@ export default {
       if (query.f) {
         try {
           // try to PARSE json filters
-          commit('UPDATE_SEARCH_QUERY_FILTERS', JSON.parse(query.f));
+          commit('UPDATE_SEARCH_QUERY_FILTERS', { filters: JSON.parse(query.f), merge: false });
         } catch (err) {
           if (err.name === 'SyntaxError') {
             console.warn('SyntaxError. Cannot parse query filters:', query.f);
