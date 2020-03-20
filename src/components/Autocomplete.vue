@@ -25,23 +25,25 @@
       <div class="border-bottom ">
         <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
             @click="submitStaticSuggestion(suggestion)"
+            :data-idx="suggestion.idx"
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div :class="`suggestion-${suggestion.type}`">
-            <span v-if='suggestion.h' v-html='suggestion.h'/>
-            <span v-else>...<b>{{ q }}</b></span>
+            <span class="small" v-if='suggestion.h' v-html='suggestion.h'/>
+            <span class="small" v-else>...<b>{{ q }}</b></span>
             <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
-      <div v-for="type in suggestionTypes" :key="type" class="suggestion-box border-bottom">
+      <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box border-bottom">
         <div class="row no-gutters">
           <div class="col-1 border-right" v-if="type !== 'mention'">
             <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
           </div>
           <div class="col">
             <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
-            <div v-for="(s, index) in suggestionIndex[type]" :key="index"
+            <div v-for="(s, j) in suggestionIndex[type]" :key="j"
                 @click="submit(s)" @mouseover="select(s)"
+                :data-idx="s.idx"
                 class="suggestion pr-1 pl-2 py-1" :class="{
                   selected: selectedIndex === s.idx,
                 }">
