@@ -10,7 +10,7 @@
       v-on:keyup.native="keyup" />
       <b-input-group-append>
         <b-btn variant="outline-primary" class="px-2"
-          @click="submitInitialSuggestion({type: 'string'})">
+          @click="submit({ type: 'string', q })">
           <div class="search-submit dripicons-search"></div>
         </b-btn>
         <b-btn variant="outline-primary" class="small-caps"
@@ -24,7 +24,7 @@
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
       <div class="border-bottom ">
         <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
-            @click="submitInitialSuggestion(suggestion)"
+            @click="submitStaticSuggestion(suggestion)"
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div :class="`suggestion-${suggestion.type}`">
             <span v-if='suggestion.h' v-html='suggestion.h'/>
@@ -66,13 +66,14 @@
           @onHide="handleExplorerHide"
           :searching-enabled="true"
           :initial-search-query="q"
-          :initial-type="suggestionType"/>
+          :initial-type="explorerInitialType"
+          :included-types="explorerIncludedTypes"/>
   </section>
 </template>
 
 <script>
 import ClickOutside from 'vue-click-outside';
-import SuggestionFactory from '@/models/SuggestionFactory';
+import FilterFactory from '@/models/FilterFactory';
 import Explorer from './Explorer';
 
 const AVAILABLE_TYPES = [
@@ -104,12 +105,22 @@ export default {
     selectableSuggestions: [],
     showSuggestions: false,
     explorerVisible: false,
-    suggestionType: undefined
+
   }),
   props: {
     variant: {
       type: String,
       default: 'primary',
+    },
+    explorerIncludedTypes: {
+      type: Array,
+      default: () => [
+        'newspaper',
+        'topic',
+        'location',
+        'person',
+        'collection',
+      ],
     },
   },
   computed: {
@@ -118,6 +129,18 @@ export default {
         ...d,
         idx,
       }));
+    },
+    explorerInitialType() {
+      if(this.explorerIncludedTypes.includes(this.suggestionType)) {
+        return this.suggestionType;
+      }
+      return this.explorerIncludedTypes[0];
+    },
+    suggestionType() {
+      if (!this.selectableSuggestions[this.selectedIndex]){
+        return 'string';
+      }
+      return this.selectableSuggestions[this.selectedIndex].type;
     },
     suggestionIndex() {
       const index = this.$helpers.groupBy(this.suggestions, 'type');
@@ -213,44 +236,38 @@ export default {
         this.selectedIndex = 0;
       }
     },
-    submitInitialSuggestion({ type, q }) {
-      if (this.q.length) {
-        this.submit(SuggestionFactory.create({
+    submitStaticSuggestion({ type, q }) {
+      const sq = String(q || this.q || '').trim();
+      if (sq.length) {
+        console.info('submitStaticSuggestion', type, sq);
+        this.submit({
           type,
-          q: [q || this.q],
-        }));
+          q: sq,
+        });
       }
     },
-    submit(suggestion) {
-      if (suggestion.fake) {
-        if (this.q.length) {
-          this.explorerVisible = true
-          this.suggestionType = suggestion.type
-        }
-      } else if (suggestion.type === 'mention') {
-        this.$emit('submit', {
-          type: suggestion.type,
-          q: [suggestion.item.name],
-          op: 'AND',
-        });
-      } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
-        if (this.q.length) {
-          console.info('Submit \'string\' suggestion, q:', this.q);
-          if (!suggestion.q) {
-            this.$store.dispatch('autocomplete/SAVE', {
-              q: suggestion.q || this.q,
-            });
-          }
-          this.$emit('submit', {
-            type: suggestion.type,
-            q: [suggestion.q || this.q],
-            op: 'AND',
+    submit({ type, item = {}, q, fake = false } = {}) {
+      if (fake) {
+        // select one item from the explorer
+        this.showExplorer();
+      } else if (['string', 'title', 'mention'].includes(type)) {
+        const sq = String(q || item.name || this.q || '').trim();
+        if (sq.length) {
+          this.$store.dispatch('autocomplete/SAVE_RECENT_QUERY', {
+            q: sq,
           });
+          this.$emit('submit', FilterFactory.create({
+            type,
+            q: [sq],
+            op: 'OR',
+          }));
         }
       } else {
-        console.info('Submit suggestion: ', suggestion);
-        this.$emit('submit', suggestion);
-        this.showSuggestions = false;
+        this.$emit('submit', FilterFactory.create({
+          type,
+          q: [item.uid],
+          items: [item],
+        }));
       }
     },
     select(suggestion) {
@@ -262,6 +279,7 @@ export default {
     keyup(event) {
       switch (event.key) {
       case 'Enter':
+        console.info('@keyup ENTER', this.selectedIndex, this.selectableSuggestions[this.selectedIndex]);
         this.submit(this.selectableSuggestions[this.selectedIndex]);
         this.selectInput(event);
         break;
