@@ -1,8 +1,10 @@
-<template lang="html">
+<template>
   <i-layout-section :width="width">
     <!--  header -->
     <div slot="header" class="border-bottom bg-light">
-      <search-tabs/>
+      <slot name="tabs">
+        <search-tabs/>
+      </slot>
       <div class="py-3 px-3">
         <search-pills
           :filters="filters"
@@ -27,53 +29,52 @@
       </slot>
 
       <search-facets
-        :store="store"
         :facets="facets"
         :filters="filters"
         @changed="handleFiltersChanged"/>
-        <!-- @submit-facet="onAddFilter"
-        @update-filter="onFilterUpdated"
-        @reset-filter="onFilterReset"/> -->
     </div>
   </i-layout-section>
 </template>
 
 <script>
-import SearchPills from '@/components/SearchPills';
-import SearchTabs from '@/components/modules/SearchTabs';
-import InfoButton from '@/components/base/InfoButton';
-import SearchFacets from '@/components/SearchFacets';
+import SearchPills from '@/components/SearchPills'
+import SearchTabs from '@/components/modules/SearchTabs'
+import InfoButton from '@/components/base/InfoButton'
+import SearchFacets from '@/components/SearchFacets'
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models').Facet} Facet
+ */
 
 export default {
   props: {
-    store: {
+    /* Used for helper button */
+    contextTag: {
       type: String,
     },
     width: {
       type: String,
       default: '400px',
     },
-    excludedTypes: {
-      type: Array,
-      default: () => [],
-    },
     filters: {
-      /** @type {import('vue').PropType<import('../../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<Filter[]>} */
       type: Array,
       default: () => [],
     },
     facets: {
-      /** @type {import('vue').PropType<import('../../models/models').Facet[]>} */
+      /** @type {import('vue').PropType<Facet[]>} */
       type: Array,
       default: () => [],
     },
     filtersRemoved: {
-      /** @type {import('vue').PropType<import('../../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<Filter[]>} */
       type: Array,
       default: () => [],
     },
   },
   methods: {
+    /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
       // propagate filters changed
       this.$emit('changed', filters);
@@ -81,7 +82,7 @@ export default {
   },
   computed: {
     infoButtonName() {
-      return ['how-', this.store, '-work-with-search-filters'].join('');
+      return `how-${this.contextTag}-work-with-search-filters`
     },
   },
   components: {

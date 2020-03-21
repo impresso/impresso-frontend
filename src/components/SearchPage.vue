@@ -3,7 +3,7 @@
   <search-sidebar width="400px"
     :filters="filters"
     :facets="facets"
-    store="search"
+    contextTag="search"
     @changed="handleFiltersChanged"
   >
     <div slot="header">
@@ -212,6 +212,7 @@ const ALLOWED_FACET_TYPES = [
   'partner',
   'person',
   'location',
+  'year'
 ]
 
 export default {

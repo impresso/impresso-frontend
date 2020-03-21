@@ -1,13 +1,28 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "checkJs": true,
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
+    "allowJs": true,
+    "checkJs": true,
+    "noImplicitAny": false,
     "paths": {
-      "@/*": ["./src/**/*"]
-    },
-    "moduleResolution": "node"
+      "@/*": [
+        "src/*"
+      ]
+    }
   },
-  "exclude": ["node_modules", "dist"],
-  "include": ["./src/**/*.vue", "./src/**/*.js"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

@@ -97,6 +97,8 @@ export default class Line extends Basic {
     const scaledX = this.dimensions.x.scale.invert(mouseX);
     const { index, nearest } = this.dimensions.x.getNearestValue(scaledX);
 
+    if (index === -1) return
+
     const pointerX = this.dimensions.x.scale(nearest);
     const pointerY = this.dimensions.y.scale(this.data[index][this.dimensions.y.property]);
 
