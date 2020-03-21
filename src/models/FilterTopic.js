@@ -13,9 +13,8 @@ export default class FilterTopic extends FilterItems {
       this.items = this.q.map(uid => new Topic({
         uid,
       }));
-    } else {
-      this.items = this.items.map(item => new Topic(item))
     }
+    this.items = this.items.map(item => item instanceof Topic ? item : new Topic(item))
   }
 
   setItems(items = []) {

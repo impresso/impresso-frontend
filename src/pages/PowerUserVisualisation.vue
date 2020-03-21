@@ -61,12 +61,7 @@ const FacetsWithTwoOperators = ['person', 'location', 'topic']
 const DefaultFacetOperatorsMap = FacetsWithTwoOperators
   .reduce((acc, type) => ({ ...acc, [type]: TwoOperators }), {})
 
-const DefaultEmptyApiResponse = {
-  info: {
-    facets: DefaultSearchFacetsTypes.reduce((acc, type) => ({ ...acc, [type]: {} }), {})
-  }
-}
-
+const DefaultEmptyApiResponse = { info: { facets: {} } }
 
 const QueryParameters = Object.freeze({
   SearchFilters: 'filters'
@@ -77,7 +72,15 @@ const serializeFilters = filters => toSerializedFilters(filters)
 /** @param {string} serializedFilters */
 const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
 /** @param {any} response */
-const apiResponseToFacets = response => getFacetsFromApiResponse(response, DefaultFacetOperatorsMap)
+const apiResponseToFacets = response => {
+  const { facets: responseFacets = {} } = response.info
+
+  const responseFacetsWithMissing = DefaultSearchFacetsTypes.reduce((acc, type) => {
+    return { ...acc, [type]: responseFacets[type] || {} }
+  }, {})
+
+  return getFacetsFromApiResponse(responseFacetsWithMissing, DefaultFacetOperatorsMap)
+}
 
 export default {
   data: () => ({

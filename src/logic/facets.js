@@ -3,15 +3,14 @@ import Facet from '@/models/Facet'
 
 /**
  * Given a search API response return a list of facets with buckets.
- * @param {any} apiResponse
+ * @param {any} apiResponseFacets
  * @returns {import('../models').Facet[]}
  */
-export function getFacetsFromApiResponse(apiResponse, operatorsMap = {}) {
-  const { facets = {} } = apiResponse.info
-  const facetTypes = Object.keys(facets).filter(v => v !== 'count')
+export function getFacetsFromApiResponse(apiResponseFacets = {}, operatorsMap = {}) {
+  const facetTypes = Object.keys(apiResponseFacets).filter(v => v !== 'count')
 
   return facetTypes.map(type => {
-    const { buckets = [], numBuckets = 0 } = facets[type]
+    const { buckets = [], numBuckets = 0 } = apiResponseFacets[type]
     return new Facet({
       type,
       buckets,
