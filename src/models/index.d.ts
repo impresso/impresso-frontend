@@ -6,12 +6,13 @@ export interface Entity {
 }
 
 export interface Filter {
-  q: string[] | string,
+  q?: string[] | string,
   type: string,
-  context: string,
-  precision: string,
+  context?: string,
+  precision?: string,
+  op?: string,
 
-  items: Entity[]
+  items?: Entity[]
 }
 
 export interface Bucket {

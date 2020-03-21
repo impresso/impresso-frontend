@@ -30,7 +30,11 @@ import { protobuf } from 'impresso-jscommons'
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
 import { search, filtersItems } from '@/services';
-import { toSerializedFilters, toCanonicalFilter } from '../logic/filters'
+import {
+  toSerializedFilters,
+  toCanonicalFilter,
+  optimizeFilters
+} from '../logic/filters'
 import { getFacetsFromApiResponse } from '../logic/facets'
 
 /**
@@ -90,7 +94,7 @@ export default {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
       this.$navigation.updateQueryParameters({
-        [QueryParameters.SearchFilters]: serializeFilters(filters)
+        [QueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
       })
     }
   },
