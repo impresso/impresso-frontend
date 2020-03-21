@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class='search-pills'>
     <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
       v-for="({ filter, filterIndex }) in pills" :key="filterIndex">
@@ -101,9 +101,14 @@
 </template>
 
 <script>
-import FilterMonitor from './modules/FilterMonitor';
-import Explorer from './Explorer';
+import FilterMonitor from '@/components/modules/FilterMonitor';
+import Explorer from '@/components/Explorer';
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
+import FilterFactory from '@/models/FilterFactory'
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ */
 
 /**
  * Use `v-model`.
@@ -123,15 +128,16 @@ export default {
     },
     includedFilterTypes: {
       /* included filter types override excluded types */
+      /** @type {import('vue').PropType<string[] | undefined>} */
       type: Array,
-      default: () => undefined
+      default: undefined
     },
     enableAddFilter: {
       type: Boolean,
       default: false,
     },
     filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<Filter[]>} */
       type: Array,
       default: () => []
     },
@@ -141,22 +147,29 @@ export default {
     }
   },
   computed: {
+    /** @returns {{filter: Filter, filterIndex: number}[]} */
     pills() {
       /* included filter types override excluded types */
-      const filterFn = this.includedFilterTypes
-        ? ({ filter: { type } }) => this.includedFilterTypes.includes(type)
-        : ({ filter: { type } }) => !this.excludedTypes.includes(type)
+      const filterFn = this.includedFilterTypes != null
+        ? (/** @type {{filter: Filter}} */ { filter: { type } }) => (this.includedFilterTypes || []).includes(type)
+        : (/** @type {{filter: Filter}} */ { filter: { type } }) => !this.excludedTypes.includes(type)
       return this.filters
-        .map((filter, filterIndex) => ({ filter, filterIndex }))
+        .map((filter, filterIndex) => ({ filter: FilterFactory.create(filter), filterIndex }))
         .filter(filterFn)
     },
+    /** @type {import('vue').ComputedOptions<Filter[]>} */
     explorerFilters: {
       get() { return this.filters },
       set(filters) { this.$emit('changed', filters) }
     },
+    /** @returns {string[]} */
     numericTypes() { return NumericRangeFacets }
   },
   methods: {
+    /**
+     * @param {number} index
+     * @param {Filter} filter
+     */
     handleFilterUpdated(index, filter) {
       // If this filter has no items selected - remove the filter
       if (!RangeFacets.includes(filter.type) && Array.isArray(filter.q) && filter.q.length === 0) {
@@ -167,10 +180,16 @@ export default {
       newFilters[index] = filter
       this.$emit('changed', newFilters)
     },
+    /**
+     * @param {number} index
+     */
     handleFilterRemoved(index) {
       const newFilters = this.filters.filter((f, idx) => idx !== index)
       this.$emit('changed', newFilters)
     },
+    /**
+     * @param {object} p
+     */
     labelByItems({
       items = [],
       prop = 'name',
@@ -180,7 +199,7 @@ export default {
       type = 'label',
     } = {}) {
       let labels = items.slice(0, max)
-        .map((d) => {
+        .map((/** @type {object} */ d) => {
           if (translate) {
             return this.$t(`buckets.${type}.${d[prop]}`);
           }
@@ -194,11 +213,14 @@ export default {
 
       return labels;
     },
+    /**
+     * @param {object} p
+     */
     labelByDaterangeItems({
       items = [],
       max = 1,
     } = {}) {
-      let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
+      let labels = items.slice(0, max).map((/** @type {object} */ d) => this.$t('label.daterange.item', {
         start: this.$d(new Date(d.start), 'compact'),
         end: this.$d(new Date(d.end), 'compact'),
       })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
@@ -209,6 +231,9 @@ export default {
       }
       return labels;
     },
+    /**
+     * @param {object} p
+     */
     labelForNumeric({ items = [], type }) {
       const { start, end } = items[0] || {}
       const label = this.$t(`label.${type}.item`)
@@ -219,9 +244,11 @@ export default {
         end: this.$n(end)
       })
     },
+    /** @returns {void} */
     showFilterExplorer() {
       this.explorerVisible = true
     },
+    /** @returns {void} */
     handleExplorerHide() {
       this.explorerVisible = false
     }

@@ -2,7 +2,7 @@
   <i-layout>
     <!-- sidebar -->
     <search-sidebar width="400px"
-      :filters="filters"
+      :filters="enrichedFilters"
       :facets="facets"
       contextTag="powerUserVis"
       @changed="handleFiltersChanged">
@@ -29,7 +29,7 @@
 import { protobuf } from 'impresso-jscommons'
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
-import { search } from '@/services';
+import { search, filtersItems } from '@/services';
 import { toSerializedFilters, toCanonicalFilter } from '../logic/filters'
 import { getFacetsFromApiResponse } from '../logic/facets'
 
@@ -72,11 +72,15 @@ const QueryParameters = Object.freeze({
 const serializeFilters = filters => toSerializedFilters(filters)
 /** @param {string} serializedFilters */
 const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
+/** @param {any} response */
+const apiResponseToFacets = response => getFacetsFromApiResponse(response, DefaultFacetOperatorsMap)
 
 export default {
   data: () => ({
     /** @type {Facet[]} */
-    facets: getFacetsFromApiResponse(DefaultEmptyApiResponse, DefaultFacetOperatorsMap)
+    facets: apiResponseToFacets(DefaultEmptyApiResponse),
+    /** @type {Filter[]} */
+    filtersWithItems: []
   }),
   methods: {
     /** @param {Filter} filter */
@@ -101,6 +105,12 @@ export default {
       return serializedFilters
         ? deserializeFilters(/** @type {string} */ (serializedFilters))
         : []
+    },
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems != null
+        ? this.filtersWithItems
+        : this.filters
     }
   },
   watch: {
@@ -113,8 +123,16 @@ export default {
           facets: DefaultSearchFacetsTypes,
           group_by: 'articles',
         }
-        const response = await search.find({ query })
-        this.facets = getFacetsFromApiResponse(response, DefaultFacetOperatorsMap)
+        const [
+          facets,
+          filtersWithItemsResponse,
+        ] = await Promise.all([
+          search.find({ query }).then(apiResponseToFacets),
+          filtersItems.find({ query: { filters: serializeFilters(filters) }})
+        ])
+        this.facets = facets
+        this.filtersWithItems = filtersWithItemsResponse.filtersWithItems
+          .map((/** @type {{ filter: Filter, items: any[] }} */ { filter, items }) => ({ ...filter, items }))
       },
       immediate: true
     }

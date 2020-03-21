@@ -28,6 +28,7 @@
 import FilterFacet from '@/components/modules/FilterFacet';
 import FilterTimeline from '@/components/modules/FilterTimeline';
 import { facetToTimelineValues } from '@/logic/facets'
+import FilterFactory from '@/models/FilterFactory'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -95,29 +96,13 @@ export default {
       const yearFacet = this.facets.find(({ type }) => type === 'year')
       if (!yearFacet || !yearFacet.buckets.length) return []
       return facetToTimelineValues(yearFacet)
-    },
-    // values: {
-    //   get() {
-    //     const facet = this.currentStore.facets.find(d => d.type === 'year');
-    //     if (!facet || !facet.buckets.length) {
-    //       return [];
-    //     }
-    //     // sort then
-    //     const values = facet.buckets.map(d => ({
-    //       ...d,
-    //       w: d.count,
-    //       w1: 0,
-    //       p: d.item.normalize(d.count),
-    //       t: parseInt(d.val, 10),
-    //     }));
-    //     // add zeroes
-    //     return Helpers.timeline.addEmptyIntervals(values);
-    //   },
-    // },
+    }
   },
   methods: {
     getFacetFilters(type) {
-      return this.filters.filter(d => d.type === type);
+      return this.filters
+        .filter(d => d.type === type)
+        .map(filter => FilterFactory.create(filter));
     },
     resetFilters(type) {
       this.$emit('changed', this.filters.filter(d => d.type !== type));
