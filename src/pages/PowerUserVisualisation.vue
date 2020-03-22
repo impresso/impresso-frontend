@@ -16,9 +16,12 @@
     <i-layout-section main>
       <div>
         <h3>Filters</h3>
-        <pre>
-          {{JSON.stringify(filters, null, 2)}}
-        </pre>
+        <pre>{{JSON.stringify(filters, null, 2)}}</pre>
+      </div>
+      <div>
+        <h3>Stats</h3>
+        <pre v-if="!statsLoading">{{JSON.stringify(stats, null, 2)}}</pre>
+        <spinner v-if="statsLoading"/>
       </div>
     </i-layout-section>
   </i-layout>
@@ -29,7 +32,12 @@
 import { protobuf } from 'impresso-jscommons'
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
-import { search, filtersItems } from '@/services';
+import Spinner from '@/components/layout/Spinner'
+import {
+  search,
+  filtersItems,
+  stats
+} from '@/services';
 import {
   toSerializedFilters,
   toCanonicalFilter,
@@ -87,7 +95,9 @@ export default {
     /** @type {Facet[]} */
     facets: apiResponseToFacets(DefaultEmptyApiResponse),
     /** @type {Filter[]} */
-    filtersWithItems: []
+    filtersWithItems: [],
+    stats: {},
+    statsLoading: false
   }),
   methods: {
     /** @param {Filter} filter */
@@ -103,7 +113,8 @@ export default {
   },
   components: {
     SearchSidebar,
-    Autocomplete
+    Autocomplete,
+    Spinner
   },
   computed: {
     /** @returns {Filter[]} */
@@ -118,6 +129,19 @@ export default {
       return this.filtersWithItems != null
         ? this.filtersWithItems
         : this.filters
+    },
+    statsRequest() {
+      const facet = 'contentLength'
+      const index = 'search'
+      const domain = 'time'
+      const filters = serializeFilters(this.filters)
+
+      return {
+        facet,
+        index,
+        domain,
+        filters
+      }
     }
   },
   watch: {
@@ -140,6 +164,17 @@ export default {
         this.facets = facets
         this.filtersWithItems = filtersWithItemsResponse.filtersWithItems
           .map((/** @type {{ filter: Filter, items: any[] }} */ { filter, items }) => ({ ...filter, items }))
+      },
+      immediate: true
+    },
+    statsRequest: {
+      async handler(query) {
+        try {
+          this.statsLoading = true
+          this.stats = await stats.find({ query })
+        } finally {
+          this.statsLoading = false
+        }
       },
       immediate: true
     }
