@@ -14,7 +14,11 @@
       "@/*": [
         "src/*"
       ]
-    }
+    },
+    "lib": [
+      "es2019",
+      "ESNext.Array"
+    ]
   },
   "include": [
     "src/**/*.ts",

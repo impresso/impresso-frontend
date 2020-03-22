@@ -15,6 +15,16 @@
     <!-- main section -->
     <i-layout-section main>
       <div>
+        <i-dropdown v-model="statsFacetModel"
+                    :options="availableStatsFacets"
+                    size="sm"
+                    variant="outline-primary"/>
+        <i-dropdown v-model="statsDomain"
+                    :options="statsDomainsOptions"
+                    size="sm"
+                    variant="outline-primary"/>
+      </div>
+      <div>
         <h3>Filters</h3>
         <pre>{{JSON.stringify(filters, null, 2)}}</pre>
       </div>
@@ -44,6 +54,7 @@ import {
   optimizeFilters
 } from '../logic/filters'
 import { getFacetsFromApiResponse } from '../logic/facets'
+import { getQueryParameter } from '@/router/util'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -72,7 +83,46 @@ const DefaultFacetOperatorsMap = FacetsWithTwoOperators
 const DefaultEmptyApiResponse = { info: { facets: {} } }
 
 const QueryParameters = Object.freeze({
-  SearchFilters: 'filters'
+  SearchFilters: 'filters',
+  Facet: 'facet',
+  Index: 'index',
+  Domain: 'domain'
+})
+
+/** @typedef {{[key: string]: string[]}} StringArrayMap */
+/** @type {{[key: string]: StringArrayMap}} */
+const StatsFacets = {
+  search: {
+    term: [
+      'newspaper',
+      'country',
+      'type',
+      'topic',
+      'language',
+      'person',
+      'location'
+    ],
+    numeric: [
+      'contentLength',
+      'pagesCount'
+    ]
+  },
+  tr_clusters: {
+    term: ['newspaper'],
+    numeric: [
+      'textReuseClusterSize',
+      'textReuseClusterLexicalOverlap',
+      'textReuseClusterDayDelta'
+    ]
+  }
+}
+
+const AvailableStatsFacetsIds = Object.keys(StatsFacets).flatMap(index => {
+  const facets = Object.values(StatsFacets[index]).flat()
+  return facets.map(facet => {
+    const key = `${index}.${facet}`
+    return { value: key, text: key }
+  })
 })
 
 /** @param {Filter[]} filters */
@@ -97,7 +147,8 @@ export default {
     /** @type {Filter[]} */
     filtersWithItems: [],
     stats: {},
-    statsLoading: false
+    statsLoading: false,
+    availableStatsFacets: AvailableStatsFacetsIds,
   }),
   methods: {
     /** @param {Filter} filter */
@@ -130,10 +181,11 @@ export default {
         ? this.filtersWithItems
         : this.filters
     },
+    /** @return {object} */
     statsRequest() {
-      const facet = 'contentLength'
-      const index = 'search'
-      const domain = 'time'
+      const facet = this.statsFacet
+      const index = this.statsIndex
+      const domain = this.statsDomain
       const filters = serializeFilters(this.filters)
 
       return {
@@ -142,6 +194,50 @@ export default {
         domain,
         filters
       }
+    },
+    /** @returns {string} */
+    statsFacet() { return /** @type {string} */ (getQueryParameter(this, QueryParameters.Facet, 'contentLength')) },
+    /** @returns {string} */
+    statsIndex() { return /** @type {string} */ (getQueryParameter(this, QueryParameters.Index, 'search')) },
+    statsFacetModel: {
+      /** @returns {string} */
+      get() { return `${this.statsIndex}.${this.statsFacet}` },
+      /** @param {string} value */
+      set(value) {
+        const [index, facet] = value.split('.')
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.Index]: index,
+          [QueryParameters.Facet]: facet
+        })
+      }
+    },
+    statsDomain: {
+      /** @returns {string} */
+      get() {
+        const value = /** @type {string} */ (getQueryParameter(this, QueryParameters.Domain, 'time'))
+        const options = this.statsDomainsOptions.map(({ value }) => value)
+        if (!options.includes(value)) {
+          // Reset stats domain if the value is no longer in the options
+          // due to changed facet
+          this.$navigation.updateQueryParameters({
+            [QueryParameters.Domain]: undefined
+          })
+          return 'time'
+        }
+        return value
+      },
+      /** @param {string} value */
+      set(value) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.Domain]: value
+        })
+      }
+    },
+    /** @returns {{ value: string, text: string }[]} */
+    statsDomainsOptions() {
+      const options = (StatsFacets[this.statsIndex].term || [])
+        .map(key => ({ value: key, text: key }))
+      return [{ value: 'time', text: 'time' }].concat(options)
     }
   },
   watch: {
