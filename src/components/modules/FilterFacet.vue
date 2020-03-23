@@ -59,7 +59,7 @@
         @toggle-bucket="toggleBucket"/>
       <b-button
         v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
-        v-html="$t('actions.browseAll')"
+        v-html="$t('actions.more')"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
         @click="showExplorer" />
     </div>
@@ -68,11 +68,6 @@
         {{ $t(`actions.apply`) }}
       </b-button>
     </div>
-    <explorer v-model="explorerFilters"
-      :is-visible="explorerVisible"
-      :searching-enabled="true"
-      @onHide="handleExplorerHide"
-      :included-types="[facet.type]" />
   </div>
 </template>
 
@@ -82,7 +77,6 @@ import FilterFacetBucket from '@/components/modules/FilterFacetBucket';
 import FilterMonitor from '@/components/modules/FilterMonitor';
 import InfoButton from '@/components/base/InfoButton';
 import { toSerializedFilter } from '@/logic/filters'
-import Explorer from '@/components/Explorer';
 
 
 export default {
@@ -101,7 +95,6 @@ export default {
     isCollapsed: false,
     selectedBucketsIds: [],
     selectedBucketsItems: [],
-    explorerVisible: false,
   }),
   props: {
     facet: Object,
@@ -119,10 +112,6 @@ export default {
     collapsible: Boolean,
   },
   computed: {
-    explorerFilters: {
-      get() { return this.contextFilters },
-      set(filters) { this.$emit('changed', filters) },
-    },
     showBuckets() {
       // always show if iscollaplible is selected.
       return this.isCollapsible ? !this.isCollapsed : true;
@@ -216,12 +205,6 @@ export default {
     resetFilters() {
       this.$emit('changed', []);
     },
-    showExplorer() {
-      this.explorerVisible = true;
-    },
-    handleExplorerHide() {
-      this.explorerVisible = false;
-    },
     updateFilter(filterIndex, filter) {
       const oldFilter = this.facetFilters[filterIndex]
 
@@ -258,7 +241,6 @@ export default {
     InfoButton,
     FilterMonitor,
     FilterFacetBucket,
-    Explorer,
   }
 };
 </script>
