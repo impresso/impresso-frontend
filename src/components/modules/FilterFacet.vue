@@ -57,11 +57,16 @@
         :bucket="bucket"
         :type="facet.type"
         @toggle-bucket="toggleBucket"/>
+      <filter-facet-bucket v-for="bucket in additionalBuckets" :key="bucket.val"
+        :loading="isLoading"
+        :bucket="bucket"
+        :type="facet.type"
+        @toggle-bucket="toggleBucket"/>
       <b-button
         v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
-        v-html="$t('actions.more')"
+        v-html="$t(isMoreLoading ? 'actions.loading' : 'actions.more')"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        @click="showExplorer" />
+        @click="loadMoreItems" />
     </div>
     <div class="d-flex mt-2" v-if="selectedBucketsIds.length && !isFiltered">
       <b-button size="sm" variant="outline-primary" class="w-100" @click="createFilter">
@@ -77,7 +82,7 @@ import FilterFacetBucket from '@/components/modules/FilterFacetBucket';
 import FilterMonitor from '@/components/modules/FilterMonitor';
 import InfoButton from '@/components/base/InfoButton';
 import { toSerializedFilter } from '@/logic/filters'
-
+import { searchFacets } from '@/services';
 
 export default {
   /**
@@ -95,6 +100,11 @@ export default {
     isCollapsed: false,
     selectedBucketsIds: [],
     selectedBucketsItems: [],
+    //
+    limit: 10,
+    skip: 0,
+    additionalBuckets: [],
+    isMoreLoading: false,
   }),
   props: {
     facet: Object,
@@ -234,6 +244,39 @@ export default {
     clearSelectedItems() {
       this.selectedBucketsIds = [];
       this.selectedBucketsItems = [];
+    },
+    loadMoreItems() {
+      if (this.isMoreLoading) {
+        console.warn('facet is busy loading');
+        return;
+      }
+      this.isMoreLoading = true;
+      searchFacets.get(this.facet.type, {
+        query: {
+          filters: this.contextFilters,
+          limit: this.limit,
+          skip: this.skip,
+        },
+      }).then(([{ buckets }]) => {
+        console.info('loadMoreItems', buckets, this.skip);
+        this.additionalBuckets = this.additionalBuckets.concat(buckets);
+        this.skip = this.additionalBuckets.length + this.facet.buckets.length;
+      }).catch((err) => {
+        console.error(err);
+      }).then(() => {
+        this.isMoreLoading = false;
+      });
+    }
+  },
+  watch: {
+    facet: {
+      deep: true,
+      immediate: true,
+      handler({ buckets = [] } = {}) {
+        // set or reset initial skip (it resets additionalBuckets lists)
+        this.skip = buckets.length;
+        this.additionalBuckets = [];
+      },
     },
   },
   components: {
