@@ -189,7 +189,8 @@ export default {
       get() { return [] },
       set(filters) {
         const filter = filters[0]
-        this.$emit('submit', filter)
+        this.$emit('submit', filter);
+        this.q = '';
       }
     }
   },
@@ -246,6 +247,7 @@ export default {
           type,
           q: sq,
         });
+        this.q = '';
       }
     },
     submit({ type, item = {}, q, fake = false } = {}) {
@@ -263,6 +265,7 @@ export default {
             q: [sq],
             op: 'OR',
           }));
+          this.q = '';
         }
       } else {
         this.$emit('submit', FilterFactory.create({
@@ -270,6 +273,7 @@ export default {
           q: [item.uid],
           items: [item],
         }));
+        this.q = '';
       }
     },
     select(suggestion) {
