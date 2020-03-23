@@ -19,14 +19,15 @@ export default {
     },
   },
   actions: {
-    SAVE({ commit }, { q }) {
-      commit('ADD_QUERY', q);
+    SAVE_RECENT_QUERY({ commit }, { q }) {
+      if (typeof q === 'string' && q.trim().length) {
+        commit('ADD_QUERY', q);
+      }
     },
     SUGGEST_RECENT_QUERY({ state }, q) {
       const nq = normalize(q);
       const candidates = [];
-
-      state.queries.forEach((d) => {
+      state.queries.filter(d => typeof d === 'string').forEach((d) => {
         const idx = normalize(d).indexOf(nq);
         if (idx > -1) {
           candidates.push({
@@ -42,7 +43,7 @@ export default {
           });
         }
       });
-      return Promise.resolve(candidates.sort((a, b) => b.r - a.r));
+      return candidates.sort((a, b) => b.r - a.r).slice(0, 3);
     },
     SEARCH(context, { q }) {
       return services.suggestions.find({

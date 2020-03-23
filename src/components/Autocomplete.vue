@@ -9,33 +9,41 @@
       v-on:focus.native="selectInput"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn v-bind:variant="variant" class="px-2"
-          v-on:click="submitInitialSuggestion({type: 'string'})">
+        <b-btn variant="outline-primary" class="px-2"
+          @click="submit({ type: 'string', q })">
           <div class="search-submit dripicons-search"></div>
+        </b-btn>
+        <b-btn variant="outline-primary" class="small-caps"
+          @click="showExplorer">
+
+            <div class="d-flex">{{ $t('actions.addFilter') }}</div>
         </b-btn>
       </b-input-group-append>
     </b-input-group>
+
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
       <div class="border-bottom ">
         <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
-            @click="submitInitialSuggestion(suggestion)"
+            @click="submitStaticSuggestion(suggestion)"
+            :data-idx="suggestion.idx"
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div :class="`suggestion-${suggestion.type}`">
-            <span v-if='suggestion.h' v-html='suggestion.h'/>
-            <span v-else>...<b>{{ q }}</b></span>
+            <span class="small" v-if='suggestion.h' v-html='suggestion.h'/>
+            <span class="small" v-else>...<b>{{ q }}</b></span>
             <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
-      <div v-for="type in suggestionTypes" :key="type" class="suggestion-box border-bottom">
+      <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box border-bottom">
         <div class="row no-gutters">
           <div class="col-1 border-right" v-if="type !== 'mention'">
             <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
           </div>
           <div class="col">
             <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
-            <div v-for="(s, index) in suggestionIndex[type]" :key="index"
+            <div v-for="(s, j) in suggestionIndex[type]" :key="j"
                 @click="submit(s)" @mouseover="select(s)"
+                :data-idx="s.idx"
                 class="suggestion pr-1 pl-2 py-1" :class="{
                   selected: selectedIndex === s.idx,
                 }">
@@ -60,13 +68,14 @@
           @onHide="handleExplorerHide"
           :searching-enabled="true"
           :initial-search-query="q"
-          :initial-type="suggestionType"/>
+          :initial-type="explorerInitialType"
+          :included-types="explorerIncludedTypes"/>
   </section>
 </template>
 
 <script>
 import ClickOutside from 'vue-click-outside';
-import SuggestionFactory from '@/models/SuggestionFactory';
+import FilterFactory from '@/models/FilterFactory';
 import Explorer from './Explorer';
 
 const AVAILABLE_TYPES = [
@@ -98,12 +107,22 @@ export default {
     selectableSuggestions: [],
     showSuggestions: false,
     explorerVisible: false,
-    suggestionType: undefined
+
   }),
   props: {
     variant: {
       type: String,
       default: 'primary',
+    },
+    explorerIncludedTypes: {
+      type: Array,
+      default: () => [
+        'newspaper',
+        'topic',
+        'location',
+        'person',
+        'collection',
+      ],
     },
   },
   computed: {
@@ -112,6 +131,18 @@ export default {
         ...d,
         idx,
       }));
+    },
+    explorerInitialType() {
+      if(this.explorerIncludedTypes.includes(this.suggestionType)) {
+        return this.suggestionType;
+      }
+      return this.explorerIncludedTypes[0];
+    },
+    suggestionType() {
+      if (!this.selectableSuggestions[this.selectedIndex]){
+        return 'string';
+      }
+      return this.selectableSuggestions[this.selectedIndex].type;
     },
     suggestionIndex() {
       const index = this.$helpers.groupBy(this.suggestions, 'type');
@@ -158,11 +189,15 @@ export default {
       get() { return [] },
       set(filters) {
         const filter = filters[0]
-        this.$emit('submit', filter)
+        this.$emit('submit', filter);
+        this.q = '';
       }
     }
   },
   methods: {
+    showExplorer() {
+      this.explorerVisible = true;
+    },
     handleExplorerHide() {
       this.explorerVisible = false
     },
@@ -204,44 +239,41 @@ export default {
         this.selectedIndex = 0;
       }
     },
-    submitInitialSuggestion({ type, q }) {
-      if (this.q.length) {
-        this.submit(SuggestionFactory.create({
+    submitStaticSuggestion({ type, q }) {
+      const sq = String(q || this.q || '').trim();
+      if (sq.length) {
+        console.info('submitStaticSuggestion', type, sq);
+        this.submit({
           type,
-          q: [q || this.q],
-        }));
+          q: sq,
+        });
+        this.q = '';
       }
     },
-    submit(suggestion) {
-      if (suggestion.fake) {
-        if (this.q.length) {
-          this.explorerVisible = true
-          this.suggestionType = suggestion.type
-        }
-      } else if (suggestion.type === 'mention') {
-        this.$emit('submit', {
-          type: suggestion.type,
-          q: [suggestion.item.name],
-          op: 'AND',
-        });
-      } else if (['string', 'title'].indexOf(suggestion.type) !== -1) {
-        if (this.q.length) {
-          console.info('Submit \'string\' suggestion, q:', this.q);
-          if (!suggestion.q) {
-            this.$store.dispatch('autocomplete/SAVE', {
-              q: suggestion.q || this.q,
-            });
-          }
-          this.$emit('submit', {
-            type: suggestion.type,
-            q: [suggestion.q || this.q],
-            op: 'AND',
+    submit({ type, item = {}, q, fake = false } = {}) {
+      if (fake) {
+        // select one item from the explorer
+        this.showExplorer();
+      } else if (['string', 'title', 'mention'].includes(type)) {
+        const sq = String(q || item.name || this.q || '').trim();
+        if (sq.length) {
+          this.$store.dispatch('autocomplete/SAVE_RECENT_QUERY', {
+            q: sq,
           });
+          this.$emit('submit', FilterFactory.create({
+            type,
+            q: [sq],
+            op: 'OR',
+          }));
+          this.q = '';
         }
       } else {
-        console.info('Submit suggestion: ', suggestion);
-        this.$emit('submit', suggestion);
-        this.showSuggestions = false;
+        this.$emit('submit', FilterFactory.create({
+          type,
+          q: [item.uid],
+          items: [item],
+        }));
+        this.q = '';
       }
     },
     select(suggestion) {
@@ -253,6 +285,7 @@ export default {
     keyup(event) {
       switch (event.key) {
       case 'Enter':
+        console.info('@keyup ENTER', this.selectedIndex, this.selectableSuggestions[this.selectedIndex]);
         this.submit(this.selectableSuggestions[this.selectedIndex]);
         this.selectInput(event);
         break;
@@ -292,12 +325,18 @@ export default {
 .search-bar{
   position: relative;
   input.form-control.search-input {
+    border-color: black;
+    background: transparent;
+    position: relative;
+    color: black;
+
     &:focus {
-      box-shadow: none;
-      border: 1px solid $clr-secondary;
+      // box-shadow: none;
+      background: white;
+      // border: 1px solid $clr-secondary;
     }
     &.has-suggestions {
-      border: 1px solid $clr-secondary;
+      // border: 1px solid $clr-secondary;
       border-bottom: 0;
     }
   }
@@ -352,7 +391,20 @@ export default {
 .search-bar .input-group > .form-control{
   border-top-width: 0;
   border-left-width: 0;
+  z-index: 1;
 }
+
+// .search-bar .input-group-append::before {
+//   content: '';
+//   position: absolute;
+//   left: 0.125rem;
+//   bottom: 0.25rem;
+//   top: 0.25rem;
+//   z-index: 0;
+//   background: rgb(253,233,119);
+//   background: linear-gradient(90deg, rgba(253,233,119,1) 0%, rgba(253,233,119,0) 100%);
+//   width: 100px;
+// }
 </style>
 
 <i18n>

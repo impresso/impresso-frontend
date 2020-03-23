@@ -23,7 +23,7 @@
       </div>
     </div>
     <!-- body (aka) facets -->
-    <div class="pt-3">
+    <div class="pt-3 pb-5">
       <slot>
         <!-- slot here for extra facets -->
       </slot>
@@ -32,6 +32,12 @@
         :facets="facets"
         :filters="filters"
         @changed="handleFiltersChanged"/>
+
+      <div :class="{ active: filters.length }" class="resetter position-absolute">
+        <b-button class="mb-2"
+          variant="outline-danger"
+          size="sm" @click="reset">{{ $t('actions.resetFilters') }}</b-button>
+      </div>
     </div>
   </i-layout-section>
 </template>
@@ -79,6 +85,9 @@ export default {
       // propagate filters changed
       this.$emit('changed', filters);
     },
+    reset() {
+      this.$emit('changed', []);
+    },
   },
   computed: {
     infoButtonName() {
@@ -94,5 +103,31 @@ export default {
 };
 </script>
 
-<style lang="css" scoped>
+<style lang="scss" scoped>
+.resetter{
+  bottom: -7rem;
+  width: 100%;
+  height: 6rem;
+  padding-top: 1rem;
+  text-align: center;
+  background: rgb(248,249,250);
+  background: radial-gradient(31% 60% at center, #ff63475e, rgba(248, 249, 250, 0));
+  background-repeat: no-repeat;
+  background-position-y: 7rem;
+  pointer-events: none;
+  transition: transform .6s cubic-bezier(.8,-.5,.2,1.4);
+
+  &.active {
+    transform: translateY(-5rem);
+  }
+
+  > .btn {
+    background: white;
+    pointer-events: auto;
+    &:hover{
+      background: tomato;
+    }
+  }
+}
+
 </style>

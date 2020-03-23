@@ -57,22 +57,29 @@
         :bucket="bucket"
         :type="facet.type"
         @toggle-bucket="toggleBucket"/>
+      <filter-facet-bucket v-for="bucket in additionalBuckets" :key="bucket.val"
+        :loading="isLoading"
+        :bucket="bucket"
+        :type="facet.type"
+        @toggle-bucket="toggleBucket"/>
       <b-button
         v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
-        v-html="$t('actions.browseAll')"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        @click="showExplorer" />
+        @click="loadMoreBuckets">
+        <span v-if="isMoreLoading" v-html="$t('actions.loading')" />
+        <span v-else>
+          {{ $t('actions.more') }}
+          <span v-html="$tc('numbers.moreOptions', countMissingBuckets, {
+            n: $n(countMissingBuckets),
+          })"/>
+        </span>
+      </b-button>
     </div>
     <div class="d-flex mt-2" v-if="selectedBucketsIds.length && !isFiltered">
       <b-button size="sm" variant="outline-primary" class="w-100" @click="createFilter">
         {{ $t(`actions.apply`) }}
       </b-button>
     </div>
-    <explorer v-model="explorerFilters"
-      :is-visible="explorerVisible"
-      :searching-enabled="true"
-      @onHide="handleExplorerHide"
-      :included-types="[facet.type]" />
   </div>
 </template>
 
@@ -81,9 +88,9 @@ import BaseTitleBar from '@/components/base/BaseTitleBar';
 import FilterFacetBucket from '@/components/modules/FilterFacetBucket';
 import FilterMonitor from '@/components/modules/FilterMonitor';
 import InfoButton from '@/components/base/InfoButton';
-import { toSerializedFilter } from '@/logic/filters'
-import Explorer from '@/components/Explorer';
-
+import { toSerializedFilter } from '@/logic/filters';
+import Bucket from '@/models/Bucket';
+import { searchFacets } from '@/services';
 
 export default {
   /**
@@ -101,7 +108,11 @@ export default {
     isCollapsed: false,
     selectedBucketsIds: [],
     selectedBucketsItems: [],
-    explorerVisible: false,
+    //
+    limit: 10,
+    skip: 0,
+    additionalBuckets: [],
+    isMoreLoading: false,
   }),
   props: {
     facet: Object,
@@ -119,10 +130,6 @@ export default {
     collapsible: Boolean,
   },
   computed: {
-    explorerFilters: {
-      get() { return this.contextFilters },
-      set(filters) { this.$emit('changed', filters) },
-    },
     showBuckets() {
       // always show if iscollaplible is selected.
       return this.isCollapsible ? !this.isCollapsed : true;
@@ -190,6 +197,9 @@ export default {
       return this.facet.buckets
         .filter(b => !this.filtersIncludedItemsIds.includes(b.val));
     },
+    countMissingBuckets() {
+      return this.facet.numBuckets - this.additionalBuckets.length - this.facet.buckets.length;
+    },
   },
   methods: {
     toggleVisibility() {
@@ -215,12 +225,6 @@ export default {
     },
     resetFilters() {
       this.$emit('changed', []);
-    },
-    showExplorer() {
-      this.explorerVisible = true;
-    },
-    handleExplorerHide() {
-      this.explorerVisible = false;
     },
     updateFilter(filterIndex, filter) {
       const oldFilter = this.facetFilters[filterIndex]
@@ -252,13 +256,48 @@ export default {
       this.selectedBucketsIds = [];
       this.selectedBucketsItems = [];
     },
+    loadMoreBuckets() {
+      if (this.isMoreLoading) {
+        console.warn('facet is busy loading');
+        return;
+      }
+      this.isMoreLoading = true;
+      searchFacets.get(this.facet.type, {
+        query: {
+          filters: this.contextFilters,
+          limit: this.limit,
+          skip: this.skip,
+        },
+      }).then(([{ buckets }]) => {
+        console.info('loadMoreBuckets', buckets, this.skip);
+        this.additionalBuckets = this.additionalBuckets.concat(buckets.map(d => new Bucket({
+          ...d,
+          type: this.facet.type
+        })));
+        this.skip = this.additionalBuckets.length + this.facet.buckets.length;
+      }).catch((err) => {
+        console.error(err);
+      }).then(() => {
+        this.isMoreLoading = false;
+      });
+    }
+  },
+  watch: {
+    facet: {
+      deep: true,
+      immediate: true,
+      handler({ buckets = [] } = {}) {
+        // set or reset initial skip (it resets additionalBuckets lists)
+        this.skip = buckets.length;
+        this.additionalBuckets = [];
+      },
+    },
   },
   components: {
     BaseTitleBar,
     InfoButton,
     FilterMonitor,
     FilterFacetBucket,
-    Explorer,
   }
 };
 </script>
