@@ -200,6 +200,7 @@ import Ellipsis from './modules/Ellipsis';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import InfoButton from './base/InfoButton';
+import { optimizeFilters } from '@/logic/filters'
 
 const ALLOWED_FACET_TYPES = [
   'language',
@@ -353,7 +354,7 @@ export default {
   },
   methods: {
     handleFiltersChanged(filters) {
-      this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', filters);
+      this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', optimizeFilters(filters));
       this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
     compare() {
