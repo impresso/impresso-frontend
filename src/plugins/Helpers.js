@@ -29,8 +29,10 @@ helpers.timeline = {};
  * Add empty intervals to a list of timeline items (Item is a `{ w, t, w1, p }` object).
  * Interval value is `t` and it can be either a number of a date. Intervals are considered
  * with an interval unit which is either `number`, `year` or `month`.
- * @param {object[]} values timeline item values
+ * @template T
+ * @param {T[]} values timeline item values
  * @param {string} unit interval units
+ * @return {T[]}
  */
 helpers.timeline.addEmptyIntervals = (values, unit = 'number') => {
   if (!values.length) {

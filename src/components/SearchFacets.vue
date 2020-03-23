@@ -1,9 +1,9 @@
-<template lang="html">
+<template>
   <div id="search-facets">
     <filter-timeline
       class="border-top mx-3 py-2 mb-2"
       :filters="daterangeFilters"
-      :values="values"
+      :values="timelineValues"
       :min-date="minDate"
       :max-date="maxDate"
       :start-year="startYear"
@@ -14,7 +14,7 @@
     />
     <filter-facet
       class="border-top py-2 mx-3"
-      v-for="(facet, index) in facets"
+      v-for="(facet, index) in standardFacets"
       :key="index"
       :facet="facet"
       :context-filters="filters"
@@ -25,29 +25,29 @@
 </template>
 
 <script>
-import Helpers from '@/plugins/Helpers';
-
 import FilterFacet from '@/components/modules/FilterFacet';
 import FilterTimeline from '@/components/modules/FilterTimeline';
+import { facetToTimelineValues } from '@/logic/facets'
+import FilterFactory from '@/models/FilterFactory'
 
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models').Facet} Facet
+ */
 
 export default {
   props: {
-    store: {
-      type: String,
-      default: 'search',
-    },
     groupBy: {
       type: String,
       default: 'articles',
     },
     filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<Filter[]>} */
       type: Array,
       default: () => [],
     },
     facets: {
-      /** @type {import('vue').PropType<import('../models/models').Facet[]>} */
+      /** @type {import('vue').PropType<Facet[]>} */
       type: Array,
       default: () => [],
     },
@@ -59,62 +59,50 @@ export default {
       type: Number,
       default: 2020,
     },
-    percentProp: {
-      type: String,
-    },
+    nonStandardFacetTypes: {
+      type: Array,
+      default: () => ['year', 'daterange']
+    }
   },
   data: () => ({
-    facetsOrder: ['type', 'person', 'location', 'topic', 'language', 'newspaper', 'country', 'partner', 'accessRight'],
     selectedFacet: false,
     selectedDaterangeFilter: null,
   }),
   computed: {
-    currentStore() {
-      return this.$store.state[this.store];
+    standardFacets() {
+      return this.facets.filter(({ type }) => !this.nonStandardFacetTypes.includes(type))
     },
     daterangeFilters() {
-      return this.filters
-        .filter(({ type }) => type === 'daterange');
+      return this.filters.filter(({ type }) => type === 'daterange');
     },
     daterangeIncluded() {
       return this.daterangeFilters.filter(({ filter: { context } }) => context === 'include');
     },
     minDate() {
-      if (this.values.length) {
-        const y = this.values.reduce((min, d) => (d.t < min ? d.t : min), this.values[0].t);
+      if (this.timelineValues.length) {
+        const y = this.timelineValues.reduce((min, d) => (d.t < min ? d.t : min), this.timelineValues[0].t);
         return new Date(`${y}-01-01`);
       }
       return new Date(`${this.startYear}-01-01`);
     },
     maxDate() {
-      if (this.values.length) {
-        const y = this.values.reduce((max, d) => (d.t > max ? d.t : max), this.values[0].t);
+      if (this.timelineValues.length) {
+        const y = this.timelineValues.reduce((max, d) => (d.t > max ? d.t : max), this.timelineValues[0].t);
         return new Date(`${y}-12-31`);
       }
       return new Date(`${this.endYear}-12-31`);
     },
-    values: {
-      get() {
-        const facet = this.currentStore.facets.find(d => d.type === 'year');
-        if (!facet || !facet.buckets.length) {
-          return [];
-        }
-        // sort then
-        const values = facet.buckets.map(d => ({
-          ...d,
-          w: d.count,
-          w1: 0,
-          p: d.item.normalize(d.count, this.percentProp),
-          t: parseInt(d.val, 10),
-        }));
-        // add zeroes
-        return Helpers.timeline.addEmptyIntervals(values);
-      },
-    },
+    timelineValues() {
+      const yearFacet = this.facets.find(({ type }) => type === 'year')
+      if (!yearFacet || !yearFacet.buckets.length) return []
+      return facetToTimelineValues(yearFacet)
+    }
   },
   methods: {
     getFacetFilters(type) {
-      return this.filters.filter(d => d.type === type);
+      return this.filters
+        .filter(d => d.type === type)
+        .map(filter => FilterFactory.create(filter));
     },
     resetFilters(type) {
       this.$emit('changed', this.filters.filter(d => d.type !== type));

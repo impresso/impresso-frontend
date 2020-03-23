@@ -77,6 +77,7 @@ import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewP
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
 import LoadingIndicator from './modules/LoadingIndicator';
 import Bucket from '../models/Bucket';
+import { optimizeFilters } from '@/logic/filters'
 
 function prepareFacets(responseFacets = {}) {
   const types = Object.keys(responseFacets).filter(k => k !== 'count');
@@ -140,6 +141,28 @@ const comparableIsEmpty = (comparable) => {
 };
 
 // const DefaultQuery = { filters: [{ type: 'hasTextContents' }] };
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ */
+
+/**
+ * Merge filters with a rule that all single item (`q`) filters operator
+ * is set to `AND`. Then the standard merge is applied.
+ * @param {Filter[][]} filtersSets
+ * @returns {Filter[]}
+ */
+function mergeFilters(filtersSets) {
+  return optimizeFilters(filtersSets.flat().map(filter => {
+    const op = (Array.isArray(filter.q) && filter.q.length === 1) || !Array.isArray(filter.q)
+      ? 'AND'
+      : filter.op
+    return {
+      ...filter,
+      op
+    }
+  }))
+}
 
 const QueryLeftIndex = 0;
 const QueriesIntersectionIndex = 1;
@@ -398,8 +421,7 @@ export default {
         }
         return {
           type: 'intersection',
-          filters: comparablesFilters
-            .reduce((acc, filters = []) => acc.concat(filters), []),
+          filters: mergeFilters(comparablesFilters)
         };
       case 2:
         return this.comparables[1];
