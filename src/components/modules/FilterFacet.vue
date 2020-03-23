@@ -64,9 +64,16 @@
         @toggle-bucket="toggleBucket"/>
       <b-button
         v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
-        v-html="$t(isMoreLoading ? 'actions.loading' : 'actions.more')"
         size="sm" variant="outline-secondary" class="mt-2 mr-1"
-        @click="loadMoreItems" />
+        @click="loadMoreBuckets">
+        <span v-if="isMoreLoading" v-html="$t('actions.loading')" />
+        <span v-else>
+          {{ $t('actions.more') }}
+          <span v-html="$tc('numbers.moreOptions', countMissingBuckets, {
+            n: $n(countMissingBuckets),
+          })"/>
+        </span>
+      </b-button>
     </div>
     <div class="d-flex mt-2" v-if="selectedBucketsIds.length && !isFiltered">
       <b-button size="sm" variant="outline-primary" class="w-100" @click="createFilter">
@@ -81,7 +88,8 @@ import BaseTitleBar from '@/components/base/BaseTitleBar';
 import FilterFacetBucket from '@/components/modules/FilterFacetBucket';
 import FilterMonitor from '@/components/modules/FilterMonitor';
 import InfoButton from '@/components/base/InfoButton';
-import { toSerializedFilter } from '@/logic/filters'
+import { toSerializedFilter } from '@/logic/filters';
+import Bucket from '@/models/Bucket';
 import { searchFacets } from '@/services';
 
 export default {
@@ -189,6 +197,9 @@ export default {
       return this.facet.buckets
         .filter(b => !this.filtersIncludedItemsIds.includes(b.val));
     },
+    countMissingBuckets() {
+      return this.facet.numBuckets - this.additionalBuckets.length - this.facet.buckets.length;
+    },
   },
   methods: {
     toggleVisibility() {
@@ -245,7 +256,7 @@ export default {
       this.selectedBucketsIds = [];
       this.selectedBucketsItems = [];
     },
-    loadMoreItems() {
+    loadMoreBuckets() {
       if (this.isMoreLoading) {
         console.warn('facet is busy loading');
         return;
@@ -258,8 +269,11 @@ export default {
           skip: this.skip,
         },
       }).then(([{ buckets }]) => {
-        console.info('loadMoreItems', buckets, this.skip);
-        this.additionalBuckets = this.additionalBuckets.concat(buckets);
+        console.info('loadMoreBuckets', buckets, this.skip);
+        this.additionalBuckets = this.additionalBuckets.concat(buckets.map(d => new Bucket({
+          ...d,
+          type: this.facet.type
+        })));
         this.skip = this.additionalBuckets.length + this.facet.buckets.length;
       }).catch((err) => {
         console.error(err);
