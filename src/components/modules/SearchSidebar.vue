@@ -38,7 +38,7 @@
         <div :class="{ active: filters.length }" class="resetter position-absolute">
           <b-button class="mb-2"
             variant="outline-danger"
-            size="sm" @click="reset">{{ $t('action.reset') }}</b-button>
+            size="sm" @click="reset">{{ $t('actions.resetFilters') }}</b-button>
         </div>
     </div>
   </i-layout-section>

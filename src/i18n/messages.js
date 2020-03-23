@@ -81,6 +81,7 @@ export default {
       generatePattern: 'Generate Pattern',
       requestNewPassword: 'Request New Password',
       requestAccount: 'Request User Account',
+      resetFilters: 'start fresh, reset filters!',
     },
     filters: {
       daterange: {
