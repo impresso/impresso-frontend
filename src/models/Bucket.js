@@ -5,7 +5,7 @@ import Year from '@/models/Year';
 import Collection from '@/models/Collection';
 
 /**
- * @class Bucket is an object representing a Solar search engine facet bucket
+ * @class Bucket is an object representing a Solr search engine facet bucket
  * @param {String} val The value of the dimensions, for instance a specific year,
  * language or newspaper title
  * @param {Number} count Number of matched results for this value

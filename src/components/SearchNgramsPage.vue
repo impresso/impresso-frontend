@@ -6,7 +6,7 @@
       :filters-removed="filtersRemoved"
       :facets="facets"
       :excludedTypes="excludedTypes"
-      store="searchNgrams"
+      contextTag="searchNgrams"
       @changed="handleFiltersChanged"
     >
     <b-form-group class="mx-3">
@@ -211,10 +211,9 @@ export default {
       },
     },
     facets() {
-      let ignoreFacets = ['year', 'accessRight', 'partner'];
-      if (window.impressoDataVersion > 1) {
-        ignoreFacets = ['year'];
-      }
+      const ignoreFacets = window.impressoDataVersion > 1
+        ? []
+        : ['accessRight', 'partner'];
       return this.$store.state.searchNgrams.facets
         .filter(d => !ignoreFacets.includes(d.type))
         .map((d) => {
