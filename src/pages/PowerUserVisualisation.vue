@@ -24,6 +24,9 @@
                     size="sm"
                     variant="outline-primary"/>
       </div>
+      <div
+        ref="chart"
+        :style="`height: ${chartHeightString};`"/>
       <div>
         <h3>Filters</h3>
         <pre>{{JSON.stringify(filters, null, 2)}}</pre>
@@ -43,6 +46,7 @@ import { protobuf } from 'impresso-jscommons'
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
 import Spinner from '@/components/layout/Spinner'
+import LineChart from '@/d3-modules/LineChart'
 import {
   search,
   filtersItems,
@@ -149,7 +153,17 @@ export default {
     stats: {},
     statsLoading: false,
     availableStatsFacets: AvailableStatsFacetsIds,
+    /** @type {LineChart | undefined} */
+    lineChart: undefined
   }),
+  mounted() {
+    const element = this.$refs.chart
+    this.lineChart = new LineChart({ element })
+    this.lineChart.render([
+      // { date: new Date('2017-01-01'), value: { min: 1, max: 5, mean: 3 }},
+      // { date: new Date(), value: { min: 2, max: 7, mean: 4 }},
+    ], ['min', 'max', 'mean'])
+  },
   methods: {
     /** @param {Filter} filter */
     handleAutocompleteSubmit(filter) {
@@ -238,6 +252,11 @@ export default {
       const options = (StatsFacets[this.statsIndex].term || [])
         .map(key => ({ value: key, text: key }))
       return [{ value: 'time', text: 'time' }].concat(options)
+    },
+    /** @return {string} */
+    chartHeightString() {
+      // @ts-ignore
+      return `${0.5 * window.innerHeight}px`
     }
   },
   watch: {
@@ -273,6 +292,14 @@ export default {
         }
       },
       immediate: true
+    },
+    stats(value) {
+      if (this.lineChart == null) return
+      const items = value.items.map(item => ({
+        date: new Date(item.domain),
+        value: item.value
+      }))
+      this.lineChart.render(items, ['min', 'max', 'mean'])
     }
   }
 }
