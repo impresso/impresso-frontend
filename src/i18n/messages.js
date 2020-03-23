@@ -104,6 +104,7 @@ export default {
     },
     numbers: {
       options: ' | (1 option) | ({n} options)',
+      moreOptions: ' | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
       images: 'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
