@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import * as d3 from 'd3'
 
 export default class LineChart {
   constructor({
@@ -16,13 +16,16 @@ export default class LineChart {
 
     this.axes = this.svg.append('g').attr('class', 'axes')
     this.lines = this.svg.append('g').attr('class', 'lines')
+    this.areas = this.svg.append('g').attr('class', 'areas')
   }
 
   /**
-   * @param {{ date: Date, value: { [key: string]: number } }[]} data
+   * @typedef {{ date: Date, value: { [key: string]: number } }} DataItem
+   * @param {DataItem[]} data
    * @param {string[]} metrics
+   * @param {[string, string][]} areaMetrics
    */
-  render(data, metrics = []) {
+  render(data, metrics = [], areaMetrics = []) {
     const { width, height } = this.element.getBoundingClientRect()
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
@@ -76,17 +79,56 @@ export default class LineChart {
       .join('g')
       .attr('class', metric => metric)
 
+
+
+    // Areas
+
+    // @ts-ignore
+    const area = (/** @type {d3.Area<[DataItem, string, string]>} */ (d3.area()))
+      .defined(([data, low, high]) => !isNaN(data.value[low]) && !isNaN(data.value[high]))
+      .x(([item]) => x(item.date))
+      .y0(([data, low]) => y(data.value[low]))
+      .y1(([data, , high]) => y(data.value[high]))
+
+    this.areas
+      .selectAll('path')
+      .data(() => /** @type {DataItem[][]} */ (areaMetrics.map(() => data)))
+      .join('path')
+      .attr('class', (d, index) => `area-${index}`)
+      .attr('fill', (d, index) => `${d3.schemeAccent[index]}33`)
+      .attr('d', (d, index) => {
+        return area(d.map(item => [item, areaMetrics[index][0], areaMetrics[index][1]]))
+      })
+
+    // Lines
+
+    const pathItem = (metric, index) => {
+      const lineData = data
+        .map(d => /** @type {[number, number]} */ ([d.date.getTime(), d.value[metric]]))
+      return [{ metric, index, data: lineData }]
+    }
+
+    // line with data and missing data points
+    linesContainers
+      .selectAll('path.missing')
+      .data((metric, index) => {
+        const { data } = pathItem(metric, index)[0]
+        return [{ metric, index, data: data.filter(line.defined()) }]
+      })
+      .join('path')
+      .attr('class', 'missing')
+      .attr('stroke', '#eee')
+      .attr('d', ({ data }) => line(data));
+
+    // line with data
     linesContainers
       .selectAll('path.metric')
-      .data((metric, index) => {
-        const lineData = data
-          .map(d => /** @type {[number, number]} */ ([d.date.getTime(), d.value[metric]]))
-        return [{ metric, index, data: lineData }]
-      })
+      .data(pathItem)
       .join('path')
       .attr('class', 'metric')
       .attr('stroke', ({ index }) => d3.schemeCategory10[index])
       .attr('stroke-width', 1.5)
       .attr('d', ({ data }) => line(data))
+
   }
 }

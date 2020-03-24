@@ -57,8 +57,9 @@ import {
   toCanonicalFilter,
   optimizeFilters
 } from '../logic/filters'
-import { getFacetsFromApiResponse } from '../logic/facets'
+import { getFacetsFromApiResponse } from '@/logic/facets'
 import { getQueryParameter } from '@/router/util'
+import { withMissingDates } from '@/logic/time'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -137,11 +138,24 @@ const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize
 const apiResponseToFacets = response => {
   const { facets: responseFacets = {} } = response.info
 
-  const responseFacetsWithMissing = DefaultSearchFacetsTypes.reduce((acc, type) => {
+  const responseFacetsWithMissingTypes = DefaultSearchFacetsTypes.reduce((acc, type) => {
     return { ...acc, [type]: responseFacets[type] || {} }
   }, {})
 
-  return getFacetsFromApiResponse(responseFacetsWithMissing, DefaultFacetOperatorsMap)
+  return getFacetsFromApiResponse(
+    responseFacetsWithMissingTypes,
+    DefaultFacetOperatorsMap
+  )
+}
+
+const withStdDev = (item, fields) => {
+  const newItem = { ...item }
+  const [fieldLow, fieldHigh] = fields
+  if (!isNaN(item['mean']) && !isNaN(item['stddev'])) {
+    newItem[fieldLow] = item['mean'] - item['stddev']
+    newItem[fieldHigh] = item['mean'] + item['stddev']
+  }
+  return newItem
 }
 
 export default {
@@ -295,11 +309,28 @@ export default {
     },
     stats(value) {
       if (this.lineChart == null) return
+
+      const stdDevAreaFields = /** @type {[string, string]} */ (['stdDevLow', 'stdDevHigh'])
+
       const items = value.items.map(item => ({
         date: new Date(item.domain),
-        value: item.value
+        value: withStdDev(item.value, stdDevAreaFields)
       }))
-      this.lineChart.render(items, ['min', 'max', 'mean'])
+
+      const entrichedItems = value.meta.domain === 'time'
+        ? withMissingDates(
+          items,
+          value.meta.resolution,
+          item => item.date,
+          date => ({ date, value: {} })
+        )
+        : items
+
+      this.lineChart.render(
+        entrichedItems,
+        ['min', 'max', 'mean'],
+        [stdDevAreaFields]
+      )
     }
   }
 }
