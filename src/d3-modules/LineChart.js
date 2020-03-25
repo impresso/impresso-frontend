@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import { colorForAreaMetric, colorForLineMetric } from './utils'
 
 export default class LineChart {
   constructor({
@@ -20,7 +21,7 @@ export default class LineChart {
   }
 
   /**
-   * @typedef {{ date: Date, value: any }} DataItem
+   * @typedef {{ domain: Date, value: any }} DataItem
    * @typedef {(any) => number} LineValueExtractor
    * @typedef {(any) => [number, number]} AreaValueExtractor
    *
@@ -35,7 +36,7 @@ export default class LineChart {
 
     // X
     const x = d3.scaleUtc()
-      .domain(/** @type {Date[]} */ (d3.extent(data, d => d.date)))
+      .domain(/** @type {Date[]} */ (d3.extent(data, d => d.domain)))
       .range([this.margin.left, width - this.margin.right])
 
     const xAxis = g => g
@@ -94,11 +95,11 @@ export default class LineChart {
     this.areas
       .selectAll('path')
       .data(() => /** @type {[[Date, [number, number]][], string][]} */ (
-        areaMetrics.map(({ id, extractor }) => [data.map(({ date, value }) => [date, extractor(value)]), id])
+        areaMetrics.map(({ id, extractor }) => [data.map(({ domain, value }) => [domain, extractor(value)]), id])
       ))
       .join('path')
       .attr('class', ([, id]) => id)
-      .attr('fill', ([, id]) => this.colorForAreaMetric(areaMetrics.map(({ id }) => id), id))
+      .attr('fill', ([, id]) => colorForAreaMetric(areaMetrics.map(({ id }) => id), id))
       .attr('d', ([items]) => area(items))
 
     // Lines
@@ -109,7 +110,7 @@ export default class LineChart {
      */
     const pathItem = (metric, index) => {
       const lineData = data
-        .map(d => /** @type {[number, number]} */ ([d.date.getTime(), metric.extractor(d.value)]))
+        .map(d => /** @type {[number, number]} */ ([d.domain.getTime(), metric.extractor(d.value)]))
       return [{ metric: metric.id, index, data: lineData }]
     }
 
@@ -131,30 +132,8 @@ export default class LineChart {
       .data(pathItem)
       .join('path')
       .attr('class', 'metric')
-      .attr('stroke', ({ metric }) => this.colorForLineMetric(lineMetrics.map(({ id }) => id), metric))
+      .attr('stroke', ({ metric }) => colorForLineMetric(lineMetrics.map(({ id }) => id), metric))
       .attr('stroke-width', 1.5)
       .attr('d', ({ data }) => line(data))
-  }
-
-  /**
-   * @param {string[]} metrics
-   * @param {string} metricId
-   * @returns {string} hex color string
-   */
-  colorForLineMetric(metrics, metricId) {
-    const index = metrics.indexOf(metricId)
-    if (index < 0) return '#ffffffff'
-    return d3.schemeCategory10[index % d3.schemeCategory10.length]
-  }
-
-  /**
-   * @param {string[]} metrics
-   * @param {string} metricId
-   * @returns {string} hex color string
-   */
-  colorForAreaMetric(metrics, metricId) {
-    const index = metrics.indexOf(metricId)
-    if (index < 0) return '#ffffffff'
-    return `${d3.schemeAccent[index % d3.schemeAccent.length]}33`
   }
 }

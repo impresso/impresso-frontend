@@ -52,6 +52,8 @@ import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
 import Spinner from '@/components/layout/Spinner'
 import LineChart from '@/d3-modules/LineChart'
+import CategoricalMultiValueBarChart from '@/d3-modules/CategoricalMultiValueBarChart'
+
 import {
   search,
   filtersItems,
@@ -65,6 +67,7 @@ import {
 import { getFacetsFromApiResponse } from '@/logic/facets'
 import { getQueryParameter } from '@/router/util'
 import { withMissingDates } from '@/logic/time'
+import { colorForAreaMetric, colorForLineMetric } from '@/d3-modules/utils'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -125,6 +128,14 @@ const StatsFacets = {
       'textReuseClusterDayDelta'
     ]
   }
+}
+
+
+const getChartClass = (domain /* ,facetType */) => {
+  if (domain === 'time') {
+    return LineChart
+  }
+  return CategoricalMultiValueBarChart
 }
 
 const AvailableStatsFacetsIds = Object.keys(StatsFacets).flatMap(index => {
@@ -223,14 +234,9 @@ export default {
     stats: {},
     statsLoading: false,
     availableStatsFacets: AvailableStatsFacetsIds,
-    /** @type {LineChart | undefined} */
-    lineChart: undefined
+    /** @type {LineChart | CategoricalMultiValueBarChart | undefined} */
+    chart: undefined
   }),
-  mounted() {
-    const element = this.$refs.chart
-    this.lineChart = new LineChart({ element })
-    this.lineChart.render([])
-  },
   methods: {
     /** @param {Filter} filter */
     handleAutocompleteSubmit(filter) {
@@ -327,7 +333,7 @@ export default {
     },
     /** @return {{ id: string, label: string | undefined, color: string }[]} */
     statsLegendItems() {
-      if (this.lineChart == null) return []
+      if (this.chart == null) return []
       const { meta, itemsDictionary = {} } = this.stats
       if (meta == null) return []
 
@@ -338,16 +344,16 @@ export default {
       const lineItems = lineMetricsIds.map(id => {
         return {
           id,
-          label: itemsDictionary[id],
-          color: (/** @type {LineChart} */ (this.lineChart)).colorForLineMetric(lineMetricsIds, id)
+          label: itemsDictionary[id] || this.$t(`legendLabels.${id}`),
+          color: colorForLineMetric(lineMetricsIds, id)
         }
       })
 
       const areaItems = areaMetricsIds.map(id => {
         return {
           id,
-          label: itemsDictionary[id],
-          color: (/** @type {LineChart} */ (this.lineChart)).colorForAreaMetric(areaMetricsIds, id)
+          label: itemsDictionary[id] || this.$t(`legendLabels.${id}`),
+          color: colorForAreaMetric(areaMetricsIds, id)
         }
       })
 
@@ -389,24 +395,36 @@ export default {
       immediate: true
     },
     stats(value) {
-      if (this.lineChart == null) return
-      const items = value.items.map(({ domain, value }) => ({
-        date: new Date(domain),
-        value
-      }))
+      const { meta, items: statsItems } = value
+      if (meta == null) return
 
-      const entrichedItems = value.meta.domain === 'time'
+      const ChartClass = getChartClass(meta.domain)
+
+      if (!(this.chart instanceof ChartClass)) {
+        const element = this.$refs.chart
+        element.textContent = ''
+        this.chart = new ChartClass({ element })
+      }
+
+      const items = meta.domain === 'time'
+        ? statsItems.map(({ domain, value }) => ({
+          domain: new Date(domain),
+          value
+        }))
+        : statsItems
+
+      const entrichedItems = meta.domain === 'time'
         ? withMissingDates(
           items,
-          value.meta.resolution,
-          item => item.date,
-          date => ({ date, value: {} })
+          meta.resolution,
+          item => item.domain,
+          date => ({ domain: date, value: {} })
         )
         : items
 
-      const metrics = MetricsByFacetType[value.meta.facetType]
+      const metrics = MetricsByFacetType[meta.facetType]
 
-      this.lineChart.render(
+      this.chart.render(
         entrichedItems,
         metrics.line(value),
         metrics.area(value)
@@ -415,3 +433,21 @@ export default {
   }
 }
 </script>
+
+<i18n>
+{
+  "en": {
+    "legendLabels": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "mean": "Average",
+      "onesigma": "Average +- one standard deviation",
+
+      "fr": "French",
+      "de": "German",
+      "lb": "Luxembourgish",
+      "en": "English"
+    }
+  }
+}
+</i18n>
