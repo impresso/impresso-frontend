@@ -17,6 +17,7 @@ export default class Graph extends Basic {
     nodeLabel = d => d.id,
     identity = d => d.id,
     showLabel = d => !!d,
+    ignoreLinks = true,
     // override current behaviour if needed,
     dimensions = {},
   } = {}) {
@@ -42,7 +43,7 @@ export default class Graph extends Basic {
           property: 'w',
           type: Dimension.TYPE_CONTINUOUS,
           scaleFn: d3.scaleSqrt,
-          range: [0.1, 1],
+          range: [0.1, 0.15],
         }),
         linkStrokeWidth: new Dimension({
           name: 'linkStrokeWidth',
@@ -64,7 +65,7 @@ export default class Graph extends Basic {
     this.maxNodeRadius = parseInt(maxNodeRadius, 10);
     this.maxDistance = parseInt(maxDistance, 10);
     this.delay = parseInt(delay, 10);
-
+    this.ignoreLinks = ignoreLinks;
     this.nodeLabel = nodeLabel;
     this.identity = identity;
     this.showLabel = showLabel;
@@ -76,7 +77,12 @@ export default class Graph extends Basic {
       .on('zoom', () => {
         this.emit('svg.zoom', d3.event.transform);
         this.zoom(d3.event.transform);
+        this.nodesLayer
+          .selectAll('.s')
+          .attr('transform', `scale(${1/d3.event.transform.k})`);
       });
+
+    this.currentTransform = { k: 1, x: 0, y: 0 };
 
     this.svg.call(this.zoomHandler);
 
@@ -90,25 +96,82 @@ export default class Graph extends Basic {
       .selectAll('circle');
 
     this.linkForce = d3.forceLink().distance(maxDistance*2).strength(
-      this.dimensions.linkStrength.accessor(),
+      this.ignoreLinks? 0 : this.dimensions.linkStrength.accessor(),
     );
     // initialize force!
-    this.simulation = d3.forceSimulation()
+    this.simulation = d3.forceSimulation();
+
+    this.simulation
       .force('link', this.linkForce)
       // .force('collide', d3.forceCollide()
       //   .strength(0.7)
       //   .radius(this.maxNodeRadius))
-      .force('charge', d3.forceManyBody()
-        .strength(-20)
-        .distanceMin(this.maxNodeRadius)
-        .distanceMax(this.maxNodeRadius * 10))
-      .force('center', d3.forceCenter(
-        this.width / 2,
-        this.height / 2))
-      .alphaTarget(0.5)
+      // .force('charge', d3.forceManyBody()
+      //   .strength(-20)
+      //   .distanceMin(this.maxNodeRadius)
+      //   .distanceMax(this.maxNodeRadius * 10))
+    // .force('center', d3.forceCenter(
+    //   this.width / 2,
+    //   this.height / 2))
+    this.simulation.alphaTarget(0.5)
       .on('tick', () => this.tick());
 
     // this.stopSimulation();
+  }
+
+  highlightNodes(nodes) {
+    const ids = nodes.map(this.identity);
+    this.svg.classed('with-highlights', ids.length > 0);
+    this.nodesLayer
+      .classed('highlight', node => ids.includes(this.identity(node)));
+  }
+
+  selectNode(node) {
+    this.svg.classed('with-selected', true);
+    this.nodesLayer
+      .classed('selected', d => this.identity(node) === this.identity(d));
+  }
+
+  selectNeighbors(node) {
+    const linksIds = [];
+    const neighborsIds = [];
+    const nodeId = this.identity(node);
+    this.links.forEach((link) => {
+      // nodeId should be in the link id.
+      if (link.id.indexOf(nodeId) !== -1) {
+        linksIds.push(link.id);
+        if (nodeId === link.target.id) {
+          neighborsIds.push(link.source.id)
+        } else {
+          neighborsIds.push(link.target.id)
+        }
+      }
+    });
+    console.info('selectNeighbors', linksIds, neighborsIds);
+    this.linksLayer
+      .classed('selected', ({id}) => linksIds.includes(id));
+    this.nodesLayer
+      .classed('selected', (d) => neighborsIds.includes(this.identity(d)));
+  }
+
+  unSelectNode() {
+    this.svg.classed('with-selected', false);
+    this.nodesLayer.classed('selected', false);
+  }
+
+  zoomTo(node) {
+    const { x, y } = node;
+    const x0 = x - 100;
+    const x1 = x + 100;
+    const y0 = y - 100;
+    const y1 = y + 100;
+    this.svg.transition().duration(750).call(
+      this.zoomHandler.transform,
+      d3.zoomIdentity
+        .translate(this.width / 2, this.height / 2)
+        .scale(this.currentTransform.k)
+        .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+    );
   }
 
   zoom(transform) {
@@ -119,13 +182,14 @@ export default class Graph extends Basic {
         d3.zoomTransform(this.svg.node()).invert([this.width / 2, this.height / 2]),
       );
     } else {
+      this.currentTransform = transform;
       this.zoomableLayer.attr('transform', transform);
     }
   }
 
   applyDimensions() {
     this.nodesLayer
-      .selectAll('.n')
+      .selectAll('.c')
       .transition()
       .attr('fill', (d) => {
         if (d.disabled) {
@@ -199,7 +263,7 @@ export default class Graph extends Basic {
     // if autostop
     this.stopSimulation();
     //
-    this.nodesLayer.classed('fix', d => d.fixed);
+    // this.nodesLayer.classed('fix', d => d.fixed);
   }
 
   // normally called by this.update
@@ -213,7 +277,7 @@ export default class Graph extends Basic {
 
     const nodesEnter = this.nodesLayer.enter().append('g')
       .attr('class', (d) => {
-        if(self.showLabel(d)) {
+        if(!self.showLabel(d)) {
           return `${d.type} v`;
         }
         return `${d.type} o`;
@@ -223,18 +287,19 @@ export default class Graph extends Basic {
         .on('drag', datum => this.onDragged(datum))
         .on('end', datum => this.onDragEnded(datum)));
       // .merge(this.nodesLayer);
+    const scalableNodesEnter = nodesEnter.append('g')
+      .classed('s', true);
+    scalableNodesEnter.append('circle')
+      .classed('c', true);
 
-    nodesEnter.append('circle')
-      .classed('n', true);
-
-    nodesEnter.append('circle')
+    scalableNodesEnter.append('circle')
       .attr('class', 'whoosh')
       .attr('r', 2);
 
     // add text
-    nodesEnter.append('text')
-      .attr('dx', 25)
-      .attr('dy', '.35em')
+    scalableNodesEnter.append('text')
+      .attr('dx', (d) => d.r + 5)
+      .attr('dy', '.25em')
       .text(this.nodeLabel);
 
     // merge
@@ -278,7 +343,6 @@ export default class Graph extends Basic {
     this.simulation.force('center', d3.forceCenter(this.width / 2, this.height / 2));
     this.simulation.nodes(this.nodes);
     this.simulation.force('link').links(this.links);
-
     this.applyDimensions();
 
     this.simulation.alphaTarget(0.5).restart();
