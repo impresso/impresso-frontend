@@ -20,12 +20,15 @@ export default class LineChart {
   }
 
   /**
-   * @typedef {{ date: Date, value: { [key: string]: number } }} DataItem
+   * @typedef {{ date: Date, value: any }} DataItem
+   * @typedef {(any) => number} LineValueExtractor
+   * @typedef {(any) => [number, number]} AreaValueExtractor
+   *
    * @param {DataItem[]} data
-   * @param {string[]} metrics
-   * @param {[string, string][]} areaMetrics
+   * @param {{ id: string, extractor: LineValueExtractor}[]} lineMetrics
+   * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
    */
-  render(data, metrics = [], areaMetrics = []) {
+  render(data, lineMetrics = [], areaMetrics = []) {
     const { width, height } = this.element.getBoundingClientRect()
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
@@ -48,7 +51,7 @@ export default class LineChart {
 
     // Y
     const y = d3.scaleLinear()
-      .domain([0, /** @type {number} */ (d3.max(data, d => d.value.max ? d.value.max : 0))]).nice()
+      .domain([0, /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))]).nice()
       .range([height - this.margin.bottom, this.margin.top])
 
     const yAxis = g => g
@@ -75,37 +78,39 @@ export default class LineChart {
 
     const linesContainers = this.lines
       .selectAll('g')
-      .data(metrics)
+      .data(lineMetrics)
       .join('g')
-      .attr('class', metric => metric)
-
-
+      .attr('class', ({ id }) => id)
 
     // Areas
 
     // @ts-ignore
-    const area = (/** @type {d3.Area<[DataItem, string, string]>} */ (d3.area()))
-      .defined(([data, low, high]) => !isNaN(data.value[low]) && !isNaN(data.value[high]))
-      .x(([item]) => x(item.date))
-      .y0(([data, low]) => y(data.value[low]))
-      .y1(([data, , high]) => y(data.value[high]))
+    const area = (/** @type {d3.Area<[Date, [number, number]]>} */ (d3.area()))
+      .defined(([, [y0, y1]]) => [y0, y1].every(v => !isNaN(v)))
+      .x(([date]) => x(date))
+      .y0(([, [y0]]) => y(y0))
+      .y1(([, [, y1]]) => y(y1))
 
     this.areas
       .selectAll('path')
-      .data(() => /** @type {DataItem[][]} */ (areaMetrics.map(() => data)))
+      .data(() => /** @type {[[Date, [number, number]][], string][]} */ (
+        areaMetrics.map(({ id, extractor }) => [data.map(({ date, value }) => [date, extractor(value)]), id])
+      ))
       .join('path')
-      .attr('class', (d, index) => `area-${index}`)
-      .attr('fill', (d, index) => `${d3.schemeAccent[index]}33`)
-      .attr('d', (d, index) => {
-        return area(d.map(item => [item, areaMetrics[index][0], areaMetrics[index][1]]))
-      })
+      .attr('class', ([, id]) => id)
+      .attr('fill', ([, id]) => this.colorForAreaMetric(areaMetrics.map(({ id }) => id), id))
+      .attr('d', ([items]) => area(items))
 
     // Lines
 
+    /**
+     * @param {{ id: string, extractor: LineValueExtractor}} metric
+     * @param {number} index
+     */
     const pathItem = (metric, index) => {
       const lineData = data
-        .map(d => /** @type {[number, number]} */ ([d.date.getTime(), d.value[metric]]))
-      return [{ metric, index, data: lineData }]
+        .map(d => /** @type {[number, number]} */ ([d.date.getTime(), metric.extractor(d.value)]))
+      return [{ metric: metric.id, index, data: lineData }]
     }
 
     // line with data and missing data points
@@ -113,7 +118,7 @@ export default class LineChart {
       .selectAll('path.missing')
       .data((metric, index) => {
         const { data } = pathItem(metric, index)[0]
-        return [{ metric, index, data: data.filter(line.defined()) }]
+        return [{ metric: metric.id, index, data: data.filter(line.defined()) }]
       })
       .join('path')
       .attr('class', 'missing')
@@ -126,9 +131,30 @@ export default class LineChart {
       .data(pathItem)
       .join('path')
       .attr('class', 'metric')
-      .attr('stroke', ({ index }) => d3.schemeCategory10[index])
+      .attr('stroke', ({ metric }) => this.colorForLineMetric(lineMetrics.map(({ id }) => id), metric))
       .attr('stroke-width', 1.5)
       .attr('d', ({ data }) => line(data))
+  }
 
+  /**
+   * @param {string[]} metrics
+   * @param {string} metricId
+   * @returns {string} hex color string
+   */
+  colorForLineMetric(metrics, metricId) {
+    const index = metrics.indexOf(metricId)
+    if (index < 0) return '#ffffffff'
+    return d3.schemeCategory10[index % d3.schemeCategory10.length]
+  }
+
+  /**
+   * @param {string[]} metrics
+   * @param {string} metricId
+   * @returns {string} hex color string
+   */
+  colorForAreaMetric(metrics, metricId) {
+    const index = metrics.indexOf(metricId)
+    if (index < 0) return '#ffffffff'
+    return `${d3.schemeAccent[index % d3.schemeAccent.length]}33`
   }
 }

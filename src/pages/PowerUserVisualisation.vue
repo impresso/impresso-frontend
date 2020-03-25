@@ -28,6 +28,11 @@
         ref="chart"
         :style="`height: ${chartHeightString};`"/>
       <div>
+        <span v-for="item in statsLegendItems"
+              :key="item.id"
+              :style="{ 'background-color': item.color }">{{ item.label || item.id }}</span>
+      </div>
+      <div>
         <h3>Filters</h3>
         <pre>{{JSON.stringify(filters, null, 2)}}</pre>
       </div>
@@ -148,14 +153,65 @@ const apiResponseToFacets = response => {
   )
 }
 
-const withStdDev = (item, fields) => {
-  const newItem = { ...item }
-  const [fieldLow, fieldHigh] = fields
-  if (!isNaN(item['mean']) && !isNaN(item['stddev'])) {
-    newItem[fieldLow] = item['mean'] - item['stddev']
-    newItem[fieldHigh] = item['mean'] + item['stddev']
+/**
+ * @typedef {{ id: string, extractor: (any) => number }} LineMetricExtractor
+ * @typedef {{ id: string, extractor: (any) => [number, number] }} AreaMetricExtractor
+ */
+
+/**
+ * @param {string} metric
+ * @return {LineMetricExtractor}
+ */
+const lineMetricExtractorFactory = metric => ({ id: metric, extractor: value => (value || {})[metric] })
+
+/**
+ * @param {string} metric
+ * @return {AreaMetricExtractor}
+ */
+const stdAreaMetricExtractorFactory = metric => ({
+  id: metric,
+  extractor: value => {
+    const { mean, stddev } = value || {}
+    return [mean - stddev, mean + stddev]
   }
-  return newItem
+})
+
+/**
+ * @param {string} metric
+ * @return {LineMetricExtractor}
+ */
+const itemCountLineMetricExtractorFactory = metric => ({
+  id: metric,
+  extractor: value => {
+    const { items = [] } = value
+    const item = items.find(({ term }) => term === metric)
+    return item ? item.count : undefined
+  }
+})
+
+/** @type {{[facetType: string] : {line: (any) => LineMetricExtractor[], area: (any) => AreaMetricExtractor[]}}} */
+const MetricsByFacetType = {
+  numeric: {
+    /** @return {LineMetricExtractor[]} */
+    line: () => [
+      lineMetricExtractorFactory('min'),
+      lineMetricExtractorFactory('max'),
+      lineMetricExtractorFactory('mean'),
+    ],
+    /** @return {AreaMetricExtractor[]} */
+    area: () => [
+      stdAreaMetricExtractorFactory('onesigma')
+    ]
+  },
+  term: {
+    /** @return {LineMetricExtractor[]} */
+    line: response => {
+      const itemsIds = Object.keys(response.itemsDictionary)
+      return itemsIds.map(itemCountLineMetricExtractorFactory)
+    },
+    /** @return {AreaMetricExtractor[]} */
+    area: () => []
+  }
 }
 
 export default {
@@ -173,10 +229,7 @@ export default {
   mounted() {
     const element = this.$refs.chart
     this.lineChart = new LineChart({ element })
-    this.lineChart.render([
-      // { date: new Date('2017-01-01'), value: { min: 1, max: 5, mean: 3 }},
-      // { date: new Date(), value: { min: 2, max: 7, mean: 4 }},
-    ], ['min', 'max', 'mean'])
+    this.lineChart.render([])
   },
   methods: {
     /** @param {Filter} filter */
@@ -271,6 +324,34 @@ export default {
     chartHeightString() {
       // @ts-ignore
       return `${0.5 * window.innerHeight}px`
+    },
+    /** @return {{ id: string, label: string | undefined, color: string }[]} */
+    statsLegendItems() {
+      if (this.lineChart == null) return []
+      const { meta, itemsDictionary = {} } = this.stats
+      if (meta == null) return []
+
+      const metrics = MetricsByFacetType[meta.facetType]
+      const lineMetricsIds = metrics.line(this.stats).map(({ id }) => id)
+      const areaMetricsIds = metrics.area(this.stats).map(({ id }) => id)
+
+      const lineItems = lineMetricsIds.map(id => {
+        return {
+          id,
+          label: itemsDictionary[id],
+          color: (/** @type {LineChart} */ (this.lineChart)).colorForLineMetric(lineMetricsIds, id)
+        }
+      })
+
+      const areaItems = areaMetricsIds.map(id => {
+        return {
+          id,
+          label: itemsDictionary[id],
+          color: (/** @type {LineChart} */ (this.lineChart)).colorForAreaMetric(areaMetricsIds, id)
+        }
+      })
+
+      return lineItems.concat(areaItems)
     }
   },
   watch: {
@@ -309,12 +390,9 @@ export default {
     },
     stats(value) {
       if (this.lineChart == null) return
-
-      const stdDevAreaFields = /** @type {[string, string]} */ (['stdDevLow', 'stdDevHigh'])
-
-      const items = value.items.map(item => ({
-        date: new Date(item.domain),
-        value: withStdDev(item.value, stdDevAreaFields)
+      const items = value.items.map(({ domain, value }) => ({
+        date: new Date(domain),
+        value
       }))
 
       const entrichedItems = value.meta.domain === 'time'
@@ -326,10 +404,12 @@ export default {
         )
         : items
 
+      const metrics = MetricsByFacetType[value.meta.facetType]
+
       this.lineChart.render(
         entrichedItems,
-        ['min', 'max', 'mean'],
-        [stdDevAreaFields]
+        metrics.line(value),
+        metrics.area(value)
       )
     }
   }
