@@ -82,6 +82,10 @@ export default {
         state.visualizedItemsIndex[d.uid] = k;
       });
     },
+    RESET_VISUALIZED_ITEM(state) {
+      state.visualizedItemsIndex = {};
+      state.visualizedItems = [];
+    },
     UPDATE_APPLY_CURRENT_SEARCH_FILTERS(state, value) {
       state.applyCurrentSearchFilters = value;
     },
@@ -99,6 +103,9 @@ export default {
     },
     REMOVE_VISUALIZED_ITEM({ commit }, item) {
       commit('REMOVE_VISUALIZED_ITEM', item);
+    },
+    RESET_VISUALIZED_ITEM({ commit }) {
+      commit('RESET_VISUALIZED_ITEM');
     },
     LOAD_TOPICS_GRAPH({ commit }, { filters }) {
       console.info('topics/LOAD_TOPICS_GRAPH with filters:', filters);
