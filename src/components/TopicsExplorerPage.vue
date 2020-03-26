@@ -282,15 +282,19 @@ export default {
 #d3-graph{
   svg.with-highlights{
     .nodes .n .c{
-      opacity: .5;
+      stroke-width: 2px;
+      fill-opacity: 0;
     }
     .nodes .n.highlight{
       outline: 0;
     }
     .nodes .n.highlight .c{
-      opacity: 1;
-      stroke-width: 1px;
-      stroke: black;
+      stroke-width: 3px;
+      stroke: blue;
+      fill-opacity: 1;
+    }
+    .nodes .n.highlight .whoosh{
+      fill: blue;
     }
     .nodes .n.highlight text{
       display: block;
