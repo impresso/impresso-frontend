@@ -157,6 +157,7 @@ export default class Graph extends Basic {
   unSelectNode() {
     this.svg.classed('with-selected', false);
     this.nodesLayer.classed('selected', false);
+    this.linksLayer.classed('selected', false);
   }
 
   zoomTo(node) {
@@ -277,7 +278,7 @@ export default class Graph extends Basic {
 
     const nodesEnter = this.nodesLayer.enter().append('g')
       .attr('class', (d) => {
-        if(!self.showLabel(d)) {
+        if(self.showLabel(d)) {
           return `${d.type} v`;
         }
         return `${d.type} o`;
