@@ -128,6 +128,12 @@ const FacetTypes = {
   ]
 }
 
+const NoFacetFilters = {
+  search: ['string'],
+  tr_clusters: [],
+  tr_passages: []
+}
+
 const TwoOperators = ['OR', 'AND']
 const FacetsWithTwoOperators = ['person', 'location', 'topic']
 const DefaultFacetOperatorsMap = FacetsWithTwoOperators
@@ -370,7 +376,7 @@ export default {
       /** @param {string} value */
       set(value) {
         const [index, facet] = value.split('.')
-        const supportedFilters = this.filters.filter(({ type }) => FacetTypes[index].includes(type))
+        const supportedFilters = this.filters.filter(({ type }) => FacetTypes[index].includes(type) || NoFacetFilters[index].includes(type))
 
         this.$navigation.updateQueryParameters({
           [QueryParameters.Index]: index,
@@ -564,7 +570,7 @@ export default {
     facetTypes() {
       // when facet types change we want to go through our active filters
       // and remove those, that are not supported.
-      const supportedFilters = this.filters.filter(({ type }) => this.facetTypes.includes(type))
+      const supportedFilters = this.filters.filter(({ type }) => this.facetTypes.includes(type) || NoFacetFilters[this.statsIndex].includes(type))
       this.handleFiltersChanged(supportedFilters)
     },
     statsDomain() {
