@@ -198,6 +198,12 @@ export default class Graph extends Basic {
         }
         return this.dimensions.nodeColor.accessor()(d);
       })
+      .attr('stroke', (d) => {
+        if (d.disabled) {
+          return '#ffffff';
+        }
+        return this.dimensions.nodeColor.accessor()(d);
+      })
       .attr('r', this.dimensions.nodeSize.accessor());
 
     // apply force
