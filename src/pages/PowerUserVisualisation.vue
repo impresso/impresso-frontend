@@ -130,7 +130,8 @@ const StatsFacets = {
     numeric: [
       'contentLength',
       'pagesCount'
-    ]
+    ],
+    temporal: ['time']
   },
   tr_clusters: {
     term: ['newspaper'],
@@ -138,7 +139,17 @@ const StatsFacets = {
       'textReuseClusterSize',
       'textReuseClusterLexicalOverlap',
       'textReuseClusterDayDelta'
-    ]
+    ],
+    temporal: []
+  },
+  tr_passages: {
+    term: ['newspaper'],
+    numeric: [
+      'textReuseClusterSize',
+      'textReuseClusterLexicalOverlap',
+      'textReuseClusterDayDelta'
+    ],
+    temporal: ['time']
   }
 }
 
@@ -227,6 +238,7 @@ const MetricsByFacetType = {
       lineMetricExtractorFactory('min'),
       lineMetricExtractorFactory('max'),
       lineMetricExtractorFactory('mean'),
+      lineMetricExtractorFactory('p99_7')
     ],
     /** @return {AreaMetricExtractor[]} */
     area: () => [
@@ -337,7 +349,7 @@ export default {
           this.$navigation.updateQueryParameters({
             [QueryParameters.Domain]: undefined
           })
-          return 'time'
+          return this.statsDomainsOptions[0].value;
         }
         return value
       },
@@ -352,7 +364,9 @@ export default {
     statsDomainsOptions() {
       const options = (StatsFacets[this.statsIndex].term || [])
         .map(key => ({ value: key, text: key }))
-      return [{ value: 'time', text: 'time' }].concat(options)
+      const temporalOptions = (StatsFacets[this.statsIndex].temporal || [])
+        .map(key => ({ value: key, text: key }))
+      return temporalOptions.concat(options)
     },
     /** @return {string} */
     chartHeightString() {
@@ -502,6 +516,7 @@ export default {
       "max": "Maximum",
       "mean": "Average",
       "onesigma": "Average +- one standard deviation",
+      "p99_7": "99.7 percentile",
 
       "fr": "French",
       "de": "German",
