@@ -78,8 +78,8 @@ export default {
     nodes: [],
     links: [],
     // visual dimensions
-    colorBy: 'language',
-    sizeBy: 'degree', // 'countItems',
+    colorBy: 'community',
+    sizeBy: 'pagerank', // 'countItems',
     //
     isGraphLoading: false,
     zoomTransform: {
@@ -108,6 +108,10 @@ export default {
           value: 'language',
           text: this.$t('language'),
         },
+        {
+          value: 'community',
+          text: this.$t('community'),
+        },
       ];
     },
     itemsVisualized() {
@@ -127,6 +131,10 @@ export default {
           value: 'degree',
           text: this.$t('degree'),
         },
+        {
+          value: 'pagerank',
+          text: this.$t('pagerank'),
+        },
       ];
     },
   },
@@ -136,8 +144,8 @@ export default {
     await topicsGraph.find({}).then(({ nodes, links, info}) => {
       this.nodes = nodes.map(d => ({
         ...d,
-        x: d.pos.x * 1.5,
-        y: d.pos.y * 1.5,
+        x: d.pos.x * 1.414,
+        y: d.pos.y * 2,
       }));
       this.links = links;
       console.info('@mounted, topicsGraph loaded.', info, nodes);
@@ -151,7 +159,7 @@ export default {
     this.graph = new Graph({
       element: '#d3-graph',
       nodeLabel: d => d.label, // excerpt.map(w => w.w).join('-'),
-      showLabel: d => !d.hide,
+      showLabel: d => d.community === d.uid,
       identity: d => d.uid,
     });
 
@@ -274,13 +282,15 @@ export default {
 #d3-graph{
   svg.with-highlights{
     .nodes .n .c{
-      opacity: .1;
+      opacity: .5;
     }
     .nodes .n.highlight{
       outline: 0;
     }
     .nodes .n.highlight .c{
       opacity: 1;
+      stroke-width: 1px;
+      stroke: black;
     }
     .nodes .n.highlight text{
       display: block;
@@ -301,12 +311,17 @@ export default {
       display: block;
     }
   }
-  line.selected{
+  .nodes .n.v text {
+    fill: black;
     display: block;
   }
+  line.selected{
+    display: block;
+    stroke: #c0c0c0;
+  }
   line {
-    stroke: #e0e0e0;
-    display: none;
+    stroke: rgba(0,0,0, .04);
+    stroke-width: 1px;
   }
   text{
     pointer-events: none;
