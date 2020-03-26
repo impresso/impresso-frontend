@@ -14,27 +14,41 @@
 
     <!-- main section -->
     <i-layout-section main>
-      <div>
-        <i-dropdown v-model="statsFacetModel"
-                    :options="availableStatsFacets"
-                    size="sm"
-                    variant="outline-primary"/>
-        <i-dropdown v-model="statsDomain"
-                    :options="statsDomainsOptions"
-                    size="sm"
-                    variant="outline-primary"/>
-      </div>
-      <div
-        ref="chart"
-        :style="`height: ${chartHeightString};`"/>
-      <div>
-        <h3>Filters</h3>
-        <pre>{{JSON.stringify(filters, null, 2)}}</pre>
-      </div>
-      <div>
-        <h3>Stats</h3>
-        <pre v-if="!statsLoading">{{JSON.stringify(stats, null, 2)}}</pre>
+      <div class="d-flex flex-column">
         <spinner v-if="statsLoading"/>
+
+        <!-- 1. selectors -->
+        <div class="d-flex flex-row">
+          <i-dropdown v-model="statsFacetModel"
+                      :options="availableStatsFacets"
+                      size="sm"
+                      variant="outline-primary"/>
+          <i-dropdown v-model="statsDomain"
+                      :options="statsDomainsOptions"
+                      size="sm"
+                      variant="outline-primary"/>
+        </div>
+
+        <!-- 2. chart -->
+        <div
+          ref="chart"
+          :style="`height: ${chartHeightString};`"/>
+
+        <!-- 3. items -->
+        <div class="d-flex flex-column ml-2 flex-wrap">
+          <b-form-checkbox
+            v-for="item in statsLegendItems"
+            :key="item.id"
+            :checked="selectedItems[item.id]"
+            @input="v => handleItemChanged(item.id, v)">
+            <div class="pl-1 pr-1 d-flex"
+                :style="{
+                  'background-color': item.color.length > 7 ? item.color : `${item.color}77`
+                }">
+              {{ item.label }}
+            </div>
+          </b-form-checkbox>
+        </div>
       </div>
     </i-layout-section>
   </i-layout>
@@ -43,10 +57,15 @@
 
 <script>
 import { protobuf } from 'impresso-jscommons'
+import { schemeCategory10, schemeAccent } from 'd3'
+
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
 import Spinner from '@/components/layout/Spinner'
 import LineChart from '@/d3-modules/LineChart'
+import CategoricalMultiValueBarChart from '@/d3-modules/CategoricalMultiValueBarChart'
+import CategoricalCircleChart from '@/d3-modules/CategoricalCircleChart'
+
 import {
   search,
   filtersItems,
@@ -57,8 +76,27 @@ import {
   toCanonicalFilter,
   optimizeFilters
 } from '../logic/filters'
-import { getFacetsFromApiResponse } from '../logic/facets'
+import { getFacetsFromApiResponse } from '@/logic/facets'
 import { getQueryParameter } from '@/router/util'
+import { withMissingDates } from '@/logic/time'
+
+/**
+ * @param {number} index
+ * @returns {string} hex color string
+ */
+export function colorForLineMetric(index) {
+  if (index < 0) return '#ffffffff'
+  return schemeCategory10[index % schemeCategory10.length]
+}
+
+/**
+ * @param {number} index
+ * @returns {string} hex color string
+ */
+export function colorForAreaMetric(index) {
+  if (index < 0) return '#ffffffff'
+  return `${schemeAccent[index % schemeAccent.length]}33`
+}
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -66,19 +104,30 @@ import { getQueryParameter } from '@/router/util'
  * @typedef {import('../models').Bucket} Bucket
  */
 
-const DefaultSearchFacetsTypes = [
-  'language',
-  'newspaper',
-  'type',
-  'country',
-  'topic',
-  'collection',
-  'accessRight',
-  'partner',
-  'person',
-  'location',
-  'year'
-];
+const DefaultNumberOfItemsInChart = 10
+
+const FacetTypes = {
+  search: [
+    'language',
+    'newspaper',
+    'type',
+    'country',
+    'topic',
+    'collection',
+    'accessRight',
+    'partner',
+    'person',
+    'location',
+    'year'
+  ],
+  tr_clusters: [
+    'newspaper',
+  ],
+  tr_passages: [
+    'newspaper',
+  ]
+}
+
 const TwoOperators = ['OR', 'AND']
 const FacetsWithTwoOperators = ['person', 'location', 'topic']
 const DefaultFacetOperatorsMap = FacetsWithTwoOperators
@@ -109,7 +158,8 @@ const StatsFacets = {
     numeric: [
       'contentLength',
       'pagesCount'
-    ]
+    ],
+    temporal: ['time']
   },
   tr_clusters: {
     term: ['newspaper'],
@@ -117,8 +167,33 @@ const StatsFacets = {
       'textReuseClusterSize',
       'textReuseClusterLexicalOverlap',
       'textReuseClusterDayDelta'
-    ]
+    ],
+    temporal: []
+  },
+  tr_passages: {
+    term: ['newspaper'],
+    numeric: [
+      'textReuseClusterSize',
+      'textReuseClusterLexicalOverlap',
+      'textReuseClusterDayDelta'
+    ],
+    temporal: ['time']
   }
+}
+
+
+/** @returns {typeof LineChart | typeof CategoricalCircleChart | typeof CategoricalMultiValueBarChart} */
+const getChartClass = (domain, facetType) => {
+  if (domain === 'time') {
+    return LineChart
+  }
+  if (facetType === 'term') return CategoricalCircleChart
+  return CategoricalMultiValueBarChart
+}
+
+const colorInLegendEnabled = (domain, facetType) => {
+  if (domain !== 'time' && facetType === 'term') return false
+  return true
 }
 
 const AvailableStatsFacetsIds = Object.keys(StatsFacets).flatMap(index => {
@@ -133,37 +208,99 @@ const AvailableStatsFacetsIds = Object.keys(StatsFacets).flatMap(index => {
 const serializeFilters = filters => toSerializedFilters(filters)
 /** @param {string} serializedFilters */
 const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
-/** @param {any} response */
-const apiResponseToFacets = response => {
+/**
+ * @param {string[]} facetTypes
+ * @returns {(any) => Facet[]}
+ */
+const apiResponseToFacetsFactory = facetTypes => response => {
   const { facets: responseFacets = {} } = response.info
 
-  const responseFacetsWithMissing = DefaultSearchFacetsTypes.reduce((acc, type) => {
+  const responseFacetsWithMissingTypes = facetTypes.reduce((acc, type) => {
     return { ...acc, [type]: responseFacets[type] || {} }
   }, {})
 
-  return getFacetsFromApiResponse(responseFacetsWithMissing, DefaultFacetOperatorsMap)
+  return getFacetsFromApiResponse(
+    responseFacetsWithMissingTypes,
+    DefaultFacetOperatorsMap
+  )
+}
+
+/**
+ * @typedef {{ id: string, extractor: (any) => number }} LineMetricExtractor
+ * @typedef {{ id: string, extractor: (any) => [number, number] }} AreaMetricExtractor
+ */
+
+/**
+ * @param {string} metric
+ * @return {LineMetricExtractor}
+ */
+const lineMetricExtractorFactory = metric => ({ id: metric, extractor: value => (value || {})[metric] })
+
+/**
+ * @param {string} metric
+ * @return {AreaMetricExtractor}
+ */
+const stdAreaMetricExtractorFactory = metric => ({
+  id: metric,
+  extractor: value => {
+    const { mean, stddev } = value || {}
+    return [mean - stddev, mean + stddev]
+  }
+})
+
+/**
+ * @param {string} metric
+ * @return {LineMetricExtractor}
+ */
+const itemCountLineMetricExtractorFactory = metric => ({
+  id: metric,
+  extractor: value => {
+    const { items = [] } = value
+    const item = items.find(({ term }) => term === metric)
+    return item ? item.count : undefined
+  }
+})
+
+/** @type {{[facetType: string] : {line: (any) => LineMetricExtractor[], area: (any) => AreaMetricExtractor[]}}} */
+const MetricsByFacetType = {
+  numeric: {
+    /** @return {LineMetricExtractor[]} */
+    line: () => [
+      lineMetricExtractorFactory('min'),
+      lineMetricExtractorFactory('max'),
+      lineMetricExtractorFactory('mean'),
+      lineMetricExtractorFactory('p99_7')
+    ],
+    /** @return {AreaMetricExtractor[]} */
+    area: () => [
+      stdAreaMetricExtractorFactory('onesigma')
+    ]
+  },
+  term: {
+    /** @return {LineMetricExtractor[]} */
+    line: response => {
+      const itemsIds = Object.keys(response.itemsDictionary)
+      return itemsIds.map(itemCountLineMetricExtractorFactory)
+    },
+    /** @return {AreaMetricExtractor[]} */
+    area: () => []
+  }
 }
 
 export default {
   data: () => ({
     /** @type {Facet[]} */
-    facets: apiResponseToFacets(DefaultEmptyApiResponse),
+    facets: [],
     /** @type {Filter[]} */
     filtersWithItems: [],
     stats: {},
     statsLoading: false,
     availableStatsFacets: AvailableStatsFacetsIds,
-    /** @type {LineChart | undefined} */
-    lineChart: undefined
+    /** @type {LineChart | CategoricalMultiValueBarChart | CategoricalCircleChart | undefined} */
+    chart: undefined,
+    /** @type {{[key: number]: boolean}} */
+    selectedItems: {}
   }),
-  mounted() {
-    const element = this.$refs.chart
-    this.lineChart = new LineChart({ element })
-    this.lineChart.render([
-      // { date: new Date('2017-01-01'), value: { min: 1, max: 5, mean: 3 }},
-      // { date: new Date(), value: { min: 2, max: 7, mean: 4 }},
-    ], ['min', 'max', 'mean'])
-  },
   methods: {
     /** @param {Filter} filter */
     handleAutocompleteSubmit(filter) {
@@ -174,12 +311,22 @@ export default {
       this.$navigation.updateQueryParameters({
         [QueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
       })
+    },
+    /**
+     * @param {string} id
+     * @param {boolean} value
+     */
+    handleItemChanged(id, value) {
+      this.$set(this.selectedItems, id, value)
     }
   },
   components: {
     SearchSidebar,
     Autocomplete,
     Spinner
+  },
+  mounted() {
+    this.facets = apiResponseToFacetsFactory(this.facetTypes)(DefaultEmptyApiResponse)
   },
   computed: {
     /** @returns {Filter[]} */
@@ -194,6 +341,10 @@ export default {
       return this.filtersWithItems != null
         ? this.filtersWithItems
         : this.filters
+    },
+    /** @returns {string[]} */
+    facetTypes() {
+      return FacetTypes[this.statsIndex]
     },
     /** @return {object} */
     statsRequest() {
@@ -219,9 +370,14 @@ export default {
       /** @param {string} value */
       set(value) {
         const [index, facet] = value.split('.')
+        const supportedFilters = this.filters.filter(({ type }) => FacetTypes[index].includes(type))
+
         this.$navigation.updateQueryParameters({
           [QueryParameters.Index]: index,
-          [QueryParameters.Facet]: facet
+          [QueryParameters.Facet]: facet,
+          // when index is changed, some filters may need to be removed
+          // because they are not supported in the new filter anymore
+          [QueryParameters.SearchFilters]: serializeFilters(optimizeFilters(supportedFilters))
         })
       }
     },
@@ -230,14 +386,7 @@ export default {
       get() {
         const value = /** @type {string} */ (getQueryParameter(this, QueryParameters.Domain, 'time'))
         const options = this.statsDomainsOptions.map(({ value }) => value)
-        if (!options.includes(value)) {
-          // Reset stats domain if the value is no longer in the options
-          // due to changed facet
-          this.$navigation.updateQueryParameters({
-            [QueryParameters.Domain]: undefined
-          })
-          return 'time'
-        }
+        if (!options.includes(value)) return options[0]
         return value
       },
       /** @param {string} value */
@@ -251,12 +400,79 @@ export default {
     statsDomainsOptions() {
       const options = (StatsFacets[this.statsIndex].term || [])
         .map(key => ({ value: key, text: key }))
-      return [{ value: 'time', text: 'time' }].concat(options)
+      const temporalOptions = (StatsFacets[this.statsIndex].temporal || [])
+        .map(key => ({ value: key, text: key }))
+      return temporalOptions.concat(options)
     },
     /** @return {string} */
     chartHeightString() {
       // @ts-ignore
       return `${0.5 * window.innerHeight}px`
+    },
+    /** @return {{ id: string, label: string | undefined, color: string }[]} */
+    statsLegendItems() {
+      if (this.chart == null) return []
+      const { meta, itemsDictionary = {} } = this.stats
+      if (meta == null) return []
+
+      const isColorEnabled = colorInLegendEnabled(meta.domain, meta.facetType)
+
+      const metrics = MetricsByFacetType[meta.facetType]
+
+      const lineItems = metrics.line(this.stats).map(({ id }, index) => {
+        return {
+          id,
+          label: itemsDictionary[id] || this.$t(`legendLabels.${id}`),
+          color: isColorEnabled ? colorForLineMetric(index) : '#ffffff'
+        }
+      })
+
+      const areaItems = metrics.area(this.stats).map(({ id }, index) => {
+        return {
+          id,
+          label: itemsDictionary[id] || this.$t(`legendLabels.${id}`),
+          color: isColorEnabled ? colorForAreaMetric(index + lineItems.length) : '#ffffff'
+        }
+      })
+
+      return lineItems.concat(areaItems)
+    },
+    /**
+     * @returns {{ stats: any, lineMetrics: LineMetricExtractor[], areaMetrics: AreaMetricExtractor[] }}
+     */
+    chartData() {
+      const { meta } = this.stats
+      if (meta == null) return { stats, lineMetrics: [], areaMetrics: [] }
+
+      const metrics = MetricsByFacetType[meta.facetType]
+      const lineMetrics = metrics.line(this.stats)
+      const areaMetrics = metrics.area(this.stats)
+
+      const filteredLineMetrics = lineMetrics.filter(metric => this.selectedItems[metric.id])
+      const filteredAreaMetrics = areaMetrics.filter(metric => this.selectedItems[metric.id])
+
+      return {
+        stats: this.stats,
+        lineMetrics: filteredLineMetrics,
+        areaMetrics: filteredAreaMetrics
+      }
+    },
+    /** @returns {{[key: string]: string}} */
+    colorPalette() {
+      const { meta } = this.stats
+      if (meta == null) return {}
+
+      const metrics = MetricsByFacetType[meta.facetType]
+      const lineMetrics = metrics.line(this.stats)
+      const areaMetrics = metrics.area(this.stats)
+
+      const getId = ({ id }) => id
+      const paletteReducer = (fn, base = 0) => (acc, id, index) => ({ ...acc, [id]: fn(base + index)})
+
+      const linePalette = lineMetrics.map(getId).reduce(paletteReducer(colorForLineMetric), {})
+      const areaPalette = areaMetrics.map(getId).reduce(paletteReducer(colorForAreaMetric, lineMetrics.length), {})
+
+      return { ...linePalette, ...areaPalette }
     }
   },
   watch: {
@@ -266,14 +482,14 @@ export default {
         const query = {
           filters: filters.map(toCanonicalFilter),
           limit: 0,
-          facets: DefaultSearchFacetsTypes,
+          facets: this.facetTypes,
           group_by: 'articles',
         }
         const [
           facets,
           filtersWithItemsResponse,
         ] = await Promise.all([
-          search.find({ query }).then(apiResponseToFacets),
+          search.find({ query }).then(apiResponseToFacetsFactory(this.facetTypes)),
           filtersItems.find({ query: { filters: serializeFilters(filters) }})
         ])
         this.facets = facets
@@ -293,14 +509,93 @@ export default {
       },
       immediate: true
     },
+    chartData({ stats, lineMetrics, areaMetrics }) {
+      const { meta, items: statsItems, itemsDictionary } = stats
+      if (meta == null) return
+
+      const ChartClass = getChartClass(meta.domain, meta.facetType)
+
+      if (!(this.chart instanceof ChartClass)) {
+        const element = this.$refs.chart
+        element.textContent = ''
+        this.chart = new ChartClass({ element })
+      }
+
+      const items = meta.domain === 'time'
+        ? statsItems.map(({ domain, value }) => ({
+          domain: new Date(domain),
+          value
+        }))
+        : statsItems
+
+      const entrichedItems = meta.domain === 'time'
+        ? withMissingDates(
+          items,
+          meta.resolution,
+          item => item.domain,
+          date => ({ domain: date, value: {} })
+        )
+        : items
+
+
+      this.chart.render(
+        entrichedItems,
+        lineMetrics,
+        areaMetrics,
+        { itemsDictionary, colorPalette: this.colorPalette }
+      )
+    },
     stats(value) {
-      if (this.lineChart == null) return
-      const items = value.items.map(item => ({
-        date: new Date(item.domain),
-        value: item.value
-      }))
-      this.lineChart.render(items, ['min', 'max', 'mean'])
+      const { meta } = value
+      if (meta == null) return
+
+      const metrics = MetricsByFacetType[meta.facetType]
+      const lineMetrics = metrics.line(this.stats)
+      const areaMetrics = metrics.area(this.stats)
+
+      this.selectedItems = lineMetrics.map(({ id }) => id)
+        .concat(areaMetrics.map(({ id }) => id))
+        .reduce((acc, id, index) => {
+          if (index > DefaultNumberOfItemsInChart) return acc
+          acc[id] = true
+          return acc
+        }, {})
+    },
+    facetTypes() {
+      // when facet types change we want to go through our active filters
+      // and remove those, that are not supported.
+      const supportedFilters = this.filters.filter(({ type }) => this.facetTypes.includes(type))
+      this.handleFiltersChanged(supportedFilters)
+    },
+    statsDomain() {
+      const options = this.statsDomainsOptions.map(({ value }) => value)
+      if (!options.includes(this.statsDomain) && this.$navigation) {
+        // Reset stats domain if the value is no longer in the options
+        // due to changed facet
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.Domain]: this.statsDomainsOptions[0].value
+        })
+      }
     }
   }
 }
 </script>
+
+<i18n>
+{
+  "en": {
+    "legendLabels": {
+      "min": "Minimum",
+      "max": "Maximum",
+      "mean": "Mean",
+      "onesigma": "Mean ± 1σ",
+      "p99_7": "99.7 percentile",
+
+      "fr": "French",
+      "de": "German",
+      "lb": "Luxembourgish",
+      "en": "English"
+    }
+  }
+}
+</i18n>

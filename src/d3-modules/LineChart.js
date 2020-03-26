@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import * as d3 from 'd3'
 
 export default class LineChart {
   constructor({
@@ -16,20 +16,28 @@ export default class LineChart {
 
     this.axes = this.svg.append('g').attr('class', 'axes')
     this.lines = this.svg.append('g').attr('class', 'lines')
+    this.areas = this.svg.append('g').attr('class', 'areas')
   }
 
   /**
-   * @param {{ date: Date, value: { [key: string]: number } }[]} data
-   * @param {string[]} metrics
+   * @typedef {{ domain: Date, value: any }} DataItem
+   * @typedef {(any) => number} LineValueExtractor
+   * @typedef {(any) => [number, number]} AreaValueExtractor
+   *
+   * @param {DataItem[]} data
+   * @param {{ id: string, extractor: LineValueExtractor}[]} lineMetrics
+   * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
+   * @param {{ colorPalette?: {[key: string]: string} }} options
    */
-  render(data, metrics = []) {
+  render(data, lineMetrics = [], areaMetrics = [], options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
+    const { colorPalette = {} } = options
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
     // X
     const x = d3.scaleUtc()
-      .domain(/** @type {Date[]} */ (d3.extent(data, d => d.date)))
+      .domain(/** @type {Date[]} */ (d3.extent(data, d => d.domain)))
       .range([this.margin.left, width - this.margin.right])
 
     const xAxis = g => g
@@ -43,9 +51,13 @@ export default class LineChart {
       .attr('class', 'x')
       .call(xAxis)
 
+    const maxYLines = /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))
+    const maxYAreas = /** @type {number} */ (d3.max(data, d => d3.max(areaMetrics.flatMap(({ extractor }) => extractor(d.value)))))
+    const maxY = /** @type {number} */ (d3.max([maxYLines, maxYAreas]))
+
     // Y
     const y = d3.scaleLinear()
-      .domain([0, /** @type {number} */ (d3.max(data, d => d.value.max ? d.value.max : 0))]).nice()
+      .domain([0, maxY]).nice()
       .range([height - this.margin.bottom, this.margin.top])
 
     const yAxis = g => g
@@ -72,20 +84,60 @@ export default class LineChart {
 
     const linesContainers = this.lines
       .selectAll('g')
-      .data(metrics)
+      .data(lineMetrics)
       .join('g')
-      .attr('class', metric => metric)
+      .attr('class', ({ id }) => id)
 
+    // Areas
+
+    // @ts-ignore
+    const area = (/** @type {d3.Area<[Date, [number, number]]>} */ (d3.area()))
+      .defined(([, [y0, y1]]) => [y0, y1].every(v => !isNaN(v)))
+      .x(([date]) => x(date))
+      .y0(([, [y0]]) => y(y0))
+      .y1(([, [, y1]]) => y(y1))
+
+    this.areas
+      .selectAll('path')
+      .data(() => /** @type {[[Date, [number, number]][], string][]} */ (
+        areaMetrics.map(({ id, extractor }) => [data.map(({ domain, value }) => [domain, extractor(value)]), id])
+      ))
+      .join('path')
+      .attr('class', ([, id]) => id)
+      .attr('fill', ([, id]) => colorPalette[id])
+      .attr('d', ([items]) => area(items))
+
+    // Lines
+
+    /**
+     * @param {{ id: string, extractor: LineValueExtractor}} metric
+     * @param {number} index
+     */
+    const pathItem = (metric, index) => {
+      const lineData = data
+        .map(d => /** @type {[number, number]} */ ([d.domain.getTime(), metric.extractor(d.value)]))
+      return [{ metric: metric.id, index, data: lineData }]
+    }
+
+    // line with data and missing data points
     linesContainers
-      .selectAll('path.metric')
+      .selectAll('path.missing')
       .data((metric, index) => {
-        const lineData = data
-          .map(d => /** @type {[number, number]} */ ([d.date.getTime(), d.value[metric]]))
-        return [{ metric, index, data: lineData }]
+        const { data } = pathItem(metric, index)[0]
+        return [{ metric: metric.id, index, data: data.filter(line.defined()) }]
       })
       .join('path')
+      .attr('class', 'missing')
+      .attr('stroke', '#eee')
+      .attr('d', ({ data }) => line(data));
+
+    // line with data
+    linesContainers
+      .selectAll('path.metric')
+      .data(pathItem)
+      .join('path')
       .attr('class', 'metric')
-      .attr('stroke', ({ index }) => d3.schemeCategory10[index])
+      .attr('stroke', ({ metric }) => colorPalette[metric])
       .attr('stroke-width', 1.5)
       .attr('d', ({ data }) => line(data))
   }
