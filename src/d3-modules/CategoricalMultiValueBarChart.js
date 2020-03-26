@@ -1,5 +1,4 @@
 import * as d3 from 'd3'
-import { colorForLineMetric, colorForAreaMetric } from './utils'
 
 export default class CategoricalMultiValueBarChart {
   constructor({
@@ -28,9 +27,11 @@ export default class CategoricalMultiValueBarChart {
    * @param {DataItem[]} data
    * @param {{ id: string, extractor: LineValueExtractor}[]} lineMetrics
    * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
+   * @param {{ colorPalette?: {[key: string]: string} }} options
    */
-  render(data, lineMetrics = [], areaMetrics = []) {
+  render(data, lineMetrics = [], areaMetrics = [], options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
+    const { colorPalette = {} } = options
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
@@ -102,7 +103,7 @@ export default class CategoricalMultiValueBarChart {
       .attr('x', 1)
       .attr('y', ({ value }) => y(value))
       .attr('width', x.bandwidth() - 2)
-      .attr('fill', metric => colorForLineMetric(lineMetrics.map(({ id }) => id), metric.id))
+      .attr('fill', metric => colorPalette[metric.id])
 
     bar
       .selectAll('g.areas')
@@ -121,6 +122,6 @@ export default class CategoricalMultiValueBarChart {
       .attr('x', x.bandwidth()/4)
       .attr('y', ({ value: [, v] }) => y(v))
       .attr('width', x.bandwidth()/2)
-      .attr('fill', metric => colorForAreaMetric(areaMetrics.map(({ id }) => id), metric.id))
+      .attr('fill', metric => colorPalette[metric.id])
   }
 }

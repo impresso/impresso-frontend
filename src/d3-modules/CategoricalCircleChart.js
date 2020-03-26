@@ -27,11 +27,12 @@ export default class CategoricalCircleChart {
    * @param {DataItem[]} data
    * @param {{ id: string, extractor: LineValueExtractor}[]} lineMetrics
    * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
-   * @param {{[key: string]: string}} itemsDictionary
+   * @param {{ itemsDictionary?: {[key: string]: string} }} options
    */
   // eslint-disable-next-line no-unused-vars
-  render(data, lineMetrics = [], areaMetrics = [], itemsDictionary = {}) {
+  render(data, lineMetrics = [], areaMetrics = [], options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
+    const { itemsDictionary = {} } = options
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 

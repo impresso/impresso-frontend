@@ -1,5 +1,4 @@
 import * as d3 from 'd3'
-import { colorForAreaMetric, colorForLineMetric } from './utils'
 
 export default class LineChart {
   constructor({
@@ -28,9 +27,11 @@ export default class LineChart {
    * @param {DataItem[]} data
    * @param {{ id: string, extractor: LineValueExtractor}[]} lineMetrics
    * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
+   * @param {{ colorPalette?: {[key: string]: string} }} options
    */
-  render(data, lineMetrics = [], areaMetrics = []) {
+  render(data, lineMetrics = [], areaMetrics = [], options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
+    const { colorPalette = {} } = options
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
@@ -50,9 +51,13 @@ export default class LineChart {
       .attr('class', 'x')
       .call(xAxis)
 
+    const maxYLines = /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))
+    const maxYAreas = /** @type {number} */ (d3.max(data, d => d3.max(areaMetrics.flatMap(({ extractor }) => extractor(d.value)))))
+    const maxY = /** @type {number} */ (d3.max([maxYLines, maxYAreas]))
+
     // Y
     const y = d3.scaleLinear()
-      .domain([0, /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))]).nice()
+      .domain([0, maxY]).nice()
       .range([height - this.margin.bottom, this.margin.top])
 
     const yAxis = g => g
@@ -99,7 +104,7 @@ export default class LineChart {
       ))
       .join('path')
       .attr('class', ([, id]) => id)
-      .attr('fill', ([, id]) => colorForAreaMetric(areaMetrics.map(({ id }) => id), id))
+      .attr('fill', ([, id]) => colorPalette[id])
       .attr('d', ([items]) => area(items))
 
     // Lines
@@ -132,7 +137,7 @@ export default class LineChart {
       .data(pathItem)
       .join('path')
       .attr('class', 'metric')
-      .attr('stroke', ({ metric }) => colorForLineMetric(lineMetrics.map(({ id }) => id), metric))
+      .attr('stroke', ({ metric }) => colorPalette[metric])
       .attr('stroke-width', 1.5)
       .attr('d', ({ data }) => line(data))
   }
