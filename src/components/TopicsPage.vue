@@ -110,7 +110,7 @@ export default {
     searchQuery() {
       const { pq } = this.$route.query;
       if (pq) {
-        return protobuf.searchQuery.deserialize(pq);
+        return new SearchQuery(protobuf.searchQuery.deserialize(pq));
       }
       return this.$store.getters['search/getSearch'];
     },
