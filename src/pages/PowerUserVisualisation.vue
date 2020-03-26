@@ -14,32 +14,41 @@
 
     <!-- main section -->
     <i-layout-section main>
-      <div>
-        <i-dropdown v-model="statsFacetModel"
-                    :options="availableStatsFacets"
-                    size="sm"
-                    variant="outline-primary"/>
-        <i-dropdown v-model="statsDomain"
-                    :options="statsDomainsOptions"
-                    size="sm"
-                    variant="outline-primary"/>
-      </div>
-      <div
-        ref="chart"
-        :style="`height: ${chartHeightString};`"/>
-      <div>
-        <span v-for="item in statsLegendItems"
-              :key="item.id"
-              :style="{ 'background-color': item.color }">{{ item.label || item.id }}</span>
-      </div>
-      <div>
-        <h3>Filters</h3>
-        <pre>{{JSON.stringify(filters, null, 2)}}</pre>
-      </div>
-      <div>
-        <h3>Stats</h3>
-        <pre v-if="!statsLoading">{{JSON.stringify(stats, null, 2)}}</pre>
+      <div class="d-flex flex-column">
         <spinner v-if="statsLoading"/>
+
+        <!-- 1. selectors -->
+        <div class="d-flex flex-row">
+          <i-dropdown v-model="statsFacetModel"
+                      :options="availableStatsFacets"
+                      size="sm"
+                      variant="outline-primary"/>
+          <i-dropdown v-model="statsDomain"
+                      :options="statsDomainsOptions"
+                      size="sm"
+                      variant="outline-primary"/>
+        </div>
+
+        <!-- 2. chart -->
+        <div
+          ref="chart"
+          :style="`height: ${chartHeightString};`"/>
+
+        <!-- 3. items -->
+        <div class="d-flex flex-column ml-2 flex-wrap">
+          <b-form-checkbox
+            v-for="(item, index) in statsLegendItems"
+            :key="item.id"
+            :checked="selectedItems[index]"
+            @input="v => handleItemChanged(index, v)">
+            <div class="pl-1 pr-1 d-flex"
+                :style="{
+                  'background-color': item.color.length > 7 ? item.color : `${item.color}77`
+                }">
+              {{ item.label }}
+            </div>
+          </b-form-checkbox>
+        </div>
       </div>
     </i-layout-section>
   </i-layout>
@@ -53,6 +62,7 @@ import Autocomplete from '@/components/Autocomplete'
 import Spinner from '@/components/layout/Spinner'
 import LineChart from '@/d3-modules/LineChart'
 import CategoricalMultiValueBarChart from '@/d3-modules/CategoricalMultiValueBarChart'
+import CategoricalCircleChart from '@/d3-modules/CategoricalCircleChart'
 
 import {
   search,
@@ -74,6 +84,8 @@ import { colorForAreaMetric, colorForLineMetric } from '@/d3-modules/utils'
  * @typedef {import('../models').Facet} Facet
  * @typedef {import('../models').Bucket} Bucket
  */
+
+const DefaultNumberOfItemsInChart = 10
 
 const DefaultSearchFacetsTypes = [
   'language',
@@ -131,11 +143,18 @@ const StatsFacets = {
 }
 
 
-const getChartClass = (domain /* ,facetType */) => {
+/** @returns {typeof LineChart | typeof CategoricalCircleChart | typeof CategoricalMultiValueBarChart} */
+const getChartClass = (domain, facetType) => {
   if (domain === 'time') {
     return LineChart
   }
+  if (facetType === 'term') return CategoricalCircleChart
   return CategoricalMultiValueBarChart
+}
+
+const colorInLegendEnabled = (domain, facetType) => {
+  if (domain !== 'time' && facetType === 'term') return false
+  return true
 }
 
 const AvailableStatsFacetsIds = Object.keys(StatsFacets).flatMap(index => {
@@ -234,8 +253,10 @@ export default {
     stats: {},
     statsLoading: false,
     availableStatsFacets: AvailableStatsFacetsIds,
-    /** @type {LineChart | CategoricalMultiValueBarChart | undefined} */
-    chart: undefined
+    /** @type {LineChart | CategoricalMultiValueBarChart | CategoricalCircleChart | undefined} */
+    chart: undefined,
+    /** @type {{[key: number]: boolean}} */
+    selectedItems: []
   }),
   methods: {
     /** @param {Filter} filter */
@@ -247,6 +268,13 @@ export default {
       this.$navigation.updateQueryParameters({
         [QueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
       })
+    },
+    /**
+     * @param {number} index
+     * @param {boolean} value
+     */
+    handleItemChanged(index, value) {
+      this.$set(this.selectedItems, index, value)
     }
   },
   components: {
@@ -337,6 +365,8 @@ export default {
       const { meta, itemsDictionary = {} } = this.stats
       if (meta == null) return []
 
+      const isColorEnabled = colorInLegendEnabled(meta.domain, meta.facetType)
+
       const metrics = MetricsByFacetType[meta.facetType]
       const lineMetricsIds = metrics.line(this.stats).map(({ id }) => id)
       const areaMetricsIds = metrics.area(this.stats).map(({ id }) => id)
@@ -345,7 +375,7 @@ export default {
         return {
           id,
           label: itemsDictionary[id] || this.$t(`legendLabels.${id}`),
-          color: colorForLineMetric(lineMetricsIds, id)
+          color: isColorEnabled ? colorForLineMetric(lineMetricsIds, id) : '#ffffff'
         }
       })
 
@@ -353,11 +383,31 @@ export default {
         return {
           id,
           label: itemsDictionary[id] || this.$t(`legendLabels.${id}`),
-          color: colorForAreaMetric(areaMetricsIds, id)
+          color: isColorEnabled ? colorForAreaMetric(areaMetricsIds, id) : '#ffffff'
         }
       })
 
       return lineItems.concat(areaItems)
+    },
+    /**
+     * @returns {{ stats: any, lineMetrics: LineMetricExtractor[], areaMetrics: AreaMetricExtractor[] }}
+     */
+    chartData() {
+      const { meta } = this.stats
+      if (meta == null) return { stats, lineMetrics: [], areaMetrics: [] }
+
+      const metrics = MetricsByFacetType[meta.facetType]
+      const lineMetrics = metrics.line(this.stats)
+      const areaMetrics = metrics.area(this.stats)
+
+      const filteredLineMetrics = lineMetrics.filter((metric, index) => this.selectedItems[index])
+      const filteredAreaMetrics = areaMetrics.filter((metric, index) => this.selectedItems[index + lineMetrics.length])
+
+      return {
+        stats: this.stats,
+        lineMetrics: filteredLineMetrics,
+        areaMetrics: filteredAreaMetrics
+      }
     }
   },
   watch: {
@@ -394,11 +444,11 @@ export default {
       },
       immediate: true
     },
-    stats(value) {
-      const { meta, items: statsItems } = value
+    chartData({ stats, lineMetrics, areaMetrics }) {
+      const { meta, items: statsItems, itemsDictionary } = stats
       if (meta == null) return
 
-      const ChartClass = getChartClass(meta.domain)
+      const ChartClass = getChartClass(meta.domain, meta.facetType)
 
       if (!(this.chart instanceof ChartClass)) {
         const element = this.$refs.chart
@@ -422,13 +472,23 @@ export default {
         )
         : items
 
-      const metrics = MetricsByFacetType[meta.facetType]
 
       this.chart.render(
         entrichedItems,
-        metrics.line(value),
-        metrics.area(value)
+        lineMetrics,
+        areaMetrics,
+        itemsDictionary
       )
+    },
+    stats(value) {
+      const { meta } = value
+      if (meta == null) return
+
+      const metrics = MetricsByFacetType[meta.facetType]
+      const lineMetrics = metrics.line(this.stats)
+      const areaMetrics = metrics.area(this.stats)
+
+      this.selectedItems = [...Array(lineMetrics.length + areaMetrics.length).keys()].map((index) => index < DefaultNumberOfItemsInChart)
     }
   }
 }

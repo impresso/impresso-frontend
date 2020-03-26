@@ -1,10 +1,9 @@
 import * as d3 from 'd3'
-import { colorForLineMetric, colorForAreaMetric } from './utils'
 
-export default class CategoricalMultiValueBarChart {
+export default class CategoricalCircleChart {
   constructor({
     element = null,
-    margin = { top: 5, bottom: 100, left: 45, right: 5}
+    margin = { top: 5, bottom: 100, left: 100, right: 5}
   }) {
     this.margin = margin
     this.element = element
@@ -28,11 +27,15 @@ export default class CategoricalMultiValueBarChart {
    * @param {DataItem[]} data
    * @param {{ id: string, extractor: LineValueExtractor}[]} lineMetrics
    * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
+   * @param {{[key: string]: string}} itemsDictionary
    */
-  render(data, lineMetrics = [], areaMetrics = []) {
+  // eslint-disable-next-line no-unused-vars
+  render(data, lineMetrics = [], areaMetrics = [], itemsDictionary = {}) {
     const { width, height } = this.element.getBoundingClientRect()
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
+
+    const maxValue = /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))
 
     // X
     const x = d3.scaleBand()
@@ -41,7 +44,14 @@ export default class CategoricalMultiValueBarChart {
 
     const xAxis = g => g
       .attr('transform', `translate(0,${height - this.margin.bottom})`)
-      .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
+      .style('stroke-dasharray',('3,3'))
+      .call(
+        d3.axisBottom(x)
+          .ticks(width / 80)
+          .tickSizeOuter(0)
+          .tickSize(-height)
+      )
+      .call(g => g.selectAll('line').style('stroke', '#eee'))
       .selectAll('text')
       .style('text-anchor', 'end')
       .attr('transform', 'rotate(-65)')
@@ -58,18 +68,24 @@ export default class CategoricalMultiValueBarChart {
       .call(xAxis)
 
     // Y
-    const y = d3.scaleLinear()
-      .domain([0, /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))]).nice()
+    const y = d3.scaleBand()
+      .domain(lineMetrics.map(({ id }) => id))
       .range([height - this.margin.bottom, this.margin.top])
 
     const yAxis = g => g
       .attr('transform', `translate(${this.margin.left}, 0)`)
-      .call(d3.axisLeft(y))
-      .call(g => g.select('.domain').remove())
-      .call(g => g.select('.tick:last-of-type text').clone()
-        .attr('x', 3)
-        .attr('text-anchor', 'start')
-        .attr('font-weight', 'bold'))
+      .style('stroke-dasharray',('3,3'))
+      .call(
+        d3.axisLeft(y)
+          .tickSizeOuter(0)
+          .tickSize(-width)
+      )
+      .call(g => g.selectAll('line').style('stroke', '#eee'))
+      .selectAll('text')
+      .style('text-anchor', 'end')
+      .text(itemValue => {
+        return itemsDictionary[itemValue] || itemsDictionary
+      })
 
     this.axes
       .selectAll('g.y')
@@ -85,42 +101,22 @@ export default class CategoricalMultiValueBarChart {
       .attr('class', 'bar')
       .attr('transform', dataItem => `translate(${x(`${dataItem.domain.value}`)})`)
 
-    bar
-      .selectAll('g.lines')
-      .data(dataItem => [dataItem])
-      .join('g')
-      .attr('class', 'lines')
-      .selectAll('rect')
-      .data(dataItem => {
-        return lineMetrics
-          .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value)}))
-          .filter(({ value }) => !isNaN(value))
-      }, ({ id }) => id)
-      .join('rect')
-      .attr('class', ({ id }) => id)
-      .attr('height', 1)
-      .attr('x', 1)
-      .attr('y', ({ value }) => y(value))
-      .attr('width', x.bandwidth() - 2)
-      .attr('fill', metric => colorForLineMetric(lineMetrics.map(({ id }) => id), metric.id))
+    const circleRadius = /** @type {number} */ (d3.min([x.bandwidth(), y.bandwidth()])) / 2
 
     bar
-      .selectAll('g.areas')
-      .data(dataItem => [dataItem])
-      .join('g')
-      .attr('class', 'areas')
-      .selectAll('rect')
-      .data(dataItem => {
-        return areaMetrics
-          .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value)}))
-          .filter(({ value: [valueA, valueB] }) => !isNaN(valueA) && !isNaN(valueB))
-      }, ({ id }) => id)
-      .join('rect')
+      .selectAll('circle')
+      .data(dataItem => lineMetrics
+        .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value)}))
+        .filter(({ value }) => !isNaN(value)),
+      ({ id }) => id)
+      .join('circle')
       .attr('class', ({ id }) => id)
-      .attr('height', ({ value: [valueA, valueB] }) => y(valueA) - y(valueB))
-      .attr('x', x.bandwidth()/4)
-      .attr('y', ({ value: [, v] }) => y(v))
-      .attr('width', x.bandwidth()/2)
-      .attr('fill', metric => colorForAreaMetric(areaMetrics.map(({ id }) => id), metric.id))
+      .attr('transform', ({ id }) => `translate(0, ${y(id)})`)
+      .attr('r', ({ value }) => {
+        return (value / maxValue) * circleRadius * 0.9
+      })
+      .attr('cx', x.bandwidth() / 2)
+      .attr('cy', y.bandwidth() / 2)
+      .attr('fill', ({ value }) => d3.interpolateGreys(0.5 + (value / maxValue) / 2))
   }
 }
