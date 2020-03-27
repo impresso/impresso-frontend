@@ -3,150 +3,134 @@
     <!-- slot:header  -->
     <div slot="header">
       <b-navbar>
-        <section :class="{'loading': isGraphLoading}">
+        <section>
           <span class="label small-caps">
             {{ $t('summary') }}
           </span><info-button name="why-topic" class="text-muted" />
-          <h3 class='mb-1'><span v-if="!isGraphLoading" v-html="$t('topics_cooccurrence_graph', {
-            nodes: $n(this.itemsVisualized.length),
-            links: $n(this.totalLinks),
-          })" /><span v-else v-html="$t('topics_cooccurrence_graph_loading', {
-            nodes: $n(this.itemsVisualized.length),
-          })"></span></h3>
+          <h3>
+            <span v-html="$t('topics_cooccurrence_graph', {
+              nodes: $n(this.nodes.length),
+            })"></span>
+          </h3>
           <div v-if="countActiveFilters">
             <b-form-checkbox
               v-model="applyCurrentSearchFilters">
             <span v-html="$t('itemStats', {
                 count: countActiveFilters
               })"/></b-form-checkbox>
-            <search-query-summary class="border-left pl-2 border-tertiary m-0" :search-query='searchQuery'/>
+            <!-- <search-query-summary class="border-left pl-2 border-tertiary m-0" :search-query='searchQuery'/> -->
           </div>
         </section>
-
       </b-navbar>
-
       <b-navbar class="border-top border-bottom py-0 px-3">
-
         <b-navbar-nav class="pl-0 pr-2 py-2 border-right">
-          <li><label class="pr-2">{{ $t('color by') }}</label>
-            <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li>
+          <label class="pr-2">{{ $t('color by') }}</label>
+          <i-dropdown v-model="colorBy" v-bind:options="colorByOptions" size="sm" variant="outline-primary"></i-dropdown>
         </b-navbar-nav>
         <b-navbar-nav class="p-2 border-right">
-          <li><label class="pr-2">{{ $t('connected') }}</label>
-            <i-dropdown v-model="linkBy" v-bind:options="linkByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li>
+          <label class="pr-2">{{ $t('size by') }}</label>
+          <i-dropdown v-model="sizeBy" v-bind:options="sizeByOptions" size="sm" variant="outline-primary"></i-dropdown>
         </b-navbar-nav>
-        <b-navbar-nav class="p-2 border-right">
-          <li><label class="pr-2">{{ $t('size by') }}</label>
-            <i-dropdown v-model="sizeBy" v-bind:options="sizeByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li>
-        </b-navbar-nav>
-        <b-navbar-nav class="p-2">
-          <li><label class="pr-2" v-html="$t('zoom')" />
-            <b-button v-on:click="zoomReset()" variant="secondary" size="sm">{{ $t('actions.reset') }}</b-button>
-          </li>
+        <b-navbar-nav class="p-2" v-if="isZoomed">
+          <label class="pr-2" v-html="$t('zoom', {
+            k: parseInt(zoomTransform.k * 100, 10),
+          })" />
+          <b-button v-on:click="zoomReset()" variant="secondary" size="sm">{{ $t('actions.reset') }}</b-button>
         </b-navbar-nav>
       </b-navbar>
-    </div>
-    <div class="d3-graph-wrapper small-caps bg-light">
-      <div id="d3-graph"></div>
+    </div><!-- slot:header -->
+    <!-- slot:body or default  -->
+    <div class="d3-graph-wrapper position-relative h-100 small-caps bg-light">
+      <div id="d3-graph" class="h-100"></div>
       <tooltip v-model="tooltip" />
     </div>
-
-<div slot="footer">
-    <b-navbar class="border-top">
-      <b-navbar-nav>
-      <li>
-        <label>{{$t('legend')}}</label>
-        <div class="d-inline-block pl-2" v-for="(item,i) in legend.nodeColor" :key="i">
-          <div class='legend-node' v-bind:style="{backgroundColor: item.color}"></div>
-          <span>{{item.name}} ({{$n(item.count)}})</span>
-        </div>
-      </li>
-      </b-navbar-nav>
-    </b-navbar>
+    <!-- slot:footer  -->
+    <div slot="footer">
+      <b-navbar class="border-top">
+        <legend>
+          <div class="border bg-white p-1" style="height: 40px; overflow:scroll">
+            <div class="d-inline-flex mx-1 align-items-center" v-for="(item,i) in legend.nodeColor" :key="i">
+              <div class='legend-node mr-1 ' v-bind:style="{backgroundColor: item.color}"></div>
+              <div>{{item.name}} ({{$n(item.count)}})</div>
+            </div>
+          </div>
+        </legend>
+        <!-- /{{ zoomTransform }}/ -->
+      </b-navbar>
     </div>
   </i-layout-section>
 </template>
 
 <script>
-import Topic from '@/models/Topic';
 import Graph from '@/d3-modules/Graph';
-import Tooltip from './modules/tooltips/TopicsExplorerTooltip';
-import InfoButton from './base/InfoButton';
-import SearchQuerySummary from './modules/SearchQuerySummary';
+import InfoButton from '@/components/base/InfoButton';
+import Tooltip from '@/components/modules/tooltips/TopicsExplorerTooltip';
+import {topicsGraph} from '@/services';
 
 export default {
+  props: {
+    filters: {
+      /** @type {import('vue').PropType<Filter[]>} */
+      type: Array,
+      default: () => [],
+    },
+  },
   data: () => ({
-    submitted: false,
-    topic: new Topic(),
     tooltip: {
       x: 0,
       y: 0,
       count: 0,
       isActive: false,
     },
-    // count
-    totalNodes: 0,
-    totalLinks: 0,
+    nodes: [],
+    links: [],
     // visual dimensions
-    colorBy: 'language',
-    sizeBy: 'countItems',
-    // legend
+    colorBy: 'community',
+    sizeBy: 'pagerank', // 'countItems',
+    //
     legend: {
       nodeColor: [],
     },
-    filteredNodes: [],
-    filteredLinks: [],
-    zoomLevel: {},
-    timers: {},
     //
     isGraphLoading: false,
+    zoomTransform: {
+      k: 1,
+      x: 0,
+      y: 0,
+    },
   }),
   computed: {
-    graphNodes() {
-      return this.$store.state.topics.graphNodes;
-    },
-    graphLinks() {
-      const mode = this.$store.state.topics.graphLinkMode;
-      // console.info('graphLinks changed, mode:', mode);
-      return this.$store.state.topics.graphLinks[mode];
-    },
-    items() {
-      return this.$store.state.topics.items;
-    },
-    itemsIndex() {
-      return this.$store.state.topics.visualizedItemsIndex;
-    },
-    itemsVisualized() {
-      return this.$store.state.topics.visualizedItems;
-    },
-    linkBy: {
+    applyCurrentSearchFilters: {
       get() {
-        return this.$store.state.topics.graphLinkMode;
+        return this.$store.state.topics.applyCurrentSearchFilters;
       },
-      set(v) {
-        this.$store.dispatch('topics/CHANGE_GRAPH_LINK_MODE', v);
+      set(value) {
+        this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+        // this.loadGraph();
       },
     },
-    linkByOptions() {
-      return ['byCommonArticles'].map(value => ({
-        value,
-        text: this.$t(value),
-      }));
+    countActiveFilters() {
+      return this.filters
+        .filter(d => !['hasTextContents'].includes(d.type)).length;
     },
     colorByOptions() {
       return [
-        // {
-        //   value: 'model',
-        //   text: this.$t('topicmodel'),
-        // },
         {
           value: 'language',
           text: this.$t('language'),
         },
+        {
+          value: 'community',
+          text: this.$t('community'),
+        },
       ];
+    },
+    itemsVisualized() {
+      return this.$store.state.topics.visualizedItems;
+    },
+    isZoomed() {
+      const { k, x, y} = this.zoomTransform;
+      return k !== 1 && x !== 0 && y !== 0;
     },
     sizeByOptions() {
       return [
@@ -158,259 +142,181 @@ export default {
           value: 'degree',
           text: this.$t('degree'),
         },
-        // {
-        //   value: 'hwp',
-        //   text: this.$t('highest word probability'),
-        // },
+        {
+          value: 'pagerank',
+          text: this.$t('pagerank'),
+        },
       ];
     },
-
-    topicModel() {
-      return this.$route.params.topic_model;
-    },
-    topicUid() {
-      return this.$route.params.topic_uid;
-    },
-    applyCurrentSearchFilters: {
-      get() {
-        return this.$store.state.topics.applyCurrentSearchFilters;
-      },
-      set(value) {
-        this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
-        this.loadGraph();
-      },
-    },
-    searchQuery() {
-      return this.$store.getters['search/getSearch'];
-    },
-    countActiveFilters() {
-      return this.$store.getters['search/countActiveFilters'];
-    },
   },
-  mounted() {
-    this.$store.commit('SET_HEADER_TITLE', {
-      title: 'topics',
+  async mounted() {
+    // load base graph
+    this.isGraphLoading = true;
+    await topicsGraph.find({}).then(({ nodes, links }) => {
+      this.nodes = nodes.map(d => ({
+        ...d,
+        x: d.pos.x * 1.414,
+        y: d.pos.y * 2,
+      }));
+      this.links = links;
     });
+    this.isGraphLoading = false;
 
     this.graph = new Graph({
       element: '#d3-graph',
       nodeLabel: d => d.label, // excerpt.map(w => w.w).join('-'),
-      showLabel: d => !d.hide,
+      showLabel: d => d.community === d.uid,
+      identity: d => d.uid,
     });
 
     this.graph
-      .on('svg.click', (d) => {
-        // console.info('svg.click', d);
+      .on('svg.click', () => {
+        this.tooltip.isActive = false;
+        this.graph.unSelectNode();
+      })
+      .on('svg.zoom', (zoomTransform) => {
+        this.zoomTransform = zoomTransform;
+      })
+      .on('node.click', (item) => {
         this.tooltip = {
-          ...d,
-          isActive: false,
-        };
-      })
-      .on('svg.zoom', (s) => {
-        // console.info(s);
-        this.zoomLevel = {
-          ...s,
-        };
-      })
-      .on('node.tick', (d) => {
-        this.tooltip.x = d.x;
-        this.tooltip.y = d.y;
-      })
-      .on('node.click', (d) => {
-        // console.info('node.click', d);
-        this.tooltip = {
-          x: d.x,
-          y: d.y,
-          item: d,
+          x: this.graph.width/2 - 100,
+          y: this.graph.height - 200,
+          item,
           isActive: true,
         };
+        this.$store.dispatch('topics/ADD_VISUALIZED_ITEM', item);
+        this.graph.zoomTo(item);
+        this.graph.selectNode(item);
+        this.graph.selectNeighbors(item);
       })
-      .on('node.click', (d) => {
-        // console.info('node.click', d);
-        this.tooltip = {
-          x: d.x,
-          y: d.y,
-          item: d,
-          isActive: true,
-        };
-      })
-      .on('dimension.updated', (dimension) => {
-        if (this.legend[dimension.name]) {
-          this.legend[dimension.name] = dimension.legend;
+      .on('dimension.updated', ({ name, legend}) => {
+        if (this.legend[name]) {
+          this.legend[name] = legend.sort((a,b) => b.count - a.count);
         }
       });
-
     window.addEventListener('resize', this.onResize);
 
+    this.updateGraph();
     if (this.itemsVisualized.length) {
-      this.loadGraph();
+      this.graph.highlightNodes(this.itemsVisualized);
     }
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.onResize);
   },
   methods: {
-    updateGraph({ nodes, links }) {
-      if (!this.graph) {
-        console.warn('updateGraph() called when graph is not ready');
-        return;
+    onResize() {
+      if (this.graph) {
+        this.graph.resize();
       }
-
-      this.totalNodes = this.graphNodes.length;
-      this.totalLinks = this.graphLinks.length;
-      // console.info('updateGraph, available nodes:', this.totalNodes, 'available links:', this.totalLinks);
-
+    },
+    updateGraph() {
       this.graph.updateDimension({
         name: 'nodeColor',
         property: this.colorBy,
-        values: nodes,
+        values: this.nodes,
       });
       this.graph.updateDimension({
         name: 'nodeSize',
         property: this.sizeBy,
-        values: nodes,
+        values: this.nodes,
       });
       this.graph.update({
-        nodes,
-        links,
-        pristine: true,
+        nodes: this.nodes,
+        links: this.links,
       });
     },
     zoomReset() {
       this.graph.zoom();
     },
-    onResize() {
-      console.info('TopicExplorer@resize');
-      this.graph.resize();
-    },
-    getFilteredNodes() {
-      return this.graphNodes.filter(d => typeof this.itemsIndex[d.uid] !== 'undefined');
-    },
-    getFilteredLinks() {
-      // get map of uids
-      const filteredNodesUids = this.filteredNodes.map(d => d.uid);
-      // loop through our graphLinks
-      return this.graphLinks.map((d) => {
-        const s = this.graphNodes[d.source].uid;
-        const t = this.graphNodes[d.target].uid;
-
-        if (this.itemsIndex[t] === undefined || this.itemsIndex[s] === undefined) {
-          return null;
-        }
-        // change source and target id
-        return {
-          ...d,
-          source: filteredNodesUids.indexOf(s),
-          target: filteredNodesUids.indexOf(t),
-        };
-      }).filter(d => d);
-    },
-    loadGraph() {
-      // console.info('loadGraph() nodes:', this.itemsVisualized.length, 'loading:',this.isGraphLoading);
-      // yes, load graph if it is not busy loading
-      if (this.timers.debounceLoadGraph) {
-        clearTimeout(this.timers.debounceLoadGraph);
-      }
-      if (this.isGraphLoading || !this.graph) {
-        this.timers.debounceLoadGraph = setTimeout(this.loadGraph, 500);
+    async loadGraph() {
+      if (this.isGraphLoading) {
+        console.warn('loadGraph busy...');
         return;
       }
       this.isGraphLoading = true;
-      let filters = [];
-
-      if (this.itemsVisualized.length) {
-        filters.push({
-          type: 'topic',
-          context: 'visualize',
-          q: this.itemsVisualized.map(d => d.uid),
-        });
-      }
-      if (this.countActiveFilters && this.applyCurrentSearchFilters) {
-        filters = filters.concat(this.$store.getters['search/getSearch'].getFilters());
-      }
-      return this.$store.dispatch('topics/LOAD_TOPICS_GRAPH', { filters })
-        .then(() => {
-          // console.info('loadGraph() topics/LOAD_TOPICS_GRAPH resolved:', this.graphNodes):
-          this.updateGraph({
-            nodes: this.graphNodes,
-            links: this.graphLinks,
-          });
-          this.isGraphLoading = false;
-        });
+      this.nodes = await topicsGraph.find({}).finally(() => {
+        this.isGraphLoading = true;
+      });
+      this.updateGraph();
     },
   },
   watch: {
-    itemsVisualized() {
-      this.loadGraph();
+    colorBy(property) {
+      this.graph.updateDimension({
+        name: 'nodeColor',
+        property,
+        values: this.graph.nodes,
+      });
+      this.graph.applyDimensions();
     },
-    linkBy: {
-      immediate: true,
-      handler() {
-        this.filteredLinks = this.getFilteredLinks();
-        this.updateGraph({
-          nodes: this.graphNodes,
-          links: this.graphLinks,
-        });
-      },
+    sizeBy(property) {
+      this.graph.updateDimension({
+        name: 'nodeSize',
+        property,
+        values: this.nodes,
+      });
+      this.graph.applyDimensions();
     },
-    '$route.params.topic_uid': {
-      immediate: true,
-      async handler(topicUid) {
-        // load single topic data
-        if (topicUid) {
-          this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', topicUid);
-        }
-      },
-    },
-    colorBy: {
-      handler(property) {
-        // console.info('change colorby', property);
-        this.graph.updateDimension({
-          name: 'nodeColor',
-          property,
-          values: this.graph.nodes,
-        });
-        this.graph.applyDimensions();
-      },
-    },
-    sizeBy: {
-      handler(property) {
-        // console.info('change sizeby', property, this.graph.nodes.map(d => d[property]));
-        this.graph.updateDimension({
-          name: 'nodeSize',
-          property,
-          values: this.graph.nodes,
-        });
-        this.graph.applyDimensions();
-      },
+    itemsVisualized(items) {
+      this.graph.highlightNodes(items);
     },
   },
   components: {
-    Tooltip,
     InfoButton,
-    SearchQuerySummary,
-  },
-};
+    Tooltip,
+  }
+}
 </script>
 
-<style  lang="scss">
-.d3-graph-wrapper{
-  height: 100%;
-  position: relative;
-}
-.legend-node{
-  width: 1rem;
-  height: 1rem;
-  display: inline-block;
-  border-radius: 1rem;
-  border: 1px solid black;
-}
-
+<style lang="scss">
 #d3-graph{
-  height: 100%;
-
+  svg.with-highlights{
+    .nodes .n .c{
+      stroke-width: 2px;
+      fill-opacity: 0;
+    }
+    .nodes .n.highlight{
+      outline: 0;
+    }
+    .nodes .n.highlight .c{
+      stroke-width: 3px;
+      stroke: blue;
+      fill-opacity: 1;
+    }
+    .nodes .n.highlight .whoosh{
+      fill: blue;
+    }
+    .nodes .n.highlight text{
+      display: block;
+      fill: rgba(0,0,0, .7);
+    }
+  }
+  svg.with-selected{
+    .nodes .n.selected .c{
+      stroke-width: 2px;
+      stroke: black;
+    }
+    .nodes .n.highlight text{
+      display: block;
+      fill: rgba(0,0,0, .2);
+    }
+    .nodes .n.selected text {
+      fill: black;
+      display: block;
+    }
+  }
+  .nodes .n.v text {
+    fill: black;
+    display: block;
+  }
+  line.selected{
+    display: block;
+    stroke: #c0c0c0;
+  }
   line {
-    stroke: #e0e0e0;
+    stroke: rgba(0,0,0, .04);
+    stroke-width: 1px;
   }
   text{
     pointer-events: none;
@@ -419,7 +325,8 @@ export default {
 
   .nodes > g:hover {
     .whoosh{
-      transform: scale(5);
+      transform: scale(6);
+      transition: transform .6s cubic-bezier(.8,-.5,.2,1.4);
     }
 
     text{
@@ -427,34 +334,24 @@ export default {
     }
   }
 
-  .nodes > g.fix, .nodes > g.v{
+  /* .nodes > g.fix, .nodes > g.v{
     text {
      display: block;
     }
-  }
+  } */
 }
-
-section {
-  transition: opacity .4s ease-in-out;
-}
-section.loading{
-  pointer-events: none;
-  opacity: .7;
+.legend-node {
+  width: 1rem;
+  height: 1rem;
 }
 </style>
 <i18n>
 {
   "en": {
     "summary": "Explore the list of topics",
-    "topics_cooccurrence_graph": "Visualize <span class='number'>{nodes}</span> topics and their <span class='number'>{links}</span> relationships",
-    "topics_cooccurrence_graph_loading": "...Loading visualization of <span class='number'>{nodes}</span> topics ...",
-    "color by": "colored by",
-    "topic model": "{item.name}",
-    "countItems": "number of articles",
-    "byCommonWords": "share at least one word",
-    "byCommonArticles": "share at least one article",
-    "zoom": "zoom &amp; pan",
-    "itemStats": "Filter using current search ({count} filters):"
+    "topics_cooccurrence_graph": "Graph of <span class='number'>{nodes}</span> topics",
+    "zoom": "zoom: {k}%",
+    "itemStats": "Highlight topics in current search ({count} filters)"
   }
 }
 </i18n>

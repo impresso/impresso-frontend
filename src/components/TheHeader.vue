@@ -39,7 +39,7 @@
         <!-- <b-nav-item v-bind:to="{ name: 'entities'}" exact-active-class="active">
           {{$t("label_entities")}}
         </b-nav-item> -->
-        <b-nav-item v-bind:to="{ name: 'topics'}" active-class="active">
+        <b-nav-item v-bind:to="{ name: 'topics', query: { pq: currentSearchHash } }" active-class="active">
           {{$t("label_topics")}}
         </b-nav-item>
         <b-nav-item v-bind:to="{ name: 'compare'}" active-class="active">
@@ -223,7 +223,7 @@ export default {
       return this.$store.state.settings.language_code;
     },
     currentSearchHash() {
-      return this.$store.state.search.currentSearchHash;
+      return this.$store.getters['search/getCurrentSearchHash'];
     },
     currentSearchQueryParams() {
       return this.$store.state.search.search.getSerialized();
