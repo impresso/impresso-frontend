@@ -24,20 +24,18 @@
     </div>
     <!-- body (aka) facets -->
     <div class="pt-3 pb-5">
-      <slot>
-        <!-- slot here for extra facets -->
-      </slot>
-
-      <search-facets
-        :facets="facets"
-        :filters="filters"
-        @changed="handleFiltersChanged"/>
-
-      <div :class="{ active: filters.length }" class="resetter position-absolute">
+      <div class="mx-3" v-if="isResettable">
         <b-button class="mb-2"
           variant="outline-danger"
           size="sm" @click="reset">{{ $t('actions.resetFilters') }}</b-button>
       </div>
+      <slot>
+        <!-- slot here for extra facets -->
+      </slot>
+      <search-facets
+        :facets="facets"
+        :filters="filters"
+        @changed="handleFiltersChanged"/>
     </div>
   </i-layout-section>
 </template>
@@ -90,6 +88,9 @@ export default {
     },
   },
   computed: {
+    isResettable() {
+      return !!this.filters.filter(d => d.type !== 'hasTextContents').length;
+    },
     infoButtonName() {
       return `how-${this.contextTag}-work-with-search-filters`
     },
@@ -102,32 +103,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.resetter{
-  bottom: -7rem;
-  width: 100%;
-  height: 6rem;
-  padding-top: 1rem;
-  text-align: center;
-  background: rgb(248,249,250);
-  background: radial-gradient(31% 60% at center, #ff63475e, rgba(248, 249, 250, 0));
-  background-repeat: no-repeat;
-  background-position-y: 7rem;
-  pointer-events: none;
-  transition: transform .6s cubic-bezier(.8,-.5,.2,1.4);
-
-  &.active {
-    transform: translateY(-5rem);
-  }
-
-  > .btn {
-    background: white;
-    pointer-events: auto;
-    &:hover{
-      background: tomato;
-    }
-  }
-}
-
-</style>
