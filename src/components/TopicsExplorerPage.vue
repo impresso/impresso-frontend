@@ -47,7 +47,14 @@
     <!-- slot:footer  -->
     <div slot="footer">
       <b-navbar class="border-top">
-        <legend>legend {{itemsVisualized.length}} {{ isGraphLoading }}</legend>
+        <legend>
+          <div class="border bg-white p-1" style="height: 40px; overflow:scroll">
+            <div class="d-inline-flex mx-1 align-items-center" v-for="(item,i) in legend.nodeColor" :key="i">
+              <div class='legend-node mr-1 ' v-bind:style="{backgroundColor: item.color}"></div>
+              <div>{{item.name}} ({{$n(item.count)}})</div>
+            </div>
+          </div>
+        </legend>
         <!-- /{{ zoomTransform }}/ -->
       </b-navbar>
     </div>
@@ -80,6 +87,10 @@ export default {
     // visual dimensions
     colorBy: 'community',
     sizeBy: 'pagerank', // 'countItems',
+    //
+    legend: {
+      nodeColor: [],
+    },
     //
     isGraphLoading: false,
     zoomTransform: {
@@ -170,18 +181,8 @@ export default {
       })
       .on('svg.zoom', (zoomTransform) => {
         this.zoomTransform = zoomTransform;
-        // if (this.tooltip.isActive) {
-        //   const {x, y} = this.tooltip.item;
-        //   this.tooltip.x = x;
-        //   this.tooltip.y = y;
-        // }
       })
-      // .on('node.tick', (d) => {
-      //   this.tooltip.x = d.x;
-      //   this.tooltip.y = d.y;
-      // })
       .on('node.click', (item) => {
-        // const { x, y } = item;
         this.tooltip = {
           x: this.graph.width/2 - 100,
           y: this.graph.height - 200,
@@ -193,11 +194,11 @@ export default {
         this.graph.selectNode(item);
         this.graph.selectNeighbors(item);
       })
-      // .on('dimension.updated', (dimension) => {
-      //   if (this.legend[dimension.name]) {
-      //     this.legend[dimension.name] = dimension.legend;
-      //   }
-      // });
+      .on('dimension.updated', ({ name, legend}) => {
+        if (this.legend[name]) {
+          this.legend[name] = legend.sort((a,b) => b.count - a.count);
+        }
+      });
     window.addEventListener('resize', this.onResize);
 
     this.updateGraph();
@@ -211,7 +212,6 @@ export default {
   },
   methods: {
     onResize() {
-      console.info('TopicExplorer@resize');
       if (this.graph) {
         this.graph.resize();
       }
@@ -244,7 +244,7 @@ export default {
       this.nodes = await topicsGraph.find({}).finally(() => {
         this.isGraphLoading = true;
       });
-      console.info(this.nodes);
+      // console.info(this.nodes);
       this.updateGraph();
     },
   },
@@ -267,7 +267,7 @@ export default {
       this.graph.applyDimensions();
     },
     itemsVisualized(items) {
-      console.info('@itemsVisualized', items);
+      // console.info('@itemsVisualized', items);
       this.graph.highlightNodes(items);
     },
   },
@@ -348,6 +348,10 @@ export default {
      display: block;
     }
   } */
+}
+.legend-node {
+  width: 1rem;
+  height: 1rem;
 }
 </style>
 <i18n>
