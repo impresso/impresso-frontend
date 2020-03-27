@@ -118,7 +118,7 @@ export default {
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
       unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> in | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> in | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> in ',
-      filtersRemoved: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
+      ignoredFilters: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
     },
     dates: {
       lastModifiedDate: 'last modified',

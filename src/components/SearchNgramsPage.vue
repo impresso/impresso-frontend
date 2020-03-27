@@ -2,10 +2,9 @@
   <i-layout id="SearchNgramsPage">
     <!-- sidebar (contains i-layout-section) -->
     <search-sidebar
-      :filters="filtersAvailable"
-      :filters-removed="filtersRemoved"
+      :filters="enrichedFilters"
+      :ignored-filters="ignoredFilters"
       :facets="facets"
-      :excludedTypes="excludedTypes"
       contextTag="searchNgrams"
       @changed="handleFiltersChanged"
     >
@@ -23,24 +22,22 @@
           <section class="search-results-summary text-serif textbox-fancy border-tertiary">
             <label>ngrams viewer</label>
             <ellipsis v-bind:initialHeight="60">
-              <span v-if="unigram" v-html="$tc('numbers.unigramMentions', trend.total || 0, {
-                unigram,
-                n: $n(trend.total),
-              })"></span>
-              <span v-else v-html="$t('label.noUnigram')" />
+              <span v-for="trend in trends"
+                    :key="trend.ngram"
+                    v-html="$tc('numbers.unigramMentions', trend.total || 0, { unigram: trend.ngram, n: $n(trend.total) })"/>
+              <span v-if="trends.length === 0"
+                    v-html="$t('label.noUnigram')" />
               &nbsp;
-              <span v-html="$tc('numbers.articles', trendBackground.total, {
-                  n: $n(trendBackground.total),
-                })" />
+              <span v-html="$tc('numbers.articles', totalArticlesCount, { n: $n(totalArticlesCount) })" />
               &nbsp;
-              <search-query-summary class="d-inline" :search-query="{ filters: allowedFilters }"/>
+              <search-query-summary class="d-inline" :search-query="{ filters: enrichedFilters }"/>
             </ellipsis>
 
           </section>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto px-2">
           <router-link
-            :disabled="!unigram"
+            :disabled="trends.length === 0"
             class="btn btn-outline-primary btn-sm"
             :to="searchPageLink">
             {{ $t('label.seeArticles') }}
@@ -50,27 +47,23 @@
       <b-navbar class="border-bottom">
         <span style="white-space:nowrap" class="mr-3">Enter unigram</span>
         <search-input
-          @submit="onNgramsSubmitted"
-          placeholder="search ngrams ..."
-          :initial="unigram">
+          @submit="handleUnigramsSubmitted"
+          placeholder="search unigrams ..."
+          :initial="unigrams.join(' ')">
         </search-input>
       </b-navbar>
     </div>
-    <div class="m-3" v-if="unigram">
+    <div class="m-3" v-if="trends.length > 0">
       <base-title-bar class="my-3">
         <span v-html="$t('label.timeline.unigramTitle')"/>
         <div slot="description">
         {{$t('label.timeline.unigramDescription')}}
         </div>
       </base-title-bar>
-      <timeline
-            v-if="trend.total > 0"
-            :contrast="false"
-            :values="timelineValues"
-            :brushable="false"
-            height="300px"
-            :resolution="timelineResolution">
-        <div slot-scope="tooltipScope">
+      <multi-line-plot
+        :items-sets="plotItems"
+        height="300px">
+        <!-- <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
             {{ $d(tooltipScope.tooltip.item.t, timelineResolution, 'en') }} &middot;
             <span v-html="$tc('numbers.unigramMentions', tooltipScope.tooltip.item.w, {
@@ -81,8 +74,8 @@
                 n: getArticlesInYear(tooltipScope.tooltip.item.t),
             })"></span>
           </div>
-        </div>
-      </timeline>
+        </div> -->
+      </multi-line-plot>
     </div>
     <!-- without unigram -->
     <div v-else class="d-flex align-items-center justify-content-center h-100">
@@ -93,157 +86,353 @@
 </template>
 
 <script>
+import { protobuf } from 'impresso-jscommons'
+import { toSerializedFilters, toCanonicalFilter } from '../logic/filters'
+
 import SearchSidebar from '@/components/modules/SearchSidebar';
-// import SearchTabs from '@/components/modules/SearchTabs';
-// import Autocomplete from '@/components/Autocomplete';
-// import InfoButton from '@/components/base/InfoButton';
 import BaseTitleBar from '@/components/base/BaseTitleBar';
-// import SearchPills from '@/components/SearchPills';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
-// import SearchFacets from '@/components/SearchFacets';
 import SearchInput from '@/components/modules/SearchInput';
-import Timeline from '@/components/modules/Timeline';
+import MultiLinePlot from '@/components/modules/vis/MultiLinePlot'
 import Ellipsis from '@/components/modules/Ellipsis';
-import Helpers from '@/plugins/Helpers';
+import {
+  filtersItems as filtersItemsService,
+  search as searchService,
+  ngramTrends as ngramTrendsService
+} from '@/services';
+import { getFacetsFromApiResponse } from '@/logic/facets'
+
+/**
+ * @typedef {import('../models').Filter} Filter
+ * @typedef {import('../models').Facet} Facet
+ * @typedef {import('../models').Bucket} Bucket
+ */
+
+// /** @param {Filter[]} filters */
+const serializeFilters = filters => toSerializedFilters(filters)
+/** @param {string} serializedFilters */
+const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
+
+/**
+ * @param {Filter} filter
+ * @returns {boolean}
+ */
+const isFrontFilter = ({ type }) => type === 'isFront'
+
+const QueryParameters = Object.freeze({
+  SearchFilters: 'filters',
+  Unigrams: 'unigrams'
+})
+
+const IgnoredFilterTypes = ['string', 'regex']
+const SupportedFacetTypes = [
+  'language',
+  'newspaper',
+  'type',
+  'country',
+  'topic',
+  'collection',
+  'accessRight',
+  'partner',
+  'person',
+  'location',
+  'year'
+]
+
+const TwoOperators = ['OR', 'AND']
+const FacetsWithTwoOperators = ['person', 'location', 'topic']
+const DefaultFacetOperatorsMap = FacetsWithTwoOperators
+  .reduce((acc, type) => ({ ...acc, [type]: TwoOperators }), {})
+
+/**
+ * @param {string[]} facetTypes
+ * @returns {(any) => Facet[]}
+ */
+const apiResponseToFacetsFactory = facetTypes => response => {
+  const { facets: responseFacets = {} } = response.info
+
+  const responseFacetsWithMissingTypes = facetTypes.reduce((acc, type) => {
+    return { ...acc, [type]: responseFacets[type] || {} }
+  }, {})
+
+  return getFacetsFromApiResponse(
+    responseFacetsWithMissingTypes,
+    DefaultFacetOperatorsMap
+  )
+}
+
+/**
+ * @param {Facet[]} facets
+ * @returns {number}
+ */
+function getTotalNumberOfResults(facets) {
+  const facetsWithBuckets = facets.filter(({ buckets }) => buckets != null && buckets.length > 0)
+  if (facetsWithBuckets.length === 0) return 0
+
+  const { buckets } = facetsWithBuckets[0]
+  return buckets.reduce((total, { count }) => total + count, 0)
+}
+
+const EmptyNgramResult = Object.freeze({
+  trends: [],
+  domainValues: [],
+  timeInterval: 'year'
+})
 
 export default {
   name: 'SearchNgramsPage',
   components: {
-    // SearchTabs,
-    // SearchFacets,
     SearchInput,
-    Timeline,
+    MultiLinePlot,
     SearchQuerySummary,
     Ellipsis,
-    // SearchPills,
-    // InfoButton,
     BaseTitleBar,
     SearchSidebar,
-    // Autocomplete,
   },
   data: () => ({
-    excludedTypes: ['string', 'regex'],
+    /** @type {Facet[]} */
+    facets: [],
+    /** @type {Filter[]} */
+    filtersWithItems: [],
+    /** @type {any} */
+    ngramResult: EmptyNgramResult
   }),
   watch: {
-    '$route.query': {
-      handler(val) {
-        console.info('searchNgramsPage @$route.query changed:', val);
-        this.executeSearch();
+    filters: {
+      /** @param {Filter[]} filters */
+      async handler(filters) {
+        const query = {
+          filters: filters.map(toCanonicalFilter),
+          limit: 0,
+          facets: SupportedFacetTypes,
+          group_by: 'articles',
+        }
+
+        const [
+          facets,
+          { filtersWithItems: items },
+        ] = await Promise.all([
+          searchService.find({ query }).then(apiResponseToFacetsFactory(SupportedFacetTypes)),
+          filtersItemsService.find({ query: { filters: serializeFilters(filters) }})
+        ])
+
+        this.facets = facets
+        const filtersWithItems = items.map((/** @type {{ filter: Filter, items: any[] }} */ { filter, items }) => ({ ...filter, items }))
+        this.filtersWithItems = /** @type {Filter[]} */ (filtersWithItems)
       },
-      deep: true,
       immediate: true,
+      deep: true
     },
-  },
-  methods: {
-    getArticlesInYear(d) {
-      if (!d) {
-        return 0;
-      }
-      const y = d.getFullYear();
-      return this.trendBackground.values[y] || 0;
-    },
-    executeSearch() {
-      this.$store.dispatch('searchNgrams/PULL_SEARCH_PARAMS', this.$route.query);
-    },
-    onNgramsSubmitted({ q }) {
-      this.$store.commit('searchNgrams/SET_UNIGRAM', q);
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-    handleFiltersChanged(filters) {
-      this.$store.dispatch('searchNgrams/UPDATE_SEARCH_QUERY_FILTERS', filters)
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-    onAddFilter(facet) {
-      this.$store.commit('searchNgrams/ADD_FILTER', facet);
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-    onFilterUpdated(filter) {
-      this.$store.commit('searchNgrams/UPDATE_FILTER', filter);
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-    onFilterReset(type) {
-      this.$store.commit('searchNgrams/RESET_FILTER', type);
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-  },
-  computed: {
-    timelineValues() {
-      const pairs = (this.trend.values || []).map((value, idx) => {
-        const domainValue = this.trend.domain[idx];
-        return [domainValue, value];
-      });
-      const v = pairs
-        .map(([d, val]) => ({ t: new Date(d), w: val }));
-      return Helpers.timeline.addEmptyIntervals(v, this.trend.timeInterval).sort((a, b) => a.t - b.t);
-    },
-    trend() {
-      return this.$store.state.searchNgrams.trend;
-    },
-    trendBackground() {
-      return this.$store.state.searchNgrams.trendBackground;
-    },
-    unigram() {
-      return this.$store.state.searchNgrams.unigram;
-    },
-    searchQuery() {
-      return this.$store.state.searchNgrams.search;
-    },
-    filters() {
-      return this.searchQuery.filters;
-    },
-    filtersRemoved() {
-      return this.filters.filter(d => this.excludedTypes.includes(d.type));
-    },
-    filtersAvailable() {
-      // this is here because we need all filters to return how many filters have been removed...
-      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
-    },
-    isFront: {
-      get() {
-        return this.filters.filter(d => d.type === 'isFront').length > 0;
-      },
-      set(val) {
-        if (val) {
-          this.onAddFilter({ type: 'isFront' });
+    unigramsQueryParameters: {
+      /** @param {{ ngrams: string[], filters: Filter[] }} query */
+      async handler(query) {
+        if (query.ngrams.length === 0) {
+          this.ngramResult = EmptyNgramResult
         } else {
-          this.onFilterReset('isFront');
+          this.ngramResult = await ngramTrendsService.create(query);
         }
       },
+      immediate: true,
+      deep: true
+    }
+  },
+  computed: {
+    /** @returns {string[]} */
+    unigrams() {
+      const value = this.$route.query[QueryParameters.Unigrams]
+      let serializedUnigrams = ''
+      if (typeof value === 'string') serializedUnigrams = value
+      if (Array.isArray(value)) serializedUnigrams = value.join(',')
+      return serializedUnigrams.split(',').filter(v => v !== '')
     },
-    facets() {
-      const ignoreFacets = window.impressoDataVersion > 1
-        ? []
-        : ['accessRight', 'partner'];
-      return this.$store.state.searchNgrams.facets
-        .filter(d => !ignoreFacets.includes(d.type))
-        .map((d) => {
-          d.isFiltered = this.$store.state.searchNgrams.search.filtersIndex[d.type];
-          return d;
-        })
-        // .sort((a, b) => {
-        //   const indexA = this.facetsOrder.indexOf(a.type);
-        //   const indexB = this.facetsOrder.indexOf(b.type);
-        //   return indexA - indexB;
-        // });
+    /** @returns {Filter[]} */
+    allFilters() {
+      const serializedFilters = this.$route.query[QueryParameters.SearchFilters]
+      return serializedFilters
+        ? deserializeFilters(/** @type {string} */ (serializedFilters))
+        : []
     },
-    allowedFilters() {
-      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems != null
+        ? this.filtersWithItems
+        : this.filters
     },
-    timelineResolution() {
-      return this.trend.timeInterval;
+    /** @returns {Filter[]} */
+    ignoredFilters() { return this.allFilters.filter(({ type }) => IgnoredFilterTypes.includes(type)) },
+    /** @returns {Filter[]} */
+    filters() { return this.allFilters.filter(({ type }) => !IgnoredFilterTypes.includes(type)) },
+    isFront: {
+      /** @returns {boolean} */
+      get() { return this.filters.filter(isFrontFilter).length > 0 },
+      /** @param {boolean} isFront */
+      set(isFront) {
+        const newFilters = isFront
+          ? this.filters.filter(f => !isFrontFilter(f)).concat([{ type: 'isFront' }])
+          : this.filters.filter(f => !isFrontFilter(f))
+        this.handleFiltersChanged(newFilters)
+      },
     },
+    /** @returns {{ ngram: string, values: number[], total: number }[]} */
+    trends() { return this.ngramResult.trends },
+    /** @returns {number} */
+    totalArticlesCount() { return getTotalNumberOfResults(this.facets) },
+    /** @returns {{ name: string, query: any }} */
     searchPageLink() {
-      const filters = [...this.allowedFilters, {
+      const stringFilter = {
         type: 'string',
         precision: 'exact',
-        q: this.unigram,
-      }];
-      const query = {
-        f: JSON.stringify(filters),
-      };
-      return { name: 'search', query };
+        op: 'AND',
+        q: this.trends.map(({ ngram }) => ngram),
+      }
+      const filters = this.filters.concat([stringFilter])
+      const query = { f: JSON.stringify(filters) }
+      return { name: 'search', query }
     },
+    /** @returns {{ ngrams: string[], filters: Filter[] }} */
+    unigramsQueryParameters() {
+      return {
+        ngrams: this.unigrams,
+        filters: this.filters
+      }
+    },
+    /**
+     * @typedef {{ value: number, time: Date }} Item
+     * @typedef {{ items: Item[], label: string }} ItemsSet
+     * @returns {ItemsSet[]}
+     */
+    plotItems() {
+      const { domainValues } = this.ngramResult
+      const dates = domainValues.map(v => new Date(v))
+
+      return this.ngramResult.trends.map(({ ngram, values }) => {
+        return {
+          label: ngram,
+          items: values.map((value, index) => ({ value, time: dates[index] }))
+        }
+      })
+    }
+
+    // timelineValues() {
+    //   const pairs = (this.trend.values || []).map((value, idx) => {
+    //     const domainValue = this.trend.domain[idx];
+    //     return [domainValue, value];
+    //   });
+    //   const v = pairs
+    //     .map(([d, val]) => ({ t: new Date(d), w: val }));
+    //   return Helpers.timeline.addEmptyIntervals(v, this.trend.timeInterval).sort((a, b) => a.t - b.t);
+    // },
+    // trend() {
+    //   return this.$store.state.searchNgrams.trend;
+    // },
+    // trendBackground() {
+    //   return this.$store.state.searchNgrams.trendBackground;
+    // },
+    // unigram() {
+    //   return this.$store.state.searchNgrams.unigram;
+    // },
+    // searchQuery() {
+    //   return this.$store.state.searchNgrams.search;
+    // },
+    // filters() {
+    //   return this.searchQuery.filters;
+    // },
+    // filtersAvailable() {
+    //   // this is here because we need all filters to return how many filters have been removed...
+    //   return this.filters.filter(d => !this.excludedTypes.includes(d.type));
+    // },
+    // isFront: {
+    //   get() {
+    //     return this.filters.filter(d => d.type === 'isFront').length > 0;
+    //   },
+    //   set(val) {
+    //     if (val) {
+    //       this.onAddFilter({ type: 'isFront' });
+    //     } else {
+    //       this.onFilterReset('isFront');
+    //     }
+    //   },
+    // },
+    // facets() {
+    //   const ignoreFacets = window.impressoDataVersion > 1
+    //     ? []
+    //     : ['accessRight', 'partner'];
+    //   return this.$store.state.searchNgrams.facets
+    //     .filter(d => !ignoreFacets.includes(d.type))
+    //     .map((d) => {
+    //       d.isFiltered = this.$store.state.searchNgrams.search.filtersIndex[d.type];
+    //       return d;
+    //     })
+    //     // .sort((a, b) => {
+    //     //   const indexA = this.facetsOrder.indexOf(a.type);
+    //     //   const indexB = this.facetsOrder.indexOf(b.type);
+    //     //   return indexA - indexB;
+    //     // });
+    // },
+    // allowedFilters() {
+    //   return this.filters.filter(d => !this.excludedTypes.includes(d.type));
+    // },
+    // timelineResolution() {
+    //   return this.trend.timeInterval;
+    // },
+    // searchPageLink() {
+    //   const filters = [...this.allowedFilters, {
+    //     type: 'string',
+    //     precision: 'exact',
+    //     q: this.unigram,
+    //   }];
+    //   const query = {
+    //     f: JSON.stringify(filters),
+    //   };
+    //   return { name: 'search', query };
+    // },
   },
+  methods: {
+    /** @param {Filter[]} filters */
+    handleFiltersChanged(filters) {
+      this.$navigation.updateQueryParameters({
+        [QueryParameters.SearchFilters]: serializeFilters(filters)
+      })
+    },
+    /** @param {{ q: string }} value */
+    handleUnigramsSubmitted({ q }) {
+      const unigrams = q.split(/\s/).map(v => v.trim()).filter(v => v !== '')
+
+      this.$navigation.updateQueryParameters({
+        [QueryParameters.Unigrams]: unigrams.join(',')
+      })
+    },
+    // getArticlesInYear(d) {
+    //   if (!d) {
+    //     return 0;
+    //   }
+    //   const y = d.getFullYear();
+    //   return this.trendBackground.values[y] || 0;
+    // },
+    // executeSearch() {
+    //   this.$store.dispatch('searchNgrams/PULL_SEARCH_PARAMS', this.$route.query);
+    // },
+    // onNgramsSubmitted({ q }) {
+    //   this.$store.commit('searchNgrams/SET_UNIGRAM', q);
+    //   this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+    // },
+    // handleFiltersChanged(filters) {
+    //   this.$store.dispatch('searchNgrams/UPDATE_SEARCH_QUERY_FILTERS', filters)
+    //   this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+    // },
+    // onAddFilter(facet) {
+    //   this.$store.commit('searchNgrams/ADD_FILTER', facet);
+    //   this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+    // },
+    // onFilterUpdated(filter) {
+    //   this.$store.commit('searchNgrams/UPDATE_FILTER', filter);
+    //   this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+    // },
+    // onFilterReset(type) {
+    //   this.$store.commit('searchNgrams/RESET_FILTER', type);
+    //   this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
+    // },
+  }
 };
 </script>
 
