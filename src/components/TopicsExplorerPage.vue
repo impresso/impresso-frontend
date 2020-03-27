@@ -152,20 +152,15 @@ export default {
   async mounted() {
     // load base graph
     this.isGraphLoading = true;
-    await topicsGraph.find({}).then(({ nodes, links, info}) => {
+    await topicsGraph.find({}).then(({ nodes, links }) => {
       this.nodes = nodes.map(d => ({
         ...d,
         x: d.pos.x * 1.414,
         y: d.pos.y * 2,
       }));
       this.links = links;
-      console.info('@mounted, topicsGraph loaded.', info, nodes);
     });
     this.isGraphLoading = false;
-
-    if (this.countActiveFilters) {
-      console.info('@mounted, filters active in search.');
-    }
 
     this.graph = new Graph({
       element: '#d3-graph',
@@ -202,7 +197,6 @@ export default {
     window.addEventListener('resize', this.onResize);
 
     this.updateGraph();
-    console.info('highlightNodes this.itemsVisualized. ', this.itemsVisualized);
     if (this.itemsVisualized.length) {
       this.graph.highlightNodes(this.itemsVisualized);
     }
@@ -244,13 +238,11 @@ export default {
       this.nodes = await topicsGraph.find({}).finally(() => {
         this.isGraphLoading = true;
       });
-      // console.info(this.nodes);
       this.updateGraph();
     },
   },
   watch: {
     colorBy(property) {
-      // console.info('change colorby', property);
       this.graph.updateDimension({
         name: 'nodeColor',
         property,
@@ -267,7 +259,6 @@ export default {
       this.graph.applyDimensions();
     },
     itemsVisualized(items) {
-      // console.info('@itemsVisualized', items);
       this.graph.highlightNodes(items);
     },
   },

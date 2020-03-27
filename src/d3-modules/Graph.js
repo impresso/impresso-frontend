@@ -147,7 +147,6 @@ export default class Graph extends Basic {
         }
       }
     });
-    console.info('selectNeighbors', linksIds, neighborsIds);
     this.linksLayer
       .classed('selected', ({id}) => linksIds.includes(id));
     this.nodesLayer
@@ -236,7 +235,6 @@ export default class Graph extends Basic {
   }
 
   onDragStarted(datum) {
-    // console.info('ondragstarted', datum.id);
     if (!d3.event.active) {
       this.simulation.alphaTarget(0.3).restart();
     }
@@ -248,14 +246,12 @@ export default class Graph extends Basic {
   }
 
   onDragged(datum) {
-    // console.info(this.height);
     this.dragged = datum;
     datum.fx = d3.event.x;
     datum.fy = d3.event.y;
   }
 
   onDragEnded(datum) {
-    // console.info('ondragended', datum.id);
     if (!d3.event.active) {
       this.simulation.alphaTarget(0);
     }
@@ -320,7 +316,6 @@ export default class Graph extends Basic {
         this.emit('node.mouseleave', datum);
       })
       .on('click', (datum) => {
-        console.info('click on', datum);
         d3.event.stopPropagation();
         self.selected = datum;
         self.emit('node.click', datum);
@@ -359,9 +354,7 @@ export default class Graph extends Basic {
   update({ links, nodes, pristine=false }) {
     // make sure it has all the required properties
     if (nodes) {
-      console.info('Graph.update, new nodes:', nodes.length, nodes[0]);
       if (!pristine && this.nodes && this.nodes.length) {
-        console.info('Graph.update, merge with existing nodes:', this.nodes.length);
         const nodesIds = this.nodes.map(d => d.id);
         this.nodes = nodes.map((d) => {
           const idx = nodesIds.indexOf(d.id);
@@ -389,7 +382,6 @@ export default class Graph extends Basic {
       }
     }
     if (links) {
-      console.info('Graph.update, new links:', links.length, links[0]);
       this.links = links.map(d => ({
         ...d,
         a: true,
@@ -411,13 +403,6 @@ export default class Graph extends Basic {
       this.draw();
     }
   }
-  //
-  // setDimension(key, dimension) {
-  //
-  //   console.info('setDimension', name, property, this);
-  //   this.draw();
-  // }
-
   /**
    * Stop running simulation after `this.delay` milliseconds.
    * @return {null} [description]
@@ -426,9 +411,7 @@ export default class Graph extends Basic {
     if (this.simulationTimer) {
       clearTimeout(this.simulationTimer);
     }
-    console.info('stopSimulation: count down...', this.delay);
     this.simulationTimer = setTimeout(() => {
-      console.info('stopSimulation: stopped after', this.delay);
       this.simulation.stop();
     }, this.delay);
   }

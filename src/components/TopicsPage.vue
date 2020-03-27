@@ -200,7 +200,6 @@ export default {
       this.$store.dispatch('topics/RESET_VISUALIZED_ITEM');
     },
     changeQ(value) {
-      // console.info('changeQ', value);
       if (value.trim().length > 1) {
         this.$router.push(this.goToQuery({ q: value.trim() }));
       } else {
@@ -246,7 +245,6 @@ export default {
       if (this.q && this.q.length > 1) {
         params.q = this.q;
       }
-      // console.info('loadTopics - filters:', params.filters, '- q:', params.q);
       this.$store.dispatch('topics/LOAD_TOPICS', params).then((response) => {
         if (response.info.facets && response.info.facets.topicmodel) {
           this.topicModels = response.info.facets.topicmodel.buckets || [];
@@ -256,7 +254,6 @@ export default {
       });
     },
     activateTab(t) {
-      // console.info('activateTab', t);
       if(t === 'visualized') {
         this.tab = 'visualized';
       } else {
@@ -275,7 +272,6 @@ export default {
     },
   },
   mounted() {
-    // console.info('TopicsPage mounted.');
     this.initQ(this.$route.query.q);
     this.activateTab(this.$route.query.tab);
     this.loadTopics();
@@ -283,22 +279,11 @@ export default {
   watch: {
     $route: {
       handler({ query }) {
-        // console.info('TopicsPage @$route query:', query);
         this.activateTab(query.tab);
         this.initQ(query.q);
         this.loadTopics();
       },
     },
-    // q: {
-    //   handler(val) {
-    //     Helpers.debounce(this.loadTopics(), 500);
-    //     //
-    //     // return this.loadTopics({
-    //     //   page: 1,
-    //     //   q: val,
-    //     // });
-    //   },
-    // },
     topicModel: {
       async handler() {
         const query = {
@@ -314,7 +299,6 @@ export default {
             },
           ];
         }
-        // console.info('query', query);
         await this.loadTopics(query);
       },
     },
