@@ -77,8 +77,6 @@ export default {
       }
 
       translationTable.enumerable = enumerables.join('; ');
-      console.log('oooooo', translationTable, this.searchQuery)
-
 
       const summary = this.$t('reducedSummary', translationTable);
       this.$emit('updated', summary.split(/\s+/).join(' '));

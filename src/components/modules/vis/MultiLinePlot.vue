@@ -1,10 +1,11 @@
 <template>
-  <div :style="{ border: '1px solid #777', height: '200px', 'overflow-y': 'scroll' }">
-    <pre>{{JSON.stringify(itemsSets, null, 2)}}</pre>
+  <div class="d-flex flex-column crosshair">
+    <div ref="chart" :style="{ height: `${height}px` }"/>
   </div>
 </template>
 
 <script>
+import TimeMultiLineChart from '@/d3-modules/TimeMultiLineChart'
 // import Tooltip from '../tooltips/Tooltip'
 
 /**
@@ -13,11 +14,19 @@
  */
 
 export default {
+  data: () => ({
+    /** @type {TimeMultiLineChart | undefined} */
+    chart: undefined
+  }),
   props: {
     /** @type {import('vue').PropOptions<ItemsSet[]>} */
     itemsSets: {
       type: Array,
       default: () => []
+    },
+    height: {
+      type: Number,
+      default: 300
     }
   },
   components: {
@@ -33,6 +42,33 @@ export default {
         item: {},
       }
     }
+  },
+  mounted() {
+    this.chart = new TimeMultiLineChart({ element: this.$refs.chart })
+    this.chart.render(this.itemsSets)
+    // @ts-ignore
+    window.addEventListener('resize', this.render.bind(this))
+  },
+  beforeDestroy() {
+    // @ts-ignore
+    window.removeEventListener('resize', this.render.bind(this))
+  },
+  watch: {
+    itemsSets: {
+      handler() { this.render() },
+      deep: true
+    }
+  },
+  methods: {
+    render() {
+      if (this.chart != null) this.chart.render(this.itemsSets)
+    }
   }
 }
 </script>
+
+<style lang="scss">
+  .crosshair {
+    cursor: crosshair;
+  }
+</style>

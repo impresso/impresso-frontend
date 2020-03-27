@@ -62,7 +62,7 @@
       </base-title-bar>
       <multi-line-plot
         :items-sets="plotItems"
-        height="300px">
+        :height="300">
         <!-- <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
             {{ $d(tooltipScope.tooltip.item.t, timelineResolution, 'en') }} &middot;
