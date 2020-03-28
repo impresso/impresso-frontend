@@ -1,12 +1,19 @@
 <template>
   <div class="d-flex flex-column crosshair">
+    <tooltip :tooltip="tooltip">
+      <slot :tooltip="tooltip">
+        <div v-if="tooltip.isActive">
+          {{tooltip.item}}
+        </div>
+      </slot>
+    </tooltip>
     <div ref="chart" :style="{ height: `${height}px` }"/>
   </div>
 </template>
 
 <script>
 import TimeMultiLineChart from '@/d3-modules/TimeMultiLineChart'
-// import Tooltip from '../tooltips/Tooltip'
+import Tooltip from '../tooltips/Tooltip'
 
 /**
  * @typedef {{ value: number, time: Date }} Item
@@ -30,7 +37,7 @@ export default {
     }
   },
   components: {
-    // Tooltip
+    Tooltip
   },
   computed: {
     /** @returns {any} */
@@ -41,7 +48,7 @@ export default {
           x: 0,
           y: 0,
           isActive: false,
-          item: { items: [] },
+          item: { items: [] }
         }
     }
   },

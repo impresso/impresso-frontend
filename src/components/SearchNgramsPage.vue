@@ -63,18 +63,21 @@
       <multi-line-plot
         :items-sets="plotItems"
         :height="300">
-        <!-- <div slot-scope="tooltipScope">
-          <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, timelineResolution, 'en') }} &middot;
-            <span v-html="$tc('numbers.unigramMentions', tooltipScope.tooltip.item.w, {
-              unigram,
-              n: $n(tooltipScope.tooltip.item.w),
-            })"/>&nbsp;
-            <span v-html="$tc('numbers.articles', getArticlesInYear(tooltipScope.tooltip.item.t), {
-                n: getArticlesInYear(tooltipScope.tooltip.item.t),
-            })"></span>
+        <div slot-scope="tooltipScope">
+          <div class="d-flex flex-column">
+            <div>{{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;</div>
+            <div v-for="item in tooltipScope.tooltip.item.items" :key="item.label">
+              <span v-html="$tc('numbers.unigramMentions', item.item.value, {
+                unigram: item.label,
+                n: $n(item.item.value),
+              })"/>&nbsp;
+              <span v-if="timelineResolution === 'year'" v-html="$tc('numbers.articles', getTotalArticlesAtTimestamp(item.item.time), {
+                n: getTotalArticlesAtTimestamp(item.item.time),
+              })"></span>
+              <span v-if="timelineResolution !== 'year'">unknown</span>
+            </div>
           </div>
-        </div> -->
+        </div>
       </multi-line-plot>
     </div>
     <!-- without unigram -->
@@ -171,6 +174,21 @@ function getTotalNumberOfResults(facets) {
 
   const { buckets } = facetsWithBuckets[0]
   return buckets.reduce((total, { count }) => total + count, 0)
+}
+
+/**
+ * @param {Facet[]} facets
+ * @param {number} fullYear
+ * @returns {number}
+ */
+function getArticlesCountForYear(facets, fullYear) {
+  const yearFacetsWithBuckets = facets
+    .filter(({ buckets, type }) => buckets != null && buckets.length > 0 && type === 'year')
+  if (yearFacetsWithBuckets.length === 0) return 0
+  const { buckets } = yearFacetsWithBuckets[0]
+  const bucket = buckets.filter(({ val }) => val === `${fullYear}`)[0]
+  if (bucket == null) return 0
+  return bucket.count
 }
 
 const EmptyNgramResult = Object.freeze({
@@ -311,8 +329,9 @@ export default {
           items: values.map((value, index) => ({ value, time: dates[index] }))
         }
       })
-    }
-
+    },
+    /** @returns {string} */
+    timelineResolution() { return this.ngramResult.timeInterval }
     // timelineValues() {
     //   const pairs = (this.trend.values || []).map((value, idx) => {
     //     const domainValue = this.trend.domain[idx];
@@ -402,6 +421,21 @@ export default {
         [QueryParameters.Unigrams]: unigrams.join(',')
       })
     },
+    /** @returns {Date} */
+    getTooltipScopeTime(scope) {
+      const times = [...new Set(scope?.tooltip?.item?.items.map(({ item: { time } }) => time))]
+      if (times.length > 1) console.warn(`More than one time found in tooltip data. Using first time`, times)
+      return times[0]
+    },
+    /**
+     * @param {Date} timestamp
+     * @returns {number}
+     */
+    getTotalArticlesAtTimestamp(timestamp) {
+      const fullYear = timestamp.getFullYear()
+      return getArticlesCountForYear(this.facets, fullYear)
+    }
+
     // getArticlesInYear(d) {
     //   if (!d) {
     //     return 0;
