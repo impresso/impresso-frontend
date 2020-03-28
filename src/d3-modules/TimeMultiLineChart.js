@@ -3,10 +3,14 @@ import * as d3 from 'd3'
 export default class TimeMultiLineChart {
   constructor({
     element = null,
-    margin = { top: 5, bottom: 25, left: 5, right: 5}
+    margin = { top: 5, bottom: 25, left: 5, right: 5},
+    labelsPanelWidth = 100,
+    labelFontSize = '0.8em'
   }) {
     this.margin = margin
     this.element = element
+    this.labelsPanelWidth = labelsPanelWidth
+    this.labelFontSize = labelFontSize
 
     this.svg = d3.select(element)
       .append('svg')
@@ -17,6 +21,7 @@ export default class TimeMultiLineChart {
     this.axes = this.svg.append('g').attr('class', 'axes')
     this.lines = this.svg.append('g').attr('class', 'lines')
     this.peak = this.svg.append('g').attr('class', 'peak')
+    this.labels = this.svg.append('g').attr('class', 'labels')
     this.interaction = this.svg.append('g').attr('class', 'interaction')
 
     this.x = d3.scaleUtc()
@@ -55,7 +60,7 @@ export default class TimeMultiLineChart {
 
     this.x
       .domain(minAndMaxTimes)
-      .range([this.margin.left, width - this.margin.right])
+      .range([this.margin.left, width - this.labelsPanelWidth - this.margin.right])
 
     const xAxis = g => g
       .attr('transform', `translate(0,${height - this.margin.bottom})`)
@@ -134,9 +139,40 @@ export default class TimeMultiLineChart {
       .data(d => [d])
       .join('text')
       .attr('fill', '#333')
+      .attr('font-size', this.labelFontSize)
       .attr('text-anchor', 'middle')
       .attr('dy', -4)
       .text(([, value]) => `${value}`)
+
+    // labels
+    this.labels
+      .attr('transform', `translate(${width - this.labelsPanelWidth}, 0)`)
+
+    const labelElementHeightPixels = this._getLabelElementHeightPixels()
+    const labelValueGridSize = this.y.invert(0) - this.y.invert(labelElementHeightPixels)
+    // set of values to do a "snap to grid" rounding of the last value of every line to
+    // find the vertical position of the label
+    const valueBuckets = d3.range(this.y.domain()[0], this.y.domain()[1] + 1, labelValueGridSize)
+
+    this.labels
+      .selectAll('text')
+      .data(data)
+      .join('text')
+      .attr('font-size', this.labelFontSize)
+      .attr('fill', ({ label }, index) => colorPalette[label] || d3.schemeCategory10[index])
+      .attr('transform', ({ items }) => {
+        // last (rightmost) value of the line
+        const lastValue = items[items.length - 1].value
+        let valueProximities = valueBuckets.map(value => Math.abs(lastValue - value))
+        // index of the bucket the 'lastValue' falls into
+        const bucketIndex = valueProximities.indexOf(d3.min(valueProximities) ?? -1)
+        const clampedValue = bucketIndex < 0 ? lastValue : valueBuckets[bucketIndex]
+        // mark value as "used" by setting it a value that we will probably never reach.
+        valueBuckets[bucketIndex] = Number.MAX_SAFE_INTEGER
+
+        return `translate(0, ${this.y(clampedValue)})`
+      })
+      .text(({ label }) => label)
 
     this._renderInteractionLayer()
   }
@@ -188,6 +224,21 @@ export default class TimeMultiLineChart {
       .attr('r', 4)
       .attr('fill', ({ label }, index) => this._lastColorPalette[label] || d3.schemeCategory10[index])
 
+  }
+
+  _getLabelElementHeightPixels() {
+    // Get pixel size of a temporary text field. We will use it later to calculate
+    // "snap to grid" vertical positions of labels so that they do not overlap.
+    const textSizer = this.svg.append('text')
+      .attr('font-size', this.labelFontSize)
+      .text('_')
+
+    const { height: textHeight } = textSizer.node().getBoundingClientRect()
+
+    // remove the text field now as we got the size
+    textSizer.remove()
+
+    return textHeight
   }
 
   tooltipData() {
