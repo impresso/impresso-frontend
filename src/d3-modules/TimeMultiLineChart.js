@@ -22,13 +22,16 @@ export default class TimeMultiLineChart {
     this.x = d3.scaleUtc()
     this.y = d3.scaleLinear()
 
-    this._interactionOn = false
+    this._interactionActive = false
+    this._lastColorPalette = {}
+    this._lastNearestItems = []
+    this._lastMousePosition = [0, 0]
 
     // interaction
     this.svg
       .on('mousemove', () => this._renderInteractionLayer())
-      .on('mouseover',  () => { this._interactionOn = true; this._renderInteractionLayer() })
-      .on('mouseout',  () => { this._interactionOn = false; this._renderInteractionLayer() })
+      .on('mouseover',  () => { this._interactionActive = true; this._renderInteractionLayer() })
+      .on('mouseout',  () => { this._interactionActive = false; this._renderInteractionLayer() })
   }
 
   /**
@@ -41,6 +44,8 @@ export default class TimeMultiLineChart {
   render(data, options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
     const { colorPalette = {} } = options
+
+    this._lastColorPalette = colorPalette
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
@@ -138,10 +143,13 @@ export default class TimeMultiLineChart {
 
   _renderInteractionLayer() {
     if (!d3.event) return
-    const [mouseX] = d3.mouse(this.element)
+
+    const [mouseX, mouseY] = d3.mouse(this.element)
     const currentMouseTimeValue = this.x.invert(mouseX)
 
-    const positionData = this._interactionOn ? [currentMouseTimeValue] : []
+    this._lastMousePosition = [mouseX, mouseY]
+
+    const positionData = this._interactionActive ? [currentMouseTimeValue] : []
 
     this.interaction
       .selectAll('line')
@@ -155,17 +163,41 @@ export default class TimeMultiLineChart {
       .attr('y1', () => this.y.range()[0])
       .attr('y2', () => this.y.range()[1])
 
-    // const data = /** @type {ItemsSet[]} */ (this.lines.selectAll('g').data())
-    // const currentItemData = data
-    //   .map(itemsSet => itemsSet.items
-    //     .find(({ time }) => time >= currentMouseTimeValue))
+    const data = /** @type {ItemsSet[]} */ (this.lines.selectAll('g').data())
 
-    // console.log('D', data)
+    const nearestItems = data.map(({ items, label }) => {
+      const distances = items
+        .map(({ time }) => Math.abs(time.getTime() - currentMouseTimeValue.getTime()))
+      const minDistance = /** @type {number} */ (d3.min(distances))
+      const nearestIndex = distances.indexOf(minDistance)
 
-    // this.interaction
-    //   .selectAll('line')
-    //   .data(positionData)
+      const nearestItem = nearestIndex < items.length
+        ? items[nearestIndex]
+        : items[items.length - 1]
+      return { label, item: nearestItem }
+    })
 
+    this._lastNearestItems = nearestItems
 
+    this.interaction
+      .selectAll('circle')
+      .data(this._interactionActive ? nearestItems : [])
+      .join('circle')
+      .attr('pointer-events', 'none')
+      .attr('transform', ({ item: { time, value } }) => `translate(${this.x(time)}, ${this.y(value)})`)
+      .attr('r', 4)
+      .attr('fill', ({ label }, index) => this._lastColorPalette[label] || d3.schemeCategory10[index])
+
+  }
+
+  tooltipData() {
+    const [x, y] = this._lastMousePosition
+
+    return {
+      x,
+      y,
+      isActive: this._interactionActive,
+      item: { items: this._lastNearestItems }
+    }
   }
 }

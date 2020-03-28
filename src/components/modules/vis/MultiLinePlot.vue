@@ -35,12 +35,14 @@ export default {
   computed: {
     /** @returns {any} */
     tooltip() {
-      return {
-        x: 0,
-        y: 0,
-        isActive: false,
-        item: {},
-      }
+      return this.chart
+        ? this.chart.tooltipData()
+        : {
+          x: 0,
+          y: 0,
+          isActive: false,
+          item: { items: [] },
+        }
     }
   },
   mounted() {
