@@ -46,14 +46,6 @@ export default class LineChart extends Basic{
     }
   }
 
-  update(data, lineMetrics = [], areaMetrics = [], options = {}) {
-    this.data = data;
-    this.lineMetrics = lineMetrics;
-    this.areaMetrics = areaMetrics;
-    this.options = options;
-    this.render(this.data, this.lineMetrics, this.areaMetrics, this.options);
-  }
-
   /**
    * @typedef {{ domain: Date, value: any }} DataItem
    * @typedef {(any) => number} LineValueExtractor
@@ -65,6 +57,10 @@ export default class LineChart extends Basic{
    * @param {{ colorPalette?: {[key: string]: string} }} options
    */
   render(data, lineMetrics = [], areaMetrics = [], options = {}) {
+    this.data = data;
+    this.lineMetrics = lineMetrics;
+    this.areaMetrics = areaMetrics;
+    this.options = options;
     const { width, height } = this;
     const { colorPalette = {} } = options
 
