@@ -6,7 +6,7 @@
  * @returns {string | undefined}
  */
 // eslint-disable-next-line import/prefer-default-export
-export function getQueryParameter(vueInstance, parameter, defaultValue) {
+export function getQueryParameter(vueInstance, parameter, defaultValue = undefined) {
   const value = vueInstance.$route.query[parameter]
   if (value == null) return defaultValue
   if (Array.isArray(value)) {
@@ -15,3 +15,7 @@ export function getQueryParameter(vueInstance, parameter, defaultValue) {
   }
   return value
 }
+
+export const CommonQueryParameters = Object.freeze({
+  SearchFilters: 'filters'
+})

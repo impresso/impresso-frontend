@@ -19,7 +19,7 @@ export default class Facet {
     } else {
       this.operators = operators;
     }
-    this.numBuckets = parseInt(numBuckets, 10);
+    this.numBuckets = typeof numBuckets === 'number' ? numBuckets : parseInt(numBuckets, 10);
     if (buckets.length) {
       this.setBuckets(buckets);
     } else {

@@ -2,6 +2,7 @@ import { protobuf } from 'impresso-jscommons'
 
 /**
  * @typedef {import('../models').Filter} Filter
+ * @typedef {import('../models').Entity} Entity
  */
 
 export function toCanonicalFilter(filter) {
@@ -86,4 +87,24 @@ export function optimizeFilters(filters) {
         q: q.length > 1 ? q : q[0]
       }, value => value == null)
     })
+}
+
+export const serializeFilters = toSerializedFilters
+
+/**
+ * @param {string | undefined} serializedFilters
+ * @param {Filter[]} defaultFilters
+ * @returns {Filter[]}
+ */
+export function deserializeFilters(serializedFilters, defaultFilters = []) {
+  if (typeof serializedFilters === 'string') return protobuf.searchQuery.deserialize(serializedFilters).filters ?? defaultFilters
+  return defaultFilters
+}
+
+/**
+ * @param {{filtersWithItems: { filter: Filter, items: Entity[] }[] }} object
+ * @returns {Filter[]}
+ */
+export function joinFiltersWithItems({ filtersWithItems }) {
+  return filtersWithItems.map(({ filter, items }) => ({ ...filter, items }))
 }

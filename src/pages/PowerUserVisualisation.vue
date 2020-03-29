@@ -56,7 +56,6 @@
 
 
 <script>
-import { protobuf } from 'impresso-jscommons'
 import { schemeCategory10, schemeAccent } from 'd3'
 
 import SearchSidebar from '@/components/modules/SearchSidebar'
@@ -72,12 +71,18 @@ import {
   stats
 } from '@/services';
 import {
-  toSerializedFilters,
+  serializeFilters,
+  deserializeFilters,
   toCanonicalFilter,
-  optimizeFilters
+  optimizeFilters,
+  joinFiltersWithItems
 } from '../logic/filters'
-import { getFacetsFromApiResponse } from '@/logic/facets'
-import { getQueryParameter } from '@/router/util'
+import {
+  DefaultFacetTypesForIndex,
+  searchResponseToFacetsExtractor,
+  buildEmptyFacets
+} from '@/logic/facets'
+import { getQueryParameter, CommonQueryParameters } from '@/router/util'
 import { withMissingDates } from '@/logic/time'
 
 /**
@@ -106,43 +111,14 @@ export function colorForAreaMetric(index) {
 
 const DefaultNumberOfItemsInChart = 10
 
-const FacetTypes = {
-  search: [
-    'language',
-    'newspaper',
-    'type',
-    'country',
-    'topic',
-    'collection',
-    'accessRight',
-    'partner',
-    'person',
-    'location',
-    'year'
-  ],
-  tr_clusters: [
-    'newspaper',
-  ],
-  tr_passages: [
-    'newspaper',
-  ]
-}
-
 const NoFacetFilters = {
   search: ['string'],
   tr_clusters: [],
   tr_passages: []
 }
 
-const TwoOperators = ['OR', 'AND']
-const FacetsWithTwoOperators = ['person', 'location', 'topic']
-const DefaultFacetOperatorsMap = FacetsWithTwoOperators
-  .reduce((acc, type) => ({ ...acc, [type]: TwoOperators }), {})
-
-const DefaultEmptyApiResponse = { info: { facets: {} } }
-
 const QueryParameters = Object.freeze({
-  SearchFilters: 'filters',
+  SearchFilters: CommonQueryParameters.SearchFilters,
   Facet: 'facet',
   Index: 'index',
   Domain: 'domain'
@@ -209,27 +185,6 @@ const AvailableStatsFacetsIds = Object.keys(StatsFacets).flatMap(index => {
     return { value: key, text: key }
   })
 })
-
-/** @param {Filter[]} filters */
-const serializeFilters = filters => toSerializedFilters(filters)
-/** @param {string} serializedFilters */
-const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
-/**
- * @param {string[]} facetTypes
- * @returns {(any) => Facet[]}
- */
-const apiResponseToFacetsFactory = facetTypes => response => {
-  const { facets: responseFacets = {} } = response.info
-
-  const responseFacetsWithMissingTypes = facetTypes.reduce((acc, type) => {
-    return { ...acc, [type]: responseFacets[type] || {} }
-  }, {})
-
-  return getFacetsFromApiResponse(
-    responseFacetsWithMissingTypes,
-    DefaultFacetOperatorsMap
-  )
-}
 
 /**
  * @typedef {{ id: string, extractor: (any) => number }} LineMetricExtractor
@@ -332,51 +287,35 @@ export default {
     Spinner
   },
   mounted() {
-    this.facets = apiResponseToFacetsFactory(this.facetTypes)(DefaultEmptyApiResponse)
+    this.facets = buildEmptyFacets(this.facetTypes)
   },
   computed: {
     /** @returns {Filter[]} */
-    filters() {
-      const serializedFilters = this.$route.query[QueryParameters.SearchFilters]
-      return serializedFilters
-        ? deserializeFilters(/** @type {string} */ (serializedFilters))
-        : []
-    },
+    filters() { return deserializeFilters(getQueryParameter(this, QueryParameters.SearchFilters)) },
     /** @returns {Filter[]} */
-    enrichedFilters() {
-      return this.filtersWithItems != null
-        ? this.filtersWithItems
-        : this.filters
-    },
+    enrichedFilters() { return this.filtersWithItems ?? this.filters },
     /** @returns {string[]} */
-    facetTypes() {
-      return FacetTypes[this.statsIndex]
-    },
+    facetTypes() { return DefaultFacetTypesForIndex[this.statsIndex] },
     /** @return {object} */
     statsRequest() {
-      const facet = this.statsFacet
-      const index = this.statsIndex
-      const domain = this.statsDomain
-      const filters = serializeFilters(this.filters)
-
       return {
-        facet,
-        index,
-        domain,
-        filters
+        facet: this.statsFacet,
+        index: this.statsIndex,
+        domain: this.statsDomain,
+        filters: serializeFilters(this.filters)
       }
     },
     /** @returns {string} */
-    statsFacet() { return /** @type {string} */ (getQueryParameter(this, QueryParameters.Facet, 'contentLength')) },
+    statsFacet() { return getQueryParameter(this, QueryParameters.Facet) ?? 'contentLength' },
     /** @returns {string} */
-    statsIndex() { return /** @type {string} */ (getQueryParameter(this, QueryParameters.Index, 'search')) },
+    statsIndex() { return getQueryParameter(this, QueryParameters.Index) ?? 'search' },
     statsFacetModel: {
       /** @returns {string} */
       get() { return `${this.statsIndex}.${this.statsFacet}` },
       /** @param {string} value */
       set(value) {
         const [index, facet] = value.split('.')
-        const supportedFilters = this.filters.filter(({ type }) => FacetTypes[index].includes(type) || NoFacetFilters[index].includes(type))
+        const supportedFilters = this.filters.filter(({ type }) => DefaultFacetTypesForIndex[index].includes(type) || NoFacetFilters[index].includes(type))
 
         this.$navigation.updateQueryParameters({
           [QueryParameters.Index]: index,
@@ -390,7 +329,7 @@ export default {
     statsDomain: {
       /** @returns {string} */
       get() {
-        const value = /** @type {string} */ (getQueryParameter(this, QueryParameters.Domain, 'time'))
+        const value = getQueryParameter(this, QueryParameters.Domain) ?? 'time'
         const options = this.statsDomainsOptions.map(({ value }) => value)
         if (!options.includes(value)) return options[0]
         return value
@@ -491,16 +430,12 @@ export default {
           facets: this.facetTypes,
           group_by: 'articles',
         }
-        const [
-          facets,
-          filtersWithItemsResponse,
-        ] = await Promise.all([
-          search.find({ query }).then(apiResponseToFacetsFactory(this.facetTypes)),
-          filtersItems.find({ query: { filters: serializeFilters(filters) }})
-        ])
+        const [facets, filtersWithItems] = await Promise.all([
+          search.find({ query }).then(searchResponseToFacetsExtractor(this.facetTypes)),
+          filtersItems.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
+        ]);
         this.facets = facets
-        this.filtersWithItems = filtersWithItemsResponse.filtersWithItems
-          .map((/** @type {{ filter: Filter, items: any[] }} */ { filter, items }) => ({ ...filter, items }))
+        this.filtersWithItems = filtersWithItems
       },
       immediate: true
     },

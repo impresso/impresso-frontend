@@ -84,8 +84,12 @@
 </template>
 
 <script>
-import { protobuf } from 'impresso-jscommons'
-import { toSerializedFilters, toCanonicalFilter } from '../logic/filters'
+import {
+  serializeFilters,
+  deserializeFilters,
+  toCanonicalFilter,
+  joinFiltersWithItems
+} from '../logic/filters'
 
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import BaseTitleBar from '@/components/base/BaseTitleBar';
@@ -97,7 +101,11 @@ import {
   search as searchService,
   ngramTrends as ngramTrendsService
 } from '@/services';
-import { getFacetsFromApiResponse } from '@/logic/facets'
+import {
+  DefaultFacetTypesForIndex,
+  searchResponseToFacetsExtractor
+} from '@/logic/facets'
+import { CommonQueryParameters } from '../router/util';
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -105,10 +113,6 @@ import { getFacetsFromApiResponse } from '@/logic/facets'
  * @typedef {import('../models').Bucket} Bucket
  */
 
-// /** @param {Filter[]} filters */
-const serializeFilters = filters => toSerializedFilters(filters)
-/** @param {string} serializedFilters */
-const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
 
 /**
  * @param {Filter} filter
@@ -117,46 +121,11 @@ const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize
 const isFrontFilter = ({ type }) => type === 'isFront'
 
 const QueryParameters = Object.freeze({
-  SearchFilters: 'filters',
+  SearchFilters: CommonQueryParameters.SearchFilters,
   Unigrams: 'unigrams'
 })
 
 const IgnoredFilterTypes = ['string', 'regex']
-const SupportedFacetTypes = [
-  'language',
-  'newspaper',
-  'type',
-  'country',
-  'topic',
-  'collection',
-  'accessRight',
-  'partner',
-  'person',
-  'location',
-  'year'
-]
-
-const TwoOperators = ['OR', 'AND']
-const FacetsWithTwoOperators = ['person', 'location', 'topic']
-const DefaultFacetOperatorsMap = FacetsWithTwoOperators
-  .reduce((acc, type) => ({ ...acc, [type]: TwoOperators }), {})
-
-/**
- * @param {string[]} facetTypes
- * @returns {(any) => Facet[]}
- */
-const apiResponseToFacetsFactory = facetTypes => response => {
-  const { facets: responseFacets = {} } = response.info
-
-  const responseFacetsWithMissingTypes = facetTypes.reduce((acc, type) => {
-    return { ...acc, [type]: responseFacets[type] || {} }
-  }, {})
-
-  return getFacetsFromApiResponse(
-    responseFacetsWithMissingTypes,
-    DefaultFacetOperatorsMap
-  )
-}
 
 /**
  * @param {Facet[]} facets
@@ -191,6 +160,8 @@ const EmptyNgramResult = Object.freeze({
   timeInterval: 'year'
 })
 
+const SupportedFacetTypes = DefaultFacetTypesForIndex.search
+
 export default {
   name: 'SearchNgramsPage',
   components: {
@@ -219,17 +190,12 @@ export default {
           group_by: 'articles',
         }
 
-        const [
-          facets,
-          { filtersWithItems: items },
-        ] = await Promise.all([
-          searchService.find({ query }).then(apiResponseToFacetsFactory(SupportedFacetTypes)),
-          filtersItemsService.find({ query: { filters: serializeFilters(filters) }})
-        ])
-
+        const [facets, filtersWithItems] = await Promise.all([
+          searchService.find({ query }).then(searchResponseToFacetsExtractor(SupportedFacetTypes)),
+          filtersItemsService.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
+        ]);
         this.facets = facets
-        const filtersWithItems = items.map((/** @type {{ filter: Filter, items: any[] }} */ { filter, items }) => ({ ...filter, items }))
-        this.filtersWithItems = /** @type {Filter[]} */ (filtersWithItems)
+        this.filtersWithItems = filtersWithItems
       },
       immediate: true,
       deep: true
