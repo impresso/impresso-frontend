@@ -176,6 +176,11 @@ export default {
         find: 'while loading named entities',
       },
     },
+    pages: {
+      powervis: {
+        title: 'XY visualisation',
+      },
+    },
     label: {
       isFront: 'only results on the front page',
       year: {
