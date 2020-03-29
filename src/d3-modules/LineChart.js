@@ -1,22 +1,57 @@
 import * as d3 from 'd3'
+import Basic from '@/d3-modules/Basic';
 
-export default class LineChart {
+export default class LineChart extends Basic{
   constructor({
     element = null,
-    margin = { top: 5, bottom: 25, left: 45, right: 5}
+    margin = { top: 5, bottom: 125, left: 45, right: 5}
   }) {
-    this.margin = margin
-    this.element = element
+    super({
+      element,
+      margin,
+    });
 
-    this.svg = d3.select(element)
-      .append('svg')
+    this.svg
       .attr('fill', 'none')
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
 
-    this.axes = this.svg.append('g').attr('class', 'axes')
-    this.lines = this.svg.append('g').attr('class', 'lines')
-    this.areas = this.svg.append('g').attr('class', 'areas')
+    // setup main context (mousemove on the whole area)
+    this.context = this.g.append('g')
+      .classed('context', true)
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+    this.contextBackground = this.context.append('rect');
+    this.axes = this.g.append('g').attr('class', 'axes')
+    this.lines = this.g.append('g').attr('class', 'lines')
+    this.areas = this.g.append('g').attr('class', 'areas')
+    // add addEventListeners
+    this.context.on('mousemove', this.mousemove.bind(this));
+    this.resize();
+  }
+
+  mousemove(a, b, el) {
+    const [mouseX, mouseY] = d3.mouse(el[0]);
+    const scaledX = this.dimensions.x.scale.invert(mouseX);
+    const { index, nearest } = this.dimensions.x.getNearestValue(scaledX);
+
+    if (index === -1) return
+
+    console.info('@mousemove', mouseX, mouseY, index, nearest, scaledX );
+  }
+
+  resize() {
+    super.resize();
+    if (this.data) {
+      this.render(this.data, this.lineMetrics, this.areaMetrics, this.options);
+    }
+  }
+
+  update(data, lineMetrics = [], areaMetrics = [], options = {}) {
+    this.data = data;
+    this.lineMetrics = lineMetrics;
+    this.areaMetrics = areaMetrics;
+    this.options = options;
+    this.render(this.data, this.lineMetrics, this.areaMetrics, this.options);
   }
 
   /**
@@ -30,11 +65,12 @@ export default class LineChart {
    * @param {{ colorPalette?: {[key: string]: string} }} options
    */
   render(data, lineMetrics = [], areaMetrics = [], options = {}) {
-    const { width, height } = this.element.getBoundingClientRect()
+    const { width, height } = this;
     const { colorPalette = {} } = options
 
-    this.svg.attr('viewBox', [0, 0, width, height].join(' '))
-
+    this.contextBackground
+      .attr('width', this.width - this.margin.right - this.margin.left)
+      .attr('height', this.height - this.margin.bottom - this.margin.top);
     // X
     const x = d3.scaleUtc()
       .domain(/** @type {Date[]} */ (d3.extent(data, d => d.domain)))
