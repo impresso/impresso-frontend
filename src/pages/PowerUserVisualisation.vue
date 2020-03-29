@@ -48,7 +48,7 @@
       <!-- slot:body -->
       <div ref="chart" class="chart h-100 w-100 position:relative" />
       <!-- slot:footer -->
-      <div slot="footer" class="border-top p-2 pb-3" style='max-height: 100px;'>
+      <div slot="footer" class="border-top p-2 pb-3" style='max-height: 180px;overflow:scroll'>
         <!-- 3. items -->
         <div class="d-inline-flex mx-1 align-items-center" v-for="item in statsLegendItems" :key="item.id"
         >
