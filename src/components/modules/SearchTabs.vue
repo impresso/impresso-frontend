@@ -10,6 +10,8 @@
 </template>
 
 <script>
+import SearchQuery from '../../models/SearchQuery';
+
 export default {
   props: {
     focusOnSearch: Boolean,
@@ -19,18 +21,24 @@ export default {
     },
   },
   computed: {
+    /** @returns {string} */
     selectedTab() {
       if (this.tabs.includes(this.$route.name)) {
-        return this.$route.name;
+        return this.$route.name ?? 'search';
       }
       return 'search';
     },
+    /** @returns {any} */
     currentSearchQueryParams() {
-      const searchQuery = this.$store.state[this.selectedTab].search;
+      const { search: searchQuery = new SearchQuery() } = this.$store.state[this.selectedTab] ?? {};
       return searchQuery.getSerialized();
     },
   },
   methods: {
+    /**
+     * @params {string} tab
+     * @returns {boolean}
+     */
     isActive(tab) {
       return this.selectedTab === tab;
     },
