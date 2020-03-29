@@ -333,7 +333,6 @@ export default {
     availableStatsFacets() {
       return Object.keys(StatsFacets).flatMap(index => {
         const facets = Object.values(StatsFacets[index]).flat()
-        console.info('*****', facets);
         return facets.map(facet => {
           const key = `${index}.${facet}`
           return { value: key, text: this.$t(key) }
