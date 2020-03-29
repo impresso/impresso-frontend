@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 export default class TimeMultiLineChart {
   constructor({
     element = null,
-    margin = { top: 5, bottom: 25, left: 5, right: 5},
+    margin = { top: 10, bottom: 25, left: 5, right: 5},
     labelsPanelWidth = 100,
     labelFontSize = '0.8em'
   }) {
