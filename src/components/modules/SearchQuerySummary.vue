@@ -105,9 +105,11 @@ export default {
     },
     getLabel({ item, type, filter }) {
       let t = '';
+      const [start, end] = [item.start, item.end].map(v => new Date(v))
+
       switch (type) {
       case 'daterange':
-        t = `from <span class="date">${this.$d(item.start, 'compact')}</span> to <span class="date">${this.$d(item.end, 'compact')}</span>`;
+        t = `from <span class="date">${this.$d(start, 'compact')}</span> to <span class="date">${this.$d(end, 'compact')}</span>`;
         break;
       case 'location':
       case 'person':
