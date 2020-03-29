@@ -57,6 +57,7 @@ export default class Line extends Basic {
     this.context.on('mousemove', this.mousemove.bind(this));
     this.context.on('mouseenter', this.mouseenter.bind(this));
     this.context.on('mouseleave', this.mouseleave.bind(this));
+    this.resize();
   }
 
   mouseenter() {
