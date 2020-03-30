@@ -180,7 +180,7 @@ export default {
     ngramResult: EmptyNgramResult
   }),
   watch: {
-    filters: {
+    fullFilters: {
       /** @param {Filter[]} filters */
       async handler(filters) {
         const query = {
@@ -195,7 +195,7 @@ export default {
           filtersItemsService.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
         ]);
         this.facets = facets
-        this.filtersWithItems = filtersWithItems
+        this.filtersWithItems = filtersWithItems.filter(({ type }) => !IgnoredFilterTypes.includes(type))
       },
       immediate: true,
       deep: true
@@ -247,6 +247,19 @@ export default {
     ignoredFilters() { return this.allFilters.filter(({ type }) => IgnoredFilterTypes.includes(type)) },
     /** @returns {Filter[]} */
     filters() { return this.allFilters.filter(({ type }) => !IgnoredFilterTypes.includes(type)) },
+    /**
+     * Full filters is what we use to filter the side panel facet filters.
+     * They include filters + a string filter containing all entered unigrams.
+     * @returns {Filter[]}
+     */
+    fullFilters() {
+      const stringFilter = {
+        type: 'string',
+        op: 'OR',
+        q: this.unigrams
+      }
+      return this.filters.concat(this.unigrams.length > 0 ? [stringFilter] : [])
+    },
     isFront: {
       /** @returns {boolean} */
       get() { return this.filters.filter(isFrontFilter).length > 0 },
