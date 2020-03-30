@@ -34,6 +34,11 @@ export default {
     height: {
       type: Number,
       default: 300
+    },
+    /** @type {import('vue').PropOptions<(number) => string>} */
+    roundValueFn: {
+      type: Function,
+      default: () => v => v
     }
   },
   components: {
@@ -53,7 +58,7 @@ export default {
     }
   },
   mounted() {
-    this.chart = new TimeMultiLineChart({ element: this.$refs.chart })
+    this.chart = new TimeMultiLineChart({ element: this.$refs.chart, roundValueFn: this.roundValueFn })
     this.chart.render(this.itemsSets)
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))

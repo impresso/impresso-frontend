@@ -64,12 +64,13 @@
       </base-title-bar>
       <multi-line-plot
         :items-sets="plotItems"
+        :round-value-fn="roundValueForDisplay"
         :height="300">
         <div slot-scope="tooltipScope">
           <div class="d-flex flex-column">
             <div>{{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;</div>
             <div v-for="item in tooltipScope.tooltip.item.items" :key="item.label">
-              <b>{{item.label}}</b> &middot; {{item.item.value}}
+              <b>{{item.label}}</b> &middot; {{roundValueForDisplay(item.item.value)}}
             </div>
           </div>
         </div>
@@ -300,13 +301,16 @@ export default {
      * @returns {ItemsSet[]}
      */
     plotItems() {
-      const { domainValues } = this.ngramResult
+      const { domainValues, totals } = this.ngramResult
       const dates = domainValues.map(v => new Date(v))
 
       return this.ngramResult.trends.map(({ ngram, values }) => {
         return {
           label: ngram,
-          items: values.map((value, index) => ({ value, time: dates[index] }))
+          items: values.map((value, index) => ({
+            value: (value / totals[index]) * 1000000 ,
+            time: dates[index]
+          }))
         }
       })
     },
@@ -333,7 +337,9 @@ export default {
     getTotalArticlesAtTimestamp(timestamp) {
       const fullYear = timestamp.getFullYear()
       return getArticlesCountForYear(this.facets, fullYear)
-    }
+    },
+    /** @param {number} value */
+    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) }
   }
 };
 </script>
@@ -349,7 +355,7 @@ export default {
       "missingUnigram": " ... (no unigram has been selected)",
       "label": {
         "timeline": {
-          "unigramTitle": "Number of unigram mentions per year",
+          "unigramTitle": "Yearly unigram mentions (per million)",
           "unigramDescription": " "
         },
         "seeArticles": "See articles",

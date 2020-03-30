@@ -5,12 +5,15 @@ export default class TimeMultiLineChart {
     element = null,
     margin = { top: 10, bottom: 25, left: 5, right: 5},
     labelsPanelWidth = 100,
-    labelFontSize = '0.8em'
+    labelFontSize = '0.8em',
+    roundValueFn = (/** @type {number} */ v) => `${v}`
   }) {
     this.margin = margin
     this.element = element
     this.labelsPanelWidth = labelsPanelWidth
     this.labelFontSize = labelFontSize
+
+    this.roundValueFn = roundValueFn
 
     this.svg = d3.select(element)
       .append('svg')
@@ -124,7 +127,7 @@ export default class TimeMultiLineChart {
       .filter(v => v != null)[0]
 
     const peak = this.peak
-      .data(maxValueTime != null && maxValue != null ? [[maxValueTime, maxValue]] : [])
+      .data(/** @type {[Date, number][]} */ (maxValueTime != null && maxValue != null ? [[maxValueTime, maxValue]] : []))
       .attr('transform', ([time, value]) => `translate(${this.x(time)}, ${this.y(value)})`)
 
     peak
@@ -142,7 +145,7 @@ export default class TimeMultiLineChart {
       .attr('font-size', this.labelFontSize)
       .attr('text-anchor', 'middle')
       .attr('dy', -4)
-      .text(([, value]) => `${value}`)
+      .text(([, value]) => this.roundValueFn(value))
 
     // labels
     this.labels
