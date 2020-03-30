@@ -70,11 +70,12 @@
           <div class="d-flex flex-column">
             <div>{{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;</div>
             <div v-for="item in tooltipScope.tooltip.item.items" :key="item.label">
-              <b>{{item.label}}</b> &middot; {{roundValueForDisplay(item.item.value)}}
+              <b>{{item.label}}</b> &middot; {{roundValueForDisplay(item.item.value)}} {{$t('tooltipValueUnit')}}
             </div>
           </div>
         </div>
       </multi-line-plot>
+      <div v-if="isLoading"><em>{{ $t('loading') }}</em></div>
     </div>
     <!-- without unigram -->
     <div v-else class="d-flex align-items-center justify-content-center h-100">
@@ -104,7 +105,8 @@ import {
 } from '@/services';
 import {
   DefaultFacetTypesForIndex,
-  searchResponseToFacetsExtractor
+  searchResponseToFacetsExtractor,
+  buildEmptyFacets
 } from '@/logic/facets'
 import { CommonQueryParameters } from '../router/util';
 
@@ -178,8 +180,12 @@ export default {
     /** @type {Filter[]} */
     filtersWithItems: [],
     /** @type {any} */
-    ngramResult: EmptyNgramResult
+    ngramResult: EmptyNgramResult,
+    isLoading: false
   }),
+  mounted() {
+    this.facets = buildEmptyFacets(SupportedFacetTypes)
+  },
   watch: {
     fullFilters: {
       /** @param {Filter[]} filters */
@@ -191,12 +197,17 @@ export default {
           group_by: 'articles',
         }
 
-        const [facets, filtersWithItems] = await Promise.all([
-          searchService.find({ query }).then(searchResponseToFacetsExtractor(SupportedFacetTypes)),
-          filtersItemsService.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
-        ]);
-        this.facets = facets
-        this.filtersWithItems = filtersWithItems.filter(({ type }) => !IgnoredFilterTypes.includes(type))
+        try {
+          this.isLoading = true
+          const [facets, filtersWithItems] = await Promise.all([
+            searchService.find({ query }).then(searchResponseToFacetsExtractor(SupportedFacetTypes)),
+            filtersItemsService.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
+          ]);
+          this.facets = facets
+          this.filtersWithItems = filtersWithItems.filter(({ type }) => !IgnoredFilterTypes.includes(type))
+        } finally {
+          this.isLoading = false
+        }
       },
       immediate: true,
       deep: true
@@ -361,7 +372,9 @@ export default {
         "seeArticles": "See articles",
         "noUnigram": "... look for a specific <em>unigram</em> in",
         "availableFacets": "Available filters for ngram analysis"
-      }
+      },
+      "loading": "Loading ...",
+      "tooltipValueUnit": "per 1 million"
     }
   }
 </i18n>
