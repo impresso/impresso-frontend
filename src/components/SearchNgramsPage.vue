@@ -69,8 +69,11 @@
         <div slot-scope="tooltipScope">
           <div class="d-flex flex-column">
             <div>{{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;</div>
-            <div v-for="item in tooltipScope.tooltip.item.items" :key="item.label">
-              <b>{{item.label}}</b> &middot; {{roundValueForDisplay(item.item.value)}} {{$t('tooltipValueUnit')}}
+            <div v-for="(item, index) in tooltipScope.tooltip.item.items" :key="item.label">
+              <div :style="{ 'background-color': tooltipScope.tooltip.item.colors[index] }" class="legend-dot mr-1"></div>
+              <b>{{item.label}}</b>
+              &middot;
+              {{roundValueForDisplay(item.item.value)}} {{$t('tooltipValueUnit')}}
             </div>
           </div>
         </div>
@@ -381,4 +384,11 @@ export default {
 
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
+
+  .legend-dot {
+    width: 0.5em;
+    height: 0.5em;
+    display: inline-block;
+    border-radius: 0.25em;
+  }
 </style>

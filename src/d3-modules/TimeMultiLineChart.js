@@ -32,6 +32,7 @@ export default class TimeMultiLineChart {
 
     this._interactionActive = false
     this._lastColorPalette = {}
+    /** @type {{ label: string, item: Item }[]} */
     this._lastNearestItems = []
     this._lastMousePosition = [0, 0]
 
@@ -162,7 +163,7 @@ export default class TimeMultiLineChart {
       .data(data)
       .join('text')
       .attr('font-size', this.labelFontSize)
-      .attr('fill', ({ label }, index) => colorPalette[label] || d3.schemeCategory10[index])
+      .attr('fill', ({ label }, index) => this._getColor(label, index))
       .attr('transform', ({ items }) => {
         // last (rightmost) value of the line
         const lastValue = items[items.length - 1].value
@@ -225,8 +226,12 @@ export default class TimeMultiLineChart {
       .attr('pointer-events', 'none')
       .attr('transform', ({ item: { time, value } }) => `translate(${this.x(time)}, ${this.y(value)})`)
       .attr('r', 4)
-      .attr('fill', ({ label }, index) => this._lastColorPalette[label] || d3.schemeCategory10[index])
+      .attr('fill', ({ label }, index) => this._getColor(label, index))
 
+  }
+
+  _getColor(label, index) {
+    return this._lastColorPalette[label] || d3.schemeCategory10[index]
   }
 
   _getLabelElementHeightPixels() {
@@ -251,7 +256,10 @@ export default class TimeMultiLineChart {
       x,
       y,
       isActive: this._interactionActive,
-      item: { items: this._lastNearestItems }
+      item: {
+        items: this._lastNearestItems,
+        colors: this._lastNearestItems.map(({ label }, index) => this._getColor(label, index))
+      }
     }
   }
 }
