@@ -10,9 +10,9 @@
           :filters="filters"
           @changed="handleFiltersChanged"
         />
-        <span v-if="filtersRemoved.length">
-          <em class="small" v-html="$tc('numbers.filtersRemoved', filtersRemoved.length, {
-            n: filtersRemoved.length,
+        <span v-if="ignoredFilters.length">
+          <em class="small" v-html="$tc('numbers.ignoredFilters', ignoredFilters.length, {
+            n: ignoredFilters.length,
           })"/>
           &nbsp;
           <info-button :name="infoButtonName" />
@@ -61,18 +61,18 @@ export default {
       type: String,
       default: '400px',
     },
+    /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
-      /** @type {import('vue').PropType<Filter[]>} */
       type: Array,
       default: () => [],
     },
+    /** @type {import('vue').PropOptions<Facet[]>} */
     facets: {
-      /** @type {import('vue').PropType<Facet[]>} */
       type: Array,
       default: () => [],
     },
-    filtersRemoved: {
-      /** @type {import('vue').PropType<Filter[]>} */
+    /** @type {import('vue').PropOptions<Filter[]>} */
+    ignoredFilters: {
       type: Array,
       default: () => [],
     },
@@ -88,9 +88,11 @@ export default {
     },
   },
   computed: {
+    /** @return {boolean} */
     isResettable() {
       return !!this.filters.filter(d => d.type !== 'hasTextContents').length;
     },
+    /** @return {string} */
     infoButtonName() {
       return `how-${this.contextTag}-work-with-search-filters`
     },

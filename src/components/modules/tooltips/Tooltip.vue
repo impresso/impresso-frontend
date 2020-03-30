@@ -11,29 +11,34 @@
 </template>
 
 <script>
+
+/**
+ * @typedef {{ x: number, y: number, isActive: boolean, item?: any, hspace?: number }} TooltipProperties
+ */
+
 export default {
   props: {
-
+    /** @type {import('vue').PropOptions<TooltipProperties>} */
     tooltip: {
+      type: Object,
       required: true,
-      default: {
+      default: () => ({
         x: 0,
         y: 0,
+        isActive: false,
         hspace: 1000,
-      },
+      })
     },
     maxWidth: {
       type: Number,
       default: 200,
-    },
-    isActive: {
-      type: Boolean,
-      default: false,
-    },
+    }
   },
   computed: {
+    /** @returns {number} */
     x() {
-      const x0 = Math.min(this.tooltip.x, this.tooltip.hspace - (this.maxWidth / 2));
+      const hspace = this.tooltip.hspace == null ? 1000 : this.tooltip.hspace
+      const x0 = Math.min(this.tooltip.x, hspace - (this.maxWidth / 2));
       return Math.max(this.maxWidth / 2, x0);
     },
   },

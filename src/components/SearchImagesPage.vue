@@ -2,7 +2,7 @@
   <i-layout id="SearchPage">
     <search-sidebar width="400px"
       :filters="filters"
-      :filters-removed="filtersRemoved"
+      :ignored-filters="filtersRemoved"
       :facets="facets"
       :excludedTypes="excludedTypes"
       contextTag="searchImages"

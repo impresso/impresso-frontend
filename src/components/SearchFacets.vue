@@ -1,6 +1,7 @@
 <template>
   <div id="search-facets">
     <filter-timeline
+      v-if="containsTimelineFacets"
       class="border-top mx-3 py-2 mb-2"
       :filters="daterangeFilters"
       :values="timelineValues"
@@ -35,33 +36,34 @@ import FilterFactory from '@/models/FilterFactory'
  * @typedef {import('@/models').Facet} Facet
  */
 
+const TimelineFacetTypes = ['year', 'daterange']
+
 export default {
   props: {
+    /** @type {import('vue').PropOptions<string>} */
     groupBy: {
       type: String,
       default: 'articles',
     },
+    /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
-      /** @type {import('vue').PropType<Filter[]>} */
       type: Array,
       default: () => [],
     },
+    /** @type {import('vue').PropOptions<Facet[]>} */
     facets: {
-      /** @type {import('vue').PropType<Facet[]>} */
       type: Array,
       default: () => [],
     },
+    /** @type {import('vue').PropOptions<number>} */
     startYear: {
       type: Number,
       default: 1737,
     },
+    /** @type {import('vue').PropOptions<number>} */
     endYear: {
       type: Number,
       default: 2020,
-    },
-    nonStandardFacetTypes: {
-      type: Array,
-      default: () => ['year', 'daterange']
     }
   },
   data: () => ({
@@ -69,15 +71,19 @@ export default {
     selectedDaterangeFilter: null,
   }),
   computed: {
+    /** @returns {Facet[]} */
     standardFacets() {
-      return this.facets.filter(({ type }) => !this.nonStandardFacetTypes.includes(type))
+      return this.facets.filter(({ type }) => !TimelineFacetTypes.includes(type))
     },
+    /** @returns {boolean} */
+    containsTimelineFacets() {
+      return this.facets.filter(({ type }) => TimelineFacetTypes.includes(type)).length > 0
+    },
+    /** @returns {Filter[]} */
     daterangeFilters() {
       return this.filters.filter(({ type }) => type === 'daterange');
     },
-    daterangeIncluded() {
-      return this.daterangeFilters.filter(({ filter: { context } }) => context === 'include');
-    },
+    /** @returns {Date} */
     minDate() {
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce((min, d) => (d.t < min ? d.t : min), this.timelineValues[0].t);
@@ -85,6 +91,7 @@ export default {
       }
       return new Date(`${this.startYear}-01-01`);
     },
+    /** @returns {Date} */
     maxDate() {
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce((max, d) => (d.t > max ? d.t : max), this.timelineValues[0].t);
@@ -92,6 +99,7 @@ export default {
       }
       return new Date(`${this.endYear}-12-31`);
     },
+    /** @returns {any[]} */
     timelineValues() {
       const yearFacet = this.facets.find(({ type }) => type === 'year')
       if (!yearFacet || !yearFacet.buckets.length) return []
@@ -99,19 +107,33 @@ export default {
     }
   },
   methods: {
+    /**
+     * @param {string} type
+     * @returns {Filter[]}
+     */
     getFacetFilters(type) {
       return this.filters
         .filter(d => d.type === type)
         .map(filter => FilterFactory.create(filter));
     },
+    /**
+     * @param {string} type
+     */
     resetFilters(type) {
       this.$emit('changed', this.filters.filter(d => d.type !== type));
     },
+    /**
+     * @param {Filter[]} daterangeFilters
+     */
     updateDaterangeFilters(daterangeFilters) {
       this.$emit('changed', this.filters
         .filter(({ type }) => type !== 'daterange')
         .concat(daterangeFilters));
     },
+    /**
+     * @param {string} type
+     * @param {Filter[]} updatedFilters
+     */
     facetFiltersUpdated(type, updatedFilters) {
       let updatedFiltersIndex = 0
 
