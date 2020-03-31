@@ -1,49 +1,27 @@
 import * as d3 from 'd3'
-import Basic from '@/d3-modules/Basic';
 
-export default class LineChart extends Basic{
+export default class LineChart {
   constructor({
     element = null,
     margin = { top: 5, bottom: 125, left: 45, right: 5}
-  }) {
-    super({
-      element,
-      margin,
-    });
+  } = {}) {
 
-    this.svg
+    this.margin = margin
+    this.element = element
+
+    this.svg = d3.select(element)
+      .append('svg')
       .attr('fill', 'none')
-      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linejoin', 'roun')
       .attr('stroke-linecap', 'round')
+      .attr('preserveAspectRatio', 'none');
 
-    // setup main context (mousemove on the whole area)
-    this.context = this.g.append('g')
-      .classed('context', true)
-      .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
-    this.contextBackground = this.context.append('rect');
-    this.axes = this.g.append('g').attr('class', 'axes')
-    this.lines = this.g.append('g').attr('class', 'lines')
-    this.areas = this.g.append('g').attr('class', 'areas')
-    // add addEventListeners
-    this.context.on('mousemove', this.mousemove.bind(this));
-    this.resize();
-  }
+    this.axes = this.svg.append('g').attr('class', 'axes')
+    this.lines = this.svg.append('g').attr('class', 'lines')
+    this.areas = this.svg.append('g').attr('class', 'areas')
 
-  mousemove(a, b, el) {
-    const [mouseX, mouseY] = d3.mouse(el[0]);
-    const scaledX = this.dimensions.x.scale.invert(mouseX);
-    const { index, nearest } = this.dimensions.x.getNearestValue(scaledX);
-
-    if (index === -1) return
-
-    console.info('@mousemove', mouseX, mouseY, index, nearest, scaledX );
-  }
-
-  resize() {
-    super.resize();
-    if (this.data) {
-      this.render(this.data, this.lineMetrics, this.areaMetrics, this.options);
-    }
+    this.x = d3.scaleUtc()
+    this.y = d3.scaleLinear()
   }
 
   /**
@@ -57,24 +35,19 @@ export default class LineChart extends Basic{
    * @param {{ colorPalette?: {[key: string]: string} }} options
    */
   render(data, lineMetrics = [], areaMetrics = [], options = {}) {
-    this.data = data;
-    this.lineMetrics = lineMetrics;
-    this.areaMetrics = areaMetrics;
-    this.options = options;
-    const { width, height } = this;
+    const { width, height } = this.element.getBoundingClientRect()
     const { colorPalette = {} } = options
 
-    this.contextBackground
-      .attr('width', this.width - this.margin.right - this.margin.left)
-      .attr('height', this.height - this.margin.bottom - this.margin.top);
+    this.svg.attr('viewBox', [0, 0, width, height].join(' '))
+
     // X
-    const x = d3.scaleUtc()
+    this.x
       .domain(/** @type {Date[]} */ (d3.extent(data, d => d.domain)))
-      .range([this.margin.left, width - this.margin.right])
+      .range([this.margin.left, width - this.margin.right - this.margin.left])
 
     const xAxis = g => g
       .attr('transform', `translate(0,${height - this.margin.bottom})`)
-      .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
+      .call(d3.axisBottom(this.x).ticks(width / 80).tickSizeOuter(0))
 
     this.axes
       .selectAll('g.x')
@@ -88,13 +61,13 @@ export default class LineChart extends Basic{
     const maxY = /** @type {number} */ (d3.max([maxYLines, maxYAreas]))
 
     // Y
-    const y = d3.scaleLinear()
+    this.y
       .domain([0, maxY]).nice()
-      .range([height - this.margin.bottom, this.margin.top])
+      .range([height - this.margin.bottom - this.margin.top, this.margin.top])
 
     const yAxis = g => g
       .attr('transform', `translate(${this.margin.left},0)`)
-      .call(d3.axisLeft(y))
+      .call(d3.axisLeft(this.y))
       .call(g => g.select('.domain').remove())
       .call(g => g.select('.tick:last-of-type text').clone()
         .attr('x', 3)
@@ -111,8 +84,8 @@ export default class LineChart extends Basic{
     // lines
     const line = d3.line()
       .defined(([, value]) => !isNaN(value))
-      .x(([date]) => x(date))
-      .y(([, value]) => y(value))
+      .x(([date]) => this.x(date))
+      .y(([, value]) => this.y(value))
 
     const linesContainers = this.lines
       .selectAll('g')
@@ -125,9 +98,9 @@ export default class LineChart extends Basic{
     // @ts-ignore
     const area = (/** @type {d3.Area<[Date, [number, number]]>} */ (d3.area()))
       .defined(([, [y0, y1]]) => [y0, y1].every(v => !isNaN(v)))
-      .x(([date]) => x(date))
-      .y0(([, [y0]]) => y(y0))
-      .y1(([, [, y1]]) => y(y1))
+      .x(([date]) => this.x(date))
+      .y0(([, [y0]]) => this.y(y0))
+      .y1(([, [, y1]]) => this.y(y1))
 
     this.areas
       .selectAll('path')

@@ -46,20 +46,18 @@
         </b-navbar>
         </div>
       <!-- slot:body -->
+      <div><em v-if="statsLoading">{{ $t('actions.loading') }}</em></div>
       <div ref="chart" class="chart h-100 w-100 position:relative" />
       <!-- slot:footer -->
       <div slot="footer" class="border-top p-2 pb-3" style='max-height: 180px;overflow:scroll'>
         <!-- 3. items -->
-        <div class="d-inline-flex mx-1 align-items-center" v-for="item in statsLegendItems" :key="item.id"
-        >
+        <div class="d-inline-flex mx-1 align-items-center" v-for="item in statsLegendItems" :key="item.id">
           <b-form-checkbox
-
             :checked="selectedItems[item.id]"
             @input="v => handleItemChanged(item.id, v)">
-            <div class="pl-1 pr-1 d-flex"
-                :style="{
-                  'background-color': item.color.length > 7 ? item.color : `${item.color}77`
-                }">
+            <div
+              class="pl-1 pr-1 d-flex"
+              :style="{'background-color': item.color.length > 7 ? item.color : `${item.color}77`}">
               {{ item.label }}
             </div>
           </b-form-checkbox>
@@ -75,7 +73,6 @@ import { schemeCategory10, schemeAccent } from 'd3'
 
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
-// import Spinner from '@/components/layout/Spinner'
 import LineChart from '@/d3-modules/LineChart'
 import CategoricalMultiValueBarChart from '@/d3-modules/CategoricalMultiValueBarChart'
 import CategoricalCircleChart from '@/d3-modules/CategoricalCircleChart'
@@ -193,27 +190,6 @@ const colorInLegendEnabled = (domain, facetType) => {
   return true
 }
 
-/** @param {Filter[]} filters */
-const serializeFilters = filters => toSerializedFilters(filters)
-/** @param {string} serializedFilters */
-const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
-/**
- * @param {string[]} facetTypes
- * @returns {(any) => Facet[]}
- */
-const apiResponseToFacetsFactory = facetTypes => response => {
-  const { facets: responseFacets = {} } = response.info
-
-  const responseFacetsWithMissingTypes = facetTypes.reduce((acc, type) => {
-    return { ...acc, [type]: responseFacets[type] || {} }
-  }, {})
-
-  return getFacetsFromApiResponse(
-    responseFacetsWithMissingTypes,
-    DefaultFacetOperatorsMap
-  )
-}
-
 /**
  * @typedef {{ id: string, extractor: (any) => number }} LineMetricExtractor
  * @typedef {{ id: string, extractor: (any) => [number, number] }} AreaMetricExtractor
@@ -287,7 +263,9 @@ export default {
     /** @type {LineChart | CategoricalMultiValueBarChart | CategoricalCircleChart | undefined} */
     chart: undefined,
     /** @type {{[key: number]: boolean}} */
-    selectedItems: {}
+    selectedItems: {},
+    /** @type {(() => void) | undefined} */
+    resizeHandler: undefined
   }),
   methods: {
     /** @param {Filter} filter */
@@ -307,31 +285,70 @@ export default {
     handleItemChanged(id, value) {
       this.$set(this.selectedItems, id, value)
     },
-    onResize() {
-      if (this.chart) {
-        this.chart.resize();
+    /**
+     * @typedef {{ stats: any, lineMetrics: LineMetricExtractor[], areaMetrics: AreaMetricExtractor[] }} ChartData
+     * @param {ChartData} param
+     */
+    renderChart({ stats, lineMetrics, areaMetrics }) {
+      console.log('RRR', { stats, lineMetrics, areaMetrics })
+      const { meta, items: statsItems, itemsDictionary } = stats
+      if (meta == null) return
+
+      const ChartClass = getChartClass(meta.domain, meta.facetType)
+
+      if (!(this.chart instanceof ChartClass)) {
+        const element = this.$refs.chart
+        element.textContent = ''
+        this.chart = new ChartClass({ element })
+      }
+
+      const items = meta.domain === 'time'
+        ? statsItems.map(({ domain, value }) => ({
+          domain: new Date(domain),
+          value
+        }))
+        : statsItems
+
+      const entrichedItems = meta.domain === 'time'
+        ? withMissingDates(
+          items,
+          meta.resolution,
+          item => item.domain,
+          date => ({ domain: date, value: {} })
+        )
+        : items
+
+
+      this.chart.render(
+        entrichedItems,
+        lineMetrics,
+        areaMetrics,
+        { itemsDictionary, colorPalette: this.colorPalette }
+      )
     }
-  },
   },
   components: {
     SearchSidebar,
-    Autocomplete,
-    // Spinner
+    Autocomplete
   },
   mounted() {
-    this.facets = apiResponseToFacetsFactory(this.facetTypes)(DefaultEmptyApiResponse)
-    window.addEventListener('resize', this.onResize);
+    this.facets = buildEmptyFacets(this.facetTypes)
+    this.resizeHandler = () => this.renderChart(this.chartData)
+    // @ts-ignore
+    window.addEventListener('resize', this.resizeHandler);
   },
   beforeDestroy() {
-    window.removeEventListener('resize', this.onResize);
+    // @ts-ignore
+    window.removeEventListener('resize', this.resizeHandler);
   },
   computed: {
+    /** @returns {{ value: string, text: string}[]} */
     availableStatsFacets() {
       return Object.keys(StatsFacets).flatMap(index => {
-        const facets = Object.values(StatsFacets[index]).flat()
+        const facets = Object.values(StatsFacets[index]).flat().filter(v => v !== 'time')
         return facets.map(facet => {
           const key = `${index}.${facet}`
-          return { value: key, text: this.$t(key) }
+          return { value: key, text: this.$t(key).toString() }
         })
       })
     },
@@ -428,7 +445,7 @@ export default {
       return lineItems.concat(areaItems)
     },
     /**
-     * @returns {{ stats: any, lineMetrics: LineMetricExtractor[], areaMetrics: AreaMetricExtractor[] }}
+     * @returns {ChartData}
      */
     chartData() {
       const { meta } = this.stats
@@ -495,42 +512,7 @@ export default {
       },
       immediate: true
     },
-    chartData({ stats, lineMetrics, areaMetrics }) {
-      const { meta, items: statsItems, itemsDictionary } = stats
-      if (meta == null) return
-
-      const ChartClass = getChartClass(meta.domain, meta.facetType)
-
-      if (!(this.chart instanceof ChartClass)) {
-        const element = this.$refs.chart
-        element.textContent = ''
-        this.chart = new ChartClass({ element })
-      }
-
-      const items = meta.domain === 'time'
-        ? statsItems.map(({ domain, value }) => ({
-          domain: new Date(domain),
-          value
-        }))
-        : statsItems
-
-      const entrichedItems = meta.domain === 'time'
-        ? withMissingDates(
-          items,
-          meta.resolution,
-          item => item.domain,
-          date => ({ domain: date, value: {} })
-        )
-        : items
-
-
-      this.chart.render(
-        entrichedItems,
-        lineMetrics,
-        areaMetrics,
-        { itemsDictionary, colorPalette: this.colorPalette }
-      )
-    },
+    chartData(chartData) { this.renderChart(chartData) },
     stats(value) {
       const { meta } = value
       if (meta == null) return
