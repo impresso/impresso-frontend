@@ -46,6 +46,7 @@
           {{$t("label_compare")}}
         </b-nav-item>
         <b-nav-item
+          v-if="textReuseEnabled"
           v-bind:to="{ name: 'text-reuse-cluster-detail'}"
           active-class="active">
           {{$t("label_text_reuse")}}
@@ -276,6 +277,10 @@ export default {
     },
     version() {
       return [window.impressoVersion, window.impressoDataVersion].join('/');
+    },
+    textReuseEnabled() {
+      // @ts-ignore
+      return !!window.impressoFeatures?.textReuse?.enabled
     }
   },
   methods: {

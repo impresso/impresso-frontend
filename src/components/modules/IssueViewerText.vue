@@ -166,6 +166,10 @@ export default {
     },
     selectedClusterId() {
       return this.$route.query.trClusterId
+    },
+    textReuseEnabled() {
+      // @ts-ignore
+      return !!window.impressoFeatures?.textReuse?.enabled
     }
   },
   props: ['article_uid'],
@@ -243,14 +247,19 @@ export default {
       async handler(articleUid) {
         this.articlesSuggestions = [];
 
-        const trPromise = articleTextReusePassages
-          .find({ query: { id: articleUid }})
-          .then(({ passages }) => passages);
+        const trPromise = this.textReuseEnabled
+          ? articleTextReusePassages
+            .find({ query: { id: articleUid }})
+            .then(({ passages }) => passages)
+          : Promise.resolve([])
 
-        [this.article, this.textReusePassages] = await Promise.all([
+        const [article, textReusePassages] = await Promise.all([
           this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
           trPromise
         ])
+        this.article = article
+        this.textReusePassages = textReusePassages
+
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
         });

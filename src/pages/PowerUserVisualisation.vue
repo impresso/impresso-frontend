@@ -351,9 +351,18 @@ export default {
     window.removeEventListener('resize', this.resizeHandler);
   },
   computed: {
+    /** @returns {boolean} */
+    textReuseEnabled() {
+      // @ts-ignore
+      return !!window.impressoFeatures?.textReuse?.enabled
+    },
     /** @returns {{ value: string, text: string}[]} */
     availableStatsFacets() {
-      return Object.keys(StatsFacets).flatMap(index => {
+      const indexes = this.textReuseEnabled
+        ? Object.keys(StatsFacets)
+        : Object.keys(StatsFacets).filter(index => !['tr_clusters', 'tr_passages'].includes(index))
+
+      return indexes.flatMap(index => {
         const facets = Object.values(StatsFacets[index]).flat().filter(v => v !== 'time')
         return facets.map(facet => {
           const key = `${index}.${facet}`
