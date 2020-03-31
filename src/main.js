@@ -101,7 +101,8 @@ Promise.race([
       dataVersion: res.solr.dataVersion,
       apiVersion: res.apiVersion,
       documentsDateSpan: res.documentsDateSpan,
-      newspapers: res.newspapers
+      newspapers: res.newspapers,
+      features: res.features
     }))
   ]).catch((err) => {
     console.error(err);
@@ -113,13 +114,14 @@ Promise.race([
       newspapers: {}
     };
   });
-}).then(({ version, dataVersion, documentsDateSpan, newspapers, apiVersion = {} }) => {
+}).then(({ version, dataVersion, documentsDateSpan, newspapers, apiVersion = {}, features = {} }) => {
   console.info(`Version services:${version}, data:${dataVersion}`);
   window.impressoVersion = version;
   window.impressoDataVersion = dataVersion;
   window.impressoApiVersion = apiVersion
   window.impressoDocumentsDateSpan = documentsDateSpan
   window.impressoNewspapers = newspapers
+  window.impressoFeatures = features
 
   window.app = new Vue({
     el: '#app',
