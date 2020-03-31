@@ -319,15 +319,11 @@ export default {
     // Spinner
   },
   mounted() {
-<<<<<<< HEAD
-    this.facets = buildEmptyFacets(this.facetTypes)
-=======
     this.facets = apiResponseToFacetsFactory(this.facetTypes)(DefaultEmptyApiResponse)
     window.addEventListener('resize', this.onResize);
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.onResize);
->>>>>>> d44b3192... inline legend, enable onresize listener
   },
   computed: {
     availableStatsFacets() {
