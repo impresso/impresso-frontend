@@ -6,7 +6,14 @@
       :facets="facets"
       contextTag="powerUserVis"
       @changed="handleFiltersChanged">
-      <div slot="tabs"/>
+      <div slot="tabs">
+        <b-tabs pills class="mx-2 pt-2">
+          <template v-slot:tabs-end>
+            <b-nav-item class="active"><span v-html="$t('powervis')"/>
+            </b-nav-item>
+          </template>
+        </b-tabs>
+      </div>
       <div slot="header">
         <autocomplete v-on:submit="handleAutocompleteSubmit" />
       </div>
@@ -14,21 +21,31 @@
 
     <!-- main section -->
     <i-layout-section main>
-      <div class="d-flex flex-column">
-        <spinner v-if="statsLoading"/>
+      <div slot="header">
+        <b-navbar>
+          <section>
+            <h3 class='mb-1'>{{ $t('powerUser') }}</h3>
+          </section>
+        </b-navbar>
 
-        <!-- 1. selectors -->
-        <div class="d-flex flex-row">
+        <b-navbar class="border-top border-bottom py-0 px-3">
+          <b-navbar-nav class="pl-0 pr-2 py-2 border-right">
+            <label class="mr-2">{{$t('yvalue')}}</label>
           <i-dropdown v-model="statsFacetModel"
                       :options="availableStatsFacets"
                       size="sm"
                       variant="outline-primary"/>
+          </b-navbar-nav>
+          <b-navbar-nav class="p-2 border-right">
+            <label  class="mr-2">{{$t('xvalue')}}</label>
           <i-dropdown v-model="statsDomain"
                       :options="statsDomainsOptions"
                       size="sm"
                       variant="outline-primary"/>
+          </b-navbar-nav>
+        </b-navbar>
         </div>
-
+      <div class="d-flex flex-column">
         <!-- 2. chart -->
         <div
           ref="chart"
@@ -60,7 +77,7 @@ import { schemeCategory10, schemeAccent } from 'd3'
 
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
-import Spinner from '@/components/layout/Spinner'
+// import Spinner from '@/components/layout/Spinner'
 import LineChart from '@/d3-modules/LineChart'
 import CategoricalMultiValueBarChart from '@/d3-modules/CategoricalMultiValueBarChart'
 import CategoricalCircleChart from '@/d3-modules/CategoricalCircleChart'
@@ -178,13 +195,26 @@ const colorInLegendEnabled = (domain, facetType) => {
   return true
 }
 
-const AvailableStatsFacetsIds = Object.keys(StatsFacets).flatMap(index => {
-  const facets = Object.values(StatsFacets[index]).flat()
-  return facets.map(facet => {
-    const key = `${index}.${facet}`
-    return { value: key, text: key }
-  })
-})
+/** @param {Filter[]} filters */
+const serializeFilters = filters => toSerializedFilters(filters)
+/** @param {string} serializedFilters */
+const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
+/**
+ * @param {string[]} facetTypes
+ * @returns {(any) => Facet[]}
+ */
+const apiResponseToFacetsFactory = facetTypes => response => {
+  const { facets: responseFacets = {} } = response.info
+
+  const responseFacetsWithMissingTypes = facetTypes.reduce((acc, type) => {
+    return { ...acc, [type]: responseFacets[type] || {} }
+  }, {})
+
+  return getFacetsFromApiResponse(
+    responseFacetsWithMissingTypes,
+    DefaultFacetOperatorsMap
+  )
+}
 
 /**
  * @typedef {{ id: string, extractor: (any) => number }} LineMetricExtractor
@@ -256,7 +286,6 @@ export default {
     filtersWithItems: [],
     stats: {},
     statsLoading: false,
-    availableStatsFacets: AvailableStatsFacetsIds,
     /** @type {LineChart | CategoricalMultiValueBarChart | CategoricalCircleChart | undefined} */
     chart: undefined,
     /** @type {{[key: number]: boolean}} */
@@ -284,12 +313,21 @@ export default {
   components: {
     SearchSidebar,
     Autocomplete,
-    Spinner
+    // Spinner
   },
   mounted() {
     this.facets = buildEmptyFacets(this.facetTypes)
   },
   computed: {
+    availableStatsFacets() {
+      return Object.keys(StatsFacets).flatMap(index => {
+        const facets = Object.values(StatsFacets[index]).flat()
+        return facets.map(facet => {
+          const key = `${index}.${facet}`
+          return { value: key, text: this.$t(key) }
+        })
+      })
+    },
     /** @returns {Filter[]} */
     filters() { return deserializeFilters(getQueryParameter(this, QueryParameters.SearchFilters)) },
     /** @returns {Filter[]} */
@@ -536,6 +574,17 @@ export default {
       "de": "German",
       "lb": "Luxembourgish",
       "en": "English"
+    },
+    "search": {
+      "newspaper": "number of articles published, per newspaper",
+      "country": "number of articles published, per newspaper",
+      "type": "number of articles published, per type",
+      "topic":  "number of articles published, by topic",
+      "language":  "number of articles published, by language",
+      "person": "number of articles published per entity (person)",
+      "location": "number of articles published per entity (location)",
+      "contentLength": "article length (n of tokens, average)",
+      "pagesCount": "number of pages (average)"
     }
   }
 }
