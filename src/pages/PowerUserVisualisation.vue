@@ -9,7 +9,7 @@
       <div slot="tabs">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item class="active"><span v-html="$t('powervis')"/>
+            <b-nav-item class="active"><span v-html="$t('tabs.powervis')"/>
             </b-nav-item>
           </template>
         </b-tabs>
@@ -24,7 +24,7 @@
       <div slot="header">
         <b-navbar>
           <section>
-            <h3 class='mb-1'>{{ $t('powerUser') }}</h3>
+            <h3 class='mb-1'>{{ $t('pages.powervis.title') }}</h3>
           </section>
         </b-navbar>
 
@@ -45,17 +45,15 @@
           </b-navbar-nav>
         </b-navbar>
         </div>
-      <div class="d-flex flex-column">
-        <!-- 2. chart -->
-        <div
-          ref="chart"
-          :style="`height: ${chartHeightString};`"/>
-
+      <!-- slot:body -->
+      <div ref="chart" class="chart h-100 w-100 position:relative" />
+      <!-- slot:footer -->
+      <div slot="footer" class="border-top p-2 pb-3" style='max-height: 100px;'>
         <!-- 3. items -->
-        <div class="d-flex flex-column ml-2 flex-wrap">
+        <div class="d-inline-flex mx-1 align-items-center" v-for="item in statsLegendItems" :key="item.id"
+        >
           <b-form-checkbox
-            v-for="item in statsLegendItems"
-            :key="item.id"
+
             :checked="selectedItems[item.id]"
             @input="v => handleItemChanged(item.id, v)">
             <div class="pl-1 pr-1 d-flex"
@@ -308,7 +306,12 @@ export default {
      */
     handleItemChanged(id, value) {
       this.$set(this.selectedItems, id, value)
+    },
+    onResize() {
+      if (this.chart) {
+        this.chart.resize();
     }
+  },
   },
   components: {
     SearchSidebar,
@@ -316,12 +319,21 @@ export default {
     // Spinner
   },
   mounted() {
+<<<<<<< HEAD
     this.facets = buildEmptyFacets(this.facetTypes)
+=======
+    this.facets = apiResponseToFacetsFactory(this.facetTypes)(DefaultEmptyApiResponse)
+    window.addEventListener('resize', this.onResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
+>>>>>>> d44b3192... inline legend, enable onresize listener
   },
   computed: {
     availableStatsFacets() {
       return Object.keys(StatsFacets).flatMap(index => {
         const facets = Object.values(StatsFacets[index]).flat()
+        console.info('*****', facets);
         return facets.map(facet => {
           const key = `${index}.${facet}`
           return { value: key, text: this.$t(key) }
@@ -559,6 +571,11 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .chart{
+    display: block;
+  }
+</style>
 
 <i18n>
 {
@@ -575,6 +592,8 @@ export default {
       "lb": "Luxembourgish",
       "en": "English"
     },
+    "xvalue": "x axis",
+    "yvalue": "y axis",
     "search": {
       "newspaper": "number of articles published, per newspaper",
       "country": "number of articles published, per newspaper",
