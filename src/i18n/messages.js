@@ -176,6 +176,11 @@ export default {
         find: 'while loading named entities',
       },
     },
+    pages: {
+      powervis: {
+        title: 'XY visualisation',
+      },
+    },
     label: {
       isFront: 'only results on the front page',
       year: {
@@ -271,6 +276,7 @@ export default {
       },
     },
     tabs: {
+      powervis: 'apply filters to visualisation',
       overview: 'overview',
       relatedArticles: '... related articles | 1 related article | {count} related articles',
     },
