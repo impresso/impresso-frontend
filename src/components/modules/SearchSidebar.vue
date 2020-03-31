@@ -83,9 +83,7 @@ export default {
       // propagate filters changed
       this.$emit('changed', filters);
     },
-    reset() {
-      this.$emit('changed', []);
-    },
+    reset() { this.$emit('changed', []); },
   },
   computed: {
     /** @return {boolean} */

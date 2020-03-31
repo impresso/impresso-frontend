@@ -290,7 +290,6 @@ export default {
      * @param {ChartData} param
      */
     renderChart({ stats, lineMetrics, areaMetrics }) {
-      console.log('RRR', { stats, lineMetrics, areaMetrics })
       const { meta, items: statsItems, itemsDictionary } = stats
       if (meta == null) return
 
@@ -325,6 +324,16 @@ export default {
         areaMetrics,
         { itemsDictionary, colorPalette: this.colorPalette }
       )
+    },
+    /**
+     * @param {string} index
+     * @param {string} type
+     * @returns {boolean}
+     */
+    isFilterTypeSupporedInIndex(index, type) {
+      // NOTE: daterange is the only filter type that does not have corresponding facet at the moment
+      const filterTypes = DefaultFacetTypesForIndex[index].concat(['daterange'])
+      return filterTypes.includes(type) && !NoFacetFilters[index].includes(type)
     }
   },
   components: {
@@ -377,7 +386,7 @@ export default {
       /** @param {string} value */
       set(value) {
         const [index, facet] = value.split('.')
-        const supportedFilters = this.filters.filter(({ type }) => DefaultFacetTypesForIndex[index].includes(type) || NoFacetFilters[index].includes(type))
+        const supportedFilters = this.filters.filter(({ type }) => this.isFilterTypeSupporedInIndex(this.statsIndex, type))
 
         this.$navigation.updateQueryParameters({
           [QueryParameters.Index]: index,
@@ -532,7 +541,7 @@ export default {
     facetTypes() {
       // when facet types change we want to go through our active filters
       // and remove those, that are not supported.
-      const supportedFilters = this.filters.filter(({ type }) => this.facetTypes.includes(type) || NoFacetFilters[this.statsIndex].includes(type))
+      const supportedFilters = this.filters.filter(({ type }) => this.isFilterTypeSupporedInIndex(this.statsIndex, type))
       this.handleFiltersChanged(supportedFilters)
     },
     statsDomain() {
