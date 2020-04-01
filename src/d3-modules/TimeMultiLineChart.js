@@ -184,10 +184,19 @@ export default class TimeMultiLineChart {
   _renderInteractionLayer() {
     if (!d3.event) return
 
-    const [mouseX, mouseY] = d3.mouse(this.element)
-    const currentMouseTimeValue = this.x.invert(mouseX)
+    let [mouseX, mouseY] = d3.mouse(this.element)
+
+    const { width: linesContainerWidth } = this.lines.node().getBoundingClientRect()
+
+    if (mouseX > linesContainerWidth + this.margin.left) {
+      mouseX = linesContainerWidth + this.margin.left
+    } else if (mouseX < this.margin.left){
+      mouseX = this.margin.left
+    }
 
     this._lastMousePosition = [mouseX, mouseY]
+
+    const currentMouseTimeValue = this.x.invert(mouseX)
 
     const positionData = this._interactionActive ? [currentMouseTimeValue] : []
 

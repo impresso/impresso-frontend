@@ -1,8 +1,10 @@
 <template lang="html">
-  <div class="tooltip" :class='{active: tooltip.isActive}' :style="{
-      transform: `translate(${x}px, ${this.tooltip.y}px`,
-    }">
-    <div class="tooltip-wrapper">
+  <div class="tooltip"
+       :class='{active: tooltip.isActive}'
+       :style="{
+          transform: `translate(${x}px, ${this.tooltip.y}px`,
+       }">
+    <div class="tooltip-wrapper" ref="wrapper">
       <div class="tooltip-inner">
         <slot></slot>
       </div>
@@ -13,7 +15,7 @@
 <script>
 
 /**
- * @typedef {{ x: number, y: number, isActive: boolean, item?: any, hspace?: number }} TooltipProperties
+ * @typedef {{ x: number, y: number, isActive: boolean, item?: any }} TooltipProperties
  */
 
 export default {
@@ -25,8 +27,7 @@ export default {
       default: () => ({
         x: 0,
         y: 0,
-        isActive: false,
-        hspace: 1000,
+        isActive: false
       })
     },
     maxWidth: {
@@ -37,9 +38,20 @@ export default {
   computed: {
     /** @returns {number} */
     x() {
-      const hspace = this.tooltip.hspace == null ? 1000 : this.tooltip.hspace
-      const x0 = Math.min(this.tooltip.x, hspace - (this.maxWidth / 2));
-      return Math.max(this.maxWidth / 2, x0);
+      const { width = null } = this.$el && this.$el.parentNode
+        ? this.$el.parentNode.getBoundingClientRect()
+        : {}
+
+      if (width == null) return this.tooltip.x
+
+      const { width: tooltipWidth = this.maxWidth } = this.$refs.wrapper.getBoundingClientRect()
+
+      const halfTooltipWidth = tooltipWidth / 2
+
+      if (this.tooltip.x < halfTooltipWidth) return halfTooltipWidth
+      if (this.tooltip.x > (width - halfTooltipWidth)) return width - halfTooltipWidth
+
+      return this.tooltip.x
     },
   },
 };
