@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column crosshair">
+  <div class="crosshair">
     <tooltip :tooltip="tooltip">
       <slot :tooltip="tooltip">
         <div v-if="tooltip.isActive">

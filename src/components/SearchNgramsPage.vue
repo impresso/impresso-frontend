@@ -55,7 +55,7 @@
         </b-input-group>
       </b-navbar>
     </div>
-    <div class="m-3" v-if="trends.length > 0">
+    <div class="m-3" v-if="unigrams.length > 0" :style="{ position: isLoading ? 'relative' : undefined }">
       <base-title-bar class="my-3">
         <span v-html="$t('label.timeline.unigramTitle')"/>
         <div slot="description">
@@ -67,7 +67,7 @@
         :round-value-fn="roundValueForDisplay"
         :height="300">
         <div slot-scope="tooltipScope">
-          <div class="d-flex flex-column">
+          <div>
             <div>{{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;</div>
             <div v-for="(item, index) in tooltipScope.tooltip.item.items" :key="item.label">
               <div :style="{ 'background-color': tooltipScope.tooltip.item.colors[index] }" class="legend-dot mr-1"></div>
@@ -78,7 +78,7 @@
           </div>
         </div>
       </multi-line-plot>
-      <div v-if="isLoading"><em>{{ $t('loading') }}</em></div>
+      <div class="loading-overlay" v-if="isLoading"><em>{{ $t('loading') }}</em></div>
     </div>
     <!-- without unigram -->
     <div v-else class="d-flex align-items-center justify-content-center h-100">
@@ -200,17 +200,12 @@ export default {
           group_by: 'articles',
         }
 
-        try {
-          this.isLoading = true
-          const [facets, filtersWithItems] = await Promise.all([
-            searchService.find({ query }).then(searchResponseToFacetsExtractor(SupportedFacetTypes)),
-            filtersItemsService.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
-          ]);
-          this.facets = facets
-          this.filtersWithItems = filtersWithItems.filter(({ type }) => !IgnoredFilterTypes.includes(type))
-        } finally {
-          this.isLoading = false
-        }
+        const [facets, filtersWithItems] = await Promise.all([
+          searchService.find({ query }).then(searchResponseToFacetsExtractor(SupportedFacetTypes)),
+          filtersItemsService.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
+        ]);
+        this.facets = facets
+        this.filtersWithItems = filtersWithItems.filter(({ type }) => !IgnoredFilterTypes.includes(type))
       },
       immediate: true,
       deep: true
@@ -221,7 +216,12 @@ export default {
         if (query.ngrams.length === 0) {
           this.ngramResult = EmptyNgramResult
         } else {
-          this.ngramResult = await ngramTrendsService.create(query);
+          try {
+            this.isLoading = true
+            this.ngramResult = await ngramTrendsService.create(query);
+          } finally {
+            this.isLoading = false
+          }
         }
       },
       immediate: true,
@@ -295,7 +295,7 @@ export default {
       const stringFilter = {
         type: 'string',
         precision: 'exact',
-        op: 'AND',
+        op: 'OR',
         q: this.trends.map(({ ngram }) => ngram),
       }
       const filters = this.filters.concat([stringFilter])
@@ -390,5 +390,20 @@ export default {
     height: 0.5em;
     display: inline-block;
     border-radius: 0.25em;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    background-color: #d4d4d412;
+    backdrop-filter: blur(0.8px);
   }
 </style>
