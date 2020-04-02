@@ -21,6 +21,17 @@
       </div>
       <!-- body -->
       <div class="aspects-container container-fluid">
+
+        <!-- oooooooo -->
+        <div class="column"
+             v-for="([facetId, facetType], facetIdx) in facets"
+             v-bind:key="`oo-${facetIdx}`">
+          <h3>{{ facetId }}</h3>
+          <diverging-bars-chart
+            v-if="facetType === 'bars'"
+            :items="getItemsForFacet(facetId)"/>
+        </div>
+
         <div class="row aspect-row"
              v-for="([facetId, facetType], facetIdx) in facets"
              v-bind:key="facetIdx">
@@ -76,6 +87,7 @@ import { searchQueriesComparison, search, collections } from '@/services';
 import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
 import LoadingIndicator from './modules/LoadingIndicator';
+import DivergingBarsChart from './modules/vis/DivergingBarsChart'
 import Bucket from '../models/Bucket';
 import { optimizeFilters } from '@/logic/filters'
 
@@ -272,8 +284,31 @@ export default {
     FacetOverviewPanel,
     QueryHeaderPanel,
     LoadingIndicator,
+    DivergingBarsChart
   },
   methods: {
+    getItemsForFacet(facetId) {
+      const [leftBuckets, intersectionBuckets, rightBuckets] = this.queriesResults.map(results => {
+        const facet = results?.facets?.find(({ id }) => id === facetId)
+        return facet?.buckets ?? []
+      })
+
+      const uniqueIds = [...new Set(leftBuckets.concat(rightBuckets).concat(intersectionBuckets)
+        .map(({ val }) => val))]
+
+      return uniqueIds.map(id => {
+        const leftBucket = leftBuckets.find(({ val }) => val === id)
+        const rightBucket = rightBuckets.find(({ val }) => val === id)
+        const intersectionBucket = intersectionBuckets.find(({ val }) => val === id)
+
+        return {
+          label: id,
+          left: leftBucket ? leftBucket.count : 0,
+          right: rightBucket ? rightBucket.count : 0,
+          intersection: intersectionBucket ? intersectionBucket.count : 0
+        }
+      }).filter(({ left, right }) => left > 0 && right > 0)
+    },
 
     /** Get particular values out of a retuls object */
     getFacetValues(result, facetId) {
