@@ -53,7 +53,7 @@
         <!--  type:generic -->
         <span class="label sp-generic-item"
           v-if="['year'].includes(filter.type)"
-          :class="filter.context">{{filter}}{{ filter.q.join(', ') }}
+          :class="filter.context">{{filter}}{{ filter.q && Array.isArray(filter.q) ? filter.q.join(', ') : '' }}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
@@ -86,7 +86,7 @@
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
-        <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex, filter)">{{$t('actions.remove')}}</b-button>
+        <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
     <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addFilter') }}</b-button>
@@ -122,25 +122,28 @@ export default {
     explorerVisible: false
   }),
   props: {
+    /** @type {import('vue').PropOptions<string[]>} */
     excludedTypes: {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
     },
+    /** @type {import('vue').PropOptions<string[] | undefined>} */
     includedFilterTypes: {
       /* included filter types override excluded types */
-      /** @type {import('vue').PropType<string[] | undefined>} */
       type: Array,
       default: undefined
     },
+    /** @type {import('vue').PropOptions<boolean>} */
     enableAddFilter: {
       type: Boolean,
       default: false,
     },
+    /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
-      /** @type {import('vue').PropType<Filter[]>} */
       type: Array,
       default: () => []
     },
+    /** @type {import('vue').PropOptions<string>} */
     index: {
       type: String,
       default: 'search'
@@ -157,9 +160,10 @@ export default {
         .map((filter, filterIndex) => ({ filter: FilterFactory.create(filter), filterIndex }))
         .filter(filterFn)
     },
-    /** @type {import('vue').ComputedOptions<Filter[]>} */
     explorerFilters: {
+      /** @returns {Filter[]} */
       get() { return this.filters },
+      /** @param {Filter[]} filters */
       set(filters) { this.$emit('changed', filters) }
     },
     /** @returns {string[]} */

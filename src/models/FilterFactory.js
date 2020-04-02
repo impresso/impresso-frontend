@@ -16,7 +16,7 @@ export default {
    * @returns {import('.').Filter}
    */
   create: (filterData) => {
-    let filter = {};
+    let filter = { ...filterData };
 
     if (filterData.type === 'mention') {
       filter = new FilterString({
