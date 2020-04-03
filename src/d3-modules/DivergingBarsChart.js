@@ -70,9 +70,19 @@ export default class DivergingBarsChart {
     this.barX = d3.scaleLinear()
     this.y = d3.scaleLinear()
 
-    this.borderRect = this.svg.append('rect')
+    // this.borderRect = this.svg.append('rect')
 
     this._lastHeight = 0
+
+    this._interactionActive = false
+    this._lastMousePosition = [0, 0]
+    this._lastItem = undefined
+
+    // interaction
+    this.svg
+      .on('mousemove', () => this._handleInteraction())
+      .on('mouseover',  () => { this._interactionActive = true; this._handleInteraction() })
+      .on('mouseout',  () => { this._interactionActive = false; this._handleInteraction() })
   }
 
   /**
@@ -103,13 +113,13 @@ export default class DivergingBarsChart {
       .domain([0, maxValue])
       .range([0, (width - this.margin.left - this.margin.right) / 2])
 
-    // NOTE: Borders for development
-    this.borderRect
-      .attr('x', this.margin.left)
-      .attr('width', width - this.margin.left - this.margin.right)
-      .attr('y', this.y.range()[0])
-      .attr('height', this.y.range()[1] - this.y.range()[0])
-      .attr('stroke', '#999')
+    // // NOTE: Borders for development
+    // this.borderRect
+    //   .attr('x', this.margin.left)
+    //   .attr('width', width - this.margin.left - this.margin.right)
+    //   .attr('y', this.y.range()[0])
+    //   .attr('height', this.y.range()[1] - this.y.range()[0])
+    //   .attr('stroke', '#999')
 
     this.yAxis
       .attr('transform', `translate(${midWidth}, 0)`)
@@ -153,6 +163,8 @@ export default class DivergingBarsChart {
       .attr('height', this.sizes.barHeight)
       .attr('width', ({ value }) => intersectionX(value))
       .attr('fill', `url("#${IntersectionPatternId}")`)
+
+    this._handleInteraction()
   }
 
   _renderBars(sidesContainer) {
@@ -189,4 +201,28 @@ export default class DivergingBarsChart {
   }
 
   getLastHeight() { return this._lastHeight; }
+
+  _handleInteraction() {
+    if (!d3.event) return
+
+    let [mouseX, mouseY] = d3.mouse(this.element)
+
+    this._lastMousePosition = [mouseX, mouseY]
+
+    const currentBarIndex = this.y.invert(mouseY)
+
+    const item = this.labels.selectAll('text').data()[Math.floor(currentBarIndex)]
+    this._lastItem = item
+  }
+
+  tooltipData() {
+    const [x, y] = this._lastMousePosition
+
+    return {
+      x,
+      y,
+      isActive: this._interactionActive,
+      item: this._lastItem
+    }
+  }
 }

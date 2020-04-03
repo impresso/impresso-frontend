@@ -1,11 +1,19 @@
 <template>
-  <div class="crosshair">
-    <div ref="chart" :style="{ height: `${height}px`, border: '1px solid #999' }"/>
+  <div class="pointer">
+    <tooltip :tooltip="tooltip" :calculate-y="true">
+      <slot :tooltip="tooltip">
+        <div v-if="tooltip.isActive">
+          {{tooltip.item}}
+        </div>
+      </slot>
+    </tooltip>
+    <div ref="chart" :style="{ height: `${height}px` }"/>
   </div>
 </template>
 
 <script>
 import DivergingBarsChart from '@/d3-modules/DivergingBarsChart'
+import Tooltip from '../tooltips/Tooltip'
 
 /**
  * @typedef {{ left: number, right, number, intersection: number, label: string }} Item
@@ -24,12 +32,28 @@ export default {
     }
   },
   components: {
+    Tooltip
   },
   computed: {
     /** @returns {number} */
     height() {
       if (this.chart == null) return 0
       return this.chart.getLastHeight()
+    },
+    /** @returns {any} */
+    tooltip() {
+      const tooltipData = this.chart
+        ? this.chart.tooltipData()
+        : {
+          x: 0,
+          y: 0,
+          isActive: false,
+          item: undefined
+        }
+      return {
+        ...tooltipData,
+        isActive: tooltipData.isActive && tooltipData.item != null && tooltipData.item !== {}
+      }
     }
   },
   mounted() {
@@ -57,7 +81,7 @@ export default {
 </script>
 
 <style lang="scss">
-  .crosshair {
-    cursor: crosshair;
+  .pointer {
+    cursor: pointer;
   }
 </style>

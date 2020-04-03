@@ -21,60 +21,18 @@
       </div>
       <!-- body -->
       <div class="aspects-container container-fluid">
+        <side-by-side-facets-panel :facets="sideBySideTimelineFacets"
+                                   :comparable-loading-flags="loadingFlags"
+                                   @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
 
-        <!-- oooooooo -->
-        <div class="column"
-             v-for="([facetId, facetType], facetIdx) in facets"
-             v-bind:key="`oo-${facetIdx}`">
-          <h3>{{ facetId }}</h3>
-          <diverging-bars-chart
-            v-if="facetType === 'bars'"
-            :items="getItemsForFacet(facetId)"/>
-        </div>
+        <diverging-bars-chart-panel v-if="divergingBarsEnabled"
+                                    :facets="divergingBarsFacets"/>
 
-        <div class="row aspect-row"
-             v-for="([facetId, facetType], facetIdx) in facets"
-             v-bind:key="facetIdx">
-          <div class="one-third" :class="{
-            /* 'border-right mr-1px': !isLastResult(queryIdx), */
-            'border-left': queryIdx > 0,
-            'loading-bg': isQueryLoading(queryIdx),
-            }"
-            v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
-            <div class="col" v-if="isQueryLoading(queryIdx)">
-              <loading-indicator class="col py-3" v-if="facetIdx === 0"/>
-            </div>
-            <div class="col empty-col" v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) === undefined">
-              <div v-if="facetIdx === 0" style="text-align: center;">
-                <div v-if="queryIdx === 1">
-                  Two queries are required to compute intersection
-                </div>
-                <div v-if="queryIdx !== 1">
-                  <button class="btn mb-1 btn-outline-primary btn-sm"
-                          v-on:click="insertMostRecentSearchQuery(queryIdx)">
-                    Insert most recent search query
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-            <facet-overview-panel class="px-2"
-                                  :facet="facetId"
-                                  :type="facetType"
-                                  :title="$tc(`label.${facetId}.title`, getFacetValues(queryResult, facetId).length || 1)"
-                                  :values="getFacetValues(queryResult, facetId)"
-                                  @timeline-highlight="onTimelineHighlight"
-                                  @timeline-highlight-off="onTimelineHighlightOff"
-                                  @hovered="onHovered"
-                                  :hover-id="hoverId"
-                                  :timeline-highlight-value="getTimelineHighlight(facetId).data"
-                                  :timeline-highlight-enabled="getTimelineHighlight(facetId).enabled"
-                                  :timeline-domain="timelineDomain"
-                                  :search-query-id="`queryComparison/p-${queryIdx}`"
-                                  v-if="!isQueryLoading(queryIdx) && getFacetValues(queryResult, facetId) !== undefined"/>
-            </div>
-          </div>
-        </div>
+        <side-by-side-facets-panel v-if="!divergingBarsEnabled"
+                                   :facets="sideBySideBarFacets"
+                                   :comparable-loading-flags="loadingFlags"
+                                   :disable-handling-loading-and-empty="true"/>
+
       </div>
     </i-layout-section>
   </i-layout>
@@ -84,10 +42,9 @@
 import { protobuf } from 'impresso-jscommons';
 import Collection from '@/models/Collection';
 import { searchQueriesComparison, search, collections } from '@/services';
-import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewPanel';
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
-import LoadingIndicator from './modules/LoadingIndicator';
-import DivergingBarsChart from './modules/vis/DivergingBarsChart'
+import DivergingBarsChartPanel from './modules/searchQueriesComparison/DivergingBarsChartPanel'
+import SideBySideFacetsPanel from './modules/searchQueriesComparison/SideBySideFacetsPanel'
 import Bucket from '../models/Bucket';
 import { optimizeFilters } from '@/logic/filters'
 
@@ -100,17 +57,6 @@ function prepareFacets(responseFacets = {}) {
       buckets: buckets.map(bucket => new Bucket({ ...bucket, type })),
     };
   });
-}
-
-function getDomainForResults(results) {
-  const facets = results.facets || [];
-  const yearFacet = facets.filter(({ id }) => id === 'year')[0];
-
-  if (!yearFacet) return [];
-
-  const years = (yearFacet.buckets || []).map(({ val }) => val).sort();
-  if (years.length > 0) return [years[0], years[years.length - 1]];
-  return [];
 }
 
 const collectionIdToQuery = id => ({
@@ -180,13 +126,24 @@ const QueryLeftIndex = 0;
 const QueriesIntersectionIndex = 1;
 const QueryRightIndex = 2;
 
+/**
+ * @param {Bucket} bucket
+ * @returns {string}
+ */
+function getNameFromBucket(bucket) {
+  return bucket?.item?.name ?? bucket?.item?.htmlExcerpt ?? bucket?.val
+}
+
 export default {
   data: () => ({
+    /** @type {string | undefined} */
     hoverId: '',
     // loading flags indicate that tab at flag's index is loading data
     // from the API.
+    /** @type {boolean[]} */
     loadingFlags: [...Array(3).keys()].map(() => false),
     // [<facet id>, <facet visualisation method>]
+    /** @type {string[][]} */
     facets: [
       // lightweight
       ['year', 'timeline'],
@@ -199,29 +156,34 @@ export default {
       ['person', 'bars'],
       ['location', 'bars'],
     ],
+    /** @type {any[]} */
     queriesResults: [
       { },
       { type: 'intersection' },
       { },
     ],
-    // Timeline highlight (tooltip) data.
-    // Used to synchronise all three timelines
-    timelineHighlights: {},
     // list of available collections:
+    /** @type {any[]} */
     collections: [],
     // comparable items: { type, query, id }
     // where type is one of ['collection', 'query']
     //       id is the ID of the collection if this is a collection
     //       query is a Search Query object.
+    /** @type {{ type: string, query?: any }[]} */
     comparables: [
       { type: 'query', query: undefined /* DefaultQuery */ },
       { type: 'query', query: undefined /* DefaultQuery */ },
     ],
+    /** @type {{ type: string, query?: any }[]} */
     oldComparables: [], // vue.js does not keep a copy of the old arrays (https://vuejs.org/v2/api/#vm-watch)
+    divergingBarsEnabled: true
   }),
   watch: {
     // query parameters updated - this drives state change
     '$route.query': {
+      /**
+       * @param {any} queryParameters
+       */
       handler(queryParameters) {
         const { left = '', right = '' } = queryParameters;
         const comparables = [left, right].map((item, idx) => {
@@ -243,7 +205,11 @@ export default {
     },
     // comparables are updated by the query paramters - fetching new data.
     comparables: {
-      handler([left, right] = []) {
+      /**
+       * @param {any[]} value
+       */
+      handler(value) {
+        const [left, right] = value ?? []
         const [oldLeft, oldRight] = this.oldComparables;
         const queries = [];
         if (!deepEqual(left, oldLeft)) {
@@ -260,33 +226,77 @@ export default {
           );
         }
         this.oldComparables = this.comparables.map(c => ({ ...c }));
-        return queries;
       },
       immediate: true,
       deep: true,
     },
   },
-  // get collections on created.
-  async created() {
+  async mounted() {
+    // get collections on created.
     const { data } = await collections.find();
     this.collections = data.map(d => new Collection(d));
   },
   computed: {
-    // the span of the domain to fit the widest result on timeline.
-    timelineDomain() {
-      const minAndMaxYears = this.queriesResults.map(getDomainForResults);
-      const minimums = minAndMaxYears.map(([minYear]) => minYear).filter(y => y !== undefined);
-      const maximums = minAndMaxYears.map(([, maxYear]) => maxYear).filter(y => y !== undefined);
-      return [Math.min(...minimums), Math.max(...maximums)].filter(isFinite);
+    /**
+     * @typedef {{ left: number, right: number, intersection: number, label: string }} FacetItem
+     * @typedef {{ id: string, items: FacetItem[] }} FacetContainer
+     * @returns {FacetContainer[]}
+     */
+    divergingBarsFacets() {
+      const compatableFacetTypes = this.facets
+        .filter(([, visType]) => visType === 'bars')
+        .map(([facetType]) => facetType)
+      return compatableFacetTypes.map(type => {
+        return {
+          id: type,
+          items: this.getItemsForFacet(type)
+        }
+      })
     },
+    /**
+     * @typedef {import('../models').Bucket} BucketItem
+     * @typedef {{ buckets: BucketItem[], isLoaded: boolean }} ComparableItem
+     * @typedef {{ id: string, comparableItems: ComparableItem[], visualisationType: string }} SideBySideFacetContainer
+     * @returns {SideBySideFacetContainer[]}
+     */
+    sideBySideFacets() {
+      return this.facets.map(([facetId, visualisationType]) => {
+        return {
+          id: facetId,
+          visualisationType,
+          comparableItems: this.queriesResults.map(result => {
+            const item = (result?.facets ?? []).find(({ id }) => id === facetId)
+            return {
+              isLoaded: result.facets != null,
+              buckets: item?.buckets ?? []
+            }
+          })
+        }
+      })
+    },
+    /**
+     * @returns {SideBySideFacetContainer[]}
+     */
+    sideBySideTimelineFacets() {
+      return this.sideBySideFacets.filter(({ visualisationType }) => visualisationType === 'timeline')
+    },
+    /**
+     * @returns {SideBySideFacetContainer[]}
+     */
+    sideBySideBarFacets() {
+      return this.sideBySideFacets.filter(({ visualisationType }) => visualisationType === 'bars')
+    }
   },
   components: {
-    FacetOverviewPanel,
+    SideBySideFacetsPanel,
     QueryHeaderPanel,
-    LoadingIndicator,
-    DivergingBarsChart
+    DivergingBarsChartPanel
   },
   methods: {
+    /**
+     * @param {string} facetId
+     * @returns {FacetItem[]}
+     */
     getItemsForFacet(facetId) {
       const [leftBuckets, intersectionBuckets, rightBuckets] = this.queriesResults.map(results => {
         const facet = results?.facets?.find(({ id }) => id === facetId)
@@ -302,22 +312,18 @@ export default {
         const intersectionBucket = intersectionBuckets.find(({ val }) => val === id)
 
         return {
-          label: id,
-          left: leftBucket ? leftBucket.count : 0,
-          right: rightBucket ? rightBucket.count : 0,
-          intersection: intersectionBucket ? intersectionBucket.count : 0
+          label: getNameFromBucket(leftBucket) ?? getNameFromBucket(rightBucket) ?? getNameFromBucket(intersectionBucket),
+          left: /** @type {number} */ (leftBucket ? leftBucket.count : 0),
+          right: /** @type {number} */ (rightBucket ? rightBucket.count : 0),
+          intersection: /** @type {number} */ (intersectionBucket ? intersectionBucket.count : 0)
         }
       }).filter(({ left, right }) => left > 0 && right > 0)
     },
-
-    /** Get particular values out of a retuls object */
-    getFacetValues(result, facetId) {
-      if (result.facets === undefined) return undefined;
-      const items = result.facets.filter(({ id }) => id === facetId);
-      if (items.length === 0) return [];
-      return items[0].buckets;
-    },
-    /** Fetch intersection data */
+    /**
+     * Fetch intersection data
+     * @param {number} resultIndex
+     * @param {any} comparables
+     */
     async updateQueriesIntersectionResult(resultIndex, comparables) {
       const payload = {
         queries: comparables
@@ -346,7 +352,11 @@ export default {
         this.loadingFlags[resultIndex] = false;
       }
     },
-    /** Fetch query data */
+    /**
+     * Fetch query data
+     * @param {number} resultIndex
+     * @param {any} comparable
+     */
     async updateQueryResult(resultIndex, comparable) {
       if (comparableIsEmpty(comparable)) {
         this.$set(this.queriesResults, resultIndex, {});
@@ -397,32 +407,17 @@ export default {
           });
       }
     },
-    /** Next three *timeline* methods are for synchronising timeline tooltips */
-    onTimelineHighlight({ facetId, data }) {
-      this.$set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
-    },
-    onTimelineHighlightOff({ facetId }) {
-      this.timelineHighlights[facetId] = { enabled: false };
-      this.$set(this.timelineHighlights, facetId, { enabled: false });
-    },
-    onHovered(val) {
-      this.hoverId = String(val);
-    },
-    getTimelineHighlight(id) {
-      return this.timelineHighlights[id] || {};
-    },
-    isQueryLoading(queryIndex) {
-      return this.loadingFlags[queryIndex];
-    },
+    /**
+     * @param {number} idx
+     * @returns {boolean}
+     */
     isLastResult(idx) {
       return this.queriesResults.length - 1 === idx;
     },
-    asCollection(queryResult) {
-      return {
-        id: queryResult.id,
-        title: queryResult.title,
-      };
-    },
+    /**
+     * @param {number} queryIdx
+     * @param {any} comparable
+     */
     onComparableUpdated(queryIdx, comparable) {
       if (queryIdx !== 0 && queryIdx !== 2) return;
       const comparableIdx = queryIdx === 0 ? 0 : 1;
@@ -438,6 +433,10 @@ export default {
         });
       }
     },
+    /**
+     * @param {number} queryIndex
+     * @returns {any}
+     */
     comparableForQuery(queryIndex) {
       switch (queryIndex) {
       case 0:
@@ -464,7 +463,10 @@ export default {
         throw new Error(`Unexpected queryIndex: ${queryIndex}`);
       }
     },
-    insertMostRecentSearchQuery(queryIdx) {
+    /**
+     * @param {number} queryIdx
+     */
+    handleInsertRecentSearchQuery(queryIdx) {
       const recentSearchHash = this.$store.state.search.currentSearchHash;
       const query = { ...this.$router.currentRoute.query };
       if (queryIdx === 0) query.left = recentSearchHash;
@@ -475,15 +477,12 @@ export default {
           query: query,
         });
       }
-    },
+    }
   },
 };
 </script>
 
 <style lang="scss" scoped>
-  .loading-bg {
-    background: #ececec87;
-  }
   .pm-fixer {
     margin: 0;
     &:last-child {
@@ -491,11 +490,6 @@ export default {
     }
     flex-wrap: nowrap !important;
     width: 100%;
-  }
-  .one-third {
-    flex: 1 1 auto !important;
-    max-width: 33.33%;
-    max-width: calc(100% / 3);
   }
   .aspects-container {
     display: flex;
@@ -507,15 +501,10 @@ export default {
     border-top: 1px solid #dee2e6;
     margin-top: 1px;
   }
-  .aspect-row {
-    height: 100%;
-  }
-  .empty-col {
-    align-items: center;
-    display: flex;
-    justify-items: center;
-    justify-content: center;
-    height: 100%;
+  .one-third {
+    flex: 1 1 auto !important;
+    max-width: 33.33%;
+    max-width: calc(100% / 3);
   }
 </style>
 
