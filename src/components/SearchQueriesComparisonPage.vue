@@ -15,7 +15,8 @@
                                 :title="queryResult.title"
                                 :collections="collections"
                                 :comparable-id="`p-${queryIdx}`"
-                                @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
+                                @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"
+                                :colors="colors"/>
           </div>
         </div>
       </div>
@@ -26,7 +27,8 @@
                                    @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
 
         <diverging-bars-chart-panel v-if="divergingBarsEnabled"
-                                    :facets="divergingBarsFacets"/>
+                                    :facets="divergingBarsFacets"
+                                    :colors="colors"/>
 
         <side-by-side-facets-panel v-if="!divergingBarsEnabled"
                                    :facets="sideBySideBarFacets"
@@ -176,7 +178,12 @@ export default {
     ],
     /** @type {{ type: string, query?: any }[]} */
     oldComparables: [], // vue.js does not keep a copy of the old arrays (https://vuejs.org/v2/api/#vm-watch)
-    divergingBarsEnabled: true
+    divergingBarsEnabled: true,
+    /** @type {{ left: string, right: string }} */
+    colors: {
+      left: '#2E80C9',
+      right: '#FC5C53'
+    }
   }),
   watch: {
     // query parameters updated - this drives state change

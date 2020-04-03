@@ -3,7 +3,7 @@
     <div v-for="facet in facets"
       v-bind:key="`dbc-${facet.id}`">
       <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{ facet.id }}</span>
-      <diverging-bars-chart :items="facet.items">
+      <diverging-bars-chart :items="facet.items" :colors="chartColors">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.isActive">
             <b>{{tooltipScope.tooltip.item.label}}</b> &middot;
@@ -29,7 +29,13 @@ export default {
     /** @type {import('vue').PropOptions<FacetContainer[]>} */
     facets: {
       type: Array,
-      default: () => []
+      default: () => [],
+      required: true
+    },
+    /** @type {import('vue').PropOptions<{ left?: string, right?: string }>} */
+    colors: {
+      type: Object,
+      default: () => ({})
     }
   },
   methods: {
@@ -44,6 +50,12 @@ export default {
   },
   components: {
     DivergingBarsChart
+  },
+  computed: {
+    /** @returns {{ colorLeft?: string, colorRight?: string }} */
+    chartColors() {
+      return { colorLeft: this.colors.left, colorRight: this.colors.right }
+    }
   }
 }
 </script>

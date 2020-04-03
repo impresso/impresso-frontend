@@ -5,7 +5,7 @@ import * as d3 from 'd3'
  * @typedef {{
  *  element: d3.BaseType | any,
  *  margin?: {left: number, right: number, top: number, bottom: number },
- *  colors?: { yAxis: Color, colorLeft: Color, colorRight: Color, text: Color },
+ *  colors?: { yAxis?: Color, colorLeft?: Color, colorRight?: Color, text?: Color },
  *  sizes?: { barSpacing: number, barHeight: number, font: string },
  *  offsets?: { barValue: string }
  * }} ConstructorOptions
@@ -13,22 +13,24 @@ import * as d3 from 'd3'
 
 const IntersectionPatternId = 'intersection-pattern'
 
+const DefaultColors = {
+  yAxis: '#ddd',
+  colorLeft: /** @type {string} */ (d3.color('lightgrey')?.darker(1)?.toString()),
+  colorRight: /** @type {string} */ (d3.color('lightgrey')?.toString()),
+  text: /** @type {string} */ '#333'
+}
+
 export default class DivergingBarsChart {
   /** @param {ConstructorOptions} options */
   constructor({
     element = null,
     margin = { top: 10, bottom: 10, left: 40, right: 40 },
-    colors = {
-      yAxis: '#ddd',
-      colorLeft: /** @type {string} */ (d3.color('lightgrey')?.darker(1)?.toString()),
-      colorRight: /** @type {string} */ (d3.color('lightgrey')?.toString()),
-      text: /** @type {string} */ '#333'
-    },
+    colors = DefaultColors,
     sizes = { barSpacing: 18, barHeight: 15, font: '0.6em' },
     offsets = { barValue: '0.5em' }
   }) {
     this.margin = margin
-    this.colors = colors
+    this.colors = { ...DefaultColors, ...colors }
     this.sizes = sizes
     this.offsets = offsets
     this.element = element

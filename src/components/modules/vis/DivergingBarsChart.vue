@@ -29,6 +29,11 @@ export default {
     items: {
       type: Array,
       default: () => []
+    },
+    /** @type {import('vue').PropOptions<{ colorLeft?: string, colorRight?: string }>} */
+    colors: {
+      type: Object,
+      default: () => ({})
     }
   },
   components: {
@@ -57,7 +62,7 @@ export default {
     }
   },
   mounted() {
-    this.chart = new DivergingBarsChart({ element: this.$refs.chart })
+    this.chart = new DivergingBarsChart({ element: this.$refs.chart, colors: this.colors })
     this.chart.render(this.items)
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))

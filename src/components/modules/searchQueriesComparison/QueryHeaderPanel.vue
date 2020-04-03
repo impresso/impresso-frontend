@@ -6,7 +6,7 @@
       <!-- query -->
       <b-tab v-if="left" disabled>
         <template v-slot:title>
-          <div class="side left">A</div>
+          <div class="side left" :style="{ color: colors.left }">A</div>
         </template>
       </b-tab>
       <b-tab
@@ -34,7 +34,7 @@
       </b-tab>
       <b-tab v-if="!left" disabled>
         <template v-slot:title>
-          <div class="side">B</div>
+          <div class="side" :style="{ color: colors.right }">B</div>
         </template>
       </b-tab>
     </b-tabs>
@@ -44,7 +44,7 @@
         <b-tabs pills content-class="mt-3" align="center">
           <b-tab v-for="(option, i) in comparisonOptions" :key="i">
             <template v-slot:title>
-              <div v-html="$t(`comparison.labels.${option}`)" />
+              <div v-html="$t(`comparison.labels.${option}`, colors)" />
             </template>
           </b-tab>
           <section class="px-1">
@@ -124,6 +124,11 @@ export default {
       type: Object,
       default() { return { filters: [] }; },
     },
+    colors: {
+      type: Object,
+      required: true,
+      default: () => {}
+    }
   },
   components: {
     SearchPills,
@@ -268,7 +273,6 @@ export default {
     }
 
     div.side {
-      color: #FC5C53;
       text-transform: lowercase;
       width: 1.25em;
       height: 1.25em;
@@ -276,10 +280,6 @@ export default {
       text-align: center;
       border-radius: 1.25em;
       border: 1px solid;
-
-      &.left{
-        color: #2E80C9;
-      }
     }
     div.search-button-wrapper{
       position: absolute;
@@ -295,9 +295,9 @@ export default {
   "en": {
     "comparison": {
       "labels": {
-        "intersection": "<div class='side left d-inline-block'>A</div> &amp; <div class='side d-inline-block'>B</div>",
-        "diffA": "<div class='side left d-inline-block'>A</div> not in <div class='side d-inline-block'>B</div>",
-        "diffB": "<div class='side d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>"
+        "intersection": "<div class='side left d-inline-block' style='color: {left};'>A</div> &amp; <div class='side d-inline-block' style='color: {right};'>B</div>",
+        "diffA": "<div class='side left d-inline-block' style='color: {left};'>A</div> not in <div class='side d-inline-block' style='color: {right};'>B</div>",
+        "diffB": "<div class='side d-inline-block' style='color: {right};'>B</div> not in <div class='side left d-inline-block' style='color: {left};'>A</div>"
       },
       "titles": {
         "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
