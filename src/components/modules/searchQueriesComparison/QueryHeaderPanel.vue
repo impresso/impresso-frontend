@@ -1,5 +1,6 @@
 <template lang="html">
-  <div class="query-header-panel" :class="{
+  <div class="query-header-panel">
+  <div class="inner" :class="{
     left,
     right: !left && !containsComparison,
     middle: containsComparison,
@@ -81,6 +82,7 @@
         })
       }}
     </router-link>
+  </div>
   </div>
   </div>
 </template>
@@ -271,8 +273,13 @@ export default {
         vertical-align: top;
       }
     }
-
-    &.left {
+    .inner{
+      position: relative;
+      margin-bottom: 2rem;
+      height: 100%;
+    }
+    &>.left {
+      margin-right: 1px;
       border-bottom: 1px solid $left-panel-color;
       ul.nav.nav-pills{
         border-bottom-color: $left-panel-color;
@@ -285,7 +292,8 @@ export default {
       }
     }
 
-    &.right {
+    &>.right {
+      margin-left: 1px;
       border-bottom: 1px solid $right-panel-color;
       ul.nav.nav-pills{
         border-bottom-color: $right-panel-color;
@@ -298,8 +306,9 @@ export default {
       }
     }
 
-    &.middle {
-      border-bottom: 1px solid $middle-panel-color;
+    &>.middle {
+      border: 1px solid $middle-panel-color;
+      border-bottom-width: 2px;
       ul.nav.nav-pills{
         border-bottom-color: $middle-panel-color;
         .nav-item .nav-link.active{

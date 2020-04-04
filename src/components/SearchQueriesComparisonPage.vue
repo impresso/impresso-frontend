@@ -2,11 +2,8 @@
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section class="border-top ">
       <div slot="header">
-        <div class="header row pm-fixer bg-light border-bottom border-tertiary">
-          <div class="one-third" :class="{
-            'border-right mr-1px': !isLastResult(queryIdx),
-            'border-left': queryIdx > 0,
-          }"
+        <div class="header row pm-fixer bg-light">
+          <div class="one-third"
                v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
             <query-header-panel :left='queryIdx === 0'
                                 :comparison-options="['intersection']"
@@ -26,7 +23,8 @@
              v-bind:key="facetIdx">
           <div class="one-third" :class="{
             /* 'border-right mr-1px': !isLastResult(queryIdx), */
-            'border-left': queryIdx > 0,
+            'border-right': queryIdx === 1,
+            'border-left': queryIdx === 1,
             'loading-bg': isQueryLoading(queryIdx),
             }"
             v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
