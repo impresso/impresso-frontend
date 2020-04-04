@@ -12,6 +12,7 @@
           </div>
         </div>
       </diverging-bars-chart>
+      <hr />
     </div>
   </div>
 </template>

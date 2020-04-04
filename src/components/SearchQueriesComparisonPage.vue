@@ -26,11 +26,27 @@
                                    :comparable-loading-flags="loadingFlags"
                                    @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
 
-        <div class="d-flex justify-content-md-center">
-          <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-            <b-form-radio :value="modes.Compare">{{$t("mode.compare")}}</b-form-radio>
-            <b-form-radio :value="modes.Inspect">{{$t("mode.inspect")}}</b-form-radio>
-          </b-form-radio-group>
+        <div class="d-flex justify-content-between">
+          <div class="pc30"></div>
+          <div class="pc30 d-flex justify-content-md-center">
+            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio :value="modes.Compare">{{$t("mode.compare")}}</b-form-radio>
+              <b-form-radio :value="modes.Inspect">{{$t("mode.inspect")}}</b-form-radio>
+            </b-form-radio-group>
+          </div>
+          <div class="pc30 d-flex justify-content-md-end">
+            <b-dropdown size="sm" variant="outline-secondary" v-if="mode === modes.Compare">
+              <template slot="button-content">
+                {{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}
+              </template>
+              <b-dropdown-item v-for="sortingMethod in sortingMethods"
+                               :key="sortingMethod"
+                               :active="sortingMethod === barSortingMethod"
+                               @click="barSortingMethod = sortingMethod">
+                {{$t(`sortingMethods.${sortingMethod}`)}}
+              </b-dropdown-item>
+            </b-dropdown>
+          </div>
         </div>
 
         <diverging-bars-chart-panel v-if="mode === modes.Compare"
@@ -242,7 +258,8 @@ export default {
       left: '#2E80C9',
       right: '#FC5C53'
     },
-    modes: Mode
+    modes: Mode,
+    sortingMethods: Object.keys(SortingMethods)
   }),
   watch: {
     // query parameters updated - this drives state change
@@ -369,8 +386,8 @@ export default {
     barSortingMethod: {
       /** @returns {string} */
       get() {
-        const value = getQueryParameter(this, QueryParameters.Mode) ?? Mode.Compare
-        return Object.keys(SortingMethods).includes(value) ? value : 'HighestAbsoluteIntersection'
+        const value = getQueryParameter(this, QueryParameters.BarSortingMethod) ?? 'HighestAbsoluteIntersection'
+        return this.sortingMethods.includes(value) ? value : 'HighestAbsoluteIntersection'
       },
       /** @param {string} value */
       set(value) {
@@ -575,6 +592,10 @@ export default {
     max-width: 33.33%;
     max-width: calc(100% / 3);
   }
+  .pc30 {
+    flex-grow: 1;
+    flex-basis: 0;
+  }
 </style>
 
 <i18n>
@@ -586,6 +607,11 @@ export default {
     "mode": {
       "inspect": "Inspect",
       "compare": "Compare"
+    },
+    "sortBy": "Sort by",
+    "sortingMethods": {
+      "HighestTotalIntersectionInPercents": "Total intercection span in %",
+      "HighestAbsoluteIntersection": "Absolute intersection"
     }
   }
 }
