@@ -81,7 +81,7 @@ export default {
       return state.search;
     },
     getCurrentSearchHash(state) {
-      return state.currentSearchHash;
+      return state.search.getSerialized({ serializer: 'protobuf' });
     },
     countActiveFilters(state) {
       return state.search.countActiveFilters();
@@ -136,6 +136,7 @@ export default {
     },
     INITIALIZE_FILTERS(state, filters) {
       filters.forEach(d => state.search.addFilter(d));
+      state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
     },
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);

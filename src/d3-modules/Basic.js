@@ -10,6 +10,7 @@ export default class Basic extends EventEmitter {
   } = {}) {
     super();
     this.dimensions = dimensions;
+    this.element = element;
     this.margin = {
       top: 0,
       left: 0,
@@ -29,7 +30,7 @@ export default class Basic extends EventEmitter {
 
     this.g = this.svg.append('g').attr('class', 'm');
     this.emit('svg.init');
-    this.resize();
+    // this.resize();
   }
 
   /**
@@ -63,7 +64,12 @@ export default class Basic extends EventEmitter {
    * @return {null}
    */
   resize() {
-    const rect = this.svg.node().parentNode.getBoundingClientRect();
+    let rect = {};
+    if (this.element) {
+      rect = this.element.getBoundingClientRect();
+    } else {
+      rect = this.svg.node().parentNode.getBoundingClientRect();
+    }
     this.width = +rect.width;
     this.height = +rect.height;
     // set svg properties directly

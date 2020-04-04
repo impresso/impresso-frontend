@@ -37,7 +37,7 @@ export default class Topic {
     }
     this.countItems = countItems;
     this.relatedTopics = relatedTopics;
-    if (words.length && !(words[0] instanceof TopicWord)) {
+    if (words.length) {
       const normalize = d3.scaleQuantize()
         .domain(d3.extent(this.words, d => d.p))
         .range(quantizeRange);

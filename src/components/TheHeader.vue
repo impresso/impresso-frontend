@@ -39,13 +39,14 @@
         <!-- <b-nav-item v-bind:to="{ name: 'entities'}" exact-active-class="active">
           {{$t("label_entities")}}
         </b-nav-item> -->
-        <b-nav-item v-bind:to="{ name: 'topics'}" active-class="active">
+        <b-nav-item v-bind:to="{ name: 'topics', query: { pq: currentSearchHash } }" active-class="active">
           {{$t("label_topics")}}
         </b-nav-item>
         <b-nav-item v-bind:to="{ name: 'compare'}" active-class="active">
           {{$t("label_compare")}}
         </b-nav-item>
         <b-nav-item
+          v-if="textReuseEnabled"
           v-bind:to="{ name: 'text-reuse-cluster-detail'}"
           active-class="active">
           {{$t("label_text_reuse")}}
@@ -223,7 +224,7 @@ export default {
       return this.$store.state.settings.language_code;
     },
     currentSearchHash() {
-      return this.$store.state.search.currentSearchHash;
+      return this.$store.getters['search/getCurrentSearchHash'];
     },
     currentSearchQueryParams() {
       return this.$store.state.search.search.getSerialized();
@@ -276,6 +277,10 @@ export default {
     },
     version() {
       return [window.impressoVersion, window.impressoDataVersion].join('/');
+    },
+    textReuseEnabled() {
+      // @ts-ignore
+      return !!window.impressoFeatures?.textReuse?.enabled
     }
   },
   methods: {

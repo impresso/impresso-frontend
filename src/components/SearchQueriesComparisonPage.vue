@@ -77,6 +77,7 @@ import FacetOverviewPanel from './modules/searchQueriesComparison/FacetOverviewP
 import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
 import LoadingIndicator from './modules/LoadingIndicator';
 import Bucket from '../models/Bucket';
+import { optimizeFilters } from '@/logic/filters'
 
 function prepareFacets(responseFacets = {}) {
   const types = Object.keys(responseFacets).filter(k => k !== 'count');
@@ -131,12 +132,37 @@ const constructQueryParameters = (comparables, queryParameters) => {
 const deepEqual = (o1, o2) => JSON.stringify(o1) === JSON.stringify(o2);
 
 const comparableIsEmpty = (comparable) => {
-  if (comparable.type === 'query' && comparable.query === undefined) return true;
+  if (comparable.type === 'query' ) {
+    if (comparable.query === undefined) return true;
+    if (comparable.query.filters == null || comparable.query.filters.length === 0) return true;
+  }
   if (comparable.type === 'collection' && comparable.id === undefined) return true;
   return false;
 };
 
 // const DefaultQuery = { filters: [{ type: 'hasTextContents' }] };
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ */
+
+/**
+ * Merge filters with a rule that all single item (`q`) filters operator
+ * is set to `AND`. Then the standard merge is applied.
+ * @param {Filter[][]} filtersSets
+ * @returns {Filter[]}
+ */
+function mergeFilters(filtersSets) {
+  return optimizeFilters(filtersSets.flat().map(filter => {
+    const op = (Array.isArray(filter.q) && filter.q.length === 1) || !Array.isArray(filter.q)
+      ? 'AND'
+      : filter.op
+    return {
+      ...filter,
+      op
+    }
+  }))
+}
 
 const QueryLeftIndex = 0;
 const QueriesIntersectionIndex = 1;
@@ -261,7 +287,7 @@ export default {
       const payload = {
         queries: comparables
           .map(comparableToQuery)
-          .filter(query => query !== null && query !== undefined),
+          .filter(query => query != null && query.filters.length > 0),
         limit: 0,
         facets: this.facets.map(([type]) => type),
       };
@@ -370,10 +396,12 @@ export default {
       comparables[comparableIdx] = comparable;
 
       const queryParameters = constructQueryParameters(comparables, this.$route.query);
-      this.$router.push({
-        name: 'compare',
-        query: queryParameters,
-      });
+      if (JSON.stringify(this.$route.query) !== JSON.stringify(queryParameters)) {
+        this.$router.push({
+          name: 'compare',
+          query: queryParameters,
+        });
+      }
     },
     comparableForQuery(queryIndex) {
       switch (queryIndex) {
@@ -393,8 +421,7 @@ export default {
         }
         return {
           type: 'intersection',
-          filters: comparablesFilters
-            .reduce((acc, filters = []) => acc.concat(filters), []),
+          filters: mergeFilters(comparablesFilters)
         };
       case 2:
         return this.comparables[1];
@@ -407,10 +434,12 @@ export default {
       const query = { ...this.$router.currentRoute.query };
       if (queryIdx === 0) query.left = recentSearchHash;
       if (queryIdx === 2) query.right = recentSearchHash;
-      this.$router.push({
-        name: 'compare',
-        query,
-      });
+      if (JSON.stringify(this.$route.query) !== JSON.stringify(query)) {
+        this.$router.push({
+          name: 'compare',
+          query: query,
+        });
+      }
     },
   },
 };

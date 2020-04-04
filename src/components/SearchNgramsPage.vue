@@ -2,11 +2,10 @@
   <i-layout id="SearchNgramsPage">
     <!-- sidebar (contains i-layout-section) -->
     <search-sidebar
-      :filters="filtersAvailable"
-      :filters-removed="filtersRemoved"
+      :filters="enrichedFilters"
+      :ignored-filters="ignoredFilters"
       :facets="facets"
-      :excludedTypes="excludedTypes"
-      store="searchNgrams"
+      contextTag="searchNgrams"
       @changed="handleFiltersChanged"
     >
     <b-form-group class="mx-3">
@@ -23,24 +22,22 @@
           <section class="search-results-summary text-serif textbox-fancy border-tertiary">
             <label>ngrams viewer</label>
             <ellipsis v-bind:initialHeight="60">
-              <span v-if="unigram" v-html="$tc('numbers.unigramMentions', trend.total || 0, {
-                unigram,
-                n: $n(trend.total),
-              })"></span>
-              <span v-else v-html="$t('label.noUnigram')" />
+              <span v-for="trend in trends"
+                    :key="trend.ngram"
+                    v-html="$tc('numbers.unigramMentions', trend.total || 0, { unigram: trend.ngram, n: $n(trend.total) })"/>
+              <span v-if="trends.length === 0"
+                    v-html="$t('label.noUnigram')" />
               &nbsp;
-              <span v-html="$tc('numbers.articles', trendBackground.total, {
-                  n: $n(trendBackground.total),
-                })" />
+              <span v-html="$tc('numbers.articles', totalArticlesCount, { n: $n(totalArticlesCount) })" />
               &nbsp;
-              <search-query-summary class="d-inline" :search-query="{ filters: allowedFilters }"/>
+              <search-query-summary class="d-inline" :search-query="{ filters: enrichedFilters }"/>
             </ellipsis>
 
           </section>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto px-2">
           <router-link
-            :disabled="!unigram"
+            :disabled="trends.length === 0"
             class="btn btn-outline-primary btn-sm"
             :to="searchPageLink">
             {{ $t('label.seeArticles') }}
@@ -49,40 +46,39 @@
       </b-navbar>
       <b-navbar class="border-bottom">
         <span style="white-space:nowrap" class="mr-3">Enter unigram</span>
-        <search-input
-          @submit="onNgramsSubmitted"
-          placeholder="search ngrams ..."
-          :initial="unigram">
-        </search-input>
+        <b-input-group>
+          <b-form-tags
+            v-model="unigrams"
+            separator=" ,;"
+            placeholder="search unigrams ..."
+            class="mb-2"/>
+        </b-input-group>
       </b-navbar>
     </div>
-    <div class="m-3" v-if="unigram">
+    <div class="m-3" v-if="unigrams.length > 0" :style="{ position: isLoading ? 'relative' : undefined }">
       <base-title-bar class="my-3">
         <span v-html="$t('label.timeline.unigramTitle')"/>
         <div slot="description">
         {{$t('label.timeline.unigramDescription')}}
         </div>
       </base-title-bar>
-      <timeline
-            v-if="trend.total > 0"
-            :contrast="false"
-            :values="timelineValues"
-            :brushable="false"
-            height="300px"
-            :resolution="timelineResolution">
+      <multi-line-plot
+        :items-sets="plotItems"
+        :round-value-fn="roundValueForDisplay"
+        :height="300">
         <div slot-scope="tooltipScope">
-          <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, timelineResolution, 'en') }} &middot;
-            <span v-html="$tc('numbers.unigramMentions', tooltipScope.tooltip.item.w, {
-              unigram,
-              n: $n(tooltipScope.tooltip.item.w),
-            })"/>&nbsp;
-            <span v-html="$tc('numbers.articles', getArticlesInYear(tooltipScope.tooltip.item.t), {
-                n: getArticlesInYear(tooltipScope.tooltip.item.t),
-            })"></span>
+          <div>
+            <div>{{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;</div>
+            <div v-for="(item, index) in tooltipScope.tooltip.item.items" :key="item.label">
+              <div :style="{ 'background-color': tooltipScope.tooltip.item.colors[index] }" class="legend-dot mr-1"></div>
+              <b>{{item.label}}</b>
+              &middot;
+              {{roundValueForDisplay(item.item.value)}} {{$t('tooltipValueUnit')}}
+            </div>
           </div>
         </div>
-      </timeline>
+      </multi-line-plot>
+      <div class="loading-overlay" v-if="isLoading"><em>{{ $t('loading') }}</em></div>
     </div>
     <!-- without unigram -->
     <div v-else class="d-flex align-items-center justify-content-center h-100">
@@ -93,158 +89,272 @@
 </template>
 
 <script>
+import {
+  serializeFilters,
+  deserializeFilters,
+  toCanonicalFilter,
+  joinFiltersWithItems
+} from '../logic/filters'
+
 import SearchSidebar from '@/components/modules/SearchSidebar';
-// import SearchTabs from '@/components/modules/SearchTabs';
-// import Autocomplete from '@/components/Autocomplete';
-// import InfoButton from '@/components/base/InfoButton';
 import BaseTitleBar from '@/components/base/BaseTitleBar';
-// import SearchPills from '@/components/SearchPills';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
-// import SearchFacets from '@/components/SearchFacets';
-import SearchInput from '@/components/modules/SearchInput';
-import Timeline from '@/components/modules/Timeline';
+import MultiLinePlot from '@/components/modules/vis/MultiLinePlot'
 import Ellipsis from '@/components/modules/Ellipsis';
-import Helpers from '@/plugins/Helpers';
+import {
+  filtersItems as filtersItemsService,
+  search as searchService,
+  ngramTrends as ngramTrendsService
+} from '@/services';
+import {
+  DefaultFacetTypesForIndex,
+  searchResponseToFacetsExtractor,
+  buildEmptyFacets
+} from '@/logic/facets'
+import { CommonQueryParameters } from '../router/util';
+
+/**
+ * @typedef {import('../models').Filter} Filter
+ * @typedef {import('../models').Facet} Facet
+ * @typedef {import('../models').Bucket} Bucket
+ */
+
+
+/**
+ * @param {Filter} filter
+ * @returns {boolean}
+ */
+const isFrontFilter = ({ type }) => type === 'isFront'
+
+const QueryParameters = Object.freeze({
+  SearchFilters: CommonQueryParameters.SearchFilters,
+  Unigrams: 'unigrams'
+})
+
+const IgnoredFilterTypes = ['string', 'regex']
+
+/**
+ * @param {Facet[]} facets
+ * @returns {number}
+ */
+function getTotalNumberOfResults(facets) {
+  const facetsWithBuckets = facets.filter(({ buckets }) => buckets != null && buckets.length > 0)
+  if (facetsWithBuckets.length === 0) return 0
+
+  const { buckets } = facetsWithBuckets[0]
+  return buckets.reduce((total, { count }) => total + count, 0)
+}
+
+/**
+ * @param {Facet[]} facets
+ * @param {number} fullYear
+ * @returns {number}
+ */
+function getArticlesCountForYear(facets, fullYear) {
+  const yearFacetsWithBuckets = facets
+    .filter(({ buckets, type }) => buckets != null && buckets.length > 0 && type === 'year')
+  if (yearFacetsWithBuckets.length === 0) return 0
+  const { buckets } = yearFacetsWithBuckets[0]
+  const bucket = buckets.filter(({ val }) => val === `${fullYear}`)[0]
+  if (bucket == null) return 0
+  return bucket.count
+}
+
+const EmptyNgramResult = Object.freeze({
+  trends: [],
+  domainValues: [],
+  timeInterval: 'year'
+})
+
+const SupportedFacetTypes = DefaultFacetTypesForIndex.search
 
 export default {
   name: 'SearchNgramsPage',
   components: {
-    // SearchTabs,
-    // SearchFacets,
-    SearchInput,
-    Timeline,
+    MultiLinePlot,
     SearchQuerySummary,
     Ellipsis,
-    // SearchPills,
-    // InfoButton,
     BaseTitleBar,
     SearchSidebar,
-    // Autocomplete,
   },
   data: () => ({
-    excludedTypes: ['string', 'regex'],
+    /** @type {Facet[]} */
+    facets: [],
+    /** @type {Filter[]} */
+    filtersWithItems: [],
+    /** @type {any} */
+    ngramResult: EmptyNgramResult,
+    isLoading: false
   }),
+  mounted() {
+    this.facets = buildEmptyFacets(SupportedFacetTypes)
+  },
   watch: {
-    '$route.query': {
-      handler(val) {
-        console.info('searchNgramsPage @$route.query changed:', val);
-        this.executeSearch();
+    fullFilters: {
+      /** @param {Filter[]} filters */
+      async handler(filters) {
+        const query = {
+          filters: filters.map(toCanonicalFilter),
+          limit: 0,
+          facets: SupportedFacetTypes,
+          group_by: 'articles',
+        }
+
+        const [facets, filtersWithItems] = await Promise.all([
+          searchService.find({ query }).then(searchResponseToFacetsExtractor(SupportedFacetTypes)),
+          filtersItemsService.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
+        ]);
+        this.facets = facets
+        this.filtersWithItems = filtersWithItems.filter(({ type }) => !IgnoredFilterTypes.includes(type))
       },
-      deep: true,
       immediate: true,
+      deep: true
     },
-  },
-  methods: {
-    getArticlesInYear(d) {
-      if (!d) {
-        return 0;
-      }
-      const y = d.getFullYear();
-      return this.trendBackground.values[y] || 0;
-    },
-    executeSearch() {
-      this.$store.dispatch('searchNgrams/PULL_SEARCH_PARAMS', this.$route.query);
-    },
-    onNgramsSubmitted({ q }) {
-      this.$store.commit('searchNgrams/SET_UNIGRAM', q);
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-    handleFiltersChanged(filters) {
-      this.$store.dispatch('searchNgrams/UPDATE_SEARCH_QUERY_FILTERS', filters)
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-    onAddFilter(facet) {
-      this.$store.commit('searchNgrams/ADD_FILTER', facet);
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-    onFilterUpdated(filter) {
-      this.$store.commit('searchNgrams/UPDATE_FILTER', filter);
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-    onFilterReset(type) {
-      this.$store.commit('searchNgrams/RESET_FILTER', type);
-      this.$store.dispatch('searchNgrams/PUSH_SEARCH_PARAMS');
-    },
-  },
-  computed: {
-    timelineValues() {
-      const pairs = (this.trend.values || []).map((value, idx) => {
-        const domainValue = this.trend.domain[idx];
-        return [domainValue, value];
-      });
-      const v = pairs
-        .map(([d, val]) => ({ t: new Date(d), w: val }));
-      return Helpers.timeline.addEmptyIntervals(v, this.trend.timeInterval).sort((a, b) => a.t - b.t);
-    },
-    trend() {
-      return this.$store.state.searchNgrams.trend;
-    },
-    trendBackground() {
-      return this.$store.state.searchNgrams.trendBackground;
-    },
-    unigram() {
-      return this.$store.state.searchNgrams.unigram;
-    },
-    searchQuery() {
-      return this.$store.state.searchNgrams.search;
-    },
-    filters() {
-      return this.searchQuery.filters;
-    },
-    filtersRemoved() {
-      return this.filters.filter(d => this.excludedTypes.includes(d.type));
-    },
-    filtersAvailable() {
-      // this is here because we need all filters to return how many filters have been removed...
-      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
-    },
-    isFront: {
-      get() {
-        return this.filters.filter(d => d.type === 'isFront').length > 0;
-      },
-      set(val) {
-        if (val) {
-          this.onAddFilter({ type: 'isFront' });
+    unigramsQueryParameters: {
+      /** @param {{ ngrams: string[], filters: Filter[] }} query */
+      async handler(query) {
+        if (query.ngrams.length === 0) {
+          this.ngramResult = EmptyNgramResult
         } else {
-          this.onFilterReset('isFront');
+          try {
+            this.isLoading = true
+            this.ngramResult = await ngramTrendsService.create(query);
+          } finally {
+            this.isLoading = false
+          }
         }
       },
-    },
-    facets() {
-      let ignoreFacets = ['year', 'accessRight', 'partner'];
-      if (window.impressoDataVersion > 1) {
-        ignoreFacets = ['year'];
-      }
-      return this.$store.state.searchNgrams.facets
-        .filter(d => !ignoreFacets.includes(d.type))
-        .map((d) => {
-          d.isFiltered = this.$store.state.searchNgrams.search.filtersIndex[d.type];
-          return d;
+      immediate: true,
+      deep: true
+    }
+  },
+  computed: {
+    unigrams: {
+      /** @returns {string[]} */
+      get() {
+        const value = this.$route.query[QueryParameters.Unigrams]
+        let serializedUnigrams = ''
+        if (typeof value === 'string') serializedUnigrams = value
+        if (Array.isArray(value)) serializedUnigrams = value.join(',')
+        return serializedUnigrams.split(',').filter(v => v !== '')
+      },
+      /** @param {string[]} unigrams */
+      set(unigrams) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.Unigrams]: unigrams.join(',')
         })
-        // .sort((a, b) => {
-        //   const indexA = this.facetsOrder.indexOf(a.type);
-        //   const indexB = this.facetsOrder.indexOf(b.type);
-        //   return indexA - indexB;
-        // });
+      }
     },
-    allowedFilters() {
-      return this.filters.filter(d => !this.excludedTypes.includes(d.type));
+    /** @returns {Filter[]} */
+    allFilters() {
+      const serializedFilters = this.$route.query[QueryParameters.SearchFilters]
+      return serializedFilters
+        ? deserializeFilters(/** @type {string} */ (serializedFilters))
+        : []
     },
-    timelineResolution() {
-      return this.trend.timeInterval;
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems != null
+        ? this.filtersWithItems
+        : this.filters
     },
+    /** @returns {Filter[]} */
+    ignoredFilters() { return this.allFilters.filter(({ type }) => IgnoredFilterTypes.includes(type)) },
+    /** @returns {Filter[]} */
+    filters() { return this.allFilters.filter(({ type }) => !IgnoredFilterTypes.includes(type)) },
+    /**
+     * Full filters is what we use to filter the side panel facet filters.
+     * They include filters + a string filter containing all entered unigrams.
+     * @returns {Filter[]}
+     */
+    fullFilters() {
+      const stringFilter = {
+        type: 'string',
+        op: 'OR',
+        q: this.unigrams
+      }
+      return this.filters.concat(this.unigrams.length > 0 ? [stringFilter] : [])
+    },
+    isFront: {
+      /** @returns {boolean} */
+      get() { return this.filters.filter(isFrontFilter).length > 0 },
+      /** @param {boolean} isFront */
+      set(isFront) {
+        const newFilters = isFront
+          ? this.filters.filter(f => !isFrontFilter(f)).concat([{ type: 'isFront' }])
+          : this.filters.filter(f => !isFrontFilter(f))
+        this.handleFiltersChanged(newFilters)
+      },
+    },
+    /** @returns {{ ngram: string, values: number[], total: number }[]} */
+    trends() { return this.ngramResult.trends },
+    /** @returns {number} */
+    totalArticlesCount() { return getTotalNumberOfResults(this.facets) },
+    /** @returns {{ name: string, query: any }} */
     searchPageLink() {
-      const filters = [...this.allowedFilters, {
+      const stringFilter = {
         type: 'string',
         precision: 'exact',
-        q: this.unigram,
-      }];
-      const query = {
-        f: JSON.stringify(filters),
-      };
-      return { name: 'search', query };
+        op: 'OR',
+        q: this.trends.map(({ ngram }) => ngram),
+      }
+      const filters = this.filters.concat([stringFilter])
+      const query = { f: JSON.stringify(filters) }
+      return { name: 'search', query }
     },
+    /** @returns {{ ngrams: string[], filters: Filter[] }} */
+    unigramsQueryParameters() {
+      return {
+        ngrams: this.unigrams,
+        filters: this.filters
+      }
+    },
+    /**
+     * @typedef {{ value: number, time: Date }} Item
+     * @typedef {{ items: Item[], label: string }} ItemsSet
+     * @returns {ItemsSet[]}
+     */
+    plotItems() {
+      const { domainValues, totals } = this.ngramResult
+      const dates = domainValues.map(v => new Date(v))
+
+      return this.ngramResult.trends.map(({ ngram, values }) => {
+        return {
+          label: ngram,
+          items: values.map((value, index) => ({
+            value: (value / totals[index]) * 1000000 ,
+            time: dates[index]
+          }))
+        }
+      })
+    },
+    /** @returns {string} */
+    timelineResolution() { return this.ngramResult.timeInterval }
   },
+  methods: {
+    /** @param {Filter[]} filters */
+    handleFiltersChanged(filters) {
+      this.$navigation.updateQueryParameters({
+        [QueryParameters.SearchFilters]: serializeFilters(filters)
+      })
+    },
+    /** @returns {Date} */
+    getTooltipScopeTime(scope) {
+      const times = [...new Set(scope?.tooltip?.item?.items.map(({ item: { time } }) => time))]
+      if (times.length > 1) console.warn(`More than one time found in tooltip data. Using first time`, times)
+      return times[0]
+    },
+    /**
+     * @param {Date} timestamp
+     * @returns {number}
+     */
+    getTotalArticlesAtTimestamp(timestamp) {
+      const fullYear = timestamp.getFullYear()
+      return getArticlesCountForYear(this.facets, fullYear)
+    },
+    /** @param {number} value */
+    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) }
+  }
 };
 </script>
 
@@ -259,17 +369,41 @@ export default {
       "missingUnigram": " ... (no unigram has been selected)",
       "label": {
         "timeline": {
-          "unigramTitle": "Number of unigram mentions per year",
+          "unigramTitle": "Yearly unigram mentions (per million)",
           "unigramDescription": " "
         },
         "seeArticles": "See articles",
         "noUnigram": "... look for a specific <em>unigram</em> in",
         "availableFacets": "Available filters for ngram analysis"
-      }
+      },
+      "loading": "Loading ...",
+      "tooltipValueUnit": "per 1 million"
     }
   }
 </i18n>
 
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
+
+  .legend-dot {
+    width: 0.5em;
+    height: 0.5em;
+    display: inline-block;
+    border-radius: 0.25em;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    background-color: #d4d4d412;
+    backdrop-filter: blur(0.8px);
+  }
 </style>

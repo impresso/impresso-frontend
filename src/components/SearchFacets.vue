@@ -1,9 +1,10 @@
-<template lang="html">
+<template>
   <div id="search-facets">
     <filter-timeline
+      v-if="containsTimelineFacets"
       class="border-top mx-3 py-2 mb-2"
       :filters="daterangeFilters"
-      :values="values"
+      :values="timelineValues"
       :min-date="minDate"
       :max-date="maxDate"
       :start-year="startYear"
@@ -14,127 +15,143 @@
     />
     <filter-facet
       class="border-top py-2 mx-3"
-      v-for="(facet, index) in facets"
+      v-for="(facet, index) in standardFacets"
       :key="index"
       :facet="facet"
+      :context-filters="filters"
       :facet-filters="getFacetFilters(facet.type)"
-      @update-filter="updateFilter"
-      @create-filter="createFilter"
-      @reset-filters="resetFilters"
+      @changed="filters => facetFiltersUpdated(facet.type, filters)"
       collapsible/>
   </div>
 </template>
 
 <script>
-import Helpers from '@/plugins/Helpers';
-
 import FilterFacet from '@/components/modules/FilterFacet';
 import FilterTimeline from '@/components/modules/FilterTimeline';
+import { facetToTimelineValues } from '@/logic/facets'
+import FilterFactory from '@/models/FilterFactory'
 
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models').Facet} Facet
+ */
+
+const TimelineFacetTypes = ['year', 'daterange']
 
 export default {
   props: {
-    store: {
-      type: String,
-      default: 'search',
-    },
+    /** @type {import('vue').PropOptions<string>} */
     groupBy: {
       type: String,
       default: 'articles',
     },
+    /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
       type: Array,
       default: () => [],
     },
+    /** @type {import('vue').PropOptions<Facet[]>} */
     facets: {
-      /** @type {import('vue').PropType<import('../models/models').Facet[]>} */
       type: Array,
       default: () => [],
     },
+    /** @type {import('vue').PropOptions<number>} */
     startYear: {
       type: Number,
       default: 1737,
     },
+    /** @type {import('vue').PropOptions<number>} */
     endYear: {
       type: Number,
       default: 2020,
-    },
-    percentProp: {
-      type: String,
-    },
+    }
   },
   data: () => ({
-    facetsOrder: ['type', 'person', 'location', 'topic', 'language', 'newspaper', 'country', 'partner', 'accessRight'],
     selectedFacet: false,
     selectedDaterangeFilter: null,
   }),
   computed: {
-    currentStore() {
-      return this.$store.state[this.store];
+    /** @returns {Facet[]} */
+    standardFacets() {
+      return this.facets.filter(({ type }) => !TimelineFacetTypes.includes(type))
     },
+    /** @returns {boolean} */
+    containsTimelineFacets() {
+      return this.facets.filter(({ type }) => TimelineFacetTypes.includes(type)).length > 0
+    },
+    /** @returns {Filter[]} */
     daterangeFilters() {
-      return this.filters
-        .filter(({ type }) => type === 'daterange');
+      return this.filters.filter(({ type }) => type === 'daterange');
     },
-    daterangeIncluded() {
-      return this.daterangeFilters.filter(({ filter: { context } }) => context === 'include');
-    },
+    /** @returns {Date} */
     minDate() {
-      if (this.values.length) {
-        const y = this.values.reduce((min, d) => (d.t < min ? d.t : min), this.values[0].t);
+      if (this.timelineValues.length) {
+        const y = this.timelineValues.reduce((min, d) => (d.t < min ? d.t : min), this.timelineValues[0].t);
         return new Date(`${y}-01-01`);
       }
       return new Date(`${this.startYear}-01-01`);
     },
+    /** @returns {Date} */
     maxDate() {
-      if (this.values.length) {
-        const y = this.values.reduce((max, d) => (d.t > max ? d.t : max), this.values[0].t);
+      if (this.timelineValues.length) {
+        const y = this.timelineValues.reduce((max, d) => (d.t > max ? d.t : max), this.timelineValues[0].t);
         return new Date(`${y}-12-31`);
       }
       return new Date(`${this.endYear}-12-31`);
     },
-    values: {
-      get() {
-        const facet = this.currentStore.facets.find(d => d.type === 'year');
-        if (!facet || !facet.buckets.length) {
-          return [];
-        }
-        // sort then
-        const values = facet.buckets.map(d => ({
-          ...d,
-          w: d.count,
-          w1: 0,
-          p: d.item.normalize(d.count, this.percentProp),
-          t: parseInt(d.val, 10),
-        }));
-        // add zeroes
-        return Helpers.timeline.addEmptyIntervals(values);
-      },
-    },
+    /** @returns {any[]} */
+    timelineValues() {
+      const yearFacet = this.facets.find(({ type }) => type === 'year')
+      if (!yearFacet || !yearFacet.buckets.length) return []
+      return facetToTimelineValues(yearFacet)
+    }
   },
   methods: {
+    /**
+     * @param {string} type
+     * @returns {Filter[]}
+     */
     getFacetFilters(type) {
-      return this.filters.filter(d => d.type === type);
+      return this.filters
+        .filter(d => d.type === type)
+        .map(filter => FilterFactory.create(filter));
     },
-    createFilter(filter) {
-      this.$emit('changed', this.filters.concat([filter]));
-    },
+    /**
+     * @param {string} type
+     */
     resetFilters(type) {
       this.$emit('changed', this.filters.filter(d => d.type !== type));
     },
+    /**
+     * @param {Filter[]} daterangeFilters
+     */
     updateDaterangeFilters(daterangeFilters) {
       this.$emit('changed', this.filters
         .filter(({ type }) => type !== 'daterange')
         .concat(daterangeFilters));
     },
-    updateFilter(filter) {
-      this.$emit('changed', this.filters.map((d) => {
-        if (d.key === filter.key) {
-          return filter;
-        }
-        return d;
-      }));
+    /**
+     * @param {string} type
+     * @param {Filter[]} updatedFilters
+     */
+    facetFiltersUpdated(type, updatedFilters) {
+      let updatedFiltersIndex = 0
+
+      const mergedFilters = this.filters
+        .map(filter => {
+          if (filter.type === type) {
+            if (updatedFiltersIndex < (updatedFilters.length - 1)) {
+              updatedFiltersIndex += 1
+              return updatedFilters[updatedFiltersIndex - 1]
+            }
+            return undefined
+          }
+          return filter
+        })
+        .filter(filter => filter != null)
+      const remainingUpdatedFilters = updatedFilters.slice(updatedFiltersIndex)
+
+      this.$emit('changed', mergedFilters.concat(remainingUpdatedFilters))
     },
   },
   components: {

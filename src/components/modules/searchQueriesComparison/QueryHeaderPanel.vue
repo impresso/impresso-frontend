@@ -17,14 +17,6 @@
           <search-pills enable-add-filter
                         :filters="searchQuery.filters"
                         @changed="handleFiltersChanged" />
-          <!-- v-on:remove="onRemoveFilter"
-                        v-on:update="onUpdateFilter"
-                        v-on:add="onAddFilter"
-                        :skip-push-search-params="true"
-                        :search-filters="searchQuery.filters"
-                        store-module-name="queryComparison"
-                        :search-query-id="comparableId"
-           -->
           <autocomplete v-on:submit="onSuggestion" />
         </div>
       </b-tab>

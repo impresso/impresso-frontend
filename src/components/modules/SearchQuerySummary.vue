@@ -105,9 +105,11 @@ export default {
     },
     getLabel({ item, type, filter }) {
       let t = '';
+      const [start, end] = [item.start, item.end].map(v => new Date(v))
+
       switch (type) {
       case 'daterange':
-        t = `from <span class="date">${this.$d(item.start, 'compact')}</span> to <span class="date">${this.$d(item.end, 'compact')}</span>`;
+        t = `from <span class="date">${this.$d(start, 'compact')}</span> to <span class="date">${this.$d(end, 'compact')}</span>`;
         break;
       case 'location':
       case 'person':
@@ -142,7 +144,8 @@ export default {
     },
     getFilterAsLabel(filter) {
       if (filter.items) {
-        const operator = this.$t(`op.${filter.op.toLowerCase()}`);
+        const { op = 'OR' } = filter
+        const operator = this.$t(`op.${op.toLowerCase()}`);
         return filter.items.map(item => [
           `<span class="item ${filter.type}">`,
           this.getLabel({
@@ -164,10 +167,11 @@ export default {
     },
     getContextSections(filters) {
       return filters.reduce((sections, d) => {
-        if (!sections[d.context]) {
-          sections[d.context] = [];
+        const { context = 'include' } = d
+        if (!sections[context]) {
+          sections[context] = [];
         }
-        sections[d.context].push(d);
+        sections[context].push(d);
         return sections;
       }, {});
     },

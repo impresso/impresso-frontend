@@ -111,6 +111,7 @@ class Dimension {
       this.domain.forEach((key) => {
         this.legend.push({
           name: key,
+          property: this.property,
           count: groups[key].length,
           color: this.scale(key),
         });

@@ -2,7 +2,7 @@
   <b-modal v-on:hidden="$emit(events.Hide)"
           :id="id"
           ref="facet-explorer-modal"
-          class="facet-explorer-modal">
+          body-class="p-0">
     <template v-slot:modal-header class="mt-2 mr-0">
       <div>
         <div class="tb-title small-caps font-weight-bold">{{ $t('explore') }}</div>
@@ -35,31 +35,35 @@
         </form>
       </div>
     </template>
-    <div v-if='isLoading'
-         class="position-absolute w-100 h-100"
-         style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
-      <i-spinner class="text-center pt-4" />
-    </div>
-    <facet-explorer v-if="!RangeFacets.includes(currentType)"
-                    :filter-type="currentType"
-                    :buckets="buckets"
-                    v-model="filter"
-                    class="my-0 mb-3 px-2"/>
-    <range-facet-explorer v-if="RangeFacets.includes(currentType)"
-                    :filter-type="currentType"
-                    :buckets="buckets"
-                    :range="range"
-                    v-model="filter"
-                    class="my-0 mb-3 px-2"/>
-      <div v-if="totalResults > pageSize" class="p-3">
-        <div
-          class="fixed-pagination-footer mb-2 p-1">
-          <pagination v-model="currentPageModel"
-                      v-bind:perPage="pageSize"
-                      v-bind:totalRows="totalResults"
-                      v-bind:showDescription="false"/>
-        </div>
+    <!-- .modal-body -->
+    <div class="bg-light">
+      <div v-if='isLoading'
+           class="position-absolute w-100 h-100"
+           style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
+        <i-spinner class="text-center pt-4" />
       </div>
+      <facet-explorer v-if="!RangeFacets.includes(currentType)"
+                      :filter-type="currentType"
+                      :buckets="buckets"
+                      v-model="filter"
+                      />
+      <range-facet-explorer v-if="RangeFacets.includes(currentType)"
+                      :filter-type="currentType"
+                      :buckets="buckets"
+                      :range="range"
+                      v-model="filter"
+                      />
+    </div>
+    <div v-if="totalResults > pageSize" class="py-4 border-top">
+      <div
+        class="fixed-pagination-footer mb-2 p-1">
+        <pagination v-model="currentPageModel"
+                    v-bind:perPage="pageSize"
+                    v-bind:totalRows="totalResults"
+                    v-bind:showDescription="false"/>
+      </div>
+    </div>
+    <!-- footer -->
     <template v-slot:modal-footer>
       <!--  Pagination -->
       <b-button variant="outline-primary"
@@ -329,11 +333,7 @@ export default {
 </script>
 
 <style lang="scss">
-  .facet-explorer-modal {
-    .modal-body{
-      padding: 0;
-    }
-  }
+
 </style>
 
 <i18n>

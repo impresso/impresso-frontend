@@ -2,10 +2,10 @@
   <i-layout id="SearchPage">
     <search-sidebar width="400px"
       :filters="filters"
-      :filters-removed="filtersRemoved"
+      :ignored-filters="filtersRemoved"
       :facets="facets"
       :excludedTypes="excludedTypes"
-      store="searchImages"
+      contextTag="searchImages"
       @changed="handleFiltersChanged">
       <div slot="header">
         <b-media v-if="similarToImage" class="pb-3">
@@ -108,11 +108,11 @@ const ALLOWED_FILTER_TYPES = [
   'newspaper',
   'isFront',
   'daterange',
-  'title',
+  'title'
 ];
 
 const ALLOWED_FACET_TYPES = [
-  'newspaper',
+  'newspaper', 'year'
 ];
 
 export default {
