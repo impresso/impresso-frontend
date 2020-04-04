@@ -1,8 +1,9 @@
 <template lang="html">
   <i-layout-section v-if="$route.params.collection_uid">
 
-    <div slot="header" v-if="!fetching">
-      <b-navbar type="light" variant="light" class="border-bottom">
+    <div slot="header">
+
+      <b-navbar type="light" variant="light">
 
         <section>
 
@@ -11,9 +12,8 @@
           </span>
 
           <h3>{{collection.name}}</h3>
-          <p>
-            {{collection.description}}
-          </p>
+
+          <p>{{collection.description}}</p>
 
         </section>
 
@@ -55,38 +55,59 @@
         <b-modal id="confirmDelete" v-on:ok="remove(collection)">
           {{this.$t('confirm_delete', [collection.name])}}
         </b-modal>
-
       </b-navbar>
+
+      <b-tabs pills class="mx-3">
+        <template v-slot:tabs-end>
+          <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
+            :class="{ active: tabItem.name === tab.name }"
+            active-class='none'
+            :to="{ name: 'collection', params: { collection_uid: $route.params.collection_uid }, query: { tab: tabItem.name }}">
+            <span v-html="tabItem.label"/>
+          </b-nav-item>
+        </template>
+      </b-tabs>
 
       <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
-        <b-navbar-nav class="p-3 border-right">
-          <li>
-            <label v-html="$tc('articles', paginationTotalRows) "></label>
-          </li>
+
+
+
+        <b-navbar-nav class="ml-2">
+          <b-nav-form class="p-2">
+            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
+              {{ $t('actions.addToCurrentFilters') }}
+            </b-button>
+          </b-nav-form>
+          <b-nav-form class="py-2 pr-2  border-right">
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+              {{ $t('actions.searchMore') }}
+            </router-link>
+          </b-nav-form>
         </b-navbar-nav>
 
-        <b-navbar-nav class="p-3">
-          <li><label class="mr-1">{{ $t('label_order') }}</label>
+
+
+        <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
+          <!-- <b-navbar-form class="p-2 border-right">
+            <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li>
+          </b-navbar-form> -->
+          <ul class="p-2 ml-auto">
+            <li class="ml-auto">
+              <label class="mr-1">{{ $t('label_display') }}</label>
+              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+              </b-form-radio-group>
+            </li>
+          </ul>
         </b-navbar-nav>
-
-        <b-navbar-nav class="p-3 border-left ml-auto">
-          <li>
-            <label class="mr-1">{{ $t('label_display') }}</label>
-            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-            </b-form-radio-group>
-          </li>
-        </b-navbar-nav>
-
 
       </b-navbar>
+
     </div>
 
-
-    <div class="collection-group">
+    <div v-if="tab.name === TAB_ARTICLES" class="collection-group">
 
       <div v-if="fetching">
         <i-spinner class="text-center m-5 p-5" />
@@ -141,15 +162,34 @@
     </div>
 
 
-    <div v-if="entities.length > 0" class="collection-group">
-      <hr>
-      <h4>Entities</h4>
-      <div class="grid">
-        <div class="item" v-for="(entity, index) in entities" v-bind:key="index">
-          {{entity}}
+
+
+    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3 container">
+
+      <timeline
+            :domain="[startYear, endYear]"
+            :values="timevalues">
+        <div slot-scope="tooltipScope">
+          <div v-if="tooltipScope.tooltip.item">
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w }}</b>
+          </div>
+        </div>
+      </timeline>
+
+      <div class="row">
+        <div v-for="(facet, idx) in facets" v-bind:key="idx" class="col-6 my-3">
+          <stacked-bars-panel
+            class=""
+            :label="facet.type"
+            :buckets="facet.buckets"
+            :facet-type="facet.type"/>
         </div>
       </div>
+
     </div>
+
+<!--
 
     <div v-if="issues.length > 0" class="collection-group">
       <h4>Issues</h4>
@@ -167,7 +207,7 @@
           <open-seadragon-viewer v-model="page.iiif" />
         </div>
       </div>
-    </div>
+    </div> -->
 
   </i-layout-section>
 </template>
@@ -178,20 +218,56 @@ import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import Pagination from './modules/Pagination';
+import SearchQuery from '@/models/SearchQuery';
+import Timeline from './modules/Timeline';
+import StackedBarsPanel from './modules/vis/StackedBarsPanel';
+
+
+
+const TAB_ARTICLES = 'articles';
+const TAB_OVERVIEW = 'overview';
 
 export default {
+  props: {
+    startYear: {
+      type: Number,
+      default: 1740,
+    },
+    endYear: {
+      type: Number,
+      default: 2020,
+    },
+  },
   data: () => ({
     tab: {},
     collection: new Collection(),
     fetching: false,
+    TAB_ARTICLES,
+    TAB_OVERVIEW,
+    timevalues: [],
+    facets: [],
+    facetTypes: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic', 'partner', 'accessRight'],
   }),
   components: {
     SearchResultsListItem,
     SearchResultsTilesItem,
     SearchResultsImageItem,
     Pagination,
+    Timeline,
+    StackedBarsPanel,
   },
   computed: {
+    searchPageLink() {
+      if (!this.collection) {
+        return { name: 'search' };
+      }
+      return {
+        name: 'search',
+        query: SearchQuery.serialize({
+          filters: [{ type: 'collection', q: this.collection.uid }],
+        }),
+      };
+    },
     collections: {
       get() {
         return this.$store.getters['collections/collections'];
@@ -205,26 +281,21 @@ export default {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
-    pages: {
-      get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'page'));
-      },
-    },
-    entities: {
-      get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'entity'));
-      },
-    },
+    // pages: {
+    //   get() {
+    //     return this.collection.items.filter(item => (item.labels && item.labels[0] === 'page'));
+    //   },
+    // },
     articles: {
       get() {
         return this.$store.getters['collections/collectionItems'];
       },
     },
-    issues: {
-      get() {
-        return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
-      },
-    },
+    // issues: {
+    //   get() {
+    //     return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
+    //   },
+    // },
     paginationPerPage: {
       get() {
         return this.$store.state.collections.paginationPerPage;
@@ -243,49 +314,85 @@ export default {
         return this.$store.state.collections.paginationTotalRows;
       },
     },
-    orderByOptions: {
-      get() {
-        return [
-          {
-            value: 'dateAdded',
-            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_asc')}`,
-            disabled: true,
-          },
-          {
-            value: '-dateAdded',
-            text: `${this.$t('sort_dateAdded')} ${this.$t('sort_desc')}`,
-            disabled: true,
-          },
-          {
-            value: 'itemDate',
-            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
-            disabled: true,
-          },
-          {
-            value: '-itemDate',
-            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
-            disabled: true,
-          },
-        ];
-      },
+    // orderByOptions: {
+    //   get() {
+    //     return [
+    //       {
+    //         value: 'dateAdded',
+    //         text: `${this.$t('sort_dateAdded')} ${this.$t('sort_asc')}`,
+    //         disabled: true,
+    //       },
+    //       {
+    //         value: '-dateAdded',
+    //         text: `${this.$t('sort_dateAdded')} ${this.$t('sort_desc')}`,
+    //         disabled: true,
+    //       },
+    //       {
+    //         value: 'itemDate',
+    //         text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
+    //         disabled: true,
+    //       },
+    //       {
+    //         value: '-itemDate',
+    //         text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+    //         disabled: true,
+    //       },
+    //     ];
+    //   },
+    // },
+    // orderBy: {
+    //   get() {
+    //     return this.$store.state.collections.orderBy;
+    //   },
+    //   set(val) {
+    //     this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
+    //     this.getCollectionItems(1);
+    //   },
+    // },
+    tabs() {
+      return [
+        {
+          label: this.$t('tabs.overview'),
+          name: TAB_OVERVIEW,
+        },
+        {
+          label: this.$tc('tabs.articles', this.collection.countItems, {
+            count: this.$n(this.collection.countItems),
+          }),
+          name: TAB_ARTICLES,
+        },
+      ];
     },
-    orderBy: {
-      get() {
-        return this.$store.state.collections.orderBy;
-      },
-      set(val) {
-        this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
-        this.getCollectionItems(1);
-      },
-    },
-  },
-  mounted() {
-    this.getCollection();
   },
   watch: {
-    $route() {
-      this.paginationCurrentPage = 1;
-      this.getCollection();
+    $route: {
+      immediate: true,
+      async handler({ query }) {
+        if (this.collection.uid !== this.$route.params.collection_uid) {
+          this.timevalues = [];
+          this.facets = [];
+          this.paginationCurrentPage = 1;
+          this.getCollection();
+          await this.getCollectionItems();
+          await this.loadTimeline();
+          this.facetTypes.forEach((type) => {
+            this.loadFacets(type);
+          });
+          //
+          // await this.loadFacets('newspaper');
+          // await this.loadFacets('topic');
+          // await this.loadFacets('location');
+          // await this.loadFacets('person');
+        }
+        // set active tab
+        const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
+        this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
+        // reset item list
+        // if (this.tab.name === TAB_ARTICLES && this.collection.items === []) {
+        // }
+        // if (this.tab.name === TAB_OVERVIEW && this.timevalues === []) {
+        // }
+      },
     },
   },
   methods: {
@@ -304,7 +411,6 @@ export default {
         uid: this.$route.params.collection_uid,
         items: [],
       };
-      this.getCollectionItems();
     },
     gotoArticle(article) {
       this.$router.push({
@@ -362,6 +468,50 @@ export default {
     },
     onInputPagination(page = 1) {
       this.getCollectionItems(page);
+    },
+    applyFilter(context = 'include') {
+      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
+      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
+        searchQueryId: '',
+        filter: {
+          type: 'collection',
+          q: [this.collection.uid],
+          items: [this.collection],
+        },
+      });
+    },
+    loadTimeline() {
+      return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
+        this.timevalues = values;
+      });
+    },
+    // loadFacets(type) {
+    //   return this.$store.dispatch('collections/LOAD_FACETS',
+    //     {
+    //       q: this.$route.params.collection_uid,
+    //       type: type,
+    //     }).then((r) => {
+    //     this.facets.push(r);
+    //     console.log(r);
+    //   });
+    // },
+    // loadTopics() {
+    //   return this.$store.dispatch('collections/LOAD_TOPICS', this.$route.params.collection_uid).then((topics) => {
+    //     this.facets.push(topics);
+    //   });
+    // },
+    // loadEntities() {
+    //   return this.$store.dispatch('collections/LOAD_ENTITIES', this.$route.params.collection_uid).then(([locationFacet, personFacet]) => {
+    //     this.facets.push(locationFacet, personFacet);
+    //     // console.log(this.facets);
+    //   });
+    // },
+    loadFacets(facetType) {
+      return this.$store.dispatch('collections/LOAD_FACETS', {q: this.$route.params.collection_uid, type: facetType})
+        .then((r) => {
+          this.facets.push(r);
+          // console.log(this.facets);
+        });
     },
   },
 };

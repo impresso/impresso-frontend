@@ -1,6 +1,8 @@
 import * as services from '@/services';
 import Collection from '@/models/Collection';
 import Article from '@/models/Article';
+import Helpers from '@/plugins/Helpers';
+import Facet from '@/models/Facet';
 
 export default {
   namespaced: true,
@@ -176,6 +178,31 @@ export default {
           resolve(results);
         });
       });
+    },
+    LOAD_TIMELINE(context, collectionId) {
+      const query = {
+        filters: [{
+          type: 'collection',
+          q: collectionId,
+        }],
+        group_by: 'articles',
+      };
+      return services.searchFacets.get('year', {
+        query,
+      }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
+    },
+    LOAD_FACETS(context, payload) {
+      const facetType = payload.type;
+      const query = {
+        filters: [{
+          type: 'collection',
+          q: payload.q,
+        }],
+        group_by: 'articles',
+      };
+      return services.searchFacets.get(facetType, {
+        query,
+      }).then(([facetType]) => new Facet(facetType));
     },
     EDIT_COLLECTION(context, payload) {
       return new Promise((resolve) => {

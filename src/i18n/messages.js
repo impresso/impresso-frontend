@@ -279,6 +279,7 @@ export default {
       powervis: 'apply filters to visualisation',
       overview: 'overview',
       relatedArticles: '... related articles | 1 related article | {count} related articles',
+      articles: '... articles | 1 article | {count} articles',
     },
     sort: {
       name: {
