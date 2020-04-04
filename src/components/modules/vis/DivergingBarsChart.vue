@@ -34,6 +34,11 @@ export default {
     colors: {
       type: Object,
       default: () => ({})
+    },
+    /** @type {import('vue').PropOptions<(number) => string>} */
+    roundValueFn: {
+      type: Function,
+      default: undefined
     }
   },
   components: {
@@ -62,7 +67,11 @@ export default {
     }
   },
   mounted() {
-    this.chart = new DivergingBarsChart({ element: this.$refs.chart, colors: this.colors })
+    this.chart = new DivergingBarsChart({
+      element: this.$refs.chart,
+      colors: this.colors,
+      roundValueFn: this.roundValueFn
+    })
     this.chart.render(this.items)
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))

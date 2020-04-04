@@ -35,7 +35,8 @@
 
         <diverging-bars-chart-panel v-if="mode === modes.Compare"
                                     :facets="divergingBarsFacets"
-                                    :colors="colors"/>
+                                    :colors="colors"
+                                    :round-value-fn="roundValueForDisplay"/>
 
         <side-by-side-facets-panel v-if="mode === modes.Inspect"
                                    :facets="sideBySideBarFacets"
@@ -507,7 +508,9 @@ export default {
           query: query,
         });
       }
-    }
+    },
+    /** @param {number} value */
+    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) }
   },
 };
 </script>

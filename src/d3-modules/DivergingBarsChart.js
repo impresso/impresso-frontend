@@ -7,7 +7,8 @@ import * as d3 from 'd3'
  *  margin?: {left: number, right: number, top: number, bottom: number },
  *  colors?: { yAxis?: Color, colorLeft?: Color, colorRight?: Color, text?: Color },
  *  sizes?: { barSpacing: number, barHeight: number, font: string },
- *  offsets?: { barValue: string }
+ *  offsets?: { barValue: string },
+ *  roundValueFn?: (v: number) => string
  * }} ConstructorOptions
  */
 
@@ -24,16 +25,19 @@ export default class DivergingBarsChart {
   /** @param {ConstructorOptions} options */
   constructor({
     element = null,
-    margin = { top: 10, bottom: 10, left: 40, right: 40 },
+    margin = { top: 10, bottom: 10, left: 45, right: 45 },
     colors = DefaultColors,
     sizes = { barSpacing: 18, barHeight: 15, font: '0.6em' },
-    offsets = { barValue: '0.5em' }
+    offsets = { barValue: '0.5em' },
+    roundValueFn = v => `${v}`
   }) {
     this.margin = margin
     this.colors = { ...DefaultColors, ...colors }
     this.sizes = sizes
     this.offsets = offsets
     this.element = element
+
+    this.roundValueFn = roundValueFn
 
     this.svg = d3.select(element)
       .append('svg')
@@ -194,7 +198,7 @@ export default class DivergingBarsChart {
       .attr('dy', this.sizes.barHeight / 2)
       .attr('dx', ({ flipped }) => `${flipped ? '-' : '+' }${this.offsets.barValue}`)
       .attr('text-anchor', ({ flipped }) => flipped ? 'end' : 'start')
-      .text(({ value }) => parseInt(value, 10))
+      .text(({ value }) => this.roundValueFn(value))
       .attr('alignment-baseline', 'middle')
       .attr('fill', this.colors.text)
       .attr('font-size', this.sizes.font)
