@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="facet-overview-panel">
     <!-- timeline type -->
     <div v-if="type === 'timeline'">
       <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{title}}</span>
@@ -125,7 +125,36 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
+  $left-panel-color: #2e80c9;
+  $right-panel-color: #FC5C53;
+  $middle-panel-color: #2d2e41;
 
+  .facet-overview-panel{
+    &.left {
+      .viz-bar{
+        background-color: $left-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $left-panel-color;
+      }
+    }
+    &.right {
+      .viz-bar{
+        background-color: $right-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $right-panel-color;
+      }
+    }
+    &.middle {
+      .viz-bar{
+        background-color: $middle-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $middle-panel-color;
+      }
+    }
+  }
 </style>

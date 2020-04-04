@@ -290,6 +290,9 @@ export default {
           border-right-color: $left-panel-color;
         }
       }
+      .viz-bar{
+        background-color: $left-panel-color;
+      }
     }
 
     &>.right {

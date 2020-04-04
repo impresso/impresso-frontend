@@ -46,6 +46,11 @@
             </div>
             <div class="col">
             <facet-overview-panel class="px-2"
+                                  :class="{
+                                    left : queryIdx === 0,
+                                    right: queryIdx === 2,
+                                    middle: queryIdx === 1,
+                                  }"
                                   :facet="facetId"
                                   :type="facetType"
                                   :title="$tc(`label.${facetId}.title`, getFacetValues(queryResult, facetId).length || 1)"
