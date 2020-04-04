@@ -1,5 +1,9 @@
 <template lang="html">
-  <div class="query-header-panel">
+  <div class="query-header-panel" :class="{
+    left,
+    right: !left && !containsComparison,
+    middle: containsComparison,
+  }">
   <div class="p-2 container">
     <b-tabs pills content-class="mt-3" :align="alignment"
             v-if="comparable.type !== 'intersection'">
@@ -251,6 +255,11 @@ export default {
 
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
+  $left-panel-color: #2e80c9;
+  $right-panel-color: #FC5C53;
+  $middle-panel-color: #2d2e41; // multiply A + B
+  // $middle-panel-color: #fdafdb;// dodge A B
+
   .query-header-panel{
     position: relative;
     width: 100%;
@@ -260,6 +269,45 @@ export default {
       .small-caps {
         height: 17px;
         vertical-align: top;
+      }
+    }
+
+    &.left {
+      border-bottom: 1px solid $left-panel-color;
+      ul.nav.nav-pills{
+        border-bottom-color: $left-panel-color;
+        .nav-item .nav-link.active{
+          color: $left-panel-color;
+          border-top-color: $left-panel-color;
+          border-left-color: $left-panel-color;
+          border-right-color: $left-panel-color;
+        }
+      }
+    }
+
+    &.right {
+      border-bottom: 1px solid $right-panel-color;
+      ul.nav.nav-pills{
+        border-bottom-color: $right-panel-color;
+        .nav-item .nav-link.active{
+          color: $right-panel-color;
+          border-top-color: $right-panel-color;
+          border-left-color: $right-panel-color;
+          border-right-color: $right-panel-color;
+        }
+      }
+    }
+
+    &.middle {
+      border-bottom: 1px solid $middle-panel-color;
+      ul.nav.nav-pills{
+        border-bottom-color: $middle-panel-color;
+        .nav-item .nav-link.active{
+          color: $middle-panel-color;
+          border-top-color: $middle-panel-color;
+          border-left-color: $middle-panel-color;
+          border-right-color: $middle-panel-color;
+        }
       }
     }
 
