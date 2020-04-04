@@ -6,7 +6,7 @@
       <diverging-bars-chart :items="facet.items" :colors="chartColors" :round-value-fn="roundValueFn">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.isActive">
-            <b>{{tooltipScope.tooltip.item.label}}</b> &middot;
+            <b>{{tooltipScope.tooltip.item.label}}</b> &middot; {{roundValueFn(tooltipScope.tooltip.item.intersection)}}
             <div v-html="$t('tooltip.common.left', { value: getIntersection(tooltipScope.tooltip.item.intersection, tooltipScope.tooltip.item.left)})"/>
             <div v-html="$t('tooltip.common.right', { value: getIntersection(tooltipScope.tooltip.item.intersection, tooltipScope.tooltip.item.right)})"/>
           </div>

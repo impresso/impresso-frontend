@@ -134,6 +134,53 @@ function mergeFilters(filtersSets) {
   }))
 }
 
+/**
+ * @param {any[]} queriesResults
+ * @param {string} facetId
+ * @param {import('vue/types/vue').Vue} vueInstance
+ * @returns {FacetItem[]}
+ */
+function getItemsForFacet(queriesResults, facetId, vueInstance) {
+  const [leftBuckets, intersectionBuckets, rightBuckets] = queriesResults.map(results => {
+    const facet = results?.facets?.find(({ id }) => id === facetId)
+    return facet?.buckets ?? []
+  })
+
+  const uniqueIds = [...new Set(leftBuckets.concat(rightBuckets).concat(intersectionBuckets)
+    .map(({ val }) => val))]
+
+  return uniqueIds.map(id => {
+    const leftBucket = leftBuckets.find(({ val }) => val === id)
+    const rightBucket = rightBuckets.find(({ val }) => val === id)
+    const intersectionBucket = intersectionBuckets.find(({ val }) => val === id)
+
+    return {
+      label: [leftBucket, rightBucket, intersectionBucket].filter(b => b != null).map(bucket => getBucketLabel(bucket, facetId, vueInstance))[0],
+      left: /** @type {number} */ (leftBucket ? leftBucket.count : 0),
+      right: /** @type {number} */ (rightBucket ? rightBucket.count : 0),
+      intersection: /** @type {number} */ (intersectionBucket ? intersectionBucket.count : 0)
+    }
+  }).filter(({ left, right }) => left > 0 && right > 0)
+}
+
+const SortingMethods = Object.freeze({
+  /**
+   * Sort items by highest cumulative overlap in percents.
+   * @param {FacetItem} itemA
+   * @param {FacetItem} itemB
+   */
+  HighestTotalIntersectionInPercents: (itemA, itemB) => {
+    const totalPc = item => item.intersection / item.left + item.intersection / item.right
+    return totalPc(itemB) - totalPc(itemA)
+  },
+  /**
+   * Sort items by highest absolute value of intersection.
+   * @param {FacetItem} itemA
+   * @param {FacetItem} itemB
+   */
+  HighestAbsoluteIntersection: (itemA, itemB) => itemB.intersection - itemA.intersection
+})
+
 const QueryLeftIndex = 0;
 const QueriesIntersectionIndex = 1;
 const QueryRightIndex = 2;
@@ -144,7 +191,8 @@ const Mode = Object.freeze({
 })
 
 const QueryParameters = Object.freeze({
-  Mode: 'mode'
+  Mode: 'mode',
+  BarSortingMethod: 'barSorting'
 })
 
 export default {
@@ -267,7 +315,8 @@ export default {
       return compatableFacetTypes.map(type => {
         return {
           id: type,
-          items: this.getItemsForFacet(type)
+          items: getItemsForFacet(this.queriesResults, type, this)
+            .sort(SortingMethods[this.barSortingMethod])
         }
       })
     },
@@ -316,6 +365,19 @@ export default {
           [QueryParameters.Mode]: value
         })
       }
+    },
+    barSortingMethod: {
+      /** @returns {string} */
+      get() {
+        const value = getQueryParameter(this, QueryParameters.Mode) ?? Mode.Compare
+        return Object.keys(SortingMethods).includes(value) ? value : 'HighestAbsoluteIntersection'
+      },
+      /** @param {string} value */
+      set(value) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.BarSortingMethod]: value
+        })
+      }
     }
   },
   components: {
@@ -324,32 +386,6 @@ export default {
     DivergingBarsChartPanel
   },
   methods: {
-    /**
-     * @param {string} facetId
-     * @returns {FacetItem[]}
-     */
-    getItemsForFacet(facetId) {
-      const [leftBuckets, intersectionBuckets, rightBuckets] = this.queriesResults.map(results => {
-        const facet = results?.facets?.find(({ id }) => id === facetId)
-        return facet?.buckets ?? []
-      })
-
-      const uniqueIds = [...new Set(leftBuckets.concat(rightBuckets).concat(intersectionBuckets)
-        .map(({ val }) => val))]
-
-      return uniqueIds.map(id => {
-        const leftBucket = leftBuckets.find(({ val }) => val === id)
-        const rightBucket = rightBuckets.find(({ val }) => val === id)
-        const intersectionBucket = intersectionBuckets.find(({ val }) => val === id)
-
-        return {
-          label: [leftBucket, rightBucket, intersectionBucket].filter(b => b != null).map(bucket => getBucketLabel(bucket, facetId, this))[0],
-          left: /** @type {number} */ (leftBucket ? leftBucket.count : 0),
-          right: /** @type {number} */ (rightBucket ? rightBucket.count : 0),
-          intersection: /** @type {number} */ (intersectionBucket ? intersectionBucket.count : 0)
-        }
-      }).filter(({ left, right }) => left > 0 && right > 0)
-    },
     /**
      * Fetch intersection data
      * @param {number} resultIndex

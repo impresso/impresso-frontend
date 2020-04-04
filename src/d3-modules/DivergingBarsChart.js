@@ -159,7 +159,8 @@ export default class DivergingBarsChart {
       .attr('font-size', this.sizes.font)
 
     // intersections
-    const intersectionX = value => value > 0 && this.barX(value) < 1 ? 1 : this.barX(value)
+    // NOTE: value is multiplied by 2 because we are covering 2 bars (left and right) with 1 bar proportionally
+    const intersectionX = value => value > 0 && this.barX(value * 2) < 1 ? 1 : this.barX(value * 2)
     this.intersection
       .attr('transform', `translate(${midWidth}, ${this.sizes.barSpacing})`)
       .selectAll('rect')
