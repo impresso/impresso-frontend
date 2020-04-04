@@ -1,6 +1,20 @@
 export interface Entity {
   uid: string,
 
+  name?: string,
+  language?: string,
+  htmlExcerpt?: string,
+  creator?: { username?: string }
+  lastModifiedDate?: Date
+
+  y?: string,
+
+  firstIssue?: { date: Date },
+  lastIssue?: { date: Date },
+
+  countArticles?: Number,
+  countIssues?: Number,
+
   start?: Number,
   end?: Number
 }
@@ -18,7 +32,7 @@ export interface Filter {
 export interface Bucket {
   val: string,
   count: number,
-  item?: any
+  item?: Entity
 }
 
 export interface Facet {

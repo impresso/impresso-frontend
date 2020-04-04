@@ -26,11 +26,18 @@
                                    :comparable-loading-flags="loadingFlags"
                                    @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
 
-        <diverging-bars-chart-panel v-if="divergingBarsEnabled"
+        <div class="d-flex justify-content-md-center">
+          <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
+            <b-form-radio :value="modes.Compare">{{$t("mode.compare")}}</b-form-radio>
+            <b-form-radio :value="modes.Inspect">{{$t("mode.inspect")}}</b-form-radio>
+          </b-form-radio-group>
+        </div>
+
+        <diverging-bars-chart-panel v-if="mode === modes.Compare"
                                     :facets="divergingBarsFacets"
                                     :colors="colors"/>
 
-        <side-by-side-facets-panel v-if="!divergingBarsEnabled"
+        <side-by-side-facets-panel v-if="mode === modes.Inspect"
                                    :facets="sideBySideBarFacets"
                                    :comparable-loading-flags="loadingFlags"
                                    :disable-handling-loading-and-empty="true"/>
@@ -49,6 +56,8 @@ import DivergingBarsChartPanel from './modules/searchQueriesComparison/Diverging
 import SideBySideFacetsPanel from './modules/searchQueriesComparison/SideBySideFacetsPanel'
 import Bucket from '../models/Bucket';
 import { optimizeFilters } from '@/logic/filters'
+import { getQueryParameter } from '../router/util';
+import { getBucketLabel } from '../logic/facets';
 
 function prepareFacets(responseFacets = {}) {
   const types = Object.keys(responseFacets).filter(k => k !== 'count');
@@ -128,13 +137,14 @@ const QueryLeftIndex = 0;
 const QueriesIntersectionIndex = 1;
 const QueryRightIndex = 2;
 
-/**
- * @param {Bucket} bucket
- * @returns {string}
- */
-function getNameFromBucket(bucket) {
-  return bucket?.item?.name ?? bucket?.item?.htmlExcerpt ?? bucket?.val
-}
+const Mode = Object.freeze({
+  Inspect: 'inspect',
+  Compare: 'compare'
+})
+
+const QueryParameters = Object.freeze({
+  Mode: 'mode'
+})
 
 export default {
   data: () => ({
@@ -178,12 +188,12 @@ export default {
     ],
     /** @type {{ type: string, query?: any }[]} */
     oldComparables: [], // vue.js does not keep a copy of the old arrays (https://vuejs.org/v2/api/#vm-watch)
-    divergingBarsEnabled: true,
     /** @type {{ left: string, right: string }} */
     colors: {
       left: '#2E80C9',
       right: '#FC5C53'
-    }
+    },
+    modes: Mode
   }),
   watch: {
     // query parameters updated - this drives state change
@@ -292,6 +302,19 @@ export default {
      */
     sideBySideBarFacets() {
       return this.sideBySideFacets.filter(({ visualisationType }) => visualisationType === 'bars')
+    },
+    mode: {
+      /** @returns {string} */
+      get() {
+        const value = getQueryParameter(this, QueryParameters.Mode) ?? Mode.Compare
+        return value === Mode.Inspect ? Mode.Inspect : Mode.Compare
+      },
+      /** @param {string} value */
+      set(value) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.Mode]: value
+        })
+      }
     }
   },
   components: {
@@ -319,7 +342,7 @@ export default {
         const intersectionBucket = intersectionBuckets.find(({ val }) => val === id)
 
         return {
-          label: getNameFromBucket(leftBucket) ?? getNameFromBucket(rightBucket) ?? getNameFromBucket(intersectionBucket),
+          label: [leftBucket, rightBucket, intersectionBucket].filter(b => b != null).map(bucket => getBucketLabel(bucket, facetId, this))[0],
           left: /** @type {number} */ (leftBucket ? leftBucket.count : 0),
           right: /** @type {number} */ (rightBucket ? rightBucket.count : 0),
           intersection: /** @type {number} */ (intersectionBucket ? intersectionBucket.count : 0)
@@ -520,6 +543,10 @@ export default {
   "en": {
     "cta": {
       "select-collection": "Please select a collection"
+    },
+    "mode": {
+      "inspect": "Inspect",
+      "compare": "Compare"
     }
   }
 }

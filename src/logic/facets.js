@@ -3,6 +3,7 @@ import FacetModel from '@/models/Facet'
 
 /**
  * @typedef {import('../models').Facet} Facet
+ * @typedef {import('../models').Bucket} Bucket
  */
 
 /**
@@ -101,4 +102,46 @@ const DefaultEmptyApiResponse = { info: { facets: {} } }
 
 export function buildEmptyFacets(facetTypes) {
   return searchResponseToFacetsExtractor(facetTypes)(DefaultEmptyApiResponse)
+}
+
+const LabelExtractors = {
+  /** @param {Bucket} bucket */
+  name: bucket => bucket?.item?.name,
+  /** @param {Bucket} bucket */
+  topic: bucket => bucket?.item != null
+    ? `${bucket?.item?.language ?? 'N/A'}: ${bucket?.item?.htmlExcerpt}`
+    : undefined,
+  /** @param {Bucket} bucket */
+  year: bucket => bucket?.item?.y ?? bucket.val,
+  /**
+   * @param {Bucket} bucket
+   * @param {string} type
+   * @param {import('vue/types/vue').Vue} vueInstance
+   */
+  translated: (bucket, type, vueInstance) => {
+    return vueInstance.$t(`buckets.${type}.${bucket?.item?.uid ?? bucket.val}`)
+  }
+}
+
+/**
+ * This is derived from `ItemLabel.vue`. Given a filter return its title
+ * as string (ItemLabel returns HTML). This label is useful for SVG labels.
+ *
+ * @param {Bucket} bucket
+ * @param {string} type
+ * @param {import('vue/types/vue').Vue} vueInstance
+ *
+ * @returns {string}
+ */
+export function getBucketLabel(bucket, type, vueInstance) {
+  const extractor = {
+    location: LabelExtractors.name,
+    person: LabelExtractors.name,
+    newspaper: LabelExtractors.name,
+    topic: LabelExtractors.topic,
+    collection: LabelExtractors.name,
+    year: LabelExtractors.year
+  }[type] ?? LabelExtractors.translated
+
+  return extractor(bucket, type, vueInstance) ?? bucket.val
 }
