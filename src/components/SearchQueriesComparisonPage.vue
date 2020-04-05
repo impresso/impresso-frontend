@@ -6,7 +6,7 @@
           <div class="one-third"
                v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
             <query-header-panel :left='queryIdx === 0'
-                                :comparison-options="['intersection']"
+                                :comparison-options="['intersection', 'compare']"
                                 :comparable="comparableForQuery(queryIdx)"
                                 :total="queryResult.total"
                                 :title="queryResult.title"
@@ -53,7 +53,6 @@
                                   }"
                                   :facet="facetId"
                                   :type="facetType"
-                                  :title="$tc(`label.${facetId}.title`, getFacetValues(queryResult, facetId).length || 1)"
                                   :values="getFacetValues(queryResult, facetId)"
                                   @timeline-highlight="onTimelineHighlight"
                                   @timeline-highlight-off="onTimelineHighlightOff"
