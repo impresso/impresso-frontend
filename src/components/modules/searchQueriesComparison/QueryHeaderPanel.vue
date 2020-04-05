@@ -52,7 +52,7 @@
               <div v-html="$t(`comparison.labels.${option}`)" />
             </template>
           </b-tab>
-          <section class="px-1">
+          <section class="px-1 text-center">
             <h3 class="textbox-fancy" v-if="!isNaN(this.total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
               n: $n(this.total),
             })"/>
@@ -355,7 +355,8 @@ export default {
   "en": {
     "comparison": {
       "labels": {
-        "intersection": "<div class='side left d-inline-block'>A</div> &amp; <div class='side d-inline-block'>B</div>",
+        "intersection": "inspect <div class='side left d-inline-block'>A</div> &amp; <div class='side d-inline-block'>B</div>",
+        "compare": "compare <div class='side left d-inline-block'>A</div> + <div class='side d-inline-block'>B</div>",
         "diffA": "<div class='side left d-inline-block'>A</div> not in <div class='side d-inline-block'>B</div>",
         "diffB": "<div class='side d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>"
       },
