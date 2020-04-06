@@ -6,7 +6,11 @@
       <div class="one-third"
            v-for="(comparableItem, comparableIndex) in facet.comparableItems"
            :key="comparableIndex"
-           :class="{ 'loading-bg': isComparableLoading(comparableIndex)}">
+           :class="{
+             'loading-bg': isComparableLoading(comparableIndex),
+             'border-right': comparableIndex === 1,
+             'border-left': comparableIndex === 1,
+            }">
 
         <!-- loading indicator -->
         <div class="col" v-if="isComparableLoading(comparableIndex) && !disableHandlingLoadingAndEmpty">
@@ -32,10 +36,14 @@
         <div class="col">
           <facet-overview-panel
             class="px-2"
+            :class="{
+              left : comparableIndex === 0,
+              right: comparableIndex === 2,
+              middle: comparableIndex === 1,
+            }"
             v-if="!isComparableLoading(comparableIndex) && comparableItem.isLoaded"
             :facet="facet.id"
             :type="facet.visualisationType"
-            :title="$tc(`label.${facet.id}.title`, comparableItem.buckets.length || 1)"
             :values="comparableItem.buckets"
             @timeline-highlight="onTimelineHighlight"
             @timeline-highlight-off="onTimelineHighlightOff"
