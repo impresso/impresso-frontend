@@ -322,33 +322,39 @@ export default {
   watch: {
     leftComparable: {
       async handler() {
-        this.$set(
-          this.queriesResults,
-          QueryIndex.Left,
-          await this.getQueryResult(this.leftComparable)
-        )
+        try {
+          this.loadingFlags[QueryIndex.Left] = true
+          const result = await this.getQueryResult(this.leftComparable)
+          this.$set(this.queriesResults, QueryIndex.Left, result)
+        } finally {
+          this.loadingFlags[QueryIndex.Left] = false
+        }
       },
       deep: true,
       immediate: true
     },
     rightComparable: {
       async handler() {
-        this.$set(
-          this.queriesResults,
-          QueryIndex.Right,
-          await this.getQueryResult(this.rightComparable)
-        )
+        try {
+          this.loadingFlags[QueryIndex.Right] = true
+          const result = await this.getQueryResult(this.rightComparable)
+          this.$set(this.queriesResults, QueryIndex.Right, result)
+        } finally {
+          this.loadingFlags[QueryIndex.Right] = false
+        }
       },
       deep: true,
       immediate: true
     },
     intersection: {
       async handler() {
-        this.$set(
-          this.queriesResults,
-          QueryIndex.Intersection,
-          await this.getQueryResult(this.intersection)
-        )
+        try {
+          this.loadingFlags[QueryIndex.Intersection] = true
+          const result = await this.getQueryResult(this.intersection)
+          this.$set(this.queriesResults, QueryIndex.Intersection, result)
+        } finally {
+          this.loadingFlags[QueryIndex.Intersection] = false
+        }
       },
       deep: true,
       immediate: true
