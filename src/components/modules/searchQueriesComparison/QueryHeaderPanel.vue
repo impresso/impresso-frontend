@@ -11,11 +11,10 @@
       </b-tab>
       <b-tab
              :active="comparable.type === 'query'"
-             :title="getTabLabel('query')"
-             @click="typeChanged('query')">
+             :title="getTabLabel('query')">
         <div class="px-1 pb-2">
           <search-pills enable-add-filter
-                        :filters="searchQuery.filters"
+                        :filters="filters"
                         @changed="handleFiltersChanged" />
           <autocomplete v-on:submit="onSuggestion" />
         </div>
@@ -44,7 +43,7 @@
         <b-tabs pills content-class="mt-3" align="center">
           <b-tab v-for="(option, i) in comparisonOptions" :key="i">
             <template v-slot:title>
-              <div v-html="$t(`comparison.labels.${option}`, colors)" />
+              <div v-html="$t(`comparison.labels.${option}`, colors)"></div>
             </template>
           </b-tab>
           <section class="px-1">
@@ -82,21 +81,26 @@
 </template>
 
 <script>
-import SearchQuery from '@/models/SearchQuery';
+import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
 import Autocomplete from '../../Autocomplete';
 import CollectionPicker from '../../base/CollectionPicker';
 
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models').SearchQuery} SearchQuery
+ * @typedef {{ type: string, query?: SearchQuery, id?: string, filters?: Filter[] }} Comparable
+ */
 export default {
   data: () => ({
     lastQuery: undefined,
     lastQueryHash: undefined,
   }),
   props: {
+    /** @type {import('vue').PropOptions<Comparable>} */
     comparable: {
-      // A { id, type, query } object
       type: Object,
-      default() { return {}; },
+      required: true
     },
     title: {
       type: String,
@@ -105,10 +109,17 @@ export default {
       type: Boolean,
     },
     total: Number, // total items in selected collection.
+    /**
+     * list of available collections
+     * @type {import('vue').PropOptions<{ title: string, id: string }[]>}
+     */
     collections: {
-      type: Array, // An array of `{ title, id }` objects for the dropdown box
+      type: Array,
       default() { return []; },
     },
+    /**
+     * @type {import('vue').PropOptions<string[]>}
+     */
     comparisonOptions: {
       type: Array,
       default() {
@@ -119,14 +130,10 @@ export default {
       type: String,
       default: undefined,
     },
-    query: {
-      type: Object,
-      default() { return { filters: [] }; },
-    },
+    /** @type {import('vue').PropOptions<{ left: string, right: string }>} */
     colors: {
       type: Object,
-      required: true,
-      default: () => {}
+      required: true
     }
   },
   components: {
@@ -134,46 +141,18 @@ export default {
     Autocomplete,
     CollectionPicker,
   },
-  watch: {
-    'comparable.query': {
-      handler() {
-        const { comparableId: searchQueryId, comparable: { query = { filters: [] } } } = this;
-        const { filters } = query;
-        if (this.comparable.query) {
-          // get current query hash
-          const hash = SearchQuery.serialize({ filters }, 'protobuf');
-          if (this.lastQueryHash !== hash) {
-            // emit comparable-changed
-            this.$emit('comparable-changed', this.comparable);
-          }
-          this.lastQueryHash = hash;
-          this.$set(this, 'lastQuery', this.comparable.query);
-        }
-        // check here that lastQuery is different that the new one.
-        this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
-      },
-      immediate: true,
-      deep: true,
-    }
-  },
-  mounted() {
-    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, ({ filter, searchQueryId }) => {
-      if (this.comparableId === searchQueryId) {
-        this.onSuggestion(filter);
-      }
-    });
-  },
   methods: {
+    /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
-      const { comparableId: searchQueryId } = this;
-      this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
-      this.comparable.query = this.canonicalSearchQuery;
-      this.$emit('comparable-changed', this.comparable);
-    },
-    onCollectionSelected(id) {
-      const comparable = Object.assign({}, this.comparable, { id });
+      const comparable = { ...this.comparable, query: { filters }, type: 'query', id: undefined }
       this.$emit('comparable-changed', comparable);
     },
+    /** @param {string} id */
+    onCollectionSelected(id) {
+      const comparable = { ...this.comparable, type: 'collection', id }
+      this.$emit('comparable-changed', comparable);
+    },
+    /** @param {string} type */
     getTabLabel(type) {
       if (type === this.comparable.type) {
         return this.$tc(`tabs.${type}.active`, this.total, {
@@ -182,33 +161,24 @@ export default {
       }
       return this.$t(`tabs.${type}.pick`);
     },
-    typeChanged(newType) {
-      this.comparable.type = newType;
-      if (newType === 'query' && !this.comparable.query && this.lastQuery) {
-        this.comparable.query = this.lastQuery;
-      }
-    },
+    /** @param {Filter} filter */
     onSuggestion(filter) {
-      const { comparableId: searchQueryId } = this;
-      this.$store.dispatch('queryComparison/ADD_FILTER', { searchQueryId, filter });
-      this.comparable.query = this.canonicalSearchQuery;
-      this.$emit('comparable-changed', this.comparable);
+      const filters = this.comparable?.query?.filters ?? []
+      const comparable = {
+        ...this.comparable,
+        query: { filters: filters.concat(filter) },
+        type: 'query',
+        id: undefined
+      }
+      this.$emit('comparable-changed', comparable);
     },
-    onRemoveFilter(filter) {
-      const { comparableId: searchQueryId } = this;
-      this.$store.dispatch('queryComparison/REMOVE_FILTER', { searchQueryId, filter });
-      this.comparable.query = this.canonicalSearchQuery;
-      this.$emit('comparable-changed', this.comparable);
-    },
-    onAddFilter(filter) {
-      this.onSuggestion(filter);
-    },
+    /** @param {Comparable} c */
     searchPageLink(c) {
       if (c.type === 'query') {
         if (c.query === undefined) return undefined;
         return {
           name: 'search',
-          query: SearchQuery.serialize({
+          query: SearchQueryModel.serialize({
             filters: c.query.filters,
           }),
         };
@@ -217,7 +187,7 @@ export default {
         if (c.filters === undefined) return undefined;
         return {
           name: 'search',
-          query: SearchQuery.serialize({
+          query: SearchQueryModel.serialize({
             filters: c.filters,
           }),
         };
@@ -225,29 +195,27 @@ export default {
       if (c.id === undefined) return undefined;
       return {
         name: 'search',
-        query: SearchQuery.serialize({
+        query: SearchQueryModel.serialize({
           filters: [{ type: 'collection', q: c.id }],
         }),
       };
     },
   },
   computed: {
+    /** @returns {string} */
     alignment() {
       if (this.comparable.type === 'intersection') {
         return 'center';
       }
       return this.left ? 'left' : 'right';
     },
+    /** @returns {boolean} */
     containsComparison() {
       return this.comparisonOptions.includes(this.comparable.type);
     },
-    searchQuery() {
-      return this.$store.getters['queryComparison/getSearchQuery'](this.comparableId);
-    },
-    canonicalSearchQuery() {
-      return {
-        filters: this.$store.getters['queryComparison/getSearchQuery'](this.comparableId).getFilters(),
-      };
+    /** @returns {Filter[]} */
+    filters() {
+      return this.comparable?.query?.filters ?? []
     },
   },
 };
