@@ -57,7 +57,9 @@ export default {
       addFilter: 'add filter...',
       agree: 'I agree to the terms of use',
       accept: 'accept',
+      browseAll: 'show all ...',
       compare: 'compare ...',
+      share: 'share...',
       more: 'more...',
       searchMore: 'open in search page...',
       remove: 'remove',
@@ -73,12 +75,15 @@ export default {
       addToCurrentFilters: 'Add as search filter',
       removeFromCurrentFilters: 'Exclude from current search',
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
+      addToCurrentItemsDetailed: 'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
       login: 'log in',
       generatePattern: 'Generate Pattern',
       requestNewPassword: 'Request New Password',
       requestAccount: 'Request User Account',
+      resetFilters: 'start fresh, reset filters!',
+      resetItems: 'reset list',
     },
     filters: {
       daterange: {
@@ -101,6 +106,7 @@ export default {
     },
     numbers: {
       options: ' | (1 option) | ({n} options)',
+      moreOptions: ' | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
       images: 'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
@@ -114,7 +120,7 @@ export default {
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
       unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> in | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> in | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> in ',
-      filtersRemoved: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
+      ignoredFilters: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -168,6 +174,11 @@ export default {
       },
       entities: {
         find: 'while loading named entities',
+      },
+    },
+    pages: {
+      powervis: {
+        title: 'XY visualisation',
       },
     },
     label: {
@@ -265,8 +276,10 @@ export default {
       },
     },
     tabs: {
+      powervis: 'apply filters to visualisation',
       overview: 'overview',
       relatedArticles: '... related articles | 1 related article | {count} related articles',
+      articles: '... articles | 1 article | {count} articles',
     },
     sort: {
       name: {

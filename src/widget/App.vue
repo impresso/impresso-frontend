@@ -70,9 +70,11 @@ body,html{
 h1{
   margin: 0;
   padding: 0;
+  font-size: inherit;
 }
 body{
   background:none transparent;
+  font-family: sans-serif;
 }
 
 .position-fixed{

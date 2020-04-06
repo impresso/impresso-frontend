@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class='search-pills'>
     <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
       v-for="({ filter, filterIndex }) in pills" :key="filterIndex">
@@ -53,7 +53,7 @@
         <!--  type:generic -->
         <span class="label sp-generic-item"
           v-if="['year'].includes(filter.type)"
-          :class="filter.context">{{filter}}{{ filter.q.join(', ') }}
+          :class="filter.context">{{filter}}{{ filter.q && Array.isArray(filter.q) ? filter.q.join(', ') : '' }}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
@@ -86,7 +86,7 @@
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
-        <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex, filter)">{{$t('actions.remove')}}</b-button>
+        <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
     <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addFilter') }}</b-button>
@@ -101,9 +101,14 @@
 </template>
 
 <script>
-import FilterMonitor from './modules/FilterMonitor';
-import Explorer from './Explorer';
+import FilterMonitor from '@/components/modules/FilterMonitor';
+import Explorer from '@/components/Explorer';
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
+import FilterFactory from '@/models/FilterFactory'
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ */
 
 /**
  * Use `v-model`.
@@ -117,46 +122,58 @@ export default {
     explorerVisible: false
   }),
   props: {
+    /** @type {import('vue').PropOptions<string[]>} */
     excludedTypes: {
       type: Array,
       default: () => ['hasTextContents', 'isFront'],
     },
+    /** @type {import('vue').PropOptions<string[] | undefined>} */
     includedFilterTypes: {
       /* included filter types override excluded types */
       type: Array,
-      default: () => undefined
+      default: undefined
     },
+    /** @type {import('vue').PropOptions<boolean>} */
     enableAddFilter: {
       type: Boolean,
       default: false,
     },
+    /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
       type: Array,
       default: () => []
     },
+    /** @type {import('vue').PropOptions<string>} */
     index: {
       type: String,
       default: 'search'
     }
   },
   computed: {
+    /** @returns {{filter: Filter, filterIndex: number}[]} */
     pills() {
       /* included filter types override excluded types */
-      const filterFn = this.includedFilterTypes
-        ? ({ filter: { type } }) => this.includedFilterTypes.includes(type)
-        : ({ filter: { type } }) => !this.excludedTypes.includes(type)
+      const filterFn = this.includedFilterTypes != null
+        ? (/** @type {{filter: Filter}} */ { filter: { type } }) => (this.includedFilterTypes || []).includes(type)
+        : (/** @type {{filter: Filter}} */ { filter: { type } }) => !this.excludedTypes.includes(type)
       return this.filters
-        .map((filter, filterIndex) => ({ filter, filterIndex }))
+        .map((filter, filterIndex) => ({ filter: FilterFactory.create(filter), filterIndex }))
         .filter(filterFn)
     },
     explorerFilters: {
+      /** @returns {Filter[]} */
       get() { return this.filters },
+      /** @param {Filter[]} filters */
       set(filters) { this.$emit('changed', filters) }
     },
+    /** @returns {string[]} */
     numericTypes() { return NumericRangeFacets }
   },
   methods: {
+    /**
+     * @param {number} index
+     * @param {Filter} filter
+     */
     handleFilterUpdated(index, filter) {
       // If this filter has no items selected - remove the filter
       if (!RangeFacets.includes(filter.type) && Array.isArray(filter.q) && filter.q.length === 0) {
@@ -167,10 +184,16 @@ export default {
       newFilters[index] = filter
       this.$emit('changed', newFilters)
     },
+    /**
+     * @param {number} index
+     */
     handleFilterRemoved(index) {
       const newFilters = this.filters.filter((f, idx) => idx !== index)
       this.$emit('changed', newFilters)
     },
+    /**
+     * @param {object} p
+     */
     labelByItems({
       items = [],
       prop = 'name',
@@ -180,7 +203,7 @@ export default {
       type = 'label',
     } = {}) {
       let labels = items.slice(0, max)
-        .map((d) => {
+        .map((/** @type {object} */ d) => {
           if (translate) {
             return this.$t(`buckets.${type}.${d[prop]}`);
           }
@@ -194,11 +217,14 @@ export default {
 
       return labels;
     },
+    /**
+     * @param {object} p
+     */
     labelByDaterangeItems({
       items = [],
       max = 1,
     } = {}) {
-      let labels = items.slice(0, max).map(d => this.$t('label.daterange.item', {
+      let labels = items.slice(0, max).map((/** @type {object} */ d) => this.$t('label.daterange.item', {
         start: this.$d(new Date(d.start), 'compact'),
         end: this.$d(new Date(d.end), 'compact'),
       })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
@@ -209,6 +235,9 @@ export default {
       }
       return labels;
     },
+    /**
+     * @param {object} p
+     */
     labelForNumeric({ items = [], type }) {
       const { start, end } = items[0] || {}
       const label = this.$t(`label.${type}.item`)
@@ -219,9 +248,11 @@ export default {
         end: this.$n(end)
       })
     },
+    /** @returns {void} */
     showFilterExplorer() {
       this.explorerVisible = true
     },
+    /** @returns {void} */
     handleExplorerHide() {
       this.explorerVisible = false
     }

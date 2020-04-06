@@ -3,12 +3,10 @@
       <div class="col-6">
         <b-form-input v-model="startDate" ></b-form-input>
         <label>{{ $d(start, 'long') }} </label>
-
       </div>
       <div class="col-6">
         <b-form-input v-model="endDate"></b-form-input>
         <label>{{ $d(end, 'long') }}</label>
-
       </div>
     </div>
 </template>
@@ -32,16 +30,22 @@ export default {
       get() {
         return this.start.toISOString().split('T').shift();
       },
-      set(start) {
-        this.updateDaterange({ start: parseDate(start), end: this.end });
+      set(value) {
+        const start = parseDate(value);
+        if (start instanceof Date && !isNaN(start)) {
+          this.updateDaterange({ start, end: this.end });
+        }
       },
     },
     endDate: {
       get() {
         return this.end.toISOString().split('T').shift();
       },
-      set(end) {
-        this.updateDaterange({ start: this.start, end: parseDate(end) });
+      set(value) {
+        const end = parseDate(value);
+        if (end instanceof Date && !isNaN(end)) {
+          this.updateDaterange({ start: this.start, end });
+        }
       },
     },
   },

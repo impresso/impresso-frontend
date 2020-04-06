@@ -4,11 +4,9 @@
       {{
         $t(`label.${facet.type}.filterTitle`)
       }}
-      {{
-        $tc('numbers.options', facet.numBuckets, {
-          n: $n(facet.numBuckets),
-        })
-      }}
+      <span v-if="facet.numBuckets > -1" v-html="$tc('numbers.options', facet.numBuckets, {
+        n: $n(facet.numBuckets),
+      })" />
       <info-button class="ml-1" v-if="facet.type === 'person' || facet.type === 'location'"
         :target="facet.type"
         name="what-is-nep" />
@@ -40,25 +38,42 @@
         </div>
       </div><!-- .description -->
     </base-title-bar>
-    <div v-for="(filter, index) in filtersIncluded" :key="index" class="bg-white border p-2">
+    <div v-for="({ filter, filterIndex }) in includedFilterItems" :key="filterIndex" class="bg-white border p-2">
       <filter-monitor
         :items-to-add="selectedBucketsItems"
         :filter="filter"
         :operators="facet.operators"
-        @changed="updateFilter($event, filter)" />
-    </div><!-- v-for="(filter, index) in filtersIncluded" -->
-    <div v-for="(filter, index) in filtersExcluded" :key="index" class="bg-light border p-2">
+        @changed="filter => updateFilter(filterIndex, filter)" />
+    </div>
+    <div v-for="({ filter, filterIndex }) in excludedFilterItems" :key="filterIndex" class="bg-light border p-2">
       <filter-monitor
         :filter="filter"
         :operators="facet.operators"
-        @changed="updateFilter($event, filter)" />
-    </div><!-- v-for="(filter, index) in filtersExcluded" -->
+        @changed="filter => updateFilter(filterIndex, filter)" />
+    </div>
     <div v-if="showBuckets">
       <filter-facet-bucket v-for="bucket in unfilteredBuckets" :key="bucket.val"
         :loading="isLoading"
         :bucket="bucket"
         :type="facet.type"
         @toggle-bucket="toggleBucket"/>
+      <filter-facet-bucket v-for="bucket in additionalBuckets" :key="bucket.val"
+        :loading="isLoading"
+        :bucket="bucket"
+        :type="facet.type"
+        @toggle-bucket="toggleBucket"/>
+      <b-button
+        v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        @click="loadMoreBuckets">
+        <span v-if="isMoreLoading" v-html="$t('actions.loading')" />
+        <span v-else>
+          {{ $t('actions.more') }}
+          <span v-html="$tc('numbers.moreOptions', countMissingBuckets, {
+            n: $n(countMissingBuckets),
+          })"/>
+        </span>
+      </b-button>
     </div>
     <div class="d-flex mt-2" v-if="selectedBucketsIds.length && !isFiltered">
       <b-button size="sm" variant="outline-primary" class="w-100" @click="createFilter">
@@ -73,17 +88,41 @@ import BaseTitleBar from '@/components/base/BaseTitleBar';
 import FilterFacetBucket from '@/components/modules/FilterFacetBucket';
 import FilterMonitor from '@/components/modules/FilterMonitor';
 import InfoButton from '@/components/base/InfoButton';
-import { toSerializedFilter } from '@/logic/filters'
+import { toSerializedFilter } from '@/logic/filters';
+import Bucket from '@/models/Bucket';
+import { searchFacets } from '@/services';
 
 export default {
+  /**
+   * Model is a list of 0 or more filters of the same type (type
+   * that matches the facet type). Model is changed whenver:
+   * - filters are modified
+   * - new filter is created (the model was an empty array before)
+   * - filters were removed (the model contained at least one filter but became an empty array)
+   */
+  model: {
+    prop: 'facetFilters',
+    event: 'changed'
+  },
   data: () => ({
     isCollapsed: false,
     selectedBucketsIds: [],
     selectedBucketsItems: [],
+    //
+    limit: 10,
+    skip: 0,
+    additionalBuckets: [],
+    isMoreLoading: false,
   }),
   props: {
     facet: Object,
     facetFilters: {
+      type: Array,
+      default: () => [],
+    },
+    /* filters used to narrow down the search for new facet filters option in explorer */
+    contextFilters: {
+      /** @type {import('vue').PropType<import('../../models/models').Filter[]>} */
       type: Array,
       default: () => [],
     },
@@ -101,24 +140,28 @@ export default {
     isFiltered() {
       return this.facetFilters.length;
     },
-    filtersIncluded() {
+    includedFilterItems() {
       if (!this.facetFilters.length) {
         return [];
       }
       // add count if selected items is in one of the buckets.
       return this.facetFilters
-        .filter(({ context }) => context === 'include')
-        .map(filter => ({
-          ...filter,
-          items: filter.items.map((item) => {
-            if (this.bucketsIndex[item.uid]) {
-              return {
-                ...item,
-                count: this.bucketsIndex[item.uid].count,
+        .map((filter, filterIndex) => ({ filter, filterIndex }))
+        .filter(({ filter: { context } }) => context === 'include')
+        .map(({ filter, filterIndex }) => ({
+          filter: {
+            ...filter,
+            items: filter.items.map((item) => {
+              if (this.bucketsIndex[item.uid]) {
+                return {
+                  ...item,
+                  count: this.bucketsIndex[item.uid].count,
+                }
               }
-            }
-            return item;
-          }),
+              return item;
+            }),
+          },
+          filterIndex
         }));
     },
     /**
@@ -126,16 +169,15 @@ export default {
      * @return {Array} array of items uids
      */
     filtersIncludedItemsIds() {
-      return this.filtersIncluded
-        .reduce((acc, filter) => acc.concat(
+      return this.includedFilterItems
+        .reduce((acc, { filter }) => acc.concat(
           Array.isArray(filter.q) ? filter.q : [filter.q]), [],
         );
     },
-    filtersExcluded() {
-      if (!this.facetFilters.length) {
-        return [];
-      }
-      return this.facetFilters.filter(({ context }) => context === 'exclude');
+    excludedFilterItems() {
+      return this.facetFilters
+        .map((filter, filterIndex) => ({ filter, filterIndex }))
+        .filter(({ filter: { context } }) => context === 'exclude');
     },
     bucketsIndex() {
       const index = {};
@@ -149,11 +191,14 @@ export default {
      * @return {Array} array of buckets
      */
     unfilteredBuckets() {
-      if (!this.isFiltered || !this.filtersIncluded) {
+      if (!this.isFiltered || !this.includedFilterItems) {
         return this.facet.buckets;
       }
       return this.facet.buckets
         .filter(b => !this.filtersIncludedItemsIds.includes(b.val));
+    },
+    countMissingBuckets() {
+      return this.facet.numBuckets - this.additionalBuckets.length - this.facet.buckets.length;
     },
   },
   methods: {
@@ -179,33 +224,73 @@ export default {
       } // nothing else matters
     },
     resetFilters() {
-      this.$emit('reset-filters', this.facet.type);
+      this.$emit('changed', []);
     },
-    updateFilter(filter, oldFilter) {
+    updateFilter(filterIndex, filter) {
+      const oldFilter = this.facetFilters[filterIndex]
+
       if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
-        // hash differs, filter has been changed
         if (!filter.q || filter.q.length === 0) {
-          this.resetFilters();
+          const newFilters = this.facetFilters
+            .filter((f, index) => index !== filterIndex);
+          this.$emit('changed', newFilters);
         } else {
           this.clearSelectedItems();
-          this.$emit('update-filter', {
-            ...filter,
-            key: oldFilter.key,
-          });
+          const newFilters = this.facetFilters.map((f, index) => {
+            if (index === filterIndex) return filter;
+            return f;
+          })
+          this.$emit('changed', newFilters);
         }
       }
     },
     createFilter() {
-      this.$emit('create-filter', {
+      this.$emit('changed', this.facetFilters.concat([{
         type: this.facet.type,
         q: this.selectedBucketsIds,
         items: this.selectedBucketsItems,
-      });
+      }]));
       this.clearSelectedItems();
     },
     clearSelectedItems() {
       this.selectedBucketsIds = [];
       this.selectedBucketsItems = [];
+    },
+    loadMoreBuckets() {
+      if (this.isMoreLoading) {
+        console.warn('facet is busy loading');
+        return;
+      }
+      this.isMoreLoading = true;
+      searchFacets.get(this.facet.type, {
+        query: {
+          filters: this.contextFilters,
+          limit: this.limit,
+          skip: this.skip,
+        },
+      }).then(([{ buckets }]) => {
+        console.info('loadMoreBuckets', buckets, this.skip);
+        this.additionalBuckets = this.additionalBuckets.concat(buckets.map(d => new Bucket({
+          ...d,
+          type: this.facet.type
+        })));
+        this.skip = this.additionalBuckets.length + this.facet.buckets.length;
+      }).catch((err) => {
+        console.error(err);
+      }).then(() => {
+        this.isMoreLoading = false;
+      });
+    }
+  },
+  watch: {
+    facet: {
+      deep: true,
+      immediate: true,
+      handler({ buckets = [] } = {}) {
+        // set or reset initial skip (it resets additionalBuckets lists)
+        this.skip = buckets.length;
+        this.additionalBuckets = [];
+      },
     },
   },
   components: {
