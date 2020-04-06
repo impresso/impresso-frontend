@@ -41,3 +41,7 @@ export interface Facet {
   operators?: string[],
   numBuckets?: number
 }
+
+export interface SearchQuery {
+  filters: Filter[]
+}

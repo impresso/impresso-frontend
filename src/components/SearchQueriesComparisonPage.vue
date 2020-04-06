@@ -76,6 +76,12 @@ import { optimizeFilters } from '@/logic/filters'
 import { getQueryParameter } from '../router/util';
 import { getBucketLabel } from '../logic/facets';
 
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models').SearchQuery} SearchQuery
+ */
+
 function prepareFacets(responseFacets = {}) {
   const types = Object.keys(responseFacets).filter(k => k !== 'count');
   return types.map((type) => {
@@ -87,6 +93,10 @@ function prepareFacets(responseFacets = {}) {
   });
 }
 
+/**
+ * @param {string} id
+ * @returns {SearchQuery}
+ */
 const collectionIdToQuery = id => ({
   filters: [
     {
@@ -96,9 +106,13 @@ const collectionIdToQuery = id => ({
   ],
 });
 
+/**
+ * @param {{ id?: string, type: string, query?: SearchQuery }} param
+ * @returns {SearchQuery}
+ */
 const comparableToQuery = ({ id, type, query }) => {
-  if (type === 'collection') return collectionIdToQuery(id);
-  return query;
+  if (type === 'collection' && id != null) return collectionIdToQuery(id);
+  return query ?? { filters: [] };
 };
 
 const constructQueryParameters = (comparables, queryParameters) => {
@@ -125,12 +139,6 @@ const comparableIsEmpty = (comparable) => {
   if (comparable.type === 'collection' && comparable.id === undefined) return true;
   return false;
 };
-
-// const DefaultQuery = { filters: [{ type: 'hasTextContents' }] };
-
-/**
- * @typedef {import('@/models').Filter} Filter
- */
 
 /**
  * Merge filters with a rule that all single item (`q`) filters operator
@@ -529,7 +537,7 @@ export default {
         // eslint-disable-next-line no-case-declarations
         const comparablesFilters = this.comparables
           .map(comparableToQuery)
-          .filter(({ filters } = {}) => filters !== undefined)
+          .filter(({ filters } = { filters: [] }) => filters != null)
           .map(({ filters }) => filters);
         if (comparablesFilters.length !== 2) {
           return {
