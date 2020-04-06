@@ -82,7 +82,6 @@
 </template>
 
 <script>
-// import { mapState } from 'vuex'
 import SearchQuery from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
 import Autocomplete from '../../Autocomplete';
@@ -169,6 +168,7 @@ export default {
       const { comparableId: searchQueryId } = this;
       this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
       this.comparable.query = this.canonicalSearchQuery;
+      this.$emit('comparable-changed', this.comparable);
     },
     onCollectionSelected(id) {
       const comparable = Object.assign({}, this.comparable, { id });
@@ -192,17 +192,16 @@ export default {
       const { comparableId: searchQueryId } = this;
       this.$store.dispatch('queryComparison/ADD_FILTER', { searchQueryId, filter });
       this.comparable.query = this.canonicalSearchQuery;
+      this.$emit('comparable-changed', this.comparable);
     },
     onRemoveFilter(filter) {
       const { comparableId: searchQueryId } = this;
       this.$store.dispatch('queryComparison/REMOVE_FILTER', { searchQueryId, filter });
       this.comparable.query = this.canonicalSearchQuery;
+      this.$emit('comparable-changed', this.comparable);
     },
     onAddFilter(filter) {
       this.onSuggestion(filter);
-    },
-    onUpdateFilter() {
-      this.comparable.query = this.canonicalSearchQuery;
     },
     searchPageLink(c) {
       if (c.type === 'query') {
