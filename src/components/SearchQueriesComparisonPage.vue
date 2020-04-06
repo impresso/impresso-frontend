@@ -541,9 +541,8 @@ export default {
      */
     onComparableUpdated(queryIdx, comparable) {
       if (queryIdx === QueryIndex.Left) this.leftComparable = comparable
-      if (queryIdx === QueryIndex.Right) this.rightComparable = comparable
-
-      throw new Error(`Trying to update unexpected comparable index: ${queryIdx}`);
+      else if (queryIdx === QueryIndex.Right) this.rightComparable = comparable
+      else throw new Error(`Trying to update unexpected comparable index: ${queryIdx}`);
     },
     /**
      * @param {number} queryIndex
