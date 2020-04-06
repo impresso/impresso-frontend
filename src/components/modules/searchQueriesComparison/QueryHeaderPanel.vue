@@ -55,11 +55,6 @@
           </section>
         </b-tabs>
       </div>
-      <!-- <div class="col-auto align-self-start">
-        <div v-if="comparable.type" class="badge badge-secondary type d-flex">
-          <span class="small-caps d-flex">{{comparable.type}}</span>
-        </div>
-      </div> -->
     </div>
 
   </div>
@@ -85,11 +80,12 @@ import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
 import Autocomplete from '../../Autocomplete';
 import CollectionPicker from '../../base/CollectionPicker';
+import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 
 /**
  * @typedef {import('@/models').Filter} Filter
  * @typedef {import('@/models').SearchQuery} SearchQuery
- * @typedef {{ type: string, query?: SearchQuery, id?: string, filters?: Filter[] }} Comparable
+ * @typedef {import('@/logic/queryComparison').Comparable} Comparable
  */
 export default {
   data: () => ({
@@ -144,12 +140,22 @@ export default {
   methods: {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
-      const comparable = { ...this.comparable, query: { filters }, type: 'query', id: undefined }
+      const comparable = {
+        ...this.comparable,
+        query: { filters },
+        type: ComparableTypes.Query,
+        id: undefined
+      }
       this.$emit('comparable-changed', comparable);
     },
     /** @param {string} id */
     onCollectionSelected(id) {
-      const comparable = { ...this.comparable, type: 'collection', id }
+      const comparable = {
+        ...this.comparable,
+        type: ComparableTypes.Collection,
+        id,
+        query: undefined
+      }
       this.$emit('comparable-changed', comparable);
     },
     /** @param {string} type */
@@ -173,32 +179,14 @@ export default {
       this.$emit('comparable-changed', comparable);
     },
     /** @param {Comparable} c */
-    searchPageLink(c) {
-      if (c.type === 'query') {
-        if (c.query === undefined) return undefined;
-        return {
-          name: 'search',
-          query: SearchQueryModel.serialize({
-            filters: c.query.filters,
-          }),
-        };
-      }
-      if (c.type === 'intersection') {
-        if (c.filters === undefined) return undefined;
-        return {
-          name: 'search',
-          query: SearchQueryModel.serialize({
-            filters: c.filters,
-          }),
-        };
-      }
-      if (c.id === undefined) return undefined;
+    searchPageLink(comparable) {
+      const searchQuery = comparableToQuery(comparable)
+      if (searchQuery == null) return searchQuery
+
       return {
         name: 'search',
-        query: SearchQueryModel.serialize({
-          filters: [{ type: 'collection', q: c.id }],
-        }),
-      };
+        query: SearchQueryModel.serialize(searchQuery)
+      }
     },
   },
   computed: {
