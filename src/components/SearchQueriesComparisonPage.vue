@@ -12,9 +12,7 @@
                                 :total="queryResult.total"
                                 :title="queryResult.title"
                                 :collections="collections"
-                                :comparable-id="`p-${queryIdx}`"
-                                @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"
-                                :colors="colors"/>
+                                @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
           </div>
         </div>
       </div>
@@ -49,7 +47,6 @@
 
         <diverging-bars-chart-panel v-if="mode === modes.Compare"
                                     :facets="divergingBarsFacets"
-                                    :colors="colors"
                                     :round-value-fn="roundValueForDisplay"/>
 
         <side-by-side-facets-panel v-if="mode === modes.Inspect"
@@ -272,11 +269,6 @@ export default {
      * @type {Collection[]}
      */
     collections: [],
-    /** @type {{ left: string, right: string }} */
-    colors: {
-      left: '#2E80C9',
-      right: '#FC5C53'
-    },
     modes: Mode,
     sortingMethods: Object.keys(SortingMethods)
   }),

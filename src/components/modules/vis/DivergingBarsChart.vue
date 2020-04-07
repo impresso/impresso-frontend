@@ -7,7 +7,7 @@
         </div>
       </slot>
     </tooltip>
-    <div ref="chart" :style="{ height: `${height}px` }"/>
+    <div ref="chart" class="diverging-bars-chart" :style="{ height: `${height}px` }"/>
   </div>
 </template>
 
@@ -69,7 +69,6 @@ export default {
   mounted() {
     this.chart = new DivergingBarsChart({
       element: this.$refs.chart,
-      colors: this.colors,
       roundValueFn: this.roundValueFn
     })
     this.chart.render(this.items)
@@ -98,4 +97,62 @@ export default {
   .pointer {
     cursor: pointer;
   }
+
+  $color-a: #2e80c9;
+  $color-b: #FC5C53;
+  $color-text: #333;
+  $font-size: 0.6em;
+
+  .diverging-bars-chart {
+    .y-axis {
+      stroke: #ddd;
+    }
+
+    #diverging-bars-intersection-pattern {
+      .path-a {
+        stroke-width: 1.5;
+        stroke: $color-a;
+      }
+      .path-b {
+        stroke-width: 1.5;
+        stroke: $color-b;
+      }
+    }
+
+    .labels {
+      text {
+        fill: $color-text;
+        font-size: $font-size;
+      }
+    }
+
+    .bars {
+      .side {
+
+        .bar {
+          text {
+            fill: $color-text;
+            font-size: $font-size;
+          }
+        }
+
+        &.left {
+          .bar {
+            rect {
+              fill: $color-a;
+            }
+          }
+        }
+
+        &.right {
+          .bar {
+            rect {
+              fill: $color-b;
+            }
+          }
+        }
+      }
+    }
+  }
+
 </style>
