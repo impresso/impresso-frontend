@@ -64,10 +64,10 @@
 // import { protobuf } from 'impresso-jscommons';
 import Collection from '@/models/Collection';
 import { search, collections } from '@/services';
-import QueryHeaderPanel from './modules/searchQueriesComparison/QueryHeaderPanel';
-import DivergingBarsChartPanel from './modules/searchQueriesComparison/DivergingBarsChartPanel'
-import SideBySideFacetsPanel from './modules/searchQueriesComparison/SideBySideFacetsPanel'
-import Bucket from '../models/Bucket';
+import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel';
+import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel'
+import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel'
+import Bucket from '@/models/Bucket';
 import { optimizeFilters, deserializeFilters, serializeFilters } from '@/logic/filters'
 import { getQueryParameter } from '../router/util';
 import { getBucketLabel } from '../logic/facets';
@@ -236,6 +236,8 @@ const QueryParameters = Object.freeze({
   BarSortingMethod: 'barSorting'
 })
 
+const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+
 export default {
   data: () => ({
     /**
@@ -275,7 +277,8 @@ export default {
   }),
   watch: {
     leftComparable: {
-      async handler() {
+      async handler(newValue, oldValue) {
+        if (deepEqual(newValue, oldValue)) return
         try {
           this.loadingFlags[QueryIndex.Left] = true
           const result = await this.getQueryResult(this.leftComparable)
@@ -288,7 +291,8 @@ export default {
       immediate: true
     },
     rightComparable: {
-      async handler() {
+      async handler(newValue, oldValue) {
+        if (deepEqual(newValue, oldValue)) return
         try {
           this.loadingFlags[QueryIndex.Right] = true
           const result = await this.getQueryResult(this.rightComparable)
@@ -301,7 +305,8 @@ export default {
       immediate: true
     },
     intersection: {
-      async handler() {
+      async handler(newValue, oldValue) {
+        if (deepEqual(newValue, oldValue)) return
         try {
           this.loadingFlags[QueryIndex.Intersection] = true
           const result = await this.getQueryResult(this.intersection)

@@ -225,6 +225,7 @@ export default {
     .inner{
       position: relative;
       margin-bottom: 2rem;
+      border-bottom-width: 2px !important;
       height: 100%;
     }
     &>.left {
