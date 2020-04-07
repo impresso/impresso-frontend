@@ -5,34 +5,24 @@ import * as d3 from 'd3'
  * @typedef {{
  *  element: d3.BaseType | any,
  *  margin?: {left: number, right: number, top: number, bottom: number },
- *  colors?: { yAxis?: Color, colorLeft?: Color, colorRight?: Color, text?: Color },
- *  sizes?: { barSpacing: number, barHeight: number, font: string },
+ *  sizes?: { barSpacing: number, barHeight: number },
  *  offsets?: { barValue: string },
  *  roundValueFn?: (v: number) => string
  * }} ConstructorOptions
  */
 
-const IntersectionPatternId = 'intersection-pattern'
-
-const DefaultColors = {
-  yAxis: '#ddd',
-  colorLeft: /** @type {string} */ (d3.color('lightgrey')?.darker(1)?.toString()),
-  colorRight: /** @type {string} */ (d3.color('lightgrey')?.toString()),
-  text: /** @type {string} */ '#333'
-}
+const IntersectionPatternId = 'diverging-bars-intersection-pattern'
 
 export default class DivergingBarsChart {
   /** @param {ConstructorOptions} options */
   constructor({
     element = null,
     margin = { top: 10, bottom: 10, left: 45, right: 45 },
-    colors = DefaultColors,
-    sizes = { barSpacing: 18, barHeight: 15, font: '0.6em' },
+    sizes = { barSpacing: 18, barHeight: 15 },
     offsets = { barValue: '0.5em' },
     roundValueFn = v => `${v}`
   }) {
     this.margin = margin
-    this.colors = { ...DefaultColors, ...colors }
     this.sizes = sizes
     this.offsets = offsets
     this.element = element
@@ -48,7 +38,6 @@ export default class DivergingBarsChart {
     this.yAxis = this.svg
       .append('line')
       .attr('class', 'y-axis')
-      .attr('stroke', this.colors.yAxis ?? null)
 
     const defs = this.svg.append('defs');
 
@@ -60,14 +49,12 @@ export default class DivergingBarsChart {
       .attr('width', 4)
 
     pattern.append('path')
+      .attr('class', 'path-a')
       .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
-      .attr('stroke', this.colors.colorLeft)
-      .attr('stroke-width', 1.5)
 
     pattern.append('path')
+      .attr('class', 'path-b')
       .attr('d', 'M-1,3 L3,-1 M1,5 L5,1')
-      .attr('stroke', this.colors.colorRight)
-      .attr('stroke-width', 1.5)
 
     this.bars = this.svg.append('g').attr('class', 'bars')
     this.labels = this.svg.append('g').attr('class', 'labels')
@@ -141,7 +128,10 @@ export default class DivergingBarsChart {
         data.map(({ right }) => ({ value: right}))
       ])
       .join('g')
-      .attr('class', 'side')
+      .attr('class', (d, index) => {
+        const sideClass = index === 0 ? 'left' : 'right'
+        return `side ${sideClass}`
+      })
       .attr('transform', (d, index) => `scale(${ index === 0 ? -1 : 1}, 1)`)
       .call(this._renderBars.bind(this))
 
@@ -155,8 +145,6 @@ export default class DivergingBarsChart {
       .text(({ label }) => `${label}`)
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'middle')
-      .attr('fill', this.colors.text)
-      .attr('font-size', this.sizes.font)
 
     // intersections
     // NOTE: value is multiplied by 2 because we are covering 2 bars (left and right) with 1 bar proportionally
@@ -189,7 +177,6 @@ export default class DivergingBarsChart {
       .join('rect')
       .attr('height', this.sizes.barHeight)
       .attr('width', ({ value }) => this.barX(value))
-      .attr('fill', ({ flipped }) => flipped ? this.colors.colorLeft : this.colors.colorRight)
 
     barContainer
       .selectAll('text')
@@ -201,8 +188,6 @@ export default class DivergingBarsChart {
       .attr('text-anchor', ({ flipped }) => flipped ? 'end' : 'start')
       .text(({ value }) => this.roundValueFn(value))
       .attr('alignment-baseline', 'middle')
-      .attr('fill', this.colors.text)
-      .attr('font-size', this.sizes.font)
 
     return sidesContainer
   }
