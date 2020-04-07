@@ -143,26 +143,26 @@ export default {
   .facet-overview-panel{
     &.left {
       .viz-bar{
-        background-color: $left-panel-color;
+        background-color: $inspect-compare-left-panel-color;
       }
       .d3-timeline g.context path.curve{
-        stroke: $left-panel-color;
+        stroke: $inspect-compare-left-panel-color;
       }
     }
     &.right {
       .viz-bar{
-        background-color: $right-panel-color;
+        background-color: $inspect-compare-right-panel-color;
       }
       .d3-timeline g.context path.curve{
-        stroke: $right-panel-color;
+        stroke: $inspect-compare-right-panel-color;
       }
     }
     &.middle {
       .viz-bar{
-        background-color: $middle-panel-color;
+        background-color: $inspect-compare-middle-panel-color;
       }
       .d3-timeline g.context path.curve{
-        stroke: $middle-panel-color;
+        stroke: $inspect-compare-middle-panel-color;
       }
     }
   }

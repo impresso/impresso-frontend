@@ -488,13 +488,6 @@ export default {
       return result
     },
     /**
-     * @param {number} idx
-     * @returns {boolean}
-     */
-    isLastResult(idx) {
-      return this.queriesResults.length - 1 === idx;
-    },
-    /**
      * @param {number} queryIdx
      * @param {Comparable} comparable
      */

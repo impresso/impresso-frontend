@@ -94,12 +94,14 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "@/styles/variables.sass";
+
   .pointer {
     cursor: pointer;
   }
 
-  $color-a: #2e80c9;
-  $color-b: #FC5C53;
+  $color-a: $inspect-compare-left-panel-color;
+  $color-b: $inspect-compare-right-panel-color;
   $color-text: #333;
   $font-size: 0.6em;
 

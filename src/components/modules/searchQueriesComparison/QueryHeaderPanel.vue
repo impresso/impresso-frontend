@@ -209,7 +209,7 @@ export default {
   @import "impresso-theme/src/scss/variables.sass";
   @import "@/styles/variables.sass";
    // multiply A + B
-  // $middle-panel-color: #fdafdb;// dodge A B
+  // $inspect-compare-middle-panel-color: #fdafdb;// dodge A B
 
   .query-header-panel{
     position: relative;
@@ -229,45 +229,45 @@ export default {
     }
     &>.left {
       margin-right: 1px;
-      border-bottom: 1px solid $left-panel-color;
+      border-bottom: 1px solid $inspect-compare-left-panel-color;
       ul.nav.nav-pills{
-        border-bottom-color: $left-panel-color;
+        border-bottom-color: $inspect-compare-left-panel-color;
         .nav-item .nav-link.active{
-          color: $left-panel-color;
-          border-top-color: $left-panel-color;
-          border-left-color: $left-panel-color;
-          border-right-color: $left-panel-color;
+          color: $inspect-compare-left-panel-color;
+          border-top-color: $inspect-compare-left-panel-color;
+          border-left-color: $inspect-compare-left-panel-color;
+          border-right-color: $inspect-compare-left-panel-color;
         }
       }
       .viz-bar{
-        background-color: $left-panel-color;
+        background-color: $inspect-compare-left-panel-color;
       }
     }
 
     &>.right {
       margin-left: 1px;
-      border-bottom: 1px solid $right-panel-color;
+      border-bottom: 1px solid $inspect-compare-right-panel-color;
       ul.nav.nav-pills{
-        border-bottom-color: $right-panel-color;
+        border-bottom-color: $inspect-compare-right-panel-color;
         .nav-item .nav-link.active{
-          color: $right-panel-color;
-          border-top-color: $right-panel-color;
-          border-left-color: $right-panel-color;
-          border-right-color: $right-panel-color;
+          color: $inspect-compare-right-panel-color;
+          border-top-color: $inspect-compare-right-panel-color;
+          border-left-color: $inspect-compare-right-panel-color;
+          border-right-color: $inspect-compare-right-panel-color;
         }
       }
     }
 
     &>.middle {
-      border: 1px solid $middle-panel-color;
+      border: 1px solid $inspect-compare-middle-panel-color;
       border-bottom-width: 2px;
       ul.nav.nav-pills{
-        border-bottom-color: $middle-panel-color;
+        border-bottom-color: $inspect-compare-middle-panel-color;
         .nav-item .nav-link.active{
-          color: $middle-panel-color;
-          border-top-color: $middle-panel-color;
-          border-left-color: $middle-panel-color;
-          border-right-color: $middle-panel-color;
+          color: $inspect-compare-middle-panel-color;
+          border-top-color: $inspect-compare-middle-panel-color;
+          border-left-color: $inspect-compare-middle-panel-color;
+          border-right-color: $inspect-compare-middle-panel-color;
         }
       }
     }
@@ -284,6 +284,14 @@ export default {
       text-align: center;
       border-radius: 1.25em;
       border: 1px solid;
+
+      &.left {
+        color: $inspect-compare-left-panel-color;
+      }
+
+      &.right {
+        color: $inspect-compare-right-panel-color;
+      }
     }
     div.search-button-wrapper{
       position: absolute;
@@ -299,9 +307,9 @@ export default {
   "en": {
     "comparison": {
       "labels": {
-        "intersection": "<div class='side left d-inline-block'>A</div> &amp; <div class='side d-inline-block'>B</div>",
-        "diffA": "<div class='side left d-inline-block'>A</div> not in <div class='side d-inline-block'>B</div>",
-        "diffB": "<div class='side d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>"
+        "intersection": "<div class='side left d-inline-block'>A</div> &amp; <div class='side right d-inline-block'>B</div>",
+        "diffA": "<div class='side left d-inline-block'>A</div> not in <div class='side right d-inline-block'>B</div>",
+        "diffB": "<div class='side right d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>"
       },
       "titles": {
         "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
