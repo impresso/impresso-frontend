@@ -2,12 +2,8 @@
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section class="border-top ">
       <div slot="header">
-        <div class="header row pm-fixer bg-light border-bottom border-tertiary">
+        <div class="header row pm-fixer bg-light">
           <div class="one-third"
-              :class="{
-                'border-right mr-1px': !isLastResult(queryIdx),
-                'border-left': queryIdx > 0,
-              }"
               v-for="(queryResult, queryIdx) in queriesResults"
               :key="queryIdx">
             <query-header-panel :left='queryIdx === 0'
@@ -16,7 +12,6 @@
                                 :total="queryResult.total"
                                 :title="queryResult.title"
                                 :collections="collections"
-                                :comparable-id="`p-${queryIdx}`"
                                 @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
           </div>
         </div>

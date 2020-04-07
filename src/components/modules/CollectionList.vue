@@ -143,6 +143,7 @@ export default {
         params: {
           collection_uid: collection.uid !== '' ? collection.uid : undefined,
         },
+        query: { tab: this.$route.query.tab },
       });
     },
     onInputNew() {
