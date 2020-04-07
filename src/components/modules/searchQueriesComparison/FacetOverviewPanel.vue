@@ -1,8 +1,17 @@
 <template>
-  <div>
+  <div class="facet-overview-panel">
     <!-- timeline type -->
     <div v-if="type === 'timeline'">
-      <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{title}}</span>
+      <div class="tb-title m-0 mt-2 label small-caps font-weight-bold">
+        {{
+          $tc(`label.${facet}.optionsTitle`)
+        }}
+      </div>
+      <span class="small">
+      {{
+        $tc(`label.${facet}.optionsDescription`)
+      }}
+      </span>
       <div class="row mb-3">
         <timeline
               :contrast="false"
@@ -31,7 +40,7 @@
         :hover-id="hoverId"
         :search-query-id="searchQueryId"
         class="row"
-        :label="title"
+        :label="$tc(`label.${facet}.title`, 1)"
         :buckets="values"
         :facet-type="facet"/>
     </div>
@@ -78,7 +87,6 @@ export default {
       type: String, // type of the visualisation component
       validator: t => ['timeline', 'bars'].includes(t),
     },
-    title: String,
     values: {
       type: Array, // array of `Bucket` objects.
       default: () => [],
@@ -97,6 +105,9 @@ export default {
     Timeline,
   },
   computed: {
+    title() {
+      return this.$tc(`label.${this.facet}.title`, this.values.length || 1);
+    },
     timelineValues() {
       const v = this.values
         .map(({ val, count }) => ({ t: parseInt(val, 10), w: count }))
@@ -125,7 +136,34 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
+  @import "@/styles/variables.sass";
 
+  .facet-overview-panel{
+    &.left {
+      .viz-bar{
+        background-color: $inspect-compare-left-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $inspect-compare-left-panel-color;
+      }
+    }
+    &.right {
+      .viz-bar{
+        background-color: $inspect-compare-right-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $inspect-compare-right-panel-color;
+      }
+    }
+    &.middle {
+      .viz-bar{
+        background-color: $inspect-compare-middle-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $inspect-compare-middle-panel-color;
+      }
+    }
+  }
 </style>

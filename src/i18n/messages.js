@@ -185,9 +185,12 @@ export default {
       isFront: 'only results on the front page',
       year: {
         title: 'Year | Year | Years',
+        optionsTitle: 'Year of publication',
+        optionsDescription: 'Total number of articles per year',
       },
       type: {
         title: 'Article content type | Article content types | Article content types',
+        optionsTitle: 'Article content type',
         filterTitle: 'filter by article type',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> article types applies',

@@ -80,7 +80,7 @@
         <div class="description">{{ $tc(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}</div>
         <filter-monitor checkbox
                         :filter="filter"
-                        @changed="handleFilterUpdated(filterIndex, $event)"
+                        @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
                         :operators="['AND', 'OR']" />
       </div>
 

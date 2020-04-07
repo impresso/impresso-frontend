@@ -30,7 +30,7 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
-  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy } = {}, serializer = 'json') {
+  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy = undefined } = {}, serializer = 'json') {
     if (serializer === 'protobuf') {
       return protobuf.searchQuery.serialize({ filters });
     }

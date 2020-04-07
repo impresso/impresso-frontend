@@ -2,7 +2,7 @@
   <div class="tooltip"
        :class='{active: tooltip.isActive}'
        :style="{
-          transform: `translate(${x}px, ${this.tooltip.y}px`,
+          transform: `translate(${x}px, ${y}px`,
        }">
     <div class="tooltip-wrapper" ref="wrapper">
       <div class="tooltip-inner">
@@ -33,6 +33,11 @@ export default {
     maxWidth: {
       type: Number,
       default: 200,
+    },
+    /* calculate Y value instead of taking it from tooltip. */
+    calculateY: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -53,6 +58,15 @@ export default {
 
       return this.tooltip.x
     },
+    /** @returns {number} */
+    y() {
+      if (!this.calculateY) return this.tooltip.y
+
+      const { top = 0 } = this.$el?.parentNode?.getBoundingClientRect() ?? {}
+      const { height = 0 } = this.$refs.wrapper?.getBoundingClientRect() ?? {}
+
+      return this.tooltip.y + top - height * 2
+    }
   },
 };
 </script>

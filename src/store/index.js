@@ -17,7 +17,6 @@ import jobs from './Jobs';
 import entities from './Entities';
 import embeddings from './Embeddings';
 import monitor from './Monitor';
-import queryComparison from './QueryComparison';
 import searchQueryExplorer from './SearchQueryExplorer';
 
 Vue.use(Vuex);
@@ -43,7 +42,6 @@ export default new Vuex.Store({
     entities,
     embeddings,
     monitor,
-    queryComparison,
     searchQueryExplorer,
   },
   state: {
