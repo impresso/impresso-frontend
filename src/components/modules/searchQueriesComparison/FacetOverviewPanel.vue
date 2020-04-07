@@ -138,9 +138,7 @@ export default {
 
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
-  $left-panel-color: #2e80c9;
-  $right-panel-color: #FC5C53;
-  $middle-panel-color: #2d2e41;
+  @import "@/styles/variables.sass";
 
   .facet-overview-panel{
     &.left {

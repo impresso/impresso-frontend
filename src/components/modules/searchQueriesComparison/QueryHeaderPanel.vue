@@ -207,9 +207,8 @@ export default {
 
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
-  $left-panel-color: #2e80c9;
-  $right-panel-color: #FC5C53;
-  $middle-panel-color: #2d2e41; // multiply A + B
+  @import "@/styles/variables.sass";
+   // multiply A + B
   // $middle-panel-color: #fdafdb;// dodge A B
 
   .query-header-panel{
