@@ -49,8 +49,9 @@
         <b-input-group>
           <b-form-tags
             v-model="unigrams"
+            :disabled="isLoading"
             separator=" ,;"
-            placeholder="search unigrams ..."
+            :placeholder="unigrams.length === 0 ? 'search unigrams ...' : ''"
             class="mb-2"/>
         </b-input-group>
       </b-navbar>
