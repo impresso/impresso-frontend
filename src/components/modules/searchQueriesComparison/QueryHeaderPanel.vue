@@ -36,7 +36,7 @@
       </b-tab>
       <b-tab v-if="!left" disabled>
         <template v-slot:title>
-          <div class="side">B</div>
+          <div class="side right">B</div>
         </template>
       </b-tab>
     </b-tabs>
@@ -228,7 +228,6 @@ export default {
       height: 100%;
     }
     &>.left {
-      margin-right: 1px;
       border-bottom: 1px solid $inspect-compare-left-panel-color;
       ul.nav.nav-pills{
         border-bottom-color: $inspect-compare-left-panel-color;
@@ -245,7 +244,6 @@ export default {
     }
 
     &>.right {
-      margin-left: 1px;
       border-bottom: 1px solid $inspect-compare-right-panel-color;
       ul.nav.nav-pills{
         border-bottom-color: $inspect-compare-right-panel-color;
@@ -260,7 +258,7 @@ export default {
 
     &>.middle {
       border: 1px solid $inspect-compare-middle-panel-color;
-      border-bottom-width: 2px;
+      border-top: 0px;
       ul.nav.nav-pills{
         border-bottom-color: $inspect-compare-middle-panel-color;
         .nav-item .nav-link.active{

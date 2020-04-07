@@ -22,7 +22,7 @@
                                    :comparable-loading-flags="loadingFlags"
                                    @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
 
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between pl-4 pr-4">
           <div class="pc30"></div>
           <div class="pc30 d-flex justify-content-md-center">
             <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
@@ -46,6 +46,7 @@
         </div>
 
         <diverging-bars-chart-panel v-if="mode === modes.Compare"
+                                    class="pl-4 pr-4"
                                     :facets="divergingBarsFacets"
                                     :round-value-fn="roundValueForDisplay"/>
 
@@ -544,8 +545,9 @@ export default {
     overflow-x: hidden;
     max-width: 100%;
     height: 100%;
-    border-top: 1px solid #dee2e6;
     margin-top: 1px;
+    padding-left: 0;
+    padding-right: 0;
   }
   .one-third {
     flex: 1 1 auto !important;
