@@ -225,7 +225,6 @@ export default {
     .inner{
       position: relative;
       margin-bottom: 2rem;
-      border-bottom-width: 2px !important;
       height: 100%;
     }
     &>.left {
@@ -260,6 +259,7 @@ export default {
     &>.middle {
       border: 1px solid $inspect-compare-middle-panel-color;
       border-top: 0px;
+      border-bottom-width: 2px;
       ul.nav.nav-pills{
         border-bottom-color: $inspect-compare-middle-panel-color;
         .nav-item .nav-link.active{
