@@ -110,7 +110,8 @@ export default {
       stroke: #ddd;
     }
 
-    #diverging-bars-intersection-pattern {
+    #diverging-bars-intersection-pattern,
+    #diverging-bars-intersection-pattern-flipped {
       .path-a {
         stroke-width: 1.5;
         stroke: $color-a;

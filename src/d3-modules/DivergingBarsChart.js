@@ -12,6 +12,7 @@ import * as d3 from 'd3'
  */
 
 const IntersectionPatternId = 'diverging-bars-intersection-pattern'
+const IntersectionPatternIdFlipped = 'diverging-bars-intersection-pattern-flipped'
 
 export default class DivergingBarsChart {
   /** @param {ConstructorOptions} options */
@@ -55,6 +56,23 @@ export default class DivergingBarsChart {
     pattern.append('path')
       .attr('class', 'path-b')
       .attr('d', 'M-1,3 L3,-1 M1,5 L5,1')
+
+    const patternFlipped = defs
+      .append('pattern')
+      .attr('id', IntersectionPatternIdFlipped)
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('height', 4)
+      .attr('width', 4)
+
+    patternFlipped.append('path')
+      .attr('class', 'path-a')
+      .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+      .attr('transform', 'rotate(90, 2, 2)')
+
+    patternFlipped.append('path')
+      .attr('class', 'path-b')
+      .attr('d', 'M-1,3 L3,-1 M1,5 L5,1')
+      .attr('transform', 'rotate(90, 2, 2)')
 
     this.bars = this.svg.append('g').attr('class', 'bars')
     this.labels = this.svg.append('g').attr('class', 'labels')
@@ -147,17 +165,22 @@ export default class DivergingBarsChart {
       .attr('alignment-baseline', 'middle')
 
     // intersections
-    // NOTE: value is multiplied by 2 because we are covering 2 bars (left and right) with 1 bar proportionally
-    const intersectionX = value => value > 0 && this.barX(value * 2) < 1 ? 1 : this.barX(value * 2)
-    this.intersection
+    const intersectionX = value => value > 0 && this.barX(value) < 1 ? 1 : this.barX(value)
+    const intersectionSides = this.intersection
       .attr('transform', `translate(${midWidth}, ${this.sizes.barSpacing})`)
+      .selectAll('g')
+      .data([data, data])
+      .join('g')
+      .attr('transform', (d, index) => `scale(${ index === 0 ? -1 : 1}, 1)`)
+
+    intersectionSides
       .selectAll('rect')
-      .data(data.map(({ intersection }) => ({ value: intersection })))
+      .data((d, index) => d.map(({ intersection }) => ({ value: intersection, flipped: index === 0 })))
       .join('rect')
-      .attr('transform', ({ value }, idx) => `translate(-${intersectionX(value) / 2}, ${this.y(idx)})`)
+      .attr('transform', (d, idx) => `translate(0, ${this.y(idx)})`)
       .attr('height', this.sizes.barHeight)
       .attr('width', ({ value }) => intersectionX(value))
-      .attr('fill', `url("#${IntersectionPatternId}")`)
+      .attr('fill', ({ flipped }) => `url("#${flipped ? IntersectionPatternIdFlipped : IntersectionPatternId}")`)
 
     this._handleInteraction()
   }
