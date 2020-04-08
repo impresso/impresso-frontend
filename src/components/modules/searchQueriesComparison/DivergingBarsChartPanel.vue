@@ -3,7 +3,7 @@
     <div v-for="facet in facets"
       v-bind:key="`dbc-${facet.id}`">
       <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{ facet.id }}</span>
-      <diverging-bars-chart :items="facet.items" :round-value-fn="roundValueFn">
+      <diverging-bars-chart :items="facet.items" :round-value-fn="roundValueFn" :scale="scale">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.isActive">
             <b>{{tooltipScope.tooltip.item.label}}</b> &middot; {{roundValueFn(tooltipScope.tooltip.item.intersection)}}
@@ -32,6 +32,11 @@ export default {
       type: Array,
       default: () => [],
       required: true
+    },
+    /** @type {import('vue').PropOptions<string>} */
+    scale: {
+      type: String,
+      default: 'linear'
     },
     /** @type {import('vue').PropOptions<(number) => string>} */
     roundValueFn: {

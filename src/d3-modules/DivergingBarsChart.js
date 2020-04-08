@@ -78,7 +78,6 @@ export default class DivergingBarsChart {
     this.labels = this.svg.append('g').attr('class', 'labels')
     this.intersection = this.svg.append('g').attr('class', 'intersections')
 
-    this.barX = d3.scaleLinear()
     this.y = d3.scaleLinear()
 
     // this.borderRect = this.svg.append('rect')
@@ -99,8 +98,9 @@ export default class DivergingBarsChart {
   /**
    * @typedef {{ left: number, right, number, intersection: number, label: string }} Item
    * @param {Item[]} data
+   * @param {{ scale?: 'linear' | 'sqrt' }} options
    */
-  render(data) {
+  render(data, { scale = 'linear' } = {}) {
     const { width } = this.element.getBoundingClientRect()
 
     const height = data.length * (this.sizes.barHeight + this.sizes.barSpacing)
@@ -120,7 +120,9 @@ export default class DivergingBarsChart {
 
     const midWidth = this.margin.right + (width - this.margin.left - this.margin.right) / 2
 
-    this.barX
+    const barX = scale === 'sqrt' ? d3.scaleSqrt() : d3.scaleLinear()
+
+    barX
       .domain([0, maxValue])
       .range([0, (width - this.margin.left - this.margin.right) / 2])
 
@@ -151,7 +153,7 @@ export default class DivergingBarsChart {
         return `side ${sideClass}`
       })
       .attr('transform', (d, index) => `scale(${ index === 0 ? -1 : 1}, 1)`)
-      .call(this._renderBars.bind(this))
+      .call(g => this._renderBars(g, barX))
 
     // labels
     this.labels
@@ -165,7 +167,7 @@ export default class DivergingBarsChart {
       .attr('alignment-baseline', 'middle')
 
     // intersections
-    const intersectionX = value => value > 0 && this.barX(value) < 1 ? 1 : this.barX(value)
+    const intersectionX = value => value > 0 && barX(value) < 1 ? 1 : barX(value)
     const intersectionSides = this.intersection
       .attr('transform', `translate(${midWidth}, ${this.sizes.barSpacing})`)
       .selectAll('g')
@@ -185,7 +187,7 @@ export default class DivergingBarsChart {
     this._handleInteraction()
   }
 
-  _renderBars(sidesContainer) {
+  _renderBars(sidesContainer, barX) {
 
     const barContainer = sidesContainer
       .selectAll('g.bar')
@@ -199,13 +201,13 @@ export default class DivergingBarsChart {
       .data(d => [d])
       .join('rect')
       .attr('height', this.sizes.barHeight)
-      .attr('width', ({ value }) => this.barX(value))
+      .attr('width', ({ value }) => barX(value))
 
     barContainer
       .selectAll('text')
       .data(d => [d])
       .join('text')
-      .attr('transform', ({ value, flipped }) => `translate(${this.barX(value)}, 0), scale(${flipped ? -1 : 1},1)`)
+      .attr('transform', ({ value, flipped }) => `translate(${barX(value)}, 0), scale(${flipped ? -1 : 1},1)`)
       .attr('dy', this.sizes.barHeight / 2)
       .attr('dx', ({ flipped }) => `${flipped ? '-' : '+' }${this.offsets.barValue}`)
       .attr('text-anchor', ({ flipped }) => flipped ? 'end' : 'start')

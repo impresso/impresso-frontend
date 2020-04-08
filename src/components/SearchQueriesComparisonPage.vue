@@ -31,9 +31,23 @@
             </b-form-radio-group>
           </div>
           <div class="pc30 d-flex justify-content-md-end">
+            <!-- scale -->
+            <b-dropdown size="sm" variant="outline-secondary" class="pr-1" v-if="mode === modes.Compare">
+              <template v-slot:button-content>
+                <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
+              </template>
+              <b-dropdown-item v-for="s in scales"
+                               :key="s"
+                               :active="s === scale"
+                               @click="scale = s">
+                {{$t(`scales.${s}`)}}
+              </b-dropdown-item>
+            </b-dropdown>
+
+            <!-- sorting method -->
             <b-dropdown size="sm" variant="outline-secondary" v-if="mode === modes.Compare">
-              <template slot="button-content">
-                {{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}
+              <template v-slot:button-content>
+                <span>{{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}</span>
               </template>
               <b-dropdown-item v-for="sortingMethod in sortingMethods"
                                :key="sortingMethod"
@@ -48,7 +62,8 @@
         <diverging-bars-chart-panel v-if="mode === modes.Compare"
                                     class="pl-4 pr-4"
                                     :facets="divergingBarsFacets"
-                                    :round-value-fn="roundValueForDisplay"/>
+                                    :round-value-fn="roundValueForDisplay"
+                                    :scale="scale"/>
 
         <side-by-side-facets-panel v-if="mode === modes.Inspect"
                                    :facets="sideBySideBarFacets"
@@ -233,8 +248,11 @@ const QueryParameters = Object.freeze({
   Left: 'left',
   Right: 'right',
   Mode: 'mode',
-  BarSortingMethod: 'barSorting'
+  BarSortingMethod: 'barSorting',
+  Scale: 'scale'
 })
+
+const Scales = Object.freeze(['linear', 'sqrt'])
 
 const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
@@ -273,7 +291,8 @@ export default {
      */
     collections: [],
     modes: Mode,
-    sortingMethods: Object.keys(SortingMethods)
+    sortingMethods: Object.keys(SortingMethods),
+    scales: Scales
   }),
   watch: {
     leftComparable: {
@@ -445,6 +464,19 @@ export default {
           [QueryParameters.BarSortingMethod]: value
         })
       }
+    },
+    scale: {
+      /** @returns {string} */
+      get() {
+        const value = getQueryParameter(this, QueryParameters.Scale) ?? 'linear'
+        return this.scales.includes(value) ? value : 'linear'
+      },
+      /** @param {string} value */
+      set(value) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.Scale]: value
+        })
+      }
     }
   },
   components: {
@@ -579,6 +611,11 @@ export default {
     "sortingMethods": {
       "HighestTotalIntersectionInPercents": "Total intercection span in %",
       "HighestAbsoluteIntersection": "Absolute intersection"
+    },
+    "scale": "Scale",
+    "scales": {
+      "linear": "Linear",
+      "sqrt": "Square root"
     }
   }
 }

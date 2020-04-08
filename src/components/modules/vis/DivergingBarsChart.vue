@@ -30,6 +30,11 @@ export default {
       type: Array,
       default: () => []
     },
+    /** @type {import('vue').PropOptions<string>} */
+    scale: {
+      type: String,
+      default: 'linear'
+    },
     /** @type {import('vue').PropOptions<{ colorLeft?: string, colorRight?: string }>} */
     colors: {
       type: Object,
@@ -87,7 +92,9 @@ export default {
   },
   methods: {
     render() {
-      if (this.chart != null) this.chart.render(this.items)
+      if (this.chart != null) this.chart.render(this.items, {
+        scale: /** @type {'linear' | 'sqrt'} */ (this.scale)
+      })
     }
   }
 }
