@@ -1,8 +1,10 @@
 <template>
-  <div>
+  <div class="diverging-bars-chart-panel">
+    <div class="w-100">
     <div v-for="facet in facets"
-      v-bind:key="`dbc-${facet.id}`">
-      <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{ facet.id }}</span>
+      v-bind:key="`dbc-${facet.id}`"
+      class="text-center">
+      <span class="small-caps font-weight-bold">{{ facet.id }}</span>
       <diverging-bars-chart :items="facet.items" :round-value-fn="roundValueFn" :scale="scale">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.isActive">
@@ -13,6 +15,7 @@
         </div>
       </diverging-bars-chart>
       <hr />
+    </div>
     </div>
   </div>
 </template>
@@ -72,3 +75,20 @@ export default {
   }
 }
 </i18n>
+<style lang="scss">
+.diverging-bars-chart-panel{
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+@media (min-width: 992px) {
+  .diverging-bars-chart-panel{
+    max-width: 700px;
+  }
+}
+@media (min-width: 1200px) {
+  .diverging-bars-chart-panel{
+    max-width: 960px;
+  }
+}
+</style>
