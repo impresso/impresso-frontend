@@ -25,41 +25,32 @@
                                    :comparable-loading-flags="loadingFlags"
                                    @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
 
-        <div class="d-flex justify-content-between pl-4 pr-4">
-          <div class="pc30"></div>
-          <div class="pc30 d-flex justify-content-md-center">
-            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio :value="modes.Compare">{{$t("mode.compare")}}</b-form-radio>
-              <b-form-radio :value="modes.Inspect">{{$t("mode.inspect")}}</b-form-radio>
-            </b-form-radio-group>
-          </div>
-          <div class="pc30 d-flex justify-content-md-end">
-            <!-- scale -->
-            <b-dropdown size="sm" variant="outline-secondary" class="pr-1" v-if="mode === modes.Compare">
-              <template v-slot:button-content>
-                <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
-              </template>
-              <b-dropdown-item v-for="s in scales"
-                               :key="s"
-                               :active="s === scale"
-                               @click="scale = s">
-                {{$t(`scales.${s}`)}}
-              </b-dropdown-item>
-            </b-dropdown>
+        <div class="d-flex justify-content-center p-4">
+          <!-- scale -->
+          <b-dropdown size="sm" variant="outline-primary" class="pr-1" v-if="mode === modes.Compare">
+            <template v-slot:button-content>
+              <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
+            </template>
+            <b-dropdown-item v-for="s in scales"
+                             :key="s"
+                             :active="s === scale"
+                             @click="scale = s">
+              {{$t(`scales.${s}`)}}
+            </b-dropdown-item>
+          </b-dropdown>
 
-            <!-- sorting method -->
-            <b-dropdown size="sm" variant="outline-secondary" v-if="mode === modes.Compare">
-              <template v-slot:button-content>
-                <span>{{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}</span>
-              </template>
-              <b-dropdown-item v-for="sortingMethod in sortingMethods"
-                               :key="sortingMethod"
-                               :active="sortingMethod === barSortingMethod"
-                               @click="barSortingMethod = sortingMethod">
-                {{$t(`sortingMethods.${sortingMethod}`)}}
-              </b-dropdown-item>
-            </b-dropdown>
-          </div>
+          <!-- sorting method -->
+          <b-dropdown size="sm" variant="outline-primary" v-if="mode === modes.Compare">
+            <template v-slot:button-content>
+              <span>{{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}</span>
+            </template>
+            <b-dropdown-item v-for="sortingMethod in sortingMethods"
+                             :key="sortingMethod"
+                             :active="sortingMethod === barSortingMethod"
+                             @click="barSortingMethod = sortingMethod">
+              {{$t(`sortingMethods.${sortingMethod}`)}}
+            </b-dropdown-item>
+          </b-dropdown>
         </div>
 
         <diverging-bars-chart-panel v-if="mode === modes.Compare"
