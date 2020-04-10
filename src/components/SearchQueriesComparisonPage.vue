@@ -8,10 +8,13 @@
               :key="queryIdx">
             <query-header-panel :left='queryIdx === 0'
                                 :comparison-options="['intersection']"
+                                :mode-options="['inspect', 'compare']"
+                                :mode="mode"
                                 :comparable="comparableForQuery(queryIdx)"
                                 :total="queryResult.total"
                                 :title="queryResult.title"
                                 :collections="collections"
+                                @mode-changed="onModeUpdated"
                                 @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
           </div>
         </div>
@@ -533,6 +536,9 @@ export default {
       if (queryIdx === QueryIndex.Left) this.leftComparable = comparable
       else if (queryIdx === QueryIndex.Right) this.rightComparable = comparable
       else throw new Error(`Trying to update unexpected comparable index: ${queryIdx}`);
+    },
+    onModeUpdated(mode) {
+      this.mode = mode;
     },
     /**
      * @param {number} queryIndex

@@ -45,7 +45,9 @@
     <div class="row justify-content-between" v-if="containsComparison">
       <div class="col-auto w-100">
         <b-tabs pills content-class="mt-3" align="center">
-          <b-tab v-for="(option, i) in comparisonOptions" :key="i">
+          <b-tab v-for="(option, i) in modeOptions" :key="i"
+            :active="option === mode"
+            @click="$emit('mode-changed', option)">
             <template v-slot:title>
               <div v-html="$t(`comparison.labels.${option}`)"></div>
             </template>
@@ -109,6 +111,9 @@ export default {
     left: {
       type: Boolean,
     },
+    mode: {
+      type: String,
+    },
     total: Number, // total items in selected collection.
     /**
      * list of available collections
@@ -125,6 +130,15 @@ export default {
       type: Array,
       default() {
         return ['intersection', 'diffA', 'diffB'];
+      },
+    },
+    /**
+     * @type {import('vue').PropOptions<string[]>}
+     */
+    modeOptions: {
+      type: Array,
+      default() {
+        return ['inspect', 'compare'];
       },
     }
   },
@@ -306,9 +320,11 @@ export default {
   "en": {
     "comparison": {
       "labels": {
-        "intersection": "<div class='side left d-inline-block'>A</div> &amp; <div class='side right d-inline-block'>B</div>",
+        "intersection": "inspect <div class='side left d-inline-block'>A</div> &amp; <div class='side right d-inline-block'>B</div>",
         "diffA": "<div class='side left d-inline-block'>A</div> not in <div class='side right d-inline-block'>B</div>",
-        "diffB": "<div class='side right d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>"
+        "diffB": "<div class='side right d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>",
+        "inspect": "inspect <div class='side left d-inline-block'>A</div> + <div class='side right d-inline-block'>B</div>",
+        "compare": "compare <div class='side left d-inline-block'>A</div> &amp; <div class='side right d-inline-block'>B</div>"
       },
       "titles": {
         "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
