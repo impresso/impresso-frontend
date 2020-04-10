@@ -224,7 +224,10 @@ function queryParameterToComparable(value) {
 function serializeComparable(comparable) {
   const type = comparable?.type
 
-  if (type === ComparableTypes.Collection) return `c:${comparable.id ?? ''}`
+  if (type === ComparableTypes.Collection) {
+    const collectionId = comparable.id ?? '';
+    return `c:${collectionId}`;
+  }
   if (type === ComparableTypes.Query) {
     if (comparable.query == null
       || comparable.query.filters == null) {
