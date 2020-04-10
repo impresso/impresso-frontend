@@ -25,9 +25,9 @@
                                    :comparable-loading-flags="loadingFlags"
                                    @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
 
-        <div class="d-flex justify-content-center p-4">
+        <div class="d-flex justify-content-center p-4" v-if="mode === modes.Compare">
           <!-- scale -->
-          <b-dropdown size="sm" variant="outline-primary" class="pr-1" v-if="mode === modes.Compare">
+          <b-dropdown size="sm" variant="outline-primary" class="pr-1">
             <template v-slot:button-content>
               <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
             </template>
@@ -40,7 +40,7 @@
           </b-dropdown>
 
           <!-- sorting method -->
-          <b-dropdown size="sm" variant="outline-primary" v-if="mode === modes.Compare">
+          <b-dropdown size="sm" variant="outline-primary">
             <template v-slot:button-content>
               <span>{{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}</span>
             </template>
