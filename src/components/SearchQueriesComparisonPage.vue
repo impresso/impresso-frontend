@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section class="border-top ">
       <div slot="header">
@@ -531,9 +531,10 @@ export default {
       else if (queryIdx === QueryIndex.Right) this.rightComparable = comparable
       else throw new Error(`Trying to update unexpected comparable index: ${queryIdx}`);
     },
-    onModeUpdated(mode) {
-      this.mode = mode;
-    },
+    /**
+     * @param {string} mode
+     */
+    onModeUpdated(mode) { this.mode = mode; },
     /**
      * @param {number} queryIndex
      * @returns {Comparable}

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="query-header-panel">
   <div class="inner" :class="{
     left,
