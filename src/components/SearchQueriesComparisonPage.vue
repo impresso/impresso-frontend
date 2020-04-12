@@ -72,7 +72,7 @@
 <script>
 // import { protobuf } from 'impresso-jscommons';
 import Collection from '@/models/Collection';
-import { search, collections } from '@/services';
+import { search, collections, searchQueriesComparison } from '@/services';
 import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel';
 import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel'
 import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel'
@@ -141,35 +141,6 @@ function mergeFilters(filtersSets) {
       op
     }
   }))
-}
-
-/**
- * @param {any[]} queriesResults
- * @param {string} facetId
- * @param {import('vue/types/vue').Vue} vueInstance
- * @returns {FacetItem[]}
- */
-function getItemsForFacet(queriesResults, facetId, vueInstance) {
-  const [leftBuckets, intersectionBuckets, rightBuckets] = queriesResults.map(results => {
-    const facet = results?.facets?.find(({ id }) => id === facetId)
-    return facet?.buckets ?? []
-  })
-
-  const uniqueIds = [...new Set(leftBuckets.concat(rightBuckets).concat(intersectionBuckets)
-    .map(({ val }) => val))]
-
-  return uniqueIds.map(id => {
-    const leftBucket = leftBuckets.find(({ val }) => val === id)
-    const rightBucket = rightBuckets.find(({ val }) => val === id)
-    const intersectionBucket = intersectionBuckets.find(({ val }) => val === id)
-
-    return {
-      label: [leftBucket, rightBucket, intersectionBucket].filter(b => b != null).map(bucket => getBucketLabel(bucket, facetId, vueInstance))[0],
-      left: /** @type {number} */ (leftBucket ? leftBucket.count : 0),
-      right: /** @type {number} */ (rightBucket ? rightBucket.count : 0),
-      intersection: /** @type {number} */ (intersectionBucket ? intersectionBucket.count : 0)
-    }
-  }).filter(({ left, right }) => left > 0 && right > 0)
 }
 
 const SortingMethods = Object.freeze({
@@ -282,6 +253,8 @@ export default {
       { type: 'intersection' },
       { },
     ],
+    /** @type {any} */
+    comparisonResult: undefined,
     /**
      * list of available collections
      * @type {Collection[]}
@@ -335,6 +308,9 @@ export default {
        */
       async handler(newValue, oldValue) {
         if (deepEqual(newValue, oldValue)) return
+
+        this.updateCompareData()
+
         try {
           this.loadingFlags[QueryIndex.Intersection] = true
           const result = await this.getQueryResult(this.intersection)
@@ -404,14 +380,34 @@ export default {
      * @returns {FacetContainer[]}
      */
     divergingBarsFacets() {
-      const compatableFacetTypes = this.facets
-        .filter(([, visType]) => visType === 'bars')
-        .map(([facetType]) => facetType)
-      return compatableFacetTypes.map(type => {
+      if (this.comparisonResult == null) return []
+
+      const { intersectionFacets, facetsIds, facetsSets } = this.comparisonResult
+
+      return facetsIds.map((id, index) => {
+        const intersectionFacet = intersectionFacets[index]
+        const queriesFacets = facetsSets.map(facetSet => facetSet[index])
+
+        const items = intersectionFacet.buckets.map(bucket => {
+          const [leftBucket, rightBucket] = queriesFacets.map(({ buckets }) => {
+            return buckets.find(({ val }) => bucket.val === val)
+          });
+
+          const label = leftBucket != null
+            ? getBucketLabel(leftBucket, id, this)
+            : getBucketLabel(rightBucket, id, this)
+
+          return {
+            intersection: bucket.count,
+            label,
+            left: leftBucket.count,
+            right: rightBucket.count
+          }
+        })
+
         return {
-          id: type,
-          items: getItemsForFacet(this.queriesResults, type, this)
-            .sort(SortingMethods[this.barSortingMethod])
+          id,
+          items
         }
       })
     },
@@ -533,6 +529,16 @@ export default {
       if (type === ComparableTypes.Collection) result.title = collectionTitle
 
       return result
+    },
+    async updateCompareData() {
+      if (comparableIsEmpty(this.leftComparable) || comparableIsEmpty(this.rightComparable)) return;
+
+      const query = {
+        filtersSets: [this.leftComparable, this.rightComparable].map(({ query = {} }) => query.filters ?? []),
+        facets: this.facets.map(([type]) => ({ type })).filter(({ type }) => type !== 'year')
+      }
+
+      this.comparisonResult = await searchQueriesComparison.create(query)
     },
     /**
      * @param {number} queryIdx

@@ -88,7 +88,8 @@ export default {
     items: {
       handler() { this.render() },
       deep: true
-    }
+    },
+    scale() { this.render() },
   },
   methods: {
     render() {
