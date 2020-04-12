@@ -12,6 +12,7 @@ import * as d3 from 'd3'
  */
 
 const IntersectionPatternId = 'diverging-bars-intersection-pattern'
+const IntersectionPatternIdFlipped = 'diverging-bars-intersection-pattern-flipped'
 
 export default class DivergingBarsChart {
   /** @param {ConstructorOptions} options */
@@ -56,11 +57,27 @@ export default class DivergingBarsChart {
       .attr('class', 'path-b')
       .attr('d', 'M-1,3 L3,-1 M1,5 L5,1')
 
+    const patternFlipped = defs
+      .append('pattern')
+      .attr('id', IntersectionPatternIdFlipped)
+      .attr('patternUnits', 'userSpaceOnUse')
+      .attr('height', 4)
+      .attr('width', 4)
+
+    patternFlipped.append('path')
+      .attr('class', 'path-a')
+      .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+      .attr('transform', 'rotate(90, 2, 2)')
+
+    patternFlipped.append('path')
+      .attr('class', 'path-b')
+      .attr('d', 'M-1,3 L3,-1 M1,5 L5,1')
+      .attr('transform', 'rotate(90, 2, 2)')
+
     this.bars = this.svg.append('g').attr('class', 'bars')
     this.labels = this.svg.append('g').attr('class', 'labels')
     this.intersection = this.svg.append('g').attr('class', 'intersections')
 
-    this.barX = d3.scaleLinear()
     this.y = d3.scaleLinear()
 
     // this.borderRect = this.svg.append('rect')
@@ -81,8 +98,9 @@ export default class DivergingBarsChart {
   /**
    * @typedef {{ left: number, right, number, intersection: number, label: string }} Item
    * @param {Item[]} data
+   * @param {{ scale?: 'linear' | 'sqrt' }} options
    */
-  render(data) {
+  render(data, { scale = 'linear' } = {}) {
     const { width } = this.element.getBoundingClientRect()
 
     const height = data.length * (this.sizes.barHeight + this.sizes.barSpacing)
@@ -102,7 +120,9 @@ export default class DivergingBarsChart {
 
     const midWidth = this.margin.right + (width - this.margin.left - this.margin.right) / 2
 
-    this.barX
+    const barX = scale === 'sqrt' ? d3.scaleSqrt() : d3.scaleLinear()
+
+    barX
       .domain([0, maxValue])
       .range([0, (width - this.margin.left - this.margin.right) / 2])
 
@@ -133,7 +153,7 @@ export default class DivergingBarsChart {
         return `side ${sideClass}`
       })
       .attr('transform', (d, index) => `scale(${ index === 0 ? -1 : 1}, 1)`)
-      .call(this._renderBars.bind(this))
+      .call(g => this._renderBars(g, barX))
 
     // labels
     this.labels
@@ -147,22 +167,27 @@ export default class DivergingBarsChart {
       .attr('alignment-baseline', 'middle')
 
     // intersections
-    // NOTE: value is multiplied by 2 because we are covering 2 bars (left and right) with 1 bar proportionally
-    const intersectionX = value => value > 0 && this.barX(value * 2) < 1 ? 1 : this.barX(value * 2)
-    this.intersection
+    const intersectionX = value => value > 0 && barX(value) < 1 ? 1 : barX(value)
+    const intersectionSides = this.intersection
       .attr('transform', `translate(${midWidth}, ${this.sizes.barSpacing})`)
+      .selectAll('g')
+      .data([data, data])
+      .join('g')
+      .attr('transform', (d, index) => `scale(${ index === 0 ? -1 : 1}, 1)`)
+
+    intersectionSides
       .selectAll('rect')
-      .data(data.map(({ intersection }) => ({ value: intersection })))
+      .data((d, index) => d.map(({ intersection }) => ({ value: intersection, flipped: index === 0 })))
       .join('rect')
-      .attr('transform', ({ value }, idx) => `translate(-${intersectionX(value) / 2}, ${this.y(idx)})`)
+      .attr('transform', (d, idx) => `translate(0, ${this.y(idx)})`)
       .attr('height', this.sizes.barHeight)
       .attr('width', ({ value }) => intersectionX(value))
-      .attr('fill', `url("#${IntersectionPatternId}")`)
+      .attr('fill', ({ flipped }) => `url("#${flipped ? IntersectionPatternIdFlipped : IntersectionPatternId}")`)
 
     this._handleInteraction()
   }
 
-  _renderBars(sidesContainer) {
+  _renderBars(sidesContainer, barX) {
 
     const barContainer = sidesContainer
       .selectAll('g.bar')
@@ -176,13 +201,13 @@ export default class DivergingBarsChart {
       .data(d => [d])
       .join('rect')
       .attr('height', this.sizes.barHeight)
-      .attr('width', ({ value }) => this.barX(value))
+      .attr('width', ({ value }) => barX(value))
 
     barContainer
       .selectAll('text')
       .data(d => [d])
       .join('text')
-      .attr('transform', ({ value, flipped }) => `translate(${this.barX(value)}, 0), scale(${flipped ? -1 : 1},1)`)
+      .attr('transform', ({ value, flipped }) => `translate(${barX(value)}, 0), scale(${flipped ? -1 : 1},1)`)
       .attr('dy', this.sizes.barHeight / 2)
       .attr('dx', ({ flipped }) => `${flipped ? '-' : '+' }${this.offsets.barValue}`)
       .attr('text-anchor', ({ flipped }) => flipped ? 'end' : 'start')

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section class="border-top ">
       <div slot="header">
@@ -8,10 +8,13 @@
               :key="queryIdx">
             <query-header-panel :left='queryIdx === 0'
                                 :comparison-options="['intersection']"
+                                :mode-options="['inspect', 'compare']"
+                                :mode="mode"
                                 :comparable="comparableForQuery(queryIdx)"
                                 :total="queryResult.total"
                                 :title="queryResult.title"
                                 :collections="collections"
+                                @mode-changed="onModeUpdated"
                                 @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
           </div>
         </div>
@@ -22,33 +25,39 @@
                                    :comparable-loading-flags="loadingFlags"
                                    @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
 
-        <div class="d-flex justify-content-between pl-4 pr-4">
-          <div class="pc30"></div>
-          <div class="pc30 d-flex justify-content-md-center">
-            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio :value="modes.Compare">{{$t("mode.compare")}}</b-form-radio>
-              <b-form-radio :value="modes.Inspect">{{$t("mode.inspect")}}</b-form-radio>
-            </b-form-radio-group>
-          </div>
-          <div class="pc30 d-flex justify-content-md-end">
-            <b-dropdown size="sm" variant="outline-secondary" v-if="mode === modes.Compare">
-              <template slot="button-content">
-                {{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}
-              </template>
-              <b-dropdown-item v-for="sortingMethod in sortingMethods"
-                               :key="sortingMethod"
-                               :active="sortingMethod === barSortingMethod"
-                               @click="barSortingMethod = sortingMethod">
-                {{$t(`sortingMethods.${sortingMethod}`)}}
-              </b-dropdown-item>
-            </b-dropdown>
-          </div>
+        <div class="d-flex justify-content-center p-4" v-if="mode === modes.Compare">
+          <!-- scale -->
+          <b-dropdown size="sm" variant="outline-primary" class="pr-1">
+            <template v-slot:button-content>
+              <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
+            </template>
+            <b-dropdown-item v-for="s in scales"
+                             :key="s"
+                             :active="s === scale"
+                             @click="scale = s">
+              {{$t(`scales.${s}`)}}
+            </b-dropdown-item>
+          </b-dropdown>
+
+          <!-- sorting method -->
+          <b-dropdown size="sm" variant="outline-primary">
+            <template v-slot:button-content>
+              <span>{{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}</span>
+            </template>
+            <b-dropdown-item v-for="sortingMethod in sortingMethods"
+                             :key="sortingMethod"
+                             :active="sortingMethod === barSortingMethod"
+                             @click="barSortingMethod = sortingMethod">
+              {{$t(`sortingMethods.${sortingMethod}`)}}
+            </b-dropdown-item>
+          </b-dropdown>
         </div>
 
         <diverging-bars-chart-panel v-if="mode === modes.Compare"
                                     class="pl-4 pr-4"
                                     :facets="divergingBarsFacets"
-                                    :round-value-fn="roundValueForDisplay"/>
+                                    :round-value-fn="roundValueForDisplay"
+                                    :scale="scale"/>
 
         <side-by-side-facets-panel v-if="mode === modes.Inspect"
                                    :facets="sideBySideBarFacets"
@@ -206,7 +215,10 @@ function queryParameterToComparable(value) {
 function serializeComparable(comparable) {
   const type = comparable?.type
 
-  if (type === ComparableTypes.Collection) return `c:${comparable.id ?? ''}`
+  if (type === ComparableTypes.Collection) {
+    const collectionId = comparable.id ?? '';
+    return `c:${collectionId}`;
+  }
   if (type === ComparableTypes.Query) {
     if (comparable.query == null
       || comparable.query.filters == null) {
@@ -233,8 +245,11 @@ const QueryParameters = Object.freeze({
   Left: 'left',
   Right: 'right',
   Mode: 'mode',
-  BarSortingMethod: 'barSorting'
+  BarSortingMethod: 'barSorting',
+  Scale: 'scale'
 })
+
+const Scales = Object.freeze(['linear', 'sqrt'])
 
 const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
@@ -273,7 +288,8 @@ export default {
      */
     collections: [],
     modes: Mode,
-    sortingMethods: Object.keys(SortingMethods)
+    sortingMethods: Object.keys(SortingMethods),
+    scales: Scales
   }),
   watch: {
     leftComparable: {
@@ -445,6 +461,19 @@ export default {
           [QueryParameters.BarSortingMethod]: value
         })
       }
+    },
+    scale: {
+      /** @returns {string} */
+      get() {
+        const value = getQueryParameter(this, QueryParameters.Scale) ?? 'linear'
+        return this.scales.includes(value) ? value : 'linear'
+      },
+      /** @param {string} value */
+      set(value) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.Scale]: value
+        })
+      }
     }
   },
   components: {
@@ -502,6 +531,10 @@ export default {
       else if (queryIdx === QueryIndex.Right) this.rightComparable = comparable
       else throw new Error(`Trying to update unexpected comparable index: ${queryIdx}`);
     },
+    /**
+     * @param {string} mode
+     */
+    onModeUpdated(mode) { this.mode = mode; },
     /**
      * @param {number} queryIndex
      * @returns {Comparable}
@@ -579,6 +612,11 @@ export default {
     "sortingMethods": {
       "HighestTotalIntersectionInPercents": "Total intercection span in %",
       "HighestAbsoluteIntersection": "Absolute intersection"
+    },
+    "scale": "Scale",
+    "scales": {
+      "linear": "Linear",
+      "sqrt": "Square root"
     }
   }
 }
