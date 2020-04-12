@@ -293,6 +293,10 @@ export default {
   }),
   watch: {
     leftComparable: {
+      /**
+       * @param {Comparable} newValue
+       * @param {Comparable} oldValue
+       */
       async handler(newValue, oldValue) {
         if (deepEqual(newValue, oldValue)) return
         try {
@@ -307,6 +311,10 @@ export default {
       immediate: true
     },
     rightComparable: {
+      /**
+       * @param {Comparable} newValue
+       * @param {Comparable} oldValue
+       */
       async handler(newValue, oldValue) {
         if (deepEqual(newValue, oldValue)) return
         try {
@@ -321,6 +329,10 @@ export default {
       immediate: true
     },
     intersection: {
+      /**
+       * @param {Comparable} newValue
+       * @param {Comparable} oldValue
+       */
       async handler(newValue, oldValue) {
         if (deepEqual(newValue, oldValue)) return
         try {
