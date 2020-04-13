@@ -59,7 +59,8 @@
             class="pl-4 pr-4"
             :facets="divergingBarsFacets"
             :round-value-fn="roundValueForDisplay"
-            :scale="scale"/>
+            :scale="scale"
+            @load-more-items="handleLoadMoreItemsInCompare"/>
           <spinner v-if="compareDataIsLoading"
                    class="pl-4 pr-4 d-flex justify-content-center"/>
         </div>
@@ -215,6 +216,8 @@ function serializeComparable(comparable) {
 
   return undefined
 }
+
+const CompareFacetItemsLimit = 10
 
 const QueryIndex = Object.freeze({
   Left: 0,
@@ -398,7 +401,7 @@ export default {
       }
     },
     /**
-     * @typedef {{ id: string, items: FacetItem[] }} FacetContainer
+     * @typedef {{ id: string, items: FacetItem[], numBuckets: number }} FacetContainer
      * @returns {FacetContainer[]}
      */
     divergingBarsFacets() {
@@ -429,7 +432,8 @@ export default {
 
         return {
           id,
-          items
+          items,
+          numBuckets: intersectionFacet.numBuckets
         }
       })
     },
@@ -596,12 +600,24 @@ export default {
 
       this.$set(this.additionalBuckets, comparableIndex, additionaBucketsForComparable)
     },
-    async updateCompareData() {
+    /** @param {string | undefined} loadMoreType */
+    async updateCompareData(loadMoreType = undefined) {
       if (comparableIsEmpty(this.leftComparable) || comparableIsEmpty(this.rightComparable)) return;
+
+      const getLoadedNumberOfItems = type => {
+        const facet = this.comparisonResult?.intersectionFacets?.find(({ type: t }) => type === t)
+        if (facet == null) return 0
+
+        return facet.buckets.length
+      }
 
       const query = {
         filtersSets: [this.leftComparable, this.rightComparable].map(({ query = {} }) => query.filters ?? []),
-        facets: this.facets.map(([type]) => ({ type })).filter(({ type }) => type !== 'year')
+        facets: this.facets
+          .filter(([type]) => type !== 'year')
+          .map(([type]) => {
+            return { type, limit: loadMoreType === type ? getLoadedNumberOfItems(type) + CompareFacetItemsLimit : CompareFacetItemsLimit }
+          })
       }
 
       try {
@@ -610,6 +626,12 @@ export default {
       } finally {
         this.compareDataIsLoading = false
       }
+    },
+    /**
+     * @param {FacetContainer} facetContainer
+     */
+    async handleLoadMoreItemsInCompare(facetContainer) {
+      await this.updateCompareData(facetContainer.id)
     },
     /**
      * @param {number} queryIdx
