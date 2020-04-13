@@ -200,7 +200,26 @@ import Ellipsis from './modules/Ellipsis';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import InfoButton from './base/InfoButton';
+import SearchQuery from '@/models/SearchQuery';
 import { optimizeFilters } from '@/logic/filters'
+
+const ALLOWED_FILTERS_TYPES = [
+  'accessRight',
+  'collection',
+  'country',
+  'issue',
+  'language',
+  'location',
+  'newspaper',
+  'newspaper',
+  'partner',
+  'person',
+  'string',
+  'title',
+  'topic',
+  'type',
+  'year'
+]
 
 const ALLOWED_FACET_TYPES = [
   'language',
@@ -217,6 +236,9 @@ const ALLOWED_FACET_TYPES = [
 ]
 
 export default {
+  props: {
+    searchQuery: Object,
+  },
   data: () => ({
     selectedItems: [],
     allIndeterminate: false,
@@ -333,29 +355,30 @@ export default {
     },
     filters: {
       get() {
-        return this.$store.state.search.search.filters;
+        // filter by type
+        return this.searchQuery.filters
+          .filter(({ type }) => ALLOWED_FILTERS_TYPES.includes(type))
+          // add impliit filters
+          .concat([
+            { type: 'hasTextContents' },
+          ]);
       },
     },
     facets() {
       return this.$store.state.search.facets
         .filter(({ type }) => ALLOWED_FACET_TYPES.includes(type));
     },
-    currentSearchHash() {
-      return this.$store.state.search.currentSearchHash;
-    },
-    searchQuery() {
-      return this.$store.state.search.search;
-    },
     filtersIndex: {
       get() {
-        return this.$store.state.search.search.filtersIndex;
+        return this.searchQuery.filtersIndex;
       },
     },
   },
   methods: {
     handleFiltersChanged(filters) {
+      // TODO this.$emit('filters-changed', optimizeFilters(filters));
       this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', optimizeFilters(filters));
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+      this.search();
     },
     compare() {
       this.$router.push({
@@ -497,11 +520,21 @@ export default {
       this.inputName.trim();
       this.nameCollectionOkDisabled = (this.inputName.length < 3 || this.inputName.length > 50);
     },
-    search(page) {
-      if (page !== undefined) {
-        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+    search(page=1) {
+      this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      // get filters out of the store
+      const filters = this.$store.getters['search/getSearch'].getFilters();
+      const query = {
+        sq: SearchQuery.serialize({ filters }, 'protobuf'),
+        // f: JSON.stringify(state.search.getFilters()),
+        // facets: state.facetTypes,
+        g: this.groupBy,
+        p: this.paginationCurrentPage,
+        // limit: state.paginationPerPage,
+        o: this.orderBy,
+      };
+      console.info('search(), query:', query);
+      this.$router.push({ name: 'search', query });
     },
     reset() {
       this.$store.commit('search/CLEAR');
@@ -531,7 +564,7 @@ export default {
     addFilterFromEmbedding(embedding) {
       const filter = { query: embedding, type: 'string', context: 'include' };
       this.$store.dispatch('search/ADD_FILTER', { filter });
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+      this.search();
     },
   },
   watch: {
@@ -541,23 +574,25 @@ export default {
     selectedItems() {
       this.updateselectAll();
     },
-    currentSearchHash: {
-      handler(val) {
-        if (val.length) {
-          console.info('@currentSearchHash changed', val);
-          this.search();
-        }
+    searchQuery: {
+      handler(searchQuery) {
+        console.info('@searchQuery changed', searchQuery);
+        // update current filters only then search.
+        this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', searchQuery.filters);
+        this.$store.dispatch('search/SEARCH', {
+          page: 1,
+        });
       },
-      immediate: false,
-    },
-    '$route.query': {
-      handler(val) {
-        console.info('@$route.query changed', val);
-        this.$store.dispatch('search/PULL_SEARCH_PARAMS', val);
-      },
-      deep: true,
       immediate: true,
     },
+    // '$route.query': {
+    //   handler(val) {
+    //     console.info('@$route.query changed', val);
+    //     this.$store.dispatch('search/PULL_SEARCH_PARAMS', val);
+    //   },
+    //   deep: true,
+    //   immediate: true,
+    // },
   },
   components: {
     Autocomplete,
