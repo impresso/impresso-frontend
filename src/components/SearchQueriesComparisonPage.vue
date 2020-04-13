@@ -53,11 +53,16 @@
           </b-dropdown>
         </div>
 
-        <diverging-bars-chart-panel v-if="mode === modes.Compare"
-                                    class="pl-4 pr-4"
-                                    :facets="divergingBarsFacets"
-                                    :round-value-fn="roundValueForDisplay"
-                                    :scale="scale"/>
+        <div v-if="mode === modes.Compare">
+          <diverging-bars-chart-panel
+            v-if="!compareDataIsLoading"
+            class="pl-4 pr-4"
+            :facets="divergingBarsFacets"
+            :round-value-fn="roundValueForDisplay"
+            :scale="scale"/>
+          <spinner v-if="compareDataIsLoading"
+                   class="pl-4 pr-4 d-flex justify-content-center"/>
+        </div>
 
         <side-by-side-facets-panel v-if="mode === modes.Inspect"
                                    :facets="sideBySideBarFacets"
@@ -76,6 +81,7 @@ import { search, collections, searchQueriesComparison } from '@/services';
 import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel';
 import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel'
 import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel'
+import Spinner from '@/components/layout/Spinner'
 import Bucket from '@/models/Bucket';
 import { optimizeFilters, deserializeFilters, serializeFilters } from '@/logic/filters'
 import { getQueryParameter } from '../router/util';
@@ -232,6 +238,7 @@ export default {
      * @type {boolean[]}
      */
     loadingFlags: [...Array(3).keys()].map(() => false),
+    compareDataIsLoading: false,
     /**
      * [<facet id>, <facet visualisation method>]
      */
@@ -403,7 +410,7 @@ export default {
             left: leftBucket.count,
             right: rightBucket.count
           }
-        })
+        }).sort(SortingMethods[this.barSortingMethod])
 
         return {
           id,
@@ -487,7 +494,8 @@ export default {
   components: {
     SideBySideFacetsPanel,
     QueryHeaderPanel,
-    DivergingBarsChartPanel
+    DivergingBarsChartPanel,
+    Spinner
   },
   methods: {
     /**
@@ -538,7 +546,12 @@ export default {
         facets: this.facets.map(([type]) => ({ type })).filter(({ type }) => type !== 'year')
       }
 
-      this.comparisonResult = await searchQueriesComparison.create(query)
+      try {
+        this.compareDataIsLoading = true
+        this.comparisonResult = await searchQueriesComparison.create(query)
+      } finally {
+        this.compareDataIsLoading = false
+      }
     },
     /**
      * @param {number} queryIdx

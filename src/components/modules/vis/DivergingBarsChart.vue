@@ -76,7 +76,7 @@ export default {
       element: this.$refs.chart,
       roundValueFn: this.roundValueFn
     })
-    this.chart.render(this.items)
+    this.render()
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))
   },
