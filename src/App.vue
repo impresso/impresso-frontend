@@ -1,10 +1,11 @@
 <template>
 <div id="app" class="bg-light">
   <div id="app-header">
-    <the-header />
+    <the-header :search-query="searchQuery" />
   </div>
   <div id="app-content">
-    <router-view />
+    <router-view
+      :search-query="searchQuery" />
   </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
@@ -26,6 +27,7 @@ import Monitor from './components/Monitor';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 import CookieDisclaimer from './components/modals/CookieDisclaimer';
+import SearchQuery from '@/models/SearchQuery';
 
 export default {
   name: 'app',
@@ -37,6 +39,16 @@ export default {
     CookieDisclaimer,
   },
   computed: {
+    searchQuery() {
+      const { sq } = this.$route.query;
+      if (sq) {
+        return SearchQuery.deserialize(sq);
+      }
+      return SearchQuery.deserialize(this.$store.getters['search/getCurrentSearchHash']);
+    },
+    currentSearchQuery() {
+      return this.$store.getters['search/getSearch'];
+    },
     termsAgreed() {
       console.info('Terms agreement:', this.$store.state.settings.termsAgreed);
       if (this.$store.state.user.userData) {
@@ -54,7 +66,7 @@ export default {
       if (!searchQueryId || !searchQueryId.length) {
         this.$store.dispatch('search/ADD_FILTER', { filter });
       }
-    }
+    },
   },
   mounted() {
     window.addEventListener('click', () => {
@@ -72,10 +84,6 @@ export default {
         id: process.env.VUE_APP_TYPEKIT_ID,
       },
     });
-    // check whether there is a searchquery hash somewhere
-    console.info('App @created, retrieve initial search.currentSearchHash', this.$store.state.search.currentSearchHash);
-    // push the current search query using the current hash
-    this.$store.dispatch('search/INIT');
   },
 };
 </script>
