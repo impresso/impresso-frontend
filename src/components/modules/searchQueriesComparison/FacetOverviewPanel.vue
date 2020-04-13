@@ -45,14 +45,27 @@
         :facet-type="facet"/>
     </div>
 
+    <b-button
+      v-if="type === 'bars' && numberOfAvailableBucketsToLoad > 0"
+      size="sm" variant="outline-secondary" class="mt-2 mr-1"
+      @click="handleLoadMore">
+      <span v-if="isLoading" v-html="$t('actions.loading')" />
+      <span v-else>
+        {{ $t('actions.more') }}
+        <span v-html="$tc('numbers.moreOptions', numberOfAvailableBucketsToLoad, {
+          n: $n(numberOfAvailableBucketsToLoad),
+        })"/>
+      </span>
+    </b-button>
+
     <hr/>
   </div>
 </template>
 
 <script>
-import StackedBarsPanel from '../vis/StackedBarsPanel';
-import Timeline from '../Timeline';
-import Bucket from '../../../models/Bucket';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
+import Timeline from '@/components/modules/Timeline'
+import Bucket from '@/models/Bucket'
 
 const timelineValuesSorter = (a, b) => a.t - b.t;
 
@@ -78,42 +91,69 @@ export default {
   data: () => ({
   }),
   props: {
+    /** @type {import('vue').PropOptions<string>} */
     hoverId: {
-      type: String,
+      type: String
     },
-    searchQueryId: String,
-    facet: String, // any of the common facet types: newspaper, language, etc.
+    /** @type {import('vue').PropOptions<string>} */
+    searchQueryId: {
+      type: String
+    },
+    /** @type {import('vue').PropOptions<string>} */
+    facet: {
+      type: String
+    }, // any of the common facet types: newspaper, language, etc.
+    /** @type {import('vue').PropOptions<string>} */
     type: {
       type: String, // type of the visualisation component
       validator: t => ['timeline', 'bars'].includes(t),
     },
+    /** @type {import('vue').PropOptions<Bucket[]>} */
     values: {
       type: Array, // array of `Bucket` objects.
       default: () => [],
-      validator: v => v.map(i => i instanceof Bucket),
+      validator: v => v.map(i => i instanceof Bucket).reduce((acc, v) => acc && v, true),
     },
-    timelineHighlightValue: Object, // a `{ w, t }` object (see Timeline.js)
-    timelineHighlightEnabled: Boolean,
+    /** @type {import('vue').PropOptions<{w: number, t: number}>} */
+    timelineHighlightValue: {
+      type: Object
+    }, // a `{ w, t }` object (see Timeline.js)
+    /** @type {import('vue').PropOptions<boolean>} */
+    timelineHighlightEnabled: {
+      type: Boolean
+    },
+    /** @type {import('vue').PropOptions<[string, string] | []>} */
     timelineDomain: {
       // a tuple of the extent of the timeline in time values (e.g. years): `[1904, 1925]`
-      type: Array,
+      // type: Array,
       validator: v => v.length === 0 || v.length === 2,
     },
+    /** @type {import('vue').PropOptions<boolean>} */
+    isLoading: {
+      type: Boolean
+    },
+    /** @type {import('vue').PropOptions<number>} */
+    numBuckets: {
+      type: Number,
+    }
   },
   components: {
     StackedBarsPanel,
     Timeline,
   },
   computed: {
+    /** @returns {string} */
     title() {
       return this.$tc(`label.${this.facet}.title`, this.values.length || 1);
     },
+    /** @returns {{w: number, t: number}[]} */
     timelineValues() {
       const v = this.values
         .map(({ val, count }) => ({ t: parseInt(val, 10), w: count }))
         .sort(timelineValuesSorter);
       return fillEmptyYearsWithZeros(v, this.timelineDomainRange);
     },
+    /** @returns {[string, string] | []} */
     timelineDomainRange() {
       if (this.timelineDomain.length === 2) {
         return this.timelineDomain;
@@ -121,17 +161,24 @@ export default {
       const keys = this.values.map(({ val }) => val).sort();
       return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : [];
     },
+    /** @returns {number} */
+    numberOfAvailableBucketsToLoad() { return this.numBuckets - this.values.length }
   },
   methods: {
+    /** @param {object} data */
     onHighlight(data) {
       this.$emit('timeline-highlight', { facetId: this.facet, data });
     },
     onHighlightOff() {
       this.$emit('timeline-highlight-off', { facetId: this.facet });
     },
+    /** @param {object} val */
     onHoverBar(val) {
       this.$emit('hovered', String(val));
     },
+    handleLoadMore() {
+      this.$emit('load-more-items')
+    }
   },
 };
 </script>

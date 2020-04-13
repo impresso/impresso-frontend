@@ -45,9 +45,11 @@
             :facet="facet.id"
             :type="facet.visualisationType"
             :values="comparableItem.buckets"
+            :numBuckets="comparableItem.numBuckets"
             @timeline-highlight="onTimelineHighlight"
             @timeline-highlight-off="onTimelineHighlightOff"
             @hovered="onHovered"
+            @load-more-items="handleLoadMoreItems(comparableIndex, facet)"
             :hover-id="hoverId"
             :timeline-highlight-value="getTimelineHighlight(facet.id).data"
             :timeline-highlight-enabled="getTimelineHighlight(facet.id).enabled"
@@ -65,7 +67,7 @@ import LoadingIndicator from '@/components/modules/LoadingIndicator';
 
 /**
  * @typedef {import('../../../models').Bucket} Bucket
- * @typedef {{ buckets: Bucket[], isLoaded: boolean }} ComparableItem
+ * @typedef {{ buckets: Bucket[], isLoaded: boolean, numBuckets: number }} ComparableItem
  * @typedef {{ id: string, comparableItems: ComparableItem[], visualisationType: string }} FacetContainer
  */
 
@@ -145,6 +147,14 @@ export default {
      */
     getTimelineHighlight(facetId) {
       return this.timelineHighlights[facetId] || {};
+    },
+    /**
+     * @param {number} comparableIndex
+     * @param {FacetContainer} facet
+     */
+    handleLoadMoreItems(comparableIndex, facet) {
+      const value = { comparableIndex, facetId: facet.id }
+      this.$emit('load-more-items', value)
     }
   },
   computed: {
