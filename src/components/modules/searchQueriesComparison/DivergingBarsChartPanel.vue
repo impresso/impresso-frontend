@@ -4,7 +4,7 @@
     <div v-for="facet in facets"
       v-bind:key="`dbc-${facet.id}`"
       class="text-center">
-      <span class="small-caps font-weight-bold">{{ facet.id }}</span>
+      <span class="small-caps font-weight-bold">{{ facet.id }} {{ $tc('numbers.options', facet.items.length, { n: facet.items.length }) }}</span>
       <diverging-bars-chart :items="facet.items" :round-value-fn="roundValueFn" :scale="scale">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.isActive">
@@ -14,6 +14,19 @@
           </div>
         </div>
       </diverging-bars-chart>
+
+      <b-button
+        v-if="getNumberOfAvailableBucketsToLoad(facet) > 0"
+        size="sm" variant="outline-secondary" class="mt-2 mr-1"
+        @click="handleLoadMore(facet)">
+        <span>
+          {{ $t('actions.more') }}
+          <span v-html="$tc('numbers.moreOptions', getNumberOfAvailableBucketsToLoad(facet), {
+            n: $n(getNumberOfAvailableBucketsToLoad(facet)),
+          })"/>
+        </span>
+      </b-button>
+
       <hr />
     </div>
     </div>
@@ -25,7 +38,7 @@ import DivergingBarsChart from '@/components/modules/vis/DivergingBarsChart'
 
 /**
  * @typedef {{ left: number, right: number, intersection: number, label: string }} FacetItem
- * @typedef {{ id: string, items: FacetItem[] }} FacetContainer
+ * @typedef {{ id: string, items: FacetItem[], numBuckets: number }} FacetContainer
  */
 
 export default {
@@ -45,7 +58,7 @@ export default {
     roundValueFn: {
       type: Function,
       default: undefined
-    }
+    },
   },
   methods: {
     /**
@@ -55,6 +68,19 @@ export default {
      */
     getIntersection(intersectionValue, comparableValue) {
       return `${this.$n(intersectionValue / comparableValue * 100, { notation: 'short' })}%`;
+    },
+    /**
+     * @param {FacetContainer} facet
+     * @returns {number}
+     */
+    getNumberOfAvailableBucketsToLoad(facet) {
+      return facet.numBuckets - facet.items.length
+    },
+    /**
+     * @param {FacetContainer} facet
+     */
+    handleLoadMore(facet) {
+      this.$emit('load-more-items', facet)
     }
   },
   components: {

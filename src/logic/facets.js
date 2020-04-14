@@ -1,5 +1,6 @@
 import Helpers from '@/plugins/Helpers';
 import FacetModel from '@/models/Facet'
+import Topic from '@/models/Topic';
 
 /**
  * @typedef {import('../models').Facet} Facet
@@ -108,9 +109,12 @@ const LabelExtractors = {
   /** @param {Bucket} bucket */
   name: bucket => bucket?.item?.name,
   /** @param {Bucket} bucket */
-  topic: bucket => bucket?.item != null
-    ? `${bucket?.item?.language ?? 'N/A'}: ${bucket?.item?.htmlExcerpt}`
-    : undefined,
+  topic: bucket => {
+    const item = bucket?.item != null ? new Topic(bucket.item) : bucket?.item
+    return item != null
+      ? `${item.language ?? 'N/A'}: ${item.htmlExcerpt}`
+      : undefined
+  },
   /** @param {Bucket} bucket */
   year: bucket => bucket?.item?.y ?? bucket.val,
   /**
