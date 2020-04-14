@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="query-header-panel">
   <div class="inner" :class="{
     left,
@@ -45,7 +45,9 @@
     <div class="row justify-content-between" v-if="containsComparison">
       <div class="col-auto w-100">
         <b-tabs pills content-class="mt-3" align="center">
-          <b-tab v-for="(option, i) in comparisonOptions" :key="i">
+          <b-tab v-for="(option, i) in modeOptions" :key="i"
+            :active="option === mode"
+            @click="$emit('mode-changed', option)">
             <template v-slot:title>
               <div v-html="$t(`comparison.labels.${option}`)"></div>
             </template>
@@ -55,7 +57,8 @@
               n: $n(this.total),
             })"/>
             <h3 v-else> "..."</h3>
-            <div  v-html="$t(`comparison.descriptions.${comparable.type}`)"/>
+            <div v-if="mode === 'inspect'" v-html="$t(`comparison.descriptions.${comparable.type}.inspect`)"/>
+            <div v-else-if="mode === 'compare'" v-html="$t(`comparison.descriptions.${comparable.type}.compare`)"/>
           </section>
         </b-tabs>
       </div>
@@ -109,6 +112,9 @@ export default {
     left: {
       type: Boolean,
     },
+    mode: {
+      type: String,
+    },
     total: Number, // total items in selected collection.
     /**
      * list of available collections
@@ -125,6 +131,15 @@ export default {
       type: Array,
       default() {
         return ['intersection', 'diffA', 'diffB'];
+      },
+    },
+    /**
+     * @type {import('vue').PropOptions<string[]>}
+     */
+    modeOptions: {
+      type: Array,
+      default() {
+        return ['inspect', 'compare'];
       },
     }
   },
@@ -277,12 +292,14 @@ export default {
 
     div.side {
       text-transform: lowercase;
+      font-variant: small-caps;
       width: 1.25em;
       height: 1.25em;
       line-height: 1em;
       text-align: center;
       border-radius: 1.25em;
       border: 1px solid;
+      display: inline-block;
 
       &.left {
         color: $inspect-compare-left-panel-color;
@@ -306,15 +323,20 @@ export default {
   "en": {
     "comparison": {
       "labels": {
-        "intersection": "<div class='side left d-inline-block'>A</div> &amp; <div class='side right d-inline-block'>B</div>",
-        "diffA": "<div class='side left d-inline-block'>A</div> not in <div class='side right d-inline-block'>B</div>",
-        "diffB": "<div class='side right d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>"
+        "intersection": "inspect <div class='side left'>A</div> &amp; <div class='side right'>B</div>",
+        "diffA": "<div class='side left'>A</div> not in <div class='side right'>B</div>",
+        "diffB": "<div class='side right'>B</div> not in <div class='side left'>A</div>",
+        "inspect": "inspect <div class='side left'>A</div> + <div class='side right'>B</div>",
+        "compare": "compare <div class='side left'>A</div> &amp; <div class='side right'>B</div>"
       },
       "titles": {
         "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
       },
       "descriptions": {
-        "intersection": "Lists of newspapers, named entities and topics for articles which appear both in A and B."
+        "intersection": {
+          "inspect": "Lists of newspapers, named entities and topics for results for <div class='side left'>A</div>, <div class='side right'>B</div> and in both <div class='side left'>A</div> and <div class='side right'>B</div>",
+          "compare": "Lists of newspapers, named entities and topics for articles which appear both in <div class='side left'>A</div> and <div class='side right'>B</div>."
+        }
       }
     },
     "tabs": {

@@ -7,7 +7,6 @@ import auth from '@feathersjs/authentication-client';
 import articlesSuggestionsHooks from './hooks/articlesSuggestions';
 import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
-import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
 import NamesService from './names';
 
 
@@ -143,7 +142,7 @@ export const embeddings = app.service('embeddings');
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
 export const searchFacets = app.service('search-facets');
 export const tableOfContents = app.service('table-of-contents');
-export const searchQueriesComparison = app.service('search-queries-comparison').hooks(searchQueriesComparisonHooks);
+export const searchQueriesComparison = app.service('search-queries-comparison');
 export const errorCollector = app.service('errors-collector');
 export const me = app.service('me');
 export const articleTextReusePassages = app.service('articles/:id/text-reuse-passages');

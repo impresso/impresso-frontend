@@ -30,6 +30,11 @@ export default {
       type: Array,
       default: () => []
     },
+    /** @type {import('vue').PropOptions<string>} */
+    scale: {
+      type: String,
+      default: 'linear'
+    },
     /** @type {import('vue').PropOptions<{ colorLeft?: string, colorRight?: string }>} */
     colors: {
       type: Object,
@@ -71,7 +76,7 @@ export default {
       element: this.$refs.chart,
       roundValueFn: this.roundValueFn
     })
-    this.chart.render(this.items)
+    this.render()
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))
   },
@@ -83,11 +88,14 @@ export default {
     items: {
       handler() { this.render() },
       deep: true
-    }
+    },
+    scale() { this.render() },
   },
   methods: {
     render() {
-      if (this.chart != null) this.chart.render(this.items)
+      if (this.chart != null) this.chart.render(this.items, {
+        scale: /** @type {'linear' | 'sqrt'} */ (this.scale)
+      })
     }
   }
 }
@@ -110,7 +118,8 @@ export default {
       stroke: #ddd;
     }
 
-    #diverging-bars-intersection-pattern {
+    #diverging-bars-intersection-pattern,
+    #diverging-bars-intersection-pattern-flipped {
       .path-a {
         stroke-width: 1.5;
         stroke: $color-a;
