@@ -4,7 +4,7 @@
     <div v-for="facet in facets"
       v-bind:key="`dbc-${facet.id}`"
       class="text-center">
-      <span class="small-caps font-weight-bold">{{ facet.id }}</span>
+      <span class="small-caps font-weight-bold">{{ facet.id }} {{ $tc('numbers.options', facet.items.length, { n: facet.items.length }) }}</span>
       <diverging-bars-chart :items="facet.items" :round-value-fn="roundValueFn" :scale="scale">
         <div slot-scope="tooltipScope">
           <div v-if="tooltipScope.tooltip.isActive">
