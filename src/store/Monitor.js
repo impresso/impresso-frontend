@@ -30,10 +30,12 @@ export default {
     type: null,
     itemCountRelated: -1,
     uid: '',
-    searchQueryId: '',
+    searchQueryId: undefined,
     searchQueryNamespace: DEFAULT_SEARCH_NAMESPACE,
     timeline: [],
     groupBy: 'articles',
+    subtitle: undefined,
+    disableFilterModification: false
   },
   getters: {
     getCurrentSearchQuery(state, getters, rootState, rootGetter) {
@@ -99,6 +101,19 @@ export default {
       }
       console.info('Monitor/SET_SEARCH_QUERY_ID', searchQueryId);
     },
+    /**
+     * @param {object} state
+     * @param {{
+     *  searchQueryId: string | undefined
+     *  subtitle: string | undefined
+     *  disableFilterModification: boolean
+     * }} param
+     */
+    SET_ACTIVATION_PARAMETERS(state, { searchQueryId, subtitle, disableFilterModification }) {
+      state.searchQueryId = searchQueryId
+      state.subtitle = subtitle
+      state.disableFilterModification = disableFilterModification
+    }
   },
   actions: {
     FORWARD_FILTER_TO_CURRENT_SEARCH({ getters }, filter) {
@@ -177,5 +192,30 @@ export default {
     SET_SCROLLTOP({ commit }, scrollTop) {
       commit('SET_SCROLLTOP', scrollTop);
     },
+    /**
+     * @typedef {{
+     *  item: import('@/models').Entity,
+     *  type: string,
+     *  searchQueryId?: string
+     *  subtitle?: string
+     *  disableFilterModification?: boolean
+     * }} ActivateParams
+     * @param {import('vuex').ActionContext} param0
+     * @param {ActivateParams} param1
+     */
+    ACTIVATE({ commit, dispatch }, {
+      item,
+      type,
+      searchQueryId = undefined,
+      subtitle = undefined,
+      disableFilterModification = false
+    }) {
+      commit('SET_ACTIVATION_PARAMETERS', {
+        searchQueryId,
+        subtitle,
+        disableFilterModification
+      })
+      return dispatch('SET_ITEM', { item, type })
+    }
   },
 };

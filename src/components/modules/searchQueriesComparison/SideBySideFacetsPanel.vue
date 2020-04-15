@@ -50,6 +50,7 @@
             @timeline-highlight-off="onTimelineHighlightOff"
             @hovered="onHovered"
             @load-more-items="handleLoadMoreItems(comparableIndex, facet)"
+            @facetItemClick="param => handleFacetItemClicked(comparableIndex, param)"
             :hover-id="hoverId"
             :timeline-highlight-value="getTimelineHighlight(facet.id).data"
             :timeline-highlight-enabled="getTimelineHighlight(facet.id).enabled"
@@ -67,6 +68,7 @@ import LoadingIndicator from '@/components/modules/LoadingIndicator';
 
 /**
  * @typedef {import('../../../models').Bucket} Bucket
+ * @typedef {import('../../../models').Entity} Entity
  * @typedef {{ buckets: Bucket[], isLoaded: boolean, numBuckets: number }} ComparableItem
  * @typedef {{ id: string, comparableItems: ComparableItem[], visualisationType: string }} FacetContainer
  */
@@ -155,6 +157,14 @@ export default {
     handleLoadMoreItems(comparableIndex, facet) {
       const value = { comparableIndex, facetId: facet.id }
       this.$emit('load-more-items', value)
+    },
+    /**
+     * @param {number} comparableIndex
+     * @param {{ params: { item: Entity, type: string }, defaultActionExecuted: boolean }} facetItem
+     */
+    handleFacetItemClicked(comparableIndex, { params: { item, type } }) {
+      console.info(`Clicked [handleFacetItemClicked] ${comparableIndex}`, item, type)
+      // this.$store.dispatch('monitor/SET_ITEM', params)
     }
   },
   computed: {
