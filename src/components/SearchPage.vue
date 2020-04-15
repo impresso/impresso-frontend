@@ -354,13 +354,11 @@ export default {
     searchParams: {
       get() {
         const query = {
-          sq: protobuf.searchQuery.serialize({
-            filters: this.filters.map(d => d.getQuery()),
-          }),
+          filters: this.filters.map(d => d.getQuery()),
           groupBy: this.groupBy,
           orderBy: this.orderBy,
           limit: this.paginationPerPage,
-          p: this.paginationCurrentPage,
+          page: this.paginationCurrentPage,
         };
         console.info('searchParams changed:', query);
         return query;
