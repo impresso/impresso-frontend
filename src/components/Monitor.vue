@@ -103,6 +103,7 @@ import Timeline from './modules/Timeline';
 import WikidataBlock from './modules/WikidataBlock';
 import ItemLabel from './modules/lists/ItemLabel';
 import SearchQuerySummary from './modules/SearchQuerySummary';
+import SearchQuery from '../models/SearchQuery';
 /**
  * Display info about the current selected item.
  * Trigger from inside a component:
@@ -144,19 +145,31 @@ export default {
     fadeOut() {
       return this.$store.dispatch('monitor/SET_IS_ACTIVE', false);
     },
-    applyFilter(context = 'include') {
+    async applyFilter(context = 'include') {
       console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
-      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
-        searchQueryId: this.searchQueryId,
-        filter: {
-          type: this.type,
-          q: [this.item.uid],
-          items: [this.item],
-          context,
-          checked: true,
-        },
-      });
-      // this.fadeOut();
+
+      const newFilter = {
+        type: this.type,
+        q: [this.item.uid],
+        items: [this.item],
+        context,
+        checked: true,
+      }
+
+      const updatedFilters = [...this.searchQueryFilters].concat(newFilter)
+      await this.$store.dispatch('monitor/UPDATE_FILTERS', updatedFilters);
+
+      // this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
+      //   searchQueryId: this.searchQueryId,
+      //   filter: {
+      //     type: this.type,
+      //     q: [this.item.uid],
+      //     items: [this.item],
+      //     context,
+      //     checked: true,
+      //   },
+      // });
+      this.fadeOut();
     },
   },
   computed: {
@@ -185,7 +198,8 @@ export default {
       return this.searchQuery.countActiveFilters();
     },
     searchQuery() {
-      return this.$store.getters['monitor/getCurrentSearchQuery'];
+      return new SearchQuery({ filters: this.searchQueryFilters })
+      // return this.$store.getters['monitor/getCurrentSearchQuery'];
     },
     searchQueryFilters() {
       return this.$store.getters['monitor/getCurrentSearchFilters'];

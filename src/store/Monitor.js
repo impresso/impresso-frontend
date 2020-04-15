@@ -35,17 +35,19 @@ export default {
     timeline: [],
     groupBy: 'articles',
     subtitle: undefined,
-    disableFilterModification: false
+    disableFilterModification: false,
+    filters: []
   },
   getters: {
-    getCurrentSearchQuery(state, getters, rootState, rootGetter) {
-      if (state.searchQueryId.length) {
-        return rootGetter[`${state.searchQueryNamespace}/getSearchQuery`](state.searchQueryId);
-      }
-      return rootGetter[`${state.searchQueryNamespace}/getSearch`];
-    },
-    getCurrentSearchFilters(state, getters) {
-      return getters.getCurrentSearchQuery.getFilters();
+    // getCurrentSearchQuery(state, getters, rootState, rootGetter) {
+    //   if (state.searchQueryId.length) {
+    //     return rootGetter[`${state.searchQueryNamespace}/getSearchQuery`](state.searchQueryId);
+    //   }
+    //   return rootGetter[`${state.searchQueryNamespace}/getSearch`];
+    // },
+    getCurrentSearchFilters(state) {
+      return state.filters
+      // return getters.getCurrentSearchQuery.getFilters();
     },
   },
   mutations: {
@@ -104,27 +106,30 @@ export default {
     /**
      * @param {object} state
      * @param {{
-     *  searchQueryId: string | undefined
      *  subtitle: string | undefined
      *  disableFilterModification: boolean
+     *  filters: import('@/models').Filter[]
      * }} param
      */
-    SET_ACTIVATION_PARAMETERS(state, { searchQueryId, subtitle, disableFilterModification }) {
-      state.searchQueryId = searchQueryId
+    SET_ACTIVATION_PARAMETERS(state, { subtitle, disableFilterModification, filters }) {
       state.subtitle = subtitle
       state.disableFilterModification = disableFilterModification
+      state.filters = filters
+    },
+    UPDATE_FILTERS(state, filters) {
+      state.filters = filters
     }
   },
   actions: {
-    FORWARD_FILTER_TO_CURRENT_SEARCH({ getters }, filter) {
-      getters.getCurrentSearchQuery.addFilter(filter);
-      // dispatch(`${state.searchQueryNamespace}/ADD_FILTER`, {
-      //   searchQueryId: state.searchQueryId,
-      //   filter,
-      // }, {
-      //   root: true,
-      // });
-    },
+    // FORWARD_FILTER_TO_CURRENT_SEARCH({ getters }, filter) {
+    //   getters.getCurrentSearchQuery.addFilter(filter);
+    //   // dispatch(`${state.searchQueryNamespace}/ADD_FILTER`, {
+    //   //   searchQueryId: state.searchQueryId,
+    //   //   filter,
+    //   // }, {
+    //   //   root: true,
+    //   // });
+    // },
     SET_IS_ACTIVE({ commit }, value) {
       commit('SET_IS_ACTIVE', value);
     },
@@ -196,7 +201,8 @@ export default {
      * @typedef {{
      *  item: import('@/models').Entity,
      *  type: string,
-     *  searchQueryId?: string
+     *  filters: import('@/models').Filter[]
+     *  filtersUpdatedCallback: (filters: import('@/models').Filter) => void
      *  subtitle?: string
      *  disableFilterModification?: boolean
      * }} ActivateParams
@@ -206,16 +212,26 @@ export default {
     ACTIVATE({ commit, dispatch }, {
       item,
       type,
-      searchQueryId = undefined,
+      filters = [],
+      filtersUpdatedCallback = () => {},
       subtitle = undefined,
       disableFilterModification = false
     }) {
+      const unsubscribe = this.subscribeAction(({ type, payload }) => {
+        if (type === 'monitor/UPDATE_FILTERS') filtersUpdatedCallback(payload)
+        if (type === 'monitor/SET_IS_ACTIVE' && payload === false) {
+          unsubscribe()
+        }
+      })
       commit('SET_ACTIVATION_PARAMETERS', {
-        searchQueryId,
         subtitle,
-        disableFilterModification
+        disableFilterModification,
+        filters
       })
       return dispatch('SET_ITEM', { item, type })
+    },
+    UPDATE_FILTERS({ commit }, filters) {
+      commit('UPDATE_FILTERS', filters)
     }
   },
 };

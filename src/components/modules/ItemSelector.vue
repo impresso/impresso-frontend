@@ -34,7 +34,17 @@ export default {
         },
         type: this.type,
       }
-      if (!this.defaultClickActionDisabled) this.$store.dispatch('monitor/SET_ITEM', params)
+      if (!this.defaultClickActionDisabled) {
+        this.$store.dispatch('monitor/ACTIVATE', {
+          ...params,
+          filters: this.$store.getters['search/getSearch'].getFilters(),
+          filtersUpdatedCallback: filters => {
+            this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
+              filter: filters[filters.length - 1],
+            });
+          }
+        })
+      }
 
       this.$emit('click', {
         params,

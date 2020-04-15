@@ -89,6 +89,12 @@ function getYearsSpan(facets) {
     : []
 }
 
+/**
+ * @param {number} comparableIndex
+ * @returns {boolean}
+ */
+const isIntersection = comparableIndex => comparableIndex === 1
+
 export default {
   data: () => ({
     /** @type {{ [key: string]: any }} */
@@ -164,7 +170,21 @@ export default {
      */
     handleFacetItemClicked(comparableIndex, { params: { item, type } }) {
       console.info(`Clicked [handleFacetItemClicked] ${comparableIndex}`, item, type)
-      // this.$store.dispatch('monitor/SET_ITEM', params)
+      this.$store.dispatch('monitor/ACTIVATE', {
+        item,
+        type,
+        disableFilterModification: isIntersection(comparableIndex),
+        subtitle: this.getMonitorSubtitleForComparable(comparableIndex),
+        filtersUpdatedCallback: filters => console.log('SBS filters updated: ', filters)
+      })
+    },
+    /**
+     * @param {number} comparableIndex
+     * @returns {string}
+     */
+    getMonitorSubtitleForComparable(comparableIndex) {
+      // TODO:
+      return `Comparable ${comparableIndex}`
     }
   },
   computed: {
