@@ -222,6 +222,7 @@ const ALLOWED_FILTERS_TYPES = [
   'accessRight',
   'collection',
   'country',
+  'isFront',
   'issue',
   'language',
   'location',
