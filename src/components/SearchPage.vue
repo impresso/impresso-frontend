@@ -63,7 +63,7 @@
             <search-results-summary
               @onSummary="onSummary"
               :group-by="groupBy"
-              :search-query="searchQuery"
+              :search-query="{ filters: enrichedFilters }"
               :totalRows="paginationTotalRows" />
           </ellipsis>
         </b-navbar-nav>
@@ -71,7 +71,7 @@
           <b-button size="sm" variant="outline-primary" class="mr-1" v-on:click="compare">
             {{ $t('actions.compare') }}
           </b-button>
-          <b-dropdown  v-if="isLoggedIn()" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
+          <b-dropdown  v-if="isLoggedIn" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
             <b-dropdown-item
               v-if="selectedItems.length > 0"
               class="p-2 small-caps"
@@ -98,7 +98,7 @@
               <info-button name="can-i-download-part-of-the-data" class="float-right" />
             </b-dropdown-item>
           </b-dropdown>
-          <b-form-checkbox  v-if="isLoggedIn()"
+          <b-form-checkbox  v-if="isLoggedIn"
           class="mx-1"
             v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
             v-bind:indeterminate="this.allIndeterminate"
@@ -204,9 +204,18 @@ import SearchQuery from '@/models/SearchQuery';
 import Article from '@/models/Article';
 import FilterBoolean from '@/models/FilterBoolean';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
-import { optimizeFilters } from '@/logic/filters';
+import {
+  optimizeFilters,
+  serializeFilters,
+  joinFiltersWithItems,
+} from '@/logic/filters';
+
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams';
-import { search as searchService, searchFacets as searchFacetsService } from '@/services';
+import {
+  search as searchService,
+  searchFacets as searchFacetsService,
+  filtersItems as filtersItemsService,
+} from '@/services';
 
 const ALLOWED_FILTERS_TYPES = [
   'accessRight',
@@ -255,7 +264,10 @@ export default {
     inputEmbeddings: '',
     searchResults: [],
     paginationTotalRows: 0,
+    /** @type {Facet[]} */
     facets: [],
+    /** @type {Filter[]} */
+    filtersWithItems: [],
   }),
   computed: {
     searchQuery: {
@@ -291,6 +303,9 @@ export default {
         console.info('set isFront', val);
         // this.toggleBooleanFilter({ type: 'isFront' }, val);
       },
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
     },
     orderBy: {
       get() {
@@ -340,16 +355,26 @@ export default {
         });
       },
     },
-    filters: {
-      get() {
-        // filter by type
-        return this.searchQuery.filters
-          .filter(({ type }) => ALLOWED_FILTERS_TYPES.includes(type))
-          // add impliit filters
-          .concat([
-            new FilterBoolean({ type: 'hasTextContents' }),
-          ]);
-      },
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems.length
+        ? this.filtersWithItems
+        : this.filters
+    },
+    /** @returns {Filter[]} */
+    ignoredFilters() {
+      return this.searchQuery.filters
+        .filter(({ type }) => !ALLOWED_FILTERS_TYPES.includes(type))
+    },
+    /** @returns {Filter[]} */
+    filters() {
+      // filter by type
+      return this.searchQuery.filters
+        .filter(({ type }) => ALLOWED_FILTERS_TYPES.includes(type))
+        // add impliit filters
+        .concat([
+          new FilterBoolean({ type: 'hasTextContents' }),
+        ]);
     },
     filtersIndex: {
       get() {
@@ -375,8 +400,9 @@ export default {
   },
   methods: {
     handleFiltersChanged(filters) {
+      // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
-        filters: optimizeFilters(filters),
+        filters: optimizeFilters(filters).concat(this.ignoredFilters),
       });
     },
     compare() {
@@ -509,29 +535,10 @@ export default {
       this.inputName.trim();
       this.nameCollectionOkDisabled = (this.inputName.length < 3 || this.inputName.length > 50);
     },
-    // search(page=1) {
-    //   this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-    //   // get filters out of the store
-    //   const filters = this.$store.getters['search/getSearch'].getFilters();
-    //   const query = {
-    //     sq: SearchQuery.serialize({ filters }, 'protobuf'),
-    //     // f: JSON.stringify(state.search.getFilters()),
-    //     // facets: state.facetTypes,
-    //     g: this.groupBy,
-    //     p: this.paginationCurrentPage,
-    //     // limit: state.paginationPerPage,
-    //     o: this.orderBy,
-    //   };
-    //   console.info('search(), query:', query);
-    //   this.$router.push({ name: 'search', query });
-    // },
     reset() {
-      console.warn('reset() is empty');
-      // this.$store.commit('search/CLEAR');
-      // this.search(); // we do a search so we display all results in the corpus
-    },
-    isLoggedIn() {
-      return this.$store.state.user.userData;
+      this.searchQuery = new SearchQuery({
+        filters: this.ignoredFilters,
+      });
     },
     updateselectAll() {
       let count = 0;
@@ -578,8 +585,13 @@ export default {
         });
         this.paginationTotalRows = total;
         this.searchResults = data.map(d => new Article(d));
-        this.facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info });
-        const [namedEntityFacets, topicFacets] = await Promise.all([
+        let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info });
+        // get remaining facets and enriched filters.
+        const [
+          namedEntityFacets,
+          topicFacets,
+          filtersWithItems,
+        ] = await Promise.all([
           searchFacetsService.get('person,location', {
             query: {
               filters,
@@ -592,8 +604,28 @@ export default {
               group_by: groupBy,
             },
           }),
+          filtersItemsService.find({
+            query: {
+              filters: serializeFilters(filters),
+            },
+          }).then(joinFiltersWithItems),
         ]);
-        this.facets = this.facets.concat(namedEntityFacets, topicFacets);
+        facets = facets.concat(namedEntityFacets, topicFacets);
+        this.filtersWithItems = filtersWithItems;
+
+        // await for user collection if any!
+        if(this.isLoggedIn) {
+          const collectionFacets = await searchFacetsService.get('collection', {
+            query: {
+              filters,
+              group_by: groupBy,
+            },
+          });
+          facets = facets.concat(collectionFacets);
+          console.info('loaded collections', collectionFacets);
+        }
+        // TODO sort facets based on the right order
+        this.facets = facets;
       },
       immediate: true,
     },
