@@ -202,6 +202,7 @@ import SearchSidebar from '@/components/modules/SearchSidebar';
 import InfoButton from './base/InfoButton';
 import SearchQuery from '@/models/SearchQuery';
 import Article from '@/models/Article';
+import FacetModel from '@/models/Facet';
 import FilterBoolean from '@/models/FilterBoolean';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
 import {
@@ -625,7 +626,7 @@ export default {
           console.info('loaded collections', collectionFacets);
         }
         // TODO sort facets based on the right order
-        this.facets = facets;
+        this.facets = facets.map(f => new FacetModel(f));
       },
       immediate: true,
     },
