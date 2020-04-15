@@ -2,6 +2,18 @@ import SearchQuery from '@/models/SearchQuery';
 
 const SQ_LOCAL_STORAGE_KEY= 'impressoLatestSq';
 
+export const searchQueryHashGetter = () => function() {
+  const { sq } = this.$route?.query;
+  if (sq) {
+    return sq;
+  }
+  const storedSq = localStorage.getItem(SQ_LOCAL_STORAGE_KEY);
+  if (storedSq) {
+    return storedSq;
+  }
+  return '';
+};
+
 export const searchQueryGetter = () => {
   const get = function() {
     const { sq } = this.$route?.query;
