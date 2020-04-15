@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import SearchQuery from '../../models/SearchQuery';
+import { searchQueryHashGetter } from '@/logic/queryParams';
 
 export default {
   props: {
@@ -21,6 +21,7 @@ export default {
     },
   },
   computed: {
+    searchQueryHash: searchQueryHashGetter(),
     /** @returns {string} */
     selectedTab() {
       if (this.tabs.includes(this.$route.name)) {
@@ -28,10 +29,11 @@ export default {
       }
       return 'search';
     },
-    /** @returns {any} */
+    /** @returns {Object} */
     currentSearchQueryParams() {
-      const { search: searchQuery = new SearchQuery() } = this.$store.state[this.selectedTab] ?? {};
-      return searchQuery.getSerialized();
+      return {
+        sq: this.searchQueryHash,
+      };
     },
   },
   methods: {
