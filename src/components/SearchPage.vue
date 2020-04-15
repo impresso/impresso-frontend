@@ -176,6 +176,7 @@
       <div class="my-5" />
       <div class="fixed-pagination-footer p-1 m-0" slot="footer">
         <pagination
+          v-if="searchResults.length"
           v-model="paginationCurrentPage"
           :per-page="paginationPerPage"
           :total-rows="paginationTotalRows"
@@ -200,9 +201,12 @@ import EmbeddingsSearch from './modules/EmbeddingsSearch';
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import InfoButton from './base/InfoButton';
 import SearchQuery from '@/models/SearchQuery';
-import FilterBoolean from '@/models/FilterBoolean'
-import { optimizeFilters } from '@/logic/filters'
-import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
+import Article from '@/models/Article';
+import FilterBoolean from '@/models/FilterBoolean';
+import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
+import { optimizeFilters } from '@/logic/filters';
+import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams';
+import { search as searchService, searchFacets as searchFacetsService } from '@/services';
 
 const ALLOWED_FILTERS_TYPES = [
   'accessRight',
@@ -222,19 +226,23 @@ const ALLOWED_FILTERS_TYPES = [
   'year'
 ]
 
-const ALLOWED_FACET_TYPES = [
+const FACET_TYPES_DPFS = [
+  'person',
+  'location',
+  'topic',
+];
+
+const FACET_TYPES_S = [
   'language',
   'newspaper',
   'type',
   'country',
-  'topic',
-  'collection',
   'accessRight',
   'partner',
-  'person',
-  'location',
-  'year'
-]
+  'year',
+];
+
+const FACET_TYPES = FACET_TYPES_S.concat(FACET_TYPES_DPFS);
 
 export default {
   data: () => ({
@@ -247,6 +255,7 @@ export default {
     inputEmbeddings: '',
     searchResults: [],
     paginationTotalRows: 0,
+    facets: [],
   }),
   computed: {
     searchQuery: {
@@ -342,16 +351,12 @@ export default {
           ]);
       },
     },
-    facets() {
-      return this.$store.state.search.facets
-        .filter(({ type }) => ALLOWED_FACET_TYPES.includes(type));
-    },
     filtersIndex: {
       get() {
         return this.searchQuery.filtersIndex;
       },
     },
-    searchParams: {
+    searchServiceQuery: {
       get() {
         const query = {
           filters: this.filters.map(d => d.getQuery()),
@@ -360,34 +365,13 @@ export default {
           limit: this.paginationPerPage,
           page: this.paginationCurrentPage,
         };
-        console.info('searchParams changed:', query);
+        console.info('searchServiceQuery changed:', query);
         return query;
       },
     },
-    // searchParams: {
-    //   return {
-    //     g: this.groupBy,
-    //     p: this.paginationCurrentPage,
-    //     o: this.orderBy,
-    //
-    //   }
-    //   search(page=1) {
-    //     this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-    //     // get filters out of the store
-    //     const filters = this.$store.getters['search/getSearch'].getFilters();
-    //     const query = {
-    //       sq: SearchQuery.serialize({ filters }, 'protobuf'),
-    //       // f: JSON.stringify(state.search.getFilters()),
-    //       // facets: state.facetTypes,
-    //       g: this.groupBy,
-    //       p: this.paginationCurrentPage,
-    //       // limit: state.paginationPerPage,
-    //       o: this.orderBy,
-    //     };
-    //     console.info('search(), query:', query);
-    //     this.$router.push({ name: 'search', query });
-    //   },
-    // },
+  },
+  mounted() {
+    this.facets = buildEmptyFacets(FACET_TYPES);
   },
   methods: {
     handleFiltersChanged(filters) {
@@ -580,9 +564,36 @@ export default {
     selectedItems() {
       this.updateselectAll();
     },
-    searchParams: {
-      handler(val) {
-        console.info('@watcher', val);
+    searchServiceQuery: {
+      async handler({ page, limit, filters, orderBy, groupBy}) {
+        const { total, data, info } = await searchService.find({
+          query: {
+            page,
+            limit,
+            filters,
+            facets: FACET_TYPES_S,
+            order_by: orderBy,
+            group_by: groupBy,
+          },
+        });
+        this.paginationTotalRows = total;
+        this.searchResults = data.map(d => new Article(d));
+        this.facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info });
+        const [namedEntityFacets, topicFacets] = await Promise.all([
+          searchFacetsService.get('person,location', {
+            query: {
+              filters,
+              group_by: groupBy,
+            },
+          }),
+          searchFacetsService.get('topic', {
+            query: {
+              filters,
+              group_by: groupBy,
+            },
+          }),
+        ]);
+        this.facets = this.facets.concat(namedEntityFacets, topicFacets);
       },
       immediate: true,
     },
