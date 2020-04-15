@@ -301,8 +301,13 @@ export default {
         return this.filters.some(({type}) => type === 'isFront');
       },
       set(val) {
-        console.info('set isFront', val);
-        // this.toggleBooleanFilter({ type: 'isFront' }, val);
+        this.handleFiltersChanged(this.filters
+          .filter((d) => d.type !== 'isFront' )
+          .concat(val
+            ? [ new FilterBoolean({ type: 'isFront' }) ]
+            : []
+          )
+        );
       },
     },
     isLoggedIn() {
@@ -592,6 +597,7 @@ export default {
           namedEntityFacets,
           topicFacets,
           filtersWithItems,
+          collectionFacets,
         ] = await Promise.all([
           searchFacetsService.get('person,location', {
             query: {
@@ -610,21 +616,17 @@ export default {
               filters: serializeFilters(filters),
             },
           }).then(joinFiltersWithItems),
+          this.isLoggedIn
+            ? searchFacetsService.get('collection', {
+              query: {
+                filters,
+                group_by: groupBy,
+              },
+            })
+            : []
         ]);
-        facets = facets.concat(namedEntityFacets, topicFacets);
+        facets = facets.concat(collectionFacets, namedEntityFacets, topicFacets);
         this.filtersWithItems = filtersWithItems;
-
-        // await for user collection if any!
-        if(this.isLoggedIn) {
-          const collectionFacets = await searchFacetsService.get('collection', {
-            query: {
-              filters,
-              group_by: groupBy,
-            },
-          });
-          facets = facets.concat(collectionFacets);
-          console.info('loaded collections', collectionFacets);
-        }
         // TODO sort facets based on the right order
         this.facets = facets.map(f => new FacetModel(f));
       },
