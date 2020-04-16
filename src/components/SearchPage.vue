@@ -1,7 +1,7 @@
 <template>
 <i-layout id="SearchPage">
   <search-sidebar width="400px"
-    :filters="filters"
+    :filters="enrichedFilters"
     :facets="facets"
     contextTag="search"
     @changed="handleFiltersChanged"
@@ -68,7 +68,12 @@
           </ellipsis>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto pl-3" >
-          <b-button size="sm" variant="outline-primary" class="mr-1" v-on:click="compare">
+          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{
+            name: 'compare',
+            query: {
+              left: searchQueryHash,
+            },
+          }">
             {{ $t('actions.compare') }}
           </b-button>
           <b-dropdown  v-if="isLoggedIn" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
@@ -188,7 +193,6 @@
 </template>
 
 <script>
-import { protobuf } from 'impresso-jscommons';
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchResultsListItem from './modules/SearchResultsListItem';
@@ -203,19 +207,23 @@ import InfoButton from './base/InfoButton';
 import SearchQuery from '@/models/SearchQuery';
 import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';
-import FilterBoolean from '@/models/FilterBoolean';
+import FilterFactory from '@/models/FilterFactory';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
 import {
   optimizeFilters,
   serializeFilters,
   joinFiltersWithItems,
 } from '@/logic/filters';
-
-import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams';
+import {
+  searchQueryGetter,
+  searchQuerySetter,
+  searchQueryHashGetter,
+} from '@/logic/queryParams';
 import {
   search as searchService,
   searchFacets as searchFacetsService,
   filtersItems as filtersItemsService,
+  exporter as exporterService,
 } from '@/services';
 
 const ALLOWED_FILTERS_TYPES = [
@@ -235,7 +243,7 @@ const ALLOWED_FILTERS_TYPES = [
   'topic',
   'type',
   'year'
-]
+];
 
 const FACET_TYPES_DPFS = [
   'person',
@@ -280,6 +288,7 @@ export default {
         },
       }),
     },
+    searchQueryHash: searchQueryHashGetter(),
     groupByOptions() {
       return ['issues', 'pages', 'articles'].map((value) => ({
         value,
@@ -305,7 +314,7 @@ export default {
         this.handleFiltersChanged(this.filters
           .filter((d) => d.type !== 'isFront' )
           .concat(val
-            ? [ new FilterBoolean({ type: 'isFront' }) ]
+            ? [ FilterFactory.create({ type: 'isFront' }) ]
             : []
           )
         );
@@ -336,10 +345,12 @@ export default {
     },
     displayStyle: {
       get() {
-        return this.$store.state.search.displayStyle;
+        return this.$route.query.displayStyle ?? 'list';
       },
       set(displayStyle) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
+        this.$navigation.updateQueryParametersWithHistory({
+          displayStyle,
+        });
       },
     },
     paginationCurrentPage: {
@@ -354,7 +365,7 @@ export default {
     },
     paginationPerPage: {
       get() {
-        return Math.min(5, Math.max(this.$route.query.limit ?? 1, 50));
+        return Math.min(12, Math.max(this.$route.query.limit ?? 1, 50));
       },
       set(limit) {
         this.$navigation.updateQueryParametersWithHistory({
@@ -380,7 +391,7 @@ export default {
         .filter(({ type }) => ALLOWED_FILTERS_TYPES.includes(type))
         // add impliit filters
         .concat([
-          new FilterBoolean({ type: 'hasTextContents' }),
+          FilterFactory.create({ type: 'hasTextContents' }),
         ]);
     },
     filtersIndex: {
@@ -397,7 +408,6 @@ export default {
           limit: this.paginationPerPage,
           page: this.paginationCurrentPage,
         };
-        console.info('searchServiceQuery changed:', query);
         return query;
       },
     },
@@ -412,46 +422,16 @@ export default {
         filters: optimizeFilters(filters).concat(this.ignoredFilters),
       });
     },
-    compare() {
-      this.$router.push({
-        name: 'compare',
-        query: {
-          left: protobuf.searchQuery.serialize({
-            filters: this.filters.map(d => d.getQuery()),
-          }),
-        },
-      });
-    },
     nameSelectedCollectionOnShown() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
-    // getBooleanFilter(filter) {
-    //   return !!this.$store.state.search.search.getFilter(filter);
-    // },
-    // toggleBooleanFilter(filter, value = true) {
-    //   if (!value) {
-    //     this.$store.dispatch('search/REMOVE_FILTER', { filter });
-    //   } else {
-    //     this.$store.dispatch('search/ADD_FILTER', { filter });
-    //   }
-    // },
     onSummary(msg) {
       this.inputDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
     },
     onSuggestion(filter) {
-      console.info('onSuggestion() received filter:', filter);
       this.handleFiltersChanged(this.filters.concat([ filter ]));
-    },
-    onInputPagination(page = 1) {
-      this.search(page);
-    },
-    onRemoveFilter(filter) {
-      this.$store.dispatch('search/REMOVE_FILTER', { filter });
-    },
-    onAddFilter(filter) {
-      this.$store.dispatch('search/ADD_FILTER', { filter });
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -515,23 +495,29 @@ export default {
       }
     },
     exportQueryCsv() {
-      this.$store.dispatch('search/EXPORT_FROM_QUERY', {
+      exporterService.create({
         description: this.inputDescription,
-      }).then((res) => {
-        console.info(res);
-      });
+      }, {
+        query: {
+          group_by: 'articles',
+          filters: this.filters.map(d => d.getQuery()),
+          format: 'csv',
+        },
+      })
     },
     exportSelectedCsv() {
       const uids = this.selectedItems.map(a => a.uid);
-      this.$store.dispatch('search/EXPORT_FROM_UIDS', {
-        filters: [
-          {
-            type: 'uid',
-            q: uids,
-          },
-        ],
-      }).then((res) => {
-        console.info(res);
+      exporterService.create({}, {
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'uid',
+              q: uids,
+            },
+          ],
+          format: 'csv',
+        },
       });
     },
     nameCollectionOnShown() {
@@ -566,9 +552,12 @@ export default {
       }
     },
     addFilterFromEmbedding(embedding) {
-      const filter = { query: embedding, type: 'string', context: 'include' };
-      this.$store.dispatch('search/ADD_FILTER', { filter });
-      this.search();
+      this.handleFiltersChanged(this.filters.concat([
+        FilterFactory.create({
+          q: [embedding],
+          type: 'string',
+        }),
+      ]));
     },
   },
   watch: {

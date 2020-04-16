@@ -17,5 +17,5 @@ export function getQueryParameter(vueInstance, parameter, defaultValue = undefin
 }
 
 export const CommonQueryParameters = Object.freeze({
-  SearchFilters: 'filters'
+  SearchFilters: 'sq'
 })
