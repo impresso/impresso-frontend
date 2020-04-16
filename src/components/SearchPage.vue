@@ -226,7 +226,7 @@ import {
   exporter as exporterService,
 } from '@/services';
 
-const ALLOWED_FILTERS_TYPES = [
+const AllowedFilterTypes = [
   'accessRight',
   'collection',
   'country',
@@ -382,13 +382,13 @@ export default {
     /** @returns {Filter[]} */
     ignoredFilters() {
       return this.searchQuery.filters
-        .filter(({ type }) => !ALLOWED_FILTERS_TYPES.includes(type))
+        .filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
     /** @returns {Filter[]} */
     filters() {
       // filter by type
       return this.searchQuery.filters
-        .filter(({ type }) => ALLOWED_FILTERS_TYPES.includes(type))
+        .filter(({ type }) => AllowedFilterTypes.includes(type))
         // add impliit filters
         .concat([
           FilterFactory.create({ type: 'hasTextContents' }),
