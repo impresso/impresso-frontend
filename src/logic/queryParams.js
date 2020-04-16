@@ -1,13 +1,17 @@
-import SearchQuery from '@/models/SearchQuery';
+import SearchQuery from '@/models/SearchQuery'
+import {
+  getLatestSerializedSearchQuery,
+  setLatestSerializedSearchQuery
+} from './storage'
 
-const SQ_LOCAL_STORAGE_KEY= 'impressoLatestSq';
 
 export const searchQueryHashGetter = () => function() {
   const { sq } = this.$route?.query;
   if (sq) {
     return sq;
   }
-  const storedSq = localStorage.getItem(SQ_LOCAL_STORAGE_KEY);
+
+  const storedSq = getLatestSerializedSearchQuery()
   if (storedSq) {
     return storedSq;
   }
@@ -17,11 +21,10 @@ export const searchQueryHashGetter = () => function() {
 export const searchQueryGetter = () => {
   const get = function() {
     const { sq } = this.$route?.query;
-    console.info('searchQueryGetter', sq);
     if (sq) {
       return SearchQuery.deserialize(sq);
     }
-    const storedSq = localStorage.getItem(SQ_LOCAL_STORAGE_KEY);
+    const storedSq = getLatestSerializedSearchQuery()
     if (storedSq) {
       return SearchQuery.deserialize(storedSq);
     }
@@ -35,7 +38,7 @@ export const searchQuerySetter = ({ additionalQueryParams = {} } = {}) => {
     // update searchquery in the store so that the current sq
     // hash in the local storage gets updated, too.
     const sq = searchQuery.getSerialized({ serializer: 'protobuf' });
-    localStorage.setItem(SQ_LOCAL_STORAGE_KEY, sq);
+    setLatestSerializedSearchQuery(sq)
     this.$navigation.updateQueryParametersWithHistory({
       ...additionalQueryParams,
       sq,

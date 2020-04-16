@@ -95,6 +95,7 @@ import { optimizeFilters, deserializeFilters, serializeFilters } from '@/logic/f
 import { getQueryParameter } from '../router/util';
 import { getBucketLabel } from '../logic/facets';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
+import { getLatestFilters } from '../logic/storage';
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -661,15 +662,16 @@ export default {
      * @param {number} queryIdx
      */
     handleInsertRecentSearchQuery(queryIdx) {
-      const recentSearchHash = this.$store.state.search.currentSearchHash;
-      const query = { ...this.$router.currentRoute.query };
-      if (queryIdx === 0) query.left = recentSearchHash;
-      if (queryIdx === 2) query.right = recentSearchHash;
+      const filters = getLatestFilters()
+      const recentQuery = serializeFilters(filters)
+      const query = { ...this.$router.currentRoute.query }
+      if (queryIdx === 0) query.left = recentQuery
+      if (queryIdx === 2) query.right = recentQuery
       if (JSON.stringify(this.$route.query) !== JSON.stringify(query)) {
         this.$router.push({
           name: 'compare',
           query: query,
-        });
+        })
       }
     },
     /** @param {number} value */
