@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop>
   <!-- <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop :class="{'invisible': isDragging}"
   draggable="true"
@@ -104,17 +104,24 @@ import WikidataBlock from './modules/WikidataBlock';
 import ItemLabel from './modules/lists/ItemLabel';
 import SearchQuerySummary from './modules/SearchQuerySummary';
 import SearchQuery from '../models/SearchQuery';
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ */
+
 /**
  * Display info about the current selected item.
  * Trigger from inside a component:
        ```
-       this.$store.dispatch('monitor/SET_ITEM', {
-         searchQueryId: '',
-         item: {},
-         type: this.type,
-       });
+       this.$store.dispatch('monitor/ACTIVATE', {
+          item: {...},
+          type: '...facet type...',
+          filters: [...],
+          filtersUpdatedCallback: filters => {
+            // ...update filters
+          }
+        })
        ```
-    If searchQueryId is null, filters are loaded from the current searchQuery object.
   * Cfr src/components/modules/ItemSelector.vue
   */
 
@@ -127,37 +134,62 @@ export default {
     tab: 'selectedItem',
   }),
   methods: {
+    /**
+     * @param {{ x: number, y: number }} param
+     */
     dragstart({ x, y }) {
       this.isDragging = true;
       if (isNaN(this.position.x)) {
         this.position = { x, y };
       }
     },
+    /**
+     * @param {{ x: number, y: number }} param
+     */
     dragend({ x, y }) {
       this.isDragging = false;
       this.transformStyle = {
         transform: `translate(${x - this.position.x}px,${y - this.position.y}px)`,
       };
     },
+    /**
+     * @param {string} tab
+     */
     switchTab(tab) {
       this.tab = tab;
     },
+    /**
+     * @returns {any}
+     */
     fadeOut() {
       return this.$store.dispatch('monitor/SET_IS_ACTIVE', false);
     },
+    /**
+     * @param {string} context
+     */
     async applyFilter(context = 'include') {
-      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
+      console.info('applyFilter() \n- context:', context);
 
       const newFilter = {
         type: this.type,
-        q: [this.item.uid],
+        q: this.item.uid,
         items: [this.item],
-        context,
-        checked: true,
+        context
       }
 
-      const updatedFilters = [...this.searchQueryFilters].concat(newFilter)
-      await this.$store.dispatch('monitor/UPDATE_FILTERS', updatedFilters);
+      const isAlreadyIncluded = this.searchQueryFilters.find(({ type, q, context }) => {
+        const isQsame = Array.isArray(q)
+          ? q.length === 1 && q[0] === newFilter.q
+          : q === newFilter.q
+        return type === newFilter.type
+          && context === newFilter.context
+          && isQsame
+      })
+
+      if (!isAlreadyIncluded) {
+        const updatedFilters = [...this.searchQueryFilters].concat(newFilter)
+        await this.$store.dispatch('monitor/UPDATE_FILTERS', updatedFilters);
+      }
 
       // this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
       //   searchQueryId: this.searchQueryId,
@@ -173,18 +205,19 @@ export default {
     },
   },
   computed: {
-    monitor() {
-      return this.$store.state.monitor;
-    },
-    type() {
-      return this.$store.state.monitor.type;
-    },
+    /** @returns {any} */
+    monitor() { return this.$store.state.monitor },
+    /** @returns {string} */
+    type() { return this.$store.state.monitor.type },
+    /** @returns {object} */
     item() {
       return this.$store.state.monitor.item;
     },
+    /** @returns {any[]} */
     itemTimeline() {
       return this.$store.state.monitor.timeline;
     },
+    /** @returns {[number, number] | []} */
     itemTimelineDomain() {
       if (!this.$store.state.monitor.timeline.length) {
         return [];
@@ -194,36 +227,40 @@ export default {
         this.$store.state.monitor.timeline[this.$store.state.monitor.timeline.length - 1].t,
       ];
     },
+    /** @returns {number} */
     countActiveFilters() {
       return this.searchQuery.countActiveFilters();
     },
+    /** @returns {SearchQuery} */
     searchQuery() {
       return new SearchQuery({ filters: this.searchQueryFilters })
       // return this.$store.getters['monitor/getCurrentSearchQuery'];
     },
+    /** @returns {Filter[]} */
     searchQueryFilters() {
       return this.$store.getters['monitor/getCurrentSearchFilters'];
     },
+    /** @returns {string} */
     searchQueryFiltersLabel() {
       if (this.itemTimelineDomain.length !== 2) {
-        return this.$t('actions.loading');
+        return this.$t('actions.loading').toString()
       }
       const [from, to] = this.itemTimelineDomain;
       return this.$t('itemStatsFiltered', {
         count: this.countActiveFilters,
         from,
         to,
-      });
+      }).toString()
     },
-    searchQueryId() {
-      return this.$store.state.monitor.searchQueryId;
-    },
+    /** @returns {boolean} */
     isItemSelected() {
       return !!this.$store.state.monitor.item;
     },
+    /** @returns {boolean} */
     isActive() {
       return this.$store.state.monitor.isActive;
     },
+    /** @returns {object} */
     detailsUrl() {
       if (this.type === 'newspaper') {
         return {
@@ -239,6 +276,7 @@ export default {
             topic_uid: this.item.uid,
           },
         };
+      // @ts-ignore
       } else if (this.$helpers.isEntity(this.type)) {
         return {
           name: 'entity',
@@ -249,12 +287,14 @@ export default {
       }
       return null;
     },
+    /** @returns {string | undefined} */
     path() {
       return this.$route.name;
     },
+    /** @returns {string} */
     statsLabel() {
       if (this.monitor.isPendingTimeline) {
-        return this.$t('actions.loading');
+        return this.$t('actions.loading').toString()
       }
       let key = 'itemStats';
 
@@ -267,12 +307,14 @@ export default {
         count: this.$n(this.monitor.itemCountRelated),
         from: this.itemTimelineDomain[0],
         to: this.itemTimelineDomain[1],
-      });
+      }).toString()
     },
     applyCurrentSearchFilters: {
+      /** @returns {boolean} */
       get() {
         return this.$store.state.monitor.applyCurrentSearchFilters;
       },
+      /** @param {boolean} val */
       set(val) {
         this.$store.dispatch('monitor/SET_APPLY_CURRENT_SEARCH_FILTERS', val);
         this.$store.dispatch('monitor/LOAD_ITEM_TIMELINE');

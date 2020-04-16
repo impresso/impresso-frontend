@@ -35,13 +35,12 @@ export default {
         type: this.type,
       }
       if (!this.defaultClickActionDisabled) {
+        // TODO: filters to be retrieved from a mapped model.
         this.$store.dispatch('monitor/ACTIVATE', {
           ...params,
           filters: this.$store.getters['search/getSearch'].getFilters(),
           filtersUpdatedCallback: filters => {
-            this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
-              filter: filters[filters.length - 1],
-            });
+            this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', filters)
           }
         })
       }
