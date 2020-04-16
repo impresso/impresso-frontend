@@ -41,7 +41,7 @@
     </div><!-- slot:header -->
     <!-- slot:body or default  -->
     <div class="d3-graph-wrapper position-relative h-100 small-caps bg-light">
-      <div id="d3-graph" class="h-100"></div>
+      <div id="d3-graph" ref="graph" class="h-100"></div>
       <tooltip v-model="tooltip" />
     </div>
     <!-- slot:footer  -->
@@ -153,7 +153,8 @@ export default {
     // load base graph
     this.isGraphLoading = true;
     await topicsGraph.find({}).then(({ nodes, links }) => {
-      this.nodes = nodes.map(d => ({
+      // console.log(nodes, links);
+      this.nodes = nodes.filter(d => d.pos.x && d.pos.y).map(d => ({
         ...d,
         x: d.pos.x * 1.414,
         y: d.pos.y * 2,
@@ -163,7 +164,7 @@ export default {
     this.isGraphLoading = false;
 
     this.graph = new Graph({
-      element: '#d3-graph',
+      element: this.$refs.graph,
       nodeLabel: d => d.label, // excerpt.map(w => w.w).join('-'),
       showLabel: d => d.community === d.uid,
       identity: d => d.uid,
@@ -195,7 +196,7 @@ export default {
         }
       });
     window.addEventListener('resize', this.onResize);
-
+    this.graph.resize();
     this.updateGraph();
     if (this.itemsVisualized.length) {
       this.graph.highlightNodes(this.itemsVisualized);
@@ -224,6 +225,7 @@ export default {
       this.graph.update({
         nodes: this.nodes,
         links: this.links,
+        pristine: true,
       });
     },
     zoomReset() {
