@@ -139,21 +139,21 @@ const QueryParameters = Object.freeze({
 
 const AllowedFilterTypes = [
   'accessRight',
+  // 'collection',
   'country',
   'isFront',
+  // 'issue',
   'language',
   'location',
   'newspaper',
   'partner',
   'person',
   // 'string',
-  'title',
+  // 'title',
   'topic',
   'type',
-  'year',
-  // 'string',
+  'year'
 ];
-
 
 /**
  * @param {Facet[]} facets
