@@ -92,11 +92,14 @@
 <script>
 import {
   serializeFilters,
-  deserializeFilters,
+  optimizeFilters,
   toCanonicalFilter,
   joinFiltersWithItems
-} from '../logic/filters'
-
+} from '@/logic/filters'
+import {
+  searchQueryGetter,
+  searchQuerySetter,
+} from '@/logic/queryParams'
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import BaseTitleBar from '@/components/base/BaseTitleBar';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
@@ -112,7 +115,9 @@ import {
   searchResponseToFacetsExtractor,
   buildEmptyFacets
 } from '@/logic/facets'
-import { CommonQueryParameters } from '../router/util';
+import { CommonQueryParameters } from '@/router/util';
+import FilterFactory from '@/models/FilterFactory';
+import SearchQuery from '@/models/SearchQuery';
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -132,7 +137,23 @@ const QueryParameters = Object.freeze({
   Unigrams: 'unigrams'
 })
 
-const IgnoredFilterTypes = ['string', 'regex']
+const AllowedFilterTypes = [
+  'accessRight',
+  'country',
+  'isFront',
+  'language',
+  'location',
+  'newspaper',
+  'partner',
+  'person',
+  // 'string',
+  'title',
+  'topic',
+  'type',
+  'year',
+  // 'string',
+];
+
 
 /**
  * @param {Facet[]} facets
@@ -206,7 +227,7 @@ export default {
           filtersItemsService.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
         ]);
         this.facets = facets
-        this.filtersWithItems = filtersWithItems.filter(({ type }) => !IgnoredFilterTypes.includes(type))
+        this.filtersWithItems = filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
       },
       immediate: true,
       deep: true
@@ -230,6 +251,10 @@ export default {
     }
   },
   computed: {
+    searchQuery: {
+      ...searchQueryGetter(),
+      ...searchQuerySetter(),
+    },
     unigrams: {
       /** @returns {string[]} */
       get() {
@@ -247,22 +272,25 @@ export default {
       }
     },
     /** @returns {Filter[]} */
-    allFilters() {
-      const serializedFilters = this.$route.query[QueryParameters.SearchFilters]
-      return serializedFilters
-        ? deserializeFilters(/** @type {string} */ (serializedFilters))
-        : []
-    },
-    /** @returns {Filter[]} */
     enrichedFilters() {
       return this.filtersWithItems != null
         ? this.filtersWithItems
         : this.filters
     },
     /** @returns {Filter[]} */
-    ignoredFilters() { return this.allFilters.filter(({ type }) => IgnoredFilterTypes.includes(type)) },
+    ignoredFilters() {
+      return this.searchQuery.filters
+        .filter(({ type }) => !AllowedFilterTypes.includes(type))
+    },
     /** @returns {Filter[]} */
-    filters() { return this.allFilters.filter(({ type }) => !IgnoredFilterTypes.includes(type)) },
+    filters() {
+      return this.searchQuery.filters
+        .filter(({ type }) => AllowedFilterTypes.includes(type))
+        // add implicit filters
+        .concat([
+          FilterFactory.create({ type: 'hasTextContents' }),
+        ]);
+    },
     /**
      * Full filters is what we use to filter the side panel facet filters.
      * They include filters + a string filter containing all entered unigrams.
@@ -299,16 +327,17 @@ export default {
         op: 'OR',
         q: this.trends.map(({ ngram }) => ngram),
       }
-      const filters = this.filters.concat([stringFilter])
-      const query = { f: JSON.stringify(filters) }
-      return { name: 'search', query }
+      const filters = this.filters.concat([ stringFilter ])
+      // const query = { f: JSON.stringify(filters) }
+      console.info('sending filters', filters);
+      return { name: 'search', query: { sq: serializeFilters(filters) }}
     },
     /** @returns {{ ngrams: string[], filters: Filter[] }} */
     unigramsQueryParameters() {
       return {
         ngrams: this.unigrams,
-        filters: this.filters
-      }
+        filters: this.filters.map((d) => d.getQuery()),
+      };
     },
     /**
      * @typedef {{ value: number, time: Date }} Item
@@ -335,9 +364,9 @@ export default {
   methods: {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
-      this.$navigation.updateQueryParameters({
-        [QueryParameters.SearchFilters]: serializeFilters(filters)
-      })
+      this.searchQuery = new SearchQuery({
+        filters: optimizeFilters(filters).concat(this.ignoredFilters),
+      });
     },
     /** @returns {Date} */
     getTooltipScopeTime(scope) {
