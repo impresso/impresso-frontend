@@ -103,9 +103,11 @@ export default {
     searchPageLink() {
       return {
         name: 'search',
-        query: SearchQuery.serialize({
-          filters: [{ type: 'topic', q: this.visualizedTopics.map(d => d.uid) }],
-        }),
+        query: {
+          sq: SearchQuery.serialize({
+            filters: [{ type: 'topic', q: this.visualizedTopics.map(d => d.uid) }],
+          }, 'protobuf'),
+        },
       };
     },
     searchQuery: {
