@@ -57,6 +57,7 @@ import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPa
 import List from './modules/lists/List';
 import { textReuseClusters, filtersItems } from '@/services';
 import { toCanonicalFilter, toSerializedFilters } from '../logic/filters';
+import { CommonQueryParameters } from '@/router/util';
 
 const isLastItem = (index, total) => total - 1 === index
 
@@ -77,7 +78,7 @@ const QueryParameters = Object.freeze({
   SearchText: 'q',
   PageNumber: 'page',
   OrderBy: 'orderBy',
-  SearchFilters: 'filters'
+  SearchFilters: CommonQueryParameters.SearchFilters
 })
 
 const ClusterIdSearchPattern = /^#([\w\d-_@]+)$/
@@ -220,7 +221,7 @@ export default {
     searchFilters() {
       const serializedFilters = this.$route.query[QueryParameters.SearchFilters]
       return serializedFilters
-        ? deserializeFilters(serializedFilters)
+        ? deserializeFilters(serializedFilters).filter(supportedFiltersFilter)
         : []
     },
     enrichedFilters() {

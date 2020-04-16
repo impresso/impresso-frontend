@@ -49,7 +49,7 @@
         </b-nav-item>
         <b-nav-item
           v-if="textReuseEnabled"
-          v-bind:to="{ name: 'text-reuse-cluster-detail'}"
+          v-bind:to="getRouteWithSearchQuery({ name: 'text-reuse-cluster-detail' })"
           active-class="active">
           {{$t("label_text_reuse")}}
         </b-nav-item>
