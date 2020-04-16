@@ -1,8 +1,8 @@
 <template lang="html">
   <i-layout id="SearchPage">
     <search-sidebar width="400px"
-      :filters="filters"
-      :ignored-filters="filtersRemoved"
+      :filters="enrichedFilters"
+      :ignored-filters="ignoredFilters"
       :facets="facets"
       :excludedTypes="excludedTypes"
       contextTag="searchImages"
@@ -19,9 +19,7 @@
           <b-button variant="danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">Remove</b-button>
         </b-media>
         <filter-image-upload
-          v-if="enableUpload"
-          v-on:load="search(1)"
-          v-on:remove="search(1)" />
+          v-if="enableUpload" />
         <search-input @submit="onSearchQuery"></search-input>
       </div>
       <b-form-group class="mx-3">
@@ -37,11 +35,11 @@
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="p-2 border-right">
             <b-nav-form>
-              <b-form-group class="ml-2 mr-3">
+              <!-- <b-form-group class="ml-2 mr-3">
               <b-form-checkbox v-model="applyRandomPage" switch>
                 {{ $t('label_applyRandomPage') }}
               </b-form-checkbox>
-              </b-form-group>
+              </b-form-group> -->
               <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>reload</b-button>
             </b-nav-form>
           </b-navbar-nav>
@@ -51,7 +49,7 @@
             <ellipsis v-bind:initialHeight="60">
               <search-results-summary
                 group-by="images"
-                :searchQuery="{ filters }"
+                :searchQuery="{ filters: enrichedFilters }"
                 :totalRows="paginationTotalRows" />
             </ellipsis>
           </b-navbar-nav>
@@ -77,12 +75,11 @@
             </b-col>
           </b-row>
         </b-container>
-        <div class="fixed-pagination-footer p-1 m-0">
+        <div v-if="paginationTotalRows" class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-bind:perPage="paginationPerPage"
-            v-bind:currentPage="paginationCurrentPage"
+            v-model="paginationCurrentPage"
             v-bind:totalRows="paginationTotalRows"
-            v-on:change="onInputPagination"
             class="float-left small-caps"
             />
 
@@ -94,7 +91,23 @@
 </template>
 
 <script>
-import * as services from '@/services';
+import {
+  searchQueryGetter,
+  searchQuerySetter,
+} from '@/logic/queryParams';
+import {
+  optimizeFilters,
+  serializeFilters,
+  joinFiltersWithItems,
+} from '@/logic/filters';
+import {
+  searchResponseToFacetsExtractor,
+  buildEmptyFacets,
+} from '@/logic/facets';
+import {
+  images as imagesService,
+  filtersItems as filtersItemsService,
+} from '@/services';
 import FilterImageUpload from './modules/FilterImageUpload';
 import SearchResultsImageItem from './modules/SearchResultsImageItem';
 import Pagination from './modules/Pagination';
@@ -102,24 +115,25 @@ import SearchSidebar from '@/components/modules/SearchSidebar';
 import SearchResultsSummary from './modules/SearchResultsSummary';
 import Ellipsis from './modules/Ellipsis';
 import SearchInput from './modules/SearchInput';
+import FilterFactory from '@/models/FilterFactory';
+import Image from '@/models/Image';
+import SearchQuery from '@/models/SearchQuery';
+import FacetModel from '@/models/Facet';
 
-
-const ALLOWED_FILTER_TYPES = [
+const AllowedFilterTypes = [
   'newspaper',
   'isFront',
   'daterange',
   'title'
 ];
 
-const ALLOWED_FACET_TYPES = [
+const AllowedFacetTypes = [
   'newspaper', 'year'
 ];
 
 export default {
   props: {
-    enableUpload: {
-      type: Boolean,
-    },
+    enableUpload: Boolean,
   },
   components: {
     SearchResultsImageItem,
@@ -132,51 +146,73 @@ export default {
   },
   data: () => ({
     q: '',
+    isLoading: false,
     selectedItems: [],
     allIndeterminate: false,
     allSelected: false,
-    similarToImage: false,
+    similarToImage: null,
+    searchResults: [],
+    paginationTotalRows: 0,
+    /** @type {Facet[]} */
+    facets: [],
+    /** @type {Filter[]} */
+    filtersWithItems: [],
   }),
+  mounted() {
+    this.facets = buildEmptyFacets(AllowedFacetTypes);
+  },
   computed: {
-    applyRandomPage: {
-      get() {
-        return this.$store.state.searchImages.applyRandomPage;
-      },
-      set(val) {
-        this.$store.dispatch('searchImages/SET_RANDOM_PAGE', val);
-      },
+    searchQuery: {
+      ...searchQueryGetter(),
+      ...searchQuerySetter(),
     },
-    searchQuery() {
-      return this.$store.state.searchImages.search;
+    seed() {
+      return this.$route.query.seed || 0;
     },
-    filters() {
-      return this.searchQuery.filters.filter(({ type }) => ALLOWED_FILTER_TYPES.includes(type));
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems.length
+        ? this.filtersWithItems
+        : this.filters
     },
-    filtersRemoved() {
-      return this.searchQuery.filters.filter(d => !ALLOWED_FILTER_TYPES.includes(d.type));
-    },
-    facets() {
-      return this.$store.state.searchImages.facets
-        .filter(({ type }) => ALLOWED_FACET_TYPES.includes(type));
-    },
-    excludedTypes() {
+    /** @returns {Filter[]} */
+    ignoredFilters() {
       return this.searchQuery.filters
-        .map(d => d.type)
-        .filter(type => !ALLOWED_FILTER_TYPES.includes(type));
+        .filter(({ type }) => !AllowedFilterTypes.includes(type))
+    },
+    /** @returns {Filter[]} */
+    filters() {
+      // filter by type
+      return this.searchQuery.filters
+        .filter(({ type }) => AllowedFilterTypes.includes(type));
+    },
+    /** @returns {string[]} */
+    excludedTypes() {
+      return this.filters
+        .map(d => d.type);
+    },
+    similarToImageUid() {
+      return this.$route.query.i;
     },
     isFront: {
       get() {
-        return this.getBooleanFilter({ type: 'isFront' });
+        return this.filters.some(({type}) => type === 'isFront');
       },
       set(val) {
-        this.toggleBooleanFilter({ type: 'isFront' }, val);
+        this.handleFiltersChanged(this.filters
+          .filter((d) => d.type !== 'isFront' )
+          .concat(val
+            ? [ FilterFactory.create({ type: 'isFront' }) ]
+            : []
+          )
+        );
       },
     },
-    searchResults: {
-      get() {
-        return this.$store.getters['searchImages/results'];
-      },
-    },
+    // searchResults: {
+    //   get() {
+    //     return this.$store.getters['searchImages/results'];
+    //   },
+    // },
     queryComponents: {
       get() {
         return this.$store.state.searchImages.queryComponents;
@@ -198,96 +234,70 @@ export default {
     },
     orderBy: {
       get() {
-        return this.$store.state.searchImages.orderBy;
+        return this.$route.query.orderBy ?? '-date';
       },
-      set(val) {
-        this.$store.commit('searchImages/UPDATE_SEARCH_ORDER_BY', val);
-        this.search(1);
-      },
-    },
-    paginationPerPage: {
-      get() {
-        return this.$store.state.searchImages.paginationPerPage;
+      set(orderBy) {
+        this.$navigation.updateQueryParametersWithHistory({
+          orderBy,
+        });
       },
     },
     paginationCurrentPage: {
       get() {
-        return this.$store.state.searchImages.paginationCurrentPage;
+        return parseInt(this.$route.query.p ?? 0, 10);
+      },
+      set(p) {
+        this.$navigation.updateQueryParametersWithHistory({
+          p,
+        });
       },
     },
-    paginationTotalRows: {
+    paginationPerPage: {
       get() {
-        return this.$store.state.searchImages.paginationTotalRows;
+        return Math.min(12, Math.max(this.$route.query.limit ?? 1, 50));
+      },
+      set(limit) {
+        this.$navigation.updateQueryParametersWithHistory({
+          limit,
+        });
+      },
+    },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
+    serviceQuery: {
+      get() {
+        return {
+          seed: this.seed,
+          similarToImage: this.similarToImage,
+          filters: this.filters.map(d => d.getQuery()),
+          groupBy: this.groupBy,
+          orderBy: this.orderBy,
+          limit: this.paginationPerPage,
+          page: this.paginationCurrentPage,
+        };
       },
     },
   },
   methods: {
     handleFiltersChanged(filters) {
-      this.$store.dispatch('searchImages/UPDATE_SEARCH_QUERY_FILTERS', filters);
-      this.$store.dispatch('searchImages/PUSH_SEARCH_PARAMS');
-    },
-    search(page) {
-      this.$store.state.searchImages.results = [];
-      this.$store.dispatch('searchImages/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      this.$store.dispatch('searchImages/PUSH_SEARCH_PARAMS');
-    },
-    loadRandomPage() {
-      this.$store.dispatch('searchImages/SET_RANDOM_PAGE', true);
-      this.$store.dispatch('searchImages/SEARCH');
+      // add back ignored filters so that we can reuse them in other views
+      this.searchQuery = new SearchQuery({
+        filters: optimizeFilters(filters).concat(this.ignoredFilters),
+      });
     },
     reset() {
-      this.$store.commit('searchImages/CLEAR');
-      this.search(); // we do a search so we display all results in the corpus
-    },
-    isLoggedIn() {
-      return this.$store.state.user.userData;
-    },
-    getBooleanFilter(filter) {
-      return !!this.$store.state.searchImages.search.getFilter(filter);
-    },
-    toggleBooleanFilter(filter, value = true) {
-      if (!value) {
-        this.$store.commit('searchImages/REMOVE_FILTER', filter);
-      } else {
-        this.$store.commit('searchImages/ADD_FILTER', filter);
-      }
-      this.search(1);
+      this.searchQuery = new SearchQuery({
+        filters: this.ignoredFilters,
+      });
     },
     onSummary(msg) {
       this.inputDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'));
     },
-    onSearchQuery({ q }) {
-      this.$store.commit('searchImages/ADD_FILTER', {
-        type: 'title',
-        q,
-      });
-      this.search(1);
-    },
-    onSuggestion(suggestion) {
-      this.$store.commit('searchImages/ADD_FILTER', suggestion);
-      this.search(1);
-    },
-    onFacet(facet) {
-      this.$store.commit('searchImages/ADD_FILTER', facet);
-      this.search(1);
-    },
-    onResetFilter(type) {
-      this.$store.commit('searchImages/RESET_FILTER', type);
-      this.search(1);
-    },
-    onUpdateFilter(filter) {
-      this.$store.commit('searchImages/UPDATE_FILTER', filter);
-      this.search(1);
-    },
-    onRemoveFilter(filter) {
-      this.$store.commit('searchImages/REMOVE_FILTER', filter);
-      this.search(1);
-    },
-    onRemoveSimilarTo() {
-      this.$store.commit('searchImages/UPDATE_SIMILAR_TO', false);
-      this.search(1);
+    onSuggestion(filter) {
+      this.handleFiltersChanged(this.filters.concat([ filter ]));
     },
     updateselectAll() {
       let count = 0;
@@ -343,18 +353,28 @@ export default {
     isChecked(item) {
       return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
     },
-    onInputPagination(page = 1) {
-      this.$store.dispatch('searchImages/SET_RANDOM_PAGE', false);
-      this.search(page);
-    },
+    // onInputPagination(page = 1) {
+    //   this.$store.dispatch('searchImages/SET_RANDOM_PAGE', false);
+    //   this.search(page);
+    // },
     onClearSelection() {
       this.selectedItems = [];
     },
     onClickSearch(image) {
-      this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);
-      this.similarToImage = image;
-      this.$store.commit('searchImages/UPDATE_SIMILAR_TO', image.uid);
-      this.search(1);
+      console.info('.onClickSearch, image:', image);
+    //   this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);
+    //   this.similarToImage = image;
+    //   this.$store.commit('searchImages/UPDATE_SIMILAR_TO', image.uid);
+    //   this.search(1);
+    },
+    onSearchQuery(q) {
+      console.info('onSearchQuery:', q);
+    },
+    loadRandomPage() {
+      console.info('loadRandomPage');
+      this.$navigation.updateQueryParametersWithHistory({
+        p: 0,
+      });
     },
   },
   watch: {
@@ -364,23 +384,62 @@ export default {
     selectedItems() {
       this.updateselectAll();
     },
-    '$route.query': {
-      handler(val) {
-        console.info('@$route.query changed', val);
-        this.$store.dispatch('searchImages/PULL_SEARCH_PARAMS', val);
-      },
-      deep: true,
-      immediate: true,
-    },
-    '$route.query.i': {
-      handler(val) {
-        if (val) {
-          services.images.get(val).then((res) => {
+    similarToImageUid: {
+      handler(uid) {
+        console.info('similarToImage', uid);
+        if (uid) {
+          imagesService.get(uid).then((res) => {
             this.similarToImage = res;
           });
         } else {
-          this.similarToImage = false;
+          this.similarToImage = null;
         }
+      },
+      immediate: true,
+    },
+    serviceQuery: {
+      async handler({ page, limit, filters, orderBy }) {
+        if (this.isLoading) {
+          console.warn('loading already... please try again later on');
+          return;
+        }
+        this.isLoading = true;
+        const query = {
+          filters,
+          order_by: orderBy,
+          facets: AllowedFacetTypes,
+          limit,
+        };
+        if (page > 0) {
+          query.page = page;
+        } else {
+          query.randomPage = 'true';
+        }
+        console.info('@serviceQuery query:', query);
+        const [
+          res, // { skip, limit, total, data, info },
+          filtersWithItems,
+        ] = await Promise.all([
+          imagesService.find({
+            query,
+          }),
+          filtersItemsService.find({
+            query: {
+              filters: serializeFilters(filters),
+            },
+          }).then(joinFiltersWithItems),
+        ]);
+        this.paginationTotalRows = res.total;
+        this.searchResults = res.data.map(d => new Image(d));
+        this.filtersWithItems = filtersWithItems;
+        this.paginationCurrentPage = Math.round(res.skip / res.limit) + 1;
+
+        const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res);
+        this.facets = facets.map(f => new FacetModel(f));
+
+        setTimeout(() => {
+          this.isLoading = false;
+        }, 1000);
       },
       immediate: true,
     },
