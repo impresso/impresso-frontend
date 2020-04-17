@@ -224,6 +224,7 @@ import {
   searchFacets as searchFacetsService,
   filtersItems as filtersItemsService,
   exporter as exporterService,
+  collectionsItems as collectionsItemsService,
 } from '@/services';
 
 const AllowedFilterTypes = [
@@ -589,6 +590,7 @@ export default {
           topicFacets,
           filtersWithItems,
           collectionFacets,
+          collectionsItemsIndex,
         ] = await Promise.all([
           searchFacetsService.get('person,location', {
             query: {
@@ -614,12 +616,32 @@ export default {
                 group_by: groupBy,
               },
             })
-            : []
+            : [],
+          this.isLoggedIn
+            ? collectionsItemsService.find({
+              query: {
+                item_uids: this.searchResults.map(d => d.uid),
+                limit: 100,
+              },
+            }).then(({ data }) => data.reduce((acc, d) => {
+              acc[d.itemId] = d;
+              return acc;
+            }, {}))
+            : {},
         ]);
         facets = facets.concat(collectionFacets, namedEntityFacets, topicFacets);
         this.filtersWithItems = filtersWithItems;
         // TODO sort facets based on the right order
         this.facets = facets.map(f => new FacetModel(f));
+        if (this.isLoggedIn) {
+          // add collections.
+          this.searchResults = this.searchResults.map((article) => {
+            if (collectionsItemsIndex[article.uid]) {
+              article.collections = collectionsItemsIndex[article.uid].collections;
+            }
+            return article;
+          });
+        }
       },
       immediate: true,
     },
