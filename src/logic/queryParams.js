@@ -4,29 +4,27 @@ import {
   setLatestSerializedSearchQuery
 } from './storage'
 
-
-export const searchQueryHashGetter = () => function() {
-  const { sq } = this.$route?.query;
+const getSqFromRoute = (route) => {
+  const { sq } = route?.query;
   if (sq) {
     return sq;
   }
-
   const storedSq = getLatestSerializedSearchQuery()
   if (storedSq) {
     return storedSq;
   }
   return '';
+}
+
+export const searchQueryHashGetter = () => function() {
+  return getSqFromRoute(this.$route);
 };
 
 export const searchQueryGetter = () => {
   const get = function() {
-    const { sq } = this.$route?.query;
-    if (sq) {
+    const sq = getSqFromRoute(this.$route);
+    if (sq.length) {
       return SearchQuery.deserialize(sq);
-    }
-    const storedSq = getLatestSerializedSearchQuery()
-    if (storedSq) {
-      return SearchQuery.deserialize(storedSq);
     }
     return new SearchQuery();
   }
