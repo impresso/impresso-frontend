@@ -213,11 +213,6 @@ export default {
     //     return this.$store.getters['searchImages/results'];
     //   },
     // },
-    queryComponents: {
-      get() {
-        return this.$store.state.searchImages.queryComponents;
-      },
-    },
     orderByOptions: {
       get() {
         return [
