@@ -211,7 +211,6 @@ import FilterFactory from '@/models/FilterFactory';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
 import {
   optimizeFilters,
-  serializeFilters,
   joinFiltersWithItems,
 } from '@/logic/filters';
 import {
@@ -606,7 +605,7 @@ export default {
           }),
           filtersItemsService.find({
             query: {
-              filters: serializeFilters(filters),
+              filters: this.searchQueryHash,
             },
           }).then(joinFiltersWithItems),
           this.isLoggedIn
