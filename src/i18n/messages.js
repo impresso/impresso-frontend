@@ -84,6 +84,7 @@ export default {
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
+      loadRandomPage: 'load random page',
     },
     filters: {
       daterange: {

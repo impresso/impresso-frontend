@@ -40,18 +40,19 @@
                 {{ $t('label_applyRandomPage') }}
               </b-form-checkbox>
               </b-form-group> -->
-              <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>reload</b-button>
+              <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>{{ $t('actions.loadRandomPage') }}</b-button>
             </b-nav-form>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
           <b-navbar-nav class="border-right flex-grow-1  py-2 ">
-            <ellipsis v-bind:initialHeight="60">
+            <ellipsis v-if="!isLoading" v-bind:initialHeight="60">
               <search-results-summary
                 group-by="images"
                 :searchQuery="{ filters: enrichedFilters }"
                 :totalRows="paginationTotalRows" />
             </ellipsis>
+            <span v-else>{{ $t('actions.loading') }}</span>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-2">
             <label class="mr-1">{{$t("label_order")}}
@@ -75,7 +76,7 @@
             </b-col>
           </b-row>
         </b-container>
-        <div v-if="paginationTotalRows" class="fixed-pagination-footer p-1 m-0">
+        <div v-if="paginationTotalRows && paginationCurrentPage > 0" class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-bind:perPage="paginationPerPage"
             v-model="paginationCurrentPage"
@@ -164,7 +165,11 @@ export default {
   computed: {
     searchQuery: {
       ...searchQueryGetter(),
-      ...searchQuerySetter(),
+      ...searchQuerySetter({
+        additionalQueryParams: {
+          p: 1,
+        },
+      }),
     },
     seed() {
       return this.$route.query.seed || 0;
