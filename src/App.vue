@@ -1,11 +1,10 @@
 <template>
 <div id="app" class="bg-light">
   <div id="app-header">
-    <the-header :search-query="searchQuery" />
+    <the-header />
   </div>
   <div id="app-content">
-    <router-view
-      :search-query="searchQuery" />
+    <router-view />
   </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
@@ -27,7 +26,6 @@ import Monitor from './components/Monitor';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 import CookieDisclaimer from './components/modals/CookieDisclaimer';
-import SearchQuery from '@/models/SearchQuery';
 
 export default {
   name: 'app',
@@ -39,16 +37,6 @@ export default {
     CookieDisclaimer,
   },
   computed: {
-    searchQuery() {
-      const { sq } = this.$route.query;
-      if (sq) {
-        return SearchQuery.deserialize(sq);
-      }
-      return SearchQuery.deserialize(this.$store.getters['search/getCurrentSearchHash']);
-    },
-    currentSearchQuery() {
-      return this.$store.getters['search/getSearch'];
-    },
     termsAgreed() {
       console.info('Terms agreement:', this.$store.state.settings.termsAgreed);
       if (this.$store.state.user.userData) {
