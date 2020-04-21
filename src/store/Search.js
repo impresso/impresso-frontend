@@ -7,6 +7,10 @@ import Facet from '@/models/Facet';
 import Helpers from '@/plugins/Helpers';
 import router from '../router';
 
+/**
+ * NOTE: Most of this store is not used and will be downsized/removed soon.
+ */
+
 export default {
   namespaced: true,
   state: {

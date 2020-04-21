@@ -3,7 +3,9 @@ import Issue from '@/models/Issue';
 import Page from '@/models/Page';
 import Article from '@/models/Article';
 import ArticleBase from '@/models/ArticleBase';
-import store from '.';
+import { mapFilters } from '@/logic/queryParams'
+
+const getFilters = mapFilters().get
 
 export default {
   namespaced: true,
@@ -43,12 +45,12 @@ export default {
       return services.search.find({
         query: {
           group_by: 'articles',
-          filters: [
+          filters: getFilters().concat([
             {
               type: 'page',
               q: uid,
             },
-          ].concat(store.state.search.search.getFilters()),
+          ]),
           limit: 2,
         },
       }).then(result => result.data);
@@ -57,12 +59,12 @@ export default {
       return services.search.find({
         query: {
           group_by: 'articles',
-          filters: [
+          filters: getFilters().concat([
             {
               type: 'uid',
               q: uids,
             },
-          ].concat(store.state.search.search.getFilters()),
+          ]),
           limit: 2,
         },
       }).then(result => result.data);

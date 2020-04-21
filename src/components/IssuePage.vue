@@ -180,6 +180,7 @@ import ThumbnailSlider from './modules/ThumbnailSlider';
 import Pagination from './modules/Pagination';
 import InfoButton from './base/InfoButton';
 import { toCanonicalFilter } from '../logic/filters'
+import { mapSearchQuery } from '@/logic/queryParams'
 
 export default {
   data: () => ({
@@ -222,8 +223,9 @@ export default {
     window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
+    searchQuery: mapSearchQuery(),
     currentSearchFilters() {
-      return this.$store.getters['search/getSearch'].filters
+      return this.searchQuery.filters
     },
     isContentAvailable() {
       if (this.issue) {
