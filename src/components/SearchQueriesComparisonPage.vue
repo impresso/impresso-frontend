@@ -23,7 +23,7 @@
       <div class="aspects-container container-fluid">
         <side-by-side-facets-panel :facets="sideBySideTimelineFacets"
                                    :comparable-loading-flags="loadingFlags"
-                                   @insertRecentSearchQuery="handleInsertRecentSearchQuery"/>
+                                   @insert-recent-search-query="handleInsertRecentSearchQuery"/>
 
         <div class="d-flex justify-content-center p-4" v-if="mode === modes.Compare">
           <!-- scale -->
@@ -70,7 +70,9 @@
           :facets="sideBySideBarFacets"
           :comparable-loading-flags="loadingFlags"
           :disable-handling-loading-and-empty="true"
-          @load-more-items="handleLoadMoreItemsInInspect"/>
+          :comparables="comparables"
+          @load-more-items="handleLoadMoreItemsInInspect"
+          @comparable-updated="handleComparableUpdated"/>
 
       </div>
     </i-layout-section>
@@ -78,7 +80,6 @@
 </template>
 
 <script>
-// import { protobuf } from 'impresso-jscommons';
 import Collection from '@/models/Collection';
 import {
   search,
@@ -401,6 +402,8 @@ export default {
         filters: mergeFilters(comparablesFilters)
       }
     },
+    /** @returns {Comparable[]} */
+    comparables() { return [this.leftComparable, this.intersection, this.rightComparable] },
     /**
      * @typedef {{ id: string, items: FacetItem[], numBuckets: number }} FacetContainer
      * @returns {FacetContainer[]}
@@ -675,7 +678,14 @@ export default {
       }
     },
     /** @param {number} value */
-    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) }
+    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) },
+    /**
+     * @param {{ comparableIndex: number, comparable: Comparable }} param
+     */
+    handleComparableUpdated({ comparableIndex, comparable }) {
+      if (comparableIndex === QueryIndex.Left) this.leftComparable = comparable
+      if (comparableIndex === QueryIndex.Right) this.rightComparable = comparable
+    }
   },
 };
 </script>

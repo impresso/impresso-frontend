@@ -34,7 +34,7 @@ import {
  * @param {import('vue-router').Route} route
  * @return {string}
  */
-const getSearchQueryFromQueryParamterOrLocalStorage = route => {
+const getSearchQueryFromQueryParameterOrLocalStorage = route => {
   const { [CommonQueryParameters.SearchFilters]: sq } = route?.query;
   if (Array.isArray(sq) && sq[0] != null) return sq[0]
   if (!Array.isArray(sq) && sq != null) return sq
@@ -46,7 +46,7 @@ export const searchQueryHashGetter = () => {
   /**
    * @this {import('vue/types/vue').Vue}
    */
-  const fn = function() { return getSearchQueryFromQueryParamterOrLocalStorage(this.$route) }
+  const fn = function() { return getSearchQueryFromQueryParameterOrLocalStorage(this.$route) }
   return fn
 }
 
@@ -57,7 +57,7 @@ export const searchQueryHashGetter = () => {
 export const searchQueryGetter = () => {
   /** @this {import('vue/types/vue').Vue} */
   const get = function() {
-    const sq = getSearchQueryFromQueryParamterOrLocalStorage(this.$route);
+    const sq = getSearchQueryFromQueryParameterOrLocalStorage(this.$route);
     if (sq.length) {
       return SearchQuery.deserialize(sq);
     }
@@ -106,7 +106,7 @@ export const mapFilters = ({ additionalQueryParams = {} } = {}) => {
   /** @this {import('vue/types/vue').Vue} */
   const get = function() {
     return deserializeFilters(
-      getSearchQueryFromQueryParamterOrLocalStorage(this.$route)
+      getSearchQueryFromQueryParameterOrLocalStorage(this.$route)
     )
   }
 

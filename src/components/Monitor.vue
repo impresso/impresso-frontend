@@ -11,6 +11,7 @@
         <template v-slot:tabs-end>
           <b-nav-item v-for="t in tabs" :key="t" v-on:click="switchTab(t)" :class="{'active': t === tab}">
             <span v-html="$t(`tabs.${t}`)"/>
+            <span class="pl-1" v-if="subtitle" v-html="subtitle"/>
           </b-nav-item>
         </template>
       </b-tabs>
@@ -67,7 +68,7 @@
         </div>
         <div v-if="monitor.isPending" class="text-center m-3" v-html="$t('loading')" />
         <div v-else >
-          <div class="text-center m-2">
+          <div class="text-center m-2" v-if="filterModificationsEnabled">
             <b-button size="sm" class="mr-1" variant="outline-primary" @click="applyFilter('include')">{{ $t('actions.addToCurrentFilters') }}</b-button>
             <b-button size="sm" class="ml-1" variant="outline-primary" @click="applyFilter('exclude')">{{ $t('actions.removeFromCurrentFilters') }}</b-button>
           </div>
@@ -320,6 +321,14 @@ export default {
         this.$store.dispatch('monitor/LOAD_ITEM_TIMELINE');
       },
     },
+    /** @returns {boolean} */
+    filterModificationsEnabled() {
+      return !this.$store.state.monitor.disableFilterModification
+    },
+    /** @returns {string} */
+    subtitle() {
+      return this.$store.state.monitor.subtitle
+    }
   },
   components: {
     Timeline,
