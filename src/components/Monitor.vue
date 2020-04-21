@@ -30,14 +30,14 @@
           </h2>
           <!--  timeline vis -->
           <div style="min-height: 80px">
-            <div v-if="itemTimelineDomain.length && !monitor.isPendingTimeline" style='position:relative;'>
+            <div v-if="itemTimelineDomain.length && !isPendingTimeline" style='position:relative;'>
               <timeline class='bg-light pb-2'
                 :values="itemTimeline"
                 :domain="itemTimelineDomain">
                 <div slot-scope="tooltipScope">
                   <div v-if="tooltipScope.tooltip.item">
                     {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                    <b>{{ tooltipScope.tooltip.item.w }}</b> {{ monitor.groupBy }}
+                    <b>{{ tooltipScope.tooltip.item.w }}</b> {{ groupBy }}
                     <!-- <br />
                     <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
                     &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
@@ -66,7 +66,7 @@
               </p>
           </div>
         </div>
-        <div v-if="monitor.isPending" class="text-center m-3" v-html="$t('loading')" />
+        <div v-if="isPending" class="text-center m-3" v-html="$t('loading')" />
         <div v-else >
           <div class="text-center m-2" v-if="filterModificationsEnabled">
             <b-button size="sm" class="mr-1" variant="outline-primary" @click="applyFilter('include')">{{ $t('actions.addToCurrentFilters') }}</b-button>
@@ -99,6 +99,7 @@
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex'
 import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
 import WikidataBlock from './modules/WikidataBlock';
@@ -159,17 +160,13 @@ export default {
     switchTab(tab) {
       this.tab = tab;
     },
-    /**
-     * @returns {any}
-     */
-    fadeOut() {
-      return this.$store.dispatch('monitor/SET_IS_ACTIVE', false);
-    },
+    ...mapActions('monitor', {
+      fadeOut: 'HIDE'
+    }),
     /**
      * @param {string} context
      */
     async applyFilter(context = 'include') {
-      console.info('applyFilter() \n- context:', context);
 
       const newFilter = {
         type: this.type,
@@ -195,26 +192,32 @@ export default {
     },
   },
   computed: {
-    /** @returns {any} */
-    monitor() { return this.$store.state.monitor },
-    /** @returns {string} */
-    type() { return this.$store.state.monitor.type },
-    /** @returns {object} */
-    item() {
-      return this.$store.state.monitor.item;
-    },
-    /** @returns {any[]} */
-    itemTimeline() {
-      return this.$store.state.monitor.timeline;
-    },
+    ...mapState('monitor', [
+      'type',
+      'item',
+      'isActive',
+      'isPendingTimeline',
+      'itemCountRelated',
+      'subtitle',
+      'groupBy',
+      'isPending'
+    ]),
+    ...mapState('monitor', {
+      itemTimeline: 'timeline',
+      searchQueryFilters: 'filters',
+    }),
+    ...mapState('monitor', {
+      filterModificationsEnabled: state => !state.disableFilterModification
+    }),
     /** @returns {[number, number] | []} */
     itemTimelineDomain() {
-      if (!this.$store.state.monitor.timeline.length) {
+      const { itemTimeline } = this
+      if (!itemTimeline.length) {
         return [];
       }
       return [
-        this.$store.state.monitor.timeline[0].t,
-        this.$store.state.monitor.timeline[this.$store.state.monitor.timeline.length - 1].t,
+        itemTimeline[0].t,
+        itemTimeline[itemTimeline.length - 1].t,
       ];
     },
     /** @returns {number} */
@@ -224,11 +227,6 @@ export default {
     /** @returns {SearchQuery} */
     searchQuery() {
       return new SearchQuery({ filters: this.searchQueryFilters })
-      // return this.$store.getters['monitor/getCurrentSearchQuery'];
-    },
-    /** @returns {Filter[]} */
-    searchQueryFilters() {
-      return this.$store.getters['monitor/getCurrentSearchFilters'];
     },
     /** @returns {string} */
     searchQueryFiltersLabel() {
@@ -244,11 +242,7 @@ export default {
     },
     /** @returns {boolean} */
     isItemSelected() {
-      return !!this.$store.state.monitor.item;
-    },
-    /** @returns {boolean} */
-    isActive() {
-      return this.$store.state.monitor.isActive;
+      return !!this.item;
     },
     /** @returns {object} */
     detailsUrl() {
@@ -283,7 +277,7 @@ export default {
     },
     /** @returns {string} */
     statsLabel() {
-      if (this.monitor.isPendingTimeline) {
+      if (this.isPendingTimeline) {
         return this.$t('actions.loading').toString()
       }
       let key = 'itemStats';
@@ -294,7 +288,7 @@ export default {
         key = 'itemStatsFiltered';
       }
       return this.$t(key, {
-        count: this.$n(this.monitor.itemCountRelated),
+        count: this.$n(this.itemCountRelated),
         from: this.itemTimelineDomain[0],
         to: this.itemTimelineDomain[1],
       }).toString()
@@ -310,14 +304,6 @@ export default {
         this.$store.dispatch('monitor/LOAD_ITEM_TIMELINE');
       },
     },
-    /** @returns {boolean} */
-    filterModificationsEnabled() {
-      return !this.$store.state.monitor.disableFilterModification
-    },
-    /** @returns {string} */
-    subtitle() {
-      return this.$store.state.monitor.subtitle
-    }
   },
   components: {
     Timeline,
