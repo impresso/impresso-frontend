@@ -110,7 +110,8 @@ import Pagination from './modules/Pagination';
 import ArticleItem from './modules/lists/ArticleItem';
 import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
-import { searchQueryHashGetter } from '@/logic/queryParams'
+import { searchQueryHashGetter, mapFilters } from '@/logic/queryParams'
+import { containsFilter } from '@/logic/filters'
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
@@ -132,6 +133,7 @@ export default {
     TAB_OVERVIEW,
   }),
   computed: {
+    filters: mapFilters(),
     orderByOptions() {
       return [
         {
@@ -227,16 +229,15 @@ export default {
       return response;
     },
 
-    applyFilter(context = 'include') {
-      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
-      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
-        searchQueryId: '',
-        filter: {
-          type: 'topic',
-          q: [this.topic.uid],
-          items: [this.topic],
-        },
-      });
+    applyFilter() {
+      const newFilter = {
+        type: 'topic',
+        q: this.topic.uid,
+      }
+
+      this.filters = this.filters
+        .filter(f => !containsFilter(newFilter)(f))
+        .concat([newFilter]);
     },
   },
   watch: {

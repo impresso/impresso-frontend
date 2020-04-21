@@ -212,6 +212,10 @@ export default {
       }
     },
     updateGraph() {
+      // TODO: when nodes list is empty the graph code below throws
+      // an error.
+      if (this.nodes.length === 0) return
+
       this.graph.updateDimension({
         name: 'nodeColor',
         property: this.colorBy,

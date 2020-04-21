@@ -155,6 +155,8 @@ import Newspaper from '@/models/Newspaper';
 import SearchQuery from '@/models/SearchQuery';
 import Pagination from './modules/Pagination';
 import Timeline from './modules/Timeline';
+import { mapFilters } from '@/logic/queryParams'
+import { containsFilter } from '@/logic/filters'
 
 export default {
   data: () => ({
@@ -168,6 +170,7 @@ export default {
     timevalues: [],
   }),
   computed: {
+    filters: mapFilters(),
     searchPageLink() {
       return {
         name: 'search',
@@ -228,16 +231,15 @@ export default {
     },
   },
   methods: {
-    applyFilter(context = 'include') {
-      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
-      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
-        searchQueryId: '',
-        filter: {
-          type: 'newspaper',
-          q: [this.newspaper.uid],
-          items: [this.newspaper],
-        },
-      });
+    applyFilter() {
+      const newFilter = {
+        type: 'newspaper',
+        q: this.newspaper.uid,
+      }
+
+      this.filters = this.filters
+        .filter(f => !containsFilter(newFilter)(f))
+        .concat([newFilter]);
     },
     async onInputPagination(page) {
       await this.loadIssues({

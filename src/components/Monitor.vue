@@ -191,17 +191,6 @@ export default {
         const updatedFilters = [...this.searchQueryFilters].concat(newFilter)
         await this.$store.dispatch('monitor/UPDATE_FILTERS', updatedFilters);
       }
-
-      // this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
-      //   searchQueryId: this.searchQueryId,
-      //   filter: {
-      //     type: this.type,
-      //     q: [this.item.uid],
-      //     items: [this.item],
-      //     context,
-      //     checked: true,
-      //   },
-      // });
       this.fadeOut();
     },
   },
