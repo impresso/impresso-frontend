@@ -50,7 +50,6 @@
             </div>
           </div>
           <!-- {{ path }}
-          {{ searchQueryId }}
           {{ searchQueryFilters }} -->
           <div class="mx-3">
             <b-form-group class="m-0">

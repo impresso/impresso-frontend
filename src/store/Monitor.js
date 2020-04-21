@@ -21,7 +21,6 @@ export default {
     type: null,
     itemCountRelated: -1,
     uid: '',
-    searchQueryId: undefined,
     searchQueryNamespace: DEFAULT_SEARCH_NAMESPACE,
     timeline: [],
     groupBy: 'articles',
@@ -57,17 +56,6 @@ export default {
     },
     SET_ITEM_TYPE(state, type) {
       state.type = type;
-    },
-    SET_SEARCH_QUERY_ID(state, searchQueryId = '') {
-      if (searchQueryId.length) {
-        const parts = searchQueryId.split('/');
-        state.searchQueryId = parts.length > 1 ? parts[1] : searchQueryId;
-        state.searchQueryNamespace = parts.length > 1 ? parts[0] : DEFAULT_SEARCH_NAMESPACE;
-      } else {
-        state.searchQueryId = '';
-        state.searchQueryNamespace = DEFAULT_SEARCH_NAMESPACE;
-      }
-      console.info('Monitor/SET_SEARCH_QUERY_ID', searchQueryId);
     },
     /**
      * @param {object} state
@@ -120,11 +108,10 @@ export default {
         }
       });
     },
-    SET_ITEM({ commit, dispatch }, { item, type, searchQueryId }) { // }, position }) {
+    SET_ITEM({ commit, dispatch }, { item, type }) {
       commit('SET_IS_ACTIVE', true);
       commit('SET_PENDING_ITEM', item);
       commit('SET_ITEM_TYPE', type);
-      commit('SET_SEARCH_QUERY_ID', searchQueryId);
       // add item resolution promise to the promise chain
       if (serviceByType[type]) {
         return Promise.all([
