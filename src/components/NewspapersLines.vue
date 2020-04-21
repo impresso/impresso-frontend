@@ -156,9 +156,10 @@ export default {
       this.tooltip.isActive = false;
     },
     selectNewspaper(item) {
-      this.$store.dispatch('monitor/SET_ITEM', {
+      this.$store.dispatch('monitor/ACTIVATE', {
         item,
         type: 'newspaper',
+        disableFilterModification: true
       });
     },
     onClick(newspaper) {

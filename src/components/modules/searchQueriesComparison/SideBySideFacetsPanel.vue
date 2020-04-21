@@ -50,6 +50,7 @@
             @timeline-highlight-off="onTimelineHighlightOff"
             @hovered="onHovered"
             @load-more-items="handleLoadMoreItems(comparableIndex, facet)"
+            @facetItemClick="handleFacetItemClicked(comparableIndex, $event)"
             :hover-id="hoverId"
             :timeline-highlight-value="getTimelineHighlight(facet.id).data"
             :timeline-highlight-enabled="getTimelineHighlight(facet.id).enabled"
@@ -64,9 +65,13 @@
 <script>
 import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel';
 import LoadingIndicator from '@/components/modules/LoadingIndicator';
+import { ComparableTypes } from '@/logic/queryComparison'
 
 /**
  * @typedef {import('../../../models').Bucket} Bucket
+ * @typedef {import('../../../models').Entity} Entity
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/logic/queryComparison').Comparable} Comparable
  * @typedef {{ buckets: Bucket[], isLoaded: boolean, numBuckets: number }} ComparableItem
  * @typedef {{ id: string, comparableItems: ComparableItem[], visualisationType: string }} FacetContainer
  */
@@ -108,6 +113,11 @@ export default {
     disableHandlingLoadingAndEmpty: {
       type: Boolean,
       default: false
+    },
+    /** @type {import('vue').PropOptions<Comparable[]>} */
+    comparables: {
+      type: Array,
+      default: () => []
     }
   },
   methods: {
@@ -120,7 +130,7 @@ export default {
      * @param {number} comparableIndex
      */
     insertMostRecentSearchQuery(comparableIndex) {
-      this.$emit('insertRecentSearchQuery', comparableIndex)
+      this.$emit('insert-recent-search-query', comparableIndex)
     },
     /**
      * @param {{ facetId: string, data: any }} param
@@ -155,6 +165,43 @@ export default {
     handleLoadMoreItems(comparableIndex, facet) {
       const value = { comparableIndex, facetId: facet.id }
       this.$emit('load-more-items', value)
+    },
+    /**
+     * @param {number} comparableIndex
+     * @param {{ params: { item: Entity, type: string }, defaultActionExecuted: boolean }} facetItem
+     */
+    handleFacetItemClicked(comparableIndex, { params: { item, type } }) {
+      const comparable = this.comparables[comparableIndex]
+      const filters = comparable?.filters ?? comparable?.query?.filters
+
+      this.$store.dispatch('monitor/ACTIVATE', {
+        item,
+        type,
+        filters,
+        disableFilterModification: comparable.type !== ComparableTypes.Query,
+        subtitle: this.getMonitorSubtitleForComparable(comparableIndex),
+        filtersUpdatedCallback: filters => {
+          if (comparable.type !== ComparableTypes.Query) return // only queries can be modified
+          const updatedComparable = {
+            ...this.comparables[comparableIndex],
+            query: { filters }
+          }
+          this.$emit(
+            'comparable-updated',
+            { comparableIndex, comparable: updatedComparable }
+          )
+        }
+      })
+    },
+    /**
+     * @param {number} comparableIndex
+     * @returns {string | undefined}
+     */
+    getMonitorSubtitleForComparable(comparableIndex) {
+      if (comparableIndex === 0) return '(left comparable)'
+      if (comparableIndex === 1) return '(intersection)'
+      if (comparableIndex === 2) return '(right comparable)'
+      return undefined
     }
   },
   computed: {

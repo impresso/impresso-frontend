@@ -36,13 +36,14 @@
     <!-- bar type -->
     <div v-if="type === 'bars'">
       <stacked-bars-panel
-        @hovered="onHoverBar"
         :hover-id="hoverId"
-        :search-query-id="searchQueryId"
         class="row"
         :label="$tc(`label.${facet}.title`, 1)"
         :buckets="values"
-        :facet-type="facet"/>
+        :facet-type="facet"
+        :default-click-action-disabled="true"
+        @hovered="onHoverBar"
+        @barItemClick="param => $emit('facetItemClick', param)"/>
     </div>
 
     <b-button
@@ -93,10 +94,6 @@ export default {
   props: {
     /** @type {import('vue').PropOptions<string>} */
     hoverId: {
-      type: String
-    },
-    /** @type {import('vue').PropOptions<string>} */
-    searchQueryId: {
       type: String
     },
     /** @type {import('vue').PropOptions<string>} */

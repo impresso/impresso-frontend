@@ -108,3 +108,22 @@ export function deserializeFilters(serializedFilters, defaultFilters = []) {
 export function joinFiltersWithItems({ filtersWithItems }) {
   return filtersWithItems.map(({ filter, items }) => ({ ...filter, items }))
 }
+
+/**
+ * @param {Filter} expectedFilter
+ * @returns {(Filter) => boolean}
+ */
+export const containsFilter = expectedFilter => filter => {
+  const expectedMergeKey = getFilterMergeKey(expectedFilter)
+  const mergeKey = getFilterMergeKey(filter)
+
+  const [noramlisedQA, noramlisedQB] = [expectedFilter, filter]
+    .map(({ q }) => {
+      if (Array.isArray(q)) {
+        if (q.length === 1) return q[0]
+        return JSON.stringify(q)
+      }
+      return q
+    })
+  return expectedMergeKey === mergeKey && noramlisedQA === noramlisedQB
+}

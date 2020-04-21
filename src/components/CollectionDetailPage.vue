@@ -221,7 +221,8 @@ import Pagination from './modules/Pagination';
 import SearchQuery from '@/models/SearchQuery';
 import Timeline from './modules/Timeline';
 import StackedBarsPanel from './modules/vis/StackedBarsPanel';
-
+import { mapFilters } from '@/logic/queryParams'
+import { containsFilter } from '@/logic/filters'
 
 
 const TAB_ARTICLES = 'articles';
@@ -257,6 +258,7 @@ export default {
     StackedBarsPanel,
   },
   computed: {
+    filters: mapFilters(),
     searchPageLink() {
       if (!this.collection) {
         return { name: 'search' };
@@ -469,16 +471,15 @@ export default {
     onInputPagination(page = 1) {
       this.getCollectionItems(page);
     },
-    applyFilter(context = 'include') {
-      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
-      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
-        searchQueryId: '',
-        filter: {
-          type: 'collection',
-          q: [this.collection.uid],
-          items: [this.collection],
-        },
-      });
+    applyFilter() {
+      const newFilter = {
+        type: 'collection',
+        q: this.collection.uid,
+      }
+
+      this.filters = this.filters
+        .filter(f => !containsFilter(newFilter)(f))
+        .concat([newFilter]);
     },
     loadTimeline() {
       return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
