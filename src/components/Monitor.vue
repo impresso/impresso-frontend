@@ -106,6 +106,7 @@ import WikidataBlock from './modules/WikidataBlock';
 import ItemLabel from './modules/lists/ItemLabel';
 import SearchQuerySummary from './modules/SearchQuerySummary';
 import SearchQuery from '../models/SearchQuery';
+import { containsFilter } from '@/logic/filters'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -175,14 +176,7 @@ export default {
         context
       }
 
-      const isAlreadyIncluded = this.searchQueryFilters.find(({ type, q, context }) => {
-        const isQsame = Array.isArray(q)
-          ? q.length === 1 && q[0] === newFilter.q
-          : q === newFilter.q
-        return type === newFilter.type
-          && context === newFilter.context
-          && isQsame
-      })
+      const isAlreadyIncluded = this.searchQueryFilters.find(containsFilter(newFilter)) != null
 
       if (!isAlreadyIncluded) {
         const updatedFilters = [...this.searchQueryFilters].concat(newFilter)
