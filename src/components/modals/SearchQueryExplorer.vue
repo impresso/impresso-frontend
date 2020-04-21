@@ -7,7 +7,6 @@
         <search-query-summary class="d-inline" :search-query='searchQuery'/>
       </blockquote>
     </div>
-
     <div class="p-3" v-if="isLoading">
       {{ $t('actions.loading') }}
     </div>
@@ -45,6 +44,7 @@ import Pagination from '../modules/Pagination';
 export default {
   props: {
     darkMode: Boolean,
+    searchQuery: Object,
   },
   computed: {
     offset() {
@@ -52,9 +52,6 @@ export default {
     },
     additionalFilters() {
       return [];
-    },
-    searchQuery() {
-      return this.$store.getters['search/getSearch'];
     },
     paginationResultsList() {
       return this.$store.state.searchQueryExplorer.pagination;

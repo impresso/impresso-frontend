@@ -1,7 +1,7 @@
 <template>
 <i-layout id="SearchPage">
   <search-sidebar width="400px"
-    :filters="filters"
+    :filters="enrichedFilters"
     :facets="facets"
     contextTag="search"
     @changed="handleFiltersChanged"
@@ -63,15 +63,20 @@
             <search-results-summary
               @onSummary="onSummary"
               :group-by="groupBy"
-              :search-query="searchQuery"
+              :search-query="{ filters: enrichedFilters }"
               :totalRows="paginationTotalRows" />
           </ellipsis>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto pl-3" >
-          <b-button size="sm" variant="outline-primary" class="mr-1" v-on:click="compare">
+          <b-button size="sm" variant="outline-primary" class="mr-1" :to="{
+            name: 'compare',
+            query: {
+              left: searchQueryHash,
+            },
+          }">
             {{ $t('actions.compare') }}
           </b-button>
-          <b-dropdown  v-if="isLoggedIn()" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
+          <b-dropdown  v-if="isLoggedIn" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
             <b-dropdown-item
               v-if="selectedItems.length > 0"
               class="p-2 small-caps"
@@ -98,7 +103,7 @@
               <info-button name="can-i-download-part-of-the-data" class="float-right" />
             </b-dropdown-item>
           </b-dropdown>
-          <b-form-checkbox  v-if="isLoggedIn()"
+          <b-form-checkbox  v-if="isLoggedIn"
           class="mx-1"
             v-b-tooltip.hover.topleft.html.o100.d500 v-bind:title="$t('select_all')"
             v-bind:indeterminate="this.allIndeterminate"
@@ -176,10 +181,10 @@
       <div class="my-5" />
       <div class="fixed-pagination-footer p-1 m-0" slot="footer">
         <pagination
-          v-bind:perPage="paginationPerPage"
-          v-bind:currentPage="paginationCurrentPage"
-          v-bind:totalRows="paginationTotalRows"
-          v-on:change="onInputPagination"
+          v-if="searchResults.length"
+          v-model="paginationCurrentPage"
+          :per-page="paginationPerPage"
+          :total-rows="paginationTotalRows"
           class="float-left small-caps" />
       </div>
     </div>
@@ -188,7 +193,6 @@
 </template>
 
 <script>
-import { protobuf } from 'impresso-jscommons';
 import Autocomplete from './Autocomplete';
 import Pagination from './modules/Pagination';
 import SearchResultsListItem from './modules/SearchResultsListItem';
@@ -200,21 +204,65 @@ import Ellipsis from './modules/Ellipsis';
 import EmbeddingsSearch from './modules/EmbeddingsSearch';
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import InfoButton from './base/InfoButton';
-import { optimizeFilters } from '@/logic/filters'
+import SearchQuery from '@/models/SearchQuery';
+import Article from '@/models/Article';
+import FacetModel from '@/models/Facet';
+import FilterFactory from '@/models/FilterFactory';
+import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
+import {
+  optimizeFilters,
+  joinFiltersWithItems,
+} from '@/logic/filters';
+import {
+  searchQueryGetter,
+  searchQuerySetter,
+  searchQueryHashGetter,
+} from '@/logic/queryParams';
+import {
+  search as searchService,
+  searchFacets as searchFacetsService,
+  filtersItems as filtersItemsService,
+  exporter as exporterService,
+  collectionsItems as collectionsItemsService,
+} from '@/services';
 
-const ALLOWED_FACET_TYPES = [
+const AllowedFilterTypes = [
+  'accessRight',
+  'collection',
+  'country',
+  'isFront',
+  'issue',
+  'language',
+  'location',
+  'newspaper',
+  'newspaper',
+  'partner',
+  'person',
+  'string',
+  'title',
+  'topic',
+  'type',
+  'year',
+  'daterange'
+];
+
+const FACET_TYPES_DPFS = [
+  'person',
+  'location',
+  'topic',
+];
+
+const FACET_TYPES_S = [
   'language',
   'newspaper',
   'type',
   'country',
-  'topic',
-  'collection',
   'accessRight',
   'partner',
-  'person',
-  'location',
-  'year'
-]
+  'year',
+];
+
+const FACET_TYPES = FACET_TYPES_S.concat(FACET_TYPES_DPFS);
 
 export default {
   data: () => ({
@@ -225,160 +273,158 @@ export default {
     inputDescription: 'All of Impresso',
     nameCollectionOkDisabled: true,
     inputEmbeddings: '',
+    searchResults: [],
+    paginationTotalRows: 0,
+    /** @type {Facet[]} */
+    facets: [],
+    /** @type {Filter[]} */
+    filtersWithItems: [],
   }),
   computed: {
+    searchQuery: {
+      ...searchQueryGetter(),
+      ...searchQuerySetter({
+        additionalQueryParams: {
+          p: 1,
+        },
+      }),
+    },
+    searchQueryHash: searchQueryHashGetter(),
+    groupByOptions() {
+      return ['issues', 'pages', 'articles'].map((value) => ({
+        value,
+        text: this.$t(`order_${value}`),
+        disabled: value !== 'articles',
+      }));
+    },
+    orderByOptions() {
+      return ['-relevance', 'date', '-date'].map((value) => {
+        const label = value.replace(/^-/, '');
+        const direction = value.indexOf('-') === 0 ? 'desc' : 'asc';
+        return {
+          value,
+          text: this.$t(`sort.${label}.${direction}`),
+        };
+      });
+    },
     isFront: {
       get() {
-        return this.getBooleanFilter({ type: 'isFront' });
+        return this.filters.some(({type}) => type === 'isFront');
       },
       set(val) {
-        this.toggleBooleanFilter({ type: 'isFront' }, val);
+        this.handleFiltersChanged(this.filters
+          .filter((d) => d.type !== 'isFront' )
+          .concat(val
+            ? [ FilterFactory.create({ type: 'isFront' }) ]
+            : []
+          )
+        );
       },
     },
-    hasTextContents: {
-      get() {
-        return this.getBooleanFilter({ type: 'hasTextContents' });
-      },
-      set(val) {
-        this.toggleBooleanFilter({ type: 'hasTextContents' }, val);
-      },
-    },
-    groupByOptions: {
-      get() {
-        return [
-          {
-            value: 'issues',
-            text: this.$t('order_issues'),
-            disabled: true,
-          },
-          {
-            value: 'pages',
-            text: this.$t('order_pages'),
-            disabled: true,
-          },
-          {
-            value: 'articles',
-            text: this.$t('order_articles'),
-          },
-          {
-            value: 'sentences',
-            text: this.$t('order_sentences'),
-            disabled: true,
-          },
-        ];
-      },
-    },
-    orderByOptions: {
-      get() {
-        return this.$store.state.search.orderByOptions.map((value) => {
-          const label = value.replace(/^-/, '');
-          const direction = value.indexOf('-') === 0 ? 'desc' : 'asc';
-          return {
-            value,
-            text: this.$t(`sort.${label}.${direction}`),
-          };
-        });
-      },
+    isLoggedIn() {
+      return this.$store.state.user.userData;
     },
     orderBy: {
       get() {
-        return this.$store.state.search.orderBy;
+        return this.$route.query.orderBy ?? '-relevance';
       },
-      set(val) {
-        this.$store.commit('search/UPDATE_SEARCH_ORDER_BY', val);
-        this.search(1);
+      set(orderBy) {
+        this.$navigation.updateQueryParametersWithHistory({
+          orderBy,
+        });
       },
     },
     groupBy: {
       get() {
-        return this.$store.state.search.groupBy;
+        return this.$route.query.groupBy ?? 'articles';
       },
-      set(val) {
-        this.$store.commit('search/UPDATE_SEARCH_GROUP_BY', val);
-        this.search(1);
+      set(groupBy) {
+        this.$navigation.updateQueryParametersWithHistory({
+          groupBy,
+        });
       },
     },
     displayStyle: {
       get() {
-        return this.$store.state.search.displayStyle;
+        return this.$route.query.displayStyle ?? 'list';
       },
       set(displayStyle) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
-      },
-    },
-    paginationPerPage: {
-      get() {
-        return this.$store.state.search.paginationPerPage;
+        this.$navigation.updateQueryParametersWithHistory({
+          displayStyle,
+        });
       },
     },
     paginationCurrentPage: {
       get() {
-        return this.$store.state.search.paginationCurrentPage;
+        return parseInt(this.$route.query.p ?? 1, 10);
+      },
+      set(p) {
+        this.$navigation.updateQueryParametersWithHistory({
+          p,
+        });
       },
     },
-    paginationTotalRows: {
+    paginationPerPage: {
       get() {
-        return this.$store.state.search.paginationTotalRows;
+        return Math.min(12, Math.max(this.$route.query.limit ?? 1, 50));
+      },
+      set(limit) {
+        this.$navigation.updateQueryParametersWithHistory({
+          limit,
+        });
       },
     },
-    queryComponents: {
-      get() {
-        return this.$store.state.search.queryComponents;
-      },
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems.length
+        ? this.filtersWithItems
+        : this.filters
     },
-    searchResults: {
-      get() {
-        return this.$store.getters['search/results'];
-      },
+    /** @returns {Filter[]} */
+    ignoredFilters() {
+      return this.searchQuery.filters
+        .filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
-    filters: {
-      get() {
-        return this.$store.state.search.search.filters;
-      },
-    },
-    facets() {
-      return this.$store.state.search.facets
-        .filter(({ type }) => ALLOWED_FACET_TYPES.includes(type));
-    },
-    currentSearchHash() {
-      return this.$store.state.search.currentSearchHash;
-    },
-    searchQuery() {
-      return this.$store.state.search.search;
+    /** @returns {Filter[]} */
+    filters() {
+      // filter by type
+      return this.searchQuery.filters
+        .filter(({ type }) => AllowedFilterTypes.includes(type))
+        // add impliit filters
+        .concat([
+          FilterFactory.create({ type: 'hasTextContents' }),
+        ]);
     },
     filtersIndex: {
       get() {
-        return this.$store.state.search.search.filtersIndex;
+        return this.searchQuery.filtersIndex;
+      },
+    },
+    searchServiceQuery: {
+      get() {
+        const query = {
+          filters: this.filters.map(d => d.getQuery()),
+          groupBy: this.groupBy,
+          orderBy: this.orderBy,
+          limit: this.paginationPerPage,
+          page: this.paginationCurrentPage,
+        };
+        return query;
       },
     },
   },
+  mounted() {
+    this.facets = buildEmptyFacets(FACET_TYPES);
+  },
   methods: {
     handleFiltersChanged(filters) {
-      this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', optimizeFilters(filters));
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
-    },
-    compare() {
-      this.$router.push({
-        name: 'compare',
-        query: {
-          left: protobuf.searchQuery.serialize({
-            filters: this.filters.map(d => d.getQuery()),
-          }),
-        },
+      // add back ignored filters so that we can reuse them in other views
+      this.searchQuery = new SearchQuery({
+        filters: optimizeFilters(filters).concat(this.ignoredFilters),
       });
     },
     nameSelectedCollectionOnShown() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
-    },
-    getBooleanFilter(filter) {
-      return !!this.$store.state.search.search.getFilter(filter);
-    },
-    toggleBooleanFilter(filter, value = true) {
-      if (!value) {
-        this.$store.dispatch('search/REMOVE_FILTER', { filter });
-      } else {
-        this.$store.dispatch('search/ADD_FILTER', { filter });
-      }
     },
     onSummary(msg) {
       this.inputDescription = msg
@@ -386,27 +432,7 @@ export default {
         .replace('Found', this.$t('Based on search query with'));
     },
     onSuggestion(filter) {
-      console.info('onSuggestion() received filter:', filter);
       this.handleFiltersChanged(this.filters.concat([ filter ]));
-    },
-    onFacet(filter) {
-      console.info('@onFacet', filter);
-      this.$store.dispatch('search/ADD_FILTER', { filter });
-    },
-    onResetFilter(type) {
-      this.$store.dispatch('search/RESET_FILTER', { type });
-    },
-    onUpdateFilter(filter) {
-      this.$store.dispatch('search/UPDATE_FILTER', { filter });
-    },
-    onInputPagination(page = 1) {
-      this.search(page);
-    },
-    onRemoveFilter(filter) {
-      this.$store.dispatch('search/REMOVE_FILTER', { filter });
-    },
-    onAddFilter(filter) {
-      this.$store.dispatch('search/ADD_FILTER', { filter });
     },
     itemSelected(item) {
       return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
@@ -470,23 +496,29 @@ export default {
       }
     },
     exportQueryCsv() {
-      this.$store.dispatch('search/EXPORT_FROM_QUERY', {
+      exporterService.create({
         description: this.inputDescription,
-      }).then((res) => {
-        console.info(res);
-      });
+      }, {
+        query: {
+          group_by: 'articles',
+          filters: this.filters.map(d => d.getQuery()),
+          format: 'csv',
+        },
+      })
     },
     exportSelectedCsv() {
       const uids = this.selectedItems.map(a => a.uid);
-      this.$store.dispatch('search/EXPORT_FROM_UIDS', {
-        filters: [
-          {
-            type: 'uid',
-            q: uids,
-          },
-        ],
-      }).then((res) => {
-        console.info(res);
+      exporterService.create({}, {
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'uid',
+              q: uids,
+            },
+          ],
+          format: 'csv',
+        },
       });
     },
     nameCollectionOnShown() {
@@ -497,18 +529,10 @@ export default {
       this.inputName.trim();
       this.nameCollectionOkDisabled = (this.inputName.length < 3 || this.inputName.length > 50);
     },
-    search(page) {
-      if (page !== undefined) {
-        this.$store.commit('search/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
-      }
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
-    },
     reset() {
-      this.$store.commit('search/CLEAR');
-      this.search(); // we do a search so we display all results in the corpus
-    },
-    isLoggedIn() {
-      return this.$store.state.user.userData;
+      this.searchQuery = new SearchQuery({
+        filters: this.ignoredFilters,
+      });
     },
     updateselectAll() {
       let count = 0;
@@ -529,9 +553,12 @@ export default {
       }
     },
     addFilterFromEmbedding(embedding) {
-      const filter = { query: embedding, type: 'string', context: 'include' };
-      this.$store.dispatch('search/ADD_FILTER', { filter });
-      this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
+      this.handleFiltersChanged(this.filters.concat([
+        FilterFactory.create({
+          q: [embedding],
+          type: 'string',
+        }),
+      ]));
     },
   },
   watch: {
@@ -541,21 +568,80 @@ export default {
     selectedItems() {
       this.updateselectAll();
     },
-    currentSearchHash: {
-      handler(val) {
-        if (val.length) {
-          console.info('@currentSearchHash changed', val);
-          this.search();
+    searchServiceQuery: {
+      async handler({ page, limit, filters, orderBy, groupBy}) {
+        const { total, data, info } = await searchService.find({
+          query: {
+            page,
+            limit,
+            filters,
+            facets: FACET_TYPES_S,
+            order_by: orderBy,
+            group_by: groupBy,
+          },
+        });
+        this.paginationTotalRows = total;
+        this.searchResults = data.map(d => new Article(d));
+        let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info });
+        // get remaining facets and enriched filters.
+        const [
+          namedEntityFacets,
+          topicFacets,
+          filtersWithItems,
+          collectionFacets,
+          collectionsItemsIndex,
+        ] = await Promise.all([
+          searchFacetsService.get('person,location', {
+            query: {
+              filters,
+              group_by: groupBy,
+            },
+          }),
+          searchFacetsService.get('topic', {
+            query: {
+              filters,
+              group_by: groupBy,
+            },
+          }),
+          filtersItemsService.find({
+            query: {
+              filters: this.searchQueryHash,
+            },
+          }).then(joinFiltersWithItems),
+          this.isLoggedIn
+            ? searchFacetsService.get('collection', {
+              query: {
+                filters,
+                group_by: groupBy,
+              },
+            })
+            : [],
+          this.isLoggedIn
+            ? collectionsItemsService.find({
+              query: {
+                item_uids: this.searchResults.map(d => d.uid),
+                limit: 100,
+              },
+            }).then(({ data }) => data.reduce((acc, d) => {
+              acc[d.itemId] = d;
+              return acc;
+            }, {}))
+            : {},
+        ]);
+        facets = facets.concat(collectionFacets, namedEntityFacets, topicFacets);
+        this.filtersWithItems = filtersWithItems;
+        // TODO sort facets based on the right order
+        this.facets = facets.map(f => new FacetModel(f));
+        if (this.isLoggedIn) {
+          // add collections.
+          this.searchResults = this.searchResults.map((article) => {
+            if (collectionsItemsIndex[article.uid]) {
+              article.collections = collectionsItemsIndex[article.uid].collections;
+            }
+            return article;
+          });
         }
       },
-      immediate: false,
-    },
-    '$route.query': {
-      handler(val) {
-        console.info('@$route.query changed', val);
-        this.$store.dispatch('search/PULL_SEARCH_PARAMS', val);
-      },
-      deep: true,
       immediate: true,
     },
   },
@@ -571,12 +657,6 @@ export default {
     EmbeddingsSearch,
     SearchSidebar,
     InfoButton,
-  },
-  mounted() {
-    console.info('changed');
-    // if (this.uuid !== undefined) {
-    //   this.$store.commit('search/LOAD_SEARCH', this.uuid);
-    // }
   },
 };
 </script>

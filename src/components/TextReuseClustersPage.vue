@@ -57,11 +57,12 @@ import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPa
 import List from './modules/lists/List';
 import { textReuseClusters, filtersItems } from '@/services';
 import { toCanonicalFilter, toSerializedFilters } from '../logic/filters';
+import { CommonQueryParameters } from '@/router/util';
+import { mapFilters } from '@/logic/queryParams'
 
 const isLastItem = (index, total) => total - 1 === index
 
 const serializeFilters = filters => protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
-const deserializeFilters = serializedFilters => protobuf.searchQuery.deserialize(serializedFilters).filters
 
 const SupportedFilterTypes = [
   'daterange',
@@ -77,7 +78,7 @@ const QueryParameters = Object.freeze({
   SearchText: 'q',
   PageNumber: 'page',
   OrderBy: 'orderBy',
-  SearchFilters: 'filters'
+  SearchFilters: CommonQueryParameters.SearchFilters
 })
 
 const ClusterIdSearchPattern = /^#([\w\d-_@]+)$/
@@ -108,21 +109,6 @@ export default {
     List,
   },
   mounted() {
-    // On page load see if there are any filters present in the query parameters
-    // If not, set them from the current search filters from the store
-    if (this.$route.query[QueryParameters.SearchFilters] == null) {
-      const searchQuery = this.$store.getters['search/getSearch'];
-      const filters = searchQuery
-        ? searchQuery.filters
-          .map(filter => filter.getQuery())
-          .filter(supportedFiltersFilter)
-        : [];
-      if (filters.length > 0) {
-        this.$navigation.updateQueryParameters({
-          [QueryParameters.SearchFilters]: serializeFilters(filters),
-        })
-      }
-    }
 
     // If cluster Id is provided but search query is not, we cannot guarantee
     // that this cluster will be highlighted in the clusters search sidebar.
@@ -161,9 +147,7 @@ export default {
       })
     },
     handleFiltersChanged(filters) {
-      this.$navigation.updateQueryParameters({
-        [QueryParameters.SearchFilters]: serializeFilters(filters)
-      })
+      this.filters = filters
     },
     isLastItem,
     /**
@@ -217,11 +201,15 @@ export default {
     orderByValue() {
       return this.$route.query[QueryParameters.OrderBy]
     },
+    /**
+     * Global filters
+     */
+    filters: mapFilters(),
+    /**
+     * Filters excluding not supported filters.
+     */
     searchFilters() {
-      const serializedFilters = this.$route.query[QueryParameters.SearchFilters]
-      return serializedFilters
-        ? deserializeFilters(serializedFilters)
-        : []
+      return this.filters.filter(supportedFiltersFilter)
     },
     enrichedFilters() {
       return this.filtersWithItems != null

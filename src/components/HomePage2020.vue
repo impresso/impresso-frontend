@@ -5,6 +5,10 @@
     <div slot="header" :class="{ 'border-bottom border-secondary': showLines }">
       <search-tabs focusOnSearch/>
       <div class="py-3 px-3">
+        <search-pills
+        :filters="enrichedFilters"
+        @changed="handleFiltersChanged"
+        />
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
@@ -130,11 +134,47 @@
 <script>
 import Autocomplete from './Autocomplete';
 import SearchTabs from './modules/SearchTabs';
+import SearchPills from '@/components/SearchPills';
 import Recipes from './modules/homepage/Recipes';
 import HomePageFooter from './HomePageFooter';
 import InfoButton from './base/InfoButton';
+import { filtersItems as filtersItemsService } from '@/services';
+import {
+  searchQueryGetter,
+  searchQueryHashGetter,
+} from '@/logic/queryParams';
+import {
+  optimizeFilters,
+  serializeFilters,
+  joinFiltersWithItems,
+} from '@/logic/filters';
+// import SearchQuery from '@/models/SearchQuery';
+
+const AllowedFilterTypes = [
+  'accessRight',
+  'collection',
+  'country',
+  'isFront',
+  'issue',
+  'language',
+  'location',
+  'newspaper',
+  'newspaper',
+  'partner',
+  'person',
+  'string',
+  'title',
+  'topic',
+  'type',
+  'year',
+  'daterange'
+];
 
 export default {
+  data: () => ({
+    /** @type {Filter[]} */
+    filtersWithItems: [],
+  }),
   props: {
     showLines: {
       type: Boolean,
@@ -145,20 +185,66 @@ export default {
       default: true,
     },
   },
-  methods: {
-    onSuggestion(suggestion) {
-      this.$store.commit('search/ADD_FILTER', suggestion);
-      this.search();
+  computed: {
+    searchQuery: searchQueryGetter(),
+    searchQueryHash: searchQueryHashGetter(),
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems.length
+        ? this.filtersWithItems
+        : this.filters
     },
-    search() {
-      const searchQuery = this.$store.getters['search/getSearch'];
-      const query = searchQuery.getSerialized();
-      console.info('search() ', query);
-
+    /** @returns {Filter[]} */
+    ignoredFilters() {
+      return this.searchQuery.filters
+        .filter(({ type }) => !AllowedFilterTypes.includes(type))
+    },
+    /** @returns {Filter[]} */
+    filters() {
+      // filter by type
+      return this.searchQuery.filters
+        .filter(({ type }) => AllowedFilterTypes.includes(type))
+    },
+    searchServiceQuery() {
+      const query = {
+        filters: this.filters.map(d => d.getQuery()),
+      };
+      return query;
+    },
+  },
+  methods: {
+    handleFiltersChanged(filters) {
+      const sq = serializeFilters(optimizeFilters(filters).concat(this.ignoredFilters));
       this.$router.push({
         name: 'search',
-        query,
+        query: {
+          sq,
+        },
       });
+    },
+    onSuggestion(filter) {
+      this.handleFiltersChanged(this.filters.concat([ filter ]));
+    },
+  },
+  watch: {
+    searchServiceQuery: {
+      handler({ filters }) {
+        if (!filters.length) {
+          return;
+        }
+        console.info('@searchServiceQuery oad items!!!', filters);
+        filtersItemsService.find({
+          query: {
+            filters: this.searchQueryHash,
+          },
+        })
+          .then(joinFiltersWithItems)
+          .then((filtersWithItems) => {
+            console.info('@searchServiceQuery oad filtersWithItems!!!', filtersWithItems);
+            this.filtersWithItems = filtersWithItems;
+          });
+      },
+      immediate: true,
     },
   },
   components: {
@@ -167,6 +253,7 @@ export default {
     Recipes,
     HomePageFooter,
     InfoButton,
+    SearchPills,
   },
 };
 </script>

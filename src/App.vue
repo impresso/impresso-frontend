@@ -54,7 +54,7 @@ export default {
       if (!searchQueryId || !searchQueryId.length) {
         this.$store.dispatch('search/ADD_FILTER', { filter });
       }
-    }
+    },
   },
   mounted() {
     window.addEventListener('click', () => {
@@ -72,10 +72,6 @@ export default {
         id: process.env.VUE_APP_TYPEKIT_ID,
       },
     });
-    // check whether there is a searchquery hash somewhere
-    console.info('App @created, retrieve initial search.currentSearchHash', this.$store.state.search.currentSearchHash);
-    // push the current search query using the current hash
-    this.$store.dispatch('search/INIT');
   },
 };
 </script>

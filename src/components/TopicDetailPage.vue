@@ -110,6 +110,7 @@ import Pagination from './modules/Pagination';
 import ArticleItem from './modules/lists/ArticleItem';
 import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
+import { searchQueryHashGetter } from '@/logic/queryParams'
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
@@ -162,9 +163,7 @@ export default {
         }),
       };
     },
-    currentSearchHash() {
-      return this.$store.state.search.currentSearchHash;
-    },
+    currentSearchHash: searchQueryHashGetter(),
     topicModel() {
       return this.$route.params.topic_model;
     },

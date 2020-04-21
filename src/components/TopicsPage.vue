@@ -73,11 +73,12 @@
 </template>
 
 <script>
-import { protobuf } from 'impresso-jscommons';
+// import { protobuf } from 'impresso-jscommons';
 import List from './modules/lists/List';
 // import InfoButton from './base/InfoButton';
 import TopicItem from './modules/lists/TopicItem';
 import SearchQuery from '@/models/SearchQuery';
+import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams';
 
 export default {
   data: () => ({
@@ -102,20 +103,22 @@ export default {
     searchPageLink() {
       return {
         name: 'search',
-        query: SearchQuery.serialize({
-          filters: [{ type: 'topic', q: this.visualizedTopics.map(d => d.uid) }],
-        }),
+        query: {
+          sq: SearchQuery.serialize({
+            filters: [{ type: 'topic', q: this.visualizedTopics.map(d => d.uid) }],
+          }, 'protobuf'),
+        },
       };
     },
-    searchQuery() {
-      const { pq } = this.$route.query;
-      if (pq) {
-        return new SearchQuery(protobuf.searchQuery.deserialize(pq));
-      }
-      return this.$store.getters['search/getSearch'];
+    searchQuery: {
+      ...searchQueryGetter(),
+      ...searchQuerySetter(),
     },
     countActiveFilters() {
-      return this.$store.getters['search/countActiveFilters'];
+      return this.searchQuery.countActiveFilters();
+    },
+    countActiveItems() {
+      return this.searchQuery.countActiveItems();
     },
     visualizedTopics() {
       // list of visualized topics;
