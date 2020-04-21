@@ -1,7 +1,10 @@
 <template>
   <span class="dripicons-enter icon-link" v-on:click.prevent.stop="selectItem"></span>
 </template>
+
 <script>
+import { mapFilters } from '@/logic/queryParams'
+
 /**
  * Item selector component: given a specific item, display it on the Monitor component
  * <item-selector :uid="your-item.uid" :type="person" >
@@ -35,12 +38,11 @@ export default {
         type: this.type,
       }
       if (!this.defaultClickActionDisabled) {
-        // TODO: filters to be retrieved from a mapped model.
         this.$store.dispatch('monitor/ACTIVATE', {
           ...params,
-          filters: this.$store.getters['search/getSearch'].getFilters(),
+          filters: this.filters,
           filtersUpdatedCallback: filters => {
-            this.$store.dispatch('search/UPDATE_SEARCH_QUERY_FILTERS', filters)
+            this.filters = filters
           }
         })
       }
@@ -51,6 +53,9 @@ export default {
       })
     },
   },
+  computed: {
+    filters: mapFilters()
+  }
 };
 </script>
 
