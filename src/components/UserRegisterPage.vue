@@ -5,8 +5,9 @@
       <h2 class="border-bottom my-3 pb-3">{{ $t('Register') }}</h2>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
-          Thank you for submitting your data.
-          We will contact you via email as soon as possible.
+          Your application will be examined and we will get back to you as soon as possible.
+          <br/>
+          Thank you!
         </b-col>
       </b-roW>
       <b-row v-else>
