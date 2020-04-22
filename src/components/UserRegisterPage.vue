@@ -3,8 +3,13 @@
       <b-container>
 
       <h2 class="border-bottom my-3 pb-3">{{ $t('Register') }}</h2>
-
-      <b-row>
+      <b-row v-if="isCreated">
+        <b-col md="6" offset-md="3">
+          Thank you for submitting your data.
+          We will contact you via email as soon as possible.
+        </b-col>
+      </b-roW>
+      <b-row v-else>
 
         <b-col md="6" offset-md="3">
 
@@ -169,6 +174,7 @@ export default {
       lastname: '',
       displayName: 'Researcher',
     },
+    isCreated: false,
     isLoading: false,
     nda: null,
     repeatPassword: '',
@@ -180,20 +186,17 @@ export default {
   },
   methods: {
     onSubmit() {
-      console.info('UserPage.onSubmit()', this.user, this.nda);
+      // console.info('UserPage.onSubmit()', this.user, this.nda);
       // to be checked for validity...
       this.isLoading = true;
-      usersService.create({
-        password: this.password,
-        email: this.email,
-        username: this.username,
-        firstname: this.firstname,
-        lastname: this.lastname,
-        displayName: this.displayName,
-      }).then((res) => {
-        this.isLoading = false;
-        console.info(res);
-      });
+      usersService.create(this.user)
+        .then(() => {
+          this.isLoading = false;
+          this.isCreated = true;
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     },
   },
 };
