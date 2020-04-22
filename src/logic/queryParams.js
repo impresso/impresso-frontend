@@ -40,8 +40,11 @@ const getSearchQueryFromQueryParameterOrLocalStorage = route => {
     [CommonQueryParameters.SearchFilters]: sq,
     f,
   } = route?.query;
-
-  // parse json then serialize
+  // Before the adoption of sq, we used to get filters from URL query param `f`
+  // as JSON string. There are many links in user feedbacks documents,
+  // in github issues or saved as bookmarks; as `f` contains data that
+  // pre-exist the adoption of sq, we have to try to parse `f` first, to avoid
+  // that the new approach hides or destroys previously saved data.
   if (f) {
     try {
       return serializeFilters(JSON.parse(
@@ -50,7 +53,7 @@ const getSearchQueryFromQueryParameterOrLocalStorage = route => {
           : f
       ));
     } catch (err) {
-      console.error(err);
+      console.warn('`f` URL param (a JSON string) is corrupted and cannot be recovered :(', err);
       // skip, try the `sq`
     }
   }
