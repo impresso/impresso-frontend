@@ -116,6 +116,28 @@
             ... and return the signed form to <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">info@impresso-project.ch</a>
           </p>
         </div>
+
+        <b-container class="challenges my-4 enhance-contents border-0 p-0">
+          <b-row class="p-0">
+          <b-col lg="6" md="12">
+            <img src="./../assets/img/challenges-screenshot.png" class="w-100" alt="impresso challenges">
+          </b-col>
+          <b-col lg="6" md="12">
+            <div class="py-3 pr-3">
+              <h3 :class="{ 'text-white': darkMode }"><i class="pb-3">Impresso Challenges</i></h3>
+              <p :class="{ 'text-white': darkMode }"><b>How to explore the newspapers with persons or locations? <br>What are topics good for? <br>What elements can be compared? </b></p>
+              <p>Get a better understanding of this interfaces’ features and how they can interact with 3 challenges, starting with an initiation and leading to an expert level use of the interface.</p>
+              <b-button :variant="darkMode ? 'primary' : 'outline-primary'" size="sm"
+                href="./../assets/impresso-challenges-1.2.3.pdf" target="_blank">
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons dripicons-download mr-2" />
+                  <div>download challenges <b-badge pill variant="secondary" class="ml-1">PDF</b-badge></div>
+                </div>
+              </b-button>
+            </div>
+          </b-col>
+        </b-row>
+      </b-container>
         <p class='text-center text-white'>
           ... then here are a few examples to get you started!
         </p>
