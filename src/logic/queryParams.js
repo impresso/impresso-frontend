@@ -38,17 +38,20 @@ import {
 const getSearchQueryFromQueryParameterOrLocalStorage = route => {
   const {
     [CommonQueryParameters.SearchFilters]: sq,
-    [CommonQueryParameters.PlainSearchFilters]: f,
+    f,
   } = route?.query;
 
   // parse json then serialize
-  if (typeof f === 'string') {
-    console.info('getSearchQueryFromQueryParameterOrLocalStorage', f);
+  if (f) {
     try {
-      return serializeFilters(JSON.parse(f));
+      return serializeFilters(JSON.parse(
+        Array.isArray(f) && f[0] != null
+          ? f[0]
+          : f
+      ));
     } catch (err) {
       console.error(err);
-      return '';
+      // skip, try the `sq`
     }
   }
 
