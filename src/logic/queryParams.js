@@ -17,7 +17,8 @@ import {
  *   in a generic URL query parameter and also in localStorage.
  *
  * There are two mapping functions:
- * - `mapSearchQuery` which works with `SearchQuery` model. This model is mostly used on SearchPage only.
+ * - `mapSearchQuery` which works with `SearchQuery` model. This model is mostly used on IssuePage only,
+ *   as normally you may want to set additionalParameters (e.g. reset the page number).
  * - `mapFilters` which works with `Filter[]` list. It is used in most of the other parts of the app.
  *
  * Both `SearchQuery` and `Filter[]` are serialized to a protobuf base64 string using the same
@@ -35,7 +36,22 @@ import {
  * @return {string}
  */
 const getSearchQueryFromQueryParameterOrLocalStorage = route => {
-  const { [CommonQueryParameters.SearchFilters]: sq } = route?.query;
+  const {
+    [CommonQueryParameters.SearchFilters]: sq,
+    [CommonQueryParameters.PlainSearchFilters]: f,
+  } = route?.query;
+
+  // parse json then serialize
+  if (typeof f === 'string') {
+    console.info('getSearchQueryFromQueryParameterOrLocalStorage', f);
+    try {
+      return serializeFilters(JSON.parse(f));
+    } catch (err) {
+      console.error(err);
+      return '';
+    }
+  }
+
   if (Array.isArray(sq) && sq[0] != null) return sq[0]
   if (!Array.isArray(sq) && sq != null) return sq
 
