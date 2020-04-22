@@ -95,7 +95,7 @@
                   maxlength="20" />
               </b-form-group>
 
-              <ValidationProvider rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }">
+              <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }">
                 <b-form-group
                   id="nda"
                   label="Signed NDA"
@@ -107,7 +107,9 @@
                 </b-form-group>
               </ValidationProvider>
 
-              <b-button size="md" type='submit' class="mt-2" variant="outline-primary" :disabled="invalid">{{$t('actions.requestAccount')}}</b-button>
+              <b-button size="sm" type='submit' class="mt-2" variant="outline-primary" :disabled="invalid">{{
+                $t('actions.requestAccount')
+              }}</b-button>
 
             </b-form>
 
@@ -126,6 +128,7 @@ import {
   extend
 } from 'vee-validate';
 import { required, email, confirmed, ext } from 'vee-validate/dist/rules'
+import { users as usersService } from '@/services'
 
 extend('required', {
   ...required,
@@ -154,6 +157,9 @@ extend('ext', {
 
 
 export default {
+  props: {
+    allowUploadOfNDA: Boolean,
+  },
   data: () => ({
     user: {
       username: '',
@@ -163,6 +169,7 @@ export default {
       lastname: '',
       displayName: 'Researcher',
     },
+    isLoading: false,
     nda: null,
     repeatPassword: '',
     errors: [],
@@ -175,7 +182,18 @@ export default {
     onSubmit() {
       console.info('UserPage.onSubmit()', this.user, this.nda);
       // to be checked for validity...
-      this.$store.dispatch('user/CREATE_USER_ACCOUNT', this.user, this.nda);
+      this.isLoading = true;
+      usersService.create({
+        password: this.password,
+        email: this.email,
+        username: this.username,
+        firstname: this.firstname,
+        lastname: this.lastname,
+        displayName: this.displayName,
+      }).then((res) => {
+        this.isLoading = false;
+        console.info(res);
+      });
     },
   },
 };
