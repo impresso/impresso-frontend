@@ -145,6 +145,7 @@ export const tableOfContents = app.service('table-of-contents');
 export const searchQueriesComparison = app.service('search-queries-comparison');
 export const errorCollector = app.service('errors-collector');
 export const me = app.service('me');
+export const users = app.service('users');
 export const articleTextReusePassages = app.service('articles/:id/text-reuse-passages');
 export const textReuseClusters = app.service('text-reuse-clusters');
 export const textReuseClusterPassages = app.service('text-reuse-cluster-passages');
