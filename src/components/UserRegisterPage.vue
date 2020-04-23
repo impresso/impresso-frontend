@@ -43,7 +43,9 @@
 
               <!-- password -->
               <ValidationObserver>
-                <ValidationProvider name="password" rules="required|min:12" v-slot="{ errors }" vid="repeatPassword">
+                <ValidationProvider name="password"
+                :rules="{ min: 8, regex: /^(?=.*?[A-Z])(?=.*[a-z])(?=.*[\d])(?=.*[\W_])(?!.*\s).{8,}$/ }"
+                v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-2"
                   :label="$t('form_password')"
@@ -133,7 +135,7 @@ import {
   ValidationObserver,
   extend
 } from 'vee-validate';
-import { required, email, confirmed, ext } from 'vee-validate/dist/rules'
+import { required, email, confirmed, regex, ext } from 'vee-validate/dist/rules'
 import { users as usersService } from '@/services'
 
 extend('required', {
@@ -154,6 +156,11 @@ extend('min', {
   },
   params: ['length'],
   message: 'The {_field_} must have at least {length} characters'
+});
+
+extend('regex', {
+  ...regex,
+  message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
 });
 
 extend('ext', {
