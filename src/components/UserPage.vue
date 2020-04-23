@@ -88,6 +88,12 @@
                 </b-input-group-append>
               </b-input-group>
 
+              <div class="colors-wrapper flex-shrink-1">
+                <div v-if="user">
+                  <div class="color" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
+                </div>
+              </div>
+
               <b-button size="sm" type='submit' variant="outline-primary" :disabled="invalid">{{$t('actions.applyChanges')}}</b-button>
               <!-- (TODO)
                 <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>

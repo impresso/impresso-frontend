@@ -96,6 +96,24 @@
                 </b-col>
               </b-row>
 
+              <b-input-group id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="mb-4">
+                <b-form-input
+                  id="pattern"
+                  v-model="patternAsText"
+                  maxlength="70">
+                </b-form-input>
+                <b-input-group-append>
+                  <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
+                  <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
+                    {{$t('actions.generatePattern')}}
+                  </b-button>
+                </b-input-group-append>
+              </b-input-group>
+
+              <div class="colors-wrapper d-flex w-100 mb-3">
+                  <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
+              </div>
+
               <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="displayname">
                 <b-form-input
                   id="displayname"
@@ -181,16 +199,38 @@ export default {
       firstname: '',
       lastname: '',
       displayName: 'Researcher',
+      colors: Array(),
+      pattern: Array(),
     },
     isCreated: false,
     isLoading: false,
     nda: null,
     repeatPassword: '',
     errors: [],
+    palettes:
+    [
+      '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
+      '#a9bdc8', '#677e96', '#4a9bb1', '#ccd6e6', '#4f615b', '#3d95a6', '#d3deec', '#3c4b54',
+      '#3e8696', '#dce5f4', '#45535f', '#4a818a', '#b2bdcc', '#2e4051', '#62797d'
+    ],
+    numColors: 5,
   }),
   components: {
     ValidationProvider,
     ValidationObserver,
+  },
+  computed: {
+    patternAsText: {
+      get() {
+        if (this.user) {
+          return this.user.pattern.join(', ');
+        }
+        return '';
+      },
+      set(v) {
+        this.user.setPattern(v);
+      }
+    },
   },
   methods: {
     onSubmit() {
@@ -206,6 +246,25 @@ export default {
           console.error(err);
         });
     },
+    onGeneratePattern() {
+      this.user.colors = [];
+      // let palette = Math.floor(Math.random()*this.palettes.length);
+      for (let i = 0; i < this.numColors; i ++) {
+        const mycolor = this.palettes[Math.floor(Math.random()*this.palettes.length)];
+        this.user.colors.push(mycolor);
+      }
+      this.user.pattern = this.user.colors;
+    },
+    getColorBandStyle(color) {
+      const width = this.user.colors.length ? `${(100 / this.user.colors.length)}%` : '0%';
+      return {
+        'background-color': color,
+        width,
+      };
+    },
+  },
+  created() {
+    this.onGeneratePattern();
   },
 };
 </script>
