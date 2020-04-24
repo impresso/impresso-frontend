@@ -88,6 +88,10 @@
                 </b-input-group-append>
               </b-input-group>
 
+              <div v-if="user" class="d-flex w-100 mb-3">
+                  <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
+              </div>
+
               <b-button size="sm" type='submit' variant="outline-primary" :disabled="invalid">{{$t('actions.applyChanges')}}</b-button>
               <!-- (TODO)
                 <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
@@ -141,7 +145,7 @@
                   Regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{12,42}$/
                 -->
                 <ValidationProvider name="Password"
-                  :rules="{ min: 8, regex: /^(?=.*?[A-Z])(?=.*[a-z])(?=.*[\d])(?=.*[\W_])(?!.*\s).{8,}$/ }"
+                  :rules="{ min: 8, regex: passwordRegex }"
                   v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-2"
@@ -184,6 +188,7 @@
 <script>
 import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
 import { required, email, confirmed, min, regex } from 'vee-validate/dist/rules';
+import { PasswordRegex } from '@/logic/user';
 
 extend('required', {
   ...required,
@@ -211,6 +216,7 @@ extend('regex', {
 
 export default {
   data: () => ({
+    passwordRegex: PasswordRegex,
     user: Object,
     previousPassword: '',
     newPassword: '',
