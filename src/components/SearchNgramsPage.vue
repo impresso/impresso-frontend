@@ -81,7 +81,7 @@
       </multi-line-plot>
       <div class="loading-overlay" v-if="isLoading"><em>{{ $t('loading') }}</em></div>
       <div class="text-right mt-5 mr-3">
-        <a class="btn btn-outline-primary btn-sm" download="ngrams.json" :href="plotItemsData" target="_blank">
+        <a class="btn btn-outline-primary btn-sm" download="unigrams.json" :href="plotItemsData" target="_blank">
           <div class="d-flex align-items-center">
             <div>
               {{ $t('downloadVisualisationData') }}
