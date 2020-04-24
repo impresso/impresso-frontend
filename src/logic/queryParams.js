@@ -71,7 +71,7 @@ export const searchQueryGetter = () => {
  * @typedef {{
  *  additionalQueryParams?: { [key: string]: string }
  * }} SetterMapOptions
- * @typedef {(SearchQuery) => void} SearchQuerySetter
+ * @typedef {(query: SearchQuery) => void} SearchQuerySetter
  *
  * @param {SetterMapOptions} options extra options for the mapping
  * @returns {{ set: SearchQuerySetter }}
