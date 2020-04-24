@@ -61,7 +61,7 @@
                 <b-row>
                   <b-col>
                     <ValidationProvider name="password"
-                    :rules="{ min: 8, regex: /^(?=.*?[A-Z])(?=.*[a-z])(?=.*[\d])(?=.*[\W_])(?!.*\s).{8,}$/ }"
+                    :rules="{ min: 8, regex: passwordRegex }"
                     v-slot="{ errors }" vid="repeatPassword">
 
                     <b-form-group
@@ -175,6 +175,7 @@ import {
 } from 'vee-validate';
 import { required, email, confirmed, regex, ext } from 'vee-validate/dist/rules'
 import { users as usersService } from '@/services'
+import { PasswordRegex } from '@/logic/user'
 
 extend('required', {
   ...required,
@@ -212,6 +213,7 @@ export default {
     allowUploadOfNDA: Boolean,
   },
   data: () => ({
+    passwordRegex: PasswordRegex,
     user: {
       username: '',
       email: '',
@@ -265,11 +267,13 @@ export default {
       this.isLoading = true;
       usersService.create(this.user)
         .then(() => {
-          this.isLoading = false;
           this.isCreated = true;
         })
         .catch((err) => {
           console.error(err);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
     onGeneratePattern() {
