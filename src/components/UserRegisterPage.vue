@@ -1,7 +1,25 @@
 <template lang="html">
   <main id="UserDashboard">
-      <b-container>
-
+    <b-container class="mb-5">
+      <b-row>
+        <b-col md="6" offset-md="3">
+          <div class="d-flex align-items-center my-5">
+            <div class="colors-wrapper flex-shrink-1">
+              <div>
+                <div class="color" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
+              </div>
+            </div>
+            <div class="ml-4">
+              <h1 class="user-fullname  m-0 sans font-weight-bold">
+                {{ userLabel }}
+              </h1>
+              <div class="user-displayname small-caps">
+                {{ user.displayName }}
+              </div>
+            </div>
+          </div>
+        </b-col>
+      </b-row>
       <h2 class="border-bottom my-3 pb-3">{{ $t('Register') }}</h2>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
@@ -11,7 +29,6 @@
         </b-col>
       </b-roW>
       <b-row v-else>
-
         <b-col md="6" offset-md="3">
 
           <ValidationObserver v-slot="{ invalid }">
@@ -43,39 +60,44 @@
 
               <!-- password -->
               <ValidationObserver>
-                <ValidationProvider name="password"
-                :rules="{ min: 8, regex: /^(?=.*?[A-Z])(?=.*[a-z])(?=.*[\d])(?=.*[\W_])(?!.*\s).{8,}$/ }"
-                v-slot="{ errors }" vid="repeatPassword">
-                <b-form-group
-                  id="input-group-changepwd-2"
-                  :label="$t('form_password')"
-                  label-for="password"
-                  :description="errors[0]">
-                  <b-form-input
-                    id="password" name="password"
-                    v-model.trim="user.password"
-                    type="password"
-                    maxlength="80"
-                    :description="errors[0]"
-                  ></b-form-input>
-                </b-form-group>
-                </ValidationProvider>
+                <b-row>
+                  <b-col>
+                    <ValidationProvider name="password"
+                    :rules="{ min: 8, regex: /^(?=.*?[A-Z])(?=.*[a-z])(?=.*[\d])(?=.*[\W_])(?!.*\s).{8,}$/ }"
+                    v-slot="{ errors }" vid="repeatPassword">
 
-                <ValidationProvider rules="required|confirmed:repeatPassword" v-slot="{ errors }">
-                  <b-form-group
-                    id="input-group-changepwd-3"
-                    :label="$t('form_password_repeat')"
-                    label-for="repeat-password"
-                    :description="errors[0]">
-                    <b-form-input
-                      id="repeat-password" name="repeat-password"
-                      v-model.trim="repeatPassword"
-                      maxlength="80"
-                      type="password" />
-                  </b-form-group>
-                </ValidationProvider>
+                    <b-form-group
+                      id="input-group-changepwd-2"
+                      :label="$t('form_password')"
+                      label-for="password"
+                      :description="errors[0]">
+                      <b-form-input
+                        id="password" name="password"
+                        v-model.trim="user.password"
+                        type="password"
+                        maxlength="80"
+                        :description="errors[0]"
+                      ></b-form-input>
+                    </b-form-group>
+                    </ValidationProvider>
+                  </b-col>
+                  <b-col>
+                    <ValidationProvider rules="required|confirmed:repeatPassword" v-slot="{ errors }">
+                      <b-form-group
+                        id="input-group-changepwd-3"
+                        :label="$t('form_password_repeat')"
+                        label-for="repeat-password"
+                        :description="errors[0]">
+                        <b-form-input
+                          id="repeat-password" name="repeat-password"
+                          v-model.trim="repeatPassword"
+                          maxlength="80"
+                          type="password" />
+                      </b-form-group>
+                    </ValidationProvider>
+                  </b-col>
+                </b-row>
               </ValidationObserver><!--  password -->
-
               <b-row>
                 <b-col>
                   <b-form-group id="input-group-2" :label="$t('form_firstname')" label-for="firstname">
@@ -96,6 +118,13 @@
                 </b-col>
               </b-row>
 
+              <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="displayname">
+                <b-form-input
+                  id="displayname"
+                  v-model.trim="user.displayName"
+                  maxlength="20" />
+              </b-form-group>
+
               <b-input-group id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="mb-4">
                 <b-form-input
                   id="pattern"
@@ -110,16 +139,9 @@
                 </b-input-group-append>
               </b-input-group>
 
-              <div class="colors-wrapper d-flex w-100 mb-3">
+              <div class="d-flex w-100 mb-3">
                   <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
               </div>
-
-              <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="displayname">
-                <b-form-input
-                  id="displayname"
-                  v-model.trim="user.displayName"
-                  maxlength="20" />
-              </b-form-group>
 
               <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }">
                 <b-form-group
@@ -220,6 +242,12 @@ export default {
     ValidationObserver,
   },
   computed: {
+    userLabel() {
+      if (this.user.firstname.length || this.user.lastname.length) {
+        return `${this.user.firstname} ${this.user.lastname}`;
+      }
+      return this.$t('signUp');
+    },
     patternAsText: {
       get() {
         if (this.user) {
@@ -269,7 +297,31 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
+.colors-wrapper {
+  background-color: black;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+
+  > div {
+    width: 100%;
+    height: 100%;
+  }
+  > div > div.color {
+    display: inline-block;
+    height: 100%;
+  }
+}
+
+.user-fullname{
+  font-size:1.5rem;
+}
+.user-displayname{
+  font-size:1.25rem;
+}
 </style>
 
 <i18n>
@@ -282,7 +334,8 @@ export default {
     "form_change_password": "Change Password",
     "form_oldpassword": "Current Password",
     "form_password": "Password",
-    "form_password_repeat": "Password (again)"
+    "form_password_repeat": "Password (again)",
+    "signUp": "(sign up)"
   }
 }
 </i18n>
