@@ -417,7 +417,7 @@ export default {
         const intersectionFacet = intersectionFacets[index]
         const queriesFacets = facetsSets.map(facetSet => facetSet[index])
 
-        const items = intersectionFacet.buckets.map(bucket => {
+        const items = intersectionFacet?.buckets?.map(bucket => {
           const [leftBucket, rightBucket] = queriesFacets.map(({ buckets }) => {
             return buckets.find(({ val }) => bucket.val === val)
           });
@@ -432,12 +432,12 @@ export default {
             left: leftBucket.count,
             right: rightBucket.count
           }
-        }).sort(SortingMethods[this.barSortingMethod])
+        }).sort(SortingMethods[this.barSortingMethod]) ?? []
 
         return {
           id,
           items,
-          numBuckets: intersectionFacet.numBuckets
+          numBuckets: intersectionFacet?.numBuckets ?? 0
         }
       })
     },
@@ -616,7 +616,8 @@ export default {
       }
 
       const query = {
-        filtersSets: [this.leftComparable, this.rightComparable].map(({ query = {} }) => query.filters ?? []),
+        filtersSets: [this.leftComparable, this.rightComparable]
+          .map(comparable => comparableToQuery(comparable)?.filters ?? []),
         facets: this.facets
           .filter(([type]) => type !== 'year')
           .map(([type]) => {
