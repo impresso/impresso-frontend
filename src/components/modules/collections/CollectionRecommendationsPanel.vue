@@ -1,5 +1,9 @@
 <template>
   <div>
+    <!-- header -->
+    <div class="border-bottom pb-2">
+      <recommender-pill/>
+    </div>
 
     <!-- year range -->
     <div>
@@ -48,9 +52,13 @@
 </template>
 
 <script>
+import RecommenderPill from './RecommenderPill'
 import { articlesRecommendations } from '@/services'
 
 export default {
+  components: {
+    RecommenderPill
+  },
   data: () => ({
     /** @type {any | undefined} */
     response: undefined
