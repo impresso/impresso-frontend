@@ -17,7 +17,7 @@ import {
  *   in a generic URL query parameter and also in localStorage.
  *
  * There are two mapping functions:
- * - `mapSearchQuery` which works with `SearchQuery` model. This model is mostly used on SearchPage only.
+ * - `mapSearchQuery` which works with `SearchQuery` model. This model is mostly used on IssuePage only.
  * - `mapFilters` which works with `Filter[]` list. It is used in most of the other parts of the app.
  *
  * Both `SearchQuery` and `Filter[]` are serialized to a protobuf base64 string using the same
@@ -35,7 +35,28 @@ import {
  * @return {string}
  */
 const getSearchQueryFromQueryParameterOrLocalStorage = route => {
-  const { [CommonQueryParameters.SearchFilters]: sq } = route?.query;
+  const {
+    [CommonQueryParameters.SearchFilters]: sq,
+    [CommonQueryParameters.LegacySearchFilters]: f,
+  } = route?.query;
+  // Before the adoption of sq, we used to get filters from URL query param `f`
+  // as JSON string. There are many links in user feedbacks documents,
+  // in github issues or saved as bookmarks; as `f` contains data that
+  // pre-exist the adoption of sq, we have to try to parse `f` first, to avoid
+  // that the new approach hides or destroys previously saved data.
+  if (f) {
+    try {
+      return serializeFilters(JSON.parse(
+        Array.isArray(f) && f[0] != null
+          ? f[0]
+          : f
+      ));
+    } catch (err) {
+      console.warn('`f` URL param (a JSON string) is corrupted and cannot be recovered :(', err);
+      // skip, try the `sq`
+    }
+  }
+
   if (Array.isArray(sq) && sq[0] != null) return sq[0]
   if (!Array.isArray(sq) && sq != null) return sq
 
