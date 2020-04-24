@@ -10,7 +10,6 @@ import SearchPage from '../components/SearchPage';
 import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
-import UserPage from '../components/UserPage';
 import CollectionsPage from '../components/CollectionsPage';
 import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
@@ -135,7 +134,7 @@ const router = new Router({
     {
       path: '/user',
       name: 'user',
-      component: UserPage,
+      component: () => import(/* webpackChunkName: "user" */ '../pages/User.vue'),
       meta: {
         realm: 'user',
         requiresAuth: true,
