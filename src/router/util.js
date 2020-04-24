@@ -18,4 +18,7 @@ export function getQueryParameter(vueInstance, parameter, defaultValue = undefin
 
 export const CommonQueryParameters = Object.freeze({
   SearchFilters: 'sq',
+  // LegacySearchFilters is only for bookmarks saved wth the previous
+  // filtering mechanism
+  LegacySearchFilters: 'f',
 })
