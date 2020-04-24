@@ -23,9 +23,7 @@
       <h2 class="border-bottom my-3 pb-3">{{ $t('Register') }}</h2>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
-          Your application will be examined and we will get back to you as soon as possible.
-          <br/>
-          Thank you!
+          <p v-hmtl="$('form_success')"/>
         </b-col>
       </b-roW>
       <b-row v-else>
@@ -335,7 +333,8 @@ export default {
     "form_oldpassword": "Current Password",
     "form_password": "Password",
     "form_password_repeat": "Password (again)",
-    "signUp": "(sign up)"
+    "signUp": "(sign up)",
+    "form_success": "Thank you for your registration. <br/> We will review it and email your login credentials as soon as possible."
   }
 }
 </i18n>
