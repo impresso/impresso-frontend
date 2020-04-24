@@ -371,7 +371,7 @@ export default {
     },
     plotItemsData() {
       const { domainValues, totals } = this.ngramResult
-      const jsonStr = JSON.stringify(this.ngramResult.trends.map(({ ngram, values }) => ({
+      const data = this.ngramResult.trends.map(({ ngram, values }) => ({
         label: ngram,
         items: values.map((value, index) => ({
           value,
@@ -379,7 +379,13 @@ export default {
           ppm: (value / totals[index]) * 1000000,
           date: domainValues[index],
         }))
-      })));
+      }));
+      const jsonStr = JSON.stringify({
+        url: window.location.href,
+        filters: this.filters.map((d) => d.getQuery()),
+        exportDate: new Date(),
+        data,
+      });
       return `data:text/plain;charset=utf-8,${encodeURIComponent(jsonStr)}`;
     },
     /** @returns {string} */
