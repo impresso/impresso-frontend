@@ -80,6 +80,16 @@
         </div>
       </multi-line-plot>
       <div class="loading-overlay" v-if="isLoading"><em>{{ $t('loading') }}</em></div>
+      <div class="text-right mt-5 mr-3">
+        <a class="btn btn-outline-primary btn-sm" download="ngrams.json" :href="plotItemsData" target="_blank">
+          <div class="d-flex align-items-center">
+            <div>
+              {{ $t('downloadVisualisationData') }}
+            </div>
+            <div class="d-flex dripicons dripicons-download ml-2" />
+          </div>
+        </a>
+      </div>
     </div>
     <!-- without unigram -->
     <div v-else class="d-flex align-items-center justify-content-center h-100">
@@ -152,7 +162,8 @@ const AllowedFilterTypes = [
   // 'title',
   'topic',
   'type',
-  'year'
+  'year',
+  'daterange',
 ];
 
 /**
@@ -358,6 +369,19 @@ export default {
         }
       })
     },
+    plotItemsData() {
+      const { domainValues, totals } = this.ngramResult
+      const jsonStr = JSON.stringify(this.ngramResult.trends.map(({ ngram, values }) => ({
+        label: ngram,
+        items: values.map((value, index) => ({
+          value,
+          total: totals[index],
+          ppm: (value / totals[index]) * 1000000,
+          date: domainValues[index],
+        }))
+      })));
+      return `data:text/plain;charset=utf-8,${encodeURIComponent(jsonStr)}`;
+    },
     /** @returns {string} */
     timelineResolution() { return this.ngramResult.timeInterval }
   },
@@ -407,7 +431,8 @@ export default {
         "availableFacets": "Available filters for ngram analysis"
       },
       "loading": "Loading ...",
-      "tooltipValueUnit": "per 1 million"
+      "tooltipValueUnit": "per 1 million",
+      "downloadVisualisationData": "download data in JSON"
     }
   }
 </i18n>
