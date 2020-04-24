@@ -2,7 +2,12 @@
   <div>
     <!-- header -->
     <div class="border-bottom pb-2">
-      <recommender-pill/>
+      <recommender-pill
+        v-for="settings in recommendersSettings"
+        :key="settings.type"
+        :settings="settings"
+        @changed="handleSettingsChanged"
+        @search-parameters-changed="handleSearchparametersChanged"/>
     </div>
 
     <!-- year range -->
@@ -60,6 +65,11 @@ export default {
     RecommenderPill
   },
   data: () => ({
+    recommendersSettings: [
+      { enabled: true, type: 'TimeRange', parameters: {} },
+      { enabled: true, type: 'NamedEntitiesBag', parameters: {} },
+      { enabled: true, type: 'TopicsBag', parameters: {} }
+    ],
     /** @type {any | undefined} */
     response: undefined
   }),
@@ -108,6 +118,16 @@ export default {
         ?.find(({ name }) => name === 'TopicsBag')
         ?.params?.topic_weights ?? []
       return topicWeights.map(([id, name, score]) => ({ name, score, id }))
+    }
+  },
+  methods: {
+    handleSettingsChanged(settings) {
+      const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
+      this.$set(this.recommendersSettings, index, settings)
+      console.info('Settings updated', settings)
+    },
+    handleSearchparametersChanged(settings) {
+      console.info('Search parameters settings changed', settings)
     }
   }
 }

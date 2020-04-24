@@ -2,8 +2,8 @@
   <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 recommender-pill">
     <template v-slot:button-content>
       <span class="button-icon dripicons-checkmark"/>
-      <span class="label sp-string sp-title crossed-out">
-        boing boing
+      <span class="label sp-string sp-title" :class="{ 'crossed-out': !settings.enabled }">
+        {{ $t(`pillLabels.${settings.type}`)}}
       </span>
     </template>
     <b-container class="content">
@@ -84,7 +84,11 @@
 
       <b-row class="pt-1 pb-2">
         <b-col>
-          <b-button class="reload-button" variant="outline-primary">
+          <b-button
+            class="reload-button"
+            variant="outline-primary"
+            :disabled="!canReload"
+            @click="handleReload">
             Reload recommendations
           </b-button>
         </b-col>
@@ -95,16 +99,80 @@
 </template>
 
 <script>
+
+/**
+ * @typedef {{ enabled: boolean, type: string, weight?: number, parameters: any }} RecommenderSettings
+ */
+
+const Events = Object.freeze({
+  RecommenderParametersChanged: 'changed',
+  SearchParametersChanged: 'search-parameters-changed'
+})
+
 export default {
+  data: () => ({
+    editedWeight: 0,
+    editedEnabled: true,
+    editedParamters: {}
+  }),
+  props: {
+    /** @type {import('vue').PropOptions<RecommenderSettings>} */
+    settings: {
+      type: Object,
+      required: true
+    },
+    weightBase: {
+      type: Number,
+      default: 1.5
+    }
+  },
   computed: {
-    componentId() { return this['_uid'] },
+    /** @returns {string} */
+    componentId() { return /** @type {string} */ (`${this['_uid']}`) },
     recommenderEnabled: {
-      get() { return true },
-      set(value) { console.info('Enable recommender', value) }
+      /** @returns {boolean} */
+      get() { return this.editedEnabled },
+      /** @param {boolean} enabled */
+      set(enabled) {
+        this.editedEnabled = enabled
+      }
     },
     weightInput: {
-      get() { return 1 },
-      set(value) { console.info('Weight input', value) }
+      /** @returns {number} */
+      get() { return Math.log(this.editedWeight ?? 0) / Math.log(this.weightBase) },
+      /** @param {number} value */
+      set(value) {
+        this.editedWeight = Math.pow(this.weightBase, value)
+      }
+    },
+    /** @returns {boolean} */
+    canReload() {
+      return this.editedEnabled !== this.settings.enabled
+        || this.editedWeight !== (this.settings.weight ?? 0)
+    }
+  },
+  methods: {
+    handleReload() {
+      const settings = {
+        ...this.settings,
+        enabled: this.editedEnabled,
+        weight: this.editedWeight
+      }
+      this.$emit(Events.SearchParametersChanged, settings)
+    }
+  },
+  watch: {
+    'settings.weight': {
+      handler() {
+        this.editedWeight = this.settings.weight ?? 0
+      },
+      immediate: true
+    },
+    'settings.enabled': {
+      handler() {
+        this.editedEnabled = this.settings.enabled
+      },
+      immediate: true
     }
   }
 }
@@ -144,3 +212,15 @@ export default {
     }
   }
 </style>
+
+<i18n>
+{
+  "en": {
+    "pillLabels": {
+      "TimeRange": "Time range",
+      "NamedEntitiesBag": "Locations & Persons",
+      "TopicsBag": "Topics"
+    }
+  }
+}
+</i18n>
