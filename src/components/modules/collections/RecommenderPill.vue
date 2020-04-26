@@ -178,9 +178,11 @@ export default {
       return this.editedEnabled !== this.settings.enabled
         || this.editedWeight !== (this.settings.weight ?? 0)
     },
+    /** @returns {string} */
     currentSettingsComponent() {
       return 'time-range-settings'
     },
+    /** @returns {string} */
     currentResultsComponent() {
       return {
         TimeRange: 'time-range-results',

@@ -11,6 +11,12 @@
         @search-parameters-changed="handleSearchparametersChanged"/>
     </div>
 
+    <b-row>
+      <b-col v-for="article in recommendedArticles" :key="article.uid">
+        <search-results-list-item :article="article" />
+      </b-col>
+    </b-row>
+
     <div>
       <pre :style="{ 'font-size': '0.6em' }">
         {{ JSON.stringify(response, null, 2) }}
@@ -21,7 +27,9 @@
 
 <script>
 import RecommenderPill from './RecommenderPill'
-import { articlesRecommendations } from '@/services'
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
+import { articlesRecommendations, articlesSearch } from '@/services'
+import Article from '@/models/Article'
 
 const RecommenderNames = Object.freeze({
   TimeRange: 'TimeRangeRecommender',
@@ -32,7 +40,8 @@ const RecommenderNames = Object.freeze({
 
 export default {
   components: {
-    RecommenderPill
+    RecommenderPill,
+    SearchResultsListItem
   },
   data: () => ({
     recommendersSettings: [
@@ -41,7 +50,9 @@ export default {
       { enabled: true, type: 'TopicsBag', parameters: {} }
     ],
     /** @type {any | undefined} */
-    response: undefined
+    response: undefined,
+    /** @type {any | undefined} */
+    articlesResponse: undefined
   }),
   props: {
     collectionId: {
@@ -61,6 +72,10 @@ export default {
       return ['TimeRange', 'NamedEntitiesBag', 'TopicsBag'].map(type => {
         return this.response?.results?.find(({ name }) => name === type)?.params
       })
+    },
+    /** @returns {any[]} */
+    recommendedArticles() {
+      return (this.articlesResponse?.data ?? []).map(v => new Article(v))
     }
   },
   methods: {
@@ -73,6 +88,9 @@ export default {
         }))
       this.response = await articlesRecommendations.create({ coll_id: this.collectionId, recommenders })
     },
+    async reloadRecommendedArticles() {
+      this.articlesResponse = await articlesSearch.create({})
+    },
     handleSettingsChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
@@ -83,6 +101,7 @@ export default {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
       console.info('Search parameters settings changed', settings)
+      this.reloadRecommendedArticles()
     }
   }
 }
