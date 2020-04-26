@@ -52,18 +52,25 @@
           <b-collapse :id="`settings-collapse-${componentId}`">
             <slot name="advanced-features">
               <!-- advanced features -->
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae optio enim asperiores reprehenderit adipisci nemo reiciendis, delectus eveniet soluta maiores facilis facere voluptate et sit blanditiis temporibus tempore. Rerum, placeat!
+              <component :is="currentSettingsComponent" v-model="parameters"/>
             </slot>
 
             <!-- reset / apply buttons -->
             <b-row class="pt-2">
               <b-col class="pl-0 pr-0">
-                <b-button class="control-button" variant="outline-primary">
+                <b-button
+                  class="control-button"
+                  variant="outline-primary"
+                  @click="handleResetParameters">
                   Reset to default settings
                 </b-button>
               </b-col>
               <b-col class="pr-0 pl-0">
-                <b-button class="control-button" variant="outline-primary">
+                <b-button
+                  class="control-button"
+                  variant="outline-primary"
+                  :disabled="!parametersChanged"
+                  @click="handleApplyParamatersChanges">
                   Apply changes
                 </b-button>
               </b-col>
@@ -77,7 +84,7 @@
         <b-col class="ml-3 mr-3 p-2 recommendations">
           <slot name="recommendations">
             <!-- recommendations -->
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis earum, odio nulla eos non laboriosam fugit nostrum cumque nemo ipsa culpa amet similique incidunt, sequi ducimus omnis voluptatum et officiis.
+            <component :is="currentResultsComponent" :recommendations="recommendations"/>
           </slot>
         </b-col>
       </b-row>
@@ -99,6 +106,11 @@
 </template>
 
 <script>
+import TimeRangeSettings from './recommenders/TimeRangeRecommenderSettingsPanel'
+import TimeRangeResults from './recommendations/TimeRangeRecommendationsPanel'
+
+import NamedEntitiesResults from './recommendations/NamedEntitiesRecommendationsPanel'
+import TopicsResults from './recommendations/TopicsRecommendationsPanel'
 
 /**
  * @typedef {{ enabled: boolean, type: string, weight?: number, parameters: any }} RecommenderSettings
@@ -113,7 +125,7 @@ export default {
   data: () => ({
     editedWeight: 0,
     editedEnabled: true,
-    editedParamters: {}
+    editedParameters: {}
   }),
   props: {
     /** @type {import('vue').PropOptions<RecommenderSettings>} */
@@ -124,6 +136,10 @@ export default {
     weightBase: {
       type: Number,
       default: 1.5
+    },
+    recommendations: {
+      type: Object,
+      default: () => ({})
     }
   },
   computed: {
@@ -145,10 +161,32 @@ export default {
         this.editedWeight = Math.pow(this.weightBase, value)
       }
     },
+    parameters: {
+      /** @returns {object} */
+      get() { return this.editedParameters },
+      /** @param {object} value */
+      set(value) {
+        this.editedParameters = value;
+      }
+    },
+    /** @returns {boolean} */
+    parametersChanged() {
+      return JSON.stringify(this.editedParameters) !== JSON.stringify(this.settings.parameters)
+    },
     /** @returns {boolean} */
     canReload() {
       return this.editedEnabled !== this.settings.enabled
         || this.editedWeight !== (this.settings.weight ?? 0)
+    },
+    currentSettingsComponent() {
+      return 'time-range-settings'
+    },
+    currentResultsComponent() {
+      return {
+        TimeRange: 'time-range-results',
+        NamedEntitiesBag: 'named-entities-results',
+        TopicsBag: 'topics-results'
+      }[this.settings.type]
     }
   },
   methods: {
@@ -159,6 +197,18 @@ export default {
         weight: this.editedWeight
       }
       this.$emit(Events.SearchParametersChanged, settings)
+    },
+    handleApplyParamatersChanges() {
+      const settings = {
+        ...this.settings,
+        enabled: this.editedEnabled,
+        weight: this.editedWeight,
+        parameters: this.editedParameters
+      }
+      this.$emit(Events.RecommenderParametersChanged, settings)
+    },
+    handleResetParameters() {
+      this.editedParameters = {}
     }
   },
   watch: {
@@ -173,7 +223,20 @@ export default {
         this.editedEnabled = this.settings.enabled
       },
       immediate: true
+    },
+    'settings.parameters': {
+      handler() {
+        this.editedParameters = JSON.parse(JSON.stringify(this.settings.parameters))
+      },
+      immediate: true,
+      deep: true
     }
+  },
+  components: {
+    TimeRangeSettings,
+    TimeRangeResults,
+    NamedEntitiesResults,
+    TopicsResults
   }
 }
 </script>
