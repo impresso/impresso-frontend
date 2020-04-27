@@ -17,11 +17,11 @@
       </b-col>
     </b-row>
 
-    <div>
+    <!-- <div>
       <pre :style="{ 'font-size': '0.6em' }">
         {{ JSON.stringify(response, null, 2) }}
       </pre>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -30,6 +30,10 @@ import RecommenderPill from './RecommenderPill'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
 import { articlesRecommendations, articlesSearch } from '@/services'
 import Article from '@/models/Article'
+import {
+  recommenderResponseToFilters,
+  recommenderResponseToRelevanceContext
+} from '@/logic/collectionRecommendations'
 
 const RecommenderNames = Object.freeze({
   TimeRange: 'TimeRangeRecommender',
@@ -47,7 +51,8 @@ export default {
     recommendersSettings: [
       { enabled: true, type: 'TimeRange', parameters: {} },
       { enabled: true, type: 'NamedEntitiesBag', parameters: {} },
-      { enabled: true, type: 'TopicsBag', parameters: {} }
+      { enabled: true, type: 'TopicsBag', parameters: {} },
+      // { enabled: true, type: 'TextReuseClusterBag', parameters: {} },
     ],
     /** @type {any | undefined} */
     response: undefined,
@@ -62,16 +67,21 @@ export default {
   },
   watch: {
     collectionId: {
-      async handler() { await this.reloadRecommendations() },
+      async handler() {
+        await this.reloadRecommendations()
+        await this.reloadRecommendedArticles()
+      },
       immediate: true
     }
   },
   computed: {
     /** @return {object | undefined} */
     recommendations() {
-      return ['TimeRange', 'NamedEntitiesBag', 'TopicsBag'].map(type => {
-        return this.response?.results?.find(({ name }) => name === type)?.params
-      })
+      return this.recommendersSettings
+        .map(({ type }) => type)
+        .map(type => {
+          return this.response?.results?.find(({ name }) => name === type)?.params
+        })
     },
     /** @returns {any[]} */
     recommendedArticles() {
@@ -89,7 +99,11 @@ export default {
       this.response = await articlesRecommendations.create({ coll_id: this.collectionId, recommenders })
     },
     async reloadRecommendedArticles() {
-      this.articlesResponse = await articlesSearch.create({})
+      const request = {
+        filters: recommenderResponseToFilters(this.response),
+        relevanceContext: recommenderResponseToRelevanceContext(this.response, this.recommendersSettings)
+      }
+      this.articlesResponse = await articlesSearch.create(request)
     },
     handleSettingsChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)

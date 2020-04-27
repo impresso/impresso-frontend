@@ -22,7 +22,7 @@
       <!-- weight -->
       <b-row class="pt-2 pb-2">
         <b-col sm="2">
-          <label>Weight</label>
+          <label>Weight ({{ weightInput }})</label>
         </b-col>
         <b-col  sm="10">
           <b-form-input
@@ -111,6 +111,7 @@ import TimeRangeResults from './recommendations/TimeRangeRecommendationsPanel'
 
 import NamedEntitiesResults from './recommendations/NamedEntitiesRecommendationsPanel'
 import TopicsResults from './recommendations/TopicsRecommendationsPanel'
+import TextReuseClustersResults from './recommendations/TextReuseClustersRecommendationsPanel'
 
 /**
  * @typedef {{ enabled: boolean, type: string, weight?: number, parameters: any }} RecommenderSettings
@@ -155,7 +156,10 @@ export default {
     },
     weightInput: {
       /** @returns {number} */
-      get() { return Math.log(this.editedWeight ?? 0) / Math.log(this.weightBase) },
+      get() {
+        const value = Math.log(this.editedWeight ?? 0) / Math.log(this.weightBase)
+        return isFinite(value) ? value : 0
+      },
       /** @param {number} value */
       set(value) {
         this.editedWeight = Math.pow(this.weightBase, value)
@@ -187,7 +191,8 @@ export default {
       return {
         TimeRange: 'time-range-results',
         NamedEntitiesBag: 'named-entities-results',
-        TopicsBag: 'topics-results'
+        TopicsBag: 'topics-results',
+        TextReuseClusterBag: 'text-reuse-clusters-results'
       }[this.settings.type]
     }
   },
@@ -211,6 +216,7 @@ export default {
     },
     handleResetParameters() {
       this.editedParameters = {}
+      this.handleApplyParamatersChanges()
     }
   },
   watch: {
@@ -238,7 +244,8 @@ export default {
     TimeRangeSettings,
     TimeRangeResults,
     NamedEntitiesResults,
-    TopicsResults
+    TopicsResults,
+    TextReuseClustersResults
   }
 }
 </script>
@@ -284,7 +291,8 @@ export default {
     "pillLabels": {
       "TimeRange": "Time range",
       "NamedEntitiesBag": "Locations & Persons",
-      "TopicsBag": "Topics"
+      "TopicsBag": "Topics",
+      "TextReuseClusterBag": "Text reuse"
     }
   }
 }
