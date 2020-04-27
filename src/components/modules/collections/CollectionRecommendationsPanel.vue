@@ -99,8 +99,13 @@ export default {
       this.response = await articlesRecommendations.create({ coll_id: this.collectionId, recommenders })
     },
     async reloadRecommendedArticles() {
+      const collectionExlusionFilter = {
+        type: 'collection',
+        q: this.collectionId,
+        context: 'exclude'
+      }
       const request = {
-        filters: recommenderResponseToFilters(this.response),
+        filters: recommenderResponseToFilters(this.response).concat(collectionExlusionFilter),
         relevanceContext: recommenderResponseToRelevanceContext(this.response, this.recommendersSettings)
       }
       this.articlesResponse = await articlesSearch.create(request)
