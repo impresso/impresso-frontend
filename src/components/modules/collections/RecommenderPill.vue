@@ -1,5 +1,5 @@
 <template>
-  <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 recommender-pill">
+  <b-dropdown ref="dropdown" size="sm" variant="outline-primary" class="mr-1 mb-1 recommender-pill">
     <template v-slot:button-content>
       <span class="button-icon dripicons-checkmark"/>
       <span class="label sp-string sp-title" :class="{ 'crossed-out': !settings.enabled }">
@@ -10,7 +10,7 @@
       <!-- toggles bar -->
       <b-row class="border-bottom">
         <b-col class="border-right pt-2 pb-2">
-          <b-form-checkbox v-model="recommenderEnabled">
+          <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged">
             Enable this recommender
           </b-form-checkbox>
         </b-col>
@@ -31,7 +31,9 @@
             min="-5"
             max="5"
             step="0.1"
-            class="pt-2 pb-2 pl-3 pr-3">
+            class="pt-2 pb-2 pl-3 pr-3"
+            :disabled="!recommenderEnabled"
+            @change="handleControlChanged">
           </b-form-input>
         </b-col>
       </b-row>
@@ -61,6 +63,7 @@
                 <b-button
                   class="control-button"
                   variant="outline-primary"
+                  :disabled="loadingRecommendations || settingsAreDefault"
                   @click="handleResetParameters">
                   Reset to default settings
                 </b-button>
@@ -69,7 +72,7 @@
                 <b-button
                   class="control-button"
                   variant="outline-primary"
-                  :disabled="!parametersChanged"
+                  :disabled="!parametersChanged || loadingRecommendations"
                   @click="handleApplyParamatersChanges">
                   Apply changes
                 </b-button>
@@ -84,22 +87,26 @@
         <b-col class="ml-3 mr-3 p-2 recommendations">
           <slot name="recommendations">
             <!-- recommendations -->
-            <component :is="currentResultsComponent" :recommendations="recommendations"/>
+            <component
+              :is="currentResultsComponent"
+              :recommendations="recommendations"
+              v-if="!loadingRecommendations"/>
+            <spinner v-if="loadingRecommendations"/>
           </slot>
         </b-col>
       </b-row>
 
-      <b-row class="pt-1 pb-2">
+      <!-- <b-row class="pt-1 pb-2">
         <b-col>
           <b-button
             class="reload-button"
             variant="outline-primary"
-            :disabled="!canReload"
+            :disabled="!canReload || loadingRecommendations"
             @click="handleReload">
             Reload recommendations
           </b-button>
         </b-col>
-      </b-row>
+      </b-row> -->
 
     </b-container>
   </b-dropdown>
@@ -115,6 +122,8 @@ import TimeRangeResults from './recommendations/TimeRangeRecommendationsPanel'
 import NamedEntitiesResults from './recommendations/NamedEntitiesRecommendationsPanel'
 import TopicsResults from './recommendations/TopicsRecommendationsPanel'
 import TextReuseClustersResults from './recommendations/TextReuseClustersRecommendationsPanel'
+
+import Spinner from '@/components/layout/Spinner'
 
 /**
  * @typedef {{ enabled: boolean, type: string, weight?: number, parameters: any }} RecommenderSettings
@@ -144,6 +153,10 @@ export default {
     recommendations: {
       type: Object,
       default: () => ({})
+    },
+    loadingRecommendations: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -202,6 +215,10 @@ export default {
         TopicsBag: 'topics-results',
         TextReuseClusterBag: 'text-reuse-clusters-results'
       }[this.settings.type]
+    },
+    /** @returns {boolean} */
+    settingsAreDefault() {
+      return Object.keys(this.editedParameters).length === 0
     }
   },
   methods: {
@@ -212,6 +229,7 @@ export default {
         weight: this.editedWeight
       }
       this.$emit(Events.SearchParametersChanged, settings)
+      // this.$refs.dropdown.hide(true)
     },
     handleApplyParamatersChanges() {
       const settings = {
@@ -221,10 +239,14 @@ export default {
         parameters: this.editedParameters
       }
       this.$emit(Events.RecommenderParametersChanged, settings)
+      // this.$refs.dropdown.hide(true)
     },
     handleResetParameters() {
       this.editedParameters = {}
       this.handleApplyParamatersChanges()
+    },
+    handleControlChanged() {
+      this.$nextTick(() => this.handleReload())
     }
   },
   watch: {
@@ -249,10 +271,13 @@ export default {
     }
   },
   components: {
+    Spinner,
+
     TimeRangeSettings,
     NamedEntitiesSettings,
     TopicsSettings,
     TextReuseClustersSettings,
+
     TimeRangeResults,
     NamedEntitiesResults,
     TopicsResults,
@@ -275,7 +300,6 @@ export default {
     }
 
     .advanced-features {
-      border: 1px dashed #ddd;
 
       .toggle-panel-button {
         width: 100%;

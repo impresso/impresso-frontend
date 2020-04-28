@@ -7,25 +7,29 @@
         :key="settings.type"
         :settings="settings"
         :recommendations="recommendations[index]"
+        :loading-recommendations="isLoadingRecommendations"
         @changed="handleSettingsChanged"
         @search-parameters-changed="handleSearchparametersChanged"/>
     </div>
 
-    <b-row>
-      <b-col v-for="article in recommendedArticles" :key="article.uid">
-        <search-results-list-item :article="article" />
-      </b-col>
-    </b-row>
+    <div v-if="!isLoadingRecommendations && !isLoadingArticles">
+      <b-row>
+        <b-col v-for="article in recommendedArticles" :key="article.uid">
+          <search-results-list-item :article="article" />
+        </b-col>
+      </b-row>
 
-    <div class="fixed-pagination-footer p-1 m-0" slot="footer">
-      <pagination
-        v-if="recommendedArticles.length"
-        v-model="paginationCurrentPage"
-        :per-page="paginationPerPage"
-        :total-rows="paginationTotalRows"
-        class="float-left small-caps" />
+      <div class="fixed-pagination-footer p-1 m-0" slot="footer">
+        <pagination
+          v-if="recommendedArticles.length"
+          v-model="paginationCurrentPage"
+          :per-page="paginationPerPage"
+          :total-rows="paginationTotalRows"
+          class="float-left small-caps" />
+      </div>
     </div>
 
+    <spinner v-if="isLoadingRecommendations || isLoadingArticles" />
 
     <!-- <div>
       <pre :style="{ 'font-size': '0.6em' }">
@@ -39,6 +43,8 @@
 import RecommenderPill from './RecommenderPill'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
 import Pagination from '@/components/modules/Pagination'
+import Spinner from '@/components/layout/Spinner'
+
 import { articlesRecommendations, articlesSearch } from '@/services'
 import Article from '@/models/Article'
 import {
@@ -57,7 +63,8 @@ export default {
   components: {
     RecommenderPill,
     SearchResultsListItem,
-    Pagination
+    Pagination,
+    Spinner
   },
   data: () => ({
     recommendersSettings: [
@@ -72,6 +79,8 @@ export default {
     articlesResponse: undefined,
     paginationCurrentPage: 1,
     paginationPerPage: 20,
+    isLoadingRecommendations: false,
+    isLoadingArticles: false
   }),
   props: {
     collectionId: {
@@ -80,17 +89,32 @@ export default {
     }
   },
   watch: {
-    collectionId: {
-      async handler() {
-        await this.reloadRecommendations()
-        await this.reloadRecommendedArticles()
+    recommendationRequest: {
+      async handler(request, oldRequest) {
+        if (JSON.stringify(request) === JSON.stringify(oldRequest)) return
+        try {
+          this.isLoadingRecommendations = true
+          this.response = await articlesRecommendations.create(request)
+        } finally {
+          this.isLoadingRecommendations = false
+        }
       },
-      immediate: true
+      immediate: true,
+      deep: true
     },
-    paginationCurrentPage: {
-      async handler() {
-        await this.reloadRecommendedArticles()
-      }
+    recommendedArticlesRequest: {
+      async handler(request, oldRequest) {
+        if (request == null) return
+        if (JSON.stringify(request) === JSON.stringify(oldRequest)) return
+        try {
+          this.isLoadingArticles = true
+          this.articlesResponse = await articlesSearch.create(request)
+        } finally {
+          this.isLoadingArticles = false
+        }
+      },
+      immediate: true,
+      deep: true
     }
   },
   computed: {
@@ -109,19 +133,20 @@ export default {
     /** @returns {number} */
     paginationTotalRows() {
       return this.articlesResponse?.total ?? 0;
-    }
-  },
-  methods: {
-    async reloadRecommendations() {
+    },
+    /** @returns {any} */
+    recommendationRequest() {
       const recommenders = this.recommendersSettings
         .filter(({ enabled }) => enabled)
         .map(({ type, parameters }) => ({
           name: RecommenderNames[type],
           params: Object.keys(parameters).length > 0 ? parameters : {}
         }))
-      this.response = await articlesRecommendations.create({ coll_id: this.collectionId, recommenders })
+      return { coll_id: this.collectionId, recommenders }
     },
-    async reloadRecommendedArticles() {
+    /** @returns {any} */
+    recommendedArticlesRequest() {
+      if (this.response == null) return
       const collectionExlusionFilter = {
         type: 'collection',
         q: this.collectionId,
@@ -135,22 +160,22 @@ export default {
           limit: this.paginationPerPage
         }
       }
-      this.articlesResponse = await articlesSearch.create(request)
-    },
+
+      return request
+    }
+  },
+  methods: {
     async handleSettingsChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
-      console.info('Settings updated', settings, index)
-      await this.reloadRecommendations()
       this.paginationCurrentPage = 1
-      await this.reloadRecommendedArticles()
+      console.info('Settings updated', settings, index)
     },
     async handleSearchparametersChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
-      console.info('Search parameters settings changed', settings)
       this.paginationCurrentPage = 1
-      this.reloadRecommendedArticles()
+      console.info('Search parameters settings changed', settings)
     }
   }
 }
