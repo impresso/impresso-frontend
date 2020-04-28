@@ -233,8 +233,14 @@ $clr-grey-900: #ddd;
   height: 0;
 }
 .custom-radio > .custom-control-label::before {
-    border: inherit;
-    outline: inherit;
+  border: inherit;
+  outline: inherit;
+}
+.custom-control-label::before {
+  outline: none;
+}
+.custom-control-label::before {
+  // border-color: $clr-primary;
 }
 .tooltip-inner {
     max-width: auto;
