@@ -110,13 +110,14 @@ export default {
       }
       this.articlesResponse = await articlesSearch.create(request)
     },
-    handleSettingsChanged(settings) {
+    async handleSettingsChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
       console.info('Settings updated', settings, index)
-      this.reloadRecommendations()
+      await this.reloadRecommendations()
+      await this.reloadRecommendedArticles()
     },
-    handleSearchparametersChanged(settings) {
+    async handleSearchparametersChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
       console.info('Search parameters settings changed', settings)

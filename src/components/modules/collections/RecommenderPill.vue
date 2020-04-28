@@ -108,6 +108,7 @@
 <script>
 import TimeRangeSettings from './recommenders/TimeRangeRecommenderSettingsPanel'
 import NamedEntitiesSettings from './recommenders/NamedEntitiesRecommenderSettingsPanel'
+import TopicsSettings from './recommenders/TopicsRecommenderSettingsPanel'
 
 import TimeRangeResults from './recommendations/TimeRangeRecommendationsPanel'
 import NamedEntitiesResults from './recommendations/NamedEntitiesRecommendationsPanel'
@@ -187,7 +188,8 @@ export default {
     currentSettingsComponent() {
       return {
         TimeRange: 'time-range-settings',
-        NamedEntitiesBag: 'named-entities-settings'
+        NamedEntitiesBag: 'named-entities-settings',
+        TopicsBag: 'topics-settings'
       }[this.settings.type]
     },
     /** @returns {string} */
@@ -247,6 +249,7 @@ export default {
   components: {
     TimeRangeSettings,
     NamedEntitiesSettings,
+    TopicsSettings,
     TimeRangeResults,
     NamedEntitiesResults,
     TopicsResults,
