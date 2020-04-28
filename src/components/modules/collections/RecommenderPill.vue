@@ -109,6 +109,7 @@
 import TimeRangeSettings from './recommenders/TimeRangeRecommenderSettingsPanel'
 import NamedEntitiesSettings from './recommenders/NamedEntitiesRecommenderSettingsPanel'
 import TopicsSettings from './recommenders/TopicsRecommenderSettingsPanel'
+import TextReuseClustersSettings from './recommenders/TextReuseClustersRecommenderSettingsPanel'
 
 import TimeRangeResults from './recommendations/TimeRangeRecommendationsPanel'
 import NamedEntitiesResults from './recommendations/NamedEntitiesRecommendationsPanel'
@@ -189,7 +190,8 @@ export default {
       return {
         TimeRange: 'time-range-settings',
         NamedEntitiesBag: 'named-entities-settings',
-        TopicsBag: 'topics-settings'
+        TopicsBag: 'topics-settings',
+        TextReuseClusterBag: 'text-reuse-clusters-settings'
       }[this.settings.type]
     },
     /** @returns {string} */
@@ -250,6 +252,7 @@ export default {
     TimeRangeSettings,
     NamedEntitiesSettings,
     TopicsSettings,
+    TextReuseClustersSettings,
     TimeRangeResults,
     NamedEntitiesResults,
     TopicsResults,
