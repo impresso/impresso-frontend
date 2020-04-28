@@ -335,7 +335,7 @@ export default {
       "descriptions": {
         "intersection": {
           "inspect": "Lists of newspapers, named entities and topics for results for <div class='side left'>A</div>, <div class='side right'>B</div> and in both <div class='side left'>A</div> and <div class='side right'>B</div>",
-          "compare": "Lists of newspapers, named entities and topics for articles which appear both in <div class='side left'>A</div> and <div class='side right'>B</div>."
+          "compare": "Distribution of newspapers, named entities and topics for articles which appear both in <div class='side left'>A</div> and <div class='side right'>B</div>."
         }
       }
     },
