@@ -1,9 +1,9 @@
 <template lang="html">
-  <i-layout-section v-if="$route.params.collection_uid">
+  <i-layout-section>
 
     <div slot="header">
 
-      <b-navbar type="light" variant="light">
+      <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
 
         <section>
 
@@ -56,6 +56,11 @@
           {{this.$t('confirm_delete', [collection.name])}}
         </b-modal>
       </b-navbar>
+      <b-navbar v-else>
+
+        <h1>All Collections overview</h1>
+
+      </b-navbar>
 
       <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
@@ -72,7 +77,7 @@
 
 
 
-        <b-navbar-nav class="ml-2">
+        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-2">
           <b-nav-form class="p-2">
             <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
               {{ $t('actions.addToCurrentFilters') }}
@@ -380,12 +385,8 @@ export default {
           this.facetTypes.forEach((type) => {
             this.loadFacets(type);
           });
-          //
-          // await this.loadFacets('newspaper');
-          // await this.loadFacets('topic');
-          // await this.loadFacets('location');
-          // await this.loadFacets('person');
         }
+        console.log('---', this.collection.uid);
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
@@ -403,16 +404,21 @@ export default {
       if (page !== undefined) {
         this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-      this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
-        this.collection = res;
-        this.fetching = false;
-      });
+      if (this.collection.uid === 'co_all') {
+        this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
+          this.collection.items = res;
+          this.fetching = false;
+        });
+      } else {
+        this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
+          this.collection = res;
+          this.fetching = false;
+        });
+      }
     },
     getCollection() {
-      this.collection = {
-        uid: this.$route.params.collection_uid,
-        items: [],
-      };
+      this.collection.uid = this.$route.params.collection_uid ? this.$route.params.collection_uid : 'co_all';
+      this.collection.items = [];
     },
     gotoArticle(article) {
       this.$router.push({
