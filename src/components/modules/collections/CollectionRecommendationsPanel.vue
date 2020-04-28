@@ -17,6 +17,16 @@
       </b-col>
     </b-row>
 
+    <div class="fixed-pagination-footer p-1 m-0" slot="footer">
+      <pagination
+        v-if="recommendedArticles.length"
+        v-model="paginationCurrentPage"
+        :per-page="paginationPerPage"
+        :total-rows="paginationTotalRows"
+        class="float-left small-caps" />
+    </div>
+
+
     <!-- <div>
       <pre :style="{ 'font-size': '0.6em' }">
         {{ JSON.stringify(response, null, 2) }}
@@ -28,6 +38,7 @@
 <script>
 import RecommenderPill from './RecommenderPill'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
+import Pagination from '@/components/modules/Pagination'
 import { articlesRecommendations, articlesSearch } from '@/services'
 import Article from '@/models/Article'
 import {
@@ -45,19 +56,22 @@ const RecommenderNames = Object.freeze({
 export default {
   components: {
     RecommenderPill,
-    SearchResultsListItem
+    SearchResultsListItem,
+    Pagination
   },
   data: () => ({
     recommendersSettings: [
       { enabled: true, type: 'TimeRange', parameters: {} },
       { enabled: true, type: 'NamedEntitiesBag', parameters: {} },
       { enabled: true, type: 'TopicsBag', parameters: {} },
-      { enabled: true, type: 'TextReuseClusterBag', parameters: {} },
+      { enabled: false, type: 'TextReuseClusterBag', parameters: {} },
     ],
     /** @type {any | undefined} */
     response: undefined,
     /** @type {any | undefined} */
-    articlesResponse: undefined
+    articlesResponse: undefined,
+    paginationCurrentPage: 1,
+    paginationPerPage: 20,
   }),
   props: {
     collectionId: {
@@ -72,6 +86,11 @@ export default {
         await this.reloadRecommendedArticles()
       },
       immediate: true
+    },
+    paginationCurrentPage: {
+      async handler() {
+        await this.reloadRecommendedArticles()
+      }
     }
   },
   computed: {
@@ -86,6 +105,10 @@ export default {
     /** @returns {any[]} */
     recommendedArticles() {
       return (this.articlesResponse?.data ?? []).map(v => new Article(v))
+    },
+    /** @returns {number} */
+    paginationTotalRows() {
+      return this.articlesResponse?.total ?? 0;
     }
   },
   methods: {
@@ -106,7 +129,11 @@ export default {
       }
       const request = {
         filters: recommenderResponseToFilters(this.response, this.recommendersSettings).concat(collectionExlusionFilter),
-        relevanceContext: recommenderResponseToRelevanceContext(this.response, this.recommendersSettings)
+        relevanceContext: recommenderResponseToRelevanceContext(this.response, this.recommendersSettings),
+        pagination: {
+          skip: (this.paginationCurrentPage - 1) * this.paginationPerPage,
+          limit: this.paginationPerPage
+        }
       }
       this.articlesResponse = await articlesSearch.create(request)
     },
@@ -115,12 +142,14 @@ export default {
       this.$set(this.recommendersSettings, index, settings)
       console.info('Settings updated', settings, index)
       await this.reloadRecommendations()
+      this.paginationCurrentPage = 1
       await this.reloadRecommendedArticles()
     },
     async handleSearchparametersChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
       console.info('Search parameters settings changed', settings)
+      this.paginationCurrentPage = 1
       this.reloadRecommendedArticles()
     }
   }
