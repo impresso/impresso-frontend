@@ -2,7 +2,7 @@
   <div >
     <b-progress v-if='processingStatus' :value="100" variant="info" animated height="4px"></b-progress>
     <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-primary">
-      <b-navbar-brand :to="{name: 'home'}">
+      <b-navbar-brand :to="getRouteWithSearchQuery({ name: 'home'})">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
 
@@ -65,6 +65,7 @@
           <b-nav-item v-bind:to="{ name: 'termsOfUse'}" active-class="active">
             {{$t("label_terms_of_use")}}
           </b-nav-item>
+
           <b-nav-item-dropdown right no-caret
             v-if="user"
             ref="ddownJobs" v-on:hidden="updateLastNotificationDate">
@@ -588,7 +589,7 @@ export default {
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
-    "no-jobs-yet": "Here you will find notifications about your collections and your downloads.",
+    "no-jobs-yet": "Here you will find notifications about your newly created collections and recent downloads.",
     "current_version": "v <span class='small-caps'>{version}</span>"
   }
 }
