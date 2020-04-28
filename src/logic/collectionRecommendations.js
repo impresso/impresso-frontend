@@ -48,19 +48,37 @@ function topicsBagRecommendationsToFilters({ topic_weights }) {
     }] : []
 }
 
+/**
+ * @param {{ cluster_weights: any[] }} param
+ * @returns {Filter[]}
+ */
+function textReuseClusterBagRecommendationsToFilters({ cluster_weights }) {
+  return cluster_weights?.length > 0
+    ? [{
+      type: 'textReuseCluster',
+      q: cluster_weights.map(([id]) => id),
+      op: 'OR'
+    }] : []
+}
+
 const FilterTypeConverters = {
   TimeRange: timeRangeRecommendationsToFilters,
   NamedEntitiesBag: namedEntitiesRecommendationsToFilters,
-  TopicsBag: topicsBagRecommendationsToFilters
+  TopicsBag: topicsBagRecommendationsToFilters,
+  TextReuseClusterBag: textReuseClusterBagRecommendationsToFilters
 }
 
 /**
  * @param {any} response
+ * @param {any} settings
  * @returns {Filter[]}
  */
-export function recommenderResponseToFilters(response) {
+export function recommenderResponseToFilters(response, settings) {
   return response?.results?.map(({ name, params }) => {
     const fn = FilterTypeConverters[name]
+    const recommenderEnabled = settings.find(({ type }) => type === name)?.enabled
+    if (!recommenderEnabled) return []
+
     return fn != null ? fn(params) : []
   })?.flat() ?? []
 }
@@ -96,10 +114,19 @@ function topicsBagRelevanceContextBuilder({ topic_weights }, weight) {
   }]
 }
 
+function textReuseClusterBagRelevanceContextBuilder({ cluster_weights }, weight) {
+  return [{
+    type: 'textReuseClusters',
+    parameters: { entities: cluster_weights?.map(([id, w]) => ({ id, weight: w })) ?? [] },
+    weight
+  }]
+}
+
 const NameToRelevanceContextBuilder = {
   TimeRange: timeRangeRelevanceContextBuilder,
   NamedEntitiesBag: namedEntitiesRelevanceContextBuilder,
-  TopicsBag: topicsBagRelevanceContextBuilder
+  TopicsBag: topicsBagRelevanceContextBuilder,
+  TextReuseClusterBag: textReuseClusterBagRelevanceContextBuilder
 }
 
 /**
@@ -110,6 +137,9 @@ const NameToRelevanceContextBuilder = {
 export function recommenderResponseToRelevanceContext(response, settings) {
   return response?.results?.map(({ name, params }) => {
     const fn = NameToRelevanceContextBuilder[name]
+    const recommenderEnabled = settings.find(({ type }) => type === name)?.enabled
+    if (!recommenderEnabled) return []
+
     const weight = settings.find(({ type }) => type === name)?.weight
     return fn != null ? fn(params, weight) : []
   }).flat() ?? []

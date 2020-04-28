@@ -52,7 +52,7 @@ export default {
       { enabled: true, type: 'TimeRange', parameters: {} },
       { enabled: true, type: 'NamedEntitiesBag', parameters: {} },
       { enabled: true, type: 'TopicsBag', parameters: {} },
-      // { enabled: true, type: 'TextReuseClusterBag', parameters: {} },
+      { enabled: true, type: 'TextReuseClusterBag', parameters: {} },
     ],
     /** @type {any | undefined} */
     response: undefined,
@@ -105,7 +105,7 @@ export default {
         context: 'exclude'
       }
       const request = {
-        filters: recommenderResponseToFilters(this.response).concat(collectionExlusionFilter),
+        filters: recommenderResponseToFilters(this.response, this.recommendersSettings).concat(collectionExlusionFilter),
         relevanceContext: recommenderResponseToRelevanceContext(this.response, this.recommendersSettings)
       }
       this.articlesResponse = await articlesSearch.create(request)
