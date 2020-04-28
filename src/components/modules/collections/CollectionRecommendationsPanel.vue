@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- header -->
-    <div class="border-bottom pb-2">
+    <div class="border-bottom pl-3 pr-3 pt-3 pb-2">
       <recommender-pill
         v-for="(settings, index) in recommendersSettings"
         :key="settings.type"
@@ -12,7 +12,7 @@
         @search-parameters-changed="handleSearchparametersChanged"/>
     </div>
 
-    <div v-if="!isLoadingRecommendations && !isLoadingArticles">
+    <div v-if="!isLoadingRecommendations && !isLoadingArticles" class=" p-3">
       <b-row>
         <b-col v-for="article in recommendedArticles" :key="article.uid">
           <search-results-list-item :article="article" />
@@ -31,11 +31,6 @@
 
     <spinner v-if="isLoadingRecommendations || isLoadingArticles" />
 
-    <!-- <div>
-      <pre :style="{ 'font-size': '0.6em' }">
-        {{ JSON.stringify(response, null, 2) }}
-      </pre>
-    </div> -->
   </div>
 </template>
 
@@ -49,15 +44,9 @@ import { articlesRecommendations, articlesSearch } from '@/services'
 import Article from '@/models/Article'
 import {
   recommenderResponseToFilters,
-  recommenderResponseToRelevanceContext
+  recommenderResponseToRelevanceContext,
+  RecommenderNameMap
 } from '@/logic/collectionRecommendations'
-
-const RecommenderNames = Object.freeze({
-  TimeRange: 'TimeRangeRecommender',
-  NamedEntitiesBag: 'NamedEntitiesRecommender',
-  TopicsBag: 'TopicsRecommender',
-  TextReuseClusterBag: 'TextReuseRecommender'
-})
 
 export default {
   components: {
@@ -68,10 +57,10 @@ export default {
   },
   data: () => ({
     recommendersSettings: [
-      { enabled: true, type: 'TimeRange', parameters: {} },
-      { enabled: true, type: 'NamedEntitiesBag', parameters: {} },
-      { enabled: true, type: 'TopicsBag', parameters: {} },
-      { enabled: false, type: 'TextReuseClusterBag', parameters: {} },
+      { enabled: true, type: 'timeRange', parameters: {} },
+      { enabled: true, type: 'entities', parameters: {} },
+      { enabled: true, type: 'topics', parameters: {} },
+      { enabled: false, type: 'textReuseClusters', parameters: {} },
     ],
     /** @type {any | undefined} */
     response: undefined,
@@ -89,6 +78,9 @@ export default {
     }
   },
   watch: {
+    /**
+     * Reload recommendations when recommendation request changes
+     */
     recommendationRequest: {
       async handler(request, oldRequest) {
         if (JSON.stringify(request) === JSON.stringify(oldRequest)) return
@@ -102,10 +94,15 @@ export default {
       immediate: true,
       deep: true
     },
+    /**
+     * Reload articles when article request changes. It depends on recommendations
+     * fetched in the method above.
+     */
     recommendedArticlesRequest: {
       async handler(request, oldRequest) {
         if (request == null) return
         if (JSON.stringify(request) === JSON.stringify(oldRequest)) return
+
         try {
           this.isLoadingArticles = true
           this.articlesResponse = await articlesSearch.create(request)
@@ -118,7 +115,10 @@ export default {
     }
   },
   computed: {
-    /** @return {object | undefined} */
+    /**
+     * Recommendations for every recommender
+     * @return {object | undefined}
+     */
     recommendations() {
       return this.recommendersSettings
         .map(({ type }) => type)
@@ -139,7 +139,7 @@ export default {
       const recommenders = this.recommendersSettings
         .filter(({ enabled }) => enabled)
         .map(({ type, parameters }) => ({
-          name: RecommenderNames[type],
+          name: RecommenderNameMap[type],
           params: Object.keys(parameters).length > 0 ? parameters : {}
         }))
       return { coll_id: this.collectionId, recommenders }
@@ -165,17 +165,15 @@ export default {
     }
   },
   methods: {
-    async handleSettingsChanged(settings) {
+    handleSettingsChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
       this.paginationCurrentPage = 1
-      console.info('Settings updated', settings, index)
     },
-    async handleSearchparametersChanged(settings) {
+    handleSearchparametersChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
       this.paginationCurrentPage = 1
-      console.info('Search parameters settings changed', settings)
     }
   }
 }

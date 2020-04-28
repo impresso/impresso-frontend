@@ -3,6 +3,27 @@
  * @typedef {import('@/models').Filter} Filter
  */
 
+
+/**
+ * Recommender Id to recommender names used in "request" to recommender endpoint.
+ */
+export const RecommenderNameMap = Object.freeze({
+  timeRange: 'TimeRangeRecommender',
+  entities: 'NamedEntitiesRecommender',
+  topics: 'TopicsRecommender',
+  textReuseClusters: 'TextReuseRecommender'
+})
+
+/**
+ * Recommender Id to recommender tags used in "response" from recommender endpoint.
+ */
+export const RecommenderResponseTagMap = Object.freeze({
+  timeRange: 'TimeRange',
+  entities: 'NamedEntitiesBag',
+  topics: 'TopicsBag',
+  textReuseClusters: 'TextReuseClusterBag'
+})
+
 /**
  * @param {{ min_year: number, max_year: number }} param
  * @returns {Filter[]}
@@ -76,7 +97,8 @@ const FilterTypeConverters = {
 export function recommenderResponseToFilters(response, settings) {
   return response?.results?.map(({ name, params }) => {
     const fn = FilterTypeConverters[name]
-    const recommenderEnabled = settings.find(({ type }) => type === name)?.enabled
+    const recommenderEnabled = settings.find(({ type }) => RecommenderResponseTagMap[type] === name)?.enabled
+
     if (!recommenderEnabled) return []
 
     return fn != null ? fn(params) : []
@@ -137,10 +159,11 @@ const NameToRelevanceContextBuilder = {
 export function recommenderResponseToRelevanceContext(response, settings) {
   return response?.results?.map(({ name, params }) => {
     const fn = NameToRelevanceContextBuilder[name]
-    const recommenderEnabled = settings.find(({ type }) => type === name)?.enabled
+    const recommenderSettings = settings.find(({ type }) => RecommenderResponseTagMap[type] === name)
+    const recommenderEnabled = recommenderSettings?.enabled
     if (!recommenderEnabled) return []
 
-    const weight = settings.find(({ type }) => type === name)?.weight
+    const weight = recommenderSettings?.weight
     return fn != null ? fn(params, weight) : []
   }).flat() ?? []
 }

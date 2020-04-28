@@ -201,19 +201,19 @@ export default {
     /** @returns {string} */
     currentSettingsComponent() {
       return {
-        TimeRange: 'time-range-settings',
-        NamedEntitiesBag: 'named-entities-settings',
-        TopicsBag: 'topics-settings',
-        TextReuseClusterBag: 'text-reuse-clusters-settings'
+        timeRange: 'time-range-settings',
+        entities: 'named-entities-settings',
+        topics: 'topics-settings',
+        textReuseClusters: 'text-reuse-clusters-settings'
       }[this.settings.type]
     },
     /** @returns {string} */
     currentResultsComponent() {
       return {
-        TimeRange: 'time-range-results',
-        NamedEntitiesBag: 'named-entities-results',
-        TopicsBag: 'topics-results',
-        TextReuseClusterBag: 'text-reuse-clusters-results'
+        timeRange: 'time-range-results',
+        entities: 'named-entities-results',
+        topics: 'topics-results',
+        textReuseClusters: 'text-reuse-clusters-results'
       }[this.settings.type]
     },
     /** @returns {boolean} */
@@ -324,10 +324,10 @@ export default {
 {
   "en": {
     "pillLabels": {
-      "TimeRange": "Time range",
-      "NamedEntitiesBag": "Locations & Persons",
-      "TopicsBag": "Topics",
-      "TextReuseClusterBag": "Text reuse"
+      "timeRange": "Time range",
+      "entities": "Locations & Persons",
+      "topics": "Topics",
+      "textReuseClusters": "Text reuse"
     }
   }
 }

@@ -189,7 +189,7 @@
 
     </div>
 
-    <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-group p-3">
+    <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-group">
       <collection-recommendations-panel :collection-id="$route.params.collection_uid"/>
     </div>
 <!--
