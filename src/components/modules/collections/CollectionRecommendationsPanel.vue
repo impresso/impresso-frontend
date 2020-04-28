@@ -45,7 +45,8 @@ import Article from '@/models/Article'
 import {
   recommenderResponseToFilters,
   recommenderResponseToRelevanceContext,
-  RecommenderNameMap
+  RecommenderNameMap,
+  RecommenderResponseTagMap
 } from '@/logic/collectionRecommendations'
 
 export default {
@@ -123,7 +124,7 @@ export default {
       return this.recommendersSettings
         .map(({ type }) => type)
         .map(type => {
-          return this.response?.results?.find(({ name }) => name === type)?.params
+          return this.response?.results?.find(({ name }) => name === RecommenderResponseTagMap[type])?.params
         })
     },
     /** @returns {any[]} */

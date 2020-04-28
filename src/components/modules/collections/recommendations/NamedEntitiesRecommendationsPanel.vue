@@ -3,12 +3,11 @@
     <b-col>
       <!-- persons -->
       <div>
-        <h3>Persons</h3>
-        <ul>
-          <li v-for="person in recommendedPersons" :key="person.name">
-            {{ person.name }} ({{ person.score }})
-          </li>
-        </ul>
+        <h3 class="m-0 tb-title small-caps font-weight-bold pb-2">Persons</h3>
+        <div v-for="person in recommendedPersons" :key="person.id">
+          <item-label type="person" :item="person.item"/>
+          <item-selector :uid="person.id" :item="person.item" type="person"/>
+        </div>
       </div>
 
       <!-- locations -->
@@ -25,7 +24,14 @@
 </template>
 
 <script>
+import ItemLabel from '@/components/modules/lists/ItemLabel'
+import ItemSelector from '@/components/modules/ItemSelector'
+
 export default {
+  components: {
+    ItemLabel,
+    ItemSelector
+  },
   props: {
     recommendations: {
       type: Object,
@@ -37,10 +43,17 @@ export default {
     hasRecommendations() {
       return Object.keys(this.recommendations).length > 0
     },
-    /** @returns {{ name: string, score: number, id: string }[]} */
+    /** @returns {{ name: string, score: number, id: string, item: any }[]} */
     recommendedPersons() {
       const persCounts = this.recommendations?.pers_counts ?? []
-      return persCounts.map(([id, name, score]) => ({ name, score, id }))
+      return persCounts.map(([id, name, score]) => ({
+        name,
+        score,
+        id,
+        item: {
+          name: `${name} (${this.$n(score, { maximumFractionDigits: '2' })})`
+        }
+      }))
     },
     /** @returns {{ name: string, score: number, id: string }[]} */
     recommendedLocations() {

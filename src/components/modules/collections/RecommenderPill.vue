@@ -11,7 +11,7 @@
       <b-row class="border-bottom">
         <b-col class="border-right pt-2 pb-2">
           <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged">
-            Enable this recommender
+            {{ $t('enableRecommender') }}
           </b-form-checkbox>
         </b-col>
         <b-col class="pt-2 pb-2">
@@ -22,7 +22,7 @@
       <!-- weight -->
       <b-row class="pt-2 pb-2">
         <b-col sm="2">
-          <label>Weight ({{ weightInput }})</label>
+          <label>{{ $t('weightLabel') }} ({{ $n(weightInput, { maximumFractionDigits: '2' }) }})</label>
         </b-col>
         <b-col  sm="10">
           <b-form-input
@@ -47,7 +47,7 @@
               variant="outline-primary"
               class="toggle-panel-button"
               v-b-toggle="`settings-collapse-${componentId}`">
-              Advanced settings
+              {{ $t('label.advancedSettings') }}
             </b-button>
           </b-row>
 
@@ -65,7 +65,7 @@
                   variant="outline-primary"
                   :disabled="loadingRecommendations || settingsAreDefault"
                   @click="handleResetParameters">
-                  Reset to default settings
+                  {{ $t('label.resetToDefault') }}
                 </b-button>
               </b-col>
               <b-col class="pr-0 pl-0">
@@ -74,7 +74,7 @@
                   variant="outline-primary"
                   :disabled="!parametersChanged || loadingRecommendations"
                   @click="handleApplyParamatersChanges">
-                  Apply changes
+                  {{ $t('label.applyChanges') }}
                 </b-button>
               </b-col>
             </b-row>
@@ -328,6 +328,13 @@ export default {
       "entities": "Locations & Persons",
       "topics": "Topics",
       "textReuseClusters": "Text reuse"
+    },
+    "enableRecommender": "Enable this recommender",
+    "weightLabel": "Weight",
+    "label": {
+      "advancedSettings": "Advanced settings",
+      "resetToDefault": "Reset to default settings",
+      "applyChanges": "Apply changes"
     }
   }
 }
