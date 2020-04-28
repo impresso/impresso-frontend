@@ -21,6 +21,7 @@
         </b-col>
       </b-row>
       <h2 class="border-bottom my-3 pb-3">{{ $t('Register') }}</h2>
+      <b-alert :show="ferror !== ''" dismissible fade variant="danger">{{ ferror }}</b-alert>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
           <p v-hmtl="$('form_success')"/>
@@ -39,7 +40,10 @@
                   label="User Name"
                   label-for="username"
                   :description="errors[0]">
-                  <b-form-input id="username" name="username" required v-model.trim="user.username" />
+                  <b-form-input id="username" name="username" required
+                    v-model.trim="user.username"
+                    :class="errors[0] ? 'border-danger' : ''"
+                    />
                 </b-form-group>
               </validation-provider>
 
@@ -51,6 +55,7 @@
                   :description="errors[0]">
                   <b-form-input
                     id="email" name="email" autocomplete="home email"
+                    :class="errors[0] ? 'border-danger' : ''"
                     v-model.trim="user.email"
                   ></b-form-input>
                 </b-form-group>
@@ -74,6 +79,7 @@
                         v-model.trim="user.password"
                         type="password"
                         maxlength="80"
+                        :class="errors[0] ? 'border-danger' : ''"
                         :description="errors[0]"
                       ></b-form-input>
                     </b-form-group>
@@ -90,6 +96,7 @@
                           id="repeat-password" name="repeat-password"
                           v-model.trim="repeatPassword"
                           maxlength="80"
+                          :class="errors[0] ? 'border-danger' : ''"
                           type="password" />
                       </b-form-group>
                     </ValidationProvider>
@@ -131,7 +138,7 @@
                 </b-form-input>
                 <b-input-group-append>
                   <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
-                  <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
+                  <b-button size="sm" class="text-nowrap" variant="outline-primary" @click="onGeneratePattern">
                     {{$t('actions.generatePattern')}}
                   </b-button>
                 </b-input-group-append>
@@ -146,6 +153,7 @@
                   id="nda"
                   label="Signed NDA"
                   label-for="nda"
+                  :class="errors[0] ? 'border-danger' : ''"
                   :description="errors[0]">
                   <b-form-file
                     id="nda" :state="errors.length === 0" @input="validate" v-model="nda"
@@ -229,6 +237,7 @@ export default {
     nda: null,
     repeatPassword: '',
     errors: [],
+    ferror: '',
     palettes:
     [
       '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
@@ -264,13 +273,15 @@ export default {
     onSubmit() {
       // console.info('UserPage.onSubmit()', this.user, this.nda);
       // to be checked for validity...
+      this.ferror = '';
       this.isLoading = true;
       usersService.create(this.user)
         .then(() => {
           this.isCreated = true;
         })
         .catch((err) => {
-          console.error(err);
+          this.ferror = err.message;
+          console.error(this.ferror);
         })
         .finally(() => {
           this.isLoading = false;
