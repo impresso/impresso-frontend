@@ -1,7 +1,7 @@
 <template>
   <b-row>
     <b-col>
-      <label>margin (Enlarge the detected time range by a number of years on both sides)</label>
+      <label>{{ $t('param.margin') }}</label>
       <b-form-input type="number" v-model="margin"></b-form-input>
     </b-col>
   </b-row>
@@ -38,3 +38,13 @@ export default {
   }
 }
 </script>
+
+<i18n>
+{
+  "en": {
+    "param": {
+      "margin": "margin (Enlarge the detected time range by a number of years on both sides)"
+    }
+  }
+}
+</i18n>

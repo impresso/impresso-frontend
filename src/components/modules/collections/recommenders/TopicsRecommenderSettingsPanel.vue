@@ -3,7 +3,7 @@
     <!-- entities to keep -->
     <b-row>
       <b-col>
-        <label>Maximum number of entities to keep</label>
+        <label>{{ $t('param.numberToKeep') }}</label>
       </b-col>
       <b-col>
         <b-form-input v-model="numberToKeep" type="number" min="1" max="100"/>
@@ -13,7 +13,7 @@
     <!-- scaling factor -->
     <b-row>
       <b-col>
-        <label>Scaling the distribution for the query</label>
+        <label>{{ $t('param.scalingFactor') }}</label>
       </b-col>
       <b-col>
         <b-form-input v-model="scalingFactor" type="number" min="1" max="20"/>
@@ -23,7 +23,7 @@
     <!-- normalize max score -->
     <b-row>
       <b-col>
-        <label>Normalize so the score of the top entity is 1.0</label>
+        <label>{{ $t('param.normalizeMaxScore') }}</label>
       </b-col>
       <b-col>
         <b-form-checkbox v-model="normalizeMaxScore" />
@@ -88,3 +88,15 @@ export default {
   }
 }
 </script>
+
+<i18n>
+{
+  "en": {
+    "param": {
+      "numberToKeep": "Maximum number of entities to keep",
+      "scalingFactor": "Scaling the distribution for the query",
+      "normalizeMaxScore": "Normalize so the score of the top entity is 1.0"
+    }
+  }
+}
+</i18n>

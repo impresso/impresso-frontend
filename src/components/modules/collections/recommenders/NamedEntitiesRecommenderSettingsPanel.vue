@@ -3,7 +3,7 @@
     <!-- count method -->
     <b-row>
       <b-col>
-        <label>Count method</label>
+        <label>{{ $t('param.countType') }}</label>
       </b-col>
       <b-col>
         <b-form-select
@@ -16,7 +16,7 @@
     <!-- occurences -->
     <b-row>
       <b-col>
-        <label>Minimum number of occurences</label>
+        <label>{{ $t('param.minOccurences') }}</label>
       </b-col>
       <b-col>
         <b-form-input v-model="minOccurences" type="number" min="1" max="100"/>
@@ -26,7 +26,7 @@
     <!-- entities to keep -->
     <b-row>
       <b-col>
-        <label>Maximum number of entities to keep</label>
+        <label>{{ $t('param.numberToKeep') }}</label>
       </b-col>
       <b-col>
         <b-form-input v-model="numberToKeep" type="number" min="1" max="100"/>
@@ -36,7 +36,7 @@
     <!-- remove fully mentioned -->
     <b-row>
       <b-col>
-        <label>Drop entities already fully contained in the collection, as they are not useful</label>
+        <label>{{ $t('param.dropFullyMentioned') }}</label>
       </b-col>
       <b-col>
         <b-form-checkbox v-model="dropFullyMentioned" />
@@ -46,7 +46,7 @@
     <!-- normalize max score -->
     <b-row>
       <b-col>
-        <label>Normalize so the score of the top entity is 1.0</label>
+        <label>{{ $t('param.normalizeMaxScore') }}</label>
       </b-col>
       <b-col>
         <b-form-checkbox v-model="normalizeMaxScore" />
@@ -115,13 +115,15 @@ export default {
       }
     },
     dropFullyMentioned: {
+      // NOTE: There is a typo in parameter name in the backend service:
+      // mentionned insted of mentioned.
       /** @returns {boolean} */
-      get() { return this.parameters.remove_fully_mentioned ?? true },
+      get() { return this.parameters.remove_fully_mentionned ?? true },
       /** @param {boolean} remove */
       set(remove) {
         const parameters = {
           ...this.parameters,
-          remove_fully_mentioned: remove
+          remove_fully_mentionned: remove
         }
         this.$emit(ChangedEvent, parameters)
       }
@@ -141,3 +143,17 @@ export default {
   }
 }
 </script>
+
+<i18n>
+{
+  "en": {
+    "param": {
+      "countType": "Count method",
+      "minOccurences": "Minimum number of occurences",
+      "numberToKeep": "Maximum number of entities to keep",
+      "dropFullyMentioned": "Drop entities already fully contained in the collection, as they are not useful",
+      "normalizeMaxScore": "Normalize so the score of the top entity is 1.0"
+    }
+  }
+}
+</i18n>

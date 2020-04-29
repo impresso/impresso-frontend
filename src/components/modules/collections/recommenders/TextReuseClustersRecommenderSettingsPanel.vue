@@ -3,7 +3,7 @@
     <!-- entities to keep -->
     <b-row>
       <b-col>
-        <label>Maximum number of entities to keep</label>
+        <label>{{ $t('param.numberToKeep') }}</label>
       </b-col>
       <b-col>
         <b-form-input v-model="numberToKeep" type="number" min="1" max="100"/>
@@ -13,7 +13,7 @@
     <!-- remove fully mentioned -->
     <b-row>
       <b-col>
-        <label>Drop entities already fully contained in the collection, as they are not useful</label>
+        <label>{{ $t('param.dropFullyMentioned') }}</label>
       </b-col>
       <b-col>
         <b-form-checkbox v-model="dropFullyMentioned" />
@@ -51,13 +51,15 @@ export default {
       }
     },
     dropFullyMentioned: {
+      // NOTE: There is a typo in parameter name in the backend service:
+      // mentionned insted of mentioned.
       /** @returns {boolean} */
-      get() { return this.parameters.remove_fully_mentioned ?? true },
+      get() { return this.parameters.remove_fully_mentionned ?? true },
       /** @param {boolean} remove */
       set(remove) {
         const parameters = {
           ...this.parameters,
-          remove_fully_mentioned: remove
+          remove_fully_mentionned: remove
         }
         this.$emit(ChangedEvent, parameters)
       }
@@ -65,3 +67,14 @@ export default {
   }
 }
 </script>
+
+<i18n>
+{
+  "en": {
+    "param": {
+      "numberToKeep": "Maximum number of entities to keep",
+      "dropFullyMentioned": "Drop entities already fully contained in the collection, as they are not useful"
+    }
+  }
+}
+</i18n>

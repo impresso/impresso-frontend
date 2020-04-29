@@ -1,5 +1,10 @@
 <template>
-  <b-dropdown ref="dropdown" size="sm" variant="outline-primary" class="mr-1 mb-1 recommender-pill">
+  <b-dropdown
+    ref="dropdown"
+    size="sm"
+    variant="outline-primary"
+    class="mr-1 mb-1 recommender-pill"
+    @shown="resetEditedParameters">
     <template v-slot:button-content>
       <span class="button-icon dripicons-checkmark"/>
       <span class="label sp-string sp-title" :class="{ 'crossed-out': !settings.enabled }">
@@ -247,6 +252,9 @@ export default {
     },
     handleControlChanged() {
       this.$nextTick(() => this.handleReload())
+    },
+    resetEditedParameters() {
+      this.editedParameters = JSON.parse(JSON.stringify(this.settings.parameters))
     }
   },
   watch: {
@@ -264,7 +272,7 @@ export default {
     },
     'settings.parameters': {
       handler() {
-        this.editedParameters = JSON.parse(JSON.stringify(this.settings.parameters))
+        this.resetEditedParameters()
       },
       immediate: true,
       deep: true

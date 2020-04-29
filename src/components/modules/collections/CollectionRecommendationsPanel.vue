@@ -13,19 +13,23 @@
     </div>
 
     <div v-if="!isLoadingRecommendations && !isLoadingArticles" class=" p-3">
-      <b-row>
+      <b-row v-if="articlesLoaded && recommendedArticles.length > 0">
         <b-col v-for="article in recommendedArticles" :key="article.uid">
           <search-results-list-item :article="article" />
         </b-col>
       </b-row>
 
-      <div class="fixed-pagination-footer p-1 m-0" slot="footer">
+      <div class="fixed-pagination-footer p-1 m-0" slot="footer"  v-if="articlesLoaded && recommendedArticles.length > 0">
         <pagination
           v-if="recommendedArticles.length"
           v-model="paginationCurrentPage"
           :per-page="paginationPerPage"
           :total-rows="paginationTotalRows"
           class="float-left small-caps" />
+      </div>
+
+      <div v-if="articlesLoaded && recommendedArticles.length === 0">
+        <span>{{ $t('label.notfound') }}</span>
       </div>
     </div>
 
@@ -131,6 +135,10 @@ export default {
     recommendedArticles() {
       return (this.articlesResponse?.data ?? []).map(v => new Article(v))
     },
+    /** @returns {boolean} */
+    articlesLoaded() {
+      return this.articlesResponse != null
+    },
     /** @returns {number} */
     paginationTotalRows() {
       return this.articlesResponse?.total ?? 0;
@@ -179,3 +187,13 @@ export default {
   }
 }
 </script>
+
+<i18n>
+{
+  "en": {
+    "label": {
+      "notfound": "No articles found"
+    }
+  }
+}
+</i18n>
