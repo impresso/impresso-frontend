@@ -121,9 +121,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/variables.sass";
 .job{
-  color: $clr-grey-400;
+  color: #c6ccd2;
 }
 blockquote, h3, h3 a{
   font-size: 0.9rem;
