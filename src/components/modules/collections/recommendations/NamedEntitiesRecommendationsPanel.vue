@@ -3,21 +3,31 @@
     <b-col>
       <!-- persons -->
       <div>
-        <h3 class="m-0 tb-title small-caps font-weight-bold pb-2">Persons</h3>
+        <h3 class="m-0 tb-title small-caps font-weight-bold pb-2">{{ $t('label.persons') }}</h3>
         <div v-for="person in recommendedPersons" :key="person.id">
           <item-label type="person" :item="person.item"/>
-          <item-selector :uid="person.id" :item="person.item" type="person"/>
+          <item-selector
+            :uid="person.id"
+            :item="person.item"
+            :default-click-action-disabled="true"
+            type="person"
+            @click="handleItemClicked" />
         </div>
       </div>
 
       <!-- locations -->
       <div>
-        <h3>Locations</h3>
-        <ul>
-          <li v-for="location in recommendedLocations" :key="location.name">
-            {{ location.name }} ({{ location.score }})
-          </li>
-        </ul>
+        <h3 class="m-0 tb-title small-caps font-weight-bold pb-2 pt-2">{{ $t('label.locations') }}</h3>
+        <div v-for="location in recommendedLocations" :key="location.id">
+          <item-label type="location" :item="location.item"/>
+          <item-selector
+            :uid="location.id"
+            :item="location.item"
+            :default-click-action-disabled="true"
+            type="location"
+            @click="handleItemClicked" />
+        </div>
+
       </div>
     </b-col>
   </b-row>
@@ -55,11 +65,43 @@ export default {
         }
       }))
     },
-    /** @returns {{ name: string, score: number, id: string }[]} */
+    /** @returns {{ name: string, score: number, id: string, item: any }[]} */
     recommendedLocations() {
       const persCounts = this.recommendations?.loc_counts ?? []
-      return persCounts.map(([id, name, score]) => ({ name, score, id }))
+      return persCounts.map(([id, name, score]) => ({
+        name,
+        score,
+        id,
+        item: {
+          name: `${name} (${this.$n(score, { maximumFractionDigits: '2' })})`
+        }
+      }))
     },
+  },
+  methods: {
+    /**
+     * Overriding default item click handler to show monitor
+     * without filters editing buttons.
+     * @param {any} params
+     */
+    handleItemClicked({ params }) {
+      this.$store.dispatch('monitor/ACTIVATE', {
+        ...params,
+        filters: [],
+        disableFilterModification: true
+      })
+    }
   }
 }
 </script>
+
+<i18n>
+{
+  "en": {
+    "label": {
+      "persons": "Persons",
+      "locations": "Locations"
+    }
+  }
+}
+</i18n>
