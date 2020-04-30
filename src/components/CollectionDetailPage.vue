@@ -56,10 +56,13 @@
           {{this.$t('confirm_delete', [collection.name])}}
         </b-modal>
       </b-navbar>
-      <b-navbar v-else>
 
-        <h1>All Collections overview</h1>
+      <b-navbar v-else type="light" variant="light">
+        <section class='pt-2 pb-1'>
+          <span class="label small-caps">{{$t('collections')}}</span>
+          <h3 class='mb-1'>{{ $t('all_collections_title') }}</h3>
 
+        </section>
       </b-navbar>
 
       <b-tabs pills class="mx-3">
@@ -75,24 +78,20 @@
 
       <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
 
-
-
         <b-navbar-nav v-if="$route.params.collection_uid" class="ml-2">
           <b-nav-form class="p-2">
             <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
               {{ $t('actions.addToCurrentFilters') }}
             </b-button>
           </b-nav-form>
-          <b-nav-form class="py-2 pr-2  border-right">
+          <b-nav-form class="py-2 pr-2">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
           </b-nav-form>
         </b-navbar-nav>
 
-
-
-        <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
+        <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2 border-left">
           <!-- <b-navbar-form class="p-2 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
@@ -534,6 +533,7 @@ export default {
 {
   "en": {
     "collections": "collections",
+    "all_collections_title": "Combined personal collections",
     "label_order": "Order By",
     "sort_date": "Item Date",
     "sort_dateAdded": "Date Added",
