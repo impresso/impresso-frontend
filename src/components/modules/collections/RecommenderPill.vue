@@ -10,44 +10,40 @@
         {{ $t(`pillLabels.${settings.type}`)}}
       </span>
     </template>
-    <b-container class="content">
+
+    <div class="content">
       <!-- toggles bar -->
-      <b-row class="border-bottom py-2">
-        <b-col>
-          <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged">
-            {{ $t('enableRecommender') }}
-          </b-form-checkbox>
-        </b-col>
-        <b-col>
-          <!-- placeholder -->
-        </b-col>
-      </b-row>
+      <div class="border-bottom p-2">
+        <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged">
+          {{ $t('enableRecommender') }}
+        </b-form-checkbox>
+      </div>
 
       <!-- weight -->
-      <b-row class="pt-2 pb-2">
-        <b-col sm="2">
-          <label class="text-nowrap">{{ $t('weightLabel') }} ({{ $n(weightInput, { maximumFractionDigits: '2' }) }})</label>
-        </b-col>
-        <b-col  sm="10">
-          <b-form-input
-            v-model="weightInput"
-            type="range"
-            min="-5"
-            max="5"
-            step="0.1"
-            class="pt-2 pb-2 pl-3 pr-3"
-            :disabled="!recommenderEnabled"
-            @change="handleControlChanged">
-          </b-form-input>
-        </b-col>
-      </b-row>
+      <div class="border-bottom p-2 d-flex">
+        <label class="text-nowrap flex-shrink-1">{{ $t('weightLabel') }}
+          <b>{{ $n(weightInput, { maximumFractionDigits: '2' }) }}</b>
+        </label>
+        <b-form-input
+          v-model="weightInput"
+          type="range"
+          min="-5"
+          max="5"
+          step="0.1"
+          class="pt-2 pb-2 pl-3 pr-3"
+          :disabled="!recommenderEnabled"
+          @change="handleControlChanged">
+        </b-form-input>
+      </div>
 
+      <!-- advanced panel -->
+      <b-container>
       <b-row class="pt-2 pb-2">
         <b-col class="ml-3 mr-3 advanced-features">
 
           <!-- toggle panel button -->
           <b-row class="pb-2">
-            <b-button
+            <b-button size="sm"
               variant="outline-primary"
               class="toggle-panel-button"
               v-b-toggle="`settings-collapse-${componentId}`">
@@ -113,6 +109,7 @@
       </b-row> -->
 
     </b-container>
+    </div>
   </b-dropdown>
 </template>
 
