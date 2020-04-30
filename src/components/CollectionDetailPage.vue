@@ -192,7 +192,8 @@
     <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-group">
       <collection-recommendations-panel
         :collection-id="$route.params.collection_uid"
-        :display-style="displayStyle"/>
+        :display-style="displayStyle"
+        :collection="collection"/>
     </div>
 <!--
 

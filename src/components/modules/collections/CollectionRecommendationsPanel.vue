@@ -18,7 +18,15 @@
         <b-container v-if="displayStyle === DisplayStyle.List">
           <b-row>
             <b-col cols="12" v-for="article in recommendedArticles" :key="article.uid">
-              <search-results-list-item :article="article" />
+              <search-results-list-item :article="article">
+                <template v-slot:secondary-action>
+                  <b-button
+                    variant="outline-primary" size="sm"
+                    @click="addToCollection(article)">
+                    {{ $t('label.addToCollection') }}
+                  </b-button>
+                </template>
+              </search-results-list-item>
             </b-col>
           </b-row>
         </b-container>
@@ -67,7 +75,11 @@ import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem'
 import Pagination from '@/components/modules/Pagination'
 import Spinner from '@/components/layout/Spinner'
 
-import { articlesRecommendations, articlesSearch } from '@/services'
+import {
+  articlesRecommendations,
+  articlesSearch,
+  collectionsItems as collectionsItemsService
+} from '@/services'
 import Article from '@/models/Article'
 import {
   recommenderResponseToFilters,
@@ -107,7 +119,14 @@ export default {
     isLoadingRecommendations: false,
     isLoadingArticles: false,
     ArticleType,
-    DisplayStyle
+    DisplayStyle,
+    /**
+     * A list of articles added to collection manually.
+     * This list is used to render temporary state of the collection list
+     * and is reset every time articles list is reloaded.
+     * @type {Article[]}
+     */
+    articlesAddedToCollection: []
   }),
   props: {
     collectionId: {
@@ -117,6 +136,11 @@ export default {
     displayStyle: {
       type: String,
       default: DisplayStyle.List
+    },
+    collection: {
+      /* Optional collection object. */
+      type: Object,
+      default: () => ({})
     }
   },
   watch: {
@@ -148,6 +172,8 @@ export default {
         try {
           this.isLoadingArticles = true
           this.articlesResponse = await articlesSearch.create(request)
+          // reset all articles that have been added to collection before reload.
+          this.articlesAddedToCollection = []
         } finally {
           this.isLoadingArticles = false
         }
@@ -170,7 +196,19 @@ export default {
     },
     /** @returns {any[]} */
     recommendedArticles() {
-      return (this.articlesResponse?.data ?? []).map(v => new Article(v))
+      return (this.articlesResponse?.data ?? []).map(article => {
+        // If this article has been added to current collection manually, add current collection
+        // to the list of collections of this article.
+        const extraCollections = this.articlesAddedToCollection.map(({ uid }) => uid).includes(article.uid)
+          ? [this.collection]
+          : []
+
+        const articleData = {
+          ...article,
+          collections: article.collections.concat(extraCollections)
+        }
+        return new Article(articleData)
+      })
     },
     /** @returns {boolean} */
     articlesLoaded() {
@@ -231,6 +269,23 @@ export default {
           article_uid: article.uid,
         },
       });
+    },
+    async addToCollection(article) {
+      try {
+        await collectionsItemsService.create({
+          collection_uid: this.collectionId,
+          items: [{
+            content_type: 'article',
+            uid: article.uid,
+          }],
+        })
+      } catch (e) {
+        // Ignore "Conflict" (409) error which means the item
+        // has already been added to collection but has not been synchronised yet.
+        if (e.className !== 'conflict') throw e
+      }
+
+      this.articlesAddedToCollection.push(article)
     }
   }
 }
@@ -240,7 +295,8 @@ export default {
 {
   "en": {
     "label": {
-      "notfound": "No articles found"
+      "notfound": "No articles found",
+      "addToCollection": "Add to collection"
     }
   }
 }
