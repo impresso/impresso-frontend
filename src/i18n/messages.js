@@ -282,6 +282,7 @@ export default {
     tabs: {
       powervis: 'apply filters to visualisation',
       overview: 'overview',
+      recommendations: 'recommendations',
       relatedArticles: '... related articles | 1 related article | {count} related articles',
       articles: '... articles | 1 article | {count} articles',
     },

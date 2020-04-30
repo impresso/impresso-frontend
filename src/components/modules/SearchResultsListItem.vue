@@ -48,9 +48,11 @@
           {{$t('view')}}
         </router-link>
 
-        <collection-add-to
-          v-bind:item="article"
-          v-bind:text="$t('add_to_collection')" />
+        <slot name="secondary-action">
+          <collection-add-to
+            v-bind:item="article"
+            v-bind:text="$t('add_to_collection')" />
+        </slot>
 
         <div v-if="article.issue.accessRights === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
           <b-button

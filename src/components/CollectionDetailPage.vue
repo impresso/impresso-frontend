@@ -68,9 +68,9 @@
         </template>
       </b-tabs>
 
-      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
-
-
+      <b-navbar type="light" variant="light"
+        class="px-0 py-0 border-bottom"
+        v-if="tab.name !== TAB_RECOMMENDATIONS">
 
         <b-navbar-nav class="ml-2">
           <b-nav-form class="p-2">
@@ -85,9 +85,7 @@
           </b-nav-form>
         </b-navbar-nav>
 
-
-
-        <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
+        <b-navbar-nav v-if="[TAB_RECOMMENDATIONS, TAB_ARTICLES].includes(tab.name)" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
@@ -189,6 +187,12 @@
 
     </div>
 
+    <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-recommendations h-100">
+      <collection-recommendations-panel
+        :collection-id="$route.params.collection_uid"
+        :display-style="displayStyle"
+        :collection="collection"/>
+    </div>
 <!--
 
     <div v-if="issues.length > 0" class="collection-group">
@@ -223,10 +227,12 @@ import Timeline from './modules/Timeline';
 import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
+import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
 
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
+const TAB_RECOMMENDATIONS = 'recommendations';
 
 export default {
   props: {
@@ -245,6 +251,7 @@ export default {
     fetching: false,
     TAB_ARTICLES,
     TAB_OVERVIEW,
+    TAB_RECOMMENDATIONS,
     timevalues: [],
     facets: [],
     facetTypes: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic', 'partner', 'accessRight'],
@@ -256,6 +263,7 @@ export default {
     Pagination,
     Timeline,
     StackedBarsPanel,
+    CollectionRecommendationsPanel,
   },
   computed: {
     filters: mapFilters(),
@@ -363,6 +371,10 @@ export default {
           }),
           name: TAB_ARTICLES,
         },
+        {
+          label: this.$t('tabs.recommendations'),
+          name: TAB_RECOMMENDATIONS,
+        }
       ];
     },
   },
@@ -521,6 +533,9 @@ export default {
 <style lang="scss">
 .modal-edit {
   min-width: 400px;
+}
+.collection-recommendation{
+  overflow:hidden;
 }
 </style>
 

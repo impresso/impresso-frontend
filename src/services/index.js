@@ -45,7 +45,7 @@ const needsLockScreen = p => [
   'ngram-trends.create',
 ].includes(p);
 
-const silentErrorCodes = [404]
+const silentErrorCodes = [404, 409]
 
 app.hooks({
   before: {
@@ -151,6 +151,8 @@ export const textReuseClusters = app.service('text-reuse-clusters');
 export const textReuseClusterPassages = app.service('text-reuse-cluster-passages');
 export const filtersItems = app.service('filters-items');
 export const stats = app.service('stats');
+export const articlesRecommendations = app.service('articles-recommendations');
+export const articlesSearch = app.service('articles-search');
 
 export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API;
 export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH;

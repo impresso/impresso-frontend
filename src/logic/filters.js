@@ -111,7 +111,7 @@ export function joinFiltersWithItems({ filtersWithItems }) {
 
 /**
  * @param {Filter} expectedFilter
- * @returns {(Filter) => boolean}
+ * @returns {(filter: Filter) => boolean}
  */
 export const containsFilter = expectedFilter => filter => {
   const expectedMergeKey = getFilterMergeKey(expectedFilter)
