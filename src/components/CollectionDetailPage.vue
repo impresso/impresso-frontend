@@ -68,9 +68,9 @@
         </template>
       </b-tabs>
 
-      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
-
-
+      <b-navbar type="light" variant="light"
+        class="px-0 py-0 border-bottom"
+        v-if="tab.name !== TAB_RECOMMENDATIONS">
 
         <b-navbar-nav class="ml-2">
           <b-nav-form class="p-2">
@@ -84,8 +84,6 @@
             </router-link>
           </b-nav-form>
         </b-navbar-nav>
-
-
 
         <b-navbar-nav v-if="[TAB_RECOMMENDATIONS, TAB_ARTICLES].includes(tab.name)" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
