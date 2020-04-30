@@ -1,6 +1,6 @@
 <template>
   <div class="collection-recommendation-panel d-flex h-100 flex-column">
-    <div class="flex-grow-1 p-3 border-bottom">
+    <div class="flex-grow-1 p-2 border-bottom">
     <!-- header -->
       <recommender-pill
         v-for="(settings, index) in recommendersSettings"
