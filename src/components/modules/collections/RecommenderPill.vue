@@ -2,24 +2,23 @@
   <b-dropdown
     ref="dropdown"
     size="sm"
-    variant="outline-primary"
-    class="mr-1 mb-1 recommender-pill"
+    :variant="settings.enabled ? 'primary' : 'outline-secondary'"
+    class="ml-2 recommender-pill"
     @shown="resetEditedParameters">
     <template v-slot:button-content>
-      <span class="button-icon dripicons-checkmark"/>
       <span class="label sp-string sp-title" :class="{ 'crossed-out': !settings.enabled }">
         {{ $t(`pillLabels.${settings.type}`)}}
       </span>
     </template>
     <b-container class="content">
       <!-- toggles bar -->
-      <b-row class="border-bottom">
-        <b-col class="border-right pt-2 pb-2">
+      <b-row class="border-bottom py-2">
+        <b-col>
           <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged">
             {{ $t('enableRecommender') }}
           </b-form-checkbox>
         </b-col>
-        <b-col class="pt-2 pb-2">
+        <b-col>
           <!-- placeholder -->
         </b-col>
       </b-row>
@@ -27,7 +26,7 @@
       <!-- weight -->
       <b-row class="pt-2 pb-2">
         <b-col sm="2">
-          <label>{{ $t('weightLabel') }} ({{ $n(weightInput, { maximumFractionDigits: '2' }) }})</label>
+          <label class="text-nowrap">{{ $t('weightLabel') }} ({{ $n(weightInput, { maximumFractionDigits: '2' }) }})</label>
         </b-col>
         <b-col  sm="10">
           <b-form-input
