@@ -1,6 +1,6 @@
 <template>
   <div class="collection-recommendation-panel d-flex h-100 flex-column">
-    <div class="flex-shrink-1 p-2 border-bottom">
+    <b-navbar type="light" variant="light" class="flex-shrink-1 p-2 border-bottom">
     <!-- header -->
       <recommender-pill
         v-for="(settings, index) in recommendersSettings"
@@ -10,14 +10,14 @@
         :loading-recommendations="isLoadingRecommendations"
         @changed="handleSettingsChanged"
         @search-parameters-changed="handleSearchparametersChanged"/>
-    </div>
+      <slot name="additional-navbar" />
+    </b-navbar>
 
     <div style="overflow: auto">
       <div v-if="!isLoadingRecommendations && !isLoadingArticles" class=" p-3">
-        <b-row v-if="articlesLoaded && recommendedArticles.length > 0">
-
-          <b-container v-if="displayStyle === DisplayStyle.List">
-            <b-row>
+        <div v-if="articlesLoaded && recommendedArticles.length > 0">
+          <b-container fluid >
+            <b-row v-if="displayStyle === DisplayStyle.List">
               <b-col cols="12" v-for="article in recommendedArticles" :key="article.uid">
                 <search-results-list-item :article="article">
                   <template v-slot:secondary-action>
@@ -30,23 +30,25 @@
                 </search-results-list-item>
               </b-col>
             </b-row>
+            <b-row v-if="displayStyle === DisplayStyle.Tiles">
+              <b-col cols="6" sm="12" md="4" lg="3" v-for="article in recommendedArticles" :key="article.uid">
+                <search-results-tiles-item
+                  v-if="article.type === ArticleType"
+                  @click="goToArticle(article)"
+                  :article="article" />
+                <search-results-image-item
+                  v-if="article.type !== ArticleType"
+                  @click="goToArticle(article)"
+                  v-bind:searchResult="article"
+                  :article="article" />
+              </b-col>
+            </b-row>
           </b-container>
+        </div><!-- v-if="articlesLoaded && recommendedArticles.length > 0" -->
 
-          <b-row class="pb-5"  v-if="displayStyle === DisplayStyle.Tiles">
-            <b-col cols="6" sm="12" md="4" lg="3" v-for="article in recommendedArticles" :key="article.uid">
-              <search-results-tiles-item
-                v-if="article.type === ArticleType"
-                @click="goToArticle(article)"
-                :article="article" />
-              <search-results-image-item
-                v-if="article.type !== ArticleType"
-                @click="goToArticle(article)"
-                v-bind:searchResult="article"
-                :article="article" />
-            </b-col>
-          </b-row>
-
-        </b-row>
+        <div v-else-if="articlesLoaded && recommendedArticles.length === 0">
+          <span>{{ $t('label.notfound') }}</span>
+        </div>
 
         <div class="fixed-pagination-footer p-1 m-0" slot="footer"  v-if="articlesLoaded && recommendedArticles.length > 0">
           <pagination
@@ -56,12 +58,7 @@
             :total-rows="paginationTotalRows"
             class="float-left small-caps" />
         </div>
-
-        <div v-if="articlesLoaded && recommendedArticles.length === 0">
-          <span>{{ $t('label.notfound') }}</span>
-        </div>
       </div>
-
       <spinner v-if="isLoadingRecommendations || isLoadingArticles" />
     </div>
   </div>
