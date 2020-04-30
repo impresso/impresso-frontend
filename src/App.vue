@@ -232,9 +232,12 @@ $clr-grey-900: #ddd;
   width: 0;
   height: 0;
 }
-.custom-radio > .custom-control-label::before {
-    border: inherit;
-    outline: inherit;
+.custom-control-label::before {
+  border-color: $clr-secondary;
+  outline: none;
+}
+.custom-control-label:disabled::before {
+  border-color: $clr-tertiary;
 }
 .tooltip-inner {
     max-width: auto;
