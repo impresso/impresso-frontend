@@ -14,9 +14,29 @@
 
     <div v-if="!isLoadingRecommendations && !isLoadingArticles" class=" p-3">
       <b-row v-if="articlesLoaded && recommendedArticles.length > 0">
-        <b-col v-for="article in recommendedArticles" :key="article.uid">
-          <search-results-list-item :article="article" />
-        </b-col>
+
+        <b-container v-if="displayStyle === DisplayStyle.List">
+          <b-row>
+            <b-col cols="12" v-for="article in recommendedArticles" :key="article.uid">
+              <search-results-list-item :article="article" />
+            </b-col>
+          </b-row>
+        </b-container>
+
+        <b-row class="pb-5"  v-if="displayStyle === DisplayStyle.Tiles">
+          <b-col cols="6" sm="12" md="4" lg="3" v-for="article in recommendedArticles" :key="article.uid">
+            <search-results-tiles-item
+              v-if="article.type === ArticleType"
+              @click="goToArticle(article)"
+              :article="article" />
+            <search-results-image-item
+              v-if="article.type !== ArticleType"
+              @click="goToArticle(article)"
+              v-bind:searchResult="article"
+              :article="article" />
+          </b-col>
+        </b-row>
+
       </b-row>
 
       <div class="fixed-pagination-footer p-1 m-0" slot="footer"  v-if="articlesLoaded && recommendedArticles.length > 0">
@@ -41,6 +61,9 @@
 <script>
 import RecommenderPill from './RecommenderPill'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem'
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem'
+
 import Pagination from '@/components/modules/Pagination'
 import Spinner from '@/components/layout/Spinner'
 
@@ -53,10 +76,18 @@ import {
   RecommenderResponseTagMap
 } from '@/logic/collectionRecommendations'
 
+const ArticleType =  'ar'
+const DisplayStyle = Object.freeze({
+  Tiles: 'tiles',
+  List: 'list'
+})
+
 export default {
   components: {
     RecommenderPill,
     SearchResultsListItem,
+    SearchResultsTilesItem,
+    SearchResultsImageItem,
     Pagination,
     Spinner
   },
@@ -74,12 +105,18 @@ export default {
     paginationCurrentPage: 1,
     paginationPerPage: 20,
     isLoadingRecommendations: false,
-    isLoadingArticles: false
+    isLoadingArticles: false,
+    ArticleType,
+    DisplayStyle
   }),
   props: {
     collectionId: {
       type: String,
       required: true
+    },
+    displayStyle: {
+      type: String,
+      default: DisplayStyle.List
     }
   },
   watch: {
@@ -183,6 +220,17 @@ export default {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
       this.$set(this.recommendersSettings, index, settings)
       this.paginationCurrentPage = 1
+    },
+    goToArticle(article) {
+      this.$router.push({
+        name: 'article',
+        params: {
+          issue_uid: article.issue.uid,
+          page_number: article.pages[0].num,
+          page_uid: article.pages[0].uid,
+          article_uid: article.uid,
+        },
+      });
     }
   }
 }

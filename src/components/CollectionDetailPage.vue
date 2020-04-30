@@ -87,7 +87,7 @@
 
 
 
-        <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
+        <b-navbar-nav v-if="[TAB_RECOMMENDATIONS, TAB_ARTICLES].includes(tab.name)" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
@@ -190,7 +190,9 @@
     </div>
 
     <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-group">
-      <collection-recommendations-panel :collection-id="$route.params.collection_uid"/>
+      <collection-recommendations-panel
+        :collection-id="$route.params.collection_uid"
+        :display-style="displayStyle"/>
     </div>
 <!--
 
