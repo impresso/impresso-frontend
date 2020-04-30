@@ -422,5 +422,19 @@ $clr-grey-900: #ddd;
   }
 }
 
+.article-matches em, .highlight,
+span.highlight {
+  outline:inherit;
+  background-color: #ffeb78;
+}
+
+.bg-dark {
+  .article-matches em, .highlight,
+  span.highlight {
+    background-color: #ffeb78;
+    color: black;
+    outline:inherit;
+  }
+}
 
 </style>

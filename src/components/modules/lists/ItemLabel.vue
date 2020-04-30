@@ -43,6 +43,7 @@ export default {
       case 'location':
       case 'person':
       case 'newspaper':
+      case 'textReuseCluster':
         t = this.item.name;
         break;
       case 'topic':

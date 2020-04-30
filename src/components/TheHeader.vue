@@ -74,31 +74,30 @@
                 <transition name="bounce">
                   <b-badge
                     v-if="runningJobs.length > 0" pill variant="danger" class="border">
-                    {{runningJobs.length}}
+                    {{ runningJobs.length }}
                   </b-badge>
                 </transition>
               </template>
-            <div class="jobs">
-              <div v-if="jobs.length === 0" class="text-center text-white p-4">
+              <div v-if="!jobs.length" class="text-center text-white p-4">
                 {{ $t('no-jobs-yet' )}}
               </div>
-              <div v-else>
-                <toast v-for="(job, i) in jobs" v-bind:job="job" v-bind:key="i" />
-                <div
-                  v-if="paginationJobsList.totalRows > paginationJobsList.perPage"
-                  class="my-4">
-                  <div class="fixed-pagination-footer p-1 m-0">
-                    <pagination
-                      v-bind:perPage="paginationJobsList.perPage"
-                      v-bind:currentPage="paginationJobsList.currentPage"
-                      v-bind:totalRows="paginationJobsList.totalRows"
-                      v-on:change="onChangeJobsPage"
-                      class="small-caps"
-                      v-bind:showDescription="false" />
-                  </div>
+              <div v-else class="jobs-list">
+                <div class="list">
+                  <job-item :item="job" class="job px-3 pb-2 mt-2 border-bottom border-dark"
+                  v-for="(job, i) in jobs" :key="i" />
+                </div>
+                <div class="pt-2 pb-1">
+                  <pagination
+                    @click.prevent.stop
+                    align="center"
+                    v-model="jobsPaginationCurrentPage"
+                    :total-rows="jobsPaginationTotalRows"
+                    :per-page="jobsPaginationPerPage"
+                    aria-controls="my-table"
+                    class="small-caps"
+                    :showDescription="false" />
                 </div>
               </div>
-            </div>
           </b-nav-item-dropdown>
           <!-- <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
             <b-dropdown-item v-for="language in languages"
@@ -157,8 +156,8 @@
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
-import Toast from './modules/Toast';
-import Pagination from './modules/Pagination';
+import JobItem from '@/components/modules/lists/JobItem';
+import Pagination from '@/components/modules/Pagination';
 import SearchQueryExplorer from './modals/SearchQueryExplorer';
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams';
 
@@ -196,14 +195,17 @@ export default {
         disabled: true,
       },
     },
+    jobsPaginationPerPage: 4,
+    jobsCurrentPage: 1,
+    jobsPaginationCurrentPage: 1,
   }),
-  mounted() {
-    if (this.user) {
-      this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
-        console.info('Jobs loaded.');
-      });
-    }
-  },
+  // mounted() {
+  //   if (this.user) {
+  //     this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
+  //       console.info('Jobs loaded.');
+  //     });
+  //   }
+  // },
   computed: {
     searchQueryHash: searchQueryHashGetter(),
     searchQuery: searchQueryGetter(),
@@ -224,14 +226,14 @@ export default {
     jobs() {
       return this.$store.state.jobs.items;
     },
+    jobsPaginationTotalRows() {
+      return this.$store.state.jobs.totalItems;
+    },
     runningJobs() {
-      return this.$store.state.jobs.items.filter(d => d.status === 'RUN');
+      return this.jobs.filter(d => d.status === 'RUN');
     },
     currentSearchResults() {
       return this.$store.state.search.paginationTotalRows;
-    },
-    paginationJobsList() {
-      return this.$store.state.jobs.pagination;
     },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
@@ -292,16 +294,10 @@ export default {
   },
   methods: {
     updateLastNotificationDate() {
-      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE');
+      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE', new Date());
     },
     openSearchQueryExplorer() {
       this.$store.dispatch('searchQueryExplorer/TOGGLE');
-    },
-    onChangeJobsPage(page = 1) {
-      console.info('onChangeJobsPage', page);
-      this.$store.dispatch('jobs/LOAD_JOBS', {
-        page,
-      });
     },
     test() {
       return this.$store.dispatch('jobs/TEST');
@@ -323,10 +319,19 @@ export default {
     },
   },
   watch: {
+    jobsPaginationCurrentPage: {
+      handler(page) {
+        this.$store.dispatch('jobs/LOAD_JOBS', {
+          page,
+          limit: this.jobsPaginationPerPage,
+        });
+      },
+      immediate: true,
+    },
     jobs: {
       handler(jobs) {
         if (jobs.length && this.$refs.ddownJobs) {
-          const lastModifiedDate = new Date(jobs.map(d => d.lastModifiedDate).sort().pop());
+          const lastModifiedDate = jobs.map(d => d.lastModifiedDate.getTime()).sort().pop();
           if (this.$store.getters['settings/lastNotificationDate'] - lastModifiedDate < 0) {
             console.info('Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.');
             this.$refs.ddownJobs.show();
@@ -339,7 +344,8 @@ export default {
   },
   components: {
     Icon,
-    Toast,
+    // Toast,
+    JobItem,
     Pagination,
     SearchQueryExplorer,
   },
@@ -552,6 +558,18 @@ export default {
 }
 
 
+.jobs-list > .list {
+  width: 350px;
+  height: 300px;
+  overflow: scroll;
+  border-bottom: 1px solid #3d434a;
+}
+
+@media (min-height: 600px) {
+  .jobs-list > .list {
+    height: 550px;
+  }
+}
 @media (min-width: 992px) {
   #app-header .navbar-nav .nav-link{
     max-width: 120px;
@@ -589,7 +607,6 @@ export default {
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
-    "no-jobs-yet": "Here you will find notifications about your newly created collections and recent downloads.",
     "current_version": "v <span class='small-caps'>{version}</span>"
   }
 }
