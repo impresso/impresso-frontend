@@ -189,7 +189,7 @@
 
     </div>
 
-    <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-group">
+    <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-recommendations h-100">
       <collection-recommendations-panel :collection-id="$route.params.collection_uid"/>
     </div>
 <!--
@@ -532,6 +532,9 @@ export default {
 <style lang="scss">
 .modal-edit {
   min-width: 400px;
+}
+.collection-recommendation{
+  overflow:hidden;
 }
 </style>
 

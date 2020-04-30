@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="collection-recommendation-panel d-flex h-100 flex-column">
+    <div class="flex-grow-1 p-3 border-bottom">
     <!-- header -->
-    <div class="border-bottom pl-3 pr-3 pt-3 pb-2">
       <recommender-pill
         v-for="(settings, index) in recommendersSettings"
         :key="settings.type"
@@ -12,29 +12,30 @@
         @search-parameters-changed="handleSearchparametersChanged"/>
     </div>
 
-    <div v-if="!isLoadingRecommendations && !isLoadingArticles" class=" p-3">
-      <b-row v-if="articlesLoaded && recommendedArticles.length > 0">
-        <b-col v-for="article in recommendedArticles" :key="article.uid">
-          <search-results-list-item :article="article" />
-        </b-col>
-      </b-row>
+    <div style="overflow: auto">
+      <div v-if="!isLoadingRecommendations && !isLoadingArticles" class=" p-3">
+        <b-row v-if="articlesLoaded && recommendedArticles.length > 0">
+          <b-col v-for="article in recommendedArticles" :key="article.uid">
+            <search-results-list-item :article="article" />
+          </b-col>
+        </b-row>
 
-      <div class="fixed-pagination-footer p-1 m-0" slot="footer"  v-if="articlesLoaded && recommendedArticles.length > 0">
-        <pagination
-          v-if="recommendedArticles.length"
-          v-model="paginationCurrentPage"
-          :per-page="paginationPerPage"
-          :total-rows="paginationTotalRows"
-          class="float-left small-caps" />
+        <div class="fixed-pagination-footer p-1 m-0" slot="footer"  v-if="articlesLoaded && recommendedArticles.length > 0">
+          <pagination
+            v-if="recommendedArticles.length"
+            v-model="paginationCurrentPage"
+            :per-page="paginationPerPage"
+            :total-rows="paginationTotalRows"
+            class="float-left small-caps" />
+        </div>
+
+        <div v-if="articlesLoaded && recommendedArticles.length === 0">
+          <span>{{ $t('label.notfound') }}</span>
+        </div>
       </div>
 
-      <div v-if="articlesLoaded && recommendedArticles.length === 0">
-        <span>{{ $t('label.notfound') }}</span>
-      </div>
+      <spinner v-if="isLoadingRecommendations || isLoadingArticles" />
     </div>
-
-    <spinner v-if="isLoadingRecommendations || isLoadingArticles" />
-
   </div>
 </template>
 
