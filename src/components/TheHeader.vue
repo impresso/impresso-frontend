@@ -7,7 +7,7 @@
       </b-navbar-brand>
 
       <b-navbar-nav>
-        <b-nav-item v-if="!countActiveFilters" v-bind:to="getRouteWithSearchQuery({ name: 'search' })" active-class="active">
+        <b-nav-item v-if="!countActiveFilters" :to="getRouteWithSearchQuery({ name: 'search' })" active-class="active">
           {{$tc("label_search", 0)}}
         </b-nav-item>
 
@@ -29,29 +29,32 @@
             :to="getRouteWithSearchQuery({ name: 'search' })">
             {{$t('actions.searchMore')}}
           </b-button>
-          <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" v-bind:to="{ name: 'search' }">
+          <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" :to="{ name: 'search' }">
             {{$t('actions.resetQuery')}}
           </b-button> -->
           <search-query-explorer :search-query="searchQuery" dark-mode/>
         </b-nav-item-dropdown>
 
-        <b-nav-item v-bind:to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
+        <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
           {{$t("label_newspapers")}}
         </b-nav-item>
-        <!-- <b-nav-item v-bind:to="{ name: 'entities'}" exact-active-class="active">
+        <!-- <b-nav-item :to="{ name: 'entities'}" exact-active-class="active">
           {{$t("label_entities")}}
         </b-nav-item> -->
-        <b-nav-item v-bind:to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
+        <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
           {{$t("label_topics")}}
         </b-nav-item>
-        <b-nav-item v-bind:to="{ name: 'compare', query: { left: searchQueryHash } }" active-class="active">
+        <b-nav-item :to="{ name: 'compare', query: { left: searchQueryHash } }" active-class="active">
           {{$t("label_compare")}}
         </b-nav-item>
         <b-nav-item
           v-if="textReuseEnabled"
-          v-bind:to="getRouteWithSearchQuery({ name: 'text-reuse-cluster-detail' })"
+          :to="getRouteWithSearchQuery({ name: 'text-reuse-cluster-detail' })"
           active-class="active">
           {{$t("label_text_reuse")}}
+        </b-nav-item>
+        <b-nav-item v-if="user" :to="{ name: 'collections'}">
+          {{$t("collections")}}
         </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
@@ -59,11 +62,8 @@
       </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">
-          <b-nav-item v-bind:to="{ name: 'faq'}" active-class="active">
+          <b-nav-item :to="{ name: 'faq'}" active-class="active">
             {{$t("label_faq")}}
-          </b-nav-item>
-          <b-nav-item v-bind:to="{ name: 'termsOfUse'}" active-class="active">
-            {{$t("label_terms_of_use")}}
           </b-nav-item>
 
           <b-nav-item-dropdown right no-caret
@@ -119,9 +119,12 @@
                 </div>
               </div>
             </template>
-            <b-dropdown-item v-bind:to="{ name: 'user'}">{{$t('profile')}}</b-dropdown-item>
-            <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
-            <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'user'}">{{$t('profile')}}</b-dropdown-item>
+            <b-nav-item :to="{ name: 'termsOfUse'}" active-class="active">
+              {{$t("label_terms_of_use")}}
+            </b-nav-item>
+            <b-dropdown-item :to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
             <b-dropdown-item
               target="_blank"
@@ -132,7 +135,7 @@
 
             <b-dropdown-text class="px-3" v-html="$t('current_version', { version })"/>
           </b-nav-item-dropdown>
-          <b-nav-item class="small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
+          <b-nav-item class="small-caps border-left" v-else :to="loginRouteParams">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible variant="warning" class="m-0 px-3">
