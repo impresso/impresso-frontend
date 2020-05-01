@@ -209,10 +209,7 @@ import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
-import {
-  optimizeFilters,
-  joinFiltersWithItems,
-} from '@/logic/filters';
+import { joinFiltersWithItems } from '@/logic/filters';
 import {
   searchQueryGetter,
   searchQuerySetter,
@@ -420,7 +417,7 @@ export default {
     handleFiltersChanged(filters) {
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
-        filters: optimizeFilters(filters).concat(this.ignoredFilters),
+        filters: filters.concat(this.ignoredFilters),
       });
     },
     nameSelectedCollectionOnShown() {
