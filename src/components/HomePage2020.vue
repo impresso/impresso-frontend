@@ -319,6 +319,10 @@ export default {
     }
   }
 
+  .search-pill span.label.sp-string, .search-pill span.label > .sp-string{
+    color: black;
+  }
+
   .stats a {
     color: $clr-white;
   }
