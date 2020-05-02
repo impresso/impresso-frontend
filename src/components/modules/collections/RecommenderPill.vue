@@ -13,16 +13,54 @@
 
     <div class="content">
       <!-- toggles bar -->
-      <div class="border-bottom p-2">
+      <div class="p-2 d-flex">
         <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged">
           {{ $t('enableRecommender') }}
         </b-form-checkbox>
+        <b-form-checkbox class="ml-auto" v-model="isAdvanced">
+          {{ $t('label.advancedSettings') }}
+        </b-form-checkbox>
       </div>
 
+      <!-- advanced mode -->
+      <div class="advanced-features border-bottom">
+        <b-collapse v-model="isAdvanced">
+          <slot name="advanced-features" >
+            <!-- advanced features -->
+            <component class="px-3 pt-3 border-top" :is="currentSettingsComponent" v-model="parameters"/>
+          </slot>
+
+          <!-- reset / apply buttons -->
+          <b-container fluid class="p-2">
+            <b-row no-gutters>
+              <b-col class="text-right pr-1">
+                <b-button size="sm" block
+                  class="control-button"
+                  variant="outline-primary"
+                  :disabled="loadingRecommendations || settingsAreDefault"
+                  @click="handleResetParameters">
+                  {{ $t('label.resetToDefault') }}
+                </b-button>
+              </b-col>
+              <b-col>
+                <b-button size="sm"
+                  block
+                  class="control-button"
+                  variant="outline-primary"
+                  :disabled="!parametersChanged || loadingRecommendations"
+                  @click="handleApplyParamatersChanges">
+                  {{ $t('label.applyChanges') }}
+                </b-button>
+              </b-col>
+            </b-row>
+          </b-container>
+        </b-collapse>
+      </div>
       <!-- weight -->
       <div class="border-bottom p-2 d-flex">
-        <label class="text-nowrap flex-shrink-1">{{ $t('weightLabel') }}
-          <b>{{ $n(weightInput, { maximumFractionDigits: '2' }) }}</b>
+        <label class="flex-shrink-1">
+          {{ $t('weightLabel') }}<br/>
+          <b>{{ weightInput > 0 ? '+' : '' }}{{ $n(weightInput, { maximumFractionDigits: '2' }) }}</b>
         </label>
         <b-form-input
           v-model="weightInput"
@@ -38,52 +76,8 @@
 
       <!-- advanced panel -->
       <b-container>
-      <b-row class="pt-2 pb-2">
-        <b-col class="ml-3 mr-3 advanced-features">
 
-          <!-- toggle panel button -->
-          <b-row class="pb-2">
-            <b-button size="sm"
-              variant="outline-primary"
-              class="toggle-panel-button"
-              v-b-toggle="`settings-collapse-${componentId}`">
-              {{ $t('label.advancedSettings') }}
-            </b-button>
-          </b-row>
-
-          <b-collapse :id="`settings-collapse-${componentId}`">
-            <slot name="advanced-features">
-              <!-- advanced features -->
-              <component :is="currentSettingsComponent" v-model="parameters"/>
-            </slot>
-
-            <!-- reset / apply buttons -->
-            <b-row class="pt-2">
-              <b-col class="pl-0 pr-0">
-                <b-button
-                  class="control-button"
-                  variant="outline-primary"
-                  :disabled="loadingRecommendations || settingsAreDefault"
-                  @click="handleResetParameters">
-                  {{ $t('label.resetToDefault') }}
-                </b-button>
-              </b-col>
-              <b-col class="pr-0 pl-0">
-                <b-button
-                  class="control-button"
-                  variant="outline-primary"
-                  :disabled="!parametersChanged || loadingRecommendations"
-                  @click="handleApplyParamatersChanges">
-                  {{ $t('label.applyChanges') }}
-                </b-button>
-              </b-col>
-            </b-row>
-          </b-collapse>
-
-        </b-col>
-      </b-row>
-
-      <b-row class="pt-1 pb-1 border-top">
+      <b-row class="pt-1 pb-1">
         <b-col class="ml-3 mr-3 p-2 recommendations">
           <slot name="recommendations">
             <!-- recommendations -->
@@ -139,6 +133,7 @@ export default {
   data: () => ({
     editedWeight: 0,
     editedEnabled: true,
+    isAdvanced: false,
     editedParameters: {}
   }),
   props: {
@@ -158,7 +153,7 @@ export default {
     loadingRecommendations: {
       type: Boolean,
       default: false
-    }
+    },
   },
   computed: {
     /** @returns {string} */
@@ -304,7 +299,10 @@ export default {
     }
 
     .advanced-features {
-
+      background-color: #f1f2f4;
+      label{
+        font-variant: normal;
+      }
       .toggle-panel-button {
         width: 100%;
       }
