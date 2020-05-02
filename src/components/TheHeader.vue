@@ -7,22 +7,23 @@
       </b-navbar-brand>
 
       <b-navbar-nav>
-        <b-nav-item v-if="!countActiveFilters" :to="getRouteWithSearchQuery({ name: 'search' })" active-class="active">
-          {{$tc("label_search", 0)}}
+        <b-nav-item :to="getRouteWithSearchQuery({ name: 'search' })" active-class="active"
+          class="position-relative">
+          <span>{{$tc("label_search", 0)}}</span>
+          <transition name="bounce">
+            <b-badge
+              v-if="countActiveFilters" pill variant="tiny" class="border"
+              >
+            </b-badge>
+          </transition>
         </b-nav-item>
 
-        <b-nav-item-dropdown  no-caret
+        <b-nav-item-dropdown no-caret
           v-if="countActiveFilters"
-          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" class="pl-3">
+          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" >
           <template slot="button-content">
-            <span style="color: gold">
-              <span v-if="countActiveItems" v-html="$tc('label_search_with_items', countActiveFilters, {
-                items: $tc('numbers.items', countActiveItems),
-              })" />
-              <span v-else>
-                {{ $tc('label_search', countActiveFilters) }}
-              </span>
-            </span>
+            &rarr;
+            <i>{{ $t('label_current_search') }}</i>
           </template>
           <b-button class="ml-3 my-2" size="sm" variant="outline-primary outline-primary-contrast"
             :disabled="$route.name === 'search'"
@@ -36,25 +37,25 @@
         </b-nav-item-dropdown>
 
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
-          {{$t("label_newspapers")}}
+          <span>{{$t("label_newspapers")}}</span>
         </b-nav-item>
         <!-- <b-nav-item :to="{ name: 'entities'}" exact-active-class="active">
           {{$t("label_entities")}}
         </b-nav-item> -->
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
-          {{$t("label_topics")}}
+          <span>{{$t("label_topics")}}</span>
         </b-nav-item>
         <b-nav-item :to="{ name: 'compare', query: { left: searchQueryHash } }" active-class="active">
-          {{$t("label_compare")}}
+          <span>{{$t("label_compare")}}</span>
         </b-nav-item>
         <b-nav-item
           v-if="textReuseEnabled"
           :to="getRouteWithSearchQuery({ name: 'text-reuse-cluster-detail' })"
           active-class="active">
-          {{$t("label_text_reuse")}}
+          <span>{{$t("label_text_reuse")}}</span>
         </b-nav-item>
         <b-nav-item v-if="user" :to="{ name: 'collections'}">
-          {{$t("collections")}}
+          <span>{{$t("collections")}}</span>
         </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
@@ -63,7 +64,7 @@
 
         <b-navbar-nav class="ml-auto">
           <b-nav-item :to="{ name: 'faq'}" active-class="active">
-            {{$t("label_faq")}}
+            <span>{{$t("label_faq")}}</span>
           </b-nav-item>
 
           <b-nav-item-dropdown right no-caret
@@ -394,7 +395,21 @@ export default {
       border-radius:10px;
       min-width:20px;
       height:20px;
+
+      &.badge-tiny{
+        right: 0;
+        top: 15px;
+        width: .5rem;
+        padding: 0;
+        height: .5rem;
+        overflow: hidden;
+        background: #ffeb78;
+        display: block;
+        min-width: auto;
+        border: 1px solid black!important;
+      }
     }
+
     .toaster {
       position:absolute;
       bottom:0;
@@ -446,10 +461,28 @@ export default {
       font-size: .9rem;
     }
     .navbar-dark .navbar-nav .nav-link {
-        color: $clr-grey-800;
-        &.active {
-          color: $clr-white;
-        }
+      color: $clr-grey-800;
+      > span{
+        position:relative;
+      }
+      > span:before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 0px;
+        border-bottom: 1px solid #ffeb78;
+        bottom: -3px;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease-in;
+      }
+      &:hover > span:before{
+        border-color: white;
+      }
+      &:hover > span:before,
+      &.active > span:before {
+        transform: scaleX(1);
+      }
     }
     .navbar-dark .navbar-nav .nav-link:focus,
     .navbar-dark .navbar-nav .nav-link:hover {
@@ -604,7 +637,7 @@ export default {
     "label_topics": "Topics",
     "label_compare": "Inspect & Compare",
     "label_text_reuse": "Text reuse",
-    "label_current_search": "browse results",
+    "label_current_search": "browse results ...",
     "label_faq": "FAQ",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
