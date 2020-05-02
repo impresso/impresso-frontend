@@ -1,25 +1,19 @@
 <template>
-  <div>
+  <b-container>
     <!-- entities to keep -->
-    <b-row>
+    <b-row class="mb-2">
       <b-col>
         <label>{{ $t('param.numberToKeep') }}</label>
       </b-col>
       <b-col>
-        <b-form-input v-model="numberToKeep" type="number" min="1" max="100"/>
+        <b-form-input size="sm" v-model="numberToKeep" type="number" min="1" max="100"/>
       </b-col>
     </b-row>
-
     <!-- remove fully mentioned -->
-    <b-row>
-      <b-col>
-        <label>{{ $t('param.dropFullyMentioned') }}</label>
-      </b-col>
-      <b-col>
-        <b-form-checkbox v-model="dropFullyMentioned" />
-      </b-col>
-    </b-row>
-  </div>
+    <b-form-checkbox v-model="dropFullyMentioned">
+      <label>{{ $t('param.dropFullyMentioned') }}</label>
+    </b-form-checkbox>
+  </b-container>
 </template>
 
 <script>
