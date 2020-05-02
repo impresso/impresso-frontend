@@ -12,7 +12,7 @@
           <span>{{$tc("label_search", 0)}}</span>
           <transition name="bounce">
             <b-badge
-              v-if="countActiveFilters" pill variant="tiny" class="border"
+              v-if="countActiveFilters" pill variant="tiny" class="position-absolute"
               >
             </b-badge>
           </transition>
@@ -398,15 +398,15 @@ export default {
 
       &.badge-tiny{
         right: 0;
-        top: 15px;
-        width: .5rem;
+        top: 18px;
+        width: 0.4rem;
         padding: 0;
-        height: .5rem;
+        height: 0.4rem;
         overflow: hidden;
         background: #ffeb78;
         display: block;
         min-width: auto;
-        border: 1px solid black!important;
+        // border: 1px solid black!important;
       }
     }
 
@@ -482,6 +482,9 @@ export default {
       &:hover > span:before,
       &.active > span:before {
         transform: scaleX(1);
+      }
+      &.active > span{
+        color: white;
       }
     }
     .navbar-dark .navbar-nav .nav-link:focus,
