@@ -54,7 +54,7 @@
           active-class="active">
           <span>{{$t("label_text_reuse")}}</span>
         </b-nav-item>
-        <b-nav-item v-if="user" :to="{ name: 'collections'}">
+        <b-nav-item v-if="user" :to="{ name: 'collections'}" active-class="active">
           <span>{{$t("collections")}}</span>
         </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
@@ -124,7 +124,7 @@
             <b-nav-item :to="{ name: 'termsOfUse'}" active-class="active">
               {{$t("label_terms_of_use")}}
             </b-nav-item>
-            <b-dropdown-item :to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'collections'}" active-class="active">{{$t("collections")}}</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
             <b-dropdown-item
