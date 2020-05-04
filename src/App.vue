@@ -296,6 +296,31 @@ input[type="range"]:active::-ms-thumb {
   background-color: $clr-accent-secondary;
 }
 
+.dropdown.show > .dropdown-toggle {
+  border-bottom-color: transparent;
+  z-index: 1001;
+}
+// add dots to fix bottom corners
+.dropdown.show::before, .dropdown.show::after {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  width: 1px;
+  height: 1px;
+  background-color: $clr-primary;
+  z-index: 1002;
+}
+.dropdown.show::after {
+  right: 0px;
+}
+// fix size change on hover
+.dropdown-toggle::after {
+  height: 1rem;
+  margin: 0;
+  padding-left: 3px;
+}
+
+
 .tooltip-inner {
     max-width: auto;
     text-align: left;
