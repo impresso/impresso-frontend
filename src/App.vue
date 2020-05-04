@@ -233,7 +233,7 @@ $clr-grey-900: #ddd;
   height: 0;
 }
 .custom-control-label::before {
-  border-color: $clr-secondary;
+  border-color: $clr-tertiary;
   outline: none;
 }
 .custom-control-label:disabled::before {
