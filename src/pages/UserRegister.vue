@@ -55,7 +55,7 @@
                   :description="errors[0]">
                   <b-form-input
                     id="email" name="email" autocomplete="home email"
-                    :class="errors[0] ? 'border-danger' : ''"
+                    :class="{'border-danger': errors[0] }"
                     v-model.trim="user.email"
                   ></b-form-input>
                 </b-form-group>
@@ -79,7 +79,7 @@
                         v-model.trim="user.password"
                         type="password"
                         maxlength="80"
-                        :class="errors[0] ? 'border-danger' : ''"
+                        :class="{'border-danger': errors[0] }"
                         :description="errors[0]"
                       ></b-form-input>
                     </b-form-group>
@@ -96,7 +96,7 @@
                           id="repeat-password" name="repeat-password"
                           v-model.trim="repeatPassword"
                           maxlength="80"
-                          :class="errors[0] ? 'border-danger' : ''"
+                          :class="{'border-danger': errors[0] }"
                           type="password" />
                       </b-form-group>
                     </ValidationProvider>
@@ -153,7 +153,7 @@
                   id="nda"
                   label="Signed NDA"
                   label-for="nda"
-                  :class="errors[0] ? 'border-danger' : ''"
+                  :class="{'border-danger': errors[0] }"
                   :description="errors[0]">
                   <b-form-file
                     id="nda" :state="errors.length === 0" @input="validate" v-model="nda"
