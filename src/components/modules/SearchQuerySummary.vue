@@ -109,7 +109,7 @@ export default {
 
       switch (type) {
       case 'daterange':
-        t = `from <span class="date">${this.$d(start, 'compact')}</span> to <span class="date">${this.$d(end, 'compact')}</span>`;
+        t = `from <span class="date">${this.$d(start, 'compactUtc')}</span> to <span class="date">${this.$d(end, 'compactUtc')}</span>`;
         break;
       case 'location':
       case 'person':

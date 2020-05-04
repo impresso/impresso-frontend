@@ -225,8 +225,8 @@ export default {
       max = 1,
     } = {}) {
       let labels = items.slice(0, max).map((/** @type {object} */ d) => this.$t('label.daterange.item', {
-        start: this.$d(new Date(d.start), 'compact'),
-        end: this.$d(new Date(d.end), 'compact'),
+        start: this.$d(new Date(d.start), 'compactUtc'),
+        end: this.$d(new Date(d.end), 'compactUtc'),
       })).join(`<span class="op or px-1">${this.$t('op.or')}</span>`);
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
