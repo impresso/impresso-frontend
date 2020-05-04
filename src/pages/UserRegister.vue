@@ -34,7 +34,7 @@
 
             <b-form @submit.prevent="onSubmit">
 
-              <validation-provider name="username" rules="required|min:4" v-slot="{ errors }">
+              <validation-provider name="username" rules="required|min:4|userRegex" v-slot="{ errors }">
                 <b-form-group
                   id="input-group-0"
                   label="User Name"
@@ -183,7 +183,7 @@ import {
 } from 'vee-validate';
 import { required, email, confirmed, regex, ext } from 'vee-validate/dist/rules'
 import { users as usersService } from '@/services'
-import { PasswordRegex } from '@/logic/user'
+import { PasswordRegex, UserRegex } from '@/logic/user'
 
 extend('required', {
   ...required,
@@ -210,6 +210,11 @@ extend('regex', {
   message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
 });
 
+extend('userRegex', {
+  validate: value => value.match(UserRegex),
+  message: 'Please use only lowercase alpha-numeric characters'
+});
+
 extend('ext', {
   ...ext,
   message: 'The file must be of type IMAGE or PDF'
@@ -222,6 +227,7 @@ export default {
   },
   data: () => ({
     passwordRegex: PasswordRegex,
+    userRegex: UserRegex,
     user: {
       username: '',
       email: '',
