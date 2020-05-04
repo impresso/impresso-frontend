@@ -3,11 +3,11 @@
     <!-- n of topics to keep -->
     <b-row>
       <b-col>
-        <label for="input-numberToKeep">{{ $t('param.numberToKeep') }}</label>
+        <label :for="`input-numberToKeep-${id}`">{{ $t('param.numberToKeep') }}</label>
       </b-col>
       <b-col>
         <b-form-input
-          id="input-numberToKeep"
+          :id="`input-numberToKeep-${id}`"
           size="sm" v-model="numberToKeep"
           type="number" min="1" max="100"/>
       </b-col>
@@ -15,11 +15,11 @@
     <!-- scaling factor -->
     <b-row class="my-2">
       <b-col>
-        <label for="input-scalingFactor">{{ $t('param.scalingFactor') }}</label>
+        <label :for="`input-scalingFactor-${id}`">{{ $t('param.scalingFactor') }}</label>
       </b-col>
       <b-col>
         <b-form-input
-          id="input-scalingFactor"
+          :id="`input-scalingFactor-${id}`"
           size="sm" v-model="scalingFactor"
           type="number" min="1" max="20"/>
       </b-col>
@@ -47,6 +47,8 @@ export default {
     }
   },
   computed: {
+    /** @return {string} */
+    id() { return this['_uid']; },
     numberToKeep: {
       /** @returns {number} */
       get() { return this.parameters.nb_to_keep ?? 5 },

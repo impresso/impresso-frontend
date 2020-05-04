@@ -14,17 +14,17 @@
     <div class="content">
       <!-- toggles bar -->
       <div class="p-2 d-flex">
-        <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged">
+        <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged" switch>
           {{ $t('enableRecommender') }}
         </b-form-checkbox>
-        <b-form-checkbox class="ml-auto" v-model="isAdvanced">
+        <b-form-checkbox class="ml-auto" v-model="isAdvancedPanelOpen" switch>
           {{ $t('label.advancedSettings') }}
         </b-form-checkbox>
       </div>
 
       <!-- advanced mode -->
       <div class="advanced-features border-bottom">
-        <b-collapse v-model="isAdvanced">
+        <b-collapse v-model="isAdvancedPanelOpen">
           <slot name="advanced-features" >
             <!-- advanced features -->
             <component class="px-3 pt-3 border-top" :is="currentSettingsComponent" v-model="parameters"/>
@@ -133,7 +133,7 @@ export default {
   data: () => ({
     editedWeight: 0,
     editedEnabled: true,
-    isAdvanced: false,
+    isAdvancedPanelOpen: false,
     editedParameters: {}
   }),
   props: {
