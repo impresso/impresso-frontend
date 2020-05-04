@@ -306,7 +306,6 @@ export default {
     border-color: #caccce;
     color: #caccce;
     &:hover{
-      border-color: $clr-white !important;
       color: $clr-white;
     }
   }
