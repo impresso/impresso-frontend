@@ -280,8 +280,8 @@ export default {
           this.isCreated = true;
         })
         .catch((err) => {
+          console.warn(err);
           this.featherError = err.message;
-          console.error(this.featherError);
         })
         .finally(() => {
           this.isLoading = false;
