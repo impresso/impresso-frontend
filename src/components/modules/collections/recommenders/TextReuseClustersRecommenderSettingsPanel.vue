@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+  <div>
     <!-- entities to keep -->
     <b-row class="mb-2">
       <b-col>
@@ -13,7 +13,7 @@
     <b-form-checkbox v-model="dropFullyMentioned">
       <label>{{ $t('param.dropFullyMentioned') }}</label>
     </b-form-checkbox>
-  </b-container>
+  </div>
 </template>
 
 <script>

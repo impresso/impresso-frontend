@@ -1,5 +1,5 @@
 <template>
-  <b-container>
+  <div>
     <!-- count method -->
     <b-row>
       <b-col>
@@ -42,7 +42,7 @@
     <b-form-checkbox v-model="normalizeMaxScore">
       <label>{{ $t('param.normalizeMaxScore') }}</label>
     </b-form-checkbox>
-  </b-container>
+  </div>
 </template>
 
 <script>
