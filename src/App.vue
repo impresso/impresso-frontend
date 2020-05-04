@@ -344,7 +344,7 @@ input[type="range"]:active::-ms-thumb {
 
     .pagination {
         li.page-item > a,
-        li.page-item > span.page-link {
+        li.page-item > .page-link {
             border-color: $clr-secondary;
             padding: 0.15em 0.6em;
         }
