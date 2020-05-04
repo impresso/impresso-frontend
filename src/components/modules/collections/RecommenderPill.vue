@@ -31,7 +31,7 @@
           </slot>
 
           <!-- reset / apply buttons -->
-          <b-container fluid class="p-2">
+          <div class="p-2">
             <b-row no-gutters>
               <b-col class="text-right pr-1">
                 <b-button size="sm" block
@@ -53,7 +53,7 @@
                 </b-button>
               </b-col>
             </b-row>
-          </b-container>
+          </div>
         </b-collapse>
       </div>
       <!-- weight -->

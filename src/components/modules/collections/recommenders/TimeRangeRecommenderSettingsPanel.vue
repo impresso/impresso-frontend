@@ -1,14 +1,12 @@
 <template>
-  <b-container>
-    <b-row>
-      <b-col>
-        <label>{{ $t('param.margin') }}</label>
-      </b-col>
-      <b-col>
-        <b-form-input size="sm" type="number" v-model="margin"></b-form-input>
-      </b-col>
-    </b-row>
-  </b-container>
+  <b-row>
+    <b-col>
+      <label>{{ $t('param.margin') }}</label>
+    </b-col>
+    <b-col>
+      <b-form-input size="sm" type="number" v-model="margin"></b-form-input>
+    </b-col>
+  </b-row>
 </template>
 
 <script>

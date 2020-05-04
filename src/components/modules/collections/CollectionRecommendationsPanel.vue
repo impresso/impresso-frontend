@@ -16,7 +16,7 @@
     <div style="overflow: auto">
       <div v-if="!isLoadingRecommendations && !isLoadingArticles" class=" p-3">
         <div v-if="articlesLoaded && recommendedArticles.length > 0">
-          <b-container fluid >
+          <div>
             <b-row v-if="displayStyle === DisplayStyle.List">
               <b-col cols="12" v-for="article in recommendedArticles" :key="article.uid">
                 <search-results-list-item :article="article">
@@ -43,7 +43,7 @@
                   :article="article" />
               </b-col>
             </b-row>
-          </b-container>
+          </div>
         </div><!-- v-if="articlesLoaded && recommendedArticles.length > 0" -->
 
         <div v-else-if="articlesLoaded && recommendedArticles.length === 0">
