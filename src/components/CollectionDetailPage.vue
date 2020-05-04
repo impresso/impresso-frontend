@@ -419,7 +419,7 @@ export default {
       if (page !== undefined) {
         this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-      if (this.collection.uid === 'co_all') {
+      if (this.collection.uid === null) {
         this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
           this.collection.items = res;
           this.fetching = false;
@@ -432,7 +432,7 @@ export default {
       }
     },
     getCollection() {
-      this.collection.uid = this.$route.params.collection_uid ? this.$route.params.collection_uid : 'co_all';
+      this.collection.uid = this.$route.params.collection_uid ? this.$route.params.collection_uid : null;
       this.collection.items = [];
     },
     gotoArticle(article) {
