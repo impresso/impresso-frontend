@@ -232,16 +232,95 @@ $clr-grey-900: #ddd;
   width: 0;
   height: 0;
 }
-.custom-radio > .custom-control-label::before {
-  border: inherit;
-  outline: inherit;
-}
 .custom-control-label::before {
+  border-color: $clr-tertiary;
   outline: none;
 }
-.custom-control-label::before {
-  // border-color: $clr-primary;
+.custom-control-label:disabled::before {
+  border-color: $clr-tertiary;
 }
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 0.1rem;
+  background-color: $clr-secondary;
+  border-radius: 2px;
+}
+input[type="range"]::-moz-range-track {
+  height: 0.1rem;
+  background-color: $clr-secondary;
+  border-radius: 2px;
+}
+input[type="range"]::-ms-track {
+  height: 0.1rem;
+  background-color: $clr-secondary;
+  border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  margin-top: -0.45rem;
+  border-radius: 50%;
+  background-color: $clr-bg-primary;
+  border: 0.1rem solid $clr-secondary;
+  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
+}
+input[type="range"]:focus::-webkit-slider-thumb {
+  border-color: $clr-accent-secondary;
+}
+input[type="range"]:active::-webkit-slider-thumb {
+  background-color: $clr-accent-secondary;
+}
+input[type="range"]::-moz-range-thumb {
+  margin-top: -0.45rem;
+  border-radius: 50%;
+  background-color: $clr-bg-primary;
+  border: 0.1rem solid $clr-secondary;
+  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
+}
+input[type="range"]:focus::-moz-range-thumb {
+  border-color: $clr-accent-secondary;
+}
+input[type="range"]:active::-moz-range-thumb {
+  background-color: $clr-accent-secondary;
+}
+input[type="range"]::-ms-thumb {
+  margin-top: -0.45rem;
+  border-radius: 50%;
+  background-color: $clr-bg-primary;
+  border: 0.1rem solid $clr-secondary;
+  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
+}
+input[type="range"]:focus::-ms-thumb {
+  border-color: $clr-accent-secondary;
+}
+input[type="range"]:active::-ms-thumb {
+  background-color: $clr-accent-secondary;
+}
+
+.dropdown.show > .dropdown-toggle {
+  border-bottom-color: transparent;
+  z-index: 1001;
+}
+// add dots to fix bottom corners
+.dropdown.show::before, .dropdown.show::after {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  width: 1px;
+  height: 1px;
+  background-color: $clr-primary;
+  z-index: 1002;
+}
+.dropdown.show::after {
+  right: 0px;
+}
+// fix size change on hover
+.dropdown-toggle::after {
+  height: 1rem;
+  margin: 0;
+  padding-left: 3px;
+}
+
+
 .tooltip-inner {
     max-width: auto;
     text-align: left;
@@ -265,7 +344,7 @@ $clr-grey-900: #ddd;
 
     .pagination {
         li.page-item > a,
-        li.page-item > span.page-link {
+        li.page-item > .page-link {
             border-color: $clr-secondary;
             padding: 0.15em 0.6em;
         }
