@@ -78,7 +78,9 @@
 
       <b-navbar type="light" variant="light"
         class="px-0 py-0 border-bottom"
-        v-if="tab.name !== TAB_RECOMMENDATIONS">
+        v-if="tab.name === TAB_ARTICLES
+          || (tab.name === TAB_OVERVIEW
+          && $route.params.collection_uid)">
 
         <b-navbar-nav v-if="$route.params.collection_uid" class="ml-2">
           <b-nav-form class="p-2">
@@ -93,20 +95,19 @@
           </b-nav-form>
         </b-navbar-nav>
 
-        <b-navbar-nav v-if="[TAB_RECOMMENDATIONS, TAB_ARTICLES].includes(tab.name)" class="ml-auto mr-2 border-left">
+        <b-navbar-nav v-if="[TAB_RECOMMENDATIONS, TAB_ARTICLES].includes(tab.name)"
+          class="ml-auto mr-2 border-left">
           <!-- <b-navbar-form class="p-2 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </b-navbar-form> -->
-          <ul class="p-2 ml-auto">
-            <li class="ml-auto">
-              <label class="mr-1">{{ $t('label_display') }}</label>
-              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-              </b-form-radio-group>
-            </li>
-          </ul>
+          <div class="p-2 m-auto">
+            <label class="mr-1">{{ $t('label_display') }}</label>
+            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+            </b-form-radio-group>
+          </div>
         </b-navbar-nav>
 
       </b-navbar>
@@ -170,7 +171,12 @@
 
 
 
-    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3 container">
+    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3">
+
+      <div class="mx-3">
+        <div class="tb-title label small-caps font-weight-bold">{{$t('label.year.optionsTitle')}}</div>
+        <div class="small">{{$t('label.year.optionsDescription')}}</div>
+      </div>
 
       <timeline
             :domain="[startYear, endYear]"
@@ -183,15 +189,19 @@
         </div>
       </timeline>
 
-      <div class="row">
-        <div v-for="(facet, idx) in facets" v-bind:key="idx" class="col-6 my-3">
-          <stacked-bars-panel
-            class=""
-            :label="facet.type"
-            :buckets="facet.buckets"
-            :facet-type="facet.type"/>
-        </div>
-      </div>
+      <b-container>
+        <b-row>
+          <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+            <stacked-bars-panel
+              class=""
+              :label="facet.type"
+              :buckets="facet.buckets"
+              :facet-type="facet.type"/>
+        </b-col>
+      </b-row>
+      </b-container>
+
+
 
     </div>
 
