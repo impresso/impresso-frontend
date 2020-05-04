@@ -20,15 +20,15 @@
 
         <section class="ml-auto py-3">
 
-          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="float-right mb-1">
+          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="m-1">
             <b-button
               variant="outline-info" size="sm"
               v-b-modal.confirmDelete>{{ $t('compare_collection') }}
             </b-button>
           </router-link>
 
-          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')"
-            class="float-right" right ref="edit_collection">
+          <b-dropdown class="m-1" size="sm" variant="outline-primary" :text="$t('edit_collection')"
+            right ref="edit_collection">
             <div class="modal-edit pt-2 px-3 background-light">
               <label for="collectionName">Name</label>
               <input type="text" name="collectionName" class="form-control mb-3"
@@ -420,7 +420,6 @@ export default {
             this.loadFacets(type);
           });
         }
-        console.log('---', this.collection.uid);
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
@@ -571,7 +570,7 @@ export default {
 {
   "en": {
     "collections": "collections",
-    "all_collections_title": "Combined personal collections",
+    "all_collections_title": "All items in my collections",
     "label_order": "Order By",
     "sort_date": "Item Date",
     "sort_dateAdded": "Date Added",
