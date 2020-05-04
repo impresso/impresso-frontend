@@ -30,32 +30,51 @@ import {
  */
 
 /**
+ * Before the adoption of `sq` URL query parameter, we used to get filters
+ * from query param `f`. Filters were stored as a serialised JSON.
+ *
+ * To ensure old links still work we need to detect the presence of the query
+ * parameter and migrate it to the new format.
+ *
+ * @param {import('vue-router').Route} route
+ * @param {import('@/vue-shims').Navigation} navigation
+ */
+function tryMigrateLegacySearchQueryParameter(route, navigation) {
+  const {
+    [CommonQueryParameters.LegacySearchFilters]: f
+  } = route?.query;
+
+  const serialisedLegacyFilters = Array.isArray(f) ? f[0] : f
+
+  let filters = undefined
+  try {
+    filters = serialisedLegacyFilters != null
+      ? JSON.parse(serialisedLegacyFilters)
+      : undefined
+  } catch (e) {
+    console.warn(`Could not parse content of the legacy fiters query parameter "${CommonQueryParameters.LegacySearchFilters}"`)
+  }
+
+  if (filters != null) {
+    const serialisedFilters = serializeFilters(filters)
+    navigation.updateQueryParameters({
+      [CommonQueryParameters.SearchFilters]: serialisedFilters,
+      [CommonQueryParameters.LegacySearchFilters]: undefined
+    })
+  }
+}
+
+/**
  * Get serialised `SearchQuery` from a query parameter.
  * @param {import('vue-router').Route} route
+ * @param {import('@/vue-shims').Navigation} navigation
  * @return {string}
  */
-const getSearchQueryFromQueryParameterOrLocalStorage = route => {
+const getSearchQueryFromQueryParameterOrLocalStorage = (route, navigation) => {
+  tryMigrateLegacySearchQueryParameter(route, navigation)
   const {
-    [CommonQueryParameters.SearchFilters]: sq,
-    [CommonQueryParameters.LegacySearchFilters]: f,
+    [CommonQueryParameters.SearchFilters]: sq
   } = route?.query;
-  // Before the adoption of sq, we used to get filters from URL query param `f`
-  // as JSON string. There are many links in user feedbacks documents,
-  // in github issues or saved as bookmarks; as `f` contains data that
-  // pre-exist the adoption of sq, we have to try to parse `f` first, to avoid
-  // that the new approach hides or destroys previously saved data.
-  if (f) {
-    try {
-      return serializeFilters(JSON.parse(
-        Array.isArray(f) && f[0] != null
-          ? f[0]
-          : f
-      ));
-    } catch (err) {
-      console.warn('`f` URL param (a JSON string) is corrupted and cannot be recovered :(', err);
-      // skip, try the `sq`
-    }
-  }
 
   if (Array.isArray(sq) && sq[0] != null) return sq[0]
   if (!Array.isArray(sq) && sq != null) return sq
@@ -67,7 +86,7 @@ export const searchQueryHashGetter = () => {
   /**
    * @this {import('vue/types/vue').Vue}
    */
-  const fn = function() { return getSearchQueryFromQueryParameterOrLocalStorage(this.$route) }
+  const fn = function() { return getSearchQueryFromQueryParameterOrLocalStorage(this.$route, this.$navigation) }
   return fn
 }
 
@@ -78,7 +97,7 @@ export const searchQueryHashGetter = () => {
 export const searchQueryGetter = () => {
   /** @this {import('vue/types/vue').Vue} */
   const get = function() {
-    const sq = getSearchQueryFromQueryParameterOrLocalStorage(this.$route);
+    const sq = getSearchQueryFromQueryParameterOrLocalStorage(this.$route, this.$navigation);
     if (sq.length) {
       return SearchQuery.deserialize(sq);
     }
@@ -127,7 +146,7 @@ export const mapFilters = ({ additionalQueryParams = {} } = {}) => {
   /** @this {import('vue/types/vue').Vue} */
   const get = function() {
     return deserializeFilters(
-      getSearchQueryFromQueryParameterOrLocalStorage(this.$route)
+      getSearchQueryFromQueryParameterOrLocalStorage(this.$route, this.$navigation)
     )
   }
 
