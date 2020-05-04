@@ -42,7 +42,7 @@
                   :description="errors[0]">
                   <b-form-input id="username" name="username" required
                     v-model.trim="user.username"
-                    :class="errors[0] ? 'border-danger' : ''"
+                    :class="{'border-danger': errors[0] }"
                     />
                 </b-form-group>
               </validation-provider>
