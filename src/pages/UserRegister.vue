@@ -21,7 +21,7 @@
         </b-col>
       </b-row>
       <h2 class="border-bottom my-3 pb-3">{{ $t('Register') }}</h2>
-      <b-alert :show="ferror !== ''" dismissible fade variant="danger">{{ ferror }}</b-alert>
+      <b-alert v-if="featherError" show dismissible fade variant="danger">{{ featherError }}</b-alert>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
           <p v-hmtl="$('form_success')"/>
@@ -237,7 +237,7 @@ export default {
     nda: null,
     repeatPassword: '',
     errors: [],
-    ferror: '',
+    featherError: '',
     palettes:
     [
       '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
@@ -273,15 +273,15 @@ export default {
     onSubmit() {
       // console.info('UserPage.onSubmit()', this.user, this.nda);
       // to be checked for validity...
-      this.ferror = '';
+      this.featherError = '';
       this.isLoading = true;
       usersService.create(this.user)
         .then(() => {
           this.isCreated = true;
         })
         .catch((err) => {
-          this.ferror = err.message;
-          console.error(this.ferror);
+          this.featherError = err.message;
+          console.error(this.featherError);
         })
         .finally(() => {
           this.isLoading = false;
