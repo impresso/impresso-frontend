@@ -78,10 +78,7 @@
       </b-tabs>
 
       <b-navbar type="light" variant="light"
-        class="px-0 py-0 border-bottom"
-        v-if="tab.name === TAB_ARTICLES
-          || (tab.name === TAB_OVERVIEW
-          && $route.params.collection_uid)">
+        class="px-0 py-0 border-bottom" v-if="tab.name !== TAB_RECOMMENDATIONS">
 
         <b-navbar-nav v-if="$route.params.collection_uid" class="ml-2">
           <b-nav-form class="p-2">
@@ -96,8 +93,7 @@
           </b-nav-form>
         </b-navbar-nav>
 
-        <b-navbar-nav v-if="[TAB_RECOMMENDATIONS, TAB_ARTICLES].includes(tab.name)"
-          class="ml-auto mr-2 border-left">
+        <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
@@ -210,7 +206,19 @@
       <collection-recommendations-panel
         :collection-id="$route.params.collection_uid"
         :display-style="displayStyle"
-        :collection="collection"/>
+        :collection="collection">
+        <template v-slot:additional-navbar>
+          <b-navbar-nav class="ml-auto">
+            <b-nav-form class="p-2">
+              <label class="mr-1">{{ $t('label_display') }}</label>
+              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+              </b-form-radio-group>
+            </b-nav-form>
+          </b-navbar-nav>
+        </template>
+      </collection-recommendations-panel>
     </div>
 <!--
 

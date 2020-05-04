@@ -21,6 +21,7 @@
         </b-col>
       </b-row>
       <h2 class="border-bottom my-3 pb-3">{{ $t('Register') }}</h2>
+      <b-alert v-if="featherError" show dismissible fade variant="danger">{{ featherError }}</b-alert>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
           <p v-hmtl="$('form_success')"/>
@@ -33,13 +34,16 @@
 
             <b-form @submit.prevent="onSubmit">
 
-              <validation-provider name="username" rules="required|min:4" v-slot="{ errors }">
+              <validation-provider name="username" rules="required|min:4|userRegex" v-slot="{ errors }">
                 <b-form-group
                   id="input-group-0"
                   label="User Name"
                   label-for="username"
                   :description="errors[0]">
-                  <b-form-input id="username" name="username" required v-model.trim="user.username" />
+                  <b-form-input id="username" name="username" required
+                    v-model.trim="user.username"
+                    :class="{'border-danger': errors[0] }"
+                    />
                 </b-form-group>
               </validation-provider>
 
@@ -51,6 +55,7 @@
                   :description="errors[0]">
                   <b-form-input
                     id="email" name="email" autocomplete="home email"
+                    :class="{'border-danger': errors[0] }"
                     v-model.trim="user.email"
                   ></b-form-input>
                 </b-form-group>
@@ -74,6 +79,7 @@
                         v-model.trim="user.password"
                         type="password"
                         maxlength="80"
+                        :class="{'border-danger': errors[0] }"
                         :description="errors[0]"
                       ></b-form-input>
                     </b-form-group>
@@ -90,6 +96,7 @@
                           id="repeat-password" name="repeat-password"
                           v-model.trim="repeatPassword"
                           maxlength="80"
+                          :class="{'border-danger': errors[0] }"
                           type="password" />
                       </b-form-group>
                     </ValidationProvider>
@@ -131,7 +138,7 @@
                 </b-form-input>
                 <b-input-group-append>
                   <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
-                  <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
+                  <b-button size="sm" class="text-nowrap" variant="outline-primary" @click="onGeneratePattern">
                     {{$t('actions.generatePattern')}}
                   </b-button>
                 </b-input-group-append>
@@ -146,6 +153,7 @@
                   id="nda"
                   label="Signed NDA"
                   label-for="nda"
+                  :class="{'border-danger': errors[0] }"
                   :description="errors[0]">
                   <b-form-file
                     id="nda" :state="errors.length === 0" @input="validate" v-model="nda"
@@ -175,7 +183,7 @@ import {
 } from 'vee-validate';
 import { required, email, confirmed, regex, ext } from 'vee-validate/dist/rules'
 import { users as usersService } from '@/services'
-import { PasswordRegex } from '@/logic/user'
+import { PasswordRegex, UserRegex } from '@/logic/user'
 
 extend('required', {
   ...required,
@@ -202,6 +210,11 @@ extend('regex', {
   message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
 });
 
+extend('userRegex', {
+  validate: value => value.match(UserRegex),
+  message: 'Please use only lowercase alpha-numeric characters'
+});
+
 extend('ext', {
   ...ext,
   message: 'The file must be of type IMAGE or PDF'
@@ -214,6 +227,7 @@ export default {
   },
   data: () => ({
     passwordRegex: PasswordRegex,
+    userRegex: UserRegex,
     user: {
       username: '',
       email: '',
@@ -229,6 +243,7 @@ export default {
     nda: null,
     repeatPassword: '',
     errors: [],
+    featherError: '',
     palettes:
     [
       '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
@@ -264,13 +279,15 @@ export default {
     onSubmit() {
       // console.info('UserPage.onSubmit()', this.user, this.nda);
       // to be checked for validity...
+      this.featherError = '';
       this.isLoading = true;
       usersService.create(this.user)
         .then(() => {
           this.isCreated = true;
         })
         .catch((err) => {
-          console.error(err);
+          console.warn(err);
+          this.featherError = err.message;
         })
         .finally(() => {
           this.isLoading = false;

@@ -1,35 +1,33 @@
 <template>
   <div>
-    <!-- entities to keep -->
+    <!-- n of topics to keep -->
     <b-row>
       <b-col>
-        <label>{{ $t('param.numberToKeep') }}</label>
+        <label :for="`input-numberToKeep-${id}`">{{ $t('param.numberToKeep') }}</label>
       </b-col>
       <b-col>
-        <b-form-input v-model="numberToKeep" type="number" min="1" max="100"/>
+        <b-form-input
+          :id="`input-numberToKeep-${id}`"
+          size="sm" v-model="numberToKeep"
+          type="number" min="1" max="100"/>
       </b-col>
     </b-row>
-
     <!-- scaling factor -->
-    <b-row>
+    <b-row class="my-2">
       <b-col>
-        <label>{{ $t('param.scalingFactor') }}</label>
+        <label :for="`input-scalingFactor-${id}`">{{ $t('param.scalingFactor') }}</label>
       </b-col>
       <b-col>
-        <b-form-input v-model="scalingFactor" type="number" min="1" max="20"/>
+        <b-form-input
+          :id="`input-scalingFactor-${id}`"
+          size="sm" v-model="scalingFactor"
+          type="number" min="1" max="20"/>
       </b-col>
     </b-row>
-
     <!-- normalize max score -->
-    <b-row>
-      <b-col>
-        <label>{{ $t('param.normalizeMaxScore') }}</label>
-      </b-col>
-      <b-col>
-        <b-form-checkbox v-model="normalizeMaxScore" />
-      </b-col>
-    </b-row>
-
+    <b-form-checkbox v-model="normalizeMaxScore">
+      <label>{{ $t('param.normalizeMaxScore') }}</label>
+    </b-form-checkbox>
   </div>
 </template>
 
@@ -49,6 +47,8 @@ export default {
     }
   },
   computed: {
+    /** @return {string} */
+    id() { return this['_uid']; },
     numberToKeep: {
       /** @returns {number} */
       get() { return this.parameters.nb_to_keep ?? 5 },
@@ -93,9 +93,9 @@ export default {
 {
   "en": {
     "param": {
-      "numberToKeep": "Maximum number of entities to keep",
+      "numberToKeep": "Maximum number of topics to keep",
       "scalingFactor": "Scaling the distribution for the query",
-      "normalizeMaxScore": "Normalize so the score of the top entity is 1.0"
+      "normalizeMaxScore": "Normalize so the score of the top topic is 1.0"
     }
   }
 }

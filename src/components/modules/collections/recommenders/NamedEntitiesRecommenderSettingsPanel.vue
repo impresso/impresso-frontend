@@ -6,53 +6,42 @@
         <label>{{ $t('param.countType') }}</label>
       </b-col>
       <b-col>
-        <b-form-select
+        <b-form-select size="sm"
           v-model="countType"
           :options="countTypes">
         </b-form-select>
       </b-col>
     </b-row>
-
     <!-- occurences -->
-    <b-row>
+    <b-row class="mt-2">
       <b-col>
         <label>{{ $t('param.minOccurences') }}</label>
       </b-col>
       <b-col>
-        <b-form-input v-model="minOccurences" type="number" min="1" max="100"/>
+        <b-form-input size="sm"
+          v-model="minOccurences"
+          type="number" min="1" max="100"/>
       </b-col>
     </b-row>
-
     <!-- entities to keep -->
-    <b-row>
+    <b-row class="my-2">
       <b-col>
         <label>{{ $t('param.numberToKeep') }}</label>
       </b-col>
       <b-col>
-        <b-form-input v-model="numberToKeep" type="number" min="1" max="100"/>
+        <b-form-input size="sm"
+          v-model="numberToKeep"
+          type="number" min="1" max="100"/>
       </b-col>
     </b-row>
-
     <!-- remove fully mentioned -->
-    <b-row>
-      <b-col>
-        <label>{{ $t('param.dropFullyMentioned') }}</label>
-      </b-col>
-      <b-col>
-        <b-form-checkbox v-model="dropFullyMentioned" />
-      </b-col>
-    </b-row>
-
+    <b-form-checkbox v-model="dropFullyMentioned">
+      <label>{{ $t('param.dropFullyMentioned') }}</label>
+    </b-form-checkbox>
     <!-- normalize max score -->
-    <b-row>
-      <b-col>
-        <label>{{ $t('param.normalizeMaxScore') }}</label>
-      </b-col>
-      <b-col>
-        <b-form-checkbox v-model="normalizeMaxScore" />
-      </b-col>
-    </b-row>
-
+    <b-form-checkbox v-model="normalizeMaxScore">
+      <label>{{ $t('param.normalizeMaxScore') }}</label>
+    </b-form-checkbox>
   </div>
 </template>
 
