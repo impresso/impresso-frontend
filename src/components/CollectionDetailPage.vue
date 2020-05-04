@@ -27,7 +27,8 @@
             </b-button>
           </router-link>
 
-          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')" class="d-block" ref="edit_collection">
+          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')"
+            class="float-right" right ref="edit_collection">
             <div class="modal-edit pt-2 px-3 background-light">
               <label for="collectionName">Name</label>
               <input type="text" name="collectionName" class="form-control mb-3"
@@ -572,7 +573,7 @@ export default {
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
-    "edit_collection": "Collection Settings",
+    "edit_collection": "Settings",
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "compare_collection": "Compare with ...",
