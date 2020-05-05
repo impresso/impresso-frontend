@@ -76,7 +76,7 @@
           }">
             {{ $t('actions.compare') }}
           </b-button>
-          <b-dropdown  v-if="isLoggedIn" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" class="bg-white mr-3">
+          <b-dropdown  v-if="isLoggedIn" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" right class="bg-white mr-3">
             <b-dropdown-item
               v-if="selectedItems.length > 0"
               class="p-2 small-caps"
