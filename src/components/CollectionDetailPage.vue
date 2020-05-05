@@ -18,7 +18,7 @@
         </section>
 
 
-        <section class="ml-auto py-3">
+        <section class="ml-auto py-3 text-right">
 
           <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="m-1">
             <b-button
@@ -78,7 +78,8 @@
       </b-tabs>
 
       <b-navbar type="light" variant="light"
-        class="px-0 py-0 border-bottom" v-if="tab.name !== TAB_RECOMMENDATIONS">
+        class="px-0 py-0 border-bottom" v-if="tab.name !== TAB_RECOMMENDATIONS
+          && (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)">
 
         <b-navbar-nav v-if="$route.params.collection_uid" class="ml-2">
           <b-nav-form class="p-2">
@@ -410,9 +411,11 @@ export default {
       immediate: true,
       async handler({ query }) {
         if (this.collection.uid !== this.$route.params.collection_uid) {
+          // reset all values
           this.timevalues = [];
           this.facets = [];
           this.paginationCurrentPage = 1;
+          this.collection.countItems = 0;
           this.getCollection();
           await this.getCollectionItems();
           await this.loadTimeline();
@@ -423,11 +426,6 @@ export default {
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
-        // reset item list
-        // if (this.tab.name === TAB_ARTICLES && this.collection.items === []) {
-        // }
-        // if (this.tab.name === TAB_OVERVIEW && this.timevalues === []) {
-        // }
       },
     },
   },
@@ -437,9 +435,10 @@ export default {
       if (page !== undefined) {
         this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-      if (this.collection.uid === null) {
+      if (!this.collection.uid) {
         this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
           this.collection.items = res;
+          this.collection.countItems = this.paginationTotalRows;
           this.fetching = false;
         });
       } else {
@@ -450,7 +449,7 @@ export default {
       }
     },
     getCollection() {
-      this.collection.uid = this.$route.params.collection_uid ? this.$route.params.collection_uid : null;
+      this.collection.uid = this.$route.params.collection_uid || null;
       this.collection.items = [];
     },
     gotoArticle(article) {
