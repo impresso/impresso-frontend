@@ -282,7 +282,7 @@ export default {
       ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
-          p: 1,
+          p: '1',
         },
       }),
     },
