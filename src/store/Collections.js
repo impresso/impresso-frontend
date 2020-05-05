@@ -186,6 +186,7 @@ export default {
           q: collectionId,
         }],
         group_by: 'articles',
+        limit: 100000,
       };
       return services.searchFacets.get('year', {
         query,
