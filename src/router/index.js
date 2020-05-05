@@ -10,8 +10,6 @@ import SearchPage from '../components/SearchPage';
 import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
-import CollectionsPage from '../components/CollectionsPage';
-import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
@@ -151,10 +149,10 @@ const router = new Router({
     },
     {
       path: '/collections',
-      component: CollectionsPage,
+      component: () => import(/* webpackChunkName: "collections" */ '../pages/Collections.vue'),
       children: [{
         path: '',
-        component: CollectionsExplorerPage,
+        component: CollectionDetailPage,
         name: 'collections',
         meta: {
           requiresAuth: true,

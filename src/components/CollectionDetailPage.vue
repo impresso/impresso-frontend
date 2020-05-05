@@ -1,9 +1,9 @@
 <template lang="html">
-  <i-layout-section v-if="$route.params.collection_uid">
+  <i-layout-section>
 
     <div slot="header">
 
-      <b-navbar type="light" variant="light">
+      <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
 
         <section>
 
@@ -18,16 +18,17 @@
         </section>
 
 
-        <section class="ml-auto py-3">
+        <section class="ml-auto py-3 text-right">
 
-          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="float-right mb-1">
+          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="m-1">
             <b-button
               variant="outline-info" size="sm"
               v-b-modal.confirmDelete>{{ $t('compare_collection') }}
             </b-button>
           </router-link>
 
-          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')" class="d-block" ref="edit_collection">
+          <b-dropdown class="m-1" size="sm" variant="outline-primary" :text="$t('edit_collection')"
+            right ref="edit_collection">
             <div class="modal-edit pt-2 px-3 background-light">
               <label for="collectionName">Name</label>
               <input type="text" name="collectionName" class="form-control mb-3"
@@ -57,6 +58,14 @@
         </b-modal>
       </b-navbar>
 
+      <b-navbar v-else type="light" variant="light">
+        <section class='pt-2 pb-1'>
+          <span class="label small-caps">{{$t('collections')}}</span>
+          <h3 class='mb-1'>{{ $t('all_collections_title') }}</h3>
+
+        </section>
+      </b-navbar>
+
       <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
@@ -69,15 +78,16 @@
       </b-tabs>
 
       <b-navbar type="light" variant="light"
-        class="px-0 py-0 border-bottom" v-if="tab.name !== TAB_RECOMMENDATIONS">
+        class="px-0 py-0 border-bottom" v-if="tab.name !== TAB_RECOMMENDATIONS
+          && (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)">
 
-        <b-navbar-nav class="ml-2">
+        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-2">
           <b-nav-form class="p-2">
             <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
               {{ $t('actions.addToCurrentFilters') }}
             </b-button>
           </b-nav-form>
-          <b-nav-form class="py-2 pr-2  border-right">
+          <b-nav-form class="py-2 pr-2">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
@@ -89,15 +99,13 @@
             <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </b-navbar-form> -->
-          <ul class="p-2 ml-auto">
-            <li class="ml-auto">
-              <label class="mr-1">{{ $t('label_display') }}</label>
-              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-              </b-form-radio-group>
-            </li>
-          </ul>
+          <div class="p-2 m-auto">
+            <label class="mr-1">{{ $t('label_display') }}</label>
+            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+            </b-form-radio-group>
+          </div>
         </b-navbar-nav>
 
       </b-navbar>
@@ -161,7 +169,12 @@
 
 
 
-    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3 container">
+    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3">
+
+      <div class="mx-3">
+        <div class="tb-title label small-caps font-weight-bold">{{$t('label.year.optionsTitle')}}</div>
+        <div class="small">{{$t('label.year.optionsDescription')}}</div>
+      </div>
 
       <timeline
             :domain="[startYear, endYear]"
@@ -174,15 +187,19 @@
         </div>
       </timeline>
 
-      <div class="row">
-        <div v-for="(facet, idx) in facets" v-bind:key="idx" class="col-6 my-3">
-          <stacked-bars-panel
-            class=""
-            :label="facet.type"
-            :buckets="facet.buckets"
-            :facet-type="facet.type"/>
-        </div>
-      </div>
+      <b-container>
+        <b-row>
+          <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+            <stacked-bars-panel
+              class=""
+              :label="facet.type"
+              :buckets="facet.buckets"
+              :facet-type="facet.type"/>
+        </b-col>
+      </b-row>
+      </b-container>
+
+
 
     </div>
 
@@ -394,29 +411,21 @@ export default {
       immediate: true,
       async handler({ query }) {
         if (this.collection.uid !== this.$route.params.collection_uid) {
+          // reset all values
           this.timevalues = [];
           this.facets = [];
           this.paginationCurrentPage = 1;
+          this.collection.countItems = 0;
           this.getCollection();
           await this.getCollectionItems();
           await this.loadTimeline();
           this.facetTypes.forEach((type) => {
             this.loadFacets(type);
           });
-          //
-          // await this.loadFacets('newspaper');
-          // await this.loadFacets('topic');
-          // await this.loadFacets('location');
-          // await this.loadFacets('person');
         }
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
-        // reset item list
-        // if (this.tab.name === TAB_ARTICLES && this.collection.items === []) {
-        // }
-        // if (this.tab.name === TAB_OVERVIEW && this.timevalues === []) {
-        // }
       },
     },
   },
@@ -426,16 +435,22 @@ export default {
       if (page !== undefined) {
         this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-      this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
-        this.collection = res;
-        this.fetching = false;
-      });
+      if (!this.collection.uid) {
+        this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
+          this.collection.items = res;
+          this.collection.countItems = this.paginationTotalRows;
+          this.fetching = false;
+        });
+      } else {
+        this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
+          this.collection = res;
+          this.fetching = false;
+        });
+      }
     },
     getCollection() {
-      this.collection = {
-        uid: this.$route.params.collection_uid,
-        items: [],
-      };
+      this.collection.uid = this.$route.params.collection_uid || null;
+      this.collection.items = [];
     },
     gotoArticle(article) {
       this.$router.push({
@@ -554,6 +569,7 @@ export default {
 {
   "en": {
     "collections": "collections",
+    "all_collections_title": "All items in my collections",
     "label_order": "Order By",
     "sort_date": "Item Date",
     "sort_dateAdded": "Date Added",
@@ -563,7 +579,7 @@ export default {
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
-    "edit_collection": "Collection Settings",
+    "edit_collection": "Settings",
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "compare_collection": "Compare with ...",
