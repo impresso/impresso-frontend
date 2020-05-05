@@ -81,6 +81,7 @@ export default {
       select_collection: 'Select a collection',
       login: 'log in',
       generatePattern: 'Generate Pattern',
+      getSimilarImages: 'view similar images ...',
       requestNewPassword: 'Request New Password',
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',

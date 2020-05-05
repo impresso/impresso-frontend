@@ -5,7 +5,6 @@ import HomePage from '../components/HomePage';
 import HomePage2020 from '../components/HomePage2020';
 import FaqPage from '../components/FaqPage';
 import TermsOfUsePage from '../components/TermsOfUsePage';
-import SearchImagesPage from '../components/SearchImagesPage';
 import SearchPage from '../components/SearchPage';
 import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
@@ -100,7 +99,7 @@ const router = new Router({
     {
       path: '/search/images',
       name: 'searchImages',
-      component: SearchImagesPage,
+      component: () => import(/* webpackChunkName: "searchImages" */ '../pages/SearchImages.vue'),
       meta: {
         requiresAuth: false,
       },
