@@ -14,6 +14,9 @@ export default {
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
+    paginationListPerPage: 20,
+    paginationListCurrentPage: 1,
+    paginationListTotalRows: 0,
   },
   getters: {
     collections(state) {
@@ -53,6 +56,12 @@ export default {
     },
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
+    },
+    UPDATE_PAGINATION_LIST_CURRENT_PAGE(state, page) {
+      state.paginationListCurrentPage = parseInt(page, 10);
+    },
+    UPDATE_PAGINATION_LIST_TOTAL_ROWS(state, total) {
+      state.paginationListTotalRows = parseInt(total, 10);
     },
     SET_COLLECTIONS_SORT_ORDER(state, payload) {
       const collectionsSortOrder = payload.collectionsSortOrder || state.collectionsSortOrder;
@@ -159,10 +168,12 @@ export default {
       });
     },
     LOAD_COLLECTIONS(context) {
+      // console.log(context);
       return new Promise((resolve) => {
         services.collections.find({
           query: {
-            limit: 128,
+            page: context.state.paginationListCurrentPage,
+            limit: context.state.paginationListPerPage,
           },
         }).then((results) => {
           context.commit('UPDATE_COLLECTIONS', results.data.map(result => new Collection({
@@ -175,7 +186,10 @@ export default {
             ...result,
           })));
           context.commit('SET_COLLECTIONS_SORT_ORDER', {});
+          context.commit('UPDATE_PAGINATION_LIST_TOTAL_ROWS', results.total);
           resolve(results);
+          // context.commit('', results.total);
+          // console.log('results', results);
         });
       });
     },

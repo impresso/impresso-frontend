@@ -46,31 +46,42 @@
         <ul v-else>
           <p class="text-center p-4" v-html="$t('no_match')" />
         </ul>
-      </b-container>
-      <div slot="footer" class="p-3 border-top">
-        <div class="input-group input-group-sm">
-        <input type="text" name="" value="" class="form-control"
-          v-bind:placeholder="$t('inputNewPlaceholder')"
-          v-on:input="onInputNew"
-          v-on:keyup.enter="addCollection(inputNew)"
-          v-model="inputNew"
-          />
-          <div class="input-group-append">
-            <b-button variant="outline-primary"
-              size="sm"
-              v-bind:disabled="isDisabled == 0"
-              v-on:click="addCollection(inputNew)"
-              >
-              {{$t('create_new')}}
-            </b-button>
-          </div>
+        <div v-if="!fetching && paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+          <pagination
+            size="sm"
+            v-bind:perPage="paginationPerPage"
+            v-bind:currentPage="paginationCurrentPage"
+            v-bind:totalRows="paginationTotalRows"
+            v-on:change="onInputPagination"
+            class="float-left small-caps" />
         </div>
-      </div>
+      </b-container>
+
+
+      <!-- <div class="input-group input-group-sm">
+      <input type="text" name="" value="" class="form-control"
+        v-bind:placeholder="$t('inputNewPlaceholder')"
+        v-on:input="onInputNew"
+        v-on:keyup.enter="addCollection(inputNew)"
+        v-model="inputNew"
+        />
+        <div class="input-group-append">
+          <b-button variant="outline-primary"
+            size="sm"
+            v-bind:disabled="isDisabled == 0"
+            v-on:click="addCollection(inputNew)"
+            >
+            {{$t('create_new')}}
+          </b-button>
+        </div>
+      </div> -->
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
+import Pagination from './Pagination';
+
 export default {
   props: {
     method: {type: Function },
@@ -78,10 +89,32 @@ export default {
   data: () => ({
     show: false,
     isDisabled: false,
+    fetching: false,
     inputString: '',
     inputNew: '',
   }),
+  components: {
+    Pagination,
+  },
   computed: {
+    paginationPerPage: {
+      get() {
+        return this.$store.state.collections.paginationListPerPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.collections.paginationListCurrentPage;
+      },
+      set(val) {
+        this.$store.commit('collections/UPDATE_PAGINATION_LIST_CURRENT_PAGE', val);
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.collections.paginationListTotalRows;
+      },
+    },
     orderByOptions: {
       get() {
         return [
@@ -135,7 +168,11 @@ export default {
   },
   methods: {
     fetch() {
-      return this.$store.dispatch('collections/LOAD_COLLECTIONS');
+      return this.$store.dispatch('collections/LOAD_COLLECTIONS', this.list);
+    },
+    onInputPagination(page) {
+      this.paginationCurrentPage = page;
+      this.fetch();
     },
     select(collection) {
       this.$router.push({
