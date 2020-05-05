@@ -1,5 +1,5 @@
 <template lang="html">
-  <i-layout id="SearchPage">
+  <i-layout class="search-images">
     <search-sidebar width="400px"
       :filters="enrichedFilters"
       :ignored-filters="ignoredFilters"
@@ -8,16 +8,23 @@
       contextTag="searchImages"
       @changed="handleFiltersChanged">
       <div slot="header">
-        <b-media v-if="similarToImage" class="pb-3">
-          <div style="width:128px;" slot="aside">
+        <div v-if="similarToImage" class="m-2 p-2 bg-white shadow-sm border d-flex align-content-center" left-align vertical-align="center">
+          <div class="flex-shrink-1 mr-2" style="width: 100px">
             <b-img v-if="similarToImage.regions.length"
-              fluid-grow
+              fluid
               v-bind:src="similarToImage.regions[0].iiifFragment" />
           </div>
-          <h4>{{similarToImage.newspaper.name}}</h4>
-          <p>{{$d(new Date(similarToImage.date), 'long')}}</p>
-          <b-button variant="danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">Remove</b-button>
-        </b-media>
+          <div>
+            <router-link :to="{ name: 'newspaper', params: { newspaper_uid: similarToImage.newspaper.uid }}" class="article-newspaper">
+              {{ similarToImage.newspaper.name}}
+            </router-link>
+            <p class="date small-caps">{{ $d(similarToImage.date, "long") }}</p>
+          </div>
+          <div class="flex-shrink-1 ml-auto">
+            <b-button pill class="ml-2 dripicons-cross" variant="outline-danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">
+            </b-button>
+          </div>
+        </div>
         <filter-image-upload
           v-if="enableUpload" />
         <search-input @submit="onSearchQuery"></search-input>
@@ -54,28 +61,29 @@
             </ellipsis>
             <span v-else>{{ $t('actions.loading') }}</span>
           </b-navbar-nav>
-          <b-navbar-nav class="ml-auto pl-2">
-            <label class="mr-1">{{$t("label_order")}}
-              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" class="pl-1"></i-dropdown>
-            </label>
+          <b-navbar-nav class="ml-auto pl-2" v-if="!similarToImage">
+            <label class="mr-1">{{$t("label_order")}}</label>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" class="pl-1"></i-dropdown>
+          </b-navbar-nav>
+          <b-navbar-nav class="ml-auto pl-2" v-else>
+            <label class="mr-1">{{$t("label_order")}}</label>
+            <b class="small-caps font-weight-bold">{{$t("sort_by_similarity")}}</b>
           </b-navbar-nav>
         </b-navbar>
      </div>
 
      <!--  body -->
-      <div class="p-1">
-        <b-container fluid>
-          <b-row class="pb-5">
-            <b-col cols="6" sm="12" md="6" lg="4" v-for="searchResult in searchResults" v-bind:key="searchResult.uid">
-              <search-results-image-item
-                v-bind:searchResult="searchResult"
-                v-bind:checkbox="true"
-                v-on:toggleSelected="toggleSelected"
-                v-bind:checked="isChecked(searchResult)"
-                v-on:click:search="onClickSearch" />
-            </b-col>
-          </b-row>
-        </b-container>
+      <div class="p-1 m-2">
+        <b-card-group columns>
+          <search-results-image-item
+            v-for="searchResult in searchResults" :key="searchResult.uid"
+            :item="searchResult"
+            :enable-checkbox="false"
+            :enable-similar-to="enableSimilarTo"
+            @toggleSelected="toggleSelected"
+            :isChecked="isChecked(searchResult)"
+            @click:search="onClickSearch" />
+        </b-card-group>
         <div v-if="paginationTotalRows && paginationCurrentPage > 0" class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-bind:perPage="paginationPerPage"
@@ -97,7 +105,6 @@ import {
   searchQuerySetter,
 } from '@/logic/queryParams';
 import {
-  optimizeFilters,
   serializeFilters,
   joinFiltersWithItems,
 } from '@/logic/filters';
@@ -109,13 +116,13 @@ import {
   images as imagesService,
   filtersItems as filtersItemsService,
 } from '@/services';
-import FilterImageUpload from './modules/FilterImageUpload';
-import SearchResultsImageItem from './modules/SearchResultsImageItem';
-import Pagination from './modules/Pagination';
+import FilterImageUpload from '@/components/modules/FilterImageUpload';
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
+import Pagination from '@/components/modules/Pagination';
 import SearchSidebar from '@/components/modules/SearchSidebar';
-import SearchResultsSummary from './modules/SearchResultsSummary';
-import Ellipsis from './modules/Ellipsis';
-import SearchInput from './modules/SearchInput';
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary';
+import Ellipsis from '@/components/modules/Ellipsis';
+import SearchInput from '@/components/modules/SearchInput';
 import FilterFactory from '@/models/FilterFactory';
 import Image from '@/models/Image';
 import SearchQuery from '@/models/SearchQuery';
@@ -135,6 +142,10 @@ const AllowedFacetTypes = [
 export default {
   props: {
     enableUpload: Boolean,
+    enableSimilarTo: {
+      type: Boolean,
+      default: true,
+    },
   },
   components: {
     SearchResultsImageItem,
@@ -196,8 +207,17 @@ export default {
       return this.filters
         .map(d => d.type);
     },
-    similarToImageUid() {
-      return this.$route.query.i;
+    similarToImageUid: {
+      get() {
+        return this.$route.query.similarTo;
+      },
+      set(similarTo) {
+        const qp = { p: 1, similarTo: null };
+        if (similarTo && similarTo.length) {
+          qp.similarTo = similarTo;
+        }
+        this.$navigation.updateQueryParametersWithHistory(qp);
+      },
     },
     isFront: {
       get() {
@@ -269,7 +289,7 @@ export default {
       get() {
         return {
           seed: this.seed,
-          similarToImage: this.similarToImage,
+          similarTo: this.similarToImageUid,
           filters: this.filters.map(d => d.getQuery()),
           groupBy: this.groupBy,
           orderBy: this.orderBy,
@@ -281,9 +301,10 @@ export default {
   },
   methods: {
     handleFiltersChanged(filters) {
+      console.info('@handleFiltersChanged', filters);
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
-        filters: optimizeFilters(filters).concat(this.ignoredFilters),
+        filters: filters.concat(this.ignoredFilters),
       });
     },
     reset() {
@@ -362,16 +383,24 @@ export default {
     },
     onClickSearch(image) {
       console.info('.onClickSearch, image:', image);
+      this.similarToImageUid = image.uid;
     //   this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);
     //   this.similarToImage = image;
     //   this.$store.commit('searchImages/UPDATE_SIMILAR_TO', image.uid);
     //   this.search(1);
     },
-    onSearchQuery(q) {
+    onRemoveSimilarTo() {
+      console.info('onRemoveSimilarTo');
+      this.similarToImageUid = '';
+    },
+    onSearchQuery({ q = '' }) {
       console.info('onSearchQuery:', q);
+      this.handleFiltersChanged(this.filters.concat(q.trim().length
+        ? [ FilterFactory.create({ type: 'title', q }) ]
+        : []
+      ));
     },
     loadRandomPage() {
-      console.info('loadRandomPage');
       this.$navigation.updateQueryParametersWithHistory({
         p: 0,
       });
@@ -389,7 +418,7 @@ export default {
         console.info('similarToImage', uid);
         if (uid) {
           imagesService.get(uid).then((res) => {
-            this.similarToImage = res;
+            this.similarToImage = new Image(res);
           });
         } else {
           this.similarToImage = null;
@@ -398,7 +427,7 @@ export default {
       immediate: true,
     },
     serviceQuery: {
-      async handler({ page, limit, filters, orderBy }) {
+      async handler({ page, limit, filters, orderBy, similarTo }) {
         if (this.isLoading) {
           console.warn('loading already... please try again later on');
           return;
@@ -414,6 +443,9 @@ export default {
           query.page = page;
         } else {
           query.randomPage = 'true';
+        }
+        if (similarTo) {
+          query.similarTo = similarTo;
         }
         console.info('@serviceQuery query:', query);
         const [
@@ -447,7 +479,37 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.btn.rounded-pill{
+  height: 1.5rem;
+  width: 1.5rem;
+  text-align: center;
+  padding: 0;
+  line-height: 1.7rem;
+}
+.card-columns {
+  column-count: 1;
+}
+@media (min-width: 960px) {
+  .card-columns {
+    column-count: 2;
+  }
+}
+@media (min-width: 1200px) {
+  .card-columns {
+    column-count: 3;
+  }
+}
+@media (min-width: 1400px) {
+  .card-columns {
+    column-count: 4;
+  }
+}
+@media (min-width: 1800px) {
+  .card-columns {
+    column-count: 5;
+  }
+}
 </style>
 
 <i18n>
@@ -459,6 +521,7 @@ export default {
       "sort_asc": "Ascending",
       "sort_desc": "Descending",
       "sort_date": "Date",
+      "sort_by_similarity": "similarity",
       "sort_relevance": "Relevance",
       "items_selected": "One item selected | {count} items selected",
       "clear_selection": "Clear Selection",
