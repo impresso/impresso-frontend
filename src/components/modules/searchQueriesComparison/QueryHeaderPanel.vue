@@ -96,10 +96,6 @@ import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
  * @typedef {import('@/logic/queryComparison').Comparable} Comparable
  */
 export default {
-  data: () => ({
-    lastQuery: undefined,
-    lastQueryHash: undefined,
-  }),
   props: {
     /** @type {import('vue').PropOptions<Comparable>} */
     comparable: {

@@ -85,14 +85,20 @@ import {
   search,
   collections,
   searchQueriesComparison,
-  searchFacets
+  searchFacets,
+  filtersItems as filtersItemsService
 } from '@/services'
 import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel';
 import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel'
 import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel'
 import Spinner from '@/components/layout/Spinner'
 import Bucket from '@/models/Bucket';
-import { optimizeFilters, deserializeFilters, serializeFilters } from '@/logic/filters'
+import {
+  optimizeFilters,
+  deserializeFilters,
+  serializeFilters,
+  joinFiltersWithItems
+} from '@/logic/filters'
 import { getQueryParameter } from '../router/util';
 import { getBucketLabel } from '../logic/facets';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
@@ -289,7 +295,9 @@ export default {
     collections: [],
     modes: Mode,
     sortingMethods: Object.keys(SortingMethods),
-    scales: Scales
+    scales: Scales,
+    /** @type {Filter[][]|undefined[]} */
+    filtersWithItems: [undefined, undefined, undefined],
   }),
   watch: {
     leftComparable: {
@@ -306,6 +314,13 @@ export default {
         } finally {
           this.loadingFlags[QueryIndex.Left] = false
         }
+
+        const filtersWithItems = await filtersItemsService.find({
+          query: {
+            filters: serializeFilters(comparableToQuery(this.leftComparable)?.filters ?? []),
+          },
+        }).then(joinFiltersWithItems)
+        this.$set(this.filtersWithItems, QueryIndex.Left, filtersWithItems)
       },
       deep: true,
       immediate: true
@@ -324,6 +339,13 @@ export default {
         } finally {
           this.loadingFlags[QueryIndex.Right] = false
         }
+
+        const filtersWithItems = await filtersItemsService.find({
+          query: {
+            filters: serializeFilters(comparableToQuery(this.rightComparable)?.filters ?? []),
+          },
+        }).then(joinFiltersWithItems)
+        this.$set(this.filtersWithItems, QueryIndex.Right, filtersWithItems)
       },
       deep: true,
       immediate: true
@@ -369,6 +391,19 @@ export default {
         })
       }
     },
+    /** @returns {Comparable} */
+    leftComparableEnriched() {
+      if (this.leftComparable?.query?.filters != null && this.filtersWithItems[QueryIndex.Left] != null) {
+        return {
+          type: this.leftComparable.type,
+          query: /** @type {SearchQuery} */ ({
+            ...this.leftComparable.query,
+            filters: this.filtersWithItems[QueryIndex.Left]
+          })
+        }
+      }
+      return this.leftComparable
+    },
     rightComparable: {
       /** @returns {Comparable} */
       get() {
@@ -381,6 +416,19 @@ export default {
           [QueryParameters.Right]: serializedComparable
         })
       }
+    },
+    /** @returns {Comparable} */
+    rightComparableEnriched() {
+      if (this.rightComparable?.query?.filters != null && this.filtersWithItems[QueryIndex.Left] != null) {
+        return {
+          type: this.rightComparable.type,
+          query: /** @type {SearchQuery} */ ({
+            ...this.rightComparable.query,
+            filters: this.filtersWithItems[QueryIndex.Right]
+          })
+        }
+      }
+      return this.rightComparable
     },
     /** @returns {Comparable} */
     intersection() {
@@ -656,8 +704,8 @@ export default {
      * @returns {Comparable}
      */
     comparableForQuery(queryIndex) {
-      if (queryIndex === QueryIndex.Left) return this.leftComparable
-      if (queryIndex === QueryIndex.Right) return this.rightComparable
+      if (queryIndex === QueryIndex.Left) return this.leftComparableEnriched
+      if (queryIndex === QueryIndex.Right) return this.rightComparableEnriched
       if (queryIndex === QueryIndex.Intersection) return this.intersection
 
       throw new Error(`Trying to get unexpected comparable index: ${queryIndex}`);
