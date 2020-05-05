@@ -8,17 +8,17 @@
       contextTag="searchImages"
       @changed="handleFiltersChanged">
       <div slot="header">
-        <div v-if="similarToImage" class="m-2 p-2 bg-white shadow-sm border d-flex align-content-center" left-align vertical-align="center">
+        <div v-if="similarToImage" class="image-item-similar m-2 p-2 bg-white shadow-sm border d-flex">
           <div class="flex-shrink-1 mr-2" style="width: 100px">
             <b-img v-if="similarToImage.regions.length"
               fluid
               v-bind:src="similarToImage.regions[0].iiifFragment" />
           </div>
-          <div>
-            <router-link :to="{ name: 'newspaper', params: { newspaper_uid: similarToImage.newspaper.uid }}" class="article-newspaper">
+          <div class="align-self-center">
+            <router-link block :to="{ name: 'newspaper', params: { newspaper_uid: similarToImage.newspaper.uid }}" class="article-newspaper">
               {{ similarToImage.newspaper.name}}
             </router-link>
-            <p class="date small-caps">{{ $d(similarToImage.date, "long") }}</p>
+            <p class="date m-0">{{ $d(similarToImage.date, "long") }}</p>
           </div>
           <div class="flex-shrink-1 ml-auto">
             <b-button pill class="ml-2 dripicons-cross" variant="outline-danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">
@@ -480,6 +480,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.image-item-similar{
+  font-size: 14px;
+  .article-newspaper {
+    font-weight: bold;
+  }
+  .date {
+    text-transform: lowercase;
+    font-variant: small-caps;
+  }
+}
 .btn.rounded-pill{
   height: 1.5rem;
   width: 1.5rem;
