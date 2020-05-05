@@ -12,7 +12,7 @@
     <!-- v-if="showMeta" -->
     <div v-if="showMeta">
       <p v-if="hasTitle" class="item-title p-2 m-0">{{ item.title }}</p>
-      <div class="p-2">
+      <div class="p-2 articles-meta">
         <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
           {{ item.newspaper.name}}
         </router-link>
@@ -83,17 +83,27 @@ export default {
 };
 </script>
 
-<style lang="css">
-.image-item .item-title{
-  background: #eff0f0;
-}
+<style lang="scss">
 .image-item {
   min-height: 200px;
-}
-.image-item figcaption {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 300px;
+  .article-newspaper {
+    font-weight: bold;
+  }
+  .date {
+    text-transform: lowercase;
+    font-variant: small-caps;
+  }
+  .articles-meta{
+    font-size: 14px;
+  }
+  .item-title{
+    background: #eff0f0;
+  }
+  figcaption {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 300px;
+  }
 }
 </style>
