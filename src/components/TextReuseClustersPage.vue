@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout id="SearchClustersPage">
     <list :pagination-list="paginationList" width="350px" v-on:change-page="handlePaginationPageChanged">
       <template v-slot:header>
@@ -60,6 +60,12 @@ import { toCanonicalFilter, toSerializedFilters } from '../logic/filters';
 import { CommonQueryParameters } from '@/router/util';
 import { mapFilters } from '@/logic/queryParams'
 
+/**
+ * @typedef {import('@/models').TextReuseCluster} TextReuseCluster
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {{ cluster: TextReuseCluster, textSample: string }} TextReuseClusterItem
+ */
+
 const isLastItem = (index, total) => total - 1 === index
 
 const serializeFilters = filters => protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
@@ -85,19 +91,24 @@ const ClusterIdSearchPattern = /^#([\w\d-_@]+)$/
 
 export default {
   data: () => ({
+    /** @type {TextReuseClusterItem[]} */
     clusterItems: [],
     searchInfo: {
       limit: 20,
       offset: 0,
       total: 0
     },
+    /** @type {boolean} */
     isLoading: false,
     // cluster selected in the search panel
+    /** @type {TextReuseClusterItem | undefined} */
     selectedCluster: undefined,
     // filters enriched with items once they are fetched
+    /** @type {Filter[] | undefined} */
     filtersWithItems: undefined
   }),
   props: {
+    /** @type {import('vue').PropOptions<Number>} */
     paginationPerPage: {
       type: Number,
       default: 20,
@@ -121,37 +132,57 @@ export default {
     }
   },
   methods: {
+    /**
+     * @param {string} clusterId
+     * @returns {boolean}
+     */
     isClusterSelected(clusterId) {
       return clusterId === this.selectedClusterId;
     },
+    /**
+     * @param {string} clusterId
+     */
     handleClusterSelected(clusterId) {
       this.$navigation.updateQueryParameters({
         [QueryParameters.ClusterId]: clusterId
       })
     },
+    /**
+     * @param {string} searchText
+     */
     handleSearchInputSubmitted(searchText) {
       this.$navigation.updateQueryParametersWithHistory({
         [QueryParameters.SearchText]: searchText,
         [QueryParameters.PageNumber]: 1,
       })
     },
+    /**
+     * @param {string|number} page
+     */
     handlePaginationPageChanged(page) {
       this.$navigation.updateQueryParameters({
         [QueryParameters.PageNumber]: page,
       })
     },
+    /**
+     * @param {string} orderByValue
+     */
     handleOrderByChanged(orderByValue) {
       this.$navigation.updateQueryParameters({
         [QueryParameters.OrderBy]: orderByValue,
         [QueryParameters.PageNumber]: 1,
       })
     },
+    /**
+     * @param {Filter[]} filters
+     */
     handleFiltersChanged(filters) {
       this.filters = filters
     },
     isLastItem,
     /**
      * Load clusters that match the query constraints.
+     * @param {{ query: any }} param
      */
     async loadClusters({ query }) {
       this.isLoading = true;
@@ -159,6 +190,9 @@ export default {
         [this.clusterItems, this.searchInfo] = await textReuseClusters
           .find({ query })
           .then(result => [result.clusters, result.info])
+        if (this.selectedClusterId == null && this.clusterItems.length > 0) {
+          this.selectedClusterId = this.clusterItems[0].cluster.id
+        }
       } finally {
         this.isLoading = false
       }
@@ -166,6 +200,7 @@ export default {
     /**
      * Load single cluster item by cluster ID and treat it as a list of
      * cluster item with 0 or 1 element.
+     * @param {string} id
      */
     async loadSingleCluster(id) {
       this.isLoading = true;
@@ -184,7 +219,9 @@ export default {
     }
   },
   computed: {
+    /** @returns {string[]} */
     supportedFilterTypes() { return SupportedFilterTypes },
+    /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
     paginationList() {
       return {
         currentPage: this.paginationCurrentPage,
@@ -192,39 +229,56 @@ export default {
         perPage: this.paginationPerPage,
       };
     },
-    selectedClusterId() {
-      return this.$route.query[QueryParameters.ClusterId]
+    selectedClusterId: {
+      /** @returns {string | undefined} */
+      get() { return /** @type {string|undefined} */ (this.$route.query[QueryParameters.ClusterId]) },
+      /** @param {string} clusterId */
+      set(clusterId) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.ClusterId]: clusterId
+        })
+      }
     },
+    /** @returns {string} */
     searchText() {
-      return this.$route.query[QueryParameters.SearchText]
+      return /** @type {string} */ (this.$route.query[QueryParameters.SearchText])
     },
+    /** @returns {string} */
     orderByValue() {
-      return this.$route.query[QueryParameters.OrderBy]
+      return /** @type {string} */ (this.$route.query[QueryParameters.OrderBy])
     },
     /**
      * Global filters
+     *
      */
     filters: mapFilters(),
     /**
      * Filters excluding not supported filters.
+     * @returns {Filter[]}
      */
     searchFilters() {
       return this.filters.filter(supportedFiltersFilter)
     },
+    /**
+     * @returns {Filter[]}
+     */
     enrichedFilters() {
       return this.filtersWithItems != null
         ? this.filtersWithItems
         : this.searchFilters
     },
+    /** @returns {number} */
     paginationCurrentPage() {
       const { [QueryParameters.PageNumber]: page = 1 } = this.$route.query
-      return parseInt(page, 10);
+      return parseInt(/** @type {string} */ (page), 10);
     },
+    /** @returns {any} */
     searchApiQueryParameters() {
       // If search text is a specially formatted Cluster Id, then
       // skip full search and instead retrieve only this cluster.
-      if (this.searchText && this.searchText.trim().match(ClusterIdSearchPattern)) {
-        const clusterId = this.searchText.trim().match(ClusterIdSearchPattern)[1]
+      const matches = this?.searchText?.trim()?.match(ClusterIdSearchPattern)
+      if (matches != null) {
+        const clusterId = matches[1]
         return {
           method: 'singleCluster',
           clusterId
@@ -248,13 +302,17 @@ export default {
   },
   watch: {
     searchApiQueryParameters: {
-      handler({ method, clusterId, query }) {
-        if (method === 'singleCluster') return this.loadSingleCluster(clusterId)
-        return this.loadClusters({ query });
+      /**
+       * @param {{ method: string, clusterId: string, query: any }} param
+       */
+      async handler({ method, clusterId, query }) {
+        if (method === 'singleCluster') await this.loadSingleCluster(clusterId)
+        else await this.loadClusters({ query });
       },
       immediate: true,
     },
     selectedClusterId: {
+      /** @param {string} selectedClusterId */
       async handler(selectedClusterId) {
         if (selectedClusterId == null) return
         const filteredClusters = this.clusterItems
@@ -271,6 +329,7 @@ export default {
       immediate: true
     },
     searchFilters: {
+      /** @param {Filter[]} filters */
       async handler(filters) {
         this.filtersWithItems = undefined
         const serializedFilters = toSerializedFilters(filters || [])

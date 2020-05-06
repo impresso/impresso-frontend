@@ -529,7 +529,7 @@ export default {
     mode: {
       /** @returns {string} */
       get() {
-        const value = getQueryParameter(this, QueryParameters.Mode) ?? Mode.Compare
+        const value = getQueryParameter(this, QueryParameters.Mode) ?? Mode.Inspect
         return value === Mode.Inspect ? Mode.Inspect : Mode.Compare
       },
       /** @param {string} value */

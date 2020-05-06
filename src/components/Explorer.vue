@@ -187,7 +187,7 @@ export default {
     event: 'changed'
   },
   data: () => ({
-    /** @type {string} */
+    /** @type {string | undefined} */
     id: undefined,
     events: Events,
     currentType: 'person',
@@ -201,8 +201,11 @@ export default {
     RangeFacets
   }),
   props: {
-    /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
-    filters: Array,
+    /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
+    filters: {
+      type: Array,
+      default: () => []
+    },
     searchingEnabled: {
       type: Boolean,
       default: false
