@@ -296,25 +296,32 @@ input[type="range"]:active::-ms-thumb {
   background-color: $clr-accent-secondary;
 }
 
+
 .list-item-details .dropdown {
   position: absolute;
 }
-*:not(.list-item-details) > .dropdown.show > .dropdown-toggle {
-  border-bottom-color: transparent;
-  z-index: 1001;
+.body .dropdown {
+  margin-bottom: 1px;
 }
-// add dots to fix bottom corners
-*:not(.list-item-details) .dropdown.show::before, .dropdown.show::after {
-  content: '';
-  position: absolute;
-  bottom: 0px;
-  width: 1px;
-  height: 1px;
-  background-color: $clr-primary;
-  z-index: 1002;
-}
-*:not(.list-item-details) > .dropdown.show::after {
-  right: 0px;
+// limit hack to header dropdowns
+.header {
+  .dropdown.show > .dropdown-toggle {
+    border-bottom-color: transparent;
+    z-index: 1001;
+  }
+  // add dots to fix bottom corners
+  *:not(.list-item-details) .dropdown.show::before, .dropdown.show::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 1px;
+    height: 1px;
+    background-color: $clr-primary;
+    z-index: 1002;
+  }
+  .dropdown.show::after {
+    right: 0px;
+  }
 }
 // fix size change on hover
 .dropdown-toggle::after {
