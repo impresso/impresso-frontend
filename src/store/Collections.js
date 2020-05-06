@@ -9,11 +9,15 @@ export default {
   state: {
     collections: [],
     collectionItems: [],
-    collectionsSortOrder: '-modified',
     orderBy: '-dateAdded', // dateAdded, itemDate, -itemDate
     paginationPerPage: 12,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
+    collectionsOrderBy: '-date', // '-date', 'date', '-size', 'size'
+    collectionsQ: '',
+    collectionsPaginationPerPage: 20,
+    collectionsPaginationCurrentPage: 1,
+    collectionsPaginationTotalRows: 0,
   },
   getters: {
     collections(state) {
@@ -34,9 +38,6 @@ export default {
         return new Article(a);
       });
     },
-    collectionsSortOrder(state) {
-      return state.collectionsSortOrder;
-    },
   },
   mutations: {
     UPDATE_ITEMS_ORDER_BY(state, orderBy) {
@@ -54,52 +55,17 @@ export default {
     UPDATE_PAGINATION_TOTAL_ROWS(state, payload) {
       state.paginationTotalRows = payload.paginationTotalRows;
     },
-    SET_COLLECTIONS_SORT_ORDER(state, payload) {
-      const collectionsSortOrder = payload.collectionsSortOrder || state.collectionsSortOrder;
-
-      function sortBy(data, field, order) {
-        return data.sort((a, b) => {
-          if (typeof a[field] === 'string') {
-            if (a[field].toLowerCase() < b[field].toLowerCase()) {
-              return order === 'asc' ? -1 : 1;
-            } else if (a[field].toLowerCase() > b[field].toLowerCase()) {
-              return order === 'asc' ? 1 : -1;
-            }
-            return 0;
-          }
-          if (a[field] < b[field]) {
-            return order === 'asc' ? -1 : 1;
-          } else if (a[field] > b[field]) {
-            return order === 'asc' ? 1 : -1;
-          }
-          return 0;
-        });
-      }
-
-      switch (collectionsSortOrder) {
-      case '-created':
-        sortBy(state.collections, 'creationDate', 'desc');
-        break;
-      case 'created':
-        sortBy(state.collections, 'creationDate', 'asc');
-        break;
-      case '-modified':
-        sortBy(state.collections, 'lastModifiedDate', 'desc');
-        break;
-      case 'modified':
-        sortBy(state.collections, 'lastModifiedDate', 'asc');
-        break;
-      case '-name':
-        sortBy(state.collections, 'name', 'desc');
-        break;
-      case 'name':
-        sortBy(state.collections, 'name', 'asc');
-        break;
-      default:
-        break;
-      }
-
-      state.collectionsSortOrder = collectionsSortOrder;
+    UPDATE_PAGINATION_LIST_CURRENT_PAGE(state, page) {
+      state.collectionsPaginationCurrentPage = parseInt(page, 10);
+    },
+    UPDATE_PAGINATION_LIST_TOTAL_ROWS(state, total) {
+      state.collectionsPaginationTotalRows = parseInt(total, 10);
+    },
+    SET_COLLECTIONS_SORT_ORDER(state, orderBy) {
+      state.collectionsOrderBy = orderBy;
+    },
+    SET_COLLECTIONS_Q(state, q) {
+      state.collectionsQ = q;
     },
   },
   actions: {
@@ -159,10 +125,14 @@ export default {
       });
     },
     LOAD_COLLECTIONS(context) {
+      // console.log(context);
       return new Promise((resolve) => {
         services.collections.find({
           query: {
-            limit: 128,
+            page: context.state.collectionsPaginationCurrentPage,
+            limit: context.state.collectionsPaginationPerPage,
+            order_by: context.state.collectionsOrderBy,
+            q: context.state.collectionsQ,
           },
         }).then((results) => {
           context.commit('UPDATE_COLLECTIONS', results.data.map(result => new Collection({
@@ -174,7 +144,8 @@ export default {
             lastModifiedDate: result.last_modified_date,
             ...result,
           })));
-          context.commit('SET_COLLECTIONS_SORT_ORDER', {});
+          // context.commit('SET_COLLECTIONS_SORT_ORDER', {});
+          context.commit('UPDATE_PAGINATION_LIST_TOTAL_ROWS', results.total);
           resolve(results);
         });
       });
