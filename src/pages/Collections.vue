@@ -6,12 +6,13 @@
         <template v-slot:tabs-end>
           <b-nav-item class="pl-2 active"
             active-class='none'
-            :to="{ name:'collections' }">{{ $t('tabs.collections', {total: $n(totalItems)}) }}</b-nav-item>
+            :to="{ name:'collections' }">
+            {{ $tc('tabs.collections', paginationTotalRows, {total: $n(paginationTotalRows)}) }}</b-nav-item>
         </template>
       </b-tabs>
     </template>
     <template v-slot:default>
-      <collection-list @total-change="handleTotal" />
+      <collection-list />
     </template>
   </i-layout-section>
   <router-view />
@@ -25,12 +26,11 @@ export default {
   components: {
     CollectionList,
   },
-  data: () => ({
-    totalItems: 100,
-  }),
-  methods: {
-    handleTotal(total) {
-      this.totalItems = total;
+  computed: {
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.collections.collectionsPaginationTotalRows;
+      },
     },
   },
 };
@@ -43,7 +43,7 @@ export default {
 {
   "en": {
     "tabs": {
-        "collections": "browse {total} collections"
+        "collections": "... collections | browse 1 collection | browse {total} collections"
     }
   }
 }
