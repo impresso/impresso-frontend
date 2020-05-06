@@ -303,14 +303,14 @@ const router = new Router({
     },
     {
       path: '/text-reuse-clusters',
-      component: () => import(/* webpackChunkName: "img" */ '../components/TextReuseClustersPage.vue'),
+      component: () => import(/* webpackChunkName: "tr-clusters" */ '../components/TextReuseClustersPage.vue'),
       name: 'text-reuse-clusters',
       meta: {
         requiresAuth: false,
       },
       children: [{
         path: '',
-        component: () => import(/* webpackChunkName: "img" */ '../components/TextReuseClusterDetailPage.vue'),
+        component: () => import(/* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseClusterDetailPage.vue'),
         name: 'text-reuse-cluster-detail',
         meta: {
           requiresAuth: false,

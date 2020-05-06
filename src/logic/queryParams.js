@@ -36,13 +36,12 @@ import {
  * To ensure old links still work we need to detect the presence of the query
  * parameter and migrate it to the new format.
  *
- * @param {import('vue-router').Route} route
- * @param {import('@/vue-shims').Navigation} navigation
+ * @param {import('vue/types/vue').Vue} vue
  */
-function tryMigrateLegacySearchQueryParameter(route, navigation) {
+function tryMigrateLegacySearchQueryParameter(vue) {
   const {
     [CommonQueryParameters.LegacySearchFilters]: f
-  } = route?.query;
+  } = vue.$route?.query;
 
   const serialisedLegacyFilters = Array.isArray(f) ? f[0] : f
 
@@ -56,25 +55,28 @@ function tryMigrateLegacySearchQueryParameter(route, navigation) {
   }
 
   if (filters != null) {
-    const serialisedFilters = serializeFilters(filters)
-    navigation.updateQueryParameters({
-      [CommonQueryParameters.SearchFilters]: serialisedFilters,
-      [CommonQueryParameters.LegacySearchFilters]: undefined
+    vue.$nextTick(function() {
+      if (this.$route?.query[CommonQueryParameters.LegacySearchFilters] != null) {
+        const serialisedFilters = serializeFilters(filters)
+        this.$navigation.updateQueryParameters({
+          [CommonQueryParameters.SearchFilters]: serialisedFilters,
+          [CommonQueryParameters.LegacySearchFilters]: undefined
+        })
+      }
     })
   }
 }
 
 /**
  * Get serialised `SearchQuery` from a query parameter.
- * @param {import('vue-router').Route} route
- * @param {import('@/vue-shims').Navigation} navigation
+ * @param {import('vue/types/vue').Vue} vue
  * @return {string}
  */
-const getSearchQueryFromQueryParameterOrLocalStorage = (route, navigation) => {
-  tryMigrateLegacySearchQueryParameter(route, navigation)
+const getSearchQueryFromQueryParameterOrLocalStorage = (vue) => {
+  tryMigrateLegacySearchQueryParameter(vue)
   const {
     [CommonQueryParameters.SearchFilters]: sq
-  } = route?.query;
+  } = vue.$route?.query;
 
   if (Array.isArray(sq) && sq[0] != null) return sq[0]
   if (!Array.isArray(sq) && sq != null) return sq
@@ -86,7 +88,7 @@ export const searchQueryHashGetter = () => {
   /**
    * @this {import('vue/types/vue').Vue}
    */
-  const fn = function() { return getSearchQueryFromQueryParameterOrLocalStorage(this.$route, this.$navigation) }
+  const fn = function() { return getSearchQueryFromQueryParameterOrLocalStorage(this) }
   return fn
 }
 
@@ -97,7 +99,7 @@ export const searchQueryHashGetter = () => {
 export const searchQueryGetter = () => {
   /** @this {import('vue/types/vue').Vue} */
   const get = function() {
-    const sq = getSearchQueryFromQueryParameterOrLocalStorage(this.$route, this.$navigation);
+    const sq = getSearchQueryFromQueryParameterOrLocalStorage(this);
     if (sq.length) {
       return SearchQuery.deserialize(sq);
     }
@@ -146,7 +148,7 @@ export const mapFilters = ({ additionalQueryParams = {} } = {}) => {
   /** @this {import('vue/types/vue').Vue} */
   const get = function() {
     return deserializeFilters(
-      getSearchQueryFromQueryParameterOrLocalStorage(this.$route, this.$navigation)
+      getSearchQueryFromQueryParameterOrLocalStorage(this)
     )
   }
 
