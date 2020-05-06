@@ -12,6 +12,7 @@
           <div class="flex-shrink-1 mr-2" style="width: 100px">
             <b-img v-if="similarToImage.regions.length"
               fluid
+              style="max-height: 100px"
               v-bind:src="similarToImage.regions[0].iiifFragment" />
           </div>
           <div class="align-self-center">
