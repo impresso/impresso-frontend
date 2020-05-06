@@ -73,6 +73,10 @@ const reducedTimeoutPromise = ({ ms = 500, service }) => new Promise((resolve, r
   }, ms);
 });
 
+const DefaultImpressoFeatures = {
+  textReuse: { enabled: true }
+}
+
 /* eslint-disable no-new */
 console.info('Checking authentication...');
 Promise.race([
@@ -114,7 +118,7 @@ Promise.race([
       newspapers: {}
     };
   });
-}).then(({ version, dataVersion, documentsDateSpan, newspapers, apiVersion = {}, features = {} }) => {
+}).then(({ version, dataVersion, documentsDateSpan, newspapers, apiVersion = {}, features = DefaultImpressoFeatures }) => {
   console.info(`Version services:${version}, data:${dataVersion}`);
   window.impressoVersion = version;
   window.impressoDataVersion = dataVersion;

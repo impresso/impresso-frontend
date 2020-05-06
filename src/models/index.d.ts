@@ -45,3 +45,7 @@ export interface Facet {
 export interface SearchQuery {
   filters: Filter[]
 }
+
+export interface TextReuseCluster {
+  id: string
+}
