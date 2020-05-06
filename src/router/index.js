@@ -5,8 +5,6 @@ import HomePage from '../components/HomePage';
 import HomePage2020 from '../components/HomePage2020';
 import FaqPage from '../components/FaqPage';
 import TermsOfUsePage from '../components/TermsOfUsePage';
-import SearchPage from '../components/SearchPage';
-import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
@@ -67,7 +65,7 @@ const router = new Router({
     {
       path: '/search/ngrams',
       name: 'searchNgrams',
-      component: SearchNgramsPage,
+      component: () => import(/* webpackChunkName: "searchNgrams" */ '../pages/SearchNgrams.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -91,7 +89,7 @@ const router = new Router({
     {
       path: '/search',
       name: 'search',
-      component: SearchPage,
+      component: () => import(/* webpackChunkName: "search" */ '../pages/Search.vue'),
       meta: {
         requiresAuth: false,
       },
