@@ -207,6 +207,10 @@ export default {
       try {
         const cluster = await textReuseClusters.get(id)
         this.clusterItems = [cluster]
+        if (this.selectedClusterId == null) {
+          this.selectedClusterId = cluster.cluster.id
+        }
+
         this.searchInfo = { limit: this.paginationPerPage, offset: 0, total: 1 }
       } catch (error) {
         if (error.name !== 'NotFound') throw error

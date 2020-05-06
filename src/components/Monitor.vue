@@ -85,7 +85,7 @@
 
           <!-- button url  -->
           <div class="text-center m-2" v-if="detailsUrl">
-            <router-link class="btn btn-primary btn-sm" :to="detailsUrl">
+            <router-link class="btn btn-primary btn-sm" :to="detailsUrl" @click.native="handleMoreClicked">
               {{ $t('actions.more') }}
             </router-link>
           </div>
@@ -183,6 +183,9 @@ export default {
       }
       this.fadeOut();
     },
+    handleMoreClicked() {
+      this.fadeOut()
+    }
   },
   computed: {
     ...mapState('monitor', [
@@ -261,6 +264,13 @@ export default {
             entity_id: this.item.uid,
           },
         };
+      } else if (this.type === 'textReuseCluster') {
+        return {
+          name: 'text-reuse-clusters',
+          query: {
+            q: `#${this.item.uid}`
+          }
+        }
       }
       return null;
     },
