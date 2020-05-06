@@ -201,7 +201,6 @@ export default {
       this.fetch();
     },
     onInputOrder(orderBy) {
-      console.log('__', orderBy);
       this.orderBy = orderBy;
       this.fetch();
     },
