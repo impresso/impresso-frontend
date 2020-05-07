@@ -300,7 +300,7 @@ const router = new Router({
     },
     {
       path: '/text-reuse-clusters',
-      component: () => import(/* webpackChunkName: "tr-clusters" */ '../components/TextReuseClustersPage.vue'),
+      component: () => import(/* webpackChunkName: "tr-clusters" */ '../pages/TextReuseClusters.vue'),
       name: 'text-reuse-clusters',
       meta: {
         requiresAuth: false,
