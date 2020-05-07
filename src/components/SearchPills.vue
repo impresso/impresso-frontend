@@ -89,7 +89,7 @@
         <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
-    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addFilter') }}</b-button>
+    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addContextualFilter') }}</b-button>
 
     <explorer v-model="explorerFilters"
       :is-visible="explorerVisible"
