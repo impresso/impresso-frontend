@@ -55,6 +55,7 @@ export default {
     },
     actions: {
       addFilter: 'add filter...',
+      addContextualFilter: 'refine ...',
       agree: 'I agree to the terms of use',
       accept: 'accept',
       browseAll: 'show all ...',

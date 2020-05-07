@@ -18,7 +18,7 @@
       <b-tab :active="comparable.type === 'query'"
              :title="getTabLabel('query')">
         <div class="px-1 pb-2">
-          <search-pills enable-add-filter
+          <search-pills :enable-add-filter="filters.length > 0"
                         :filters="filters"
                         @changed="handleFiltersChanged" />
           <autocomplete v-on:submit="onSuggestion" />
@@ -53,10 +53,13 @@
             </template>
           </b-tab>
           <section class="px-1 text-center">
-            <h3 class="textbox-fancy" v-if="!isNaN(this.total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
-              n: $n(this.total),
-            })"/>
-            <h3 v-else> "..."</h3>
+            <h3>
+              <span class="textbox-fancy" v-if="!isNaN(this.total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
+                n: $n(this.total),
+              })"/>
+              <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
+              <info-button class="ml-2" name="compare-and-inspect" />
+            </h3>
             <div v-if="mode === 'inspect'" v-html="$t(`comparison.descriptions.${comparable.type}.inspect`)"/>
             <div v-else-if="mode === 'compare'" v-html="$t(`comparison.descriptions.${comparable.type}.compare`)"/>
           </section>
@@ -86,6 +89,7 @@
 <script>
 import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
+import InfoButton from '@/components/base/InfoButton';
 import Autocomplete from '../../Autocomplete';
 import CollectionPicker from '../../base/CollectionPicker';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
@@ -143,6 +147,7 @@ export default {
     SearchPills,
     Autocomplete,
     CollectionPicker,
+    InfoButton,
   },
   methods: {
     /** @param {Filter[]} filters */
@@ -326,7 +331,9 @@ export default {
         "compare": "compare <div class='side left'>A</div> &amp; <div class='side right'>B</div>"
       },
       "titles": {
-        "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
+        "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common",
+        "inspect": "Inspect search queries",
+        "compare": "Compare search queries"
       },
       "descriptions": {
         "intersection": {
