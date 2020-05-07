@@ -12,7 +12,7 @@
             "description": [
               "The objective of the impresso project is to enable critical text mining of newspaper archives with an interdisciplinary consortium implementing a technological framework to extract, process, link, and explore data from print media archives.",
               "The core team consists of computational linguists, designers/developers as well as historians based at the <a href='http://dhlab.epfl.ch'>DHLAB of the École polytechnique fédérale de Lausanne (EPFL)</a>, the <a  href='https://www.cl.uzh.ch/de.html'>Institute of Computational Linguistics at the University of Zurich</a> and the <a href='http://c2dh.uni.lu'>Luxembourg Centre for Contemporary and Digital History (C2DH)</a>. The project is funded by the <a href='http://www.snf.ch'>Swiss National Science foundation</a> (Grant CR- SII5_173719). ",
-              "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
+              "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
               "We are further supported by a team of academic partners: <ul><li>François Vallotton (Full Professor at the University of Lausanne),</li><li>Raphaëlle Ruppen Coutaz (Lecturer at the University of Lausanne),</li><li>Frédéric Clavert (Assistant Professor at C2DH) and </li><li>Enrico Natale (Managing Director infoclio.ch).</li></ul>",
               "Finally, a group of associated researchers have committed to using <i>impresso</i> for their research and provide valuable feedback to us.",
               "Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details."
@@ -137,9 +137,92 @@
             "description": [
               "As all items of the impresso collection have been extracted with the same processing and based on the same type of metadata, one can extract these information and use them to inspect from a distance a list of articles and compare them. All metadata, (date of publication, language or newspaper title…) and all NLP annotations (persons, locations and topics) are data that link and cluster the articles. We can group or differentiate the articles based on these information (compare) and have a first impression of what a list of articles contains (inspect).",
               "In the inspect view, you can focus on the information each column contains. The information about a collection of articles or search results are presented in the form of lists, in three columns. Start with selecting in column ‘A’, a query or an existing collection, to be contrasted with a query or another existing collection.",
-              "To compare collections, select the ‘collection’ tab and then select from the list, the collection you want to inspect and compare. Go then to the column ‘B’ and select another collection in the same way. In the middle column, you will see the overlapping metadata: the number of articles present in both collections, distributed by newspaper titles, named entities, topics, etc. Scroll down the lists to inspect individual filters. You can also inspect queries: in column ‘A’ and ‘B’, type a keyword in the search box and limit the scope of this query by adding filters.", 
+              "To compare collections, select the ‘collection’ tab and then select from the list, the collection you want to inspect and compare. Go then to the column ‘B’ and select another collection in the same way. In the middle column, you will see the overlapping metadata: the number of articles present in both collections, distributed by newspaper titles, named entities, topics, etc. Scroll down the lists to inspect individual filters. You can also inspect queries: in column ‘A’ and ‘B’, type a keyword in the search box and limit the scope of this query by adding filters.",
               "Keep in mind that the display of categories like Persons, Topics or Locations, is limited to 10 options by default. However, you can browse to the next 10 most relevant results by using the pagination at the bottom of these segments. In the central column, we display the overlap of the two chosen queries or collections, which is practically another query, adding all the filters from the two other columns. You can open this overlapping query in the search environment to read the articles beneath.",
               "In the compare view, you can focus on how both columns overlap. This view follows similar principles as the inspect view, but focuses on the overlapping items per each category. You can choose to display the scale of comparison as linear or square root, which allows for an easier comparison of heterogeneous sizes. You can also change the measure of the comparison from absolute to percentage. It means that you can see either how many individual articles are present in both queries and how many overlap or show what is the proportion of both queries that overlap. Changing this will change the order of elements being displayed: in absolute numbers, you will see first for instance the newspapers with the most articles while in the percentage view, you will see first the newspapers with the highest proportion of overlapping articles in both columns. Switching scales and sorting may help you keep track of the context of your queries or collections."
+            ]
+          },
+          {
+            "id": "how-does-the-image-search-work",
+            "title": "How does the image search work?",
+            "summary": "We retrieve images which are similar to each other.",
+            "description": [
+              "This feature is the result of a collaboration with our colleague <a href='https://profile.benoitseguin.net'>Benoit Seguin</a>, who developed novel deep learning techniques for searching large-scale image collections and successfully applied them to the collection of images in our corpus. This yielded visual signatures for each recognized picture in our corpus. We use these signatures to retrieve images which are similar to each other.",
+              "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/image_search.png'></img>",
+              "Use the image search tab to search within captions of detected images/pictures. Once you select an image, all similar images will be displayed. Alternatively, you can upload your own images to identify identical or similar ones in our corpus.",
+              "Further reading: B. L. A. Seguin, “Making large art historical photo archives searchable,” 2018, https://infoscience.epfl.ch/record/261212."
+            ]
+          },
+          {
+            "id": "how-to-make-and-and-or-queries",
+            "title": "How to make AND and OR queries?",
+            "summary": "Calibrate your query of exact matches of several keywords (OR), expand it with other keywords (AND) or with similar words (generated by word embeddings).",
+            "description": [
+              "By default, the keywords you type in the search box will yield articles in which this keyword has been detected by the automatic text recognition. Beyond that, you have several options to narrow down or expand your query.",
+              "First, you can choose where to look for the word: in the article content or title. Then, you can add several keywords, one after the other (press ‘Enter’ after each one or select in the autofill) and choose how the results of each keyword will overlap: <ul><li>To narrow down your result list, you can choose to include ‘all of the following’, which will return articles containing all of the listed keywords (AND)</li><li>To expand your result list, you can choose to include ‘at least one of the following, which will return articles containing at least one of the listed keywords. To do so, you need to add the keywords you want to link with OR in the same search pill.</li><li>To exclude a keyword from your results, simply add your keyword in the search box and select ‘NOT contains’. You also need to group the words you want to exclude in the same search pill.</li></ul>",
+              "Since the default behaviour is performing an exact match, you can find alternative spellings, frequent OCR mistakes or synonyms with the button ‘find similar’. This panel displays suggestions produced by the word embeddings, of the last added keyword.",
+              "For instance, if you search for ‘virus’ in French, it will suggest ‘virale’, a variation on the same word or ‘bactérie’, a related word.",
+              "Keep in mind that the exact match setting does not allow to truncate keywords (e.g. search for ‘europ*’ to retrieve ‘europe’, ‘european’, ‘europeans’, etc.). To collect the variations of a keyword, use the option ‘find similar’.",
+              "Each time you add or remove a keyword, your choices are summarised in the ‘apply changes’ button, that you need to click, to validate your changes. You can search for several words at once, or short sentences, but the probability of matches, due to OCR issues will be reduced. These features are also available for topics, named entities, or the metadata filters (newspaper titles etc.)."
+            ]
+          },
+          {
+            "id": "what-are-ngram",
+            "title": "What does ngrams show?",
+            "summary": "Display the number of times a given keyword is mentioned in impresso collection at a specific date, that is, the “raw” hit of a given keyword not grouped by article, calculated for each year.",
+            "description": [
+              "The ngram viewer displays n consecutive tokens, e.g. unique keywords. Currently the ngram viewer displays unigrams, e.g. single words but will be expanded to display bigrams, e.g. two consecutive keywords, for instance ‘Spanish flu’.",
+              "Many processing steps are required to display the total count of a given word in the impresso collection. In order to count the mentions of a given word, first all items (articles, advertisements, obituaries, etc.) have to be tokenized, that means finding all unique words in the whole collection.",
+              "After this step, only the potentially relevant keywords are selected, all stop words or contentless words such as prepositions, definite articles (le, la, les, der, die, das) are removed. This is particularly important to keep in mind when searching for bigrams: e.g. to finding the bigram of ‘l’Europe des Lumières’ becomes possible, since only ‘Europe’ and ‘Lumières’ has been retained.",
+              "Then, the tokens are lemmatised, that is, we group together the inflected forms of each word). Finally, the token count can be filtered by all usual filters: date, language, newspaper title, topic, person etc."
+            ]
+          },
+          {
+            "id": "how-ngram-work-availble-filters",
+            "title": "This ngram trends page has limited search filters",
+            "summary": "At the moment we are not allowing to filter by full text search queries while getting ngram frequencies.",
+            "description": [
+              ""
+            ]
+          },
+          {
+            "id": "relative-vs-absolute-year-graph",
+            "title": "How is it plotted?",
+            "summary": "SUM displays the absolute frequencies of result hits, whereas % shows the relative number of hits, compared to all articles from the impresso corpus.",
+            "description": [
+              "The highest result per year is displayed in number. The impresso interface groups the results per article, so the displayed frequency is the count of all articles containing at least one occurrence of the keyword. In other words, it is not the raw number of hits for the searched key-word, but the number of hits grouped by articles, as shown in the search summary. For instance, a query for Einstein’ returns 8 967 articles. These 8 967 articles contain 13 535 individual hits of ‘Einstein’. An item is included in the search when it contains at least one character, this means that the search is conducted also within advertisements and tables when they contain text."
+            ]
+          },
+          {
+            "id": "metadata-category-article-type",
+            "title": "How is the article type identified?",
+            "summary": "After the scanning of the newspapers, during the Optical Layout Recognition, some particular object types have been identified and tagged as such: articles, obituaries etc.",
+            "description": [
+              "The digitisation of the newspapers has been supervised by the partners of impresso and carried out by external service providers for most cases. Each partner defined the categories of newspapers article that the external service provider should tag. We inherited these categories, that are dependent on each newspaper title and each partner. For instance, the National Library of Luxembourg provided newspapers with articles tagged as obituaries, advertisements for most newspapers and for some newspapers, the weather section could be identified. The identification is based on visual features that change rapidly over time and between the newspaper titles: the visual presentation of obituaries is not constant over decades and relies therefore on intensive manual annotation. This makes the segmentation of the newspapers into different article types very costly and difficult to reuse from one newspaper title to another."
+            ]
+          },
+          {
+            "id": "missing-pages-newspapers",
+            "title": "What does the missing pages or issues indicate?",
+            "summary": "Errors may occur in the process of digitisation: some files may be corrupted and therefore cannot be used for full text search.",
+            "description": [
+              "The newspaper digitisation has been carried out by external service providers; the files created in this process for each page and each newspaper issue may suffer from their transfer from one server to another. When copying these files anew, one can count the number of files that cannot be read anymore or that are simply empty. In the newspaper titles’ overview, we display the proportion of unavailable files per year (when applicable), measured in number of pages or issues. You may notice a difference of temporal distribution of the missing files. This is simply because the pages are contained in a folder that constitutes a newspaper issue. A missing issue corresponds to a corrupted archive, while missing pages correspond to empty files within an issue folder. These numbers are not indicative of the missing physical issues in the providers’ collection (e.g. a newspaper issue that was printed, but was not preserved in the physical archive). They do not indicate the number of issues that could not be printed for material reasons (strike, shortage of paper, censorship etc.) nor they are an indication of the proportion of newspapers that have been digitised, compared to all historical newspapers."
+            ]
+          },
+          {
+            "id": "topic-graph",
+            "title": "How to navigate the topic graph?",
+            "summary": "Explore the topics, how they related to one another, for the whole impresso collection or for your query.",
+            "description": [
+              "There are two main uses of the visualisation of topics: one where you explore the topics as such and another where you filter out the topics based on a query. We will describe both now.",
+              "Exploring the topics",
+              "On the left side, all topics are displayed and searchable: when you type a word here, you are looking for words contained in each topic. From that list, you can click on the eye icon to highlight the topic in the graph (in blue). You can also click on a given topic and go to the topic page, where you will see the distribution of that topic over time, the most relevant articles for that topic. From that page, you can add the topic to a query: this means that when you return to the search page, this topic will be activated as a filter.",
+              "Back to the topic page: on the right side, you can see a graph displaying how topics related to one another. You can choose to color the topics by language (this means all the topics from one language will share the same color) or by community (this means that the one color describes one computed topic model.",
+              "The nodes’ sizes can then be adjusted according to various measures: you can choose to highlight the quantity of articles each topic ‘contains’ with ‘countItem’ or highlight the connectivity of topics with their ‘degree’.",
+              "Interact with the graph",
+              "<ul><li>Hover with your cursor over a topic node to see its description. </li><li>Zoom in the graph with your scroller.</li><li>Click and drag nodes to reshape their position on the graph.</li><li>Reset all to return to the original version of the graph, and start again.</li></ul>",
+              "Exploring the topics of your query: if you have started a query on the search page, you can choose to use this as a filter for the topic graph. This means that all the elements described earlier are still valid but what is displayed does not anymore reflect the whole impresso collection but is tailored to your query.",
+              "For instance, if you search for ‘vaccination’ on the topic page, you will have two topics containing this word. Whereas if you search for ‘vaccination’ on the search page and use this search as a filter for the topic graph, you will have 212 topics related to the articles containing the word ‘vaccination’."
             ]
           }
         ]
@@ -226,7 +309,7 @@
           },
           {
             "id": "how-are-word-embeddings-generated",
-            "title": "How are 'word embeddings' generated?",
+            "title": "What are 'word embeddings'?",
             "summary": "Word embeddings are dense vector representations of words, basically a list of real numbers.",
             "description": [
               "These representations, often called ‘word embeddings’, are empirically learned on our corpus data by neural networks. These techniques are based on the assumption of distributionalism, which says ‘you shall know a word by the company it keeps’ (Firth, J. R. 1957:11). Words that occur in similar contexts will have similar meanings. In our case, similar words are either semantically related (armistice - hostilités - capitulation - co-belligérance), or they are inflection variants (gedenken - angedenken - gedenk), or simply OCR errors (Eidgenoffenschast - Eidgenossenschaft - Eidgenofsenschaft).",
@@ -244,71 +327,16 @@
             ]
           },
           {
-            "id": "how-does-the-image-search-work",
-            "title": "How does the image search work?",
-            "summary": "We retrieve images which are similar to each other.",
+            "id": "text-reuse",
+            "title": "What does text reuse mean?",
+            "summary": "Text reuse detection aims at finding automatically repeated text passages in a corpus, such as multiple copies of the same article published in different newspapers.",
             "description": [
-              "This feature is the result of a collaboration with our colleague <a href='https://profile.benoitseguin.net'>Benoit Seguin</a>, who developed novel deep learning techniques for searching large-scale image collections and successfully applied them to the collection of images in our corpus. This yielded visual signatures for each recognized picture in our corpus. We use these signatures to retrieve images which are similar to each other.",
-              "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/image_search.png'></img>",
-              "Use the image search tab to search within captions of detected images/pictures. Once you select an image, all similar images will be displayed. Alternatively, you can upload your own images to identify identical or similar ones in our corpus.",
-              "Further reading: B. L. A. Seguin, “Making large art historical photo archives searchable,” 2018, https://infoscience.epfl.ch/record/261212."
-            ]
-          },
-          {
-            "id": "how-to-make-and-and-or-queries",
-            "title": "How to make AND and OR queries?",
-            "summary": "Calibrate your query of exact matches of several keywords (OR), expand it with other keywords (AND) or with similar words (generated by word embeddings).",
-            "description": [
-              "By default, the keywords you type in the search box will yield articles in which this keyword has been detected by the automatic text recognition. Beyond that, you have several options to narrow down or expand your query.",
-              "First, you can choose where to look for the word: in the article content or title. Then, you can add several keywords, one after the other (press ‘Enter’ after each one or select in the autofill) and choose how the results of each keyword will overlap: <ul><li>To narrow down your result list, you can choose to include ‘all of the following’, which will return articles containing all of the listed keywords (AND)</li><li>To expand your result list, you can choose to include ‘at least one of the following’, which will return articles containing at least one of the listed keywords. To do so, you need to add the keywords you want to link with OR in the same search pill.</li><li>To exclude a keyword from your results, simply add your keyword in the search box and select ‘NOT contains’. You also need to group the words you want to exclude in the same search pill.</li></ul>",
-              "Since the default behaviour is performing an exact match, you can find alternative spellings, frequent OCR mistakes or synonyms with the button ‘find similar’. This panel displays suggestions produced by the word embeddings, of the last added keyword.",
-              "For instance, if you search for ‘virus’ in French, it will suggest ‘virale’, a variation on the same word or ‘bactérie’, a related word.", 
-              "Keep in mind that the exact match setting does not allow to truncate keywords (e.g. search for ‘europ*’ to retrieve ‘europe’, ‘european’, ‘europeans’, etc.). To collect the variations of a keyword, use the option ‘find similar’.",
-              "Each time you add or remove a keyword, your choices are summarised in the ‘apply changes’ button, that you need to click, to validate your changes. You can search for several words at once, or short sentences, but the probability of matches, due to OCR issues will be reduced. These features are also available for topics, named entities, or the metadata filters (newspaper titles etc.)."
-
-            ]
-          },
-          {
-            "id": "what-are-ngram",
-            "title": "What does ngrams show?",
-            "summary": "Display the number of times a given keyword is mentioned in impresso collection at a specific date, that is, the “raw” hit of a given keyword not grouped by article, calculated for each year.",
-            "description": [
-              "The ngram viewer displays n consecutive tokens, e.g. unique keywords. Currently the ngram viewer displays unigrams, e.g. single words but will be expanded to display bigrams, e.g. two consecutive keywords, for instance ‘Spanish flu’.",
-              "Many processing steps are required to display the total count of a given word in the impresso collection. In order to count the mentions of a given word, first all items (articles, advertisements, obituaries, etc.) have to be tokenized, that means finding all unique words in the whole collection.",
-              "After this step, only the potentially relevant keywords are selected, all stop words or contentless words such as prepositions, definite articles (le, la, les, der, die, das) are removed. This is particularly important to keep in mind when searching for bigrams: e.g. to finding the bigram of ‘l’Europe des Lumières’ becomes possible, since only ‘Europe’ and ‘Lumières’ has been retained.",
-              "Then, the tokens are lemmatised, that is, we group together the inflected forms of each word). Finally, the token count can be filtered by all usual filters: date, language, newspaper title, topic, person etc."
-            ]
-          },
-          {
-            "id": "how-ngram-work-availble-filters",
-            "title": "This ngram trends page has limited search filters",
-            "summary": "At the moment we are not allowing to filter by full text search queries while getting ngram frequencies.",
-            "description": [
-              ""
-            ]
-          },
-          {
-            "id": "relative-vs-absolute-year-graph",
-            "title": "How is it plotted?",
-            "summary": "SUM displays the absolute frequencies of result hits, whereas % shows the relative number of hits, compared to all articles from the impresso corpus.",
-            "description": [
-              "The highest result per year is displayed in number. The impresso interface groups the results per article, so the displayed frequency is the count of all articles containing at least one occurrence of the keyword. In other words, it is not the raw number of hits for the searched key-word, but the number of hits grouped by articles, as shown in the search summary. For instance, a query for Einstein’ returns 8 967 articles. These 8 967 articles contain 13 535 individual hits of ‘Einstein’. An item is included in the search when it contains at least one character, this means that the search is conducted also within advertisements and tables when they contain text."
-            ]
-          },
-          {
-            "id": "metadata-category-article-type",
-            "title": "How is the article type identified?",
-            "summary": "After the scanning of the newspapers, during the Optical Layout Recognition, some particular object types have been identified and tagged as such: articles, obituaries etc.",
-            "description": [
-              "The digitisation of the newspapers has been supervised by the partners of impresso and carried out by external service providers for most cases. Each partner defined the categories of newspapers article that the external service provider should tag. We inherited these categories, that are dependent on each newspaper title and each partner. For instance, the National Library of Luxembourg provided newspapers with articles tagged as obituaries, advertisements for most newspapers and for some newspapers, the weather section could be identified. The identification is based on visual features that change rapidly over time and between the newspaper titles: the visual presentation of obituaries is not constant over decades and relies therefore on intensive manual annotation. This makes the segmentation of the newspapers into different article types very costly and difficult to reuse from one newspaper title to another."
-            ]
-          },
-          {
-            "id": "missing-pages-newspapers",
-            "title": "What does the missing pages or issues indicate?",
-            "summary": "Errors may occur in the process of digitisation: some files may be corrupted and therefore cannot be used for full text search.",
-            "description": [
-              "The newspaper digitisation has been carried out by external service providers; the files created in this process for each page and each newspaper issue may suffer from their transfer from one server to another. When copying these files anew, one can count the number of files that cannot be read anymore or that are simply empty. In the newspaper titles’ overview, we display the proportion of unavailable files per year (when applicable), measured in number of pages or issues. You may notice a difference of temporal distribution of the missing files. This is simply because the pages are contained in a folder that constitutes a newspaper issue. A missing issue corresponds to a corrupted archive, while missing pages correspond to empty files within an issue folder. These numbers are not indicative of the missing physical issues in the providers’ collection (e.g. a newspaper issue that was printed, but was not preserved in the physical archive). They do not indicate the number of issues that could not be printed for material reasons (strike, shortage of paper, censorship etc.) nor they are an indication of the proportion of newspapers that have been digitised, compared to all historical newspapers."
+              "A newspaper corpus contains multiple copies of the same article, identical or with slight differences from one another, as well as repetitions of smaller portions of a newspaper page (e.g. advertisement, event listings, etc.). Text reuse detection aims at identifying these copies and repetitions automatically, and yields clusters of passages that were deemed to be related with one another. What a cluster contains can vary a lot: it can group together copies of the same article that differ only with respect to OCR errors; but it can also contain portions of text that share the same ‘journalistic template’, such as ‘oroscopes’, ‘avertisements’.",
+              "Why did you apply text reuse to this collection?",
+              "Detecting text reuse in a large-scale newspaper corpus is useful in many respects: <ul><li>1) to identify (and possibly filter out) duplicate documents before performing further processing steps (e.g. topic modelling); </li><li>2) to study the virality and spread of news; </li><li>3) to study information flows, both within and across national borders; </li><li>4) to allow users discover which contents, within in their own collections, generated text reuse (e.g. famous political speeches, portions of national constitutions, etc.).</li></ul>",
+              "How was text reuse applied to this collection?",
+              "We used the open source software <a href='https://github.com/dasmiq/passim'>passim</a> to automatically detect text reuse. Passim was applied in two steps: <ul><li>As a pre-processing step, we ran passim in boilerplate detection mode; this allowed us to find boilerplate content within our corpus. We define boilerplate as portions of text that get repeated within the same newspaper in a time window of a month. All content items where boilerplate text was detected are filtered out from passim’s input. This allows us to reduce the final number of detected text reuse clusters by removing some noise (i.e. boilerplate) in the input data.</li><li> After having removed boilerplate text, we ran the content of our corpus (76 newspapers) through passim, resulting into approx. 6 million text reuse clusters. </li><li>We then post-processed passim’s output to enrich the detected text reuse clusters. For each cluster, we add the following information:</li><li>Size: the number of passages contained in a cluster;</li><li>Lexical overlap: the percentage of unique tokens that all passages in a cluster have in common (all text is lowercased and punctuation is stripped).</li><li>Time span: time window covered by documents in the cluster, measured in number of days. It’s the difference (in days) between the publication date of the oldest and of the most recent content item in the cluster.</li></ul>",
+              "These pieces of information can be used as filters when browsing text reuse clusters in the page https://impresso-project.ch/app/text-reuse-clusters/."
             ]
           }
         ]
