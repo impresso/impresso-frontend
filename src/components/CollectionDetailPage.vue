@@ -388,7 +388,7 @@ export default {
     //   },
     // },
     tabs() {
-      return [
+      const mainTabs = [
         {
           label: this.$t('tabs.overview'),
           name: TAB_OVERVIEW,
@@ -398,12 +398,15 @@ export default {
             count: this.$n(this.collection.countItems),
           }),
           name: TAB_ARTICLES,
-        },
-        {
-          label: this.$t('tabs.recommendations'),
-          name: TAB_RECOMMENDATIONS,
         }
-      ];
+      ]
+      const recommendationsTab = {
+        label: this.$t('tabs.recommendations'),
+        name: TAB_RECOMMENDATIONS,
+      }
+      return this.$route.params.collection_uid != null
+        ? mainTabs.concat([recommendationsTab])
+        : mainTabs
     },
   },
   watch: {
