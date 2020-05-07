@@ -1,8 +1,14 @@
 {
   "name": "impresso-frontend",
-  "version": "2.4.0",
-  "description": "A Vue.js project",
-  "author": "Thijs van Beek <thijs.vanbeek@uni.lu>",
+  "version": "2.5.0",
+  "description": "Frontend app for impresso project",
+  "author": "impresso <info@impresso-project.ch>",
+  "contributors": [
+    "Thijs van Beek",
+    "Daniele Guido",
+    "Roman Kalyakin",
+    "Paul Schroeder"
+  ],
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
