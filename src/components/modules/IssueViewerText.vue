@@ -25,7 +25,14 @@
           </div>
           <b-container fluid
             v-else
-            class="region-row mt-3 mb-3">
+            class="region-row mt-3 mb-3 position-relative">
+            <label class="position-absolute text-right d-flex align-content-center" style="right: 0; top: -1.5rem; height: 2rem; z-index: 1;">
+              <div class="small-caps" v-if="textReusePassages.length" v-html="$tc('textReuseLabel', textReusePassages.length, {
+                  n: textReusePassages.length,
+                })"/>
+              <div v-else>{{ $tc('textReuseLabel', 0) }}</div>
+              <info-button class="ml-2" name="text-reuse"/>
+            </label>
             <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
               <div v-if="article.isCC" class="col col-sm-5 bg-white border">
                 <div class="py-3">
@@ -84,6 +91,7 @@ import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import ArticleItem from './lists/ArticleItem';
 import AnnotatedText from './AnnotatedText'
+import InfoButton from '@/components/base/InfoButton'
 
 import {
   getNamedEntitiesFromArticleResponse,
@@ -179,6 +187,7 @@ export default {
     SearchResultsSimilarItem,
     Icon,
     AnnotatedText,
+    InfoButton,
   },
   methods: {
     commonTopics(suggestionTopics) {
@@ -360,7 +369,8 @@ export default {
     "page": "pag. {num}",
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ...",
-    "cluster_tooltip": "View all {size} articles containing this passage"
+    "cluster_tooltip": "View all {size} articles containing this passage",
+    "textReuseLabel": "No text reuse<br/> passages available| <b>1</b> text reuse <br/>passage available | <b>{n}</b> text reuse <br/>passages available"
   }
 }
 </i18n>
