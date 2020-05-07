@@ -193,17 +193,17 @@
 </template>
 
 <script>
-import Autocomplete from './Autocomplete';
-import Pagination from './modules/Pagination';
-import SearchResultsListItem from './modules/SearchResultsListItem';
-import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
-import SearchResultsSummary from './modules/SearchResultsSummary';
-import CollectionAddTo from './modules/CollectionAddTo';
-import CollectionAddToList from './modules/CollectionAddToList';
-import Ellipsis from './modules/Ellipsis';
-import EmbeddingsSearch from './modules/EmbeddingsSearch';
+import Autocomplete from '@/components/Autocomplete';
+import Pagination from '@/components/modules/Pagination';
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem';
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem';
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary';
+import CollectionAddTo from '@/components/modules/CollectionAddTo';
+import CollectionAddToList from '@/components/modules/CollectionAddToList';
+import Ellipsis from '@/components/modules/Ellipsis';
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch';
 import SearchSidebar from '@/components/modules/SearchSidebar';
-import InfoButton from './base/InfoButton';
+import InfoButton from '@/components/base/InfoButton';
 import SearchQuery from '@/models/SearchQuery';
 import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';

@@ -54,9 +54,9 @@ import { protobuf } from 'impresso-jscommons';
 import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel'
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
 
-import List from './modules/lists/List';
+import List from '@/components/modules/lists/List';
 import { textReuseClusters, filtersItems } from '@/services';
-import { toCanonicalFilter, toSerializedFilters } from '../logic/filters';
+import { toCanonicalFilter, toSerializedFilters } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
 import { mapFilters } from '@/logic/queryParams'
 

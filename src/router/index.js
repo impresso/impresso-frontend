@@ -5,8 +5,6 @@ import HomePage from '../components/HomePage';
 import HomePage2020 from '../components/HomePage2020';
 import FaqPage from '../components/FaqPage';
 import TermsOfUsePage from '../components/TermsOfUsePage';
-import SearchPage from '../components/SearchPage';
-import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
@@ -20,7 +18,6 @@ import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
-import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
 import PowerUserVisualisation from '../pages/PowerUserVisualisation'
 
 import store from '../store';
@@ -67,7 +64,7 @@ const router = new Router({
     {
       path: '/search/ngrams',
       name: 'searchNgrams',
-      component: SearchNgramsPage,
+      component: () => import(/* webpackChunkName: "searchNgrams" */ '../pages/SearchNgrams.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -91,7 +88,7 @@ const router = new Router({
     {
       path: '/search',
       name: 'search',
-      component: SearchPage,
+      component: () => import(/* webpackChunkName: "search" */ '../pages/Search.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -295,7 +292,7 @@ const router = new Router({
     },
     {
       path: '/compare',
-      component: SearchQueriesComparisonPage,
+      component: () => import(/* webpackChunkName: "search-queries-comparison" */ '../pages/SearchQueriesComparison'),
       name: 'compare',
       meta: {
         requiresAuth: false,
@@ -303,7 +300,7 @@ const router = new Router({
     },
     {
       path: '/text-reuse-clusters',
-      component: () => import(/* webpackChunkName: "tr-clusters" */ '../components/TextReuseClustersPage.vue'),
+      component: () => import(/* webpackChunkName: "tr-clusters" */ '../pages/TextReuseClusters.vue'),
       name: 'text-reuse-clusters',
       meta: {
         requiresAuth: false,

@@ -5,7 +5,7 @@
       :ignored-filters="ignoredFilters"
       :facets="facets"
       :excludedTypes="excludedTypes"
-      contextTag="searchImages"
+      contextTag="search-images"
       @changed="handleFiltersChanged">
       <div slot="header">
         <div v-if="similarToImage" class="image-item-similar m-2 p-2 bg-white shadow-sm border d-flex">

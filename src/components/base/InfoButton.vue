@@ -79,6 +79,7 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 
 .info-button-trigger {
+  font-size: 16px;
 }
 
 .popover {

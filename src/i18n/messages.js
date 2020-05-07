@@ -55,6 +55,7 @@ export default {
     },
     actions: {
       addFilter: 'add filter...',
+      addContextualFilter: 'refine ...',
       agree: 'I agree to the terms of use',
       accept: 'accept',
       browseAll: 'show all ...',
@@ -87,6 +88,7 @@ export default {
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
       loadRandomPage: 'load random page',
+      useCurrentQuery: 'Use most recent search query',
     },
     filters: {
       daterange: {

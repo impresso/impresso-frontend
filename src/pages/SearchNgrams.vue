@@ -5,7 +5,7 @@
       :filters="enrichedFilters"
       :ignored-filters="ignoredFilters"
       :facets="facets"
-      contextTag="searchNgrams"
+      contextTag="search-ngrams"
       @changed="handleFiltersChanged"
     >
     <b-form-group class="mx-3">
@@ -45,7 +45,9 @@
         </b-navbar-nav>
       </b-navbar>
       <b-navbar class="border-bottom">
-        <span style="white-space:nowrap" class="mr-3">Enter unigram</span>
+        <span style="white-space:nowrap" class="mr-3">Enter unigram
+          <info-button name="what-are-ngram" />
+        </span>
         <b-input-group>
           <b-form-tags
             v-model="unigrams"
@@ -115,6 +117,7 @@ import BaseTitleBar from '@/components/base/BaseTitleBar';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
 import MultiLinePlot from '@/components/modules/vis/MultiLinePlot'
 import Ellipsis from '@/components/modules/Ellipsis';
+import InfoButton from '@/components/base/InfoButton';
 import {
   filtersItems as filtersItemsService,
   search as searchService,
@@ -209,6 +212,7 @@ export default {
     Ellipsis,
     BaseTitleBar,
     SearchSidebar,
+    InfoButton,
   },
   data: () => ({
     /** @type {Facet[]} */

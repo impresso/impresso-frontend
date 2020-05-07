@@ -8,6 +8,7 @@
             <span class="label small-caps">
               <span>&larr; {{$t("clustersLabel")}}</span>
             </span>
+            <info-button class="ml-2" name="text-reuse"/>
             <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}}</h3>
           </section>
         </b-navbar>
@@ -28,7 +29,7 @@
       </div>
     </div>
 
-    <div v-if="!cluster" style="height: 100%">
+    <div v-if="!cluster" class="d-none" style="height: 100%">
       <div class="d-flex flex-row justify-content-center" style="height: 100%">
         <div class="d-flex flex-column justify-content-center">
           <span>[no cluster selected placeholder]</span>
@@ -59,12 +60,14 @@
 </template>
 
 <script>
+import InfoButton from '@/components/base/InfoButton'
 import ClusterAspectsTab from '@/components/modules/textReuse/ClusterAspectsTab'
 import PassageDetailsPanel from '@/components/modules/textReuse/PassageDetailsPanel'
-import Pagination from './modules/Pagination';
+import Pagination from '@/components/modules/Pagination';
 
 import { textReuseClusterPassages } from '@/services'
 import Newspaper from '@/models/Newspaper'
+
 
 const QueryParameters = Object.freeze({
   Page: 'passagePage',
@@ -94,7 +97,8 @@ export default {
   components: {
     ClusterAspectsTab,
     PassageDetailsPanel,
-    Pagination
+    Pagination,
+    InfoButton,
   },
   computed: {
     clusterId() {
