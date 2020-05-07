@@ -18,7 +18,6 @@ import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
-import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
 import PowerUserVisualisation from '../pages/PowerUserVisualisation'
 
 import store from '../store';
@@ -293,7 +292,7 @@ const router = new Router({
     },
     {
       path: '/compare',
-      component: SearchQueriesComparisonPage,
+      component: () => import(/* webpackChunkName: "search-queries-comparison" */ '../pages/SearchQueriesComparison'),
       name: 'compare',
       meta: {
         requiresAuth: false,
