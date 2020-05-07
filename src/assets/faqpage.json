@@ -168,7 +168,7 @@
           },
           {
             "id": "what-are-ngram",
-            "title": "What does ngrams show?",
+            "title": "What do ngrams show?",
             "summary": "Display the number of times a given keyword is mentioned in impresso collection at a specific date, that is, the “raw” hit of a given keyword not grouped by article, calculated for each year.",
             "description": [
               "The ngram viewer displays n consecutive tokens, e.g. unique keywords. Currently the ngram viewer displays unigrams, e.g. single words but will be expanded to display bigrams, e.g. two consecutive keywords, for instance ‘Spanish flu’.",
@@ -221,7 +221,8 @@
               "The nodes’ sizes can then be adjusted according to various measures: you can choose to highlight the quantity of articles each topic ‘contains’ with ‘countItem’ or highlight the connectivity of topics with their ‘degree’.",
               "Interact with the graph",
               "<ul><li>Hover with your cursor over a topic node to see its description. </li><li>Zoom in the graph with your scroller.</li><li>Click and drag nodes to reshape their position on the graph.</li><li>Reset all to return to the original version of the graph, and start again.</li></ul>",
-              "Exploring the topics of your query: if you have started a query on the search page, you can choose to use this as a filter for the topic graph. This means that all the elements described earlier are still valid but what is displayed does not anymore reflect the whole impresso collection but is tailored to your query.",
+              "Exploring the topics of your query",
+              "If you have started a query on the search page, you can choose to use this as a filter for the topic graph. This means that all the elements described earlier are still valid but what is displayed does not anymore reflect the whole impresso collection but is tailored to your query.",
               "For instance, if you search for ‘vaccination’ on the topic page, you will have two topics containing this word. Whereas if you search for ‘vaccination’ on the search page and use this search as a filter for the topic graph, you will have 212 topics related to the articles containing the word ‘vaccination’."
             ]
           }
