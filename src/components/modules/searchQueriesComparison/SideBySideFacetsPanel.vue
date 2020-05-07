@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div class="side-by-side-facets-panel container-fluid">
     <div class="row"
       v-for="(facet, facetIndex) in facets"
       :key="facetIndex">
@@ -21,12 +21,12 @@
         <div class="col empty-col" v-if="!isComparableLoading(comparableIndex) && !comparableItem.isLoaded  && !disableHandlingLoadingAndEmpty">
           <div v-if="facetIndex === 0" style="text-align: center;">
             <div v-if="comparableIndex === 1">
-              Two queries are required to compute intersection
+              <i>{{$t('missingSearchQueries')}}</i>
             </div>
             <div v-if="comparableIndex !== 1">
               <button class="btn mb-1 btn-outline-primary btn-sm"
                       v-on:click="insertMostRecentSearchQuery(comparableIndex)">
-                Insert most recent search query
+                {{$t('actions.useCurrentQuery')}}
               </button>
             </div>
           </div>
@@ -242,3 +242,10 @@ export default {
     background: #ececec87;
   }
 </style>
+<i18n>
+  {
+    "en": {
+      "missingSearchQueries": "Two queries are required to compute intersection"
+    }
+  }
+</i18n>

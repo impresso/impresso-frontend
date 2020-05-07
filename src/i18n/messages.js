@@ -88,6 +88,7 @@ export default {
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
       loadRandomPage: 'load random page',
+      useCurrentQuery: 'Use most recent search query',
     },
     filters: {
       daterange: {
