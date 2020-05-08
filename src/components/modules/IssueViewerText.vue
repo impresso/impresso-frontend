@@ -238,7 +238,7 @@ export default {
       this.$router.push({
         name: 'text-reuse-clusters',
         query: {
-          clusterId: this.selectedClusterId
+          q: `#${this.selectedClusterId}`
         }
       })
     },
