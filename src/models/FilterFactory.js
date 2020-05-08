@@ -11,15 +11,18 @@ import FilterCollection from '@/models/FilterCollection';
 
 
 export default {
+  /**
+   * @param {object} filterData
+   * @returns {import('.').Filter}
+   */
   create: (filterData) => {
-    let filter = false;
+    let filter = { ...filterData };
 
     if (filterData.type === 'mention') {
       filter = new FilterString({
         ...filterData,
-        type: 'string', // we force string filter
+        type: 'string', // we force EXACT string filter
         precision: 'EXACT',
-        query: filterData.item.name,
       });
     }
 

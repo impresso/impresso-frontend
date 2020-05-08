@@ -5,15 +5,8 @@ import HomePage from '../components/HomePage';
 import HomePage2020 from '../components/HomePage2020';
 import FaqPage from '../components/FaqPage';
 import TermsOfUsePage from '../components/TermsOfUsePage';
-import SearchImagesPage from '../components/SearchImagesPage';
-import SearchPage from '../components/SearchPage';
-import SearchNgramsPage from '../components/SearchNgramsPage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
-import UserPage from '../components/UserPage';
-import UserRegisterPage from '../components/UserRegisterPage';
-import CollectionsPage from '../components/CollectionsPage';
-import CollectionsExplorerPage from '../components/CollectionsExplorerPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
@@ -25,7 +18,8 @@ import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
-import SearchQueriesComparisonPage from '../components/SearchQueriesComparisonPage';
+import PowerUserVisualisation from '../pages/PowerUserVisualisation'
+
 import store from '../store';
 
 Vue.use(Router);
@@ -70,7 +64,7 @@ const router = new Router({
     {
       path: '/search/ngrams',
       name: 'searchNgrams',
-      component: SearchNgramsPage,
+      component: () => import(/* webpackChunkName: "searchNgrams" */ '../pages/SearchNgrams.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -94,7 +88,7 @@ const router = new Router({
     {
       path: '/search',
       name: 'search',
-      component: SearchPage,
+      component: () => import(/* webpackChunkName: "search" */ '../pages/Search.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -102,7 +96,7 @@ const router = new Router({
     {
       path: '/search/images',
       name: 'searchImages',
-      component: SearchImagesPage,
+      component: () => import(/* webpackChunkName: "searchImages" */ '../pages/SearchImages.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -134,7 +128,7 @@ const router = new Router({
     {
       path: '/user',
       name: 'user',
-      component: UserPage,
+      component: () => import(/* webpackChunkName: "user" */ '../pages/User.vue'),
       meta: {
         realm: 'user',
         requiresAuth: true,
@@ -143,7 +137,7 @@ const router = new Router({
     {
       path: '/user/register',
       name: 'register',
-      component: UserRegisterPage,
+      component: () => import(/* webpackChunkName: "userRegister" */ '../pages/UserRegister.vue'),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -151,13 +145,11 @@ const router = new Router({
     },
     {
       path: '/collections',
-      component: CollectionsPage,
-      name: 'collections',
-      props: true,
+      component: () => import(/* webpackChunkName: "collections" */ '../pages/Collections.vue'),
       children: [{
-        path: 'collections',
-        component: CollectionsExplorerPage,
-        name: 'collectionsExplorer',
+        path: '',
+        component: CollectionDetailPage,
+        name: 'collections',
         meta: {
           requiresAuth: true,
           realm: 'user',
@@ -300,11 +292,33 @@ const router = new Router({
     },
     {
       path: '/compare',
-      component: SearchQueriesComparisonPage,
+      component: () => import(/* webpackChunkName: "search-queries-comparison" */ '../pages/SearchQueriesComparison'),
       name: 'compare',
       meta: {
         requiresAuth: false,
       },
+    },
+    {
+      path: '/text-reuse-clusters',
+      component: () => import(/* webpackChunkName: "tr-clusters" */ '../pages/TextReuseClusters.vue'),
+      name: 'text-reuse-clusters',
+      meta: {
+        requiresAuth: false,
+      },
+      children: [{
+        path: '',
+        component: () => import(/* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseClusterDetailPage.vue'),
+        name: 'text-reuse-cluster-detail',
+        meta: {
+          requiresAuth: false,
+        },
+      }],
+    },
+    {
+      path: '/powervis',
+      component: PowerUserVisualisation,
+      name: 'powervis',
+      meta: { requiresAuth: false },
     }],
 });
 

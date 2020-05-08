@@ -30,7 +30,11 @@ export default class SearchQuery {
     filters.forEach(d => this.addFilter(d));
   }
 
-  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy } = {}, serializer = 'json') {
+  static deserialize(pq = '') {
+    return new SearchQuery(protobuf.searchQuery.deserialize(pq));
+  }
+
+  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy = undefined } = {}, serializer = 'json') {
     if (serializer === 'protobuf') {
       return protobuf.searchQuery.serialize({ filters });
     }
@@ -75,46 +79,48 @@ export default class SearchQuery {
     const hash = filterized.getHash();
     // check if the filter do not exists.
     if (this.filtersIds.indexOf(hash) === -1) {
-      // if it does not exist, check if a filter with the same type and context exists.
-      const similarFilterIdx = this.filters.findIndex(d => d.context === filterized.context && d.type === filterized.type);
-
-      if (!Array.isArray(filterized.items) || similarFilterIdx === -1) {
-        this.filtersIds.push(hash);
-        this.filters.push(filterized);
-        // add to filter index dictionary (by filter type), create the index
-        // if it does not exist
-        if (!Array.isArray(this.filtersIndex[filterized.type])) {
-          this.filtersIndex[filterized.type] = [];
-        }
-        this.filtersIndex[filterized.type].push(filterized);
-        // const oppositeFilterIdx = this.filters.findIndex(d => d.type && d.context != d.context);
-      } else {
-        console.info('addFilter(): similar filter exists, merge.');
-        // merge filter
-        this.mergeFilterAtIndex(filterized, similarFilterIdx);
+      this.filtersIds.push(hash);
+      this.filters.push(filterized);
+      // add to filter index dictionary (by filter type), create the index
+      // if it does not exist
+      if (!Array.isArray(this.filtersIndex[filterized.type])) {
+        this.filtersIndex[filterized.type] = [];
       }
+      this.filtersIndex[filterized.type].push(filterized);
     }
   }
 
   mergeFilterAtIndex(filter, idx) {
-    if (filter.items) {
+    const originalFilter = this.filters[idx]
+
+    originalFilter.q = filter.q
+    originalFilter.op = filter.op
+    originalFilter.precision = filter.precision
+    originalFilter.distance = filter.distance
+    originalFilter.context = filter.context
+
+    // NOTE: Hotfix. There is a discrepancy between items ids in `q`
+    // and ids in `items`. Get rid of items that are not present in `q`.
+    // One of the cases where it happens is when filtering by id of a collection
+    // not owned by current user.
+    const mergeableItems = (filter.items || []).filter(item => filter.q.includes(item.uid))
+
+    if (mergeableItems.length > 0) {
       const uids = [];
       const items = [];
       // combine the two lists of items;
-      this.filters[idx].items.concat(filter.items).forEach((d) => {
+      originalFilter.items.concat(mergeableItems).forEach((d) => {
         if (!uids.includes(d.uid)) {
           uids.push(d.uid);
           items.push(d);
         }
       });
-      this.filters[idx].setItems(items);
-      this.filters[idx].q = uids;
-      // recalculate hash and reset at filtersIds index:
-      this.filtersIds[idx] = this.filters[idx].getHash();
-      console.info('mergeFilterAtIndex(): Filters merged correctly.');
-    } else {
-      console.warn('cannot use mergeFilterAtIndex without items');
+
+      originalFilter.setItems(items);
+      originalFilter.q = uids;
     }
+    // recalculate hash and reset at filtersIds index:
+    this.filtersIds[idx] = originalFilter.getHash();
   }
 
   enrichFilters(filters) {

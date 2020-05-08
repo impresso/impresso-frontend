@@ -43,6 +43,7 @@ export default {
       case 'location':
       case 'person':
       case 'newspaper':
+      case 'textReuseCluster':
         t = this.item.name;
         break;
       case 'topic':
@@ -50,7 +51,8 @@ export default {
         break;
       case 'collection':
         if (this.item.name) {
-          const username = this.hideuser ? '' : `@${this.item.creator.username}<br/>`;
+          const usernameValue = this.item.creator ? this.item.creator.username : 'unknown'
+          const username = this.hideuser ? '' : `@${usernameValue}<br/>`;
           t = [
             `<b>${this.item.name}</b><br/>`,
             username,

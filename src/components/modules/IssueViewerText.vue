@@ -25,7 +25,14 @@
           </div>
           <b-container fluid
             v-else
-            class="region-row mt-3 mb-3">
+            class="region-row mt-3 mb-3 position-relative">
+            <label class="position-absolute text-right d-flex align-content-center" style="right: 0; top: -1.5rem; height: 2rem; z-index: 1;">
+              <div class="small-caps" v-if="textReusePassages.length" v-html="$tc('textReuseLabel', textReusePassages.length, {
+                  n: textReusePassages.length,
+                })"/>
+              <div v-else>{{ $tc('textReuseLabel', 0) }}</div>
+              <info-button class="ml-2" name="text-reuse"/>
+            </label>
             <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
               <div v-if="article.isCC" class="col col-sm-5 bg-white border">
                 <div class="py-3">
@@ -36,10 +43,23 @@
                 class="col"
                 :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
                 <div class='region py-3'>
-                  <div v-html="regionsContent[i]"></div>
+                  <annotated-text
+                    :children="regionsAnnotationTree[i].children"
+                    :cluster-colours="clusterColourMap"
+                    :selected-cluster-id="selectedClusterId"
+                    @onClusterSelected="clusterSelectedHandler"/>
                 </div>
               </div>
             </b-row>
+            <div
+              :style='{ top: `${hoverPassageLineTopOffset}px` }'
+              class="passage-control bs-tooltip-top"
+              role="tooltip"
+              v-if="selectedPassage">
+              <div class="tooltip-inner">
+                {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
+              </div>
+            </div>
           </b-container>
         </div>
         <hr class="py-4">
@@ -66,21 +86,46 @@
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
-import { articlesSuggestions } from '@/services';
+import { articlesSuggestions, articleTextReusePassages } from '@/services';
 import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import ArticleItem from './lists/ArticleItem';
+import AnnotatedText from './AnnotatedText'
+import InfoButton from '@/components/base/InfoButton'
+
 import {
   getNamedEntitiesFromArticleResponse,
-  annotateText,
+  getAnnotateTextTree,
+  passageToPassageEntity,
 } from '@/logic/articleAnnotations';
+
+const colourScheme =  [
+  '#8dd3c7', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5',
+  '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f'
+];
+
 
 export default {
   data() {
     return {
       article: null,
       articlesSuggestions: [],
+      textReusePassages: [],
+      selectedPassageId: undefined,
+      hoverPassageLineTopOffset: undefined,
+      viewerTopOffset: 0
     };
+  },
+  updated() {
+    const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
+    this.viewerTopOffset = height
+
+    document.querySelectorAll('.tr-passage').forEach(element => {
+      element.removeEventListener('mouseenter', this.mouseenterPassageHandler)
+      element.addEventListener('mouseenter', this.mouseenterPassageHandler)
+      element.removeEventListener('mouseleave', this.mouseleavePassageHandler)
+      element.addEventListener('mouseleave', this.mouseleavePassageHandler)
+    })
   },
   computed: {
     articlePages() {
@@ -98,27 +143,41 @@ export default {
     hasValidRegions() {
       return !!this.article.regions.filter(({ isEmpty }) => !isEmpty).length;
     },
-    regionsContent() {
+    clusterColourMap() {
+      const clusterIds = [...new Set(this.textReusePassages.map(({ clusterId }) => clusterId))]
+      return clusterIds.reduce((map, id, idx) => {
+        map[id] = colourScheme[idx]
+        return map
+      }, {})
+    },
+    regionsAnnotationTree() {
       if (!this.article) return [];
 
       const entities = getNamedEntitiesFromArticleResponse(this.article);
+      const passageEntities = this.textReusePassages.map(passageToPassageEntity)
+
       const lineBreaks = this.article.contentLineBreaks;
       const regionBreaks = this.article.regionBreaks;
 
-      const annotatedText = annotateText(this.article.content, entities, lineBreaks, regionBreaks);
-
-      const regionStartIndices = annotatedText
-        .map((v, index) => (v === '<div class="region">' ? index : -1))
-        .filter(v => v >= 0);
-
-      const regions = regionStartIndices.map((startIndex, i) => {
-        var endIndex = i === regionStartIndices.length - 1
-          ? annotatedText.length
-          : regionStartIndices[i + 1]
-        return annotatedText.slice(startIndex, endIndex).join('\n');
-      })
-
-      return regions;
+      return getAnnotateTextTree(
+        this.article.content,
+        entities.concat(passageEntities),
+        lineBreaks,
+        regionBreaks
+      ).children;
+    },
+    selectedPassage() {
+      if (this.selectedPassageId) {
+        return this.textReusePassages.filter(({ id }) => id === this.selectedPassageId)[0]
+      }
+      return undefined
+    },
+    selectedClusterId() {
+      return this.$route.query.trClusterId
+    },
+    textReuseEnabled() {
+      // @ts-ignore
+      return !!window.impressoFeatures?.textReuse?.enabled
     }
   },
   props: ['article_uid'],
@@ -127,6 +186,8 @@ export default {
     CollectionAddTo,
     SearchResultsSimilarItem,
     Icon,
+    AnnotatedText,
+    InfoButton,
   },
   methods: {
     commonTopics(suggestionTopics) {
@@ -146,13 +207,68 @@ export default {
         });
       }
     },
+    mouseenterPassageHandler(e) {
+      const { id } = e.target.dataset
+      const { top } = e.target.getBoundingClientRect()
+      const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
+      const siblingElements = [...document.querySelectorAll(`.tr-passage`)]
+
+      siblingElements.map(element => {
+        element.classList.remove('active')
+        element.removeEventListener('click', this.passageClickHandler)
+      })
+      peerElements.map(element => element.classList.add('active'))
+
+      e.target.addEventListener('click', this.passageClickHandler)
+
+      this.selectedPassageId = id
+      this.hoverPassageLineTopOffset =  top - this.viewerTopOffset
+    },
+    mouseleavePassageHandler(e) {
+      const { id } = e.target.dataset
+      const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
+
+      peerElements.map(element => element.classList.remove('active'))
+
+      e.target.removeEventListener('click', this.passageClickHandler)
+
+      this.selectedPassageId = null
+    },
+    passageClickHandler() {
+      this.$router.push({
+        name: 'text-reuse-clusters',
+        query: {
+          q: `#${this.selectedClusterId}`
+        }
+      })
+    },
+    clusterSelectedHandler(trClusterId) {
+      const { query } = this.$route
+      const updatedQuery = Object.assign({}, query, {
+        trClusterId: query.trClusterId === trClusterId ? undefined : trClusterId
+      })
+      this.$router.replace({ query: updatedQuery }).catch(() => {})
+    }
   },
   watch: {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
         this.articlesSuggestions = [];
-        this.article = await this.$store.dispatch('articles/LOAD_ARTICLE', articleUid);
+
+        const trPromise = this.textReuseEnabled
+          ? articleTextReusePassages
+            .find({ query: { id: articleUid }})
+            .then(({ passages }) => passages)
+          : Promise.resolve([])
+
+        const [article, textReusePassages] = await Promise.all([
+          this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
+          trPromise
+        ])
+        this.article = article
+        this.textReusePassages = textReusePassages
+
         articlesSuggestions.get(articleUid).then((res) => {
           this.articlesSuggestions = res.data;
         });
@@ -177,6 +293,10 @@ export default {
     font-size: inherit;
   }
 
+  .line {
+    margin-top: 2px;
+  }
+
   span.location,
   span.person{
     box-shadow:inset 0px -2px 0px 0px transparentize($clr-tertiary, 0.5);
@@ -192,6 +312,22 @@ export default {
 
     &:hover {
       box-shadow:inset 0px -24px 0px 0px transparentize($clr-tertiary, 0.5);
+    }
+  }
+
+  .passage-control {
+    position: absolute;
+    right: 0.5em;
+    max-width: 8em;
+    pointer-events: none;
+  }
+  .tr-passage {
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+    cursor: pointer;
+
+    &.active {
+      opacity: 1;
     }
   }
 
@@ -232,7 +368,9 @@ export default {
     "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",
     "page": "pag. {num}",
     "pages": "pp. {nums}",
-    "add_to_collection": "Add to Collection ..."
+    "add_to_collection": "Add to Collection ...",
+    "cluster_tooltip": "View all {size} articles containing this passage",
+    "textReuseLabel": "No text reuse<br/> passages available| <b>1</b> text reuse <br/>passage available | <b>{n}</b> text reuse <br/>passages available"
   }
 }
 </i18n>

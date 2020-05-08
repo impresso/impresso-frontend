@@ -153,8 +153,16 @@ export default {
         data: this.values,
       });
 
-
       this.timeline.draw();
+      // check brush
+      if (this.brush && this.brush.length) {
+        const [ min, max ] = this.brush;
+        this.timeline.brushTo({
+          min,
+          max,
+        });
+      }
+
       setTimeout(this.onChangeDomain, 5000);
     }
     window.addEventListener('resize', this.onResize);
@@ -191,11 +199,11 @@ export default {
       immediate: false,
       handler(val) {
         if (this.timeline && val.length) {
+          const [ min, max ] = val;
           this.timeline.brushTo({
-            min: val[0],
-            max: val[1],
+            min,
+            max,
           });
-          // this.timeline.drawBrush();
         }
       },
     },
@@ -203,7 +211,6 @@ export default {
       immediate: false,
       deep: true,
       handler(data) {
-        // console.info('Timeline component received data:', data.length);
         if (this.timeline) {
           this.timeline.update({
             data,

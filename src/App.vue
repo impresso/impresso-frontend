@@ -6,9 +6,6 @@
   <div id="app-content">
     <router-view />
   </div>
-  <div id="app-explorer" class="fullscreen">
-    <explorer/>
-  </div>
   <div id="app-monitor" class="fullscreen">
     <monitor/>
   </div>
@@ -26,7 +23,6 @@
 import WebFontLoader from 'webfontloader';
 import TheHeader from './components/TheHeader';
 import Monitor from './components/Monitor';
-import Explorer from './components/Explorer';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 import CookieDisclaimer from './components/modals/CookieDisclaimer';
@@ -36,7 +32,6 @@ export default {
   components: {
     TheHeader,
     Monitor,
-    Explorer,
     DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
@@ -51,24 +46,14 @@ export default {
     },
     is_locked() {
       return this.$store.state.processingLocked;
-    },
+    }
   },
   methods: {
-    onEventBusAddFilter({ filter, searchQueryId }) {
-      console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
-      if (!searchQueryId || !searchQueryId.length) {
-        this.$store.dispatch('search/ADD_FILTER', { filter });
-      }
-    },
   },
   mounted() {
     window.addEventListener('click', () => {
       this.$root.$emit('bv::hide::popover');
     });
-    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBusAddFilter);
-  },
-  beforeDestroy() {
-    this.$eventBus.$off(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBusAddFilter);
   },
   created() {
     // load typekit
@@ -77,10 +62,6 @@ export default {
         id: process.env.VUE_APP_TYPEKIT_ID,
       },
     });
-    // check whether there is a searchquery hash somewhere
-    console.info('App @created, retrieve initial search.currentSearchHash', this.$store.state.search.currentSearchHash);
-    // push the current search query using the current hash
-    this.$store.dispatch('search/INIT');
   },
 };
 </script>
@@ -164,8 +145,8 @@ ul.nav.nav-pills .nav-item{
       font-variant: small-caps;
       margin-bottom: -1px;
       border: 1px solid transparent;
-
-      color: #a8b3bd;
+      font-size: 15px; // like small-caps
+      color: #6e8091;
     }
     &.active .nav-link{
       color: black;
@@ -251,14 +232,114 @@ $clr-grey-900: #ddd;
   width: 0;
   height: 0;
 }
-.custom-radio > .custom-control-label::before {
-    border: inherit;
-    outline: inherit;
+.custom-control-label::before {
+  border-color: $clr-tertiary;
+  outline: none;
 }
+.custom-control-label:disabled::before {
+  border-color: $clr-tertiary;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 0.1rem;
+  background-color: $clr-secondary;
+  border-radius: 2px;
+}
+input[type="range"]::-moz-range-track {
+  height: 0.1rem;
+  background-color: $clr-secondary;
+  border-radius: 2px;
+}
+input[type="range"]::-ms-track {
+  height: 0.1rem;
+  background-color: $clr-secondary;
+  border-radius: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  margin-top: -0.45rem;
+  border-radius: 50%;
+  background-color: $clr-bg-primary;
+  border: 0.1rem solid $clr-secondary;
+  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
+}
+input[type="range"]:focus::-webkit-slider-thumb {
+  border-color: $clr-accent-secondary;
+}
+input[type="range"]:active::-webkit-slider-thumb {
+  background-color: $clr-accent-secondary;
+}
+input[type="range"]::-moz-range-thumb {
+  margin-top: -0.45rem;
+  border-radius: 50%;
+  background-color: $clr-bg-primary;
+  border: 0.1rem solid $clr-secondary;
+  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
+}
+input[type="range"]:focus::-moz-range-thumb {
+  border-color: $clr-accent-secondary;
+}
+input[type="range"]:active::-moz-range-thumb {
+  background-color: $clr-accent-secondary;
+}
+input[type="range"]::-ms-thumb {
+  margin-top: -0.45rem;
+  border-radius: 50%;
+  background-color: $clr-bg-primary;
+  border: 0.1rem solid $clr-secondary;
+  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
+}
+input[type="range"]:focus::-ms-thumb {
+  border-color: $clr-accent-secondary;
+}
+input[type="range"]:active::-ms-thumb {
+  background-color: $clr-accent-secondary;
+}
+
+
+.list-item-details .dropdown {
+  position: absolute;
+}
+.body .dropdown {
+  margin-bottom: 1px;
+}
+// limit hack to header dropdowns
+.header {
+  .dropdown.show > .dropdown-toggle {
+    border-bottom-color: transparent;
+    z-index: 1001;
+  }
+  // add dots to fix bottom corners
+  *:not(.list-item-details) .dropdown.show::before, .dropdown.show::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 1px;
+    height: 1px;
+    background-color: $clr-primary;
+    z-index: 1002;
+  }
+  .dropdown.show::after {
+    right: 0px;
+  }
+}
+// fix size change on hover
+.dropdown-toggle::after {
+  height: 1rem;
+  margin: 0;
+  padding-left: 3px;
+}
+
+
 .tooltip-inner {
     max-width: auto;
     text-align: left;
     box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
+
+    .number{
+      color: white;
+      font-weight: bold;
+    }
 }
 .dropdown-menu {
     padding: 0;
@@ -273,7 +354,7 @@ $clr-grey-900: #ddd;
 
     .pagination {
         li.page-item > a,
-        li.page-item > span.page-link {
+        li.page-item > .page-link {
             border-color: $clr-secondary;
             padding: 0.15em 0.6em;
         }
@@ -376,6 +457,34 @@ $clr-grey-900: #ddd;
 .badge-language{
   background-color: #e1e6ea;
 }
+.ngram-highlight{
+  background-color: #17191c;
+  color: white;
+  font-family: "questa-sans", sans-serif;
+
+  &::after{
+    content: '"';
+  }
+  &::before{
+    content: '"';
+  }
+}
+
+.search-results-summary .ngram-highlight{
+  padding: 0 .25rem;
+  margin: 0 .25rem;
+}
+
+.toast {
+  .toast-header,
+  .toast-body {
+    padding: 0.25em 0.5em;
+  }
+  overflow: hidden;
+  border: 1px solid;
+}
+
+
 // uncomment to add background to transparent footers
 // .fixed-pagination-footer::before{
 //   content: "";
@@ -402,6 +511,21 @@ $clr-grey-900: #ddd;
   }
   100% {
     transform: scale(1);
+  }
+}
+
+.article-matches em, .highlight,
+span.highlight {
+  outline:inherit;
+  background-color: #ffeb78;
+}
+
+.bg-dark {
+  .article-matches em, .highlight,
+  span.highlight {
+    background-color: #ffeb78;
+    color: black;
+    outline:inherit;
   }
 }
 

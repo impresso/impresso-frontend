@@ -8,7 +8,6 @@ import collections from './Collections';
 import user from './User';
 import search from './Search';
 import searchImages from './SearchImages';
-import searchNgrams from './SearchNgrams';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
 import newspapers from './Newspapers';
@@ -18,15 +17,12 @@ import jobs from './Jobs';
 import entities from './Entities';
 import embeddings from './Embeddings';
 import monitor from './Monitor';
-import explorer from './Explorer';
-import buckets from './Buckets';
-import queryComparison from './QueryComparison';
 import searchQueryExplorer from './SearchQueryExplorer';
 
 Vue.use(Vuex);
 
 const ERRORS_DO_NOT_DISPLAY = ['NavigationDuplicated']; // error names not to display to the user
-const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError']; // error to avoid loopholes
+const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError', 'NotAuthenticated']; // error to avoid loopholes
 
 let processingTimer; // timeout object
 
@@ -36,7 +32,6 @@ export default new Vuex.Store({
     settings,
     search,
     searchImages,
-    searchNgrams,
     autocomplete,
     user,
     issue,
@@ -47,9 +42,6 @@ export default new Vuex.Store({
     entities,
     embeddings,
     monitor,
-    buckets,
-    explorer,
-    queryComparison,
     searchQueryExplorer,
   },
   state: {

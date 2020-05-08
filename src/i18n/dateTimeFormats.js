@@ -9,6 +9,13 @@ export default {
       day: 'numeric',
       weekday: 'long',
     },
+    longUtc: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+      timeZone: 'UTC'
+    },
     precise: {
       year: 'numeric',
       month: 'short',
@@ -21,6 +28,12 @@ export default {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
+    },
+    compactUtc: {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'UTC'
     },
     short: {
       weekday: 'short',

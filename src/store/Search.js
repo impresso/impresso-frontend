@@ -7,6 +7,10 @@ import Facet from '@/models/Facet';
 import Helpers from '@/plugins/Helpers';
 import router from '../router';
 
+/**
+ * NOTE: Most of this store is not used and will be downsized/removed soon.
+ */
+
 export default {
   namespaced: true,
   state: {
@@ -23,6 +27,9 @@ export default {
       }),
       new Facet({
         type: 'type',
+      }),
+      new Facet({
+        type: 'collection',
       }),
       new Facet({
         type: 'country',
@@ -44,9 +51,6 @@ export default {
       new Facet({
         type: 'topic',
         operators: ['OR', 'AND'],
-      }),
-      new Facet({
-        type: 'collection',
       }),
       new Facet({
         type: 'accessRight',
@@ -81,7 +85,7 @@ export default {
       return state.search;
     },
     getCurrentSearchHash(state) {
-      return state.currentSearchHash;
+      return state.search.getSerialized({ serializer: 'protobuf' });
     },
     countActiveFilters(state) {
       return state.search.countActiveFilters();
@@ -136,6 +140,7 @@ export default {
     },
     INITIALIZE_FILTERS(state, filters) {
       filters.forEach(d => state.search.addFilter(d));
+      state.currentSearchHash = state.search.getSerialized({ serializer: 'protobuf' });
     },
     REMOVE_FILTER(state, filter) {
       state.search.removeFilter(filter);
@@ -215,8 +220,14 @@ export default {
     UPDATE_SEARCH_IS_PRISTINE(state, value) {
       state.currentSearchIsPristine = Boolean(value);
     },
+    MERGE_FILTER_AT_INDEX(state, { index, filter }) {
+      state.search.mergeFilterAtIndex(filter, index)
+    }
   },
   actions: {
+    UPDATE_SEARCH_QUERY_FILTERS({ commit }, filters) {
+      commit('UPDATE_SEARCH_QUERY_FILTERS', filters)
+    },
     /**
      * Print search params to current URL
      * @param {[type]} context [description]
@@ -226,6 +237,9 @@ export default {
         commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
       }
       const query = {
+        sq: state.search.getSerialized({
+          serializer: 'protobuf',
+        }),
         f: JSON.stringify(state.search.getFilters()),
         // facets: state.facetTypes,
         g: state.groupBy,
@@ -332,9 +346,10 @@ export default {
         });
       });
     },
-    GET_SEARCH_RESULTS({ state }, { groupBy, orderBy, page, limit, filters = [] } = {}) {
+    GET_SEARCH_RESULTS({ state }, { groupBy, orderBy, page, limit, filters = [], facets = [], } = {}) {
       const query = {
         filters,
+        facets,
         group_by: groupBy || state.groupBy,
         page: page || state.paginationCurrentPage,
         limit: limit || state.paginationPerPage,
@@ -349,7 +364,7 @@ export default {
         return res;
       });
     },
-    SEARCH({ state, dispatch, commit, getters }, { filters = [] } = {}) {
+    SEARCH({ state, dispatch, commit, getters }, { filters = [], page } = {}) {
       commit('UPDATE_IS_LOADING', true);
       const facets = ['year', 'language', 'newspaper', 'type', 'country', 'topic'];
       const query = {
@@ -357,7 +372,7 @@ export default {
         filters: getters.getSearch.getFilters().concat(filters),
         facets,
         group_by: state.groupBy,
-        page: state.paginationCurrentPage,
+        page: page || state.paginationCurrentPage,
         limit: state.paginationPerPage,
         order_by: state.orderBy,
       };
@@ -449,11 +464,15 @@ export default {
     UPDATE_FILTER_ITEM({ commit }, message) {
       commit('UPDATE_FILTER_ITEM', message);
     },
+    MERGE_FILTER_AT_INDEX({ commit }, message) {
+      commit('MERGE_FILTER_AT_INDEX', message)
+    },
     LOAD_TIMELINE(context, { filters = [], granularity = 'year' } = {}) {
       return services.searchFacets.get(granularity, {
         query: {
           filters,
           group_by: 'articles',
+          limit: 500,
         },
       }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
     },

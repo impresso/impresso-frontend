@@ -1,8 +1,17 @@
 <template>
-  <div>
+  <div class="facet-overview-panel">
     <!-- timeline type -->
     <div v-if="type === 'timeline'">
-      <span class="row tb-title mx-0 my-2 label small-caps font-weight-bold">{{title}}</span>
+      <div class="tb-title m-0 mt-2 label small-caps font-weight-bold">
+        {{
+          $tc(`label.${facet}.optionsTitle`)
+        }}
+      </div>
+      <span class="small">
+      {{
+        $tc(`label.${facet}.optionsDescription`)
+      }}
+      </span>
       <div class="row mb-3">
         <timeline
               :contrast="false"
@@ -27,23 +36,37 @@
     <!-- bar type -->
     <div v-if="type === 'bars'">
       <stacked-bars-panel
-        @hovered="onHoverBar"
         :hover-id="hoverId"
-        :search-query-id="searchQueryId"
         class="row"
-        :label="title"
+        :label="$tc(`label.${facet}.title`, 1)"
         :buckets="values"
-        :facet-type="facet"/>
+        :facet-type="facet"
+        :default-click-action-disabled="true"
+        @hovered="onHoverBar"
+        @barItemClick="param => $emit('facetItemClick', param)"/>
     </div>
+
+    <b-button
+      v-if="type === 'bars' && numberOfAvailableBucketsToLoad > 0"
+      size="sm" variant="outline-secondary" class="mt-2 mr-1"
+      @click="handleLoadMore">
+      <span v-if="isLoading" v-html="$t('actions.loading')" />
+      <span v-else>
+        {{ $t('actions.more') }}
+        <span v-html="$tc('numbers.moreOptions', numberOfAvailableBucketsToLoad, {
+          n: $n(numberOfAvailableBucketsToLoad),
+        })"/>
+      </span>
+    </b-button>
 
     <hr/>
   </div>
 </template>
 
 <script>
-import StackedBarsPanel from '../vis/StackedBarsPanel';
-import Timeline from '../Timeline';
-import Bucket from '../../../models/Bucket';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
+import Timeline from '@/components/modules/Timeline'
+import Bucket from '@/models/Bucket'
 
 const timelineValuesSorter = (a, b) => a.t - b.t;
 
@@ -69,40 +92,65 @@ export default {
   data: () => ({
   }),
   props: {
+    /** @type {import('vue').PropOptions<string>} */
     hoverId: {
-      type: String,
+      type: String
     },
-    searchQueryId: String,
-    facet: String, // any of the common facet types: newspaper, language, etc.
+    /** @type {import('vue').PropOptions<string>} */
+    facet: {
+      type: String
+    }, // any of the common facet types: newspaper, language, etc.
+    /** @type {import('vue').PropOptions<string>} */
     type: {
       type: String, // type of the visualisation component
       validator: t => ['timeline', 'bars'].includes(t),
     },
-    title: String,
+    /** @type {import('vue').PropOptions<Bucket[]>} */
     values: {
       type: Array, // array of `Bucket` objects.
       default: () => [],
-      validator: v => v.map(i => i instanceof Bucket),
+      validator: v => v.map(i => i instanceof Bucket).reduce((acc, v) => acc && v, true),
     },
-    timelineHighlightValue: Object, // a `{ w, t }` object (see Timeline.js)
-    timelineHighlightEnabled: Boolean,
+    /** @type {import('vue').PropOptions<{w: number, t: number}>} */
+    timelineHighlightValue: {
+      type: Object
+    }, // a `{ w, t }` object (see Timeline.js)
+    /** @type {import('vue').PropOptions<boolean>} */
+    timelineHighlightEnabled: {
+      type: Boolean
+    },
+    /** @type {import('vue').PropOptions<[string, string] | []>} */
     timelineDomain: {
       // a tuple of the extent of the timeline in time values (e.g. years): `[1904, 1925]`
-      type: Array,
+      // type: Array,
       validator: v => v.length === 0 || v.length === 2,
     },
+    /** @type {import('vue').PropOptions<boolean>} */
+    isLoading: {
+      type: Boolean
+    },
+    /** @type {import('vue').PropOptions<number>} */
+    numBuckets: {
+      type: Number,
+    }
   },
   components: {
     StackedBarsPanel,
     Timeline,
   },
   computed: {
+    /** @returns {string} */
+    title() {
+      return this.$tc(`label.${this.facet}.title`, this.values.length || 1);
+    },
+    /** @returns {{w: number, t: number}[]} */
     timelineValues() {
       const v = this.values
         .map(({ val, count }) => ({ t: parseInt(val, 10), w: count }))
         .sort(timelineValuesSorter);
       return fillEmptyYearsWithZeros(v, this.timelineDomainRange);
     },
+    /** @returns {[string, string] | []} */
     timelineDomainRange() {
       if (this.timelineDomain.length === 2) {
         return this.timelineDomain;
@@ -110,22 +158,56 @@ export default {
       const keys = this.values.map(({ val }) => val).sort();
       return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : [];
     },
+    /** @returns {number} */
+    numberOfAvailableBucketsToLoad() { return this.numBuckets - this.values.length }
   },
   methods: {
+    /** @param {object} data */
     onHighlight(data) {
       this.$emit('timeline-highlight', { facetId: this.facet, data });
     },
     onHighlightOff() {
       this.$emit('timeline-highlight-off', { facetId: this.facet });
     },
+    /** @param {object} val */
     onHoverBar(val) {
       this.$emit('hovered', String(val));
     },
+    handleLoadMore() {
+      this.$emit('load-more-items')
+    }
   },
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
+  @import "@/styles/variables.sass";
 
+  .facet-overview-panel{
+    &.left {
+      .viz-bar{
+        background-color: $inspect-compare-left-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $inspect-compare-left-panel-color;
+      }
+    }
+    &.right {
+      .viz-bar{
+        background-color: $inspect-compare-right-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $inspect-compare-right-panel-color;
+      }
+    }
+    &.middle {
+      .viz-bar{
+        background-color: $inspect-compare-middle-panel-color;
+      }
+      .d3-timeline g.context path.curve{
+        stroke: $inspect-compare-middle-panel-color;
+      }
+    }
+  }
 </style>

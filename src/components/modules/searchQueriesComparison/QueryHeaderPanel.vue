@@ -1,5 +1,10 @@
-<template lang="html">
+<template>
   <div class="query-header-panel">
+  <div class="inner" :class="{
+    left,
+    right: !left && !containsComparison,
+    middle: containsComparison,
+  }">
   <div class="p-2 container">
     <b-tabs pills content-class="mt-3" :align="alignment"
             v-if="comparable.type !== 'intersection'">
@@ -9,64 +14,57 @@
           <div class="side left">A</div>
         </template>
       </b-tab>
-      <b-tab
-             :active="comparable.type === 'query'"
-             :title="getTabLabel('query')"
-             @click="typeChanged('query')">
+
+      <b-tab :active="comparable.type === 'query'"
+             :title="getTabLabel('query')">
         <div class="px-1 pb-2">
-          <search-pills v-on:remove="onRemoveFilter"
-                        v-on:update="onUpdateFilter"
-                        v-on:add="onAddFilter"
-                        :skip-push-search-params="true"
-                        :search-filters="searchQuery.filters"
-                        store-module-name="queryComparison"
-                        :search-query-id="comparableId"
-                        enable-add-filter
-                        />
+          <search-pills :enable-add-filter="filters.length > 0"
+                        :filters="filters"
+                        @changed="handleFiltersChanged" />
           <autocomplete v-on:submit="onSuggestion" />
         </div>
       </b-tab>
+
       <!-- collection -->
-      <b-tab
-        :active="comparable.type === 'collection'"
-        :title="getTabLabel('collection')"
-        @click="typeChanged('collection')">
+      <b-tab :active="comparable.type === 'collection'"
+             :title="getTabLabel('collection')">
         <collection-picker
           class="mx-1"
           :collections="collections"
           :active="comparable.id"
-          @input="onCollectionSelected"
-          />
+          @input="onCollectionSelected" />
       </b-tab>
       <b-tab v-if="!left" disabled>
         <template v-slot:title>
-          <div class="side">B</div>
+          <div class="side right">B</div>
         </template>
       </b-tab>
     </b-tabs>
+
     <!-- intersection -->
     <div class="row justify-content-between" v-if="containsComparison">
       <div class="col-auto w-100">
         <b-tabs pills content-class="mt-3" align="center">
-          <b-tab v-for="(option, i) in comparisonOptions" :key="i">
+          <b-tab v-for="(option, i) in modeOptions" :key="i"
+            :active="option === mode"
+            @click="$emit('mode-changed', option)">
             <template v-slot:title>
-              <div v-html="$t(`comparison.labels.${option}`)" />
+              <div v-html="$t(`comparison.labels.${option}`)"></div>
             </template>
           </b-tab>
-          <section class="px-1">
-            <h3 class="textbox-fancy" v-if="!isNaN(this.total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
-              n: $n(this.total),
-            })"/>
-            <h3 v-else> "..."</h3>
-            <div  v-html="$t(`comparison.descriptions.${comparable.type}`)"/>
+          <section class="px-1 text-center">
+            <h3>
+              <span class="textbox-fancy" v-if="!isNaN(this.total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
+                n: $n(this.total),
+              })"/>
+              <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
+              <info-button class="ml-2" name="compare-and-inspect" />
+            </h3>
+            <div v-if="mode === 'inspect'" v-html="$t(`comparison.descriptions.${comparable.type}.inspect`)"/>
+            <div v-else-if="mode === 'compare'" v-html="$t(`comparison.descriptions.${comparable.type}.compare`)"/>
           </section>
         </b-tabs>
       </div>
-      <!-- <div class="col-auto align-self-start">
-        <div v-if="comparable.type" class="badge badge-secondary type d-flex">
-          <span class="small-caps d-flex">{{comparable.type}}</span>
-        </div>
-      </div> -->
     </div>
 
   </div>
@@ -85,25 +83,28 @@
     </router-link>
   </div>
   </div>
+  </div>
 </template>
 
 <script>
-// import { mapState } from 'vuex'
-import SearchQuery from '@/models/SearchQuery';
+import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
+import InfoButton from '@/components/base/InfoButton';
 import Autocomplete from '../../Autocomplete';
 import CollectionPicker from '../../base/CollectionPicker';
+import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models').SearchQuery} SearchQuery
+ * @typedef {import('@/logic/queryComparison').Comparable} Comparable
+ */
 export default {
-  data: () => ({
-    lastQuery: undefined,
-    lastQueryHash: undefined,
-  }),
   props: {
+    /** @type {import('vue').PropOptions<Comparable>} */
     comparable: {
-      // A { id, type, query } object
       type: Object,
-      default() { return {}; },
+      required: true
     },
     title: {
       type: String,
@@ -111,65 +112,65 @@ export default {
     left: {
       type: Boolean,
     },
+    mode: {
+      type: String,
+    },
     total: Number, // total items in selected collection.
+    /**
+     * list of available collections
+     * @type {import('vue').PropOptions<{ title: string, id: string }[]>}
+     */
     collections: {
-      type: Array, // An array of `{ title, id }` objects for the dropdown box
+      type: Array,
       default() { return []; },
     },
+    /**
+     * @type {import('vue').PropOptions<string[]>}
+     */
     comparisonOptions: {
       type: Array,
       default() {
         return ['intersection', 'diffA', 'diffB'];
       },
     },
-    comparableId: {
-      type: String,
-      default: undefined,
-    },
-    query: {
-      type: Object,
-      default() { return { filters: [] }; },
-    },
+    /**
+     * @type {import('vue').PropOptions<string[]>}
+     */
+    modeOptions: {
+      type: Array,
+      default() {
+        return ['inspect', 'compare'];
+      },
+    }
   },
   components: {
     SearchPills,
     Autocomplete,
     CollectionPicker,
-  },
-  watch: {
-    'comparable.query': {
-      handler() {
-        const { comparableId: searchQueryId, comparable: { query = { filters: [] } } } = this;
-        const { filters } = query;
-        if (this.comparable.query) {
-          // get current query hash
-          const hash = SearchQuery.serialize({ filters }, 'protobuf');
-          if (this.lastQueryHash !== hash) {
-            // emit comparable-changed
-            this.$emit('comparable-changed', this.comparable);
-          }
-          this.lastQueryHash = hash;
-          this.$set(this, 'lastQuery', this.comparable.query);
-        }
-        // check here that lastQuery is different that the new one.
-        this.$store.dispatch('queryComparison/SET_SEARCH_QUERY_FILTERS', { searchQueryId, filters });
-      },
-      immediate: true,
-      deep: true,
-    },
-  },
-  mounted() {
-    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, ({ filter, searchQueryId }) => {
-      if (this.comparableId === searchQueryId) {
-        this.onSuggestion(filter);
-      }
-    });
+    InfoButton,
   },
   methods: {
-    onCollectionSelected(id) {
-      const comparable = Object.assign({}, this.comparable, { id });
+    /** @param {Filter[]} filters */
+    handleFiltersChanged(filters) {
+      const comparable = {
+        ...this.comparable,
+        query: { filters },
+        type: ComparableTypes.Query,
+        id: undefined
+      }
       this.$emit('comparable-changed', comparable);
     },
+    /** @param {string} id */
+    onCollectionSelected(id) {
+      const comparable = {
+        ...this.comparable,
+        type: ComparableTypes.Collection,
+        id,
+        query: undefined
+      }
+      this.$emit('comparable-changed', comparable);
+    },
+    /** @param {string} type */
     getTabLabel(type) {
       if (type === this.comparable.type) {
         return this.$tc(`tabs.${type}.active`, this.total, {
@@ -178,73 +179,43 @@ export default {
       }
       return this.$t(`tabs.${type}.pick`);
     },
-    typeChanged(newType) {
-      this.comparable.type = newType;
-      if (newType === 'query' && !this.comparable.query && this.lastQuery) {
-        this.comparable.query = this.lastQuery;
-      }
-    },
+    /** @param {Filter} filter */
     onSuggestion(filter) {
-      const { comparableId: searchQueryId } = this;
-      this.$store.dispatch('queryComparison/ADD_FILTER', { searchQueryId, filter });
-      this.comparable.query = this.canonicalSearchQuery;
-    },
-    onRemoveFilter(filter) {
-      const { comparableId: searchQueryId } = this;
-      this.$store.dispatch('queryComparison/REMOVE_FILTER', { searchQueryId, filter });
-      this.comparable.query = this.canonicalSearchQuery;
-    },
-    onAddFilter(filter) {
-      this.onSuggestion(filter);
-    },
-    onUpdateFilter() {
-      this.comparable.query = this.canonicalSearchQuery;
-    },
-    searchPageLink(c) {
-      if (c.type === 'query') {
-        if (c.query === undefined) return undefined;
-        return {
-          name: 'search',
-          query: SearchQuery.serialize({
-            filters: c.query.filters,
-          }),
-        };
+      const filters = this.comparable?.query?.filters ?? []
+      const comparable = {
+        ...this.comparable,
+        query: { filters: filters.concat(filter) },
+        type: 'query',
+        id: undefined
       }
-      if (c.type === 'intersection') {
-        if (c.filters === undefined) return undefined;
-        return {
-          name: 'search',
-          query: SearchQuery.serialize({
-            filters: c.filters,
-          }),
-        };
-      }
-      if (c.id === undefined) return undefined;
+      this.$emit('comparable-changed', comparable);
+    },
+    /** @param {Comparable} c */
+    searchPageLink(comparable) {
+      const searchQuery = comparableToQuery(comparable)
+      if (searchQuery == null) return searchQuery
+
       return {
         name: 'search',
-        query: SearchQuery.serialize({
-          filters: [{ type: 'collection', q: c.id }],
-        }),
-      };
+        query: SearchQueryModel.serialize(searchQuery)
+      }
     },
   },
   computed: {
+    /** @returns {string} */
     alignment() {
       if (this.comparable.type === 'intersection') {
         return 'center';
       }
       return this.left ? 'left' : 'right';
     },
+    /** @returns {boolean} */
     containsComparison() {
       return this.comparisonOptions.includes(this.comparable.type);
     },
-    searchQuery() {
-      return this.$store.getters['queryComparison/getSearchQuery'](this.comparableId);
-    },
-    canonicalSearchQuery() {
-      return {
-        filters: this.$store.getters['queryComparison/getSearchQuery'](this.comparableId).getFilters(),
-      };
+    /** @returns {Filter[]} */
+    filters() {
+      return this.comparable?.query?.filters ?? []
     },
   },
 };
@@ -252,6 +223,10 @@ export default {
 
 <style lang="scss">
   @import "impresso-theme/src/scss/variables.sass";
+  @import "@/styles/variables.sass";
+   // multiply A + B
+  // $inspect-compare-middle-panel-color: #fdafdb;// dodge A B
+
   .query-header-panel{
     position: relative;
     width: 100%;
@@ -263,23 +238,76 @@ export default {
         vertical-align: top;
       }
     }
+    .inner{
+      position: relative;
+      margin-bottom: 2rem;
+      height: 100%;
+    }
+    &>.left {
+      border-bottom: 1px solid $inspect-compare-left-panel-color;
+      ul.nav.nav-pills{
+        border-bottom-color: $inspect-compare-left-panel-color;
+        .nav-item .nav-link.active{
+          color: $inspect-compare-left-panel-color;
+          border-top-color: $inspect-compare-left-panel-color;
+          border-left-color: $inspect-compare-left-panel-color;
+          border-right-color: $inspect-compare-left-panel-color;
+        }
+      }
+      .viz-bar{
+        background-color: $inspect-compare-left-panel-color;
+      }
+    }
+
+    &>.right {
+      border-bottom: 1px solid $inspect-compare-right-panel-color;
+      ul.nav.nav-pills{
+        border-bottom-color: $inspect-compare-right-panel-color;
+        .nav-item .nav-link.active{
+          color: $inspect-compare-right-panel-color;
+          border-top-color: $inspect-compare-right-panel-color;
+          border-left-color: $inspect-compare-right-panel-color;
+          border-right-color: $inspect-compare-right-panel-color;
+        }
+      }
+    }
+
+    &>.middle {
+      border: 1px solid $inspect-compare-middle-panel-color;
+      border-top: 0px;
+      border-bottom-width: 2px;
+      ul.nav.nav-pills{
+        border-bottom-color: $inspect-compare-middle-panel-color;
+        .nav-item .nav-link.active{
+          color: $inspect-compare-middle-panel-color;
+          border-top-color: $inspect-compare-middle-panel-color;
+          border-left-color: $inspect-compare-middle-panel-color;
+          border-right-color: $inspect-compare-middle-panel-color;
+        }
+      }
+    }
 
     span.number {
       font-weight: bold;
     }
 
     div.side {
-      color: #FC5C53;
       text-transform: lowercase;
+      font-variant: small-caps;
       width: 1.25em;
       height: 1.25em;
       line-height: 1em;
       text-align: center;
       border-radius: 1.25em;
       border: 1px solid;
+      display: inline-block;
 
-      &.left{
-        color: #2E80C9;
+      &.left {
+        color: $inspect-compare-left-panel-color;
+      }
+
+      &.right {
+        color: $inspect-compare-right-panel-color;
       }
     }
     div.search-button-wrapper{
@@ -296,15 +324,22 @@ export default {
   "en": {
     "comparison": {
       "labels": {
-        "intersection": "<div class='side left d-inline-block'>A</div> &amp; <div class='side d-inline-block'>B</div>",
-        "diffA": "<div class='side left d-inline-block'>A</div> not in <div class='side d-inline-block'>B</div>",
-        "diffB": "<div class='side d-inline-block'>B</div> not in <div class='side left d-inline-block'>A</div>"
+        "intersection": "inspect <div class='side left'>A</div> &amp; <div class='side right'>B</div>",
+        "diffA": "<div class='side left'>A</div> not in <div class='side right'>B</div>",
+        "diffB": "<div class='side right'>B</div> not in <div class='side left'>A</div>",
+        "inspect": "inspect <div class='side left'>A</div> + <div class='side right'>B</div>",
+        "compare": "compare <div class='side left'>A</div> &amp; <div class='side right'>B</div>"
       },
       "titles": {
-        "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common"
+        "intersection": "no results in common | Only 1 result in common | <span class='number'>{n}</span> results in common",
+        "inspect": "Inspect search queries",
+        "compare": "Compare search queries"
       },
       "descriptions": {
-        "intersection": "Lists of newspapers, named entities and topics for articles which appear both in A and B."
+        "intersection": {
+          "inspect": "Lists of newspapers, named entities and topics for results for <div class='side left'>A</div>, <div class='side right'>B</div> and in both <div class='side left'>A</div> and <div class='side right'>B</div>",
+          "compare": "Distribution of newspapers, named entities and topics for articles which appear both in <div class='side left'>A</div> and <div class='side right'>B</div>."
+        }
       }
     },
     "tabs": {

@@ -1,15 +1,17 @@
 <template lang="html">
   <b-tabs pills class="mx-2 pt-2">
     <template v-slot:tabs-end>
-      <b-nav-item v-for="tab in tabs" v-bind:key="tab" active-class='none'
+      <b-nav-item v-for="(tab, i) in tabs" v-bind:key="i" active-class='none'
         :class="{ active: isActive(tab) }"
-        :to="{ name: tab, query: currentSearchQueryParams(tab) }"><span v-html="$t(`tabs.${tab}`)"/>
+        :to="{ name: tab, query: currentSearchQueryParams }"><span v-html="$t(`tabs.${tab}`)"/>
       </b-nav-item>
     </template>
   </b-tabs>
 </template>
 
 <script>
+import { searchQueryHashGetter } from '@/logic/queryParams';
+
 export default {
   props: {
     focusOnSearch: Boolean,
@@ -18,18 +20,29 @@ export default {
       default: () => ['search', 'searchImages', 'searchNgrams'],
     },
   },
-  methods: {
-    currentSearchQueryParams(tab) {
-      if (tab === 'search') {
-        return this.$store.state.search.search.getSerialized();
+  computed: {
+    searchQueryHash: searchQueryHashGetter(),
+    /** @returns {string} */
+    selectedTab() {
+      if (this.tabs.includes(this.$route.name)) {
+        return this.$route.name ?? 'search';
       }
-      return this.$store.state.searchImages.search.getSerialized();
+      return 'search';
     },
+    /** @returns {Object} */
+    currentSearchQueryParams() {
+      return {
+        sq: this.searchQueryHash,
+      };
+    },
+  },
+  methods: {
+    /**
+     * @params {string} tab
+     * @returns {boolean}
+     */
     isActive(tab) {
-      if (this.focusOnSearch) {
-        return tab === 'search';
-      }
-      return this.$route.name === tab;
+      return this.selectedTab === tab;
     },
   },
 };

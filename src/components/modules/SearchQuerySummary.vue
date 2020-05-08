@@ -7,6 +7,7 @@
 
 <script>
 import Helpers from '../../plugins/Helpers';
+import { namesService } from '../../services'
 
 export default {
   props: {
@@ -18,9 +19,11 @@ export default {
     },
   },
   data: () => ({
+    newspaperLabels: undefined
   }),
   computed: {
     reducedSummary() {
+      if (this.newspaperLabels == null) return '';
       if (!this.searchQuery) {
         console.error('No search query defined');
         return '';
@@ -83,25 +86,46 @@ export default {
       return '';
     },
   },
+  watch: {
+    searchQuery: {
+      async handler() {
+        // NOTE: This is an ugly workaround for cases when filters do not have labels.
+        const newspaperLabels = {}
+        for (const filter of this.searchQuery.filters.filter(({ type }) => type === 'newspaper')) {
+          newspaperLabels[filter.q] = await namesService.getNewspaperLabel(filter.q)
+        }
+        this.newspaperLabels = newspaperLabels
+      },
+      immediate: true
+    }
+  },
   methods: {
     isEnumerable(type) {
       return this.enumerables.includes(type);
     },
-    getLabel({ item, type }) {
+    getLabel({ item, type, filter }) {
       let t = '';
+      const [start, end] = [item.start, item.end].map(v => new Date(v))
+
       switch (type) {
       case 'daterange':
-        t = `from <span class="date">${this.$d(item.start, 'compact')}</span> to <span class="date">${this.$d(item.end, 'compact')}</span>`;
+        t = `from <span class="date">${this.$d(start, 'compactUtc')}</span> to <span class="date">${this.$d(end, 'compactUtc')}</span>`;
         break;
       case 'location':
       case 'person':
-      case 'newspaper':
       case 'collection':
         t = item.name;
         break;
+      case 'newspaper':
+        if (item.name) {
+          t = item.name
+        } else {
+          t = (this.newspaperLabels || {})[filter.q] || filter.q
+        }
+        break;
       case 'title':
       case 'string':
-        t = `<span class="highlight precision-${item.precision}">${item.q}</span>${item.distance || ''}`;
+        t = `<span class="highlight precision-${item.precision}">${item.uid || item.q}</span>${item.distance || ''}`;
         break;
       case 'topic':
         t = `"${item.htmlExcerpt || ''}..."`;
@@ -120,12 +144,14 @@ export default {
     },
     getFilterAsLabel(filter) {
       if (filter.items) {
-        const operator = this.$t(`op.${filter.op.toLowerCase()}`);
+        const { op = 'OR' } = filter
+        const operator = this.$t(`op.${op.toLowerCase()}`);
         return filter.items.map(item => [
           `<span class="item ${filter.type}">`,
           this.getLabel({
             item,
             type: filter.type,
+            filter
           }),
           '</span>',
         ].join('')).join(` <span class="operator">${operator}</span> `);
@@ -133,6 +159,7 @@ export default {
         return this.getLabel({
           item: filter,
           type: filter.type,
+          filter
         });
       }
       console.warn('filter not valid:', filter);
@@ -140,10 +167,11 @@ export default {
     },
     getContextSections(filters) {
       return filters.reduce((sections, d) => {
-        if (!sections[d.context]) {
-          sections[d.context] = [];
+        const { context = 'include' } = d
+        if (!sections[context]) {
+          sections[context] = [];
         }
-        sections[d.context].push(d);
+        sections[context].push(d);
         return sections;
       }, {});
     },

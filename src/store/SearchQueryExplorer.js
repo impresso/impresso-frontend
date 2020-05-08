@@ -68,6 +68,7 @@ export default {
           total: res.total,
         });
         console.info('SearchQueryExplorer/GET_CONTEXT_SEARCH_RESULT', res);
+        // TODO: is the next line used?
         dispatch('search/UPDATE_QUERY_COMPONENTS', res.info.queryComponents, { root: true });
         commit('SET_RESULTS', res.data.map(result => new Article(result)));
       }).finally(() => {

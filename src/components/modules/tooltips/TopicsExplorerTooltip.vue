@@ -57,9 +57,10 @@ export default {
       this.$store.dispatch('topics/LOAD_TOPIC', this.tooltip.item.uid).then((item) => {
         this.isLoading = false;
         this.tooltip.isActive = false;
-        this.$store.dispatch('monitor/SET_ITEM', {
+        this.$store.dispatch('monitor/ACTIVATE', {
           item,
           type: 'topic',
+          disableFilterModification: true
         });
       }).catch(() => {
         this.isLoading = true;

@@ -7,7 +7,7 @@ import auth from '@feathersjs/authentication-client';
 import articlesSuggestionsHooks from './hooks/articlesSuggestions';
 import uploadedImagesHooks from './hooks/uploadedImages';
 import imagesHooks from './hooks/images';
-import searchQueriesComparisonHooks from './hooks/searchQueriesComparison';
+import NamesService from './names';
 
 
 const MiddleLayerApiBase = `${process.env.VUE_APP_MIDDLELAYER_API}`;
@@ -44,6 +44,8 @@ const needsLockScreen = p => [
   'search.find',
   'ngram-trends.create',
 ].includes(p);
+
+const silentErrorCodes = [404, 409]
 
 app.hooks({
   before: {
@@ -82,7 +84,7 @@ app.hooks({
             console.warn('app.hooks.error.all:ignoreErrors',  context.error);
           } else if (route === 'authentication.remove' && context.error.name === 'NotAuthenticated') {
             console.info('Ingore NotAuthenticated error on "authentication.remove" route.');
-          } else {
+          } else if (!silentErrorCodes.includes(context.error.code)) {
             window.app.$store.dispatch('DISPLAY_ERROR', {
               error: context.error,
               origin: 'app.hooks.error.all',
@@ -140,10 +142,20 @@ export const embeddings = app.service('embeddings');
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks);
 export const searchFacets = app.service('search-facets');
 export const tableOfContents = app.service('table-of-contents');
-export const searchQueriesComparison = app.service('search-queries-comparison').hooks(searchQueriesComparisonHooks);
+export const searchQueriesComparison = app.service('search-queries-comparison');
 export const errorCollector = app.service('errors-collector');
 export const me = app.service('me');
+export const users = app.service('users');
+export const articleTextReusePassages = app.service('articles/:id/text-reuse-passages');
+export const textReuseClusters = app.service('text-reuse-clusters');
+export const textReuseClusterPassages = app.service('text-reuse-cluster-passages');
+export const filtersItems = app.service('filters-items');
+export const stats = app.service('stats');
+export const articlesRecommendations = app.service('articles-recommendations');
+export const articlesSearch = app.service('articles-search');
 
 export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API;
 export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH;
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('');
+
+export const namesService = new NamesService()

@@ -55,15 +55,20 @@ export default {
     },
     actions: {
       addFilter: 'add filter...',
+      addContextualFilter: 'refine ...',
       agree: 'I agree to the terms of use',
       accept: 'accept',
+      browseAll: 'show all ...',
       compare: 'compare ...',
+      downloadCsv: 'download csv',
+      share: 'share...',
       more: 'more...',
       searchMore: 'open in search page...',
       remove: 'remove',
       removeAccount: 'Delete account',
       clear: 'clear',
       close: 'close',
+      dismiss: 'dismiss',
       loading: 'loading...',
       reset: 'Reset',
       apply: 'Apply',
@@ -72,16 +77,22 @@ export default {
       addToCurrentFilters: 'Add as search filter',
       removeFromCurrentFilters: 'Exclude from current search',
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
+      addToCurrentItemsDetailed: 'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
       login: 'log in',
       generatePattern: 'Generate Pattern',
+      getSimilarImages: 'view similar images ...',
       requestNewPassword: 'Request New Password',
       requestAccount: 'Request User Account',
+      resetFilters: 'start fresh, reset filters!',
+      resetItems: 'reset list',
+      loadRandomPage: 'load random page',
+      useCurrentQuery: 'Use most recent search query',
     },
     filters: {
       daterange: {
-        item: 'from <b>{start}</b> to <b>{end}</b>',
+        item: 'from <span class="date">{start}</span> to <span class="date">{end}</span>',
       },
     },
     types: {
@@ -99,6 +110,8 @@ export default {
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
+      options: ' | (1 option) | ({n} options)',
+      moreOptions: ' | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
       images: 'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
@@ -111,7 +124,8 @@ export default {
         countItems: '{countItems} saved items',
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
-      unigramMentions: 'no mentions of "{unigram}" | <span class="number">1</span> mention of "{unigram}" | <span class="number">{n}</span> mentions of "{unigram}"',
+      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> in | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> in | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> in ',
+      ignoredFilters: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -138,6 +152,7 @@ export default {
         wrongcredentials: 'Wrong credentials provided...',
         NotValidRegex: 'The new password is too easy to guess!',
       },
+      loggedInOnly: 'You need to be logged in to access this content.',
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',
       BadRequest: 'Bad request.',
@@ -166,12 +181,21 @@ export default {
         find: 'while loading named entities',
       },
     },
+    pages: {
+      powervis: {
+        title: 'XY visualisation',
+      },
+    },
     label: {
+      isFront: 'only results on the front page',
       year: {
         title: 'Year | Year | Years',
+        optionsTitle: 'Year of publication',
+        optionsDescription: 'Total number of articles per year',
       },
       type: {
         title: 'Article content type | Article content types | Article content types',
+        optionsTitle: 'Article content type',
         filterTitle: 'filter by article type',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> article types applies',
@@ -247,7 +271,7 @@ export default {
         empty: '(no results)',
         context: {
           include: 'content available as',
-          exclude: 'content <b>NOT</b> avaiable as',
+          exclude: 'content <b>NOT</b> available as',
         },
       },
       partner: {
@@ -260,8 +284,11 @@ export default {
       },
     },
     tabs: {
+      powervis: 'apply filters to visualisation',
       overview: 'overview',
+      recommendations: 'recommendations',
       relatedArticles: '... related articles | 1 related article | {count} related articles',
+      articles: '... articles | 1 article | {count} articles',
     },
     sort: {
       name: {
@@ -296,8 +323,10 @@ export default {
         desc: 'publication date, most recent first',
       },
     },
+    sortBy: 'order by',
     more_info: 'More Info',
     currentSearch: 'current search',
+    lexicalOverlap: 'lexical overlap',
   },
   nl: {
     language: 'Taal',

@@ -8,15 +8,18 @@
               type="text"
               size="sm"
               class="form-control w-25"
+              style="border-color: black; color: black"
               ref="inputE"
               :value="lastWord(filter)"
               @keydown.space.prevent
+              @click.prevent.stop
               name="inputEmbeddings" />
                 <b-form-select name="languageEmbeddings"
                   v-model="languageEmbeddings"
                   :options="languageEmbeddingsOptions"
                   v-on:change="embeddingsOnSubmit()"
-                  size="sm" variant="outline-primary" />
+                  size="sm" variant="outline-primary"
+                  style="border-left-color: black"/>
                 <b-form-select name="limitEmbeddings"
                   v-model="limitEmbeddings"
                   :options="limitEmbeddingsOptions"
@@ -25,7 +28,7 @@
                 <div class="input-group-append">
                   <b-button
                     size="sm" variant="outline-primary"
-                    v-on:click.prevent="embeddingsOnSubmit()">GO!
+                    @click.prevent.stop="embeddingsOnSubmit()">GO!
                   </b-button>
               </div>
           </b-col>
@@ -44,7 +47,7 @@
                   :key="i"
                   :title="$t('filter.add', { word: embedding })"
                   class="mr-2 mt-2 border px-2 d-inline-block"
-                  v-on:click="updateFilter(embedding)">
+                  @click.prevent.stop="updateFilter(embedding)">
                   {{embedding}}
                 </a>
               </div>
@@ -98,9 +101,14 @@ export default {
   methods: {
     lastWord(filter) {
       if (filter && filter.q) {
-        // q = last query string from filter
-        const q = filter.q.trim().split(' ').pop();
-        // return first word from q
+        let q;
+        if (Array.isArray(filter.q)) {
+          q = filter.q.join(' ').trim().split(' ').pop();
+        } else {
+          // q = last word
+          q = filter.q.trim().split(' ').pop();
+        }
+        // return last word from q cleaned
         return q.replace(/(\s|-).*/, '');
       }
       return '';

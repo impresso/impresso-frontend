@@ -14,6 +14,7 @@ export default class FilterTopic extends FilterItems {
         uid,
       }));
     }
+    this.items = this.items.map(item => item instanceof Topic ? item : new Topic(item))
   }
 
   setItems(items = []) {

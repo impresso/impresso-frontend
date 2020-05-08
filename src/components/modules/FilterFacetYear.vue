@@ -102,8 +102,9 @@ export default {
         return true;
         // return this.$store.state.search.filterFacetYearExpanded;
       },
-      set(val) {
-        this.$store.commit('search/UPDATE_FILTER_FACET_YEAR_EXPANDED', val);
+      set(/* val */) {
+        // Since getter is not used - setter is not needed
+        // this.$store.commit('search/UPDATE_FILTER_FACET_YEAR_EXPANDED', val);
       },
     },
   },

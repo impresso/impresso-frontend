@@ -16,7 +16,7 @@
       </router-link>
       <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
       <span class="date">{{ $d(item.date, "long") }}</span>
-      <span>{{ pages }}</span>
+      <span> – {{ pages }}</span>
     </div>
 
 
@@ -84,7 +84,10 @@ import VizBar from '../../base/VizBar';
 
 export default {
   props: {
-    item: Object,
+    item: {
+      type: Object,
+      required: true
+    },
     showExcerpt: Boolean,
     showMatches: Boolean,
     showPages: Boolean,
