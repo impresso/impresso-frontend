@@ -289,7 +289,7 @@ export default {
       return this.$store.state.connectivityStatus;
     },
     version() {
-      return [window.impressoVersion, window.impressoDataVersion].join('/');
+      return window.impressoVersion;
     },
     textReuseEnabled() {
       // @ts-ignore
