@@ -104,18 +104,22 @@ class Dimension {
     this.legend = [];
     // recalculate cat according to type
     if (this.type === TYPE_DISCRETE) {
-      const groups = Dimension.groupBy(values, this.property);
-      this.domain = Object.keys(groups);
-      this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length + 2])
-        .domain(this.domain);
-      this.domain.forEach((key) => {
-        this.legend.push({
-          name: key,
-          property: this.property,
-          count: groups[key].length,
-          color: this.scale(key),
+      try{
+        const groups = Dimension.groupBy(values, this.property);
+        this.domain = Object.keys(groups);
+        this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length + 2])
+          .domain(this.domain);
+        this.domain.forEach((key) => {
+          this.legend.push({
+            name: key,
+            property: this.property,
+            count: groups[key].length,
+            color: this.scale(key),
+          });
         });
-      });
+      } catch(e) {
+        console.error('Dimension.update fails for TYPE_DISCRETE', this.property, '\nerror:', e);
+      }
     } else {
       if (!this.isDomainFixed) {
         this.domain = d3.extent(values, d => d[this.property]);
