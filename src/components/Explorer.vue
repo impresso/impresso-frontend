@@ -33,7 +33,15 @@
             </b-input-group-append>
           </b-input-group>
         </form>
+
       </div>
+      <div class="ml-auto">
+        <b-button pill class="dripicons-cross px-0" variant="outline-danger"
+          style="width:1.5em; height:1.5em"
+          size="sm" v-on:click.prevent="closeDialog">
+        </b-button>
+      </div>
+
     </template>
     <!-- .modal-body -->
     <div class="bg-light">
@@ -54,24 +62,20 @@
                       v-model="filter"
                       />
     </div>
-    <div v-if="totalResults > pageSize" class="py-4 border-top">
-      <div
-        class="fixed-pagination-footer mb-2 p-1">
-        <pagination v-model="currentPageModel"
-                    v-bind:perPage="pageSize"
-                    v-bind:totalRows="totalResults"
-                    v-bind:showDescription="false"/>
-      </div>
-    </div>
+
     <!-- footer -->
     <template v-slot:modal-footer>
-      <!--  Pagination -->
-      <b-button variant="outline-primary"
-                size="sm"
-                block
-                @click="closeDialog">
-        {{ $t('actions.close') }}
-      </b-button>
+      <div class="mt-3 mb-1 m-0 border-top">
+        <!--  Pagination -->
+        <div v-if="totalResults > pageSize" class="small">
+          <div class="fixed-pagination-footer mb-2 p-1">
+            <pagination v-model="currentPageModel"
+                        v-bind:perPage="pageSize"
+                        v-bind:totalRows="totalResults"
+                        v-bind:showDescription="false"/>
+          </div>
+        </div>
+      </div>
     </template>
   </b-modal>
 </template>
