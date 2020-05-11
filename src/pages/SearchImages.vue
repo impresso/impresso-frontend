@@ -8,7 +8,7 @@
       contextTag="search-images"
       @changed="handleFiltersChanged">
       <div slot="header">
-        <div v-if="similarToImage" class="image-item-similar m-2 p-2 bg-white shadow-sm border d-flex">
+        <div v-if="similarToImage" class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex">
           <div class="flex-shrink-1 mr-2" style="width: 100px">
             <b-img v-if="similarToImage.regions.length"
               fluid
@@ -74,12 +74,12 @@
      </div>
 
      <!--  body -->
-      <div class="p-1 m-2">
+      <div class="p-1 my-2">
         <b-card-group rows class="row-cols-1 row-cols-md-2 row-cols-lg-4">
           <div class="mb-3"
             v-for="searchResult in searchResults" :key="searchResult.uid">
             <search-results-image-item
-              class="h-100 "
+              class="h-100 mx-1"
               :item="searchResult"
               :enable-checkbox="false"
               :enable-similar-to="enableSimilarTo"
