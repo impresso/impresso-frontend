@@ -83,7 +83,8 @@ import {
   recommenderResponseToFilters,
   recommenderResponseToRelevanceContext,
   RecommenderNameMap,
-  RecommenderResponseTagMap
+  RecommenderResponseTagMap,
+  parametersToApiRequestParameters
 } from '@/logic/collectionRecommendations'
 
 const ArticleType =  'ar'
@@ -102,12 +103,6 @@ export default {
     Spinner
   },
   data: () => ({
-    recommendersSettings: [
-      { enabled: true, type: 'timeRange', parameters: {} },
-      { enabled: true, type: 'entities', parameters: {} },
-      { enabled: true, type: 'topics', parameters: {} },
-      { enabled: false, type: 'textReuseClusters', parameters: {} },
-    ],
     /** @type {any | undefined} */
     response: undefined,
     /** @type {any | undefined} */
@@ -139,6 +134,11 @@ export default {
       /* Optional collection object. */
       type: Object,
       default: () => ({})
+    },
+    /** @type {import('vue').PropOptions<import('impresso-jscommons').CollectionRecommendersSettings>} */
+    collectionRecommendersSettings: {
+      type: Object,
+      default: () => ({ recommenders: [] }),
     }
   },
   watch: {
@@ -182,6 +182,40 @@ export default {
   },
   computed: {
     /**
+     * @typedef {{ enabled: boolean, type: string, weight?: number, parameters: {} }} RecommenderSettings
+     */
+    recommendersSettings: {
+      /** @returns {RecommenderSettings[]} */
+      get() {
+        return ['timeRange', 'entities', 'topics', 'textReuseClusters'].map(t => {
+          const recommender = (this.collectionRecommendersSettings.recommenders ?? []).find(({ type }) => type === t)
+          if (recommender == null) return { enabled: t !== 'textReuseClusters', type: t, parameters: {} }
+
+          return {
+            enabled: recommender.enabled,
+            type: recommender.type,
+            weight: recommender.weight,
+            parameters: (recommender.parameters ?? []).reduce((acc, param) => {
+              return { ...acc, [param.key]: param.value };
+            }, {})
+          }
+        });
+      },
+      /** @param {RecommenderSettings[]} val */
+      set(val) {
+        const recommenders = val
+          .map(({ type, weight, parameters, enabled }) => {
+            const o = { type, enabled }
+            if (weight != null && weight !== 1.0) o.weight = weight
+            o.parameters = Object.entries(parameters)
+              .map(([key, value]) => ({ key, value }))
+              .filter(({ value }) => value != null)
+            return o
+          });
+        this.$emit('settings-updated', { recommenders })
+      }
+    },
+    /**
      * Recommendations for every recommender
      * @return {object | undefined}
      */
@@ -222,7 +256,7 @@ export default {
         .filter(({ enabled }) => enabled)
         .map(({ type, parameters }) => ({
           name: RecommenderNameMap[type],
-          params: Object.keys(parameters).length > 0 ? parameters : {}
+          params: Object.keys(parameters).length > 0 ? parametersToApiRequestParameters(parameters) : {}
         }))
       return { coll_id: this.collectionId, recommenders }
     },
@@ -249,12 +283,18 @@ export default {
   methods: {
     handleSettingsChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
-      this.$set(this.recommendersSettings, index, settings)
+      const rs = this.recommendersSettings
+      rs[index] = settings
+      this.recommendersSettings = rs
+      // this.$set(this.recommendersSettings, index, settings)
       this.paginationCurrentPage = 1
     },
     handleSearchparametersChanged(settings) {
       const index = this.recommendersSettings.map(({ type }) => type).indexOf(settings.type)
-      this.$set(this.recommendersSettings, index, settings)
+      const rs = this.recommendersSettings
+      rs[index] = settings
+      this.recommendersSettings = rs
+      // this.$set(this.recommendersSettings, index, settings)
       this.paginationCurrentPage = 1
     },
     goToArticle(article) {

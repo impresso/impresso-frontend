@@ -207,7 +207,9 @@
       <collection-recommendations-panel
         :collection-id="$route.params.collection_uid"
         :display-style="displayStyle"
-        :collection="collection">
+        :collection="collection"
+        :collection-recommenders-settings="recommendersSettings"
+        @settings-updated="handleRecommendersSettingsUpdated">
         <template v-slot:additional-navbar>
           <b-navbar-nav class="ml-auto">
             <b-nav-form class="p-2">
@@ -245,6 +247,7 @@
 </template>
 
 <script>
+import { protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
@@ -256,6 +259,11 @@ import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
+import { getQueryParameter } from '../router/util';
+
+const QueryParameters = Object.freeze({
+  RecommendersSettings: 'rs'
+})
 
 
 const TAB_ARTICLES = 'articles';
@@ -408,6 +416,20 @@ export default {
         ? mainTabs.concat([recommendationsTab])
         : mainTabs
     },
+    recommendersSettings: {
+      /** @returns {import('impresso-jscommons').CollectionRecommendersSettings|undefined} */
+      get() {
+        const settingsString = getQueryParameter(this, QueryParameters.RecommendersSettings)
+        return protobuf.collectionRecommendersSettings.deserialize(settingsString || '')
+      },
+      /** @param {import('impresso-jscommons').CollectionRecommendersSettings} val */
+      set(val) {
+        const settingsString = protobuf.collectionRecommendersSettings.serialize(val)
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.RecommendersSettings]: settingsString
+        })
+      }
+    }
   },
   watch: {
     $route: {
@@ -433,6 +455,9 @@ export default {
     },
   },
   methods: {
+    handleRecommendersSettingsUpdated(settings) {
+      this.recommendersSettings = settings
+    },
     getCollectionItems(page) {
       this.fetching = true;
       if (page !== undefined) {
