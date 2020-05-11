@@ -432,12 +432,12 @@ export default {
             'collection',
           ],
         }),
-        window.impressoDataVersion > 1 ? dispatch('LOAD_SEARCH_FACETS', {
+        dispatch('LOAD_SEARCH_FACETS', {
           facets: [
             'accessRight',
             'partner',
           ],
-        }) : null,
+        }),
       ].filter(d => d)))
         .catch((err) => {
           console.error('ERROR in "$store.search/SEARCH" services.search:', err);

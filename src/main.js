@@ -102,7 +102,6 @@ Promise.race([
     reducedTimeoutPromise({ service: 'version' }),
     services.version.find().then((res) => ({
       version: res.version,
-      dataVersion: res.solr.dataVersion,
       apiVersion: res.apiVersion,
       documentsDateSpan: res.documentsDateSpan,
       newspapers: res.newspapers,
@@ -112,16 +111,14 @@ Promise.race([
     console.error(err);
     return {
       version: 'n/a',
-      dataVersion: 'n/a',
       documentsDateSpan: { firstDate: '1700-01-01', lastDate: new Date().toISOString() },
       apiVersion: {},
       newspapers: {}
     };
   });
-}).then(({ version, dataVersion, documentsDateSpan, newspapers, apiVersion = {}, features = DefaultImpressoFeatures }) => {
-  console.info(`Version services:${version}, data:${dataVersion}`);
+}).then(({ version, documentsDateSpan, newspapers, apiVersion = {}, features = DefaultImpressoFeatures }) => {
+  console.info(`Version services:${version}`);
   window.impressoVersion = version;
-  window.impressoDataVersion = dataVersion;
   window.impressoApiVersion = apiVersion
   window.impressoDocumentsDateSpan = documentsDateSpan
   window.impressoNewspapers = newspapers
