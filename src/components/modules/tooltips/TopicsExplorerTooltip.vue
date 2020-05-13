@@ -14,11 +14,10 @@
       <div  v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
 
       <b-button-group class="my-2">
-        <!-- <b-button variant="outline-success"  size="sm"
+        <b-button :to="{name: 'topic', params: { topic_uid: tooltip.item.uid }}" variant="outline-success"  size="sm"
           v-on:click.prevent.stop="highlightItem">
-            <span v-if="isLoading">{{ $t('actions.loading') }}</span>
-            <span v-else>{{ $t('actions.more') }}</span>
-        </b-button> -->
+            {{ $t('actions.viewTopic') }}
+        </b-button>
         <b-button variant="outline-primary" block size="sm"
           @click.prevent.stop="highlightItem">
           <div class="d-flex align-items-center">
