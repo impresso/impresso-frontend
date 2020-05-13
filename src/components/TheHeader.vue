@@ -325,10 +325,12 @@ export default {
   watch: {
     jobsPaginationCurrentPage: {
       handler(page) {
-        this.$store.dispatch('jobs/LOAD_JOBS', {
-          page,
-          limit: this.jobsPaginationPerPage,
-        });
+        if (this.user) {
+          this.$store.dispatch('jobs/LOAD_JOBS', {
+            page,
+            limit: this.jobsPaginationPerPage,
+          });
+        }
       },
       immediate: true,
     },
