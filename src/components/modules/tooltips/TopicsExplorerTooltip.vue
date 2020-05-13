@@ -2,19 +2,42 @@
   <div class="tooltip" v-bind:class='{active: tooltip.isActive}' v-bind:style="style">
     <div v-if='tooltip.item' class="tooltip-inner p-3 m-2">
       <label>{{ $t('topic')}} &mdash; {{tooltip.item.model}}</label>
-      <div v-html="$tc('numbers.articles', tooltip.item.countItems, {
-        n: $n(tooltip.item.countItems),
-      })"/>
+      <!-- excerpt -->
       <div>
         <span class='badge'> {{tooltip.item.language}}</span>
         <b class='sans-serif'>{{excerpt}} ...</b>
-
-        <a class='mt-3  btn btn-outline-primary btn-sm btn-block' v-on:click.prevent.stop="selectItem()">
-          <span v-if="isLoading">{{ $t('actions.loading') }}</span>
-          <span v-else>{{ $t('actions.more') }}</span>
-        </a>
-        <!-- router-link :to="{ name: 'topic', params: { topic_uid: tooltip.item.uid} }" class="mt-3 btn-block btn btn-outline-primary btn-sm">related articles</router-link> -->
       </div>
+      <!--  number of related -->
+      <div v-html="$tc('numbers.articles', tooltip.item.countItems, {
+        n: $n(tooltip.item.countItems),
+      })"/>
+      <div  v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
+
+      <b-button-group class="my-2">
+        <!-- <b-button variant="outline-success"  size="sm"
+          v-on:click.prevent.stop="highlightItem">
+            <span v-if="isLoading">{{ $t('actions.loading') }}</span>
+            <span v-else>{{ $t('actions.more') }}</span>
+        </b-button> -->
+        <b-button variant="outline-primary" block size="sm"
+          @click.prevent.stop="highlightItem">
+          <div class="d-flex align-items-center">
+            <div>
+              <span v-if="tooltip.isHighlighted">{{ $t('actions.highlightItemOff') }}</span>
+              <span v-else>{{ $t('actions.highlightItemOn') }}</span>
+            </div>
+            <div class="d-flex dripicons ml-2" :class="{
+              'dripicons-preview': !tooltip.isHighlighted,
+              'dripicons-minus': tooltip.isHighlighted,
+            }" />
+          </div>
+        </b-button>
+      </b-button-group>
+
+      <b-button variant="outline-primary" block size="sm" @click.prevent.stop="selectItem">
+        <span v-if="isLoading">{{ $t('actions.loading') }}</span>
+        <span v-else>{{ $t('actions.more') }}</span>
+      </b-button>
     </div>
   </div>
 </template>
@@ -30,6 +53,7 @@ export default {
       y: 0,
       count: 0,
       isActive: false,
+      isHighlighted: false,
       item: new Topic(),
     },
   },
@@ -48,6 +72,9 @@ export default {
     },
   },
   methods: {
+    highlightItem() {
+      this.$emit('toggle-highlighted', this.tooltip.item);
+    },
     selectItem() {
       if (this.isLoading) {
         console.warn('Topic tooltip still loading Topic item...');
@@ -73,10 +100,13 @@ export default {
 <style scoped lang="less">
 .tooltip{
   position: absolute;
-  top: 0;
+  top: -50px;
   pointer-events: none;
-
-  a.btn{
+  .btn{
+    pointer-events: auto;
+  }
+  // width: 300px;
+  .btn.btn-outline-primary{
     border-color: white;
     pointer-events: auto;
     color: white;
@@ -90,6 +120,7 @@ export default {
     background: black;
     color: white;
     text-align: left;
+    max-width: 300px;
   }
   &.active{
     opacity: 1;
