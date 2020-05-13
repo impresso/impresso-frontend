@@ -68,7 +68,10 @@ export default {
           ...this.$store.getters.redirectionParams,
         });
       }).catch((err) => {
-        throw err;
+        if (err.code === 401) {
+          this.error = this.$t('errors.LoginFailed');
+        }
+        console.warn('error', err);
       });
     },
   },

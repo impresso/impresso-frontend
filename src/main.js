@@ -118,6 +118,7 @@ Promise.race([
   });
 }).then(({ version, documentsDateSpan, newspapers, apiVersion = {}, features = DefaultImpressoFeatures }) => {
   console.info(`Version services:${version}`);
+  console.info('Latest notification date:', store.state.settings.lastNotificationDate);
   window.impressoVersion = version;
   window.impressoApiVersion = apiVersion
   window.impressoDocumentsDateSpan = documentsDateSpan
@@ -136,5 +137,3 @@ Promise.race([
     render: h => h(App),
   });
 });
-
-console.info('Last notification date', store.state.settings.lastNotificationDate);
