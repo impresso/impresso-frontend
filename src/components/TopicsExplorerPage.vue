@@ -6,7 +6,7 @@
         <section>
           <span class="label small-caps">
             {{ $t('summary') }}
-          </span><info-button name="why-topic" class="text-muted" />
+          </span><info-button name="topic-graph" class="text-muted" />
           <h3>
             <span v-html="$t('topics_cooccurrence_graph', {
               nodes: $n(this.nodes.length),
