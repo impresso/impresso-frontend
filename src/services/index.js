@@ -83,7 +83,9 @@ app.hooks({
           if (context.params.ignoreErrors) {
             console.warn('app.hooks.error.all:ignoreErrors',  context.error);
           } else if (route === 'authentication.remove' && context.error.name === 'NotAuthenticated') {
-            console.info('Ingore NotAuthenticated error on "authentication.remove" route.');
+            console.warn('Ignore NotAuthenticated error on "authentication.remove" route.');
+          } else if (route === 'authentication.create') {
+            console.warn('Ignore NotAuthenticated error on "authentication.create" route.');
           } else if (!silentErrorCodes.includes(context.error.code)) {
             window.app.$store.dispatch('DISPLAY_ERROR', {
               error: context.error,

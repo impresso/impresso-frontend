@@ -336,6 +336,9 @@ h1.huge {
 }
 
 .bg-dark {
+  h1.huge{
+    text-shadow: 1px 1px 1px #17191c;
+  }
   h1.huge, h2{
     color: white;
   }
