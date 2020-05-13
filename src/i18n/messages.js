@@ -71,6 +71,8 @@ export default {
       dismiss: 'dismiss',
       loading: 'loading...',
       reset: 'Reset',
+      highlightItemOff: 'de-emphasize',
+      highlightItemOn: 'highlight',
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
@@ -119,6 +121,7 @@ export default {
       issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
       results: 'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
       articlesMatching: 'no articles matching {q}| <span class="number">1</span> article matches {q} | <span class="number">{n}</span> articles found containing <span class="highlight">{q}</span>',
+      relatedTopics: 'no related topics | <span class="number">1</span> related topic | <span class="number">{n}</span> related topics',
       resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
       collection: {
         countItems: '{countItems} saved items',
