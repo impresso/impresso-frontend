@@ -334,6 +334,16 @@ export default {
       },
       immediate: true,
     },
+    user: {
+      handler(user) {
+        if (user) {
+          this.$store.dispatch('jobs/LOAD_JOBS', {
+            page: 1,
+            limit: this.jobsPaginationPerPage,
+          });
+        }
+      },
+    },
     jobs: {
       handler(jobs) {
         if (jobs.length && this.$refs.ddownJobs) {
