@@ -71,8 +71,8 @@ export default {
       dismiss: 'dismiss',
       loading: 'loading...',
       reset: 'Reset',
-      highlightItemOff: 'de-emphasize',
-      highlightItemOn: 'highlight',
+      highlightItemOff: 'remove from the "highlighted" list',
+      highlightItemOn: 'add to the "highlighted" list',
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
@@ -91,6 +91,7 @@ export default {
       resetItems: 'reset list',
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
+      viewTopic: 'go to topic',
     },
     filters: {
       daterange: {

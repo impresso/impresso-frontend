@@ -8,19 +8,24 @@
         <b class='sans-serif'>{{excerpt}} ...</b>
       </div>
       <!--  number of related -->
-      <div v-html="$tc('numbers.articles', tooltip.item.countItems, {
-        n: $n(tooltip.item.countItems),
-      })"/>
-      <div  v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
+      <div>
+        <span v-html="$tc('numbers.articles', tooltip.item.countItems, {
+          n: $n(tooltip.item.countItems),
+        })"/> &middot;
+        <span  v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
+      </div>
 
-      <b-button-group class="my-2">
-        <b-button :to="{name: 'topic', params: { topic_uid: tooltip.item.uid }}" variant="outline-success"  size="sm"
-          v-on:click.prevent.stop="highlightItem">
+      <b-button-group class="my-2 w-100">
+        <b-button class="mr-1" :to="{name: 'topic', params: { topic_uid: tooltip.item.uid }}" variant="outline-success"  size="sm">
             {{ $t('actions.viewTopic') }}
         </b-button>
-        <b-button variant="outline-primary" block size="sm"
+        <b-button class="ml-1" :to="{name: 'search', query: { topic_uid: tooltip.item.uid }}" variant="outline-success"  size="sm">
+            {{ $t('actions.searchMore') }}
+        </b-button>
+      </b-button-group>
+        <b-button block variant="outline-primary"  size="sm"
           @click.prevent.stop="highlightItem">
-          <div class="d-flex align-items-center">
+          <div class="d-flex align-items-center justify-content-between">
             <div>
               <span v-if="tooltip.isHighlighted">{{ $t('actions.highlightItemOff') }}</span>
               <span v-else>{{ $t('actions.highlightItemOn') }}</span>
@@ -31,12 +36,6 @@
             }" />
           </div>
         </b-button>
-      </b-button-group>
-
-      <b-button variant="outline-primary" block size="sm" @click.prevent.stop="selectItem">
-        <span v-if="isLoading">{{ $t('actions.loading') }}</span>
-        <span v-else>{{ $t('actions.more') }}</span>
-      </b-button>
     </div>
   </div>
 </template>
