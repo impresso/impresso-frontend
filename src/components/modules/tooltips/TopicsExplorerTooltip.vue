@@ -14,12 +14,11 @@
         })"/> &middot;
         <span  v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
       </div>
-
       <b-button-group class="my-2 w-100">
         <b-button class="mr-1" :to="{name: 'topic', params: { topic_uid: tooltip.item.uid }}" variant="outline-success"  size="sm">
             {{ $t('actions.viewTopic') }}
         </b-button>
-        <b-button class="ml-1" :to="{name: 'search', query: { topic_uid: tooltip.item.uid }}" variant="outline-success"  size="sm">
+        <b-button class="ml-1" :to="searchRouteLink" variant="outline-success"  size="sm">
             {{ $t('actions.searchMore') }}
         </b-button>
       </b-button-group>
@@ -42,6 +41,8 @@
 
 <script>
 import Topic from '@/models/Topic';
+import { serializeFilters } from '@/logic/filters';
+import { CommonQueryParameters } from '@/router/util';
 
 export default {
   model: {
@@ -55,11 +56,25 @@ export default {
       item: new Topic(),
     },
   },
-  props: ['tooltip', 'isActive'],
+  props: {
+    tooltip: Object,
+    isActive: Boolean,
+  },
   data: () => ({
     isLoading: false,
   }),
   computed: {
+    searchRouteLink() {
+      return {
+        name: 'search',
+        query: {
+          [ CommonQueryParameters.SearchFilters ]: serializeFilters([{
+            type: 'topic',
+            q: this.tooltip.item.uid,
+          }]),
+        },
+      };
+    },
     style() {
       return {
         transform: `translate(${this.tooltip.x}px,${this.tooltip.y}px`,
