@@ -254,9 +254,9 @@ export default class Graph extends Basic {
   }
 
   onDragStarted(datum) {
-    // if (!d3.event.active) {
-    //   this.simulation.alphaTarget(0.3).restart();
-    // }
+    if (!d3.event.active) {
+      this.simulation.alphaTarget(0.3).restart();
+    }
     datum.fx = datum.x;
     datum.fy = datum.y;
     this.stopSimulation();
@@ -271,9 +271,9 @@ export default class Graph extends Basic {
   }
 
   onDragEnded(datum) {
-    // if (!d3.event.active) {
-    //   this.simulation.alphaTarget(0);
-    // }
+    if (!d3.event.active) {
+      this.simulation.alphaTarget(0);
+    }
     if (this.fixAfterDrag) {
       datum.fixed = true;
       datum.fx = d3.event.x;
