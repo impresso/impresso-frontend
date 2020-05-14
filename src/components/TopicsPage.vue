@@ -337,7 +337,7 @@ export default {
   "en": {
     "label_list": "browse {total} topics",
     "label_topics_list_empty": "There is no word in any topic containing <b>{q}</b>",
-    "label_visualized_list": "<span style='color: blue'>0</span> highlighted | <span style='color: blue'>1</span> highlighted | <span style='color: blue'>{total}</span> highlighted",
+    "label_visualized_list": "observing list (<span style='color: blue'>{n}</span>)",
     "label_uncheck_applyCurrentSearchFilters": "Try to uncheck the mention <em>[...]if matches current search</em>",
     "label_applyCurrentSearchFilters": "filter list of topics if matches current search <br/>(<b>{countActiveFilters}</b> filters)",
     "order_by": "order by",
