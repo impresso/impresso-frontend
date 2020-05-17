@@ -51,36 +51,36 @@ export default {
     id() { return this['_uid']; },
     numberToKeep: {
       /** @returns {number} */
-      get() { return this.parameters.nb_to_keep ?? 5 },
-      /** @param {number} toKeep */
-      set(toKeep) {
+      get() { return this.parameters.numberToKeep ?? 5 },
+      /** @param {number} numberToKeep */
+      set(numberToKeep) {
         const parameters = {
           ...this.parameters,
-          nb_to_keep: toKeep
+          numberToKeep
         }
         this.$emit(ChangedEvent, parameters)
       }
     },
     scalingFactor: {
       /** @returns {number} */
-      get() { return this.parameters.scaling_factor ?? 3 },
-      /** @param {number} factor */
-      set(factor) {
+      get() { return this.parameters.scalingFactor ?? 3 },
+      /** @param {number} scalingFactor */
+      set(scalingFactor) {
         const parameters = {
           ...this.parameters,
-          scaling_factor: factor
+          scalingFactor
         }
         this.$emit(ChangedEvent, parameters)
       }
     },
     normalizeMaxScore: {
       /** @returns {boolean} */
-      get() { return this.parameters.normalize_max_score ?? true },
-      /** @param {boolean} normalize */
-      set(normalize) {
+      get() { return this.parameters.normalizeMaxScore ?? true },
+      /** @param {boolean} normalizeMaxScore */
+      set(normalizeMaxScore) {
         const parameters = {
           ...this.parameters,
-          normalize_max_score: normalize
+          normalizeMaxScore
         }
         this.$emit(ChangedEvent, parameters)
       }

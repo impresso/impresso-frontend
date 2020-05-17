@@ -34,26 +34,24 @@ export default {
   computed: {
     numberToKeep: {
       /** @returns {number} */
-      get() { return this.parameters.nb_to_keep ?? 10 },
-      /** @param {number} toKeep */
-      set(toKeep) {
+      get() { return this.parameters.numberToKeep ?? 10 },
+      /** @param {number} numberToKeep */
+      set(numberToKeep) {
         const parameters = {
           ...this.parameters,
-          nb_to_keep: toKeep
+          numberToKeep
         }
         this.$emit(ChangedEvent, parameters)
       }
     },
     dropFullyMentioned: {
-      // NOTE: There is a typo in parameter name in the backend service:
-      // mentionned insted of mentioned.
       /** @returns {boolean} */
-      get() { return this.parameters.remove_fully_mentionned ?? true },
-      /** @param {boolean} remove */
-      set(remove) {
+      get() { return this.parameters.removeFullyMentioned ?? true },
+      /** @param {boolean} removeFullyMentioned */
+      set(removeFullyMentioned) {
         const parameters = {
           ...this.parameters,
-          remove_fully_mentionned: remove
+          removeFullyMentioned
         }
         this.$emit(ChangedEvent, parameters)
       }

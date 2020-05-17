@@ -160,6 +160,7 @@ export default {
         SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
         SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
       },
+      LoginFailed: 'Login Failed! The username and/or password was incorrect. Please try again.',
       Notauthenticated: 'Please logout, then login again. Authentication failed',
       Invalidauthenticationinformationnostrategyset: 'Please reload the page, a couple of errors occurred',
     },

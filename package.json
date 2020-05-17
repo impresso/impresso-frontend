@@ -1,6 +1,6 @@
 {
   "name": "impresso-frontend",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Frontend app for impresso project",
   "author": "impresso <info@impresso-project.ch>",
   "contributors": [
@@ -29,7 +29,7 @@
     "filepond-plugin-file-validate-size": "2.2.0",
     "filepond-plugin-file-validate-type": "1.2.4",
     "flatpickr": "4.6.3",
-    "impresso-jscommons": "git+https://git@github.com/impresso/impresso-jscommons.git#v1.2.0",
+    "impresso-jscommons": "git+https://git@github.com/impresso/impresso-jscommons.git#v1.3.1",
     "impresso-theme": "git+https://git@github.com/impresso/impresso-theme.git",
     "markdown-it": "10.0.0",
     "markdown-it-decorate": "1.2.2",
@@ -66,7 +66,7 @@
     "jest": "25.3.0",
     "less": "3.10.3",
     "less-loader": "5.0.0",
-    "node-sass": "4.13.1",
+    "node-sass": "^4.14.1",
     "postcss-import": "12.0.1",
     "postcss-url": "8.0.0",
     "sass-loader": "8.0.2",

@@ -12,14 +12,14 @@
         </b-form-select>
       </b-col>
     </b-row>
-    <!-- occurences -->
+    <!-- occurrences -->
     <b-row class="mt-2">
       <b-col>
-        <label>{{ $t('param.minOccurences') }}</label>
+        <label>{{ $t('param.minOccurrences') }}</label>
       </b-col>
       <b-col>
         <b-form-input size="sm"
-          v-model="minOccurences"
+          v-model="minOccurrences"
           type="number" min="1" max="100"/>
       </b-col>
     </b-row>
@@ -63,12 +63,12 @@ export default {
   computed: {
     countType: {
       /** @return {string} */
-      get() { return this.parameters.count_type ?? 'article' },
+      get() { return this.parameters.countType ?? 'article' },
       /** @param {string} countType */
       set(countType) {
         const parameters = {
           ...this.parameters,
-          count_type: countType
+          countType
         }
         this.$emit(ChangedEvent, parameters)
       }
@@ -79,52 +79,50 @@ export default {
         { value: 'mention', text: 'Number of mentions' }
       ]
     },
-    minOccurences: {
+    minOccurrences: {
       /** @returns {number} */
-      get() { return this.parameters.min_occurences ?? 1 },
-      /** @param {number} minOccurences */
-      set(minOccurences) {
+      get() { return this.parameters.minOccurrences ?? 1 },
+      /** @param {number} minOccurrences */
+      set(minOccurrences) {
         const parameters = {
           ...this.parameters,
-          min_occurences: minOccurences
+          minOccurrences
         }
         this.$emit(ChangedEvent, parameters)
       }
     },
     numberToKeep: {
       /** @returns {number} */
-      get() { return this.parameters.nb_to_keep ?? 12 },
-      /** @param {number} toKeep */
-      set(toKeep) {
+      get() { return this.parameters.numberToKeep ?? 12 },
+      /** @param {number} numberToKeep */
+      set(numberToKeep) {
         const parameters = {
           ...this.parameters,
-          nb_to_keep: toKeep
+          numberToKeep
         }
         this.$emit(ChangedEvent, parameters)
       }
     },
     dropFullyMentioned: {
-      // NOTE: There is a typo in parameter name in the backend service:
-      // mentionned insted of mentioned.
       /** @returns {boolean} */
-      get() { return this.parameters.remove_fully_mentionned ?? true },
-      /** @param {boolean} remove */
-      set(remove) {
+      get() { return this.parameters.removeFullyMentioned ?? true },
+      /** @param {boolean} removeFullyMentioned */
+      set(removeFullyMentioned) {
         const parameters = {
           ...this.parameters,
-          remove_fully_mentionned: remove
+          removeFullyMentioned
         }
         this.$emit(ChangedEvent, parameters)
       }
     },
     normalizeMaxScore: {
       /** @returns {boolean} */
-      get() { return this.parameters.normalize_max_score ?? true },
-      /** @param {boolean} normalize */
-      set(normalize) {
+      get() { return this.parameters.normalizeMaxScore ?? true },
+      /** @param {boolean} normalizeMaxScore */
+      set(normalizeMaxScore) {
         const parameters = {
           ...this.parameters,
-          normalize_max_score: normalize
+          normalizeMaxScore
         }
         this.$emit(ChangedEvent, parameters)
       }
@@ -138,7 +136,7 @@ export default {
   "en": {
     "param": {
       "countType": "Count method",
-      "minOccurences": "Minimum number of occurences",
+      "minOccurrences": "Minimum number of occurrences",
       "numberToKeep": "Maximum number of entities to keep",
       "dropFullyMentioned": "Drop entities already fully contained in the collection, as they are not useful",
       "normalizeMaxScore": "Normalize so the score of the top entity is 1.0"

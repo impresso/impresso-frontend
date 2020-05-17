@@ -62,7 +62,6 @@
 export default {
   data: () => ({
     languageEmbeddingsOptions: [
-      { value: 'en', text: 'English' },
       { value: 'fr', text: 'French' },
       { value: 'de', text: 'German' },
       { value: 'lb', text: 'Luxembourgish' },

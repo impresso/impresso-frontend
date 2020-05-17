@@ -167,3 +167,28 @@ export function recommenderResponseToRelevanceContext(response, settings) {
     return fn != null ? fn(params, weight) : []
   }).flat() ?? []
 }
+
+const ApiParametersMapping = Object.freeze({
+  countType: 'count_type',
+  removeFullyMentioned: 'remove_fully_mentionned',
+  minOccurrences: 'min_occurences',
+  numberToKeep: 'nb_to_keep',
+  normalizeMaxScore: 'normalize_max_score',
+  scalingFactor: 'scaling_factor'
+})
+
+/**
+ * Change names of parameters to the names that API understands.
+ * The API uses snake case and has some typos.
+ * @param {any} parameters
+ * @returns {any}
+ */
+export function parametersToApiRequestParameters(parameters) {
+  return Object.entries(parameters).reduce((acc, [key, value]) => {
+    const k = ApiParametersMapping[key] ?? key
+    return {
+      ...acc,
+      [k]: value
+    }
+  }, {})
+}
