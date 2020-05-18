@@ -17,6 +17,8 @@ export interface Entity {
 
   start?: Number,
   end?: Number
+
+  type?: String
 }
 
 export interface Filter {

@@ -9,16 +9,25 @@
     </i-layout-section>
     <i-layout-section class="pt-2">
       {{submitted}}
+      <div :style="{ width: '400px' }">
+        <entities-suggestions-list :entities="testEntities"/>
+      </div>
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
 import Autocomplete from './Autocomplete';
+import EntitiesSuggestionsList from '@/components/modules/EntitiesSuggestionsList'
 
 export default {
   data: () => ({
     submitted: false,
+    testEntities: [{
+      uid: 'moo',
+      name: 'Barack Obama',
+      type: 'person'
+    }]
   }),
   methods: {
     submit(suggestion) {
@@ -27,6 +36,7 @@ export default {
   },
   components: {
     Autocomplete,
+    EntitiesSuggestionsList,
   },
 };
 </script>

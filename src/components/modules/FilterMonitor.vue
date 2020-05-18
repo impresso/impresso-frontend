@@ -76,6 +76,14 @@
           <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
         </div>
       </div>
+      <!-- local items -->
+      <div v-for="item in localItemsToAdd" :key="item.uid" class="mt-2">
+        <item-label :item="item" :type="type"/>
+        <span v-if="!item.uid">...</span>
+        <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+        <item-selector :uid="item.uid" :item="item" :type="type"/>
+      </div>
+
       <!-- string to add -->
       <div class="strings-to-add m-2 ml-4" v-if="stringsToAdd.length">
         <b-form inline v-for="(item, idx) in stringsToAdd" :key="idx"
@@ -117,6 +125,7 @@
                          @click.stop.prevent
                          @embdding-selected="addEmbeddingSuggestion"/>
 
+
       <!-- <b-form-group v-if="checkbox">
        <b-form-radio-group
          switches
@@ -125,6 +134,33 @@
        </b-form-radio-group>
       </b-form-group> -->
     </div>
+
+    <!-- entities only -->
+    <div class="mt-3" v-if="EntityTypes.includes(type)">
+      <b-row no-gutters>
+        <b-col cols="6">
+          <div class="ml-1">
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              block
+              v-on:click.prevent="showEntities = !showEntities;">
+              Similar entities
+            </b-button>
+          </div>
+        </b-col>
+        <b-col cols="6">
+          <!-- related entities button will go here -->
+        </b-col>
+      </b-row>
+
+      <entities-suggestions-list
+        v-if="showEntities"
+        :entities="entities"
+        class="bg-light border"
+        @entity-selected="addEntitySuggestion"/>
+    </div>
+
     <b-button
       class="mt-2"
       v-if="hasChanges"
@@ -152,6 +188,8 @@ import ItemSelector from './ItemSelector';
 import ItemLabel from './lists/ItemLabel';
 import CollectionItem from './lists/CollectionItem';
 import EmbeddingsSearch from './EmbeddingsSearch';
+import EntitiesSuggestionsList from '@/components/modules/EntitiesSuggestionsList'
+
 import {
   toCanonicalFilter,
   toSerializedFilter,
@@ -160,6 +198,7 @@ import {
 } from '../../logic/filters'
 
 const StringTypes = ['string', 'title']
+const EntityTypes = ['person', 'location']
 
 /**
  * Changes filter after 'apply' button is clicked.
@@ -172,12 +211,15 @@ export default {
   },
   data: () => ({
     showEmbeddings: false,
+    showEntities: false,
     editedFilter: {},
     excludedItemsIds: [],
     stringsToAdd: [],
+    localItemsToAdd: [],
     RangeFacets,
     NumericRangeFacets,
-    StringTypes
+    StringTypes,
+    EntityTypes
   }),
   props: {
     operators: {
@@ -200,13 +242,16 @@ export default {
     /** @type {import('vue').PropType<import('../../models/models').Filter>} */
     filter: Object,
     /* filter items to be added to the filter when confirm button is clicked */
-    itemsToAdd: {
+    newItemsToAdd: {
       /** @type {import('vue').PropType<Array<import('../../models/models').Entity>>} */
       type: Array,
       default: () => [],
     },
   },
   computed: {
+    itemsToAdd() {
+      return this.newItemsToAdd
+    },
     tooManyItems() {
       const filterItems = this.filter.items || []
       return this.stringsToAdd.length + filterItems.length + this.itemsToAdd.length > 5;
@@ -225,7 +270,7 @@ export default {
     },
     availableItems() {
       const filterItems = this.filter.items || []
-      return filterItems.concat(this.itemsToAdd)
+      return filterItems.concat(this.itemsToAdd).concat(this.localItemsToAdd)
     },
     type() { return this.filter.type || '' },
     checkboxPrecisions() {
@@ -250,6 +295,7 @@ export default {
       return this.itemsToAdd.length > 0
         || this.validStringsToAdd.length > 0
         || this.excludedItemsIds.length > 0
+        || this.localItemsToAdd.length > 0
         || toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
     },
     currentContext: {
@@ -259,6 +305,9 @@ export default {
           : 'include'
       },
       set(value) { this.editedFilter.context = value }
+    },
+    entities() {
+      return this.filter.items
     }
   },
   methods: {
@@ -266,11 +315,14 @@ export default {
       const { type } = this.editedFilter
 
       if (!StringTypes.includes(type) && !RangeFacets.includes(type)) {
-        const allItemsDictonary = this.filter.items.concat(this.itemsToAdd).reduce((acc, item) => {
-          acc[item.uid] = item
-          return acc
-        }, {})
-        const availableItemsIds = [...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid))]
+        const allItemsDictonary = this.filter.items
+          .concat(this.itemsToAdd)
+          .concat(this.localItemsToAdd)
+          .reduce((acc, item) => {
+            acc[item.uid] = item
+            return acc
+          }, {})
+        const availableItemsIds = [...new Set(this.filter.items.concat(this.itemsToAdd).concat(this.localItemsToAdd).map(({ uid }) => uid))]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
         const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
 
@@ -328,6 +380,11 @@ export default {
       this.editedFilter.q = q
       this.editedFilter.items = [item]
       if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);
+    },
+    addEntitySuggestion(entity) {
+      if (this.editedFilter.q.includes(entity.uid)) return
+      this.editedFilter.q = [...this.editedFilter.q, entity.uid]
+      this.localItemsToAdd =  [...this.localItemsToAdd, entity]
     }
   },
   components: {
@@ -336,7 +393,8 @@ export default {
     EmbeddingsSearch,
     ItemLabel,
     ItemSelector,
-    FilterNumberRange
+    FilterNumberRange,
+    EntitiesSuggestionsList
   },
   watch: {
     /**

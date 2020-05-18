@@ -40,7 +40,7 @@
     </base-title-bar>
     <div v-for="({ filter, filterIndex }) in includedFilterItems" :key="filterIndex" class="bg-white border p-2">
       <filter-monitor
-        :items-to-add="selectedBucketsItems"
+        :new-items-to-add="selectedBucketsItems"
         :filter="filter"
         :operators="facet.operators"
         @changed="filter => updateFilter(filterIndex, filter)" />
