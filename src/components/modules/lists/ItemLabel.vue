@@ -46,6 +46,9 @@ export default {
       case 'textReuseCluster':
         t = this.item.name;
         break;
+      case 'entity':
+        t = `${this.item.name} (${this.item.type})`;
+        break;
       case 'topic':
         t = `<span class="small-caps">${this.item.language}</span> ${this.item.htmlExcerpt}`;
         break;

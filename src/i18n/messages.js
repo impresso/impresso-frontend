@@ -237,6 +237,14 @@ export default {
         description: 'check one or more locations to filter results',
         empty: 'There is no location available',
       },
+      entity: {
+        title: 'Entity | Entity | Entities',
+        filterTitle: 'filter by entities',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> entities are mentioned',
+        description: 'check one or more entities to filter results',
+        empty: 'There is no entity available',
+      },
       collection: {
         title: 'Collection | Collection | Collections',
         filterTitle: 'filter by collection',

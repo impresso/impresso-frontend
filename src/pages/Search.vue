@@ -240,7 +240,8 @@ const AllowedFilterTypes = [
   'topic',
   'type',
   'year',
-  'daterange'
+  'daterange',
+  'entity'
 ];
 
 const FACET_TYPES_DPFS = [

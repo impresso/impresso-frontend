@@ -23,7 +23,7 @@
             {'dripicons-shopping-bag': filter.type === 'accessRight'},
             {'dripicons-store': filter.type === 'partner'},
             {'dripicons-scale': numericTypes.includes(filter.type)},
-
+            {'dripicons-view-thumb': filter.type === 'entity'},
           ]" />
         <!--  type:string, type:title -->
         <span class="label sp-string sp-title"
@@ -38,9 +38,9 @@
           v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt', op: filter.op })"
           :class="filter.context">
         </span>
-        <!--  type:person, type:location, type:newspaper -->
+        <!--  type:person, type:location, type:newspaper, entity -->
         <span class="label sp-labelled"
-          v-if="['person', 'location', 'newspaper'].indexOf(filter.type) !== -1"
+          v-if="['person', 'location', 'newspaper', 'entity'].indexOf(filter.type) !== -1"
           v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
           :class="filter.context">
         </span>

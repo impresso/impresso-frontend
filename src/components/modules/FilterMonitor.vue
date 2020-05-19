@@ -70,7 +70,7 @@
       <div class="items-to-add  mt-2" v-if="newItemsToAdd.length">
         <div v-for="(item, idx) in newItemsToAdd" :key="idx">
           <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
-          <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
+          <span v-if="['person', 'location', 'newspaper', 'entity'].indexOf(type) !== -1">{{ item.name }}</span>
           <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
           <span v-if="item.count">(<span v-html="getCountSnippet(item.count)"/>)</span>
@@ -145,7 +145,7 @@
               variant="outline-primary"
               block
               v-on:click.prevent="showEntities = !showEntities;">
-              Similar entities
+              {{ $t('label.similarEntities') }}
             </b-button>
           </div>
         </b-col>
@@ -168,10 +168,10 @@
       size="sm"
       variant="outline-primary"
       @click="applyChanges()">
-      <span v-if="validStringsToAdd.length > 0 || newItemsToAdd.length > 0 || excludedItemsIds.length > 0">
+      <span v-if="validStringsToAdd.length > 0 || newItemsToAdd.length > 0 || excludedItemsIds.length > 0 || entitiesToAdd.length > 0">
         {{
           $t('actions.applyChangesDetailed', {
-            added: validStringsToAdd.length || newItemsToAdd.length,
+            added: validStringsToAdd.length || newItemsToAdd.length || entitiesToAdd.length,
             removed: excludedItemsIds.length
           })
         }}
@@ -341,6 +341,14 @@ export default {
       const { type } = this.editedFilter
 
       if (!StringTypes.includes(type) && !RangeFacets.includes(type)) {
+        // Entities suggestions may add entities of more than one type.
+        // In this case we need to change the original type of the filter to
+        // a generic 'entity' type.
+        const types = [...new Set((this.filter.items ?? []).concat(this.entitiesToAdd).map(({ type }) => type))]
+        const updatedFilterType = types.length > 1
+          ? 'entity'
+          : this.filter.type
+
         const allItemsDictonary = (this.filter.items ?? [])
           .concat(this.newItemsToAdd)
           .concat(this.entitiesToAdd)
@@ -355,8 +363,10 @@ export default {
         this.$emit('changed', {
           ...this.editedFilter,
           items: selectedItems,
-          q: selectedItemsIds
+          q: selectedItemsIds,
+          type: updatedFilterType
         })
+        this.entitiesToAdd = []
       } else if (StringTypes.includes(type)) {
         const newFilter = {
           ...this.editedFilter,
@@ -507,6 +517,7 @@ label.custom-control-label {
       "addUsingEmbeddings": "add similar ..."
     },
     "label": {
+      "similarEntities": "Similar Entities",
       "title": {
         "context": {
           "include": "Contains",
@@ -561,6 +572,12 @@ label.custom-control-label {
         }
       },
       "location": {
+        "context": {
+          "include": "Mentioning",
+          "exclude": "<b>NOT</b> mentioning"
+        }
+      },
+      "entity": {
         "context": {
           "include": "Mentioning",
           "exclude": "<b>NOT</b> mentioning"
