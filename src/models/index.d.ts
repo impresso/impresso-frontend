@@ -18,6 +18,9 @@ export interface Entity {
   start?: Number,
   end?: Number
 
+  // Does it still exist? What is this for? It is used in FilterMonitor
+  count?: number
+
   type?: String
 }
 

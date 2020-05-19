@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="filter-monitor">
     <div v-if="checkbox">
       <!--  context -->
@@ -46,10 +46,10 @@
       </b-dropdown>
     </div>
     <div class="items" :class="{ reduced: tooManyItems }">
-      <div v-for="(item, idx) in filter.items" :key="idx" class="mt-2">
+      <div v-for="(item, idx) in entities" :key="idx" class="mt-2">
         <div v-if="RangeFacets.includes(type)">
-          <filter-number-range v-if="NumericRangeFacets.includes(type)" :start="parseInt(item.start, 10)" :end="parseInt(item.end, 10)" @changed="handleRangeChanged"/>
-          <filter-daterange v-else :start="new Date(item.start)" :end="new Date(item.end)" @changed="handleRangeChanged"/>
+          <filter-number-range v-if="NumericRangeFacets.includes(type)" :start="asNumber(item.start)" :end="asNumber(item.end)" @changed="handleRangeChanged"/>
+          <filter-daterange v-else :start="asDate(item.start)" :end="asDate(item.end)" @changed="handleRangeChanged"/>
         </div>
         <b-form-checkbox v-else-if="StringTypes.includes(type)" v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
           <b-form-input
@@ -62,25 +62,25 @@
         <b-form-checkbox v-else v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
           <item-label :item="item" :type="type"/>
           <span v-if="!item.uid">...</span>
-          <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+          <span v-if="item.count">(<span v-html="getCountSnippet(item.count)"/>)</span>
           <item-selector :uid="item.uid" :item="item" :type="type"/>
         </b-form-checkbox>
       </div>
       <!-- bucket items -->
-      <div class="items-to-add  mt-2" v-if="itemsToAdd.length">
-        <div v-for="(item, idx) in itemsToAdd" :key="idx">
+      <div class="items-to-add  mt-2" v-if="newItemsToAdd.length">
+        <div v-for="(item, idx) in newItemsToAdd" :key="idx">
           <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
           <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
           <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
-          <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+          <span v-if="item.count">(<span v-html="getCountSnippet(item.count)"/>)</span>
         </div>
       </div>
       <!-- local items -->
-      <div v-for="item in localItemsToAdd" :key="item.uid" class="mt-2">
+      <div v-for="item in entitiesToAdd" :key="item.uid" class="mt-2">
         <item-label :item="item" :type="type"/>
         <span v-if="!item.uid">...</span>
-        <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+        <span v-if="item.count">(<span v-html="getCountSnippet(item.count)"/>)</span>
         <item-selector :uid="item.uid" :item="item" :type="type"/>
       </div>
 
@@ -105,7 +105,7 @@
         <b-col cols="6">
           <div class="mr-1">
             <b-button size="sm" variant="outline-primary" block
-              @click.prevent.stop="addStringItem(type)" :disabled="hasEmptyStringItems">
+              @click.prevent.stop="addStringItem()" :disabled="hasEmptyStringItems">
                 {{$t('actions.addItem')}}
             </b-button>
           </div>
@@ -168,10 +168,10 @@
       size="sm"
       variant="outline-primary"
       @click="applyChanges()">
-      <span v-if="validStringsToAdd.length > 0 || itemsToAdd.length > 0 || excludedItemsIds.length > 0">
+      <span v-if="validStringsToAdd.length > 0 || newItemsToAdd.length > 0 || excludedItemsIds.length > 0">
         {{
           $t('actions.applyChangesDetailed', {
-            added: validStringsToAdd.length || itemsToAdd.length,
+            added: validStringsToAdd.length || newItemsToAdd.length,
             removed: excludedItemsIds.length
           })
         }}
@@ -200,6 +200,17 @@ import {
 const StringTypes = ['string', 'title']
 const EntityTypes = ['person', 'location']
 
+/** @returns {number} */
+const asNumber = any => parseInt(any, 10)
+
+/** @returns {Date} */
+const asDate = any => new Date(any)
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models').Entity} Entity
+ */
+
 /**
  * Changes filter after 'apply' button is clicked.
  * Use with `v-model`.
@@ -212,117 +223,132 @@ export default {
   data: () => ({
     showEmbeddings: false,
     showEntities: false,
-    editedFilter: {},
-    excludedItemsIds: [],
-    stringsToAdd: [],
-    localItemsToAdd: [],
+    editedFilter: /** @type {Filter} */ ({}),
+    excludedItemsIds: /** @type {string[]} */ ([]),
+    stringsToAdd: /** @type {{ uid: string, checked: boolean }[]} */ ([]),
+    entitiesToAdd: /** @type {Entity[]} */ ([]),
     RangeFacets,
     NumericRangeFacets,
     StringTypes,
     EntityTypes
   }),
   props: {
+    /** @type {import('vue').PropOptions<string[]>} */
     operators: {
       type: Array,
       default: () => ['OR'],
     },
+    /** @type {import('vue').PropOptions<string[]>} */
     contexts: {
       type: Array,
       default: () => ['include', 'exclude'],
     },
+    /** @type {import('vue').PropOptions<string[]>} */
     precisions: {
       type: Array,
       default: () => ['fuzzy', 'exact', 'soft'],
     },
     /* Render context, operators as checkboxes */
+    /** @type {import('vue').PropOptions<boolean>} */
     checkbox: {
       type: Boolean,
       default: false,
     },
-    /** @type {import('vue').PropType<import('../../models/models').Filter>} */
+    /** @type {import('vue').PropType<Filter>} */
     filter: Object,
     /* filter items to be added to the filter when confirm button is clicked */
+    /** @type {import('vue').PropOptions<Entity[]>} */
     newItemsToAdd: {
-      /** @type {import('vue').PropType<Array<import('../../models/models').Entity>>} */
       type: Array,
       default: () => [],
     },
   },
   computed: {
-    itemsToAdd() {
-      return this.newItemsToAdd
-    },
+    /** @returns {boolean} */
     tooManyItems() {
       const filterItems = this.filter.items || []
-      return this.stringsToAdd.length + filterItems.length + this.itemsToAdd.length > 5;
+      return this.stringsToAdd.length + filterItems.length + this.newItemsToAdd.length > 5;
     },
+    /** @returns {boolean} */
     hasEmptyStringItems() {
       return this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.uid.length === 0).length > 0;
     },
+    /** @returns {Entity[]} */
     validStringsToAdd() {
       return this.stringsToAdd.filter(d => d.checked && d.uid.length);
     },
+    /** @return {{ [key: string]: Entity }} */
     checkedItems() {
       return this.availableItems.reduce((acc, item) => {
         acc[item.uid] = !this.excludedItemsIds.includes(item.uid)
         return acc
       }, {})
     },
+    /** @returns {Entity[]} */
     availableItems() {
       const filterItems = this.filter.items || []
-      return filterItems.concat(this.itemsToAdd).concat(this.localItemsToAdd)
+      return filterItems.concat(this.newItemsToAdd).concat(this.entitiesToAdd)
     },
+    /** @returns {string} */
     type() { return this.filter.type || '' },
+    /** @returns {{ text: string, value: string }[]} */
     checkboxPrecisions() {
       return this.precisions.map(value => ({
-        text: this.$t(`label.${this.type}.precision.${value}`),
+        text: this.$t(`label.${this.type}.precision.${value}`).toString(),
         value,
       }));
     },
+    /** @returns {{ text: string, value: string }[]} */
     checkboxContexts() {
       return this.contexts.map(value => ({
-        text: this.$t(`label.${this.type}.context.${value}`),
+        text: this.$t(`label.${this.type}.context.${value}`).toString(),
         value,
       }));
     },
+    /** @returns {{ text: string, value: string }[]} */
     checkboxOperators() {
       return this.operators.map(value => ({
-        text: this.$t(`op.${value}.${this.currentContext}`),
+        text: this.$t(`op.${value}.${this.currentContext}`).toString(),
         value,
       }));
     },
+    /** @returns {boolean} */
     hasChanges() {
-      return this.itemsToAdd.length > 0
+      return this.newItemsToAdd.length > 0
         || this.validStringsToAdd.length > 0
         || this.excludedItemsIds.length > 0
-        || this.localItemsToAdd.length > 0
+        || this.entitiesToAdd.length > 0
         || toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
     },
     currentContext: {
+      /** @returns {string} */
       get() {
         return this.editedFilter.context
           ? this.editedFilter.context
           : 'include'
       },
+      /** @param {string} value */
       set(value) { this.editedFilter.context = value }
     },
+    /** @returns {Entity[]} */
     entities() {
-      return this.filter.items
+      return this.filter.items ?? []
     }
   },
   methods: {
+    /** @returns {void} */
     applyChanges() {
       const { type } = this.editedFilter
 
       if (!StringTypes.includes(type) && !RangeFacets.includes(type)) {
-        const allItemsDictonary = this.filter.items
-          .concat(this.itemsToAdd)
-          .concat(this.localItemsToAdd)
+        const allItemsDictonary = (this.filter.items ?? [])
+          .concat(this.newItemsToAdd)
+          .concat(this.entitiesToAdd)
           .reduce((acc, item) => {
             acc[item.uid] = item
             return acc
           }, {})
-        const availableItemsIds = [...new Set(this.filter.items.concat(this.itemsToAdd).concat(this.localItemsToAdd).map(({ uid }) => uid))]
+        const availableItemsIds = [...new Set((this.filter.items ?? []).concat(this.newItemsToAdd).concat(this.entitiesToAdd).map(({ uid }) => uid))]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
         const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
 
@@ -334,7 +360,7 @@ export default {
       } else if (StringTypes.includes(type)) {
         const newFilter = {
           ...this.editedFilter,
-          q: this.editedFilter.q
+          q: (/** @type {string[]} */ (this.editedFilter.q) ?? [])
             .filter((d) => !this.excludedItemsIds.includes(d))
             .concat(this.validStringsToAdd.map(d => d.uid)),
         };
@@ -344,23 +370,33 @@ export default {
         this.$emit('changed', this.editedFilter)
       }
     },
+    /** @returns {void} */
     addStringItem() {
       this.stringsToAdd.push({
         uid: '',
         checked: true,
       });
     },
+    /** @param {number} idx */
     removeStringItem(idx) {
       this.stringsToAdd.splice(idx, 1);
     },
+    /**
+     * @param {string} value
+     * @param {number} idx
+     */
     changeStringFilterItemAtIndex(value, idx) {
-      this.editedFilter.q = this.filter.items.map((d, i) => {
+      this.editedFilter.q = (this.filter.items ?? []).map((d, i) => {
         if(i === idx) {
           return value;
         }
         return d.uid;
       }).filter(d => d.length);
     },
+    /**
+     * @param {boolean} selected
+     * @param {string} uid
+     */
     toggleFilterItem(selected, uid) {
       if (selected) {
         this.excludedItemsIds = this.excludedItemsIds.filter(id => id !== uid)
@@ -368,6 +404,9 @@ export default {
         this.excludedItemsIds = this.excludedItemsIds.concat(uid)
       }
     },
+    /**
+     * @param {string} embedding
+     */
     addEmbeddingSuggestion(embedding) {
       this.stringsToAdd.push({
         uid: embedding,
@@ -376,16 +415,32 @@ export default {
       // this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
       // this.editedFilter.precisions = 'soft'
     },
+    /**
+     * @param {{ item: Entity, q: string }} param
+     */
     handleRangeChanged({ item, q }) {
       this.editedFilter.q = q
       this.editedFilter.items = [item]
       if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);
     },
+    /**
+     * @param {Entity} entity
+     */
     addEntitySuggestion(entity) {
-      if (this.editedFilter.q.includes(entity.uid)) return
-      this.editedFilter.q = [...this.editedFilter.q, entity.uid]
-      this.localItemsToAdd =  [...this.localItemsToAdd, entity]
-    }
+      const ids = /** @type {string[]} */ (this.editedFilter.q) ?? []
+      if (ids.includes(entity.uid)) return
+      this.editedFilter.q = [...ids, entity.uid]
+      this.entitiesToAdd =  [...this.entitiesToAdd, entity]
+    },
+    /**
+     * @param {number | undefined} count
+     * @returns {string}
+     */
+    getCountSnippet(count) {
+      return this.$tc('numbers.results', count, { n: this.$n(count ?? 0) })
+    },
+    asNumber,
+    asDate
   },
   components: {
     FilterDaterange,
@@ -406,8 +461,9 @@ export default {
         if (toSerializedFilter(this.editedFilter) === toSerializedFilter(this.filter)) return
 
         this.editedFilter = toCanonicalFilter(this.filter)
-        if (this.itemsToAdd) {
-          this.editedFilter.q = this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+        if (this.newItemsToAdd) {
+          const ids = /** @type {string[]} */ (this.editedFilter.q) ?? []
+          this.editedFilter.q = ids.concat(this.newItemsToAdd.map(({ uid }) => uid))
         }
         this.excludedItemsIds = []
       },
