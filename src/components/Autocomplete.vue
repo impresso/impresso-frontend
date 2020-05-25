@@ -34,7 +34,7 @@
         </div>
       </div>
       <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box border-bottom">
-        <div class="row no-gutters">
+        <div class="row no-gutters" :title="$t(`label.${type}.title`)">
           <div class="col-1 border-right" v-if="type !== 'mention'">
             <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
           </div>
