@@ -29,7 +29,7 @@
           <div :class="`suggestion-${suggestion.type}`">
             <span class="small" v-if='suggestion.h' v-html='suggestion.h'/>
             <span class="small" v-else>...<b>{{ q }}</b></span>
-            <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
+            <b-badge variant="light" class="border border-medium">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
@@ -46,9 +46,10 @@
                 class="suggestion pr-1 pl-2 py-1" :class="{
                   selected: selectedIndex === s.idx,
                 }">
-              <div v-if="s.fake && type !== 'mention'">
+              <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
                 <span class="small">... <b>{{ q }}</b></span>
-                <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
+                <b-badge variant="light" class="border border-medium">
+                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
               </div>
               <div v-else :class="`${type} small`">
                 <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
@@ -333,7 +334,7 @@ export default {
       background: white;
       border: 1px solid $clr-secondary;
     }
-    &.has-suggestions {
+    &:focus.has-suggestions {
       // border: 1px solid $clr-secondary;
       border-bottom: 0;
     }
