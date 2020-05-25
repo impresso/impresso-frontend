@@ -80,11 +80,11 @@ import Explorer from './Explorer';
 
 const AVAILABLE_TYPES = [
   'mention',
-  'collection',
   'newspaper',
   'topic',
   'location',
   'person',
+  'collection',
 ];
 
 export default {
