@@ -22,7 +22,7 @@
 
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
       <div class="border-bottom ">
-        <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
+        <div class="suggestion p-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
             @click="submitStaticSuggestion(suggestion)"
             :data-idx="suggestion.idx"
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
