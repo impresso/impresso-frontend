@@ -13,7 +13,7 @@
           @click="submit({ type: 'string', q })">
           <div class="d-flex search-submit dripicons-search"></div>
         </b-btn>
-        <b-btn variant="secondary" :title="$t('actions.addFilter')"
+        <b-btn variant="outline-primary" :title="$t('actions.addFilter')"
           @click="showExplorer">
             <div class="d-flex dripicons-experiment"></div>
         </b-btn>
