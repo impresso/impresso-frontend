@@ -9,14 +9,13 @@
       v-on:focus.native="selectInput"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn variant="outline-primary" class="px-2"
+        <b-btn variant="outline-primary" :title="$t('actions.search')"
           @click="submit({ type: 'string', q })">
-          <div class="search-submit dripicons-search"></div>
+          <div class="d-flex search-submit dripicons-search"></div>
         </b-btn>
-        <b-btn variant="outline-primary" class="small-caps"
+        <b-btn variant="secondary" :title="$t('actions.addFilter')"
           @click="showExplorer">
-
-            <div class="d-flex">{{ $t('actions.addFilter') }}</div>
+            <div class="d-flex dripicons-experiment"></div>
         </b-btn>
       </b-input-group-append>
     </b-input-group>
@@ -331,18 +330,14 @@ export default {
     color: black;
 
     &:focus {
-      // box-shadow: none;
+      box-shadow: none;
       background: white;
-      // border: 1px solid $clr-secondary;
+      border: 1px solid $clr-secondary;
     }
     &.has-suggestions {
       // border: 1px solid $clr-secondary;
       border-bottom: 0;
     }
-  }
-  .search-submit {
-    line-height: 1;
-    padding: 0.1em;
   }
   .suggestions {
     position: absolute;
