@@ -279,6 +279,7 @@ export default {
       this.selectedIndex = suggestion.idx;
     },
     selectInput(e) {
+      this.showSuggestions = this.q.length > 0;
       e.target.select();
     },
     keyup(event) {
@@ -290,11 +291,9 @@ export default {
         break;
       case 'ArrowDown':
         this.selectedIndex += 1;
-        this.showSuggestions = this.q.length > 0;
         break;
       case 'ArrowUp':
         this.selectedIndex -= 1;
-        this.showSuggestions = this.q.length > 0;
         break;
       case 'Escape':
         this.hideSuggestions();
