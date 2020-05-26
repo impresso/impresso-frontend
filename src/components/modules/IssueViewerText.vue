@@ -26,11 +26,12 @@
           <b-container fluid
             v-else
             class="region-row mt-3 mb-3 position-relative">
-            <label class="position-absolute text-right d-flex align-content-center" style="right: 0; top: -1.5rem; height: 2rem; z-index: 1;">
-              <div class="small-caps" v-if="textReusePassages.length" v-html="$tc('textReuseLabel', textReusePassages.length, {
+            <label class="text-right d-flex align-items-center">
+              <div class="ml-auto" style="line-height:1.25" v-if="textReusePassages.length"
+                v-html="$tc('textReuseLabel', textReusePassages.length, {
                   n: textReusePassages.length,
                 })"/>
-              <div v-else>{{ $tc('textReuseLabel', 0) }}</div>
+              <div v-else class="ml-auto" style="line-height:1.25" v-html="$tc('textReuseLabel', 0)" />
               <info-button class="ml-2" name="text-reuse"/>
             </label>
             <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
