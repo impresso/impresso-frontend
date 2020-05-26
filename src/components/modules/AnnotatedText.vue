@@ -60,7 +60,7 @@ const getClusterInnerTagStyle = (context, entity, colourMap) => {
 
 const getClusterTitle = (context, clusterId) => {
   const select = context.props.selectedClusterId === clusterId ? 'unselect' : 'select';
-  return select + ' passage with cluster ID ' + clusterId
+  return select + ' this passage'
 }
 
 const getClusterClass = isLast => isLast ? 'cluster-tag ending' : 'cluster-tag starting';
