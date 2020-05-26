@@ -238,6 +238,7 @@ export default {
           q: this.q.trim(),
         }).then((res) => {
           this.collectionSuggestions = res;
+          this.suggestions = [...res, ...this.suggestions];
         })
       } else {
         // if length of the query is 0 then we clear the suggestions
