@@ -99,6 +99,7 @@ export default {
       },
     ],
     recentSuggestions: [],
+    collectionSuggestions: [],
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
@@ -231,8 +232,13 @@ export default {
         this.$store.dispatch('autocomplete/SEARCH', {
           q: this.q.trim(),
         }).then((res) => {
-          this.suggestions = res;
-        });
+          this.suggestions = [...res, ...this.collectionSuggestions];
+        })
+        this.$store.dispatch('autocomplete/SUGGEST_COLLECTIONS', {
+          q: this.q.trim(),
+        }).then((res) => {
+          this.collectionSuggestions = res;
+        })
       } else {
         // if length of the query is 0 then we clear the suggestions
         this.suggestions = [];
