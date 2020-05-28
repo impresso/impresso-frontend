@@ -297,20 +297,15 @@ input[type="range"]:active::-ms-thumb {
 }
 
 
-.list-item-details .dropdown {
-  position: absolute;
-}
-.body .dropdown {
-  margin-bottom: 1px;
-}
-// limit hack to header dropdowns
+
+// hack: hide bottom border on header dropdowns
 .header {
   .dropdown.show > .dropdown-toggle {
     border-bottom-color: transparent;
     z-index: 1001;
   }
   // add dots to fix bottom corners
-  *:not(.list-item-details) .dropdown.show::before, .dropdown.show::after {
+  .dropdown.show::before, .dropdown.show::after {
     content: '';
     position: absolute;
     bottom: 0px;
@@ -323,13 +318,21 @@ input[type="range"]:active::-ms-thumb {
     right: 0px;
   }
 }
+
+.list-item-details .dropdown {
+  position: inherit;
+}
+
 // fix size change on hover
 .dropdown-toggle::after {
   height: 1rem;
   margin: 0;
   padding-left: 3px;
 }
-
+.dropdown-menu {
+  min-width: inherit;
+  padding: 0;
+}
 
 .tooltip-inner {
     max-width: auto;
@@ -340,9 +343,6 @@ input[type="range"]:active::-ms-thumb {
       color: white;
       font-weight: bold;
     }
-}
-.dropdown-menu {
-    padding: 0;
 }
 .fixed-pagination-footer {
     position: absolute;
