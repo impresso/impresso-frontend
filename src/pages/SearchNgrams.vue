@@ -108,10 +108,7 @@ import {
   toCanonicalFilter,
   joinFiltersWithItems
 } from '@/logic/filters'
-import {
-  searchQueryGetter,
-  searchQuerySetter,
-} from '@/logic/queryParams'
+import { mapFilters } from '@/logic/queryParams'
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import BaseTitleBar from '@/components/base/BaseTitleBar';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
@@ -129,8 +126,6 @@ import {
   buildEmptyFacets
 } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util';
-import FilterFactory from '@/models/FilterFactory';
-import SearchQuery from '@/models/SearchQuery';
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -266,10 +261,9 @@ export default {
     }
   },
   computed: {
-    searchQuery: {
-      ...searchQueryGetter(),
-      ...searchQuerySetter(),
-    },
+    /** @type {import('vue').ComputedOptions<Filter[]>} */
+    searchQueryFilters: mapFilters(),
+    /** @type {import('vue').ComputedOptions<string[]>} */
     unigrams: {
       /** @returns {string[]} */
       get() {
@@ -294,16 +288,16 @@ export default {
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
-      return this.searchQuery.filters
+      return this.searchQueryFilters
         .filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
     /** @returns {Filter[]} */
     filters() {
-      return this.searchQuery.filters
+      return this.searchQueryFilters
         .filter(({ type }) => AllowedFilterTypes.includes(type))
         // add implicit filters
         .concat([
-          FilterFactory.create({ type: 'hasTextContents' }),
+          { type: 'hasTextContents' },
         ]);
     },
     /**
@@ -351,7 +345,7 @@ export default {
     unigramsQueryParameters() {
       return {
         ngrams: this.unigrams,
-        filters: this.filters.map((d) => d.getQuery()),
+        filters: this.filters
       };
     },
     /**
@@ -373,6 +367,7 @@ export default {
         }
       })
     },
+    /** @returns {string} */
     plotItemsData() {
       const { domainValues, totals } = this.ngramResult
       const data = this.ngramResult.trends.map(({ ngram, values }) => ({
@@ -385,8 +380,9 @@ export default {
         }))
       }));
       const jsonStr = JSON.stringify({
+        // @ts-ignore
         url: window.location.href,
-        filters: this.filters.map((d) => d.getQuery()),
+        filters: this.filters,
         exportDate: new Date(),
         data,
       });
@@ -398,9 +394,7 @@ export default {
   methods: {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
-      this.searchQuery = new SearchQuery({
-        filters: optimizeFilters(filters).concat(this.ignoredFilters),
-      });
+      this.searchQueryFilters = optimizeFilters(filters).concat(this.ignoredFilters);
     },
     /** @returns {Date} */
     getTooltipScopeTime(scope) {
