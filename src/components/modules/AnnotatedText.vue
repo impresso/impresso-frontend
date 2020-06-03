@@ -58,6 +58,11 @@ const getClusterInnerTagStyle = (context, entity, colourMap) => {
   return { backgroundColor }
 }
 
+const getClusterTitle = (context, clusterId) => {
+  const select = context.props.selectedClusterId === clusterId ? 'unselect' : 'select';
+  return select + ' this passage'
+}
+
 const getClusterClass = isLast => isLast ? 'cluster-tag ending' : 'cluster-tag starting';
 
 const renderChildren = (h, context, child) => (
@@ -77,6 +82,7 @@ const renderClusterTags = (h, context, child) => {
 
   return getBorderlinePassages(child).map(({ entity, isLast }) => (
     <span
+      title={getClusterTitle(context, entity.clusterId)}
       class={getClusterClass(isLast)}
       style={getClusterTagStyle(entity, context.props.clusterColours, getClusterIndex(entity.clusterId))}
       onClick={() => { onClusterSelected(entity.clusterId); }}>

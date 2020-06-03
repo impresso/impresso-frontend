@@ -54,7 +54,8 @@ export default {
       and: 'and',
     },
     actions: {
-      addFilter: 'add filter...',
+      search: 'Search',
+      addFilter: 'Add filter ...',
       addContextualFilter: 'refine ...',
       agree: 'I agree to the terms of use',
       accept: 'accept',

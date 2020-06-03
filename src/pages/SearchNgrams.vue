@@ -76,7 +76,7 @@
               <div :style="{ 'background-color': tooltipScope.tooltip.item.colors[index] }" class="legend-dot mr-1"></div>
               <b>{{item.label}}</b>
               &middot;
-              {{roundValueForDisplay(item.item.value)}} {{$t('tooltipValueUnit')}}
+              {{roundValueForDisplay(item.item.value, false)}} {{$t('tooltipValueUnit')}} ({{valuePerTotalTokens(item, index)}})
             </div>
           </div>
         </div>
@@ -108,10 +108,7 @@ import {
   toCanonicalFilter,
   joinFiltersWithItems
 } from '@/logic/filters'
-import {
-  searchQueryGetter,
-  searchQuerySetter,
-} from '@/logic/queryParams'
+import { mapFilters } from '@/logic/queryParams'
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import BaseTitleBar from '@/components/base/BaseTitleBar';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
@@ -129,8 +126,6 @@ import {
   buildEmptyFacets
 } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util';
-import FilterFactory from '@/models/FilterFactory';
-import SearchQuery from '@/models/SearchQuery';
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -266,10 +261,9 @@ export default {
     }
   },
   computed: {
-    searchQuery: {
-      ...searchQueryGetter(),
-      ...searchQuerySetter(),
-    },
+    /** @type {import('vue').ComputedOptions<Filter[]>} */
+    searchQueryFilters: mapFilters(),
+    /** @type {import('vue').ComputedOptions<string[]>} */
     unigrams: {
       /** @returns {string[]} */
       get() {
@@ -294,16 +288,16 @@ export default {
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
-      return this.searchQuery.filters
+      return this.searchQueryFilters
         .filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
     /** @returns {Filter[]} */
     filters() {
-      return this.searchQuery.filters
+      return this.searchQueryFilters
         .filter(({ type }) => AllowedFilterTypes.includes(type))
         // add implicit filters
         .concat([
-          FilterFactory.create({ type: 'hasTextContents' }),
+          { type: 'hasTextContents' },
         ]);
     },
     /**
@@ -351,7 +345,7 @@ export default {
     unigramsQueryParameters() {
       return {
         ngrams: this.unigrams,
-        filters: this.filters.map((d) => d.getQuery()),
+        filters: this.filters
       };
     },
     /**
@@ -373,6 +367,7 @@ export default {
         }
       })
     },
+    /** @returns {string} */
     plotItemsData() {
       const { domainValues, totals } = this.ngramResult
       const data = this.ngramResult.trends.map(({ ngram, values }) => ({
@@ -385,22 +380,26 @@ export default {
         }))
       }));
       const jsonStr = JSON.stringify({
+        // @ts-ignore
         url: window.location.href,
-        filters: this.filters.map((d) => d.getQuery()),
+        filters: this.filters,
         exportDate: new Date(),
         data,
       });
       return `data:text/plain;charset=utf-8,${encodeURIComponent(jsonStr)}`;
     },
     /** @returns {string} */
-    timelineResolution() { return this.ngramResult.timeInterval }
+    timelineResolution() { return this.ngramResult.timeInterval },
+    /** @returns {string[]} */
+    isoDates() {
+      const { domainValues } = this.ngramResult
+      return domainValues.map(v => new Date(v).toISOString())
+    }
   },
   methods: {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
-      this.searchQuery = new SearchQuery({
-        filters: optimizeFilters(filters).concat(this.ignoredFilters),
-      });
+      this.searchQueryFilters = optimizeFilters(filters).concat(this.ignoredFilters);
     },
     /** @returns {Date} */
     getTooltipScopeTime(scope) {
@@ -416,8 +415,27 @@ export default {
       const fullYear = timestamp.getFullYear()
       return getArticlesCountForYear(this.facets, fullYear)
     },
-    /** @param {number} value */
-    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) }
+    /**
+     * @param {number} value
+     * @param {boolean} withSuffix display ppm suffix
+     */
+    roundValueForDisplay(value, withSuffix = true) {
+      const v = this.$n(value, { notation: 'short' })
+      return withSuffix ? `${v} ppm` : v
+    },
+    /**
+     * @param {any} item
+     * @param {number} itemIndex
+     * @param {any} scope
+     */
+    valuePerTotalTokens(item, itemIndex) {
+      const { totals, trends } = this.ngramResult
+      const dateIndex = this.isoDates.indexOf(item.item.time.toISOString())
+      const absoluteValue = trends[itemIndex].values[dateIndex]
+      const total = totals[dateIndex]
+
+      return this.$tc('tooltipAbsoluteValue', absoluteValue, { count: absoluteValue, total })
+    }
   }
 };
 </script>
@@ -442,7 +460,8 @@ export default {
       },
       "loading": "Loading ...",
       "tooltipValueUnit": "per 1 million",
-      "downloadVisualisationData": "download data in JSON"
+      "downloadVisualisationData": "download data in JSON",
+      "tooltipAbsoluteValue": "{count} tokens"
     }
   }
 </i18n>
