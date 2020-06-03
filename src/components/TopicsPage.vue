@@ -29,10 +29,10 @@
           <!-- <label>{{ $t('max_nodes') }}</label> -->
           <!-- <i-dropdown v-model="limit" v-bind:options="limitOptions" size="sm" variant="outline-primary"></i-dropdown> -->
         </div>
-        <div class='pt-3 pb-2 px-3' v-else>
+        <div class='pt-3 pb-2 px-3'>
           <label class="mr-1">{{ $t('order_by') }}</label>
           <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          <b-button class="ml-2" size="sm" variant="outline-primary" :disabled="!visualizedTopics.length" @click="resetVisualisedItems">
+          <b-button class="ml-2" size="sm" variant="outline-primary" v-if="visualizedTopics.length" @click="resetVisualisedItems">
             {{ $t('actions.resetItems') }}
           </b-button>
 
@@ -236,7 +236,7 @@ export default {
       filters = [],
     } = {}) {
       const params = {
-        limit: this.limit,
+        limit: 300,
         page,
         facets,
         filters,
@@ -337,7 +337,7 @@ export default {
   "en": {
     "label_list": "browse {total} topics",
     "label_topics_list_empty": "There is no word in any topic containing <b>{q}</b>",
-    "label_visualized_list": "0 visualized | <span style='color: blue'>1</span> visualized | <span style='color: blue'>{total}</span> visualized",
+    "label_visualized_list": "observing list (<span style='color: blue'>{n}</span>)",
     "label_uncheck_applyCurrentSearchFilters": "Try to uncheck the mention <em>[...]if matches current search</em>",
     "label_applyCurrentSearchFilters": "filter list of topics if matches current search <br/>(<b>{countActiveFilters}</b> filters)",
     "order_by": "order by",

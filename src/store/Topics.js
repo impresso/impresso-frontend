@@ -97,6 +97,14 @@ export default {
     CHANGE_GRAPH_LINK_MODE({ commit }, mode) {
       commit('UPDATE_GRAPH_LINK_MODE', mode);
     },
+    TOGGLE_VISUALIZED_ITEM({ commit, state }, item) {
+      if (typeof state.visualizedItemsIndex[item.uid] !== 'undefined') {
+        commit('REMOVE_VISUALIZED_ITEM', item);
+        return false;
+      }
+      commit('ADD_VISUALIZED_ITEM', item);
+      return true;
+    },
     ADD_VISUALIZED_ITEM({ commit, state }, item) {
       commit('ADD_VISUALIZED_ITEM', item);
       commit('UPDATE_GRAPH_NODES', state.visualizedItems);

@@ -127,6 +127,9 @@ export default {
     },
   },
   computed: {
+    user() {
+      return this.$store.getters['user/user'];
+    },
     staticSuggestions() {
       return this.initialSuggestions.concat(this.recentSuggestions).map((d, idx) => ({
         ...d,
@@ -234,12 +237,14 @@ export default {
         }).then((res) => {
           this.suggestions = [...res, ...this.collectionSuggestions];
         })
-        this.$store.dispatch('autocomplete/SUGGEST_COLLECTIONS', {
-          q: this.q.trim(),
-        }).then((res) => {
-          this.collectionSuggestions = res;
-          this.suggestions = [...res, ...this.suggestions];
-        })
+        if (this.user) {
+          this.$store.dispatch('autocomplete/SUGGEST_COLLECTIONS', {
+            q: this.q.trim(),
+          }).then((res) => {
+            this.collectionSuggestions = res;
+            this.suggestions = [...res, ...this.suggestions];
+          })
+        }
       } else {
         // if length of the query is 0 then we clear the suggestions
         this.suggestions = [];
