@@ -12,6 +12,7 @@ class Dimension {
     domain = [0, 1],
     range = [0, 1],
     isRangeFixed = false,
+    discreteColorSchemeName = 'Warm',
   } = {}) {
     this.name = name;
     this.property = property;
@@ -22,8 +23,10 @@ class Dimension {
     this.range = range;
     this.isRangeFixed = isRangeFixed;
 
-    if (this.type === TYPE_DISCRETE && this.domain.length) {
-      this.scale = this.scaleFn(d3.schemeSpectral[Math.max(this.domain.length, 3)])
+    if (this.type === TYPE_DISCRETE) {
+      this.discreteColorsSchemeName = discreteColorSchemeName;
+      this.updateDiscreteColors(this.discreteColorsSchemeName);
+      this.scale = this.scaleFn(this.discreteColors)
         .domain(this.domain);
     } else {
       this.scale = this.scaleFn()
@@ -32,6 +35,18 @@ class Dimension {
     }
   }
 
+  updateDiscreteColors(discreteColorSchemeName) {
+    console.info('dimension', discreteColorSchemeName);
+    if (d3[`scheme${discreteColorSchemeName}`] && d3[`scheme${discreteColorSchemeName}`][this.domain.length]) {
+      this.discreteColors = d3[`scheme${discreteColorSchemeName}`][this.domain.length];
+    } else if(d3[`interpolate${discreteColorSchemeName}`]) {
+      const interpolate = d3[`interpolate${discreteColorSchemeName}`];
+      this.discreteColors = [];
+      for (let i = 0; i < this.domain.length; ++i) {
+        this.discreteColors.push(d3.rgb(interpolate(i / (this.domain.length - 1))).hex());
+      }
+    }
+  }
   /**
    * getNearestValue
    * @param  {Number} v [description]
@@ -104,18 +119,27 @@ class Dimension {
     this.legend = [];
     // recalculate cat according to type
     if (this.type === TYPE_DISCRETE) {
-      const groups = Dimension.groupBy(values, this.property);
-      this.domain = Object.keys(groups);
-      this.scale = this.scaleFn(d3.schemeSpectral[this.domain.length + 2])
-        .domain(this.domain);
-      this.domain.forEach((key) => {
-        this.legend.push({
-          name: key,
-          property: this.property,
-          count: groups[key].length,
-          color: this.scale(key),
+      try{
+        const groups = Dimension.groupBy(values, this.property);
+        this.domain = Object.keys(groups);
+        this.updateDiscreteColors(this.discreteColorsSchemeName);
+        this.scale = this.scaleFn(this.discreteColors)
+          .domain(this.domain);
+        this.domain.forEach((key) => {
+          this.legend.push({
+            name: key,
+            property: this.property,
+            count: groups[key].length,
+            color: this.scale(key),
+          });
         });
-      });
+      } catch(e) {
+        console.error(
+          'Dimension.update(TYPE_DISCRETE) failed for:', this.property,
+          '\n- error:', e,
+          '\n- values:', values,
+        );
+      }
     } else {
       if (!this.isDomainFixed) {
         this.domain = d3.extent(values, d => d[this.property]);

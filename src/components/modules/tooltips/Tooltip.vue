@@ -76,7 +76,12 @@ export default {
   position: absolute;
   top: 0;
   pointer-events: none;
+  z-index: 1071;
 
+  &.active.fadeOut, &.fadeOut{
+    transition: opacity .2s ease-in-out;
+    opacity: 0;
+  }
   .tooltip-wrapper{
     width: 200px;
     position: absolute;

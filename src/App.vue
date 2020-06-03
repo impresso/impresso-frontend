@@ -430,6 +430,10 @@ input[type="range"]:active::-ms-thumb {
   }
 }
 
+.btn-sm, .btn-group-sm > .btn {
+  white-space: nowrap;
+}
+
 .btn-outline-icon{
   color: $clr-grey-400;
   background-color: transparent;
