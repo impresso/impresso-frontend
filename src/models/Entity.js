@@ -52,7 +52,10 @@ export default class Entity {
   }
 
   static getTypeFromUid(uid) {
-    const t = String(uid.match(/^aida-\d+-(\d+)/)[1]);
+    if (uid == null) return;
+    const match = uid.match(/^aida-\d+-(\d+)/)
+    if (match == null) return;
+    const t = String(match[1]);
     return TYPES[t] || t;
   }
 }
