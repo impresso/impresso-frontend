@@ -157,6 +157,7 @@
       <entities-suggestions-list
         v-if="showEntities"
         :entities="entities"
+        :suggestions-provider="getSuggestedEntities"
         class="bg-light border"
         @entity-selected="addEntitySuggestion"/>
     </div>
@@ -189,6 +190,7 @@ import ItemLabel from './lists/ItemLabel';
 import CollectionItem from './lists/CollectionItem';
 import EmbeddingsSearch from './EmbeddingsSearch';
 import EntitiesSuggestionsList from '@/components/modules/EntitiesSuggestionsList'
+import { getSuggestedEntities } from '@/logic/entities'
 
 import {
   toCanonicalFilter,
@@ -230,7 +232,8 @@ export default {
     RangeFacets,
     NumericRangeFacets,
     StringTypes,
-    EntityTypes
+    EntityTypes,
+    getSuggestedEntities
   }),
   props: {
     /** @type {import('vue').PropOptions<string[]>} */

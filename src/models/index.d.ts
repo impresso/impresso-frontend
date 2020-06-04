@@ -24,6 +24,16 @@ export interface Entity {
   type?: String
 }
 
+export interface SuggestedEntity {
+  uid: string
+  type: string
+  name: string
+  wikidataId?: string
+  matches: string[]
+  countItems: number // Number of articles the entity is mentioned in
+  countMentions: number // Number of times the entity is mentioned in corpus
+}
+
 export interface Filter {
   q?: string[] | string,
   type: string,

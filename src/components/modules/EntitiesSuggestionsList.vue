@@ -21,10 +21,11 @@
 
 <script>
 import Spinner from '@/components/layout/Spinner'
-import { entitiesSuggestions as entitiesSuggestionsService } from '@/services'
 
 /**
  * @typedef {import('@/models').Entity} Entity
+ * @typedef {import('@/models').SuggestedEntity} SuggestedEntity
+ * @typedef {(entities: Entity[]) => Promise<SuggestedEntity[]>} SuggestionsProvider
  */
 
 export default {
@@ -40,10 +41,10 @@ export default {
     entities: {
       type: Array
     },
-    method: {
-      type: String,
-      validator: value => ['similar'].includes(value),
-      default: 'similar'
+    /** @type {import('vue').PropOptions<SuggestionsProvider>} */
+    suggestionsProvider: {
+      type: Function,
+      required: true
     }
   },
   methods: {
@@ -60,29 +61,13 @@ export default {
       return this.$emit('entity-selected', entity)
     }
   },
-  computed: {
-    /** @returns {{ entities: Entity[], method: string }} */
-    entitiesAndMethod() {
-      return { entities: this.entities ?? [], method: this.method }
-    }
-  },
   watch: {
-    entitiesAndMethod: {
-      /** @param {{ entities: Entity[], method: string }} param */
-      async handler({ entities }) {
-        if (entities.length === 0) {
-          this.suggestedEntities = []
-          return
-        }
-
-        const names = entities.map(({ name }) => name);
-        const inputEntitiesIds = entities.map(({ uid }) => uid)
-
+    entities: {
+      /** @param {Entity[]} entities */
+      async handler(entities) {
         try {
           this.isLoading = true
-          this.suggestedEntities = await entitiesSuggestionsService
-            .create({ names })
-            .then(res => res.results.filter(({ uid }) => !inputEntitiesIds.includes(uid)))
+          this.suggestedEntities = await this.suggestionsProvider(entities)
         } finally {
           this.isLoading = false
         }
