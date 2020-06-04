@@ -21,7 +21,7 @@
 
 <script>
 import Spinner from '@/components/layout/Spinner'
-import { entities as entitiesService } from '@/services'
+import { entitiesSuggestions as entitiesSuggestionsService } from '@/services'
 
 /**
  * @typedef {import('@/models').Entity} Entity
@@ -75,17 +75,14 @@ export default {
           return
         }
 
-        const query = {
-          q: entities.map(({ name }) => name).join(' '),
-          limit: 100
-        }
+        const names = entities.map(({ name }) => name);
         const inputEntitiesIds = entities.map(({ uid }) => uid)
 
         try {
           this.isLoading = true
-          this.suggestedEntities = await entitiesService
-            .find({ query })
-            .then(res => res.data.filter(({ uid }) => !inputEntitiesIds.includes(uid)))
+          this.suggestedEntities = await entitiesSuggestionsService
+            .create({ names })
+            .then(res => res.results.filter(({ uid }) => !inputEntitiesIds.includes(uid)))
         } finally {
           this.isLoading = false
         }
