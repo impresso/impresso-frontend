@@ -299,13 +299,13 @@ input[type="range"]:active::-ms-thumb {
 
 
 // hack: hide bottom border on header dropdowns
-.header {
-  .dropdown.show > .dropdown-toggle {
+.header .dropdown.show {
+  .dropdown-toggle {
     border-bottom-color: transparent;
     z-index: 1001;
   }
   // add dots to fix bottom corners
-  .dropdown.show::before, .dropdown.show::after {
+  &::before, &::after {
     content: '';
     position: absolute;
     bottom: 0px;
@@ -314,8 +314,12 @@ input[type="range"]:active::-ms-thumb {
     background-color: $clr-primary;
     z-index: 1002;
   }
-  .dropdown.show::after {
+  &::after {
     right: 0px;
+  }
+  // in case dropdown menu is placed above dropdown-toggle
+  .dropdown-menu[x-placement="top-start"] {
+    z-index: 1003;
   }
 }
 
