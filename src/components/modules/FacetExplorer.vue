@@ -24,7 +24,9 @@
     <div class="p-2 border-top" v-if='selectedIdsChanged'>
       <b-button
         @click="applyFilter()"
-        class="w-100 btn btn-sm btn-success"
+        variant="outline-success"
+        size="sm"
+        class="w-100"
         v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
     </div>
 
