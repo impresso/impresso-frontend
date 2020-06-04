@@ -198,7 +198,7 @@ import {
 } from '../../logic/filters'
 
 const StringTypes = ['string', 'title']
-const EntityTypes = ['person', 'location']
+const EntityTypes = ['person', 'location', 'entity']
 
 /** @returns {number} */
 const asNumber = any => parseInt(any, 10)
