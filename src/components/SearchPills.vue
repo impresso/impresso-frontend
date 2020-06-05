@@ -81,7 +81,8 @@
         <filter-monitor checkbox
                         :filter="filter"
                         @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
-                        :operators="['AND', 'OR']" />
+                        :operators="['AND', 'OR']"
+                        :context-filters="filters" />
       </div>
 
       <!-- type is not string, add Remove button -->

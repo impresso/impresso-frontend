@@ -25,7 +25,7 @@ import Spinner from '@/components/layout/Spinner'
 /**
  * @typedef {import('@/models').Entity} Entity
  * @typedef {import('@/models').SuggestedEntity} SuggestedEntity
- * @typedef {(entities: Entity[]) => Promise<SuggestedEntity[]>} SuggestionsProvider
+ * @typedef {(context: any) => Promise<SuggestedEntity[]>} SuggestionsProvider
  */
 
 export default {
@@ -37,10 +37,8 @@ export default {
     isLoading: false
   }),
   props: {
-    /** @type {import('vue').PropOptions<Entity[]>} */
-    entities: {
-      type: Array
-    },
+    /** @type {import('vue').PropOptions<any>} */
+    context: {},
     /** @type {import('vue').PropOptions<SuggestionsProvider>} */
     suggestionsProvider: {
       type: Function,
@@ -62,12 +60,12 @@ export default {
     }
   },
   watch: {
-    entities: {
-      /** @param {Entity[]} entities */
-      async handler(entities) {
+    context: {
+      /** @param {any} context */
+      async handler(context) {
         try {
           this.isLoading = true
-          this.suggestedEntities = await this.suggestionsProvider(entities)
+          this.suggestedEntities = await this.suggestionsProvider(context)
         } finally {
           this.isLoading = false
         }

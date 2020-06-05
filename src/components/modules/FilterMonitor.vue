@@ -140,23 +140,31 @@
       <b-row no-gutters>
         <b-col cols="6">
           <div class="ml-1">
+            <!-- similar entities button -->
             <b-button
               size="sm"
               variant="outline-primary"
               block
-              v-on:click.prevent="showEntities = !showEntities;">
+              v-on:click.prevent="toggleEntitiesSuggestions(SuggestedEntitiesTypes.Similar)">
               {{ $t('label.similarEntities') }}
             </b-button>
           </div>
         </b-col>
         <b-col cols="6">
-          <!-- related entities button will go here -->
+          <!-- co-occurring entities button -->
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              block
+              v-on:click.prevent="toggleEntitiesSuggestions(SuggestedEntitiesTypes.Related)">
+              {{ $t('label.relatedEntities') }}
+            </b-button>
         </b-col>
       </b-row>
 
       <entities-suggestions-list
-        v-if="showEntities"
-        :entities="entities"
+        v-if="entitiesSuggestionsType != null"
+        :context="suggestedEntitiesContext"
         :suggestions-provider="getSuggestedEntities"
         class="bg-light border"
         @entity-selected="addEntitySuggestion"/>
@@ -190,7 +198,7 @@ import ItemLabel from './lists/ItemLabel';
 import CollectionItem from './lists/CollectionItem';
 import EmbeddingsSearch from './EmbeddingsSearch';
 import EntitiesSuggestionsList from '@/components/modules/EntitiesSuggestionsList'
-import { getSuggestedEntities } from '@/logic/entities'
+import { getSimilarEntities, getCoOccurringEntities } from '@/logic/entities'
 
 import {
   toCanonicalFilter,
@@ -208,6 +216,11 @@ const asNumber = any => parseInt(any, 10)
 /** @returns {Date} */
 const asDate = any => new Date(any)
 
+const SuggestedEntitiesTypes = Object.freeze({
+  Similar: 'similar',
+  Related: 'related'
+})
+
 /**
  * @typedef {import('@/models').Filter} Filter
  * @typedef {import('@/models').Entity} Entity
@@ -224,7 +237,8 @@ export default {
   },
   data: () => ({
     showEmbeddings: false,
-    showEntities: false,
+    /** @type {string | undefined} */
+    entitiesSuggestionsType:  undefined,
     editedFilter: /** @type {Filter} */ ({}),
     excludedItemsIds: /** @type {string[]} */ ([]),
     stringsToAdd: /** @type {{ uid: string, checked: boolean }[]} */ ([]),
@@ -233,7 +247,7 @@ export default {
     NumericRangeFacets,
     StringTypes,
     EntityTypes,
-    getSuggestedEntities
+    SuggestedEntitiesTypes
   }),
   props: {
     /** @type {import('vue').PropOptions<string[]>} */
@@ -265,6 +279,14 @@ export default {
       type: Array,
       default: () => [],
     },
+    /**
+     * Optional list of filters where current filter is used.
+     *
+     * @type {import('vue').PropOptions<Filter[]>}
+     */
+    contextFilters: {
+      type: Array
+    }
   },
   computed: {
     /** @returns {boolean} */
@@ -336,6 +358,15 @@ export default {
     /** @returns {Entity[]} */
     entities() {
       return this.filter.items ?? []
+    },
+    /** @returns {any} */
+    suggestedEntitiesContext() {
+      if (this.entitiesSuggestionsType === SuggestedEntitiesTypes.Similar) {
+        return this.entities
+      } else if (this.entitiesSuggestionsType === SuggestedEntitiesTypes.Related) {
+        return { entities: this.entities, filters: this.contextFilters ?? [] }
+      }
+      return undefined;
     }
   },
   methods: {
@@ -453,7 +484,21 @@ export default {
       return this.$tc('numbers.results', count, { n: this.$n(count ?? 0) })
     },
     asNumber,
-    asDate
+    asDate,
+    /** @param {string} type */
+    toggleEntitiesSuggestions(type) {
+      this.entitiesSuggestionsType = this.entitiesSuggestionsType === type
+        ? undefined
+        : type;
+    },
+    async getSuggestedEntities(context) {
+      if (this.entitiesSuggestionsType === SuggestedEntitiesTypes.Similar) {
+        return getSimilarEntities(context);
+      } else if (this.entitiesSuggestionsType === SuggestedEntitiesTypes.Related) {
+        return getCoOccurringEntities(context);
+      }
+      return [];
+    }
   },
   components: {
     FilterDaterange,
@@ -521,6 +566,7 @@ label.custom-control-label {
     },
     "label": {
       "similarEntities": "Similar Entities",
+      "relatedEntities": "Co-occurring Entities",
       "title": {
         "context": {
           "include": "Contains",
