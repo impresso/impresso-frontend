@@ -175,7 +175,7 @@
       v-if="hasChanges"
       block
       size="sm"
-      variant="outline-primary"
+      variant="outline-success"
       @click="applyChanges()">
       <span v-if="validStringsToAdd.length > 0 || newItemsToAdd.length > 0 || excludedItemsIds.length > 0 || entitiesToAdd.length > 0">
         {{
