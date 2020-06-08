@@ -432,6 +432,8 @@ input[type="range"]:active::-ms-thumb {
 
 .btn-sm, .btn-group-sm > .btn {
   white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: auto;
 }
 
 .btn-outline-icon{
