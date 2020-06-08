@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="reduced">
     <!-- {{entitiesToAdd}} -->
     <spinner v-if="isLoading" class="text-center pt-2" />
     <div v-else v-for="entity in suggestedEntities" :key="entity.uid">
