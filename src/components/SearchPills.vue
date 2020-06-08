@@ -87,7 +87,7 @@
 
       <!-- type is not string, add Remove button -->
       <div class="px-2 mt-1 mb-2">
-        <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex)">{{$t('actions.remove')}}</b-button>
+        <b-button block size="sm" variant="outline-danger" @click="handleFilterRemoved(filterIndex)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
     <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addContextualFilter') }}</b-button>
