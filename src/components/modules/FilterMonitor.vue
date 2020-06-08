@@ -169,6 +169,7 @@
         v-if="entitiesSuggestionsType != null"
         :context="suggestedEntitiesContext"
         :suggestions-provider="getSuggestedEntities"
+        :entities-to-add="entitiesToAdd"
         class="bg-light border-tertiary border-left border-right"
         @entity-selected="addEntitySuggestion"/>
     </div>

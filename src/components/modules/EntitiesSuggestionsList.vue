@@ -1,21 +1,56 @@
 <template>
   <div>
-    <spinner v-if="isLoading"/>
-    <b-container v-if="!isLoading">
-      <b-row v-for="entity in suggestedEntities" :key="entity.uid" class="p-2 justify-content-between">
-        <b-col cols="10" class="text-align-left">
+    <!-- {{entitiesToAdd}} -->
+    <spinner v-if="isLoading" class="text-center pt-2" />
+    <div v-else v-for="entity in suggestedEntities" :key="entity.uid">
+      <div v-if="!entitiesToAdd.includes(entity)">
+        <div class="d-flex p-2 align-items-center">
+          <div :class="`px-2 dripicons-${getEntityIcon(entity)}`" />
+          <div class="px-2 mr-auto w-100">
+            <div>{{ entity.name }}</div>
+            <small>{{ $tc('items', entity.countItems)}}; {{$tc('mentions', entity.countMentions)}}</small>
+            <!-- <div class="">
+              <div class="viz-bars">
+                <small>{{entity.countItems}} items</small>
+                <div class="bg-white">
+                  <div class="bg-tertiary viz-bar"
+                  :title="`${entity.countItems} items`"
+                  :style="`width:${entity.countItems/maxItems * 100}%;`" />
+                </div>
+                <small>{{entity.countMentions}} mentions</small>
+                <div class="bg-white">
+                  <div class="bg-medium viz-bar"
+                  :title="`${entity.countMentions} $t('mentions')`"
+                  :style="`width:${entity.countMentions/maxMentions * 100}%;`" />
+                </div>
+              </div>
+            </div> -->
+          </div>
           <b-button
-            variant="link"
-            class="text-align-left suggest-button"
-            @click="handleEntityClicked(entity)">
-            {{ entity.name }}
+            size="sm"
+            :title="$t(actions.addToCurrentFilters)"
+            variant="outline-primary"
+            @click.prevent.stop="handleEntityClicked(entity)">
+            {{$t('+')}}
           </b-button>
-        </b-col>
-        <b-col cols="2" class="text-align-right align-self-center">
-          <span :class="`dripicons-${getEntityIcon(entity)}`"/>
-        </b-col>
-      </b-row>
-    </b-container>
+        </div>
+        <div v-if="entity !== suggestedEntities[suggestedEntities.length - 1]" class="border-bottom mx-2" />
+      </div>
+    </div>
+    <div class="border-bottom border-tertiary" />
+        <!-- <b-col cols="10" class="text-align-left">
+        <b-badge>{{ entity.name }}</b-badge>
+        <b-button
+          variant="link"
+          class="text-align-left suggest-button"
+          @click="handleEntityClicked(entity)">
+          {{ entity.name }}
+        </b-button>
+
+      </b-col>
+      <b-col cols="2" class="text-align-right align-self-center">
+        <span :class="`dripicons-${getEntityIcon(entity)}`"/>
+      </b-col> -->
   </div>
 </template>
 
@@ -34,7 +69,8 @@ export default {
   },
   data: () => ({
     suggestedEntities: /** @type {Entity[]} */ ([]),
-    isLoading: false
+    isLoading: false,
+    selectedEntities: [],
   }),
   props: {
     /** @type {import('vue').PropOptions<any>} */
@@ -43,7 +79,16 @@ export default {
     suggestionsProvider: {
       type: Function,
       required: true
-    }
+    },
+    entitiesToAdd: [],
+  },
+  computed: {
+    maxItems() {
+      return this.suggestedEntities.reduce((max, e) => e.countItems > max ? e.countItems : max, this.suggestedEntities[0].countItems);
+    },
+    maxMentions() {
+      return this.suggestedEntities.reduce((max, e) => e.countMentions > max ? e.countMentions : max, this.suggestedEntities[0].countMentions);
+    },
   },
   methods: {
     /**
