@@ -104,7 +104,7 @@
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
-            <b-button size="sm" variant="outline-primary" block
+            <b-button size="sm" variant="outline-secondary" block
               @click.prevent.stop="addStringItem()" :disabled="hasEmptyStringItems">
                 {{$t('actions.addItem')}}
             </b-button>
@@ -112,7 +112,7 @@
         </b-col>
         <b-col cols="6">
           <div class="ml-1">
-            <b-button size="sm" variant="outline-primary" block
+            <b-button size="sm" variant="outline-secondary" block
               v-on:click.prevent="showEmbeddings = !showEmbeddings;"
               >
                 {{$t('actions.addUsingEmbeddings')}}
@@ -138,23 +138,26 @@
     <!-- entities only -->
     <div class="mt-3" v-if="EntityTypes.includes(type)">
       <b-row no-gutters>
-        <b-col cols="6">
-          <div class="ml-1">
+        <b-col>
+          <div>
             <!-- similar entities button -->
             <b-button
               size="sm"
               variant="outline-primary"
+              :class="{ active : entitiesSuggestionsType === SuggestedEntitiesTypes.Similar }"
               block
               v-on:click.prevent="toggleEntitiesSuggestions(SuggestedEntitiesTypes.Similar)">
               {{ $t('label.similarEntities') }}
             </b-button>
           </div>
         </b-col>
-        <b-col cols="6">
+        <b-col>
           <!-- co-occurring entities button -->
             <b-button
+              class="border-left-0"
               size="sm"
               variant="outline-primary"
+              :class="{ active : entitiesSuggestionsType === SuggestedEntitiesTypes.Related }"
               block
               v-on:click.prevent="toggleEntitiesSuggestions(SuggestedEntitiesTypes.Related)">
               {{ $t('label.relatedEntities') }}
@@ -166,7 +169,7 @@
         v-if="entitiesSuggestionsType != null"
         :context="suggestedEntitiesContext"
         :suggestions-provider="getSuggestedEntities"
-        class="bg-light border"
+        class="bg-light border-tertiary border-left border-right"
         @entity-selected="addEntitySuggestion"/>
     </div>
 
