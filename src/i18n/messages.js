@@ -342,6 +342,8 @@ export default {
     more_info: 'More Info',
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',
+    mentions: 'no mention | 1 mention | {count} mentions',
+    items: 'no item | 1 item | {count} items',
   },
   nl: {
     language: 'Taal',
