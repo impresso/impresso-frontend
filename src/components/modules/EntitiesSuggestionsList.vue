@@ -87,8 +87,8 @@ export default {
       required: true,
     },
     entitiesToAdd: {
-      type: Array(),
-      default: [],
+      type: Array,
+      default: () => []
     },
   },
   computed: {
