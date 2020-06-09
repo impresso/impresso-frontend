@@ -30,8 +30,9 @@
             size="sm"
             :title="$t('actions.addToCurrentFilters')"
             variant="outline-primary"
+            style="padding-right: 0.75em"
             @click.prevent.stop="handleEntityClicked(entity)">
-            {{$t('+')}}
+            +
           </b-button>
         </div>
         <div v-if="entity !== suggestedEntities[suggestedEntities.length - 1]" class="border-bottom mx-2" />
