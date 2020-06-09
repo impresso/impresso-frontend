@@ -28,7 +28,7 @@
           </div>
           <b-button
             size="sm"
-            :title="$t(actions.addToCurrentFilters)"
+            :title="$t('actions.addToCurrentFilters')"
             variant="outline-primary"
             @click.prevent.stop="handleEntityClicked(entity)">
             {{$t('+')}}
