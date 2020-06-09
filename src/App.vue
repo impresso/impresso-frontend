@@ -226,7 +226,7 @@ $clr-grey-900: #ddd;
   border-color: $clr-accent !important;
 }
 .bg-accent-light {
-  background-color: lighten($clr-accent, 0.1);
+  background-color: transparentize($clr-accent, 0.8);
 }
 
 .bg-accent-secondary {
