@@ -78,9 +78,12 @@ export default {
     /** @type {import('vue').PropOptions<SuggestionsProvider>} */
     suggestionsProvider: {
       type: Function,
-      required: true
+      required: true,
     },
-    entitiesToAdd: [],
+    entitiesToAdd: {
+      type: Array(),
+      default: [],
+    },
   },
   computed: {
     maxItems() {
