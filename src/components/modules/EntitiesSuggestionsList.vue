@@ -7,7 +7,10 @@
         <div class="d-flex p-2 align-items-center">
           <div :class="`px-2 dripicons-${getEntityIcon(entity)}`" />
           <div class="px-2 mr-auto w-100">
-            <div>{{ entity.name }}</div>
+            <div>
+              {{ entity.name }}
+              <item-selector :uid="entity.uid" :item="entity" :type="entity.type"/>
+            </div>
             <small>{{ $tc('items', entity.countItems)}}; {{$tc('mentions', entity.countMentions)}}</small>
             <!-- <div class="">
               <div class="viz-bars">
@@ -57,6 +60,7 @@
 
 <script>
 import Spinner from '@/components/layout/Spinner'
+import ItemSelector from './ItemSelector';
 
 /**
  * @typedef {import('@/models').Entity} Entity
@@ -66,7 +70,8 @@ import Spinner from '@/components/layout/Spinner'
 
 export default {
   components: {
-    Spinner
+    Spinner,
+    ItemSelector
   },
   data: () => ({
     suggestedEntities: /** @type {Entity[]} */ ([]),
