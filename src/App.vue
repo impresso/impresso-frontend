@@ -222,10 +222,22 @@ $clr-grey-900: #ddd;
 .bg-accent {
   background-color: $clr-accent;
 }
+.border-accent {
+  border-color: $clr-accent !important;
+}
+.bg-accent-light {
+  background-color: lighten($clr-accent, 0.1);
+}
 
 .bg-accent-secondary {
   background-color: $clr-accent-secondary;
   color: $clr-white;
+}
+.bg-accent-secondary-light {
+  background-color: transparentize($clr-accent-secondary, 0.8);
+}
+.border-accent-secondary {
+  border-color: $clr-accent-secondary !important;
 }
 
 .custom-control-input {
