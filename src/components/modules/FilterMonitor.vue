@@ -77,12 +77,12 @@
         </div>
       </div>
       <!-- local items -->
-      <div v-for="item in entitiesToAdd" :key="item.uid" class="mt-2">
+      <!-- <div v-for="item in entitiesToAdd" :key="item.uid" class="mt-2">
         <item-label :item="item" :type="type"/>
         <span v-if="!item.uid">...</span>
         <span v-if="item.count">(<span v-html="getCountSnippet(item.count)"/>)</span>
         <item-selector :uid="item.uid" :item="item" :type="type"/>
-      </div>
+      </div> -->
 
       <!-- string to add -->
       <div class="strings-to-add m-2 ml-4" v-if="stringsToAdd.length">
