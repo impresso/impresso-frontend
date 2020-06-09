@@ -170,8 +170,8 @@
         :context="suggestedEntitiesContext"
         :suggestions-provider="getSuggestedEntities"
         :entities-to-add="entitiesToAdd"
-        class="bg-light border-tertiary border-left border-right"
-        @entity-selected="addEntitySuggestion"/>
+        class="p-2 border-tertiary border-left border-right border-bottom"
+        @entity-selected="addRemoveEntitySuggestion"/>
     </div>
 
     <b-button
@@ -474,11 +474,15 @@ export default {
     /**
      * @param {Entity} entity
      */
-    addEntitySuggestion(entity) {
+    addRemoveEntitySuggestion(entity) {
       const ids = /** @type {string[]} */ (this.editedFilter.q) ?? []
-      if (ids.includes(entity.uid)) return
-      this.editedFilter.q = [...ids, entity.uid]
-      this.entitiesToAdd =  [...this.entitiesToAdd, entity]
+      if (this.entitiesToAdd.includes(entity)) {
+        this.editedFilter.q = ids;
+        this.entitiesToAdd = this.entitiesToAdd.filter(e => e !== entity);
+      } else {
+        this.editedFilter.q = [...ids, entity.uid]
+        this.entitiesToAdd =  [...this.entitiesToAdd, entity]
+      }
     },
     /**
      * @param {number | undefined} count
