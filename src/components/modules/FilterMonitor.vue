@@ -77,12 +77,12 @@
         </div>
       </div>
       <!-- local items -->
-      <div v-for="item in entitiesToAdd" :key="item.uid" class="mt-2">
+      <!-- <div v-for="item in entitiesToAdd" :key="item.uid" class="mt-2">
         <item-label :item="item" :type="type"/>
         <span v-if="!item.uid">...</span>
         <span v-if="item.count">(<span v-html="getCountSnippet(item.count)"/>)</span>
         <item-selector :uid="item.uid" :item="item" :type="type"/>
-      </div>
+      </div> -->
 
       <!-- string to add -->
       <div class="strings-to-add m-2 ml-4" v-if="stringsToAdd.length">
@@ -104,7 +104,7 @@
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
-            <b-button size="sm" variant="outline-primary" block
+            <b-button size="sm" variant="outline-secondary" block
               @click.prevent.stop="addStringItem()" :disabled="hasEmptyStringItems">
                 {{$t('actions.addItem')}}
             </b-button>
@@ -112,7 +112,7 @@
         </b-col>
         <b-col cols="6">
           <div class="ml-1">
-            <b-button size="sm" variant="outline-primary" block
+            <b-button size="sm" variant="outline-secondary" block
               v-on:click.prevent="showEmbeddings = !showEmbeddings;"
               >
                 {{$t('actions.addUsingEmbeddings')}}
@@ -138,23 +138,26 @@
     <!-- entities only -->
     <div class="mt-3" v-if="EntityTypes.includes(type)">
       <b-row no-gutters>
-        <b-col cols="6">
-          <div class="ml-1">
+        <b-col>
+          <div>
             <!-- similar entities button -->
             <b-button
               size="sm"
               variant="outline-primary"
+              :class="{ active : entitiesSuggestionsType === SuggestedEntitiesTypes.Similar }"
               block
               v-on:click.prevent="toggleEntitiesSuggestions(SuggestedEntitiesTypes.Similar)">
               {{ $t('label.similarEntities') }}
             </b-button>
           </div>
         </b-col>
-        <b-col cols="6">
+        <b-col>
           <!-- co-occurring entities button -->
             <b-button
+              class="border-left-0"
               size="sm"
               variant="outline-primary"
+              :class="{ active : entitiesSuggestionsType === SuggestedEntitiesTypes.Related }"
               block
               v-on:click.prevent="toggleEntitiesSuggestions(SuggestedEntitiesTypes.Related)">
               {{ $t('label.relatedEntities') }}
@@ -166,8 +169,9 @@
         v-if="entitiesSuggestionsType != null"
         :context="suggestedEntitiesContext"
         :suggestions-provider="getSuggestedEntities"
-        class="bg-light border"
-        @entity-selected="addEntitySuggestion"/>
+        :entities-to-add="entitiesToAdd"
+        class="p-2 border-tertiary border-left border-right border-bottom"
+        @entity-selected="addRemoveEntitySuggestion"/>
     </div>
 
     <b-button
@@ -175,7 +179,7 @@
       v-if="hasChanges"
       block
       size="sm"
-      variant="outline-primary"
+      variant="outline-success"
       @click="applyChanges()">
       <span v-if="validStringsToAdd.length > 0 || newItemsToAdd.length > 0 || excludedItemsIds.length > 0 || entitiesToAdd.length > 0">
         {{
@@ -470,11 +474,15 @@ export default {
     /**
      * @param {Entity} entity
      */
-    addEntitySuggestion(entity) {
+    addRemoveEntitySuggestion(entity) {
       const ids = /** @type {string[]} */ (this.editedFilter.q) ?? []
-      if (ids.includes(entity.uid)) return
-      this.editedFilter.q = [...ids, entity.uid]
-      this.entitiesToAdd =  [...this.entitiesToAdd, entity]
+      if (this.entitiesToAdd.includes(entity)) {
+        this.editedFilter.q = ids;
+        this.entitiesToAdd = this.entitiesToAdd.filter(e => e !== entity);
+      } else {
+        this.editedFilter.q = [...ids, entity.uid]
+        this.entitiesToAdd =  [...this.entitiesToAdd, entity]
+      }
     },
     /**
      * @param {number | undefined} count

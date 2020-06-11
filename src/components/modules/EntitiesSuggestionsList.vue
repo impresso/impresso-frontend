@@ -1,26 +1,66 @@
 <template>
-  <div>
-    <spinner v-if="isLoading"/>
-    <b-container v-if="!isLoading">
-      <b-row v-for="entity in suggestedEntities" :key="entity.uid" class="p-2 justify-content-between">
-        <b-col cols="10" class="text-align-left">
-          <b-button
-            variant="link"
-            class="text-align-left suggest-button"
-            @click="handleEntityClicked(entity)">
-            {{ entity.name }}
-          </b-button>
-        </b-col>
-        <b-col cols="2" class="text-align-right align-self-center">
-          <span :class="`dripicons-${getEntityIcon(entity)}`"/>
-        </b-col>
-      </b-row>
-    </b-container>
+  <div class="reduced">
+    <spinner v-if="isLoading" class="text-center pt-2" />
+    <div v-else v-for="entity in suggestedEntities" :key="entity.uid">
+      <div class="">
+        <div :class="`border-bottom ${entitiesToAdd.includes(entity) ?
+          'bg-accent-secondary-light border-white' : ''}`">
+
+          <div class="d-flex p-2 align-items-center">
+            <div :class="`pr-2 dripicons-${getEntityIcon(entity)}`" />
+            <div class="mr-auto w-100">
+              <div>
+                {{ entity.name }}
+                <item-selector :uid="entity.uid" :item="entity" :type="entity.type"/>
+              </div>
+              <small>{{ $tc('items', entity.countItems)}}; {{$tc('mentions', entity.countMentions)}}</small>
+              <!-- <div class="">
+                <div class="viz-bars">
+                  <small>{{entity.countItems}} items</small>
+                  <div class="bg-white">
+                    <div class="bg-tertiary viz-bar"
+                    :title="`${entity.countItems} items`"
+                    :style="`width:${entity.countItems/maxItems * 100}%;`" />
+                  </div>
+                  <small>{{entity.countMentions}} mentions</small>
+                  <div class="bg-white">
+                    <div class="bg-medium viz-bar"
+                    :title="`${entity.countMentions} $t('mentions')`"
+                    :style="`width:${entity.countMentions/maxMentions * 100}%;`" />
+                  </div>
+                </div>
+              </div> -->
+            </div>
+            <b-button
+              v-if="!entitiesToAdd.includes(entity)"
+              size="sm"
+              :title="$t('actions.addToCurrentFilters')"
+              variant="outline-primary"
+              style="min-width: 2em"
+              @click.prevent.stop="handleEntityClicked(entity)">
+              +
+            </b-button>
+            <b-button
+              v-else
+              size="sm"
+              :title="$t('actions.removeFromCurrentFilters')"
+              variant="outline-primary"
+              style="min-width: 2em"
+              @click.prevent.stop="handleEntityClicked(entity)">
+              -
+            </b-button>
+          </div>
+
+        </div>
+        <!-- <div v-if="entity !== suggestedEntities[suggestedEntities.length - 1]" class="border-bottom my-0" /> -->
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import Spinner from '@/components/layout/Spinner'
+import ItemSelector from './ItemSelector';
 
 /**
  * @typedef {import('@/models').Entity} Entity
@@ -30,11 +70,13 @@ import Spinner from '@/components/layout/Spinner'
 
 export default {
   components: {
-    Spinner
+    Spinner,
+    ItemSelector
   },
   data: () => ({
     suggestedEntities: /** @type {Entity[]} */ ([]),
-    isLoading: false
+    isLoading: false,
+    selectedEntities: [],
   }),
   props: {
     /** @type {import('vue').PropOptions<any>} */
@@ -42,8 +84,20 @@ export default {
     /** @type {import('vue').PropOptions<SuggestionsProvider>} */
     suggestionsProvider: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
+    entitiesToAdd: {
+      type: Array,
+      default: () => []
+    },
+  },
+  computed: {
+    maxItems() {
+      return this.suggestedEntities.reduce((max, e) => e.countItems > max ? e.countItems : max, this.suggestedEntities[0].countItems);
+    },
+    maxMentions() {
+      return this.suggestedEntities.reduce((max, e) => e.countMentions > max ? e.countMentions : max, this.suggestedEntities[0].countMentions);
+    },
   },
   methods: {
     /**

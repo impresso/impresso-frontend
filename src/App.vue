@@ -222,10 +222,22 @@ $clr-grey-900: #ddd;
 .bg-accent {
   background-color: $clr-accent;
 }
+.border-accent {
+  border-color: $clr-accent !important;
+}
+.bg-accent-light {
+  background-color: transparentize($clr-accent, 0.8);
+}
 
 .bg-accent-secondary {
   background-color: $clr-accent-secondary;
   color: $clr-white;
+}
+.bg-accent-secondary-light {
+  background-color: transparentize($clr-accent-secondary, 0.8);
+}
+.border-accent-secondary {
+  border-color: $clr-accent-secondary !important;
 }
 
 .custom-control-input {
@@ -432,6 +444,8 @@ input[type="range"]:active::-ms-thumb {
 
 .btn-sm, .btn-group-sm > .btn {
   white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: auto;
 }
 
 .btn-outline-icon{
