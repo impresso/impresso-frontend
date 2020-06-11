@@ -1,6 +1,7 @@
 import * as services from '@/services';
 import Newspaper from '@/models/Newspaper';
 import Helpers from '@/plugins/Helpers';
+import Facet from '@/models/Facet';
 
 export default {
   namespaced: true,
@@ -100,6 +101,19 @@ export default {
     LOAD_DETAIL(context, newspaperUid) {
       return services.newspapers.get(newspaperUid, {})
         .then(res => new Newspaper(res));
+    },
+    LOAD_FACETS(context, payload) {
+      const facetType = payload.type;
+      const query = {
+        filters: [{
+          type: 'newspaper',
+          q: payload.q,
+        }],
+        group_by: 'articles',
+      };
+      return services.searchFacets.get(facetType, {
+        query,
+      }).then(([facetType]) => new Facet(facetType));
     },
   },
 };
