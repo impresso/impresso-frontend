@@ -57,8 +57,8 @@
 
       <div class='px-3 py-2 ' v-if='$route.name == "newspaper_metadata"'>
         <div class="pt-3">
-          <h3 class="m-0 tb-title small-caps font-weight-bold">articles per year</h3>
-          <p class="description small">number of articles extracted which are available in impresso</p>
+          <h3 class="mx-2 tb-title small-caps font-weight-bold">articles per year</h3>
+          <p class="mx-2 description small">number of articles extracted which are available in impresso</p>
         </div>
         <timeline
               :contrast="false"
