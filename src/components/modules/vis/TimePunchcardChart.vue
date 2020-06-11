@@ -1,5 +1,14 @@
 <template>
-  <div ref="chart" class="time-punchcard container"/>
+  <div>
+    <div class="labels" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left : 0}px` }">
+      <slot :category="category" v-for="(category, index) in data.categories">
+        <div :key="index" :class="`label ${category.isSubcategory ? 'sub' : ''}`" :style="{ transform: `translate(0, ${getLabelTopOffset(index)}px)` }">
+          Label for {{ category.isSubcategory ? 'sub' : '' }} category {{index}}
+        </div>
+      </slot>
+    </div>
+    <div ref="chart" class="time-punchcard container" :style="{ height: `${height}px` }" />
+  </div>
 </template>
 
 <script>
@@ -11,7 +20,9 @@ import TimePunchcardChart from '@/d3-modules/TimePunchcardChart'
 
 export default {
   data: () => ({
-    chart: /** @type {TimePunchcardChart | null} */ (null)
+    chart: /** @type {TimePunchcardChart | null} */ (null),
+    height: 200,
+    labelsOffsets: /** @type {number[]} */ ([])
   }),
   props: {
     /** @type {import('vue').PropOptions<ChartData>} */
@@ -20,8 +31,22 @@ export default {
       required: true
     }
   },
+  mounted() {
+    // @ts-ignore
+    window.addEventListener('resize', this.render.bind(this))
+  },
+  beforeDestroy() {
+    // @ts-ignore
+    window.removeEventListener('resize', this.render.bind(this))
+  },
   methods: {
     render() {
+      const { height, yOffsets } = this.chart?.render(this.data) ?? { height: 0, yOffsets: [] }
+      this.height = height
+      this.labelsOffsets = yOffsets
+    },
+    getLabelTopOffset(index) {
+      return (this.labelsOffsets[index] ?? 0);
     }
   },
   watch: {
@@ -34,7 +59,7 @@ export default {
             element.textContent = ''
             this.chart = new TimePunchcardChart({ element })
           }
-          this.chart.render(this.data)
+          this.render()
         })
       },
       immediate: true
@@ -47,7 +72,7 @@ export default {
   .time-punchcard {
     &.container {
       border: 1px dashed red;
-      min-height: 3em;
+      min-height: 9em;
     }
 
     .axes {
@@ -77,6 +102,30 @@ export default {
         .bar {
           .punch {}
         }
+        .sizer {
+          width: 2px;
+          fill: #777;
+        }
+        &.sub {
+          .sizer {
+            transform: translate(8px, 0);
+          }
+        }
+      }
+    }
+  }
+  .labels {
+    position: relative;
+    .label {
+      position: absolute;
+      background: rgb(194, 196, 192);
+      min-width: 100px;
+      white-space: nowrap;
+      padding-left: .5em;
+      padding-right: .5em;
+      &.sub {
+        margin-left: 8px;
+        background: rgba(194, 196, 192, 0.3);
       }
     }
   }

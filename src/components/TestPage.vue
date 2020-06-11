@@ -24,7 +24,7 @@ export default {
   data: () => ({
     submitted: false,
     testChartData: /** @type {import('@/d3-modules/TimePunchcardChart').ChartData} */ ({
-      categories: [...Array(4).keys()].map(() => {
+      categories: [...Array(6).keys()].map((categoryIndex) => {
         const minDate = new Date('2010-01-01')
         const maxDate = new Date('2012-01-01')
         let startTime = new Date(minDate.getTime() + Math.random() * (maxDate.getTime() - minDate.getTime()))
@@ -37,7 +37,8 @@ export default {
             const time = d3.timeMonth.round(new Date(startTime.getTime() + (OneMonth * index)))
             if (time.getTime() > maxDate.getTime()) return undefined
             return { time, value }
-          }).filter(v => v != null)
+          }).filter(v => v != null),
+          isSubcategory : categoryIndex % 2 === 1
         }
       })
     })

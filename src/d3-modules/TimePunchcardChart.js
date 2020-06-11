@@ -82,16 +82,18 @@ function findTimeInterval(times) {
 
 /**
  * @typedef {{ time: string | Date, value: number }} DataPoint
- * @typedef {{ label?: string, dataPoints: DataPoint[] }} ChartCategory
+ * @typedef {{ label?: string, dataPoints: DataPoint[], isSubcategory?: boolean }} ChartCategory
  * @typedef {{ categories: ChartCategory[] }} ChartData
  */
 
 export default class TimePunchcardChart {
   constructor({
     element = null,
-    margin = { top: 5, bottom: 15, left: 20, right: 10 }
+    margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3 },
+    size = { maxCircleRadius: 15 }
   }) {
     this.margin = margin
+    this.size = size
     this.element = element
 
     this.svg = d3.select(element)
@@ -103,7 +105,6 @@ export default class TimePunchcardChart {
     this.axes = this.svg.append('g').attr('class', 'axes')
     this.categories = this.svg.append('g').attr('class', 'categories')
 
-
     this.x = d3.scaleUtc()
     this.y = d3.scaleBand()
   }
@@ -114,13 +115,10 @@ export default class TimePunchcardChart {
    */
   // eslint-disable-next-line no-unused-vars
   render(data, options = {}) {
-    const { width, height } = this.element.getBoundingClientRect()
+    const { width } = this.element.getBoundingClientRect()
     const { colorPalette = defaultColorPalette } = options
 
     const effectiveWidth = width - this.margin.left - this.margin.right
-    const effectiveHeight = height - this.margin.top - this.margin.bottom
-
-    this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
     const maxDataPointValue = /** @type {number} */ (d3.max(
       data.categories.map(({ dataPoints }) => dataPoints.map(({ value }) => value)).flat()
@@ -136,6 +134,18 @@ export default class TimePunchcardChart {
 
     const ticksCount = timeInterval.count(minAndMaxTimes[0], minAndMaxTimes[1])
     const gapWidth = effectiveWidth / ticksCount
+    // const circleRadius = /** @type {number} */ (d3.min([gapWidth / 2, this.y.bandwidth() / 2])) - 0.5
+    const calculatedCircleRadius = gapWidth / 2 - 0.5
+
+    const circleRadius = /** @type {number} */ (d3.min([calculatedCircleRadius, this.size.maxCircleRadius]))
+
+    const categoryYSpace = (circleRadius * 2) + this.margin.categoryTop
+    const calculatedEffectiveHeight = categoryYSpace * data.categories.length
+    const calculatedHeight = calculatedEffectiveHeight + this.margin.top + this.margin.bottom
+
+    this.svg
+      .attr('width', width)
+      .attr('height', calculatedHeight)
 
     this.x
       .domain(minAndMaxTimes)
@@ -148,7 +158,7 @@ export default class TimePunchcardChart {
       : () => true
 
     const xAxis = g => g
-      .attr('transform', `translate(0,${height - this.margin.bottom})`)
+      .attr('transform', `translate(0,${calculatedHeight - this.margin.bottom})`)
       .call(d3.axisBottom(this.x)
         // .ticks(times.length + 2)
         .ticks(timeInterval)
@@ -156,7 +166,7 @@ export default class TimePunchcardChart {
           return shouldRenderTickLabel(/** @type {Date} */ (time)) ? timeFormat(/** @type {Date} */ (time)) : ''
         })
         .tickSizeOuter(0)
-        .tickSize(-effectiveHeight))
+        .tickSize(-calculatedEffectiveHeight))
 
     this.axes
       .selectAll('g.x')
@@ -167,13 +177,13 @@ export default class TimePunchcardChart {
 
     this.y
       .domain(data.categories.map((_, index) => `${index}`))
-      .range([this.margin.top, effectiveHeight])
+      .range([this.margin.top, calculatedEffectiveHeight])
 
     const yAxis = g => g
       .attr('transform', `translate(${this.margin.left}, 0)`)
-      .call(d3.axisLeft(this.y)
-        .tickSizeOuter(0)
-        .tickSize(-effectiveWidth))
+      // .call(d3.axisLeft(this.y)
+      //   .tickSizeOuter(0)
+      //   .tickSize(-effectiveWidth))
       .selectAll('text')
       .style('text-anchor', 'end')
       .text(itemValue => itemValue)
@@ -189,17 +199,23 @@ export default class TimePunchcardChart {
       .selectAll('g.category')
       .data(data.categories)
       .join('g')
-      .attr('class', 'category')
+      .attr('class', ({ isSubcategory }) => `category ${isSubcategory ? 'sub' : ''}`)
       .attr('transform', (d, index) => `translate(0, ${this.y(`${index}`)})`)
+
+    category
+      .selectAll('rect.sizer')
+      .data([null])
+      .join('rect')
+      .attr('class', 'sizer')
+      .attr('height', categoryYSpace - this.margin.sizer * 2)
+      .attr('y', this.margin.sizer)
 
     const bar = category
       .selectAll('g.bar')
       .data((category, categoryIndex) => category.dataPoints.map(dp => ({ ...dp, categoryIndex })))
       .join('g')
       .attr('class', 'bar')
-      .attr('transform', ({ time }) => `translate(${this.x(new Date(time))})`)
-
-    const circleRadius = /** @type {number} */ (d3.min([gapWidth / 2, this.y.bandwidth() / 2])) - 0.5
+      .attr('transform', ({ time }) => `translate(${this.x(new Date(time))}, ${this.margin.categoryTop})`)
 
     bar
       .selectAll('circle.punch')
@@ -207,9 +223,15 @@ export default class TimePunchcardChart {
       .join('circle')
       .attr('class', 'punch')
       .attr('r', ({ value }) => {
-        return (value / maxDataPointValue) * circleRadius * 0.9
+        return (value / maxDataPointValue) * circleRadius
       })
-      .attr('cy', this.y.bandwidth() / 2)
+      .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
+
+    return {
+      width,
+      height: calculatedHeight,
+      yOffsets: data.categories.map((d, index) => this.y(index.toString()) ?? 0)
+    }
   }
 }
