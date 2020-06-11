@@ -7,15 +7,57 @@ const isExactYear = date => date.getMonth() === 0 && date.getDate() === 1
 /** @param {Date} date */
 const isExactMonth = date => date.getDate() === 1
 
+const defaultColorPalette = [
+  '#323232',
+  '#313131',
+  '#303030',
+  '#2e2e2e',
+  '#2d2d2d',
+  '#2c2c2c',
+  '#2a2a2a',
+  '#292929',
+  '#282828',
+  '#262626',
+  '#252525',
+  '#242424',
+  '#232323',
+  '#212121',
+  '#202020',
+  '#1f1f1f',
+  '#1e1e1e',
+  '#1c1c1c',
+  '#1b1b1b',
+  '#1a1a1a',
+  '#191919',
+  '#181818',
+  '#161616',
+  '#151515',
+  '#141414',
+  '#131313',
+  '#121212',
+  '#101010',
+  '#0f0f0f',
+  '#0e0e0e',
+  '#0d0d0d',
+  '#0c0c0c',
+].reverse()
+
 /**
  * @param {Date[]} times
- * @returns { [any, (date: Date) => string, (date: Date) => boolean] }
+ * @returns {[
+ *  d3.CountableTimeInterval,
+ *  (date: Date) => string,
+ *  (date: Date) => boolean
+ * ]}
  */
 function findTimeInterval(times) {
   const minTimeIntervalDays = times.reduce((minInterval, value, index, values) => {
     if (index === 0) return minInterval
     const previousValue = values[index - 1]
+    if (previousValue.getTime() === value.getTime()) return minInterval
+
     const diff = Math.abs(previousValue.getTime() - value.getTime())
+
     if (minInterval === 0) return diff
     return diff < minInterval ? diff : minInterval
   }, 0) / OneDayInMs;
@@ -47,7 +89,7 @@ function findTimeInterval(times) {
 export default class TimePunchcardChart {
   constructor({
     element = null,
-    margin = { top: 5, bottom: 15, left: 15, right: 10 }
+    margin = { top: 5, bottom: 15, left: 20, right: 10 }
   }) {
     this.margin = margin
     this.element = element
@@ -73,7 +115,7 @@ export default class TimePunchcardChart {
   // eslint-disable-next-line no-unused-vars
   render(data, options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
-    const { colorPalette = d3.schemeCategory10 } = options
+    const { colorPalette = defaultColorPalette } = options
 
     const effectiveWidth = width - this.margin.left - this.margin.right
     const effectiveHeight = height - this.margin.top - this.margin.bottom
@@ -86,12 +128,14 @@ export default class TimePunchcardChart {
     const times = data.categories.map(({ dataPoints }) => dataPoints.map(({ time }) => new Date(time))).flat().sort()
     const [timeInterval, timeFormat, shouldRenderTickLabelFn] = findTimeInterval(times)
 
-    const timeStepMs = times.length >= 2 ? times[1].getTime() - times[0].getTime() : 0
     let minAndMaxTimes = /** @type {Date[]} */ ([...d3.extent(times)].filter(v => v != null))
     minAndMaxTimes = [
-      timeInterval.floor(new Date(minAndMaxTimes[0].getTime() - timeStepMs)),
-      timeInterval.ceil(new Date(minAndMaxTimes[1].getTime() + timeStepMs))
+      timeInterval.offset(minAndMaxTimes[0], -1),
+      timeInterval.offset(minAndMaxTimes[1], 1)
     ]
+
+    const ticksCount = timeInterval.count(minAndMaxTimes[0], minAndMaxTimes[1])
+    const gapWidth = effectiveWidth / ticksCount
 
     this.x
       .domain(minAndMaxTimes)
@@ -99,10 +143,9 @@ export default class TimePunchcardChart {
 
     // show X tick labels every month or year if they are too close together
     const minTickSpacePx = 50 // minimum width between ticks
-    const shouldRenderTickLabel = effectiveWidth / times.length < minTickSpacePx
+    const shouldRenderTickLabel = gapWidth < minTickSpacePx
       ? shouldRenderTickLabelFn
       : () => true
-
 
     const xAxis = g => g
       .attr('transform', `translate(0,${height - this.margin.bottom})`)
@@ -156,8 +199,7 @@ export default class TimePunchcardChart {
       .attr('class', 'bar')
       .attr('transform', ({ time }) => `translate(${this.x(new Date(time))})`)
 
-    const xBandwidth = effectiveWidth / times.length
-    const circleRadius = /** @type {number} */ (d3.min([xBandwidth / 2, this.y.bandwidth() / 2])) / 2
+    const circleRadius = /** @type {number} */ (d3.min([gapWidth / 2, this.y.bandwidth() / 2])) - 0.5
 
     bar
       .selectAll('circle.punch')

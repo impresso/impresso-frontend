@@ -63,7 +63,7 @@ export default {
         }
         .tick {
           line {
-            stroke: #eee
+            stroke: #eeeeee77
           }
           text {
             fill: #ffffff00
