@@ -59,6 +59,7 @@
     />
 
     <b-container class="my-3">
+      <h2>Top 10 facets</h2>
       <b-row>
         <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
           <stacked-bars-panel
