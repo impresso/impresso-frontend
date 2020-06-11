@@ -89,7 +89,7 @@ function findTimeInterval(times) {
 export default class TimePunchcardChart {
   constructor({
     element = null,
-    margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3 },
+    margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3, subCategoryLeft : 8 },
     size = { maxCircleRadius: 15 }
   }) {
     this.margin = margin
@@ -203,23 +203,45 @@ export default class TimePunchcardChart {
       .attr('transform', (d, index) => `translate(0, ${this.y(`${index}`)})`)
 
     category
+      .selectAll('rect.highlight')
+      .data(category => [category])
+      .join('rect')
+      .attr('class', 'highlight')
+      .attr('height', categoryYSpace - this.margin.sizer * 2)
+      .attr('y', this.margin.sizer)
+      .attr('x', ({ isSubcategory }) => {
+        if (isSubcategory) return this.margin.subCategoryLeft
+        return null
+      })
+      .attr('width', ({ isSubcategory }) => {
+        if (isSubcategory) return effectiveWidth - this.margin.subCategoryLeft
+        return effectiveWidth
+      })
+
+    category
       .selectAll('rect.sizer')
-      .data([null])
+      .data(category => [category])
       .join('rect')
       .attr('class', 'sizer')
       .attr('height', categoryYSpace - this.margin.sizer * 2)
       .attr('y', this.margin.sizer)
+      .attr('transform', ({ isSubcategory }) => {
+        return isSubcategory ? `translate(${this.margin.subCategoryLeft}, 0)` : null
+      })
 
     const bar = category
       .selectAll('g.bar')
-      .data((category, categoryIndex) => category.dataPoints.map(dp => ({ ...dp, categoryIndex })))
+      .data((category, categoryIndex) => {
+        const maxValue = d3.max(category.dataPoints.map(({ value }) => value)) ?? 0
+        return category.dataPoints.map(dp => ({ ...dp, categoryIndex, maxValue }))
+      })
       .join('g')
       .attr('class', 'bar')
-      .attr('transform', ({ time }) => `translate(${this.x(new Date(time))}, ${this.margin.categoryTop})`)
+      .attr('transform', ({ time }) => `translate(${this.x(new Date(time))}, ${this.margin.categoryTop - this.margin.sizer * 2})`)
 
     bar
       .selectAll('circle.punch')
-      .data(dataPoint => [dataPoint])
+      .data(dataPoint => [dataPoint], dataPoint => dataPoint.time)
       .join('circle')
       .attr('class', 'punch')
       .attr('r', ({ value }) => {
@@ -227,6 +249,18 @@ export default class TimePunchcardChart {
       })
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
+
+    bar
+      .selectAll('circle.highlight')
+      .data(dataPoint => dataPoint.value === dataPoint.maxValue
+        ? [dataPoint]
+        : [], dataPoint => dataPoint.time)
+      .join('circle')
+      .attr('class', 'highlight')
+      .attr('r', ({ value }) => {
+        return (value / maxDataPointValue) * circleRadius * 0.8
+      })
+      .attr('cy', circleRadius)
 
     return {
       width,

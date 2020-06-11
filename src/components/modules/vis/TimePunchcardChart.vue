@@ -101,14 +101,23 @@ export default {
       .category {
         .bar {
           .punch {}
+          .highlight {
+            stroke-width: 2px;
+            stroke: #fff;
+          }
         }
         .sizer {
           width: 2px;
           fill: #777;
         }
+        .highlight {
+          // fill: #dddddd33;
+        }
         &.sub {
           .sizer {
-            transform: translate(8px, 0);
+          }
+          rect.highlight {
+            fill: #dddddd77;
           }
         }
       }
