@@ -71,6 +71,18 @@
           </div>
         </timeline>
 
+        <b-container class="my-3">
+          <b-row>
+            <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+              <stacked-bars-panel
+                class=""
+                :label="facet.type"
+                :buckets="facet.buckets"
+                :facet-type="facet.type"/>
+          </b-col>
+        </b-row>
+        </b-container>
+
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
           <template slot="table-caption">
@@ -155,6 +167,7 @@ import Newspaper from '@/models/Newspaper';
 import SearchQuery from '@/models/SearchQuery';
 import Pagination from './modules/Pagination';
 import Timeline from './modules/Timeline';
+import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 
@@ -168,6 +181,8 @@ export default {
     tab: 'issues',
     orderBy: '-date',
     timevalues: [],
+    facets: [],
+    facetTypes: ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
   }),
   computed: {
     filters: mapFilters(),
@@ -258,6 +273,16 @@ export default {
         this.timevalues = values;
       });
     },
+    async loadFacets() {
+      this.facets = [];
+      this.facetTypes.forEach((type) => {
+        return this.$store.dispatch('newspapers/LOAD_FACETS', {q: this.$route.params.newspaper_uid, type})
+          .then((r) => {
+            console.log(r);
+            if (r.numBuckets > 0) this.facets.push(r);
+          });
+      });
+    },
     async loadIssues({
       page = 1,
     } = {}) {
@@ -287,6 +312,7 @@ export default {
         await this.loadNewspaper();
         if (name === 'newspaper_metadata') {
           await this.loadTimeline();
+          await this.loadFacets();
         } else {
           await this.loadIssues();
         }
@@ -301,6 +327,7 @@ export default {
   components: {
     Pagination,
     Timeline,
+    StackedBarsPanel,
   },
 };
 </script>
