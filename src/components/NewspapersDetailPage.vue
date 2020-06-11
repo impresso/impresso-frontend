@@ -278,7 +278,6 @@ export default {
       this.facetTypes.forEach((type) => {
         return this.$store.dispatch('newspapers/LOAD_FACETS', {q: this.$route.params.newspaper_uid, type})
           .then((r) => {
-            console.log(r);
             if (r.numBuckets > 0) this.facets.push(r);
           });
       });
