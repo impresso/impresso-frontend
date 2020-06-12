@@ -128,7 +128,13 @@ export default {
         t = `<span class="highlight precision-${item.precision}">${item.uid || item.q}</span>${item.distance || ''}`;
         break;
       case 'topic':
-        t = `"${item.htmlExcerpt || ''}..."`;
+        if (item.htmlExcerpt) {
+          t = item.htmlExcerpt;
+        } else if(item.excerpt.length) {
+          t = item.excerpt.map(d => d.w).join(' · ');
+        } else {
+          t = item.uid;
+        }
         break;
       case 'year':
         t = item.y;
@@ -224,7 +230,7 @@ export default {
 </script>
 <style lang="scss">
 .search-query-summary{
-  span.item.person, span.item.location, span.item.daterange > span.date {
+  span.item.person, span.item.topic, span.item.location, span.item.daterange > span.date {
     font-family: "questa-sans", sans-serif;
     font-variant: small-caps;
     text-transform: lowercase;
