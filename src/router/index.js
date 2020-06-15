@@ -12,7 +12,6 @@ import TestPage from '../components/TestPage';
 import NewspapersPage from '../components/NewspapersPage';
 import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
-import EntitiesPage from '../components/EntitiesPage';
 import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
 import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
@@ -228,7 +227,7 @@ const router = new Router({
     },
     {
       path: '/entities',
-      component: EntitiesPage,
+      component: () => import(/* webpackChunkName: "entities" */ '../pages/Entities.vue'),
       children: [{
         path: '',
         component: EntitiesExplorerPage,
