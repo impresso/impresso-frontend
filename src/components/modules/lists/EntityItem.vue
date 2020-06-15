@@ -1,31 +1,35 @@
 <template lang="html">
-  <div class="entity-item item" v-bind:class="{ active: active }">
+  <div class="entity-item d-flex align-items-center" :class="{ active }">
     <div
-      class="mb-2 mr-3 float-left"
+      class="mb-2 mr-3"
       v-if="wikidataImages.length">
       <img :src="getWikidataImageURL(wikidataImages[0], { width: 60})">
     </div>
+    <div class="flex-grow-1">
+      <!-- label, i.e the name -->
+      <router-link v-if="showLink"
+        v-bind:class="{ active: active }"
+        v-bind:to="{ name: 'entity', params: {
+          entity_id: this.item.uid,
+        }}">
+        <span v-html="name"></span>
+      </router-link>
+      <div v-else v-html="name" />
 
-    <!-- label, i.e the name -->
-    <router-link v-if="showLink"
-      v-bind:class="{ active: active }"
-      v-bind:to="{ name: 'entity', params: {
-        entity_id: this.item.uid,
-      }}">
-      <span v-html="name"></span>
-    </router-link>
-    <div v-else v-html="name" />
-
-    <!-- description and other metadata -->
-    <div class="type badge ml-1  bg-medium badge-light">{{ $t(`types.${item.type}`) }}</div>
-    <div v-if="description" v-html="description"/>
-    <div class="small-caps" v-if="item.countItems > -1">
-      <span v-html="$tc('countItems', item.countItems, {
-        count: $n(item.countItems),
-      })"/>,
-      <span v-html="$tc('countMentions', item.countMentions, {
-        count: $n(item.countMentions),
-      })"/>
+      <!-- description and other metadata -->
+      <div class="type badge ml-1  bg-medium badge-light">{{ $t(`types.${item.type}`) }}</div>
+      <div v-if="description" v-html="description"/>
+      <div class="small-caps" v-if="item.countItems > -1">
+        <span v-html="$tc('countItems', item.countItems, {
+          count: $n(item.countItems),
+        })"/>,
+        <span v-html="$tc('countMentions', item.countMentions, {
+          count: $n(item.countMentions),
+        })"/>
+      </div>
+    </div>
+    <div v-if="isObservable" class="px-2" @click="$emit('toggle-observed', item)">
+      <div class="item-observed" :class="{ active: observed }"><div class="icon dripicons-preview" /></div>
     </div>
   </div>
 </template>
@@ -33,12 +37,10 @@
 <script>
 export default {
   props: {
-    active: {
-      type: Boolean,
-    },
-    showLink: {
-      type: Boolean,
-    },
+    observed: Boolean,
+    isObservable: Boolean,
+    active: Boolean,
+    showLink: Boolean,
     item: {
       type: Object,
     },
@@ -68,7 +70,22 @@ export default {
 };
 </script>
 
-<style lang="css" scoped>
+<style lang="scss" scoped>
+.topic-matches{
+  border-left: 2px solid gold;
+}
+.item-observed{
+  cursor: pointer;
+  width:1.25rem;
+  height:1.25rem;
+  text-align: center;
+  & > div {
+    color: #ccc;
+  }
+  &.active > div{
+    color: blue;
+  }
+}
 </style>
 <i18n>
   {
