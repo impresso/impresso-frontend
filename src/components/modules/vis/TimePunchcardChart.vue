@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container-fluid">
     <div class="labels" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left : 0}px` }">
       <slot :category="category" v-for="(category, index) in data.categories">
         <div :key="index" :class="`label ${category.isSubcategory ? 'sub' : ''}`" :style="{ transform: `translate(0, ${getLabelTopOffset(index)}px)` }">
@@ -7,7 +7,7 @@
         </div>
       </slot>
     </div>
-    <div ref="chart" class="time-punchcard container" :style="{ height: `${height}px` }" />
+    <div ref="chart" class="time-punchcard" :style="{ height: `${height}px` }" />
   </div>
 </template>
 
