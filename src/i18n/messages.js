@@ -90,6 +90,7 @@ export default {
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
+      resetObservedItems: 'reset observed list',
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
       viewTopic: 'go to topic',
@@ -296,6 +297,10 @@ export default {
       recommendations: 'recommendations',
       relatedArticles: '... related articles | 1 related article | {count} related articles',
       articles: '... articles | 1 article | {count} articles',
+      entities: {
+        observingList: 'observing list (<span style="color: blue">{n}</span>)',
+        browseList: 'browse {n} entities',
+      },
     },
     sort: {
       name: {
