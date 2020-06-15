@@ -57,8 +57,8 @@
 
       <div class='px-3 py-2 ' v-if='$route.name == "newspaper_metadata"'>
         <div class="pt-3">
-          <h3 class="m-0 tb-title small-caps font-weight-bold">articles per year</h3>
-          <p class="description small">number of articles extracted which are available in impresso</p>
+          <h3 class="mx-2 tb-title small-caps font-weight-bold">articles per year</h3>
+          <p class="mx-2 description small">number of articles extracted which are available in impresso</p>
         </div>
         <timeline
               :contrast="false"
@@ -70,6 +70,19 @@
             </div>
           </div>
         </timeline>
+
+        <b-container class="my-3">
+          <h2>Facets – top ten buckets</h2>
+          <b-row>
+            <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+              <stacked-bars-panel
+                class=""
+                :label="facet.type"
+                :buckets="facet.buckets"
+                :facet-type="facet.type"/>
+          </b-col>
+        </b-row>
+        </b-container>
 
         <b-table bordered borderless caption-top :items="newspaper.properties"
              :fields='["name", "property"]'>
@@ -155,6 +168,7 @@ import Newspaper from '@/models/Newspaper';
 import SearchQuery from '@/models/SearchQuery';
 import Pagination from './modules/Pagination';
 import Timeline from './modules/Timeline';
+import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 
@@ -168,6 +182,8 @@ export default {
     tab: 'issues',
     orderBy: '-date',
     timevalues: [],
+    facets: [],
+    facetTypes: ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
   }),
   computed: {
     filters: mapFilters(),
@@ -258,6 +274,15 @@ export default {
         this.timevalues = values;
       });
     },
+    async loadFacets() {
+      this.facets = [];
+      this.facetTypes.forEach((type) => {
+        return this.$store.dispatch('newspapers/LOAD_FACETS', {q: this.$route.params.newspaper_uid, type})
+          .then((r) => {
+            if (r.numBuckets > 0) this.facets.push(r);
+          });
+      });
+    },
     async loadIssues({
       page = 1,
     } = {}) {
@@ -287,6 +312,7 @@ export default {
         await this.loadNewspaper();
         if (name === 'newspaper_metadata') {
           await this.loadTimeline();
+          await this.loadFacets();
         } else {
           await this.loadIssues();
         }
@@ -301,6 +327,7 @@ export default {
   components: {
     Pagination,
     Timeline,
+    StackedBarsPanel,
   },
 };
 </script>
