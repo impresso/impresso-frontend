@@ -108,7 +108,7 @@ export default {
           : TabBrowseList;
       },
       set(tab) {
-        this.$navigation.updateQueryParametersWithHistory({
+        this.$navigation.updateQueryParameters({
           tab,
         });
       },
@@ -125,9 +125,6 @@ export default {
     },
     selectedId() {
       return this.$route.params.entity_id;
-    },
-    entities() {
-      return this.$store.state.entities.items;
     },
     orderByOptions() {
       return OrderByOptions.map(value => ({
@@ -175,23 +172,20 @@ export default {
     resetObservedItems() {
       this.observedItems = [];
     },
-    loadList(page) {
-      return this.$store.dispatch('entities/LOAD_ENTITIES', {
-        page,
-        orderBy: this.orderBy,
-        q: this.query,
-      });
-    },
     changePage(page = 1) {
-      this.loadList(page);
+      this.paginationCurrentPage = page;
     },
-  },
-  mounted() {
-    return this.loadList();
   },
   watch: {
     serviceQuery: {
-      async handler({ q, page, limit, orderBy }) {
+      async handler(params, oldParams) {
+        const newParamsStr = JSON.stringify(params)
+        const oldParamsStr = JSON.stringify(oldParams)
+        if (newParamsStr === oldParamsStr) {
+          console.info(`Params are the same: ${newParamsStr} ${oldParamsStr}`)
+          return;
+        }
+        const { q, limit, page, orderBy } = params;
         if (this.isLoading) {
           console.warn('loading already... please try again later on');
           return;
@@ -210,13 +204,12 @@ export default {
           query,
         }).then(({ data, info, total }) => {
           console.info('@serviceQuery entitiesService.find results:', data, info, 'query', query);
-          this.paginationCurrentPage = info.page;
-          this.paginationPerPage = info.limit;
           this.paginationTotalRows = total;
           this.items = data.map(d => new Entity(d));
           this.isLoading = false;
         });
       },
+      deep: true,
       immediate:true,
     }
   },
