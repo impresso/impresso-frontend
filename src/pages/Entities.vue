@@ -182,7 +182,7 @@ export default {
         const newParamsStr = JSON.stringify(params)
         const oldParamsStr = JSON.stringify(oldParams)
         if (newParamsStr === oldParamsStr) {
-          console.info(`Params are the same: ${newParamsStr} ${oldParamsStr}`)
+          console.warn(`Params are the same: ${newParamsStr} ${oldParamsStr}`)
           return;
         }
         const { q, limit, page, orderBy } = params;
@@ -202,8 +202,7 @@ export default {
         this.items = [];
         return entitiesService.find({
           query,
-        }).then(({ data, info, total }) => {
-          console.info('@serviceQuery entitiesService.find results:', data, info, 'query', query);
+        }).then(({ data, total }) => {
           this.paginationTotalRows = total;
           this.items = data.map(d => new Entity(d));
           this.isLoading = false;
