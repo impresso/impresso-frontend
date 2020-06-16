@@ -2,13 +2,15 @@
   <i-layout-section main>
     <template v-slot:header>
       <b-navbar type="light" variant="light" class="border-bottom" slot="header">
-        <section v-if="observingList.length">
+        <section v-if="observingList">
           <div class="label small-caps">
             Entities
           </div>
           <h3>{{ $t('title') }}</h3>
           <div v-if="countActiveFilters > 0">
-            <b-form-checkbox @change="useCurrentSearchChanged" switch>
+            <b-form-checkbox
+              v-model="useCurrentSearch"
+              @change="useCurrentSearchChanged" switch>
               {{ $t('label.useCurrentSearch') }}
               <a @click.prevent.stop="toggleQueryExplorerVisible">
                 ({{ $tc('counts.filters', countActiveFilters) }})
@@ -19,16 +21,19 @@
             </b-form-checkbox>
           </div>
         </section>
+        <section v-else>
+          <p class="pt-3">Please add a few entities and be amazed.</p>
+        </section>
       </b-navbar>
     </template>
     <template v-slot:default>
-      <section v-if="$route.query.items.length" class="p-3">
+      <section v-if="$route.query.items" class="p-3">
         <timeline
           :values="timevalues"
           :domain="domain"
           height="120px"
           />
-        <!-- <pre>{{searchQuery}}</pre> -->
+        <pre>{{searchQuery}}</pre>
       </section>
     </template>
   </i-layout-section>
@@ -38,10 +43,12 @@
 import Timeline from './modules/Timeline';
 import SearchQueryExplorer from './modals/SearchQueryExplorer';
 import { searchQueryGetter } from '@/logic/queryParams';
+import FilterEntity from '@/models/FilterEntity';
 
 export default {
   data: () => ({
     searchQueryExplorerVisible: false,
+    useCurrentSearch: true,
     timevalues: [],
     domain: [1800, 2000],
   }),
@@ -60,13 +67,29 @@ export default {
   },
   methods: {
     useCurrentSearchChanged() {
-      console.log('useCurrentSearchChanged');
+      this.useCurrentSearch = !this.useCurrentSearch;
+      this.$router.push({ query: { ...this.$route.query, useCurrentSearch: this.useCurrentSearch }})
     },
     toggleQueryExplorerVisible() {
       this.searchQueryExplorerVisible = !this.searchQueryExplorerVisible;
     },
-    loadFacets(items) {
-      return this.$store.dispatch('entities/LOAD_TIMELINE', items).then((values) => {
+    loadFacets({type, q}) {
+      // console.log(items);
+      // const filters = [
+      //   {
+      //     type,
+      //     q,
+      //   },
+      // ];
+      let f = [];
+      if (this.useCurrentSearch) {
+        f = this.searchQuery;
+        f.filters.push(new FilterEntity({ q, type}));
+      } else {
+        f = [{type, q}];
+      }
+      console.log('___filters', f);
+      return this.$store.dispatch('search/LOAD_TIMELINE', {filters: f}).then((values) => {
         this.timevalues = values;
       });
     },
@@ -75,7 +98,7 @@ export default {
     $route: {
       immediate: true,
       async handler() {
-        this.loadFacets(this.observingList);
+        this.loadFacets({type: 'entity', q: this.observingList});
       },
     },
   },
