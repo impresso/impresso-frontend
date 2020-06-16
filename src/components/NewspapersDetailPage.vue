@@ -188,7 +188,7 @@ export default {
     tab: 'issues',
     orderBy: '-date',
     timevalues: [],
-    daterange: [1730, 2020],
+    daterange: [1738, 2020],
     facets: [],
     facetTypes: ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
   }),

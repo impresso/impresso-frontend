@@ -58,39 +58,23 @@
       :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"
     />
 
-    <b-container class="my-3">
-      <h2>Top 10 facets</h2>
-      <b-row>
-        <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
-          <stacked-bars-panel
-            class=""
-            :label="facet.type"
-            :buckets="facet.buckets"
-            :facet-type="facet.type"/>
-      </b-col>
-    </b-row>
-    </b-container>
-
   </i-layout-section>
 </template>
 <script>
 import NewspapersLines from './NewspapersLines';
 import Timeline from './modules/Timeline';
-import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import InfoButton from './base/InfoButton';
 
 export default {
   data: () => ({
     values: [],
-    start: 1738,
-    end: 2018,
+    start: 1730,
+    end: 2020,
     highlights: ['A', 'B'],
     highlightA: null,
     highlightB: null,
     valueType: 'pages',
     scrollTop: 0,
-    facets: [],
-    facetTypes: ['newspaper', 'country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
   }),
   computed: {
     newspapers() {
@@ -116,7 +100,6 @@ export default {
     },
   },
   mounted() {
-    this.loadFacets();
     // global timeline per year, with n. of pages, n. of empty pages, n.of corrupted pages.
     return this.$store.dispatch('newspapers/LOAD_TIMELINES').then(([pages, issues]) => {
       this.timelines = {
@@ -141,15 +124,6 @@ export default {
         }
       });
     },
-    async loadFacets() {
-      this.facets = [];
-      this.facetTypes.forEach((type) => {
-        return this.$store.dispatch('newspapers/LOAD_FACETS', {q: undefined, type})
-          .then((r) => {
-            if (r.numBuckets > 0) this.facets.push(r);
-          });
-      });
-    },
   },
   watch: {
     valueType: {
@@ -166,7 +140,6 @@ export default {
     // Tooltip,
     NewspapersLines,
     Timeline,
-    StackedBarsPanel,
     InfoButton,
   },
 };
