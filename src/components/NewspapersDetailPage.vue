@@ -222,7 +222,11 @@ export default {
         // const institutionPortal = this.newspaper.properties.find(d => d.name === 'institutionPortal');
         let ret = '';
         if (institutionLogos) {
-          ret += `<img src="https://impresso-project.ch/assets/images/${institutionLogos.value}" class="d-block mb-1" />`;
+          const regex = /([\w-_ ])+\.(svg|png|jpg|jpeg|gif|bmp)/gi;
+          const arr = institutionLogos.value.match(regex);
+          arr.forEach((item) => {
+            ret += `<img src="https://impresso-project.ch/assets/images/${item}" class="d-block my-3 logo" />`;
+          });
         }
         if (institutionNames) {
           ret += `${institutionNames.value}`;
