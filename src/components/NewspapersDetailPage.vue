@@ -62,6 +62,7 @@
         </div>
         <timeline
               :contrast="false"
+              :brush="daterange"
               :values="timevalues">
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
@@ -187,6 +188,7 @@ export default {
     tab: 'issues',
     orderBy: '-date',
     timevalues: [],
+    daterange: ['1730-01-01', '2020-12-30'],
     facets: [],
     facetTypes: ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
   }),
