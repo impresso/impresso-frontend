@@ -232,6 +232,7 @@ export default {
           ret += `${institutionNames.value}`;
         }
         if (institutionLinks) {
+          //  regex == http[:\/\w\-_.]+
           ret = `<a href="${institutionLinks.value}" target="_blank">${ret}</a>` ;
         }
         if (ret !== '') return ret;
