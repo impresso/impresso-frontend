@@ -90,11 +90,11 @@ export default {
     },
     observedItems: {
       get() {
-        return this.$route.query.items ?? [];
+        return (this.$route.query.items || '').split(',').filter(d => !!d);
       },
       set(items) {
         this.$navigation.updateQueryParametersWithHistory({
-          items,
+          items: items.join(','),
         });
       },
     },
