@@ -339,6 +339,7 @@ export default {
     more_info: 'More Info',
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',
+    notFound: '(this is an empty list)',
   },
   nl: {
     language: 'Taal',
