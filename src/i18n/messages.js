@@ -10,6 +10,9 @@ export default {
       fr: 'French',
       en: 'English',
     },
+    counts: {
+      filters: 'no filter | 1 filter | {count} filters',
+    },
     buckets: {
       type: {
         ad: 'advertisement',
@@ -195,6 +198,7 @@ export default {
       },
     },
     label: {
+      useCurrentSearch: 'consider only results matching current search',
       isFront: 'only results on the front page',
       year: {
         title: 'Year | Year | Years',
