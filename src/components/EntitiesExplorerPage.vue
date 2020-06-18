@@ -30,12 +30,13 @@
       </b-navbar>
     </template>
     <template v-slot:default>
-      <section v-if="$route.query.items" class="p-3">
+      <section v-if="$route.query.items" class="p-3 border-bottom">
         <timeline
           :class="{'invisible': isLoading}"
           :values="timevalues"
           :domain="domain"
           height="120px"
+          @brushed="onTimelineBrushed"
           >
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
@@ -44,16 +45,23 @@
             </div>
           </div>
         </timeline>
-        <pre>{{searchQuery}}</pre>
+      </section>
+      <section>
+        <time-punchcard-chart
+          :data="testChartData"/>
+        {{testChartData}}
       </section>
     </template>
   </i-layout-section>
 </template>
 
 <script>
+import * as d3 from 'd3';
+
 import Timeline from './modules/Timeline';
 import SearchQueryExplorer from './modals/SearchQueryExplorer';
 import { searchQueryGetter } from '@/logic/queryParams';
+import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart';
 
 export default {
   data: () => ({
@@ -61,10 +69,30 @@ export default {
     useCurrentSearch: false,
     timevalues: [],
     domain: [1800, 2000],
+    minDate: new Date('1800-01-01').getTime(),
+    maxDate: new Date('2020-01-01').getTime(),
+    testChartData: /** @type {import('@/d3-modules/TimePunchcardChart').ChartData} */ ({
+      categories: [...Array(6).keys()].map((categoryIndex) => {
+        let startTime = new Date('1800-01-01')
+        const OneMonth = 1000 * 60 * 60 * 24 * 30
+        startTime = d3.timeMonth.floor(startTime)
+
+        return {
+          dataPoints: [...Array(10).keys()].map((_, index) => {
+            const value = index === 0 ? 100 : 20 + Math.random() * 80
+            const time = d3.timeMonth.round(new Date(startTime + (OneMonth * index)))
+            if (time.getTime() > new Date('2020-01-01').getTime()) return undefined
+            return { time, value }
+          }).filter(v => v != null),
+          isSubcategory : categoryIndex % 2 === 1
+        }
+      })
+    }),
   }),
   components: {
     Timeline,
     SearchQueryExplorer,
+    TimePunchcardChart,
   },
   computed: {
     isLoading: {
@@ -107,6 +135,12 @@ export default {
         this.timevalues = values;
         this.isLoading = false;
       });
+    },
+    onTimelineBrushed(data) {
+      console.log(data);
+      this.minDate = data.minDate.getTime();
+      this.maxDate = data.maxDate.getTime();
+      console.log(this.minDate);
     },
   },
   watch: {
