@@ -35,6 +35,12 @@
           height="120px"
           />
         <pre>{{searchQuery}}</pre>
+          <div slot-scope="tooltipScope">
+            <div v-if="tooltipScope.tooltip.item">
+              {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+              <b>{{ tooltipScope.tooltip.item.w }}</b> {{ localComputedVar }}
+            </div>
+          </div>
       </section>
     </template>
   </i-layout-section>
