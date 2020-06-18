@@ -33,14 +33,15 @@
           :values="timevalues"
           :domain="domain"
           height="120px"
-          />
-        <pre>{{searchQuery}}</pre>
+          >
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
               <b>{{ tooltipScope.tooltip.item.w }}</b> {{ localComputedVar }}
             </div>
           </div>
+        </timeline>
+        <pre>{{searchQuery}}</pre>
       </section>
     </template>
   </i-layout-section>
@@ -54,6 +55,7 @@ import { searchQueryGetter } from '@/logic/queryParams';
 export default {
   data: () => ({
     searchQueryExplorerVisible: false,
+    useCurrentSearch: false,
     timelineVisible: false,
     timevalues: [],
     domain: [1800, 2000],
@@ -68,7 +70,7 @@ export default {
       return this.searchQuery.countActiveFilters();
     },
     observingList() {
-      return this.$route.query.items.split(',');
+      return this.$route.query.items ? this.$route.query.items.split(',') : [];
     }
   },
   methods: {
