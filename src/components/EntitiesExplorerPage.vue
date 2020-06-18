@@ -62,7 +62,7 @@ export default {
       return this.searchQuery.countActiveFilters();
     },
     observingList() {
-      return this.$route.query.items;
+      return this.$route.query.items.split(',');
     }
   },
   methods: {
