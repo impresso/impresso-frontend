@@ -9,8 +9,8 @@
           <h3>{{ $t('title') }}</h3>
           <div v-if="countActiveFilters > 0">
             <b-form-checkbox
-              v-model="useCurrentSearch"
-              @change="useCurrentSearchChanged" switch>
+              v-model="applyCurrentSearchFilters"
+              switch>
               {{ $t('label.useCurrentSearch') }}
               <a @click.prevent.stop="toggleQueryExplorerVisible">
                 ({{ $tc('counts.filters', countActiveFilters) }})
@@ -32,7 +32,7 @@
     <template v-slot:default>
       <section v-if="$route.query.items" class="p-3">
         <timeline
-          :class="{'invisible': !timelineVisible}"
+          :class="{'invisible': isLoading}"
           :values="timevalues"
           :domain="domain"
           height="120px"
@@ -40,7 +40,7 @@
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-              <b>{{ tooltipScope.tooltip.item.w }}</b> {{ localComputedVar }}
+              <b>{{ tooltipScope.tooltip.item.w }}</b>
             </div>
           </div>
         </timeline>
@@ -59,7 +59,6 @@ export default {
   data: () => ({
     searchQueryExplorerVisible: false,
     useCurrentSearch: false,
-    timelineVisible: false,
     timevalues: [],
     domain: [1800, 2000],
   }),
@@ -68,6 +67,23 @@ export default {
     SearchQueryExplorer,
   },
   computed: {
+    isLoading: {
+      get() {
+        return this.$store.state.entities.isLoading;
+      },
+      set(value) {
+        this.$store.dispatch('entities/UPDATE_IS_LOADING', value);
+      },
+    },
+    applyCurrentSearchFilters: {
+      get() {
+        return this.$store.state.entities.applyCurrentSearchFilters;
+      },
+      set(value) {
+        this.$store.dispatch('entities/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+        this.loadFacets({type: 'entity', q: this.observingList});
+      },
+    },
     searchQuery: searchQueryGetter(),
     countActiveFilters() {
       return this.searchQuery.countActiveFilters();
@@ -77,23 +93,19 @@ export default {
     }
   },
   methods: {
-    useCurrentSearchChanged() {
-      this.useCurrentSearch = !this.useCurrentSearch;
-      this.$router.push({ query: { ...this.$route.query, useCurrentSearch: this.useCurrentSearch }})
-    },
     toggleQueryExplorerVisible() {
       this.searchQueryExplorerVisible = !this.searchQueryExplorerVisible;
     },
     loadFacets({type, q}) {
-      this.timelineVisible = false;
-      let filters = [{type, q, op: "OR"}];
-      if (this.useCurrentSearch) {
+      this.isLoading = true;
+      let filters = [{type, q, op: 'OR'}];
+      if (this.applyCurrentSearchFilters) {
         filters = filters.concat(this.searchQuery.getFilters());
       }
-      console.log('___filters', filters);
+      console.log('___filters', filters, this.applyCurrentSearchFilters);
       return this.$store.dispatch('search/LOAD_TIMELINE', {filters}).then((values) => {
         this.timevalues = values;
-        this.timelineVisible = true;
+        this.isLoading = false;
       });
     },
   },

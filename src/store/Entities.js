@@ -11,6 +11,8 @@ export default {
     orderBy: '-count',
     items: [],
     query: '',
+    isLoading: false,
+    applyCurrentSearchFilters: true,
     pagination: {
       perPage: 10,
       currentPage: 1,
@@ -35,8 +37,20 @@ export default {
         ...pagination,
       };
     },
+    UPDATE_IS_LOADING(state, value) {
+      state.isLoading = value;
+    },
+    UPDATE_APPLY_CURRENT_SEARCH_FILTERS(state, value) {
+      state.applyCurrentSearchFilters = value;
+    },
   },
   actions: {
+    UPDATE_IS_LOADING({ commit }, value) {
+      commit('UPDATE_IS_LOADING', value);
+    },
+    UPDATE_APPLY_CURRENT_SEARCH_FILTERS({ commit }, value) {
+      commit('UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+    },
     UPDATE_ORDER_BY({ commit }, value) {
       commit('UPDATE_ORDER_BY', value);
     },
