@@ -50,12 +50,10 @@
 import Timeline from './modules/Timeline';
 import SearchQueryExplorer from './modals/SearchQueryExplorer';
 import { searchQueryGetter } from '@/logic/queryParams';
-import FilterEntity from '@/models/FilterEntity';
 
 export default {
   data: () => ({
     searchQueryExplorerVisible: false,
-    useCurrentSearch: true,
     timelineVisible: false,
     timevalues: [],
     domain: [1800, 2000],
@@ -82,16 +80,13 @@ export default {
       this.searchQueryExplorerVisible = !this.searchQueryExplorerVisible;
     },
     loadFacets({type, q}) {
-      let f = [];
       this.timelineVisible = false;
+      let filters = [{type, q, op: "OR"}];
       if (this.useCurrentSearch) {
-        f = this.searchQuery;
-        f.filters.push(new FilterEntity({ q, type}));
-      } else {
-        f = [{type, q}];
+        filters = filters.concat(this.searchQuery.getFilters());
       }
-      console.log('___filters', f);
-      return this.$store.dispatch('search/LOAD_TIMELINE', {filters: f}).then((values) => {
+      console.log('___filters', filters);
+      return this.$store.dispatch('search/LOAD_TIMELINE', {filters}).then((values) => {
         this.timevalues = values;
         this.timelineVisible = true;
       });
