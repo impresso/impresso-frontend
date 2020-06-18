@@ -74,13 +74,6 @@ export default {
       this.searchQueryExplorerVisible = !this.searchQueryExplorerVisible;
     },
     loadFacets({type, q}) {
-      // console.log(items);
-      // const filters = [
-      //   {
-      //     type,
-      //     q,
-      //   },
-      // ];
       let f = [];
       if (this.useCurrentSearch) {
         f = this.searchQuery;
