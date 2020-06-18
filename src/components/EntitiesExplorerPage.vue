@@ -15,10 +15,13 @@
               <a @click.prevent.stop="toggleQueryExplorerVisible">
                 ({{ $tc('counts.filters', countActiveFilters) }})
               </a>
-              <div class="bg-dark" v-if="searchQueryExplorerVisible">
-                <search-query-explorer :search-query="searchQuery" dark-mode/>
-              </div>
+
             </b-form-checkbox>
+            <div
+              style="z-index:1"
+              class="drop-shadow bg-dark position-absolute" v-if="searchQueryExplorerVisible">
+              <search-query-explorer :search-query="searchQuery" dark-mode/>
+            </div>
           </div>
         </section>
         <section v-else>
