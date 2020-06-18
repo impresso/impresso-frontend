@@ -29,6 +29,7 @@
     <template v-slot:default>
       <section v-if="$route.query.items" class="p-3">
         <timeline
+          :class="{'invisible': !timelineVisible}"
           :values="timevalues"
           :domain="domain"
           height="120px"
@@ -49,6 +50,7 @@ export default {
   data: () => ({
     searchQueryExplorerVisible: false,
     useCurrentSearch: true,
+    timelineVisible: false,
     timevalues: [],
     domain: [1800, 2000],
   }),
@@ -75,6 +77,7 @@ export default {
     },
     loadFacets({type, q}) {
       let f = [];
+      this.timelineVisible = false;
       if (this.useCurrentSearch) {
         f = this.searchQuery;
         f.filters.push(new FilterEntity({ q, type}));
@@ -84,6 +87,7 @@ export default {
       console.log('___filters', f);
       return this.$store.dispatch('search/LOAD_TIMELINE', {filters: f}).then((values) => {
         this.timevalues = values;
+        this.timelineVisible = true;
       });
     },
   },
