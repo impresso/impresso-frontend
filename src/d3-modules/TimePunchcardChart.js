@@ -157,13 +157,20 @@ export default class TimePunchcardChart {
       ? shouldRenderTickLabelFn
       : () => true
 
+    // render label every `labelSpacing` ticks.
+    // TODO: 30 is picked after visually checking how close together labels are. There
+    // might be a better heuristics out there.
+    const labelSpacing = data.categories.length > 0 && data.categories[0].dataPoints.length > 30
+      ? 10 : 1
+
     const xAxis = g => g
       .attr('transform', `translate(0,${calculatedHeight - this.margin.bottom})`)
       .call(d3.axisBottom(this.x)
         // .ticks(times.length + 2)
         .ticks(timeInterval)
-        .tickFormat(time => {
-          return shouldRenderTickLabel(/** @type {Date} */ (time)) ? timeFormat(/** @type {Date} */ (time)) : ''
+        .tickFormat((time, idx) => {
+          const shouldRender = idx % labelSpacing === 0
+          return shouldRender && shouldRenderTickLabel(/** @type {Date} */ (time)) ? timeFormat(/** @type {Date} */ (time)) : ''
         })
         .tickSizeOuter(0)
         .tickSize(-calculatedEffectiveHeight))

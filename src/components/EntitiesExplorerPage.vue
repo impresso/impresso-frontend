@@ -72,6 +72,7 @@ import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
 import {
   entityMentionsTimeline as entityMentionsTimelineService
 } from '@/services'
+import { getQueryParameter } from '@/router/util'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -79,7 +80,9 @@ import {
 
 const QueryParameters = Object.freeze({
   ApplyCurrentSearchFilters: 'doFilter',
-  SelectedEntitiesIds: 'items'
+  SelectedEntitiesIds: 'items',
+  TimelineSelectionStart: 'sels',
+  TimelineSelectionEnd: 'sele'
 })
 
 /**
@@ -123,7 +126,6 @@ export default {
     timevalues: [],
     mentionsFrequenciesResponses: /** @type {any[]} */ ([]),
     timelineSpan: /** @type {Date[]} */ ([]),
-    currentTimelineSelectionSpan:  /** @type {Date[]} */ ([]),
   }),
   components: {
     Timeline,
@@ -153,6 +155,42 @@ export default {
           [QueryParameters.ApplyCurrentSearchFilters]: String(value)
         })
       },
+    },
+    timelineSelectionStart: {
+      /** @returns {Date | undefined} */
+      get() {
+        const v = getQueryParameter(this, QueryParameters.TimelineSelectionStart)
+        return v == null ? undefined : new Date(parseInt(v, 10))
+      },
+      /** @param {Date} value */
+      set(value) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.TimelineSelectionStart]: value.getTime()
+        })
+      }
+    },
+    timelineSelectionEnd: {
+      /** @returns {Date | undefined} */
+      get() {
+        const v = getQueryParameter(this, QueryParameters.TimelineSelectionEnd)
+        return v == null ? undefined : new Date(parseInt(v, 10))
+      },
+      /** @param {Date} value */
+      set(value) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.TimelineSelectionEnd]: value.getTime()
+        })
+      }
+    },
+    /** @return {Date[]} */
+    currentTimelineSelectionSpan() {
+      if (this.timelineSelectionStart != null && this.timelineSelectionEnd != null) {
+        return [
+          this.timelineSelectionStart,
+          this.timelineSelectionEnd
+        ]
+      }
+      return []
     },
     searchQuery: searchQueryGetter(),
     /** @returns {number} */
@@ -226,10 +264,8 @@ export default {
     },
     /** @param {any} data */
     onTimelineBrushed(data) {
-      this.currentTimelineSelectionSpan = [
-        data.minDate,
-        data.maxDate
-      ]
+      this.timelineSelectionStart = data.minDate
+      this.timelineSelectionEnd = data.maxDate
     },
     async loadPunchcardData() {
       const currentSearchFilters = this.applyCurrentSearchFilters
