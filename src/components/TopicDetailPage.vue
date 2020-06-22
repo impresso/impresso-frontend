@@ -90,6 +90,7 @@
         <p class="description small">number of articles where this topic is relevant</p>
       </div>
       <timeline
+            :domain="[startYear, endYear]"
             :contrast="false"
             :values="timevalues">
         <div slot-scope="tooltipScope">
@@ -186,6 +187,18 @@ export default {
         },
       ];
     },
+    impressoCollectionStartDate() {
+      return new Date(window.impressoDocumentsDateSpan.firstDate)
+    },
+    impressoCollectionEndDate() {
+      return new Date(window.impressoDocumentsDateSpan.lastDate)
+    },
+    startYear() {
+      return this.impressoCollectionStartDate.getFullYear();
+    },
+    endYear() {
+      return this.impressoCollectionEndDate.getFullYear();
+    }
   },
   methods: {
     async onInputPagination(page) {
