@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout-section main>
     <template v-slot:header>
       <b-navbar type="light" variant="light" class="border-bottom" slot="header">
@@ -32,9 +32,9 @@
     <template v-slot:default>
       <section v-if="$route.query.items" class="p-3 border-bottom">
         <timeline
-          :class="{'invisible': isLoading}"
+          :class="{'invisible': isTimelineLoading}"
           :values="timevalues"
-          :domain="domain"
+          :domain="timelineSpan"
           height="120px"
           @brushed="onTimelineBrushed"
           >
@@ -63,14 +63,23 @@ import SearchQueryExplorer from './modals/SearchQueryExplorer';
 import { searchQueryGetter } from '@/logic/queryParams';
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart';
 
+/**
+ * @typedef {import('@/models').Filter} Filter
+ */
+
+const QueryParameters = Object.freeze({
+  ApplyCurrentSearchFilters: 'doFilter',
+  SelectedEntitiesIds: 'items'
+})
+
 export default {
   data: () => ({
+    isTimelineLoading: false,
     searchQueryExplorerVisible: false,
     useCurrentSearch: false,
     timevalues: [],
-    domain: [1800, 2000],
-    minDate: new Date('1800-01-01').getTime(),
-    maxDate: new Date('2020-01-01').getTime(),
+    timelineSpan: /** @type {Date[]} */ ([]),
+    currentTimelineSelectionSpan:  /** @type {Date[]} */ ([]),
     testChartData: /** @type {import('@/d3-modules/TimePunchcardChart').ChartData} */ ({
       categories: [...Array(6).keys()].map((categoryIndex) => {
         let startTime = new Date('1800-01-01')
@@ -94,60 +103,93 @@ export default {
     SearchQueryExplorer,
     TimePunchcardChart,
   },
+  mounted() {
+    // @ts-ignore
+    let { firstDate } = window.impressoDocumentsDateSpan
+    const lastDate = new Date()
+    firstDate = new Date(firstDate)
+
+    this.timelineSpan = [
+      firstDate.getFullYear(),
+      lastDate.getFullYear()
+    ];
+  },
   computed: {
-    isLoading: {
-      get() {
-        return this.$store.state.entities.isLoading;
-      },
-      set(value) {
-        this.$store.dispatch('entities/UPDATE_IS_LOADING', value);
-      },
-    },
     applyCurrentSearchFilters: {
+      /** @returns {boolean} */
       get() {
-        return this.$store.state.entities.applyCurrentSearchFilters;
+        return /** @type {boolean} */ (this.$route.query[QueryParameters.ApplyCurrentSearchFilters] === 'true');
+        // return this.$store.state.entities.applyCurrentSearchFilters;
       },
+      /** @param {boolean} value */
       set(value) {
-        this.$store.dispatch('entities/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
-        this.loadFacets({type: 'entity', q: this.observingList});
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.ApplyCurrentSearchFilters]: String(value)
+        })
+        // this.$store.dispatch('entities/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+        // this.loadFacets({type: 'entity', q: this.observingList});
       },
     },
     searchQuery: searchQueryGetter(),
+    /** @returns {number} */
     countActiveFilters() {
       return this.searchQuery.countActiveFilters();
     },
+    /** @returns {string[]} */
     observingList() {
-      return this.$route.query.items ? this.$route.query.items.split(',') : [];
+      const items = /** @type {string} */ (this.$route.query[QueryParameters.SelectedEntitiesIds])
+      return items != null ? items.split(',') : []
+      // return this.$route.query.items ? this.$route.query.items.split(',') : [];
+    },
+    /** @returns {any} */
+    timelineUpdateParameters() {
+      return {
+        entitiesIds: this.observingList,
+        applyCurrentSearchFilters: this.applyCurrentSearchFilters
+      };
     }
   },
   methods: {
     toggleQueryExplorerVisible() {
       this.searchQueryExplorerVisible = !this.searchQueryExplorerVisible;
     },
-    loadFacets({type, q}) {
-      this.isLoading = true;
-      let filters = [{type, q, op: 'OR'}];
-      if (this.applyCurrentSearchFilters) {
-        filters = filters.concat(this.searchQuery.getFilters());
+    async loadTimeline() {
+      const observedItemsFilters = /** @type {Filter[]} */ (this.observingList.length > 0
+        ? [{
+          type: 'entity',
+          op: 'OR',
+          q: this.observingList
+        }]
+        : [])
+
+      const currentSearchFilters = this.applyCurrentSearchFilters
+        ? this.searchQuery.getFilters()
+        : []
+
+      const filters = observedItemsFilters.concat(currentSearchFilters)
+
+      try {
+        this.isTimelineLoading = true;
+        this.timevalues = await this.$store.dispatch('search/LOAD_TIMELINE', {filters})
+      } finally {
+        this.isTimelineLoading = false;
       }
-      console.log('___filters', filters, this.applyCurrentSearchFilters);
-      return this.$store.dispatch('search/LOAD_TIMELINE', {filters}).then((values) => {
-        this.timevalues = values;
-        this.isLoading = false;
-      });
     },
+    /** @param {any} data */
     onTimelineBrushed(data) {
-      console.log(data);
-      this.minDate = data.minDate.getTime();
-      this.maxDate = data.maxDate.getTime();
-      console.log(this.minDate);
+      this.currentTimelineSelectionSpan = [
+        data.minDate,
+        data.maxDate
+      ]
     },
   },
   watch: {
-    $route: {
+    timelineUpdateParameters: {
       immediate: true,
-      async handler() {
-        this.loadFacets({type: 'entity', q: this.observingList});
+      deep: true,
+      async handler(newValues, oldValues) {
+        if (JSON.stringify(newValues) === JSON.stringify(oldValues)) return;
+        this.loadTimeline();
       },
     },
   },
