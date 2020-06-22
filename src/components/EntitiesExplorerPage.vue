@@ -119,15 +119,12 @@ export default {
       /** @returns {boolean} */
       get() {
         return /** @type {boolean} */ (this.$route.query[QueryParameters.ApplyCurrentSearchFilters] === 'true');
-        // return this.$store.state.entities.applyCurrentSearchFilters;
       },
       /** @param {boolean} value */
       set(value) {
         this.$navigation.updateQueryParameters({
           [QueryParameters.ApplyCurrentSearchFilters]: String(value)
         })
-        // this.$store.dispatch('entities/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
-        // this.loadFacets({type: 'entity', q: this.observingList});
       },
     },
     searchQuery: searchQueryGetter(),
@@ -139,7 +136,6 @@ export default {
     observingList() {
       const items = /** @type {string} */ (this.$route.query[QueryParameters.SelectedEntitiesIds])
       return items != null ? items.split(',') : []
-      // return this.$route.query.items ? this.$route.query.items.split(',') : [];
     },
     /** @returns {any} */
     timelineUpdateParameters() {
