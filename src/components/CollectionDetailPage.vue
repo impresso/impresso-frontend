@@ -187,7 +187,7 @@
         </div>
       </timeline>
 
-      <b-container>
+      <b-container fluid class="my-3">
         <b-row>
           <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
             <stacked-bars-panel
@@ -271,16 +271,6 @@ const TAB_OVERVIEW = 'overview';
 const TAB_RECOMMENDATIONS = 'recommendations';
 
 export default {
-  props: {
-    startYear: {
-      type: Number,
-      default: 1740,
-    },
-    endYear: {
-      type: Number,
-      default: 2020,
-    },
-  },
   data: () => ({
     tab: {},
     collection: new Collection(),
@@ -302,6 +292,12 @@ export default {
     CollectionRecommendationsPanel,
   },
   computed: {
+    startYear() {
+      return window.impressoDocumentsYearSpan.firstYear;
+    },
+    endYear() {
+      return window.impressoDocumentsYearSpan.lastYear;
+    },
     filters: mapFilters(),
     searchPageLink() {
       if (!this.collection) {
