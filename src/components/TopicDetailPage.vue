@@ -223,6 +223,7 @@ export default {
       });
     },
     async loadFacets() {
+      this.facets = [];
       const query = {
         filters: [{
           type: 'topic',
