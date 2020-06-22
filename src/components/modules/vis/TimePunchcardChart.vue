@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <div class="labels" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left : 0}px` }">
+    <div class="labels" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left / 2 : 0}px` }">
       <div v-for="(category, index) in data.categories" :key="index" :style="{ transform: `translate(0, ${getLabelTopOffset(index)}px)`, position: 'absolute' }">
         <slot :category="category" :index="index">
           <div :class="`label ${category.isSubcategory ? 'sub' : ''}`">

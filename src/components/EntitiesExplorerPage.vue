@@ -47,15 +47,17 @@
       </section>
       <section>
         <time-punchcard-chart :data="punchcardChartData">
-          <div slot-scope="scope" :class="`label ${scope.category.isSubcategory ? 'sub' : ''}`">
-            <div :style="{ float: 'left' }" :v-if="!scope.category.isSubcategory">
-              <button :style="{ border: 'none', padding: 0, margin: 0 }"
-                      :click="() => handleEntityLabelClicked(entitiesList[scope.index])">
-                <span class="dripicons-cross"></span>
-              </button>
+          <template slot slot-scope="{ category, index }">
+            <div :class="`label ${category.isSubcategory ? 'sub' : ''}`">
+              <div :style="{ float: 'left' }" v-if="!category.isSubcategory">
+                <button :style="{ border: 'none', padding: 0, margin: 0 }"
+                        :click="() => handleEntityLabelClicked(entitiesList[index])">
+                  <span class="dripicons-cross"></span>
+                </button>
+              </div>
+              {{ category.label }} {{ index }} {{ entitiesList[index].wikidataId }}
             </div>
-            {{ scope.category.label }} {{ scope.index }} {{ entitiesList[scope.index].wikidataId }}
-          </div>
+          </template>
         </time-punchcard-chart>
       </section>
     </template>
