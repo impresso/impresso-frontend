@@ -1,11 +1,13 @@
 <template>
   <div class="container-fluid">
     <div class="labels" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left : 0}px` }">
-      <slot :category="category" v-for="(category, index) in data.categories">
-        <div :key="index" :class="`label ${category.isSubcategory ? 'sub' : ''}`" :style="{ transform: `translate(0, ${getLabelTopOffset(index)}px)` }">
-          Label for {{ category.isSubcategory ? 'sub' : '' }} category {{index}}
-        </div>
-      </slot>
+      <div v-for="(category, index) in data.categories" :key="index" :style="{ transform: `translate(0, ${getLabelTopOffset(index)}px)`, position: 'absolute' }">
+        <slot :category="category" :index="index">
+          <div :class="`label ${category.isSubcategory ? 'sub' : ''}`">
+            Label for {{ category.isSubcategory ? 'sub' : '' }} category {{index}}
+          </div>
+        </slot>
+      </div>
     </div>
     <div ref="chart" class="time-punchcard" :style="{ height: `${height}px` }" />
   </div>
@@ -126,7 +128,7 @@ export default {
   .labels {
     position: relative;
     .label {
-      position: absolute;
+      // position: absolute;
       background: rgb(194, 196, 192);
       min-width: 100px;
       white-space: nowrap;

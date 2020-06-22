@@ -36,8 +36,7 @@
           :values="timevalues"
           :domain="timelineSpan"
           height="120px"
-          @brushed="onTimelineBrushed"
-          >
+          @brush-end="onTimelineBrushed">
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
@@ -47,21 +46,30 @@
         </timeline>
       </section>
       <section>
-        <time-punchcard-chart
-          :data="testChartData"/>
-        {{testChartData}}
+        <time-punchcard-chart :data="punchcardChartData">
+          <div slot-scope="scope" :class="`label ${scope.category.isSubcategory ? 'sub' : ''}`">
+            <div :style="{ float: 'left' }" :v-if="!scope.category.isSubcategory">
+              <button :style="{ border: 'none', padding: 0, margin: 0 }"
+                      :click="() => handleEntityLabelClicked(entitiesList[scope.index])">
+                <span class="dripicons-cross"></span>
+              </button>
+            </div>
+            {{ scope.category.label }} {{ scope.index }} {{ entitiesList[scope.index].wikidataId }}
+          </div>
+        </time-punchcard-chart>
       </section>
     </template>
   </i-layout-section>
 </template>
 
 <script>
-import * as d3 from 'd3';
-
-import Timeline from './modules/Timeline';
-import SearchQueryExplorer from './modals/SearchQueryExplorer';
-import { searchQueryGetter } from '@/logic/queryParams';
-import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart';
+import Timeline from '@/components/modules/Timeline'
+import SearchQueryExplorer from '@/components/modals/SearchQueryExplorer'
+import { searchQueryGetter } from '@/logic/queryParams'
+import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
+import {
+  entityMentionsTimeline as entityMentionsTimelineService
+} from '@/services'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -72,31 +80,48 @@ const QueryParameters = Object.freeze({
   SelectedEntitiesIds: 'items'
 })
 
+/**
+ * @param {any} item
+ * @param {boolean} isSubcategory
+ * @returns {import('@/d3-modules/TimePunchcardChart').ChartCategory}
+ */
+function mentionsFrequenciesResponseItemToPunchcardChartCategory(item, isSubcategory = false) {
+  const dataPoints = item.mentionFrequencies.map(({ val, count }) => {
+    return {
+      value: count,
+      time: new Date(String(val))
+    };
+  });
+
+  return {
+    label: item.label,
+    isSubcategory,
+    dataPoints
+  }
+}
+
+
+/**
+ * @param {any} response
+ * @returns {import('@/d3-modules/TimePunchcardChart').ChartCategory[]}
+ */
+function mentionsFrequenciesResponseToPunchcardChartCategories(response) {
+  const { item, subitems = [] } = response
+
+  return [mentionsFrequenciesResponseItemToPunchcardChartCategory(item)]
+    .concat(subitems.map(i => mentionsFrequenciesResponseItemToPunchcardChartCategory(i, true)))
+}
+
 export default {
   data: () => ({
     isTimelineLoading: false,
+    isPunchcardLoading: false,
     searchQueryExplorerVisible: false,
     useCurrentSearch: false,
     timevalues: [],
+    mentionsFrequenciesResponses: /** @type {any[]} */ ([]),
     timelineSpan: /** @type {Date[]} */ ([]),
     currentTimelineSelectionSpan:  /** @type {Date[]} */ ([]),
-    testChartData: /** @type {import('@/d3-modules/TimePunchcardChart').ChartData} */ ({
-      categories: [...Array(6).keys()].map((categoryIndex) => {
-        let startTime = new Date('1800-01-01')
-        const OneMonth = 1000 * 60 * 60 * 24 * 30
-        startTime = d3.timeMonth.floor(startTime)
-
-        return {
-          dataPoints: [...Array(10).keys()].map((_, index) => {
-            const value = index === 0 ? 100 : 20 + Math.random() * 80
-            const time = d3.timeMonth.round(new Date(startTime + (OneMonth * index)))
-            if (time.getTime() > new Date('2020-01-01').getTime()) return undefined
-            return { time, value }
-          }).filter(v => v != null),
-          isSubcategory : categoryIndex % 2 === 1
-        }
-      })
-    }),
   }),
   components: {
     Timeline,
@@ -143,6 +168,32 @@ export default {
         entitiesIds: this.observingList,
         applyCurrentSearchFilters: this.applyCurrentSearchFilters
       };
+    },
+    /** @returns {any} */
+    punchcardUpdateParameters() {
+      return {
+        entitiesIds: this.observingList,
+        applyCurrentSearchFilters: this.applyCurrentSearchFilters,
+        currentTimelineSelectionSpan: this.currentTimelineSelectionSpan
+      };
+    },
+    /**
+     * @returns {import('@/d3-modules/TimePunchcardChart').ChartData}
+     */
+    punchcardChartData() {
+      const categories = this.mentionsFrequenciesResponses.reduce((acc, response) => {
+        const items = mentionsFrequenciesResponseToPunchcardChartCategories(response);
+        return acc.concat(items);
+      }, [])
+
+      return { categories }
+    },
+    /** @returns {any[]} */
+    entitiesList() {
+      return this.mentionsFrequenciesResponses.reduce((acc, response) => {
+        const { item, subitems = [] } = response;
+        return acc.concat(item).concat(subitems);
+      }, [])
     }
   },
   methods: {
@@ -178,6 +229,38 @@ export default {
         data.maxDate
       ]
     },
+    async loadPunchcardData() {
+      const currentSearchFilters = this.applyCurrentSearchFilters
+        ? this.searchQuery.getFilters()
+        : []
+
+
+      const timeFilter = /** @type {Filter[]} */ (this.currentTimelineSelectionSpan.length > 0
+        ? [{
+          type: 'daterange',
+          // TODO: the daterange filter has a weird notion of ISO datetime format. It doesn't accept milliseconds.
+          q: this.currentTimelineSelectionSpan.map(d => d.toISOString().replace(/\.\d+Z/, 'Z')).join(' TO ')
+        }] : [])
+
+      const filters = timeFilter.concat(currentSearchFilters)
+
+      const payloads = this.observingList.map(entityId => ({
+        entityId,
+        filters
+      }));
+
+      try {
+        this.isPunchcardLoading = true
+        this.mentionsFrequenciesResponses = await Promise.all(
+          payloads.map(payload => entityMentionsTimelineService.create(payload))
+        )
+      } finally {
+        this.isPunchcardLoading = false
+      }
+    },
+    handleEntityLabelClicked(entity) {
+      console.info('*** Entity should be removed', entity);
+    }
   },
   watch: {
     timelineUpdateParameters: {
@@ -185,9 +268,17 @@ export default {
       deep: true,
       async handler(newValues, oldValues) {
         if (JSON.stringify(newValues) === JSON.stringify(oldValues)) return;
-        this.loadTimeline();
+        await this.loadTimeline();
       },
     },
+    punchcardUpdateParameters: {
+      immediate: true,
+      deep: true,
+      async handler(newValues, oldValues) {
+        if (JSON.stringify(newValues) === JSON.stringify(oldValues)) return;
+        await this.loadPunchcardData();
+      }
+    }
   },
 };
 </script>

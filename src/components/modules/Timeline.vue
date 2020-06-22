@@ -140,6 +140,10 @@ export default {
       this.$emit('brushing', data);
     });
 
+    this.timeline.on('brush-end', (data) => {
+      this.$emit('brush-end', data);
+    });
+
     this.timeline.on('highlighted', (data) => {
       this.moveTooltip(data);
     });
