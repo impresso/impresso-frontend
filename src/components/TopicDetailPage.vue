@@ -100,6 +100,18 @@
           </div>
         </div>
       </timeline>
+      <b-container fluid class="my-3">
+        <!-- <h2>Facets – top ten buckets</h2> -->
+        <b-row>
+          <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+            <stacked-bars-panel
+              class=""
+              :label="facet.type"
+              :buckets="facet.buckets"
+              :facet-type="facet.type"/>
+          </b-col>
+        </b-row>
+      </b-container>
     </div>
   </i-layout-section>
 </template>
@@ -107,17 +119,26 @@
 <script>
 import SearchQuery from '@/models/SearchQuery';
 import Topic from '@/models/Topic';
+import Facet from '@/models/Facet';
 import Pagination from './modules/Pagination';
 import ArticleItem from './modules/lists/ArticleItem';
 import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
 import { searchQueryHashGetter, mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
+import { searchFacets as searchFacetsService } from '@/services'
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
 
 export default {
+  props: {
+    facetTypes: {
+      type: Array,
+      default: () => ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
+    },
+  },
   data: () => ({
     submitted: false,
     topic: new Topic(),
@@ -130,6 +151,7 @@ export default {
     orderBy: '-relevance',
     timeline: [],
     applyCurrentSearchFilters: false,
+    facets: [],
     TAB_ARTICLES,
     TAB_OVERVIEW,
   }),
@@ -187,17 +209,11 @@ export default {
         },
       ];
     },
-    impressoCollectionStartDate() {
-      return new Date(window.impressoDocumentsDateSpan.firstDate)
-    },
-    impressoCollectionEndDate() {
-      return new Date(window.impressoDocumentsDateSpan.lastDate)
-    },
     startYear() {
-      return this.impressoCollectionStartDate.getFullYear();
+      return window.impressoDocumentsYearSpan.firstYear;
     },
     endYear() {
-      return this.impressoCollectionEndDate.getFullYear();
+      return window.impressoDocumentsYearSpan.lastYear;
     }
   },
   methods: {
@@ -206,7 +222,21 @@ export default {
         page,
       });
     },
-
+    async loadFacets() {
+      const query = {
+        filters: [{
+          type: 'topic',
+          q: [ this.topicUid ],
+        }],
+        group_by: 'articles',
+      };
+      for (let facetType of this.facetTypes) {
+        const results = await searchFacetsService.get(facetType, {
+          query,
+        }).then(([facetType]) => new Facet(facetType));
+        this.facets = this.facets.concat(results);
+      }
+    },
     async loadTimeline() {
       return this.$store.dispatch('search/LOAD_TIMELINE', {
         filters: [
@@ -268,6 +298,7 @@ export default {
           await this.getArticles();
         } else {
           await this.loadTimeline();
+          await this.loadFacets();
         }
       },
       deep: true,
@@ -285,6 +316,7 @@ export default {
     Ellipsis,
     ArticleItem,
     Timeline,
+    StackedBarsPanel,
   },
 };
 </script>
