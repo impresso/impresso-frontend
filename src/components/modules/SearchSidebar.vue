@@ -35,6 +35,8 @@
       <search-facets
         :facets="facets"
         :filters="filters"
+        :start-year="startYear"
+        :end-year="endYear"
         @changed="handleFiltersChanged"/>
     </div>
   </i-layout-section>
@@ -94,6 +96,18 @@ export default {
     infoButtonName() {
       return `how-${this.contextTag}-work-with-search-filters`
     },
+    impressoCollectionStartDate() {
+      return new Date(window.impressoDocumentsDateSpan.firstDate)
+    },
+    impressoCollectionEndDate() {
+      return new Date(window.impressoDocumentsDateSpan.lastDate)
+    },
+    startYear() {
+      return this.impressoCollectionStartDate.getFullYear();
+    },
+    endYear() {
+      return this.impressoCollectionEndDate.getFullYear();
+    }
   },
   components: {
     SearchPills,
