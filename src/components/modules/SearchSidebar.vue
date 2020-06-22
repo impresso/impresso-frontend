@@ -96,18 +96,12 @@ export default {
     infoButtonName() {
       return `how-${this.contextTag}-work-with-search-filters`
     },
-    impressoCollectionStartDate() {
-      return new Date(window.impressoDocumentsDateSpan.firstDate)
-    },
-    impressoCollectionEndDate() {
-      return new Date(window.impressoDocumentsDateSpan.lastDate)
-    },
     startYear() {
-      return this.impressoCollectionStartDate.getFullYear();
+      return window.impressoDocumentsYearSpan.firstYear;
     },
     endYear() {
-      return this.impressoCollectionEndDate.getFullYear();
-    }
+      return window.impressoDocumentsYearSpan.lastYear;
+    },
   },
   components: {
     SearchPills,
