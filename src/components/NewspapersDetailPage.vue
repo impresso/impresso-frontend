@@ -61,6 +61,7 @@
           <p class="mx-2 description small">number of articles extracted which are available in impresso</p>
         </div>
         <timeline
+              :domain="[startYear, endYear]"
               :contrast="false"
               :values="timevalues">
           <div slot-scope="tooltipScope">
@@ -72,7 +73,7 @@
         </timeline>
 
         <b-container class="my-3">
-          <h2>Facets – top ten buckets</h2>
+          <!-- <h2>Facets – top ten buckets</h2> -->
           <b-row>
             <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
               <stacked-bars-panel
@@ -245,6 +246,12 @@ export default {
         return false;
       },
     },
+    startYear() {
+      return window.impressoDocumentsYearSpan.firstYear;
+    },
+    endYear() {
+      return window.impressoDocumentsYearSpan.lastYear;
+    }
   },
   methods: {
     applyFilter() {
