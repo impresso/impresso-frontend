@@ -221,19 +221,23 @@ export default {
         const institutionLogos = this.newspaper.properties.find(d => d.name === 'institutionLogos');
         // const institutionPortal = this.newspaper.properties.find(d => d.name === 'institutionPortal');
         let ret = '';
+        let links = [];
+        let logos = [];
+        if (institutionLinks) {
+          const regex = /.+?(?=https*:\/\/|$)/gi;
+          links = institutionLinks.value.match(regex);
+        }
         if (institutionLogos) {
           const regex = /([\w-_ ])+\.(svg|png|jpg|jpeg|gif|bmp)/gi;
-          const arr = institutionLogos.value.match(regex);
-          arr.forEach((item) => {
-            ret += `<img src="https://impresso-project.ch/assets/images/${item}" class="d-block my-3 logo" />`;
-          });
+          logos = institutionLogos.value.match(regex);
         }
+        console.log(logos, links);
+        logos.forEach((item, i) => {
+          let tag = `<img src="https://impresso-project.ch/assets/images/${item}" class="d-block my-3 logo" />`;
+          ret += links.length === logos.length ? `<a href="${links[i]}" target="_blank">${tag}</a>` : tag;
+        });
         if (institutionNames) {
           ret += `${institutionNames.value}`;
-        }
-        if (institutionLinks) {
-          //  regex == http[:\/\w\-_.]+
-          ret = `<a href="${institutionLinks.value}" target="_blank">${ret}</a>` ;
         }
         if (ret !== '') return ret;
         return false;
