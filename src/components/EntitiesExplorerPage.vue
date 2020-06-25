@@ -51,7 +51,7 @@
             <div :class="`label ${category.isSubcategory ? 'sub' : ''}`">
               <div :style="{ float: 'left' }" v-if="!category.isSubcategory">
                 <button :style="{ border: 'none', padding: 0, margin: 0 }"
-                        :click="() => handleEntityLabelClicked(entitiesList[index])">
+                        @click="() => handleEntityLabelClicked(entitiesList[index])">
                   <span class="dripicons-cross"></span>
                 </button>
               </div>
@@ -76,6 +76,22 @@ import { getQueryParameter } from '@/router/util'
 
 /**
  * @typedef {import('@/models').Filter} Filter
+ *
+ * @typedef {{ val: string|number, count: number }} MentionFrequencyPoint
+ * @typedef {{
+ *   type: string,
+ *   id: string,
+ *   label: string,
+ *   entityType: string,
+ *   wikidataId: string,
+ *   thumbnailUrl: string,
+ *   mentionFrequencies: MentionFrequencyPoint[]
+ * }} EntityOrMention
+ * @typedef {{
+ *   item: EntityOrMention,
+ *   subitems: EntityOrMention[],
+ *   totalSubitems: number
+ * }} PunchcardResponse
  */
 
 const QueryParameters = Object.freeze({
@@ -86,7 +102,7 @@ const QueryParameters = Object.freeze({
 })
 
 /**
- * @param {any} item
+ * @param {EntityOrMention} item
  * @param {boolean} isSubcategory
  * @returns {import('@/d3-modules/TimePunchcardChart').ChartCategory}
  */
@@ -107,7 +123,7 @@ function mentionsFrequenciesResponseItemToPunchcardChartCategory(item, isSubcate
 
 
 /**
- * @param {any} response
+ * @param {PunchcardResponse} response
  * @returns {import('@/d3-modules/TimePunchcardChart').ChartCategory[]}
  */
 function mentionsFrequenciesResponseToPunchcardChartCategories(response) {
@@ -124,7 +140,7 @@ export default {
     searchQueryExplorerVisible: false,
     useCurrentSearch: false,
     timevalues: [],
-    mentionsFrequenciesResponses: /** @type {any[]} */ ([]),
+    mentionsFrequenciesResponses: /** @type {PunchcardResponse[]} */ ([]),
     timelineSpan: /** @type {Date[]} */ ([]),
   }),
   components: {
@@ -197,10 +213,18 @@ export default {
     countActiveFilters() {
       return this.searchQuery.countActiveFilters();
     },
-    /** @returns {string[]} */
-    observingList() {
-      const items = /** @type {string} */ (this.$route.query[QueryParameters.SelectedEntitiesIds])
-      return items != null ? items.split(',') : []
+    observingList: {
+      /** @returns {string[]} */
+      get() {
+        const items = /** @type {string} */ (this.$route.query[QueryParameters.SelectedEntitiesIds])
+        return items != null ? items.split(',') : []
+      },
+      /** @param {string[]} items */
+      set(items) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.SelectedEntitiesIds]: items.length > 0 ? items.join(',') : undefined
+        })
+      }
     },
     /** @returns {any} */
     timelineUpdateParameters() {
@@ -224,16 +248,16 @@ export default {
       const categories = this.mentionsFrequenciesResponses.reduce((acc, response) => {
         const items = mentionsFrequenciesResponseToPunchcardChartCategories(response);
         return acc.concat(items);
-      }, [])
+      }, /** @type {import('@/d3-modules/TimePunchcardChart').ChartCategory[]} */ ([]))
 
       return { categories }
     },
-    /** @returns {any[]} */
+    /** @returns {EntityOrMention[]} */
     entitiesList() {
       return this.mentionsFrequenciesResponses.reduce((acc, response) => {
         const { item, subitems = [] } = response;
         return acc.concat(item).concat(subitems);
-      }, [])
+      }, /** @type {EntityOrMention[]} */ ([]))
     }
   },
   methods: {
@@ -296,8 +320,10 @@ export default {
         this.isPunchcardLoading = false
       }
     },
+    /** @param {EntityOrMention} entity */
     handleEntityLabelClicked(entity) {
-      console.info('*** Entity should be removed', entity);
+      const items = this.observingList.filter(id => id !== entity.id);
+      this.observingList = items;
     }
   },
   watch: {
