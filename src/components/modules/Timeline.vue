@@ -220,6 +220,14 @@ export default {
             data,
           });
           this.timeline.draw();
+
+          if (this.brush && this.brush.length) {
+            const [ min, max ] = this.brush;
+            this.timeline.brushTo({
+              min,
+              max,
+            });
+          }
         }
       },
     },

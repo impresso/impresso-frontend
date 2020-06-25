@@ -35,6 +35,7 @@
           :class="{'invisible': isTimelineLoading}"
           :values="timevalues"
           :domain="timelineSpan"
+          :brush="currentTimelineSelectionSpan"
           height="120px"
           @brush-end="onTimelineBrushed">
           <div slot-scope="tooltipScope">
