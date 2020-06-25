@@ -231,7 +231,6 @@ export default {
           const regex = /([\w-_ ])+\.(svg|png|jpg|jpeg|gif|bmp)/gi;
           logos = institutionLogos.value.match(regex);
         }
-        console.log(logos, links);
         logos.forEach((item, i) => {
           let tag = `<img src="https://impresso-project.ch/assets/images/${item}" class="d-block my-3 logo" />`;
           ret += links.length === logos.length ? `<a href="${links[i]}" target="_blank">${tag}</a>` : tag;
