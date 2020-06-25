@@ -104,7 +104,7 @@ export default {
         .bar {
           .punch {}
           .highlight {
-            stroke-width: 2px;
+            // stroke-width: 2px;
             stroke: #fff;
           }
         }

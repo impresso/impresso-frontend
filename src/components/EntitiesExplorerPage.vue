@@ -208,6 +208,15 @@ export default {
       }
       return []
     },
+    /** @return {string} */
+    punchcardResolution() {
+      if (this.currentTimelineSelectionSpan.length !== 2) return 'year'
+      const spanMs = Math.abs(
+        this.currentTimelineSelectionSpan[1].getTime() - this.currentTimelineSelectionSpan[0].getTime()
+      )
+      const spanThreshold = 1000 * 60 * 60 * 24 * 365 * 5 // 5 years
+      return spanMs < spanThreshold ? 'month' : 'year'
+    },
     searchQuery: searchQueryGetter(),
     /** @returns {number} */
     countActiveFilters() {
@@ -308,7 +317,8 @@ export default {
 
       const payloads = this.observingList.map(entityId => ({
         entityId,
-        filters
+        filters,
+        timeResolution: this.punchcardResolution
       }));
 
       try {
