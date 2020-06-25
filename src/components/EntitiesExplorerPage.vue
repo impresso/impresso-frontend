@@ -2,27 +2,49 @@
   <i-layout-section main>
     <template v-slot:header>
       <b-navbar type="light" variant="light" class="border-bottom" slot="header">
-        <section v-if="observingList">
+        <section v-if="observingList" class="top-section">
           <div class="label small-caps">
             Entities
           </div>
           <h3>{{ $t('title') }}</h3>
-          <div v-if="countActiveFilters > 0">
-            <b-form-checkbox
-              v-model="applyCurrentSearchFilters"
-              switch>
-              {{ $t('label.useCurrentSearch') }}
-              <a @click.prevent.stop="toggleQueryExplorerVisible">
-                ({{ $tc('counts.filters', countActiveFilters) }})
-              </a>
 
-            </b-form-checkbox>
-            <div
-              style="z-index:1"
-              class="drop-shadow bg-dark position-absolute" v-if="searchQueryExplorerVisible">
-              <search-query-explorer :search-query="searchQuery" dark-mode/>
+          <!-- control panel -->
+          <b-row class="ml-1 mr-1 control-panel">
+
+            <!-- filters toggle -->
+            <div class="current-search-panel">
+              <div v-if="countActiveFilters > 0">
+                <b-form-checkbox
+                  v-model="applyCurrentSearchFilters"
+                  switch>
+                  {{ $t('label.useCurrentSearch') }}
+                  <a @click.prevent.stop="toggleQueryExplorerVisible">
+                    ({{ $tc('counts.filters', countActiveFilters) }})
+                  </a>
+
+                </b-form-checkbox>
+                <div
+                  style="z-index:1"
+                  class="drop-shadow bg-dark position-absolute" v-if="searchQueryExplorerVisible">
+                  <search-query-explorer :search-query="searchQuery" dark-mode/>
+                </div>
+              </div>
             </div>
-          </div>
+
+            <!-- scale -->
+            <b-dropdown size="sm" variant="outline-primary" class="scale-selector">
+              <template v-slot:button-content>
+                <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
+              </template>
+              <b-dropdown-item v-for="s in scales"
+                              :key="s"
+                              :active="s === scale"
+                              @click="scale = s">
+                {{$t(`scales.${s}`)}}
+              </b-dropdown-item>
+            </b-dropdown>
+
+          </b-row>
         </section>
         <section v-else>
           <p class="pt-3">Please add a few entities and be amazed.</p>
@@ -47,7 +69,7 @@
         </timeline>
       </section>
       <section>
-        <time-punchcard-chart :data="punchcardChartData">
+        <time-punchcard-chart :data="punchcardChartData" :options="punchcardOptions">
           <template slot slot-scope="{ category, index }">
             <div :class="`label ${category.isSubcategory ? 'sub' : ''}`">
               <div :style="{ float: 'left' }" v-if="!category.isSubcategory">
@@ -99,7 +121,8 @@ const QueryParameters = Object.freeze({
   ApplyCurrentSearchFilters: 'doFilter',
   SelectedEntitiesIds: 'items',
   TimelineSelectionStart: 'sels',
-  TimelineSelectionEnd: 'sele'
+  TimelineSelectionEnd: 'sele',
+  Scale: 'scale'
 })
 
 /**
@@ -143,6 +166,7 @@ export default {
     timevalues: [],
     mentionsFrequenciesResponses: /** @type {PunchcardResponse[]} */ ([]),
     timelineSpan: /** @type {Date[]} */ ([]),
+    scales: ['linear', 'sqrt', 'symlog']
   }),
   components: {
     Timeline,
@@ -274,6 +298,24 @@ export default {
         const { item, subitems = [] } = response;
         return acc.concat(item).concat(subitems);
       }, /** @type {EntityOrMention[]} */ ([]))
+    },
+    scale: {
+      /** @returns {string} */
+      get() {
+        return getQueryParameter(this, QueryParameters.Scale) ?? 'linear'
+      },
+      /** @param {string} value */
+      set(value) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.Scale]: value
+        })
+      }
+    },
+    /** @returns {any} */
+    punchcardOptions() {
+      return {
+        circleScale: this.scale
+      }
     }
   },
   methods: {
@@ -365,12 +407,30 @@ export default {
 </script>
 
 <style lang="css" scoped>
+  .top-section {
+    width: 100%;
+  }
+  .current-search-panel {
+    display: inline-flex;
+  }
+  .scale-selector {
+    display: inline-flex;
+  }
+  .control-panel {
+    justify-content: space-between;
+  }
 </style>
 
 <i18n>
 {
   "en": {
-    "title": "Timeline of observed Named Entities"
+    "title": "Timeline of observed Named Entities",
+    "scale": "Scale",
+    "scales": {
+      "linear": "Linear",
+      "sqrt": "Square root",
+      "symlog": "Bi-symmetric log"
+    }
   }
 }
 </i18n>

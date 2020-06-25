@@ -31,6 +31,10 @@ export default {
     data: {
       type: Object,
       required: true
+    },
+    options: {
+      type: Object,
+      default: () => {}
     }
   },
   mounted() {
@@ -43,7 +47,7 @@ export default {
   },
   methods: {
     render() {
-      const { height, yOffsets } = this.chart?.render(this.data) ?? { height: 0, yOffsets: [] }
+      const { height, yOffsets } = this.chart?.render(this.data, this.options) ?? { height: 0, yOffsets: [] }
       this.height = height
       this.labelsOffsets = yOffsets
     },
@@ -51,9 +55,19 @@ export default {
       return (this.labelsOffsets[index] ?? 0);
     }
   },
+  computed: {
+    /** @returns {any} */
+    chartData() {
+      return {
+        data: this.data,
+        options: this.options
+      }
+    }
+  },
   watch: {
-    data: {
-      handler() {
+    chartData: {
+      handler(newVal, oldVal) {
+        if (JSON.stringify(newVal) === JSON.stringify(oldVal)) return
         // Next tick is here to make sure that `$refs.chart` is already available.
         this.$nextTick(() => {
           if (this.chart == null) {
@@ -64,7 +78,8 @@ export default {
           this.render()
         })
       },
-      immediate: true
+      immediate: true,
+      deep: true
     }
   }
 }

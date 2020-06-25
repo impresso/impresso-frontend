@@ -111,12 +111,12 @@ export default class TimePunchcardChart {
 
   /**
    * @param {ChartData} data
-   * @param {{ colorPalette?: {[key: string]: string} }} options
+   * @param {{ colorPalette?: {[key: string]: string}, circleScale?: 'linear' | 'sqrt' | 'symlog' }} options
    */
   // eslint-disable-next-line no-unused-vars
   render(data, options = {}) {
     const { width } = this.element.getBoundingClientRect()
-    const { colorPalette = defaultColorPalette } = options
+    const { colorPalette = defaultColorPalette, circleScale = 'linear' } = options
 
     const effectiveWidth = width - this.margin.left - this.margin.right
 
@@ -246,13 +246,22 @@ export default class TimePunchcardChart {
       .attr('class', 'bar')
       .attr('transform', ({ time }) => `translate(${this.x(new Date(time))}, ${this.margin.categoryTop - this.margin.sizer * 2})`)
 
+    const circleScaler = {
+      linear: d3.scaleLinear(),
+      sqrt: d3.scaleSqrt(),
+      symlog: d3.scaleSymlog(),
+    }[circleScale] ?? d3.scaleLinear();
+
+    circleScaler.range([0, circleRadius])
+    circleScaler.domain([0, maxDataPointValue])
+
     bar
       .selectAll('circle.punch')
       .data(dataPoint => [dataPoint], dataPoint => dataPoint.time)
       .join('circle')
       .attr('class', 'punch')
       .attr('r', ({ value }) => {
-        return (value / maxDataPointValue) * circleRadius
+        return circleScaler(value)
       })
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
@@ -265,7 +274,7 @@ export default class TimePunchcardChart {
       .join('circle')
       .attr('class', 'highlight')
       .attr('r', ({ value }) => {
-        return (value / maxDataPointValue) * circleRadius * 0.8
+        return circleScaler(value) * 0.8
       })
       .attr('cy', circleRadius)
 
