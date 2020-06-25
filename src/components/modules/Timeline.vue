@@ -147,6 +147,9 @@ export default {
     this.timeline.on('highlighted', (data) => {
       this.moveTooltip(data);
     });
+    this.timeline.on('clear-selection', () => {
+      this.$emit('clear-selection');
+    });
 
     if (this.percentage) {
       this.timeline.dimensions.y.property = 'p';

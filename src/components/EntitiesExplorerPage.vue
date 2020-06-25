@@ -59,7 +59,8 @@
           :domain="timelineSpan"
           :brush="currentTimelineSelectionSpan"
           height="120px"
-          @brush-end="onTimelineBrushed">
+          @brush-end="onTimelineBrushed"
+          @clear-selection="handleTimelineCleared">
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
@@ -206,7 +207,7 @@ export default {
       /** @param {Date} value */
       set(value) {
         this.$navigation.updateQueryParameters({
-          [QueryParameters.TimelineSelectionStart]: value.getTime()
+          [QueryParameters.TimelineSelectionStart]: value == null ? undefined : value.getTime()
         })
       }
     },
@@ -219,7 +220,7 @@ export default {
       /** @param {Date} value */
       set(value) {
         this.$navigation.updateQueryParameters({
-          [QueryParameters.TimelineSelectionEnd]: value.getTime()
+          [QueryParameters.TimelineSelectionEnd]: value == null ? undefined : value.getTime()
         })
       }
     },
@@ -348,6 +349,10 @@ export default {
     onTimelineBrushed(data) {
       this.timelineSelectionStart = data.minDate
       this.timelineSelectionEnd = data.maxDate
+    },
+    handleTimelineCleared() {
+      this.timelineSelectionStart = undefined
+      this.timelineSelectionEnd = undefined
     },
     async loadPunchcardData() {
       const currentSearchFilters = this.applyCurrentSearchFilters

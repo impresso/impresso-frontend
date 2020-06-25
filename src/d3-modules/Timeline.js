@@ -81,7 +81,10 @@ export default class Timeline extends Line {
       const ordered = d3.event.selection;
       const { type } = d3.event;
 
-      if (!ordered) return;
+      if (!ordered) {
+        this.emit('clear-selection')
+        return;
+      }
 
       this.brushedMinDate = this.dimensions.x.scale.invert(ordered[0]);
       this.brushedMaxDate = this.dimensions.x.scale.invert(ordered[1]);
