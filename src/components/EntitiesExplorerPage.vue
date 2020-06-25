@@ -226,13 +226,19 @@ export default {
     observingList: {
       /** @returns {string[]} */
       get() {
-        const items = /** @type {string} */ (this.$route.query[QueryParameters.SelectedEntitiesIds])
-        return items != null ? items.split(',') : []
+        try {
+          // @ts-ignore
+          const items = /** @type {string} */ (window.atob(this.$route.query[QueryParameters.SelectedEntitiesIds]))
+          return items != null ? items.split(',') : []
+        } catch (e) {
+          return []
+        }
       },
       /** @param {string[]} items */
       set(items) {
         this.$navigation.updateQueryParameters({
-          [QueryParameters.SelectedEntitiesIds]: items.length > 0 ? items.join(',') : undefined
+          // @ts-ignore
+          [QueryParameters.SelectedEntitiesIds]: items.length > 0 ? window.btoa(items.join(',')) : undefined
         })
       }
     },

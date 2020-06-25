@@ -61,6 +61,10 @@ import List from '@/components/modules/lists/List';
 import EntityItem from '@/components/modules/lists/EntityItem';
 import { entities as entitiesService } from '@/services';
 
+const QueryParameters = Object.freeze({
+  SelectedEntitiesIds: 'items',
+})
+
 const TabObservingList = 'obs';
 const TabBrowseList = 'list';
 const OrderByOptions = [
@@ -89,13 +93,22 @@ export default {
       };
     },
     observedItems: {
+      /** @returns {string[]} */
       get() {
-        return (this.$route.query.items || '').split(',').filter(d => !!d);
+        try {
+          // @ts-ignore
+          const items = /** @type {string} */ (window.atob(this.$route.query[QueryParameters.SelectedEntitiesIds]))
+          return items != null ? items.split(',') : []
+        } catch (e) {
+          return []
+        }
       },
+      /** @param {string[]} items */
       set(items) {
-        this.$navigation.updateQueryParametersWithHistory({
-          items: items.join(','),
-        });
+        this.$navigation.updateQueryParameters({
+          // @ts-ignore
+          [QueryParameters.SelectedEntitiesIds]: items.length > 0 ? window.btoa(items.join(',')) : undefined
+        })
       },
     },
     tab: {
