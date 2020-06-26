@@ -9,6 +9,16 @@
         </slot>
       </div>
     </div>
+
+    <div class="gutters" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left / 2 : 0}px` }">
+      <div v-for="slotIndex in gutterSlotsIndexes"
+           :key="slotIndex"
+           :style="{ transform: `translate(0, ${getLabelTopOffset(slotIndex + 1) - bottomGutterOffset}px)`, position: 'absolute' }">
+        <slot name="gutter" :categoryIndex="slotIndex">
+          <div>Gutter for category {{ slotIndex }}</div>
+        </slot>
+      </div>
+    </div>
     <div ref="chart" class="time-punchcard" :style="{ height: `${height}px` }" />
   </div>
 </template>
@@ -35,6 +45,10 @@ export default {
     options: {
       type: Object,
       default: () => {}
+    },
+    bottomGutterOffset: {
+      type: Number,
+      default: 30
     }
   },
   mounted() {
@@ -62,6 +76,16 @@ export default {
         data: this.data,
         options: this.options
       }
+    },
+    /** @returns {number[]} */
+    gutterSlotsIndexes() {
+      return this.data.categories.reduce((acc, { isSubcategory }, index, items) => {
+        const nextItem = index === items.length - 1 ? undefined : items[index + 1]
+        if (isSubcategory && (nextItem == null || !nextItem.isSubcategory)) {
+          acc.push(index)
+        }
+        return acc;
+      }, /** @type {number[]} */ ([]))
     }
   },
   watch: {

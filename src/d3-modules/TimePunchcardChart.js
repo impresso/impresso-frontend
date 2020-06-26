@@ -89,7 +89,7 @@ function findTimeInterval(times) {
 export default class TimePunchcardChart {
   constructor({
     element = null,
-    margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3, subCategoryLeft : 8 },
+    margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3, subCategoryLeft : 8, gutterHeight: 30 },
     size = { maxCircleRadius: 15 }
   }) {
     this.margin = margin
@@ -140,7 +140,18 @@ export default class TimePunchcardChart {
     const circleRadius = /** @type {number} */ (d3.min([calculatedCircleRadius, this.size.maxCircleRadius]))
 
     const categoryYSpace = (circleRadius * 2) + this.margin.categoryTop
-    const calculatedEffectiveHeight = categoryYSpace * data.categories.length
+
+    // after a set of subcategories we want to put a gutter to accommodate pagination.
+    // we need to count how many gutters there will be to adjust the height.
+    const categoriesGuttersCount = data.categories.reduce((acc, { isSubcategory }, index, items) => {
+      const nextItem = index === items.length - 1 ? undefined : items[index + 1]
+      if (isSubcategory && (nextItem == null || !nextItem.isSubcategory)) return acc + 1;
+      return acc;
+    }, 0)
+
+    const calculatedEffectiveHeight = categoryYSpace * data.categories.length +
+      this.margin.gutterHeight * categoriesGuttersCount;
+
     const calculatedHeight = calculatedEffectiveHeight + this.margin.top + this.margin.bottom
 
     this.svg
@@ -184,7 +195,7 @@ export default class TimePunchcardChart {
 
     this.y
       .domain(data.categories.map((_, index) => `${index}`))
-      .range([this.margin.top, calculatedEffectiveHeight])
+      .range([this.margin.top, categoryYSpace * data.categories.length])
 
     const yAxis = g => g
       .attr('transform', `translate(${this.margin.left}, 0)`)
@@ -202,12 +213,29 @@ export default class TimePunchcardChart {
       .attr('class', 'y')
       .call(yAxis)
 
+    // gutter offsets
+    let categoriesOffsets = data.categories.reduce((acc, { isSubcategory }, index, items) => {
+      const nextItem = index === items.length - 1 ? undefined : items[index + 1]
+      const lastOffset = acc.length > 0 ? acc[acc.length - 1] : 0
+
+      if (isSubcategory && (nextItem == null || !nextItem.isSubcategory)) {
+        acc.push(lastOffset + 1)
+      } else {
+        acc.push(lastOffset)
+      }
+      return acc;
+    }, /** @type {number[]} */ ([]))
+    categoriesOffsets = [0].concat(categoriesOffsets.slice(0, categoriesOffsets.length - 1))
+
     const category = this.categories
       .selectAll('g.category')
       .data(data.categories)
       .join('g')
       .attr('class', ({ isSubcategory }) => `category ${isSubcategory ? 'sub' : ''}`)
-      .attr('transform', (d, index) => `translate(0, ${this.y(`${index}`)})`)
+      .attr('transform', (d, index) => {
+        const offset = (this.y(`${index}`) ?? 0) + categoriesOffsets[index] * this.margin.gutterHeight
+        return `translate(0, ${offset})`
+      })
 
     category
       .selectAll('rect.highlight')
@@ -281,7 +309,9 @@ export default class TimePunchcardChart {
     return {
       width,
       height: calculatedHeight,
-      yOffsets: data.categories.map((d, index) => this.y(index.toString()) ?? 0)
+      yOffsets: data.categories.map((d, index) => {
+        return (this.y(`${index}`) ?? 0) + categoriesOffsets[index] * this.margin.gutterHeight
+      })
     }
   }
 }

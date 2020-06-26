@@ -71,7 +71,7 @@
       </section>
       <section>
         <time-punchcard-chart :data="punchcardChartData" :options="punchcardOptions">
-          <template slot slot-scope="{ category, index }">
+          <template v-slot:default="{ category, index }">
             <div :class="`label ${category.isSubcategory ? 'sub' : ''}`">
               <div :style="{ float: 'left' }" v-if="!category.isSubcategory">
                 <button :style="{ border: 'none', padding: 0, margin: 0 }"
@@ -80,6 +80,18 @@
                 </button>
               </div>
               {{ category.label }} {{ index }} {{ entitiesList[index].wikidataId }}
+            </div>
+          </template>
+
+          <template v-slot:gutter="{ categoryIndex }">
+            <div class="p-0 m-0">
+              <pagination
+                size="sm"
+                v-bind:perPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).perPage"
+                v-bind:currentPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).currentPage"
+                v-bind:totalRows="getPagination(getEntityIdForSlotIndex(categoryIndex)).totalRows"
+                v-on:change="v => onInputPagination(getEntityIdForSlotIndex(categoryIndex), v)"
+                class="float-left small-caps" />
             </div>
           </template>
         </time-punchcard-chart>
@@ -91,6 +103,7 @@
 <script>
 import Timeline from '@/components/modules/Timeline'
 import SearchQueryExplorer from '@/components/modals/SearchQueryExplorer'
+import Pagination from '@/components/modules/Pagination'
 import { searchQueryGetter } from '@/logic/queryParams'
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
 import {
@@ -158,6 +171,16 @@ function mentionsFrequenciesResponseToPunchcardChartCategories(response) {
     .concat(subitems.map(i => mentionsFrequenciesResponseItemToPunchcardChartCategory(i, true)))
 }
 
+/**
+ * @typedef {{perPage: number, currentPage: number, totalRows: number}} PaginationValuesContainer
+ * @returns {PaginationValuesContainer}
+ */
+const getDefaultPagination = () => ({
+  perPage: 4,
+  currentPage: 1,
+  totalRows: 0
+})
+
 export default {
   data: () => ({
     isTimelineLoading: false,
@@ -167,12 +190,14 @@ export default {
     timevalues: [],
     mentionsFrequenciesResponses: /** @type {PunchcardResponse[]} */ ([]),
     timelineSpan: /** @type {Date[]} */ ([]),
-    scales: ['linear', 'sqrt', 'symlog']
+    scales: ['linear', 'sqrt', 'symlog'],
+    paginations: /** @type {{[key: string]: PaginationValuesContainer}} */ ({})
   }),
   components: {
     Timeline,
     SearchQueryExplorer,
     TimePunchcardChart,
+    Pagination
   },
   mounted() {
     // @ts-ignore
@@ -279,7 +304,12 @@ export default {
       return {
         entitiesIds: this.observingList,
         applyCurrentSearchFilters: this.applyCurrentSearchFilters,
-        currentTimelineSelectionSpan: this.currentTimelineSelectionSpan
+        currentTimelineSelectionSpan: this.currentTimelineSelectionSpan,
+        skipPerEntity: this.observingList.reduce((acc, id) => {
+          const { perPage, currentPage } = this.paginations[id] ?? getDefaultPagination()
+          acc[id] = perPage * (currentPage - 1)
+          return acc;
+        }, {})
       };
     },
     /**
@@ -320,6 +350,37 @@ export default {
     }
   },
   methods: {
+    /**
+     * @param {number} slotIndex
+     * @returns {string|undefined}
+     */
+    getEntityIdForSlotIndex(slotIndex) {
+      let lastEntity = undefined
+      let chosenEntity = /** @type {EntityOrMention | undefined} */ (undefined)
+      this.entitiesList.forEach((entity, index) => {
+        if (index === slotIndex) chosenEntity = lastEntity
+        if (entity.id != null) lastEntity = entity
+      });
+      return chosenEntity?.id
+    },
+    /**
+     * @param {string | undefined} entityId
+     * @returns {PaginationValuesContainer}
+     */
+    getPagination(entityId) {
+      return this.paginations[entityId ?? ''] ?? getDefaultPagination()
+    },
+    /**
+     * @param {string | undefined} entityId
+     * @param {number} pageNumber
+     */
+    onInputPagination(entityId, pageNumber) {
+      if (entityId == null) return
+      const pagination = this.paginations[entityId] ?? getDefaultPagination()
+
+      pagination.currentPage = pageNumber
+      this.$set(this.paginations, entityId, pagination)
+    },
     toggleQueryExplorerVisible() {
       this.searchQueryExplorerVisible = !this.searchQueryExplorerVisible;
     },
@@ -354,7 +415,7 @@ export default {
       this.timelineSelectionStart = undefined
       this.timelineSelectionEnd = undefined
     },
-    async loadPunchcardData() {
+    async loadPunchcardData({ skipPerEntity }) {
       const currentSearchFilters = this.applyCurrentSearchFilters
         ? this.searchQuery.getFilters()
         : []
@@ -372,7 +433,8 @@ export default {
       const payloads = this.observingList.map(entityId => ({
         entityId,
         filters,
-        timeResolution: this.punchcardResolution
+        timeResolution: this.punchcardResolution,
+        skip: skipPerEntity[entityId]
       }));
 
       try {
@@ -380,6 +442,14 @@ export default {
         this.mentionsFrequenciesResponses = await Promise.all(
           payloads.map(payload => entityMentionsTimelineService.create(payload))
         )
+
+        // update totals in pagination
+        this.mentionsFrequenciesResponses.forEach(({ item, totalSubitems = 0 }) => {
+          if (item.id == null) return
+          const pagination = this.paginations[/** @type {string} */ (item.id)] ?? getDefaultPagination()
+          pagination.totalRows = totalSubitems
+          this.$set(this.paginations, item.id, pagination)
+        })
       } finally {
         this.isPunchcardLoading = false
       }
@@ -404,7 +474,7 @@ export default {
       deep: true,
       async handler(newValues, oldValues) {
         if (JSON.stringify(newValues) === JSON.stringify(oldValues)) return;
-        await this.loadPunchcardData();
+        await this.loadPunchcardData(newValues);
       }
     }
   },
