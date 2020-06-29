@@ -13,7 +13,7 @@
     <div class="gutters" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left / 2 : 0}px` }">
       <div v-for="slotIndex in gutterSlotsIndexes"
            :key="slotIndex"
-           :style="{ transform: `translate(0, ${getLabelTopOffset(slotIndex) + categoryYSpace}px)`, position: 'absolute' }">
+           :style="{ transform: `translate(0, ${getLabelTopOffset(slotIndex) + categoryYSpace}px)` }">
         <slot name="gutter" :categoryIndex="slotIndex">
           <div>Gutter for category {{ slotIndex }}</div>
         </slot>
@@ -22,9 +22,7 @@
 
     <tooltip :tooltip="tooltip">
       <slot name="tooltip" :tooltip="tooltip">
-        <div v-if="tooltip.isActive">
-          {{tooltip.item}}
-        </div>
+        <div v-if="tooltip.isActive" v-html="tooltip.item" />
       </slot>
     </tooltip>
 
@@ -102,9 +100,10 @@ export default {
     tooltip() {
       return {
         isActive: this.chart?.getTooltipDetails() != null,
-        item: this.chart?.getTooltipDetails(),
+        item: this.$d(this.chart?.getTooltipDetails()?.datapoint.time, 'year')
+          + ' &middot; <b>' + this.chart?.getTooltipDetails()?.datapoint.value + '</b>',
         x: this.chart?.getTooltipDetails()?.x,
-        y: this.chart?.getTooltipDetails()?.y
+        y: this.chart?.getTooltipDetails()?.y + 275
       }
     }
   },
@@ -145,7 +144,7 @@ export default {
       }
       .y {
         .domain {
-          stroke: #ffffff00
+          stroke: #ffffff00;
         }
         .tick {
           line {
@@ -168,8 +167,8 @@ export default {
           }
         }
         .sizer {
-          width: 2px;
-          fill: #777;
+          width: 4px;
+          fill: #7772;
         }
         .highlight {
           // fill: #dddddd33;
@@ -179,6 +178,7 @@ export default {
           }
           rect.highlight {
             fill: #dddddd77;
+            //stroke: #ff0000;
           }
         }
       }
@@ -187,15 +187,10 @@ export default {
   .labels {
     position: relative;
     .label {
-      // position: absolute;
-      background: rgb(194, 196, 192);
-      min-width: 100px;
+      position: absolute;
       white-space: nowrap;
-      padding-left: .5em;
-      padding-right: .5em;
       &.sub {
         margin-left: 8px;
-        background: rgba(194, 196, 192, 0.3);
       }
     }
   }
