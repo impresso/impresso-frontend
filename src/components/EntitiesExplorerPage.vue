@@ -52,50 +52,73 @@
       </b-navbar>
     </template>
     <template v-slot:default>
-      <section v-if="$route.query.items" class="p-3 border-bottom">
-        <timeline
-          :class="{'invisible': isTimelineLoading}"
-          :values="timevalues"
-          :domain="timelineSpan"
-          :brush="currentTimelineSelectionSpan"
-          height="120px"
-          @brush-end="onTimelineBrushed"
-          @clear-selection="handleTimelineCleared">
-          <div slot-scope="tooltipScope">
-            <div v-if="tooltipScope.tooltip.item">
-              {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-              <b>{{ tooltipScope.tooltip.item.w }}</b>
-            </div>
-          </div>
-        </timeline>
-      </section>
-      <section>
-        <time-punchcard-chart :data="punchcardChartData" :options="punchcardOptions">
-          <template v-slot:default="{ category, index }">
-            <div :class="`label ${category.isSubcategory ? 'sub' : ''}`">
-              <div :style="{ float: 'left' }" v-if="!category.isSubcategory">
-                <button :style="{ border: 'none', padding: 0, margin: 0 }"
-                        @click="() => handleEntityLabelClicked(entitiesList[index])">
-                  <span class="dripicons-cross"></span>
-                </button>
+      <div v-if="$route.query.items">
+        <section class="p-3 border-bottom">
+          <timeline
+            :class="{'loading': isTimelineLoading}"
+            :values="timevalues"
+            :domain="timelineSpan"
+            :brush="currentTimelineSelectionSpan"
+            height="120px"
+            @brush-end="onTimelineBrushed"
+            @clear-selection="handleTimelineCleared">
+            <div slot-scope="tooltipScope">
+              <div v-if="tooltipScope.tooltip.item">
+                {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+                <b>{{ tooltipScope.tooltip.item.w }}</b>
               </div>
-              {{ category.label }} {{ index }} {{ entitiesList[index].wikidataId }}
             </div>
-          </template>
+          </timeline>
+        </section>
+        <section class="py-3 border-bottom">
+          <time-punchcard-chart
+            :class="{loading: isPunchcardLoading}"
+            :data="punchcardChartData" :options="punchcardOptions">
+            <template v-slot:default="{ category, index }">
+              <div :class="`label ${category.isSubcategory ? 'sub' : 'bg-light'}`">
+                <div class="d-flex align-items-center">
+                  <img
+                    v-if="entitiesList[index].thumbnailUrl"
+                    class="thumb bg-light"
+                    :src="getWikimediaUrl(entitiesList[index].thumbnailUrl)"
+                    :width="thumbnailSize * 0.5"
+                    :height="thumbnailSize * 0.5"
+                    />
+                  <div :class="`title px-2 ${category.isSubcategory? '' : 'bg-light'}`">
+                    {{ category.label }}
+                  </div>
+                  <div v-if="!category.isSubcategory" class=" bg-light mr-1">
+                    <button
+                      class="btn dripicons-cross p-0 btn-outline-danger btn-sm rounded-pill btnclose"
+                      @click="() => handleEntityLabelClicked(entitiesList[index])">
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
 
-          <template v-slot:gutter="{ categoryIndex }">
-            <div class="p-0 m-0">
-              <pagination
-                size="sm"
-                v-bind:perPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).perPage"
-                v-bind:currentPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).currentPage"
-                v-bind:totalRows="getPagination(getEntityIdForSlotIndex(categoryIndex)).totalRows"
-                v-on:change="v => onInputPagination(getEntityIdForSlotIndex(categoryIndex), v)"
-                class="float-left small-caps" />
-            </div>
-          </template>
-        </time-punchcard-chart>
-      </section>
+            <template v-slot:gutter="{ categoryIndex }">
+              <div
+                class="border-top border-tertiary">
+                <div
+                  class="fixed-pagination-footer p-1 mt-1 mb-0"
+                  style="top:-3px; height: 36px">
+                  <pagination
+                    size="sm"
+                    v-bind:perPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).perPage"
+                    v-bind:currentPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).currentPage"
+                    v-bind:totalRows="getPagination(getEntityIdForSlotIndex(categoryIndex)).totalRows"
+                    v-on:change="v => onInputPagination(getEntityIdForSlotIndex(categoryIndex), v)"
+                    class="centered" />
+                </div>
+              </div>
+            </template>
+          </time-punchcard-chart>
+        </section>
+      </div>
+      <div v-else>
+        <div class="text-center p-5 m-5" v-html="$t('no-entities-selected')" />
+      </div>
     </template>
   </i-layout-section>
 </template>
@@ -191,13 +214,14 @@ export default {
     mentionsFrequenciesResponses: /** @type {PunchcardResponse[]} */ ([]),
     timelineSpan: /** @type {Date[]} */ ([]),
     scales: ['linear', 'sqrt', 'symlog'],
-    paginations: /** @type {{[key: string]: PaginationValuesContainer}} */ ({})
+    paginations: /** @type {{[key: string]: PaginationValuesContainer}} */ ({}),
+    thumbnailSize: 60,
   }),
   components: {
     Timeline,
     SearchQueryExplorer,
     TimePunchcardChart,
-    Pagination
+    Pagination,
   },
   mounted() {
     // @ts-ignore
@@ -458,7 +482,10 @@ export default {
     handleEntityLabelClicked(entity) {
       const items = this.observingList.filter(id => id !== entity.id);
       this.observingList = items;
-    }
+    },
+    getWikimediaUrl(image) {
+      return `http://commons.wikimedia.org/wiki/Special:FilePath/${image}?width=${this.thumbnailSize}px`;
+    },
   },
   watch: {
     timelineUpdateParameters: {
@@ -481,7 +508,7 @@ export default {
 };
 </script>
 
-<style lang="css" scoped>
+<style lang="scss" scoped>
   .top-section {
     width: 100%;
   }
@@ -494,11 +521,27 @@ export default {
   .control-panel {
     justify-content: space-between;
   }
+  .btnclose {
+    width: 18px;
+    height: 18px;
+    top: -1px;
+    position: relative;
+  }
+  .loading {
+    opacity: 0.5;
+  }
+  .label {
+    .thumb {
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
 </style>
 
 <i18n>
 {
   "en": {
+    "no-entities-selected" : "Add named entities to the <span class='text-blue'>observing list</span> using the <span class='icon dripicons-preview text-muted'></span> icon.",
     "title": "Timeline of observed Named Entities",
     "scale": "Scale",
     "scales": {
