@@ -228,6 +228,10 @@ $clr-grey-900: #ddd;
   color: $clr-white;
 }
 
+.text-blue {
+  color: blue;
+}
+
 .custom-control-input {
   width: 0;
   height: 0;
