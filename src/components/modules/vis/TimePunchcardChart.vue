@@ -13,7 +13,7 @@
     <div class="gutters" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left / 2 : 0}px` }">
       <div v-for="slotIndex in gutterSlotsIndexes"
            :key="slotIndex"
-           :style="{ transform: `translate(0, ${getLabelTopOffset(slotIndex + 1) - bottomGutterOffset}px)`, position: 'absolute' }">
+           :style="{ transform: `translate(0, ${getLabelTopOffset(slotIndex) + categoryYSpace}px)`, position: 'absolute' }">
         <slot name="gutter" :categoryIndex="slotIndex">
           <div>Gutter for category {{ slotIndex }}</div>
         </slot>
@@ -34,7 +34,8 @@ export default {
   data: () => ({
     chart: /** @type {TimePunchcardChart | null} */ (null),
     height: 200,
-    labelsOffsets: /** @type {number[]} */ ([])
+    labelsOffsets: /** @type {number[]} */ ([]),
+    categoryYSpace: 0
   }),
   props: {
     /** @type {import('vue').PropOptions<ChartData>} */
@@ -45,10 +46,6 @@ export default {
     options: {
       type: Object,
       default: () => {}
-    },
-    bottomGutterOffset: {
-      type: Number,
-      default: 30
     }
   },
   mounted() {
@@ -61,9 +58,10 @@ export default {
   },
   methods: {
     render() {
-      const { height, yOffsets } = this.chart?.render(this.data, this.options) ?? { height: 0, yOffsets: [] }
+      const { height, yOffsets, categoryYSpace } = this.chart?.render(this.data, this.options) ?? { height: 0, yOffsets: [] }
       this.height = height
       this.labelsOffsets = yOffsets
+      this.categoryYSpace = /** @type {number} */ (categoryYSpace)
     },
     getLabelTopOffset(index) {
       return (this.labelsOffsets[index] ?? 0);

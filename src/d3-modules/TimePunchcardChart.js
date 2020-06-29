@@ -225,7 +225,7 @@ export default class TimePunchcardChart {
       }
       return acc;
     }, /** @type {number[]} */ ([]))
-    categoriesOffsets = [0].concat(categoriesOffsets.slice(0, categoriesOffsets.length - 1))
+    categoriesOffsets = [0].concat(categoriesOffsets)
 
     const category = this.categories
       .selectAll('g.category')
@@ -311,7 +311,8 @@ export default class TimePunchcardChart {
       height: calculatedHeight,
       yOffsets: data.categories.map((d, index) => {
         return (this.y(`${index}`) ?? 0) + categoriesOffsets[index] * this.margin.gutterHeight
-      })
+      }),
+      categoryYSpace
     }
   }
 }
