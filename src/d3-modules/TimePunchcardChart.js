@@ -107,6 +107,8 @@ export default class TimePunchcardChart {
 
     this.x = d3.scaleUtc()
     this.y = d3.scaleBand()
+
+    this._tooltipDetails = undefined
   }
 
   /**
@@ -293,6 +295,8 @@ export default class TimePunchcardChart {
       })
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
+      .on('mouseover', e => this._handleMouseOverCircle(e))
+      .on('mouseout', () => this._handleMouseOutCircle())
 
     bar
       .selectAll('circle.highlight')
@@ -314,5 +318,22 @@ export default class TimePunchcardChart {
       }),
       categoryYSpace
     }
+  }
+
+  _handleMouseOverCircle(event) {
+    // let [mouseX, mouseY] = d3.mouse(this.element)
+    let [x, y] = [this.x(event.time), this.y(`${event.categoryIndex}`)]
+
+    this._tooltipDetails = {
+      x, y, datapoint: event
+    }
+  }
+
+  _handleMouseOutCircle() {
+    this._tooltipDetails = undefined
+  }
+
+  getTooltipDetails() {
+    return this._tooltipDetails
   }
 }

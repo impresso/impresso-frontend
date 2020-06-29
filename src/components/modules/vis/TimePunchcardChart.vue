@@ -19,23 +19,36 @@
         </slot>
       </div>
     </div>
+
+    <tooltip :tooltip="tooltip">
+      <slot name="tooltip" :tooltip="tooltip">
+        <div v-if="tooltip.isActive">
+          {{tooltip.item}}
+        </div>
+      </slot>
+    </tooltip>
+
     <div ref="chart" class="time-punchcard" :style="{ height: `${height}px` }" />
   </div>
 </template>
 
 <script>
 import TimePunchcardChart from '@/d3-modules/TimePunchcardChart'
+import Tooltip from '@/components/modules/tooltips/Tooltip'
 
 /**
  * @typedef {import('@/d3-modules/TimePunchcardChart').ChartData} ChartData
  */
 
 export default {
+  components: {
+    Tooltip
+  },
   data: () => ({
     chart: /** @type {TimePunchcardChart | null} */ (null),
     height: 200,
     labelsOffsets: /** @type {number[]} */ ([]),
-    categoryYSpace: 0
+    categoryYSpace: 0,
   }),
   props: {
     /** @type {import('vue').PropOptions<ChartData>} */
@@ -84,6 +97,15 @@ export default {
         }
         return acc;
       }, /** @type {number[]} */ ([]))
+    },
+    /** @returns {any} */
+    tooltip() {
+      return {
+        isActive: this.chart?.getTooltipDetails() != null,
+        item: this.chart?.getTooltipDetails(),
+        x: this.chart?.getTooltipDetails()?.x,
+        y: this.chart?.getTooltipDetails()?.y
+      }
     }
   },
   watch: {
