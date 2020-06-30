@@ -135,23 +135,24 @@ export default {
       min-height: 9em;
     }
 
+
+
     .axes {
-      // hide axes
+      stroke-width: 0.5px;
       .x {
         .domain {
-          stroke: #ffffff00
+          // hide axes
+          stroke-width: 0;
         }
-      }
-      .y {
-        .domain {
-          stroke: #ffffff00;
-        }
-        .tick {
+        g.tick {
           line {
-            stroke: #eeeeee77
+            stroke: #aaa;
+            opacity: 0.5;
           }
-          text {
-            fill: #ffffff00
+        }
+        g.tick.major {
+          line {
+            opacity: 1;
           }
         }
       }

@@ -189,6 +189,14 @@ export default class TimePunchcardChart {
         .tickSize(-calculatedEffectiveHeight))
 
     this.axes
+      .selectAll('.tick')
+      .filter((time, idx) => {
+        const shouldRender = idx % labelSpacing === 0
+        return shouldRender && shouldRenderTickLabel()
+      })
+      .classed('major', true)
+
+    this.axes
       .selectAll('g.x')
       .data([null])
       .join('g')
