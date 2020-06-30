@@ -229,7 +229,7 @@ export default class TimePunchcardChart {
       const lastOffset = acc.length > 0 ? acc[acc.length - 1] : 0
 
       if (isSubcategory && (nextItem == null || !nextItem.isSubcategory)) {
-        acc.push(lastOffset + 1)
+        acc.push(lastOffset + 1.25)
       } else {
         acc.push(lastOffset)
       }

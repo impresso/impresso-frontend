@@ -75,8 +75,8 @@
             :class="{loading: isPunchcardLoading}"
             :data="punchcardChartData" :options="punchcardOptions">
             <template v-slot:default="{ category, index }">
-              <div :class="`label ${category.isSubcategory ? 'sub' : 'bg-light'}`">
-                <div class="d-flex align-items-center">
+              <div :class="`${category.isSubcategory ? 'sublabel' : 'catlabel bg-light'}`">
+                <div class="d-flex align-items-center h-100">
                   <img
                     v-if="entitiesList[index].thumbnailUrl"
                     class="thumb bg-light"
@@ -99,10 +99,10 @@
 
             <template v-slot:gutter="{ categoryIndex }">
               <div
-                class="border-top border-tertiary">
+                class="">
                 <div
                   class="fixed-pagination-footer p-1 mt-1 mb-0"
-                  style="top:-3px; height: 36px">
+                  style="top:-7px; height: 35px">
                   <pagination
                     size="sm"
                     v-bind:perPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).perPage"
@@ -530,7 +530,11 @@ export default {
   .loading {
     opacity: 0.5;
   }
-  .label {
+  .catlabel {
+    width: 100vw;
+    margin-top: -6px;
+    height: 30px;
+    overflow: hidden;
     .thumb {
       border-radius: 50%;
       object-fit: cover;

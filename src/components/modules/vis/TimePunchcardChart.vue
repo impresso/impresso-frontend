@@ -138,7 +138,6 @@ export default {
 
 
     .axes {
-      stroke-width: 0.5px;
       .x {
         .domain {
           // hide axes
@@ -146,13 +145,14 @@ export default {
         }
         g.tick {
           line {
-            stroke: #aaa;
-            opacity: 0.5;
+            stroke-width: 0.5px;
+            stroke: #ddd;
           }
         }
         g.tick.major {
           line {
-            opacity: 1;
+            stroke-width: 1px;
+            // stroke: #bbb;
           }
         }
       }
