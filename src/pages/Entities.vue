@@ -18,14 +18,14 @@
           </b-tab>
           <b-tab :active="tab === TabObservingList" @click="switchTab(TabObservingList)">
             <template v-slot:title >
-              <span v-html="$t('tabs.entities.observingList', { n: observedItems.length })"/>
+              <span v-html="$t('tabs.entities.observingList', { n: observedItemIds.length })"/>
             </template>
-            <div class="p-3" v-if="!observedItems.length">
+            <div class="p-3" v-if="!observedItemIds.length">
               <p class="text-center"><em>{{$t('label_observing_list_empty')}}</em></p>
             </div>
           </b-tab>
         </b-tabs>
-        <div class="px-3 pb-3 pt-2" v-if="observedItems.length">
+        <div class="px-3 pb-3 pt-2" v-if="observedItemIds.length">
           <b-button size="sm" class="ml-2" variant="outline-primary" @click="resetObservedItems">
             {{ $t('actions.resetObservedItems') }}
           </b-button>
@@ -38,15 +38,15 @@
         <div class="p-4 text-center" v-else-if="isLoading">
           {{ $t('actions.loading')}}
         </div>
-        <entity-item v-for="(entity, i) in items"
-          class="p-3 border-bottom"
-          v-bind:key="i"
-          v-bind:item="entity"
-          v-bind:active="entity.uid === selectedId"
-          show-link
-          is-observable
-          :observed="observedItems.includes(entity.uid)"
-          @toggle-observed="handleToggleObserved"
+        <entity-item v-for="(entity, i) in tabItems"
+            class="p-3 border-bottom"
+            v-bind:key="i"
+            v-bind:item="entity"
+            v-bind:active="entity.uid === selectedId"
+            show-link
+            is-observable
+            :observed="observedItemIds.includes(entity.uid)"
+            @toggle-observed="handleToggleObserved"
         />
       </template>
     </list>
@@ -82,6 +82,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     items: [],
+    observedItems: [],
     isLoading: false,
   }),
   computed: {
@@ -92,7 +93,7 @@ export default {
         totalRows: this.paginationTotalRows,
       };
     },
-    observedItems: {
+    observedItemIds: {
       /** @returns {string[]} */
       get() {
         try {
@@ -110,6 +111,9 @@ export default {
           [QueryParameters.SelectedEntitiesIds]: items.length > 0 ? window.btoa(items.join(',')) : undefined
         })
       },
+    },
+    tabItems() {
+      return this.tab === TabObservingList ? this.observedItems : this.items;
     },
     tab: {
       get() {
@@ -171,25 +175,49 @@ export default {
   },
   methods: {
     switchTab(tab) {
-      this.$navigation.updateQueryParametersWithHistory({
-        tab,
-      });
+      this.$router.push({
+        name: 'entities',
+        query: {
+          ...this.$route.query,
+          tab,
+        },
+      })
     },
     handleToggleObserved(item) {
-      if (this.observedItems.includes(item.uid)) {
-        this.observedItems = this.observedItems.filter(uid => uid !== item.uid);
+      if (this.observedItemIds.includes(item.uid)) {
+        this.observedItemIds = this.observedItemIds.filter(uid => uid !== item.uid);
       } else {
-        this.observedItems = this.observedItems.concat(item.uid);
+        this.observedItemIds = this.observedItemIds.concat(item.uid);
       }
     },
     resetObservedItems() {
-      this.observedItems = [];
+      this.observedItemIds = [];
     },
     changePage(page = 1) {
       this.paginationCurrentPage = page;
     },
   },
   watch: {
+    observedItemIds: {
+      handler(itemIds, previousItemsIds = []) {
+        if (!itemIds.length) {
+          this.observedItems = [];
+        } else if (itemIds.join('-') !== previousItemsIds.join('-')) {
+          // load items only if the list changed. That's a weird behaviour.
+          entitiesService.find({
+            query: {
+              filters: [{
+                type: 'uid',
+                q: itemIds,
+              }],
+            },
+          }).then(({ data }) => {
+            this.observedItems = data.map(d => new Entity(d));
+          });
+        }
+      },
+      immediate:true,
+    },
     serviceQuery: {
       async handler(params, oldParams) {
         const newParamsStr = JSON.stringify(params)
