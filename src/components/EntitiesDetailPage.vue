@@ -114,6 +114,7 @@
           </section>
         </b-navbar>
         <timeline
+              :domain="[startYear, endYear]"
               :contrast="false"
               :values="timevalues">
           <div slot-scope="tooltipScope">
@@ -181,6 +182,12 @@ export default {
     MentionItem,
   },
   computed: {
+    startYear() {
+      return window.impressoDocumentsYearSpan.firstYear;
+    },
+    endYear() {
+      return window.impressoDocumentsYearSpan.lastYear;
+    },
     searchPageLink() {
       if (!this.entity) {
         return { name: 'search' };

@@ -124,6 +124,10 @@ Promise.race([
   window.impressoDocumentsDateSpan = documentsDateSpan
   window.impressoNewspapers = newspapers
   window.impressoFeatures = features
+  window.impressoDocumentsYearSpan = {
+    firstYear: (new Date(documentsDateSpan.firstDate)).getFullYear(),
+    lastYear: (new Date(documentsDateSpan.lastDate)).getFullYear()
+  }
 
   window.app = new Vue({
     el: '#app',
