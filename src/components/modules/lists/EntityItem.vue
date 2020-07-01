@@ -9,9 +9,7 @@
       <!-- label, i.e the name -->
       <router-link v-if="showLink"
         v-bind:class="{ active: active }"
-        v-bind:to="{ name: 'entity', params: {
-          entity_id: this.item.uid,
-        }}">
+        v-bind:to="itemUrl">
         <span v-html="name"></span>
       </router-link>
       <div v-else v-html="name" />
@@ -55,6 +53,15 @@ export default {
       }
       return this.item.wikidata.descriptions.en;
     },
+    itemUrl() {
+      return {
+        name: 'entity',
+        query: this.$route.query,
+        params: {
+          entity_id: this.item.uid,
+        },
+      };
+    },
     wikidataImages() {
       if (!this.item.wikidata) {
         return [];
@@ -85,6 +92,10 @@ export default {
   &.active > div{
     color: blue;
   }
+}
+.entity-item.active{
+  box-shadow: inset 0.15em 0 #343a40;
+  background-color: #f2f2f2;
 }
 </style>
 <i18n>
