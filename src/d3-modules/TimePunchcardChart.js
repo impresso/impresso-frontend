@@ -89,7 +89,7 @@ function findTimeInterval(times) {
 export default class TimePunchcardChart {
   constructor({
     element = null,
-    margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3, subCategoryLeft : 8 },
+    margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3, subCategoryLeft : 8, gutterHeight: 30 },
     size = { maxCircleRadius: 15 }
   }) {
     this.margin = margin
@@ -107,16 +107,18 @@ export default class TimePunchcardChart {
 
     this.x = d3.scaleUtc()
     this.y = d3.scaleBand()
+
+    this._tooltipDetails = undefined
   }
 
   /**
    * @param {ChartData} data
-   * @param {{ colorPalette?: {[key: string]: string} }} options
+   * @param {{ colorPalette?: {[key: string]: string}, circleScale?: 'linear' | 'sqrt' | 'symlog' }} options
    */
   // eslint-disable-next-line no-unused-vars
   render(data, options = {}) {
     const { width } = this.element.getBoundingClientRect()
-    const { colorPalette = defaultColorPalette } = options
+    const { colorPalette = defaultColorPalette, circleScale = 'linear' } = options
 
     const effectiveWidth = width - this.margin.left - this.margin.right
 
@@ -140,7 +142,18 @@ export default class TimePunchcardChart {
     const circleRadius = /** @type {number} */ (d3.min([calculatedCircleRadius, this.size.maxCircleRadius]))
 
     const categoryYSpace = (circleRadius * 2) + this.margin.categoryTop
-    const calculatedEffectiveHeight = categoryYSpace * data.categories.length
+
+    // after a set of subcategories we want to put a gutter to accommodate pagination.
+    // we need to count how many gutters there will be to adjust the height.
+    const categoriesGuttersCount = data.categories.reduce((acc, { isSubcategory }, index, items) => {
+      const nextItem = index === items.length - 1 ? undefined : items[index + 1]
+      if (isSubcategory && (nextItem == null || !nextItem.isSubcategory)) return acc + 1;
+      return acc;
+    }, 0)
+
+    const calculatedEffectiveHeight = categoryYSpace * data.categories.length +
+      this.margin.gutterHeight * categoriesGuttersCount;
+
     const calculatedHeight = calculatedEffectiveHeight + this.margin.top + this.margin.bottom
 
     this.svg
@@ -157,16 +170,31 @@ export default class TimePunchcardChart {
       ? shouldRenderTickLabelFn
       : () => true
 
+    // render label every `labelSpacing` ticks.
+    // TODO: 30 is picked after visually checking how close together labels are. There
+    // might be a better heuristics out there.
+    const labelSpacing = data.categories.length > 0 && data.categories[0].dataPoints.length > 30
+      ? 10 : 1
+
     const xAxis = g => g
       .attr('transform', `translate(0,${calculatedHeight - this.margin.bottom})`)
       .call(d3.axisBottom(this.x)
         // .ticks(times.length + 2)
         .ticks(timeInterval)
-        .tickFormat(time => {
-          return shouldRenderTickLabel(/** @type {Date} */ (time)) ? timeFormat(/** @type {Date} */ (time)) : ''
+        .tickFormat((time, idx) => {
+          const shouldRender = idx % labelSpacing === 0
+          return shouldRender && shouldRenderTickLabel(/** @type {Date} */ (time)) ? timeFormat(/** @type {Date} */ (time)) : ''
         })
         .tickSizeOuter(0)
         .tickSize(-calculatedEffectiveHeight))
+
+    this.axes
+      .selectAll('.tick')
+      .filter((time, idx) => {
+        const shouldRender = idx % labelSpacing === 0
+        return shouldRender && shouldRenderTickLabel()
+      })
+      .classed('major', true)
 
     this.axes
       .selectAll('g.x')
@@ -177,7 +205,7 @@ export default class TimePunchcardChart {
 
     this.y
       .domain(data.categories.map((_, index) => `${index}`))
-      .range([this.margin.top, calculatedEffectiveHeight])
+      .range([this.margin.top, categoryYSpace * data.categories.length])
 
     const yAxis = g => g
       .attr('transform', `translate(${this.margin.left}, 0)`)
@@ -195,12 +223,29 @@ export default class TimePunchcardChart {
       .attr('class', 'y')
       .call(yAxis)
 
+    // gutter offsets
+    let categoriesOffsets = data.categories.reduce((acc, { isSubcategory }, index, items) => {
+      const nextItem = index === items.length - 1 ? undefined : items[index + 1]
+      const lastOffset = acc.length > 0 ? acc[acc.length - 1] : 0
+
+      if (isSubcategory && (nextItem == null || !nextItem.isSubcategory)) {
+        acc.push(lastOffset + 1.25)
+      } else {
+        acc.push(lastOffset)
+      }
+      return acc;
+    }, /** @type {number[]} */ ([]))
+    categoriesOffsets = [0].concat(categoriesOffsets)
+
     const category = this.categories
       .selectAll('g.category')
       .data(data.categories)
       .join('g')
       .attr('class', ({ isSubcategory }) => `category ${isSubcategory ? 'sub' : ''}`)
-      .attr('transform', (d, index) => `translate(0, ${this.y(`${index}`)})`)
+      .attr('transform', (d, index) => {
+        const offset = (this.y(`${index}`) ?? 0) + categoriesOffsets[index] * this.margin.gutterHeight
+        return `translate(0, ${offset})`
+      })
 
     category
       .selectAll('rect.highlight')
@@ -239,16 +284,27 @@ export default class TimePunchcardChart {
       .attr('class', 'bar')
       .attr('transform', ({ time }) => `translate(${this.x(new Date(time))}, ${this.margin.categoryTop - this.margin.sizer * 2})`)
 
+    const circleScaler = {
+      linear: d3.scaleLinear(),
+      sqrt: d3.scaleSqrt(),
+      symlog: d3.scaleSymlog(),
+    }[circleScale] ?? d3.scaleLinear();
+
+    circleScaler.range([0, circleRadius])
+    circleScaler.domain([0, maxDataPointValue])
+
     bar
       .selectAll('circle.punch')
       .data(dataPoint => [dataPoint], dataPoint => dataPoint.time)
       .join('circle')
       .attr('class', 'punch')
       .attr('r', ({ value }) => {
-        return (value / maxDataPointValue) * circleRadius
+        return circleScaler(value)
       })
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
+      .on('mouseover', e => this._handleMouseOverCircle(e))
+      .on('mouseout', () => this._handleMouseOutCircle())
 
     bar
       .selectAll('circle.highlight')
@@ -258,14 +314,34 @@ export default class TimePunchcardChart {
       .join('circle')
       .attr('class', 'highlight')
       .attr('r', ({ value }) => {
-        return (value / maxDataPointValue) * circleRadius * 0.8
+        return circleScaler(value) * 0.8
       })
       .attr('cy', circleRadius)
 
     return {
       width,
       height: calculatedHeight,
-      yOffsets: data.categories.map((d, index) => this.y(index.toString()) ?? 0)
+      yOffsets: data.categories.map((d, index) => {
+        return (this.y(`${index}`) ?? 0) + categoriesOffsets[index] * this.margin.gutterHeight
+      }),
+      categoryYSpace
     }
+  }
+
+  _handleMouseOverCircle(event) {
+    // let [mouseX, mouseY] = d3.mouse(this.element)
+    let [x, y] = [this.x(event.time), this.y(`${event.categoryIndex}`)]
+
+    this._tooltipDetails = {
+      x, y, datapoint: event
+    }
+  }
+
+  _handleMouseOutCircle() {
+    this._tooltipDetails = undefined
+  }
+
+  getTooltipDetails() {
+    return this._tooltipDetails
   }
 }

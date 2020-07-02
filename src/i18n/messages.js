@@ -10,6 +10,9 @@ export default {
       fr: 'French',
       en: 'English',
     },
+    counts: {
+      filters: 'no filter | 1 filter | {count} filters',
+    },
     buckets: {
       type: {
         ad: 'advertisement',
@@ -90,6 +93,7 @@ export default {
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
+      resetObservedItems: 'reset observed list',
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
       viewTopic: 'go to topic',
@@ -194,6 +198,7 @@ export default {
       },
     },
     label: {
+      useCurrentSearch: 'consider only results matching current search',
       isFront: 'only results on the front page',
       year: {
         title: 'Year | Year | Years',
@@ -296,6 +301,10 @@ export default {
       recommendations: 'recommendations',
       relatedArticles: '... related articles | 1 related article | {count} related articles',
       articles: '... articles | 1 article | {count} articles',
+      entities: {
+        observingList: 'observing list (<span style="color: blue">{n}</span>)',
+        browseList: 'browse {n} entities',
+      },
     },
     sort: {
       name: {
@@ -334,6 +343,7 @@ export default {
     more_info: 'More Info',
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',
+    notFound: '(this is an empty list)',
   },
   nl: {
     language: 'Taal',
