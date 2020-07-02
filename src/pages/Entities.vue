@@ -223,7 +223,7 @@ export default {
         const newParamsStr = JSON.stringify(params)
         const oldParamsStr = JSON.stringify(oldParams)
         if (newParamsStr === oldParamsStr) {
-          console.warn(`Params are the same: ${newParamsStr} ${oldParamsStr}`)
+          // Params are the same: ${newParamsStr} ${oldParamsStr}`)
           return;
         }
         const { q, limit, page, orderBy } = params;
