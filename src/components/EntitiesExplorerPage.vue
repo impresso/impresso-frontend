@@ -1,17 +1,17 @@
 <template>
   <i-layout-section main>
     <template v-slot:header>
-      <b-navbar type="light" variant="light" class="border-bottom" slot="header">
+      <b-navbar type="light" variant="light" slot="header">
         <section v-if="observingList" class="top-section">
           <div class="label small-caps">
-            Entities
+            {{ $t('entities') }}
           </div>
           <h3>{{ $t('title') }}</h3>
-
-          <!-- control panel -->
-          <b-row class="ml-1 mr-1 control-panel">
-
-            <!-- filters toggle -->
+        </section>
+      </b-navbar>
+      <b-navbar class="pt-0 border-bottom">
+        <b-navbar-nav>
+          <!-- filters toggle -->
             <div class="current-search-panel">
               <div v-if="countActiveFilters > 0">
                 <b-form-checkbox
@@ -30,9 +30,20 @@
                 </div>
               </div>
             </div>
-
+          </b-navbar-nav>
+          <b-navbar-nav class="ml-auto">
             <!-- scale -->
-            <b-dropdown size="sm" variant="outline-primary" class="scale-selector">
+            <b-button-group size="sm">
+              <b-button v-for="s in scales"
+                variant="outline-primary"
+                :key="s"
+                :class="{active: s === scale}"
+                @click="scale = s">
+                {{$t(`scales.${s}`)}}
+              </b-button>
+            </b-button-group>
+          </b-navbar-nav>
+            <!-- <b-dropdown size="sm" variant="outline-primary" >
               <template v-slot:button-content>
                 <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
               </template>
@@ -42,18 +53,12 @@
                               @click="scale = s">
                 {{$t(`scales.${s}`)}}
               </b-dropdown-item>
-            </b-dropdown>
-
-          </b-row>
-        </section>
-        <section v-else>
-          <p class="pt-3">Please add a few entities and be amazed.</p>
-        </section>
+            </b-dropdown> -->
       </b-navbar>
     </template>
     <template v-slot:default>
       <div v-if="$route.query.items">
-        <section class="p-3 border-bottom">
+        <section class="p-3">
           <timeline
             :class="{'loading': isTimelineLoading}"
             :values="timevalues"
