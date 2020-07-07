@@ -12,7 +12,8 @@
       <histogram-slider
         class="histo-slider"
         @changed="onSliderValueChanged"
-        :buckets="sliderBuckets"/>
+        :buckets="sliderBuckets"
+        :only-range-labels="true"/>
       <!-- <time-punchcard-chart
         :data="testChartData"/> -->
     </i-layout-section>
@@ -47,7 +48,7 @@ export default {
         }
       })
     }),
-    sliderBuckets: Array.from({length: 10}, (_, i) =>  ({ val: i, count: Math.random() * 1000 }))
+    sliderBuckets: Array.from({length: 50}, (_, i) =>  ({ val: i, count: Math.random() * 1000 }))
   }),
   methods: {
     submit(suggestion) {
@@ -68,8 +69,7 @@ export default {
 <style lang="scss" scoped>
   .histo-slider {
     width: 300px;
-    border: 1px dashed red;
-    padding: 1em;
+    // border: 1px dashed red;
     margin: 0;
   }
 </style>
