@@ -9,8 +9,12 @@
     </i-layout-section>
     <i-layout-section class="pt-2">
       {{submitted}}
-      <time-punchcard-chart
-        :data="testChartData"/>
+      <histogram-slider
+        class="histo-slider"
+        @changed="onSliderValueChanged"
+        :buckets="sliderBuckets"/>
+      <!-- <time-punchcard-chart
+        :data="testChartData"/> -->
     </i-layout-section>
   </i-layout>
 </template>
@@ -18,7 +22,8 @@
 <script>
 import * as d3 from 'd3'
 import Autocomplete from './Autocomplete';
-import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart';
+// import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart';
+import HistogramSlider from '@/components/modules/vis/HistogramSlider';
 
 export default {
   data: () => ({
@@ -41,16 +46,30 @@ export default {
           isSubcategory : categoryIndex % 2 === 1
         }
       })
-    })
+    }),
+    sliderBuckets: Array.from({length: 10}, (_, i) =>  ({ val: i, count: Math.random() * 1000 }))
   }),
   methods: {
     submit(suggestion) {
       this.submitted = suggestion;
     },
+    onSliderValueChanged(value) {
+      console.log(`Slider value changed: ${value}`);
+    }
   },
   components: {
     Autocomplete,
-    TimePunchcardChart
+    // TimePunchcardChart,
+    HistogramSlider
   },
 };
 </script>
+
+<style lang="scss" scoped>
+  .histo-slider {
+    width: 300px;
+    border: 1px dashed red;
+    padding: 1em;
+    margin: 0;
+  }
+</style>
