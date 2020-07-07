@@ -228,6 +228,10 @@ $clr-grey-900: #ddd;
   color: $clr-white;
 }
 
+.modal-backdrop-disabled{
+  pointer-events: none;
+}
+
 .text-blue {
   color: blue;
 }
