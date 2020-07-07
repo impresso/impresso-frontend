@@ -97,7 +97,7 @@ export default {
       default: 'articles',
     },
     filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<import('@/models').Filter[]>} */
       type: Array,
       default: () => [],
     },

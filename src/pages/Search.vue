@@ -240,7 +240,8 @@ const AllowedFilterTypes = [
   'topic',
   'type',
   'year',
-  'daterange'
+  'daterange',
+  'contentLength'
 ];
 
 const FACET_TYPES_DPFS = [
@@ -257,6 +258,7 @@ const FACET_TYPES_S = [
   'accessRight',
   'partner',
   'year',
+  'contentLength'
 ];
 
 const FACET_TYPES = FACET_TYPES_S.concat(FACET_TYPES_DPFS);
