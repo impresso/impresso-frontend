@@ -25,7 +25,6 @@
         <div v-if="tooltip.isActive" v-html="tooltip.item" />
       </slot>
     </tooltip>
-
     <div ref="chart" class="time-punchcard" :style="{ height: `${height}px` }" />
   </div>
 </template>
@@ -76,7 +75,7 @@ export default {
     },
     getLabelTopOffset(index) {
       return (this.labelsOffsets[index] ?? 0);
-    }
+    },
   },
   computed: {
     /** @returns {any} */
@@ -105,7 +104,7 @@ export default {
         x: this.chart?.getTooltipDetails()?.x,
         y: this.chart?.getTooltipDetails()?.y + 275
       }
-    }
+    },
   },
   watch: {
     chartData: {
@@ -117,6 +116,7 @@ export default {
             const element = this.$refs.chart
             element.textContent = ''
             this.chart = new TimePunchcardChart({ element })
+            this.chart.on('punch.click', (e) => this.$emit('punch-click', e));
           }
           this.render()
         })
