@@ -15,7 +15,7 @@ export default {
     searchQuery: Object,
     enumerables: {
       type: Array,
-      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country', 'accessRight'],
+      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country', 'year', 'accessRight'],
     },
   },
   data: () => ({
@@ -137,7 +137,7 @@ export default {
         }
         break;
       case 'year':
-        t = item.y;
+        t = filter.q.join(", ");
         break;
       default:
         t = this.$t(`buckets.${type}.${item.uid}`);
@@ -282,6 +282,7 @@ export default {
         "string": "containing",
         "title": "where title includes",
         "daterange": "published",
+        "year": "published on",
         "collection": "saved in",
         "language": "written in",
         "country": "printed in",
@@ -302,6 +303,7 @@ export default {
         "string": "not containing",
         "title": "where title does not includes",
         "daterange": "not published",
+        "year": "not published on",
         "collection": "not saved in",
         "language": "not written in",
         "country": "not printed in",
