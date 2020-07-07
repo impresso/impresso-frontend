@@ -151,7 +151,6 @@ export default {
   watch: {
     serviceQuery: {
       async handler(query) {
-        console.info('@serviceQuery', query);
         this.isLoading = true;
         this.results = [];
         const { data, total } = await searchService.find({
@@ -170,7 +169,6 @@ export default {
         if (previousSerializedFilters === filters){
           return;
         }
-        console.info('@serializedFilters', filters);
         // enrich filters
         this.filtersWithItems = await filtersItemsService.find({
           query: {
