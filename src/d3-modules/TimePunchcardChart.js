@@ -333,10 +333,14 @@ export default class TimePunchcardChart extends EventEmitter {
   }
 
   _handleMouseClickCircle(datapoint) {
+    // console.info(d3.event, datapoint, this.element.getBoundingClientRect());
+    const { clientX:x, clientY:y } = d3.event
     // const { categoryIndex, maxValue, value, time, label } = event;
     this._handleMouseOverCircle(datapoint)
     this.emit('punch.click', {
       datapoint,
+      x, y,
+      rect: this.element.getBoundingClientRect(),
     });
   }
 
