@@ -118,26 +118,29 @@
             </template>
           </time-punchcard-chart>
         </section>
-        <b-modal modal-class="modal-backdrop-disabled" content-class="drop-shadow"
-          hide-backdrop
-          no-fade no-close-on-backdrop
-          title-class="sans"
-          v-model="isPunchModalVisible"
-          :title-html="punchModalTitle">
-          <div v-if="selectedEntity">
-            <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
-            <search-query-explorer no-pagination no-label :search-query="selectedEntitySearchQuery"/>
-          </div>
-          <template v-slot:modal-footer>
-            <b-button
-                variant="outline-primary"
-                size="sm"
-                class="ml-auto"
-                @click="isPunchModalVisible=false">
-                Close
-            </b-button>
-          </template>
-        </b-modal>
+        <div>
+          <tooltip-modal modal-class="modal-tooltip modal-backdrop-disabled" content-class="drop-shadow"
+            hide-backdrop
+            no-fade no-close-on-backdrop
+            title-class="sans"
+            v-model="isPunchModalVisible"
+            :mousexy="punchMouseXY"
+            :title-html="punchModalTitle">
+            <div v-if="selectedEntity">
+              <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
+              <search-query-explorer no-pagination no-label :search-query="selectedEntitySearchQuery"/>
+            </div>
+            <template v-slot:modal-footer>
+              <b-button
+                  variant="outline-primary"
+                  size="sm"
+                  class="ml-auto"
+                  @click="isPunchModalVisible=false">
+                  Close
+              </b-button>
+            </template>
+          </tooltip-modal>
+        </div>
       </div>
       <div v-else>
         <div class="text-center p-5 m-5" v-html="$t('no-entities-selected')" />
@@ -149,6 +152,7 @@
 <script>
 import Timeline from '@/components/modules/Timeline'
 import SearchQueryExplorer from '@/components/modals/SearchQueryExplorer'
+import TooltipModal from '@/components/modals/TooltipModal'
 import Pagination from '@/components/modules/Pagination'
 import { searchQueryGetter } from '@/logic/queryParams'
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
@@ -240,12 +244,14 @@ export default {
     paginations: /** @type {{[key: string]: PaginationValuesContainer}} */ ({}),
     thumbnailSize: 60,
     punchData: {},
+    punchMouseXY: [0,0],
   }),
   components: {
     Timeline,
     SearchQueryExplorer,
     TimePunchcardChart,
     Pagination,
+    TooltipModal,
   },
   mounted() {
     // @ts-ignore
@@ -552,9 +558,12 @@ export default {
       const items = this.observingList.filter(id => id !== entity.id);
       this.observingList = items;
     },
-    handlePunchClicked({ datapoint }) {
+    handlePunchClicked({ datapoint, mouseXY }) {
+
+      this.punchMouseXY = mouseXY;
       this.isPunchModalVisible = true;
       this.punchData = datapoint;
+
     },
     getWikimediaUrl(image) {
       return `http://commons.wikimedia.org/wiki/Special:FilePath/${image}?width=${this.thumbnailSize}px`;
@@ -612,6 +621,10 @@ export default {
       border-radius: 50%;
       object-fit: cover;
     }
+  }
+  .modal-tooltip {
+    position: fixed;
+    max-width: 500px;
   }
 </style>
 

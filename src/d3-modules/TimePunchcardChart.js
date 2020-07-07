@@ -334,16 +334,18 @@ export default class TimePunchcardChart extends EventEmitter {
 
   _handleMouseClickCircle(datapoint) {
     // const { categoryIndex, maxValue, value, time, label } = event;
+    let mouseXY = d3.mouse(this.element)
+    // console.log(mouseXY)
     this._handleMouseOverCircle(datapoint)
     this.emit('punch.click', {
       datapoint,
+      mouseXY
     });
   }
 
   _handleMouseOverCircle(event) {
-    // let [mouseX, mouseY] = d3.mouse(this.element)
+    // let mouseXY = d3.mouse(this.element)
     let [x, y] = [this.x(event.time), this.y(`${event.categoryIndex}`)]
-
     this._tooltipDetails = {
       x, y, datapoint: event
     }
