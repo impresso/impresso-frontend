@@ -15,7 +15,7 @@ export default {
     searchQuery: Object,
     enumerables: {
       type: Array,
-      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country', 'accessRight'],
+      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country', 'accessRight', 'year'],
     },
   },
   data: () => ({
@@ -77,7 +77,6 @@ export default {
       }
 
       translationTable.enumerable = enumerables.join('; ');
-
       const summary = this.$t('reducedSummary', translationTable);
       this.$emit('updated', summary.split(/\s+/).join(' '));
       return summary;
@@ -265,7 +264,7 @@ export default {
 <i18n>
   {
     "en": {
-      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {collection} {enumerable}",
+      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable}",
       "isFront": "appearing on the <em>front page</em>",
       "include": {
         "accessRight": "available as",
@@ -285,7 +284,8 @@ export default {
         "collection": "saved in",
         "language": "written in",
         "country": "printed in",
-        "type": "- tagged as"
+        "type": "- tagged as",
+        "year": "in year"
       },
       "exclude": {
         "accessRight": "not available as",
@@ -305,7 +305,8 @@ export default {
         "collection": "not saved in",
         "language": "not written in",
         "country": "not printed in",
-        "type": "- not tagged as"
+        "type": "- not tagged as",
+        "year": "not in year"
       }
     }
   }
