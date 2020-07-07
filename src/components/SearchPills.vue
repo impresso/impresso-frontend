@@ -53,7 +53,7 @@
         <!--  type:generic -->
         <span class="label sp-generic-item"
           v-if="['year'].includes(filter.type)"
-          :class="filter.context">{{filter}}{{ filter.q && Array.isArray(filter.q) ? filter.q.join(', ') : '' }}
+          :class="filter.context">{{ filter.q && Array.isArray(filter.q) ? filter.q.join(', ') : '' }}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
