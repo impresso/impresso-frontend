@@ -301,7 +301,7 @@ export default {
         "person": "not mentioning",
         "location": "not mentioning",
         "string": "not containing",
-        "title": "where title does not includes",
+        "title": "where title does not include",
         "daterange": "not published",
         "year": "not published on",
         "collection": "not saved in",
