@@ -150,7 +150,10 @@ export default {
   },
   watch: {
     serviceQuery: {
-      async handler(query) {
+      async handler(query, previousQuery={}) {
+        if (JSON.stringify(query) === JSON.stringify(previousQuery)){
+          return;
+        }
         this.isLoading = true;
         this.results = [];
         const { data, total } = await searchService.find({
