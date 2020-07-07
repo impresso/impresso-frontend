@@ -305,6 +305,7 @@ export default {
   .btn-outline-primary {
     border-color: #caccce;
     color: #caccce;
+    text-decoration: none;
     &:hover{
       color: $clr-white;
     }
