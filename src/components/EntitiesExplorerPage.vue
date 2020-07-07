@@ -54,7 +54,7 @@
       </b-navbar>
     </template>
     <template v-slot:default>
-      <div v-if="$route.query.items">
+      <div v-if="$route.query.items" ref="visualisationWrapper">
         <section class="p-3">
           <timeline
             :class="{'loading': isTimelineLoading}"
@@ -118,11 +118,26 @@
             </template>
           </time-punchcard-chart>
         </section>
-        <b-modal modal-class="modal-backdrop-disabled" content-class="drop-shadow"
+        <div class="punch-modal position-absolute border border-tertiary drop-shadow" :style="punchModalStyle" v-if="isPunchModalVisible && selectedEntity">
+          <h3 class="small-caps border-bottom p-2 m-0" v-html="punchModalTitle" />
+          <div class="p-2">
+            <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
+            <search-query-explorer no-pagination no-label :search-query="selectedEntitySearchQuery"/>
+            <div class="d-flex mt-2"><b-button
+                variant="outline-primary"
+                size="sm"
+                class="ml-auto"
+                @click="isPunchModalVisible=false">
+                Close
+            </b-button></div>
+          </div>
+        </div>
+        <!-- <b-modal modal-class="modal-backdrop-disabled" content-class="drop-shadow"
           hide-backdrop
           no-fade no-close-on-backdrop
           title-class="sans"
           v-model="isPunchModalVisible"
+          :style="punchModalStyle"
           :title-html="punchModalTitle">
           <div v-if="selectedEntity">
             <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
@@ -137,7 +152,7 @@
                 Close
             </b-button>
           </template>
-        </b-modal>
+        </b-modal> -->
       </div>
       <div v-else>
         <div class="text-center p-5 m-5" v-html="$t('no-entities-selected')" />
@@ -240,6 +255,10 @@ export default {
     paginations: /** @type {{[key: string]: PaginationValuesContainer}} */ ({}),
     thumbnailSize: 60,
     punchData: {},
+    punchModalPositions: {
+      x: 0,
+      y: 0,
+    },
   }),
   components: {
     Timeline,
@@ -259,8 +278,10 @@ export default {
     ];
   },
   computed: {
-    showSearchQueryModal() {
-      return true;
+    punchModalStyle() {
+      return {
+        transform: `translate(${this.punchModalPositions.x}px,${this.punchModalPositions.y}px)`,
+      };
     },
     applyCurrentSearchFilters: {
       /** @returns {boolean} */
@@ -414,7 +435,7 @@ export default {
       return { categories }
     },
     selectedEntity() {
-      if (this.punchData.categoryIndex > -1) {
+      if (this.mentionsFrequenciesResponses && this.punchData.categoryIndex > -1) {
         return this.mentionsFrequenciesResponses[this.punchData.categoryIndex].item;
       }
       return null;
@@ -552,9 +573,15 @@ export default {
       const items = this.observingList.filter(id => id !== entity.id);
       this.observingList = items;
     },
-    handlePunchClicked({ datapoint }) {
+    handlePunchClicked({ datapoint, x, y, rect }) {
+      const availableHeight = this.$refs?.visualisationWrapper?.parentNode?.offsetHeight;
       this.isPunchModalVisible = true;
       this.punchData = datapoint;
+      const xmin = Math.min(rect.width - rect.x, Math.max(50, x - rect.x - 150));
+      const ymin = Math.min(availableHeight / 2, y);
+      console.info(y, availableHeight);
+      this.punchModalPositions = { x: xmin, y: ymin };
+      // console.log('@handlePunchClicked', x - window, y);
     },
     getWikimediaUrl(image) {
       return `http://commons.wikimedia.org/wiki/Special:FilePath/${image}?width=${this.thumbnailSize}px`;
@@ -582,6 +609,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .punch-modal{
+    position: fixed;
+    z-index:1040;
+    left: 0;
+    top:0;
+    background: white;
+    width: 420px;
+  }
   .top-section {
     width: 100%;
   }
