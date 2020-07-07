@@ -23,8 +23,8 @@
             {'dripicons-shopping-bag': filter.type === 'accessRight'},
             {'dripicons-store': filter.type === 'partner'},
             {'dripicons-scale': numericTypes.includes(filter.type)},
-
-          ]" />
+          ]"
+          :title="$tc(`label.${filter.type}.title`, 0)" />
         <!--  type:string, type:title -->
         <span class="label sp-string sp-title"
           v-if="['string', 'title'].includes(filter.type)"
