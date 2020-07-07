@@ -33,7 +33,7 @@
           <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" :to="{ name: 'search' }">
             {{$t('actions.resetQuery')}}
           </b-button> -->
-          <search-query-explorer :search-query="searchQuery" dark-mode/>
+          <search-query-explorer class="px-3" :search-query="searchQuery" dark-mode/>
         </b-nav-item-dropdown>
 
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
