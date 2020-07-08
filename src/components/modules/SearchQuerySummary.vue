@@ -137,7 +137,8 @@ export default {
         }
         break;
       case 'year':
-        t = filter.q.join(", ");
+        // console.log('____', item, type, filter);
+        t = Array.isArray(filter.q) ? filter.q.join(', ') : filter.q;
         break;
       default:
         t = this.$t(`buckets.${type}.${item.uid}`);
@@ -282,7 +283,7 @@ export default {
         "string": "containing",
         "title": "where title includes",
         "daterange": "published",
-        "year": "published on",
+        "year": "published in",
         "collection": "saved in",
         "language": "written in",
         "country": "printed in",
@@ -303,7 +304,7 @@ export default {
         "string": "not containing",
         "title": "where title does not include",
         "daterange": "not published",
-        "year": "not published on",
+        "year": "not published in",
         "collection": "not saved in",
         "language": "not written in",
         "country": "not printed in",
