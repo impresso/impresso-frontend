@@ -187,16 +187,13 @@ export default {
 
 <style lang="scss">
 .search-query-explorer {
-  min-width: 400px;
-}
-.search-query-explorer {
   .summary{
     blockquote{
       border-left: 2px solid black;
     }
   }
   .search-query-explorer-article-item{
-    background: #eaeaea;
+    // background: #eaeaea;
   }
 }
 .search-query-explorer.dark-mode {
@@ -225,7 +222,10 @@ export default {
     border-bottom: 1px solid #343a40;
   }
   .search-query-explorer-article-item{
-    background: #343a40;
+    // background: #343a40;
+    border-top: 1px solid #caccce;
+    border-bottom: 1px solid #caccce;
+    min-height: 100px;
 
     article h2{
       color: white;
