@@ -69,10 +69,9 @@ export default {
       filter = new FilterCollection(filterData);
     }
 
-    if (filter) {
+    if (filter.getHash != null) {
       filter.key = filterData.key || uuid.v4();
-      return filter;
     }
-    throw new Error(`Cannot create filter for type: ${filterData.type}`);
+    return filter;
   },
 };

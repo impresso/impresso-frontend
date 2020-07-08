@@ -25,6 +25,7 @@ import * as d3 from 'd3'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 
+
 /**
  * NOTE: Only works with integers. If you need to do fractions you
  * will need to normalise them.
@@ -53,6 +54,10 @@ export default {
     onlyRangeLabels: {
       type: Boolean,
       default: false
+    },
+    scaleType: {
+      type: String,
+      default: 'linear'
     }
   },
   mounted() {
@@ -74,7 +79,7 @@ export default {
     sliderValue: {
       /** @returns {undefined|number[]} */
       get() {
-        return this.value
+        return this.value?.length === 2 ? this.value : [0, 0]
       },
       /** @param {undefined|number[]} value */
       set(value) {
@@ -119,7 +124,7 @@ export default {
       this.$emit('changed', value)
     },
     renderChart() {
-      const topMargin = 12
+      const topMargin = 14
       const { width } = this.$refs.chartContainer.getBoundingClientRect()
 
       const svg = d3.select(this.$refs.chart)
@@ -134,7 +139,13 @@ export default {
         .range([0, width])
         .paddingInner(0.05)
 
-      const y = d3.scaleLinear()
+      const yScaler = {
+        linear: d3.scaleLinear,
+        sqrt: d3.scaleSqrt,
+        symlog: d3.scaleSymlog,
+      }[this.scaleType] ?? d3.scaleLinear;
+
+      const y = yScaler()
         .domain([Math.min(...counts), Math.max(...counts)])
         .range([0, this.chartHeight - topMargin])
 
@@ -153,23 +164,42 @@ export default {
 
       const maxCountBucketIndex = counts.indexOf(Math.max(...counts))
 
-      svg.selectAll('text.maxval')
-        .data([this.buckets[maxCountBucketIndex]])
-        .join('text')
+      const maxval = svg.selectAll('g.maxval')
+        .data(maxCountBucketIndex >= 0 ? [this.buckets[maxCountBucketIndex]] : [])
+        .join('g')
         .attr('class', 'maxval')
         .attr('transform', bucket => {
           const xOffset = (x(bucket.val) ?? 0) + (x.bandwidth() / 2)
           const yOffset = this.chartHeight - y(bucket.count)
           return `translate(${xOffset}, ${yOffset})`
         })
-        .attr('dy', -3)
-        .text(bucket => Math.round(bucket.count))
 
+      maxval.selectAll('text')
+        .data(d => [d])
+        .join('text')
+        .attr('dy', -5)
+        .text(bucket => Math.round(bucket.count))
+        .attr('text-anchor', bucket => {
+          const xOffset = (x(bucket.val) ?? 0) + (x.bandwidth() / 2)
+          const oneThirdWidth = width / 3
+          if (xOffset <= oneThirdWidth) return 'start'
+          if (xOffset >= 2*oneThirdWidth) return 'end'
+          return 'middle'
+        })
+
+      maxval.selectAll('circle.point')
+        .data(d => [d])
+        .join('circle')
+        .attr('class', 'point')
+        .attr('r', 1)
     }
   },
   watch: {
     buckets() {
       this.renderChart()
+    },
+    defaultValue() {
+      this.value = this.defaultValue
     }
   },
   components: {
@@ -179,6 +209,7 @@ export default {
 </script>
 
 <style lang="scss">
+  @import "impresso-theme/src/scss/variables.sass";
   .histogram-slider {
     .slider {
       width: 100% !important;
@@ -192,7 +223,9 @@ export default {
       }
       .maxval {
         font-size: 12px;
-        text-anchor: middle;
+        .point {
+          fill: $clr-primary;
+        }
       }
     }
   }

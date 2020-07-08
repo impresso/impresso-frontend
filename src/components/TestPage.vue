@@ -13,7 +13,8 @@
         class="histo-slider"
         @changed="onSliderValueChanged"
         :buckets="sliderBuckets"
-        :only-range-labels="true"/>
+        :only-range-labels="true"
+        :scale-type="'linear'"/>
       <!-- <time-punchcard-chart
         :data="testChartData"/> -->
     </i-layout-section>

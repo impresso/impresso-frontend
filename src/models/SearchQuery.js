@@ -15,6 +15,12 @@ const filterize = (filter) => {
   return filter;
 };
 
+const getFilterQuery = filter => filter.getQuery != null ? filter.getQuery() : filter
+
+const getFilterHash = filter => {
+  return btoa(JSON.stringify(getFilterQuery(filter)));
+}
+
 export default class SearchQuery {
   constructor({
     filters = [
@@ -65,7 +71,7 @@ export default class SearchQuery {
   getFilter(filter) {
     const filterized = filterize(filter);
     if (!filterized.hash) {
-      filterized.hash = filterized.getHash();
+      filterized.hash = getFilterHash(filterized)
     }
     const idx = this.filtersIds.indexOf(filterized.hash);
     if (idx !== -1) {
@@ -76,7 +82,7 @@ export default class SearchQuery {
 
   addFilter(filter) {
     const filterized = filterize(filter);
-    const hash = filterized.getHash();
+    const hash = getFilterHash(filterized)
     // check if the filter do not exists.
     if (this.filtersIds.indexOf(hash) === -1) {
       this.filtersIds.push(hash);
@@ -120,14 +126,14 @@ export default class SearchQuery {
       originalFilter.q = uids;
     }
     // recalculate hash and reset at filtersIds index:
-    this.filtersIds[idx] = originalFilter.getHash();
+    this.filtersIds[idx] = getFilterHash(originalFilter)
   }
 
   enrichFilters(filters) {
     filters.forEach((d) => {
       if ((d.items && d.items.length) || (d.item && d.item.uid)) {
         const filterized = filterize(d);
-        const idx = this.filtersIds.indexOf(filterized.getHash());
+        const idx = this.filtersIds.indexOf(getFilterHash(filterized))
         if (idx !== -1) {
           if (filterized.item) {
             this.filters[idx].item = filterized.item;
@@ -169,7 +175,7 @@ export default class SearchQuery {
     if (items) {
       fil.items = items;
     }
-    fil.touched = fil.getHash() !== fil.hash;
+    fil.touched = getFilterHash(fil) !== fil.hash;
   }
 
   updateFilterItem({ filter, item, uid }) {
@@ -186,7 +192,7 @@ export default class SearchQuery {
       return d;
     });
     fil.q = fil.items.filter(d => d.checked).map(d => d.uid);
-    fil.touched = fil.getHash() !== fil.hash;
+    fil.touched = getFilterHash(fil) !== fil.hash;
   }
 
   resetFilter(type) {
@@ -215,7 +221,7 @@ export default class SearchQuery {
    */
   getFilters(exclude = []) {
     let filters = this.filters
-      .map(filter => filter.getQuery())
+      .map(getFilterQuery)
       .filter(i => i);
     if (exclude.length) {
       filters = filters.filter(i => exclude.includes(i.type) === false);

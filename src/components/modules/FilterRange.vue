@@ -4,23 +4,54 @@
       {{
         $t(`label.${facet.type}.filterTitle`)
       }}
+      <info-button class="ml-1"
+        :target="facet.type"
+        name="text-reuse" />
     </base-title-bar>
     <histogram-slider
       class="histo-slider"
       @changed="onSliderValueChanged"
       :buckets="sliderBuckets"
-      :only-range-labels="true"/>
+      :only-range-labels="true"
+      :scale-type="'symlog'"
+      :default-value="currentValue"/>
+
+    <div class="p-2" v-if="valuesHaveChanged">
+      <b-row no-gutters>
+        <b-col class="pr-1">
+          <b-button   size="sm" block variant="outline-primary" @click="resetValues">
+          {{ $t('actions.dismiss') }}
+          </b-button>
+        </b-col>
+        <b-col class="pl-1">
+          <b-button  size="sm" block variant="outline-primary" @click="applyValues">
+          {{ $t('actions.apply') }}
+          </b-button>
+        </b-col>
+      </b-row>
+    </div>
+
   </div>
 </template>
 
 <script>
+import BaseTitleBar from '@/components/base/BaseTitleBar'
+import InfoButton from '@/components/base/InfoButton'
 import HistogramSlider from '@/components/modules/vis/HistogramSlider'
 
 export default {
+  data: () => ({
+    value: /** @type {number[]} */ ([])
+  }),
   props: {
     /** @type {import('vue').PropOptions<import('@/models').Facet>} */
     facet: {
       type: Object,
+      required: true
+    },
+    /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
+    facetFilters: {
+      type: Array,
       required: true
     }
   },
@@ -28,16 +59,37 @@ export default {
     /** @returns {import('@/models').Bucket[]} */
     sliderBuckets() {
       return this.facet.buckets
+    },
+    /** @returns {boolean} */
+    valuesHaveChanged() {
+      return JSON.stringify(this.value) !== JSON.stringify(this.currentValue)
+    },
+    /** @returns {number[]} */
+    currentValue() {
+      // TODO: merge multiple filters of this kind.
+      if (this.facetFilters.length === 0) return []
+      return /** @type {string[]} */ (this.facetFilters[0].q).map(v => parseInt(v, 10))
     }
   },
   methods: {
     /** @param {number[]} value */
     onSliderValueChanged(value) {
       console.info(`Slider value: ${value}`)
+      this.value = value
+    },
+    resetValues() {},
+    applyValues() {
+      const filter = {
+        type: this.facet.type,
+        q: this.value
+      }
+      this.$emit('changed', [filter])
     }
   },
   components: {
-    HistogramSlider
+    HistogramSlider,
+    BaseTitleBar,
+    InfoButton,
   }
 }
 </script>
