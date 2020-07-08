@@ -165,8 +165,7 @@ export default {
         .bar {
           .punch {}
           .highlight {
-            // stroke-width: 2px;
-            stroke: #fff;
+            stroke-width: 1.5px;
           }
         }
         .sizer {
