@@ -25,15 +25,10 @@
             &rarr;
             <i>{{ $t('label_current_search') }}</i>
           </template>
-          <b-button class="ml-3 my-2" size="sm" variant="outline-primary outline-primary-contrast"
-            :disabled="$route.name === 'search'"
-            :to="getRouteWithSearchQuery({ name: 'search' })">
-            {{$t('actions.searchMore')}}
-          </b-button>
           <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" :to="{ name: 'search' }">
             {{$t('actions.resetQuery')}}
           </b-button> -->
-          <search-query-explorer :search-query="searchQuery" dark-mode/>
+          <search-query-explorer style="min-width:400px" class="px-2" :search-query="searchQuery" dark-mode/>
         </b-nav-item-dropdown>
 
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">

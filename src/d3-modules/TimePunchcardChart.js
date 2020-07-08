@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import EventEmitter from 'events';
 
 const OneDayInMs = 1000 * 60 * 60 * 24 // 1 day
 
@@ -86,12 +87,13 @@ function findTimeInterval(times) {
  * @typedef {{ categories: ChartCategory[] }} ChartData
  */
 
-export default class TimePunchcardChart {
+export default class TimePunchcardChart extends EventEmitter {
   constructor({
     element = null,
     margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3, subCategoryLeft : 8, gutterHeight: 30 },
     size = { maxCircleRadius: 15 }
   }) {
+    super();
     this.margin = margin
     this.size = size
     this.element = element
@@ -187,12 +189,11 @@ export default class TimePunchcardChart {
         })
         .tickSizeOuter(0)
         .tickSize(-calculatedEffectiveHeight))
-
-    this.axes
       .selectAll('.tick')
-      .filter((time, idx) => {
+      .classed('major', false)
+      .filter(function(time, idx) {
         const shouldRender = idx % labelSpacing === 0
-        return shouldRender && shouldRenderTickLabel()
+        return shouldRender && shouldRenderTickLabel(/** @type {Date} */ (time))
       })
       .classed('major', true)
 
@@ -278,7 +279,8 @@ export default class TimePunchcardChart {
       .selectAll('g.bar')
       .data((category, categoryIndex) => {
         const maxValue = d3.max(category.dataPoints.map(({ value }) => value)) ?? 0
-        return category.dataPoints.map(dp => ({ ...dp, categoryIndex, maxValue }))
+        const label = category.label;
+        return category.dataPoints.map(dp => ({ ...dp, categoryIndex, maxValue, label }))
       })
       .join('g')
       .attr('class', 'bar')
@@ -305,6 +307,7 @@ export default class TimePunchcardChart {
       .attr('fill', d => colorPalette[d.categoryIndex])
       .on('mouseover', e => this._handleMouseOverCircle(e))
       .on('mouseout', () => this._handleMouseOutCircle())
+      .on('click', e => this._handleMouseClickCircle(e))
 
     bar
       .selectAll('circle.highlight')
@@ -313,8 +316,9 @@ export default class TimePunchcardChart {
         : [], dataPoint => dataPoint.time)
       .join('circle')
       .attr('class', 'highlight')
+      .attr('stroke', d => colorPalette[d.categoryIndex])
       .attr('r', ({ value }) => {
-        return circleScaler(value) * 0.8
+        return circleScaler(value) + 1.5
       })
       .attr('cy', circleRadius)
 
@@ -326,6 +330,18 @@ export default class TimePunchcardChart {
       }),
       categoryYSpace
     }
+  }
+
+  _handleMouseClickCircle(datapoint) {
+    // console.info(d3.event, datapoint, this.element.getBoundingClientRect());
+    const { clientX:x, clientY:y } = d3.event
+    // const { categoryIndex, maxValue, value, time, label } = event;
+    this._handleMouseOverCircle(datapoint)
+    this.emit('punch.click', {
+      datapoint,
+      x, y,
+      rect: this.element.getBoundingClientRect(),
+    });
   }
 
   _handleMouseOverCircle(event) {

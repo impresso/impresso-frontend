@@ -1,38 +1,46 @@
 <template>
   <i-layout-section main>
     <template v-slot:header>
-      <b-navbar type="light" variant="light" class="border-bottom" slot="header">
+      <b-navbar type="light" variant="light" slot="header">
         <section v-if="observingList" class="top-section">
           <div class="label small-caps">
-            Entities
+            {{ $t('entities') }}
           </div>
           <h3>{{ $t('title') }}</h3>
-
-          <!-- control panel -->
-          <b-row class="ml-1 mr-1 control-panel">
-
-            <!-- filters toggle -->
-            <div class="current-search-panel">
-              <div v-if="countActiveFilters > 0">
-                <b-form-checkbox
-                  v-model="applyCurrentSearchFilters"
-                  switch>
-                  {{ $t('label.useCurrentSearch') }}
-                  <a @click.prevent.stop="toggleQueryExplorerVisible">
-                    ({{ $tc('counts.filters', countActiveFilters) }})
-                  </a>
-
-                </b-form-checkbox>
-                <div
-                  style="z-index:1"
-                  class="drop-shadow bg-dark position-absolute" v-if="searchQueryExplorerVisible">
-                  <search-query-explorer :search-query="searchQuery" dark-mode/>
-                </div>
-              </div>
-            </div>
-
+        </section>
+      </b-navbar>
+      <b-navbar class="pt-0 border-bottom">
+        <b-navbar-nav>
+          <!-- filters toggle -->
+          <div class="current-search-panel">
+            <b-form inline v-if="countActiveFilters > 0">
+              <b-form-checkbox
+                v-model="applyCurrentSearchFilters"
+                switch>
+                {{ $t('label.useCurrentSearch') }}
+              </b-form-checkbox>
+              <b-dropdown class="ml-1" size="sm" variant="outline-primary" >
+                <template v-slot:button-content>
+                  ({{ $tc('counts.filters', countActiveFilters) }})
+                </template>
+                <search-query-explorer class="px-2 pt-2" :search-query="searchQuery"/>
+              </b-dropdown>
+            </b-form>
+          </div>
+        </b-navbar-nav>
+          <b-navbar-nav class="ml-auto">
             <!-- scale -->
-            <b-dropdown size="sm" variant="outline-primary" class="scale-selector">
+            <b-button-group size="sm">
+              <b-button v-for="s in scales"
+                variant="outline-primary"
+                :key="s"
+                :class="{active: s === scale}"
+                @click="scale = s">
+                {{$t(`scales.${s}`)}}
+              </b-button>
+            </b-button-group>
+          </b-navbar-nav>
+            <!-- <b-dropdown size="sm" variant="outline-primary" >
               <template v-slot:button-content>
                 <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
               </template>
@@ -42,18 +50,12 @@
                               @click="scale = s">
                 {{$t(`scales.${s}`)}}
               </b-dropdown-item>
-            </b-dropdown>
-
-          </b-row>
-        </section>
-        <section v-else>
-          <p class="pt-3">Please add a few entities and be amazed.</p>
-        </section>
+            </b-dropdown> -->
       </b-navbar>
     </template>
     <template v-slot:default>
-      <div v-if="$route.query.items">
-        <section class="p-3 border-bottom">
+      <div v-if="$route.query.items" ref="visualisationWrapper">
+        <section class="p-3">
           <timeline
             :class="{'loading': isTimelineLoading}"
             :values="timevalues"
@@ -72,6 +74,7 @@
         </section>
         <section class="py-3 border-bottom">
           <time-punchcard-chart
+            @punch-click="handlePunchClicked"
             :class="{loading: isPunchcardLoading}"
             :data="punchcardChartData" :options="punchcardOptions">
             <template v-slot:default="{ category, index }">
@@ -115,6 +118,40 @@
             </template>
           </time-punchcard-chart>
         </section>
+        <punch-explorer
+          :style="punchModalStyle"
+          :visible="!!(isPunchModalVisible && selectedEntity)"
+          @close="isPunchModalVisible=false"
+          dark-mode>
+          <template v-slot:header>
+            <span v-html="punchModalTitle"/>
+          </template>
+          <template v-slot:default>
+            <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
+            <search-query-explorer dark-mode no-pagination no-label :search-query="selectedEntitySearchQuery"/>
+          </template>
+        </punch-explorer>
+        <!-- <b-modal modal-class="modal-backdrop-disabled" content-class="drop-shadow"
+          hide-backdrop
+          no-fade no-close-on-backdrop
+          title-class="sans"
+          v-model="isPunchModalVisible"
+          :style="punchModalStyle"
+          :title-html="punchModalTitle">
+          <div v-if="selectedEntity">
+            <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
+            <search-query-explorer no-pagination no-label :search-query="selectedEntitySearchQuery"/>
+          </div>
+          <template v-slot:modal-footer>
+            <b-button
+                variant="outline-primary"
+                size="sm"
+                class="ml-auto"
+                @click="isPunchModalVisible=false">
+                Close
+            </b-button>
+          </template>
+        </b-modal> -->
       </div>
       <div v-else>
         <div class="text-center p-5 m-5" v-html="$t('no-entities-selected')" />
@@ -126,6 +163,7 @@
 <script>
 import Timeline from '@/components/modules/Timeline'
 import SearchQueryExplorer from '@/components/modals/SearchQueryExplorer'
+import PunchExplorer from '@/components/modals/PunchExplorer'
 import Pagination from '@/components/modules/Pagination'
 import { searchQueryGetter } from '@/logic/queryParams'
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
@@ -208,7 +246,7 @@ export default {
   data: () => ({
     isTimelineLoading: false,
     isPunchcardLoading: false,
-    searchQueryExplorerVisible: false,
+    isPunchModalVisible: false,
     useCurrentSearch: false,
     timevalues: [],
     mentionsFrequenciesResponses: /** @type {PunchcardResponse[]} */ ([]),
@@ -216,11 +254,17 @@ export default {
     scales: ['linear', 'sqrt', 'symlog'],
     paginations: /** @type {{[key: string]: PaginationValuesContainer}} */ ({}),
     thumbnailSize: 60,
+    punchData: {},
+    punchModalPositions: {
+      x: 0,
+      y: 0,
+    },
   }),
   components: {
     Timeline,
     SearchQueryExplorer,
     TimePunchcardChart,
+    PunchExplorer,
     Pagination,
   },
   mounted() {
@@ -235,6 +279,11 @@ export default {
     ];
   },
   computed: {
+    punchModalStyle() {
+      return {
+        transform: `translate(${this.punchModalPositions.x}px,${this.punchModalPositions.y}px)`,
+      };
+    },
     applyCurrentSearchFilters: {
       /** @returns {boolean} */
       get() {
@@ -292,7 +341,46 @@ export default {
       const spanThreshold = 1000 * 60 * 60 * 24 * 365 * 5 // 5 years
       return spanMs < spanThreshold ? 'month' : 'year'
     },
+    /** @return {string} */
+    punchModalTitle() {
+      if (this.punchData.time && this.punchcardResolution === 'year') {
+        return this.$t('entity-label-in-year', {
+          label: this.punchData.label,
+          year: this.punchData.time.getFullYear(),
+        });
+      }
+      return '';
+    },
     searchQuery: searchQueryGetter(),
+    selectedEntitySearchQuery() {
+      if (this.selectedEntity) {
+        // add start and end span related to current punchcardResolution
+        const filters = [
+          {
+            type: this.selectedEntity.entityType,
+            q: [this.selectedEntity.id],
+          }
+        ];
+        if (this.punchcardResolution === 'year') {
+          filters.push({
+            type: 'year',
+            q: [ String(this.punchData.time.getFullYear())],
+          });
+        } else if (this.punchcardResolution === 'month') {
+          filters.push({
+            type: 'year',
+            q: this.punchData.time.getFullYear(),
+          });
+        }
+        if (this.applyCurrentSearchFilters) {
+          return {
+            filters: this.searchQuery.filters.concat(filters)
+          }
+        }
+        return { filters }
+      }
+      return this.searchQuery;
+    },
     /** @returns {number} */
     countActiveFilters() {
       return this.searchQuery.countActiveFilters();
@@ -346,6 +434,12 @@ export default {
       }, /** @type {import('@/d3-modules/TimePunchcardChart').ChartCategory[]} */ ([]))
 
       return { categories }
+    },
+    selectedEntity() {
+      if (this.mentionsFrequenciesResponses && this.punchData.categoryIndex > -1) {
+        return this.mentionsFrequenciesResponses[this.punchData.categoryIndex].item;
+      }
+      return null;
     },
     /** @returns {EntityOrMention[]} */
     entitiesList() {
@@ -404,9 +498,6 @@ export default {
 
       pagination.currentPage = pageNumber
       this.$set(this.paginations, entityId, pagination)
-    },
-    toggleQueryExplorerVisible() {
-      this.searchQueryExplorerVisible = !this.searchQueryExplorerVisible;
     },
     async loadTimeline() {
       const observedItemsFilters = /** @type {Filter[]} */ (this.observingList.length > 0
@@ -483,6 +574,16 @@ export default {
       const items = this.observingList.filter(id => id !== entity.id);
       this.observingList = items;
     },
+    handlePunchClicked({ datapoint, x, y, rect }) {
+      const availableHeight = this.$refs?.visualisationWrapper?.parentNode?.offsetHeight;
+      this.isPunchModalVisible = true;
+      this.punchData = datapoint;
+      const xmin = Math.min(rect.width - rect.x, Math.max(50, x - rect.x - 150));
+      const ymin = Math.min(availableHeight / 2, y);
+      console.info(y, availableHeight);
+      this.punchModalPositions = { x: xmin, y: ymin };
+      // console.log('@handlePunchClicked', x - window, y);
+    },
     getWikimediaUrl(image) {
       return `http://commons.wikimedia.org/wiki/Special:FilePath/${image}?width=${this.thumbnailSize}px`;
     },
@@ -545,6 +646,7 @@ export default {
 <i18n>
 {
   "en": {
+    "entity-label-in-year" : "<em>{label}</em> in <span class='date smallcaps'>{year}</span>",
     "no-entities-selected" : "Add named entities to the <span class='text-blue'>observing list</span> using the <span class='icon dripicons-preview text-muted'></span> icon.",
     "title": "Timeline of observed Named Entities",
     "scale": "Scale",
