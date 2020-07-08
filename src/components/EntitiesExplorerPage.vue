@@ -118,20 +118,19 @@
             </template>
           </time-punchcard-chart>
         </section>
-        <div class="punch-modal position-absolute border border-tertiary drop-shadow" :style="punchModalStyle" v-if="isPunchModalVisible && selectedEntity">
-          <h3 class="small-caps border-bottom p-2 m-0" v-html="punchModalTitle" />
-          <div class="p-2">
+        <punch-explorer
+          :style="punchModalStyle"
+          :visible="!!(isPunchModalVisible && selectedEntity)"
+          @close="isPunchModalVisible=false"
+          dark-mode>
+          <template v-slot:header>
+            <span v-html="punchModalTitle"/>
+          </template>
+          <template v-slot:default>
             <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
-            <search-query-explorer no-pagination no-label :search-query="selectedEntitySearchQuery"/>
-            <div class="d-flex mt-2"><b-button
-                variant="outline-primary"
-                size="sm"
-                class="ml-auto"
-                @click="isPunchModalVisible=false">
-                Close
-            </b-button></div>
-          </div>
-        </div>
+            <search-query-explorer dark-mode no-pagination no-label :search-query="selectedEntitySearchQuery"/>
+          </template>
+        </punch-explorer>
         <!-- <b-modal modal-class="modal-backdrop-disabled" content-class="drop-shadow"
           hide-backdrop
           no-fade no-close-on-backdrop
@@ -164,6 +163,7 @@
 <script>
 import Timeline from '@/components/modules/Timeline'
 import SearchQueryExplorer from '@/components/modals/SearchQueryExplorer'
+import PunchExplorer from '@/components/modals/PunchExplorer'
 import Pagination from '@/components/modules/Pagination'
 import { searchQueryGetter } from '@/logic/queryParams'
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
@@ -264,6 +264,7 @@ export default {
     Timeline,
     SearchQueryExplorer,
     TimePunchcardChart,
+    PunchExplorer,
     Pagination,
   },
   mounted() {
@@ -609,14 +610,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .punch-modal{
-    position: fixed;
-    z-index:1040;
-    left: 0;
-    top:0;
-    background: white;
-    width: 420px;
-  }
   .top-section {
     width: 100%;
   }
@@ -653,7 +646,7 @@ export default {
 <i18n>
 {
   "en": {
-    "entity-label-in-year" : "<b>{label}</b> in <span class='date smallcaps'>{year}</span>",
+    "entity-label-in-year" : "<em>{label}</em> in <span class='date smallcaps'>{year}</span>",
     "no-entities-selected" : "Add named entities to the <span class='text-blue'>observing list</span> using the <span class='icon dripicons-preview text-muted'></span> icon.",
     "title": "Timeline of observed Named Entities",
     "scale": "Scale",
