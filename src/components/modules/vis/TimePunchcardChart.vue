@@ -135,7 +135,9 @@ export default {
       min-height: 9em;
     }
 
-
+    circle.punch {
+      cursor: zoom-in;
+    }
 
     .axes {
       .x {
@@ -145,14 +147,14 @@ export default {
         }
         g.tick {
           line {
-            stroke-width: 0.5px;
+            stroke-width: 0.8px;
             stroke: #ddd;
           }
         }
         g.tick.major {
           line {
             stroke-width: 1px;
-            // stroke: #bbb;
+            stroke: #aaa;
           }
         }
       }
@@ -163,8 +165,7 @@ export default {
         .bar {
           .punch {}
           .highlight {
-            // stroke-width: 2px;
-            stroke: #fff;
+            stroke-width: 1.5px;
           }
         }
         .sizer {
