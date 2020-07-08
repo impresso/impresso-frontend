@@ -7,7 +7,7 @@
         <search-query-summary class="d-inline" :search-query='{ filters: enrichedFilters }'/>
       </blockquote>
     </div>
-    <div class="p-3" v-if="isLoading">
+    <div class="p-3" style="min-height:100px" v-if="isLoading">
       {{ $t('actions.loading') }}
     </div>
     <div v-else>
