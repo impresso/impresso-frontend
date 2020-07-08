@@ -136,7 +136,10 @@ export default {
     }
 
     circle.punch {
-      cursor: zoom-in;
+      cursor: context-menu;
+    }
+    circle.punch:hover {
+      opacity: 0.5;
     }
 
     .axes {
@@ -147,6 +150,7 @@ export default {
         }
         g.tick {
           line {
+            transform: translateY(-5px);
             stroke-width: 0.8px;
             stroke: #ddd;
           }
@@ -163,6 +167,9 @@ export default {
     .categories {
       .category {
         .bar {
+          // add transparent stroke facilitate mouse events
+          stroke-width: 5px;
+          stroke:#0000;
           .punch {}
           .highlight {
             stroke-width: 1.5px;

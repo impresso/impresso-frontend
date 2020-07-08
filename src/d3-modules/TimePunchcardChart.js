@@ -197,12 +197,14 @@ export default class TimePunchcardChart extends EventEmitter {
       })
       .classed('major', true)
 
+
     this.axes
       .selectAll('g.x')
       .data([null])
       .join('g')
       .attr('class', 'x')
       .call(xAxis)
+
 
     this.y
       .domain(data.categories.map((_, index) => `${index}`))
@@ -285,6 +287,9 @@ export default class TimePunchcardChart extends EventEmitter {
       .join('g')
       .attr('class', 'bar')
       .attr('transform', ({ time }) => `translate(${this.x(new Date(time))}, ${this.margin.categoryTop - this.margin.sizer * 2})`)
+      .on('mouseover', e => this._handleMouseOverCircle(e))
+      .on('mouseout', () => this._handleMouseOutCircle())
+      .on('click', e => this._handleMouseClickCircle(e))
 
     const circleScaler = {
       linear: d3.scaleLinear(),
@@ -301,13 +306,11 @@ export default class TimePunchcardChart extends EventEmitter {
       .join('circle')
       .attr('class', 'punch')
       .attr('r', ({ value }) => {
-        return circleScaler(value)
+        return circleScaler(value) + 0.1
       })
+      .attr('cx', 0.5)
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
-      .on('mouseover', e => this._handleMouseOverCircle(e))
-      .on('mouseout', () => this._handleMouseOutCircle())
-      .on('click', e => this._handleMouseClickCircle(e))
 
     bar
       .selectAll('circle.highlight')
@@ -318,8 +321,9 @@ export default class TimePunchcardChart extends EventEmitter {
       .attr('class', 'highlight')
       .attr('stroke', d => colorPalette[d.categoryIndex])
       .attr('r', ({ value }) => {
-        return circleScaler(value) + 1.5
+        return circleScaler(value) + 1.7
       })
+      .attr('cx', 0.5)
       .attr('cy', circleRadius)
 
     return {
