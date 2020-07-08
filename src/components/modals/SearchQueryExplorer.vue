@@ -14,11 +14,11 @@
       <div class="search-query-explorer-result" v-for="(item, index) in results" :key="index" >
         <p class="mb-2">
           <span v-html="getCurrentIndex(index)" />
-          <b-button size="sm" class="ml-1" :to="getRouteWithSearchQuery({ name: 'search' })" variant="outline-primary">
+          <b-button size="sm" class="ml-2" :to="getRouteWithSearchQuery({ name: 'search' })" variant="outline-primary">
             {{ $t('actions.browseAll') }}
           </b-button>
         </p>
-        <article-item class="search-query-explorer-article-item p-2"
+        <article-item class="search-query-explorer-article-item p-2 mt-1"
           :item="item"
           show-link
           show-meta show-excerpt
@@ -222,9 +222,9 @@ export default {
     border-bottom: 1px solid #343a40;
   }
   .search-query-explorer-article-item{
-    // background: #343a40;
-    border-top: 1px solid #caccce;
-    border-bottom: 1px solid #caccce;
+    background: #ffffff1f;
+    // border-top: 1px solid #caccce;
+    // border-bottom: 1px solid #caccce;
     min-height: 100px;
 
     article h2{

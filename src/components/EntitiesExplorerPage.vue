@@ -23,7 +23,7 @@
                 <template v-slot:button-content>
                   ({{ $tc('counts.filters', countActiveFilters) }})
                 </template>
-                <search-query-explorer class="px-2 pt-2" :search-query="searchQuery"/>
+                <search-query-explorer style="min-width:300px" class="px-2 pt-2" :search-query="searchQuery"/>
               </b-dropdown>
             </b-form>
           </div>
@@ -646,7 +646,7 @@ export default {
 <i18n>
 {
   "en": {
-    "entity-label-in-year" : "<em>{label}</em> in <span class='date smallcaps'>{year}</span>",
+    "entity-label-in-year" : "<b>{label}</b> in <span class='date smallcaps'>{year}</span>",
     "no-entities-selected" : "Add named entities to the <span class='text-blue'>observing list</span> using the <span class='icon dripicons-preview text-muted'></span> icon.",
     "title": "Timeline of observed Named Entities",
     "scale": "Scale",

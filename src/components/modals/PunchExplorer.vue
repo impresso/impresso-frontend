@@ -4,13 +4,13 @@
       'dark-mode': darkMode,
       'bg-dark': darkMode,
     }">
-    <h3 class="header pb-2 m-2">
+    <h3 class="header p-3 m-0 small-caps">
       <slot name="header"></slot>
     </h3>
-    <div class="p-2">
+    <div class="px-3">
       <slot></slot>
     </div>
-    <div class="d-flex px-2 pb-2">
+    <div class="d-flex p-3">
       <slot name="footer">
         <b-button
             variant="outline-primary"
@@ -47,7 +47,6 @@ export default {
     color: #caccce;
     h3{
       color: white;
-      border-bottom: 1px solid white;
     }
   }
 }
