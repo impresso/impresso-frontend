@@ -22,8 +22,7 @@
           v-if="countActiveFilters"
           ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" >
           <template slot="button-content">
-            &rarr;
-            <i>{{ $t('label_current_search') }}</i>
+            <span :title="$t('label_current_search')">...</span>
           </template>
           <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" :to="{ name: 'search' }">
             {{$t('actions.resetQuery')}}
@@ -39,6 +38,9 @@
         </b-nav-item> -->
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
           <span>{{$t("label_topics")}}</span>
+        </b-nav-item>
+        <b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
+          <span>{{$t("label_entities")}}</span>
         </b-nav-item>
         <b-nav-item :to="{ name: 'compare', query: { left: searchQueryHash } }" active-class="active">
           <span>{{$t("label_compare")}}</span>
@@ -645,6 +647,7 @@ export default {
     "label_entities": "Entities",
     "label_explore": "explore...",
     "label_topics": "Topics",
+    "label_entities": "Entities",
     "label_compare": "Inspect & Compare",
     "label_text_reuse": "Text reuse",
     "label_current_search": "browse results ...",
