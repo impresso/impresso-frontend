@@ -128,7 +128,7 @@ export default {
             this.chart = new TimePunchcardChart({ element })
             this.chart.on('punch.click', (e) => this.$emit('punch-click', e));
             this.chart.on('punch.mousemove', ({ x, y, item }) => {
-              console.log(item);
+              clearTimeout(this.timerTooltipFadeOut);
               this.tooltip = { x, y, item, isActive: true };
             });
             this.chart.on('category.mousemove', ({ x, y, item }) => {
