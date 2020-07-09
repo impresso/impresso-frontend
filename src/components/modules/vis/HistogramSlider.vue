@@ -13,8 +13,7 @@
           :marks="sliderMarks"
           :silent="true"
           :enable-cross="false"
-          :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
-          @change="handleValueChanged"/>
+          :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"/>
       </b-row>
     </b-col>
   </b-container>
@@ -31,20 +30,21 @@ import 'vue-slider-component/theme/default.css'
  * will need to normalise them.
  */
 export default {
-  data: () => ({
-    value: /** @type {undefined|number[]} */ (undefined)
-  }),
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
   props: {
+    /** @type {import('vue').PropOptions<Number[]>} */
+    value: {
+      type: Array
+    },
     /** @type {import('vue').PropOptions<Number[]>} */
     range: {
       type: Array
     },
     /** @type {import('vue').PropOptions<import('@/models').Bucket[]>} */
     buckets: {
-      type: Array
-    },
-    /** @type {import('vue').PropOptions<Number[]>} */
-    defaultValue: {
       type: Array
     },
     chartHeight: {
@@ -61,12 +61,6 @@ export default {
     }
   },
   mounted() {
-    if (this.defaultValue) {
-      this.value = this.defaultValue
-    } else {
-      this.value = this.sliderRange
-    }
-
     // @ts-ignore
     window.addEventListener('resize', this.renderChart.bind(this))
     this.renderChart()
@@ -83,7 +77,7 @@ export default {
       },
       /** @param {undefined|number[]} value */
       set(value) {
-        this.value = value
+        this.$emit('change', value)
       }
     },
     /** @returns {string[]|undefined} */
@@ -120,9 +114,6 @@ export default {
     }
   },
   methods: {
-    handleValueChanged(value) {
-      this.$emit('changed', value)
-    },
     renderChart() {
       const topMargin = 14
       const { width } = this.$refs.chartContainer.getBoundingClientRect()
@@ -197,9 +188,6 @@ export default {
   watch: {
     buckets() {
       this.renderChart()
-    },
-    defaultValue() {
-      this.value = this.defaultValue
     }
   },
   components: {
