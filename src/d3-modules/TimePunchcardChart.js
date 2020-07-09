@@ -188,7 +188,7 @@ export default class TimePunchcardChart extends EventEmitter {
           return shouldRender && shouldRenderTickLabel(/** @type {Date} */ (time)) ? timeFormat(/** @type {Date} */ (time)) : ''
         })
         .tickSizeOuter(0)
-        .tickSize(-calculatedEffectiveHeight))
+        .tickSize(-calculatedEffectiveHeight + 5))
       .selectAll('.tick')
       .classed('major', false)
       .filter(function(time, idx) {
@@ -304,7 +304,7 @@ export default class TimePunchcardChart extends EventEmitter {
       .join('circle')
       .attr('class', 'punch')
       .attr('r', ({ value }) => {
-        return circleScaler(value)
+        return circleScaler(value) + 0.25
       })
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
@@ -318,7 +318,7 @@ export default class TimePunchcardChart extends EventEmitter {
       .attr('class', 'highlight')
       .attr('stroke', d => colorPalette[d.categoryIndex])
       .attr('r', ({ value }) => {
-        return circleScaler(value) + 1.5
+        return circleScaler(value) + 2
       })
       .attr('cy', circleRadius)
 
