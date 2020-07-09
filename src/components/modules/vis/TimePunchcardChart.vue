@@ -136,7 +136,10 @@ export default {
     }
 
     circle.punch {
-      cursor: zoom-in;
+      cursor: context-menu;
+    }
+    circle.punch:hover {
+      fill: #00f;
     }
 
     .axes {
