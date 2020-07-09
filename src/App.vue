@@ -327,11 +327,20 @@ input[type="range"]:active::-ms-thumb {
 
 .vue-slider .vue-slider-process {
   background-color: $clr-accent-secondary;
+  height: 14px !important;
+  margin-top: -7px;
 }
 .vue-slider .vue-slider-dot-tooltip-inner {
   border-color: $clr-primary;
   background-color: $clr-primary;
   border-radius: 0;
+}
+.vue-slider .vue-slider-mark-step {
+    width: 1px;
+    height: 5px;
+    border-radius: 0;
+    background-color: currentColor;
+    margin-top: -1.5px;
 }
 
 
