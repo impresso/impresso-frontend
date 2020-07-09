@@ -29,7 +29,8 @@ export function toSerializedFilters(filters) {
 export const NumericRangeFacets = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta'
+  'textReuseClusterDayDelta',
+  'contentLength'
 ]
 
 export const TimeRangeFacets = [
