@@ -1,5 +1,6 @@
 import { protobuf } from 'impresso-jscommons';
 import FilterFactory from '@/models/FilterFactory';
+import { toCanonicalFilter } from '@/logic/filters'
 
 
 /**
@@ -15,9 +16,9 @@ const filterize = (filter) => {
   return filter;
 };
 
-const getFilterQuery = filter => filter.getQuery != null ? filter.getQuery() : filter
+export const getFilterQuery = filter => filter.getQuery != null ? filter.getQuery() : toCanonicalFilter(filter)
 
-const getFilterHash = filter => {
+export const getFilterHash = filter => {
   return btoa(JSON.stringify(getFilterQuery(filter)));
 }
 
@@ -42,7 +43,7 @@ export default class SearchQuery {
 
   static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy = undefined } = {}, serializer = 'json') {
     if (serializer === 'protobuf') {
-      return protobuf.searchQuery.serialize({ filters });
+      return protobuf.searchQuery.serialize({ filters: filters.map(getFilterQuery) });
     }
 
     const query = {

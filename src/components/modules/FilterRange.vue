@@ -81,7 +81,7 @@ export default {
     applyValues() {
       const filter = {
         type: this.facet.type,
-        q: this.value
+        q: this.value.map(v => v.toString())
       }
       this.$emit('changed', [filter])
     }
