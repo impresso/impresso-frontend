@@ -285,6 +285,9 @@ export default class TimePunchcardChart extends EventEmitter {
       .join('g')
       .attr('class', 'bar')
       .attr('transform', ({ time }) => `translate(${this.x(new Date(time))}, ${this.margin.categoryTop - this.margin.sizer * 2})`)
+      .on('mouseover', e => this._handleMouseOverCircle(e))
+      .on('mouseout', () => this._handleMouseOutCircle())
+      .on('click', e => this._handleMouseClickCircle(e))
 
     const circleScaler = {
       linear: d3.scaleLinear(),
@@ -305,9 +308,6 @@ export default class TimePunchcardChart extends EventEmitter {
       })
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
-      .on('mouseover', e => this._handleMouseOverCircle(e))
-      .on('mouseout', () => this._handleMouseOutCircle())
-      .on('click', e => this._handleMouseClickCircle(e))
 
     bar
       .selectAll('circle.highlight')
