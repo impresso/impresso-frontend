@@ -311,7 +311,7 @@ export default class TimePunchcardChart extends EventEmitter {
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
       .on('mousemove', e => this._handleMouseMoveCircle(e))
-      // .on('mouseout', () => this._handleMouseOutCircle())
+      .on('mouseout', () => this._handleMouseOutCircle())
       .on('click', e => this._handleMouseClickCircle(e))
 
     bar
@@ -341,7 +341,7 @@ export default class TimePunchcardChart extends EventEmitter {
     // console.info(d3.event, datapoint, this.element.getBoundingClientRect());
     const { clientX:x, clientY:y } = d3.event
     // const { categoryIndex, maxValue, value, time, label } = event;
-    this._handleMouseOverCircle(datapoint)
+    // this._handleMouseOverCircle(datapoint)
     this.emit('punch.click', {
       datapoint,
       x, y,
@@ -357,6 +357,10 @@ export default class TimePunchcardChart extends EventEmitter {
       x: x - this.boundingClientRect.left,
       y,
     });
+  }
+
+  _handleMouseOutCircle() {
+    this.emit('category.mouseout');
   }
 
   _handleMouseOutCategory() {

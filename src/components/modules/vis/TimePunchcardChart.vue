@@ -86,6 +86,20 @@ export default {
     getLabelTopOffset(index) {
       return (this.labelsOffsets[index] ?? 0);
     },
+    fadeOutTooltip() {
+      this.tooltip = {
+        ...this.tooltip,
+        fadeOut: true,
+      }
+      clearTimeout(this.timerTooltipFadeOut);
+      this.timerTooltipFadeOut = setTimeout(() => {
+        this.tooltip = {
+          ...this.tooltip,
+          isActive: false,
+          fadeOut: false,
+        };
+      }, 1000);
+    },
   },
   computed: {
     /** @returns {any} */
@@ -126,7 +140,10 @@ export default {
             const element = this.$refs.chart
             element.textContent = ''
             this.chart = new TimePunchcardChart({ element })
-            this.chart.on('punch.click', (e) => this.$emit('punch-click', e));
+            this.chart.on('punch.click', (e) => {
+              this.$emit('punch-click', e)
+              this.fadeOutTooltip();
+            });
             this.chart.on('punch.mousemove', ({ x, y, item }) => {
               clearTimeout(this.timerTooltipFadeOut);
               this.tooltip = { x, y, item, isActive: true };
@@ -134,20 +151,8 @@ export default {
             this.chart.on('category.mousemove', ({ x, y, item }) => {
               this.tooltip = { x, y, item, isActive: true };
             });
-            this.chart.on('category.mouseout', () => {
-              this.tooltip = {
-                ...this.tooltip,
-                fadeOut: true,
-              }
-              clearTimeout(this.timerTooltipFadeOut);
-              this.timerTooltipFadeOut = setTimeout(() => {
-                this.tooltip = {
-                  ...this.tooltip,
-                  isActive: false,
-                  fadeOut: false,
-                };
-              }, 1000);
-            });
+            this.chart.on('category.mouseout', () => this.fadeOutTooltip());
+            this.chart.on('punch.mouseout', () => this.fadeOutTooltip());
           }
           this.render()
         })
