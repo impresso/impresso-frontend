@@ -258,8 +258,8 @@ $clr-grey-900: #ddd;
 @mixin slider-dot {
   border-radius: 50%;
   background-color: $clr-bg-primary ;
-  border: 0.1rem solid $clr-secondary ;
-  box-shadow: 0 0 0 0.1rem $clr-bg-primary;
+  border: 0.1rem solid black ;
+  box-shadow: none;
 }
 @mixin slider-dot-focus {
   border-color: $clr-accent-secondary;
@@ -326,15 +326,18 @@ input[type="range"]:active::-ms-thumb {
 }
 
 .vue-slider .vue-slider-process {
-  background-color: $clr-accent-secondary;
+  background-color: black;
   height: 14px !important;
   margin-top: -7px;
 }
+
 .vue-slider .vue-slider-dot-tooltip-inner {
   border-color: $clr-primary;
   background-color: $clr-primary;
-  border-radius: 0;
+  padding: 0px 5px 2px 5px;
+  border-radius: 1px;
 }
+
 .vue-slider .vue-slider-mark-step {
     width: 1px;
     height: 5px;
