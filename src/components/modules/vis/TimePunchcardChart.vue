@@ -20,9 +20,11 @@
       </div>
     </div>
 
-    <tooltip :tooltip="tooltip">
+    <tooltip :tooltip="tooltip" :class="{ fadeOut: tooltip.fadeOut }">
       <slot name="tooltip" :tooltip="tooltip">
-        <div v-if="tooltip.isActive" v-html="tooltip.item" />
+        <div v-if="tooltip.isActive" class="text-center small-caps">
+          <b>{{ $n(tooltip.item.value) }}</b> articles <br/> <b>{{tooltip.item.label}}</b> &middot; {{tooltip.item.year}}
+        </div>
       </slot>
     </tooltip>
     <div ref="chart" class="time-punchcard" :style="{ height: `${height}px` }" />
@@ -46,12 +48,20 @@ export default {
     height: 200,
     labelsOffsets: /** @type {number[]} */ ([]),
     categoryYSpace: 0,
+    tooltip: {
+      x: 0,
+      y: 0,
+      isActive:false,
+      item: null,
+      fadeOut: false,
+    },
+    timerTooltipFadeOut: 0,
   }),
   props: {
     /** @type {import('vue').PropOptions<ChartData>} */
     data: {
       type: Object,
-      required: true
+      required: true,
     },
     options: {
       type: Object,
@@ -95,16 +105,16 @@ export default {
         return acc;
       }, /** @type {number[]} */ ([]))
     },
-    /** @returns {any} */
-    tooltip() {
-      return {
-        isActive: this.chart?.getTooltipDetails() != null,
-        item: this.$d(this.chart?.getTooltipDetails()?.datapoint.time, 'year')
-          + ' &middot; <b>' + this.chart?.getTooltipDetails()?.datapoint.value + '</b>',
-        x: this.chart?.getTooltipDetails()?.x,
-        y: this.chart?.getTooltipDetails()?.y + 275
-      }
-    },
+    // /** @returns {any} */
+    // tooltip() {
+    //   return {
+    //     isActive: this.chart?.getTooltipDetails() != null,
+    //     item: this.$d(this.chart?.getTooltipDetails()?.datapoint.time, 'year')
+    //       + ' &middot; <b>' + this.chart?.getTooltipDetails()?.datapoint.value + '</b>',
+    //     x: this.chart?.getTooltipDetails()?.x,
+    //     y: this.chart?.getTooltipDetails()?.y + 275
+    //   }
+    // },
   },
   watch: {
     chartData: {
@@ -117,6 +127,27 @@ export default {
             element.textContent = ''
             this.chart = new TimePunchcardChart({ element })
             this.chart.on('punch.click', (e) => this.$emit('punch-click', e));
+            this.chart.on('punch.mousemove', ({ x, y, item }) => {
+              console.log(item);
+              this.tooltip = { x, y, item, isActive: true };
+            });
+            this.chart.on('category.mousemove', ({ x, y, item }) => {
+              this.tooltip = { x, y, item, isActive: true };
+            });
+            this.chart.on('category.mouseout', () => {
+              this.tooltip = {
+                ...this.tooltip,
+                fadeOut: true,
+              }
+              clearTimeout(this.timerTooltipFadeOut);
+              this.timerTooltipFadeOut = setTimeout(() => {
+                this.tooltip = {
+                  ...this.tooltip,
+                  isActive: false,
+                  fadeOut: false,
+                };
+              }, 1000);
+            });
           }
           this.render()
         })

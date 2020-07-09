@@ -110,7 +110,7 @@ export default class TimePunchcardChart extends EventEmitter {
     this.x = d3.scaleUtc()
     this.y = d3.scaleBand()
 
-    this._tooltipDetails = undefined
+    this.boundingClientRect = this.element.getBoundingClientRect();
   }
 
   /**
@@ -119,7 +119,8 @@ export default class TimePunchcardChart extends EventEmitter {
    */
   // eslint-disable-next-line no-unused-vars
   render(data, options = {}) {
-    const { width } = this.element.getBoundingClientRect()
+    this.boundingClientRect = this.element.getBoundingClientRect()
+    const { width } = this.boundingClientRect
     const { colorPalette = defaultColorPalette, circleScale = 'linear' } = options
 
     const effectiveWidth = width - this.margin.left - this.margin.right
@@ -259,10 +260,14 @@ export default class TimePunchcardChart extends EventEmitter {
         if (isSubcategory) return this.margin.subCategoryLeft
         return null
       })
+      .attr('fill', 'transparent')
       .attr('width', ({ isSubcategory }) => {
         if (isSubcategory) return effectiveWidth - this.margin.subCategoryLeft
         return effectiveWidth
       })
+      .on('mousemove', e => this._handleMouseMoveCategory(e))
+      // .on('mouseout', () => this._handleMouseOutCircle())
+      .on('mouseout', () => this._handleMouseOutCategory())
 
     category
       .selectAll('rect.sizer')
@@ -305,8 +310,8 @@ export default class TimePunchcardChart extends EventEmitter {
       })
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
-      .on('mouseover', e => this._handleMouseOverCircle(e))
-      .on('mouseout', () => this._handleMouseOutCircle())
+      .on('mousemove', e => this._handleMouseMoveCircle(e))
+      // .on('mouseout', () => this._handleMouseOutCircle())
       .on('click', e => this._handleMouseClickCircle(e))
 
     bar
@@ -344,20 +349,28 @@ export default class TimePunchcardChart extends EventEmitter {
     });
   }
 
-  _handleMouseOverCircle(event) {
-    // let [mouseX, mouseY] = d3.mouse(this.element)
-    let [x, y] = [this.x(event.time), this.y(`${event.categoryIndex}`)]
-
-    this._tooltipDetails = {
-      x, y, datapoint: event
-    }
+  _handleMouseMoveCircle(punch) {
+    const { clientX:x, clientY:y } = d3.event
+    const { label, value, time, categoryIndex } = punch;
+    this.emit('punch.mousemove', {
+      item: { label, value, time, categoryIndex, year: time.getFullYear() },
+      x: x - this.boundingClientRect.left,
+      y,
+    });
   }
 
-  _handleMouseOutCircle() {
-    this._tooltipDetails = undefined
+  _handleMouseOutCategory() {
+    this.emit('category.mouseout');
   }
 
-  getTooltipDetails() {
-    return this._tooltipDetails
+  _handleMouseMoveCategory({ label, isSubcategory }) {
+    const { clientX:x, clientY:y } = d3.event
+    // apparently we need to consider the offset for the clientX
+    const time = this.x.invert(x - this.boundingClientRect.left);
+    this.emit('category.mousemove', {
+      item: { label, value: 0, time, isSubcategory, year: time.getFullYear() },
+      x: x - this.boundingClientRect.left,
+      y,
+    });
   }
 }
