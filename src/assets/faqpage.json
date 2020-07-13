@@ -233,6 +233,12 @@
               "If you have started a query on the search page, you can choose to use this as a filter for the topic graph. This means that all the elements described earlier are still valid but what is displayed does not anymore reflect the whole impresso collection but is tailored to your query.",
               "For instance, if you search for ‘vaccination’ on the topic page, you will have two topics containing this word. Whereas if you search for ‘vaccination’ on the search page and use this search as a filter for the topic graph, you will have 212 topics related to the articles containing the word ‘vaccination’."
             ]
+          },
+          {
+            "id": "filter-range",
+            "title": "Filter the list of results by article length",
+            "summary": "Article length is measured in number of tokens. The histogram shows the number of articles grouped by similar length intervals",
+            "description": []
           }
         ]
       },
