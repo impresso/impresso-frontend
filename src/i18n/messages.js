@@ -294,6 +294,14 @@ export default {
         description: 'check one or more data provider to filter results',
         empty: '(no results)',
       },
+      contentLength: {
+        title: 'Content Length | Content Length | Content Lengths',
+        filterTitle: 'filter by content length',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they are within the range',
+        description: 'total number of articles per content length',
+        empty: '(no results)',
+      },
     },
     tabs: {
       powervis: 'apply filters to visualisation',

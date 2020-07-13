@@ -397,6 +397,10 @@ export default {
         "textReuseClusterDayDelta": {
           "title": "filter by text reuse time span in days",
           "item": "Text reuse time span"
+        },
+        "contentLength": {
+          "title": "filter by content length",
+          "item": "Content length"
         }
       },
       "items": {

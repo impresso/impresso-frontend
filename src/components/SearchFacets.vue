@@ -13,6 +13,13 @@
       @reset-filters="resetFilters"
       @changed="updateDaterangeFilters"
     />
+    <filter-range
+      v-for="(facet, index) in rangeFacets"
+      class="border-top py-2 mx-3"
+      :key="`r-${index}`"
+      :facet="facet"
+      :facet-filters="getFacetFilters(facet.type)"
+      @changed="filters => facetFiltersUpdated(facet.type, filters)"/>
     <filter-facet
       class="border-top py-2 mx-3"
       v-for="(facet, index) in standardFacets"
@@ -26,8 +33,9 @@
 </template>
 
 <script>
-import FilterFacet from '@/components/modules/FilterFacet';
-import FilterTimeline from '@/components/modules/FilterTimeline';
+import FilterFacet from '@/components/modules/FilterFacet'
+import FilterTimeline from '@/components/modules/FilterTimeline'
+import FilterRange from '@/components/modules/FilterRange'
 import { facetToTimelineValues } from '@/logic/facets'
 import FilterFactory from '@/models/FilterFactory'
 
@@ -37,6 +45,7 @@ import FilterFactory from '@/models/FilterFactory'
  */
 
 const TimelineFacetTypes = ['year', 'daterange']
+const RangeFacetTypes = ['contentLength']
 
 export default {
   props: {
@@ -73,7 +82,11 @@ export default {
   computed: {
     /** @returns {Facet[]} */
     standardFacets() {
-      return this.facets.filter(({ type }) => !TimelineFacetTypes.includes(type))
+      return this.facets.filter(({ type }) => !TimelineFacetTypes.includes(type) && !RangeFacetTypes.includes(type))
+    },
+    /** @returns {Facet[]} */
+    rangeFacets() {
+      return this.facets.filter(({ type }) => RangeFacetTypes.includes(type))
     },
     /** @returns {boolean} */
     containsTimelineFacets() {
@@ -157,6 +170,7 @@ export default {
   components: {
     FilterTimeline,
     FilterFacet,
+    FilterRange,
   },
 };
 </script>
