@@ -55,7 +55,7 @@ export default {
     submit(suggestion) {
       this.submitted = suggestion;
     },
-    onSliderValueChanged(value) {
+    onSliderValueChanged(/* value */) {
       // console.info(`Slider value changed: ${value}`);
     }
   },
