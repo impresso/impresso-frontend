@@ -13,6 +13,13 @@
       @reset-filters="resetFilters"
       @changed="updateDaterangeFilters"
     />
+    <filter-range
+      v-for="(facet, index) in rangeFacets"
+      class="border-top py-2 mx-3"
+      :key="`r-${index}`"
+      :facet="facet"
+      :facet-filters="getFacetFilters(facet.type)"
+      @changed="filters => facetFiltersUpdated(facet.type, filters)"/>
     <filter-facet
       class="border-top py-2 mx-3"
       v-for="(facet, index) in standardFacets"
@@ -22,13 +29,6 @@
       :facet-filters="getFacetFilters(facet.type)"
       @changed="filters => facetFiltersUpdated(facet.type, filters)"
       collapsible/>
-    <filter-range
-      v-for="(facet, index) in rangeFacets"
-      class="border-top py-2 mx-3"
-      :key="`r-${index}`"
-      :facet="facet"
-      :facet-filters="getFacetFilters(facet.type)"
-      @changed="filters => facetFiltersUpdated(facet.type, filters)"/>
   </div>
 </template>
 
