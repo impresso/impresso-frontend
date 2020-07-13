@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import EventEmitter from 'events';
 
 const OneDayInMs = 1000 * 60 * 60 * 24 // 1 day
 
@@ -86,12 +87,13 @@ function findTimeInterval(times) {
  * @typedef {{ categories: ChartCategory[] }} ChartData
  */
 
-export default class TimePunchcardChart {
+export default class TimePunchcardChart extends EventEmitter {
   constructor({
     element = null,
     margin = { top: 5, bottom: 15, left: 20, right: 10, categoryTop: 40, sizer: 3, subCategoryLeft : 8, gutterHeight: 30 },
     size = { maxCircleRadius: 15 }
   }) {
+    super();
     this.margin = margin
     this.size = size
     this.element = element
@@ -108,7 +110,7 @@ export default class TimePunchcardChart {
     this.x = d3.scaleUtc()
     this.y = d3.scaleBand()
 
-    this._tooltipDetails = undefined
+    this.boundingClientRect = this.element.getBoundingClientRect();
   }
 
   /**
@@ -117,7 +119,8 @@ export default class TimePunchcardChart {
    */
   // eslint-disable-next-line no-unused-vars
   render(data, options = {}) {
-    const { width } = this.element.getBoundingClientRect()
+    this.boundingClientRect = this.element.getBoundingClientRect()
+    const { width } = this.boundingClientRect
     const { colorPalette = defaultColorPalette, circleScale = 'linear' } = options
 
     const effectiveWidth = width - this.margin.left - this.margin.right
@@ -187,12 +190,11 @@ export default class TimePunchcardChart {
         })
         .tickSizeOuter(0)
         .tickSize(-calculatedEffectiveHeight))
-
-    this.axes
       .selectAll('.tick')
-      .filter((time, idx) => {
+      .classed('major', false)
+      .filter(function(time, idx) {
         const shouldRender = idx % labelSpacing === 0
-        return shouldRender && shouldRenderTickLabel()
+        return shouldRender && shouldRenderTickLabel(/** @type {Date} */ (time))
       })
       .classed('major', true)
 
@@ -258,10 +260,14 @@ export default class TimePunchcardChart {
         if (isSubcategory) return this.margin.subCategoryLeft
         return null
       })
+      .attr('fill', 'transparent')
       .attr('width', ({ isSubcategory }) => {
         if (isSubcategory) return effectiveWidth - this.margin.subCategoryLeft
         return effectiveWidth
       })
+      .on('mousemove', e => this._handleMouseMoveCategory(e))
+      // .on('mouseout', () => this._handleMouseOutCircle())
+      .on('mouseout', () => this._handleMouseOutCategory())
 
     category
       .selectAll('rect.sizer')
@@ -278,7 +284,8 @@ export default class TimePunchcardChart {
       .selectAll('g.bar')
       .data((category, categoryIndex) => {
         const maxValue = d3.max(category.dataPoints.map(({ value }) => value)) ?? 0
-        return category.dataPoints.map(dp => ({ ...dp, categoryIndex, maxValue }))
+        const label = category.label;
+        return category.dataPoints.map(dp => ({ ...dp, categoryIndex, maxValue, label }))
       })
       .join('g')
       .attr('class', 'bar')
@@ -303,8 +310,9 @@ export default class TimePunchcardChart {
       })
       .attr('cy', circleRadius)
       .attr('fill', d => colorPalette[d.categoryIndex])
-      .on('mouseover', e => this._handleMouseOverCircle(e))
+      .on('mousemove', e => this._handleMouseMoveCircle(e))
       .on('mouseout', () => this._handleMouseOutCircle())
+      .on('click', e => this._handleMouseClickCircle(e))
 
     bar
       .selectAll('circle.highlight')
@@ -313,8 +321,9 @@ export default class TimePunchcardChart {
         : [], dataPoint => dataPoint.time)
       .join('circle')
       .attr('class', 'highlight')
+      .attr('stroke', d => colorPalette[d.categoryIndex])
       .attr('r', ({ value }) => {
-        return circleScaler(value) * 0.8
+        return circleScaler(value) + 1.5
       })
       .attr('cy', circleRadius)
 
@@ -328,20 +337,44 @@ export default class TimePunchcardChart {
     }
   }
 
-  _handleMouseOverCircle(event) {
-    // let [mouseX, mouseY] = d3.mouse(this.element)
-    let [x, y] = [this.x(event.time), this.y(`${event.categoryIndex}`)]
+  _handleMouseClickCircle(datapoint) {
+    // console.info(d3.event, datapoint, this.element.getBoundingClientRect());
+    const { clientX:x, clientY:y } = d3.event
+    // const { categoryIndex, maxValue, value, time, label } = event;
+    // this._handleMouseOverCircle(datapoint)
+    this.emit('punch.click', {
+      datapoint,
+      x, y,
+      rect: this.element.getBoundingClientRect(),
+    });
+  }
 
-    this._tooltipDetails = {
-      x, y, datapoint: event
-    }
+  _handleMouseMoveCircle(punch) {
+    const { clientX:x, clientY:y } = d3.event
+    const { label, value, time, categoryIndex } = punch;
+    this.emit('punch.mousemove', {
+      item: { label, value, time, categoryIndex, year: time.getFullYear() },
+      x: x - this.boundingClientRect.left,
+      y,
+    });
   }
 
   _handleMouseOutCircle() {
-    this._tooltipDetails = undefined
+    this.emit('category.mouseout');
   }
 
-  getTooltipDetails() {
-    return this._tooltipDetails
+  _handleMouseOutCategory() {
+    this.emit('category.mouseout');
+  }
+
+  _handleMouseMoveCategory({ label, isSubcategory }) {
+    const { clientX:x, clientY:y } = d3.event
+    // apparently we need to consider the offset for the clientX
+    const time = this.x.invert(x - this.boundingClientRect.left);
+    this.emit('category.mousemove', {
+      item: { label, value: 0, time, isSubcategory, year: time.getFullYear() },
+      x: x - this.boundingClientRect.left,
+      y,
+    });
   }
 }

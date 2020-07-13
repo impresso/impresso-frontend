@@ -165,9 +165,6 @@ export default {
   .article-extras .badge{
     font-size: inherit;
   }
-  .article-excerpt{
-    font-size: smaller;
-  }
   .article-topics > div{
     columns: 4 270px;
     div {

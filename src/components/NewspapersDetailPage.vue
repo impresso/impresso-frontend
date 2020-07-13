@@ -1,5 +1,5 @@
 <template lang="html">
-    <i-layout-section main>
+    <i-layout-section main class="newspaper-page">
       <!-- slot:header  -->
       <div slot="header" >
         <b-navbar>
@@ -72,52 +72,53 @@
           </div>
         </timeline>
 
-        <b-container class="my-3">
-          <!-- <h2>Facets – top ten buckets</h2> -->
+        <div class="my-3 mx-2">
           <b-row>
-            <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
-              <stacked-bars-panel
-                class=""
-                :label="facet.type"
-                :buckets="facet.buckets"
-                :facet-type="facet.type"/>
-          </b-col>
-        </b-row>
-        </b-container>
+            <b-col lg="12" xl="6" class="">
+              <b-table bordered borderless caption-top :items="newspaper.properties"
+                   :fields='["name", "property"]'>
+                <template slot="table-caption">
+                  <h3 class="m-0 tb-title small-caps font-weight-bold">
+                    List of known metadata for this newspaper
+                  </h3>
+                </template>
+                <template v-slot:cell(name)="row">
+                  <span v-if="row.item.name === 'institutionNames'">
+                    <p class="small-caps">Institution</p>
+                  </span>
+                  <span v-else-if="row.item.name === 'institutionLinks'" />
+                  <span v-else-if="row.item.name === 'institutionLogos'" />
 
-        <b-table bordered borderless caption-top :items="newspaper.properties"
-             :fields='["name", "property"]'>
-          <template slot="table-caption">
-            <h3 class="m-0 tb-title small-caps font-weight-bold">
-              List of known metadata for this newspaper
-            </h3>
-          </template>
-          <template v-slot:cell(name)="row">
-            <span v-if="row.item.name === 'institutionNames'">
-              <p class="small-caps">Institution</p>
-            </span>
-            <span v-else-if="row.item.name === 'institutionLinks'" />
-            <span v-else-if="row.item.name === 'institutionLogos'" />
+                  <p v-else class="small-caps">{{row.item.label}}</p>
+                  <!-- {{row.item.name}} -->
+                </template>
+                <template v-slot:cell(property)="row">
 
-            <p v-else class="small-caps">{{row.item.label}}</p>
-            <!-- {{row.item.name}} -->
-          </template>
-          <template v-slot:cell(property)="row">
-
-            <div v-if="row.item.name === 'institutionNames'" v-html="institution" />
-            <div v-else-if="row.item.name === 'institutionLinks'" />
-            <div v-else-if="row.item.name === 'institutionLogos'" />
-            <div v-else-if="row.item.isUrl">
-              <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
-            </div>
-            <div v-else-if="row.item.name === 'logoFilename'">
-              <img :src="`https://impresso-project.ch/assets/images/${row.item.value}`" />
-            </div>
-            <div v-else class="bold">
-              {{row.item.value}}
-            </div>
-          </template>
-        </b-table>
+                  <div v-if="row.item.name === 'institutionNames'" v-html="institution" />
+                  <div v-else-if="row.item.name === 'institutionLinks'" />
+                  <div v-else-if="row.item.name === 'institutionLogos'" />
+                  <div v-else-if="row.item.isUrl">
+                    <a :href="row.item.value" target="_blank">&rarr; {{row.item.value}}</a>
+                  </div>
+                  <div v-else class="bold">
+                    {{row.item.value}}
+                  </div>
+                </template>
+              </b-table>
+            </b-col>
+            <b-col lg="12" xl="6" class="">
+              <b-row>
+                <b-col sm="12" md="12" lg="12" xl="6" v-for="(facet, idx) in facets" v-bind:key="idx">
+                  <stacked-bars-panel
+                    class=""
+                    :label="facet.type"
+                    :buckets="facet.buckets"
+                    :facet-type="facet.type"/>
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+        </div>
         <!-- <pre>
           {{newspaper.properties}}
         </pre> -->
@@ -215,14 +216,22 @@ export default {
         const institutionLogos = this.newspaper.properties.find(d => d.name === 'institutionLogos');
         // const institutionPortal = this.newspaper.properties.find(d => d.name === 'institutionPortal');
         let ret = '';
+        let links = [];
+        let logos = [];
         if (institutionLogos) {
-          ret += `<img src="https://impresso-project.ch/assets/images/${institutionLogos.value}" class="d-block mb-1" />`;
+          const regex = /([\w-_ ])+\.(svg|png|jpg|jpeg|gif|bmp)/gi;
+          logos = institutionLogos.value.match(regex);
         }
+        logos.forEach((item, i) => {
+          let tag = `<img src="https://impresso-project.ch/assets/images/${item}" class="logo d-block my-3" />`;
+          ret += links.length === logos.length ? `<a href="${links[i]}" target="_blank">${tag}</a>` : tag;
+        });
         if (institutionNames) {
           ret += `${institutionNames.value}`;
         }
         if (institutionLinks) {
-          ret = `<a href="${institutionLinks.value}" target="_blank">${ret}</a>` ;
+          const regex = /.+?(?=https*:\/\/|$)/gi;
+          links = institutionLinks.value.match(regex);
         }
         if (ret !== '') return ret;
         return false;
@@ -339,36 +348,47 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-.tabs{
-  margin-bottom: -1px;
-}
-.card {
-  border: 0px solid;
-  background: transparent;
-}
+.newspaper-page {
 
-.card-body {
-  padding: 0;
-}
-
-.navbar-light .navbar-nav .nav-link{
-  padding: 0.125rem 0.5rem 0.25rem;
-  border: 1px solid transparent;
-  &.router-link-exact-active {
-    color: $clr-primary;
-    border-color: #dee2e6;
-    border-bottom-color: #f8f9fa;
-    background-color: #f8f9fa;
+  img.logo {
+    width: 15em;
+    max-width: 100%;
   }
-}
 
-.b-table{
-  background-color: white;
-  th{
-    background-color: red;
+  .tabs{
+    margin-bottom: -1px;
+  }
+  .card {
+    border: 0px solid;
+    background: transparent;
+  }
+
+  .card-body {
+    padding: 0;
+  }
+
+  .navbar-light .navbar-nav .nav-link{
+    padding: 0.125rem 0.5rem 0.25rem;
+    border: 1px solid transparent;
+    &.router-link-exact-active {
+      color: $clr-primary;
+      border-color: #dee2e6;
+      border-bottom-color: #f8f9fa;
+      background-color: #f8f9fa;
+    }
+  }
+
+  .b-table{
+    background-color: white;
+    th{
+    }
+    td[aria-colindex="2"] {
+     overflow-wrap: anywhere;
+     font-size: smaller;
+   }
   }
 }
 </style>
