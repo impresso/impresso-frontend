@@ -13,6 +13,7 @@
           :marks="sliderMarks"
           :silent="true"
           :enable-cross="false"
+          :tooltip-formatter="tooltipFormatter"
           :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"/>
       </b-row>
     </b-col>
@@ -58,8 +59,13 @@ export default {
     scaleType: {
       type: String,
       default: 'linear'
-    }
+    },
   },
+  data: () => ({
+    tooltipFormatter(d) {
+      return this.$n(d)
+    }
+  }),
   mounted() {
     // @ts-ignore
     window.addEventListener('resize', this.renderChart.bind(this))
@@ -82,7 +88,12 @@ export default {
     },
     /** @returns {string[]|undefined} */
     sliderMarks() {
-      if (this.onlyRangeLabels) return this.sliderRange.map(v => v.toString())
+      if (this.onlyRangeLabels) {
+        return this.sliderRange.reduce((acc, d) => {
+          acc[d] = { label: this.$n(d) }
+          return acc
+        }, {})
+      }
 
       const marksCount = 10
 

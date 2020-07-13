@@ -328,6 +328,10 @@ input[type="range"]:active::-ms-thumb {
   @include slider-dot-active;
 }
 
+.vue-slider .vue-slider-mark-label{
+  font-size: 12px;
+}
+
 .vue-slider .vue-slider-process {
   background-color: $clr-primary;
   box-shadow: 0px 0px 0 6px rgba(0,0,0,.1);
