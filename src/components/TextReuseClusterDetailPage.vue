@@ -101,32 +101,41 @@ export default {
     InfoButton,
   },
   computed: {
+    /** @returns {string|undefined} */
     clusterId() {
-      return this.$route.query.clusterId
+      return /** @type {string} */ (this.$route.query.clusterId)
     },
+    /** @returns {number} */
     paginationCurrentPage() {
       const { [QueryParameters.Page]: passagePage = 0 } = this.$route.query
-      return parseInt(passagePage, 10) + 1
+      return parseInt(/** @type {string} */ (passagePage), 10) + 1
     },
+    /** @returns {number} */
     paginationTotalRows() {
       const { total } = this.paginationInfo
       return total
     },
     orderByModel: {
+      /** @returns {string} */
       get() {
-        return this.$route.query[QueryParameters.OrderBy] || '';
+        return /** @type {string} */ (this.$route.query[QueryParameters.OrderBy]) || '';
       },
+      /** @param {string} val */
       set(val) {
         this.$navigation.updateQueryParameters({
           [QueryParameters.OrderBy]: val === '' ? undefined : val
         })
       },
     },
+    /**
+     * @typedef {{ value: string, text: string, disabled: boolean }} Option
+     * @returns {Option[]}
+     */
     orderByOptions() {
       return [
         {
           value: '',
-          text: this.$t('sort.default'),
+          text: this.$t('sort.default').toString(),
           disabled: false,
         },
         {
@@ -141,6 +150,7 @@ export default {
         }
       ];
     },
+    /** @returns {string} */
     clusterIdLabel() {
       if (this.cluster && this.cluster.id) {
         const parts = this.cluster.id.split('-')
@@ -151,6 +161,10 @@ export default {
   },
   watch: {
     clusterId: {
+      /**
+       * @param {string} val
+       * @returns {Promise<unknown>}
+       */
       async handler(val) {
         if(val) {
           return this.executeSearch();
@@ -159,21 +173,29 @@ export default {
       immediate: true
     },
     paginationCurrentPage: {
+      /**
+       * @returns {Promise<unknown>}
+       */
       async handler() {
         return this.executeSearch()
       },
       immediate: true
     },
     orderByModel: {
+      /**
+       * @returns {Promise<unknown>}
+       */
       async handler() { return this.executeSearch() }
     }
   },
   methods: {
+    /** @param {number} page */
     handlePaginationPageChanged(page) {
       this.$navigation.updateQueryParameters({
         [QueryParameters.Page]: page - 1
       })
     },
+    /** @returns {Promise<unknown>} */
     async executeSearch() {
       const pageNumber = this.paginationCurrentPage - 1;
       const orderBy = this.orderByModel;
