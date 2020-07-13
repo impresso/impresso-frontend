@@ -204,7 +204,7 @@ import Ellipsis from '@/components/modules/Ellipsis';
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch';
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import InfoButton from '@/components/base/InfoButton';
-import SearchQuery from '@/models/SearchQuery';
+import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
 import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
@@ -240,7 +240,8 @@ const AllowedFilterTypes = [
   'topic',
   'type',
   'year',
-  'daterange'
+  'daterange',
+  'contentLength'
 ];
 
 const FACET_TYPES_DPFS = [
@@ -257,6 +258,7 @@ const FACET_TYPES_S = [
   'accessRight',
   'partner',
   'year',
+  'contentLength'
 ];
 
 const FACET_TYPES = FACET_TYPES_S.concat(FACET_TYPES_DPFS);
@@ -400,7 +402,7 @@ export default {
     searchServiceQuery: {
       get() {
         const query = {
-          filters: this.filters.map(d => d.getQuery()),
+          filters: this.filters.map(getFilterQuery),
           groupBy: this.groupBy,
           orderBy: this.orderBy,
           limit: this.paginationPerPage,
@@ -498,7 +500,7 @@ export default {
       }, {
         query: {
           group_by: 'articles',
-          filters: this.filters.map(d => d.getQuery()),
+          filters: this.filters.map(getFilterQuery),
           format: 'csv',
         },
       })

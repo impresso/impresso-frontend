@@ -524,6 +524,15 @@ label.custom-control-label {
           "include": "time span between",
           "exclude": "time span <b>NOT</b> between"
         }
+      },
+      "contentLength": {
+        "title": "filter by content length span",
+        "apply": "apply changes",
+        "clear": "reset",
+        "context": {
+          "include": "content length between",
+          "exclude": "content length <b>NOT</b> between"
+        }
       }
     }
   },

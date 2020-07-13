@@ -129,7 +129,7 @@ import Ellipsis from '@/components/modules/Ellipsis';
 import SearchInput from '@/components/modules/SearchInput';
 import FilterFactory from '@/models/FilterFactory';
 import Image from '@/models/Image';
-import SearchQuery from '@/models/SearchQuery';
+import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
 import FacetModel from '@/models/Facet';
 
 const AllowedFilterTypes = [
@@ -294,7 +294,7 @@ export default {
         return {
           seed: this.seed,
           similarTo: this.similarToImageUid,
-          filters: this.filters.map(d => d.getQuery()),
+          filters: this.filters.map(getFilterQuery),
           groupBy: this.groupBy,
           orderBy: this.orderBy,
           limit: this.paginationPerPage,
