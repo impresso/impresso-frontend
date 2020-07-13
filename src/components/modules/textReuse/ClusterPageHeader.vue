@@ -57,8 +57,7 @@ export default {
   props: {
     /** @type {import('vue').PropOptions<TextReuseCluster>} */
     cluster: {
-      type: Object,
-      required: true
+      type: Object
     }
   },
   components: {
