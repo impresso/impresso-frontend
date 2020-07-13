@@ -308,7 +308,7 @@ const router = new Router({
         {
           path: '',
           component: () => import(/* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseClusterDetailPage.vue'),
-          name: 'text-reuse-cluster-detail',
+          name: 'text-reuse-cluster-passages',
           meta: {
             requiresAuth: false,
           },
@@ -316,7 +316,7 @@ const router = new Router({
         {
           path: 'card',
           component: () => import(/* webpackChunkName: "tr-clusters-details-id-card" */ '../components/TextReuseClusterIdCardPage.vue'),
-          name: 'text-reuse-cluster-detail-id-card',
+          name: 'text-reuse-cluster-detail',
           meta: {
             requiresAuth: false,
           },

@@ -12,7 +12,15 @@
 
     <b-tabs pills class="mx-3">
       <template v-slot:tabs-end>
-        <b-nav-item class="pl-2" :active="true">
+        <b-nav-item class="pl-2"
+          :active="$route.name === TabToPageMapping[TabsIds.Details]"
+          :to="tabNavigation(TabsIds.Details)">
+          {{$tc('tabs.details')}}
+        </b-nav-item>
+
+        <b-nav-item class="pl-2"
+          :active="$route.name === TabToPageMapping[TabsIds.Passages]"
+          :to="tabNavigation(TabsIds.Passages)">
           {{$tc('tabs.passages', cluster.clusterSize, { count: cluster.clusterSize })}}
         </b-nav-item>
       </template>
@@ -26,10 +34,26 @@
 <script>
 import InfoButton from '@/components/base/InfoButton'
 
+const TabsIds = Object.freeze({
+  Details: 'details',
+  Passages: 'passages',
+  ConnectedClusters: 'connectedClusters'
+})
+
+const TabToPageMapping = Object.freeze({
+  [TabsIds.Details]: 'text-reuse-cluster-detail',
+  [TabsIds.Passages]: 'text-reuse-cluster-passages'
+})
+
+
 /**
  * @typedef {import('@/models').TextReuseCluster} TextReuseCluster
  */
 export default {
+  data: () => ({
+    TabsIds,
+    TabToPageMapping
+  }),
   props: {
     /** @type {import('vue').PropOptions<TextReuseCluster>} */
     cluster: {
@@ -49,6 +73,17 @@ export default {
       }
       return ''
     }
+  },
+  methods: {
+    /** @returns {any} */
+    tabNavigation(tabName) {
+      const name = TabToPageMapping[tabName]
+      return {
+        name,
+        params: this.$route.params,
+        query: this.$route.query
+      }
+    }
   }
 }
 </script>
@@ -57,6 +92,7 @@ export default {
 {
   "en": {
     "tabs": {
+      "details": "Details",
       "passages": "Passages | 1 Passage | {count} passages"
     },
     "clustersLabel": "Clusters",
