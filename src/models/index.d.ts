@@ -48,4 +48,5 @@ export interface SearchQuery {
 
 export interface TextReuseCluster {
   id: string
+  clusterSize: number
 }
