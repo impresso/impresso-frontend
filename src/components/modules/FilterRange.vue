@@ -6,7 +6,7 @@
       }}
       <info-button class="ml-1"
         :target="facet.type"
-        name="text-reuse" />
+        name="filter-range" />
 
       <div slot="options">
         <b-button size="sm" variant="outline-primary" @click="handleResetFilters" v-if="value.length === 2">
