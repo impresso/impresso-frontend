@@ -255,14 +255,14 @@ $clr-grey-900: #ddd;
 // Using mixins to avoid duplicate declarations
 
 @mixin slider-rail {
-  height: 0.1rem;
+  height: 1px;
   background-color: $clr-secondary;
   border-radius: 2px;
 }
 @mixin slider-dot {
-  border-radius: 50%;
-  background-color: $clr-bg-primary ;
-  border: 0.1rem solid black ;
+  // border-radius: 50%;
+  background-color: $clr-primary; // $clr-bg-primary ;
+  // border: 1px solid black ;
   box-shadow: none;
 }
 @mixin slider-dot-focus {
@@ -287,7 +287,6 @@ input[type="range"]::-ms-track {
 
 .vue-slider .vue-slider-dot-handle {
   @include slider-dot;
-  transition: all 0.1s;
 }
 input[type="range"]::-webkit-slider-thumb {
   margin-top: -0.45rem;
@@ -330,9 +329,11 @@ input[type="range"]:active::-ms-thumb {
 }
 
 .vue-slider .vue-slider-process {
-  background-color: black;
-  height: 14px !important;
-  margin-top: -7px;
+  background-color: $clr-primary;
+  box-shadow: 0px 0px 0 6px rgba(0,0,0,.1);
+  height: 2px !important;
+  margin-top: 0px;
+  border-radius: 1px;
 }
 
 .vue-slider .vue-slider-dot-tooltip-inner {
