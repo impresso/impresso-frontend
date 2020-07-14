@@ -25,11 +25,6 @@
     </div>
     <!-- body (aka) facets -->
     <div class="pt-3 pb-5">
-      <div class="mx-3" v-if="isResettable">
-        <b-button class="mb-2"
-          variant="outline-danger"
-          size="sm" @click="reset">{{ $t('actions.resetFilters') }}</b-button>
-      </div>
       <slot>
         <!-- slot here for extra facets -->
       </slot>
@@ -86,13 +81,9 @@ export default {
       // propagate filters changed
       this.$emit('changed', filters);
     },
-    reset() { this.$emit('changed', []); },
   },
   computed: {
     /** @return {boolean} */
-    isResettable() {
-      return !!this.filters.filter(d => d.type !== 'hasTextContents').length;
-    },
     /** @return {string} */
     infoButtonName() {
       return `how-${this.contextTag}-work-with-search-filters`
