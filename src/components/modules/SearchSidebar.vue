@@ -8,7 +8,6 @@
       <div class="py-3 px-3">
         <search-pills
           :filters="filters"
-          @reset="reset"
           @changed="handleFiltersChanged"
         />
         <span v-if="ignoredFilters.length">
