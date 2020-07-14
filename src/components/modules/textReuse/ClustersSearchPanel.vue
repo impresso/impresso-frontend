@@ -2,7 +2,6 @@
   <div>
     <div class="mt-2">
       <search-pills :filters="filters"
-        :enableAddFilter=true
         :includedFilterTypes="supportedFilterTypes"
         @changed="handleFiltersChanged"
         :index="'tr_clusters'" />
