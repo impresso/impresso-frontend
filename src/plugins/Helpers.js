@@ -69,7 +69,7 @@ helpers.timeline.addEmptyIntervals = (values, unit = 'number') => {
         break;
       case 'day':
         newValue = new Date(values[i - 1].t);
-        newValue.setMonth(values[i - 1].t.getDay() + j);
+        newValue.setDate(values[i - 1].t.getDate() + j);
         break;
       default:
         newValue = values[i - 1].t + j;
@@ -104,15 +104,22 @@ helpers.timeline.addEmptyYearsWithRange = (timelineValues, timelineRange) => {
   }, timelineValues).sort(timelineValuesSorter);
 };
 
-helpers.timeline.fromBuckets = (buckets) => {
+function parseDate(date, resolution) {
+  if (resolution == null || resolution === 'year') return parseInt(date, 10)
+  if (resolution === 'month') return new Date(`${date}-01T00:00:00Z`)
+  if (resolution === 'day') return new Date(date)
+  throw new Error(`Unknown resolution: "${resolution}"`)
+}
+
+helpers.timeline.fromBuckets = (buckets, resolution) => {
   const values = buckets.map(d => ({
     ...d,
     w: d.count,
     w1: 0,
-    t: parseInt(d.val, 10),
+    t: parseDate(d.val, resolution),
   })).sort((a, b) => a.t - b.t);
   // add zeroes
-  return helpers.timeline.addEmptyIntervals(values);
+  return helpers.timeline.addEmptyIntervals(values, resolution);
 };
 
 helpers.numbers = {};
