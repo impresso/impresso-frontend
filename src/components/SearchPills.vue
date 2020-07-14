@@ -89,7 +89,15 @@
         <b-button block size="sm" variant="outline-primary" @click="handleFilterRemoved(filterIndex)">{{$t('actions.remove')}}</b-button>
       </div>
     </b-dropdown>
+
     <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addContextualFilter') }}</b-button>
+
+    <b-button class="mb-1 px-2 float-right" variant="outline-danger"
+      v-if="isResettable"
+      :title="$t('actions.resetFilters')"
+      @click="reset">
+        <div class="d-flex dripicons-cross"></div>
+    </b-button>
 
     <explorer v-model="explorerFilters"
       :is-visible="explorerVisible"
@@ -97,6 +105,7 @@
       :searching-enabled="false"
       :included-types="includedFilterTypes"
       :index="index"/>
+
   </div>
 </template>
 
@@ -167,7 +176,9 @@ export default {
       set(filters) { this.$emit('changed', filters) }
     },
     /** @returns {string[]} */
-    numericTypes() { return NumericRangeFacets }
+    numericTypes() { return NumericRangeFacets },
+    /** @return {boolean} */
+    isResettable() { return !!this.filters.filter(d => d.type !== 'hasTextContents').length; },
   },
   methods: {
     /**
@@ -191,6 +202,7 @@ export default {
       const newFilters = this.filters.filter((f, idx) => idx !== index)
       this.$emit('changed', newFilters)
     },
+    reset() { this.$emit('reset', []); },
     /**
      * @param {object} p
      */
