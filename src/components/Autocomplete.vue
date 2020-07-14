@@ -10,6 +10,7 @@
       v-on:keyup.native="keyup" />
       <b-input-group-append>
         <b-btn variant="outline-primary" :title="$t('actions.search')"
+          :disabled="this.q.length === 0"
           @click="submit({ type: 'string', q })">
           <div class="d-flex search-submit dripicons-search"></div>
         </b-btn>
@@ -336,7 +337,7 @@ export default {
 .search-bar{
   position: relative;
   input.form-control.search-input {
-    border-color: black;
+    border-color: $clr-primary;
     background: transparent;
     position: relative;
     color: black;
@@ -398,6 +399,7 @@ export default {
 .search-bar .input-group > .form-control{
   border-top-width: 0;
   border-left-width: 0;
+  border-right-width: 0;
   z-index: 1;
 }
 
