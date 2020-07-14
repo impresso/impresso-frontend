@@ -2,6 +2,10 @@ import * as d3 from 'd3'
 import EventEmitter from 'events';
 
 const OneDayInMs = 1000 * 60 * 60 * 24 // 1 day
+const FocusOnYear = OneDayInMs * 366
+const FocusOnMonth = OneDayInMs * 31
+const FocusOnDay = OneDayInMs
+const MinVisibleCircleRadius = 1
 
 /** @param {Date} date */
 const isExactYear = date => date.getMonth() === 0 && date.getDate() === 1
@@ -49,6 +53,7 @@ const defaultColorPalette = [
  *  d3.CountableTimeInterval,
  *  (date: Date) => string,
  *  (date: Date) => boolean
+ *  (focus:String) => string
  * ]}
  */
 function findTimeInterval(times) {
@@ -65,6 +70,7 @@ function findTimeInterval(times) {
 
   let interval = d3.timeYear
   let format = d3.timeFormat('%Y')
+  let focus = FocusOnYear;
   // eslint-disable-next-line no-unused-vars
   let renderLabel = date => true
 
@@ -72,13 +78,15 @@ function findTimeInterval(times) {
     interval = d3.timeMonth
     format = d3.timeFormat('%b %Y')
     renderLabel = isExactYear
+    focus = FocusOnMonth;
   } else if (minTimeIntervalDays <= 1) {
     interval = d3.timeDay
     format = d3.timeFormat('%H %b %Y')
     renderLabel = isExactMonth
+    focus = FocusOnDay;
   }
 
-  return [interval, format, renderLabel]
+  return [interval, format, renderLabel, focus]
 }
 
 /**
@@ -120,16 +128,25 @@ export default class TimePunchcardChart extends EventEmitter {
   // eslint-disable-next-line no-unused-vars
   render(data, options = {}) {
     this.boundingClientRect = this.element.getBoundingClientRect()
+    // will be used later to calculate nearest value per category in _getNearestValue function
+    this.xvalues = data.categories.map(({ dataPoints }) => dataPoints
+      .sort((a,b) => a.time - b.time)
+      .map(({ time }) => new Date(time)));
+    this.yvalues = data.categories.map(({ dataPoints }) => dataPoints
+      .sort((a,b) => a.time - b.time)
+      .map(({ value }) => value));
+
     const { width } = this.boundingClientRect
     const { colorPalette = defaultColorPalette, circleScale = 'linear' } = options
 
     const effectiveWidth = width - this.margin.left - this.margin.right
 
-    const maxDataPointValue = /** @type {number} */ (d3.max(
-      data.categories.map(({ dataPoints }) => dataPoints.map(({ value }) => value)).flat()
-    ))
-    const times = data.categories.map(({ dataPoints }) => dataPoints.map(({ time }) => new Date(time))).flat().sort()
-    const [timeInterval, timeFormat, shouldRenderTickLabelFn] = findTimeInterval(times)
+    const maxDataPointValue = /** @type {number} */ (d3.max(this.yvalues.flat()))
+    const times = this.xvalues.flat().sort()
+    const [timeInterval, timeFormat, shouldRenderTickLabelFn, focus] = findTimeInterval(times)
+    // used in _getNearestValue function
+    this.focus = focus
+    this.timeFormat = timeFormat
 
     let minAndMaxTimes = /** @type {Date[]} */ ([...d3.extent(times)].filter(v => v != null))
     minAndMaxTimes = [
@@ -251,7 +268,7 @@ export default class TimePunchcardChart extends EventEmitter {
 
     category
       .selectAll('rect.highlight')
-      .data(category => [category])
+      .data((category, categoryIndex) => [{ ...category, categoryIndex }])
       .join('rect')
       .attr('class', 'highlight')
       .attr('height', categoryYSpace - this.margin.sizer * 2)
@@ -297,7 +314,7 @@ export default class TimePunchcardChart extends EventEmitter {
       symlog: d3.scaleSymlog(),
     }[circleScale] ?? d3.scaleLinear();
 
-    circleScaler.range([0, circleRadius])
+    circleScaler.range([MinVisibleCircleRadius, circleRadius])
     circleScaler.domain([0, maxDataPointValue])
 
     bar
@@ -309,7 +326,7 @@ export default class TimePunchcardChart extends EventEmitter {
         return circleScaler(value)
       })
       .attr('cy', circleRadius)
-      .attr('fill', d => colorPalette[d.categoryIndex])
+      // .attr('fill', d => colorPalette[d.categoryIndex])
       .on('mousemove', e => this._handleMouseMoveCircle(e))
       .on('mouseout', () => this._handleMouseOutCircle())
       .on('click', e => this._handleMouseClickCircle(e))
@@ -337,6 +354,37 @@ export default class TimePunchcardChart extends EventEmitter {
     }
   }
 
+  _getNearestValue(v, series) {
+    if (!Array.isArray(series) || !series.length) {
+      console.error('_getNearestValue: series not set or is empty');
+      return {
+        idx: -1,
+        nearest: null,
+      };
+    }
+    // get closest idx in series array to insertelement "v"
+    const idx = d3.bisectLeft(series, v);
+    if (idx === 0) {
+      return {
+        idx,
+        nearest: series[0],
+      };
+    }
+    // if greater than 0, test actual difference to find the nearest
+    const d0 = series[idx - 1];
+    const d1 = series[idx];
+    if (Math.abs(v - d0) > Math.abs(v - d1)) {
+      return {
+        idx,
+        nearest: d1,
+      };
+    }
+    return {
+      idx: idx - 1,
+      nearest: d0,
+    };
+  }
+
   _handleMouseClickCircle(datapoint) {
     // console.info(d3.event, datapoint, this.element.getBoundingClientRect());
     const { clientX:x, clientY:y } = d3.event
@@ -353,26 +401,40 @@ export default class TimePunchcardChart extends EventEmitter {
     const { clientX:x, clientY:y } = d3.event
     const { label, value, time, categoryIndex } = punch;
     this.emit('punch.mousemove', {
-      item: { label, value, time, categoryIndex, year: time.getFullYear() },
+      item: { label, value, time,categoryIndex, formattedTime: this.timeFormat(time) },
       x: x - this.boundingClientRect.left,
       y,
     });
   }
 
   _handleMouseOutCircle() {
-    this.emit('category.mouseout');
+    this.emit('punch.mouseout');
   }
 
   _handleMouseOutCategory() {
     this.emit('category.mouseout');
   }
 
-  _handleMouseMoveCategory({ label, isSubcategory }) {
+  _handleMouseMoveCategory(category) {
+    const { label, isSubcategory, categoryIndex } = category;
     const { clientX:x, clientY:y } = d3.event
     // apparently we need to consider the offset for the clientX
     const time = this.x.invert(x - this.boundingClientRect.left);
+    const {idx} = this._getNearestValue(time, this.xvalues[categoryIndex])
+    const nearestTimeHavingValues = this.xvalues[categoryIndex][idx];
+    const distance = Math.abs(time - nearestTimeHavingValues);
+    const nearestValue = distance > this.focus ? 0 : this.yvalues[categoryIndex][idx];
+    const nearestTime = distance > this.focus ? time : nearestTimeHavingValues
+    // check that closest time is in the same focus of louse time
     this.emit('category.mousemove', {
-      item: { label, value: 0, time, isSubcategory, year: time.getFullYear() },
+      item: {
+        label,
+        isSubcategory,
+        categoryIndex,
+        value: nearestValue,
+        time: nearestTime,
+        formattedTime: this.timeFormat(nearestTime),
+      },
       x: x - this.boundingClientRect.left,
       y,
     });
