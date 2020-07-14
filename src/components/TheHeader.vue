@@ -20,7 +20,7 @@
 
         <b-nav-item-dropdown no-caret
           v-if="countActiveFilters"
-          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" >
+          ref="ddownSearchResults">
           <template slot="button-content">
             <span :title="$t('label_current_search')">...</span>
           </template>
@@ -296,9 +296,6 @@ export default {
   methods: {
     updateLastNotificationDate() {
       this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE', new Date());
-    },
-    openSearchQueryExplorer() {
-      this.$store.dispatch('searchQueryExplorer/TOGGLE');
     },
     test() {
       return this.$store.dispatch('jobs/TEST');
