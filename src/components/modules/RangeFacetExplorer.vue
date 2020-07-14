@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="p-2 pb-5 border-bottom">
+    <div class="p-3 border-bottom">
       <vue-slider
         v-model="value"
         :min="rangeMin"
@@ -10,9 +10,8 @@
         :silent="true"
         :enable-cross="false"/>
     </div>
-    <div class="p-3 bg-white">
+    <div class="p-3 bg-white" v-if='valueChanged'>
       <b-button
-        v-if='valueChanged'
         @click="applyFilter()"
         size="sm"
         class="btn-block btn-outline-success"
