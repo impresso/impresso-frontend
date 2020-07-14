@@ -23,7 +23,9 @@
     <tooltip :tooltip="tooltip" :class="{ fadeOut: tooltip.fadeOut }">
       <slot name="tooltip" :tooltip="tooltip">
         <div v-if="tooltip.isActive" class="text-center small-caps">
-          <b>{{ $n(tooltip.item.value) }}</b> articles <br/> <b>{{tooltip.item.label}}</b> &middot; {{tooltip.item.year}}
+          <b>{{ $n(tooltip.item.value) }}</b> articles &middot; {{tooltip.item.formattedTime}}
+          <br/>
+          <b>{{tooltip.item.label}}</b>
         </div>
       </slot>
     </tooltip>
@@ -149,6 +151,7 @@ export default {
               this.tooltip = { x, y, item, isActive: true };
             });
             this.chart.on('category.mousemove', ({ x, y, item }) => {
+              clearTimeout(this.timerTooltipFadeOut);
               this.tooltip = { x, y, item, isActive: true };
             });
             this.chart.on('category.mouseout', () => this.fadeOutTooltip());
@@ -172,7 +175,11 @@ export default {
     }
 
     circle.punch {
-      cursor: zoom-in;
+      cursor: pointer;
+      fill: #000000;
+      &:hover{
+        fill: blue;
+      }
     }
 
     .axes {
