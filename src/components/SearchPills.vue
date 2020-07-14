@@ -1,5 +1,5 @@
 <template>
-  <div class='search-pills'>
+  <div class='search-pills d-flex'>
     <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
       v-for="({ filter, filterIndex }) in pills" :key="filterIndex">
       <!--  button content -->
@@ -92,7 +92,7 @@
 
     <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">{{ $t('actions.addContextualFilter') }}</b-button>
 
-    <b-button class="mb-1 px-2 float-right" variant="outline-danger"
+    <b-button class="mb-1 px-2 ml-auto" variant="outline-danger"
       v-if="isResettable"
       :title="$t('actions.resetFilters')"
       @click="reset">
@@ -278,89 +278,94 @@ export default {
 
 <style lang="scss">
 
+.search-pills {
+  display: flex;
+  flex-flow: wrap;
 
-.search-pill{
-  position: relative;
+  .search-pill{
 
-  span.label{
-    font-variant: normal;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-flex;
+    span.label{
+      font-variant: normal;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-flex;
 
-    &.sp-string, &>.sp-string{
-      background-color: #FFEB78;
-    }
-    &.sp-string.exact::before,
-    &.sp-string.exact::after,
-    &>.sp-string.exact::before,
-    &>.sp-string.exact::after{
-      content: '"';
-      font-weight: bold;
-    }
-    &.sp-string.fuzzy::after,
-    &>.sp-string.fuzzy::after{
-      content: '~';
-      font-weight: bold;
-    }
-    &.sp-string.soft::before,
-    &>.sp-string.soft::before {
-      content: '[';
-      font-weight: bold;
-    }
-    &.sp-string.soft::after,
-    &>.sp-string.soft::after{
-      content: ']';
-      font-weight: bold;
-    }
-  }
-
-  span.label.exclude{
-    text-decoration: line-through;
-
-  }
-
-  button.dropdown-toggle{
-    padding-left: 0.15em;
-    .filter-icon {
-      font-size: 1em;
-      float: left;
-      width: 1.6em;
-      height: 1.6em;
-      padding-top: 0.2em;
-      margin-right: 0.2em;
-      opacity: 0.8;
-      // background: red;
-    }
-    .filter-remove {
-      float: right;
-      padding-right: 0;
-      margin-right: -0.5em;
-      &:hover {
-        color: rgba(200,0,0,0.9);
+      &.sp-string, &>.sp-string{
+        background-color: #FFEB78;
+      }
+      &.sp-string.exact::before,
+      &.sp-string.exact::after,
+      &>.sp-string.exact::before,
+      &>.sp-string.exact::after{
+        content: '"';
+        font-weight: bold;
+      }
+      &.sp-string.fuzzy::after,
+      &>.sp-string.fuzzy::after{
+        content: '~';
+        font-weight: bold;
+      }
+      &.sp-string.soft::before,
+      &>.sp-string.soft::before {
+        content: '[';
+        font-weight: bold;
+      }
+      &.sp-string.soft::after,
+      &>.sp-string.soft::after{
+        content: ']';
+        font-weight: bold;
       }
     }
+
+    span.label.exclude{
+      text-decoration: line-through;
+
+    }
+
+    button.dropdown-toggle{
+      padding-left: 0.15em;
+      .filter-icon {
+        font-size: 1em;
+        float: left;
+        width: 1.6em;
+        height: 1.6em;
+        padding-top: 0.2em;
+        margin-right: 0.2em;
+        opacity: 0.8;
+        // background: red;
+      }
+      .filter-remove {
+        float: right;
+        padding-right: 0;
+        margin-right: -0.5em;
+        &:hover {
+          color: rgba(200,0,0,0.9);
+        }
+      }
+    }
+
+  }
+  .sp-contents {
+    width: 300px;
+  }
+
+  .sp-contents ul{
+    margin: 0;
+    padding:0;
+  }
+  .sp-contents ul > li {
+    margin: 0;
+    list-style: none;
+    background: #f0f0f0;
+  }
+  .op.or{
+    font-variant: small-caps;
+    font-weight: bold;
   }
 
 }
-.sp-contents {
-  width: 300px;
-}
 
-.sp-contents ul{
-  margin: 0;
-  padding:0;
-}
-.sp-contents ul > li {
-  margin: 0;
-  list-style: none;
-  background: #f0f0f0;
-}
-.op.or{
-  font-variant: small-caps;
-  font-weight: bold;
-}
 </style>
 <i18n>
   {
