@@ -1,77 +1,82 @@
 <template lang="html">
   <i-layout class="collection-list">
-    <i-layout-section>
+    <i-layout-section main>
+      <template v-slot:header>
+        <div class="p-3 border-bottom">
 
-      <div slot="header" class="header px-3 py-2 border-bottom">
-
-        <div class="input-group input-group-sm mb-2">
-        <input type="text" name="" :value="collectionsQ" class="form-control"
-          v-bind:placeholder="$t('placeholder')"
-          v-on:input="onQueryChange"
-          />
-          <div class="input-group-append">
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm"
-            variant="outline-primary"></i-dropdown>
+          <div class="input-group input-group-sm mb-2">
+            <input type="text" name="" :value="collectionsQ" class="form-control"
+              v-bind:placeholder="$t('placeholder')"
+              v-on:input="onQueryChange"
+              />
+            <div class="input-group-append">
+              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm"
+              variant="outline-primary"></i-dropdown>
+            </div>
           </div>
+
+          <div class="input-group input-group-sm">
+            <input type="text" name="" value="" class="form-control"
+              v-bind:placeholder="$t('inputNewPlaceholder')"
+              v-on:input="onInputNew"
+              v-on:keyup.enter="addCollection(inputNew)"
+              v-model="inputNew"
+              />
+            <div class="input-group-append">
+              <b-button variant="outline-primary"
+                size="sm"
+                v-bind:disabled="isDisabled == 0"
+                v-on:click="addCollection(inputNew)"
+                >
+                {{$t('create_new')}}
+              </b-button>
+            </div>
+          </div>
+
         </div>
+      </template>
 
-        <div class="input-group input-group-sm">
-        <input type="text" name="" value="" class="form-control"
-          v-bind:placeholder="$t('inputNewPlaceholder')"
-          v-on:input="onInputNew"
-          v-on:keyup.enter="addCollection(inputNew)"
-          v-model="inputNew"
-          />
-          <div class="input-group-append">
-            <b-button variant="outline-primary"
-              size="sm"
-              v-bind:disabled="isDisabled == 0"
-              v-on:click="addCollection(inputNew)"
-              >
-              {{$t('create_new')}}
-            </b-button>
-          </div>
-
-      </div>
-
-      </div>
-
-      <b-container fluid class="inputList p-0 bg-light">
-        <ul v-if="collections.length > 0">
-          <li v-for="(collection, index) in collections" v-bind:key="index">
+      <template v-slot:default>
+        <div v-if="collections.length > 0">
+          <div v-for="(collection, index) in collections"
+            class="d-flex flex-row border-bottom "
+            :class="{
+              active: collection.uid === $route.params.collection_uid,
+              'mb-4': index === collections.length - 1
+            }"
+            v-bind:key="index">
+            <span class="selection-indicator pr-1"/>
             <div
-              class="m-0 px-3 py-2 border-bottom"
+              class="w-100 m-0 px-3 py-2 details-panel"
               v-on:click="select(collection, $event)"
               v-bind:class="{ 'selected': collection.uid === $route.params.collection_uid }"
               for="collection.uid">
-              <div class="clearfix pb-1">
-                <strong class="float-left">
+              <div class="py-1">
+                <div>
                   {{collection.name}}
-                </strong>
+                </div>
               </div>
-              <div class="clearfix">
+              <div>
                 <div class="description small pb-1">
-                  {{collection.description}}
-                </div>
-                <div v-if="collection.countItems" class="float-left text-muted small-caps">
-                  {{collection.countItems}} {{$t('items')}}
-                </div>
-                <div v-if="collection.creationDate" class="float-right text-muted small-caps">
-                  {{$t('created')}} {{ $d(collection.creationDate, 'compact')}}
+                  <span  v-if="collection.description">{{collection.description}} – </span>
+                  <span v-if="collection.countItems">{{collection.countItems}} {{$t('items')}} – </span>
+                  <span v-if="collection.creationDate">
+                    {{$t('created')}} {{ $d(collection.creationDate, 'compact')}}
+                  </span>
                 </div>
               </div>
             </div>
-          </li>
-        </ul>
-        <ul v-else-if="fetching">
-          <p class="text-center small-caps p-4">Fetching</p>
-        </ul>
-        <ul v-else-if="collections.length === 0">
+          </div>
+        </div>
+        <div v-else-if="fetching">
+          <p class="text-center small-caps p-4">{{ $t('actions.loading') }}</p>
+        </div>
+        <div v-else-if="collections.length === 0">
           <p class="text-center p-4" v-html="$t('no_collection')" />
-        </ul>
-        <ul v-else>
+        </div>
+        <div v-else>
           <p class="text-center p-4" v-html="$t('no_match')" />
-        </ul>
+        </div>
 
         <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
           <pagination
@@ -82,8 +87,7 @@
             v-on:change="onInputPagination"
             class="float-left small-caps" />
         </div>
-
-      </b-container>
+      </template>
 
 
 
@@ -254,38 +258,19 @@ export default {
 @import "impresso-theme/src/scss/variables.sass";
 .collection-list {
   input {
-    font-style: italic;
+    // font-style: italic;
   }
-  .inputList {
-    height: 100%;
-    overflow: scroll;
-    ul {
-      list-style: none;
-      padding: 0;
-      li {
-        padding: 0;
-        background: white;
-        div {
-          cursor: pointer;
-          &.loading {
-            background: rgba($clr-accent-secondary, 0.5);
-          }
-          &:hover {
-            background: $clr-bg-secondary;
-          }
-          &:active {
-            background: rgba($clr-accent-secondary, 0.5);
-          }
-          &.selected {
-            background: $clr-accent-secondary;
-            color: white;
-          }
-          span, div {
-            pointer-events: none;
-            cursor: pointer;
-          }
-        }
-      }
+  .details-panel:hover {
+    cursor: pointer;
+    background-color: $clr-bg-secondary;
+  }
+
+  .active {
+    .selection-indicator {
+      background-color: $clr-accent-secondary;
+    }
+    .details-panel {
+      background-color: $clr-bg-secondary;
     }
   }
 }
@@ -303,7 +288,7 @@ export default {
     "inputNewPlaceholder": "My Collection",
     "label_order": "Order By",
     "create_new": "Create Collection",
-    "created": "Created:",
+    "created": "created:",
     "last_edited": "Last edited",
     "items": "items",
     "no_collection": "<p><b>No personal collection found !</b></p><p>Create one ?</p>",
