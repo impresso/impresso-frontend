@@ -95,7 +95,7 @@
     <b-button class="mb-1 px-2 ml-auto" variant="outline-danger"
       v-if="isResettable"
       :title="$t('actions.resetFilters')"
-      @click="reset">
+      @click="handleReset">
         <div class="d-flex dripicons-cross"></div>
     </b-button>
 
@@ -202,7 +202,10 @@ export default {
       const newFilters = this.filters.filter((f, idx) => idx !== index)
       this.$emit('changed', newFilters)
     },
-    reset() { this.$emit('reset', []); },
+    handleReset() {
+      const newFilters = []
+      this.$emit('changed', newFilters)
+    },
     /**
      * @param {object} p
      */
