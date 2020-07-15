@@ -3,16 +3,17 @@
     <b-input-group>
       <b-form-input
       :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
-      placeholder="search for ..."
+      :placeholder="$tc('placeholder.search', filterCount)"
       v-model.trim="q"
       v-on:input.native="search"
       v-on:focus.native="selectInput"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn variant="outline-primary" :title="$t('actions.search')"
+        <b-btn variant="outline-primary" :title="$tc('placeholder.search', filterCount)"
           :disabled="this.q.length === 0"
           @click="submit({ type: 'string', q })">
-          <div class="d-flex search-submit dripicons-search"></div>
+          <div v-if="filterCount > 1" class="d-flex search-submit dripicons-plus"></div>
+          <div v-else class="d-flex search-submit dripicons-search"></div>
         </b-btn>
         <b-btn variant="outline-primary" :title="$t('actions.addFilter')"
           @click="showExplorer">
@@ -126,6 +127,11 @@ export default {
         'collection',
       ],
     },
+    /** @type {import('vue').PropOptions<Filter[]>} */
+    filters: {
+      type: Array,
+      default: () => [],
+    },
   },
   computed: {
     user() {
@@ -197,7 +203,11 @@ export default {
         this.$emit('submit', filter);
         this.q = '';
       }
-    }
+    },
+    filterCount() {
+      return typeof this.filters === 'undefined' ?
+        1 : this.filters.filter(d => d.type !== 'hasTextContents').length + 1;
+    },
   },
   methods: {
     showExplorer() {
@@ -419,6 +429,9 @@ export default {
 <i18n>
   {
     "en": {
+      "placeholder" : {
+        "search": "search for ... | add keyword to search"
+      },
       "label": {
         "string": {
           "title": "Search in article contents"
