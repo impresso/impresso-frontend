@@ -6,7 +6,16 @@
           <span>&larr; {{$t("clustersLabel")}}</span>
         </span>
         <info-button class="ml-2" name="text-reuse"/>
-        <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}}</h3>
+        <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}} </h3>
+        <div class="cluster-metadata">
+          <p class="m-0" v-html="$tc('numbers.articles', cluster.clusterSize, { n : $n(cluster.clusterSize) })" />
+          <p class="m-0" v-html="$t('clusterMetadata', {
+            from: $d(fromTime, 'short'),
+            to: $d(toTime, 'short'),
+            span: timeSpan,
+            lexicalOverlap: $n(lexicalOverlap / 100, 'percent')
+          })"/>
+        </div>
       </section>
     </b-navbar>
 
@@ -71,6 +80,31 @@ export default {
         return parts[parts.length - 1]
       }
       return ''
+    },
+    /** @returns {number} */
+    timeSpan() {
+      if (this.cluster == null || this.cluster?.timeCoverage == null) return 0
+      const { from, to } = this.cluster?.timeCoverage ?? {}
+      const fromDate = new Date(from)
+      const toDate = new Date(to)
+      const diffMs = toDate.getTime() - fromDate.getTime()
+      // if (this.resolution === 'day') return Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+      // if (this.resolution === 'month') return Math.ceil(diffMs / (1000 * 60 * 60 * 24 * 30))
+      return Math.ceil(diffMs / (1000 * 60 * 60 * 24 * 365))
+    },
+    /** @returns {Date} */
+    fromTime() {
+      if (this.cluster?.timeCoverage == null) return new Date()
+      return new Date(this.cluster?.timeCoverage?.from)
+    },
+    /** @returns {Date} */
+    toTime() {
+      if (this.cluster?.timeCoverage == null) return new Date()
+      return new Date(this.cluster?.timeCoverage?.to)
+    },
+    /** @returns {number} */
+    lexicalOverlap() {
+      return this.cluster?.lexicalOverlap ?? 0
     }
   },
   methods: {
@@ -87,15 +121,27 @@ export default {
 }
 </script>
 
+<style lang="scss">
+.cluster-metadata{
+  span.number{
+    font-weight: bold;
+  }
+  .date{
+    font-variant: small-caps;
+    text-transform: lowercase;
+  }
+}
+</style>
 <i18n>
 {
   "en": {
     "tabs": {
-      "details": "Details",
+      "details": "overview",
       "passages": "Passages | 1 Passage | {count} passages"
     },
-    "clustersLabel": "Clusters",
-    "clusterLabel": "Cluster"
+    "clustersLabel": "clusters",
+    "clusterLabel": "Cluster",
+    "clusterMetadata": "from <span class='date'>{from}</span> to <span class='date'>{to}</span> (<span class='number'>{span}</span> years) with <span class='number'>{lexicalOverlap}</span> lexical overlap"
   }
 }
 </i18n>
