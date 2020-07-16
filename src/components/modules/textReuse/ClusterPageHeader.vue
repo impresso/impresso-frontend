@@ -9,12 +9,15 @@
         <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}} </h3>
         <div class="cluster-metadata">
           <p class="m-0" v-html="$tc('numbers.articles', cluster.clusterSize, { n : $n(cluster.clusterSize) })" />
-          <p class="m-0" v-html="$t('clusterMetadata', {
-            from: $d(fromTime, 'short'),
-            to: $d(toTime, 'short'),
-            span: timeSpan,
-            lexicalOverlap: $n(lexicalOverlap / 100, 'percent')
-          })"/>
+          <p class="m-0">
+            <span v-html="$t('clusterMetadata', {
+              from: $d(fromTime, 'short'),
+              to: $d(toTime, 'short'),
+              span: timeSpan,
+              lexicalOverlap: $n(lexicalOverlap / 100, 'percent')
+            })"/>
+            <info-button name="text-reuse-cluster-metadata" class="ml-2" />
+          </p>
         </div>
       </section>
     </b-navbar>
@@ -139,7 +142,7 @@ export default {
       "details": "overview",
       "passages": "Passages | 1 Passage | {count} passages"
     },
-    "clustersLabel": "clusters",
+    "clustersLabel": "text reuse clusters",
     "clusterLabel": "Cluster",
     "clusterMetadata": "from <span class='date'>{from}</span> to <span class='date'>{to}</span> (<span class='number'>{span}</span> years) with <span class='number'>{lexicalOverlap}</span> lexical overlap"
   }
