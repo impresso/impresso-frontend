@@ -7,7 +7,7 @@
     @changed="handleFiltersChanged"
   >
     <div slot="header">
-      <autocomplete v-on:submit="onSuggestion" />
+      <autocomplete v-on:submit="onSuggestion" :filters="filters" />
     </div>
     <div>
       <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">{{ $t('label_embeddings') }} <info-button class="ml-1" name="how-are-word-embeddings-generated" />

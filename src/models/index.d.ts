@@ -46,6 +46,14 @@ export interface SearchQuery {
   filters: Filter[]
 }
 
+export interface ClusterTimeCoverage {
+  from: string
+  to: string
+}
+
 export interface TextReuseCluster {
   id: string
+  clusterSize: number
+  timeCoverage: ClusterTimeCoverage
+  lexicalOverlap: number
 }
