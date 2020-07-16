@@ -205,6 +205,16 @@ export default {
         optionsTitle: 'Year of publication',
         optionsDescription: 'Total number of articles per year',
       },
+      month: {
+        title: 'Month | Month | Months',
+        optionsTitle: 'Month of publication',
+        optionsDescription: 'Total number of articles per month',
+      },
+      day: {
+        title: 'Day | Day | Days',
+        optionsTitle: 'Day of publication',
+        optionsDescription: 'Total number of articles per day',
+      },
       type: {
         title: 'Article content type | Article content types | Article content types',
         optionsTitle: 'Article content type',

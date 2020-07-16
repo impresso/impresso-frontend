@@ -2,31 +2,21 @@
   <i-layout-section main>
     <!-- slot:header -->
     <div slot="header">
-      <div v-if="cluster && clusterId">
-        <b-navbar >
-          <section>
-            <span class="label small-caps">
-              <span>&larr; {{$t("clustersLabel")}}</span>
-            </span>
-            <info-button class="ml-2" name="text-reuse"/>
-            <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}}</h3>
-          </section>
-        </b-navbar>
-
-        <cluster-aspects-tab :passagesCount="passageItems.length"/>
-
-        <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
-          <b-navbar-nav>
-            <b-nav-form class="p-2 border-right">
-              <label class="mr-2">{{ $t('order by') }}</label>
-              <i-dropdown v-model="orderByModel"
-                :options="orderByOptions"
-                size="sm"
-                variant="outline-primary" />
-            </b-nav-form>
-          </b-navbar-nav>
-        </b-navbar>
-      </div>
+      <cluster-page-header :cluster="cluster">
+        <template v-slot:toolbar>
+          <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
+            <b-navbar-nav>
+              <b-nav-form class="p-2 border-right">
+                <label class="mr-2">{{ $t('order by') }}</label>
+                <i-dropdown v-model="orderByModel"
+                  :options="orderByOptions"
+                  size="sm"
+                  variant="outline-primary" />
+              </b-nav-form>
+            </b-navbar-nav>
+          </b-navbar>
+        </template>
+      </cluster-page-header>
     </div>
 
     <div v-if="!cluster" class="d-none" style="height: 100%">
@@ -60,8 +50,7 @@
 </template>
 
 <script>
-import InfoButton from '@/components/base/InfoButton'
-import ClusterAspectsTab from '@/components/modules/textReuse/ClusterAspectsTab'
+import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
 import PassageDetailsPanel from '@/components/modules/textReuse/PassageDetailsPanel'
 import Pagination from '@/components/modules/Pagination';
 
@@ -80,7 +69,7 @@ const SortingMethod = {
 
 export default {
   data: () => ({
-    passageItems: [],
+    passageItems: /** @type {{ id: string, passage: any, newspaper: any, iiifUrls: string[] }[]} */ ([]),
     paginationInfo: {
       limit: 20,
       offset: 0,
@@ -95,38 +84,46 @@ export default {
     }
   },
   components: {
-    ClusterAspectsTab,
+    ClusterPageHeader,
     PassageDetailsPanel,
-    Pagination,
-    InfoButton,
+    Pagination
   },
   computed: {
+    /** @returns {string|undefined} */
     clusterId() {
-      return this.$route.query.clusterId
+      return /** @type {string} */ (this.$route.query.clusterId)
     },
+    /** @returns {number} */
     paginationCurrentPage() {
       const { [QueryParameters.Page]: passagePage = 0 } = this.$route.query
-      return parseInt(passagePage, 10) + 1
+      return parseInt(/** @type {string} */ (passagePage), 10) + 1
     },
+    /** @returns {number} */
     paginationTotalRows() {
       const { total } = this.paginationInfo
       return total
     },
     orderByModel: {
+      /** @returns {string} */
       get() {
-        return this.$route.query[QueryParameters.OrderBy] || '';
+        return /** @type {string} */ (this.$route.query[QueryParameters.OrderBy]) || '';
       },
+      /** @param {string} val */
       set(val) {
         this.$navigation.updateQueryParameters({
           [QueryParameters.OrderBy]: val === '' ? undefined : val
         })
       },
     },
+    /**
+     * @typedef {{ value: string, text: string, disabled: boolean }} Option
+     * @returns {Option[]}
+     */
     orderByOptions() {
       return [
         {
           value: '',
-          text: this.$t('sort.default'),
+          text: this.$t('sort.default').toString(),
           disabled: false,
         },
         {
@@ -140,17 +137,14 @@ export default {
           disabled: false,
         }
       ];
-    },
-    clusterIdLabel() {
-      if (this.cluster && this.cluster.id) {
-        const parts = this.cluster.id.split('-')
-        return parts[parts.length - 1]
-      }
-      return ''
     }
   },
   watch: {
     clusterId: {
+      /**
+       * @param {string} val
+       * @returns {Promise<unknown>}
+       */
       async handler(val) {
         if(val) {
           return this.executeSearch();
@@ -159,21 +153,29 @@ export default {
       immediate: true
     },
     paginationCurrentPage: {
+      /**
+       * @returns {Promise<unknown>}
+       */
       async handler() {
         return this.executeSearch()
       },
       immediate: true
     },
     orderByModel: {
+      /**
+       * @returns {Promise<unknown>}
+       */
       async handler() { return this.executeSearch() }
     }
   },
   methods: {
+    /** @param {number} page */
     handlePaginationPageChanged(page) {
       this.$navigation.updateQueryParameters({
         [QueryParameters.Page]: page - 1
       })
     },
+    /** @returns {Promise<unknown>} */
     async executeSearch() {
       const pageNumber = this.paginationCurrentPage - 1;
       const orderBy = this.orderByModel;
@@ -210,9 +212,7 @@ export default {
       "date": "Date",
       "asc": "↑",
       "desc": "↓"
-    },
-    "clustersLabel": "Clusters",
-    "clusterLabel": "Cluster"
+    }
   }
 }
 </i18n>

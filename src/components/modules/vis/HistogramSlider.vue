@@ -13,7 +13,7 @@
           :marks="sliderMarks"
           :silent="true"
           :enable-cross="false"
-          :tooltip-formatter="tooltipFormatter"
+          :tooltip-formatter="formatTooltip"
           :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"/>
       </b-row>
     </b-col>
@@ -61,11 +61,6 @@ export default {
       default: 'linear'
     },
   },
-  data: () => ({
-    tooltipFormatter(d) {
-      return this.$n(d)
-    }
-  }),
   mounted() {
     // @ts-ignore
     window.addEventListener('resize', this.renderChart.bind(this))
@@ -86,7 +81,7 @@ export default {
         this.$emit('change', value)
       }
     },
-    /** @returns {string[]|undefined} */
+    /** @returns {{[key:string]: string}|string[]|undefined} */
     sliderMarks() {
       if (this.onlyRangeLabels) {
         return this.sliderRange.reduce((acc, d) => {
@@ -194,6 +189,9 @@ export default {
         .join('circle')
         .attr('class', 'point')
         .attr('r', 1)
+    },
+    formatTooltip(d) {
+      return this.$n(d)
     }
   },
   watch: {
