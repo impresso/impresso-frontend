@@ -354,35 +354,14 @@ export default class TimePunchcardChart extends EventEmitter {
     }
   }
 
-  _getNearestValue(v, series) {
-    if (!Array.isArray(series) || !series.length) {
-      console.error('_getNearestValue: series not set or is empty');
-      return {
-        idx: -1,
-        nearest: null,
-      };
-    }
+  _getNearestValueIdx(v, series) {
+    if (!Array.isArray(series) || !series.length) return -1;
     // get closest idx in series array to insertelement "v"
-    const idx = d3.bisectLeft(series, v);
-    if (idx === 0) {
-      return {
-        idx,
-        nearest: series[0],
-      };
-    }
+    const idx = d3.bisectLeft(series, v)
+    if (idx === 0) return idx
     // if greater than 0, test actual difference to find the nearest
-    const d0 = series[idx - 1];
-    const d1 = series[idx];
-    if (Math.abs(v - d0) > Math.abs(v - d1)) {
-      return {
-        idx,
-        nearest: d1,
-      };
-    }
-    return {
-      idx: idx - 1,
-      nearest: d0,
-    };
+    if (Math.abs(v - series[idx - 1]) > Math.abs(v - series[idx])) return idx
+    return idx - 1;
   }
 
   _handleMouseClickCircle(datapoint) {
@@ -420,7 +399,7 @@ export default class TimePunchcardChart extends EventEmitter {
     const { clientX:x, clientY:y } = d3.event
     // apparently we need to consider the offset for the clientX
     const time = this.x.invert(x - this.boundingClientRect.left);
-    const {idx} = this._getNearestValue(time, this.xvalues[categoryIndex])
+    const idx = this._getNearestValueIdx(time, this.xvalues[categoryIndex])
     const nearestTimeHavingValues = this.xvalues[categoryIndex][idx];
     const distance = Math.abs(time - nearestTimeHavingValues);
     const nearestValue = distance > this.focus ? 0 : this.yvalues[categoryIndex][idx];
