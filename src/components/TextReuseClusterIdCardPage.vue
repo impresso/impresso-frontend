@@ -6,9 +6,15 @@
     </div>
 
 
-    <b-container fluid cass="p-3">
+    <b-container fluid class="p-3">
       <b-row>
         <b-col>
+          <base-title-bar>
+            {{ timelineTitle }}
+            <template v-slot:description>
+              {{ timelineDescription }}
+            </template>
+          </base-title-bar>
           <timeline
             :values="timelineValues"
             :resolution="resolution"
@@ -43,7 +49,7 @@
 import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
 import Timeline from '@/components/modules/Timeline'
-
+import BaseTitleBar from '@/components/base/BaseTitleBar';
 import Helpers from '@/plugins/Helpers';
 
 import { textReuseClusters as textReuseClustersService } from '@/services'
@@ -71,9 +77,18 @@ export default {
   components: {
     ClusterPageHeader,
     StackedBarsPanel,
-    Timeline
+    Timeline,
+    BaseTitleBar
   },
   computed: {
+    /** @return {string} */
+    timelineTitle() {
+      return this.$t(`label.${this.resolution}.optionsTitle`)
+    },
+    /** @return {string} */
+    timelineDescription() {
+      return this.$t(`label.${this.resolution}.optionsDescription`)
+    },
     /** @return {string} */
     clusterId() {
       return this.cluster?.id
