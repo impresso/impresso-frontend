@@ -2,9 +2,6 @@ import * as d3 from 'd3'
 import EventEmitter from 'events';
 
 const OneDayInMs = 1000 * 60 * 60 * 24 // 1 day
-const FocusOnYear = OneDayInMs * 366
-const FocusOnMonth = OneDayInMs * 31
-const FocusOnDay = OneDayInMs
 const MinVisibleCircleRadius = 1
 
 /** @param {Date} date */
@@ -70,7 +67,6 @@ function findTimeInterval(times) {
 
   let interval = d3.timeYear
   let format = d3.timeFormat('%Y')
-  let focus = FocusOnYear;
   // eslint-disable-next-line no-unused-vars
   let renderLabel = date => true
 
@@ -78,15 +74,12 @@ function findTimeInterval(times) {
     interval = d3.timeMonth
     format = d3.timeFormat('%b %Y')
     renderLabel = isExactYear
-    focus = FocusOnMonth;
   } else if (minTimeIntervalDays <= 1) {
     interval = d3.timeDay
     format = d3.timeFormat('%H %b %Y')
     renderLabel = isExactMonth
-    focus = FocusOnDay;
   }
-
-  return [interval, format, renderLabel, focus]
+  return [interval, format, renderLabel]
 }
 
 /**
@@ -114,7 +107,6 @@ export default class TimePunchcardChart extends EventEmitter {
 
     this.axes = this.svg.append('g').attr('class', 'axes')
     this.categories = this.svg.append('g').attr('class', 'categories')
-
     this.x = d3.scaleUtc()
     this.y = d3.scaleBand()
 
@@ -143,9 +135,9 @@ export default class TimePunchcardChart extends EventEmitter {
 
     const maxDataPointValue = /** @type {number} */ (d3.max(this.yvalues.flat()))
     const times = this.xvalues.flat().sort()
-    const [timeInterval, timeFormat, shouldRenderTickLabelFn, focus] = findTimeInterval(times)
+    const [timeInterval, timeFormat, shouldRenderTickLabelFn] = findTimeInterval(times)
     // used in _getNearestValue function
-    this.focus = focus
+    this.timeInterval = timeInterval
     this.timeFormat = timeFormat
 
     let minAndMaxTimes = /** @type {Date[]} */ ([...d3.extent(times)].filter(v => v != null))
@@ -382,7 +374,7 @@ export default class TimePunchcardChart extends EventEmitter {
     this.emit('punch.mousemove', {
       item: { label, value, time,categoryIndex, formattedTime: this.timeFormat(time) },
       x: x - this.boundingClientRect.left,
-      y,
+      y: y - this.boundingClientRect.top,
     });
   }
 
@@ -398,24 +390,29 @@ export default class TimePunchcardChart extends EventEmitter {
     const { label, isSubcategory, categoryIndex } = category;
     const { clientX:x, clientY:y } = d3.event
     // apparently we need to consider the offset for the clientX
-    const time = this.x.invert(x - this.boundingClientRect.left);
+    const timeAtPosition = this.x.invert(x - this.boundingClientRect.left);
+    // handle empty categories (e;g; after applying a filter)
+    if (!this.xvalues[categoryIndex].length) {
+      this.emit('category.mousemove', {
+        x: x - this.boundingClientRect.left,
+        y: y - this.boundingClientRect.top,
+      })
+      return;
+    }
     const idx = this._getNearestValueIdx(time, this.xvalues[categoryIndex])
     const nearestTimeHavingValues = this.xvalues[categoryIndex][idx];
-    const distance = Math.abs(time - nearestTimeHavingValues);
-    const nearestValue = distance > this.focus ? 0 : this.yvalues[categoryIndex][idx];
-    const nearestTime = distance > this.focus ? time : nearestTimeHavingValues
-    // check that closest time is in the same focus of louse time
+    // get time interval according to the current used function to create intervals
+    const interval = this.timeInterval.count(time, nearestTimeHavingValues);
+    // const distance = Math.abs(time - nearestTimeHavingValues);
+    const value = interval > 1 ? 0 : this.yvalues[categoryIndex][idx];
+    const time = interval > 1 ? timeAtPosition : nearestTimeHavingValues
     this.emit('category.mousemove', {
       item: {
-        label,
-        isSubcategory,
-        categoryIndex,
-        value: nearestValue,
-        time: nearestTime,
-        formattedTime: this.timeFormat(nearestTime),
+        label, isSubcategory, categoryIndex, value, time,
+        formattedTime: this.timeFormat(time),
       },
       x: x - this.boundingClientRect.left,
-      y,
+      y: y - this.boundingClientRect.top,
     });
   }
 }
