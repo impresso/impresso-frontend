@@ -54,24 +54,30 @@
       </b-navbar>
     </template>
     <template v-slot:default>
-      <div v-if="$route.query.items" ref="visualisationWrapper">
-        <section class="p-3">
-          <timeline
-            :class="{'loading': isTimelineLoading}"
-            :values="timevalues"
-            :domain="timelineSpan"
-            :brush="currentTimelineSelectionSpan"
-            height="120px"
-            @brush-end="onTimelineBrushed"
-            @clear-selection="handleTimelineCleared">
-            <div slot-scope="tooltipScope">
-              <div v-if="tooltipScope.tooltip.item">
-                {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                <b>{{ tooltipScope.tooltip.item.w }}</b>
-              </div>
+      <section class="p-3">
+        <base-title-bar>
+          {{ $t('label.year.optionsTitle')}}
+          <template v-slot:description>
+            {{ $t('label.year.optionsDescription')}}
+          </template>
+        </base-title-bar>
+        <timeline
+          :class="{'loading': isTimelineLoading}"
+          :values="timevalues"
+          :domain="timelineSpan"
+          :brush="currentTimelineSelectionSpan"
+          height="120px"
+          @brush-end="onTimelineBrushed"
+          @clear-selection="handleTimelineCleared">
+          <div slot-scope="tooltipScope">
+            <div v-if="tooltipScope.tooltip.item">
+              {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+              <b>{{ tooltipScope.tooltip.item.w }}</b>
             </div>
-          </timeline>
-        </section>
+          </div>
+        </timeline>
+      </section>
+      <div v-if="$route.query.items" ref="visualisationWrapper">
         <section class="py-3 border-bottom">
           <time-punchcard-chart
             @punch-click="handlePunchClicked"
@@ -167,6 +173,7 @@ import PunchExplorer from '@/components/modals/PunchExplorer'
 import Pagination from '@/components/modules/Pagination'
 import { searchQueryGetter } from '@/logic/queryParams'
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
+import BaseTitleBar from '@/components/base/BaseTitleBar';
 import {
   entityMentionsTimeline as entityMentionsTimelineService
 } from '@/services'
@@ -266,6 +273,7 @@ export default {
     TimePunchcardChart,
     PunchExplorer,
     Pagination,
+    BaseTitleBar
   },
   mounted() {
     // @ts-ignore
@@ -636,6 +644,7 @@ export default {
     margin-top: -6px;
     height: 30px;
     overflow: hidden;
+    pointer-events: none;
     .thumb {
       border-radius: 50%;
       object-fit: cover;
