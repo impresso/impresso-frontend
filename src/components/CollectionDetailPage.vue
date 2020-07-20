@@ -177,6 +177,7 @@
       </div>
 
       <timeline
+            :class="{'loading': isTimelineLoading}"
             :domain="[startYear, endYear]"
             :values="timevalues">
         <div slot-scope="tooltipScope">
@@ -275,6 +276,7 @@ export default {
     tab: {},
     collection: new Collection(),
     fetching: false,
+    isTimelineLoading: false,
     TAB_ARTICLES,
     TAB_OVERVIEW,
     TAB_RECOMMENDATIONS,
@@ -538,37 +540,17 @@ export default {
         type: 'collection',
         q: this.collection.uid,
       }
-
       this.filters = this.filters
         .filter(f => !containsFilter(newFilter)(f))
         .concat([newFilter]);
     },
     loadTimeline() {
+      this.isTimelineLoading = true;
       return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
         this.timevalues = values;
+        this.isTimelineLoading = false;
       });
     },
-    // loadFacets(type) {
-    //   return this.$store.dispatch('collections/LOAD_FACETS',
-    //     {
-    //       q: this.$route.params.collection_uid,
-    //       type: type,
-    //     }).then((r) => {
-    //     this.facets.push(r);
-    //     console.log(r);
-    //   });
-    // },
-    // loadTopics() {
-    //   return this.$store.dispatch('collections/LOAD_TOPICS', this.$route.params.collection_uid).then((topics) => {
-    //     this.facets.push(topics);
-    //   });
-    // },
-    // loadEntities() {
-    //   return this.$store.dispatch('collections/LOAD_ENTITIES', this.$route.params.collection_uid).then(([locationFacet, personFacet]) => {
-    //     this.facets.push(locationFacet, personFacet);
-    //     // console.log(this.facets);
-    //   });
-    // },
     loadFacets(facetType) {
       return this.$store.dispatch('collections/LOAD_FACETS', {q: this.$route.params.collection_uid, type: facetType})
         .then((r) => {
@@ -586,6 +568,9 @@ export default {
 }
 .collection-recommendation{
   overflow:hidden;
+}
+.loading {
+  opacity: 0.5;
 }
 </style>
 
