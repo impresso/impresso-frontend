@@ -177,6 +177,7 @@
       </div>
 
       <timeline
+            :class="{'loading': isTimelineLoading}"
             :domain="[startYear, endYear]"
             :values="timevalues">
         <div slot-scope="tooltipScope">
@@ -275,6 +276,7 @@ export default {
     tab: {},
     collection: new Collection(),
     fetching: false,
+    isTimelineLoading: false,
     TAB_ARTICLES,
     TAB_OVERVIEW,
     TAB_RECOMMENDATIONS,
@@ -538,14 +540,15 @@ export default {
         type: 'collection',
         q: this.collection.uid,
       }
-
       this.filters = this.filters
         .filter(f => !containsFilter(newFilter)(f))
         .concat([newFilter]);
     },
     loadTimeline() {
+      this.isTimelineLoading = true;
       return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
         this.timevalues = values;
+        this.isTimelineLoading = false;
       });
     },
     // loadFacets(type) {
@@ -586,6 +589,9 @@ export default {
 }
 .collection-recommendation{
   overflow:hidden;
+}
+.loading {
+  opacity: 0.5;
 }
 </style>
 
