@@ -551,27 +551,6 @@ export default {
         this.isTimelineLoading = false;
       });
     },
-    // loadFacets(type) {
-    //   return this.$store.dispatch('collections/LOAD_FACETS',
-    //     {
-    //       q: this.$route.params.collection_uid,
-    //       type: type,
-    //     }).then((r) => {
-    //     this.facets.push(r);
-    //     console.log(r);
-    //   });
-    // },
-    // loadTopics() {
-    //   return this.$store.dispatch('collections/LOAD_TOPICS', this.$route.params.collection_uid).then((topics) => {
-    //     this.facets.push(topics);
-    //   });
-    // },
-    // loadEntities() {
-    //   return this.$store.dispatch('collections/LOAD_ENTITIES', this.$route.params.collection_uid).then(([locationFacet, personFacet]) => {
-    //     this.facets.push(locationFacet, personFacet);
-    //     // console.log(this.facets);
-    //   });
-    // },
     loadFacets(facetType) {
       return this.$store.dispatch('collections/LOAD_FACETS', {q: this.$route.params.collection_uid, type: facetType})
         .then((r) => {
