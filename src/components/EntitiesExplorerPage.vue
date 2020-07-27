@@ -287,6 +287,7 @@ export default {
     ];
   },
   computed: {
+    /** @return {any} */
     punchModalStyle() {
       return {
         transform: `translate(${this.punchModalPositions.x}px,${this.punchModalPositions.y}px)`,
@@ -355,11 +356,12 @@ export default {
         return this.$t('entity-label-in-year', {
           label: this.punchData.label,
           year: this.punchData.time.getFullYear(),
-        });
+        }).toString()
       }
       return '';
     },
     searchQuery: searchQueryGetter(),
+    /** @return {import('../models').SearchQuery} */
     selectedEntitySearchQuery() {
       if (this.selectedEntity) {
         // add start and end span related to current punchcardResolution
@@ -443,6 +445,7 @@ export default {
 
       return { categories }
     },
+    /** @return {EntityOrMention|null} */
     selectedEntity() {
       if (this.mentionsFrequenciesResponses && this.punchData.categoryIndex > -1) {
         return this.mentionsFrequenciesResponses[this.punchData.categoryIndex].item;
@@ -592,6 +595,7 @@ export default {
       this.punchModalPositions = { x: xmin, y: ymin };
       // console.log('@handlePunchClicked', x - window, y);
     },
+    /** @returns {string} */
     getWikimediaUrl(image) {
       return `http://commons.wikimedia.org/wiki/Special:FilePath/${image}?width=${this.thumbnailSize}px`;
     },

@@ -43,7 +43,7 @@
             v-bind:key="i"
             v-bind:item="entity"
             v-bind:active="entity.uid === selectedId"
-            show-link
+            :show-link="entity.kind ==='entity'"
             is-observable
             :observed="observedItemIds.includes(entity.uid)"
             @toggle-observed="handleToggleObserved"
@@ -59,7 +59,7 @@
 import Entity from '@/models/Entity';
 import List from '@/components/modules/lists/List';
 import EntityItem from '@/components/modules/lists/EntityItem';
-import { entities as entitiesService } from '@/services';
+import { entitiesMentions as entitiesMentionsService, entities as entitiesService } from '@/services';
 
 const QueryParameters = Object.freeze({
   SelectedEntitiesIds: 'items',
@@ -184,10 +184,11 @@ export default {
       })
     },
     handleToggleObserved(item) {
-      if (this.observedItemIds.includes(item.uid)) {
-        this.observedItemIds = this.observedItemIds.filter(uid => uid !== item.uid);
+      const id = item.uid
+      if (this.observedItemIds.includes(id)) {
+        this.observedItemIds = this.observedItemIds.filter(uid => uid !== id);
       } else {
-        this.observedItemIds = this.observedItemIds.concat(item.uid);
+        this.observedItemIds = this.observedItemIds.concat(id);
       }
     },
     resetObservedItems() {
@@ -240,12 +241,30 @@ export default {
         if (q.length) {
           query.q = q.split('*').concat(['*']).join('');
         }
+
+        const stringFilter = {
+          type: 'string',
+          q
+        }
+
+        const queryPayload = {
+          limit,
+          skip: (page - 1) * limit,
+          filters: q.length < 2 ? [] : [stringFilter]
+        }
+
         this.items = [];
-        return entitiesService.find({
-          query,
-        }).then(({ data, total }) => {
+        return entitiesMentionsService.create(queryPayload).then(({ items, total }) => {
           this.paginationTotalRows = total;
-          this.items = data.map(d => new Entity(d));
+          this.items = items.map(d => new Entity({
+            uid: d.id,
+            name: d.label,
+            type: d.entityType.toLowerCase(),
+            wikidataId: d.wikidataId,
+            kind: d.type,
+            thumbnailUrl: d.thumbnailUrl,
+            entityFunction: d.entityFunction
+          }));
           this.isLoading = false;
         });
       },

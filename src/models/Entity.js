@@ -25,6 +25,9 @@ export default class Entity {
     wikidata = [],
     matches = [],
     relevance = -1,
+    kind = undefined,
+    thumbnailUrl = undefined,
+    entityFunction = undefined
   } = {}) {
     this.uid = String(uid);
     this.name = Entity.getNameFromUid(name.length ? name : this.uid);
@@ -43,6 +46,9 @@ export default class Entity {
     this.impressoId = String(impressoId);
     this.wikidata = wikidata;
     this.relevance = relevance;
+    this.kind = kind;
+    this.thumbnailUrl = thumbnailUrl;
+    this.entityFunction = entityFunction;
   }
 
   static getNameFromUid(uid) {

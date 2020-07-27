@@ -5,6 +5,19 @@
       v-if="wikidataImages.length">
       <img :src="getWikidataImageURL(wikidataImages[0], { width: 60})">
     </div>
+    <div
+      class="mb-2 mr-3">
+      <b-avatar
+        v-if="item.thumbnailUrl"
+        class="entity-avatar"
+        :src="getThumbnailImageURL(item.thumbnailUrl)"/>
+      <b-avatar v-if="!item.thumbnailUrl">
+        <span class="filter-icon" :class="[
+          {'dripicons-user': item.type === 'person'},
+          {'dripicons-location': item.type === 'location'},
+        ]"></span>
+      </b-avatar>
+    </div>
     <div class="flex-grow-1">
       <!-- label, i.e the name -->
       <router-link v-if="showLink"
@@ -16,6 +29,7 @@
 
       <!-- description and other metadata -->
       <div class="type badge ml-1  bg-medium badge-light">{{ $t(`types.${item.type}`) }}</div>
+      <div class="small-caps" v-if="item.entityFunction" v-html="item.entityFunction"/>
       <div v-if="description" v-html="description"/>
       <div class="small-caps" v-if="item.countItems > -1">
         <span v-html="$tc('countItems', item.countItems, {
@@ -73,11 +87,14 @@ export default {
     getWikidataImageURL(image, { width = 60 } = {}) {
       return `http://commons.wikimedia.org/wiki/Special:FilePath/${image.value}?width=${width}px`;
     },
+    getThumbnailImageURL(image, { width = 40 } = {}) {
+      return `http://commons.wikimedia.org/wiki/Special:FilePath/${image}?width=${width}px`;
+    },
   },
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .topic-matches{
   border-left: 2px solid gold;
 }
@@ -96,6 +113,13 @@ export default {
 .entity-item.active{
   box-shadow: inset 0.15em 0 #343a40;
   background-color: #f2f2f2;
+}
+.entity-avatar {
+  > span {
+    > img {
+      height: auto !important;
+    }
+  }
 }
 </style>
 <i18n>
