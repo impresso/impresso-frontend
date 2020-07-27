@@ -55,7 +55,7 @@
                       :buckets="buckets"
                       v-model="filter"
                       />
-      <range-facet-explorer v-if="RangeFacets.includes(currentType)"
+      <range-facet-explorer v-if="NumericRangeFacets.includes(currentType)"
                       :filter-type="currentType"
                       :buckets="buckets"
                       :range="range"
@@ -92,7 +92,7 @@ import FacetExplorer from './modules/FacetExplorer';
 import RangeFacetExplorer from './modules/RangeFacetExplorer';
 import Pagination from './modules/Pagination';
 import Bucket from '@/models/Bucket';
-import { RangeFacets } from '@/logic/filters'
+import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 
 const TypeToServiceMap = Object.freeze({
   person: entities,
@@ -177,7 +177,7 @@ const AllSupportedFilterTypes = [
   'location', 'country', 'person', 'language',
   'topic', 'newspaper', 'collection', 'year', 'month',
   'textReuseClusterSize', 'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta'
+  'textReuseClusterDayDelta', 'daterange'
 ]
 
 const DefaultFilterTypes = [
@@ -202,7 +202,8 @@ export default {
     range: [],
     isLoading: false,
     pageSize: PageSize,
-    RangeFacets
+    RangeFacets,
+    NumericRangeFacets
   }),
   props: {
     /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
