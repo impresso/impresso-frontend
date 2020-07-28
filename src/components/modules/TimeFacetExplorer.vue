@@ -4,7 +4,7 @@
       :values="timevalues"
       :domain="timelineSpan"
       :brush="currentTimelineSelectionSpan"
-      height="120px"
+      :height="'120px'"
       @brush-end="handleTimelineBrushed"
       @clear-selection="handleTimelineCleared">
       <div slot-scope="tooltipScope">
@@ -117,3 +117,6 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+</style>
