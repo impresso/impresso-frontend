@@ -2,16 +2,26 @@
   <div class="facet-overview-panel">
     <!-- timeline type -->
     <div v-if="type === 'timeline'">
-      <div class="tb-title m-0 mt-2 label small-caps font-weight-bold">
-        {{
-          $tc(`label.${facet}.optionsTitle`)
-        }}
+      <div class="d-flex mb-3 ml-0 justify-content-between">
+        <div class="col p-0 mr-auto">
+          <div class="tb-title m-0 mt-2 label small-caps font-weight-bold">
+            {{
+              $tc(`label.${facet}.optionsTitle`)
+            }}
+          </div>
+          <span class="small">
+          {{
+            $tc(`label.${facet}.optionsDescription`)
+          }}
+          </span>
+        </div>
+        <div class="col p-0 align-self-end">
+          <b-nav-form class="display-style">
+            <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
+            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
+          </b-nav-form>
+        </div>
       </div>
-      <span class="small">
-      {{
-        $tc(`label.${facet}.optionsDescription`)
-      }}
-      </span>
       <div class="row mb-3">
         <timeline
               :contrast="false"
@@ -66,7 +76,11 @@
 <script>
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
 import Timeline from '@/components/modules/Timeline'
+import InfoButton from '@/components/base/InfoButton'
 import Bucket from '@/models/Bucket'
+import { search } from '@/services'
+
+const DisplayStyles = ['percent', 'sum']
 
 const timelineValuesSorter = (a, b) => a.t - b.t;
 
@@ -90,6 +104,8 @@ function fillEmptyYearsWithZeros(timelineValues, timelineRange) {
 
 export default {
   data: () => ({
+    displayStyle: 'sum',
+    cachedUnfilteredCounts: /** @type {{[key: string]: number}|undefined} */ (undefined)
   }),
   props: {
     /** @type {import('vue').PropOptions<string>} */
@@ -137,6 +153,7 @@ export default {
   components: {
     StackedBarsPanel,
     Timeline,
+    InfoButton
   },
   computed: {
     /** @returns {string} */
@@ -145,9 +162,19 @@ export default {
     },
     /** @returns {{w: number, t: number}[]} */
     timelineValues() {
-      const v = this.values
+      let v = this.values
         .map(({ val, count }) => ({ t: parseInt(val, 10), w: count }))
         .sort(timelineValuesSorter);
+
+      if (this.displayStyle === 'percent' && this.cachedUnfilteredCounts != null) {
+        v = v.map(({ t, w }) => {
+          // @ts-ignore
+          const total = this.cachedUnfilteredCounts[t]
+          if (total > 0) return { t, w: (w / total) }
+          return { t, w: 0 }
+        })
+      }
+
       return fillEmptyYearsWithZeros(v, this.timelineDomainRange);
     },
     /** @returns {[string, string] | []} */
@@ -159,7 +186,14 @@ export default {
       return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : [];
     },
     /** @returns {number} */
-    numberOfAvailableBucketsToLoad() { return this.numBuckets - this.values.length }
+    numberOfAvailableBucketsToLoad() { return this.numBuckets - this.values.length },
+    /** @returns {any[]} */
+    displayStyleOptions() {
+      return DisplayStyles.map(value => ({
+        text: this.$t(`label.display.${value}`),
+        value,
+      }));
+    }
   },
   methods: {
     /** @param {object} data */
@@ -177,6 +211,23 @@ export default {
       this.$emit('load-more-items')
     }
   },
+  watch: {
+    /** @param {string} value */
+    async displayStyle(value) {
+      if (value === 'percent' && this.cachedUnfilteredCounts == null) {
+        const query = {
+          limit: 0,
+          facets: 'year',
+          group_by: 'articles'
+        }
+        const response = await search.find({ query })
+        this.cachedUnfilteredCounts = response.info.facets.year.buckets.reduce((acc, bucket) => {
+          acc[bucket.val] = bucket.count
+          return acc
+        }, {})
+      }
+    }
+  }
 };
 </script>
 
@@ -209,5 +260,22 @@ export default {
         stroke: $inspect-compare-middle-panel-color;
       }
     }
+
+    .display-style {
+      float: right;
+    }
   }
 </style>
+
+<i18n>
+{
+  "en": {
+    "label": {
+      "display": {
+        "sum": "sum",
+        "percent": "%"
+      }
+    }
+  }
+}
+</i18n>
