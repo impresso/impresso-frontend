@@ -10,13 +10,11 @@
         :silent="true"
         :enable-cross="false"/>
     </div>
-    <div class="p-3 bg-white" v-if='valueChanged'>
+    <div class="p-2 border-top text-center" v-if='valueChanged'>
       <b-button
         @click="applyFilter()"
-        size="sm"
-        class="btn-block btn-outline-success"
-        v-html="$tc('actions.addToCurrentFiltersDetailed', 1)">
-      </b-button>
+        size="sm" variant="success"
+        v-html="$t('actions.addRangeToCurrentFilters')"></b-button>
     </div>
   </div>
 </template>

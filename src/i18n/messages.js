@@ -84,6 +84,7 @@ export default {
       removeFromCurrentFilters: 'Exclude from current search',
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
       addToCurrentItemsDetailed: 'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
+      addRangeToCurrentFilters: 'Apply range',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
       login: 'log in',

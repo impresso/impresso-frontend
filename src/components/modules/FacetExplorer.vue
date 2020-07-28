@@ -1,33 +1,36 @@
 <template lang="html">
-  <div>
+  <div class="facet-explorer">
     <div>
       <!-- The Loop -->
-      <b-form-checkbox-group v-model="selectedIds"
-                             class="position-relative p-2"
-                             style="min-height: 4em; max-height: 16em; overflow: scroll">
-        <b-form-checkbox v-for="(bucket, idx) in buckets"
-                         v-bind:key="idx"
-                         :value="bucket.val"
-                         class="d-block">
-          <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
-          <span v-if="bucket.count > -1">
-            (<span v-html="$tc('numbers.results', bucket.count, { n : $n(bucket.count) })"/>)
-          </span>
-          <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
-          <div class="matches" v-if="bucket.item && bucket.item.matches">
-            <span v-for="(match, i) in bucket.item.matches" v-html="match" :key="i"/>
-          </div>
-        </b-form-checkbox>
-      </b-form-checkbox-group>
+      <div class="position-relative">
+        <b-form-checkbox-group v-model="selectedIds" class="position-relative px-3 pt-2 pb-5" style="min-height: 4em; max-height: 16em; overflow: scroll">
+          <b-form-checkbox v-for="(bucket, idx) in buckets"
+                           v-bind:key="idx"
+                           :value="bucket.val"
+                           class="d-block">
+            <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
+            <span v-if="bucket.count > -1">
+              (<span v-html="$tc('numbers.results', bucket.count, { n : $n(bucket.count) })"/>)
+            </span>
+            <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
+            <div class="matches" v-if="bucket.item && bucket.item.matches">
+              <span v-for="(match, i) in bucket.item.matches" v-html="match" :key="i"/>
+            </div>
+          </b-form-checkbox>
+        </b-form-checkbox-group>
+        <div class="fixed-pagination-footer p-1 mb-2 small">
+          <slot name="pagination">
+          </slot>
+        </div>
+      </div>
     </div>
     <!-- Apply! -->
-    <div class="p-2 border-top" v-if='selectedIdsChanged'>
+    <div class="p-2 border-top text-center" v-if='selectedIdsChanged'>
       <b-button
         @click="applyFilter()"
-        class="w-100 btn btn-sm btn-success"
+        size="sm" variant="success"
         v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
     </div>
-
   </div>
 </template>
 

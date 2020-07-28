@@ -119,6 +119,7 @@ export default {
         brushable: this.brushable,
         format: getTimeFormatForResolution(this.resolution),
       });
+      setTimeout(() => this.timeline.resize(), 0)
     }
     this.timeline.on('mouseleave', () => {
       this.tooltip.isActive = false;
