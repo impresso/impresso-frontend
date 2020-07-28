@@ -8,15 +8,18 @@
       </div>
     </i-layout-section>
     <i-layout-section class="pt-2">
-      {{submitted}}
-      <histogram-slider
+      <!-- {{submitted}} -->
+      <!-- <histogram-slider
         class="histo-slider"
         @changed="onSliderValueChanged"
         :buckets="sliderBuckets"
         :only-range-labels="true"
-        :scale-type="'linear'"/>
+        :scale-type="'linear'"/> -->
       <!-- <time-punchcard-chart
         :data="testChartData"/> -->
+      <open-seadragon-article-viewer
+        :pages="testArticlePages"
+        @page-changed="handlePageChanged"/>
     </i-layout-section>
   </i-layout>
 </template>
@@ -25,7 +28,8 @@
 import * as d3 from 'd3'
 import Autocomplete from './Autocomplete';
 // import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart';
-import HistogramSlider from '@/components/modules/vis/HistogramSlider';
+// import HistogramSlider from '@/components/modules/vis/HistogramSlider';
+import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
 
 export default {
   data: () => ({
@@ -49,7 +53,25 @@ export default {
         }
       })
     }),
-    sliderBuckets: Array.from({length: 50}, (_, i) =>  ({ val: i, count: Math.random() * 1000 }))
+    sliderBuckets: Array.from({length: 50}, (_, i) =>  ({ val: i, count: Math.random() * 1000 })),
+    testArticlePages: [
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0001',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0002',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0003',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0004',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0005',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0006',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0007',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0008',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0009',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0010',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0011',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0012',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0013',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0014',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0015',
+      'https://impresso-project.ch/api/proxy/iiif/SMZ-1978-01-11-a-p0016'
+    ]
   }),
   methods: {
     submit(suggestion) {
@@ -57,12 +79,16 @@ export default {
     },
     onSliderValueChanged(/* value */) {
       // console.info(`Slider value changed: ${value}`);
+    },
+    handlePageChanged(pageIndex) {
+      console.info('Current page', pageIndex)
     }
   },
   components: {
     Autocomplete,
+    OpenSeadragonArticleViewer,
     // TimePunchcardChart,
-    HistogramSlider
+    // HistogramSlider
   },
 };
 </script>
