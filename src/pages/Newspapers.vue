@@ -9,20 +9,22 @@
               :to="{ name:'newspapers'}"><span v-html="$t('label_list', { total: $n(paginationTotalRows) })"/></b-nav-item>
           </template>
         </b-tabs>
-        <div class="p-2 px-3">
-          <b-input debounce="150" placeholder="filter newspapers" v-model.trim="suggestionQuery"/>
-          <div class="mt-2">
+        <div class="pb-2 px-3">
+          <b-input class="my-3" v-model.trim="suggestionQuery"
+            debounce="150" :placeholder="$t('filter_newspapers')" />
+          <div class="my-2">
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </div>
         </div>
       </template>
       <template v-slot:default>
-        <router-link v-for="(newspaper, i) in items" v-bind:key="i"
-          class="p-3 border-bottom d-block"
-          v-bind:class="{active: newspaper.uid === newspaperUid}"
-          v-bind:to="{name: 'newspaper_metadata', params: {newspaper_uid: newspaper.uid}}">
-          <newspaper-item :item="newspaper"/>
-        </router-link>
+        <newspaper-item v-for="(newspaper, i) in items"
+          class="p-3 border-bottom"
+          :key="i"
+          :item="newspaper"
+          :active="newspaper.uid === newspaperUid"
+          show-link
+        />
       </template>
     </list>
     <router-view :newspapers="items"></router-view>
@@ -106,9 +108,14 @@ export default {
   },
   watch: {
     serviceQuery: {
-      handler(params) {
+      handler(params, oldParams) {
         // this get called twice becaues of the suggestionQuery
-        console.info('@params', params);
+        const newParamsStr = JSON.stringify(params)
+        const oldParamsStr = JSON.stringify(oldParams)
+        if (newParamsStr === oldParamsStr) {
+          // Params are the same: ${newParamsStr} ${oldParamsStr}`)
+          return;
+        }
         const { q, limit, page, orderBy } = params;
         const query = {
           page,
@@ -140,32 +147,22 @@ export default {
 <style scoped lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
 
-.active {
-    background: $clr-accent-secondary;
-}
-
-.nav-item.active{
-  background-color: transparent;
-}
-.newspaper-item h2{
-  font-size: inherit;
-}
 </style>
 
 <i18n>
 {
   "en": {
-    "filter_newspapers": "filter newspapers ({total})",
-    "label_list": "list of newspapers ({total})",
+    "filter_newspapers": "filter list of newspapers by name ...",
+    "label_list": "browse {total} newspapers",
     "label_order": "Order By",
-    "sort_name": "Alphabetical, A-Z ↑",
-    "sort_-name": "Alphabetical, Z-A ↓",
-    "sort_startYear": "Date of first issue ↑",
-    "sort_-startYear": "Date of first issue ↓",
-    "sort_endYear": "Date of last issue",
-    "sort_-endYear": "Date of last issue",
-    "sort_countIssues": "Available # of Issues ↑",
-    "sort_-countIssues": "Available # of Issues ↓"
+    "sort_name": "order alphabetically, A-Z ↑",
+    "sort_-name": "order alphabetical, Z-A ↓",
+    "sort_startYear": "order by date of first issue ↑",
+    "sort_-startYear": "order by date of first issue ↓",
+    "sort_endYear": "order by date of last issue ↑",
+    "sort_-endYear": "order by date of last issue ↓",
+    "sort_countIssues": "order by number of available issues ↑",
+    "sort_-countIssues": "order by number of available issues ↓"
   }
 }
 </i18n>
