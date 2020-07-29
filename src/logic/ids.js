@@ -20,3 +20,14 @@ export function getPageId(issueId, pageIndex) {
   const pageNumber = pageIndex + 1
   return `${issueId}-p${String(pageNumber).padStart(4, '0')}`
 }
+
+/**
+ * @param {string} longArticleId
+ */
+export function getShortArticleId(longArticleId) {
+  return longArticleId.split('-').slice(-1)[0]
+}
+
+export function getLongArticleId(issueId, shortArticleId) {
+  return `${issueId}-a-${shortArticleId}`
+}

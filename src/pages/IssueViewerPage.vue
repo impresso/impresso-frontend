@@ -23,7 +23,7 @@
 import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
 import { issues as issuesService, articles as articlesService } from '@/services'
 import { getQueryParameter } from '@/router/util'
-import { getPageId } from '@/logic/ids'
+import { getPageId, getShortArticleId, getLongArticleId } from '@/logic/ids'
 import Issue from '@/models/Issue'
 import Article from '@/models/Article'
 
@@ -49,7 +49,11 @@ export default {
       }
     },
     /** @returns {string|undefined} */
-    articleId() { return /** @type {string} */ (this.$route.query[QueryParams.ArticleId]) },
+    articleId() {
+      const shortArticleId = getQueryParameter(this, QueryParams.ArticleId)
+      if (shortArticleId == null) return undefined
+      return getLongArticleId(this.issueId, shortArticleId)
+    },
     /** @returns {string[]|undefined} */
     pagesIIIFUrls() {
       if (this.issue == null) return undefined
@@ -114,7 +118,9 @@ export default {
       this.currentPageIndex = pageIndex
     },
     handleArticleSelected(articleUid) {
-      console.info('Article selected', articleUid)
+      this.$navigation.updateQueryParameters({
+        [QueryParams.ArticleId]: articleUid == null ? undefined : getShortArticleId(articleUid)
+      })
     }
   }
 }
