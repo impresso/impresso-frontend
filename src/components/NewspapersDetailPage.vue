@@ -5,7 +5,7 @@
         <b-navbar>
           <section>
             <span class="label small-caps">
-              <router-link :to="{ name: 'newspapers' }">&larr; {{$t("newspapers")}}</router-link>
+              <router-link :to="getRoute({ name: 'newspapers'})">&larr; {{$t("newspapers")}}</router-link>
             </span>
             <h3>
               {{newspaper.name}}
@@ -131,7 +131,6 @@
               v-for="(issue, i) in issues"
               v-bind:key="i"
               class="mb-4">
-
               <b-card class="mb-2">
                 <router-link v-bind:to="{ name: 'page', params: {
                   issue_uid: issue.uid,
@@ -167,12 +166,19 @@
 
 <script>
 import Newspaper from '@/models/Newspaper';
+import Issue from '@/models/Issue';
+import Facet from '@/models/Facet';
 import SearchQuery from '@/models/SearchQuery';
 import Pagination from './modules/Pagination';
 import Timeline from './modules/Timeline';
 import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
+import {
+  issues as IssuesService,
+  searchFacets as searchFacetsService,
+  newspapers as newspapersService,
+} from '@/services';
 
 export default {
   data: () => ({
@@ -260,6 +266,9 @@ export default {
     },
     endYear() {
       return window.impressoDocumentsYearSpan.lastYear;
+    },
+    newspaperUid() {
+      return this.$route.params.newspaper_uid;
     }
   },
   methods: {
@@ -273,51 +282,56 @@ export default {
         .filter(f => !containsFilter(newFilter)(f))
         .concat([newFilter]);
     },
-    async onInputPagination(page) {
-      await this.loadIssues({
-        page,
-      });
+    getRoute(route) {
+      return {
+        ...route,
+        query: {
+          ...this.$route.query,
+          ...route.query,
+        },
+      };
     },
-    async loadTimeline() {
+    onInputPagination(page) {
+      return this.loadIssues({ page })
+    },
+    loadTimeline() {
       return this.$store.dispatch('search/LOAD_TIMELINE', {
-        filters: [
-          {
-            q: this.$route.params.newspaper_uid,
-            type: 'newspaper',
-          },
-        ],
+        filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
       }).then((values) => {
         this.timevalues = values;
       });
     },
     async loadFacets() {
       this.facets = [];
-      this.facetTypes.forEach((type) => {
-        return this.$store.dispatch('newspapers/LOAD_FACETS', {q: this.$route.params.newspaper_uid, type})
-          .then((r) => {
-            if (r.numBuckets > 0) this.facets.push(r);
-          });
-      });
+      const query = {
+        filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+        group_by: 'articles',
+      };
+      for (let facetType of this.facetTypes) {
+        const results = await searchFacetsService.get(facetType, {
+          query,
+        }).then(([facetType]) => new Facet(facetType));
+        this.facets = this.facets.concat(results);
+      }
     },
-    async loadIssues({
-      page = 1,
-    } = {}) {
-      const response = await this.$store.dispatch('issue/LOAD_ISSUES', {
-        page,
-        orderBy: this.orderBy,
-        limit: this.limit,
-        filters: [{
-          type: 'newspaper',
-          q: this.$route.params.newspaper_uid,
-          context: 'include',
-        }],
-      });
+    async loadIssues({ page = 1 } = {}) {
+      this.issues = []
+      const {total, issues} = await IssuesService.find({
+        query: {
+          filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+          page,
+          orderBy: this.orderBy,
+          limit: this.limit
+        },
+      }).then(({ total, data }) => {
+        return { total, issues: data.map(d => new Issue(d)) };
+      })
       this.page = page;
-      this.total = response.total;
-      this.issues = response.data;
+      this.total = total;
+      this.issues = issues;
     },
     async loadNewspaper() {
-      this.newspaper = await this.$store.dispatch('newspapers/LOAD_DETAIL', this.$route.params.newspaper_uid);
+      this.newspaper = await newspapersService.get(this.newspaperUid, {}).then(d => new Newspaper(d));
       this.total = this.newspaper.countIssues;
     },
   },
