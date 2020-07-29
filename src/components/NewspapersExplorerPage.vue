@@ -57,29 +57,17 @@
       :scrollTop="scrollTop"
       :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"
     />
-
-    <b-container class="my-3">
-      <h2>Top 10 facets</h2>
-      <b-row>
-        <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
-          <stacked-bars-panel
-            class=""
-            :label="facet.type"
-            :buckets="facet.buckets"
-            :facet-type="facet.type"/>
-      </b-col>
-    </b-row>
-    </b-container>
-
   </i-layout-section>
 </template>
 <script>
 import NewspapersLines from './NewspapersLines';
 import Timeline from './modules/Timeline';
-import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import InfoButton from './base/InfoButton';
 
 export default {
+  props: {
+    newspapers: Array,
+  },
   data: () => ({
     values: [],
     start: 1738,
@@ -93,9 +81,6 @@ export default {
     facetTypes: ['newspaper', 'country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
   }),
   computed: {
-    newspapers() {
-      return this.$store.state.newspapers.list.newspapers;
-    },
     valueTypesOptions() {
       return [
         {
@@ -166,7 +151,6 @@ export default {
     // Tooltip,
     NewspapersLines,
     Timeline,
-    StackedBarsPanel,
     InfoButton,
   },
 };
