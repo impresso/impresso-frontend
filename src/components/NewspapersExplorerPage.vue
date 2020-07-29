@@ -7,13 +7,13 @@
           <small><info-button name="which-newspapers" class="text-muted" /></small>
           <h3 class='mb-1'>{{ $t('newspapers_lines') }}
           </h3>
-
         </section>
       </b-navbar>
       <b-navbar class='m-0 px-3 border-bottom'>
         <section class="d-flex w-100" style="position: relative; height: 80px;">
           <b-navbar-nav style='width: 150px'>
-            <i-dropdown v-model="valueType" style="height:30px; margin-top:10px" v-bind:options="valueTypesOptions" size="sm" variant="outline-primary" />
+            <i-dropdown v-model="valueType"
+            style="height:30px; margin-top:10px" v-bind:options="valueTypesOptions" size="sm" variant="outline-primary" />
           </b-navbar-nav>
           <b-navbar-nav style='position: absolute; left: 150px; right: 50px'>
               <timeline
@@ -39,17 +39,7 @@
       </section>
 
       </b-navbar>
-      <!-- <b-navbar  type="light" variant="light" class="border-bottom">
-        <b-input-group class="mini" :prepend="$t('from')">
-          <b-form-input  v-model='start' />
-        </b-input-group>
-
-        <b-input-group class="mini" prepend="to">
-          <b-form-input v-model='end' />
-        </b-input-group>
-      </b-navbar> -->
     </div>
-
     <!--  newspaper lifespans -->
     <newspapers-lines class="m-3"
       v-model="newspapers"
@@ -63,13 +53,13 @@
 import NewspapersLines from './NewspapersLines';
 import Timeline from './modules/Timeline';
 import InfoButton from './base/InfoButton';
+import { pagesTimelines, issuesTimeline } from '@/services';
 
 export default {
   props: {
     newspapers: Array,
   },
   data: () => ({
-    values: [],
     start: 1738,
     end: 2018,
     highlights: ['A', 'B'],
@@ -79,19 +69,17 @@ export default {
     scrollTop: 0,
     facets: [],
     facetTypes: ['newspaper', 'country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
+    timelinesValues: {
+      pages: [],
+      issues: [],
+    }
   }),
   computed: {
     valueTypesOptions() {
-      return [
-        {
-          value: 'pages',
-          text: this.$t('pages.label'),
-        },
-        {
-          value: 'issues',
-          text: this.$t('issues.label'),
-        },
-      ];
+      return ['pages', 'issues'].map(value => ({
+        value,
+        text: this.$t(`${value}.label`),
+      }))
     },
     totalLabel() {
       return this.$t(`${this.valueType}.total`);
@@ -99,16 +87,25 @@ export default {
     contrastLabel() {
       return this.$t(`${this.valueType}.contrast`);
     },
+    values() {
+      return this.timelinesValues[this.valueType];
+    }
   },
   mounted() {
-    this.loadFacets();
-    // global timeline per year, with n. of pages, n. of empty pages, n.of corrupted pages.
-    return this.$store.dispatch('newspapers/LOAD_TIMELINES').then(([pages, issues]) => {
-      this.timelines = {
-        pages,
-        issues,
+    return Promise.all([
+      pagesTimelines.get('stats', {}),
+      issuesTimeline.get('stats', {})
+    ]).then(([ pages, issues ]) => {
+      const pagesValues = pages.values.length
+        ? this.$helpers.timeline.addEmptyIntervals(pages.values.sort((a, b) => a.t - b.t))
+        : [];
+      const issuesValues = issues.values.length
+        ? this.$helpers.timeline.addEmptyIntervals(issues.values.sort((a, b) => a.t - b.t))
+        : [];
+      this.timelinesValues = {
+        pages: pagesValues,
+        issues: issuesValues,
       };
-      this.values = this.timelines[this.valueType].values;
     });
   },
   methods: {
@@ -125,27 +122,7 @@ export default {
           this[`highlight${vis}`] = event.datum;
         }
       });
-    },
-    async loadFacets() {
-      this.facets = [];
-      this.facetTypes.forEach((type) => {
-        return this.$store.dispatch('newspapers/LOAD_FACETS', {q: undefined, type})
-          .then((r) => {
-            if (r.numBuckets > 0) this.facets.push(r);
-          });
-      });
-    },
-  },
-  watch: {
-    valueType: {
-      immediate: false,
-      handler(val) {
-        if (this.timelines[val]) {
-          this.values = this.timelines[val].values;
-        }
-      },
-    },
-
+    }
   },
   components: {
     // Tooltip,
