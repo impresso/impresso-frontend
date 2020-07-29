@@ -11,3 +11,12 @@ export function getArticleParameters(articleId, pageNumber) {
     article_uid: articleId
   }
 }
+
+/**
+ * @param {string} issueId issue UID
+ * @param {number} pageIndex 0-based page index
+ */
+export function getPageId(issueId, pageIndex) {
+  const pageNumber = pageIndex + 1
+  return `${issueId}-p${String(pageNumber).padStart(4, '0')}`
+}
