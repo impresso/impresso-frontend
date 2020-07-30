@@ -42,6 +42,14 @@ function createRegionOverlay(tiledImage, region, clickHandler) {
     const articleUid = event.target.dataset.articleUid
     event.stopPropagation()
     clickHandler(articleUid)
+
+    event.target.parentNode.querySelectorAll('div').forEach((item) => {
+      item.classList.remove('active')
+    })
+
+    event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+      item.classList.add('active')
+    })
   })
 
   overlay.addEventListener('mouseleave', (event) => {
@@ -202,15 +210,6 @@ export default {
             articleUid => {
               if (this.isDragging) return
               this.$emit('article-selected', articleUid)
-
-              // @ts-ignore
-              viewer.overlaysContainer.querySelectorAll('div').forEach((overlay) => {
-                if (overlay.dataset.articleUid === articleUid) {
-                  overlay.classList.add('active');
-                } else {
-                  overlay.classList.remove('active');
-                }
-              })
             }
           )
           viewer.addOverlay(overlay, rect)
