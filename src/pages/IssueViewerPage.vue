@@ -91,24 +91,14 @@ export default {
       async handler(id) {
         if (id == null) throw new Error('Issue ID must always be defined on this page')
         this.issue = new Issue(await issuesService.get(id))
+        await this.loadRegions(this.currentPageIndex)
       },
       immediate: true
     },
     currentPageIndex: {
       /** @param {number} pageIndex */
       async handler(pageIndex) {
-        if (this.issue == null) return
-        if (this.pagesArticles[pageIndex] == null) {
-          const articles = await articlesService
-            .find({
-              query: {
-                filters: [{ type: 'page', q: getPageId(this.issueId, pageIndex) }],
-                limit: 500
-              }
-            })
-            .then(response => response.data.map(article => new Article(article)))
-          this.$set(this.pagesArticles, pageIndex, articles)
-        }
+        await this.loadRegions(pageIndex)
       },
       immediate: true
     }
@@ -121,6 +111,21 @@ export default {
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: articleUid == null ? undefined : getShortArticleId(articleUid)
       })
+    },
+    /** @param {number} pageIndex */
+    async loadRegions(pageIndex) {
+      if (this.issue == null) return
+      if (this.pagesArticles[pageIndex] == null) {
+        const articles = await articlesService
+          .find({
+            query: {
+              filters: [{ type: 'page', q: getPageId(this.issueId, pageIndex) }],
+              limit: 500
+            }
+          })
+          .then(response => response.data.map(article => new Article(article)))
+        this.$set(this.pagesArticles, pageIndex, articles)
+      }
     }
   }
 }

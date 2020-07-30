@@ -67,7 +67,7 @@ export default {
     viewer: /** @type {Viewer|undefined} */ (undefined),
     currentPageIndex: 0,
     tilesAreReady: false,
-    currentOverlays: [],
+    currentOverlays: /** @type {any[]} */ ([]),
     isDragging: false
   }),
   props: {
@@ -103,16 +103,15 @@ export default {
               clickToZoom: false,
               dblClickToZoom: true,
             },
-            defaultZoomLevel: 0.001,
+            defaultZoomLevel: 0.0005,
             collectionMode:       true,
             collectionRows:       1,
             // collectionTileSize:   512,
             collectionTileMargin: 16,
-            debugMode: true
+            // debugMode: true
           })
 
-
-          this.viewer.addHandler('viewport-change', () => {
+          const viewportChangeHandler = () => {
             const viewer = /** @type {Viewer} */ (this.viewer)
             if (viewer.world.getItemCount() === 0) return
             let { x: currentX } = viewer.viewport.getCenter()
@@ -139,7 +138,10 @@ export default {
               this.currentPageIndex = currentItemIndex
               this.$emit('page-changed', this.currentPageIndex)
             }
-          })
+          }
+
+          this.viewer.addHandler('viewport-change', viewportChangeHandler)
+          this.$emit('page-changed', this.currentPageIndex)
 
           this.viewer.addHandler('canvas-drag', () => {
             this.isDragging = true;
@@ -193,18 +195,27 @@ export default {
 
         const tiledImage = viewer.world.getItemAt(this.currentPageIndex)
 
-        this.currentOverlays = /**  @type {never[]} */ (regions.map(region => {
+        this.currentOverlays = regions.map(region => {
           const { overlay, rect } = createRegionOverlay(
             tiledImage,
             region,
             articleUid => {
               if (this.isDragging) return
               this.$emit('article-selected', articleUid)
+
+              // @ts-ignore
+              viewer.overlaysContainer.querySelectorAll('div').forEach((overlay) => {
+                if (overlay.dataset.articleUid === articleUid) {
+                  overlay.classList.add('active');
+                } else {
+                  overlay.classList.remove('active');
+                }
+              })
             }
           )
           viewer.addOverlay(overlay, rect)
           return overlay
-        }))
+        })
       },
       immediate: true,
       deep: true
