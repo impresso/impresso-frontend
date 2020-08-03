@@ -1,14 +1,28 @@
 <template>
   <i-layout id="IssuePageViewer" ref="issuePageViewer">
     <!-- TOC -->
-    <list hide-pagination width="350px">
+    <list :hide-pagination="!!matchingArticles.length" width="350px">
       <template v-slot:header v-if="issue">
-        {{issue.accessRights}}
-        {{ issue.countArticles}} articles
-        {{ issue.countPages }} pages
+        <b-tabs pills class="mx-2 pt-2">
+          <b-tab active>
+            <template v-slot:title>
+              <span v-html="$t('table_of_contents')"/>
+            </template>
+            <div class="p-2 px-3">
+              <p v-html="$t('stats', {
+                countArticles: issue.countArticles,
+                countPages: issue.countPages,
+                accessRights: $t(`buckets.accessRight.${issue.accessRights }`)
+              })" />
+              <b-input class="mb-3" v-model.trim="suggestionQuery"
+                debounce="500" :placeholder="$t('filter_articles')" />
+
+            </div>
+          </b-tab>
+        </b-tabs>
       </template>
-      <template v-slot:default v-if="tableOfContents">
-        <div v-for="(item, i) in tableOfContents.articles" :key="i"
+      <template v-slot:default>
+        <div v-for="(item, i) in tableOfContentsArticles" :key="i"
           class="border-bottom"
           @click="handleArticleSelected(item.uid, item.pages[0].num)"
         >
@@ -75,7 +89,8 @@ import List from '@/components/modules/lists/List'
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
-  articles as articlesService
+  articles as articlesService,
+  search as searchService,
 } from '@/services'
 import { getQueryParameter } from '@/router/util'
 import { getPageId, getShortArticleId, getLongArticleId } from '@/logic/ids'
@@ -90,7 +105,12 @@ export default {
   data: () => ({
     issue: /** @type {Issue|undefined} */ (undefined),
     tableOfContents: /** @type {TableOfContents|undefined} */ (undefined),
-    pagesArticles: /** @type {{[key: string] : Article[] }} */ ({})
+    pagesArticles: /** @type {{[key: string] : Article[] }} */ ({}),
+    // left panel
+    paginationPerPage: 200,
+    paginationCurrentPage: 1,
+    paginationTotalRows: 0,
+    matchingArticles: [],
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -134,6 +154,33 @@ export default {
         coords: region.coords
       })))
     },
+    tableOfContentsArticles() {
+      if (this.suggestionQuery.length) {
+        return this.matchingArticles;
+      }
+      if (this.tableOfContents) {
+        return this.tableOfContents.articles;
+      }
+      return []
+    },
+    suggestionQuery: {
+      get() {
+        return this.$route.query.q ?? '';
+      },
+      set(q) {
+        this.paginationCurrentPage = 1;
+        this.$navigation.updateQueryParametersWithHistory({
+          q,
+        });
+      },
+    },
+    serviceQuery() {
+      return {
+        q: this.suggestionQuery,
+        limit: this.paginationPerPage,
+        page: this.paginationCurrentPage,
+      };
+    },
     currentPageIndex: {
       /** @returns {number} */
       get() {
@@ -168,7 +215,32 @@ export default {
         await this.loadRegions(pageIndex)
       },
       immediate: true
-    }
+    },
+    serviceQuery: {
+      handler(params, oldParams) {
+        // this get called twice becaues of the suggestionQuery
+        const newParamsStr = JSON.stringify(params)
+        const oldParamsStr = JSON.stringify(oldParams)
+        if (newParamsStr === oldParamsStr) {
+          // Params are the same: ${newParamsStr} ${oldParamsStr}`)
+          return;
+        }
+        const { q, limit, page } = params;
+        const filters = [{ type: 'issue', q: this.issue.uid }]
+        this.matchingArticles = [];
+
+        if (q.length){
+          filters.push({ type: 'string', q });
+          searchService.find({
+            query: { filters, page, limit, group_by: 'articles' },
+          }).then(({ data, total }) => {
+            this.paginationTotalRows = total;
+            this.matchingArticles = data.map(article => new Article(article));
+          });
+        }
+      },
+    },
+    immediate: true,
   },
   methods: {
     changeCurrentPageIndex(pageIndex) {
@@ -203,4 +275,12 @@ export default {
 }
 </script>
 
-<style></style>
+<i18n>
+{
+  "en": {
+    "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
+    "label_display": "Display as",
+    "table_of_contents": "table of contents"
+  }
+}
+</i18n>
