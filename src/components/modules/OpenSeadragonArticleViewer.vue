@@ -191,6 +191,13 @@ export default {
       immediate: true,
       deep: true
     },
+    defaultCurrentPageIndex: {
+      handler(idx) {
+        if (this.viewer && this.currentPageIndex !== idx) {
+          this.viewer.viewport.fitBounds(this.viewer.world.getItemAt(idx).getBounds(), true)
+        }
+      }
+    },
     readyRegions: {
       /**
        * @param {Region[]} regions
