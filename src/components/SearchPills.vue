@@ -90,6 +90,15 @@
       </div>
     </b-dropdown>
 
+    <b-button
+      v-if="enableAddFilter"
+      class="mb-1"
+      variant="outline-primary"
+      size="sm"
+      v-on:click="showFilterExplorer">
+      {{ $t('actions.addContextualFilter') }}
+    </b-button>
+
     <b-button class="mb-1 px-2 ml-auto" variant="outline-danger"
       v-if="isResettable"
       :title="$t('actions.resetFilters')"

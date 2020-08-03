@@ -9,7 +9,6 @@ import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
 import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
-import NewspapersPage from '../components/NewspapersPage';
 import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
 import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
@@ -207,7 +206,7 @@ const router = new Router({
     },
     {
       path: '/newspapers',
-      component: NewspapersPage,
+      component: () => import(/* webpackChunkName: "newspapers" */ '../pages/Newspapers.vue'),
       children: [{
         path: '',
         component: NewspapersExplorerPage,

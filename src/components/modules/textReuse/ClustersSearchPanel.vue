@@ -4,7 +4,8 @@
       <search-pills :filters="filters"
         :includedFilterTypes="supportedFilterTypes"
         @changed="handleFiltersChanged"
-        :index="'tr_clusters'" />
+        :index="'tr_clusters'"
+        :enableAddFilter="true" />
     </div>
 
     <search-input class="mt-3"
