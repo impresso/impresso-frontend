@@ -1,10 +1,26 @@
 <template>
   <i-layout id="IssuePageViewer" ref="issuePageViewer">
+    <!-- TOC -->
+    <list hide-pagination width="350px">
+      <template v-slot:header v-if="issue">
+        {{issue.accessRights}}
+        {{ issue.countArticles}} articles
+        {{ issue.countPages }} pages
+      </template>
+      <template v-slot:default v-if="tableOfContents">
+        <div v-for="(item, i) in tableOfContents.articles" :key="i"
+          class="border-bottom"
+          @click="handleArticleSelected(item.uid, item.pages[0].num)"
+        >
+          <table-of-contents-item :item="item" :active="item.uid === articleId"/>
+        </div>
+      </template>
+    </list>
     <!-- main section -->
-    <i-layout-section main class="bg-dark">
+    <i-layout-section main>
       <!-- header -->
       <div slot="header" class="border-bottom" v-if="issue">
-        <b-navbar type="light" variant="light" class="px-0 py-0">
+        <b-navbar variant="light" class="px-0 py-0">
           <section class='p-2 pl-3'>
             <h3 class="m-0">
               <b>{{ issue.newspaper.name }}</b> &middot;
@@ -53,13 +69,19 @@
 
 <script>
 import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
+import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem'
 import PageItem from '@/components/modules/lists/PageItem'
 import List from '@/components/modules/lists/List'
-import { issues as issuesService, articles as articlesService } from '@/services'
+import {
+  issues as issuesService,
+  tableOfContents as tableOfContentsService,
+  articles as articlesService
+} from '@/services'
 import { getQueryParameter } from '@/router/util'
 import { getPageId, getShortArticleId, getLongArticleId } from '@/logic/ids'
 import Issue from '@/models/Issue'
 import Article from '@/models/Article'
+import TableOfContents from '@/models/TableOfContents'
 
 const Params = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({ PageNumber: 'p', ArticleId: 'articleId' })
@@ -67,10 +89,12 @@ const QueryParams = Object.freeze({ PageNumber: 'p', ArticleId: 'articleId' })
 export default {
   data: () => ({
     issue: /** @type {Issue|undefined} */ (undefined),
+    tableOfContents: /** @type {TableOfContents|undefined} */ (undefined),
     pagesArticles: /** @type {{[key: string] : Article[] }} */ ({})
   }),
   components: {
     OpenSeadragonArticleViewer,
+    TableOfContentsItem,
     PageItem,
     List,
   },
@@ -134,6 +158,7 @@ export default {
       /** @param {string} id */
       async handler(id) {
         this.issue = new Issue(await issuesService.get(id))
+        this.tableOfContents = new TableOfContents(await tableOfContentsService.get(id))
       },
       immediate: true
     },
@@ -150,10 +175,14 @@ export default {
       console.info('@changeCurrentPageIndex', pageIndex, this.currentPageIndex);
       this.currentPageIndex = pageIndex;
     },
-    handleArticleSelected(articleUid) {
-      this.$navigation.updateQueryParameters({
+    handleArticleSelected(articleUid, pageNumber) {
+      const params = {
         [QueryParams.ArticleId]: articleUid == null ? undefined : getShortArticleId(articleUid)
-      })
+      }
+      if (pageNumber) {
+        params[QueryParams.PageNumber] = pageNumber
+      }
+      this.$navigation.updateQueryParameters(params)
     },
     /** @param {number} pageIndex */
     async loadRegions(pageIndex) {
@@ -173,3 +202,5 @@ export default {
   }
 }
 </script>
+
+<style></style>
