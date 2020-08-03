@@ -1,7 +1,7 @@
 <template>
-  <i-layout id="IssuePageViewer" class="bg-light" ref="issuePageViewer">
+  <i-layout id="IssuePageViewer" ref="issuePageViewer">
     <!-- main section -->
-    <i-layout-section main>
+    <i-layout-section main class="bg-dark">
       <!-- header -->
       <div slot="header" class="border-bottom" v-if="issue">
         <b-navbar type="light" variant="light" class="px-0 py-0">
@@ -34,6 +34,7 @@
           :pages="pagesIIIFUrls"
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
+          :article="{ uid: articleId }"
           @page-changed="changeCurrentPageIndex"
           @article-selected="handleArticleSelected"/>
       </div>
