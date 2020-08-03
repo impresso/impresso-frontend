@@ -20,10 +20,10 @@
 
         <b-tabs pills class="mx-3">
           <template v-slot:tabs-end>
-            <b-nav-item :to="{ name:'newspaper_metadata'}" exact active-class='active' class="pl-2">
+            <b-nav-item :to="getRoute({ name: 'newspaper_metadata'})" exact active-class='active' class="pl-2">
               <span>{{$t('route.newspaper_metadata')}}</span>
             </b-nav-item>
-            <b-nav-item :to="{ name:'newspaper'}" exact active-class='active' class="pl-2">
+            <b-nav-item :to="getRoute({ name: 'newspaper'})" exact active-class='active' class="pl-2">
               <span>{{$t('route.newspaper', { total: $n(total) })}}</span>
             </b-nav-item>
           </template>
@@ -137,7 +137,7 @@
                   page_uid: issue.frontPage.uid,
                 }}">
                   <b-card-img-lazy
-                    :src="issue.frontPage.iiifThumbnail"
+                    :src="issue.frontPage.getIiifThumbnail({ dim: 250 })"
                     :alt="$d(issue.date, 'long')" top />
                 </router-link>
                 <b-card-body>
