@@ -29,5 +29,5 @@ export function getShortArticleId(longArticleId) {
 }
 
 export function getLongArticleId(issueId, shortArticleId) {
-  return `${issueId}-a-${shortArticleId}`
+  return `${issueId}-${shortArticleId}`
 }
