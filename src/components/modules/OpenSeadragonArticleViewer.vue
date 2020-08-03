@@ -5,7 +5,6 @@
 <script>
 import initViewer from 'openseadragon'
 
-
 /**
  * @typedef {import('openseadragon').Viewer} Viewer
  * @typedef {import('openseadragon').TiledImage} TiledImage
@@ -16,6 +15,14 @@ import initViewer from 'openseadragon'
  *  coords: { x: number, y: number, w: number, h: number }
  * }} Region
  */
+
+function createPageOverlay(tiledImage) {
+  // @ts-ignore
+  const overlay = window.document.createElement('div')
+  overlay.setAttribute('class', 'overlay-page')
+  const rect = tiledImage.getBounds()
+  return { overlay, rect }
+}
 
 /**
  * @param {TiledImage} tiledImage
@@ -42,14 +49,14 @@ function createRegionOverlay(tiledImage, region, clickHandler) {
     const articleUid = event.target.dataset.articleUid
     event.stopPropagation()
     clickHandler(articleUid)
-
-    event.target.parentNode.querySelectorAll('div').forEach((item) => {
-      item.classList.remove('active')
-    })
-
-    event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
-      item.classList.add('active')
-    })
+    //
+    // event.target.parentNode.querySelectorAll('div.overlay-region').forEach((item) => {
+    //   if (articleUid === item.getAttribute('data-article-uid')) {
+    //     item.classList.add('active')
+    //   } else {
+    //     item.classList.remove('active')
+    //   }
+    // })
   })
 
   overlay.addEventListener('mouseleave', (event) => {
@@ -87,6 +94,7 @@ export default {
       type: Number,
       default: 0
     },
+    article: Object,
     /** @type {import('vue').PropOptions<Region[]>} */
     regions: {
       type: Array,
@@ -171,6 +179,12 @@ export default {
     readyRegions() {
       if (this.tilesAreReady) return this.regions
       return []
+    },
+    readyData() {
+      return {
+        regions: this.regions,
+        article: this.article,
+      }
     }
   },
   watch: {
@@ -198,13 +212,10 @@ export default {
         }
       }
     },
-    readyRegions: {
-      /**
-       * @param {Region[]} regions
-       */
-      async handler(regions) {
+    readyData: {
+      async handler({ regions, article }) {
         const viewer = await this.getViewer()
-
+        console.info('@readyData ! regions, article', article.uid);
         this.currentOverlays.forEach(overlay => viewer.removeOverlay(overlay))
         this.currentOverlays = []
 
@@ -219,9 +230,18 @@ export default {
               this.$emit('article-selected', articleUid)
             }
           )
+          if (article.uid && region.articleUid === article.uid) {
+            overlay.classList.add('active');
+          }
           viewer.addOverlay(overlay, rect)
           return overlay
         })
+        // add page overlay
+        if (tiledImage) {
+          const { overlay, rect } = createPageOverlay(tiledImage);
+          viewer.addOverlay(overlay, rect)
+          this.currentOverlays.push(overlay)
+        }
       },
       immediate: true,
       deep: true
@@ -231,12 +251,16 @@ export default {
 </script>
 
 
-<style lang="less">
+<style lang="scss">
 .os-article-viewer {
   height: 100%;
   width: 100%;
 }
-
+div.overlay-page {
+  border: 1px solid green;
+  box-shadow: 2px 2px 16px black;
+  pointer-events: none;
+}
 @supports (mix-blend-mode: multiply) {
   div.overlay-region {
     mix-blend-mode: multiply;
