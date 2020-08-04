@@ -205,6 +205,10 @@ $clr-grey-900: #ddd;
     border-color: $clr-tertiary !important;
 }
 
+.border-radius {
+  border-radius: 3px;
+}
+
 .bg-primary {
   background-color: $clr-primary;
   color: $clr-white;
