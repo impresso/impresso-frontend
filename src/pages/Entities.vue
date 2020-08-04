@@ -282,7 +282,7 @@ a.d-block.active {
     "sort_count": "least mentioned in different articles",
     "sort_-count-mentions": "most mentioned",
     "sort_count-mentions": "least mentioned",
-    "label_observing_list_empty": "This panel will contain the list of visualized topics."
+    "label_observing_list_empty": "This panel will contain the list of visualized entities."
   }
 }
 </i18n>
