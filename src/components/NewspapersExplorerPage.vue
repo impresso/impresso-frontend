@@ -166,7 +166,7 @@ export default {
   "en": {
     "label_order": "Order By",
     "list_of_newspapers": "Newspapers",
-    "newspapers_lines": "List of newspapers timelines",
+    "newspapers_lines": "Newspaper timelines",
     "pages": {
         "label": "pages per year",
         "total": "pages in total",
