@@ -21,4 +21,8 @@ export const CommonQueryParameters = Object.freeze({
   // LegacySearchFilters is only for bookmarks saved wth the previous
   // filtering mechanism
   LegacySearchFilters: 'f',
+  // boolean: apply current search filters
+  ApplyCurrentSearchFilters: 'asq',
+  // string used to filter list of items
+  SuggestionQuery: 'q'
 })
