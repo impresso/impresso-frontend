@@ -113,7 +113,7 @@
         </b-col>
       </b-row>
       <embeddings-search v-if="showEmbeddings"
-                         v-bind:filter="editedFilter"
+                         :filter="editedFilter"
                          @click.stop.prevent
                          @embdding-selected="addEmbeddingSuggestion"/>
 
@@ -258,7 +258,7 @@ export default {
           ? this.editedFilter.context
           : 'include'
       },
-      set(value) { this.editedFilter.context = value }
+      set(context) { this.editedFilter = { ...this.editedFilter, context } }
     }
   },
   methods: {
@@ -302,12 +302,13 @@ export default {
       this.stringsToAdd.splice(idx, 1);
     },
     changeStringFilterItemAtIndex(value, idx) {
-      this.editedFilter.q = this.filter.items.map((d, i) => {
+      const q = this.filter.items.map((d, i) => {
         if(i === idx) {
           return value;
         }
         return d.uid;
       }).filter(d => d.length);
+      this.editedFilter = { ...this.editedFilter, q }
     },
     toggleFilterItem(selected, uid) {
       if (selected) {
@@ -325,8 +326,11 @@ export default {
       // this.editedFilter.precisions = 'soft'
     },
     handleRangeChanged({ item, q }) {
-      this.editedFilter.q = q
-      this.editedFilter.items = [item]
+      this.editedFilter = {
+        ...this.editedFilter,
+        items: [item],
+        q,
+      }
       if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);
     }
   },
@@ -349,7 +353,10 @@ export default {
 
         this.editedFilter = toCanonicalFilter(this.filter)
         if (this.itemsToAdd) {
-          this.editedFilter.q = this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+          this.editedFilter = {
+            ...this.editedFilter,
+            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+          }
         }
         this.excludedItemsIds = []
       },

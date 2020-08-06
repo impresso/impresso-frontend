@@ -13,13 +13,14 @@
         <b-navbar-nav>
           <!-- filters toggle -->
           <div class="current-search-panel">
-            <b-form inline v-if="countActiveFilters > 0">
+            <b-form inline>
               <b-form-checkbox
                 v-model="applyCurrentSearchFilters"
+                :disabled="countActiveFilters === 0"
                 switch>
                 {{ $t('label.useCurrentSearch') }}
               </b-form-checkbox>
-              <b-dropdown class="ml-1" size="sm" variant="outline-primary" >
+              <b-dropdown v-if="countActiveFilters > 0" class="ml-1" size="sm" variant="outline-primary" >
                 <template v-slot:button-content>
                   ({{ $tc('counts.filters', countActiveFilters) }})
                 </template>
@@ -133,6 +134,20 @@
             <span v-html="punchModalTitle"/>
           </template>
           <template v-slot:default>
+            <b-form inline>
+              <b-form-checkbox
+                v-model="applyCurrentSearchFilters"
+                :disabled="countActiveFilters === 0"
+                switch>
+                {{ $t('label.useCurrentSearch') }}
+              </b-form-checkbox>
+              <b-dropdown class="ml-1" v-if="countActiveFilters > 0" size="sm" variant="outline-primary" >
+                <template v-slot:button-content>
+                  ({{ $tc('counts.filters', countActiveFilters) }})
+                </template>
+                <search-query-explorer style="min-width:300px" class="px-2 pt-2" :search-query="searchQuery"/>
+              </b-dropdown>
+            </b-form>
             <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
             <search-query-explorer dark-mode no-pagination no-label :search-query="selectedEntitySearchQuery"/>
           </template>
@@ -171,7 +186,7 @@ import Timeline from '@/components/modules/Timeline'
 import SearchQueryExplorer from '@/components/modals/SearchQueryExplorer'
 import PunchExplorer from '@/components/modals/PunchExplorer'
 import Pagination from '@/components/modules/Pagination'
-import { searchQueryGetter } from '@/logic/queryParams'
+import { searchQueryGetter, mapApplyCurrentSearchFilters } from '@/logic/queryParams'
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
 import BaseTitleBar from '@/components/base/BaseTitleBar';
 import {
@@ -292,18 +307,7 @@ export default {
         transform: `translate(${this.punchModalPositions.x}px,${this.punchModalPositions.y}px)`,
       };
     },
-    applyCurrentSearchFilters: {
-      /** @returns {boolean} */
-      get() {
-        return /** @type {boolean} */ (this.$route.query[QueryParameters.ApplyCurrentSearchFilters] === 'true');
-      },
-      /** @param {boolean} value */
-      set(value) {
-        this.$navigation.updateQueryParameters({
-          [QueryParameters.ApplyCurrentSearchFilters]: String(value)
-        })
-      },
-    },
+    applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     timelineSelectionStart: {
       /** @returns {Date | undefined} */
       get() {

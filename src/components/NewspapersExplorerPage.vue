@@ -24,7 +24,8 @@
                     v-on:highlight="onHighlight($event, 'A')">
                 <div slot-scope="tooltipScope">
                   <div v-if="tooltipScope.tooltip.item">
-                    {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+                    {{ $d(tooltipScope.tooltip.item.t, 'year') }}
+                    <br />
                     <b>{{ tooltipScope.tooltip.item.w }}</b> {{ totalLabel }}
                     <br />
                     <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
@@ -166,15 +167,15 @@ export default {
   "en": {
     "label_order": "Order By",
     "list_of_newspapers": "Newspapers",
-    "newspapers_lines": "List of newspapers timelines",
+    "newspapers_lines": "Newspaper timelines",
     "pages": {
         "label": "pages per year",
-        "total": "pages in total",
+        "total": "pages (all newspapers)",
         "contrast": "missing pages"
     },
     "issues": {
         "label": "issues per year",
-        "total": "issues in total",
+        "total": "issues (all newspapers)",
         "contrast": "missing issues"
     }
   },

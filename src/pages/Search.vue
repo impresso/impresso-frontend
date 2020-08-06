@@ -6,8 +6,11 @@
     contextTag="search"
     @changed="handleFiltersChanged"
   >
-    <div slot="header">
-      <autocomplete v-on:submit="onSuggestion" :filters="filters" />
+    <div slot="header" slot-scope="{ focusHandler }">
+      <autocomplete
+        @submit="onSuggestion"
+        @input-focus="focusHandler"
+        :filters="filters" />
     </div>
     <div>
       <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">{{ $t('label_embeddings') }} <info-button class="ml-1" name="how-are-word-embeddings-generated" />
@@ -683,6 +686,16 @@ export default {
     border: 1px solid rgb(255, 225, 49) !important;
     background-color: rgba(255, 225, 49, 0.3) !important;
   }
+}
+
+.search-bar.search-box{
+  border-left: 1px solid #111;
+  background-color: white;
+}
+
+.bg-dark .search-bar.search-box{
+  border-left: 1px solid #aaa;
+  background-color: transparent;
 }
 
 

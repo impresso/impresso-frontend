@@ -1,64 +1,43 @@
 <template lang="html">
-  <div class="border pt-3 px-2 bg-light">
-    <b-form-group>
-      <form v-on:submit.prevent="embeddingsOnSubmit()">
-        <b-row>
-          <b-col cols="12" class="input-group">
-            <b-form-input
-              type="text"
-              size="sm"
-              class="form-control w-25"
-              style="border-color: black; color: black"
-              ref="inputE"
-              :value="lastWord(filter)"
-              @keydown.space.prevent
-              @click.prevent.stop
-              name="inputEmbeddings" />
-                <b-form-select name="languageEmbeddings"
-                  v-model="languageEmbeddings"
-                  :options="languageEmbeddingsOptions"
-                  v-on:change="embeddingsOnSubmit()"
-                  size="sm" variant="outline-primary"
-                  style="border-left-color: black"/>
-                <b-form-select name="limitEmbeddings"
-                  v-model="limitEmbeddings"
-                  :options="limitEmbeddingsOptions"
-                  v-on:change="embeddingsOnSubmit()"
-                  size="sm" variant="outline-primary" />
-                <div class="input-group-append">
-                  <b-button
-                    size="sm" variant="outline-primary"
-                    @click.prevent.stop="embeddingsOnSubmit()">GO!
-                  </b-button>
-              </div>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col class="mt-2">
-              <div v-if="embeddings[0] === '_fetching'">
-                <i-spinner class="text-center p-3" />
-              </div>
-              <div v-else-if="embeddings[0] === '_error'" class="alert alert-danger" role="alert">
-                {{embeddings[1]}}
-              </div>
-              <div v-else class="embeddings">
-                <a
-                  v-for="(embedding, i) in embeddings"
-                  :key="i"
-                  :title="$t('filter.add', { word: embedding })"
-                  class="mr-2 mt-2 border px-2 d-inline-block"
-                  @click.prevent.stop="updateFilter(embedding)">
-                  {{embedding}}
-                </a>
-              </div>
-          </b-col>
-        </b-row>
-      </form>
-    </b-form-group>
+  <div class="border p-2 bg-light">
+    <div class="mb-2" v-html="$t('embedding_howto')" />
+    <b-input-group>
+      <b-form-input type="text" size="sm" class="form-control w-25"
+        style="border-color: black; color: black"
+        @keydown.space.prevent
+        @click.prevent.stop
+        name="inputEmbeddings"
+        v-model.trim="query" debounce="250"/>
+      <b-form-select name="languageEmbeddings"
+        v-model="languageEmbeddings"
+        :options="languageEmbeddingsOptions"
+        size="sm" variant="outline-primary"
+        style="border-left-color: black"/>
+      <b-form-select name="limitEmbeddings"
+        v-model="limitEmbeddings"
+        :options="limitEmbeddingsOptions"
+        size="sm" variant="outline-primary" />
+    </b-input-group>
+    <div class="my-2">
+      <i-spinner v-if="isLoading" class="text-center p-3" />
+      <div v-else-if="errorType" role="alert" v-html="$t(`error_${errorType}`, { query })"/>
+      <div v-else-if="words.length" class="font-italic" >
+        {{ $t('embeddings_words') }}
+      </div>
+    </div>
+    <div class="embeddings my-2">
+      <a v-for="(word, i) in words" :key="i" @click.prevent.stop="updateFilter(word)"
+        :title="$t('filter.add', { word })"
+        class="mr-2 mt-2 border px-2 d-inline-block">
+        {{ word }}
+      </a>
+    </div>
   </div>
 </template>
 
 <script>
+import { embeddings as embeddingsService } from '@/services';
+
 export default {
   data: () => ({
     languageEmbeddingsOptions: [
@@ -70,11 +49,24 @@ export default {
       { value: 25, text: '25' },
       { value: 50, text: '50' },
     ],
+    errorType: null,
+    words: [],
+    observingWords: [],
+    isLoading: false,
+    isPristine: true,
+    query: '',
   }),
   props: {
     filter: Object,
   },
   computed: {
+    filterQuery() {
+      if (this.filter && Array.isArray(this.filter.q)) {
+        const q = this.filter.q.join(' ').split(' ').pop().replace(/(\s|-).*/, '')
+        return q;
+      }
+      return undefined
+    },
     limitEmbeddings: {
       get() {
         return this.$store.state.embeddings.limit;
@@ -91,40 +83,46 @@ export default {
         this.$store.commit('embeddings/UPDATE_LANGUAGE', languageEmbeddings);
       },
     },
-    embeddings: {
-      get() {
-        return this.$store.state.embeddings.embeddings;
-      },
+    serviceQuery() {
+      return {
+        q: this.query,
+        language: this.languageEmbeddings,
+        limit: this.limitEmbeddings
+      };
     },
   },
   methods: {
-    lastWord(filter) {
-      if (filter && filter.q) {
-        let q;
-        if (Array.isArray(filter.q)) {
-          q = filter.q.join(' ').trim().split(' ').pop();
-        } else {
-          // q = last word
-          q = filter.q.trim().split(' ').pop();
-        }
-        // return last word from q cleaned
-        return q.replace(/(\s|-).*/, '');
-      }
-      return '';
-    },
-    embeddingsOnSubmit() {
-      this.$store.state.embeddings.embeddings = {};
-      if (this.$refs.inputE && this.$refs.inputE.$el.value !== '') {
-        this.$store.dispatch('embeddings/FIND', this.$refs.inputE.$el.value);
-      }
-    },
     updateFilter(embedding) {
       this.$emit('embdding-selected', embedding);
     },
   },
   mounted() {
-    this.embeddingsOnSubmit();
+    if (this.filterQuery) {
+      this.query = this.filterQuery;
+    }
   },
+  watch: {
+    serviceQuery:{
+      handler({ q, language, limit }) {
+        this.errorType = undefined
+        this.words = []
+        if (q.length === 0) return;
+        this.isLoading = true;
+        embeddingsService.find({
+          ignoreErrors: true,
+          query: { q, language, limit }
+        }).then(({ data }) => {
+          this.words = data;
+        }).catch((e) => {
+          console.warn('Error received from embeddings.find service:', e);
+          this.errorType = e.name;
+        }).finally(() => {
+          this.isLoading = false;
+        })
+      },
+      immediate: true,
+    }
+  }
 };
 </script>
 
@@ -138,9 +136,14 @@ export default {
 <i18n>
 {
   "en": {
+    "error_NotFound": "Ops, it looks like <b>{query}</b> is not available in our embeddings",
+    "error_GeneralError": "Service not availble at the moment, try again in a couple of minutes",
+    "error_BadRequest": "<b>{query}</b> contains invalid characters, only a-z A-Z and accented letters are allowed",
     "filter": {
       "add": "Add {word} to filter"
-    }
+    },
+    "embedding_howto": "Enlarge you search! Type <b>one word</b> and obtain a list of surrounding words",
+    "embeddings_words": "Click on one of the following words to update your search"
   }
 }
 </i18n>

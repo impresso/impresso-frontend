@@ -22,11 +22,7 @@
           <section class="search-results-summary text-serif textbox-fancy border-tertiary">
             <label>ngrams viewer</label>
             <ellipsis v-bind:initialHeight="60">
-              <span v-for="trend in trends"
-                    :key="trend.ngram"
-                    v-html="$tc('numbers.unigramMentions', trend.total || 0, { unigram: trend.ngram, n: $n(trend.total) })"/>
-              <span v-if="trends.length === 0"
-                    v-html="$t('label.noUnigram')" />
+              <span v-html="unigramsSummary" />
               &nbsp;
               <span v-html="$tc('numbers.articles', totalArticlesCount, { n: $n(totalArticlesCount) })" />
               &nbsp;
@@ -280,6 +276,15 @@ export default {
         })
       }
     },
+    unigramsSummary() {
+      if (this.trends.length === 0) {
+        return this.$t('label.noUnigram');
+      }
+      const trends = this.trends.map(trend => this.$tc('numbers.unigramMentions', trend.total || 0, {
+        unigram: trend.ngram, n: this.$n(trend.total)
+      })).join('; ');
+      return this.$t('label.withTrends', { trends })
+    },
     /** @returns {Filter[]} */
     enrichedFilters() {
       return this.filtersWithItems != null
@@ -456,6 +461,7 @@ export default {
         },
         "seeArticles": "See articles",
         "noUnigram": "... look for a specific <em>unigram</em> in",
+        "withTrends": "{trends} in",
         "availableFacets": "Available filters for ngram analysis"
       },
       "loading": "Loading ...",
