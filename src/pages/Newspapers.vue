@@ -15,6 +15,11 @@
           <div class="my-2">
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </div>
+          <b-form-checkbox
+            v-model="includedOnly"
+            switch>
+            {{ $t('filter_included_only') }}
+          </b-form-checkbox>
         </div>
       </template>
       <template v-slot:default>
@@ -36,6 +41,7 @@ import Newspaper from '@/models/Newspaper'
 import List from '@/components/modules/lists/List';
 import NewspaperItem from '@/components/modules/lists/NewspaperItem';
 import { newspapers as newspapersService} from '@/services';
+import { mapApplyCurrentSearchFilters, mapSuggestionQuery } from '@/logic/queryParams';
 
 const OrderByOptions = [
   'name', '-name', 'startYear', '-startYear',
@@ -63,16 +69,21 @@ export default {
     newspaperUid() {
       return this.$route.params.newspaper_uid;
     },
-    suggestionQuery: {
+    applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
+    includedOnly: {
       get() {
-        return this.$route.query.q ?? '';
+        return this.$route.query.included ?? '';
       },
-      set(q) {
-        this.paginationCurrentPage = 1;
+      set(included) {
         this.$navigation.updateQueryParametersWithHistory({
-          q,
+          included,
         });
       },
+    },
+    suggestionQuery: mapSuggestionQuery(),
+    /** @returns {number} */
+    countActiveFilters() {
+      return this.searchQuery.countActiveFilters();
     },
     orderByOptions() {
       return OrderByOptions.map(value => ({
@@ -98,6 +109,7 @@ export default {
         limit: this.paginationPerPage,
         page: this.paginationCurrentPage,
         orderBy: this.orderBy,
+        includedOnly: this.includedOnly,
       };
     },
   },
@@ -116,15 +128,18 @@ export default {
           // Params are the same: ${newParamsStr} ${oldParamsStr}`)
           return;
         }
-        const { q, limit, page, orderBy } = params;
+        const { q, limit, page, orderBy, includedOnly } = params;
         const query = {
           page,
           limit,
           order_by: orderBy,
         };
-        if (q.length) {
+        if (q && q.length) {
           // add q only if length is enough
           query.q = q;
+        }
+        if (includedOnly) {
+          query.filters = [{ type: 'included' }];
         }
         this.items = [];
         return newspapersService.find({
@@ -153,6 +168,7 @@ export default {
 {
   "en": {
     "filter_newspapers": "filter list of newspapers by name ...",
+    "filter_included_only": "show only included newspapers",
     "label_list": "browse {total} newspapers",
     "label_order": "Order By",
     "sort_name": "order alphabetically, A-Z ↑",
