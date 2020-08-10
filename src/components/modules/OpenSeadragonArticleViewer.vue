@@ -102,13 +102,13 @@ function getMarginaliaOverlayRect(tiledImage, isRight) {
     ? new Rect(
       x + width,
       y,
-      width / 3,
+      width / 2,
       height
     )
     : new Rect(
-      x - width / 3,
+      x - width / 2,
       y,
-      width / 3,
+      width / 2,
       height
     )
 }

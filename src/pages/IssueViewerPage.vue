@@ -131,29 +131,13 @@ export default {
     issue: /** @type {Issue|undefined} */ (undefined),
     tableOfContents: /** @type {TableOfContents|undefined} */ (undefined),
     pagesArticles: /** @type {{[key: string] : Article[] }} */ ({}),
+    pagesMarginalia: /** @type {{[key: string] : any[] }} */ ({}),
     // left panel
     paginationPerPage: 200,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     matchingArticles: /** @type {Article[]} */ [],
     outlinesVisible: false,
-    marginaliaSections: [
-      {
-        title: 'test left one',
-        isLeft: true,
-        items: ['one', 'two', 'three']
-      },
-      {
-        title: 'test left two',
-        isLeft: true,
-        items: ['one', 'two', 'three']
-      },
-      {
-        title: 'test right',
-        isLeft: false,
-        items: ['one', 'two', 'three']
-      },
-    ]
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -257,6 +241,10 @@ export default {
       const isPublic = this?.issue?.accessRights === 'OpenPublic'
       const isLoggedIn = this.currentUser?.isActive ?? false
       return isPublic || isLoggedIn
+    },
+    /** @returns {any[]} */
+    marginaliaSections() {
+      return this.pagesMarginalia[this.currentPageIndex] ?? []
     }
   },
   watch: {
@@ -271,7 +259,10 @@ export default {
     currentPageIndex: {
       /** @param {number} pageIndex */
       async handler(pageIndex) {
-        await this.loadRegions(pageIndex)
+        await Promise.all([
+          this.loadRegions(pageIndex),
+          this.loadMarginalia(pageIndex)
+        ])
       },
       immediate: true
     },
@@ -339,6 +330,30 @@ export default {
           })
           .then(response => response.data.map(article => new Article(article)))
         this.$set(this.pagesArticles, pageIndex, articles)
+      }
+    },
+    async loadMarginalia(pageIndex) {
+      if (this.issue == null) return
+      if (this.pagesMarginalia[pageIndex] == null) {
+        const results = await Promise.all([
+          this.$store.dispatch('entities/LOAD_PAGE_TOPICS', this.pageId),
+          this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', this.pageId)
+        ])
+
+        const topicsSection = {
+          title: this.$tc(`label.${results[0].type}.title`, results[0].buckets.length),
+          isLeft: true,
+          items: results[0].buckets.map(bucket => `${bucket.item.htmlExcerpt} (${bucket.count})`)
+        }
+        const entitySections = results[1].map(facet => {
+          return {
+            title: this.$tc(`label.${facet.type}.title`, facet.buckets.length),
+            isLeft: false,
+            items: facet.buckets.map(bucket => `${bucket.item.name} (${bucket.count})`)
+          }
+        })
+
+        this.$set(this.pagesMarginalia, pageIndex, entitySections.concat([topicsSection]))
       }
     }
   }
