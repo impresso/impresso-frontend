@@ -3,7 +3,9 @@
 </template>
 
 <script>
-import initViewer from 'openseadragon'
+import Vue from 'vue'
+import initViewer, { Rect } from 'openseadragon'
+import MarginaliaPanel from '@/components/modules/MarginaliaPanel'
 
 /**
  * @typedef {import('openseadragon').Viewer} Viewer
@@ -77,13 +79,57 @@ function createRegionOverlay(tiledImage, region, clickHandler) {
   return { overlay, rect }
 }
 
+/**
+ * @param {boolean} isLeft
+ * @returns {Vue}
+ */
+function createMarginaliaOverlay(isLeft) {
+  // @ts-ignore
+  const panelContainer = window.document.createElement('div')
+  const panel = new Vue(MarginaliaPanel)
+  panel.$mount(panelContainer, true)
+  panel.$set(panel, 'isLeft', !!isLeft)
+  return panel
+}
+
+/**
+ * @param {TiledImage} tiledImage
+ * @returns {Rect}
+ */
+function getMarginaliaOverlayRect(tiledImage, isRight) {
+  const { x, y, width, height } = tiledImage.getBounds()
+  return isRight
+    ? new Rect(
+      x + width,
+      y,
+      width / 3,
+      height
+    )
+    : new Rect(
+      x - width / 3,
+      y,
+      width / 3,
+      height
+    )
+}
+
+/**
+ * @typedef {{
+ *   title: string,
+ *   items: string[],
+ *   isLeft: boolean
+ * }} MarginaliaSection
+ */
+
 export default {
   data: () => ({
     viewer: /** @type {Viewer|undefined} */ (undefined),
     currentPageIndex: 0,
     tilesAreReady: false,
     currentOverlays: /** @type {any[]} */ ([]),
-    isDragging: false
+    isDragging: false,
+    marginaliaPanelLeft: createMarginaliaOverlay(true),
+    marginaliaPanelRight: createMarginaliaOverlay(false)
   }),
   props: {
     /** @type {import('vue').PropOptions<string[]>} */
@@ -97,6 +143,11 @@ export default {
     article: Object,
     /** @type {import('vue').PropOptions<Region[]>} */
     regions: {
+      type: Array,
+      default: () => []
+    },
+    /** @type {import('vue').PropOptions<MarginaliaSection[]>} */
+    marginaliaSections: {
       type: Array,
       default: () => []
     }
@@ -215,7 +266,6 @@ export default {
     readyData: {
       async handler({ regions, article }) {
         const viewer = await this.getViewer()
-        console.info('@readyData ! regions, article', article.uid);
         this.currentOverlays.forEach(overlay => viewer.removeOverlay(overlay))
         this.currentOverlays = []
 
@@ -237,9 +287,40 @@ export default {
           viewer.addOverlay(overlay, rect)
           return overlay
         })
+
+        // page overlay (page selection background)
         const { overlay, rect } = createPageOverlay(tiledImage);
         viewer.addOverlay(overlay, rect)
         this.currentOverlays.push(overlay)
+
+        // marginalia repositioning
+        viewer.removeOverlay(this.marginaliaPanelLeft.$el)
+        viewer.addOverlay(
+          this.marginaliaPanelLeft.$el,
+          getMarginaliaOverlayRect(tiledImage, false)
+        )
+
+        viewer.removeOverlay(this.marginaliaPanelRight.$el)
+        viewer.addOverlay(
+          this.marginaliaPanelRight.$el,
+          getMarginaliaOverlayRect(tiledImage, true)
+        )
+      },
+      immediate: true,
+      deep: true
+    },
+    marginaliaSections: {
+      handler() {
+        this.marginaliaPanelLeft.$set(
+          this.marginaliaPanelLeft,
+          'sections',
+          this.marginaliaSections.filter(({ isLeft }) => isLeft)
+        )
+        this.marginaliaPanelRight.$set(
+          this.marginaliaPanelRight,
+          'sections',
+          this.marginaliaSections.filter(({ isLeft }) => !isLeft)
+        )
       },
       immediate: true,
       deep: true
@@ -259,6 +340,7 @@ div.overlay-page {
   box-shadow: 2px 2px 16px black;
   pointer-events: none;
 }
+
 @supports (mix-blend-mode: multiply) {
   div.overlay-region {
     mix-blend-mode: multiply;

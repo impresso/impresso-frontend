@@ -89,6 +89,7 @@
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
           :article="{ uid: articleId }"
+          :marginaliaSections="marginaliaSections"
           @page-changed="changeCurrentPageIndex"
           @article-selected="handleArticleSelected"/>
       </div>
@@ -135,7 +136,24 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     matchingArticles: /** @type {Article[]} */ [],
-    outlinesVisible: false
+    outlinesVisible: false,
+    marginaliaSections: [
+      {
+        title: 'test left one',
+        isLeft: true,
+        items: ['one', 'two', 'three']
+      },
+      {
+        title: 'test left two',
+        isLeft: true,
+        items: ['one', 'two', 'three']
+      },
+      {
+        title: 'test right',
+        isLeft: false,
+        items: ['one', 'two', 'three']
+      },
+    ]
   }),
   components: {
     OpenSeadragonArticleViewer,
