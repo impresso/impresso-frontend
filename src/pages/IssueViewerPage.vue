@@ -49,7 +49,7 @@
               @click="changeCurrentPageIndex(currentPageIndex - 1)">
               <div class="dripicons dripicons-media-previous pt-1"></div>
             </b-button>
-            <div class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
+            <div class="px-2 pt-1">{{ $tc('pp', 1, { pages: page ? page.num : undefined }) }}</div>
             <b-button variant="light" size="sm"
               :disabled="(currentPageIndex + 1) === issue.pages.length"
               @click="changeCurrentPageIndex(currentPageIndex + 1)">
@@ -60,7 +60,15 @@
       </div>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center"  v-if="issue">
+        <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable">
+          <div class="align-self-center">
+            <p>{{ $t('errors.loggedInOnly') }}</p>
+            <br/>
+            <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
+          </div>
+        </div>
         <open-seadragon-article-viewer
+          v-if="isContentAvailable"
           :pages="pagesIIIFUrls"
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
@@ -110,7 +118,7 @@ export default {
     paginationPerPage: 200,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
-    matchingArticles: [],
+    matchingArticles: /** @type {Article[]} */ [],
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -134,9 +142,10 @@ export default {
       if (shortArticleId == null) return undefined
       return getLongArticleId(this.issueId, shortArticleId)
     },
+    /** @returns {import('@/models/Page').default|undefined} */
     page() {
       if (this.currentPageIndex === -1) return undefined
-      return this.issue.pages[this.currentPageIndex]
+      return this.issue?.pages[this.currentPageIndex]
     },
     /** @returns {string[]|undefined} */
     pagesIIIFUrls() {
@@ -154,6 +163,7 @@ export default {
         coords: region.coords
       })))
     },
+    /** @returns {import('@/models/ArticleBase').default[]} */
     tableOfContentsArticles() {
       if (this.suggestionQuery.length) {
         return this.matchingArticles;
@@ -164,9 +174,11 @@ export default {
       return []
     },
     suggestionQuery: {
+      /** @returns {string} */
       get() {
-        return this.$route.query.q ?? '';
+        return getQueryParameter(this, 'q', '') ?? ''
       },
+      /** @param {string} q */
       set(q) {
         this.paginationCurrentPage = 1;
         this.$navigation.updateQueryParametersWithHistory({
@@ -174,6 +186,7 @@ export default {
         });
       },
     },
+    /** @returns {{ q: string, limit: number, page: number }} */
     serviceQuery() {
       return {
         q: this.suggestionQuery,
@@ -193,11 +206,22 @@ export default {
       /** @param {number} index */
       set(index) {
         // set page num in query fro the page corresponding to the right currentPageIndex
-        const pageNumber = this.issue.pages[index]?.num;
+        const pageNumber = this.issue?.pages[index]?.num;
         this.$navigation.updateQueryParameters({
           [QueryParams.PageNumber]: pageNumber
         })
       }
+    },
+    /** @returns {import('@/models/User').default} */
+    currentUser() {
+      return this.$store.getters['user/user'];
+    },
+    /** @returns {boolean} */
+    isContentAvailable() {
+      if (this.issue == null) return false
+      const isPublic = this?.issue?.accessRights === 'OpenPublic'
+      const isLoggedIn = this.currentUser?.isActive ?? false
+      return isPublic || isLoggedIn
     }
   },
   watch: {
@@ -217,6 +241,11 @@ export default {
       immediate: true
     },
     serviceQuery: {
+      /**
+       * @param {any} params
+       * @param {any} oldParams
+       * @returns {undefined}
+       */
       handler(params, oldParams) {
         // this get called twice becaues of the suggestionQuery
         const newParamsStr = JSON.stringify(params)
@@ -225,6 +254,7 @@ export default {
           // Params are the same: ${newParamsStr} ${oldParamsStr}`)
           return;
         }
+        if (this.issue == null) return
         const { q, limit, page } = params;
         const filters = [{ type: 'issue', q: this.issue.uid }]
         this.matchingArticles = [];
@@ -239,20 +269,25 @@ export default {
           });
         }
       },
+      immediate: true,
     },
-    immediate: true,
   },
   methods: {
+    /** @param {number} pageIndex */
     changeCurrentPageIndex(pageIndex) {
       console.info('@changeCurrentPageIndex', pageIndex, this.currentPageIndex);
       this.currentPageIndex = pageIndex;
     },
+    /**
+     * @param {string} articleUid
+     * @param {number} pageNumber
+     */
     handleArticleSelected(articleUid, pageNumber) {
       const params = {
         [QueryParams.ArticleId]: articleUid == null ? undefined : getShortArticleId(articleUid)
       }
       if (pageNumber) {
-        params[QueryParams.PageNumber] = pageNumber
+        params[QueryParams.PageNumber] = String(pageNumber)
       }
       this.$navigation.updateQueryParameters(params)
     },

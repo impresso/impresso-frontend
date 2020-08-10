@@ -220,6 +220,7 @@ export default {
         this.currentOverlays = []
 
         const tiledImage = viewer.world.getItemAt(this.currentPageIndex)
+        if (tiledImage == null) return
 
         this.currentOverlays = regions.map(region => {
           const { overlay, rect } = createRegionOverlay(
@@ -236,12 +237,9 @@ export default {
           viewer.addOverlay(overlay, rect)
           return overlay
         })
-        // add page overlay
-        if (tiledImage) {
-          const { overlay, rect } = createPageOverlay(tiledImage);
-          viewer.addOverlay(overlay, rect)
-          this.currentOverlays.push(overlay)
-        }
+        const { overlay, rect } = createPageOverlay(tiledImage);
+        viewer.addOverlay(overlay, rect)
+        this.currentOverlays.push(overlay)
       },
       immediate: true,
       deep: true
