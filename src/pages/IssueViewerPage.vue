@@ -56,6 +56,18 @@
               <div class="dripicons dripicons-media-next pt-1"></div>
             </b-button>
           </b-navbar-nav>
+
+          <b-button
+            class="ml-2"
+            :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
+            @click="outlinesVisible = !outlinesVisible">
+            <div class="d-flex flex-row align-items-center">
+              <div class="d-flex dripicons dripicons-preview mr-2" />
+              <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div>
+              <div v-else>{{$t('toggle_outlines_off')}}</div>
+            </div>
+          </b-button>
+
         </b-navbar>
       </div>
       <!-- content -->
@@ -68,6 +80,10 @@
           </div>
         </div>
         <open-seadragon-article-viewer
+          :class="[
+            'bg-light',
+            outlinesVisible ? 'show-outlines' : '',
+          ]"
           v-if="isContentAvailable"
           :pages="pagesIIIFUrls"
           :regions="regions"
@@ -119,6 +135,7 @@ export default {
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     matchingArticles: /** @type {Article[]} */ [],
+    outlinesVisible: false
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -315,7 +332,9 @@ export default {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
     "label_display": "Display as",
-    "table_of_contents": "table of contents"
+    "table_of_contents": "table of contents",
+    "toggle_outlines_on": "outlines: on",
+    "toggle_outlines_off": "Outlines: off"
   }
 }
 </i18n>
