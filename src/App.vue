@@ -240,6 +240,13 @@ $clr-grey-900: #ddd;
   color: blue;
 }
 
+.text-ellipsis {
+  max-width: 120px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .custom-control-input {
   width: 0;
   height: 0;
