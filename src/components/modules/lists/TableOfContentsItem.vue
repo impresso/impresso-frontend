@@ -7,8 +7,13 @@
       show-pages
       show-matches
       show-type>
-      <template v-slot:footer>
-        <slot name="footer"></slot>
+      <template v-slot:title>
+        <h2>
+          {{item.title}}
+        </h2>
+      </template>
+      <template v-slot:actions>
+        <slot name="actions"></slot>
       </template>
     </article-item>
   </b-media>
@@ -28,9 +33,13 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style lang="scss" scoped>
 .active{
   box-shadow: inset 0.15em 0 #343a40;
   background-color: #f2f2f2;
+
+  h2{
+    font-weight: bold;
+  }
 }
 </style>
