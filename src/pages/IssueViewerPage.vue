@@ -38,15 +38,13 @@
             :ref="`toc-article-${item.uid}`"
             :item="item"
             :active="item.uid === articleId">
-            <template v-slot:footer>
-              <b-row class="justify-content-md-center">
-                <b-button
-                  :variant="'outline-primary'"
-                  size="sm"
-                  @click="showArticleText(item.uid)">
-                  show more
-                </b-button>
-              </b-row>
+            <template v-slot:actions>
+              <div class="border-top border-bottom py-1 my-2">
+                <span class="small">{{$t('label_continue_reading')}}</span>
+                <a class="small-caps" @click="showArticleText(item.uid)">
+                  {{ $t('label_full_text') }}
+                </a>
+              </div>
             </template>
           </table-of-contents-item>
         </div>
@@ -90,18 +88,42 @@
             </div>
           </b-button>
 
-          <b-button
-            @click="exitTextViewer"
-            v-if="isArticleTextDisplayed"
-            class="close-button"
-            :variant="'outlined'">
-            X
-          </b-button>
-
+          <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle && isArticleTextDisplayed">
+            <b-button size="sm" variant="outline-primary" @click="isArticleTextDisplayed = false">{{ $t('facsimileView') }}</b-button>
+          </b-navbar-nav>
         </b-navbar>
+        <!-- bookmarker -->
+        <!-- <b-navbar v-if="selectedArticle">
+          <b-navbar-nav class="bg-dark p-2">
+            <span class="text-white mr-2">{{ selectedArticle.title }}</span>
+            <b-button variant="outline-primary"
+              size="sm"
+              @click="showArticleText(selectedArticle.uid)">
+              {{ $t('label_full_text') }}
+            </b-button>
+          </b-navbar-nav>
+        </b-navbar> -->
+        <div class="bookmarker active" v-if="selectedArticle && !isArticleTextDisplayed">
+          <div class="bg-dark p-2 drop-shadow d-flex">
+            <div>
+              {{$t('label_selected_article') }}
+            </div>
+            <div class="text-white font-weight-bold mr-2 text-ellipsis">{{ selectedArticle.title }}</div>"
+            <b-button class="mx-2" variant="outline-primary"
+              size="sm"
+              @click="showArticleText(selectedArticle.uid)">
+              {{ $t('label_full_text') }}
+            </b-button>
+            <b-button pill class="dripicons-cross p-0"
+              style="width:1.5em; height:1.5em; line-height: 1.75em"
+              @click="handleArticleSelected()"
+              variant="outline-primary">
+            </b-button>
+          </div>
+        </div>
       </div>
       <!-- content -->
-      <div class="d-flex h-100 justify-content-center"  v-if="issue">
+      <div class="d-flex h-100 justify-content-center position-relative"  v-if="issue">
         <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable">
           <div class="align-self-center">
             <p>{{ $t('errors.loggedInOnly') }}</p>
@@ -110,10 +132,7 @@
           </div>
         </div>
         <open-seadragon-article-viewer
-          :class="[
-            'bg-light',
-            outlinesVisible ? 'show-outlines' : '',
-          ]"
+          :class="{ 'show-outlines': outlinesVisible }"
           :style="(isContentAvailable && !isArticleTextDisplayed) ? {} : { display: 'none' }"
           :pages="pagesIIIFUrls"
           :regions="regions"
@@ -204,10 +223,24 @@ export default {
       if (shortArticleId == null) return undefined
       return getLongArticleId(this.issueId, shortArticleId)
     },
-    /** @returns {boolean} */
-    isArticleTextDisplayed() {
-      const textMode = getQueryParameter(this, QueryParams.TextMode)
-      return textMode === '1'
+    selectedArticle() {
+      if (!this.tableOfContents) {
+        return null;
+      }
+      return this.tableOfContents.articles.find(d => d.uid === this.articleId)
+    },
+    isArticleTextDisplayed: {
+      /** @returns {boolean} */
+      get() {
+        const textMode = getQueryParameter(this, QueryParams.TextMode)
+        return textMode === '1'
+      },
+      /** @param {string} q */
+      set(q) {
+        this.$navigation.updateQueryParametersWithHistory({
+          [QueryParams.TextMode]: q ? '1' : undefined,
+        });
+      },
     },
     /** @returns {import('@/models/Page').default|undefined} */
     page() {
@@ -453,10 +486,15 @@ export default {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
     "label_display": "Display as",
+    "label_selected_article": "Selected article: ",
     "label_filter_articles": "Search words...",
+    "label_full_text": "full text",
     "table_of_contents": "table of contents",
     "toggle_outlines_on": "outlines: on",
     "toggle_outlines_off": "Outlines: off",
+    "label_continue_reading": "Continue reading:",
+    "facsimileView": "Facsimile",
+    "closeReadingView": "Transcript",
     "filter_included_only": "show only matching articles (no results) | show only matching articles (<b>1</b> result) | show only matching articles (<b>{n}</b> results)"
   }
 }
@@ -466,5 +504,28 @@ export default {
 .close-button {
   position: absolute;
   right: 0;
+}
+.bookmarker {
+  position: absolute;
+  left: 50%;
+  z-index: 2;
+  width: 100%;
+  margin-left: -25%;
+  bottom: -70px;
+  color: white;
+  height: 70px;
+  overflow: hidden;
+  & > div {
+    background: #343b3f;
+    border-radius: 5px;
+    position: absolute;
+    top: 10px;
+    padding: 5px 50px;
+    transform: translateY(-50px);
+    transition: transform .6s cubic-bezier(.8,-.5,.2,1.4);
+  }
+  &.active > div {
+    transform: translateY(0);
+  }
 }
 </style>
