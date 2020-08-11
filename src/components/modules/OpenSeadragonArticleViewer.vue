@@ -1,5 +1,5 @@
 <template>
-  <div class="os-article-viewer"></div>
+  <div class="os-article-viewer" :style="{ 'font-size': `${fontSize}%` }"></div>
 </template>
 
 <script>
@@ -10,7 +10,6 @@ import MarginaliaPanel from '@/components/modules/MarginaliaPanel'
 /**
  * @typedef {import('openseadragon').Viewer} Viewer
  * @typedef {import('openseadragon').TiledImage} TiledImage
- * @typedef {import('openseadragon').Rect} Rect
  * @typedef {{
  *  articleUid: string,
  *  pageUid: string,
@@ -98,20 +97,24 @@ function createMarginaliaOverlay(isLeft) {
  */
 function getMarginaliaOverlayRect(tiledImage, isRight) {
   const { x, y, width, height } = tiledImage.getBounds()
+  const factor = 2.5
   return isRight
     ? new Rect(
       x + width,
       y,
-      width / 2,
+      width / factor,
       height
     )
     : new Rect(
-      x - width / 2,
+      x - width / factor,
       y,
-      width / 2,
+      width / factor,
       height
     )
 }
+
+const DefaultZoomLevel = 0.0005
+const MaxFontSizePc = 100
 
 /**
  * @typedef {{
@@ -129,7 +132,8 @@ export default {
     currentOverlays: /** @type {any[]} */ ([]),
     isDragging: false,
     marginaliaPanelLeft: createMarginaliaOverlay(true),
-    marginaliaPanelRight: createMarginaliaOverlay(false)
+    marginaliaPanelRight: createMarginaliaOverlay(false),
+    currentZoomLevel: DefaultZoomLevel
   }),
   props: {
     /** @type {import('vue').PropOptions<string[]>} */
@@ -170,7 +174,7 @@ export default {
               clickToZoom: false,
               dblClickToZoom: true,
             },
-            defaultZoomLevel: 0.0005,
+            defaultZoomLevel: DefaultZoomLevel,
             collectionMode:       true,
             collectionRows:       1,
             // collectionTileSize:   512,
@@ -218,6 +222,10 @@ export default {
             setTimeout(() => { this.isDragging = false }, 0);
           });
 
+          this.viewer.addHandler('zoom', ({ zoom }) => {
+            this.currentZoomLevel = /** @type {number} */ (zoom)
+          })
+
           resolve(this.viewer)
         }, 0)
       })
@@ -236,6 +244,11 @@ export default {
         regions: this.regions,
         article: this.article,
       }
+    },
+    /** @returns {number} */
+    fontSize() {
+      const newFontSize = ((this.currentZoomLevel * 0.7) / DefaultZoomLevel) * MaxFontSizePc
+      return newFontSize > MaxFontSizePc ? MaxFontSizePc : newFontSize
     }
   },
   watch: {

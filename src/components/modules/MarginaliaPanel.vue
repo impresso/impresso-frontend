@@ -38,7 +38,7 @@ export default {
   // background: $clr-accent;
   // border: 2px solid black;
   section {
-    max-width: 200px;
+    // max-width: 200px;
     font-size: 80%;
     color: #626e7a;
   }
