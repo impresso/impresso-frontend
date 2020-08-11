@@ -1,7 +1,11 @@
 <template>
   <i-layout id="IssuePageViewer" ref="issuePageViewer">
     <!-- TOC -->
-    <list :hide-pagination="!!matchingArticles.length" width="350px">
+    <list
+      :hide-pagination="!displayOnlyMatchingArticles"
+      :paginationList="paginationList"
+      @change-page="handleMatchingArticlesChangePage"
+      width="350px">
       <template v-slot:header v-if="issue">
         <b-tabs pills class="mx-2 pt-2">
           <b-tab active>
@@ -15,8 +19,12 @@
                 accessRights: $t(`buckets.accessRight.${issue.accessRights }`)
               })" />
               <b-input class="mb-3" v-model.trim="suggestionQuery"
-                debounce="500" :placeholder="$t('filter_articles')" />
-
+                debounce="500" :placeholder="$t('label_filter_articles')" />
+                <b-form-checkbox v-show="suggestionQuery.length"
+                  v-model="displayOnlyMatchingArticles"
+                  switch>
+                  <span v-html="$tc('filter_included_only', paginationTotalRows)"/>
+                </b-form-checkbox>
             </div>
           </b-tab>
         </b-tabs>
@@ -166,11 +174,12 @@ export default {
     pagesArticles: /** @type {{[key: string] : Article[] }} */ ({}),
     pagesMarginalia: /** @type {{[key: string] : any[] }} */ ({}),
     // left panel
-    paginationPerPage: 200,
+    paginationPerPage: 20,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
     matchingArticles: /** @type {Article[]} */ [],
     outlinesVisible: false,
+    displayOnlyMatchingArticles: false,
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -223,7 +232,7 @@ export default {
     },
     /** @returns {import('@/models/ArticleBase').default[]} */
     tableOfContentsArticles() {
-      if (this.suggestionQuery.length) {
+      if (this.suggestionQuery.length && this.displayOnlyMatchingArticles) {
         return this.matchingArticles;
       }
       if (this.tableOfContents) {
@@ -250,6 +259,14 @@ export default {
         q: this.suggestionQuery,
         limit: this.paginationPerPage,
         page: this.paginationCurrentPage,
+        issueUid: this.issue?.uid,
+      };
+    },
+    paginationList() {
+      return {
+        perPage: this.paginationPerPage,
+        currentPage: this.paginationCurrentPage,
+        totalRows: this.paginationTotalRows,
       };
     },
     currentPageIndex: {
@@ -320,15 +337,16 @@ export default {
           return;
         }
         if (this.issue == null) return
-        const { q, limit, page } = params;
-        const filters = [{ type: 'issue', q: this.issue.uid }]
+        const { q, limit, page, issueUid } = params;
+        const filters = [{ type: 'issue', q: issueUid }]
         this.matchingArticles = [];
 
-        if (q.length){
+        if (q.length > 1){
           filters.push({ type: 'string', q });
           searchService.find({
             query: { filters, page, limit, group_by: 'articles' },
           }).then(({ data, total }) => {
+            this.displayOnlyMatchingArticles = true;
             this.paginationTotalRows = total;
             this.matchingArticles = data.map(article => new Article(article));
           });
@@ -342,6 +360,9 @@ export default {
     }
   },
   methods: {
+    handleMatchingArticlesChangePage(page) {
+      this.paginationCurrentPage = page;
+    },
     /** @param {number} pageIndex */
     changeCurrentPageIndex(pageIndex) {
       console.info('@changeCurrentPageIndex', pageIndex, this.currentPageIndex);
@@ -432,9 +453,11 @@ export default {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
     "label_display": "Display as",
+    "label_filter_articles": "Search words...",
     "table_of_contents": "table of contents",
     "toggle_outlines_on": "outlines: on",
-    "toggle_outlines_off": "Outlines: off"
+    "toggle_outlines_off": "Outlines: off",
+    "filter_included_only": "show only matching articles (no results) | show only matching articles (<b>1</b> result) | show only matching articles (<b>{n}</b> results)"
   }
 }
 </i18n>
