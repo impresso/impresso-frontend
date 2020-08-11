@@ -106,7 +106,7 @@
             'bg-light',
             outlinesVisible ? 'show-outlines' : '',
           ]"
-          v-if="isContentAvailable && !isArticleTextDisplayed"
+          :style="(isContentAvailable && !isArticleTextDisplayed) ? {} : { display: 'none' }"
           :pages="pagesIIIFUrls"
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
