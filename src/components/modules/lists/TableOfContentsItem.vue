@@ -6,8 +6,11 @@
       show-size
       show-pages
       show-matches
-      show-type
-    />
+      show-type>
+      <template v-slot:footer>
+        <slot name="footer"></slot>
+      </template>
+    </article-item>
   </b-media>
 </template>
 

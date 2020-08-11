@@ -73,6 +73,7 @@
           v-show="match.fragment.trim().length > 0" />
       </ul>
     </div>
+    <slot name="footer"></slot>
     <!-- {{ item.issue.accessRights }} -->
   </article>
 </template>

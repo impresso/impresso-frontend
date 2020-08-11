@@ -29,7 +29,18 @@
           <table-of-contents-item
             :ref="`toc-article-${item.uid}`"
             :item="item"
-            :active="item.uid === articleId"/>
+            :active="item.uid === articleId">
+            <template v-slot:footer>
+              <b-row class="justify-content-md-center">
+                <b-button
+                  :variant="'outline-primary'"
+                  size="sm"
+                  @click="showArticleText(item.uid)">
+                  show more
+                </b-button>
+              </b-row>
+            </template>
+          </table-of-contents-item>
         </div>
       </template>
     </list>
@@ -71,6 +82,14 @@
             </div>
           </b-button>
 
+          <b-button
+            @click="exitTextViewer"
+            v-if="isArticleTextDisplayed"
+            class="close-button"
+            :variant="'outlined'">
+            X
+          </b-button>
+
         </b-navbar>
       </div>
       <!-- content -->
@@ -87,7 +106,7 @@
             'bg-light',
             outlinesVisible ? 'show-outlines' : '',
           ]"
-          v-if="isContentAvailable"
+          v-if="isContentAvailable && !isArticleTextDisplayed"
           :pages="pagesIIIFUrls"
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
@@ -95,6 +114,11 @@
           :marginaliaSections="marginaliaSections"
           @page-changed="changeCurrentPageIndex"
           @article-selected="handleArticleSelected"/>
+
+        <issue-viewer-text
+          v-if="isContentAvailable && articleId != null && isArticleTextDisplayed"
+          :article_uid="articleId"/>
+
       </div>
     </i-layout-section>
     <i-layout-section width="120px" class="border-left">
@@ -114,6 +138,8 @@ import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticl
 import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem'
 import PageItem from '@/components/modules/lists/PageItem'
 import List from '@/components/modules/lists/List'
+import IssueViewerText from '@/components/modules/IssueViewerText'
+
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
@@ -127,7 +153,11 @@ import Article from '@/models/Article'
 import TableOfContents from '@/models/TableOfContents'
 
 const Params = Object.freeze({ IssueId: 'issue_uid' })
-const QueryParams = Object.freeze({ PageNumber: 'p', ArticleId: 'articleId' })
+const QueryParams = Object.freeze({
+  PageNumber: 'p',
+  ArticleId: 'articleId',
+  TextMode: 'text'
+})
 
 export default {
   data: () => ({
@@ -147,6 +177,7 @@ export default {
     TableOfContentsItem,
     PageItem,
     List,
+    IssueViewerText
   },
   computed: {
     /** @returns {string} */
@@ -163,6 +194,11 @@ export default {
       const shortArticleId = getQueryParameter(this, QueryParams.ArticleId)
       if (shortArticleId == null) return undefined
       return getLongArticleId(this.issueId, shortArticleId)
+    },
+    /** @returns {boolean} */
+    isArticleTextDisplayed() {
+      const textMode = getQueryParameter(this, QueryParams.TextMode)
+      return textMode === '1'
     },
     /** @returns {import('@/models/Page').default|undefined} */
     page() {
@@ -372,6 +408,20 @@ export default {
 
       const relativeTop = articleElement.offsetTop - container.offsetTop
       container.scrollTo({ top: relativeTop - 1, behavior: 'smooth' })
+    },
+    /** @param {string} articleUid */
+    showArticleText(articleUid) {
+      const params = {
+        [QueryParams.ArticleId]: articleUid == null ? undefined : getShortArticleId(articleUid),
+        [QueryParams.TextMode]: '1'
+      }
+      this.$navigation.updateQueryParameters(params)
+    },
+    exitTextViewer() {
+      const params = {
+        [QueryParams.TextMode]: undefined
+      }
+      this.$navigation.updateQueryParameters(params)
     }
   }
 }
@@ -388,3 +438,10 @@ export default {
   }
 }
 </i18n>
+
+<style lang="scss">
+.close-button {
+  position: absolute;
+  right: 0;
+}
+</style>
