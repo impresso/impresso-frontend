@@ -26,7 +26,10 @@
           class="border-bottom"
           @click="handleArticleSelected(item.uid, item.pages[0].num)"
         >
-          <table-of-contents-item :item="item" :active="item.uid === articleId"/>
+          <table-of-contents-item
+            :ref="`toc-article-${item.uid}`"
+            :item="item"
+            :active="item.uid === articleId"/>
         </div>
       </template>
     </list>
@@ -297,6 +300,10 @@ export default {
       },
       immediate: true,
     },
+    /** @param {string} id */
+    articleId(id) {
+      this.scrollTocToArticle(id)
+    }
   },
   methods: {
     /** @param {number} pageIndex */
@@ -306,7 +313,7 @@ export default {
     },
     /**
      * @param {string} articleUid
-     * @param {number} pageNumber
+     * @param {number} pageNumber (optional)
      */
     handleArticleSelected(articleUid, pageNumber) {
       const params = {
@@ -355,6 +362,16 @@ export default {
 
         this.$set(this.pagesMarginalia, pageIndex, entitySections.concat([topicsSection]))
       }
+    },
+    /** @param {string} articleId */
+    scrollTocToArticle(articleId) {
+      const articleComponent = (this.$refs[`toc-article-${articleId}`] ?? [])[0]
+      if (articleComponent == null) return
+      const articleElement = articleComponent.$el
+      const container = articleElement.parentNode.parentNode.parentNode
+
+      const relativeTop = articleElement.offsetTop - container.offsetTop
+      container.scrollTo({ top: relativeTop - 1, behavior: 'smooth' })
     }
   }
 }
