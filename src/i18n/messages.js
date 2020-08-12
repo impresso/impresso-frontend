@@ -137,7 +137,7 @@ export default {
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
       unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
-      ignoredFilters: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
+      ignoredFilters: 'no message | * 1 search filter can\'t be applied. | * {n} search filters can\'t be applied.',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -159,6 +159,7 @@ export default {
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
+    applyCurrentSearchFiltersDisabled: 'Current filters cannot be applied.',
     errors: {
       changePassword: {
         wrongcredentials: 'Wrong credentials provided...',
