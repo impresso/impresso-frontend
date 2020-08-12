@@ -49,6 +49,7 @@ export default {
   },
   methods: {
     show(delay=600) {
+      if (!this.articleId) return;
       setTimeout(() => {
         this.active = true;
         this.title = this.article?.title;
