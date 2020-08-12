@@ -73,6 +73,7 @@ export default {
   color: white;
   height: 70px;
   overflow: hidden;
+  display: none;
   & > div {
     background: #343b3f;
     border-radius: 5px;
@@ -84,6 +85,9 @@ export default {
   }
   &.active > div {
     transform: translateY(0);
+  }
+  &.visible {
+    display: block;
   }
 }
 </style>
