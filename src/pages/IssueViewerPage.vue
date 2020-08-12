@@ -18,9 +18,22 @@
                 countPages: issue.countPages,
                 accessRights: $t(`buckets.accessRight.${issue.accessRights }`)
               })" />
+              <b-form inline>
+                <b-form-checkbox
+                  v-model="applyCurrentSearchFilters"
+                  :disabled="countActiveFilters === 0"
+                  switch>
+                  {{ $t('actions.addCurrentSearch') }}
+                </b-form-checkbox>
+              </b-form>
+              <search-pills disable-reset
+                v-if="applyCurrentSearchFilters"
+                :filters="filters"
+                @changed="handleFiltersChanged"
+              />
               <b-input class="mb-3" v-model.trim="suggestionQuery"
                 debounce="500" :placeholder="$t('label_filter_articles')" />
-                <b-form-checkbox v-show="suggestionQuery.length"
+                <b-form-checkbox :disabled="!hasMatchingArticles"
                   v-model="displayOnlyMatchingArticles"
                   switch>
                   <span v-html="$tc('filter_included_only', paginationTotalRows)"/>
@@ -166,7 +179,6 @@ import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem'
 import PageItem from '@/components/modules/lists/PageItem'
 import List from '@/components/modules/lists/List'
 import IssueViewerText from '@/components/modules/IssueViewerText'
-
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
@@ -175,9 +187,12 @@ import {
 } from '@/services'
 import { getQueryParameter } from '@/router/util'
 import { getPageId, getShortArticleId, getLongArticleId } from '@/logic/ids'
+import { searchQueryGetter, searchQuerySetter, mapApplyCurrentSearchFilters } from '@/logic/queryParams'
+import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
 import Issue from '@/models/Issue'
 import Article from '@/models/Article'
 import TableOfContents from '@/models/TableOfContents'
+import SearchPills from '@/components/SearchPills'
 
 const Params = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
@@ -185,6 +200,7 @@ const QueryParams = Object.freeze({
   ArticleId: 'articleId',
   TextMode: 'text'
 })
+const AllowedFilterTypes = ['title', 'string', 'location', 'topic', 'person'];
 
 export default {
   data: () => ({
@@ -205,9 +221,37 @@ export default {
     TableOfContentsItem,
     PageItem,
     List,
-    IssueViewerText
+    IssueViewerText,
+    SearchPills,
   },
   computed: {
+    applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
+    searchQuery: {
+      ...searchQueryGetter(),
+      ...searchQuerySetter({
+        additionalQueryParams: {
+          p: 1,
+        },
+      }),
+    },
+    /** @returns {Filter[]} */
+    filters() {
+      // filter by type
+      return this.searchQuery.filters
+        .filter(({ type }) => AllowedFilterTypes.includes(type));
+    },
+    /** @returns {Filter[]} */
+    ignoredFilters() {
+      return this.searchQuery.filters
+        .filter(({ type }) => !AllowedFilterTypes.includes(type))
+    },
+    /** @returns {number} */
+    countActiveFilters() {
+      return this.filters.length;
+    },
+    hasMatchingArticles() {
+      return this.suggestionQuery.length || (this.applyCurrentSearchFilters && this.countActiveFilters > 0)
+    },
     /** @returns {string} */
     issueId() { return this.$route.params[Params.IssueId] },
     /** @returns {string|undefined} */
@@ -265,7 +309,7 @@ export default {
     },
     /** @returns {import('@/models/ArticleBase').default[]} */
     tableOfContentsArticles() {
-      if (this.suggestionQuery.length && this.displayOnlyMatchingArticles) {
+      if ((this.suggestionQuery.length || this.filters.length) && this.displayOnlyMatchingArticles) {
         return this.matchingArticles;
       }
       if (this.tableOfContents) {
@@ -293,6 +337,9 @@ export default {
         limit: this.paginationPerPage,
         page: this.paginationCurrentPage,
         issueUid: this.issue?.uid,
+        filters: this.applyCurrentSearchFilters
+          ? this.filters.map(getFilterQuery)
+          : [],
       };
     },
     paginationList() {
@@ -369,13 +416,15 @@ export default {
           // Params are the same: ${newParamsStr} ${oldParamsStr}`)
           return;
         }
-        if (this.issue == null) return
-        const { q, limit, page, issueUid } = params;
-        const filters = [{ type: 'issue', q: issueUid }]
+        if (this.issue == null) return;
+        const { q, limit, page, issueUid, filters } = params;
         this.matchingArticles = [];
 
-        if (q.length > 1){
-          filters.push({ type: 'string', q });
+        if (q.length > 1 || filters.length){
+          filters.push({ type: 'issue', q: issueUid })
+          if (q.length > 1) {
+            filters.push({ type: 'string', q });
+          }
           searchService.find({
             query: { filters, page, limit, group_by: 'articles' },
           }).then(({ data, total }) => {
@@ -393,6 +442,12 @@ export default {
     }
   },
   methods: {
+    handleFiltersChanged(filters) {
+      // add back ignored filters so that we can reuse them in other views
+      this.searchQuery = new SearchQuery({
+        filters: filters.concat(this.ignoredFilters),
+      });
+    },
     handleMatchingArticlesChangePage(page) {
       this.paginationCurrentPage = page;
     },
