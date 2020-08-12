@@ -396,8 +396,7 @@ export default {
         if (this.issue == null) return;
         const { q, limit, page, issueUid, filters } = params;
         this.matchingArticles = [];
-        console.info('serviceQuery', params, newParamsStr, oldParamsStr);
-        if (q.length > 1 || filters.length){
+          if (q.length > 1 || filters.length){
           const additionalFilters = [{ type: 'issue', q: issueUid }]
           if (q.length > 1) {
             additionalFilters.push({ type: 'string', q });
@@ -409,7 +408,6 @@ export default {
               page, limit, group_by: 'articles'
             },
           }).then(({ data, total }) => {
-            console.info('serviceQuery results', total);
             this.paginationTotalRows = total;
             this.matchingArticles = data.map(article => new Article(article));
           });
