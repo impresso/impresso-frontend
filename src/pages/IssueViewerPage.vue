@@ -402,6 +402,7 @@ export default {
             filters.push({ type: 'string', q });
           }
           searchService.find({
+            lock: false,
             query: { filters, page, limit, group_by: 'articles' },
           }).then(({ data, total }) => {
             this.displayOnlyMatchingArticles = true;
