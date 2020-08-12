@@ -20,12 +20,20 @@
               })" />
               <b-form inline>
                 <b-form-checkbox
-                  v-model="applyCurrentSearchFilters"
                   :disabled="countActiveFilters === 0"
+                  v-model="applyCurrentSearchFilters"
                   switch>
                   {{ $t('actions.addCurrentSearch') }}
                 </b-form-checkbox>
               </b-form>
+              <b-alert variant="transparent" class="p-1 small" show>
+                <div v-if="countActiveFilters === 0">
+                  {{ $t('applyCurrentSearchFiltersDisabled') }}
+                </div>
+                <span v-if="ignoredFilters.length"
+                  v-html="$tc('numbers.ignoredFilters', ignoredFilters.length)">
+                </span>
+              </b-alert>
               <search-pills disable-reset
                 v-if="applyCurrentSearchFilters"
                 :filters="filters"
@@ -115,7 +123,7 @@
           :article="{ uid: articleId }"
           :marginaliaSections="marginaliaSections"
           @page-changed="changeCurrentPageIndex"
-          @article-selected="handleArticleIdSelected"/>
+          @article-selected="handleArticleIdSelectedInViewer"/>
 
         <issue-viewer-text
           v-if="isContentAvailable && articleId != null && isArticleTextDisplayed"
@@ -187,6 +195,11 @@ export default {
     SearchPills,
     IssueViewerBookmarker,
     IssueViewerTableOfContents
+  },
+  mounted() {
+    if (this.suggestionQuery.length) {
+      this.displayOnlyMatchingArticles = true;
+    }
   },
   computed: {
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
@@ -383,16 +396,20 @@ export default {
         if (this.issue == null) return;
         const { q, limit, page, issueUid, filters } = params;
         this.matchingArticles = [];
-
+        console.info('serviceQuery', params, newParamsStr, oldParamsStr);
         if (q.length > 1 || filters.length){
-          filters.push({ type: 'issue', q: issueUid })
+          const additionalFilters = [{ type: 'issue', q: issueUid }]
           if (q.length > 1) {
-            filters.push({ type: 'string', q });
+            additionalFilters.push({ type: 'string', q });
           }
           searchService.find({
             lock: false,
-            query: { filters, page, limit, group_by: 'articles' },
+            query: {
+              filters: filters.concat(additionalFilters),
+              page, limit, group_by: 'articles'
+            },
           }).then(({ data, total }) => {
+            console.info('serviceQuery results', total);
             this.paginationTotalRows = total;
             this.matchingArticles = data.map(article => new Article(article));
           });
@@ -403,6 +420,7 @@ export default {
   },
   methods: {
     handleFiltersChanged(filters) {
+      this.displayOnlyMatchingArticles = true;
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
         filters: filters.concat(this.ignoredFilters),
@@ -430,7 +448,9 @@ export default {
      * @param {string} articleUid
      * @param {number} pageNumber (optional)
      */
-    handleArticleIdSelected(articleUid) {
+    handleArticleIdSelectedInViewer(articleUid) {
+      // display the whole table of contents
+      this.displayOnlyMatchingArticles = false;
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: getShortArticleId(articleUid)
       })
