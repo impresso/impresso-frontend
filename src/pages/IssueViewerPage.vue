@@ -71,9 +71,7 @@
           <section class='p-2 pl-3'>
             <h3 class="m-0">
               <b>{{ issue.newspaper.name }}</b> &middot;
-              <span class="date">
-              {{ $d(issue.date, 'long') }}
-              </span>
+              <span class="date">{{ $d(issue.date, 'long') }}</span>
             </h3>
           </section>
           <b-navbar-nav class=" border">
@@ -105,35 +103,11 @@
             <b-button size="sm" variant="outline-primary" @click="isArticleTextDisplayed = false">{{ $t('facsimileView') }}</b-button>
           </b-navbar-nav>
         </b-navbar>
-        <!-- bookmarker -->
-        <!-- <b-navbar v-if="selectedArticle">
-          <b-navbar-nav class="bg-dark p-2">
-            <span class="text-white mr-2">{{ selectedArticle.title }}</span>
-            <b-button variant="outline-primary"
-              size="sm"
-              @click="showArticleText(selectedArticle.uid)">
-              {{ $t('label_full_text') }}
-            </b-button>
-          </b-navbar-nav>
-        </b-navbar> -->
-        <div class="bookmarker active" v-if="selectedArticle && !isArticleTextDisplayed">
-          <div class="bg-dark p-2 drop-shadow d-flex">
-            <div>
-              {{$t('label_selected_article') }}
-            </div>
-            <div class="text-white font-weight-bold mr-2 text-ellipsis">{{ selectedArticle.title }}</div>"
-            <b-button class="mx-2" variant="outline-primary"
-              size="sm"
-              @click="showArticleText(selectedArticle.uid)">
-              {{ $t('label_full_text') }}
-            </b-button>
-            <b-button pill class="dripicons-cross p-0"
-              style="width:1.5em; height:1.5em; line-height: 1.75em"
-              @click="handleArticleSelected()"
-              variant="outline-primary">
-            </b-button>
-          </div>
-        </div>
+        <issue-viewer-bookmarker
+          @remove-selection="handleArticleSelected()"
+          @click-full-text="showArticleText(selectedArticle.uid)"
+          :article="selectedArticle"
+          :visible="!isArticleTextDisplayed"/>
       </div>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center position-relative"  v-if="issue">
@@ -193,6 +167,7 @@ import Issue from '@/models/Issue'
 import Article from '@/models/Article'
 import TableOfContents from '@/models/TableOfContents'
 import SearchPills from '@/components/SearchPills'
+import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
 
 const Params = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
@@ -223,6 +198,7 @@ export default {
     List,
     IssueViewerText,
     SearchPills,
+    IssueViewerBookmarker,
   },
   computed: {
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
@@ -541,7 +517,6 @@ export default {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
     "label_display": "Display as",
-    "label_selected_article": "Selected article: ",
     "label_filter_articles": "Search words...",
     "label_full_text": "full text",
     "table_of_contents": "table of contents",
@@ -559,28 +534,5 @@ export default {
 .close-button {
   position: absolute;
   right: 0;
-}
-.bookmarker {
-  position: absolute;
-  left: 50%;
-  z-index: 2;
-  width: 100%;
-  margin-left: -25%;
-  bottom: -70px;
-  color: white;
-  height: 70px;
-  overflow: hidden;
-  & > div {
-    background: #343b3f;
-    border-radius: 5px;
-    position: absolute;
-    top: 10px;
-    padding: 5px 50px;
-    transform: translateY(-50px);
-    transition: transform .6s cubic-bezier(.8,-.5,.2,1.4);
-  }
-  &.active > div {
-    transform: translateY(0);
-  }
 }
 </style>
