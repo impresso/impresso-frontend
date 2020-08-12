@@ -396,7 +396,7 @@ export default {
         if (this.issue == null) return;
         const { q, limit, page, issueUid, filters } = params;
         this.matchingArticles = [];
-          if (q.length > 1 || filters.length){
+        if (q.length > 1 || filters.length) {
           const additionalFilters = [{ type: 'issue', q: issueUid }]
           if (q.length > 1) {
             additionalFilters.push({ type: 'string', q });
