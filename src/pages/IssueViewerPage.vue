@@ -43,24 +43,12 @@
         </b-tabs>
       </template>
       <template v-slot:default>
-        <div v-for="(item, i) in tableOfContentsArticles" :key="i"
-          class="border-bottom"
-          @click="handleArticleSelected(item.uid, item.pages[0].num)"
-        >
-          <table-of-contents-item
-            :ref="`toc-article-${item.uid}`"
-            :item="item"
-            :active="item.uid === articleId">
-            <template v-slot:actions>
-              <div class="border-top border-bottom py-1 my-2">
-                <span class="small">{{$t('label_continue_reading')}}</span>
-                <a class="small-caps" @click="showArticleText(item.uid)">
-                  {{ $t('label_full_text') }}
-                </a>
-              </div>
-            </template>
-          </table-of-contents-item>
-        </div>
+        <issue-viewer-table-of-contents
+          :items="tableOfContentsArticles"
+          :selected-article-id="articleId"
+          @article-selected="handleArticleSelected"
+          @click-full-text="showArticleText"
+        />
       </template>
     </list>
     <!-- main section -->
@@ -104,7 +92,7 @@
           </b-navbar-nav>
         </b-navbar>
         <issue-viewer-bookmarker
-          @remove-selection="handleArticleSelected()"
+          @remove-selection="handleRemoveSelection"
           @click-full-text="showArticleText(selectedArticle.uid)"
           :article="selectedArticle"
           :visible="!isArticleTextDisplayed"/>
@@ -127,7 +115,7 @@
           :article="{ uid: articleId }"
           :marginaliaSections="marginaliaSections"
           @page-changed="changeCurrentPageIndex"
-          @article-selected="handleArticleSelected"/>
+          @article-selected="handleArticleIdSelected"/>
 
         <issue-viewer-text
           v-if="isContentAvailable && articleId != null && isArticleTextDisplayed"
@@ -149,7 +137,6 @@
 
 <script>
 import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
-import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem'
 import PageItem from '@/components/modules/lists/PageItem'
 import List from '@/components/modules/lists/List'
 import IssueViewerText from '@/components/modules/IssueViewerText'
@@ -168,6 +155,7 @@ import Article from '@/models/Article'
 import TableOfContents from '@/models/TableOfContents'
 import SearchPills from '@/components/SearchPills'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
+import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
 
 const Params = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
@@ -193,12 +181,12 @@ export default {
   }),
   components: {
     OpenSeadragonArticleViewer,
-    TableOfContentsItem,
     PageItem,
     List,
     IssueViewerText,
     SearchPills,
     IssueViewerBookmarker,
+    IssueViewerTableOfContents
   },
   computed: {
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
@@ -405,7 +393,6 @@ export default {
             lock: false,
             query: { filters, page, limit, group_by: 'articles' },
           }).then(({ data, total }) => {
-            this.displayOnlyMatchingArticles = true;
             this.paginationTotalRows = total;
             this.matchingArticles = data.map(article => new Article(article));
           });
@@ -413,10 +400,6 @@ export default {
       },
       immediate: true,
     },
-    /** @param {string} id */
-    articleId(id) {
-      this.scrollTocToArticle(id)
-    }
   },
   methods: {
     handleFiltersChanged(filters) {
@@ -430,21 +413,28 @@ export default {
     },
     /** @param {number} pageIndex */
     changeCurrentPageIndex(pageIndex) {
-      console.info('@changeCurrentPageIndex', pageIndex, this.currentPageIndex);
       this.currentPageIndex = pageIndex;
+    },
+    handleRemoveSelection() {
+      this.$navigation.updateQueryParameters({
+        [QueryParams.ArticleId]: undefined,
+      });
+    },
+    handleArticleSelected(article) {
+      console.info('@handleArticleSelected', article)
+      this.$navigation.updateQueryParameters({
+        [QueryParams.ArticleId]: getShortArticleId(article.uid),
+        [QueryParams.PageNumber]: String(article.pages[0].num)
+      })
     },
     /**
      * @param {string} articleUid
      * @param {number} pageNumber (optional)
      */
-    handleArticleSelected(articleUid, pageNumber) {
-      const params = {
-        [QueryParams.ArticleId]: articleUid == null ? undefined : getShortArticleId(articleUid)
-      }
-      if (pageNumber) {
-        params[QueryParams.PageNumber] = String(pageNumber)
-      }
-      this.$navigation.updateQueryParameters(params)
+    handleArticleIdSelected(articleUid) {
+      this.$navigation.updateQueryParameters({
+        [QueryParams.ArticleId]: getShortArticleId(articleUid)
+      })
     },
     /** @param {number} pageIndex */
     async loadRegions(pageIndex) {
@@ -485,16 +475,6 @@ export default {
         this.$set(this.pagesMarginalia, pageIndex, entitySections.concat([topicsSection]))
       }
     },
-    /** @param {string} articleId */
-    scrollTocToArticle(articleId) {
-      const articleComponent = (this.$refs[`toc-article-${articleId}`] ?? [])[0]
-      if (articleComponent == null) return
-      const articleElement = articleComponent.$el
-      const container = articleElement.parentNode.parentNode.parentNode
-
-      const relativeTop = articleElement.offsetTop - container.offsetTop
-      container.scrollTo({ top: relativeTop - 1, behavior: 'smooth' })
-    },
     /** @param {string} articleUid */
     showArticleText(articleUid) {
       const params = {
@@ -519,11 +499,9 @@ export default {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
     "label_display": "Display as",
     "label_filter_articles": "Search words...",
-    "label_full_text": "full text",
     "table_of_contents": "table of contents",
     "toggle_outlines_on": "outlines: on",
     "toggle_outlines_off": "Outlines: off",
-    "label_continue_reading": "Continue reading:",
     "facsimileView": "Facsimile",
     "closeReadingView": "Transcript",
     "filter_included_only": "show only matching articles (no results) | show only matching articles (<b>1</b> result) | show only matching articles (<b>{n}</b> results)"
