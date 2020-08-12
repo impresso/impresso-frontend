@@ -43,7 +43,7 @@ export default {
       const articleComponent = (this.$refs[`toc-article-${articleId}`] ?? [])[0]
       if (articleComponent == null) return
       const articleElement = articleComponent.$el
-      const container = articleElement.parentNode.parentNode.parentNode
+      const container = this.$el.parentNode.parentNode
 
       const relativeTop = articleElement.offsetTop - container.offsetTop
       container.scrollTo({ top: relativeTop - 1, behavior: 'smooth' })
