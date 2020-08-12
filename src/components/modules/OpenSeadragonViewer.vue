@@ -67,6 +67,7 @@ export default {
       });
 
       this.handler.$on('add-overlay', (options = {}) => {
+
         const rect = this.viewer.viewport.imageToViewportRectangle(
           options.x,
           options.y,

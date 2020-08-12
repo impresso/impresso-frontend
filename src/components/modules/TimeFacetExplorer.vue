@@ -92,7 +92,7 @@ export default {
   },
   methods: {
     handleFilterChanged(filter) {
-      console.info("(wip) @handleFilterChanged:", filter);
+      console.info('(wip) @handleFilterChanged:', filter);
     },
     applyFilter() {
       const originalFilter = this.filter

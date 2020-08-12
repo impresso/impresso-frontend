@@ -17,6 +17,7 @@ import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
 import PowerUserVisualisation from '../pages/PowerUserVisualisation'
+import IssueViewerPage from '../pages/IssueViewerPage'
 
 import store from '../store';
 
@@ -167,6 +168,16 @@ const router = new Router({
       path: '/issue/:issue_uid',
       component: IssuePage,
       name: 'issue',
+      props: true,
+      meta: {
+        requiresAuth: false,
+        realm: 'issueviewer',
+      },
+    },
+    {
+      path: '/issue/:issue_uid/view',
+      component: IssueViewerPage,
+      name: 'issue-viewer',
       props: true,
       meta: {
         requiresAuth: false,

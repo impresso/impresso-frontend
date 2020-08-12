@@ -167,7 +167,12 @@ export default {
     index: {
       type: String,
       default: 'search'
-    }
+    },
+    /** @type {import('vue').PropOptions<boolean>} */
+    disableReset: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     /** @returns {{filter: Filter, filterIndex: number}[]} */
@@ -195,7 +200,10 @@ export default {
     /** @returns {string[]} */
     numericTypes() { return NumericRangeFacets },
     /** @return {boolean} */
-    isResettable() { return !!this.filters.filter(d => d.type !== 'hasTextContents').length; },
+    isResettable() {
+      if (this.disableReset) return false;
+      return !!this.filters.filter(d => d.type !== 'hasTextContents').length;
+    },
   },
   methods: {
     /**

@@ -1,15 +1,17 @@
 <template lang="html">
   <article :class="{ reference : asReference }">
-    <h2 v-if="item.title" class="mb-0">
-      <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="item.title"></router-link>
-      <a v-else-if="showHref" v-on:click.prevent="onClick" v-html="item.title"></a>
-      <span v-else v-html="item.title"></span>
-    </h2>
-    <div v-else>
-      <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="$t('untitled')"></router-link>
-      <a v-else-if="showHref" v-on:click.prevent="onClick">{{ $t('untitled') }}</a>
-      <span v-else>{{ $t('untitled') }}</span>
-    </div>
+    <slot name="title">
+      <h2 v-if="item.title" class="mb-0">
+        <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="item.title"></router-link>
+        <a v-else-if="showHref" v-on:click.prevent="onClick" v-html="item.title"></a>
+        <span v-else v-html="item.title"></span>
+      </h2>
+      <div v-else>
+        <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="$t('untitled')"></router-link>
+        <a v-else-if="showHref" v-on:click.prevent="onClick">{{ $t('untitled') }}</a>
+        <span v-else>{{ $t('untitled') }}</span>
+      </div>
+    </slot>
     <div v-if="showMeta" class="article-meta">
       <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
         {{ item.newspaper.name}}
@@ -31,6 +33,8 @@
       </b-badge>
       <span v-if="showPages">{{ pages }}</span>
     </div>
+
+    <slot name="actions"></slot>
 
     <div v-if="showEntities" class="small article-extras article-entities mt-2">
       <div v-if="item.locations.length">
@@ -73,6 +77,7 @@
           v-show="match.fragment.trim().length > 0" />
       </ul>
     </div>
+    <slot name="footer"></slot>
     <!-- {{ item.issue.accessRights }} -->
   </article>
 </template>
