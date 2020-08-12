@@ -97,6 +97,7 @@ export default {
       resetObservedItems: 'reset observed list',
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
+      addCurrentSearch: 'Add filters from your current search query',
       viewTopic: 'go to topic',
     },
     filters: {
