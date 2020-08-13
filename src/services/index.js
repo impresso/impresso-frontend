@@ -156,6 +156,7 @@ export const stats = app.service('stats');
 export const articlesRecommendations = app.service('articles-recommendations');
 export const articlesSearch = app.service('articles-search');
 export const entityMentionsTimeline = app.service('entity-mentions-timeline');
+export const textReuseConnectedClusters = app.service('text-reuse-connected-clusters')
 
 export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API;
 export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH;
