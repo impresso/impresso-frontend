@@ -50,7 +50,23 @@
             :disabled="isLoading"
             separator=" ,;"
             :placeholder="unigrams.length === 0 ? 'search unigrams ...' : ''"
-            class="mb-2"/>
+            class="mb-2">
+          </b-form-tags>
+          <b-dropdown
+            ref="embeddings"
+            class="mb-2"
+            size="sm"
+            variant="outline-primary"
+            :text="$t('label.addSimilar')"
+            @shown="isEmbeddingSearchDisplayed = true"
+            @hidden="isEmbeddingSearchDisplayed = false">
+            <div :style="{ 'min-width': '300px' }">
+              <embeddings-search
+                v-if="isEmbeddingSearchDisplayed"
+                :filter="embeddingsFilter"
+                @embdding-selected="handleSuggestedTermSelected"/>
+            </div>
+          </b-dropdown>
         </b-input-group>
       </b-navbar>
     </div>
@@ -111,6 +127,8 @@ import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
 import MultiLinePlot from '@/components/modules/vis/MultiLinePlot'
 import Ellipsis from '@/components/modules/Ellipsis';
 import InfoButton from '@/components/base/InfoButton';
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch';
+
 import {
   filtersItems as filtersItemsService,
   search as searchService,
@@ -204,6 +222,7 @@ export default {
     BaseTitleBar,
     SearchSidebar,
     InfoButton,
+    EmbeddingsSearch,
   },
   data: () => ({
     /** @type {Facet[]} */
@@ -212,7 +231,8 @@ export default {
     filtersWithItems: [],
     /** @type {any} */
     ngramResult: EmptyNgramResult,
-    isLoading: false
+    isLoading: false,
+    isEmbeddingSearchDisplayed: false
   }),
   mounted() {
     this.facets = buildEmptyFacets(SupportedFacetTypes)
@@ -276,14 +296,15 @@ export default {
         })
       }
     },
+    /** @returns {string} */
     unigramsSummary() {
       if (this.trends.length === 0) {
-        return this.$t('label.noUnigram');
+        return this.$t('label.noUnigram').toString()
       }
       const trends = this.trends.map(trend => this.$tc('numbers.unigramMentions', trend.total || 0, {
         unigram: trend.ngram, n: this.$n(trend.total)
       })).join('; ');
-      return this.$t('label.withTrends', { trends })
+      return this.$t('label.withTrends', { trends }).toString()
     },
     /** @returns {Filter[]} */
     enrichedFilters() {
@@ -399,6 +420,14 @@ export default {
     isoDates() {
       const { domainValues } = this.ngramResult
       return domainValues.map(v => new Date(v).toISOString())
+    },
+    /** @returns {import('@/models').Filter | undefined} */
+    embeddingsFilter() {
+      const lastUnigram = this.unigrams[this.unigrams.length - 1]
+      if (lastUnigram == null) return undefined
+      return {
+        q: [lastUnigram]
+      }
     }
   },
   methods: {
@@ -440,6 +469,11 @@ export default {
       const total = totals[dateIndex]
 
       return this.$tc('tooltipAbsoluteValue', absoluteValue, { count: absoluteValue, total })
+    },
+    /** @param {string} term */
+    handleSuggestedTermSelected(term) {
+      this.$set(this, 'unigrams', this.unigrams.concat([term]))
+      this.$refs.embeddings.hide(true)
     }
   }
 };
@@ -462,7 +496,8 @@ export default {
         "seeArticles": "See articles",
         "noUnigram": "... look for a specific <em>unigram</em> in",
         "withTrends": "{trends} in",
-        "availableFacets": "Available filters for ngram analysis"
+        "availableFacets": "Available filters for ngram analysis",
+        "addSimilar": "add similar"
       },
       "loading": "Loading ...",
       "tooltipValueUnit": "per 1 million",
