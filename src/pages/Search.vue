@@ -212,11 +212,10 @@ import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
-import { joinFiltersWithItems } from '@/logic/filters';
+import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters';
 import {
   searchQueryGetter,
   searchQuerySetter,
-  searchQueryHashGetter,
 } from '@/logic/queryParams';
 import {
   search as searchService,
@@ -226,26 +225,7 @@ import {
   collectionsItems as collectionsItemsService,
 } from '@/services';
 
-const AllowedFilterTypes = [
-  'accessRight',
-  'collection',
-  'country',
-  'isFront',
-  'issue',
-  'language',
-  'location',
-  'newspaper',
-  'newspaper',
-  'partner',
-  'person',
-  'string',
-  'title',
-  'topic',
-  'type',
-  'year',
-  'daterange',
-  'contentLength'
-];
+const AllowedFilterTypes = SupportedFiltersByContext.search
 
 const FACET_TYPES_DPFS = [
   'person',
@@ -291,7 +271,6 @@ export default {
         },
       }),
     },
-    searchQueryHash: searchQueryHashGetter(),
     groupByOptions() {
       return ['issues', 'pages', 'articles'].map((value) => ({
         value,
@@ -414,6 +393,11 @@ export default {
         return query;
       },
     },
+    searchQueryHash() {
+      return new SearchQuery({
+        filters: this.filters,
+      }).getSerialized({ serializer: 'protobuf' })
+    }
   },
   mounted() {
     this.facets = buildEmptyFacets(FACET_TYPES);
