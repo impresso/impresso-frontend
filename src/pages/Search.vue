@@ -414,6 +414,13 @@ export default {
         return query;
       },
     },
+    paginationData() {
+      return {
+        perPage: this.paginationPerPage,
+        currentPage: this.paginationCurrentPage,
+        total: this.paginationTotalRows
+      }
+    }
   },
   mounted() {
     this.facets = buildEmptyFacets(FACET_TYPES);
@@ -646,6 +653,12 @@ export default {
       },
       immediate: true,
     },
+    paginationData({ perPage, currentPage = 1, total }) {
+      if (total == null) return
+      if (perPage * currentPage > total) {
+        this.paginationCurrentPage = Math.ceil(total / perPage)
+      }
+    }
   },
   components: {
     Autocomplete,
