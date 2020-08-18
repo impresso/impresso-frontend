@@ -274,6 +274,7 @@ export default {
       handler(idx) {
         if (this.viewer && this.currentPageIndex !== idx) {
           this.viewer.viewport.fitBounds(this.viewer.world.getItemAt(idx).getBounds(), true)
+          this.viewer.viewport.zoomTo(DefaultZoomLevel)
         }
       }
     },
