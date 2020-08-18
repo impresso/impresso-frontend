@@ -131,7 +131,7 @@
 
       </div>
     </i-layout-section>
-    <i-layout-section width="120px" class="border-left">
+    <i-layout-section width="120px" class="border-left" :style="{ display: 'none' }">
       <list hide-pagination v-if="issue">
         <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
           <page-item
@@ -164,6 +164,11 @@ import TableOfContents from '@/models/TableOfContents'
 import SearchPills from '@/components/SearchPills'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models/ArticleBase').default} ArticleBase
+ */
 
 const Params = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
@@ -207,7 +212,7 @@ export default {
       ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
-          p: 1,
+          p: '1',
         },
       }),
     },
@@ -226,8 +231,9 @@ export default {
     countActiveFilters() {
       return this.filters.length;
     },
+    /** @returns {boolean} */
     hasMatchingArticles() {
-      return this.suggestionQuery.length || (this.applyCurrentSearchFilters && this.countActiveFilters > 0)
+      return this.suggestionQuery.length > 0 || (this.applyCurrentSearchFilters && this.countActiveFilters > 0)
     },
     /** @returns {string} */
     issueId() { return this.$route.params[Params.IssueId] },
@@ -244,9 +250,12 @@ export default {
       if (shortArticleId == null) return undefined
       return getLongArticleId(this.issueId, shortArticleId)
     },
+    /**
+     * @returns {ArticleBase|undefined}
+     */
     selectedArticle() {
       if (!this.tableOfContents) {
-        return null;
+        return undefined;
       }
       return this.tableOfContents.articles.find(d => d.uid === this.articleId)
     },
@@ -307,7 +316,7 @@ export default {
         });
       },
     },
-    /** @returns {{ q: string, limit: number, page: number }} */
+    /** @returns {{ q: string, limit: number, page: number, issueUid?: string, filters: Filter[] }} */
     serviceQuery() {
       return {
         q: this.suggestionQuery,
@@ -319,6 +328,7 @@ export default {
           : [],
       };
     },
+    /** @returns {any} */
     paginationList() {
       return {
         perPage: this.paginationPerPage,
