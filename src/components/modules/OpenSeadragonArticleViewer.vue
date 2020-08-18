@@ -113,7 +113,7 @@ function getMarginaliaOverlayRect(tiledImage, isRight) {
     )
 }
 
-const DefaultZoomLevel = 0.0005
+const DefaultZoomLevel = 0.0008
 const MaxFontSizePc = 100
 
 /**
@@ -261,6 +261,7 @@ export default {
         this.tilesAreReady = false
         viewer.addOnceHandler('tile-loaded', () => {
           viewer.viewport.fitBounds(viewer.world.getItemAt(this.currentPageIndex).getBounds(), true)
+          viewer.viewport.zoomTo(DefaultZoomLevel)
           this.tilesAreReady = true
         })
 
@@ -273,6 +274,7 @@ export default {
       handler(idx) {
         if (this.viewer && this.currentPageIndex !== idx) {
           this.viewer.viewport.fitBounds(this.viewer.world.getItemAt(idx).getBounds(), true)
+          this.viewer.viewport.zoomTo(DefaultZoomLevel)
         }
       }
     },
