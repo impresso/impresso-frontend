@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="issue-viewer-bookmarker" :class="{ active, visible }">
-    <div class="bg-dark p-2 drop-shadow d-flex">
+    <div class="bg-dark p-2 drop-shadow d-flex align-items-center">
       <div class="mr-2">
         {{$t('label_selected_article') }}
       </div>
@@ -68,13 +68,14 @@ export default {
   position: absolute;
   left: 50%;
   z-index: 2;
-  width: 100%;
+  width: 50%;
   margin-left: -25%;
-  bottom: -70px;
+  top: 0px;
   color: white;
   height: 70px;
   overflow: hidden;
   display: none;
+  z-index: 100;
   & > div {
     background: #343b3f;
     border-radius: 5px;
@@ -88,7 +89,7 @@ export default {
     transform: translateY(0);
   }
   &.visible {
-    display: block;
+    display: flex;
   }
 }
 </style>
