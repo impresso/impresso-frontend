@@ -49,6 +49,7 @@ $size:1.5rem;
     color: #c6ccd2;
   }
   &.active{
+    box-shadow: 0px -2px 0 0px #ffeb78;
     background: black !important;
     .number{
       color: white;
