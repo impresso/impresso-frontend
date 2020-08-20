@@ -70,14 +70,17 @@
               <span class="date">{{ $d(issue.date, 'long') }}</span>
             </h3>
           </section>
-          <b-navbar-nav class=" border">
-            <b-button variant="light" size="sm"
+          <b-navbar-nav>
+            <b-button class="border-dark" variant="light" size="sm"
               :disabled="currentPageIndex === 0"
               @click="changeCurrentPageIndex(currentPageIndex - 1)">
               <div class="dripicons dripicons-media-previous pt-1"></div>
             </b-button>
-            <div class="px-2 pt-1">{{ $tc('pp', 1, { pages: page ? page.num : undefined }) }}</div>
-            <b-button variant="light" size="sm"
+            <div class="px-2 pt-1 border-top border-bottom" v-html="$t('ppOf', {
+              num: page.num,
+              pages: issue.pages.length
+            })"></div>
+            <b-button class="border-dark" variant="light" size="sm"
               :disabled="(currentPageIndex + 1) === issue.pages.length"
               @click="changeCurrentPageIndex(currentPageIndex + 1)">
               <div class="dripicons dripicons-media-next pt-1"></div>
@@ -99,11 +102,6 @@
             <b-button size="sm" variant="outline-primary" @click="isArticleTextDisplayed = false">{{ $t('facsimileView') }}</b-button>
           </b-navbar-nav>
         </b-navbar>
-        <issue-viewer-bookmarker
-          @remove-selection="handleRemoveSelection"
-          @click-full-text="showArticleText(selectedArticle.uid)"
-          :article="selectedArticle"
-          :visible="!isArticleTextDisplayed"/>
       </div>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center position-relative"  v-if="issue">
@@ -129,16 +127,20 @@
           v-if="isContentAvailable && articleId != null && isArticleTextDisplayed"
           :article_uid="articleId"/>
 
-      </div>
-    </i-layout-section>
-    <i-layout-section width="120px" class="border-left" :style="{ display: 'none' }">
-      <list hide-pagination v-if="issue">
-        <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
-          <page-item
-          :active="pageId === item.uid"
-          :item="item" />
+        <issue-viewer-bookmarker
+          @remove-selection="handleRemoveSelection"
+          @click-full-text="showArticleText(selectedArticle.uid)"
+          :article="selectedArticle"
+          :visible="!isArticleTextDisplayed"/>
+
+        <div class="position-absolute d-flex drop-shadow bg-dark" style="border-radius: 5px; bottom: 1rem; background: #343a40;">
+          <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
+            <page-item class="bg-dark p-2"
+            :active="pageId === item.uid"
+            :item="item" />
+          </div>
         </div>
-      </list>
+      </div>
     </i-layout-section>
   </i-layout>
 </template>
