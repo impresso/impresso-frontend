@@ -40,8 +40,16 @@ $size:1.5rem;
     opacity: 0;
     transition: opacity .3s ease-in;
   }
-  &:hover .number{
+  &:hover .number,
+  &.active .number{
     opacity: 1;
+  }
+  &.active{
+    box-shadow: 0px -2px 0 0px #ffeb78;
+    background: black !important;
+    .number{
+      color: white;
+    }
   }
 }
 .page-item.bg-dark{
@@ -53,7 +61,6 @@ $size:1.5rem;
     background: black !important;
     .number{
       color: white;
-      opacity: 1;
     }
   }
 }

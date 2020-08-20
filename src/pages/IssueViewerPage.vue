@@ -133,7 +133,7 @@
           :article="selectedArticle"
           :visible="!isArticleTextDisplayed"/>
 
-        <div class="position-absolute d-flex drop-shadow bg-dark" style="border-radius: 5px; bottom: 1rem; background: #343a40;">
+        <div class="position-absolute d-flex drop-shadow bg-dark border-radius" style="bottom: 1rem">
           <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
             <page-item class="bg-dark p-2"
             :active="pageId === item.uid"
