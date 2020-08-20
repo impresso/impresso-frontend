@@ -193,6 +193,8 @@ import {
   entityMentionsTimeline as entityMentionsTimelineService
 } from '@/services'
 import { getQueryParameter } from '@/router/util'
+import { SupportedFiltersByContext } from '@/logic/filters'
+import SearchQuery from '@/models/SearchQuery'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -221,6 +223,14 @@ const QueryParameters = Object.freeze({
   TimelineSelectionEnd: 'sele',
   Scale: 'scale'
 })
+
+
+/**
+ * @param {import('@/models').Filter} filter
+ * @returns {boolean}
+ */
+const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.includes(filter.type)
+
 
 /**
  * @param {EntityOrMention} item
@@ -363,7 +373,14 @@ export default {
       }
       return '';
     },
-    searchQuery: searchQueryGetter(),
+    searchQuery: {
+      get() {
+        const searchQuery = searchQueryGetter().get.bind(this)()
+        return new SearchQuery({
+          filters: searchQuery.filters.filter(supportedSearchIndexFilters)
+        })
+      }
+    },
     selectedEntitySearchQuery() {
       if (this.selectedEntity) {
         // add start and end span related to current punchcardResolution
