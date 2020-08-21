@@ -91,8 +91,28 @@
         </b-form>
       </div>
     </div>
+    <div v-if="EntityTypes.includes(type)">
+      <b-row no-gutters>
+        <b-col cols="6">
+          <div class="mr-1">
+            <b-button size="sm" variant="outline-primary" block
+              v-on:click.prevent="showEntitySuggester = !showEntitySuggester;"
+              >
+                {{$t('actions.addUsingEmbeddings')}}
+            </b-button>
+          </div>
+        </b-col>
+      </b-row>
+      <entity-suggester
+        v-if="showEntitySuggester"
+        :filter="filter"
+        :type="type"
+        @filter-changed="handleFilterChanged"
+        class="border p-2 bg-light"/>
+    </div>
+    <!-- @entity-selected="addEmbeddingSuggestion"/> -->
     <!-- add new string as an OR filter -->
-    <div class="mt-3" v-if="StringTypes.includes(type)">
+    <div class="mt-3" v-else-if="StringTypes.includes(type)">
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
@@ -146,21 +166,22 @@
 </template>
 
 <script>
-import FilterDaterange from './FilterDateRange';
-import FilterNumberRange from './FilterNumberRange';
-import ItemSelector from './ItemSelector';
-import ItemLabel from './lists/ItemLabel';
-import CollectionItem from './lists/CollectionItem';
-import EmbeddingsSearch from './EmbeddingsSearch';
+import FilterDaterange from '@/components/modules/FilterDateRange';
+import FilterNumberRange from '@/components/modules/FilterNumberRange';
+import ItemSelector from '@/components/modules/ItemSelector';
+import ItemLabel from '@/components/modules/lists/ItemLabel';
+import CollectionItem from '@/components/modules/lists/CollectionItem';
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch';
+import EntitySuggester from '@/components/modules/EntitySuggester'
 import {
   toCanonicalFilter,
   toSerializedFilter,
   RangeFacets,
   NumericRangeFacets
-} from '../../logic/filters'
+} from '@/logic/filters'
 
 const StringTypes = ['string', 'title']
-
+const EntityTypes = ['person', 'location', 'entity']
 /**
  * Changes filter after 'apply' button is clicked.
  * Use with `v-model`.
@@ -172,12 +193,14 @@ export default {
   },
   data: () => ({
     showEmbeddings: false,
+    showEntitySuggester: false,
     editedFilter: {},
     excludedItemsIds: [],
     stringsToAdd: [],
     RangeFacets,
     NumericRangeFacets,
-    StringTypes
+    StringTypes,
+    EntityTypes
   }),
   props: {
     operators: {
@@ -332,6 +355,10 @@ export default {
         q,
       }
       if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);
+    },
+    handleFilterChanged({items}) {
+      console.info('handleFilterChanged');
+      this.itemsToAdd = items; // TODO:  exclude item already present
     }
   },
   components: {
@@ -340,7 +367,8 @@ export default {
     EmbeddingsSearch,
     ItemLabel,
     ItemSelector,
-    FilterNumberRange
+    FilterNumberRange,
+    EntitySuggester
   },
   watch: {
     /**
