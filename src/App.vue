@@ -247,6 +247,9 @@ $clr-grey-900: #ddd;
   white-space: nowrap;
 }
 
+.text-small{
+  font-size: 14px;
+}
 .custom-control-input {
   width: 0;
   height: 0;
