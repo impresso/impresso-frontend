@@ -67,13 +67,17 @@
         </b-form-checkbox>
       </div>
       <!-- bucket items -->
-      <div class="items-to-add  mt-2" v-if="itemsToAdd.length">
+      <div class="items-to-add text-small m-2" v-if="itemsToAdd.length">
         <div v-for="(item, idx) in itemsToAdd" :key="idx">
           <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
           <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
           <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
           <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+          <item-selector :uid="item.uid" :item="item" :type="type"/>
+          <b-button class="dripicons-cross ml-auto" variant="transparent" size="sm" style="padding:0.25rem 0.5rem 0 0.5rem"
+            @click.prevent.stop="removeItem(idx)"
+          />
         </div>
       </div>
       <!-- string to add -->
@@ -324,6 +328,9 @@ export default {
     removeStringItem(idx) {
       this.stringsToAdd.splice(idx, 1);
     },
+    removeItem(idx) {
+      this.itemsToAdd.splice(idx, 1);
+    },
     changeStringFilterItemAtIndex(value, idx) {
       const q = this.filter.items.map((d, i) => {
         if(i === idx) {
@@ -400,7 +407,7 @@ export default {
   color: #343a40;
 }
 .items-to-add {
-  background: yellow;
+  // background: yellow;
 }
 label.custom-control-label {
   font-variant: none;
