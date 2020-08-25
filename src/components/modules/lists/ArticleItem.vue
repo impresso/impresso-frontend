@@ -2,12 +2,12 @@
   <article :class="{ reference : asReference }">
     <slot name="title">
       <h2 v-if="item.title" class="mb-0">
-        <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="item.title"></router-link>
+        <router-link v-if="showLink" :to="routerLinkUrl" v-html="item.title"></router-link>
         <a v-else-if="showHref" v-on:click.prevent="onClick" v-html="item.title"></a>
         <span v-else v-html="item.title"></span>
       </h2>
       <div v-else>
-        <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="$t('untitled')"></router-link>
+        <router-link v-if="showLink" :to="routerLinkUrl" v-html="$t('untitled')"></router-link>
         <a v-else-if="showHref" v-on:click.prevent="onClick">{{ $t('untitled') }}</a>
         <span v-else>{{ $t('untitled') }}</span>
       </div>
@@ -88,6 +88,7 @@
 import ItemSelector from '../ItemSelector';
 import ItemLabel from './ItemLabel';
 import VizBar from '../../base/VizBar';
+import { getShortArticleId } from '@/logic/ids';
 
 export default {
   props: {
@@ -110,6 +111,22 @@ export default {
   computed: {
     pages() {
       return this.$tc('pp', this.item.nbPages, { pages: this.item.pages.map(d => d.num).join(',') });
+    },
+    routerLinkUrl() {
+      const issueUid = this.item.issue
+        ? this.item.issue.uid
+        : this.item.uid.match(/(^.+)-i/)[1];
+      return {
+        name: 'issue-viewer',
+        params: {
+          issue_uid: issueUid,
+        },
+        query: {
+          ...this.$route.query,
+          articleId: getShortArticleId(this.item.uid),
+          p: this.item.pages[0].num,
+        }
+      }
     },
     routerLinkParams() {
       const params = {
