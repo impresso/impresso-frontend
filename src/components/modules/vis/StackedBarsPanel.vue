@@ -13,7 +13,7 @@
           :class="`bar-container row my-1 small ${isHovered(bucket) ? 'hilight' : ''}`"
           @mouseover="onHover(bucket)">
 
-          <viz-bar
+          <viz-bar class="w-100"
             :percent="toScaledValue(bucket.count) * 100"
             :count="bucket.count"
             :uid="bucket.item ? bucket.item.uid : null"

@@ -14,7 +14,7 @@
             <a class="small-caps" :class="{
               'font-weight-bold': item.uid === selectedArticleId
             }" @click="$emit('click-full-text', item.uid)">
-              {{ $t('label_full_text') }}
+              {{ $t('closeReadingView') }}
             </a>
           </div>
         </template>

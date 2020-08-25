@@ -1,14 +1,16 @@
 <template lang="html">
   <div class="issue-viewer-bookmarker" :class="{ active, visible }">
-    <div class="bg-dark p-2 drop-shadow d-flex align-items-center">
+    <div class="bg-dark p-2 drop-shadow d-flex align-items-center" style="background: black !important">
       <div class="mr-2">
         {{$t('label_selected_article') }}
       </div>
       <div class="text-white font-weight-bold mr-2 text-ellipsis">{{ title }}</div>"
-      <b-button class="mx-2" variant="outline-primary"
-        size="sm"
+      <b-button size="sm" class="mx-2 text-white" variant="outline-primary"
         @click="$emit('click-full-text')">
-        {{ $t('label_full_text') }}
+        <div class="d-flex align-items-center">
+          {{ $t('closeReadingView') }}
+          <div class="d-flex dripicons dripicons-align-justify ml-2" />
+        </div>
       </b-button>
       <b-button pill class="dripicons-cross p-0"
         style="width:1.5em; height:1.5em; line-height: 1.75em"

@@ -54,18 +54,20 @@
         </span>
       </div>
     </div>
-    <div v-if="showTopics" class="small article-extras article-topics mt-2">
+    <div v-if="showTopics" class="small article-extras article-topics my-2">
       <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
-      <div v-if="item.topics.length">
-        <div v-for="(rel, idx) in item.topics" v-bind:key="idx" class="mx-1 mb-1">
+      <b-row v-if="item.topics.length">
+        <b-col lg="6" xl="4" class="my-1" v-for="(rel, idx) in item.topics" v-bind:key="idx">
           <viz-bar
+            show-border
+            show-percent
             :percent="rel.relevance * 100"
             :uid="rel.topic.uid"
             :item="rel.topic"
             type="topic"
             />
-        </div>
-      </div>
+        </b-col>
+      </b-row>
     </div>
     <div v-if="showMatches">
       <ul v-if="item.matches.length" class="article-matches mt-1 p-0">

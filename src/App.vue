@@ -457,7 +457,7 @@ input[type="range"]:active::-ms-thumb {
 }
 
 .viz-bar {
-  height: 2px;
+  height: 3px;
 }
 
 .icon-link {
