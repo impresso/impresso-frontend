@@ -366,6 +366,8 @@ export default {
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',
     notFound: '(this is an empty list)',
+    facsimileView: 'Facsimile',
+    closeReadingView: 'Transcript',
   },
   nl: {
     language: 'Taal',
