@@ -99,6 +99,7 @@ export default class Page {
   }
 
   getIiifThumbnail({ dim = 150 }) {
-    return `${this.iiif}/full/${dim},/0/default.png`;
+    const iiif = this.iiif.replace('/info.json', '');
+    return `${iiif}/full/${dim},/0/default.png`;
   }
 }
