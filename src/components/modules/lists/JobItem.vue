@@ -71,6 +71,7 @@ import Job from '@/models/Job';
 import SearchQuery from '@/models/SearchQuery';
 import { CommonQueryParameters } from '@/router/util';
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
+import { MIDDLELAYER_MEDIA_URL, getAuthenticationBearer } from '@/services';
 
 export default {
   props: {
@@ -79,6 +80,9 @@ export default {
     },
   },
   computed: {
+    jobMediaUrl() {
+      return `${MIDDLELAYER_MEDIA_URL}/jobs/${this.item.id}`
+    },
     jobSearchFilters() {
       const sq = this.item.getSearchQueryHash();
       if (!sq.length) {
@@ -111,7 +115,20 @@ export default {
   },
   methods: {
     onExport(){
-      console.info('onExport');
+      const today = (new Date()).toISOString().split('T').shift();
+      const anchor = document.createElement('a');
+      document.body.appendChild(anchor);
+      const headers = new Headers();
+      headers.append('Authorization', `Bearer ${getAuthenticationBearer()}`);
+      fetch(this.jobMediaUrl, { headers })
+        .then(res => res.blob())
+        .then((blobby) => {
+          const objectUrl = window.URL.createObjectURL(blobby);
+          anchor.href = objectUrl;
+          anchor.download = `export-${today}-${this.item.id}.zip`;
+          anchor.click();
+          window.URL.revokeObjectURL(objectUrl);
+        });
     }
   },
   components: {

@@ -167,3 +167,38 @@ export const mapFilters = ({ additionalQueryParams = {} } = {}) => {
 
   return { get, set }
 }
+
+export const mapApplyCurrentSearchFilters = () => {
+  return {
+    /**
+     * @this {import('vue/types/vue').Vue}
+     * @returns {boolean}
+     */
+    get() {
+      const { [CommonQueryParameters.ApplyCurrentSearchFilters]: asq } = this.$route?.query;
+      return /** @type {boolean} */ (asq === 'true')
+    },
+    /**
+     * @this {import('vue/types/vue').Vue}
+     * @param {boolean} value
+     */
+    set(value) {
+      this.$navigation.updateQueryParameters({
+        [CommonQueryParameters.ApplyCurrentSearchFilters]: String(value)
+      })
+    }
+  }
+}
+
+export const mapSuggestionQuery = () => {
+  const get = function() {
+    const { [CommonQueryParameters.SuggestionQuery]: q } = this.$route?.query;
+    return q
+  }
+  const set = function(value) {
+    this.$navigation.updateQueryParameters({
+      [CommonQueryParameters.SuggestionQuery]: String(value)
+    })
+  }
+  return { get, set }
+}

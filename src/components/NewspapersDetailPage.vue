@@ -5,7 +5,7 @@
         <b-navbar>
           <section>
             <span class="label small-caps">
-              <router-link :to="{ name: 'newspapers' }">&larr; {{$t("newspapers")}}</router-link>
+              <router-link :to="getRoute({ name: 'newspapers'})">&larr; {{$t("newspapers")}}</router-link>
             </span>
             <h3>
               {{newspaper.name}}
@@ -20,10 +20,10 @@
 
         <b-tabs pills class="mx-3">
           <template v-slot:tabs-end>
-            <b-nav-item :to="{ name:'newspaper_metadata'}" exact active-class='active' class="pl-2">
+            <b-nav-item :to="getRoute({ name: 'newspaper_metadata'})" exact active-class='active' class="pl-2">
               <span>{{$t('route.newspaper_metadata')}}</span>
             </b-nav-item>
-            <b-nav-item :to="{ name:'newspaper'}" exact active-class='active' class="pl-2">
+            <b-nav-item :to="getRoute({ name: 'newspaper'})" exact active-class='active' class="pl-2">
               <span>{{$t('route.newspaper', { total: $n(total) })}}</span>
             </b-nav-item>
           </template>
@@ -43,10 +43,8 @@
           </b-nav-form>
 
           <b-navbar-nav v-if="$route.name === 'newspaper'"
-          class="pl-3 pr-2 py-2 pr-auto">
-            <li><label >{{ $t('order by') }}</label>
-              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-            </li>
+          class="p-2 ml-auto">
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </b-navbar-nav>
         </b-navbar>
         <!-- <b-navbar v-else type="light" variant="light">
@@ -131,14 +129,13 @@
               v-for="(issue, i) in issues"
               v-bind:key="i"
               class="mb-4">
-
               <b-card class="mb-2">
                 <router-link v-bind:to="{ name: 'page', params: {
                   issue_uid: issue.uid,
                   page_uid: issue.frontPage.uid,
                 }}">
                   <b-card-img-lazy
-                    :src="issue.frontPage.iiifThumbnail"
+                    :src="issue.frontPage.getIiifThumbnail({ dim: 250 })"
                     :alt="$d(issue.date, 'long')" top />
                 </router-link>
                 <b-card-body>
@@ -167,12 +164,23 @@
 
 <script>
 import Newspaper from '@/models/Newspaper';
+import Issue from '@/models/Issue';
+import Facet from '@/models/Facet';
 import SearchQuery from '@/models/SearchQuery';
 import Pagination from './modules/Pagination';
 import Timeline from './modules/Timeline';
 import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
+import { CommonQueryParameters } from '@/router/util'
+import {
+  issues as IssuesService,
+  searchFacets as searchFacetsService,
+  newspapers as newspapersService,
+} from '@/services';
+
+const OrderByOptions = ['-date', 'date'];
+const OrderByDefault = '-date';
 
 export default {
   data: () => ({
@@ -182,7 +190,6 @@ export default {
     issues: [],
     newspaper: new Newspaper(),
     tab: 'issues',
-    orderBy: '-date',
     timevalues: [],
     facets: [],
     facetTypes: ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
@@ -198,16 +205,23 @@ export default {
       };
     },
     orderByOptions() {
-      return [
-        {
-          value: '-date',
-          text: this.$t('order by date - most recent first'),
-        },
-        {
-          value: 'date',
-          text: this.$t('order by date'),
-        },
-      ];
+      return OrderByOptions.map(value => ({
+        value,
+        text: this.$t(`sort_${value}`),
+      }))
+    },
+    orderBy: {
+      get() {
+        const {[CommonQueryParameters.OrderBy]: orderBy } = this.$route?.query;
+        return OrderByOptions.includes(orderBy)
+          ? orderBy
+          : OrderByDefault;
+      },
+      set(orderBy) {
+        this.$navigation.updateQueryParametersWithHistory({
+          [CommonQueryParameters.OrderBy]: orderBy,
+        });
+      },
     },
     institution: {
       get() {
@@ -260,7 +274,18 @@ export default {
     },
     endYear() {
       return window.impressoDocumentsYearSpan.lastYear;
-    }
+    },
+    newspaperUid() {
+      return this.$route.params.newspaper_uid;
+    },
+    issuesServiceQuery() {
+      return {
+        filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+        page: this.page,
+        order_by: this.orderBy,
+        limit: this.limit
+      }
+    },
   },
   methods: {
     applyFilter() {
@@ -273,71 +298,62 @@ export default {
         .filter(f => !containsFilter(newFilter)(f))
         .concat([newFilter]);
     },
-    async onInputPagination(page) {
-      await this.loadIssues({
-        page,
-      });
+    getRoute(route) {
+      return {
+        ...route,
+        query: {
+          ...this.$route.query,
+          ...route.query,
+        },
+      };
     },
-    async loadTimeline() {
+    onInputPagination(page) {
+      this.page = page;
+    },
+    loadTimeline() {
       return this.$store.dispatch('search/LOAD_TIMELINE', {
-        filters: [
-          {
-            q: this.$route.params.newspaper_uid,
-            type: 'newspaper',
-          },
-        ],
+        filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
       }).then((values) => {
         this.timevalues = values;
       });
     },
     async loadFacets() {
       this.facets = [];
-      this.facetTypes.forEach((type) => {
-        return this.$store.dispatch('newspapers/LOAD_FACETS', {q: this.$route.params.newspaper_uid, type})
-          .then((r) => {
-            if (r.numBuckets > 0) this.facets.push(r);
-          });
-      });
-    },
-    async loadIssues({
-      page = 1,
-    } = {}) {
-      const response = await this.$store.dispatch('issue/LOAD_ISSUES', {
-        page,
-        orderBy: this.orderBy,
-        limit: this.limit,
-        filters: [{
-          type: 'newspaper',
-          q: this.$route.params.newspaper_uid,
-          context: 'include',
-        }],
-      });
-      this.page = page;
-      this.total = response.total;
-      this.issues = response.data;
-    },
-    async loadNewspaper() {
-      this.newspaper = await this.$store.dispatch('newspapers/LOAD_DETAIL', this.$route.params.newspaper_uid);
-      this.total = this.newspaper.countIssues;
+      const query = {
+        filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+        group_by: 'articles',
+      };
+      for (let facetType of this.facetTypes) {
+        const results = await searchFacetsService.get(facetType, {
+          query,
+        }).then(([facetType]) => new Facet(facetType));
+        this.facets = this.facets.concat(results);
+      }
     },
   },
   watch: {
-    $route: {
-      immediate: true,
-      async handler({ name }) {
-        await this.loadNewspaper();
-        if (name === 'newspaper_metadata') {
+    newspaperUid: {
+      async handler(uid) {
+        this.newspaper = await newspapersService.get(uid, {}).then(d => new Newspaper(d));
+        this.total = this.newspaper.countIssues;
+        if (this.$route.name === 'newspaper_metadata') {
           await this.loadTimeline();
           await this.loadFacets();
-        } else {
-          await this.loadIssues();
         }
       },
+      immediate: true,
     },
-    orderBy: {
-      handler() {
-        return this.loadIssues();
+    issuesServiceQuery: {
+      handler(query) {
+        this.issues = []
+        if (this.$route.name === 'newspaper') {
+          IssuesService.find({ query }).then(({ total, data }) => {
+            this.total = total;
+            this.issues = data.map(d => new Issue(d));
+          })
+        }
       },
+      immediate: true,
     },
   },
   components: {
@@ -395,6 +411,8 @@ export default {
 <i18n>
 {
   "en": {
+    "sort_date": "order by date ↑",
+    "sort_-date": "order by date ↓",
     "route": {
       "newspaper": "list of {total} first pages",
       "newspaper_metadata": "newspaper metadata"

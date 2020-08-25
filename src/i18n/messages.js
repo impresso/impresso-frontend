@@ -84,6 +84,7 @@ export default {
       removeFromCurrentFilters: 'Exclude from current search',
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
       addToCurrentItemsDetailed: 'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
+      addRangeToCurrentFilters: 'Apply range',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
       login: 'log in',
@@ -96,6 +97,7 @@ export default {
       resetObservedItems: 'reset observed list',
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
+      addCurrentSearch: 'Add filters from your current search query',
       viewTopic: 'go to topic',
     },
     filters: {
@@ -134,8 +136,8 @@ export default {
         countItems: '{countItems} saved items',
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
-      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> in | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> in | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> in ',
-      ignoredFilters: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
+      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
+      ignoredFilters: 'no message | * 1 search filter can\'t be applied. | * {n} search filters can\'t be applied.',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -155,8 +157,10 @@ export default {
       },
     },
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
+    ppOf: 'p.{num} of {pages}',
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
+    applyCurrentSearchFiltersDisabled: 'Current filters cannot be applied.',
     errors: {
       changePassword: {
         wrongcredentials: 'Wrong credentials provided...',

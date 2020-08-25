@@ -10,7 +10,6 @@ import search from './Search';
 import searchImages from './SearchImages';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
-import newspapers from './Newspapers';
 import articles from './Articles';
 import topics from './Topics';
 import jobs from './Jobs';
@@ -37,7 +36,6 @@ export default new Vuex.Store({
     collections,
     topics,
     jobs,
-    newspapers,
     entities,
     embeddings,
     monitor,

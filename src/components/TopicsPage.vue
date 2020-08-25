@@ -79,6 +79,13 @@ import List from './modules/lists/List';
 import TopicItem from './modules/lists/TopicItem';
 import SearchQuery from '@/models/SearchQuery';
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams';
+import { SupportedFiltersByContext } from '@/logic/filters';
+
+/**
+ * @param {import('@/models').Filter} filter
+ * @returns {boolean}
+ */
+const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.includes(filter.type)
 
 export default {
   data: () => ({
@@ -111,7 +118,12 @@ export default {
       };
     },
     searchQuery: {
-      ...searchQueryGetter(),
+      get() {
+        const searchQuery = searchQueryGetter().get.bind(this)()
+        return new SearchQuery({
+          filters: searchQuery.filters.filter(supportedSearchIndexFilters)
+        })
+      },
       ...searchQuerySetter(),
     },
     countActiveFilters() {

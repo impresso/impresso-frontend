@@ -1,5 +1,9 @@
 <template>
-  <div class='search-pills d-flex'>
+  <div class='search-pills d-flex' :class="{ empty: isEmpty }">
+    <div v-if="isFrontFilterEnabled" class="search-pill front-filter mr-1 mb-1 d-flex align-items-center border-radius">
+      <div class="label">{{$t('label.isFront')}}</div>
+      <b-button class="dripicons-cross" @click="handleFrontpageFilterRemoved" size="sm" variant="transparent"></b-button>
+    </div>
     <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
       v-for="({ filter, filterIndex }) in pills" :key="filterIndex">
       <!--  button content -->
@@ -90,7 +94,16 @@
       </div>
     </b-dropdown>
 
-    <b-button class="mb-1 px-2 ml-auto" variant="outline-danger"
+    <b-button
+      v-if="enableAddFilter"
+      class="mb-1"
+      variant="outline-primary"
+      size="sm"
+      v-on:click="showFilterExplorer">
+      {{ $t('actions.addContextualFilter') }}
+    </b-button>
+
+    <b-button class="mb-1 px-2 ml-auto border-radius" variant="outline-danger"
       v-if="isResettable"
       :title="$t('actions.resetFilters')"
       @click="handleReset">
@@ -154,7 +167,12 @@ export default {
     index: {
       type: String,
       default: 'search'
-    }
+    },
+    /** @type {import('vue').PropOptions<boolean>} */
+    disableReset: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     /** @returns {{filter: Filter, filterIndex: number}[]} */
@@ -167,6 +185,12 @@ export default {
         .map((filter, filterIndex) => ({ filter: FilterFactory.create(filter), filterIndex }))
         .filter(filterFn)
     },
+    isFrontFilterEnabled() {
+      return this.filters.some(({ type }) => type === 'isFront');
+    },
+    isEmpty() {
+      return !this.isFrontFilterEnabled && this.pills.length === 0;
+    },
     explorerFilters: {
       /** @returns {Filter[]} */
       get() { return this.filters },
@@ -176,7 +200,10 @@ export default {
     /** @returns {string[]} */
     numericTypes() { return NumericRangeFacets },
     /** @return {boolean} */
-    isResettable() { return !!this.filters.filter(d => d.type !== 'hasTextContents').length; },
+    isResettable() {
+      if (this.disableReset) return false;
+      return !!this.filters.filter(d => d.type !== 'hasTextContents').length;
+    },
   },
   methods: {
     /**
@@ -198,6 +225,10 @@ export default {
      */
     handleFilterRemoved(index) {
       const newFilters = this.filters.filter((f, idx) => idx !== index)
+      this.$emit('changed', newFilters)
+    },
+    handleFrontpageFilterRemoved() {
+      const newFilters = this.filters.filter(d => d.type !== 'isFront')
       this.$emit('changed', newFilters)
     },
     handleReset() {
@@ -278,13 +309,45 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@/styles/variables.sass";
+
+.bg-dark .search-pills{
+  .front-filter,
+  .front-filter .btn{
+    border-color: #caccce;
+    color: #caccce;
+  }
+}
+
+.search-box .search-pills{
+  background: white;
+  padding: .25rem;
+  &.empty {
+    padding: 0;
+  }
+}
 
 .search-pills {
   display: flex;
   flex-flow: wrap;
 
+  .front-filter{
+    border: 1px solid;
+    font-size: 14px;
+    line-height: 25px;
+    padding-left: .5rem;
+    .btn{
+      line-height: 10px;
+      padding: 0;
+      border: 1px solid black;
+      border-radius: 20px;
+      margin: 0 .25rem;
+      margin-left: .35rem;
+      width: 20px;
+      height: 20px;
+    }
+  }
   .search-pill{
-
     span.label{
       font-variant: normal;
       max-width: 200px;
@@ -324,8 +387,15 @@ export default {
 
     }
 
+    &.show button.dropdown-toggle{
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
     button.dropdown-toggle{
       padding-left: 0.15em;
+      border-radius: 3px;
       .filter-icon {
         font-size: 1em;
         float: left;
@@ -375,6 +445,7 @@ export default {
         "string": {
           "title": "article text"
         },
+        "isFront": "frontpage",
         "title": {
           "title": "title"
         },

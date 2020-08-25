@@ -205,6 +205,10 @@ $clr-grey-900: #ddd;
     border-color: $clr-tertiary !important;
 }
 
+.border-radius {
+  border-radius: 3px;
+}
+
 .bg-primary {
   background-color: $clr-primary;
   color: $clr-white;
@@ -236,6 +240,16 @@ $clr-grey-900: #ddd;
   color: blue;
 }
 
+.text-ellipsis {
+  max-width: 120px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.text-small{
+  font-size: 14px;
+}
 .custom-control-input {
   width: 0;
   height: 0;

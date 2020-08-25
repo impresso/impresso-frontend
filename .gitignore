@@ -26,3 +26,6 @@ tmp/
 *.njsproj
 *.sln
 *.out
+
+# redis files
+*.rdb

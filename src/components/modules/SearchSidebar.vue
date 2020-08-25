@@ -5,7 +5,7 @@
       <slot name="tabs">
         <search-tabs/>
       </slot>
-      <div class="py-3 px-3">
+      <div class="my-3 mx-3" :class="{ focus: hasFocus }">
         <search-pills
           :filters="filters"
           @changed="handleFiltersChanged"
@@ -17,7 +17,7 @@
           &nbsp;
           <info-button :name="infoButtonName" />
         </span>
-        <slot name="header">
+        <slot name="header" :focusHandler="focusHandler">
           <!-- extra header -->
         </slot>
       </div>
@@ -49,6 +49,9 @@ import SearchFacets from '@/components/SearchFacets'
  */
 
 export default {
+  data: () => ({
+    hasFocus: false,
+  }),
   props: {
     /* Used for helper button */
     contextTag: {
@@ -80,6 +83,9 @@ export default {
       // propagate filters changed
       this.$emit('changed', filters);
     },
+    focusHandler(value) {
+      this.hasFocus = !!value;
+    }
   },
   computed: {
     /** @return {boolean} */
@@ -102,3 +108,20 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+  @import "@/styles/variables.sass";
+  .search-box{
+    border: 1px solid #777;
+  }
+  .search-box.focus{
+    box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
+    border-color: black;
+    border-radius: 2px;
+  }
+  .bg-dark{
+    .search-box.focus {
+      box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
+      border-color: white;
+    }
+  }
+</style>

@@ -5,14 +5,14 @@
       :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
       :placeholder="$tc('placeholder.search', filterCount)"
       v-model.trim="q"
-      v-on:input.native="search"
-      v-on:focus.native="selectInput"
+      @input.native="search"
+      @focus.native="selectInput"
+      @blur.native="blurHandler"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
         <b-btn variant="outline-primary" :title="$tc('placeholder.search', filterCount)"
-          :disabled="this.q.length === 0"
           @click="submit({ type: 'string', q })">
-          <div v-if="filterCount > 1" class="d-flex search-submit dripicons-plus"></div>
+          <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
           <div v-else class="d-flex search-submit dripicons-search"></div>
         </b-btn>
         <b-btn variant="outline-primary" :title="$t('actions.addFilter')"
@@ -305,6 +305,10 @@ export default {
     selectInput(e) {
       this.showSuggestions = this.q.length > 0;
       e.target.select();
+      this.$emit('input-focus', true);
+    },
+    blurHandler() {
+      this.$emit('input-focus', false);
     },
     keyup(event) {
       switch (event.key) {
@@ -413,6 +417,38 @@ export default {
   z-index: 1;
 }
 
+.search-box .search-bar .input-group > .form-control{
+  background: white;
+  &:focus{
+    border-width: 0;
+  }
+}
+
+.bg-dark {
+  .search-bar .input-group > .form-control{
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    background: transparent;
+    &:focus{
+      background: transparent;
+    }
+  }
+}
+// .search-bar .input-group > .form-control {
+//   color: white;
+// }
+// .bg-dark .search-bar.search-box .input-group > .form-control {
+//   color: white;
+//   border-left: 1px solid #aaa;
+//   border-color: #aaa !important;
+//
+//   &:focus{
+//       background-color: transparent;
+//       border-top-width: 0;
+//       outline: 0;
+//   }
+// }
 // .search-bar .input-group-append::before {
 //   content: '';
 //   position: absolute;

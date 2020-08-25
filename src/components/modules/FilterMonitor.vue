@@ -67,13 +67,17 @@
         </b-form-checkbox>
       </div>
       <!-- bucket items -->
-      <div class="items-to-add  mt-2" v-if="itemsToAdd.length">
+      <div class="items-to-add text-small m-2" v-if="itemsToAdd.length">
         <div v-for="(item, idx) in itemsToAdd" :key="idx">
           <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
           <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
           <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
           <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
+          <item-selector :uid="item.uid" :item="item" :type="type"/>
+          <b-button class="dripicons-cross ml-auto" variant="transparent" size="sm" style="padding:0.25rem 0.5rem 0 0.5rem"
+            @click.prevent.stop="removeItem(idx)"
+          />
         </div>
       </div>
       <!-- string to add -->
@@ -91,8 +95,28 @@
         </b-form>
       </div>
     </div>
+    <div v-if="EntityTypes.includes(type)">
+      <b-row no-gutters>
+        <b-col cols="6">
+          <div class="mr-1">
+            <b-button size="sm" variant="outline-primary" block
+              v-on:click.prevent="showEntitySuggester = !showEntitySuggester;"
+              >
+                {{$t('actions.addUsingEmbeddings')}}
+            </b-button>
+          </div>
+        </b-col>
+      </b-row>
+      <entity-suggester
+        v-if="showEntitySuggester"
+        :filter="filter"
+        :type="type"
+        @filter-changed="handleFilterChanged"
+        class="border p-2 bg-light"/>
+    </div>
+    <!-- @entity-selected="addEmbeddingSuggestion"/> -->
     <!-- add new string as an OR filter -->
-    <div class="mt-3" v-if="StringTypes.includes(type)">
+    <div class="mt-3" v-else-if="StringTypes.includes(type)">
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
@@ -113,7 +137,7 @@
         </b-col>
       </b-row>
       <embeddings-search v-if="showEmbeddings"
-                         v-bind:filter="editedFilter"
+                         :filter="editedFilter"
                          @click.stop.prevent
                          @embdding-selected="addEmbeddingSuggestion"/>
 
@@ -146,21 +170,22 @@
 </template>
 
 <script>
-import FilterDaterange from './FilterDateRange';
-import FilterNumberRange from './FilterNumberRange';
-import ItemSelector from './ItemSelector';
-import ItemLabel from './lists/ItemLabel';
-import CollectionItem from './lists/CollectionItem';
-import EmbeddingsSearch from './EmbeddingsSearch';
+import FilterDaterange from '@/components/modules/FilterDateRange';
+import FilterNumberRange from '@/components/modules/FilterNumberRange';
+import ItemSelector from '@/components/modules/ItemSelector';
+import ItemLabel from '@/components/modules/lists/ItemLabel';
+import CollectionItem from '@/components/modules/lists/CollectionItem';
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch';
+import EntitySuggester from '@/components/modules/EntitySuggester'
 import {
   toCanonicalFilter,
   toSerializedFilter,
   RangeFacets,
   NumericRangeFacets
-} from '../../logic/filters'
+} from '@/logic/filters'
 
 const StringTypes = ['string', 'title']
-
+const EntityTypes = ['person', 'location', 'entity']
 /**
  * Changes filter after 'apply' button is clicked.
  * Use with `v-model`.
@@ -172,12 +197,14 @@ export default {
   },
   data: () => ({
     showEmbeddings: false,
+    showEntitySuggester: false,
     editedFilter: {},
     excludedItemsIds: [],
     stringsToAdd: [],
     RangeFacets,
     NumericRangeFacets,
-    StringTypes
+    StringTypes,
+    EntityTypes
   }),
   props: {
     operators: {
@@ -258,7 +285,7 @@ export default {
           ? this.editedFilter.context
           : 'include'
       },
-      set(value) { this.editedFilter.context = value }
+      set(context) { this.editedFilter = { ...this.editedFilter, context } }
     }
   },
   methods: {
@@ -301,13 +328,17 @@ export default {
     removeStringItem(idx) {
       this.stringsToAdd.splice(idx, 1);
     },
+    removeItem(idx) {
+      this.itemsToAdd.splice(idx, 1);
+    },
     changeStringFilterItemAtIndex(value, idx) {
-      this.editedFilter.q = this.filter.items.map((d, i) => {
+      const q = this.filter.items.map((d, i) => {
         if(i === idx) {
           return value;
         }
         return d.uid;
       }).filter(d => d.length);
+      this.editedFilter = { ...this.editedFilter, q }
     },
     toggleFilterItem(selected, uid) {
       if (selected) {
@@ -325,9 +356,16 @@ export default {
       // this.editedFilter.precisions = 'soft'
     },
     handleRangeChanged({ item, q }) {
-      this.editedFilter.q = q
-      this.editedFilter.items = [item]
+      this.editedFilter = {
+        ...this.editedFilter,
+        items: [item],
+        q,
+      }
       if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);
+    },
+    handleFilterChanged({items}) {
+      console.info('handleFilterChanged');
+      this.itemsToAdd = items; // TODO:  exclude item already present
     }
   },
   components: {
@@ -336,7 +374,8 @@ export default {
     EmbeddingsSearch,
     ItemLabel,
     ItemSelector,
-    FilterNumberRange
+    FilterNumberRange,
+    EntitySuggester
   },
   watch: {
     /**
@@ -349,7 +388,10 @@ export default {
 
         this.editedFilter = toCanonicalFilter(this.filter)
         if (this.itemsToAdd) {
-          this.editedFilter.q = this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+          this.editedFilter = {
+            ...this.editedFilter,
+            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+          }
         }
         this.excludedItemsIds = []
       },
@@ -365,7 +407,7 @@ export default {
   color: #343a40;
 }
 .items-to-add {
-  background: yellow;
+  // background: yellow;
 }
 label.custom-control-label {
   font-variant: none;

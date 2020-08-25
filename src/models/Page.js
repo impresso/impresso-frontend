@@ -97,4 +97,8 @@ export default class Page {
 
     this.uid = String(uid);
   }
+
+  getIiifThumbnail({ dim = 150 }) {
+    return `${this.iiif}/full/${dim},/0/default.png`;
+  }
 }
