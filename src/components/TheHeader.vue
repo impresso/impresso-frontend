@@ -33,15 +33,12 @@
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
           <span>{{$t("label_newspapers")}}</span>
         </b-nav-item>
-        <!-- <b-nav-item :to="{ name: 'entities'}" exact-active-class="active">
-          {{$t("label_entities")}}
-        </b-nav-item> -->
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
           <span>{{$t("label_topics")}}</span>
         </b-nav-item>
-        <b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
+        <!-- b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
           <span>{{$t("label_entities")}}</span>
-        </b-nav-item>
+        </b-nav-item -->
         <b-nav-item :to="{ name: 'compare', query: { left: searchQueryHash } }" active-class="active">
           <span>{{$t("label_compare")}}</span>
         </b-nav-item>
