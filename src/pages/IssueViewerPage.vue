@@ -465,7 +465,7 @@ export default {
     handleArticleSelected(article) {
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: getShortArticleId(article.uid),
-        [QueryParams.PageNumber]: String(article.pages[0].num)
+        [QueryParams.PageNumber]: String(article.pages[0]?.num)
       })
     },
     /**
