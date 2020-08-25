@@ -573,7 +573,6 @@ export default {
                 region.coords.y,
                 region.coords.w,
                 region.coords.h);
-
               viewer.addOverlay(overlay, rect);
             });
             // matches

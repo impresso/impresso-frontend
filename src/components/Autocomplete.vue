@@ -3,15 +3,17 @@
     <b-input-group>
       <b-form-input
       :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
-      placeholder="search for ..."
+      :placeholder="$tc('placeholder.search', filterCount)"
       v-model.trim="q"
-      v-on:input.native="search"
-      v-on:focus.native="selectInput"
+      @input.native="search"
+      @focus.native="selectInput"
+      @blur.native="blurHandler"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn variant="outline-primary" :title="$t('actions.search')"
+        <b-btn variant="outline-primary" :title="$tc('placeholder.search', filterCount)"
           @click="submit({ type: 'string', q })">
-          <div class="d-flex search-submit dripicons-search"></div>
+          <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
+          <div v-else class="d-flex search-submit dripicons-search"></div>
         </b-btn>
         <b-btn variant="outline-primary" :title="$t('actions.addFilter')"
           @click="showExplorer">
@@ -125,6 +127,11 @@ export default {
         'collection',
       ],
     },
+    /** @type {import('vue').PropOptions<Filter[]>} */
+    filters: {
+      type: Array,
+      default: () => [],
+    },
   },
   computed: {
     user() {
@@ -196,7 +203,11 @@ export default {
         this.$emit('submit', filter);
         this.q = '';
       }
-    }
+    },
+    filterCount() {
+      return typeof this.filters === 'undefined' ?
+        1 : this.filters.filter(d => d.type !== 'hasTextContents').length + 1;
+    },
   },
   methods: {
     showExplorer() {
@@ -294,6 +305,10 @@ export default {
     selectInput(e) {
       this.showSuggestions = this.q.length > 0;
       e.target.select();
+      this.$emit('input-focus', true);
+    },
+    blurHandler() {
+      this.$emit('input-focus', false);
     },
     keyup(event) {
       switch (event.key) {
@@ -336,7 +351,7 @@ export default {
 .search-bar{
   position: relative;
   input.form-control.search-input {
-    border-color: black;
+    border-color: $clr-primary;
     background: transparent;
     position: relative;
     color: black;
@@ -398,9 +413,42 @@ export default {
 .search-bar .input-group > .form-control{
   border-top-width: 0;
   border-left-width: 0;
+  border-right-width: 0;
   z-index: 1;
 }
 
+.search-box .search-bar .input-group > .form-control{
+  background: white;
+  &:focus{
+    border-width: 0;
+  }
+}
+
+.bg-dark {
+  .search-bar .input-group > .form-control{
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    background: transparent;
+    &:focus{
+      background: transparent;
+    }
+  }
+}
+// .search-bar .input-group > .form-control {
+//   color: white;
+// }
+// .bg-dark .search-bar.search-box .input-group > .form-control {
+//   color: white;
+//   border-left: 1px solid #aaa;
+//   border-color: #aaa !important;
+//
+//   &:focus{
+//       background-color: transparent;
+//       border-top-width: 0;
+//       outline: 0;
+//   }
+// }
 // .search-bar .input-group-append::before {
 //   content: '';
 //   position: absolute;
@@ -417,6 +465,9 @@ export default {
 <i18n>
   {
     "en": {
+      "placeholder" : {
+        "search": "search for ... | add keyword to search"
+      },
       "label": {
         "string": {
           "title": "Search in article contents"

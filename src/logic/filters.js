@@ -29,7 +29,8 @@ export function toSerializedFilters(filters) {
 export const NumericRangeFacets = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta'
+  'textReuseClusterDayDelta',
+  'contentLength'
 ]
 
 export const TimeRangeFacets = [
@@ -127,3 +128,57 @@ export const containsFilter = expectedFilter => filter => {
     })
   return expectedMergeKey === mergeKey && noramlisedQA === noramlisedQB
 }
+
+/**
+ * Impresso has several indexes each supporting a different set of filters.
+ * This lookup table below should be used to pick only those filters that are
+ * supported by the particular search service. Using filters that are not supported
+ * by a service will cause the API to return an error.
+ *
+ * NOTE: please keep up-to-date with the API when filters are added or changed.
+ */
+export const SupportedFiltersByContext = Object.freeze({
+  search: [
+    'hasTextContents',
+    'ocrQuality',
+    'contentLength',
+    'isFront',
+    'string',
+    'title',
+    'daterange',
+    'uid',
+    'accessRight',
+    'partner',
+    'language',
+    'page',
+    'collection',
+    'issue',
+    'newspaper',
+    'topic',
+    'year',
+    'type',
+    'country',
+    'mention',
+    'entity',
+    'person',
+    'location',
+    'topicmodel',
+    'topic-string',
+    'entity-string',
+    'entity-type',
+    'regex',
+    'textReuseCluster',
+  ],
+  textReuse: [
+    'textReuseClusterSize',
+    'textReuseClusterLexicalOverlap',
+    'textReuseClusterDayDelta',
+    'daterange',
+    'newspaper'
+  ],
+  entities: [
+    'string',
+    'type',
+    'uid'
+  ]
+})

@@ -63,9 +63,7 @@
                       :src="`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${entity.wikidata.coordinates.latitude},${entity.wikidata.coordinates.longitude}`"
                       class="border mb-2">
                     </iframe> -->
-                    <img
-                      :title="preferredImage.value"
-                      :src="`http://commons.wikimedia.org/wiki/Special:FilePath/${preferredImage.value}?width=300px`" width="98%">
+                    <div :style="preferredImageStyle"/>
                   </div>
 
                   <div class="w-75 pl-2">
@@ -114,6 +112,7 @@
           </section>
         </b-navbar>
         <timeline
+              :domain="[startYear, endYear]"
               :contrast="false"
               :values="timevalues">
           <div slot-scope="tooltipScope">
@@ -123,6 +122,18 @@
             </div>
           </div>
         </timeline>
+        <b-container fluid class="my-3">
+          <!-- <h2>Facets – top ten buckets</h2> -->
+          <b-row>
+            <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+              <stacked-bars-panel
+                class=""
+                :label="facet.type"
+                :buckets="facet.buckets"
+                :facet-type="facet.type"/>
+            </b-col>
+          </b-row>
+        </b-container>
       </div>
 
       <div v-if="tab.name === 'mentions'">
@@ -149,18 +160,26 @@
 </template>
 
 <script>
+import Facet from '@/models/Facet';
 import SearchQuery from '@/models/SearchQuery';
-import Timeline from './modules/Timeline';
-import Pagination from './modules/Pagination';
-import ArticleItem from './modules/lists/ArticleItem';
-import MentionItem from './modules/lists/MentionItem';
-
+import Timeline from '@/components/modules/Timeline';
+import Pagination from '@/components/modules/Pagination';
+import ArticleItem from '@/components/modules/lists/ArticleItem';
+import MentionItem from '@/components/modules/lists/MentionItem';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import { searchFacets as searchFacetsService } from '@/services';
 
 const TAB_ARTICLES = 'articles';
 const TAB_MENTIONS = 'mentions';
 const TAB_OVERVIEW = 'overview';
 
 export default {
+  props: {
+    facetTypes: {
+      type: Array,
+      default: () => ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
+    },
+  },
   data: () => ({
     entity: null,
     mentions: [],
@@ -173,14 +192,31 @@ export default {
     },
     currentOrderBy: '-relevance',
     items: [],
+    facets: [],
   }),
   components: {
     Timeline,
     Pagination,
     ArticleItem,
     MentionItem,
+    StackedBarsPanel,
   },
   computed: {
+    startYear() {
+      return window.impressoDocumentsYearSpan.firstYear;
+    },
+    endYear() {
+      return window.impressoDocumentsYearSpan.lastYear;
+    },
+    preferredImageStyle() {
+      return {
+        backgroundColor: 'black',
+        backgroundSize: 'cover',
+        width:'120px',
+        height: '120px',
+        backgroundImage: `url('http://commons.wikimedia.org/wiki/Special:FilePath/${this.preferredImage.value}?height=120px')`,
+      };
+    },
     searchPageLink() {
       if (!this.entity) {
         return { name: 'search' };
@@ -290,6 +326,25 @@ export default {
     getEntity() {
       return this.$store.dispatch('entities/LOAD_DETAIL', this.$route.params.entity_id);
     },
+    async loadFacets() {
+      this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id).then((values) => {
+        this.timevalues = values;
+      });
+      this.facets = [];
+      const query = {
+        filters: [{
+          type: 'entity',
+          q: [ this.$route.params.entity_id ],
+        }],
+        group_by: 'articles',
+      };
+      for (let facetType of this.facetTypes) {
+        const results = await searchFacetsService.get(facetType, {
+          query,
+        }).then(([facetType]) => new Facet(facetType));
+        this.facets = this.facets.concat(results);
+      }
+    },
     loadItems(page = 1) {
       if (this.tab.name === TAB_ARTICLES) {
         return this.loadArticles(page);
@@ -297,11 +352,6 @@ export default {
         return this.loadMentions(page);
       }
       return this.loadFacets();
-    },
-    loadFacets() {
-      return this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id).then((values) => {
-        this.timevalues = values;
-      });
     },
     loadArticles(page = 1) {
       return this.$store.dispatch('entities/LOAD_ENTITY_ARTICLES', {

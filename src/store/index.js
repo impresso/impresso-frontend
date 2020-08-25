@@ -10,14 +10,12 @@ import search from './Search';
 import searchImages from './SearchImages';
 import autocomplete from './Autocomplete';
 import issue from './Issue';
-import newspapers from './Newspapers';
 import articles from './Articles';
 import topics from './Topics';
 import jobs from './Jobs';
 import entities from './Entities';
 import embeddings from './Embeddings';
 import monitor from './Monitor';
-import searchQueryExplorer from './SearchQueryExplorer';
 
 Vue.use(Vuex);
 
@@ -38,11 +36,9 @@ export default new Vuex.Store({
     collections,
     topics,
     jobs,
-    newspapers,
     entities,
     embeddings,
     monitor,
-    searchQueryExplorer,
   },
   state: {
     processingStatus: false,

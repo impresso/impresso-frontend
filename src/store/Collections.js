@@ -185,12 +185,10 @@ export default {
       });
     },
     ADD_COLLECTION(context, payload) {
-      return new Promise((resolve) => {
-        services.collections.create({
-          name: payload.name,
-          description: payload.description,
-        }).then(res => resolve(res));
-      });
+      return services.collections.create({
+        name: payload.name,
+        description: payload.description
+      })
     },
     DELETE_COLLECTION(context, uid) {
       return new Promise((resolve) => {

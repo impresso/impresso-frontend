@@ -6,8 +6,11 @@
     contextTag="search"
     @changed="handleFiltersChanged"
   >
-    <div slot="header">
-      <autocomplete v-on:submit="onSuggestion" />
+    <div slot="header" slot-scope="{ focusHandler }">
+      <autocomplete
+        @submit="onSuggestion"
+        @input-focus="focusHandler"
+        :filters="filters" />
     </div>
     <div>
       <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm">{{ $t('label_embeddings') }} <info-button class="ml-1" name="how-are-word-embeddings-generated" />
@@ -204,16 +207,15 @@ import Ellipsis from '@/components/modules/Ellipsis';
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch';
 import SearchSidebar from '@/components/modules/SearchSidebar';
 import InfoButton from '@/components/base/InfoButton';
-import SearchQuery from '@/models/SearchQuery';
+import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
 import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
-import { joinFiltersWithItems } from '@/logic/filters';
+import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters';
 import {
   searchQueryGetter,
   searchQuerySetter,
-  searchQueryHashGetter,
 } from '@/logic/queryParams';
 import {
   search as searchService,
@@ -223,25 +225,7 @@ import {
   collectionsItems as collectionsItemsService,
 } from '@/services';
 
-const AllowedFilterTypes = [
-  'accessRight',
-  'collection',
-  'country',
-  'isFront',
-  'issue',
-  'language',
-  'location',
-  'newspaper',
-  'newspaper',
-  'partner',
-  'person',
-  'string',
-  'title',
-  'topic',
-  'type',
-  'year',
-  'daterange'
-];
+const AllowedFilterTypes = SupportedFiltersByContext.search
 
 const FACET_TYPES_DPFS = [
   'person',
@@ -257,6 +241,7 @@ const FACET_TYPES_S = [
   'accessRight',
   'partner',
   'year',
+  'contentLength'
 ];
 
 const FACET_TYPES = FACET_TYPES_S.concat(FACET_TYPES_DPFS);
@@ -286,7 +271,6 @@ export default {
         },
       }),
     },
-    searchQueryHash: searchQueryHashGetter(),
     groupByOptions() {
       return ['issues', 'pages', 'articles'].map((value) => ({
         value,
@@ -400,7 +384,7 @@ export default {
     searchServiceQuery: {
       get() {
         const query = {
-          filters: this.filters.map(d => d.getQuery()),
+          filters: this.filters.map(getFilterQuery),
           groupBy: this.groupBy,
           orderBy: this.orderBy,
           limit: this.paginationPerPage,
@@ -409,6 +393,11 @@ export default {
         return query;
       },
     },
+    searchQueryHash() {
+      return new SearchQuery({
+        filters: this.filters,
+      }).getSerialized({ serializer: 'protobuf' })
+    }
   },
   mounted() {
     this.facets = buildEmptyFacets(FACET_TYPES);
@@ -498,7 +487,7 @@ export default {
       }, {
         query: {
           group_by: 'articles',
-          filters: this.filters.map(d => d.getQuery()),
+          filters: this.filters.map(getFilterQuery),
           format: 'csv',
         },
       })
@@ -681,6 +670,16 @@ export default {
     border: 1px solid rgb(255, 225, 49) !important;
     background-color: rgba(255, 225, 49, 0.3) !important;
   }
+}
+
+.search-bar.search-box{
+  border-left: 1px solid #111;
+  background-color: white;
+}
+
+.bg-dark .search-bar.search-box{
+  border-left: 1px solid #aaa;
+  background-color: transparent;
 }
 
 

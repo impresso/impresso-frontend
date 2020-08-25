@@ -1,35 +1,42 @@
 <template lang="html">
   <div class="search-query-explorer" :class="{ 'dark-mode': darkMode }">
-    <label class="px-3">{{ $t('currentResults') }}</label>
+    <label class="px-3" v-if="!noLabel">{{ $t('currentResults') }}</label>
     <div class="summary">
-      <blockquote class="ml-3 px-2 mb-2">
-        <span v-html="incipit" />
-        <search-query-summary class="d-inline" :search-query='searchQuery'/>
+      <blockquote class="px-2 mb-2">
+        <span v-if="!noIncipit" v-html="incipit" />
+        <search-query-summary class="d-inline" :search-query='{ filters: enrichedFilters }'/>
       </blockquote>
     </div>
-    <div class="p-3" v-if="isLoading">
+    <div class="p-3" style="min-height:100px" v-if="isLoading">
       {{ $t('actions.loading') }}
     </div>
     <div v-else>
-      <div class="search-query-explorer-result p-3" v-for="(item, index) in results" :key="index" v-on:click.prevent.stop="gotoArticle(item)">
-        <span v-html="getCurrentIndex(index)" />
-        <article-item
+      <div class="search-query-explorer-result" v-for="(item, index) in results" :key="index" >
+        <p class="mb-2">
+          <span v-html="getCurrentIndex(index)" />
+          <b-button size="sm" class="ml-2" :to="getRouteWithSearchQuery({ name: 'search' })" variant="outline-primary">
+            {{ $t('actions.browseAll') }}
+          </b-button>
+        </p>
+        <article-item class="search-query-explorer-article-item p-2 mt-1"
           :item="item"
+          show-link
           show-meta show-excerpt
         />
       </div>
     </div>
     <!-- eof resutls / loading -->
     <div>
-      <div class=" p-1 m-0">
+      <div class=" p-1 m-0" v-if="!noPagination">
         <pagination
-          v-bind:perPage="paginationResultsList.perPage"
-          v-bind:currentPage="paginationResultsList.currentPage"
-          v-bind:totalRows="paginationResultsList.totalRows"
+          v-bind:perPage="limit"
+          v-bind:currentPage="paginationCurrentPage"
+          v-bind:totalRows="paginationTotalRows"
           v-on:change="onChangePage"
-          class="small-caps"
+          size="sm"
           v-bind:showDescription="false"
-          dark-mode
+          :dark-mode="darkMode"
+          align="center"
         />
       </div>
     </div>
@@ -37,57 +44,100 @@
 </template>
 
 <script>
-import SearchQuerySummary from '../modules/SearchQuerySummary';
-import ArticleItem from '../modules/lists/ArticleItem';
-import Pagination from '../modules/Pagination';
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
+import ArticleItem from '@/components/modules/lists/ArticleItem';
+import Pagination from '@/components/modules/Pagination';
+import {
+  toCanonicalFilter,
+  joinFiltersWithItems,
+  serializeFilters,
+  SupportedFiltersByContext
+} from '@/logic/filters'
+import {
+  search as searchService,
+  filtersItems as filtersItemsService
+} from '@/services'
+import Article from '@/models/Article'
+
+/**
+ * @param {import('@/models').Filter} filter
+ * @returns {boolean}
+ */
+const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.includes(filter.type)
 
 export default {
   props: {
     darkMode: Boolean,
     searchQuery: Object,
+    limit: {
+      type: Number,
+      default: 1,
+    },
+    noIncipit: Boolean,
+    noLabel: Boolean,
+    noPagination: Boolean,
   },
+  data: () => ({
+    paginationCurrentPage: 1,
+    paginationTotalRows: 0,
+    results: [],
+    isLoading: false,
+    isActive: false,
+    /** @type {Filter[]} */
+    filtersWithItems: [],
+  }),
   computed: {
-    offset() {
-      return this.$store.state.searchQueryExplorer.offset;
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems.length
+        ? this.filtersWithItems
+        : this.searchQuery.filters
+    },
+    serializedFilters() {
+      return serializeFilters(this.searchQuery.filters);
+    },
+    serviceQuery() {
+      return {
+        filters: this.searchQuery.filters.filter(supportedSearchIndexFilters).map(toCanonicalFilter),
+        limit: this.limit,
+        page: this.paginationCurrentPage,
+        // orderBy: this.orderBy,
+        group_by: 'articles',
+      };
     },
     additionalFilters() {
       return [];
     },
-    paginationResultsList() {
-      return this.$store.state.searchQueryExplorer.pagination;
-    },
-    isActive() {
-      return this.$store.state.searchQueryExplorer.isActive;
-    },
-    isLoading() {
-      return this.$store.state.searchQueryExplorer.isLoading;
-    },
-    results() {
-      return this.$store.state.searchQueryExplorer.results;
-    },
     incipit() {
-      const n = this.$n(this.paginationResultsList.totalRows);
-      return this.$tc('incipit', this.paginationResultsList.totalRows, {
+      const n = this.$n(this.paginationTotalRows);
+      return this.$tc('incipit', this.paginationTotalRows, {
         n,
-        groupByLabel: this.$tc('numbers.results', this.paginationResultsList.totalRows, { n }),
+        groupByLabel: this.$tc('numbers.results', this.paginationTotalRows, { n }),
       });
     },
   },
   methods: {
     getCurrentIndex(index) {
+      // console.log('getCurrentIndex', index, this.paginationTotalRows, this.page);
       return this.$t('numbers.of', {
         index: this.$n(
-          (this.paginationResultsList.perPage * (this.paginationResultsList.currentPage - 1))
+          (this.limit * (this.paginationCurrentPage - 1))
           + index + 1,
         ),
-        total: this.$n(this.paginationResultsList.totalRows),
+        total: this.$n(this.paginationTotalRows),
       });
     },
+    getRouteWithSearchQuery(route) {
+      return {
+        ...route,
+        query: {
+          ...route.query,
+          sq: this.serializedFilters,
+        },
+      };
+    },
     onChangePage(page) {
-      this.$store.dispatch('searchQueryExplorer/GET_CONTEXT_SEARCH_RESULT', {
-        filters: this.searchQuery.getFilters().concat(this.additionalFilters),
-        page,
-      });
+      this.paginationCurrentPage = page;
     },
     gotoArticle(article) {
       this.$router.push({
@@ -99,9 +149,6 @@ export default {
         },
       });
     },
-    loadCurrentResult() {
-      this.onChangePage(1);
-    },
   },
   components: {
     SearchQuerySummary,
@@ -109,12 +156,37 @@ export default {
     Pagination,
   },
   watch: {
-    isActive: {
-      handler(v) {
-        if (v) {
-          this.loadCurrentResult();
+    serviceQuery: {
+      async handler(query, previousQuery={}) {
+        if (JSON.stringify(query) === JSON.stringify(previousQuery)){
+          return;
         }
+        this.isLoading = true;
+        this.results = [];
+        const { data, total } = await searchService.find({
+          lock: false,
+          query,
+        }).finally(() => {
+          this.isLoading = false;
+        });
+        this.results = data.map(result => new Article(result))
+        this.paginationTotalRows = total;
       },
+      immediate: true,
+    },
+    serializedFilters: {
+      async handler(filters, previousSerializedFilters) {
+        if (previousSerializedFilters === filters){
+          return;
+        }
+        // enrich filters
+        this.filtersWithItems = await filtersItemsService.find({
+          query: {
+            filters,
+          },
+        }).then(joinFiltersWithItems);
+      },
+      immediate: true,
     },
   },
 };
@@ -122,7 +194,14 @@ export default {
 
 <style lang="scss">
 .search-query-explorer {
-  min-width: 400px;
+  .summary{
+    blockquote{
+      border-left: 2px solid black;
+    }
+  }
+  .search-query-explorer-article-item{
+    // background: #eaeaea;
+  }
 }
 .search-query-explorer.dark-mode {
   color: white;
@@ -140,6 +219,7 @@ export default {
   article h2, article h2 a{
     color: #c2c8ce;
     font-size: inherit;
+    text-decoration-color: inherit;
   }
   article .article-newspaper{
     color: #c2c8ce;
@@ -148,8 +228,11 @@ export default {
   .search-query-explorer-result {
     border-bottom: 1px solid #343a40;
   }
-  .search-query-explorer-result:hover{
-    background: #343a40;
+  .search-query-explorer-article-item{
+    background: #ffffff1f;
+    // border-top: 1px solid #caccce;
+    // border-bottom: 1px solid #caccce;
+    min-height: 100px;
 
     article h2{
       color: white;

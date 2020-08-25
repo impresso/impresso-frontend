@@ -10,6 +10,9 @@ export default {
       fr: 'French',
       en: 'English',
     },
+    counts: {
+      filters: 'no filter | 1 filter | {count} filters',
+    },
     buckets: {
       type: {
         ad: 'advertisement',
@@ -81,6 +84,7 @@ export default {
       removeFromCurrentFilters: 'Exclude from current search',
       addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
       addToCurrentItemsDetailed: 'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
+      addRangeToCurrentFilters: 'Apply range',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
       login: 'log in',
@@ -90,8 +94,10 @@ export default {
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
+      resetObservedItems: 'reset observed list',
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
+      addCurrentSearch: 'Add filters from your current search query',
       viewTopic: 'go to topic',
     },
     filters: {
@@ -130,8 +136,8 @@ export default {
         countItems: '{countItems} saved items',
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
-      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> in | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> in | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> in ',
-      ignoredFilters: 'no message | * 1 search filter ignored. | * {n} search filters ignored.',
+      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
+      ignoredFilters: 'no message | * 1 search filter can\'t be applied. | * {n} search filters can\'t be applied.',
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -151,8 +157,10 @@ export default {
       },
     },
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
+    ppOf: 'p.{num} of {pages}',
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
+    applyCurrentSearchFiltersDisabled: 'Current filters cannot be applied.',
     errors: {
       changePassword: {
         wrongcredentials: 'Wrong credentials provided...',
@@ -194,11 +202,22 @@ export default {
       },
     },
     label: {
+      useCurrentSearch: 'consider only results matching current search',
       isFront: 'only results on the front page',
       year: {
         title: 'Year | Year | Years',
         optionsTitle: 'Year of publication',
         optionsDescription: 'Total number of articles per year',
+      },
+      month: {
+        title: 'Month | Month | Months',
+        optionsTitle: 'Month of publication',
+        optionsDescription: 'Total number of articles per month',
+      },
+      day: {
+        title: 'Day | Day | Days',
+        optionsTitle: 'Day of publication',
+        optionsDescription: 'Total number of articles per day',
       },
       type: {
         title: 'Article content type | Article content types | Article content types',
@@ -289,6 +308,14 @@ export default {
         description: 'check one or more data provider to filter results',
         empty: '(no results)',
       },
+      contentLength: {
+        title: 'Content Length | Content Length | Content Lengths',
+        filterTitle: 'filter by content length',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they are within the range',
+        description: 'total number of articles per content length',
+        empty: '(no results)',
+      },
     },
     tabs: {
       powervis: 'apply filters to visualisation',
@@ -296,6 +323,10 @@ export default {
       recommendations: 'recommendations',
       relatedArticles: '... related articles | 1 related article | {count} related articles',
       articles: '... articles | 1 article | {count} articles',
+      entities: {
+        observingList: 'observing list (<span style="color: blue">{n}</span>)',
+        browseList: 'browse {n} entities',
+      },
     },
     sort: {
       name: {
@@ -334,6 +365,9 @@ export default {
     more_info: 'More Info',
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',
+    notFound: '(this is an empty list)',
+    facsimileView: 'Facsimile',
+    closeReadingView: 'Transcript',
   },
   nl: {
     language: 'Taal',

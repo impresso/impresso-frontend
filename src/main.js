@@ -23,6 +23,7 @@ import router from './router';
 import store from './store';
 import messages from './i18n/messages';
 import dateTimeFormats from './i18n/dateTimeFormats';
+import numberFormats from '@/i18n/numberFormats'
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
@@ -63,6 +64,7 @@ const i18n = new VueI18n({
   locale: store.state.settings.language_code,
   messages,
   dateTimeFormats,
+  numberFormats,
   silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
 });
 
@@ -124,6 +126,10 @@ Promise.race([
   window.impressoDocumentsDateSpan = documentsDateSpan
   window.impressoNewspapers = newspapers
   window.impressoFeatures = features
+  window.impressoDocumentsYearSpan = {
+    firstYear: (new Date(documentsDateSpan.firstDate)).getFullYear(),
+    lastYear: (new Date(documentsDateSpan.lastDate)).getFullYear()
+  }
 
   window.app = new Vue({
     el: '#app',

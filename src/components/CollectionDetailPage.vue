@@ -19,7 +19,6 @@
 
 
         <section class="ml-auto py-3 text-right">
-
           <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="m-1">
             <b-button
               variant="outline-info" size="sm"
@@ -93,7 +92,13 @@
             </router-link>
           </b-nav-form>
         </b-navbar-nav>
-
+        <b-navbar-nav class="mr-2">
+          <b-button @click="handleExportCollection" size="sm" variant="outline-primary" class="d-flex align-items-center">
+            <div>{{$t('label_export_csv')}}</div>
+            <div class="dripicons-export ml-1"></div>
+          </b-button>
+          <info-button name="can-i-download-part-of-the-data" class="float-right" />
+        </b-navbar-nav>
         <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
@@ -177,6 +182,7 @@
       </div>
 
       <timeline
+            :class="{'loading': isTimelineLoading}"
             :domain="[startYear, endYear]"
             :values="timevalues">
         <div slot-scope="tooltipScope">
@@ -187,7 +193,7 @@
         </div>
       </timeline>
 
-      <b-container>
+      <b-container fluid class="my-3">
         <b-row>
           <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
             <stacked-bars-panel
@@ -259,7 +265,9 @@ import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
+import InfoButton from '@/components/base/InfoButton';
 import { getQueryParameter } from '../router/util';
+import { exporter as exporterService} from '@/services';
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs'
@@ -271,20 +279,11 @@ const TAB_OVERVIEW = 'overview';
 const TAB_RECOMMENDATIONS = 'recommendations';
 
 export default {
-  props: {
-    startYear: {
-      type: Number,
-      default: 1740,
-    },
-    endYear: {
-      type: Number,
-      default: 2020,
-    },
-  },
   data: () => ({
     tab: {},
     collection: new Collection(),
     fetching: false,
+    isTimelineLoading: false,
     TAB_ARTICLES,
     TAB_OVERVIEW,
     TAB_RECOMMENDATIONS,
@@ -300,8 +299,18 @@ export default {
     Timeline,
     StackedBarsPanel,
     CollectionRecommendationsPanel,
+    InfoButton,
   },
   computed: {
+    collectionUid() {
+      return this.$route.params.collection_uid;
+    },
+    startYear() {
+      return window.impressoDocumentsYearSpan.firstYear;
+    },
+    endYear() {
+      return window.impressoDocumentsYearSpan.lastYear;
+    },
     filters: mapFilters(),
     searchPageLink() {
       if (!this.collection) {
@@ -455,6 +464,20 @@ export default {
     },
   },
   methods: {
+    handleExportCollection() {
+      exporterService.create({
+        description: this.collectionUid,
+      }, {
+        query: {
+          group_by: 'articles',
+          filters: [{
+            type: 'collection',
+            q: [this.collectionUid]
+          }],
+          format: 'csv',
+        },
+      })
+    },
     handleRecommendersSettingsUpdated(settings) {
       this.recommendersSettings = settings
     },
@@ -542,37 +565,17 @@ export default {
         type: 'collection',
         q: this.collection.uid,
       }
-
       this.filters = this.filters
         .filter(f => !containsFilter(newFilter)(f))
         .concat([newFilter]);
     },
     loadTimeline() {
+      this.isTimelineLoading = true;
       return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
         this.timevalues = values;
+        this.isTimelineLoading = false;
       });
     },
-    // loadFacets(type) {
-    //   return this.$store.dispatch('collections/LOAD_FACETS',
-    //     {
-    //       q: this.$route.params.collection_uid,
-    //       type: type,
-    //     }).then((r) => {
-    //     this.facets.push(r);
-    //     console.log(r);
-    //   });
-    // },
-    // loadTopics() {
-    //   return this.$store.dispatch('collections/LOAD_TOPICS', this.$route.params.collection_uid).then((topics) => {
-    //     this.facets.push(topics);
-    //   });
-    // },
-    // loadEntities() {
-    //   return this.$store.dispatch('collections/LOAD_ENTITIES', this.$route.params.collection_uid).then(([locationFacet, personFacet]) => {
-    //     this.facets.push(locationFacet, personFacet);
-    //     // console.log(this.facets);
-    //   });
-    // },
     loadFacets(facetType) {
       return this.$store.dispatch('collections/LOAD_FACETS', {q: this.$route.params.collection_uid, type: facetType})
         .then((r) => {
@@ -591,6 +594,9 @@ export default {
 .collection-recommendation{
   overflow:hidden;
 }
+.loading {
+  opacity: 0.5;
+}
 </style>
 
 <i18n>
@@ -599,6 +605,7 @@ export default {
     "collections": "collections",
     "all_collections_title": "All items in my collections",
     "label_order": "Order By",
+    "label_export_csv": "export collection...",
     "sort_date": "Item Date",
     "sort_dateAdded": "Date Added",
     "sort_asc": "Ascending",

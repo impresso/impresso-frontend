@@ -170,6 +170,7 @@ import {
   serializeFilters,
   joinFiltersWithItems,
 } from '@/logic/filters';
+import { getFilterQuery } from '../models/SearchQuery';
 // import SearchQuery from '@/models/SearchQuery';
 
 const AllowedFilterTypes = [
@@ -229,7 +230,7 @@ export default {
     },
     searchServiceQuery() {
       const query = {
-        filters: this.filters.map(d => d.getQuery()),
+        filters: this.filters.map(getFilterQuery),
       };
       return query;
     },
@@ -305,6 +306,7 @@ export default {
   .btn-outline-primary {
     border-color: #caccce;
     color: #caccce;
+    text-decoration: none;
     &:hover{
       color: $clr-white;
     }

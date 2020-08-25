@@ -37,6 +37,7 @@ export default {
 
 .tb {
   // padding-top:1px;
+  min-height: 35px; // one line
 }
 
 .tb-description {

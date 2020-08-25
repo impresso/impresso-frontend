@@ -119,6 +119,7 @@ export default {
         brushable: this.brushable,
         format: getTimeFormatForResolution(this.resolution),
       });
+      setTimeout(() => this.timeline.resize(), 0)
     }
     this.timeline.on('mouseleave', () => {
       this.tooltip.isActive = false;
@@ -140,8 +141,15 @@ export default {
       this.$emit('brushing', data);
     });
 
+    this.timeline.on('brush-end', (data) => {
+      this.$emit('brush-end', data);
+    });
+
     this.timeline.on('highlighted', (data) => {
       this.moveTooltip(data);
+    });
+    this.timeline.on('clear-selection', () => {
+      this.$emit('clear-selection');
     });
 
     if (this.percentage) {
@@ -216,6 +224,14 @@ export default {
             data,
           });
           this.timeline.draw();
+
+          if (this.brush && this.brush.length) {
+            const [ min, max ] = this.brush;
+            this.timeline.brushTo({
+              min,
+              max,
+            });
+          }
         }
       },
     },

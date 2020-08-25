@@ -20,31 +20,25 @@
 
         <b-nav-item-dropdown no-caret
           v-if="countActiveFilters"
-          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" >
+          ref="ddownSearchResults">
           <template slot="button-content">
-            &rarr;
-            <i>{{ $t('label_current_search') }}</i>
+            <span :title="$t('label_current_search')">...</span>
           </template>
-          <b-button class="ml-3 my-2" size="sm" variant="outline-primary outline-primary-contrast"
-            :disabled="$route.name === 'search'"
-            :to="getRouteWithSearchQuery({ name: 'search' })">
-            {{$t('actions.searchMore')}}
-          </b-button>
           <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" :to="{ name: 'search' }">
             {{$t('actions.resetQuery')}}
           </b-button> -->
-          <search-query-explorer :search-query="searchQuery" dark-mode/>
+          <search-query-explorer style="min-width:400px" class="px-2" :search-query="searchQuery" dark-mode/>
         </b-nav-item-dropdown>
 
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
           <span>{{$t("label_newspapers")}}</span>
         </b-nav-item>
-        <!-- <b-nav-item :to="{ name: 'entities'}" exact-active-class="active">
-          {{$t("label_entities")}}
-        </b-nav-item> -->
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
           <span>{{$t("label_topics")}}</span>
         </b-nav-item>
+        <!-- b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
+          <span>{{$t("label_entities")}}</span>
+        </b-nav-item -->
         <b-nav-item :to="{ name: 'compare', query: { left: searchQueryHash } }" active-class="active">
           <span>{{$t("label_compare")}}</span>
         </b-nav-item>
@@ -299,9 +293,6 @@ export default {
   methods: {
     updateLastNotificationDate() {
       this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE', new Date());
-    },
-    openSearchQueryExplorer() {
-      this.$store.dispatch('searchQueryExplorer/TOGGLE');
     },
     test() {
       return this.$store.dispatch('jobs/TEST');
@@ -650,6 +641,7 @@ export default {
     "label_entities": "Entities",
     "label_explore": "explore...",
     "label_topics": "Topics",
+    "label_entities": "Entities",
     "label_compare": "Inspect & Compare",
     "label_text_reuse": "Text reuse",
     "label_current_search": "browse results ...",

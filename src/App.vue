@@ -205,6 +205,10 @@ $clr-grey-900: #ddd;
     border-color: $clr-tertiary !important;
 }
 
+.border-radius {
+  border-radius: 3px;
+}
+
 .bg-primary {
   background-color: $clr-primary;
   color: $clr-white;
@@ -228,6 +232,24 @@ $clr-grey-900: #ddd;
   color: $clr-white;
 }
 
+.modal-backdrop-disabled{
+  pointer-events: none;
+}
+
+.text-blue {
+  color: blue;
+}
+
+.text-ellipsis {
+  max-width: 120px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.text-small{
+  font-size: 14px;
+}
 .custom-control-input {
   width: 0;
   height: 0;
@@ -240,61 +262,114 @@ $clr-grey-900: #ddd;
   border-color: $clr-tertiary;
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 0.1rem;
-  background-color: $clr-secondary;
-  border-radius: 2px;
-}
-input[type="range"]::-moz-range-track {
-  height: 0.1rem;
-  background-color: $clr-secondary;
-  border-radius: 2px;
-}
-input[type="range"]::-ms-track {
-  height: 0.1rem;
-  background-color: $clr-secondary;
-  border-radius: 2px;
-}
+// --- input range sliders ---
+// using classes that are browser specific,
+// stacking them together would invalidate the whole class
+// for other browsers
+// Using mixins to avoid duplicate declarations
 
-input[type="range"]::-webkit-slider-thumb {
-  margin-top: -0.45rem;
-  border-radius: 50%;
-  background-color: $clr-bg-primary;
-  border: 0.1rem solid $clr-secondary;
-  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
+@mixin slider-rail {
+  height: 1px;
+  background-color: $clr-secondary;
+  border-radius: 2px;
 }
-input[type="range"]:focus::-webkit-slider-thumb {
+@mixin slider-dot {
+  // border-radius: 50%;
+  background-color: $clr-primary; // $clr-bg-primary ;
+  // border: 1px solid black ;
+  box-shadow: none;
+}
+@mixin slider-dot-focus {
   border-color: $clr-accent-secondary;
 }
-input[type="range"]:active::-webkit-slider-thumb {
+@mixin slider-dot-active {
   background-color: $clr-accent-secondary;
+}
+
+.vue-slider .vue-slider-rail {
+  @include slider-rail;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  @include slider-rail;
+}
+input[type="range"]::-moz-range-track {
+  @include slider-rail;
+}
+input[type="range"]::-ms-track {
+  @include slider-rail;
+}
+
+.vue-slider .vue-slider-dot-handle {
+  @include slider-dot;
+}
+input[type="range"]::-webkit-slider-thumb {
+  margin-top: -0.45rem;
+  @include slider-dot;
 }
 input[type="range"]::-moz-range-thumb {
   margin-top: -0.45rem;
-  border-radius: 50%;
-  background-color: $clr-bg-primary;
-  border: 0.1rem solid $clr-secondary;
-  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
-}
-input[type="range"]:focus::-moz-range-thumb {
-  border-color: $clr-accent-secondary;
-}
-input[type="range"]:active::-moz-range-thumb {
-  background-color: $clr-accent-secondary;
+  @include slider-dot;
 }
 input[type="range"]::-ms-thumb {
   margin-top: -0.45rem;
-  border-radius: 50%;
-  background-color: $clr-bg-primary;
-  border: 0.1rem solid $clr-secondary;
-  box-shadow: 0 0 0 0.1rem $clr-bg-primary;;
+  @include slider-dot;
+}
+
+.vue-slider:focus .vue-slider-dot-handle {
+  @include slider-dot-focus;
+}
+input[type="range"]:focus::-webkit-slider-thumb {
+  @include slider-dot-focus;
+}
+input[type="range"]:focus::-moz-range-thumb {
+  @include slider-dot-focus;
 }
 input[type="range"]:focus::-ms-thumb {
-  border-color: $clr-accent-secondary;
+  @include slider-dot-focus;
+}
+
+.vue-slider-dot-focus .vue-slider-dot-handle-focus {
+  @include slider-dot-focus;
+  @include slider-dot-active;
+}
+input[type="range"]:active::-webkit-slider-thumb {
+  @include slider-dot-active;
+}
+input[type="range"]:active::-moz-range-thumb {
+  @include slider-dot-active;
 }
 input[type="range"]:active::-ms-thumb {
-  background-color: $clr-accent-secondary;
+  @include slider-dot-active;
 }
+
+.vue-slider .vue-slider-mark-label{
+  font-size: 12px;
+}
+
+.vue-slider .vue-slider-process {
+  background-color: $clr-primary;
+  box-shadow: 0px 0px 0 6px rgba(0,0,0,.1);
+  height: 2px !important;
+  margin-top: 0px;
+  border-radius: 1px;
+}
+
+.vue-slider .vue-slider-dot-tooltip-inner {
+  border-color: $clr-primary;
+  background-color: $clr-primary;
+  padding: 0px 5px 2px 5px;
+  border-radius: 1px;
+}
+
+.vue-slider .vue-slider-mark-step {
+    width: 1px;
+    height: 5px;
+    border-radius: 0;
+    background-color: currentColor;
+    margin-top: -1.5px;
+}
+
+
 
 
 
@@ -382,7 +457,7 @@ input[type="range"]:active::-ms-thumb {
 }
 
 .viz-bar {
-  height: 2px;
+  height: 3px;
 }
 
 .icon-link {

@@ -200,7 +200,7 @@ h2 {
   font-weight: 500;
   a {
     text-decoration: underline;
-    text-decoration-color:#ccc;
+    // text-decoration-color:#ccc;
     &:hover {
       text-decoration-color: transparent;
     }

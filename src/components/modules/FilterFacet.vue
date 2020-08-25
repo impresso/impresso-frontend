@@ -122,7 +122,7 @@ export default {
     },
     /* filters used to narrow down the search for new facet filters option in explorer */
     contextFilters: {
-      /** @type {import('vue').PropType<import('../../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<import('@/models').Filter[]>} */
       type: Array,
       default: () => [],
     },

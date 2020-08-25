@@ -79,15 +79,19 @@ export default class Timeline extends Line {
   brushed() {
     if (d3.event.sourceEvent) {
       const ordered = d3.event.selection;
+      const { type } = d3.event;
 
-      if (!ordered) return;
+      if (!ordered) {
+        this.emit('clear-selection')
+        return;
+      }
 
       this.brushedMinDate = this.dimensions.x.scale.invert(ordered[0]);
       this.brushedMaxDate = this.dimensions.x.scale.invert(ordered[1]);
       this.brushedMinValue = this.brushTimeFormat(this.brushedMinDate);
       this.brushedMaxValue = this.brushTimeFormat(this.brushedMaxDate);
 
-      this.emit('brushed', {
+      const eventPayload = {
         brush: {
           min: ordered[0],
           max: ordered[1],
@@ -96,7 +100,11 @@ export default class Timeline extends Line {
         maxDate: this.brushedMaxDate,
         minValue: this.brushedMinValue,
         maxValue: this.brushedMaxValue,
-      });
+      };
+
+      this.emit('brushed', eventPayload);
+
+      if (type === 'end') this.emit('brush-end', eventPayload)
     }
     // else console.info('@brushed called from outside, no need to emit brushes');
   }

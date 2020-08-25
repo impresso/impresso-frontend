@@ -97,12 +97,19 @@ import {
   optimizeFilters,
   deserializeFilters,
   serializeFilters,
-  joinFiltersWithItems
+  joinFiltersWithItems,
+  SupportedFiltersByContext
 } from '@/logic/filters'
 import { getQueryParameter } from '../router/util';
 import { getBucketLabel } from '../logic/facets';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 import { getLatestFilters } from '../logic/storage';
+
+/**
+ * @param {import('@/models').Filter} filter
+ * @returns {boolean}
+ */
+const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.includes(filter.type)
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -199,7 +206,7 @@ function queryParameterToComparable(value) {
 
   return {
     type: ComparableTypes.Query,
-    query: { filters: deserializeFilters(value) }
+    query: { filters: deserializeFilters(value).filter(supportedSearchIndexFilters) }
   }
 }
 
@@ -714,7 +721,7 @@ export default {
      * @param {number} queryIdx
      */
     handleInsertRecentSearchQuery(queryIdx) {
-      const filters = getLatestFilters()
+      const filters = getLatestFilters().filter(supportedSearchIndexFilters)
       const recentQuery = serializeFilters(filters)
       const query = { ...this.$router.currentRoute.query }
       if (queryIdx === 0) query.left = recentQuery

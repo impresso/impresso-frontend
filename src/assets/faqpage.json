@@ -233,6 +233,12 @@
               "If you have started a query on the search page, you can choose to use this as a filter for the topic graph. This means that all the elements described earlier are still valid but what is displayed does not anymore reflect the whole impresso collection but is tailored to your query.",
               "For instance, if you search for ‘vaccination’ on the topic page, you will have two topics containing this word. Whereas if you search for ‘vaccination’ on the search page and use this search as a filter for the topic graph, you will have 212 topics related to the articles containing the word ‘vaccination’."
             ]
+          },
+          {
+            "id": "filter-range",
+            "title": "Filter the list of results by article length",
+            "summary": "Article length is measured in number of tokens. The histogram shows the number of articles grouped by similar length intervals",
+            "description": []
           }
         ]
       },
@@ -347,6 +353,12 @@
               "We used the open source software <a href='https://github.com/dasmiq/passim'>passim</a> to automatically detect text reuse. Passim was applied in two steps: <ul><li>As a pre-processing step, we ran passim in boilerplate detection mode; this allowed us to find boilerplate content within our corpus. We define boilerplate as portions of text that get repeated within the same newspaper in a time window of a month. All content items where boilerplate text was detected are filtered out from passim’s input. This allows us to reduce the final number of detected text reuse clusters by removing some noise (i.e. boilerplate) in the input data.</li><li> After having removed boilerplate text, we ran the content of our corpus (76 newspapers) through passim, resulting into approx. 6 million text reuse clusters. </li><li>We then post-processed passim’s output to enrich the detected text reuse clusters. For each cluster, we add the following information:</li><li>Size: the number of passages contained in a cluster;</li><li>Lexical overlap: the percentage of unique tokens that all passages in a cluster have in common (all text is lowercased and punctuation is stripped).</li><li>Time span: time window covered by documents in the cluster, measured in number of days. It’s the difference (in days) between the publication date of the oldest and of the most recent content item in the cluster.</li></ul>",
               "These pieces of information can be used as filters when browsing text reuse clusters in the page https://impresso-project.ch/app/text-reuse-clusters/."
             ]
+          },
+          {
+            "id": "text-reuse-cluster-metadata",
+            "title": "What is lexical overlap?",
+            "summary": "Percentage of...",
+            "description": []
           }
         ]
       }
