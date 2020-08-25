@@ -383,6 +383,7 @@ export default {
         })
       }
     },
+    /** @return {import('../models').SearchQuery} */
     selectedEntitySearchQuery() {
       if (this.selectedEntity) {
         // add start and end span related to current punchcardResolution
@@ -660,6 +661,7 @@ export default {
     height: 18px;
     top: -1px;
     position: relative;
+    pointer-events: auto;
   }
   .loading {
     opacity: 0.5;

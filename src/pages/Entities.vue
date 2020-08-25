@@ -32,22 +32,19 @@
         </div>
       </template>
       <template v-slot:default>
-        <div class="p-4 text-center" v-if="!isLoading && !items.length">
-          {{ $t('notFound') }}
-        </div>
-        <div class="p-4 text-center" v-else-if="isLoading">
-          {{ $t('actions.loading')}}
-        </div>
-        <entity-item v-for="(entity, i) in tabItems"
-            class="p-3 border-bottom"
-            v-bind:key="i"
-            v-bind:item="entity"
-            v-bind:active="entity.uid === selectedId"
-            :show-link="entity.kind ==='entity'"
-            is-observable
-            :observed="observedItemIds.includes(entity.uid)"
-            @toggle-observed="handleToggleObserved"
-        />
+          <div class="p-4 text-center" v-if="isLoading || items.length === 0">
+            {{ isLoading ? $t('actions.loading') : $t('notFound') }}
+          </div>
+          <entity-item v-for="(entity, i) in tabItems"
+              class="p-3 border-bottom"
+              :key="i"
+              :item="entity"
+              :active="entity.uid === selectedId"
+              :show-link="entity.kind ==='entity'"
+              is-observable
+              :observed="observedItemIds.includes(entity.uid)"
+              @toggle-observed="handleToggleObserved">
+          </entity-item>
       </template>
     </list>
     <!-- main page -->
@@ -74,6 +71,10 @@ const OrderByOptions = [
 ];
 const OrderByDefault = '-count';
 
+/**
+ * @typedef {{ perPage: number, currentPage: number, totalRows: number }} PaginationData
+ */
+
 export default {
   data: () => ({
     TabObservingList,
@@ -81,11 +82,12 @@ export default {
     paginationPerPage: 20,
     paginationCurrentPage: 1,
     paginationTotalRows: 0,
-    items: [],
-    observedItems: [],
+    items: /** @type {EntityItem[]} */ ([]),
+    observedItems: /** @type {EntityItem[]} */ ([]),
     isLoading: false,
   }),
   computed: {
+    /** @returns {PaginationData} */
     paginationList() {
       return {
         perPage: this.paginationPerPage,
@@ -112,18 +114,22 @@ export default {
         })
       },
     },
+    /** @returns {EntityItem[]} */
     tabItems() {
       return this.tab === TabObservingList ? this.observedItems : this.items;
     },
     tab: {
+      /** @returns {string} */
       get() {
+        const value = /** @type {string} */ (this.$route.query.tab)
         return [
           TabObservingList,
           TabBrowseList,
-        ].includes(this.$route.query.tab)
-          ? this.$route.query.tab
+        ].includes(value)
+          ? value
           : TabBrowseList;
       },
+      /** @param {string} tab */
       set(tab) {
         this.$navigation.updateQueryParameters({
           tab,
@@ -131,6 +137,7 @@ export default {
       },
     },
     serviceQuery: {
+      /** @returns {{ q: string, limit: number, page: number, orderBy: string }} */
       get() {
         return {
           q: this.suggestionQuery,
@@ -140,21 +147,23 @@ export default {
         };
       },
     },
-    selectedId() {
-      return this.$route.params.entity_id;
-    },
+    /** @returns {string} */
+    selectedId() { return this.$route.params.entity_id },
+    /** @returns {{ value: string, text: string }[]} */
     orderByOptions() {
       return OrderByOptions.map(value => ({
         value,
-        text: this.$t(`sort_${value}`),
+        text: this.$t(`sort_${value}`).toString(),
       }))
     },
     orderBy: {
+      /** @returns {string} */
       get() {
-        return OrderByOptions.includes(this.$route.query.orderBy)
-          ? this.$route.query.orderBy
+        return OrderByOptions.includes(/** @type {string} */ (this.$route.query.orderBy))
+          ? /** @type {string} */ (this.$route.query.orderBy)
           : OrderByDefault;
       },
+      /** @param {string} orderBy */
       set(orderBy) {
         this.$navigation.updateQueryParametersWithHistory({
           orderBy,
@@ -162,9 +171,11 @@ export default {
       },
     },
     suggestionQuery: {
+      /** @returns {string} */
       get() {
-        return this.$route.query.q ?? '';
+        return /** @type {string} */ (this.$route.query.q) ?? '';
       },
+      /** @param {string} q */
       set(q) {
         this.paginationCurrentPage = 1;
         this.$navigation.updateQueryParametersWithHistory({
