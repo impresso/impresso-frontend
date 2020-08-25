@@ -124,14 +124,14 @@ export default {
         query: {
           ...this.$route.query,
           articleId: getShortArticleId(this.item.uid),
-          p: this.item.pages[0].num,
+          p: this.item.pages[0]?.num,
         }
       }
     },
     routerLinkParams() {
       const params = {
         article_uid: this.item.uid,
-        page_uid: this.item.pages[0].uid,
+        page_uid: this.item.pages[0]?.uid,
       };
       if (this.item.issue) {
         params.issue_uid = this.item.issue.uid;
