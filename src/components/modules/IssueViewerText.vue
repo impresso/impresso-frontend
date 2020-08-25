@@ -2,7 +2,7 @@
   <div id="IssueViewerText" class="px-3 bg-light">
     <i-spinner v-if="!article" class="text-center p-5" />
     <div v-if="article">
-      <article-item :item="article" show-entities show-excerpt show-topics/>
+      <article-item :item="article" show-entities show-topics/>
       <div class="my-2" />
       <collection-add-to :item="article" :text="$t('add_to_collection')" />
       <b-badge
