@@ -40,7 +40,7 @@
               :key="i"
               :item="entity"
               :active="entity.uid === selectedId"
-              :show-link="entity.kind ==='entity'"
+              :show-link="true"
               is-observable
               :observed="observedItemIds.includes(entity.uid)"
               @toggle-observed="handleToggleObserved">
