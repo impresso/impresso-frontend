@@ -134,7 +134,7 @@ export default {
         return this.$t('no_page_info');
       }
       if (this.article.pages.length === 1) {
-        return this.$t('page', { num: this.article.pages[0].num });
+        return this.$t('page', { num: this.article.pages[0]?.num });
       }
       return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') });
     },

@@ -58,7 +58,7 @@ export default {
     gotoPage() {
       const params = {
         issue_uid: this.item.issue?.uid || this.item.uid.match(/(^.+)-i/)[1],
-        page_uid: this.item.pages[0].uid,
+        page_uid: this.item.pages[0]?.uid,
       };
       console.info('gotoPage', params);
       if (this.item.article) {

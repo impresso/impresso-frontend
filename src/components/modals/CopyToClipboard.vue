@@ -86,7 +86,7 @@ export default {
     },
     widgetLink() {
       const { base: urlPrefix } = this.$router.options
-      return `${window.location.origin}${urlPrefix}widget/#/p/${this.article.pages[0].uid}/a/${this.article.uid}/?${this.customisation}`;
+      return `${window.location.origin}${urlPrefix}widget/#/p/${this.article.pages[0]?.uid}/a/${this.article.uid}/?${this.customisation}`;
     },
   },
   mounted() {

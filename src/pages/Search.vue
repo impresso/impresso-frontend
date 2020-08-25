@@ -464,8 +464,8 @@ export default {
         name: 'article',
         params: {
           issue_uid: searchResult.issue.uid,
-          page_number: searchResult.pages[0].num,
-          page_uid: searchResult.pages[0].uid,
+          page_number: searchResult.pages[0]?.num,
+          page_uid: searchResult.pages[0]?.uid,
           article_uid: searchResult.uid,
         },
       });

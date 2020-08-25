@@ -578,7 +578,7 @@ export default {
             // matches
             article.matches.forEach((match) => {
               // console.log('match', match);
-              if (match.pageUid === article.pages[0].uid) {
+              if (match.pageUid === article.pages[0]?.uid) {
                 const overlay = {
                   x: match.coords[0],
                   y: match.coords[1],
@@ -706,7 +706,7 @@ export default {
         params: {
           issue_uid: this.issue.uid,
           article_uid: article.uid,
-          page_uid: article.pages[0].uid,
+          page_uid: article.pages[0]?.uid,
         },
         query: {
           tab: this.tab,
