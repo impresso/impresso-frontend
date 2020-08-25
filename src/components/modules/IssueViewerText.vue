@@ -44,7 +44,7 @@
             class="col"
             :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
             <div class='region py-3'>
-              <annotated-text
+              <annotated-text v-if="regionsAnnotationTree[i]"
                 :children="regionsAnnotationTree[i].children"
                 :cluster-colours="clusterColourMap"
                 :selected-cluster-id="selectedClusterId"
