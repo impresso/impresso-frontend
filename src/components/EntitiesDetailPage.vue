@@ -4,9 +4,9 @@
       <b-navbar type="light" variant="light">
         <section>
           <h3 v-if="entity">
-            <span v-html="entity.name" />
+            <span v-html="entityLabel" />
             <span class="badge small-caps ml-1 bg-medium badge-light">
-              {{ $t(`types.${entity.type}`) }}
+              {{ $t(`types.${entityType}`) }}
             </span>
           </h3>
 
@@ -18,7 +18,7 @@
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
             :class="{ active: tabItem.name === tab.name }"
             active-class='none'
-            :to="{ name: 'entity', params: { entity_id: entity.uid }, query: { tab: tabItem.name }}">
+            :to="{ name: 'entity', params: { entity_id: entityId }, query: { tab: tabItem.name }}">
             <span v-html="tabItem.label"/>
           </b-nav-item>
         </template>
@@ -167,11 +167,33 @@ import Pagination from '@/components/modules/Pagination';
 import ArticleItem from '@/components/modules/lists/ArticleItem';
 import MentionItem from '@/components/modules/lists/MentionItem';
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
-import { searchFacets as searchFacetsService } from '@/services';
+import {
+  searchFacets as searchFacetsService,
+  entitiesMentions as entitiesMentionsService
+} from '@/services';
+import Helpers from '@/plugins/Helpers'
 
 const TAB_ARTICLES = 'articles';
 const TAB_MENTIONS = 'mentions';
 const TAB_OVERVIEW = 'overview';
+
+const isDisambiguatedEntity = id => {
+  if (id.startsWith('nil_')) return false
+  return true
+}
+
+function loadMentionTimeline(entityId) {
+  const query = {
+    filters: [{
+      type: 'mention',
+      q: entityId,
+    }],
+    group_by: 'articles',
+  };
+  return searchFacetsService.get('year', {
+    query,
+  }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
+}
 
 export default {
   props: {
@@ -321,19 +343,40 @@ export default {
       const bbox = `${coords.longitude - 2},${coords.latitude - 1},${coords.longitude + 2},${coords.latitude + 1}`;
       return bbox;
     },
+    entityLabel() {
+      return this.entity.type === 'mention'
+        ? this.entity.label
+        : this.entity.name
+    },
+    entityType() {
+      return this.entity.type === 'mention'
+        ? this.entity.entityType.toLowerCase()
+        : this.entity.type
+    },
+    entityId() {
+      return this.entity.type === 'mention'
+        ? this.entity.id
+        : this.entity.uid
+    }
   },
   methods: {
     getEntity() {
-      return this.$store.dispatch('entities/LOAD_DETAIL', this.$route.params.entity_id);
+      const id = this.$route.params.entity_id
+      if (isDisambiguatedEntity(id)) return this.$store.dispatch('entities/LOAD_DETAIL', id);
+      return entitiesMentionsService.get(id)
     },
     async loadFacets() {
-      this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id).then((values) => {
+      const isMention = !isDisambiguatedEntity(this.$route.params.entity_id)
+      const loadTimeline = isMention
+        ? () => loadMentionTimeline(this.$route.params.entity_id)
+        : () => this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id)
+      loadTimeline().then((values) => {
         this.timevalues = values;
       });
       this.facets = [];
       const query = {
         filters: [{
-          type: 'entity',
+          type: isMention ? 'mention' : 'entity',
           q: [ this.$route.params.entity_id ],
         }],
         group_by: 'articles',
@@ -360,7 +403,7 @@ export default {
         filters: [
           {
             q: this.$route.params.entity_id,
-            type: this.entity.type,
+            type: this.entityType,
           },
         ],
       }).then((res) => {
