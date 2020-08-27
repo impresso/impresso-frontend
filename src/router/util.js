@@ -24,5 +24,6 @@ export const CommonQueryParameters = Object.freeze({
   // boolean: apply current search filters
   ApplyCurrentSearchFilters: 'asq',
   // string used to filter list of items
-  SuggestionQuery: 'q'
+  SuggestionQuery: 'q',
+  OrderBy: 'sort',
 })

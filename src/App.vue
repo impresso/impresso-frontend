@@ -247,6 +247,9 @@ $clr-grey-900: #ddd;
   white-space: nowrap;
 }
 
+.text-small{
+  font-size: 14px;
+}
 .custom-control-input {
   width: 0;
   height: 0;
@@ -454,7 +457,7 @@ input[type="range"]:active::-ms-thumb {
 }
 
 .viz-bar {
-  height: 2px;
+  height: 3px;
 }
 
 .icon-link {

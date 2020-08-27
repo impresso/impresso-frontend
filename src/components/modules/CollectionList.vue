@@ -31,6 +31,7 @@
                 {{$t('create_new')}}
               </b-button>
             </div>
+            <span class="error-label m-2">{{newCollectionError}}</span>
           </div>
 
         </div>
@@ -108,6 +109,7 @@ export default {
     fetching: false,
     // inputString: '',
     inputNew: '',
+    newCollectionError: undefined,
     // orderBy: '-date',
     // collectionsQ: '',
   }),
@@ -220,6 +222,7 @@ export default {
     onInputNew() {
       const len = this.inputNew.trim().length;
       this.isDisabled = (len >= 3 && len <= 50);
+      this.newCollectionError = undefined
     },
     addCollection(collectionName) {
       this.inputNew = '';
@@ -229,6 +232,12 @@ export default {
       }).then((res) => {
         this.fetch();
         this.select(res);
+      }).catch(e => {
+        if (e.code === 409) {
+          this.newCollectionError = this.$t('name_already_exists')
+        } else {
+          throw e
+        }
       });
     },
   },
@@ -255,7 +264,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import "impresso-theme/src/scss/bootpresso.scss";
+// @import "bootstrap/scss/_variables.scss";
+
 .collection-list {
   input {
     // font-style: italic;
@@ -273,6 +284,10 @@ export default {
       background-color: $clr-bg-secondary;
     }
   }
+}
+.error-label {
+  color: $danger;
+  font-size: 80%;
 }
 </style>
 
@@ -292,7 +307,8 @@ export default {
     "last_edited": "Last edited",
     "items": "items",
     "no_collection": "<p><b>No personal collection found !</b></p><p>Create one ?</p>",
-    "no_match": "No collection name matches your search filter."
+    "no_match": "No collection name matches your search filter.",
+    "name_already_exists": "This collection label has already been used, please choose another one"
   },
   "de": {
     "placeholder": "Filtern",

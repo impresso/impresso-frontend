@@ -42,7 +42,7 @@
 
         <router-link :to="{ name: 'article', params: {
           issue_uid: article.issue.uid,
-          page_uid: article.pages[0].uid,
+          page_uid: article.pages.length > 0 ? article.pages[0].uid : undefined,
           article_uid: article.uid,
         } }" class="btn btn-sm btn-outline-primary mr-1">
           {{$t('view')}}
@@ -103,7 +103,7 @@ export default {
   computed: {
     pageViewerOptions() {
       return {
-        tileSources: [this.article.pages[0].iiif],
+        tileSources: [this.article.pages[0]?.iiif],
         showNavigator: true,
         navigatorAutoFade: false,
         navigatorBackground: '#f8f9fa',

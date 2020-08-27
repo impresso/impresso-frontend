@@ -70,40 +70,52 @@
               <span class="date">{{ $d(issue.date, 'long') }}</span>
             </h3>
           </section>
-          <b-navbar-nav class=" border">
-            <b-button variant="light" size="sm"
+          <b-navbar-nav>
+            <b-button class="border-dark" variant="light" size="sm"
               :disabled="currentPageIndex === 0"
               @click="changeCurrentPageIndex(currentPageIndex - 1)">
               <div class="dripicons dripicons-media-previous pt-1"></div>
             </b-button>
-            <div class="px-2 pt-1">{{ $tc('pp', 1, { pages: page ? page.num : undefined }) }}</div>
-            <b-button variant="light" size="sm"
+            <div class="px-2 pt-1 border-top border-bottom" v-html="$t('ppOf', {
+              num: page.num,
+              pages: issue.pages.length
+            })"></div>
+            <b-button class="border-dark" variant="light" size="sm"
               :disabled="(currentPageIndex + 1) === issue.pages.length"
               @click="changeCurrentPageIndex(currentPageIndex + 1)">
               <div class="dripicons dripicons-media-next pt-1"></div>
             </b-button>
           </b-navbar-nav>
 
-          <b-button
-            class="ml-2"
-            :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
-            @click="outlinesVisible = !outlinesVisible">
-            <div class="d-flex flex-row align-items-center">
-              <div class="d-flex dripicons dripicons-preview mr-2" />
-              <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div>
-              <div v-else>{{$t('toggle_outlines_off')}}</div>
-            </div>
-          </b-button>
+          <b-navbar-nav class="p-2" v-if="!isArticleTextDisplayed">
+            <b-button
+              :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
+              @click="outlinesVisible = !outlinesVisible">
+              <div class="d-flex flex-row align-items-center">
+                <div class="d-flex dripicons dripicons-preview mr-2" />
+                <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div>
+                <div v-else>{{$t('toggle_outlines_off')}}</div>
+              </div>
+            </b-button>
+          </b-navbar-nav>
 
-          <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle && isArticleTextDisplayed">
-            <b-button size="sm" variant="outline-primary" @click="isArticleTextDisplayed = false">{{ $t('facsimileView') }}</b-button>
+          <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
+            <b-button-group>
+              <b-button size="sm" :class="{ active: !isArticleTextDisplayed }" variant="outline-primary" @click="isArticleTextDisplayed = false">
+                <div class="d-flex align-items-center">
+                  {{ $t('facsimileView') }}
+                  <div class="d-flex dripicons dripicons-article ml-2" />
+                </div>
+              </b-button>
+              <b-button size="sm" :class="{ active: isArticleTextDisplayed }" variant="outline-primary" @click="isArticleTextDisplayed = true">
+                <div class="d-flex align-items-center">
+                  {{ $t('closeReadingView') }}
+                  <div class="d-flex dripicons dripicons-align-justify ml-2" />
+                </div>
+              </b-button>
+            </b-button-group>
           </b-navbar-nav>
         </b-navbar>
-        <issue-viewer-bookmarker
-          @remove-selection="handleRemoveSelection"
-          @click-full-text="showArticleText(selectedArticle.uid)"
-          :article="selectedArticle"
-          :visible="!isArticleTextDisplayed"/>
       </div>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center position-relative"  v-if="issue">
@@ -129,16 +141,20 @@
           v-if="isContentAvailable && articleId != null && isArticleTextDisplayed"
           :article_uid="articleId"/>
 
-      </div>
-    </i-layout-section>
-    <i-layout-section width="120px" class="border-left">
-      <list hide-pagination v-if="issue">
-        <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
-          <page-item
-          :active="pageId === item.uid"
-          :item="item" />
+        <issue-viewer-bookmarker
+          @remove-selection="handleRemoveSelection"
+          @click-full-text="showArticleText(selectedArticle.uid)"
+          :article="selectedArticle"
+          :visible="!isArticleTextDisplayed"/>
+
+        <div class="position-absolute d-flex drop-shadow bg-dark border-radius" style="bottom: 1rem" v-if="!isArticleTextDisplayed">
+          <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
+            <page-item class="bg-dark p-2"
+            :active="pageId === item.uid"
+            :item="item" />
+          </div>
         </div>
-      </list>
+      </div>
     </i-layout-section>
   </i-layout>
 </template>
@@ -164,6 +180,11 @@ import TableOfContents from '@/models/TableOfContents'
 import SearchPills from '@/components/SearchPills'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
+
+/**
+ * @typedef {import('@/models').Filter} Filter
+ * @typedef {import('@/models/ArticleBase').default} ArticleBase
+ */
 
 const Params = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
@@ -207,7 +228,7 @@ export default {
       ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
-          p: 1,
+          p: '1',
         },
       }),
     },
@@ -226,8 +247,9 @@ export default {
     countActiveFilters() {
       return this.filters.length;
     },
+    /** @returns {boolean} */
     hasMatchingArticles() {
-      return this.suggestionQuery.length || (this.applyCurrentSearchFilters && this.countActiveFilters > 0)
+      return this.suggestionQuery.length > 0 || (this.applyCurrentSearchFilters && this.countActiveFilters > 0)
     },
     /** @returns {string} */
     issueId() { return this.$route.params[Params.IssueId] },
@@ -244,9 +266,12 @@ export default {
       if (shortArticleId == null) return undefined
       return getLongArticleId(this.issueId, shortArticleId)
     },
+    /**
+     * @returns {ArticleBase|undefined}
+     */
     selectedArticle() {
       if (!this.tableOfContents) {
-        return null;
+        return undefined;
       }
       return this.tableOfContents.articles.find(d => d.uid === this.articleId)
     },
@@ -307,7 +332,7 @@ export default {
         });
       },
     },
-    /** @returns {{ q: string, limit: number, page: number }} */
+    /** @returns {{ q: string, limit: number, page: number, issueUid?: string, filters: Filter[] }} */
     serviceQuery() {
       return {
         q: this.suggestionQuery,
@@ -319,6 +344,7 @@ export default {
           : [],
       };
     },
+    /** @returns {any} */
     paginationList() {
       return {
         perPage: this.paginationPerPage,
@@ -439,7 +465,7 @@ export default {
     handleArticleSelected(article) {
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: getShortArticleId(article.uid),
-        [QueryParams.PageNumber]: String(article.pages[0].num)
+        [QueryParams.PageNumber]: String(article.pages[0]?.num)
       })
     },
     /**
@@ -519,8 +545,6 @@ export default {
     "table_of_contents": "table of contents",
     "toggle_outlines_on": "outlines: on",
     "toggle_outlines_off": "Outlines: off",
-    "facsimileView": "Facsimile",
-    "closeReadingView": "Transcript",
     "filter_included_only": "show only matching articles (no results) | show only matching articles (<b>1</b> result) | show only matching articles (<b>{n}</b> results)"
   }
 }
