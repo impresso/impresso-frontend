@@ -65,14 +65,18 @@ export default class Timeline extends Line {
       this.brushTimeFormat = d3.timeFormat(brushFormat);
       this.brushTimeParse = d3.timeParse(brushFormat);
       this.brush = d3.brushX()
-        .extent([[0, 0], [
-          this.width - this.margin.right - this.margin.left,
-          this.height - this.margin.bottom - this.ticks.offset,
-        ]])
         .on('brush end', this.brushed.bind(this));
       this.contextBrush = this.context.append('g')
         .attr('class', 'brush')
         .call(this.brush);
+
+      this.on('svg.resized', () => {
+        this.brush.extent([[0, 0], [
+          this.width - this.margin.right - this.margin.left,
+          this.height - this.margin.bottom - this.ticks.offset,
+        ]])
+        this.contextBrush.call(this.brush)
+      })
     }
   }
 
