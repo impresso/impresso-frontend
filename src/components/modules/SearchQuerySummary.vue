@@ -9,6 +9,10 @@
 import Helpers from '../../plugins/Helpers';
 import { namesService } from '../../services'
 
+function getStarAndEndDates(item) {
+  return [item.start, item.end].map(v => new Date(v))
+}
+
 export default {
   props: {
     reduced: Boolean,
@@ -104,11 +108,12 @@ export default {
     },
     getLabel({ item, type, filter }) {
       let t = '';
-      const [start, end] = [item.start, item.end].map(v => new Date(v))
-
       switch (type) {
       case 'daterange':
-        t = `from <span class="date">${this.$d(start, 'compactUtc')}</span> to <span class="date">${this.$d(end, 'compactUtc')}</span>`;
+        {
+          const [start, end] = getStarAndEndDates(item)
+          t = `from <span class="date">${this.$d(start, 'compactUtc')}</span> to <span class="date">${this.$d(end, 'compactUtc')}</span>`;
+        }
         break;
       case 'location':
       case 'person':
