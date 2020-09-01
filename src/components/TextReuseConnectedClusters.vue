@@ -8,14 +8,18 @@
 
     <b-container fluid class="p-4">
       <div class="d-flex flex-wrap">
-        <cluster-details-panel
-          class="p-3"
+        <div
+          class="connected-cluster-container"
           :style="{ 'max-width': '33%' }"
           v-for="clusterContainer in connectedClusters"
           :key="clusterContainer.cluster.id"
-          :cluster="clusterContainer.cluster"
-          :textSample="clusterContainer.textSample"
-        />
+          v-on:click="() => handleClusterSelected(clusterContainer.cluster.id)">
+          <cluster-details-panel
+            class="p-3"
+            :cluster="clusterContainer.cluster"
+            :textSample="clusterContainer.textSample"
+          />
+        </div>
       </div>
     </b-container>
     <div slot="footer" class="fixed-pagination-footer p-1 m-0" v-if="totalClusters > 0">
@@ -37,6 +41,7 @@ import { textReuseConnectedClusters as textReuseConnectedClustersService } from 
 import { getQueryParameter } from '@/router/util'
 
 const QueryParameters = Object.freeze({
+  ClusterId: 'clusterId',
   PageNumber: 'connectedClustersPage',
 })
 
@@ -62,6 +67,13 @@ export default {
     ClusterPageHeader,
     ClusterDetailsPanel,
     Pagination
+  },
+  methods: {
+    handleClusterSelected(id) {
+      this.$navigation.updateQueryParameters({
+        [QueryParameters.ClusterId]: id
+      })
+    },
   },
   computed: {
     /** @returns {string} */
@@ -109,3 +121,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+  .connected-cluster-container {
+    cursor: pointer;
+  }
+</style>
