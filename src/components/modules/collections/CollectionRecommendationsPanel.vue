@@ -302,8 +302,8 @@ export default {
         name: 'article',
         params: {
           issue_uid: article.issue.uid,
-          page_number: article.pages[0].num,
-          page_uid: article.pages[0].uid,
+          page_number: article.pages[0]?.num,
+          page_uid: article.pages[0]?.uid,
           article_uid: article.uid,
         },
       });

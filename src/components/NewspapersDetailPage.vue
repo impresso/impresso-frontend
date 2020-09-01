@@ -43,10 +43,8 @@
           </b-nav-form>
 
           <b-navbar-nav v-if="$route.name === 'newspaper'"
-          class="pl-3 pr-2 py-2 pr-auto">
-            <li><label >{{ $t('order by') }}</label>
-              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-            </li>
+          class="p-2 ml-auto">
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </b-navbar-nav>
         </b-navbar>
         <!-- <b-navbar v-else type="light" variant="light">
@@ -174,11 +172,15 @@ import Timeline from './modules/Timeline';
 import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
+import { CommonQueryParameters } from '@/router/util'
 import {
   issues as IssuesService,
   searchFacets as searchFacetsService,
   newspapers as newspapersService,
 } from '@/services';
+
+const OrderByOptions = ['-date', 'date'];
+const OrderByDefault = '-date';
 
 export default {
   data: () => ({
@@ -188,7 +190,6 @@ export default {
     issues: [],
     newspaper: new Newspaper(),
     tab: 'issues',
-    orderBy: '-date',
     timevalues: [],
     facets: [],
     facetTypes: ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
@@ -204,16 +205,23 @@ export default {
       };
     },
     orderByOptions() {
-      return [
-        {
-          value: '-date',
-          text: this.$t('order by date - most recent first'),
-        },
-        {
-          value: 'date',
-          text: this.$t('order by date'),
-        },
-      ];
+      return OrderByOptions.map(value => ({
+        value,
+        text: this.$t(`sort_${value}`),
+      }))
+    },
+    orderBy: {
+      get() {
+        const {[CommonQueryParameters.OrderBy]: orderBy } = this.$route?.query;
+        return OrderByOptions.includes(orderBy)
+          ? orderBy
+          : OrderByDefault;
+      },
+      set(orderBy) {
+        this.$navigation.updateQueryParametersWithHistory({
+          [CommonQueryParameters.OrderBy]: orderBy,
+        });
+      },
     },
     institution: {
       get() {
@@ -269,7 +277,15 @@ export default {
     },
     newspaperUid() {
       return this.$route.params.newspaper_uid;
-    }
+    },
+    issuesServiceQuery() {
+      return {
+        filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+        page: this.page,
+        order_by: this.orderBy,
+        limit: this.limit
+      }
+    },
   },
   methods: {
     applyFilter() {
@@ -292,7 +308,7 @@ export default {
       };
     },
     onInputPagination(page) {
-      return this.loadIssues({ page })
+      this.page = page;
     },
     loadTimeline() {
       return this.$store.dispatch('search/LOAD_TIMELINE', {
@@ -314,44 +330,30 @@ export default {
         this.facets = this.facets.concat(results);
       }
     },
-    async loadIssues({ page = 1 } = {}) {
-      this.issues = []
-      const {total, issues} = await IssuesService.find({
-        query: {
-          filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
-          page,
-          orderBy: this.orderBy,
-          limit: this.limit
-        },
-      }).then(({ total, data }) => {
-        return { total, issues: data.map(d => new Issue(d)) };
-      })
-      this.page = page;
-      this.total = total;
-      this.issues = issues;
-    },
-    async loadNewspaper() {
-      this.newspaper = await newspapersService.get(this.newspaperUid, {}).then(d => new Newspaper(d));
-      this.total = this.newspaper.countIssues;
-    },
   },
   watch: {
-    $route: {
-      immediate: true,
-      async handler({ name }) {
-        await this.loadNewspaper();
-        if (name === 'newspaper_metadata') {
+    newspaperUid: {
+      async handler(uid) {
+        this.newspaper = await newspapersService.get(uid, {}).then(d => new Newspaper(d));
+        this.total = this.newspaper.countIssues;
+        if (this.$route.name === 'newspaper_metadata') {
           await this.loadTimeline();
           await this.loadFacets();
-        } else {
-          await this.loadIssues();
         }
       },
+      immediate: true,
     },
-    orderBy: {
-      handler() {
-        return this.loadIssues();
+    issuesServiceQuery: {
+      handler(query) {
+        this.issues = []
+        if (this.$route.name === 'newspaper') {
+          IssuesService.find({ query }).then(({ total, data }) => {
+            this.total = total;
+            this.issues = data.map(d => new Issue(d));
+          })
+        }
       },
+      immediate: true,
     },
   },
   components: {
@@ -409,6 +411,8 @@ export default {
 <i18n>
 {
   "en": {
+    "sort_date": "order by date ↑",
+    "sort_-date": "order by date ↓",
     "route": {
       "newspaper": "list of {total} first pages",
       "newspaper_metadata": "newspaper metadata"

@@ -50,13 +50,20 @@ import Pagination from '@/components/modules/Pagination';
 import {
   toCanonicalFilter,
   joinFiltersWithItems,
-  serializeFilters
+  serializeFilters,
+  SupportedFiltersByContext
 } from '@/logic/filters'
 import {
   search as searchService,
   filtersItems as filtersItemsService
 } from '@/services'
 import Article from '@/models/Article'
+
+/**
+ * @param {import('@/models').Filter} filter
+ * @returns {boolean}
+ */
+const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.includes(filter.type)
 
 export default {
   props: {
@@ -91,7 +98,7 @@ export default {
     },
     serviceQuery() {
       return {
-        filters: this.searchQuery.filters.map(toCanonicalFilter),
+        filters: this.searchQuery.filters.filter(supportedSearchIndexFilters).map(toCanonicalFilter),
         limit: this.limit,
         page: this.paginationCurrentPage,
         // orderBy: this.orderBy,
@@ -137,7 +144,7 @@ export default {
         name: 'article',
         params: {
           issue_uid: article.issue.uid,
-          page_uid: article.pages[0].uid,
+          page_uid: article.pages[0]?.uid,
           article_uid: article.uid,
         },
       });

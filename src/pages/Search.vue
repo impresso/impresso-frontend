@@ -212,11 +212,10 @@ import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
-import { joinFiltersWithItems } from '@/logic/filters';
+import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters';
 import {
   searchQueryGetter,
   searchQuerySetter,
-  searchQueryHashGetter,
 } from '@/logic/queryParams';
 import {
   search as searchService,
@@ -226,26 +225,7 @@ import {
   collectionsItems as collectionsItemsService,
 } from '@/services';
 
-const AllowedFilterTypes = [
-  'accessRight',
-  'collection',
-  'country',
-  'isFront',
-  'issue',
-  'language',
-  'location',
-  'newspaper',
-  'newspaper',
-  'partner',
-  'person',
-  'string',
-  'title',
-  'topic',
-  'type',
-  'year',
-  'daterange',
-  'contentLength'
-];
+const AllowedFilterTypes = SupportedFiltersByContext.search
 
 const FACET_TYPES_DPFS = [
   'person',
@@ -291,7 +271,6 @@ export default {
         },
       }),
     },
-    searchQueryHash: searchQueryHashGetter(),
     groupByOptions() {
       return ['issues', 'pages', 'articles'].map((value) => ({
         value,
@@ -414,6 +393,18 @@ export default {
         return query;
       },
     },
+    paginationData() {
+      return {
+        perPage: this.paginationPerPage,
+        currentPage: this.paginationCurrentPage,
+        total: this.paginationTotalRows
+      }
+    },
+    searchQueryHash() {
+      return new SearchQuery({
+        filters: this.filters,
+      }).getSerialized({ serializer: 'protobuf' })
+    }
   },
   mounted() {
     this.facets = buildEmptyFacets(FACET_TYPES);
@@ -480,8 +471,8 @@ export default {
         name: 'article',
         params: {
           issue_uid: searchResult.issue.uid,
-          page_number: searchResult.pages[0].num,
-          page_uid: searchResult.pages[0].uid,
+          page_number: searchResult.pages[0]?.num,
+          page_uid: searchResult.pages[0]?.uid,
           article_uid: searchResult.uid,
         },
       });
@@ -646,6 +637,12 @@ export default {
       },
       immediate: true,
     },
+    paginationData({ perPage, currentPage = 1, total }) {
+      if (total == null) return
+      if (perPage * currentPage > total) {
+        this.paginationCurrentPage = Math.ceil(total / perPage)
+      }
+    }
   },
   components: {
     Autocomplete,

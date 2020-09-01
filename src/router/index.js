@@ -292,7 +292,7 @@ const router = new Router({
             name: 'article',
             params: {
               issue_uid: res.issue.uid,
-              page_uid: res.pages[0].uid,
+              page_uid: res.pages[0]?.uid,
               article_uid: res.uid,
             },
           });

@@ -2,7 +2,7 @@
   <div id="IssueViewerText" class="px-3 bg-light">
     <i-spinner v-if="!article" class="text-center p-5" />
     <div v-if="article">
-      <article-item :item="article" show-entities show-excerpt show-topics/>
+      <article-item :item="article" show-entities show-topics/>
       <div class="my-2" />
       <collection-add-to :item="article" :text="$t('add_to_collection')" />
       <b-badge
@@ -44,7 +44,7 @@
             class="col"
             :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
             <div class='region py-3'>
-              <annotated-text
+              <annotated-text v-if="regionsAnnotationTree[i]"
                 :children="regionsAnnotationTree[i].children"
                 :cluster-colours="clusterColourMap"
                 :selected-cluster-id="selectedClusterId"
@@ -134,7 +134,7 @@ export default {
         return this.$t('no_page_info');
       }
       if (this.article.pages.length === 1) {
-        return this.$t('page', { num: this.article.pages[0].num });
+        return this.$t('page', { num: this.article.pages[0]?.num });
       }
       return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') });
     },

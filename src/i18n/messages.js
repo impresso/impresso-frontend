@@ -157,6 +157,7 @@ export default {
       },
     },
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
+    ppOf: 'p.{num} of {pages}',
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
     applyCurrentSearchFiltersDisabled: 'Current filters cannot be applied.',
@@ -365,6 +366,8 @@ export default {
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',
     notFound: '(this is an empty list)',
+    facsimileView: 'Facsimile',
+    closeReadingView: 'Transcript',
   },
   nl: {
     language: 'Taal',
