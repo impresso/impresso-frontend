@@ -43,6 +43,7 @@ import { getQueryParameter } from '@/router/util'
 const QueryParameters = Object.freeze({
   ClusterId: 'clusterId',
   PageNumber: 'connectedClustersPage',
+  SearchText: 'q',
 })
 
 const ClustersPerPage = 9
@@ -71,7 +72,8 @@ export default {
   methods: {
     handleClusterSelected(id) {
       this.$navigation.updateQueryParameters({
-        [QueryParameters.ClusterId]: id
+        [QueryParameters.ClusterId]: id,
+        [QueryParameters.SearchText]: `#${id}`
       })
     },
   },
