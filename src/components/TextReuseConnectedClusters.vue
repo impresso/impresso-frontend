@@ -18,13 +18,29 @@
         />
       </div>
     </b-container>
+    <div slot="footer" class="fixed-pagination-footer p-1 m-0" v-if="totalClusters > 0">
+      <pagination
+        size="sm"
+        v-bind:perPage="perPage"
+        v-model="pageNumber"
+        v-bind:totalRows="totalClusters"
+        class="float-left small-caps" />
+    </div>
   </i-layout-section>
 </template>
 
 <script>
 import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
+import Pagination from '@/components/modules/Pagination'
 import { textReuseConnectedClusters as textReuseConnectedClustersService } from '@/services'
+import { getQueryParameter } from '@/router/util'
+
+const QueryParameters = Object.freeze({
+  PageNumber: 'connectedClustersPage',
+})
+
+const ClustersPerPage = 9
 
 /**
  * @typedef {import('@/models').TextReuseCluster} TextReuseCluster
@@ -34,7 +50,9 @@ import { textReuseConnectedClusters as textReuseConnectedClustersService } from 
 export default {
   data: () => ({
     resolution: 'year',
-    connectedClusters: /** @type {TextReuseClusterContainer[]} */ ([])
+    connectedClusters: /** @type {TextReuseClusterContainer[]} */ ([]),
+    totalClusters: 0,
+    perPage: ClustersPerPage
   }),
   props: {
     /** @type {import('vue').PropOptions<TextReuseCluster>} */
@@ -43,20 +61,50 @@ export default {
   components: {
     ClusterPageHeader,
     ClusterDetailsPanel,
+    Pagination
   },
   computed: {
     /** @returns {string} */
     clusterId() {
       return this.cluster?.id
+    },
+    pageNumber: {
+      /** @returns {number} */
+      get() {
+        return parseInt(getQueryParameter(this, QueryParameters.PageNumber) ?? '1', 10)
+      },
+      /** @param {number} n */
+      set(n) {
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.PageNumber]: n
+        })
+      }
+    },
+    /** @returns {{ clusterId: string, skip: number, limit: number } | undefined} */
+    clustersQuery() {
+      if (this.clusterId == null) return undefined
+      return {
+        clusterId: this.clusterId,
+        skip: (this.pageNumber - 1) * this.perPage,
+        limit: this.perPage
+      }
     }
   },
   watch: {
-    clusterId: {
+    clustersQuery: {
       async handler() {
-        if (this.clusterId == null) return
-        this.connectedClusters = await textReuseConnectedClustersService.find({ query: { clusterId: this.clusterId } })
+        if (this.clustersQuery == null) return
+        const { total, clusters } = await textReuseConnectedClustersService.find({ query: this.clustersQuery })
+        this.connectedClusters = clusters
+        this.totalClusters = total
       },
-      immediate: true
+      immediate: true,
+      deep: true
+    },
+    clusterId(currentId, previousId) {
+      if (previousId != null) {
+        this.pageNumber = 1
+      }
     }
   }
 }
