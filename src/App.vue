@@ -49,21 +49,11 @@ export default {
     }
   },
   methods: {
-    onEventBusAddFilter({ filter, searchQueryId }) {
-      console.info('@eventBus.ADD_FILTER_TO_SEARCH_QUERY', searchQueryId, 'filter:', filter);
-      if (!searchQueryId || !searchQueryId.length) {
-        this.$store.dispatch('search/ADD_FILTER', { filter });
-      }
-    }
   },
   mounted() {
     window.addEventListener('click', () => {
       this.$root.$emit('bv::hide::popover');
     });
-    this.$eventBus.$on(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBusAddFilter);
-  },
-  beforeDestroy() {
-    this.$eventBus.$off(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, this.onEventBusAddFilter);
   },
   created() {
     // load typekit
@@ -72,10 +62,6 @@ export default {
         id: process.env.VUE_APP_TYPEKIT_ID,
       },
     });
-    // check whether there is a searchquery hash somewhere
-    console.info('App @created, retrieve initial search.currentSearchHash', this.$store.state.search.currentSearchHash);
-    // push the current search query using the current hash
-    this.$store.dispatch('search/INIT');
   },
 };
 </script>
@@ -219,6 +205,10 @@ $clr-grey-900: #ddd;
     border-color: $clr-tertiary !important;
 }
 
+.border-radius {
+  border-radius: 3px;
+}
+
 .bg-primary {
   background-color: $clr-primary;
   color: $clr-white;
@@ -242,14 +232,183 @@ $clr-grey-900: #ddd;
   color: $clr-white;
 }
 
+.modal-backdrop-disabled{
+  pointer-events: none;
+}
+
+.text-blue {
+  color: blue;
+}
+
+.text-ellipsis {
+  max-width: 120px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.text-small{
+  font-size: 14px;
+}
 .custom-control-input {
   width: 0;
   height: 0;
 }
-.custom-radio > .custom-control-label::before {
-    border: inherit;
-    outline: inherit;
+.custom-control-label::before {
+  border-color: $clr-tertiary;
+  outline: none;
 }
+.custom-control-label:disabled::before {
+  border-color: $clr-tertiary;
+}
+
+// --- input range sliders ---
+// using classes that are browser specific,
+// stacking them together would invalidate the whole class
+// for other browsers
+// Using mixins to avoid duplicate declarations
+
+@mixin slider-rail {
+  height: 1px;
+  background-color: $clr-secondary;
+  border-radius: 2px;
+}
+@mixin slider-dot {
+  // border-radius: 50%;
+  background-color: $clr-primary; // $clr-bg-primary ;
+  // border: 1px solid black ;
+  box-shadow: none;
+}
+@mixin slider-dot-focus {
+  border-color: $clr-accent-secondary;
+}
+@mixin slider-dot-active {
+  background-color: $clr-accent-secondary;
+}
+
+.vue-slider .vue-slider-rail {
+  @include slider-rail;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  @include slider-rail;
+}
+input[type="range"]::-moz-range-track {
+  @include slider-rail;
+}
+input[type="range"]::-ms-track {
+  @include slider-rail;
+}
+
+.vue-slider .vue-slider-dot-handle {
+  @include slider-dot;
+}
+input[type="range"]::-webkit-slider-thumb {
+  margin-top: -0.45rem;
+  @include slider-dot;
+}
+input[type="range"]::-moz-range-thumb {
+  margin-top: -0.45rem;
+  @include slider-dot;
+}
+input[type="range"]::-ms-thumb {
+  margin-top: -0.45rem;
+  @include slider-dot;
+}
+
+.vue-slider:focus .vue-slider-dot-handle {
+  @include slider-dot-focus;
+}
+input[type="range"]:focus::-webkit-slider-thumb {
+  @include slider-dot-focus;
+}
+input[type="range"]:focus::-moz-range-thumb {
+  @include slider-dot-focus;
+}
+input[type="range"]:focus::-ms-thumb {
+  @include slider-dot-focus;
+}
+
+.vue-slider-dot-focus .vue-slider-dot-handle-focus {
+  @include slider-dot-focus;
+  @include slider-dot-active;
+}
+input[type="range"]:active::-webkit-slider-thumb {
+  @include slider-dot-active;
+}
+input[type="range"]:active::-moz-range-thumb {
+  @include slider-dot-active;
+}
+input[type="range"]:active::-ms-thumb {
+  @include slider-dot-active;
+}
+
+.vue-slider .vue-slider-mark-label{
+  font-size: 12px;
+}
+
+.vue-slider .vue-slider-process {
+  background-color: $clr-primary;
+  box-shadow: 0px 0px 0 6px rgba(0,0,0,.1);
+  height: 2px !important;
+  margin-top: 0px;
+  border-radius: 1px;
+}
+
+.vue-slider .vue-slider-dot-tooltip-inner {
+  border-color: $clr-primary;
+  background-color: $clr-primary;
+  padding: 0px 5px 2px 5px;
+  border-radius: 1px;
+}
+
+.vue-slider .vue-slider-mark-step {
+    width: 1px;
+    height: 5px;
+    border-radius: 0;
+    background-color: currentColor;
+    margin-top: -1.5px;
+}
+
+
+
+
+
+// hack: hide bottom border on header dropdowns
+.header {
+  .dropdown.show > .dropdown-toggle {
+    border-bottom-color: transparent;
+    z-index: 1001;
+  }
+  // add dots to fix bottom corners
+  .dropdown.show::before, .dropdown.show::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    width: 1px;
+    height: 1px;
+    background-color: $clr-primary;
+    z-index: 1002;
+  }
+  .dropdown.show::after {
+    right: 0px;
+  }
+}
+
+.list-item-details .dropdown {
+  position: inherit;
+}
+
+// fix size change on hover
+.dropdown-toggle::after {
+  height: 1rem;
+  margin: 0;
+  padding-left: 3px;
+}
+.dropdown-menu {
+  min-width: inherit;
+  padding: 0;
+}
+
 .tooltip-inner {
     max-width: auto;
     text-align: left;
@@ -259,9 +418,6 @@ $clr-grey-900: #ddd;
       color: white;
       font-weight: bold;
     }
-}
-.dropdown-menu {
-    padding: 0;
 }
 .fixed-pagination-footer {
     position: absolute;
@@ -273,7 +429,7 @@ $clr-grey-900: #ddd;
 
     .pagination {
         li.page-item > a,
-        li.page-item > span.page-link {
+        li.page-item > .page-link {
             border-color: $clr-secondary;
             padding: 0.15em 0.6em;
         }
@@ -301,7 +457,7 @@ $clr-grey-900: #ddd;
 }
 
 .viz-bar {
-  height: 2px;
+  height: 3px;
 }
 
 .icon-link {
@@ -347,6 +503,10 @@ $clr-grey-900: #ddd;
     background: gold;
     color: black;
   }
+}
+
+.btn-sm, .btn-group-sm > .btn {
+  white-space: nowrap;
 }
 
 .btn-outline-icon{
@@ -433,5 +593,19 @@ $clr-grey-900: #ddd;
   }
 }
 
+.article-matches em, .highlight,
+span.highlight {
+  outline:inherit;
+  background-color: #ffeb78;
+}
+
+.bg-dark {
+  .article-matches em, .highlight,
+  span.highlight {
+    background-color: #ffeb78;
+    color: black;
+    outline:inherit;
+  }
+}
 
 </style>

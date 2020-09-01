@@ -9,13 +9,17 @@
 import Helpers from '../../plugins/Helpers';
 import { namesService } from '../../services'
 
+function getStarAndEndDates(item) {
+  return [item.start, item.end].map(v => new Date(v))
+}
+
 export default {
   props: {
     reduced: Boolean,
     searchQuery: Object,
     enumerables: {
       type: Array,
-      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country', 'accessRight'],
+      default: () => ['type', 'collection', 'topic', 'person', 'location', 'language', 'country', 'year', 'accessRight'],
     },
   },
   data: () => ({
@@ -77,7 +81,6 @@ export default {
       }
 
       translationTable.enumerable = enumerables.join('; ');
-
       const summary = this.$t('reducedSummary', translationTable);
       this.$emit('updated', summary.split(/\s+/).join(' '));
       return summary;
@@ -105,11 +108,12 @@ export default {
     },
     getLabel({ item, type, filter }) {
       let t = '';
-      const [start, end] = [item.start, item.end].map(v => new Date(v))
-
       switch (type) {
       case 'daterange':
-        t = `from <span class="date">${this.$d(start, 'compact')}</span> to <span class="date">${this.$d(end, 'compact')}</span>`;
+        {
+          const [start, end] = getStarAndEndDates(item)
+          t = `from <span class="date">${this.$d(start, 'compactUtc')}</span> to <span class="date">${this.$d(end, 'compactUtc')}</span>`;
+        }
         break;
       case 'location':
       case 'person':
@@ -128,10 +132,17 @@ export default {
         t = `<span class="highlight precision-${item.precision}">${item.uid || item.q}</span>${item.distance || ''}`;
         break;
       case 'topic':
-        t = `"${item.htmlExcerpt || ''}..."`;
+        if (item.htmlExcerpt) {
+          t = item.htmlExcerpt;
+        } else if(item.excerpt.length) {
+          t = item.excerpt.map(d => d.w).join(' · ');
+        } else {
+          t = item.uid;
+        }
         break;
       case 'year':
-        t = item.y;
+        // console.log('____', item, type, filter);
+        t = Array.isArray(filter.q) ? filter.q.join(', ') : filter.q;
         break;
       default:
         t = this.$t(`buckets.${type}.${item.uid}`);
@@ -224,7 +235,7 @@ export default {
 </script>
 <style lang="scss">
 .search-query-summary{
-  span.item.person, span.item.location, span.item.daterange > span.date {
+  span.item.person, span.item.topic, span.item.location, span.item.daterange > span.date {
     font-family: "questa-sans", sans-serif;
     font-variant: small-caps;
     text-transform: lowercase;
@@ -259,7 +270,7 @@ export default {
 <i18n>
   {
     "en": {
-      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {collection} {enumerable}",
+      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable}",
       "isFront": "appearing on the <em>front page</em>",
       "include": {
         "accessRight": "available as",
@@ -276,10 +287,12 @@ export default {
         "string": "containing",
         "title": "where title includes",
         "daterange": "published",
+        "year": "published in",
         "collection": "saved in",
         "language": "written in",
         "country": "printed in",
-        "type": "- tagged as"
+        "type": "- tagged as",
+        "year": "in year"
       },
       "exclude": {
         "accessRight": "not available as",
@@ -294,12 +307,14 @@ export default {
         "person": "not mentioning",
         "location": "not mentioning",
         "string": "not containing",
-        "title": "where title does not includes",
+        "title": "where title does not include",
         "daterange": "not published",
+        "year": "not published in",
         "collection": "not saved in",
         "language": "not written in",
         "country": "not printed in",
-        "type": "- not tagged as"
+        "type": "- not tagged as",
+        "year": "not in year"
       }
     }
   }

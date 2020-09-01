@@ -85,6 +85,7 @@ import BaseTitleBar from '@/components/base/BaseTitleBar';
 import InfoButton from '@/components/base/InfoButton';
 import Timeline from '@/components/modules/Timeline';
 import FilterMonitor from '@/components/modules/FilterMonitor';
+import { getFilterHash } from '../../models/SearchQuery';
 
 export default {
   props: {
@@ -97,7 +98,7 @@ export default {
       default: 'articles',
     },
     filters: {
-      /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
+      /** @type {import('vue').PropType<import('@/models').Filter[]>} */
       type: Array,
       default: () => [],
     },
@@ -213,7 +214,7 @@ export default {
         q:[daterange.getValue()],
         daterange: daterange.getValue(),
       });
-      this.temporaryFilter.hash = this.temporaryFilter.getHash();
+      this.temporaryFilter.hash = getFilterHash(this.temporaryFilter);
       // set selectedIndex as first item.
       this.selectedFilterIndex = 0;
     },

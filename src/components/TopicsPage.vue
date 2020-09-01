@@ -29,10 +29,10 @@
           <!-- <label>{{ $t('max_nodes') }}</label> -->
           <!-- <i-dropdown v-model="limit" v-bind:options="limitOptions" size="sm" variant="outline-primary"></i-dropdown> -->
         </div>
-        <div class='pt-3 pb-2 px-3' v-else>
+        <div class='pt-3 pb-2 px-3'>
           <label class="mr-1">{{ $t('order_by') }}</label>
           <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          <b-button class="ml-2" size="sm" variant="outline-primary" :disabled="!visualizedTopics.length" @click="resetVisualisedItems">
+          <b-button class="ml-2" size="sm" variant="outline-primary" v-if="visualizedTopics.length" @click="resetVisualisedItems">
             {{ $t('actions.resetItems') }}
           </b-button>
 
@@ -73,11 +73,19 @@
 </template>
 
 <script>
-import { protobuf } from 'impresso-jscommons';
+// import { protobuf } from 'impresso-jscommons';
 import List from './modules/lists/List';
 // import InfoButton from './base/InfoButton';
 import TopicItem from './modules/lists/TopicItem';
 import SearchQuery from '@/models/SearchQuery';
+import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams';
+import { SupportedFiltersByContext } from '@/logic/filters';
+
+/**
+ * @param {import('@/models').Filter} filter
+ * @returns {boolean}
+ */
+const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.includes(filter.type)
 
 export default {
   data: () => ({
@@ -102,20 +110,27 @@ export default {
     searchPageLink() {
       return {
         name: 'search',
-        query: SearchQuery.serialize({
-          filters: [{ type: 'topic', q: this.visualizedTopics.map(d => d.uid) }],
-        }),
+        query: {
+          sq: SearchQuery.serialize({
+            filters: [{ type: 'topic', q: this.visualizedTopics.map(d => d.uid) }],
+          }, 'protobuf'),
+        },
       };
     },
-    searchQuery() {
-      const { pq } = this.$route.query;
-      if (pq) {
-        return new SearchQuery(protobuf.searchQuery.deserialize(pq));
-      }
-      return this.$store.getters['search/getSearch'];
+    searchQuery: {
+      get() {
+        const searchQuery = searchQueryGetter().get.bind(this)()
+        return new SearchQuery({
+          filters: searchQuery.filters.filter(supportedSearchIndexFilters)
+        })
+      },
+      ...searchQuerySetter(),
     },
     countActiveFilters() {
-      return this.$store.getters['search/countActiveFilters'];
+      return this.searchQuery.countActiveFilters();
+    },
+    countActiveItems() {
+      return this.searchQuery.countActiveItems();
     },
     visualizedTopics() {
       // list of visualized topics;
@@ -233,7 +248,7 @@ export default {
       filters = [],
     } = {}) {
       const params = {
-        limit: this.limit,
+        limit: 300,
         page,
         facets,
         filters,
@@ -334,7 +349,7 @@ export default {
   "en": {
     "label_list": "browse {total} topics",
     "label_topics_list_empty": "There is no word in any topic containing <b>{q}</b>",
-    "label_visualized_list": "0 visualized | <span style='color: blue'>1</span> visualized | <span style='color: blue'>{total}</span> visualized",
+    "label_visualized_list": "observing list (<span style='color: blue'>{n}</span>)",
     "label_uncheck_applyCurrentSearchFilters": "Try to uncheck the mention <em>[...]if matches current search</em>",
     "label_applyCurrentSearchFilters": "filter list of topics if matches current search <br/>(<b>{countActiveFilters}</b> filters)",
     "order_by": "order by",

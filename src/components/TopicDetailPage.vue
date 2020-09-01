@@ -90,6 +90,7 @@
         <p class="description small">number of articles where this topic is relevant</p>
       </div>
       <timeline
+            :domain="[startYear, endYear]"
             :contrast="false"
             :values="timevalues">
         <div slot-scope="tooltipScope">
@@ -99,6 +100,18 @@
           </div>
         </div>
       </timeline>
+      <b-container fluid class="my-3">
+        <!-- <h2>Facets – top ten buckets</h2> -->
+        <b-row>
+          <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+            <stacked-bars-panel
+              class=""
+              :label="facet.type"
+              :buckets="facet.buckets"
+              :facet-type="facet.type"/>
+          </b-col>
+        </b-row>
+      </b-container>
     </div>
   </i-layout-section>
 </template>
@@ -106,15 +119,26 @@
 <script>
 import SearchQuery from '@/models/SearchQuery';
 import Topic from '@/models/Topic';
+import Facet from '@/models/Facet';
 import Pagination from './modules/Pagination';
 import ArticleItem from './modules/lists/ArticleItem';
 import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import { searchQueryHashGetter, mapFilters } from '@/logic/queryParams'
+import { containsFilter } from '@/logic/filters'
+import { searchFacets as searchFacetsService } from '@/services'
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
 
 export default {
+  props: {
+    facetTypes: {
+      type: Array,
+      default: () => ['country', 'language', 'type', 'person', 'location', 'topic', 'partner', 'accessRight', 'collection'],
+    },
+  },
   data: () => ({
     submitted: false,
     topic: new Topic(),
@@ -127,10 +151,12 @@ export default {
     orderBy: '-relevance',
     timeline: [],
     applyCurrentSearchFilters: false,
+    facets: [],
     TAB_ARTICLES,
     TAB_OVERVIEW,
   }),
   computed: {
+    filters: mapFilters(),
     orderByOptions() {
       return [
         {
@@ -162,9 +188,7 @@ export default {
         }),
       };
     },
-    currentSearchHash() {
-      return this.$store.state.search.currentSearchHash;
-    },
+    currentSearchHash: searchQueryHashGetter(),
     topicModel() {
       return this.$route.params.topic_model;
     },
@@ -185,6 +209,12 @@ export default {
         },
       ];
     },
+    startYear() {
+      return window.impressoDocumentsYearSpan.firstYear;
+    },
+    endYear() {
+      return window.impressoDocumentsYearSpan.lastYear;
+    }
   },
   methods: {
     async onInputPagination(page) {
@@ -192,7 +222,22 @@ export default {
         page,
       });
     },
-
+    async loadFacets() {
+      this.facets = [];
+      const query = {
+        filters: [{
+          type: 'topic',
+          q: [ this.topicUid ],
+        }],
+        group_by: 'articles',
+      };
+      for (let facetType of this.facetTypes) {
+        const results = await searchFacetsService.get(facetType, {
+          query,
+        }).then(([facetType]) => new Facet(facetType));
+        this.facets = this.facets.concat(results);
+      }
+    },
     async loadTimeline() {
       return this.$store.dispatch('search/LOAD_TIMELINE', {
         filters: [
@@ -228,16 +273,15 @@ export default {
       return response;
     },
 
-    applyFilter(context = 'include') {
-      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
-      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
-        searchQueryId: '',
-        filter: {
-          type: 'topic',
-          q: [this.topic.uid],
-          items: [this.topic],
-        },
-      });
+    applyFilter() {
+      const newFilter = {
+        type: 'topic',
+        q: this.topic.uid,
+      }
+
+      this.filters = this.filters
+        .filter(f => !containsFilter(newFilter)(f))
+        .concat([newFilter]);
     },
   },
   watch: {
@@ -255,6 +299,7 @@ export default {
           await this.getArticles();
         } else {
           await this.loadTimeline();
+          await this.loadFacets();
         }
       },
       deep: true,
@@ -272,6 +317,7 @@ export default {
     Ellipsis,
     ArticleItem,
     Timeline,
+    StackedBarsPanel,
   },
 };
 </script>

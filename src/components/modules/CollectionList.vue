@@ -1,131 +1,189 @@
 <template lang="html">
   <i-layout class="collection-list">
-    <i-layout-section>
-      <div slot="header" class="header px-3 py-2 border-bottom">
-        <div class="input-group input-group-sm">
-        <input type="text" name="" value="" class="form-control"
-          v-bind:placeholder="$t('placeholder')"
-          v-model="inputString"
-          />
-          <div class="input-group-append">
-            <label class="ml-2 mr-1" style="padding-top: 0.5em">{{$t("label_order")}}</label>
-            <i-dropdown v-model="collectionsSortOrder" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+    <i-layout-section main>
+      <template v-slot:header>
+        <div class="p-3 border-bottom">
+
+          <div class="input-group input-group-sm mb-2">
+            <input type="text" name="" :value="collectionsQ" class="form-control"
+              v-bind:placeholder="$t('placeholder')"
+              v-on:input="onQueryChange"
+              />
+            <div class="input-group-append">
+              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm"
+              variant="outline-primary"></i-dropdown>
+            </div>
           </div>
+
+          <div class="input-group input-group-sm">
+            <input type="text" name="" value="" class="form-control"
+              v-bind:placeholder="$t('inputNewPlaceholder')"
+              v-on:input="onInputNew"
+              v-on:keyup.enter="addCollection(inputNew)"
+              v-model="inputNew"
+              />
+            <div class="input-group-append">
+              <b-button variant="outline-primary"
+                size="sm"
+                v-bind:disabled="isDisabled == 0"
+                v-on:click="addCollection(inputNew)"
+                >
+                {{$t('create_new')}}
+              </b-button>
+            </div>
+            <span class="error-label m-2">{{newCollectionError}}</span>
+          </div>
+
         </div>
-      </div>
-      <b-container fluid class="inputList p-0 bg-light">
-        <ul v-if="filteredCollections.length > 0">
-          <li v-for="(collection, index) in filteredCollections" v-bind:key="index">
+      </template>
+
+      <template v-slot:default>
+        <div v-if="collections.length > 0">
+          <div v-for="(collection, index) in collections"
+            class="d-flex flex-row border-bottom "
+            :class="{
+              active: collection.uid === $route.params.collection_uid,
+              'mb-4': index === collections.length - 1
+            }"
+            v-bind:key="index">
+            <span class="selection-indicator pr-1"/>
             <div
-              class="m-0 px-3 py-2 border-bottom"
+              class="w-100 m-0 px-3 py-2 details-panel"
               v-on:click="select(collection, $event)"
               v-bind:class="{ 'selected': collection.uid === $route.params.collection_uid }"
               for="collection.uid">
-              <div class="clearfix pb-2">
-                <strong class="float-left">
+              <div class="py-1">
+                <div>
                   {{collection.name}}
-                </strong>
-                <div class="float-right">
-                  <!-- {{collection.countItems}} {{$t('items')}} -->
                 </div>
               </div>
-              <div class="clearfix">
-                <div class="description float-left small">
-                  {{collection.description}}
-                </div>
-                <div v-if="collection.creationDate" alt="fasdd" class="float-right text-muted small-caps">
-                  {{$t('created')}} {{collection.creationDate.toString().substring(0,15)}}
+              <div>
+                <div class="description small pb-1">
+                  <span  v-if="collection.description">{{collection.description}} – </span>
+                  <span v-if="collection.countItems">{{collection.countItems}} {{$t('items')}} – </span>
+                  <span v-if="collection.creationDate">
+                    {{$t('created')}} {{ $d(collection.creationDate, 'compact')}}
+                  </span>
                 </div>
               </div>
             </div>
-          </li>
-        </ul>
-        <ul v-else-if="collections.length === 0">
-          <p class="text-center p-4" v-html="$t('no_collection')" />
-        </ul>
-        <ul v-else>
-          <p class="text-center p-4" v-html="$t('no_match')" />
-        </ul>
-      </b-container>
-      <div slot="footer" class="p-3 border-top">
-        <div class="input-group input-group-sm">
-        <input type="text" name="" value="" class="form-control"
-          v-bind:placeholder="$t('inputNewPlaceholder')"
-          v-on:input="onInputNew"
-          v-on:keyup.enter="addCollection(inputNew)"
-          v-model="inputNew"
-          />
-          <div class="input-group-append">
-            <b-button variant="outline-primary"
-              size="sm"
-              v-bind:disabled="isDisabled == 0"
-              v-on:click="addCollection(inputNew)"
-              >
-              {{$t('create_new')}}
-            </b-button>
           </div>
         </div>
-      </div>
+        <div v-else-if="fetching">
+          <p class="text-center small-caps p-4">{{ $t('actions.loading') }}</p>
+        </div>
+        <div v-else-if="collections.length === 0">
+          <p class="text-center p-4" v-html="$t('no_collection')" />
+        </div>
+        <div v-else>
+          <p class="text-center p-4" v-html="$t('no_match')" />
+        </div>
+
+        <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+          <pagination
+            size="sm"
+            v-bind:perPage="paginationPerPage"
+            v-bind:currentPage="paginationCurrentPage"
+            v-bind:totalRows="paginationTotalRows"
+            v-on:change="onInputPagination"
+            class="float-left small-caps" />
+        </div>
+      </template>
+
+
+
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
+import Pagination from './Pagination';
+
 export default {
   props: {
     method: {type: Function },
   },
   data: () => ({
-    show: false,
+    // show: false,
     isDisabled: false,
-    inputString: '',
+    fetching: false,
+    // inputString: '',
     inputNew: '',
+    newCollectionError: undefined,
+    // orderBy: '-date',
+    // collectionsQ: '',
   }),
+  components: {
+    Pagination,
+  },
   computed: {
+    paginationPerPage: {
+      get() {
+        return this.$store.state.collections.collectionsPaginationPerPage;
+      },
+    },
+    paginationCurrentPage: {
+      get() {
+        return this.$store.state.collections.collectionsPaginationCurrentPage;
+      },
+      set(val) {
+        this.$store.commit('collections/UPDATE_PAGINATION_LIST_CURRENT_PAGE', val);
+      },
+    },
+    paginationTotalRows: {
+      get() {
+        return this.$store.state.collections.collectionsPaginationTotalRows;
+      },
+    },
+    orderBy: {
+      get() {
+        return this.$store.state.collections.collectionsOrderBy;
+      },
+      set(val) {
+        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', val);
+      },
+    },
+    collectionsQ: {
+      get() {
+        return this.$store.state.collections.collectionsQ;
+      },
+      set(val) {
+        this.$store.commit('collections/SET_COLLECTIONS_Q', val);
+      },
+    },
     orderByOptions: {
       get() {
         return [
+          // {
+          //   value: 'name',
+          //   text: `${this.$t('a-z')}`,
+          // },
+          // {
+          //   value: '-name',
+          //   text: `${this.$t('z-a')}`,
+          // },
+          // {
+          //   value: 'created',
+          //   text: `${this.$t('oldest')}`,
+          // },
+          // {
+          //   value: '-created',
+          //   text: `${this.$t('newest')}`,
+          // },
           {
-            value: 'name',
-            text: `${this.$t('a-z')}`,
-          },
-          {
-            value: '-name',
-            text: `${this.$t('z-a')}`,
-          },
-          {
-            value: 'created',
-            text: `${this.$t('oldest')}`,
-          },
-          {
-            value: '-created',
-            text: `${this.$t('newest')}`,
-          },
-          {
-            value: '-modified',
+            value: '-date',
             text: `${this.$t('last-edited')}`,
+          },
+          {
+            value: '-size',
+            text: `${this.$t('-size')}`,
+          },
+          {
+            value: 'size',
+            text: `${this.$t('size')}`,
           },
         ];
       },
-    },
-    collectionsSortOrder: {
-      get() {
-        return this.$store.getters['collections/collectionsSortOrder'];
-      },
-      set(collectionsSortOrder) {
-        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
-          collectionsSortOrder,
-        });
-      },
-    },
-    filteredCollections() {
-      const f = this.collections.filter((collection) => {
-        const searchRegex = new RegExp(this.inputString, 'i');
-        return searchRegex.test(collection.name) ||
-          searchRegex.test(collection.description);
-      });
-      this.$emit('total-change', f.length);
-      return f;
     },
     collections: {
       get() {
@@ -135,7 +193,22 @@ export default {
   },
   methods: {
     fetch() {
-      return this.$store.dispatch('collections/LOAD_COLLECTIONS');
+      this.fetching = true;
+      this.$store.dispatch('collections/LOAD_COLLECTIONS').then(() => {
+        this.fetching = false;
+      });
+    },
+    onQueryChange(q) {
+      this.collectionsQ = q.target.value;
+      this.fetch();
+    },
+    onInputPagination(page) {
+      this.paginationCurrentPage = page;
+      this.fetch();
+    },
+    onInputOrder(orderBy) {
+      this.orderBy = orderBy;
+      this.fetch();
     },
     select(collection) {
       this.$router.push({
@@ -149,6 +222,7 @@ export default {
     onInputNew() {
       const len = this.inputNew.trim().length;
       this.isDisabled = (len >= 3 && len <= 50);
+      this.newCollectionError = undefined
     },
     addCollection(collectionName) {
       this.inputNew = '';
@@ -158,53 +232,62 @@ export default {
       }).then((res) => {
         this.fetch();
         this.select(res);
+      }).catch(e => {
+        if (e.code === 409) {
+          this.newCollectionError = this.$t('name_already_exists')
+        } else {
+          throw e
+        }
       });
     },
   },
   mounted() {
     this.fetch();
   },
+  watch: {
+    orderBy: {
+      handler(val) {
+        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', val);
+        this.paginationCurrentPage = 1;
+        this.fetch();
+      },
+    },
+    collectionsQ: {
+      handler(val) {
+        this.collectionsQ = val;
+        this.paginationCurrentPage = 1;
+        this.fetch();
+      },
+    },
+  }
 };
 </script>
 
 <style scoped lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import "impresso-theme/src/scss/bootpresso.scss";
+// @import "bootstrap/scss/_variables.scss";
+
 .collection-list {
   input {
-    font-style: italic;
+    // font-style: italic;
   }
-  .inputList {
-    height: 100%;
-    overflow: scroll;
-    ul {
-      list-style: none;
-      padding: 0;
-      li {
-        padding: 0;
-        background: white;
-        div {
-          cursor: pointer;
-          &.loading {
-            background: rgba($clr-accent-secondary, 0.5);
-          }
-          &:hover {
-            background: $clr-bg-secondary;
-          }
-          &:active {
-            background: rgba($clr-accent-secondary, 0.5);
-          }
-          &.selected {
-            background: $clr-accent-secondary;
-            color: white;
-          }
-          span, div {
-            pointer-events: none;
-            cursor: pointer;
-          }
-        }
-      }
+  .details-panel:hover {
+    cursor: pointer;
+    background-color: $clr-bg-secondary;
+  }
+
+  .active {
+    .selection-indicator {
+      background-color: $clr-accent-secondary;
+    }
+    .details-panel {
+      background-color: $clr-bg-secondary;
     }
   }
+}
+.error-label {
+  color: $danger;
+  font-size: 80%;
 }
 </style>
 
@@ -216,15 +299,16 @@ export default {
     "oldest": "oldest",
     "newest": "newest",
     "last-edited": "last-edited",
-    "placeholder": "Filter",
-    "inputNewPlaceholder": "New Collection Name",
+    "placeholder": "Filter by name / description",
+    "inputNewPlaceholder": "My Collection",
     "label_order": "Order By",
     "create_new": "Create Collection",
-    "created": "Created:",
+    "created": "created:",
     "last_edited": "Last edited",
     "items": "items",
-    "no_collection": "<b>No collections yet !</b><br>Use input field below to create your first collection.",
-    "no_match": "No collection name matches your search filter."
+    "no_collection": "<p><b>No personal collection found !</b></p><p>Create one ?</p>",
+    "no_match": "No collection name matches your search filter.",
+    "name_already_exists": "This collection label has already been used, please choose another one"
   },
   "de": {
     "placeholder": "Filtern",

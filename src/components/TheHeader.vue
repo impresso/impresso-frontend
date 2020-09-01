@@ -2,54 +2,54 @@
   <div >
     <b-progress v-if='processingStatus' :value="100" variant="info" animated height="4px"></b-progress>
     <b-navbar id="TheHeader" toggleable="md" type="dark" variant="dark" class="py-0 pr-1 border-primary">
-      <b-navbar-brand :to="{name: 'home'}">
+      <b-navbar-brand :to="getRouteWithSearchQuery({ name: 'home'})">
         <img src="./../assets/img/impresso-logo-h-i@2x.png" />
       </b-navbar-brand>
 
       <b-navbar-nav>
-        <b-nav-item v-if="!countActiveSearchFilters" v-bind:to="{ name: 'search', query: currentSearchQueryParams }" active-class="active">
-          {{$tc("label_search", 0)}}
+        <b-nav-item :to="getRouteWithSearchQuery({ name: 'search' })" active-class="active"
+          class="position-relative">
+          <span>{{$tc("label_search", 0)}}</span>
+          <transition name="bounce">
+            <b-badge
+              v-if="countActiveFilters" pill variant="tiny" class="position-absolute"
+              >
+            </b-badge>
+          </transition>
         </b-nav-item>
 
-        <b-nav-item-dropdown  no-caret
-          v-if="countActiveSearchFilters"
-          ref="ddownSearchResults" v-on:shown="openSearchQueryExplorer" class="pl-3">
+        <b-nav-item-dropdown no-caret
+          v-if="countActiveFilters"
+          ref="ddownSearchResults">
           <template slot="button-content">
-            <span style="color: gold">
-              <span v-if="countActiveSearchItems" v-html="$tc('label_search_with_items', countActiveSearchFilters, {
-                items: $tc('numbers.items', countActiveSearchItems),
-              })" />
-              <span v-else>
-                {{ $tc('label_search', countActiveSearchFilters) }}
-              </span>
-            </span>
+            <span :title="$t('label_current_search')">...</span>
           </template>
-          <b-button class="ml-3 my-2" size="sm" variant="outline-primary outline-primary-contrast" :disabled="$route.name === 'search'" v-bind:to="{ name: 'search', query: currentSearchQueryParams }">
-            {{$t('actions.searchMore')}}
-          </b-button>
-          <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" v-bind:to="{ name: 'search' }">
+          <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" :to="{ name: 'search' }">
             {{$t('actions.resetQuery')}}
           </b-button> -->
-          <search-query-explorer dark-mode/>
+          <search-query-explorer style="min-width:400px" class="px-2" :search-query="searchQuery" dark-mode/>
         </b-nav-item-dropdown>
 
-        <b-nav-item v-bind:to="{ name: 'newspapers'}" active-class="active">
-          {{$t("label_newspapers")}}
+        <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
+          <span>{{$t("label_newspapers")}}</span>
         </b-nav-item>
-        <!-- <b-nav-item v-bind:to="{ name: 'entities'}" exact-active-class="active">
-          {{$t("label_entities")}}
-        </b-nav-item> -->
-        <b-nav-item v-bind:to="{ name: 'topics', query: { pq: currentSearchHash } }" active-class="active">
-          {{$t("label_topics")}}
+        <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
+          <span>{{$t("label_topics")}}</span>
         </b-nav-item>
-        <b-nav-item v-bind:to="{ name: 'compare'}" active-class="active">
-          {{$t("label_compare")}}
+        <!-- b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
+          <span>{{$t("label_entities")}}</span>
+        </b-nav-item -->
+        <b-nav-item :to="{ name: 'compare', query: { left: searchQueryHash } }" active-class="active">
+          <span>{{$t("label_compare")}}</span>
         </b-nav-item>
         <b-nav-item
           v-if="textReuseEnabled"
-          v-bind:to="{ name: 'text-reuse-cluster-detail'}"
+          :to="getRouteWithSearchQuery({ name: 'text-reuse-cluster-detail' })"
           active-class="active">
-          {{$t("label_text_reuse")}}
+          <span>{{$t("label_text_reuse")}}</span>
+        </b-nav-item>
+        <b-nav-item v-if="user" :to="{ name: 'collections'}" active-class="active">
+          <span>{{$t("collections")}}</span>
         </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
@@ -57,12 +57,10 @@
       </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">
-          <b-nav-item v-bind:to="{ name: 'faq'}" active-class="active">
-            {{$t("label_faq")}}
+          <b-nav-item :to="{ name: 'faq'}" active-class="active">
+            <span>{{$t("label_faq")}}</span>
           </b-nav-item>
-          <b-nav-item v-bind:to="{ name: 'termsOfUse'}" active-class="active">
-            {{$t("label_terms_of_use")}}
-          </b-nav-item>
+
           <b-nav-item-dropdown right no-caret
             v-if="user"
             ref="ddownJobs" v-on:hidden="updateLastNotificationDate">
@@ -71,31 +69,30 @@
                 <transition name="bounce">
                   <b-badge
                     v-if="runningJobs.length > 0" pill variant="danger" class="border">
-                    {{runningJobs.length}}
+                    {{ runningJobs.length }}
                   </b-badge>
                 </transition>
               </template>
-            <div class="jobs">
-              <div v-if="jobs.length === 0" class="text-center text-white p-4">
+              <div v-if="!jobs.length" class="text-center text-white p-4">
                 {{ $t('no-jobs-yet' )}}
               </div>
-              <div v-else>
-                <toast v-for="(job, i) in jobs" v-bind:job="job" v-bind:key="i" />
-                <div
-                  v-if="paginationJobsList.totalRows > paginationJobsList.perPage"
-                  class="my-4">
-                  <div class="fixed-pagination-footer p-1 m-0">
-                    <pagination
-                      v-bind:perPage="paginationJobsList.perPage"
-                      v-bind:currentPage="paginationJobsList.currentPage"
-                      v-bind:totalRows="paginationJobsList.totalRows"
-                      v-on:change="onChangeJobsPage"
-                      class="small-caps"
-                      v-bind:showDescription="false" />
-                  </div>
+              <div v-else class="jobs-list">
+                <div class="list">
+                  <job-item :item="job" class="job px-3 pb-2 mt-2 border-bottom border-dark"
+                  v-for="(job, i) in jobs" :key="i" />
+                </div>
+                <div class="pt-2 pb-1">
+                  <pagination
+                    @click.prevent.stop
+                    align="center"
+                    v-model="jobsPaginationCurrentPage"
+                    :total-rows="jobsPaginationTotalRows"
+                    :per-page="jobsPaginationPerPage"
+                    aria-controls="my-table"
+                    class="small-caps"
+                    :showDescription="false" />
                 </div>
               </div>
-            </div>
           </b-nav-item-dropdown>
           <!-- <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
             <b-dropdown-item v-for="language in languages"
@@ -117,9 +114,12 @@
                 </div>
               </div>
             </template>
-            <b-dropdown-item v-bind:to="{ name: 'user'}">{{$t('profile')}}</b-dropdown-item>
-            <b-dropdown-item v-bind:to="{ name: 'collections'}">{{$t("collections")}}</b-dropdown-item>
-            <b-dropdown-item v-bind:to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'user'}">{{$t('profile')}}</b-dropdown-item>
+            <b-nav-item :to="{ name: 'termsOfUse'}" active-class="active">
+              {{$t("label_terms_of_use")}}
+            </b-nav-item>
+            <b-dropdown-item :to="{ name: 'collections'}" active-class="active">{{$t("collections")}}</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'logout'}">{{$t("logout")}}</b-dropdown-item>
             <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">send test job</b-dropdown-item>
             <b-dropdown-item
               target="_blank"
@@ -130,7 +130,7 @@
 
             <b-dropdown-text class="px-3" v-html="$t('current_version', { version })"/>
           </b-nav-item-dropdown>
-          <b-nav-item class="small-caps border-left" v-else v-bind:to="loginRouteParams">{{$t("login")}}</b-nav-item>
+          <b-nav-item class="small-caps border-left" v-else :to="loginRouteParams">{{$t("login")}}</b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible variant="warning" class="m-0 px-3">
@@ -154,16 +154,19 @@
 
 <script>
 import Icon from 'vue-awesome/components/Icon';
-import Toast from './modules/Toast';
-import Pagination from './modules/Pagination';
+import JobItem from '@/components/modules/lists/JobItem';
+import Pagination from '@/components/modules/Pagination';
 import SearchQueryExplorer from './modals/SearchQueryExplorer';
+import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams';
 
 Icon.register({slack:{width:1664,height:1792,d:'M1519 776q62 0 103.5 40.5t41.5 101.5q0 97-93 130l-172 59 56 167q7 21 7 47 0 59-42 102t-101 43q-47 0-85.5-27t-53.5-72l-55-165-310 106 55 164q8 24 8 47 0 59-42 102t-102 43q-47 0-85-27t-53-72l-55-163-153 53q-29 9-50 9-61 0-101.5-40t-40.5-101q0-47 27.5-85t71.5-53l156-53-105-313-156 54q-26 8-48 8-60 0-101-40.5t-41-100.5q0-47 27.5-85t71.5-53l157-53-53-159q-8-24-8-47 0-60 42-102.5t102-42.5q47 0 85 27t53 72l54 160 310-105-54-160q-8-24-8-47 0-59 42.5-102t101.5-43q47 0 85.5 27.5t53.5 71.5l53 161 162-55q21-6 43-6 60 0 102.5 39.5t42.5 98.5q0 45-30 81.5t-74 51.5l-157 54 105 316 164-56q24-8 46-8zM725 1038l310-105-105-315-310 107z'}})
 
+
 export default {
+  // props: {
+  //   searchQuery: Object,
+  // },
   data: () => ({
-    countActiveSearchFilters: [],
-    countActiveSearchItems: 0,
     languages: {
       de: {
         code: 'de',
@@ -190,16 +193,20 @@ export default {
         disabled: true,
       },
     },
+    jobsPaginationPerPage: 4,
+    jobsCurrentPage: 1,
+    jobsPaginationCurrentPage: 1,
   }),
-  mounted() {
-    if (this.user) {
-      this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
-        console.info('Jobs loaded.');
-      });
-    }
-    this.countActiveSearchFilters = this.$store.getters['search/getCurrentSearch'].countActiveFilters();
-  },
+  // mounted() {
+  //   if (this.user) {
+  //     this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
+  //       console.info('Jobs loaded.');
+  //     });
+  //   }
+  // },
   computed: {
+    searchQueryHash: searchQueryHashGetter(),
+    searchQuery: searchQueryGetter(),
     loginRouteParams() {
       return {
         name: 'login',
@@ -208,26 +215,26 @@ export default {
         },
       };
     },
+    countActiveFilters() {
+      return this.searchQuery.countActiveFilters();
+    },
+    countActiveItems() {
+      return this.searchQuery.countActiveItems();
+    },
     jobs() {
       return this.$store.state.jobs.items;
     },
+    jobsPaginationTotalRows() {
+      return this.$store.state.jobs.totalItems;
+    },
     runningJobs() {
-      return this.$store.state.jobs.items.filter(d => d.status === 'RUN');
+      return this.jobs.filter(d => d.status === 'RUN');
     },
     currentSearchResults() {
       return this.$store.state.search.paginationTotalRows;
     },
-    paginationJobsList() {
-      return this.$store.state.jobs.pagination;
-    },
     activeLanguageCode() {
       return this.$store.state.settings.language_code;
-    },
-    currentSearchHash() {
-      return this.$store.getters['search/getCurrentSearchHash'];
-    },
-    currentSearchQueryParams() {
-      return this.$store.state.search.search.getSerialized();
     },
     showAlert() {
       return this.$store.state.errorMessages.length > 0;
@@ -276,7 +283,7 @@ export default {
       return this.$store.state.connectivityStatus;
     },
     version() {
-      return [window.impressoVersion, window.impressoDataVersion].join('/');
+      return window.impressoVersion;
     },
     textReuseEnabled() {
       // @ts-ignore
@@ -285,16 +292,7 @@ export default {
   },
   methods: {
     updateLastNotificationDate() {
-      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE');
-    },
-    openSearchQueryExplorer() {
-      this.$store.dispatch('searchQueryExplorer/TOGGLE');
-    },
-    onChangeJobsPage(page = 1) {
-      console.info('onChangeJobsPage', page);
-      this.$store.dispatch('jobs/LOAD_JOBS', {
-        page,
-      });
+      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE', new Date());
     },
     test() {
       return this.$store.dispatch('jobs/TEST');
@@ -305,12 +303,42 @@ export default {
         language_code: languageCode,
       });
     },
+    getRouteWithSearchQuery(route) {
+      return {
+        ...route,
+        query: {
+          ...route.query,
+          sq: this.searchQueryHash,
+        },
+      };
+    },
   },
   watch: {
+    jobsPaginationCurrentPage: {
+      handler(page) {
+        if (this.user) {
+          this.$store.dispatch('jobs/LOAD_JOBS', {
+            page,
+            limit: this.jobsPaginationPerPage,
+          });
+        }
+      },
+      immediate: true,
+    },
+    user: {
+      handler(user) {
+        if (user) {
+          this.$store.dispatch('jobs/LOAD_JOBS', {
+            page: 1,
+            limit: this.jobsPaginationPerPage,
+          });
+        }
+      },
+    },
     jobs: {
       handler(jobs) {
         if (jobs.length && this.$refs.ddownJobs) {
-          const lastModifiedDate = new Date(jobs.map(d => d.lastModifiedDate).sort().pop());
+          const lastModifiedDate = jobs.map(d => d.lastModifiedDate.getTime()).sort().pop();
           if (this.$store.getters['settings/lastNotificationDate'] - lastModifiedDate < 0) {
             console.info('Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.');
             this.$refs.ddownJobs.show();
@@ -320,19 +348,11 @@ export default {
         }
       },
     },
-    currentSearchHash: {
-      handler(val) {
-        if (val.length) {
-          this.countActiveSearchFilters = this.$store.getters['search/getCurrentSearch'].countActiveFilters();
-          this.countActiveSearchItems = this.$store.getters['search/getCurrentSearch'].countActiveItems();
-        }
-      },
-      immediate: false,
-    },
   },
   components: {
     Icon,
-    Toast,
+    // Toast,
+    JobItem,
     Pagination,
     SearchQueryExplorer,
   },
@@ -378,7 +398,21 @@ export default {
       border-radius:10px;
       min-width:20px;
       height:20px;
+
+      &.badge-tiny{
+        right: 0;
+        top: 18px;
+        width: 0.4rem;
+        padding: 0;
+        height: 0.4rem;
+        overflow: hidden;
+        background: #ffeb78;
+        display: block;
+        min-width: auto;
+        // border: 1px solid black!important;
+      }
     }
+
     .toaster {
       position:absolute;
       bottom:0;
@@ -430,10 +464,31 @@ export default {
       font-size: .9rem;
     }
     .navbar-dark .navbar-nav .nav-link {
-        color: $clr-grey-800;
-        &.active {
-          color: $clr-white;
-        }
+      color: $clr-grey-800;
+      > span{
+        position:relative;
+      }
+      > span:before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 0px;
+        border-bottom: 1px solid #ffeb78;
+        bottom: -3px;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease-in;
+      }
+      &:hover > span:before{
+        border-color: white;
+      }
+      &:hover > span:before,
+      &.active > span:before {
+        transform: scaleX(1);
+      }
+      &.active > span{
+        color: white;
+      }
     }
     .navbar-dark .navbar-nav .nav-link:focus,
     .navbar-dark .navbar-nav .nav-link:hover {
@@ -545,6 +600,18 @@ export default {
 }
 
 
+.jobs-list > .list {
+  width: 350px;
+  height: 300px;
+  overflow: scroll;
+  border-bottom: 1px solid #3d434a;
+}
+
+@media (min-height: 600px) {
+  .jobs-list > .list {
+    height: 550px;
+  }
+}
 @media (min-width: 992px) {
   #app-header .navbar-nav .nav-link{
     max-width: 120px;
@@ -574,15 +641,15 @@ export default {
     "label_entities": "Entities",
     "label_explore": "explore...",
     "label_topics": "Topics",
+    "label_entities": "Entities",
     "label_compare": "Inspect & Compare",
     "label_text_reuse": "Text reuse",
-    "label_current_search": "browse results",
+    "label_current_search": "browse results ...",
     "label_faq": "FAQ",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
-    "no-jobs-yet": "Here you will find notifications about your collections and your downloads.",
     "current_version": "v <span class='small-caps'>{version}</span>"
   }
 }

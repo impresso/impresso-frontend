@@ -3,39 +3,40 @@
     <b-input-group>
       <b-form-input
       :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
-      placeholder="search for ..."
+      :placeholder="$tc('placeholder.search', filterCount)"
       v-model.trim="q"
-      v-on:input.native="search"
-      v-on:focus.native="selectInput"
+      @input.native="search"
+      @focus.native="selectInput"
+      @blur.native="blurHandler"
       v-on:keyup.native="keyup" />
       <b-input-group-append>
-        <b-btn variant="outline-primary" class="px-2"
+        <b-btn variant="outline-primary" :title="$tc('placeholder.search', filterCount)"
           @click="submit({ type: 'string', q })">
-          <div class="search-submit dripicons-search"></div>
+          <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
+          <div v-else class="d-flex search-submit dripicons-search"></div>
         </b-btn>
-        <b-btn variant="outline-primary" class="small-caps"
+        <b-btn variant="outline-primary" :title="$t('actions.addFilter')"
           @click="showExplorer">
-
-            <div class="d-flex">{{ $t('actions.addFilter') }}</div>
+            <div class="d-flex dripicons-experiment"></div>
         </b-btn>
       </b-input-group-append>
     </b-input-group>
 
     <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
       <div class="border-bottom ">
-        <div class="suggestion px-2 py-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
+        <div class="suggestion p-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
             @click="submitStaticSuggestion(suggestion)"
             :data-idx="suggestion.idx"
             @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
           <div :class="`suggestion-${suggestion.type}`">
             <span class="small" v-if='suggestion.h' v-html='suggestion.h'/>
             <span class="small" v-else>...<b>{{ q }}</b></span>
-            <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
+            <b-badge variant="light" class="border border-medium">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
           </div>
         </div>
       </div>
       <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box border-bottom">
-        <div class="row no-gutters">
+        <div class="row no-gutters" :title="$t(`label.${type}.title`)">
           <div class="col-1 border-right" v-if="type !== 'mention'">
             <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
           </div>
@@ -47,9 +48,10 @@
                 class="suggestion pr-1 pl-2 py-1" :class="{
                   selected: selectedIndex === s.idx,
                 }">
-              <div v-if="s.fake && type !== 'mention'">
+              <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
                 <span class="small">... <b>{{ q }}</b></span>
-                <b-badge variant="light" class="border border-tertiary">{{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
+                <b-badge variant="light" class="border border-medium">
+                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
               </div>
               <div v-else :class="`${type} small`">
                 <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
@@ -80,11 +82,11 @@ import Explorer from './Explorer';
 
 const AVAILABLE_TYPES = [
   'mention',
-  'collection',
   'newspaper',
   'topic',
   'location',
   'person',
+  'collection',
 ];
 
 export default {
@@ -99,6 +101,7 @@ export default {
       },
     ],
     recentSuggestions: [],
+    collectionSuggestions: [],
     suggestions: [],
     suggestion: false, // first suggestion, either string or regex
     selected: false,
@@ -124,8 +127,16 @@ export default {
         'collection',
       ],
     },
+    /** @type {import('vue').PropOptions<Filter[]>} */
+    filters: {
+      type: Array,
+      default: () => [],
+    },
   },
   computed: {
+    user() {
+      return this.$store.getters['user/user'];
+    },
     staticSuggestions() {
       return this.initialSuggestions.concat(this.recentSuggestions).map((d, idx) => ({
         ...d,
@@ -192,7 +203,11 @@ export default {
         this.$emit('submit', filter);
         this.q = '';
       }
-    }
+    },
+    filterCount() {
+      return typeof this.filters === 'undefined' ?
+        1 : this.filters.filter(d => d.type !== 'hasTextContents').length + 1;
+    },
   },
   methods: {
     showExplorer() {
@@ -231,8 +246,16 @@ export default {
         this.$store.dispatch('autocomplete/SEARCH', {
           q: this.q.trim(),
         }).then((res) => {
-          this.suggestions = res;
-        });
+          this.suggestions = [...res, ...this.collectionSuggestions];
+        })
+        if (this.user) {
+          this.$store.dispatch('autocomplete/SUGGEST_COLLECTIONS', {
+            q: this.q.trim(),
+          }).then((res) => {
+            this.collectionSuggestions = res;
+            this.suggestions = [...res, ...this.suggestions];
+          })
+        }
       } else {
         // if length of the query is 0 then we clear the suggestions
         this.suggestions = [];
@@ -280,7 +303,12 @@ export default {
       this.selectedIndex = suggestion.idx;
     },
     selectInput(e) {
+      this.showSuggestions = this.q.length > 0;
       e.target.select();
+      this.$emit('input-focus', true);
+    },
+    blurHandler() {
+      this.$emit('input-focus', false);
     },
     keyup(event) {
       switch (event.key) {
@@ -291,11 +319,9 @@ export default {
         break;
       case 'ArrowDown':
         this.selectedIndex += 1;
-        this.showSuggestions = this.q.length > 0;
         break;
       case 'ArrowUp':
         this.selectedIndex -= 1;
-        this.showSuggestions = this.q.length > 0;
         break;
       case 'Escape':
         this.hideSuggestions();
@@ -325,24 +351,20 @@ export default {
 .search-bar{
   position: relative;
   input.form-control.search-input {
-    border-color: black;
+    border-color: $clr-primary;
     background: transparent;
     position: relative;
     color: black;
 
     &:focus {
-      // box-shadow: none;
+      box-shadow: none;
       background: white;
-      // border: 1px solid $clr-secondary;
+      border: 1px solid $clr-secondary;
     }
-    &.has-suggestions {
+    &:focus.has-suggestions {
       // border: 1px solid $clr-secondary;
       border-bottom: 0;
     }
-  }
-  .search-submit {
-    line-height: 1;
-    padding: 0.1em;
   }
   .suggestions {
     position: absolute;
@@ -391,9 +413,42 @@ export default {
 .search-bar .input-group > .form-control{
   border-top-width: 0;
   border-left-width: 0;
+  border-right-width: 0;
   z-index: 1;
 }
 
+.search-box .search-bar .input-group > .form-control{
+  background: white;
+  &:focus{
+    border-width: 0;
+  }
+}
+
+.bg-dark {
+  .search-bar .input-group > .form-control{
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    background: transparent;
+    &:focus{
+      background: transparent;
+    }
+  }
+}
+// .search-bar .input-group > .form-control {
+//   color: white;
+// }
+// .bg-dark .search-bar.search-box .input-group > .form-control {
+//   color: white;
+//   border-left: 1px solid #aaa;
+//   border-color: #aaa !important;
+//
+//   &:focus{
+//       background-color: transparent;
+//       border-top-width: 0;
+//       outline: 0;
+//   }
+// }
 // .search-bar .input-group-append::before {
 //   content: '';
 //   position: absolute;
@@ -410,6 +465,9 @@ export default {
 <i18n>
   {
     "en": {
+      "placeholder" : {
+        "search": "search for ... | add keyword to search"
+      },
       "label": {
         "string": {
           "title": "Search in article contents"

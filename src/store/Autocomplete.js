@@ -1,4 +1,5 @@
 import SuggestionFactory from '@/models/SuggestionFactory';
+import SuggestionCollection from '@/models/SuggestionCollection';
 
 import * as services from '@/services';
 
@@ -53,6 +54,23 @@ export default {
           limit: 9,
         },
       }).then(({ data }) => data.map(d => SuggestionFactory.create(d)).filter(Boolean));
+    },
+    SUGGEST_COLLECTIONS(context, { q }) {
+      return services.collections.find({
+        query: {
+          limit: 3,
+          q,
+        },
+      }).then((co) => {
+        return co.data.map(d => {
+          return new SuggestionCollection({
+            item: d,
+            h: d.name,
+            q: d.uid,
+            type: 'collection',
+          });
+        });
+      });
     },
   },
 };

@@ -7,6 +7,10 @@ import Facet from '@/models/Facet';
 import Helpers from '@/plugins/Helpers';
 import router from '../router';
 
+/**
+ * NOTE: Most of this store is not used and will be downsized/removed soon.
+ */
+
 export default {
   namespaced: true,
   state: {
@@ -233,6 +237,9 @@ export default {
         commit('UPDATE_PAGINATION_CURRENT_PAGE', page);
       }
       const query = {
+        sq: state.search.getSerialized({
+          serializer: 'protobuf',
+        }),
         f: JSON.stringify(state.search.getFilters()),
         // facets: state.facetTypes,
         g: state.groupBy,
@@ -357,7 +364,7 @@ export default {
         return res;
       });
     },
-    SEARCH({ state, dispatch, commit, getters }, { filters = [] } = {}) {
+    SEARCH({ state, dispatch, commit, getters }, { filters = [], page } = {}) {
       commit('UPDATE_IS_LOADING', true);
       const facets = ['year', 'language', 'newspaper', 'type', 'country', 'topic'];
       const query = {
@@ -365,7 +372,7 @@ export default {
         filters: getters.getSearch.getFilters().concat(filters),
         facets,
         group_by: state.groupBy,
-        page: state.paginationCurrentPage,
+        page: page || state.paginationCurrentPage,
         limit: state.paginationPerPage,
         order_by: state.orderBy,
       };
@@ -425,12 +432,12 @@ export default {
             'collection',
           ],
         }),
-        window.impressoDataVersion > 1 ? dispatch('LOAD_SEARCH_FACETS', {
+        dispatch('LOAD_SEARCH_FACETS', {
           facets: [
             'accessRight',
             'partner',
           ],
-        }) : null,
+        }),
       ].filter(d => d)))
         .catch((err) => {
           console.error('ERROR in "$store.search/SEARCH" services.search:', err);

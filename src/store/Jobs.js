@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import * as services from '@/services';
+import { jobs as jobsService } from '@/services';
 import Job from '@/models/Job';
 
 export default {
@@ -8,20 +8,10 @@ export default {
     data: [],
     items: [],
     itemsIndex: {},
-    pagination: {
-      perPage: 4,
-      currentPage: 1,
-      totalRows: -1,
-    },
+    totalItems: 0,
   },
   mutations: {
-    SET_PAGINATION(state, { page, limit, total }) {
-      state.pagination.totalRows = total;
-      state.pagination.currentPage = page;
-      state.pagination.totalRows = total;
-    },
     CHANGE_ITEM_AT_INDEX(state, { idx, status, progress, task }) {
-      console.info('CHANGE_ITEM_AT_INDEX', idx, status, progress);
       state.items[idx].status = status;
       if (typeof progress !== 'undefined') {
         state.items[idx].progress = progress;
@@ -32,16 +22,17 @@ export default {
     },
     SET_ITEMS(state, items) {
       state.items = items;
-      console.info('-> SET_ITEMS', items);
+    },
+    SET_TOTAL_ITEMS(state, total) {
+      state.totalItems = total;
     },
   },
   actions: {
     TEST() {
-      return services.jobs.create({});
+      return jobsService.create({});
     },
     UPDATE_JOB({ commit, state, dispatch }, job) {
       const idx = state.items.findIndex(d => d.id === job.id);
-      console.info('UPDATE JOB', job.id, job.status, idx);
       if (idx > -1) {
         commit('CHANGE_ITEM_AT_INDEX', {
           status: job.status,
@@ -55,21 +46,21 @@ export default {
       }
     },
     LOAD_JOBS({ commit }, { page = 1, limit = 4 } = {}) {
-      return services.jobs.find({
+      return jobsService.find({
         query: {
           page,
           limit,
         },
-      }).then((res) => {
-        commit('SET_PAGINATION', { page, limit, total: res.total });
-        commit('SET_ITEMS', res.data.map(d => ({
+      }).then(({ data, total }) => {
+        commit('SET_ITEMS', data.map(d => new Job ({
           ...d,
           progress: d.extra.progress,
         })));
+        commit('SET_TOTAL_ITEMS', total);
       });
     },
     PATCH_JOB({ commit, state }, job) {
-      return services.jobs.patch(job.id, job).then((res) => {
+      return jobsService.patch(job.id, job).then((res) => {
         const idx = state.items.findIndex(d => d.id === job.id);
         if (idx !== -1) {
           // update live:

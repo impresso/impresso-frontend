@@ -5,7 +5,7 @@
       <slot name="tabs">
         <search-tabs/>
       </slot>
-      <div class="py-3 px-3">
+      <div class="my-3 mx-3" :class="{ focus: hasFocus }">
         <search-pills
           :filters="filters"
           @changed="handleFiltersChanged"
@@ -17,24 +17,21 @@
           &nbsp;
           <info-button :name="infoButtonName" />
         </span>
-        <slot name="header">
+        <slot name="header" :focusHandler="focusHandler">
           <!-- extra header -->
         </slot>
       </div>
     </div>
     <!-- body (aka) facets -->
     <div class="pt-3 pb-5">
-      <div class="mx-3" v-if="isResettable">
-        <b-button class="mb-2"
-          variant="outline-danger"
-          size="sm" @click="reset">{{ $t('actions.resetFilters') }}</b-button>
-      </div>
       <slot>
         <!-- slot here for extra facets -->
       </slot>
       <search-facets
         :facets="facets"
         :filters="filters"
+        :start-year="startYear"
+        :end-year="endYear"
         @changed="handleFiltersChanged"/>
     </div>
   </i-layout-section>
@@ -52,6 +49,9 @@ import SearchFacets from '@/components/SearchFacets'
  */
 
 export default {
+  data: () => ({
+    hasFocus: false,
+  }),
   props: {
     /* Used for helper button */
     contextTag: {
@@ -83,16 +83,21 @@ export default {
       // propagate filters changed
       this.$emit('changed', filters);
     },
-    reset() { this.$emit('changed', []); },
+    focusHandler(value) {
+      this.hasFocus = !!value;
+    }
   },
   computed: {
     /** @return {boolean} */
-    isResettable() {
-      return !!this.filters.filter(d => d.type !== 'hasTextContents').length;
-    },
     /** @return {string} */
     infoButtonName() {
       return `how-${this.contextTag}-work-with-search-filters`
+    },
+    startYear() {
+      return window.impressoDocumentsYearSpan.firstYear;
+    },
+    endYear() {
+      return window.impressoDocumentsYearSpan.lastYear;
     },
   },
   components: {
@@ -103,3 +108,20 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+  @import "@/styles/variables.sass";
+  .search-box{
+    border: 1px solid #777;
+  }
+  .search-box.focus{
+    box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
+    border-color: black;
+    border-radius: 2px;
+  }
+  .bg-dark{
+    .search-box.focus {
+      box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
+      border-color: white;
+    }
+  }
+</style>

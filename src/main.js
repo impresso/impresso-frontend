@@ -23,6 +23,7 @@ import router from './router';
 import store from './store';
 import messages from './i18n/messages';
 import dateTimeFormats from './i18n/dateTimeFormats';
+import numberFormats from '@/i18n/numberFormats'
 
 Vue.use(BootstrapVue);
 Vue.use(VueI18n);
@@ -63,6 +64,7 @@ const i18n = new VueI18n({
   locale: store.state.settings.language_code,
   messages,
   dateTimeFormats,
+  numberFormats,
   silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
 });
 
@@ -72,6 +74,10 @@ const reducedTimeoutPromise = ({ ms = 500, service }) => new Promise((resolve, r
     reject(`Timed out in ${ms} ms for service: ${service}`);
   }, ms);
 });
+
+const DefaultImpressoFeatures = {
+  textReuse: { enabled: true }
+}
 
 /* eslint-disable no-new */
 console.info('Checking authentication...');
@@ -98,7 +104,6 @@ Promise.race([
     reducedTimeoutPromise({ service: 'version' }),
     services.version.find().then((res) => ({
       version: res.version,
-      dataVersion: res.solr.dataVersion,
       apiVersion: res.apiVersion,
       documentsDateSpan: res.documentsDateSpan,
       newspapers: res.newspapers,
@@ -108,20 +113,23 @@ Promise.race([
     console.error(err);
     return {
       version: 'n/a',
-      dataVersion: 'n/a',
       documentsDateSpan: { firstDate: '1700-01-01', lastDate: new Date().toISOString() },
       apiVersion: {},
       newspapers: {}
     };
   });
-}).then(({ version, dataVersion, documentsDateSpan, newspapers, apiVersion = {}, features = {} }) => {
-  console.info(`Version services:${version}, data:${dataVersion}`);
+}).then(({ version, documentsDateSpan, newspapers, apiVersion = {}, features = DefaultImpressoFeatures }) => {
+  console.info(`Version services:${version}`);
+  console.info('Latest notification date:', store.state.settings.lastNotificationDate);
   window.impressoVersion = version;
-  window.impressoDataVersion = dataVersion;
   window.impressoApiVersion = apiVersion
   window.impressoDocumentsDateSpan = documentsDateSpan
   window.impressoNewspapers = newspapers
   window.impressoFeatures = features
+  window.impressoDocumentsYearSpan = {
+    firstYear: (new Date(documentsDateSpan.firstDate)).getFullYear(),
+    lastYear: (new Date(documentsDateSpan.lastDate)).getFullYear()
+  }
 
   window.app = new Vue({
     el: '#app',
@@ -135,5 +143,3 @@ Promise.race([
     render: h => h(App),
   });
 });
-
-console.info('Last notification date', store.state.settings.lastNotificationDate);

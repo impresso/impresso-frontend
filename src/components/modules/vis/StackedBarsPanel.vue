@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="d-flex wrapper mx-0">
     <!-- label -->
     <div class="tb-title label small-caps font-weight-bold my-2">{{label}}</div>
@@ -7,18 +7,20 @@
     <div class="row mx-0">
       <div class="col bg-light">
 
-        <div :class="`bar-container row my-1 small ${hoverId === bucket.item.uid ? 'hilight' : ''}`"
+        <div
           v-for="(bucket, idx) in buckets"
-          v-on:mouseover="onHover(bucket.item.uid)"
-          v-bind:key="idx">
+          :key="idx"
+          :class="`bar-container row my-1 small ${isHovered(bucket) ? 'hilight' : ''}`"
+          @mouseover="onHover(bucket)">
 
-          <viz-bar
+          <viz-bar class="w-100"
             :percent="toScaledValue(bucket.count) * 100"
-            :search-query-id="searchQueryId"
             :count="bucket.count"
-            :uid="bucket.item.uid"
+            :uid="bucket.item ? bucket.item.uid : null"
             :item="bucket.item"
-            :type="facetType" />
+            :type="facetType"
+            :default-click-action-disabled="defaultClickActionDisabled"
+            @click="param => $emit('barItemClick', param)" />
 
         </div>
 
@@ -28,40 +30,61 @@
 </template>
 
 <script>
-import VizBar from '../../base/VizBar';
-import Bucket from '../../../models/Bucket';
+import VizBar from '../../base/VizBar'
+import BucketModel from '../../../models/Bucket'
+
+/**
+ * @typedef {import('@/models').Bucket} Bucket
+ */
 
 export default {
-  data: () => ({}),
   props: {
-    searchQueryId: String,
-    label: String, // label of the chart
-    hoverId: {
-      type: String,
-    },
+    /** @type {import('vue').PropOptions<string>} */
+    label: { type: String }, // label of the chart
+    /** @type {import('vue').PropOptions<string>} */
+    hoverId: { type: String }, // TODO: what is this?
+    /** @type {import('vue').PropOptions<Bucket[]>} */
     buckets: {
       type: Array,
       default: () => [],
-      validator: buckets => buckets.map(b => b instanceof Bucket),
+      validator: buckets => buckets.map(b => b instanceof BucketModel).reduce((acc, v) => v && acc, true),
     },
-    valueSuffix: String, // suffix appended to the value label
-    facetType: String, // type of facet to render
+    /** @type {import('vue').PropOptions<string>} */
+    facetType: { type: String }, // type of facet to render
+    /** @type {import('vue').PropOptions<boolean>} */
+    defaultClickActionDisabled: {
+      type: Boolean,
+      default: false
+    }
   },
   components: {
     VizBar,
   },
   computed: {
+    /** @returns {number} */
     maxValue() {
       return Math.max(...this.buckets.map(b => b.count));
     },
   },
   methods: {
+    /**
+     * @param {number} val
+     * @returns {number}
+     */
     toScaledValue(val) {
       return val / this.maxValue;
     },
-    onHover(val) {
-      this.$emit('hovered', String(val));
+    /**
+     * @param {Bucket} bucket
+     */
+    onHover(bucket) {
+      this.$emit('hovered', String(bucket?.item?.uid ?? ''));
     },
+    /**
+     * @param {Bucket} bucket
+     * @returns {boolean}
+     */
+    isHovered(bucket) { return this.hoverId === bucket?.item?.uid }
   },
 };
 </script>

@@ -1,79 +1,87 @@
 <template lang="html">
   <div id="IssueViewerText" class="px-3 bg-light">
-        <i-spinner v-if="!article" class="text-center p-5" />
-        <div v-if="article">
-          <article-item :item="article" show-entities show-excerpt show-topics/>
-          <div class="my-2" />
-          <collection-add-to :item="article" :text="$t('add_to_collection')" />
-          <b-badge
-            v-for="(collection, i) in article.collections"
-            v-bind:key="`co_${i}`"
-            variant="info"
-            class="mt-1 mr-1">
-            <router-link
-              class="text-white"
-              v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
-              {{ collection.name }}
-            </router-link>
-            <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
-          </b-badge>
-          <div class="alert alert-light" role="alert" v-if="!article.isCC">
-            <p>{{ $t('wrongLayout') }} <icon name="image"/></p>
-          </div>
-          <div v-if="hasValidRegions === false">
-            <p>{{article.excerpt}}</p>
-          </div>
-          <b-container fluid
-            v-else
-            class="region-row mt-3 mb-3">
-            <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
-              <div v-if="article.isCC" class="col col-sm-5 bg-white border">
-                <div class="py-3">
-                  <img v-bind:src="region.iiifFragment" style="width: 100%" />
-                </div>
-              </div>
-              <div
-                class="col"
-                :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
-                <div class='region py-3'>
-                  <annotated-text
-                    :children="regionsAnnotationTree[i].children"
-                    :cluster-colours="clusterColourMap"
-                    :selected-cluster-id="selectedClusterId"
-                    @onClusterSelected="clusterSelectedHandler"/>
-                </div>
-              </div>
-            </b-row>
-            <div
-              :style='{ top: `${hoverPassageLineTopOffset}px` }'
-              class="passage-control bs-tooltip-top"
-              role="tooltip"
-              v-if="selectedPassage">
-              <div class="tooltip-inner">
-                {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
-              </div>
+    <i-spinner v-if="!article" class="text-center p-5" />
+    <div v-if="article">
+      <article-item :item="article" show-entities show-topics/>
+      <div class="my-2" />
+      <collection-add-to :item="article" :text="$t('add_to_collection')" />
+      <b-badge
+        v-for="(collection, i) in article.collections"
+        v-bind:key="`co_${i}`"
+        variant="info"
+        class="mt-1 mr-1">
+        <router-link
+          class="text-white"
+          v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+          {{ collection.name }}
+        </router-link>
+        <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+      </b-badge>
+      <div class="alert alert-light" role="alert" v-if="!article.isCC">
+        <p>{{ $t('wrongLayout') }} <icon name="image"/></p>
+      </div>
+      <div v-if="hasValidRegions === false">
+        <p>{{article.excerpt}}</p>
+      </div>
+      <b-container fluid
+        v-else
+        class="region-row mt-3 mb-3 position-relative">
+        <label class="text-right d-flex align-items-center">
+          <div class="ml-auto" style="line-height:1.25" v-if="textReusePassages.length"
+            v-html="$tc('textReuseLabel', textReusePassages.length, {
+              n: textReusePassages.length,
+            })"/>
+          <div v-else class="ml-auto" style="line-height:1.25" v-html="$tc('textReuseLabel', 0)" />
+          <info-button class="ml-2" name="text-reuse"/>
+        </label>
+        <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
+          <div v-if="article.isCC" class="col col-sm-5 bg-white border">
+            <div class="py-3">
+              <img v-bind:src="region.iiifFragment" style="width: 100%" />
             </div>
-          </b-container>
-        </div>
-        <hr class="py-4">
-        <b-container fluid class="similar-items px-0">
-          <h3>Similar Articles</h3>
-          <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
-          <b-row>
-            <b-col
-              cols="12"
-              sm="12"
-              md="12"
-              lg="6"
-              xl="4"
-              v-for="(searchResult, index) in articlesSuggestions"
-              v-bind:key="`${index}_ra`">
-              <search-results-similar-item
-                :searchResult="searchResult"
-                :topics="commonTopics(searchResult.topics)" />
-            </b-col>
-          </b-row>
-        </b-container>
+          </div>
+          <div
+            class="col"
+            :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
+            <div class='region py-3'>
+              <annotated-text v-if="regionsAnnotationTree[i]"
+                :children="regionsAnnotationTree[i].children"
+                :cluster-colours="clusterColourMap"
+                :selected-cluster-id="selectedClusterId"
+                @onClusterSelected="clusterSelectedHandler"/>
+            </div>
+          </div>
+        </b-row>
+      </b-container>
+    </div>
+    <hr class="py-4">
+    <b-container fluid class="similar-items px-0">
+      <h3>Similar Articles</h3>
+      <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
+      <b-row>
+        <b-col
+          cols="12"
+          sm="12"
+          md="12"
+          lg="6"
+          xl="4"
+          v-for="(searchResult, index) in articlesSuggestions"
+          v-bind:key="`${index}_ra`">
+          <search-results-similar-item
+            :searchResult="searchResult"
+            :topics="commonTopics(searchResult.topics)" />
+        </b-col>
+      </b-row>
+    </b-container>
+    <div
+      :style='`top:${hoverPassageLineTopOffset}px`'
+      class="passage-control bs-tooltip-left"
+      role="tooltip"
+      v-if="selectedPassage">
+      <div class="tooltip-inner">
+        {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -84,6 +92,7 @@ import CollectionAddTo from './CollectionAddTo';
 import SearchResultsSimilarItem from './SearchResultsSimilarItem';
 import ArticleItem from './lists/ArticleItem';
 import AnnotatedText from './AnnotatedText'
+import InfoButton from '@/components/base/InfoButton'
 
 import {
   getNamedEntitiesFromArticleResponse,
@@ -125,7 +134,7 @@ export default {
         return this.$t('no_page_info');
       }
       if (this.article.pages.length === 1) {
-        return this.$t('page', { num: this.article.pages[0].num });
+        return this.$t('page', { num: this.article.pages[0]?.num });
       }
       return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') });
     },
@@ -179,6 +188,7 @@ export default {
     SearchResultsSimilarItem,
     Icon,
     AnnotatedText,
+    InfoButton,
   },
   methods: {
     commonTopics(suggestionTopics) {
@@ -200,7 +210,6 @@ export default {
     },
     mouseenterPassageHandler(e) {
       const { id } = e.target.dataset
-      const { top } = e.target.getBoundingClientRect()
       const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
       const siblingElements = [...document.querySelectorAll(`.tr-passage`)]
 
@@ -213,7 +222,7 @@ export default {
       e.target.addEventListener('click', this.passageClickHandler)
 
       this.selectedPassageId = id
-      this.hoverPassageLineTopOffset =  top - this.viewerTopOffset
+      this.hoverPassageLineTopOffset =  e.pageY
     },
     mouseleavePassageHandler(e) {
       const { id } = e.target.dataset
@@ -229,7 +238,7 @@ export default {
       this.$router.push({
         name: 'text-reuse-clusters',
         query: {
-          clusterId: this.selectedClusterId
+          q: `#${this.selectedClusterId}`
         }
       })
     },
@@ -308,8 +317,8 @@ export default {
 
   .passage-control {
     position: absolute;
-    right: 0.5em;
-    max-width: 8em;
+    right: 0;
+    max-width: 100%;
     pointer-events: none;
   }
   .tr-passage {
@@ -360,7 +369,8 @@ export default {
     "page": "pag. {num}",
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ...",
-    "cluster_tooltip": "View all {size} articles containing this passage"
+    "cluster_tooltip": "View all {size} articles containing this passage",
+    "textReuseLabel": "No text reuse<br/> passages available| <b>1</b> text reuse <br/>passage available | <b>{n}</b> text reuse <br/>passages available"
   }
 }
 </i18n>

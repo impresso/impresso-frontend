@@ -116,20 +116,45 @@ export default class Graph extends Basic {
     this.simulation.alphaTarget(0.5)
       .on('tick', () => this.tick());
 
-    // this.stopSimulation();
+    this.stopSimulation();
   }
 
-  highlightNodes(nodes) {
+  assignClassToSVG(className, { classed = true } = {}) {
+    this.svg.classed(className, classed);
+  }
+
+  assignClassToNodes(nodes, className, {
+    affectAllNodes = false,
+    assignToLinks = false,
+    classed = true,
+  } = {}) {
+    if (affectAllNodes) {
+      // if nodes is empty, then jsut turn on  /off classes.
+      this.nodesLayer
+        .classed(className, classed);
+      if (assignToLinks) {
+        this.linksLayer
+          .classed(className, classed);
+      }
+      return;
+    }
     const ids = nodes.map(this.identity);
-    this.svg.classed('with-highlights', ids.length > 0);
     this.nodesLayer
-      .classed('highlight', node => ids.includes(this.identity(node)));
-  }
-
-  selectNode(node) {
-    this.svg.classed('with-selected', true);
-    this.nodesLayer
-      .classed('selected', d => this.identity(node) === this.identity(d));
+      .classed(className, node => ids.includes(this.identity(node))
+        ? classed
+        : !classed
+      );
+    if (assignToLinks) {
+      // get the list of the link ids
+      const linksIds = this.links
+        .filter((l) => ids.includes(l.target.id) || ids.includes(l.source.id))
+        .map(({ id }) => id);
+      this.linksLayer
+        .classed(className, ({id}) => linksIds.includes(id)
+          ? classed
+          : !classed
+        );
+    }
   }
 
   selectNeighbors(node) {
@@ -151,12 +176,6 @@ export default class Graph extends Basic {
       .classed('selected', ({id}) => linksIds.includes(id));
     this.nodesLayer
       .classed('selected', (d) => neighborsIds.includes(this.identity(d)));
-  }
-
-  unSelectNode() {
-    this.svg.classed('with-selected', false);
-    this.nodesLayer.classed('selected', false);
-    this.linksLayer.classed('selected', false);
   }
 
   zoomTo(node) {
@@ -242,7 +261,7 @@ export default class Graph extends Basic {
     datum.fy = datum.y;
     this.stopSimulation();
     this.selected = datum;
-    this.emit('node.click', datum);
+    // this.emit('node.click', datum);
   }
 
   onDragged(datum) {
@@ -297,7 +316,7 @@ export default class Graph extends Basic {
 
     scalableNodesEnter.append('circle')
       .attr('class', 'whoosh')
-      .attr('r', 2);
+      .attr('r', 1);
 
     // add text
     scalableNodesEnter.append('text')

@@ -17,34 +17,16 @@ export default {
     isPending: false,
     isPendingTimeline: false,
     applyCurrentSearchFilters: true,
-    position: {
-      top: 0,
-      left: 0,
-    },
-    viewport: {
-      height: 0,
-      width: 0,
-    },
-    scrolltop: 0,
     item: null,
     type: null,
     itemCountRelated: -1,
     uid: '',
-    searchQueryId: '',
     searchQueryNamespace: DEFAULT_SEARCH_NAMESPACE,
     timeline: [],
     groupBy: 'articles',
-  },
-  getters: {
-    getCurrentSearchQuery(state, getters, rootState, rootGetter) {
-      if (state.searchQueryId.length) {
-        return rootGetter[`${state.searchQueryNamespace}/getSearchQuery`](state.searchQueryId);
-      }
-      return rootGetter[`${state.searchQueryNamespace}/getSearch`];
-    },
-    getCurrentSearchFilters(state, getters) {
-      return getters.getCurrentSearchQuery.getFilters();
-    },
+    subtitle: undefined,
+    disableFilterModification: false,
+    filters: []
   },
   mutations: {
     SET_IS_ACTIVE(state, value) {
@@ -55,7 +37,6 @@ export default {
       state.isPending = false;
     },
     SET_ITEM_TIMELINE(state, timeline) {
-      console.info('mutation SET_ITEM_TIMELINE', timeline.length, timeline[0]);
       state.timeline = timeline;
       state.isPendingTimeline = false;
     },
@@ -70,53 +51,35 @@ export default {
       state.timeline = [];
       state.isPendingTimeline = true;
     },
-    SET_POSITION(state, { top, left }) {
-      state.position.top = top;
-      state.position.left = left;
-      // check the position related to viewport and scrolltop values
-    },
-    SET_VIEWPORT(state, { height, width }) {
-      state.viewport.height = height;
-      state.viewport.width = width;
-    },
-    SET_SCROLLTOP(state, scrollTop) {
-      state.scrolltop = parseInt(scrollTop, 10);
-    },
     SET_APPLY_CURRENT_SEARCH_FILTERS(state, value) {
       state.applyCurrentSearchFilters = value;
     },
     SET_ITEM_TYPE(state, type) {
       state.type = type;
     },
-    SET_SEARCH_QUERY_ID(state, searchQueryId = '') {
-      if (searchQueryId.length) {
-        const parts = searchQueryId.split('/');
-        state.searchQueryId = parts.length > 1 ? parts[1] : searchQueryId;
-        state.searchQueryNamespace = parts.length > 1 ? parts[0] : DEFAULT_SEARCH_NAMESPACE;
-      } else {
-        state.searchQueryId = '';
-        state.searchQueryNamespace = DEFAULT_SEARCH_NAMESPACE;
-      }
-      console.info('Monitor/SET_SEARCH_QUERY_ID', searchQueryId);
+    /**
+     * @param {object} state
+     * @param {{
+     *  subtitle: string | undefined
+     *  disableFilterModification: boolean
+     *  filters: import('@/models').Filter[]
+     * }} param
+     */
+    SET_ACTIVATION_PARAMETERS(state, { subtitle, disableFilterModification, filters }) {
+      state.subtitle = subtitle
+      state.disableFilterModification = disableFilterModification
+      state.filters = filters
     },
+    UPDATE_FILTERS(state, filters) {
+      state.filters = filters
+    }
   },
   actions: {
-    FORWARD_FILTER_TO_CURRENT_SEARCH({ getters }, filter) {
-      getters.getCurrentSearchQuery.addFilter(filter);
-      // dispatch(`${state.searchQueryNamespace}/ADD_FILTER`, {
-      //   searchQueryId: state.searchQueryId,
-      //   filter,
-      // }, {
-      //   root: true,
-      // });
-    },
-    SET_IS_ACTIVE({ commit }, value) {
-      commit('SET_IS_ACTIVE', value);
-    },
+    HIDE({ commit }) { commit('SET_IS_ACTIVE', false) },
     SET_APPLY_CURRENT_SEARCH_FILTERS({ commit }, value) {
       commit('SET_APPLY_CURRENT_SEARCH_FILTERS', value);
     },
-    LOAD_ITEM_TIMELINE({ state, commit, getters }) {
+    LOAD_ITEM_TIMELINE({ state, commit }) {
       commit('RESET_TIMELINE');
       let filters = [
         {
@@ -126,7 +89,7 @@ export default {
       ];
       // if user asked to get details in current search:
       if (state.applyCurrentSearchFilters) {
-        filters = filters.concat(getters.getCurrentSearchFilters);
+        filters = filters.concat(state.filters);
       }
       // fetch article timeline related to the given type
       return services.search.find({
@@ -145,11 +108,10 @@ export default {
         }
       });
     },
-    SET_ITEM({ commit, dispatch }, { item, type, searchQueryId }) { // }, position }) {
+    SET_ITEM({ commit, dispatch }, { item, type }) {
       commit('SET_IS_ACTIVE', true);
       commit('SET_PENDING_ITEM', item);
       commit('SET_ITEM_TYPE', type);
-      commit('SET_SEARCH_QUERY_ID', searchQueryId);
       // add item resolution promise to the promise chain
       if (serviceByType[type]) {
         return Promise.all([
@@ -171,11 +133,42 @@ export default {
       commit('SET_ITEM', item);
       return dispatch('LOAD_ITEM_TIMELINE');
     },
-    SET_VIEWPORT({ commit }, viewport) {
-      commit('SET_VIEWPORT', viewport);
+    /**
+     * @typedef {{
+     *  item: import('@/models').Entity,
+     *  type: string,
+     *  filters: import('@/models').Filter[]
+     *  filtersUpdatedCallback: (filters: import('@/models').Filter) => void
+     *  subtitle?: string
+     *  disableFilterModification?: boolean
+     * }} ActivateParams
+     * @param {import('vuex').ActionContext} param0
+     * @param {ActivateParams} param1
+     */
+    ACTIVATE({ commit, dispatch }, {
+      item,
+      type,
+      filters = [],
+      filtersUpdatedCallback = () => {},
+      subtitle = undefined,
+      disableFilterModification = false
+    }) {
+
+      const unsubscribe = this.subscribeAction(({ type, payload }) => {
+        if (type === 'monitor/UPDATE_FILTERS') filtersUpdatedCallback(payload)
+        if (type === 'monitor/HIDE') {
+          unsubscribe()
+        }
+      })
+      commit('SET_ACTIVATION_PARAMETERS', {
+        subtitle,
+        disableFilterModification,
+        filters
+      })
+      return dispatch('SET_ITEM', { item, type })
     },
-    SET_SCROLLTOP({ commit }, scrollTop) {
-      commit('SET_SCROLLTOP', scrollTop);
-    },
+    UPDATE_FILTERS({ commit }, filters) {
+      commit('UPDATE_FILTERS', filters)
+    }
   },
 };

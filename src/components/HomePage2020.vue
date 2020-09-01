@@ -5,6 +5,10 @@
     <div slot="header" :class="{ 'border-bottom border-secondary': showLines }">
       <search-tabs focusOnSearch/>
       <div class="py-3 px-3">
+        <search-pills
+        :filters="enrichedFilters"
+        @changed="handleFiltersChanged"
+        />
         <autocomplete v-on:submit="onSuggestion" />
       </div>
     </div>
@@ -112,6 +116,28 @@
             ... and return the signed form to <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">info@impresso-project.ch</a>
           </p>
         </div>
+
+        <b-container class="challenges my-4 enhance-contents border-0 p-0">
+          <b-row class="p-0">
+          <b-col lg="6" md="12">
+            <img src="./../assets/img/challenges-screenshot.png" class="w-100" alt="impresso challenges">
+          </b-col>
+          <b-col lg="6" md="12">
+            <div class="py-3 pr-3">
+              <h3 :class="{ 'text-white': darkMode }"><i class="pb-3">Impresso Challenges</i></h3>
+              <p :class="{ 'text-white': darkMode }"><b>How to explore the newspapers with persons or locations? <br>What are topics good for? <br>What elements can be compared? </b></p>
+              <p>Get a better understanding of this interfaces’ features and how they can interact with 3 challenges, starting with an initiation and leading to an expert level use of the interface.</p>
+              <b-button :variant="darkMode ? 'primary' : 'outline-primary'" size="sm"
+                href="./../assets/impresso-challenges-1.2.3.pdf" target="_blank">
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons dripicons-download mr-2" />
+                  <div>download challenges <b-badge pill variant="secondary" class="ml-1">PDF</b-badge></div>
+                </div>
+              </b-button>
+            </div>
+          </b-col>
+        </b-row>
+      </b-container>
         <p class='text-center text-white'>
           ... then here are a few examples to get you started!
         </p>
@@ -130,11 +156,48 @@
 <script>
 import Autocomplete from './Autocomplete';
 import SearchTabs from './modules/SearchTabs';
+import SearchPills from '@/components/SearchPills';
 import Recipes from './modules/homepage/Recipes';
 import HomePageFooter from './HomePageFooter';
 import InfoButton from './base/InfoButton';
+import { filtersItems as filtersItemsService } from '@/services';
+import {
+  searchQueryGetter,
+  searchQueryHashGetter,
+} from '@/logic/queryParams';
+import {
+  optimizeFilters,
+  serializeFilters,
+  joinFiltersWithItems,
+} from '@/logic/filters';
+import { getFilterQuery } from '../models/SearchQuery';
+// import SearchQuery from '@/models/SearchQuery';
+
+const AllowedFilterTypes = [
+  'accessRight',
+  'collection',
+  'country',
+  'isFront',
+  'issue',
+  'language',
+  'location',
+  'newspaper',
+  'newspaper',
+  'partner',
+  'person',
+  'string',
+  'title',
+  'topic',
+  'type',
+  'year',
+  'daterange'
+];
 
 export default {
+  data: () => ({
+    /** @type {Filter[]} */
+    filtersWithItems: [],
+  }),
   props: {
     showLines: {
       type: Boolean,
@@ -145,20 +208,66 @@ export default {
       default: true,
     },
   },
-  methods: {
-    onSuggestion(suggestion) {
-      this.$store.commit('search/ADD_FILTER', suggestion);
-      this.search();
+  computed: {
+    searchQuery: searchQueryGetter(),
+    searchQueryHash: searchQueryHashGetter(),
+    /** @returns {Filter[]} */
+    enrichedFilters() {
+      return this.filtersWithItems.length
+        ? this.filtersWithItems
+        : this.filters
     },
-    search() {
-      const searchQuery = this.$store.getters['search/getSearch'];
-      const query = searchQuery.getSerialized();
-      console.info('search() ', query);
-
+    /** @returns {Filter[]} */
+    ignoredFilters() {
+      return this.searchQuery.filters
+        .filter(({ type }) => !AllowedFilterTypes.includes(type))
+    },
+    /** @returns {Filter[]} */
+    filters() {
+      // filter by type
+      return this.searchQuery.filters
+        .filter(({ type }) => AllowedFilterTypes.includes(type))
+    },
+    searchServiceQuery() {
+      const query = {
+        filters: this.filters.map(getFilterQuery),
+      };
+      return query;
+    },
+  },
+  methods: {
+    handleFiltersChanged(filters) {
+      const sq = serializeFilters(optimizeFilters(filters).concat(this.ignoredFilters));
       this.$router.push({
         name: 'search',
-        query,
+        query: {
+          sq,
+        },
       });
+    },
+    onSuggestion(filter) {
+      this.handleFiltersChanged(this.filters.concat([ filter ]));
+    },
+  },
+  watch: {
+    searchServiceQuery: {
+      handler({ filters }) {
+        if (!filters.length) {
+          return;
+        }
+        console.info('@searchServiceQuery oad items!!!', filters);
+        filtersItemsService.find({
+          query: {
+            filters: this.searchQueryHash,
+          },
+        })
+          .then(joinFiltersWithItems)
+          .then((filtersWithItems) => {
+            console.info('@searchServiceQuery oad filtersWithItems!!!', filtersWithItems);
+            this.filtersWithItems = filtersWithItems;
+          });
+      },
+      immediate: true,
     },
   },
   components: {
@@ -167,6 +276,7 @@ export default {
     Recipes,
     HomePageFooter,
     InfoButton,
+    SearchPills,
   },
 };
 </script>
@@ -196,8 +306,8 @@ export default {
   .btn-outline-primary {
     border-color: #caccce;
     color: #caccce;
+    text-decoration: none;
     &:hover{
-      border-color: $clr-white !important;
       color: $clr-white;
     }
   }
@@ -208,6 +318,10 @@ export default {
     .nav-item .nav-link{
       color: #bec0c2;
     }
+  }
+
+  .search-pill span.label.sp-string, .search-pill span.label > .sp-string{
+    color: black;
   }
 
   .stats a {
@@ -224,6 +338,9 @@ h1.huge {
 }
 
 .bg-dark {
+  h1.huge{
+    text-shadow: 1px 1px 1px #17191c;
+  }
   h1.huge, h2{
     color: white;
   }

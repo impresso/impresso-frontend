@@ -1,9 +1,9 @@
 <template lang="html">
-  <i-layout-section v-if="$route.params.collection_uid">
+  <i-layout-section>
 
     <div slot="header">
 
-      <b-navbar type="light" variant="light">
+      <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
 
         <section>
 
@@ -18,16 +18,16 @@
         </section>
 
 
-        <section class="ml-auto py-3">
-
-          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="float-right mb-1">
+        <section class="ml-auto py-3 text-right">
+          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="m-1">
             <b-button
               variant="outline-info" size="sm"
               v-b-modal.confirmDelete>{{ $t('compare_collection') }}
             </b-button>
           </router-link>
 
-          <b-dropdown size="sm" variant="outline-primary" :text="$t('edit_collection')" class="d-block" ref="edit_collection">
+          <b-dropdown class="m-1" size="sm" variant="outline-primary" :text="$t('edit_collection')"
+            right ref="edit_collection">
             <div class="modal-edit pt-2 px-3 background-light">
               <label for="collectionName">Name</label>
               <input type="text" name="collectionName" class="form-control mb-3"
@@ -57,6 +57,14 @@
         </b-modal>
       </b-navbar>
 
+      <b-navbar v-else type="light" variant="light">
+        <section class='pt-2 pb-1'>
+          <span class="label small-caps">{{$t('collections')}}</span>
+          <h3 class='mb-1'>{{ $t('all_collections_title') }}</h3>
+
+        </section>
+      </b-navbar>
+
       <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
@@ -68,39 +76,41 @@
         </template>
       </b-tabs>
 
-      <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+      <b-navbar type="light" variant="light"
+        class="px-0 py-0 border-bottom" v-if="tab.name !== TAB_RECOMMENDATIONS
+          && (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)">
 
-
-
-        <b-navbar-nav class="ml-2">
+        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-2">
           <b-nav-form class="p-2">
             <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
               {{ $t('actions.addToCurrentFilters') }}
             </b-button>
           </b-nav-form>
-          <b-nav-form class="py-2 pr-2  border-right">
+          <b-nav-form class="py-2 pr-2">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
           </b-nav-form>
         </b-navbar-nav>
-
-
-
+        <b-navbar-nav class="mr-2">
+          <b-button @click="handleExportCollection" size="sm" variant="outline-primary" class="d-flex align-items-center">
+            <div>{{$t('label_export_csv')}}</div>
+            <div class="dripicons-export ml-1"></div>
+          </b-button>
+          <info-button name="can-i-download-part-of-the-data" class="float-right" />
+        </b-navbar-nav>
         <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
           </b-navbar-form> -->
-          <ul class="p-2 ml-auto">
-            <li class="ml-auto">
-              <label class="mr-1">{{ $t('label_display') }}</label>
-              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-              </b-form-radio-group>
-            </li>
-          </ul>
+          <div class="p-2 m-auto">
+            <label class="mr-1">{{ $t('label_display') }}</label>
+            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+            </b-form-radio-group>
+          </div>
         </b-navbar-nav>
 
       </b-navbar>
@@ -164,9 +174,15 @@
 
 
 
-    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3 container">
+    <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3">
+
+      <div class="mx-3">
+        <div class="tb-title label small-caps font-weight-bold">{{$t('label.year.optionsTitle')}}</div>
+        <div class="small">{{$t('label.year.optionsDescription')}}</div>
+      </div>
 
       <timeline
+            :class="{'loading': isTimelineLoading}"
             :domain="[startYear, endYear]"
             :values="timevalues">
         <div slot-scope="tooltipScope">
@@ -177,18 +193,42 @@
         </div>
       </timeline>
 
-      <div class="row">
-        <div v-for="(facet, idx) in facets" v-bind:key="idx" class="col-6 my-3">
-          <stacked-bars-panel
-            class=""
-            :label="facet.type"
-            :buckets="facet.buckets"
-            :facet-type="facet.type"/>
-        </div>
-      </div>
+      <b-container fluid class="my-3">
+        <b-row>
+          <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+            <stacked-bars-panel
+              class=""
+              :label="facet.type"
+              :buckets="facet.buckets"
+              :facet-type="facet.type"/>
+        </b-col>
+      </b-row>
+      </b-container>
+
+
 
     </div>
 
+    <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-recommendations h-100">
+      <collection-recommendations-panel
+        :collection-id="$route.params.collection_uid"
+        :display-style="displayStyle"
+        :collection="collection"
+        :collection-recommenders-settings="recommendersSettings"
+        @settings-updated="handleRecommendersSettingsUpdated">
+        <template v-slot:additional-navbar>
+          <b-navbar-nav class="ml-auto">
+            <b-nav-form class="p-2">
+              <label class="mr-1">{{ $t('label_display') }}</label>
+              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+              </b-form-radio-group>
+            </b-nav-form>
+          </b-navbar-nav>
+        </template>
+      </collection-recommendations-panel>
+    </div>
 <!--
 
     <div v-if="issues.length > 0" class="collection-group">
@@ -213,6 +253,7 @@
 </template>
 
 <script>
+import { protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection';
 import SearchResultsListItem from './modules/SearchResultsListItem';
 import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
@@ -221,29 +262,31 @@ import Pagination from './modules/Pagination';
 import SearchQuery from '@/models/SearchQuery';
 import Timeline from './modules/Timeline';
 import StackedBarsPanel from './modules/vis/StackedBarsPanel';
+import { mapFilters } from '@/logic/queryParams'
+import { containsFilter } from '@/logic/filters'
+import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
+import InfoButton from '@/components/base/InfoButton';
+import { getQueryParameter } from '../router/util';
+import { exporter as exporterService} from '@/services';
 
+const QueryParameters = Object.freeze({
+  RecommendersSettings: 'rs'
+})
 
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
+const TAB_RECOMMENDATIONS = 'recommendations';
 
 export default {
-  props: {
-    startYear: {
-      type: Number,
-      default: 1740,
-    },
-    endYear: {
-      type: Number,
-      default: 2020,
-    },
-  },
   data: () => ({
     tab: {},
     collection: new Collection(),
     fetching: false,
+    isTimelineLoading: false,
     TAB_ARTICLES,
     TAB_OVERVIEW,
+    TAB_RECOMMENDATIONS,
     timevalues: [],
     facets: [],
     facetTypes: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic', 'partner', 'accessRight'],
@@ -255,8 +298,20 @@ export default {
     Pagination,
     Timeline,
     StackedBarsPanel,
+    CollectionRecommendationsPanel,
+    InfoButton,
   },
   computed: {
+    collectionUid() {
+      return this.$route.params.collection_uid;
+    },
+    startYear() {
+      return window.impressoDocumentsYearSpan.firstYear;
+    },
+    endYear() {
+      return window.impressoDocumentsYearSpan.lastYear;
+    },
+    filters: mapFilters(),
     searchPageLink() {
       if (!this.collection) {
         return { name: 'search' };
@@ -350,7 +405,7 @@ export default {
     //   },
     // },
     tabs() {
-      return [
+      const mainTabs = [
         {
           label: this.$t('tabs.overview'),
           name: TAB_OVERVIEW,
@@ -360,65 +415,101 @@ export default {
             count: this.$n(this.collection.countItems),
           }),
           name: TAB_ARTICLES,
-        },
-      ];
+        }
+      ]
+      const recommendationsTab = {
+        label: this.$t('tabs.recommendations'),
+        name: TAB_RECOMMENDATIONS,
+      }
+      return this.$route.params.collection_uid != null
+        ? mainTabs.concat([recommendationsTab])
+        : mainTabs
     },
+    recommendersSettings: {
+      /** @returns {import('impresso-jscommons').CollectionRecommendersSettings|undefined} */
+      get() {
+        const settingsString = getQueryParameter(this, QueryParameters.RecommendersSettings)
+        return protobuf.collectionRecommendersSettings.deserialize(settingsString || '')
+      },
+      /** @param {import('impresso-jscommons').CollectionRecommendersSettings} val */
+      set(val) {
+        const settingsString = protobuf.collectionRecommendersSettings.serialize(val)
+        this.$navigation.updateQueryParameters({
+          [QueryParameters.RecommendersSettings]: settingsString
+        })
+      }
+    }
   },
   watch: {
     $route: {
       immediate: true,
       async handler({ query }) {
         if (this.collection.uid !== this.$route.params.collection_uid) {
+          // reset all values
           this.timevalues = [];
           this.facets = [];
           this.paginationCurrentPage = 1;
+          this.collection.countItems = 0;
           this.getCollection();
           await this.getCollectionItems();
           await this.loadTimeline();
           this.facetTypes.forEach((type) => {
             this.loadFacets(type);
           });
-          //
-          // await this.loadFacets('newspaper');
-          // await this.loadFacets('topic');
-          // await this.loadFacets('location');
-          // await this.loadFacets('person');
         }
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
-        // reset item list
-        // if (this.tab.name === TAB_ARTICLES && this.collection.items === []) {
-        // }
-        // if (this.tab.name === TAB_OVERVIEW && this.timevalues === []) {
-        // }
       },
     },
   },
   methods: {
+    handleExportCollection() {
+      exporterService.create({
+        description: this.collectionUid,
+      }, {
+        query: {
+          group_by: 'articles',
+          filters: [{
+            type: 'collection',
+            q: [this.collectionUid]
+          }],
+          format: 'csv',
+        },
+      })
+    },
+    handleRecommendersSettingsUpdated(settings) {
+      this.recommendersSettings = settings
+    },
     getCollectionItems(page) {
       this.fetching = true;
       if (page !== undefined) {
         this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
       }
-      this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
-        this.collection = res;
-        this.fetching = false;
-      });
+      if (!this.collection.uid) {
+        this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
+          this.collection.items = res;
+          this.collection.countItems = this.paginationTotalRows;
+          this.fetching = false;
+        });
+      } else {
+        this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
+          this.collection = res;
+          this.fetching = false;
+        });
+      }
     },
     getCollection() {
-      this.collection = {
-        uid: this.$route.params.collection_uid,
-        items: [],
-      };
+      this.collection.uid = this.$route.params.collection_uid || null;
+      this.collection.items = [];
     },
     gotoArticle(article) {
       this.$router.push({
         name: 'article',
         params: {
           issue_uid: article.issue.uid,
-          page_number: article.pages[0].num,
-          page_uid: article.pages[0].uid,
+          page_number: article.pages[0]?.num,
+          page_uid: article.pages[0]?.uid,
           article_uid: article.uid,
         },
       });
@@ -469,43 +560,22 @@ export default {
     onInputPagination(page = 1) {
       this.getCollectionItems(page);
     },
-    applyFilter(context = 'include') {
-      console.info('applyFilter() \n- context:', context, '\n- searchQuery:', this.searchQueryId || '"current"');
-      this.$eventBus.$emit(this.$eventBus.ADD_FILTER_TO_SEARCH_QUERY, {
-        searchQueryId: '',
-        filter: {
-          type: 'collection',
-          q: [this.collection.uid],
-          items: [this.collection],
-        },
-      });
+    applyFilter() {
+      const newFilter = {
+        type: 'collection',
+        q: this.collection.uid,
+      }
+      this.filters = this.filters
+        .filter(f => !containsFilter(newFilter)(f))
+        .concat([newFilter]);
     },
     loadTimeline() {
+      this.isTimelineLoading = true;
       return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
         this.timevalues = values;
+        this.isTimelineLoading = false;
       });
     },
-    // loadFacets(type) {
-    //   return this.$store.dispatch('collections/LOAD_FACETS',
-    //     {
-    //       q: this.$route.params.collection_uid,
-    //       type: type,
-    //     }).then((r) => {
-    //     this.facets.push(r);
-    //     console.log(r);
-    //   });
-    // },
-    // loadTopics() {
-    //   return this.$store.dispatch('collections/LOAD_TOPICS', this.$route.params.collection_uid).then((topics) => {
-    //     this.facets.push(topics);
-    //   });
-    // },
-    // loadEntities() {
-    //   return this.$store.dispatch('collections/LOAD_ENTITIES', this.$route.params.collection_uid).then(([locationFacet, personFacet]) => {
-    //     this.facets.push(locationFacet, personFacet);
-    //     // console.log(this.facets);
-    //   });
-    // },
     loadFacets(facetType) {
       return this.$store.dispatch('collections/LOAD_FACETS', {q: this.$route.params.collection_uid, type: facetType})
         .then((r) => {
@@ -521,13 +591,21 @@ export default {
 .modal-edit {
   min-width: 400px;
 }
+.collection-recommendation{
+  overflow:hidden;
+}
+.loading {
+  opacity: 0.5;
+}
 </style>
 
 <i18n>
 {
   "en": {
     "collections": "collections",
+    "all_collections_title": "All items in my collections",
     "label_order": "Order By",
+    "label_export_csv": "export collection...",
     "sort_date": "Item Date",
     "sort_dateAdded": "Date Added",
     "sort_asc": "Ascending",
@@ -536,7 +614,7 @@ export default {
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
-    "edit_collection": "Collection Settings",
+    "edit_collection": "Settings",
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "compare_collection": "Compare with ...",

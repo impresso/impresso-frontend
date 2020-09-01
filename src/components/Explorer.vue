@@ -2,16 +2,11 @@
   <b-modal v-on:hidden="$emit(events.Hide)"
           :id="id"
           ref="facet-explorer-modal"
+          :scrollable="false"
           body-class="p-0">
     <template v-slot:modal-header class="mt-2 mr-0">
       <div>
         <div class="tb-title small-caps font-weight-bold">{{ $t('explore') }}</div>
-        <div class="small mb-1">
-          <span v-if="isLoading">{{ $t('loading') }}</span>
-          <span v-else v-html="$tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-            searchQuery,
-          })"></span>
-        </div>
         <b-button v-for="(availableType, i) in typeOptions" v-bind:key="i"
                   class="mr-1 mt-1"
                   variant="outline-primary" size="sm"
@@ -19,6 +14,12 @@
                   v-bind:class="{ 'active' : currentType === availableType }">
           {{ $t(`labels.${availableType}`) }}
         </b-button>
+        <div class="small mt-2">
+          <span v-if="isLoading">{{ $t('loading') }}</span>
+          <span v-else v-html="$tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
+            searchQuery,
+          })"></span>
+        </div>
         <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
           <b-input-group>
             <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
@@ -33,7 +34,15 @@
             </b-input-group-append>
           </b-input-group>
         </form>
+
       </div>
+      <div class="ml-auto">
+        <b-button pill class="dripicons-cross px-0" variant="outline-danger"
+          style="width:1.5em; height:1.5em"
+          size="sm" v-on:click.prevent="closeDialog">
+        </b-button>
+      </div>
+
     </template>
     <!-- .modal-body -->
     <div class="bg-light">
@@ -45,33 +54,28 @@
       <facet-explorer v-if="!RangeFacets.includes(currentType)"
                       :filter-type="currentType"
                       :buckets="buckets"
-                      v-model="filter"
-                      />
-      <range-facet-explorer v-if="RangeFacets.includes(currentType)"
+                      v-model="filter">
+          <template v-slot:pagination>
+            <pagination v-model="currentPageModel"
+                        v-bind:perPage="pageSize"
+                        v-bind:totalRows="totalResults"
+                        v-bind:showDescription="false"/>
+          </template>
+      </facet-Explorer>
+      <range-facet-explorer class="p-3" v-if="NumericRangeFacets.includes(currentType)"
                       :filter-type="currentType"
                       :buckets="buckets"
                       :range="range"
                       v-model="filter"
                       />
-    </div>
-    <div v-if="totalResults > pageSize" class="py-4 border-top">
-      <div
-        class="fixed-pagination-footer mb-2 p-1">
-        <pagination v-model="currentPageModel"
-                    v-bind:perPage="pageSize"
-                    v-bind:totalRows="totalResults"
-                    v-bind:showDescription="false"/>
-      </div>
-    </div>
+      <time-facet-explorer v-if="TimeRangeFacets.includes(currentType)"
+        v-model="filter"
+        :filter-type="currentType"
+        :buckets="buckets" />
+    </div><!-- .modal-body -->
     <!-- footer -->
-    <template v-slot:modal-footer>
-      <!--  Pagination -->
-      <b-button variant="outline-primary"
-                size="sm"
-                block
-                @click="closeDialog">
-        {{ $t('actions.close') }}
-      </b-button>
+    <template v-slot:modal-footer="{ close }">
+      <b-button @click="close()" size="sm" variant="outline-primary">{{ $t('actions.close') }}</b-button>
     </template>
   </b-modal>
 </template>
@@ -85,10 +89,11 @@ import {
   searchFacets
 } from '@/services'
 import FacetExplorer from './modules/FacetExplorer';
+import TimeFacetExplorer from './modules/TimeFacetExplorer';
 import RangeFacetExplorer from './modules/RangeFacetExplorer';
 import Pagination from './modules/Pagination';
 import Bucket from '@/models/Bucket';
-import { RangeFacets } from '@/logic/filters'
+import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filters'
 
 const TypeToServiceMap = Object.freeze({
   person: entities,
@@ -173,7 +178,7 @@ const AllSupportedFilterTypes = [
   'location', 'country', 'person', 'language',
   'topic', 'newspaper', 'collection', 'year', 'month',
   'textReuseClusterSize', 'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta'
+  'textReuseClusterDayDelta', 'daterange'
 ]
 
 const DefaultFilterTypes = [
@@ -187,7 +192,7 @@ export default {
     event: 'changed'
   },
   data: () => ({
-    /** @type {string} */
+    /** @type {string | undefined} */
     id: undefined,
     events: Events,
     currentType: 'person',
@@ -197,12 +202,18 @@ export default {
     buckets: [],
     range: [],
     isLoading: false,
+    isTimelineLoading: false,
     pageSize: PageSize,
-    RangeFacets
+    RangeFacets,
+    NumericRangeFacets,
+    TimeRangeFacets
   }),
   props: {
-    /** @type {import('vue').PropType<import('../models/models').Filter[]>} */
-    filters: Array,
+    /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
+    filters: {
+      type: Array,
+      default: () => []
+    },
     searchingEnabled: {
       type: Boolean,
       default: false
@@ -297,6 +308,7 @@ export default {
     FacetExplorer,
     Pagination,
     RangeFacetExplorer,
+    TimeFacetExplorer,
   },
   watch: {
     searchParameters: {
@@ -339,6 +351,7 @@ export default {
 <i18n>
   {
     "en": {
+      "explore": "refine",
       "description": {
         "search": "It looks like there are <b>no available options</b> matching for type: | ... Just <b>one</b> option mathing for type:| Select among<b> {count}</b> options matching {q} for type:",
         "facets": "It looks like there are <b>no available options</b> using current search for type: | ... Just <b>one</b> option to refine your search for type:| Select among<b> {count}</b> options to refine your search for type:"
@@ -348,6 +361,7 @@ export default {
         "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
       },
       "labels": {
+        "daterange": "by date",
         "location": "location",
         "country": "country",
         "person": "person",
@@ -357,9 +371,9 @@ export default {
         "collection": "collection",
         "year": "year",
         "month": "month",
-        "textReuseClusterSize": "text reuse cluster size",
-        "textReuseClusterLexicalOverlap": "text reuse cluster lexical overlap",
-        "textReuseClusterDayDelta": "text reuse cluster span in days"
+        "textReuseClusterSize": "cluster size",
+        "textReuseClusterLexicalOverlap": "cluster lexical overlap",
+        "textReuseClusterDayDelta": "cluster span in days"
       }
     }
   }

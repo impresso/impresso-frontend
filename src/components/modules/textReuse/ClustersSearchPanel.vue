@@ -2,10 +2,10 @@
   <div>
     <div class="mt-2">
       <search-pills :filters="filters"
-        :enableAddFilter=true
         :includedFilterTypes="supportedFilterTypes"
         @changed="handleFiltersChanged"
-        :index="'tr_clusters'" />
+        :index="'tr_clusters'"
+        :enableAddFilter="true" />
     </div>
 
     <search-input class="mt-3"
