@@ -20,10 +20,6 @@
       <div class="size small-caps" v-html="$tc('numbers.articles', cluster.clusterSize, {
         n: $n(cluster.clusterSize),
       })"/>
-      <div class="time-coverage" v-html="$t('filters.daterange.item', {
-        start: $d(new Date(cluster.timeCoverage.from), 'short'),
-        end: $d(new Date(cluster.timeCoverage.to), 'short')
-      })"/>
     </div>
 
     <div v-if="textSample != null">
@@ -39,6 +35,11 @@
 
       <!-- time span -->
       <timeline-with-span
+        v-b-tooltip.hover.bottom.html
+        :title="$t('filters.daterange.item', {
+          start: $d(new Date(cluster.timeCoverage.from), 'short'),
+          end: $d(new Date(cluster.timeCoverage.to), 'short')
+        })"
         :height="30"
         :startDate="impressoCollectionStartDate"
         :endDate="impressoCollectionEndDate"
