@@ -484,7 +484,12 @@ export default {
           name: this.inputName,
           description: this.inputDescription,
         }).then((collection) => {
-          this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid);
+          console.log(collection);
+          const payload = {
+            filters: this.filters.map(getFilterQuery),
+            collectionUid: collection.uid
+          };
+          this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', payload);
         });
       }
     },

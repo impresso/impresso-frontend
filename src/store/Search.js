@@ -297,12 +297,13 @@ export default {
       //   context.commit('ADD_FILTER', filter);
       // }
     },
-    CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
+    CREATE_COLLECTION_FROM_QUERY(context, payload) {
+      console.log(payload, services.search.methods.create);
       return new Promise((resolve) => {
         services.search.create({
           group_by: 'articles',
-          filters: context.getters.getSearch.getFilters(),
-          collection_uid: collectionUid,
+          filters: payload.filters,
+          collection_uid: payload.collectionUid,
         }).then(res => resolve(res));
       });
     },
