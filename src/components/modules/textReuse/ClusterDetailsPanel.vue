@@ -5,14 +5,17 @@
       <h2 class="flex-grow-1">
         <span>#{{ clusterId }}</span>
       </h2>
-      <div class="text-right">
-        <div class="lexical-overlap" v-b-tooltip.hover :title="$t('lexicalOverlap')">
-          {{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 0 })}}
-        </div>
-        <div class="small-caps" v-html="$tc('numbers.articles', cluster.clusterSize, {
-          n: $n(cluster.clusterSize),
-        })"/>
+
+      <div class="lexical-overlap" v-b-tooltip.hover :title="$t('lexicalOverlap')">
+        {{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 0 })}}
       </div>
+
+      <span class="px-1">–</span>
+
+      <div class="small-caps" v-html="$tc('numbers.articles', cluster.clusterSize, {
+        n: $n(cluster.clusterSize),
+      })"/>
+
     </div>
 
     <div v-if="textSample != null">
