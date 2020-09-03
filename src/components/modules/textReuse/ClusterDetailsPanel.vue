@@ -82,7 +82,9 @@ export default {
   @import "impresso-theme/src/scss/variables.sass";
 
   .cluster-details-panel {
+
     &.selected, &:hover{
+      h2 span,
       .text-sample > span{
         background-color: #c5e8f3;
       }
@@ -97,30 +99,14 @@ export default {
     }
 
     .lexical-overlap {
-      background: #dee2e6;
-      border-radius: 5px;
-      font-weight: normal;
-      padding: 0 4px;
-      font-size: .9em;
-    }
 
-    .cluster-subtitle {
-      line-height: 1em;
-
-      .date {
-        text-transform: lowercase;
-        font-variant: small-caps;
-      }
-
-      .time-coverage {
-        font-size: 14px; // to match small-caps font-size
-      }
     }
 
     .number {
       font-weight: 600;
     }
   }
+
 </style>
 
 <i18n>
