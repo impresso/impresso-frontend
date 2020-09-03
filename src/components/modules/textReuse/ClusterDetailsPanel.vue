@@ -2,12 +2,9 @@
   <div class="cluster-details-panel">
     <!-- header -->
     <div class="d-flex">
-      <div class="flex-grow-1">
-        <div class='badge badge-language small-caps mr-1'>{{ $t('clusterLabel') }}</div>
-        <span>
-          #{{ clusterId }}
-        </span>
-      </div>
+      <h2 class="flex-grow-1">
+        <span>#{{ clusterId }}</span>
+      </h2>
       <div class="text-right">
         <div class="lexical-overlap" v-b-tooltip.hover :title="$t('lexicalOverlap')">
           {{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 2 })}}
