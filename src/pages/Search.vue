@@ -484,7 +484,6 @@ export default {
           name: this.inputName,
           description: this.inputDescription,
         }).then((collection) => {
-          console.log(collection);
           const payload = {
             filters: this.filters.map(getFilterQuery),
             collectionUid: collection.uid
