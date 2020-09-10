@@ -100,6 +100,15 @@
                 <div v-else>{{$t('toggle_outlines_off')}}</div>
               </div>
             </b-button>
+              <b-button
+                :variant="isFullscreen ? 'primary' : 'outline-primary'"
+                size="sm"
+                @click="toggleFullscreen"
+                class="ml-1">
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons my-1" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
+                </div>
+              </b-button>
           </b-navbar-nav>
 
           <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
@@ -209,6 +218,7 @@ export default {
     paginationTotalRows: 0,
     matchingArticles: /** @type {Article[]} */ [],
     outlinesVisible: false,
+    isFullscreen: false,
     displayOnlyMatchingArticles: false,
   }),
   components: {
@@ -462,6 +472,19 @@ export default {
         }
       }
     },
+    fullscreenChange() {
+      this.isFullscreen = !this.isFullscreen;
+    },
+    toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        this.$refs.issuePageViewer.$el.requestFullscreen().then(() => {
+        }).catch((err) => {
+          console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    },
     handleFiltersChanged(filters) {
       this.displayOnlyMatchingArticles = true;
       // add back ignored filters so that we can reuse them in other views
@@ -564,6 +587,8 @@ export default {
     "table_of_contents": "table of contents",
     "toggle_outlines_on": "outlines: on",
     "toggle_outlines_off": "Outlines: off",
+    "toggle_fullscreen_on": "switch to fullscreen mode",
+    "toggle_fullscreen_off": "exit fullscreen mode",
     "filter_included_only": "show only matching articles (no results) | show only matching articles (<b>1</b> result) | show only matching articles (<b>{n}</b> results)"
   }
 }
