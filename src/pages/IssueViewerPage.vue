@@ -93,16 +93,19 @@
             </div>
           </b-navbar-nav>
 
-          <b-navbar-nav class="p-2" v-if="!isArticleTextDisplayed">
-            <b-button
-              :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
-              @click="outlinesVisible = !outlinesVisible">
-              <div class="d-flex flex-row align-items-center">
-                <div class="d-flex dripicons dripicons-preview mr-2" />
-                <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div>
-                <div v-else>{{$t('toggle_outlines_off')}}</div>
-              </div>
-            </b-button>
+          <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
+            <div v-b-tooltip.hover :title="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')">
+              <b-button
+                :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
+                @click="outlinesVisible = !outlinesVisible">
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons dripicons-duplicate my-1" />
+                  <!-- <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div> -->
+                  <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
+                </div>
+              </b-button>
+            </div>
+            <div v-b-tooltip.hover :title="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
               <b-button
                 :variant="isFullscreen ? 'primary' : 'outline-primary'"
                 size="sm"
@@ -112,6 +115,7 @@
                   <div class="d-flex dripicons my-1" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
                 </div>
               </b-button>
+            </div>
           </b-navbar-nav>
 
           <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
@@ -598,8 +602,8 @@ export default {
     "label_display": "Display as",
     "label_filter_articles": "Search words...",
     "table_of_contents": "table of contents",
-    "toggle_outlines_on": "outlines: on",
-    "toggle_outlines_off": "Outlines: off",
+    "toggle_outlines_on": "show article outlines",
+    "toggle_outlines_off": "hide article outlines",
     "toggle_fullscreen_on": "switch to fullscreen mode",
     "toggle_fullscreen_off": "exit fullscreen mode",
     "filter_included_only": "show only matching articles (no results) | show only matching articles (<b>1</b> result) | show only matching articles (<b>{n}</b> results)"
