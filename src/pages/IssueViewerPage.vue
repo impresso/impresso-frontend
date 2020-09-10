@@ -618,9 +618,6 @@ export default {
 </i18n>
 
 <style lang="scss">
-.close-button {
-  position: absolute;
-  right: 0;
 @import "impresso-theme/src/scss/variables.sass";
 
 section.i-layout-section {
