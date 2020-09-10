@@ -119,7 +119,10 @@
           </b-navbar-nav>
 
           <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
-            <b-button-group>
+
+            <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
+
+            <b-button-group class="ml-2">
               <b-button size="sm" :class="{ active: !isArticleTextDisplayed }" variant="outline-primary" @click="isArticleTextDisplayed = false">
                 <div class="d-flex align-items-center">
                   {{ $t('facsimileView') }}
@@ -199,6 +202,7 @@ import TableOfContents from '@/models/TableOfContents'
 import SearchPills from '@/components/SearchPills'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
+import CollectionAddTo from '@/components/modules/CollectionAddTo';
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -235,7 +239,8 @@ export default {
     IssueViewerText,
     SearchPills,
     IssueViewerBookmarker,
-    IssueViewerTableOfContents
+    IssueViewerTableOfContents,
+    CollectionAddTo
   },
   mounted() {
     if (this.suggestionQuery.length) {
@@ -606,6 +611,7 @@ export default {
     "toggle_outlines_off": "hide article outlines",
     "toggle_fullscreen_on": "switch to fullscreen mode",
     "toggle_fullscreen_off": "exit fullscreen mode",
+    "add_to_collection": "Add to Collection ...",
     "filter_included_only": "show only matching articles (no results) | show only matching articles (<b>1</b> result) | show only matching articles (<b>{n}</b> results)"
   }
 }
