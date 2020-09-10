@@ -235,6 +235,14 @@ export default {
       this.displayOnlyMatchingArticles = true;
     }
   },
+  created() {
+    window.addEventListener('fullscreenchange', this.fullscreenChange);
+    window.addEventListener('keydown', this.keyDown);
+  },
+  destroyed() {
+    window.removeEventListener('fullscreenchange', this.fullscreenChange);
+    window.removeEventListener('keydown', this.keyDown);
+  },
   computed: {
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     searchQuery: {
