@@ -573,5 +573,12 @@ export default {
 .close-button {
   position: absolute;
   right: 0;
+@import "impresso-theme/src/scss/variables.sass";
+
+section.i-layout-section {
+  background-color: $clr-bg-secondary;
+}
+section.i-layout-section > div.header {
+  background-color: $clr-bg-primary;
 }
 </style>
