@@ -70,12 +70,15 @@
               <span class="date">{{ $d(issue.date, 'long') }}</span>
             </h3>
           </section>
-          <b-navbar-nav>
-            <b-button class="border-dark" variant="light" size="sm"
-              :disabled="currentPageIndex === 0"
-              @click="changeCurrentPageIndex(currentPageIndex - 1)">
-              <div class="dripicons dripicons-media-previous pt-1"></div>
-            </b-button>
+          <b-navbar-nav v-show="!isArticleTextDisplayed">
+            <div v-b-tooltip.ds500 :title="$t('label_previous_page')">
+              <b-button class="border-dark" variant="light" size="sm"
+                :disabled="currentPageIndex === 0"
+                @click="changeCurrentPageIndex(currentPageIndex - 1)">
+                <div class="dripicons dripicons-media-previous pt-1"></div>
+              </b-button>
+            </div>
+
             <div class="px-2 pt-1 border-top border-bottom" v-html="$t('ppOf', {
               num: page.num,
               pages: issue.pages.length
@@ -443,6 +446,22 @@ export default {
     },
   },
   methods: {
+    keyDown(e) {
+      if (e.shiftKey) {
+        switch (e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          this.changeCurrentPageIndex(this.currentPageIndex - 1);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          this.changeCurrentPageIndex(this.currentPageIndex + 1);
+          break;
+        default:
+          break;
+        }
+      }
+    },
     handleFiltersChanged(filters) {
       this.displayOnlyMatchingArticles = true;
       // add back ignored filters so that we can reuse them in other views

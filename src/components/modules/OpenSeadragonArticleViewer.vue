@@ -346,13 +346,15 @@ export default {
 
 
 <style lang="scss">
+@import "impresso-theme/src/scss/variables.sass";
+
 .os-article-viewer {
   height: 100%;
   width: 100%;
 }
 div.overlay-page {
-  border: 1px solid green;
-  box-shadow: 2px 2px 16px black;
+  border: 10px solid transparentize($clr-accent-secondary, 0.5);
+  box-shadow: 0 0 40px #0005;
   pointer-events: none;
 }
 
