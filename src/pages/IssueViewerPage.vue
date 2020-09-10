@@ -83,11 +83,14 @@
               num: page.num,
               pages: issue.pages.length
             })"></div>
-            <b-button class="border-dark" variant="light" size="sm"
-              :disabled="(currentPageIndex + 1) === issue.pages.length"
-              @click="changeCurrentPageIndex(currentPageIndex + 1)">
-              <div class="dripicons dripicons-media-next pt-1"></div>
-            </b-button>
+
+            <div v-b-tooltip.ds500 :title="$t('label_next_page')">
+              <b-button class="border-dark" variant="light" size="sm"
+                :disabled="(currentPageIndex + 1) === issue.pages.length"
+                @click="changeCurrentPageIndex(currentPageIndex + 1)">
+                <div class="dripicons dripicons-media-next pt-1"></div>
+              </b-button>
+            </div>
           </b-navbar-nav>
 
           <b-navbar-nav class="p-2" v-if="!isArticleTextDisplayed">
@@ -590,6 +593,8 @@ export default {
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
+    "label_previous_page": "Previous Page (Shift + ←)",
+    "label_next_page": "Next Page (Shift + →)",
     "label_display": "Display as",
     "label_filter_articles": "Search words...",
     "table_of_contents": "table of contents",
