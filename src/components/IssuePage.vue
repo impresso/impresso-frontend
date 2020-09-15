@@ -229,7 +229,7 @@ export default {
     },
     isContentAvailable() {
       if (this.issue) {
-        if (this.issue.accessRights === 'OpenPublic') {
+        if (this.issue.accessRight === 'OpenPublic') {
           return true;
         } else if (this.currentUser && this.currentUser.isActive) {
           return true;
