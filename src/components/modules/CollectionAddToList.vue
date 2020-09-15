@@ -7,6 +7,7 @@
             v-bind:placeholder="$t('placeholder')"
             v-on:input="onInput"
             v-on:keyup.enter="addCollection(inputString.trim())"
+            ref="inputString"
             v-model="inputString"
             />
             <div class="input-group-append">
@@ -70,6 +71,9 @@ export default {
     item: Object,
     items: Array,
   },
+  updated() {
+    this.focusInput();
+  },
   computed: {
     filteredCollections() {
       return this.collections.filter((collection) => {
@@ -88,12 +92,15 @@ export default {
     fetch() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
+    focusInput() {
+      this.$refs.inputString.focus();
+    },
     onInput() {
       const input = this.inputString.trim();
       this.isDisabled =
         input.length < 3 ||
         input.length > 50 ||
-        this.collections.some(item => item.name === input);
+        this.collections.some(item => item.name.toLowerCase() === input.toLowerCase());
     },
     isIndeterminate(needle) {
       const items = this.items || [this.item];
@@ -235,7 +242,7 @@ export default {
 <i18n>
 {
   "en": {
-    "placeholder": "filter or create new collection",
+    "placeholder": "type or choose a collection",
     "create_new": "Create New",
     "manage_collections": "Manage my Collections",
     "created": "Created:",
