@@ -412,7 +412,7 @@ input[type="range"]:active::-ms-thumb {
   padding-left: 3px;
 }
 .dropdown-menu {
-  min-width: inherit;
+  min-width: 100px;
   padding: 0;
 }
 
