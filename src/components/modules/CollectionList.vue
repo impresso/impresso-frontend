@@ -32,7 +32,7 @@
               </b-button>
             </div>
             <div
-              v-if="newCollectionError.length !== 0"
+              v-if="newCollectionError !== ''"
               class="alert alert-danger text-small w-100 mt-1 mb-0" role="alert">
               {{newCollectionError}}
             </div>
@@ -225,7 +225,6 @@ export default {
     },
     onInputNew() {
       const len = this.inputNew.trim().length;
-      //this.isDisabled = (len >= 3 && len <= 50);
       this.newCollectionError = '';
 
       if (len > 0 && len < 3 || len > 50) {
