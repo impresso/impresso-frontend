@@ -262,6 +262,13 @@ $clr-grey-900: #ddd;
   border-color: $clr-tertiary;
 }
 
+.btn.disabled, .btn:disabled {
+  opacity: 0.45 !important;
+}
+.btn-outline-primary.disabled, .btn-outline-primary:disabled {
+  background-color: $clr-tertiary !important;
+}
+
 // --- input range sliders ---
 // using classes that are browser specific,
 // stacking them together would invalidate the whole class
