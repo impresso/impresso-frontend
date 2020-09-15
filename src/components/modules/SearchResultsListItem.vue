@@ -13,7 +13,7 @@
       v-else
       class="error bg-light border"
       slot="aside" >
-      <p class="message">{{$t('login_message')}}</p>
+      <p class="message">{{article.issue.accessRights}}</p>
     </div>
     <div class="d-flex">
       <div class="list-item-details">
@@ -47,6 +47,8 @@
         } }" class="btn btn-sm btn-outline-primary mr-1">
           {{$t('view')}}
         </router-link>
+
+        <pre>{{article}}</pre>
 
         <slot name="secondary-action">
           <collection-add-to
@@ -156,7 +158,7 @@ export default {
       this.$emit('click');
     },
     isAvailable() {
-      if (this.article.accessRight === 'OpenPublic') {
+      if (this.article.issue.accessRights === 'OpenPublic') {
         return true;
       }
       return this.$store.state.user.userData;
