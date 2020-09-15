@@ -7,6 +7,7 @@
             v-bind:placeholder="$t('placeholder')"
             v-on:input="onInput"
             v-on:keyup.enter="addCollection(inputString.trim())"
+            ref="inputString"
             v-model="inputString"
             />
             <div class="input-group-append">
@@ -14,7 +15,7 @@
                 size="sm"
                 variant="outline-primary"
                 class="float-right"
-                v-bind:disabled="isDisabled == 0"
+                v-bind:disabled="isDisabled"
                 v-on:click="addCollection(inputString.trim())"
                 >
                 {{$t('create_new')}}
@@ -63,12 +64,15 @@
 export default {
   data: () => ({
     show: false,
-    isDisabled: false,
+    isDisabled: true,
     inputString: '',
   }),
   props: {
     item: Object,
     items: Array,
+  },
+  updated() {
+    this.focusInput();
   },
   computed: {
     filteredCollections() {
@@ -88,9 +92,15 @@ export default {
     fetch() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
+    focusInput() {
+      this.$refs.inputString.focus();
+    },
     onInput() {
-      const len = this.inputString.trim().length;
-      this.isDisabled = (len >= 3 && len <= 50);
+      const input = this.inputString.trim();
+      this.isDisabled =
+        input.length < 3 ||
+        input.length > 50 ||
+        this.collections.some(item => item.name.toLowerCase() === input.toLowerCase());
     },
     isIndeterminate(needle) {
       const items = this.items || [this.item];
@@ -146,7 +156,7 @@ export default {
       } // end remove items from collection
     },
     addCollection(collectionName) {
-      if (!this.isDisabled) {
+      if (this.isDisabled) {
         return;
       }
       this.$store.dispatch('collections/ADD_COLLECTION', {
@@ -232,7 +242,7 @@ export default {
 <i18n>
 {
   "en": {
-    "placeholder": "filter or create new collection",
+    "placeholder": "type or choose a collection",
     "create_new": "Create New",
     "manage_collections": "Manage my Collections",
     "created": "Created:",
