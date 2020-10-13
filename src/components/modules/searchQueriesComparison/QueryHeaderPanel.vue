@@ -96,6 +96,7 @@ import CollectionPicker from '../../base/CollectionPicker';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 
 const SupportedFilterTypes = [
+  'string', 'title', 'accessRight',
   'location', 'country', 'person', 'language',
   'topic', 'newspaper', 'collection', 'daterange'
 ]

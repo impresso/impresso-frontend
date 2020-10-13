@@ -164,6 +164,9 @@ export default {
       } // end remove items from collection
     },
     addCollection(collectionName) {
+      if (this.isDisabled) {
+        return;
+      }
       this.$store.dispatch('collections/ADD_COLLECTION', {
         name: collectionName,
       }).then((collection) => {
