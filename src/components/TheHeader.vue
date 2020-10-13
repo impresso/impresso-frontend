@@ -609,7 +609,8 @@ export default {
 
 @media (min-height: 600px) {
   .jobs-list > .list {
-    height: 550px;
+    max-height: 550px;
+    height: auto;
   }
 }
 @media (min-width: 992px) {

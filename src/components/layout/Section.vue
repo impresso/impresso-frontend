@@ -66,6 +66,7 @@ section.i-layout-section{
   grid-template-rows: min-content auto min-content;
   grid-template-areas: "header" "body" "footer";
   height: 100%;
+  background-color: transparent;
   >.header{
     grid-area: header;
     position: relative;

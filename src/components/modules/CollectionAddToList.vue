@@ -1,7 +1,7 @@
 <template lang="html">
     <div class="collection-add-to">
       <div class="header bg-light p-2 border-bottom">
-        <div class="input-group w-100">
+        <div class="input-group">
           <input type="text"
             class="form-control"
             v-bind:placeholder="$t('placeholder')"
@@ -21,6 +21,12 @@
                 {{$t('create_new')}}
               </b-button>
             </div>
+        </div>
+
+        <div
+          v-if="newCollectionError !== ''"
+          class="alert alert-danger text-small w-100 mt-2 mb-0" role="alert">
+          {{newCollectionError}}
         </div>
       </div>
       <b-container fluid class="inputList p-0">
@@ -66,6 +72,7 @@ export default {
     show: false,
     isDisabled: true,
     inputString: '',
+    newCollectionError: '',
   }),
   props: {
     item: Object,
@@ -96,6 +103,7 @@ export default {
       this.$refs.inputString.focus();
     },
     onInput() {
+      this.newCollectionError = '';
       const input = this.inputString.trim();
       this.isDisabled =
         input.length < 3 ||
@@ -165,6 +173,14 @@ export default {
         this.toggleActive(collection);
         this.inputString = '';
         this.fetch();
+      }).catch(e => {
+        if (e.code === 400) {
+          this.newCollectionError = this.$t('NotValidLength')
+        } else if (e.code === 409) {
+          this.newCollectionError = this.$t('name_already_exists')
+        } else {
+          throw e
+        }
       });
     },
     isLoggedIn() {
@@ -247,7 +263,9 @@ export default {
     "manage_collections": "Manage my Collections",
     "created": "Created:",
     "last_edited": "Last edited",
-    "items": "items"
+    "items": "items",
+    "name_already_exists": "This collection label has already been used, please choose another one",
+    "NotValidLength": "Collection label must be between 3 and 50 characters long"
   },
   "de": {
     "placeholder": "Filtern oder neue Sammlung erstellen",

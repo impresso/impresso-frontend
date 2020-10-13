@@ -31,11 +31,11 @@
                 {{$t('create_new')}}
               </b-button>
             </div>
-            <div
-              v-if="newCollectionError !== ''"
-              class="alert alert-danger text-small w-100 mt-1 mb-0" role="alert">
-              {{newCollectionError}}
-            </div>
+          </div>
+
+          <div v-if="newCollectionError !== ''"
+            class="alert alert-danger text-small mt-2 mb-0" role="alert">
+            {{newCollectionError}}
           </div>
 
         </div>
@@ -240,7 +240,6 @@ export default {
         this.fetch();
         this.select(res);
       }).catch(e => {
-        console.log(e);
         if (e.code === 400) {
           this.newCollectionError = this.$t('NotValidLength')
         } else
