@@ -70,6 +70,7 @@ section.i-layout-section{
   >.header{
     grid-area: header;
     position: relative;
+    background-color: transparent;
     &::after{
       content: '';
       position: absolute;
