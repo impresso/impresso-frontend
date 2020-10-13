@@ -3,7 +3,7 @@
     <b-navbar >
       <section>
         <span class="label small-caps">
-          <span>&larr; {{$t("clustersLabel")}}</span>
+          <span>{{$t("clustersLabel")}}</span>
         </span>
         <info-button class="ml-2" name="text-reuse"/>
         <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}} </h3>
