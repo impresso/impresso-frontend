@@ -19,6 +19,7 @@
       <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
       <span class="date">{{ $d(item.date, "long") }}</span>
       <span> – {{ pages }}</span>
+      <div>{{$t(`buckets.accessRight.${item.accessRight}`)}}</div>
     </div>
 
 
@@ -80,7 +81,6 @@
       </ul>
     </div>
     <slot name="footer"></slot>
-    <!-- {{ item.issue.accessRights }} -->
   </article>
 </template>
 

@@ -54,7 +54,7 @@
             v-bind:text="$t('add_to_collection')" />
         </slot>
 
-        <div v-if="article.issue.accessRights === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
+        <div v-if="article.accessRight === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
           <b-button
             variant="outline-success" size="sm"
             v-on:click="showModalShareArticle()"
@@ -156,7 +156,7 @@ export default {
       this.$emit('click');
     },
     isAvailable() {
-      if (this.article.issue.accessRights === 'OpenPublic') {
+      if (this.article.accessRight === 'OpenPublic') {
         return true;
       }
       return this.$store.state.user.userData;
