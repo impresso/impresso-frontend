@@ -33,8 +33,7 @@
             </div>
           </div>
 
-          <div
-            v-if="newCollectionError !== ''"
+          <div v-if="newCollectionError !== ''"
             class="alert alert-danger text-small mt-2 mb-0" role="alert">
             {{newCollectionError}}
           </div>

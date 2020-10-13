@@ -173,8 +173,7 @@ export default {
       }).catch(e => {
         if (e.code === 400) {
           this.newCollectionError = this.$t('NotValidLength')
-        } else
-        if (e.code === 409) {
+        } else if (e.code === 409) {
           this.newCollectionError = this.$t('name_already_exists')
         } else {
           throw e
