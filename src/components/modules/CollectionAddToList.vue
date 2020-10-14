@@ -1,12 +1,13 @@
 <template lang="html">
     <div class="collection-add-to">
       <div class="header bg-light p-2 border-bottom">
-        <div class="input-group w-100">
+        <div class="input-group">
           <input type="text"
             class="form-control"
             v-bind:placeholder="$t('placeholder')"
             v-on:input="onInput"
             v-on:keyup.enter="addCollection(inputString.trim())"
+            ref="inputString"
             v-model="inputString"
             />
             <div class="input-group-append">
@@ -14,12 +15,18 @@
                 size="sm"
                 variant="outline-primary"
                 class="float-right"
-                v-bind:disabled="isDisabled == 0"
+                v-bind:disabled="isDisabled"
                 v-on:click="addCollection(inputString.trim())"
                 >
                 {{$t('create_new')}}
               </b-button>
             </div>
+        </div>
+
+        <div
+          v-if="newCollectionError !== ''"
+          class="alert alert-danger text-small w-100 mt-2 mb-0" role="alert">
+          {{newCollectionError}}
         </div>
       </div>
       <b-container fluid class="inputList p-0">
@@ -63,12 +70,16 @@
 export default {
   data: () => ({
     show: false,
-    isDisabled: false,
+    isDisabled: true,
     inputString: '',
+    newCollectionError: '',
   }),
   props: {
     item: Object,
     items: Array,
+  },
+  updated() {
+    this.focusInput();
   },
   computed: {
     filteredCollections() {
@@ -88,9 +99,16 @@ export default {
     fetch() {
       return this.$store.dispatch('collections/LOAD_COLLECTIONS');
     },
+    focusInput() {
+      this.$refs.inputString.focus();
+    },
     onInput() {
-      const len = this.inputString.trim().length;
-      this.isDisabled = (len >= 3 && len <= 50);
+      this.newCollectionError = '';
+      const input = this.inputString.trim();
+      this.isDisabled =
+        input.length < 3 ||
+        input.length > 50 ||
+        this.collections.some(item => item.name.toLowerCase() === input.toLowerCase());
     },
     isIndeterminate(needle) {
       const items = this.items || [this.item];
@@ -146,7 +164,7 @@ export default {
       } // end remove items from collection
     },
     addCollection(collectionName) {
-      if (!this.isDisabled) {
+      if (this.isDisabled) {
         return;
       }
       this.$store.dispatch('collections/ADD_COLLECTION', {
@@ -155,6 +173,14 @@ export default {
         this.toggleActive(collection);
         this.inputString = '';
         this.fetch();
+      }).catch(e => {
+        if (e.code === 400) {
+          this.newCollectionError = this.$t('NotValidLength')
+        } else if (e.code === 409) {
+          this.newCollectionError = this.$t('name_already_exists')
+        } else {
+          throw e
+        }
       });
     },
     isLoggedIn() {
@@ -232,12 +258,14 @@ export default {
 <i18n>
 {
   "en": {
-    "placeholder": "filter or create new collection",
+    "placeholder": "type or choose a collection",
     "create_new": "Create New",
     "manage_collections": "Manage my Collections",
     "created": "Created:",
     "last_edited": "Last edited",
-    "items": "items"
+    "items": "items",
+    "name_already_exists": "This collection label has already been used, please choose another one",
+    "NotValidLength": "Collection label must be between 3 and 50 characters long"
   },
   "de": {
     "placeholder": "Filtern oder neue Sammlung erstellen",

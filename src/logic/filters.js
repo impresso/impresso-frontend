@@ -174,7 +174,8 @@ export const SupportedFiltersByContext = Object.freeze({
     'textReuseClusterLexicalOverlap',
     'textReuseClusterDayDelta',
     'daterange',
-    'newspaper'
+    'newspaper',
+    'collection'
   ],
   entities: [
     'string',

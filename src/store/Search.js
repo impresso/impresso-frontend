@@ -297,11 +297,11 @@ export default {
       //   context.commit('ADD_FILTER', filter);
       // }
     },
-    CREATE_COLLECTION_FROM_QUERY(context, collectionUid) {
+    CREATE_COLLECTION_FROM_QUERY(context, { filters, collectionUid }) {
       return new Promise((resolve) => {
         services.search.create({
           group_by: 'articles',
-          filters: context.getters.getSearch.getFilters(),
+          filters: filters,
           collection_uid: collectionUid,
         }).then(res => resolve(res));
       });

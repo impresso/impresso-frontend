@@ -56,4 +56,5 @@ export interface TextReuseCluster {
   clusterSize: number
   timeCoverage: ClusterTimeCoverage
   lexicalOverlap: number
+  connectedClustersCount: number
 }

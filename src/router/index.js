@@ -331,6 +331,14 @@ const router = new Router({
             requiresAuth: false,
           },
         },
+        {
+          path: 'connected-clusters',
+          component: () => import(/* webpackChunkName: "tr-clusters-connected" */ '../components/TextReuseConnectedClusters.vue'),
+          name: 'text-reuse-connected-clusters',
+          meta: {
+            requiresAuth: false,
+          },
+        },
       ],
     },
     {

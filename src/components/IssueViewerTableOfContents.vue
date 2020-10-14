@@ -27,6 +27,9 @@
 import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem'
 
 export default {
+  data: () => ({
+    scrollTocToArticleTimer: 0,
+  }),
   props: {
     selectedArticleId: String,
     items: {
@@ -41,7 +44,12 @@ export default {
     /** @param {string} articleId */
     scrollTocToArticle(articleId) {
       const articleComponent = (this.$refs[`toc-article-${articleId}`] ?? [])[0]
-      if (articleComponent == null) return
+      if (articleComponent == null) {
+        console.warn('scrollTocToArticle: ',articleId, 'DOM not ready yet.')
+        clearTimeout(this.scrollTocToArticleTimer)
+        this.scrollTocToArticleTimer = setTimeout(() => this.scrollTocToArticle(articleId), 500)
+        return;
+      }
       const articleElement = articleComponent.$el
       const container = this.$el.parentNode.parentNode
 
@@ -51,8 +59,11 @@ export default {
   },
   watch: {
     /** @param {string} id */
-    selectedArticleId(id) {
-      this.scrollTocToArticle(id)
+    selectedArticleId: {
+      handler(id) {
+        this.scrollTocToArticle(id);
+      },
+      immediate: true,
     }
   }
 }

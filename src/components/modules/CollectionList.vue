@@ -31,7 +31,11 @@
                 {{$t('create_new')}}
               </b-button>
             </div>
-            <span class="error-label m-2">{{newCollectionError}}</span>
+          </div>
+
+          <div v-if="newCollectionError !== ''"
+            class="alert alert-danger text-small mt-2 mb-0" role="alert">
+            {{newCollectionError}}
           </div>
 
         </div>
@@ -109,7 +113,7 @@ export default {
     fetching: false,
     // inputString: '',
     inputNew: '',
-    newCollectionError: undefined,
+    newCollectionError: '',
     // orderBy: '-date',
     // collectionsQ: '',
   }),
@@ -221,8 +225,11 @@ export default {
     },
     onInputNew() {
       const len = this.inputNew.trim().length;
-      this.isDisabled = (len >= 3 && len <= 50);
-      this.newCollectionError = undefined
+      this.newCollectionError = '';
+
+      if (len > 0 && len < 3 || len > 50) {
+        this.newCollectionError = this.$t('NotValidLength');
+      }
     },
     addCollection(collectionName) {
       this.inputNew = '';
@@ -233,6 +240,9 @@ export default {
         this.fetch();
         this.select(res);
       }).catch(e => {
+        if (e.code === 400) {
+          this.newCollectionError = this.$t('NotValidLength')
+        } else
         if (e.code === 409) {
           this.newCollectionError = this.$t('name_already_exists')
         } else {
@@ -263,7 +273,7 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "impresso-theme/src/scss/bootpresso.scss";
 // @import "bootstrap/scss/_variables.scss";
 
@@ -285,10 +295,6 @@ export default {
     }
   }
 }
-.error-label {
-  color: $danger;
-  font-size: 80%;
-}
 </style>
 
 <i18n>
@@ -308,7 +314,8 @@ export default {
     "items": "items",
     "no_collection": "<p><b>No personal collection found !</b></p><p>Create one ?</p>",
     "no_match": "No collection name matches your search filter.",
-    "name_already_exists": "This collection label has already been used, please choose another one"
+    "name_already_exists": "This collection label has already been used, please choose another one",
+    "NotValidLength": "Please choose a label between 3 and 50 characters long"
   },
   "de": {
     "placeholder": "Filtern",

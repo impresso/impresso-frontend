@@ -179,7 +179,7 @@ import TableOfContents from './modules/TableOfContents';
 import ThumbnailSlider from './modules/ThumbnailSlider';
 import Pagination from './modules/Pagination';
 import InfoButton from './base/InfoButton';
-import { toCanonicalFilter } from '../logic/filters'
+import { toCanonicalFilter, SupportedFiltersByContext } from '../logic/filters'
 import { mapSearchQuery } from '@/logic/queryParams'
 
 export default {
@@ -225,11 +225,11 @@ export default {
   computed: {
     searchQuery: mapSearchQuery(),
     currentSearchFilters() {
-      return this.searchQuery.filters
+      return this.searchQuery.filters.filter(filter => SupportedFiltersByContext.search.includes(filter.type))
     },
     isContentAvailable() {
       if (this.issue) {
-        if (this.issue.accessRight === 'OpenPublic') {
+        if (this.issue.accessRights === 'OpenPublic') {
           return true;
         } else if (this.currentUser && this.currentUser.isActive) {
           return true;
