@@ -196,6 +196,7 @@ const router = new Router({
     },
     {
       path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
+      name: 'article',
       redirect: (to) => ({
         name: 'issue-viewer',
         params: {
@@ -204,7 +205,6 @@ const router = new Router({
         query: {
           p: to.params.page_uid.match(/p0*(\d+)$/)[1],
           articleId: getShortArticleId(to.params.article_uid),
-          text: '1'
         },
       })
     },
