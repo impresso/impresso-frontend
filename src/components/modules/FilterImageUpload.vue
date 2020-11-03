@@ -14,6 +14,7 @@
       <b-button variant="outline-primary" size="sm" v-on:click="remove">{{ $t('actions.remove') }}</b-button>
     </b-media>
     <file-pond v-bind:handler="handler" />
+    <pre>{{imageUid}}</pre>
   </div>
 </template>
 
@@ -32,6 +33,9 @@ const FILEPOND_SERVICE_PATH = [
 console.info('Current host:', MiddleLayerApiBase, 'filepond path:', FILEPOND_SERVICE_PATH);
 
 export default {
+  props: {
+    imageUid: String,
+  },
   data: () => ({
     handler: new Vue(),
     options: {
@@ -54,6 +58,9 @@ export default {
           console.info('File processed', file.filename, file.fileType, file.serverId);
           this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', file.serverId);
           this.$store.commit('searchImages/UPDATE_SIMILAR_TO', false);
+          this.$emit('imageReady', {
+            id: file.serverId
+          })
           this.loadImage(file.serverId);
         };
       });
@@ -82,16 +89,24 @@ export default {
     this.init();
   },
   watch: {
-    '$route.query.u': { // user uploaded image id
+    imageUid: {
       handler(val) {
-        if (val === undefined) {
-          this.remove();
-        } else {
+        if (val !== undefined) {
           this.loadImage(val);
         }
       },
       immediate: true,
-    },
+    }
+    // '$route.query.u': { // user uploaded image id
+    //   handler(val) {
+    //     if (val === undefined) {
+    //       this.remove();
+    //     } else {
+    //       this.loadImage(val);
+    //     }
+    //   },
+    //   immediate: true,
+    // },
   },
   components: {
     FilePond,
