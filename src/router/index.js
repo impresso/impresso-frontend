@@ -196,13 +196,17 @@ const router = new Router({
     },
     {
       path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
-      component: IssuePage,
-      name: 'article',
-      props: true,
-      meta: {
-        realm: 'issueviewer',
-        requiresAuth: false,
-      },
+      redirect: (to) => ({
+        name: 'issue-viewer',
+        params: {
+          issue_uid: to.params.issue_uid
+        },
+        query: {
+          p: to.params.page_uid.match(/p0*(\d+)$/)[1],
+          articleId: getShortArticleId(to.params.article_uid),
+          text: '1'
+        },
+      })
     },
     {
       path: '/newspapers',
@@ -296,7 +300,7 @@ const router = new Router({
             query: {
               p: res.pages[0]?.num,
               articleId: getShortArticleId(res.uid),
-              text: 1
+              text: '1'
             },
           });
         });
