@@ -27,6 +27,8 @@
           </div>
         </div>
         <filter-image-upload
+          :imageUid="similarToUploadedUid"
+          @imageReady="handleImageReady"
           v-if="enableUpload" />
         <search-input @submit="onSearchQuery"></search-input>
       </div>
@@ -145,7 +147,10 @@ const AllowedFacetTypes = [
 
 export default {
   props: {
-    enableUpload: Boolean,
+    enableUpload: {
+      type: Boolean,
+      default: true,
+    },
     enableSimilarTo: {
       type: Boolean,
       default: true,
@@ -223,6 +228,18 @@ export default {
         this.$navigation.updateQueryParametersWithHistory(qp);
       },
     },
+    similarToUploadedUid: {
+      get() {
+        return this.$route.query.similarToUploaded;
+      },
+      set(similarToUploaded) {
+        const qp = { p: 1, similarToUploaded: null };
+        if (similarToUploaded && similarToUploaded.length) {
+          qp.similarToUploaded = similarToUploaded;
+        }
+        this.$navigation.updateQueryParametersWithHistory(qp);
+      },
+    },
     isFront: {
       get() {
         return this.filters.some(({type}) => type === 'isFront');
@@ -294,6 +311,7 @@ export default {
         return {
           seed: this.seed,
           similarTo: this.similarToImageUid,
+          similarToUploaded: this.similarToUploadedUid,
           filters: this.filters.map(getFilterQuery),
           groupBy: this.groupBy,
           orderBy: this.orderBy,
@@ -304,6 +322,9 @@ export default {
     },
   },
   methods: {
+    handleImageReady({ id }) {
+      console.info('@handleImageReady', id);
+    },
     handleFiltersChanged(filters) {
       console.info('@handleFiltersChanged', filters);
       // add back ignored filters so that we can reuse them in other views
@@ -431,7 +452,7 @@ export default {
       immediate: true,
     },
     serviceQuery: {
-      async handler({ page, limit, filters, orderBy, similarTo }) {
+      async handler({ page, limit, filters, orderBy, similarTo, similarToUploaded }) {
         if (this.isLoading) {
           console.warn('loading already... please try again later on');
           return;
@@ -450,6 +471,8 @@ export default {
         }
         if (similarTo) {
           query.similarTo = similarTo;
+        } else if (similarToUploaded) {
+          query.similarToUploaded = similarToUploaded
         }
         console.info('@serviceQuery query:', query);
         const [
