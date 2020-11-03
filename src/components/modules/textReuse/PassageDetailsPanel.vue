@@ -14,8 +14,7 @@
   <!-- title and meta -->
   <div class="d-flex flex-column">
     <h2>
-      <router-link
-        :to="{name: 'article', params: articleParams}">
+      <router-link :to="articleLink">
         {{ passage.title }}
       </router-link>
     </h2>
@@ -32,6 +31,7 @@
   <!-- text -->
   <div>
     {{passage.content}}
+    {{passage}}
   </div>
       </div>
     </div>
@@ -41,7 +41,7 @@
 
 <script>
 import ItemSelector from '../ItemSelector';
-import { getArticleParameters } from '@/logic/ids'
+import { getShortArticleId } from '@/logic/ids'
 import LazyOpenSeadragonArticlePageViewer from '../vis/LazyOpenSeadragonArticlePageViewer'
 
 const RegionOverlayClass = 'overlay-region selected'
@@ -64,10 +64,20 @@ export default {
     LazyOpenSeadragonArticlePageViewer
   },
   computed: {
-    articleParams() {
+    articleLink() {
       const { articleId, pageNumbers } = this.passage
-      const firstPageNumber = pageNumbers[0]
-      return getArticleParameters(articleId, firstPageNumber)
+      const issueid = articleId.match(/(^.+)-i/)[1]
+      const pageNum = pageNumbers[0]
+      return {
+        name: 'issue-viewer',
+        params: {
+          issue_uid: issueid,
+        },
+        query: {
+          articleId: getShortArticleId(articleId),
+          p: pageNum,
+        }
+      }
     },
     pages() {
       return this.$tc(

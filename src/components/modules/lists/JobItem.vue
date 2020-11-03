@@ -1,7 +1,15 @@
 <template>
   <div class="job-item">
     <h2 class='sans p-0 m-0' style="font-size: 1rem">
-      <span class="text-white"> {{ $t(`jobs.type.${item.type}`) }}</span>
+      <span >{{ $t(`jobs.type.${item.type}`, {
+        total: item.extra.total > -1 ? $n(item.extra.total) : ''
+      }) }} </span>
+      <router-link class="text-white" v-if="item.extra.collection.name && item.extra.collection.status !== 'DEL'" :to="{
+        name: 'collection',
+        params: {
+          collection_uid: item.extra.collection.id
+        }
+      }">{{ item.extra.collection.name }}</router-link>
     </h2>
     <div class="date small-caps">{{
       $d(item.creationDate, 'precise')
@@ -12,23 +20,13 @@
           :search-query='{ filters: jobSearchFilters}' />
       </blockquote>
       <blockquote v-else-if="item.extra.collection" class="pl-2 my-1 border-left">
-        <h3 class="text-white font-weight-bold sans p-0 m-0">
-          <router-link v-if="item.extra.collection.status !== 'DEL'" :to="{ name: 'collection',
-            params: {
-              collection_uid: item.extra.collection.id
-            }
-          }" v-html="item.extra.collection.name" />
-          <span v-else>
-            <del  v-html="item.extra.collection.name"></del> ({{ $t('collection.deleted') }})
-          </span>
-        </h3>
         <span style="line-height:0.8" v-html="item.extra.collection.description" />
       </blockquote>
       <blockquote v-else v-html="item.description" class="pl-2 my-1 border-left small">
       </blockquote>
 
       <div>
-        <span class='small-caps'>{{ $t(`jobs.status.${item.status}`) }}</span>
+        <span class='small-caps' :class="[item.status]">{{ $t(`jobs.status.${item.status}`) }}</span>
         <span class='text-white' v-if="item.isActive()"> {{ percentage }} %</span>
       </div>
       <div class="p-2 position-relative" v-if="item.isRunning()">
@@ -148,6 +146,13 @@ blockquote, h3, h3 a{
 .bg-dark h2{
   color: inherit;
 }
+
+span.DON{
+  background-color: var(--success);
+  color: white;
+  padding: 0 4px;
+  border-radius: 2px;
+}
 </style>
 <i18n>
   {
@@ -155,13 +160,15 @@ blockquote, h3, h3 a{
       "no-jobs-yet": "Here you will find notifications about your newly created collections and recent downloads.",
       "jobs": {
         "type": {
+          "ITR": "sync collection to related text reuse passages",
           "EXP": "export search results as csv",
           "DCO": "Deleting a collection",
-          "IDX": "Indexing collection items",
+          "IDX": "Indexing {total} collection items",
           "store_collectable_items": "Indexing collection items",
           "TES": "Echo (TEST)",
           "test": "Echo (TEST)",
-          "BCQ": "Saving items in your collection",
+          "BCQ": "Saving {total} item(s) in your collection",
+          "RDX": "Remove {total} item(s) from your collection",
           "execute_solr_query": "Saving items in your collection"
         },
         "status": {

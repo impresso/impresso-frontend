@@ -5,10 +5,16 @@ const TypeExport = 'EXP';
 class JobExtra{
   constructor({
     query = '',
+    serializedQuery = '',
     collection = {},
+    total = -1,
+    allowed = -1
   }) {
     this.query = String(query);
+    this.serializedQuery = String(serializedQuery);
     this.collection = collection;
+    this.total = parseInt(total, 10);
+    this.allowed = parseInt(allowed, 10);
   }
 }
 
@@ -56,7 +62,7 @@ export default class Job {
   }
 
   getSearchQueryHash() {
-    return this.extra.query;
+    return this.extra.serializedQuery ?? this.extra.query;
   }
 
   getProgressAsPercentage() {
