@@ -18,7 +18,7 @@ import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
 import PowerUserVisualisation from '../pages/PowerUserVisualisation'
 import IssueViewerPage from '../pages/IssueViewerPage'
-
+import {getShortArticleId} from '@/logic/ids'
 import store from '../store';
 
 Vue.use(Router);
@@ -289,11 +289,14 @@ const router = new Router({
       beforeEnter: (to, from, next) => {
         services.articles.get(to.params.article_uid).then((res) => {
           next({
-            name: 'article',
+            name: 'issue-viewer',
             params: {
-              issue_uid: res.issue.uid,
-              page_uid: res.pages[0]?.uid,
-              article_uid: res.uid,
+              issue_uid: res.issue.uid
+            },
+            query: {
+              p: res.pages[0]?.num,
+              articleId: getShortArticleId(res.uid),
+              text: 1
             },
           });
         });
