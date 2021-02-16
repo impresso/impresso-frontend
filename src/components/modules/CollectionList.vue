@@ -50,7 +50,6 @@
               'mb-4': index === collections.length - 1
             }"
             v-bind:key="index">
-            <span class="selection-indicator pr-1"/>
             <div
               class="w-100 m-0 px-3 py-2 details-panel"
               v-on:click="select(collection, $event)"
@@ -64,7 +63,7 @@
               <div>
                 <div class="description small pb-1">
                   <span  v-if="collection.description">{{collection.description}} – </span>
-                  <span v-if="collection.countItems">{{collection.countItems}} {{$t('items')}} – </span>
+                  <!-- <span v-if="collection.countItems">{{collection.countItems}} {{$t('items')}} – </span> -->
                   <span v-if="collection.creationDate">
                     {{$t('created')}} {{ $d(collection.creationDate, 'compact')}}
                   </span>
@@ -274,7 +273,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "impresso-theme/src/scss/bootpresso.scss";
+// @import "impresso-theme/src/scss/bootpresso.scss";
 // @import "bootstrap/scss/_variables.scss";
 
 .collection-list {
@@ -283,15 +282,17 @@ export default {
   }
   .details-panel:hover {
     cursor: pointer;
-    background-color: $clr-bg-secondary;
+    // background-color: $clr-bg-secondary;
   }
 
   .active {
     .selection-indicator {
-      background-color: $clr-accent-secondary;
+      // background-color: $clr-accent-secondary;
     }
     .details-panel {
-      background-color: $clr-bg-secondary;
+      box-shadow: inset 0.15em 0 #343a40;
+background-color: #f2f2f2;
+      // background-color: $clr-bg-secondary;
     }
   }
 }

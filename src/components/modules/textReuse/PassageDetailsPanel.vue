@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column">
+  <div class="d-flex flex-column passage-details-panel">
     <!-- image and text -->
     <div class="d-flex flex-row">
       <div class="image flex-shrink-1 d-flex">
@@ -31,7 +31,6 @@
   <!-- text -->
   <div>
     {{passage.content}}
-    {{passage}}
   </div>
       </div>
     </div>

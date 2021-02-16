@@ -7,7 +7,6 @@ import FaqPage from '../components/FaqPage';
 import TermsOfUsePage from '../components/TermsOfUsePage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
-import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
 import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
@@ -147,7 +146,7 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "collections" */ '../pages/Collections.vue'),
       children: [{
         path: '',
-        component: CollectionDetailPage,
+        component: () => import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
         name: 'collections',
         meta: {
           requiresAuth: true,
@@ -156,7 +155,7 @@ const router = new Router({
       },
       {
         path: ':collection_uid',
-        component: CollectionDetailPage,
+        component: () => import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
         name: 'collection',
         meta: {
           requiresAuth: true,
