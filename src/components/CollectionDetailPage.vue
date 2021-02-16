@@ -12,7 +12,6 @@
           </span>
 
           <h3>{{collection.name}}</h3>
-
           <p>{{collection.description}}</p>
 
         </section>
@@ -97,7 +96,7 @@
             <div>{{$t('label_export_csv')}}</div>
             <div class="dripicons-export ml-1"></div>
           </b-button>
-          <info-button name="can-i-download-part-of-the-data" class="float-right" />
+          <info-button name="can-i-download-part-of-the-data" class="float-right ml-2" />
         </b-navbar-nav>
         <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
@@ -229,48 +228,35 @@
         </template>
       </collection-recommendations-panel>
     </div>
-<!--
-
-    <div v-if="issues.length > 0" class="collection-group">
-      <h4>Issues</h4>
-      <div class="grid">
-        <div class="item" v-for="(issue, index) in issues" v-bind:key="index">
-          {{issue}}
-        </div>
-      </div>
-    </div>
-
-    <div v-if="pages.length > 0" class="collection-group">
-      <h4>Pages</h4>
-      <div class="grid">
-        <div class="item" v-for="(page, index) in pages" v-bind:key="index">
-          <open-seadragon-viewer v-model="page.iiif" />
-        </div>
-      </div>
-    </div> -->
-
   </i-layout-section>
 </template>
 
 <script>
 import { protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection';
-import SearchResultsListItem from './modules/SearchResultsListItem';
-import SearchResultsTilesItem from './modules/SearchResultsTilesItem';
-import SearchResultsImageItem from './modules/SearchResultsImageItem';
-import Pagination from './modules/Pagination';
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem';
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem';
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
+import Article from '@/models/Article';
+import Pagination from '@/components/modules/Pagination';
 import SearchQuery from '@/models/SearchQuery';
-import Timeline from './modules/Timeline';
-import StackedBarsPanel from './modules/vis/StackedBarsPanel';
+import Facet from '@/models/Facet';
+import Timeline from '@/components/modules/Timeline';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
 import InfoButton from '@/components/base/InfoButton';
 import { getQueryParameter } from '../router/util';
-import { exporter as exporterService} from '@/services';
+import { exporter as exporterService,
+  collections as collectionsService,
+  searchFacets as searchFacetsService,
+  collectionsItems as collectionsItemsService
+} from '@/services';
 
 const QueryParameters = Object.freeze({
-  RecommendersSettings: 'rs'
+  RecommendersSettings: 'rs',
+  PaginationCurrentPage: 'p'
 })
 
 
@@ -281,9 +267,12 @@ const TAB_RECOMMENDATIONS = 'recommendations';
 export default {
   data: () => ({
     tab: {},
+    articles: [],
     collection: new Collection(),
     fetching: false,
     isTimelineLoading: false,
+    paginationPerPage: 10,
+    paginationTotalRows: 0,
     TAB_ARTICLES,
     TAB_OVERVIEW,
     TAB_RECOMMENDATIONS,
@@ -304,6 +293,9 @@ export default {
   computed: {
     collectionUid() {
       return this.$route.params.collection_uid;
+    },
+    paginationCurrentPage() {
+      return parseInt(this.$route.query[QueryParameters.PaginationCurrentPage], 10) || 1;
     },
     startYear() {
       return window.impressoDocumentsYearSpan.firstYear;
@@ -336,74 +328,6 @@ export default {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
-    // pages: {
-    //   get() {
-    //     return this.collection.items.filter(item => (item.labels && item.labels[0] === 'page'));
-    //   },
-    // },
-    articles: {
-      get() {
-        return this.$store.getters['collections/collectionItems'];
-      },
-    },
-    // issues: {
-    //   get() {
-    //     return this.collection.items.filter(item => (item.labels && item.labels[0] === 'issue'));
-    //   },
-    // },
-    paginationPerPage: {
-      get() {
-        return this.$store.state.collections.paginationPerPage;
-      },
-    },
-    paginationCurrentPage: {
-      get() {
-        return this.$store.state.collections.paginationCurrentPage;
-      },
-      set(val) {
-        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', val);
-      },
-    },
-    paginationTotalRows: {
-      get() {
-        return this.$store.state.collections.paginationTotalRows;
-      },
-    },
-    // orderByOptions: {
-    //   get() {
-    //     return [
-    //       {
-    //         value: 'dateAdded',
-    //         text: `${this.$t('sort_dateAdded')} ${this.$t('sort_asc')}`,
-    //         disabled: true,
-    //       },
-    //       {
-    //         value: '-dateAdded',
-    //         text: `${this.$t('sort_dateAdded')} ${this.$t('sort_desc')}`,
-    //         disabled: true,
-    //       },
-    //       {
-    //         value: 'itemDate',
-    //         text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
-    //         disabled: true,
-    //       },
-    //       {
-    //         value: '-itemDate',
-    //         text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
-    //         disabled: true,
-    //       },
-    //     ];
-    //   },
-    // },
-    // orderBy: {
-    //   get() {
-    //     return this.$store.state.collections.orderBy;
-    //   },
-    //   set(val) {
-    //     this.$store.commit('collections/UPDATE_ITEMS_ORDER_BY', val);
-    //     this.getCollectionItems(1);
-    //   },
-    // },
     tabs() {
       const mainTabs = [
         {
@@ -411,8 +335,8 @@ export default {
           name: TAB_OVERVIEW,
         },
         {
-          label: this.$tc('tabs.articles', this.collection.countItems, {
-            count: this.$n(this.collection.countItems),
+          label: this.$tc('tabs.articles', this.paginationTotalRows, {
+            count: this.$n(this.paginationTotalRows),
           }),
           name: TAB_ARTICLES,
         }
@@ -443,23 +367,25 @@ export default {
   watch: {
     $route: {
       immediate: true,
-      async handler({ query }) {
-        if (this.collection.uid !== this.$route.params.collection_uid) {
-          // reset all values
-          this.timevalues = [];
-          this.facets = [];
-          this.paginationCurrentPage = 1;
-          this.collection.countItems = 0;
-          this.getCollection();
-          await this.getCollectionItems();
-          await this.loadTimeline();
-          this.facetTypes.forEach((type) => {
-            this.loadFacets(type);
-          });
-        }
+      async handler({ query, params }) {
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
+        // load collection
+        if (params.collection_uid) {
+          this.collection = await collectionsService
+            .get(this.collectionUid)
+            .then((collection) => new Collection(collection));
+          this.fetching = false;
+        }
+        this.loadCollectionItems();
+        if (this.tab.name === TAB_OVERVIEW) {
+          this.loadTimeline();
+          this.facets = []
+          for (const type of this.facetTypes) {
+            this.facets.push(await this.loadFacets(type))
+          }
+        }
       },
     },
   },
@@ -481,27 +407,30 @@ export default {
     handleRecommendersSettingsUpdated(settings) {
       this.recommendersSettings = settings
     },
-    getCollectionItems(page) {
+    loadCollectionItems() {
       this.fetching = true;
-      if (page !== undefined) {
-        this.$store.commit('collections/UPDATE_PAGINATION_CURRENT_PAGE', parseInt(page, 10));
+      const query = {
+        resolve: 'item',
+        page: this.paginationCurrentPage,
+        limit: this.paginationPerPage,
+        // TODO Uncomment the following line when service is ready
+        // order_by: context.state.orderBy,
       }
-      if (!this.collection.uid) {
-        this.$store.dispatch('collections/LOAD_COLLECTIONS_ITEMS').then((res) => {
-          this.collection.items = res;
-          this.collection.countItems = this.paginationTotalRows;
-          this.fetching = false;
-        });
-      } else {
-        this.$store.dispatch('collections/LOAD_COLLECTION', this.collection).then((res) => {
-          this.collection = res;
-          this.fetching = false;
-        });
+      if (this.collectionUid) {
+        query.collection_uids = [this.collectionUid]
       }
-    },
-    getCollection() {
-      this.collection.uid = this.$route.params.collection_uid || null;
-      this.collection.items = [];
+      return collectionsItemsService
+        .find({ query })
+        .then(({ data, total }) => {
+          this.paginationTotalRows = total
+          this.fetching = false
+          this.articles = data.map(({ item }) => {
+            if (item instanceof Article) {
+              return item;
+            }
+            return new Article(item);
+          })
+        })
     },
     gotoArticle(article) {
       this.$router.push({
@@ -557,8 +486,10 @@ export default {
       });
       return data;
     },
-    onInputPagination(page = 1) {
-      this.getCollectionItems(page);
+    onInputPagination(p = 1) {
+      this.$navigation.updateQueryParametersWithHistory({
+        [QueryParameters.PaginationCurrentPage]: p,
+      });
     },
     applyFilter() {
       const newFilter = {
@@ -576,12 +507,16 @@ export default {
         this.isTimelineLoading = false;
       });
     },
-    loadFacets(facetType) {
-      return this.$store.dispatch('collections/LOAD_FACETS', {q: this.$route.params.collection_uid, type: facetType})
-        .then((r) => {
-          this.facets.push(r);
-          // console.log(this.facets);
-        });
+    loadFacets(type) {
+      return searchFacetsService.get(type, {
+        query: {
+          filters: [{
+            type: 'collection',
+            q: this.collectionUid,
+          }],
+          group_by: 'articles',
+        }
+      }).then(([type]) => new Facet(type));
     },
   },
 };

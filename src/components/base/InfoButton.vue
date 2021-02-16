@@ -91,34 +91,38 @@ export default {
 .popover-body {
   pointer-events: auto;
   max-width: 185px;
-  background: $clr-primary;
-  color: $clr-white;
+  background-color: $clr-primary !important;
+  color: $clr-white  !important;
   a {
     color: $clr-white;
   }
 }
+
 .popover-header {
   font-weight: bold;
   font-style: italic;
-  border-bottom: none;
+  border-bottom: none !important;
   padding-bottom: 0;
+  font-family: 'questa', serif;
   &::after {
     content: '';
     display: block;
     padding-top: 0.5em;
-    border-bottom: 1px solid $clr-tertiary;
   }
 }
+.bs-popover-top .arrow{
+  background-color: $clr-primary !important;
+}
 .bs-popover-top .arrow::after {
-  border-top-color: $clr-primary;
+  border-top-color: $clr-primary  !important;
 }
 .bs-popover-bottom .arrow::after {
-  border-bottom-color: $clr-primary;
+  border-bottom-color: $clr-primary !important;
 }
 .bs-popover-right .arrow::after {
-  border-right-color: $clr-primary;
+  border-right-color: $clr-primary !important;
 }
 .bs-popover-left .arrow::after {
-  border-left-color: $clr-primary;
+  border-left-color: $clr-primary !important;
 }
 </style>
