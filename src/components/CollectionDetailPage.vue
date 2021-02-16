@@ -373,6 +373,7 @@ export default {
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0];
         // load collection
         if (params.collection_uid) {
+          this.fetching = true;
           this.collection = await collectionsService
             .get(this.collectionUid)
             .then((collection) => new Collection(collection));
