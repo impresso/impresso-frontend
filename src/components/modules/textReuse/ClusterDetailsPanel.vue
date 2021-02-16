@@ -2,7 +2,7 @@
   <div class="cluster-details-panel">
     <!-- header -->
     <div class="d-flex">
-      <h2 class="flex-grow-1">
+      <h2 class="flex-grow-1 sans">
         <span>#{{ clusterId }}</span>
       </h2>
 
@@ -85,7 +85,9 @@ export default {
   @import "impresso-theme/src/scss/variables.sass";
 
   .cluster-details-panel {
-
+    h2{
+      font-size: inherit;
+    }
     &.selected, &:hover{
       h2 span,
       .text-sample > span{
