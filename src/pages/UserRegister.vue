@@ -19,12 +19,14 @@
             </div>
           </div>
         </b-col>
+        <b-col md="6" offset-md="3">
+          <h1 class="border-bottom border-dark my-3 pb-3 sans">{{ $t('Register') }}</h1>
+        </b-col>
       </b-row>
-      <h2 class="border-bottom my-3 pb-3">{{ $t('Register') }}</h2>
       <b-alert v-if="featherError" show dismissible fade variant="danger">{{ featherError }}</b-alert>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
-          <p v-hmtl="$('form_success')"/>
+          <p v-hmtl="$t('form_success')"/>
         </b-col>
       </b-roW>
       <b-row v-else>
@@ -137,7 +139,7 @@
                   maxlength="70">
                 </b-form-input>
                 <b-input-group-append>
-                  <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
+                  <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="10"></b-form-input>
                   <b-button size="sm" class="text-nowrap" variant="outline-primary" @click="onGeneratePattern">
                     {{$t('actions.generatePattern')}}
                   </b-button>
@@ -248,7 +250,8 @@ export default {
     [
       '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
       '#a9bdc8', '#677e96', '#4a9bb1', '#ccd6e6', '#4f615b', '#3d95a6', '#d3deec', '#3c4b54',
-      '#3e8696', '#dce5f4', '#45535f', '#4a818a', '#b2bdcc', '#2e4051', '#62797d'
+      '#3e8696', '#dce5f4', '#45535f', '#4a818a', '#b2bdcc', '#2e4051', '#62797d',
+      '#EF476F', '#06D6A0', '#EE6123', '#21295C', '#FA003F', '#00916E'
     ],
     numColors: 5,
   }),
@@ -277,12 +280,13 @@ export default {
   },
   methods: {
     onSubmit() {
-      // console.info('UserPage.onSubmit()', this.user, this.nda);
+      console.info('UserRegister#onSubmit()', this.user, this.nda);
       // to be checked for validity...
       this.featherError = '';
       this.isLoading = true;
       usersService.create(this.user)
-        .then(() => {
+        .then((res) => {
+          console.info('UserRegister#onSubmit() success, received:', res);
           this.isCreated = true;
         })
         .catch((err) => {
