@@ -8,6 +8,8 @@ WORKDIR /impresso_frontend
 
 RUN apk add --no-cache git build-base python
 
+RUN npm install -g npm
+
 COPY package.json package-lock.json ./
 
 RUN npm install
