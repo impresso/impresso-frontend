@@ -33,6 +33,11 @@
             </div>
           </div>
 
+          <div v-if="newCollectionError !== ''"
+            class="alert alert-danger text-small mt-2 mb-0" role="alert">
+            {{newCollectionError}}
+          </div>
+
         </div>
       </template>
 
@@ -45,7 +50,6 @@
               'mb-4': index === collections.length - 1
             }"
             v-bind:key="index">
-            <span class="selection-indicator pr-1"/>
             <div
               class="w-100 m-0 px-3 py-2 details-panel"
               v-on:click="select(collection, $event)"
@@ -59,7 +63,7 @@
               <div>
                 <div class="description small pb-1">
                   <span  v-if="collection.description">{{collection.description}} – </span>
-                  <span v-if="collection.countItems">{{collection.countItems}} {{$t('items')}} – </span>
+                  <!-- <span v-if="collection.countItems">{{collection.countItems}} {{$t('items')}} – </span> -->
                   <span v-if="collection.creationDate">
                     {{$t('created')}} {{ $d(collection.creationDate, 'compact')}}
                   </span>
@@ -108,6 +112,7 @@ export default {
     fetching: false,
     // inputString: '',
     inputNew: '',
+    newCollectionError: '',
     // orderBy: '-date',
     // collectionsQ: '',
   }),
@@ -219,7 +224,11 @@ export default {
     },
     onInputNew() {
       const len = this.inputNew.trim().length;
-      this.isDisabled = (len >= 3 && len <= 50);
+      this.newCollectionError = '';
+
+      if (len > 0 && len < 3 || len > 50) {
+        this.newCollectionError = this.$t('NotValidLength');
+      }
     },
     addCollection(collectionName) {
       this.inputNew = '';
@@ -229,6 +238,15 @@ export default {
       }).then((res) => {
         this.fetch();
         this.select(res);
+      }).catch(e => {
+        if (e.code === 400) {
+          this.newCollectionError = this.$t('NotValidLength')
+        } else
+        if (e.code === 409) {
+          this.newCollectionError = this.$t('name_already_exists')
+        } else {
+          throw e
+        }
       });
     },
   },
@@ -254,23 +272,27 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+<style lang="scss">
+// @import "impresso-theme/src/scss/bootpresso.scss";
+// @import "bootstrap/scss/_variables.scss";
+
 .collection-list {
   input {
     // font-style: italic;
   }
   .details-panel:hover {
     cursor: pointer;
-    background-color: $clr-bg-secondary;
+    // background-color: $clr-bg-secondary;
   }
 
   .active {
     .selection-indicator {
-      background-color: $clr-accent-secondary;
+      // background-color: $clr-accent-secondary;
     }
     .details-panel {
-      background-color: $clr-bg-secondary;
+      box-shadow: inset 0.15em 0 #343a40;
+background-color: #f2f2f2;
+      // background-color: $clr-bg-secondary;
     }
   }
 }
@@ -292,7 +314,9 @@ export default {
     "last_edited": "Last edited",
     "items": "items",
     "no_collection": "<p><b>No personal collection found !</b></p><p>Create one ?</p>",
-    "no_match": "No collection name matches your search filter."
+    "no_match": "No collection name matches your search filter.",
+    "name_already_exists": "This collection label has already been used, please choose another one",
+    "NotValidLength": "Please choose a label between 3 and 50 characters long"
   },
   "de": {
     "placeholder": "Filtern",

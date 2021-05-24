@@ -53,7 +53,7 @@ export default {
     },
     init() {
       const options = {
-        tileSources: [this.article.pages[0].iiif],
+        tileSources: [this.article.pages[0]?.iiif],
         showNavigator: true,
         navigatorAutoFade: false,
         navigatorBackground: '#f8f9fa',
@@ -71,7 +71,7 @@ export default {
       this.handler.$emit('init', options);
     },
     isAvaliable() {
-      if (this.article.issue.accessRights === 'OpenPublic') {
+      if (this.article.accessRight === 'OpenPublic') {
         return true;
       }
       return this.$store.state.user.userData;
@@ -86,7 +86,7 @@ export default {
     this.handler.$on('tile-loaded', () => {
       if (this.article.isCC) {
         this.article.regions.forEach((region) => {
-          if (region.pageUid === this.article.pages[0].uid) {
+          if (region.pageUid === this.article.pages[0]?.uid) {
             if (region.coords.x) region.coords[0] = region.coords.x;
             if (region.coords.y) region.coords[1] = region.coords.y;
             if (region.coords.w) region.coords[2] = region.coords.w;
@@ -104,7 +104,7 @@ export default {
         });
 
         this.article.matches.forEach((match) => {
-          if (match.pageUid === this.article.pages[0].uid) {
+          if (match.pageUid === this.article.pages[0]?.uid) {
             const overlay = {
               x: match.coords[0],
               y: match.coords[1],

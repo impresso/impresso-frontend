@@ -393,6 +393,13 @@ export default {
         return query;
       },
     },
+    paginationData() {
+      return {
+        perPage: this.paginationPerPage,
+        currentPage: this.paginationCurrentPage,
+        total: this.paginationTotalRows
+      }
+    },
     searchQueryHash() {
       return new SearchQuery({
         filters: this.filters,
@@ -464,8 +471,8 @@ export default {
         name: 'article',
         params: {
           issue_uid: searchResult.issue.uid,
-          page_number: searchResult.pages[0].num,
-          page_uid: searchResult.pages[0].uid,
+          page_number: searchResult.pages[0]?.num,
+          page_uid: searchResult.pages[0]?.uid,
           article_uid: searchResult.uid,
         },
       });
@@ -477,7 +484,11 @@ export default {
           name: this.inputName,
           description: this.inputDescription,
         }).then((collection) => {
-          this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', collection.uid);
+          const payload = {
+            filters: this.filters.map(getFilterQuery),
+            collectionUid: collection.uid
+          };
+          this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', payload);
         });
       }
     },
@@ -630,6 +641,12 @@ export default {
       },
       immediate: true,
     },
+    paginationData({ perPage, currentPage = 1, total }) {
+      if (total == null) return
+      if (perPage * currentPage > total) {
+        this.paginationCurrentPage = Math.ceil(total / perPage)
+      }
+    }
   },
   components: {
     Autocomplete,

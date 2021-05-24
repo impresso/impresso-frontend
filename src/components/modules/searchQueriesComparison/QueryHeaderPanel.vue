@@ -19,6 +19,7 @@
              :title="getTabLabel('query')">
         <div class="px-1 pb-2">
           <search-pills :enable-add-filter="filters.length > 0"
+                        :includedFilterTypes="supportedFilterTypes"
                         :filters="filters"
                         @changed="handleFiltersChanged" />
           <autocomplete v-on:submit="onSuggestion" />
@@ -94,12 +95,21 @@ import Autocomplete from '../../Autocomplete';
 import CollectionPicker from '../../base/CollectionPicker';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 
+const SupportedFilterTypes = [
+  'string', 'title', 'accessRight',
+  'location', 'country', 'person', 'language',
+  'topic', 'newspaper', 'collection', 'daterange'
+]
+
 /**
  * @typedef {import('@/models').Filter} Filter
  * @typedef {import('@/models').SearchQuery} SearchQuery
  * @typedef {import('@/logic/queryComparison').Comparable} Comparable
  */
 export default {
+  data: () => ({
+    supportedFilterTypes: SupportedFilterTypes
+  }),
   props: {
     /** @type {import('vue').PropOptions<Comparable>} */
     comparable: {

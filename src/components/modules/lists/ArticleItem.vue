@@ -2,12 +2,12 @@
   <article :class="{ reference : asReference }">
     <slot name="title">
       <h2 v-if="item.title" class="mb-0">
-        <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="item.title"></router-link>
+        <router-link v-if="showLink" :to="routerLinkUrl" v-html="item.title"></router-link>
         <a v-else-if="showHref" v-on:click.prevent="onClick" v-html="item.title"></a>
         <span v-else v-html="item.title"></span>
       </h2>
       <div v-else>
-        <router-link v-if="showLink" :to="{ name: 'article', params: routerLinkParams }" v-html="$t('untitled')"></router-link>
+        <router-link v-if="showLink" :to="routerLinkUrl" v-html="$t('untitled')"></router-link>
         <a v-else-if="showHref" v-on:click.prevent="onClick">{{ $t('untitled') }}</a>
         <span v-else>{{ $t('untitled') }}</span>
       </div>
@@ -19,6 +19,7 @@
       <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
       <span class="date">{{ $d(item.date, "long") }}</span>
       <span> – {{ pages }}</span>
+      <div>{{$t(`buckets.accessRight.${item.accessRight}`)}}</div>
     </div>
 
 
@@ -54,18 +55,20 @@
         </span>
       </div>
     </div>
-    <div v-if="showTopics" class="small article-extras article-topics mt-2">
+    <div v-if="showTopics" class="small article-extras article-topics my-2">
       <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
-      <div v-if="item.topics.length">
-        <div v-for="(rel, idx) in item.topics" v-bind:key="idx" class="mx-1 mb-1">
+      <b-row v-if="item.topics.length">
+        <b-col lg="6" xl="4" class="my-1" v-for="(rel, idx) in item.topics" v-bind:key="idx">
           <viz-bar
+            show-border
+            show-percent
             :percent="rel.relevance * 100"
             :uid="rel.topic.uid"
             :item="rel.topic"
             type="topic"
             />
-        </div>
-      </div>
+        </b-col>
+      </b-row>
     </div>
     <div v-if="showMatches">
       <ul v-if="item.matches.length" class="article-matches mt-1 p-0">
@@ -78,7 +81,6 @@
       </ul>
     </div>
     <slot name="footer"></slot>
-    <!-- {{ item.issue.accessRights }} -->
   </article>
 </template>
 
@@ -86,6 +88,7 @@
 import ItemSelector from '../ItemSelector';
 import ItemLabel from './ItemLabel';
 import VizBar from '../../base/VizBar';
+import { getShortArticleId } from '@/logic/ids';
 
 export default {
   props: {
@@ -109,10 +112,26 @@ export default {
     pages() {
       return this.$tc('pp', this.item.nbPages, { pages: this.item.pages.map(d => d.num).join(',') });
     },
+    routerLinkUrl() {
+      const issueUid = this.item.issue
+        ? this.item.issue.uid
+        : this.item.uid.match(/(^.+)-i/)[1];
+      return {
+        name: 'issue-viewer',
+        params: {
+          issue_uid: issueUid,
+        },
+        query: {
+          ...this.$route.query,
+          articleId: getShortArticleId(this.item.uid),
+          p: this.item.pages[0]?.num,
+        }
+      }
+    },
     routerLinkParams() {
       const params = {
         article_uid: this.item.uid,
-        page_uid: this.item.pages[0].uid,
+        page_uid: this.item.pages[0]?.uid,
       };
       if (this.item.issue) {
         params.issue_uid = this.item.issue.uid;

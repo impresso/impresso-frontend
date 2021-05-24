@@ -56,7 +56,7 @@ import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPa
 
 import List from '@/components/modules/lists/List';
 import { textReuseClusters, filtersItems } from '@/services';
-import { toCanonicalFilter, toSerializedFilters } from '@/logic/filters';
+import { toCanonicalFilter, toSerializedFilters, SupportedFiltersByContext } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
 import { mapFilters } from '@/logic/queryParams'
 
@@ -70,13 +70,7 @@ const isLastItem = (index, total) => total - 1 === index
 
 const serializeFilters = filters => protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
 
-const SupportedFilterTypes = [
-  'daterange',
-  'newspaper',
-  'textReuseClusterSize',
-  'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta'
-]
+const SupportedFilterTypes = SupportedFiltersByContext.textReuse
 const supportedFiltersFilter = filter => SupportedFilterTypes.includes(filter.type)
 
 const QueryParameters = Object.freeze({

@@ -70,36 +70,72 @@
               <span class="date">{{ $d(issue.date, 'long') }}</span>
             </h3>
           </section>
-          <b-navbar-nav>
-            <b-button class="border-dark" variant="light" size="sm"
-              :disabled="currentPageIndex === 0"
-              @click="changeCurrentPageIndex(currentPageIndex - 1)">
-              <div class="dripicons dripicons-media-previous pt-1"></div>
-            </b-button>
+          <b-navbar-nav v-show="!isArticleTextDisplayed">
+            <div v-b-tooltip.ds500 :title="$t('label_previous_page')">
+              <b-button class="border-dark" variant="light" size="sm"
+                :disabled="currentPageIndex === 0"
+                @click="changeCurrentPageIndex(currentPageIndex - 1)">
+                <div class="dripicons dripicons-media-previous pt-1"></div>
+              </b-button>
+            </div>
+
             <div class="px-2 pt-1 border-top border-bottom" v-html="$t('ppOf', {
               num: page.num,
               pages: issue.pages.length
             })"></div>
-            <b-button class="border-dark" variant="light" size="sm"
-              :disabled="(currentPageIndex + 1) === issue.pages.length"
-              @click="changeCurrentPageIndex(currentPageIndex + 1)">
-              <div class="dripicons dripicons-media-next pt-1"></div>
-            </b-button>
+
+            <div v-b-tooltip.ds500 :title="$t('label_next_page')">
+              <b-button class="border-dark" variant="light" size="sm"
+                :disabled="(currentPageIndex + 1) === issue.pages.length"
+                @click="changeCurrentPageIndex(currentPageIndex + 1)">
+                <div class="dripicons dripicons-media-next pt-1"></div>
+              </b-button>
+            </div>
           </b-navbar-nav>
 
-          <b-button
-            class="ml-2"
-            :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
-            @click="outlinesVisible = !outlinesVisible">
-            <div class="d-flex flex-row align-items-center">
-              <div class="d-flex dripicons dripicons-preview mr-2" />
-              <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div>
-              <div v-else>{{$t('toggle_outlines_off')}}</div>
+          <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
+            <div v-b-tooltip.hover :title="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')">
+              <b-button
+                :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
+                @click="outlinesVisible = !outlinesVisible">
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons dripicons-duplicate my-1" />
+                  <!-- <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div> -->
+                  <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
+                </div>
+              </b-button>
             </div>
-          </b-button>
+            <div v-b-tooltip.hover :title="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
+              <b-button
+                :variant="isFullscreen ? 'primary' : 'outline-primary'"
+                size="sm"
+                @click="toggleFullscreen"
+                class="ml-1">
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons my-1" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
+                </div>
+              </b-button>
+            </div>
+          </b-navbar-nav>
 
-          <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle && isArticleTextDisplayed">
-            <b-button size="sm" variant="outline-primary" @click="isArticleTextDisplayed = false">{{ $t('facsimileView') }}</b-button>
+          <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
+
+            <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
+
+            <b-button-group class="ml-2">
+              <b-button size="sm" :class="{ active: !isArticleTextDisplayed }" variant="outline-primary" @click="isArticleTextDisplayed = false">
+                <div class="d-flex align-items-center">
+                  {{ $t('facsimileView') }}
+                  <div class="d-flex dripicons dripicons-article ml-2" />
+                </div>
+              </b-button>
+              <b-button size="sm" :class="{ active: isArticleTextDisplayed }" variant="outline-primary" @click="isArticleTextDisplayed = true">
+                <div class="d-flex align-items-center">
+                  {{ $t('closeReadingView') }}
+                  <div class="d-flex dripicons dripicons-align-justify ml-2" />
+                </div>
+              </b-button>
+            </b-button-group>
           </b-navbar-nav>
         </b-navbar>
       </div>
@@ -133,7 +169,7 @@
           :article="selectedArticle"
           :visible="!isArticleTextDisplayed"/>
 
-        <div class="position-absolute d-flex drop-shadow bg-dark border-radius" style="bottom: 1rem">
+        <div class="position-absolute d-flex drop-shadow bg-dark border-radius" style="bottom: 1rem" v-if="!isArticleTextDisplayed">
           <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
             <page-item class="bg-dark p-2"
             :active="pageId === item.uid"
@@ -166,6 +202,7 @@ import TableOfContents from '@/models/TableOfContents'
 import SearchPills from '@/components/SearchPills'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
+import CollectionAddTo from '@/components/modules/CollectionAddTo';
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -192,6 +229,7 @@ export default {
     paginationTotalRows: 0,
     matchingArticles: /** @type {Article[]} */ [],
     outlinesVisible: false,
+    isFullscreen: false,
     displayOnlyMatchingArticles: false,
   }),
   components: {
@@ -201,12 +239,21 @@ export default {
     IssueViewerText,
     SearchPills,
     IssueViewerBookmarker,
-    IssueViewerTableOfContents
+    IssueViewerTableOfContents,
+    CollectionAddTo
   },
   mounted() {
     if (this.suggestionQuery.length) {
       this.displayOnlyMatchingArticles = true;
     }
+  },
+  created() {
+    window.addEventListener('fullscreenchange', this.fullscreenChange);
+    window.addEventListener('keydown', this.keyDown);
+  },
+  destroyed() {
+    window.removeEventListener('fullscreenchange', this.fullscreenChange);
+    window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
@@ -429,6 +476,35 @@ export default {
     },
   },
   methods: {
+    keyDown(e) {
+      if (e.shiftKey) {
+        switch (e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          this.changeCurrentPageIndex(this.currentPageIndex - 1);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          this.changeCurrentPageIndex(this.currentPageIndex + 1);
+          break;
+        default:
+          break;
+        }
+      }
+    },
+    fullscreenChange() {
+      this.isFullscreen = !this.isFullscreen;
+    },
+    toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        this.$refs.issuePageViewer.$el.requestFullscreen().then(() => {
+        }).catch((err) => {
+          console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    },
     handleFiltersChanged(filters) {
       this.displayOnlyMatchingArticles = true;
       // add back ignored filters so that we can reuse them in other views
@@ -451,7 +527,7 @@ export default {
     handleArticleSelected(article) {
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: getShortArticleId(article.uid),
-        [QueryParams.PageNumber]: String(article.pages[0].num)
+        [QueryParams.PageNumber]: String(article.pages[0]?.num)
       })
     },
     /**
@@ -526,21 +602,28 @@ export default {
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
+    "label_previous_page": "Previous Page (Shift + ←)",
+    "label_next_page": "Next Page (Shift + →)",
     "label_display": "Display as",
     "label_filter_articles": "Search words...",
     "table_of_contents": "table of contents",
-    "toggle_outlines_on": "outlines: on",
-    "toggle_outlines_off": "Outlines: off",
-    "facsimileView": "Facsimile",
-    "closeReadingView": "Transcript",
+    "toggle_outlines_on": "show article outlines",
+    "toggle_outlines_off": "hide article outlines",
+    "toggle_fullscreen_on": "switch to fullscreen mode",
+    "toggle_fullscreen_off": "exit fullscreen mode",
+    "add_to_collection": "Add to Collection ...",
     "filter_included_only": "show only matching articles (no results) | show only matching articles (<b>1</b> result) | show only matching articles (<b>{n}</b> results)"
   }
 }
 </i18n>
 
 <style lang="scss">
-.close-button {
-  position: absolute;
-  right: 0;
+@import "impresso-theme/src/scss/variables.sass";
+
+section.i-layout-section {
+  background-color: $clr-bg-secondary;
+}
+section.i-layout-section > div.header {
+  background-color: $clr-bg-primary;
 }
 </style>

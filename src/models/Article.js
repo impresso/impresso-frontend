@@ -39,7 +39,7 @@ export default class Article extends ArticleBase {
     dl = 0,
     isCC = false,
     isFront = false,
-    accessRights = 'na',
+    accessRight = 'na',
     issue = new Issue(),
     labels = [],
     language = '',
@@ -76,7 +76,7 @@ export default class Article extends ArticleBase {
       persons,
       locations,
       collections,
-      accessRights,
+      accessRight,
       // to be added dinamically from TOC
       matches,
       images,

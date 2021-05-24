@@ -3,7 +3,7 @@
     <b-navbar >
       <section>
         <span class="label small-caps">
-          <span>&larr; {{$t("clustersLabel")}}</span>
+          <span>{{$t("clustersLabel")}}</span>
         </span>
         <info-button class="ml-2" name="text-reuse"/>
         <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}} </h3>
@@ -35,6 +35,13 @@
           :to="tabNavigation(TabsIds.Passages)">
           {{$tc('tabs.passages', cluster.clusterSize, { count: cluster.clusterSize })}}
         </b-nav-item>
+
+        <b-nav-item class="pl-2"
+          :active="$route.name === TabToPageMapping[TabsIds.ConnectedClusters]"
+          :to="tabNavigation(TabsIds.ConnectedClusters)">
+          {{$tc('tabs.connectedClusters', cluster.connectedClustersCount, { count: cluster.connectedClustersCount })}}
+        </b-nav-item>
+
       </template>
     </b-tabs>
 
@@ -54,7 +61,8 @@ const TabsIds = Object.freeze({
 
 const TabToPageMapping = Object.freeze({
   [TabsIds.Details]: 'text-reuse-cluster-detail',
-  [TabsIds.Passages]: 'text-reuse-cluster-passages'
+  [TabsIds.Passages]: 'text-reuse-cluster-passages',
+  [TabsIds.ConnectedClusters]: 'text-reuse-connected-clusters'
 })
 
 
@@ -140,7 +148,8 @@ export default {
   "en": {
     "tabs": {
       "details": "overview",
-      "passages": "Passages | 1 Passage | {count} passages"
+      "passages": "Passages | 1 Passage | {count} passages",
+      "connectedClusters": "No Connected Clusters | 1 Connected Cluster | {count} Connected Clusters"
     },
     "clustersLabel": "text reuse clusters",
     "clusterLabel": "Cluster",

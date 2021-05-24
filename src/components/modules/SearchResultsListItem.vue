@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-media class="py-3 border-bottom overflow-hidden">
+  <b-media class="py-3 border-bottom overflow-hidden search-result-list-item">
     <div
       v-if="isAvailable()"
       class="thumbnail bg-light border"
@@ -42,7 +42,7 @@
 
         <router-link :to="{ name: 'article', params: {
           issue_uid: article.issue.uid,
-          page_uid: article.pages[0].uid,
+          page_uid: article.pages.length > 0 ? article.pages[0].uid : undefined,
           article_uid: article.uid,
         } }" class="btn btn-sm btn-outline-primary mr-1">
           {{$t('view')}}
@@ -54,7 +54,7 @@
             v-bind:text="$t('add_to_collection')" />
         </slot>
 
-        <div v-if="article.issue.accessRights === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
+        <div v-if="article.accessRight === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
           <b-button
             variant="outline-success" size="sm"
             v-on:click="showModalShareArticle()"
@@ -103,7 +103,7 @@ export default {
   computed: {
     pageViewerOptions() {
       return {
-        tileSources: [this.article.pages[0].iiif],
+        tileSources: [this.article.pages[0]?.iiif],
         showNavigator: true,
         navigatorAutoFade: false,
         navigatorBackground: '#f8f9fa',
@@ -179,7 +179,7 @@ export default {
 
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
-
+.search-result-list-item{
 .thumbnail {
     width: 215px;
     height: 240px;
@@ -198,6 +198,7 @@ export default {
 h2 {
   font-size: 1.2em;
   font-weight: 500;
+  font-family: "questa",serif;
   a {
     text-decoration: underline;
     // text-decoration-color:#ccc;
@@ -219,6 +220,7 @@ ul.article-matches {
     margin: 1em 0;
     padding-left: 1em;
   }
+}
 }
 </style>
 
