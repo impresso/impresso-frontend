@@ -26,7 +26,7 @@
       <b-alert v-if="featherError" show dismissible fade variant="danger">{{ featherError }}</b-alert>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
-          <p v-hmtl="$t('form_success')"/>
+          <p v-html="$t('form_success')"/>
         </b-col>
       </b-roW>
       <b-row v-else>
@@ -280,7 +280,7 @@ export default {
   },
   methods: {
     onSubmit() {
-      console.info('UserRegister#onSubmit()', this.user, this.nda);
+      // console.info('UserRegister#onSubmit()', this.user, this.nda);
       // to be checked for validity...
       this.featherError = '';
       this.isLoading = true;
@@ -291,7 +291,11 @@ export default {
         })
         .catch((err) => {
           console.warn(err);
-          this.featherError = err.message;
+          if (err.code === 409 && err.message.indexOf('auth_user.username') !== -1) {
+            this.featherError = this.$t('errors.Conflict.UsernameExistError')
+          } else {
+            this.featherError = err.message;
+          }
         })
         .finally(() => {
           this.isLoading = false;
