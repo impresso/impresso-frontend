@@ -7,6 +7,7 @@ export default {
   state: {
     rememberCredetials: false,
     userData: false,
+    token: '',
   },
   getters: {
     user(state) {
@@ -20,8 +21,12 @@ export default {
     SET_USER(state, payload) {
       state.userData = payload;
     },
+    SET_ACCESS_TOKEN(state, token) {
+      state.token = token
+    },
     CLEAR_USER(state) {
       state.userData = false;
+      state.token = '';
     },
   },
   actions: {
@@ -58,7 +63,7 @@ export default {
       }).then((res) => {
         console.info('Authentication response:', res);
         return res;
-      }).then(({ user }) => {
+      }).then(({ user, accessToken }) => {
         console.info('LOGIN: user', user.username, 'logged in!');
         services.app.set('user', user);
         commit('SET_USER', new User({
@@ -66,6 +71,7 @@ export default {
           picture: user.profile.picture,
           pattern: user.profile.pattern,
         }));
+        commit('SET_ACCESS_TOKEN', accessToken)
         return user;
       });
     },
