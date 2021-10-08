@@ -16,6 +16,18 @@ export default {
     viewer: null,
     overlays: [],
   }),
+  computed: {
+    authenticationOptions() {
+      return this.$store.state.user.token.length
+        ? {
+          loadTilesWithAjax: true,
+          ajaxHeaders: {
+            Authorization: 'Bearer ' + this.$store.state.user.token
+          }
+        }
+        : null
+    }
+  },
   mounted() {
     if (this.handler) {
       this.handler.$on('init', (options = {}) => {
@@ -28,6 +40,7 @@ export default {
           animationTime: 0,
           defaultZoomLevel: 1,
           ...options,
+          ...this.authenticationOptions
         });
 
         this.viewer.addOnceHandler('tile-loaded', () => {

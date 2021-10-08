@@ -102,14 +102,6 @@ export default {
   props: ['article', 'checkbox', 'checked'],
   computed: {
     pageViewerOptions() {
-      const authenticationOptions = this.$store.state.user.token.length
-        ? {
-          loadTilesWithAjax: true,
-          ajaxHeaders: {
-            Authorization: 'Bearer ' + this.$store.state.user.token
-          }
-        }
-        : {}
       return {
         tileSources: [this.article.pages[0]?.iiif],
         showNavigator: true,
@@ -121,7 +113,6 @@ export default {
         navigatorDisplayRegionColor: 'black',
         navigatorBorderColor: '#dee2e6',
         navigatorOpacity: 1,
-        ...authenticationOptions
       }
     },
     pageViewerOverlays() {
