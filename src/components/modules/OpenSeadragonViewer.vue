@@ -4,6 +4,7 @@
 
 <script>
 import OpenSeadragon from 'openseadragon';
+import { getAuthenticationBearer } from '@/services';
 
 export default {
   props: {
@@ -18,11 +19,12 @@ export default {
   }),
   computed: {
     authenticationOptions() {
-      return this.$store.state.user.token.length
+      const token = getAuthenticationBearer()
+      return typeof token === 'string' && token.length
         ? {
           loadTilesWithAjax: true,
           ajaxHeaders: {
-            Authorization: 'Bearer ' + this.$store.state.user.token
+            Authorization: 'Bearer ' + token
           }
         }
         : null
