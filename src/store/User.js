@@ -7,7 +7,6 @@ export default {
   state: {
     rememberCredetials: false,
     userData: false,
-    token: '',
   },
   getters: {
     user(state) {
@@ -21,12 +20,8 @@ export default {
     SET_USER(state, payload) {
       state.userData = payload;
     },
-    SET_ACCESS_TOKEN(state, token) {
-      state.token = token
-    },
     CLEAR_USER(state) {
       state.userData = false;
-      state.token = '';
     },
   },
   actions: {
@@ -35,6 +30,8 @@ export default {
         console.error('error in store/User/LOGOUT');
         console.error(err);
       }).finally(() => {
+        const expiredDate = new Date(-1)
+        document.cookie = 'feathers-jwt=; expires=' + expiredDate.toUTCString() + '; path=/';
         context.commit('CLEAR_USER');
       });
     },
@@ -63,15 +60,17 @@ export default {
       }).then((res) => {
         console.info('Authentication response:', res);
         return res;
-      }).then(({ user, accessToken }) => {
+      }).then(({ user, accessToken, authentication }) => {
         console.info('LOGIN: user', user.username, 'logged in!');
+        // save cookie
+        const expiredDate = new Date(authentication?.payload?.exp * 1000)
+        document.cookie = 'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/';
         services.app.set('user', user);
         commit('SET_USER', new User({
           ...user,
           picture: user.profile.picture,
           pattern: user.profile.pattern,
         }));
-        commit('SET_ACCESS_TOKEN', accessToken)
         return user;
       });
     },
