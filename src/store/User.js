@@ -60,11 +60,11 @@ export default {
       }).then((res) => {
         console.info('Authentication response:', res);
         return res;
-      }).then(({ user, accessToken, authentication }) => {
+      }).then(({ user }) => {
         console.info('LOGIN: user', user.username, 'logged in!');
-        // save cookie
-        const expiredDate = new Date(authentication?.payload?.exp * 1000)
-        document.cookie = 'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/';
+        // don't save cookie
+        // const expiredDate = new Date(authentication?.payload?.exp * 1000)
+        // document.cookie = 'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/';
         services.app.set('user', user);
         commit('SET_USER', new User({
           ...user,
