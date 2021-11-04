@@ -75,7 +75,7 @@
 
      <!--  body -->
       <div class="p-1 my-2">
-        <b-card-group rows class="row-cols-1 row-cols-md-2 row-cols-lg-4">
+        <b-card-group rows class="row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
           <div class="mb-3"
             v-for="searchResult in searchResults" :key="searchResult.uid">
             <search-results-image-item
