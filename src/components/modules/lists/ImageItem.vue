@@ -59,10 +59,16 @@ export default {
       });
     },
     hasTitle() {
-      return this.item.title && this.item.title.length;
+      if(!this.item) {
+        return false;
+      }
+      return typeof this.item.title === 'string' && this.item.title.length > 0;
     },
     hasValidSrc() {
-      return Array.isArray(this.item.regions) && this.item.regions.length;
+      if(!this.item) {
+        return false;
+      }
+      return Array.isArray(this.item.regions) && this.item.regions.length > 0;
     },
     src() {
       return this.hasValidSrc ? this.item.regions[0].iiifFragment: null;
@@ -80,7 +86,7 @@ export default {
         issue_uid: this.item.issue?.uid || this.item.uid.match(/(^.+)-i/)[1],
         page_uid: this.item.pages[0]?.uid,
       };
-      console.info('gotoPage', params);
+      console.info('gotoPage', params, this.item.article);
       if (this.item.article) {
         this.$router.push({
           name: 'article',
@@ -91,7 +97,7 @@ export default {
         });
       } else {
         this.$router.push({
-          name: 'article',
+          name: 'page',
           params,
         });
       }
