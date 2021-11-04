@@ -77,7 +77,7 @@ export default {
   watch: {
     isVisible: {
       async handler() {
-        const imageUrl = this.src.replace('https://impresso-project.ch/api', 'http://localhost:3030')
+        const imageUrl = this.src.replace('https://impresso-project.ch/api', 'https://dev.impresso-project.ch/api')
 
         await axios.get(imageUrl, {
           responseType: 'arraybuffer',
