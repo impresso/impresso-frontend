@@ -1,8 +1,8 @@
 <template lang="html">
   <div class="ImgAuthentified" :style="style">
-    <div v-if="errorMessage" class="p-2 text-white text-small">{{errorMessage}}</div>
+    <div v-if="errorMessage" class="p-2 text-small">{{errorMessage}}</div>
     <div v-else class="ImgAuthentified_image" :style="imageStyle" />
-    <div class="ImgAuthentified_loader">
+    <div v-if="!errorMessage && isVisible" class="ImgAuthentified_loader">
       <slot name="loading">loading...</slot>
     </div>
   </div>
@@ -26,6 +26,11 @@ export default {
   },
   computed:{
     style() {
+      if (this.height) {
+        return {
+          height: this.height + 'px'
+        }
+      }
       const height = this.imageWidthHeightRatio
         ? this.width / this.imageWidthHeightRatio
         : this.width
@@ -72,7 +77,7 @@ export default {
   watch: {
     isVisible: {
       async handler() {
-        const imageUrl = this.src.replace('https://impresso-project.ch/api', 'https://dev.impresso-project.ch/api')
+        const imageUrl = this.src.replace('https://impresso-project.ch/api', 'http://localhost:3030')
 
         await axios.get(imageUrl, {
           responseType: 'arraybuffer',
@@ -94,8 +99,8 @@ export default {
               i.src = `data:${headers['content-type']};charset=utf-8;base64,${base64}`;
             }
           }).catch((err) => {
-            console.warn(err.message, err.response.status, this.src)
-            this.errorMessage = err.message
+            console.warn(err.message, imageUrl)
+            this.errorMessage = [err.message, err.code].join('. ')
           });
       }
     }
