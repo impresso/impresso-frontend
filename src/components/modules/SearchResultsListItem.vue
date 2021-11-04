@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-media class="py-3 border-bottom overflow-hidden">
+  <b-media class="py-3 border-bottom overflow-hidden search-result-list-item">
     <div
       v-if="isAvailable()"
       class="thumbnail bg-light border"
@@ -179,7 +179,7 @@ export default {
 
 <style lang="scss">
 @import "impresso-theme/src/scss/variables.sass";
-
+.search-result-list-item{
 .thumbnail {
     width: 215px;
     height: 240px;
@@ -198,6 +198,7 @@ export default {
 h2 {
   font-size: 1.2em;
   font-weight: 500;
+  font-family: "questa",serif;
   a {
     text-decoration: underline;
     // text-decoration-color:#ccc;
@@ -219,6 +220,7 @@ ul.article-matches {
     margin: 1em 0;
     padding-left: 1em;
   }
+}
 }
 </style>
 

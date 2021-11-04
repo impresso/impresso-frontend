@@ -31,12 +31,17 @@
                 <input type="checkbox" value="remember-me" v-model="rememberCredentials"> {{$t("login_remember")}}
               </label>
             </div>
-            <h5>Do you need an account?</h5>
-            <p>Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a></p>
+            <div class="footer mb-3">
+              <button class="btn btn-sm btn-primary btn-block" type="submit">{{$t("login_button")}}</button>
+            </div>
+
           </div>
           <div class="footer p-3">
-            <button class="btn btn-lg btn-primary btn-block" type="submit">{{$t("login_button")}}</button>
+            <h5>Do you need an account?</h5>
+            <router-link to="register" class="btn btn-sm btn-outline-primary btn-block">{{$t("signup_button")}}</router-link>
+            <p class="mt-3">Any Questions? <br/>Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a></p>
           </div>
+
         </form>
       </div>
     </i-layout-section>
@@ -147,7 +152,8 @@ export default {
     "Invalid login": "Invalid login",
     "login_title": "Please sign in",
     "login_remember": "Remember me",
-    "login_button": "Sign in"
+    "login_button": "Sign in",
+    "signup_button": "Sign up!"
   },
   "nl": {
     "Invalid login": "Onjuiste login",

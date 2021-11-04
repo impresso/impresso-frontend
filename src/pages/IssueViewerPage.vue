@@ -425,6 +425,7 @@ export default {
       async handler(id) {
         this.issue = new Issue(await issuesService.get(id))
         this.tableOfContents = new TableOfContents(await tableOfContentsService.get(id))
+        // / load images
       },
       immediate: true
     },
