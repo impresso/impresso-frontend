@@ -9,7 +9,7 @@
         :filters="enrichedFilters"
         @changed="handleFiltersChanged"
         />
-        <autocomplete v-on:submit="onSuggestion" />
+        <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
       </div>
     </div>
 
@@ -227,8 +227,12 @@ export default {
       });
     },
     onSuggestion(filter) {
+      console.info('on suggestion')
       this.handleFiltersChanged(this.filters.concat([ filter ]));
     },
+    onSubmitEmpty() {
+      this.handleFiltersChanged(this.filters)
+    }
   },
   watch: {
     searchServiceQuery: {
@@ -236,7 +240,6 @@ export default {
         if (!filters.length) {
           return;
         }
-        console.info('@searchServiceQuery oad items!!!', filters);
         filtersItemsService.find({
           query: {
             filters: this.searchQueryHash,
@@ -244,7 +247,6 @@ export default {
         })
           .then(joinFiltersWithItems)
           .then((filtersWithItems) => {
-            console.info('@searchServiceQuery oad filtersWithItems!!!', filtersWithItems);
             this.filtersWithItems = filtersWithItems;
           });
       },
