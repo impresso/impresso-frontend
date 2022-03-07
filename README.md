@@ -9,6 +9,8 @@ Build the docker image with python3 support, then start the vue app using `npm s
 docker-compose -f docker-compose-dev.yml up
 ```
 
+or if make is available, `make run-dev`
+
 
 > A Vue.js project
 
