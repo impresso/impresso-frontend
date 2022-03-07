@@ -6,7 +6,7 @@
   },
   "recipes": [
     {
-      "caption": "Reconstruct the coverage of the composer Robert Schumann",
+      "caption": "Search for the composer Robert Schumann",
       "text": "Explore the newspapers’ mentions of specific persons or locations",
       "img_src": "https://media.giphy.com/media/IhVFxKbsZjDUWI2zpw/giphy.gif",
       "query": "/app/search?f=%5B%7B\"type\"%3A\"hasTextContents\"%7D,%7B\"precision\"%3A\"exact\",\"type\"%3A\"string\",\"q\"%3A\"Robert%20Schumann\"%7D%5D&g=articles&p=1&o=-relevance",
