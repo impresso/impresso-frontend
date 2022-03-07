@@ -289,6 +289,8 @@ export default {
             op: 'OR',
           }));
           this.q = '';
+        } else {
+          this.$emit('submitEmpty')
         }
       } else {
         this.$emit('submit', FilterFactory.create({
