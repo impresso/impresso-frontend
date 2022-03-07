@@ -6,7 +6,7 @@ ARG GIT_REVISION
 
 WORKDIR /impresso_frontend
 
-RUN apk add --no-cache git build-base python
+RUN apk add --no-cache git build-base python3
 
 COPY package.json package-lock.json ./
 
