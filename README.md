@@ -3,14 +3,12 @@ Welcome to the *impresso* app frontend website to search, explore and create per
 
 ## Use docker stack for development
 We provide a Dockerfile-dev to streamline node 12 installation with now unsupported modules.
+
+Build the docker image with python3 support, then start the vue app using `npm start`:
 ```
-docker build -f Dockerfile-dev -t impresso-frontend-dev .
-docker run -it --rm \
-  -p 3000:3000 \
-  -v $(pwd):/app \
-  impresso-frontend-dev \
-  npm run serve
+docker-compose -f docker-compose-dev.yml up
 ```
+
 
 > A Vue.js project
 
