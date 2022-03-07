@@ -46,25 +46,6 @@
         <br/>
         <img src="@/assets/img/Twitter_Logo_WhiteOnImage.png" class="mr-2" style="max-height:1em"> twitter: <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
       </div>
-      <div class="mb-2">
-        <b-button
-          :variant="showLines  ? 'primary' : 'outline-primary'" size="sm"
-          @click="showLines = !showLines">
-          <div v-if="showLines">{{$t('toggle_lines_on')}}</div>
-          <div v-else>{{$t('toggle_lines_off')}}</div>
-        </b-button>
-      </div>
-      <div>
-        <b-button
-          :variant="darkMode ? 'primary' : 'outline-primary'" size="sm"
-          @click="darkMode = !darkMode">
-          <div class="d-flex flex-row align-items-center">
-            <div class="d-flex dripicons dripicons-brightness-medium mr-2" />
-            <div v-if="darkMode">{{$t('toggle_darkmode_on')}}</div>
-            <div v-else>{{$t('toggle_darkmode_off')}}</div>
-          </div>
-        </b-button>
-      </div>
       <!-- <br>
       <viz-bar-multi title="Langues" variant="compact" :items="[{name: 'Français', count: 70}, {name: 'Deutsch', count: 20}, {name: 'English', count: 10}]" />
       <viz-bar-multi title="OCR / OLR" variant="compact" :items="[{name: 'OCR', count: 20}, {name: 'OLR', count: 80}]" />
