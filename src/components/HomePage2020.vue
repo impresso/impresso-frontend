@@ -68,7 +68,7 @@
         <p style="font-size:1.2em">
           How can newspapers help understand the past? How to explore them?
         </p>
-        <div class="p-3 mb-3 mt-5 enhance-contents position-relative">
+        <div class="p-3 mb-3 mt-5 enhance-contents position-relative shadow">
           <div class="starburst-mask">
             <div class="starburst-wrapper">
               <div class="position-absolute text">
@@ -97,7 +97,13 @@
             ... and return the signed form to <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">info@impresso-project.ch</a>
           </p>
         </div>
-
+        <p class='text-center text-white my-5'>
+          Take a moment to familiarise yourself with <em>impresso</em>'s <b>advanced search</b> and <b> exploration workflows</b>
+        </p>
+        <div class="border-bottom" style="position:relative">
+          <div class="arrow-down" style="position:absolute; left:50%; margin-left: -20px; top: -1px; border-top-color: #343a40"></div>
+        </div>
+        <div class="arrow-down mx-auto"></div>
         <b-container class="challenges my-4 enhance-contents border-0 p-0">
           <b-row class="p-0">
           <b-col lg="6" md="12">
