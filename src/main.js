@@ -79,19 +79,24 @@ const DefaultImpressoFeatures = {
   textReuse: { enabled: true }
 }
 
-/* eslint-disable no-new */
-console.info('Checking authentication...');
 // eslint-disable-next-line
-console.info('TYPEKIT_ID', process.env.VUE_APP_TYPEKIT_ID);
+console.info('%cimpresso-frontend version', 'font-weight: bold',
+  '\n - tag:', process.env.VUE_APP_GIT_TAG,
+  '\n - branch:', process.env.VUE_APP_GIT_BRANCH,
+  `\n - url: https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}`,
+  '\n - Adobe TYPEKIT_ID:', process.env.VUE_APP_TYPEKIT_ID
+)
 
 Promise.race([
   services.app.reAuthenticate(),
   reducedTimeoutPromise({ service: 'app.reAuthenticate' }),
 ]).catch((err) => {
   if (err.code === 401) {
-    console.info('Authentication failed:', err.message);
+    // eslint-disable-next-line
+    console.debug('[main] Not authenticated (status 401):', err.message);
     if (store.state.user.userData) {
-      console.info('Authentication failed ... but an user is present. Force logging out.');
+      // eslint-disable-next-line
+      console.debug('[main] Authentication failed ... but an user is present in logalStorage. Force logging out.');
       store.dispatch('user/LOGOUT');
       store.dispatch('DISPLAY_ERROR', {
         error: err,
@@ -102,7 +107,8 @@ Promise.race([
     console.error(err);
   }
 }).then(() => {
-  console.info('Loading app & data version...');
+  // eslint-disable-next-line
+  console.debug('[main] Loading app & data version...');
   return Promise.race([
     reducedTimeoutPromise({ service: 'version' }),
     services.version.find().then((res) => ({
@@ -113,7 +119,7 @@ Promise.race([
       features: res.features
     }))
   ]).catch((err) => {
-    console.error(err);
+    console.warn(err);
     return {
       version: 'n/a',
       documentsDateSpan: { firstDate: '1700-01-01', lastDate: new Date().toISOString() },
@@ -122,8 +128,16 @@ Promise.race([
     };
   });
 }).then(({ version, documentsDateSpan, newspapers, apiVersion = {}, features = DefaultImpressoFeatures }) => {
-  console.info(`Version services:${version}`);
-  console.info('Latest notification date:', store.state.settings.lastNotificationDate);
+  console.info('%cimpresso-middle-layer version', 'font-weight: bold',
+    '\n - tag:', apiVersion.version,
+    '\n - branch:', apiVersion.branch,
+    `\n - url: https://github.com/impresso/impresso-middle-layer/commit/${apiVersion.revision}`,
+    '\n - name:', version,
+    '\n - date range: ', documentsDateSpan,
+    '\n - features:', features
+  )
+  // eslint-disable-next-line
+  console.debug('[main] App latest notification date:', store.state.settings.lastNotificationDate);
   window.impressoVersion = version;
   window.impressoApiVersion = apiVersion
   window.impressoDocumentsDateSpan = documentsDateSpan
