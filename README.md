@@ -1,4 +1,16 @@
 # impresso-frontend
+Welcome to the *impresso* app frontend website to search, explore and create personal collections from the 40 millions (and counting!) newspapers articles of the *impresso* collection.
+
+## Use docker stack for development
+We provide a Dockerfile-dev to streamline node 12 installation with now unsupported modules.
+```
+docker build -f Dockerfile-dev -t impresso-frontend-dev .
+docker run -it --rm \
+  -p 3000:3000 \
+  -v $(pwd):/app \
+  impresso-frontend-dev \
+  npm run serve
+```
 
 > A Vue.js project
 
@@ -33,5 +45,5 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 The 'impresso - Media Monitoring of the Past' project is funded by the Swiss National Science Foundation (SNSF) under  grant number [CRSII5_173719](http://p3.snf.ch/project-173719) (Sinergia program). The project aims at developing tools to process and explore large-scale collections of historical newspapers, and at studying the impact of this new tooling on historical research practices. More information at https://impresso-project.ch.
 ## License
 Copyright (C) 2020  The *impresso* team. Contributors to this program include: [Daniele Guido](https://github.com/danieleguido), [Thijs van Beek](https://github.com/tvanbeek), [Paul Schroeder](https://github.com/PaulSchroeder), [Roman Kalyakin](https://github.com/theorm).
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. 
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 This program is distributed in the hope that it will be useful, but without any warranty; without even the implied warranty of merchantability or fitness for a particular purpose. See the [GNU Affero General Public License](https://github.com/impresso/impresso-frontend/blob/master/LICENSE) for more details.

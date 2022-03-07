@@ -1,0 +1,10 @@
+FROM node:12-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache git build-base python3
+
+COPY package.json package-lock.json ./
+
+RUN npm install
+RUN npm install -g @vue/cli
