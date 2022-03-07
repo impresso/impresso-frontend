@@ -32,7 +32,7 @@
     "flatpickr": "4.6.3",
     "impresso-jscommons": "git+https://git@github.com/impresso/impresso-jscommons.git#v1.3.1",
     "impresso-theme": "git+https://git@github.com/impresso/impresso-theme.git",
-    "markdown-it": "10.0.0",
+    "markdown-it": "12.3.2",
     "markdown-it-decorate": "1.2.2",
     "openseadragon": "^2.4.2",
     "socket.io-client": "2.3.0",
