@@ -1,0 +1,21 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./src:/app/src"
+      - "./public:/app/public"
+      - "./.eslintrc:/app/.eslintrc"
+      - "./.env:/app/.env"
+      - "./.env.development:/app/.env.development"
+      - "./.postcssrc.js:/app/.postcssrc.js"
+      - "./.babelrc:/app/.babelrc"
+      - "./vue.config.js:/app/vue.config.js"
+    tty: true
+    stdin_open: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true

@@ -167,6 +167,7 @@ span.DON{
           "store_collectable_items": "Indexing collection items",
           "TES": "Echo (TEST)",
           "test": "Echo (TEST)",
+          "RDX": "Remove {total} item(s) from your collection",
           "BCQ": "Saving {total} item(s) in your collection",
           "RDX": "Remove {total} item(s) from your collection",
           "execute_solr_query": "Saving items in your collection"

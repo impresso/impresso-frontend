@@ -1,6 +1,16 @@
 <template lang="html">
-  <div class="image-item p-1" @click="gotoPage">
-    <b-img-lazy v-if="hasValidSrc"
+  <div class="image-item" @click="gotoPage">
+    <img-authentified v-if="shouldForwardAuthentication"
+      :height="height"
+      class="image"
+      :src="src"
+      :headers="headers"
+    >
+      <template v-slot:loading>
+        <LoadingIndicator/>
+      </template>
+    </img-authentified>
+    <b-img-lazy v-else-if="hasValidSrc"
       :fluid="fluid"
       :fluid-grow="fluidGrow"
       :height="height"
@@ -27,6 +37,8 @@
 
 <script>
 import ItemSelector from '@/components/modules/ItemSelector';
+import ImgAuthentified from '@/components/base/ImgAuthentified';
+import LoadingIndicator from '@/components/modules/LoadingIndicator';
 
 export default {
   props: {
@@ -37,6 +49,8 @@ export default {
     item: Object,
     showMeta: Boolean,
     showArticle: Boolean,
+    // headers containing authentication, if any
+    headers: Object
   },
   computed: {
     pages() {
@@ -45,13 +59,25 @@ export default {
       });
     },
     hasTitle() {
-      return this.item.title && this.item.title.length;
+      if(!this.item) {
+        return false;
+      }
+      return typeof this.item.title === 'string' && this.item.title.length > 0;
     },
     hasValidSrc() {
-      return Array.isArray(this.item.regions) && this.item.regions.length;
+      if(!this.item) {
+        return false;
+      }
+      return Array.isArray(this.item.regions) && this.item.regions.length > 0;
     },
     src() {
-      return this.item.regions[0].iiifFragment;
+      return this.hasValidSrc ? this.item.regions[0].iiifFragment: null;
+    },
+    shouldForwardAuthentication() {
+      if (this.hasValidSrc) {
+        return this.item.regions[0].iiifFragment.indexOf(process.env.VUE_APP_BASE_URL) === 0
+      }
+      return false
     },
   },
   methods: {
@@ -60,7 +86,7 @@ export default {
         issue_uid: this.item.issue?.uid || this.item.uid.match(/(^.+)-i/)[1],
         page_uid: this.item.pages[0]?.uid,
       };
-      console.info('gotoPage', params);
+      console.info('gotoPage', params, this.item.article);
       if (this.item.article) {
         this.$router.push({
           name: 'article',
@@ -71,7 +97,7 @@ export default {
         });
       } else {
         this.$router.push({
-          name: 'article',
+          name: 'page',
           params,
         });
       }
@@ -79,6 +105,8 @@ export default {
   },
   components: {
     ItemSelector,
+    ImgAuthentified,
+    LoadingIndicator,
   },
 };
 </script>

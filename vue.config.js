@@ -71,5 +71,8 @@ module.exports = {
       filename: 'widget/index.html',
     }
   },
+  devServer: {
+    public: 'http://localhost:8080',
+  },
   publicPath: getPublicPath()
 }

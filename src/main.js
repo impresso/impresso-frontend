@@ -81,6 +81,9 @@ const DefaultImpressoFeatures = {
 
 /* eslint-disable no-new */
 console.info('Checking authentication...');
+// eslint-disable-next-line
+console.info('TYPEKIT_ID', process.env.VUE_APP_TYPEKIT_ID);
+
 Promise.race([
   services.app.reAuthenticate(),
   reducedTimeoutPromise({ service: 'app.reAuthenticate' }),

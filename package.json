@@ -1,6 +1,6 @@
 {
   "name": "impresso-frontend",
-  "version": "2.7.2",
+  "version": "2.7.4",
   "description": "Frontend app for impresso project",
   "author": "impresso <info@impresso-project.ch>",
   "contributors": [
@@ -21,6 +21,7 @@
     "@feathersjs/authentication-client": "4.3.3",
     "@feathersjs/feathers": "4.3.3",
     "@feathersjs/socketio-client": "4.3.3",
+    "axios": "^0.24.0",
     "bootstrap-vue": "2.2.2",
     "core-js": "3.6.4",
     "d3": "5.15.0",
@@ -68,6 +69,7 @@
     "less": "3.10.3",
     "less-loader": "5.0.0",
     "node-sass": "^4.14.1",
+    "postcss": "8.4.8",
     "postcss-import": "12.0.1",
     "postcss-url": "8.0.0",
     "sass-loader": "8.0.2",

@@ -1,7 +1,7 @@
 <template lang="html">
   <article :class="{ reference : asReference }">
     <slot name="title">
-      <h2 v-if="item.title" class="mb-0">
+      <h2 v-if="item.title" class="mb-0 font-weight-bold">
         <router-link v-if="showLink" :to="routerLinkUrl" v-html="item.title"></router-link>
         <a v-else-if="showHref" v-on:click.prevent="onClick" v-html="item.title"></a>
         <span v-else v-html="item.title"></span>

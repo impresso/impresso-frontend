@@ -90,4 +90,8 @@ export default class ArticleBase {
       this.excerpt = parts.slice(4).join(' ');
     }
   }
+
+  setImages(images) {
+    this.images = images;
+  }
 }

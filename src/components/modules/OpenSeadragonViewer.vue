@@ -4,6 +4,7 @@
 
 <script>
 import OpenSeadragon from 'openseadragon';
+import { getAuthenticationBearer } from '@/services';
 
 export default {
   props: {
@@ -16,10 +17,29 @@ export default {
     viewer: null,
     overlays: [],
   }),
+  computed: {
+    authenticationOptions() {
+      const token = getAuthenticationBearer()
+      return typeof token === 'string' && token.length
+        ? {
+          loadTilesWithAjax: true,
+          ajaxHeaders: {
+            Authorization: 'Bearer ' + token
+          }
+        }
+        : null
+    }
+  },
   mounted() {
     if (this.handler) {
-      this.handler.$on('init', (options = {}) => {
+      this.handler.$on('init', ({ tileSources=[], ...options} = {}) => {
         if (this.viewer) return
+        // add authentication options only if striclty necessary;
+        // that is, if tileSources contains `process.env.VUE_APP_BASE_URL`
+        // e.g. VUE_APP_BASE_URL=https://impresso-project.ch/
+        const localAuthenticationOptions = tileSources.some(d => d.indexOf(process.env.VUE_APP_BASE_URL) === 0)
+          ? this.authenticationOptions
+          : null
 
         this.viewer = OpenSeadragon({
           immediateRender: true,
@@ -27,7 +47,9 @@ export default {
           showNavigationControl: false,
           animationTime: 0,
           defaultZoomLevel: 1,
+          tileSources,
           ...options,
+          ...localAuthenticationOptions
         });
 
         this.viewer.addOnceHandler('tile-loaded', () => {
