@@ -82,8 +82,9 @@
           </div>
 
           <p>
-            For legal reasons not all content is available in Open Access.
-            <br/> To <b class="text-white">gain full access</b>:
+            For legal reasons not all content is available.
+            <br/> To gain access to the <b class="text-white">full impresso corpus</b> please
+            <router-link class="text-white" :to="{name: 'register'}">register</router-link> and sign our Non-Disclosure-Agreement.
 
           </p>
           <b-button :variant="darkMode ? 'primary' : 'outline-primary'" size="sm"
@@ -220,7 +221,7 @@ export default {
         filters: this.filters.map(getFilterQuery),
       };
       return query;
-    },
+    }
   },
   methods: {
     handleFiltersChanged(filters) {
