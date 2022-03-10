@@ -130,8 +130,11 @@
 
             <b-dropdown-text class="px-3" v-html="$t('current_version', { version })"/>
           </b-nav-item-dropdown>
-          <b-nav-item class="small-caps mx-2" v-else :to="loginRouteParams">
+          <b-nav-item class="small-caps ml-2" v-else :to="loginRouteParams">
             <span>{{$t("login")}}</span>
+          </b-nav-item>
+          <b-nav-item class="small-caps mx-2" v-if="!user" :to="registerRouteParams">
+            <span>{{$t("register")}}</span>
           </b-nav-item>
         </b-navbar-nav>
     </b-navbar>
@@ -212,6 +215,14 @@ export default {
     loginRouteParams() {
       return {
         name: 'login',
+        query: {
+          redirect: this.$route.path,
+        },
+      };
+    },
+    registerRouteParams() {
+      return {
+        name: 'register',
         query: {
           redirect: this.$route.path,
         },
@@ -633,6 +644,7 @@ export default {
 {
   "en": {
     "login": "Login",
+    "register": "Register",
     "logout": "Logout",
     "dashboard": "Dashboard",
     "collections": "Collections",
