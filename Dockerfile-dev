@@ -2,7 +2,7 @@ FROM node:12-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache git build-base python3
+RUN apk add --no-cache git build-base python2
 COPY package.json package-lock.json ./
 
 RUN npm install
