@@ -129,7 +129,9 @@ export default {
       pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
       issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
       results: 'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
-      articlesMatching: 'no articles matching {q}| <span class="number">1</span> article matches {q} | <span class="number">{n}</span> articles found containing <span class="highlight">{q}</span>',
+      articlesMatching: 'no article contains <span class="highlight">{q}</span> | <span class="number">1</span> article contains <span class="highlight">{q}</span> | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span>',
+      articlesMatchingWithinSearch: 'no articles matching <span class="highlight">{q}</span> and your search filters | <span class="number">1</span> article contains <span class="highlight">{q}</span> and your search filters | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span> and your search filters',
+      articlesMatchingSearchFilters: 'no articles matching your search filters | <span class="number">1</span> article matching your search filters | <span class="number">{n}</span> articles matching your search filters',
       relatedTopics: 'no related topics | <span class="number">1</span> related topic | <span class="number">{n}</span> related topics',
       resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
       collection: {
