@@ -1,12 +1,13 @@
 # 1. build
 FROM node:12-alpine AS frontend_builder
 
+ARG GIT_TAG
 ARG GIT_BRANCH
 ARG GIT_REVISION
 
 WORKDIR /impresso_frontend
 
-RUN apk add --no-cache git build-base python
+RUN apk add --no-cache git build-base python3
 
 COPY package.json package-lock.json ./
 
@@ -21,8 +22,9 @@ COPY .env .env.production ./
 
 ENV PUBLIC_PATH /app/
 ENV NODE_ENV production
-ENV IMPRESSO_GIT_BRANCH=${GIT_BRANCH}
-ENV IMPRESSO_GIT_REVISION=${GIT_REVISION}
+ENV GIT_TAG=${GIT_TAG}
+ENV GIT_BRANCH=${GIT_BRANCH}
+ENV GIT_REVISION=${GIT_REVISION}
 
 RUN npm run build
 

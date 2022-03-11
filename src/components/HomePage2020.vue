@@ -9,7 +9,7 @@
         :filters="enrichedFilters"
         @changed="handleFiltersChanged"
         />
-        <autocomplete v-on:submit="onSuggestion" />
+        <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
       </div>
     </div>
 
@@ -46,25 +46,6 @@
         <br/>
         <img src="@/assets/img/Twitter_Logo_WhiteOnImage.png" class="mr-2" style="max-height:1em"> twitter: <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
       </div>
-      <div class="mb-2">
-        <b-button
-          :variant="showLines  ? 'primary' : 'outline-primary'" size="sm"
-          @click="showLines = !showLines">
-          <div v-if="showLines">{{$t('toggle_lines_on')}}</div>
-          <div v-else>{{$t('toggle_lines_off')}}</div>
-        </b-button>
-      </div>
-      <div>
-        <b-button
-          :variant="darkMode ? 'primary' : 'outline-primary'" size="sm"
-          @click="darkMode = !darkMode">
-          <div class="d-flex flex-row align-items-center">
-            <div class="d-flex dripicons dripicons-brightness-medium mr-2" />
-            <div v-if="darkMode">{{$t('toggle_darkmode_on')}}</div>
-            <div v-else>{{$t('toggle_darkmode_off')}}</div>
-          </div>
-        </b-button>
-      </div>
       <!-- <br>
       <viz-bar-multi title="Langues" variant="compact" :items="[{name: 'Français', count: 70}, {name: 'Deutsch', count: 20}, {name: 'English', count: 10}]" />
       <viz-bar-multi title="OCR / OLR" variant="compact" :items="[{name: 'OCR', count: 20}, {name: 'OLR', count: 80}]" />
@@ -87,7 +68,7 @@
         <p style="font-size:1.2em">
           How can newspapers help understand the past? How to explore them?
         </p>
-        <div class="p-3 mb-3 mt-5 enhance-contents position-relative">
+        <div class="p-3 mb-3 mt-5 enhance-contents position-relative shadow">
           <div class="starburst-mask">
             <div class="starburst-wrapper">
               <div class="position-absolute text">
@@ -101,8 +82,9 @@
           </div>
 
           <p>
-            For legal reasons not all content is available in Open Access.
-            <br/> To <b class="text-white">gain full access</b>:
+            For legal reasons not all content is available.
+            <br/> To gain access to the <b class="text-white">full impresso corpus</b> please
+            <router-link class="text-white" :to="{name: 'register'}">register</router-link> and sign our Non-Disclosure-Agreement.
 
           </p>
           <b-button :variant="darkMode ? 'primary' : 'outline-primary'" size="sm"
@@ -116,7 +98,13 @@
             ... and return the signed form to <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">info@impresso-project.ch</a>
           </p>
         </div>
-
+        <p class='text-center text-white my-5'>
+          Take a moment to familiarise yourself with <em>impresso</em>'s <b>advanced search</b> and <b> exploration workflows</b>
+        </p>
+        <div class="border-bottom" style="position:relative">
+          <div class="arrow-down" style="position:absolute; left:50%; margin-left: -20px; top: -1px; border-top-color: #343a40"></div>
+        </div>
+        <div class="arrow-down mx-auto"></div>
         <b-container class="challenges my-4 enhance-contents border-0 p-0">
           <b-row class="p-0">
           <b-col lg="6" md="12">
@@ -233,7 +221,7 @@ export default {
         filters: this.filters.map(getFilterQuery),
       };
       return query;
-    },
+    }
   },
   methods: {
     handleFiltersChanged(filters) {
@@ -246,8 +234,12 @@ export default {
       });
     },
     onSuggestion(filter) {
+      console.info('on suggestion')
       this.handleFiltersChanged(this.filters.concat([ filter ]));
     },
+    onSubmitEmpty() {
+      this.handleFiltersChanged(this.filters)
+    }
   },
   watch: {
     searchServiceQuery: {
@@ -255,7 +247,6 @@ export default {
         if (!filters.length) {
           return;
         }
-        console.info('@searchServiceQuery oad items!!!', filters);
         filtersItemsService.find({
           query: {
             filters: this.searchQueryHash,
@@ -263,7 +254,6 @@ export default {
         })
           .then(joinFiltersWithItems)
           .then((filtersWithItems) => {
-            console.info('@searchServiceQuery oad filtersWithItems!!!', filtersWithItems);
             this.filtersWithItems = filtersWithItems;
           });
       },

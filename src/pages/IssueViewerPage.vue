@@ -54,6 +54,7 @@
         <issue-viewer-table-of-contents
           :items="tableOfContentsArticles"
           :selected-article-id="articleId"
+          :headers="headers"
           @article-selected="handleArticleSelected"
           @click-full-text="showArticleText"
         />
@@ -63,14 +64,16 @@
     <i-layout-section main>
       <!-- header -->
       <div slot="header" class="border-bottom" v-if="issue">
-        <b-navbar variant="light" class="px-0 py-0">
-          <section class='p-2 pl-3'>
-            <h3 class="m-0">
-              <b>{{ issue.newspaper.name }}</b> &middot;
-              <span class="date">{{ $d(issue.date, 'long') }}</span>
-            </h3>
-          </section>
-          <b-navbar-nav v-show="!isArticleTextDisplayed">
+        <b-navbar variant="light" class="px-0 py-0 border-bottom">
+          <b-navbar-nav class='p-2 pl-3'>
+            <section >
+              <h3 class="m-0">
+                <b>{{ issue.newspaper.name }}</b> &middot;
+                <span class="date">{{ $d(issue.date, 'long') }}</span>
+              </h3>
+            </section>
+          </b-navbar-nav>
+          <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
             <div v-b-tooltip.ds500 :title="$t('label_previous_page')">
               <b-button class="border-dark" variant="light" size="sm"
                 :disabled="currentPageIndex === 0"
@@ -78,12 +81,10 @@
                 <div class="dripicons dripicons-media-previous pt-1"></div>
               </b-button>
             </div>
-
             <div class="px-2 pt-1 border-top border-bottom" v-html="$t('ppOf', {
               num: page.num,
               pages: issue.pages.length
             })"></div>
-
             <div v-b-tooltip.ds500 :title="$t('label_next_page')">
               <b-button class="border-dark" variant="light" size="sm"
                 :disabled="(currentPageIndex + 1) === issue.pages.length"
@@ -92,7 +93,8 @@
               </b-button>
             </div>
           </b-navbar-nav>
-
+        </b-navbar>
+        <b-navbar variant="light" class="px-0 py-0">
           <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
             <div v-b-tooltip.hover :title="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')">
               <b-button
@@ -191,6 +193,8 @@ import {
   tableOfContents as tableOfContentsService,
   articles as articlesService,
   search as searchService,
+  images as imagesService,
+  getAuthenticationBearer
 } from '@/services'
 import { getQueryParameter } from '@/router/util'
 import { getPageId, getShortArticleId, getLongArticleId } from '@/logic/ids'
@@ -221,6 +225,8 @@ export default {
   data: () => ({
     issue: /** @type {Issue|undefined} */ (undefined),
     tableOfContents: /** @type {TableOfContents|undefined} */ (undefined),
+    issueImages: /** @type {Image[]} */ ([]),
+    issueImagesIndex: /** @type {{[key: string] : Image[] }} */ ({}),
     pagesArticles: /** @type {{[key: string] : Article[] }} */ ({}),
     pagesMarginalia: /** @type {{[key: string] : any[] }} */ ({}),
     // left panel
@@ -231,6 +237,7 @@ export default {
     outlinesVisible: false,
     isFullscreen: false,
     displayOnlyMatchingArticles: false,
+    headers: /** @type {{[key: string] : string }} */ ({}),
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -246,6 +253,17 @@ export default {
     if (this.suggestionQuery.length) {
       this.displayOnlyMatchingArticles = true;
     }
+    this.headers = {
+      Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
+    }
+  },
+  created() {
+    window.addEventListener('fullscreenchange', this.fullscreenChange);
+    window.addEventListener('keydown', this.keyDown);
+  },
+  destroyed() {
+    window.removeEventListener('fullscreenchange', this.fullscreenChange);
+    window.removeEventListener('keydown', this.keyDown);
   },
   created() {
     window.addEventListener('fullscreenchange', this.fullscreenChange);
@@ -344,13 +362,23 @@ export default {
     },
     /** @returns {import('@/models/ArticleBase').default[]} */
     tableOfContentsArticles() {
+      let items = []
       if ((this.suggestionQuery.length || this.filters.length) && this.displayOnlyMatchingArticles) {
-        return this.matchingArticles;
+        items = this.matchingArticles;
       }
       if (this.tableOfContents) {
-        return this.tableOfContents.articles;
+        items = this.tableOfContents.articles;
       }
-      return []
+      // enrich with corresponding images
+      if (!this.issueImages.length) {
+        return items;
+      }
+      return items.map((d) => {
+        if (this.issueImagesIndex[d.uid]) {
+          d.setImages(this.issueImagesIndex[d.uid])
+        }
+        return d
+      })
     },
     suggestionQuery: {
       /** @returns {string} */
@@ -425,6 +453,26 @@ export default {
       async handler(id) {
         this.issue = new Issue(await issuesService.get(id))
         this.tableOfContents = new TableOfContents(await tableOfContentsService.get(id))
+        // / load images
+        this.issueImages = await imagesService.find({
+          query: {
+            filters:[{ type:'issue', q:id }],
+            limit: 100
+          },
+        }).then(({ data }) => data)
+        // remap images by article property
+        this.issueImagesIndex = this.issueImages.reduce((acc, d)=> {
+          if (!d.article) {
+            console.warn('Article property not found on image', d)
+            return acc
+          }
+          if (!Array.isArray(acc[d.article])) {
+            acc[d.article] = [d]
+          } else {
+            acc[d.article].push(d)
+          }
+          return acc
+        }, {})
       },
       immediate: true
     },

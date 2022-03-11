@@ -35,6 +35,8 @@ export default {
         console.error('error in store/User/LOGOUT');
         console.error(err);
       }).finally(() => {
+        const expiredDate = new Date(-1)
+        document.cookie = 'feathers-jwt=; expires=' + expiredDate.toUTCString() + '; path=/';
         context.commit('CLEAR_USER');
       });
     },
@@ -65,6 +67,9 @@ export default {
         return res;
       }).then(({ user, accessToken }) => {
         console.info('LOGIN: user', user.username, 'logged in!');
+        // don't save cookie
+        // const expiredDate = new Date(authentication?.payload?.exp * 1000)
+        // document.cookie = 'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/';
         services.app.set('user', user);
         commit('SET_USER', new User({
           ...user,

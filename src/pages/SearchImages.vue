@@ -75,17 +75,18 @@
 
      <!--  body -->
       <div class="p-1 my-2">
-        <b-card-group rows class="row-cols-1 row-cols-md-2 row-cols-lg-4">
+        <b-card-group rows class="row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
           <div class="mb-3"
             v-for="searchResult in searchResults" :key="searchResult.uid">
             <search-results-image-item
-              class="h-100 mx-1"
+              class="mx-1"
               :item="searchResult"
               :enable-checkbox="false"
               :enable-similar-to="enableSimilarTo"
               @toggleSelected="toggleSelected"
               :isChecked="isChecked(searchResult)"
-              @click:search="onClickSearch" />
+              @click:search="onClickSearch"
+              :headers="headers" />
           </div>
         </b-card-group>
         <div v-if="paginationTotalRows && paginationCurrentPage > 0" class="fixed-pagination-footer p-1 m-0">
@@ -119,6 +120,7 @@ import {
 import {
   images as imagesService,
   filtersItems as filtersItemsService,
+  getAuthenticationBearer
 } from '@/services';
 import FilterImageUpload from '@/components/modules/FilterImageUpload';
 import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
@@ -176,6 +178,9 @@ export default {
   }),
   mounted() {
     this.facets = buildEmptyFacets(AllowedFacetTypes);
+    this.headers = {
+      Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
+    }
   },
   computed: {
     searchQuery: {

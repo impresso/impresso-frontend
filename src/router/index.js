@@ -7,7 +7,6 @@ import FaqPage from '../components/FaqPage';
 import TermsOfUsePage from '../components/TermsOfUsePage';
 import IssuePage from '../components/IssuePage';
 import UserLoginPage from '../components/UserLoginPage';
-import CollectionDetailPage from '../components/CollectionDetailPage';
 import TestPage from '../components/TestPage';
 import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
@@ -18,13 +17,14 @@ import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
 import PowerUserVisualisation from '../pages/PowerUserVisualisation'
 import IssueViewerPage from '../pages/IssueViewerPage'
-
+import {getShortArticleId} from '@/logic/ids'
 import store from '../store';
 
 Vue.use(Router);
 
 const BASE_URL = process.env.BASE_URL || '/';
-console.info('Setup Router with BASE_URL to:', BASE_URL);
+// eslint-disable-next-line
+console.debug('[router] Router with BASE_URL to:', BASE_URL);
 
 const router = new Router({
   mode: 'history',
@@ -147,7 +147,7 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "collections" */ '../pages/Collections.vue'),
       children: [{
         path: '',
-        component: CollectionDetailPage,
+        component: () => import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
         name: 'collections',
         meta: {
           requiresAuth: true,
@@ -156,7 +156,7 @@ const router = new Router({
       },
       {
         path: ':collection_uid',
-        component: CollectionDetailPage,
+        component: () => import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
         name: 'collection',
         meta: {
           requiresAuth: true,
@@ -196,13 +196,17 @@ const router = new Router({
     },
     {
       path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
-      component: IssuePage,
       name: 'article',
-      props: true,
-      meta: {
-        realm: 'issueviewer',
-        requiresAuth: false,
-      },
+      redirect: (to) => ({
+        name: 'issue-viewer',
+        params: {
+          issue_uid: to.params.issue_uid
+        },
+        query: {
+          p: to.params.page_uid.match(/p0*(\d+)$/)[1],
+          articleId: getShortArticleId(to.params.article_uid),
+        },
+      })
     },
     {
       path: '/newspapers',
@@ -289,11 +293,14 @@ const router = new Router({
       beforeEnter: (to, from, next) => {
         services.articles.get(to.params.article_uid).then((res) => {
           next({
-            name: 'article',
+            name: 'issue-viewer',
             params: {
-              issue_uid: res.issue.uid,
-              page_uid: res.pages[0]?.uid,
-              article_uid: res.uid,
+              issue_uid: res.issue.uid
+            },
+            query: {
+              p: res.pages[0]?.num,
+              articleId: getShortArticleId(res.uid),
+              text: '1'
             },
           });
         });

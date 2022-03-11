@@ -8,8 +8,8 @@
         v-bind:key="idx"
         v-bind:class="{active: art.uid === selectedArticleUid}"
         v-on:click.stop.prevent="onClick(art, art.pages[0])">
-        <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3"/>
-        <article-item :item="art" class="p-3 clearfix"
+        <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3" :headers="headers"/>
+        <article-item :item="art" class="mx-3 py-3 border-bottom clearfix"
           show-excerpt
           show-entities
           show-size
@@ -27,50 +27,43 @@
            v-bind:class="{activepage: pag.uid === selectedPageUid}">
         <div class="d-block text-bold pagenumber"
         :ref="`page-${pag.uid}`" :data-id='pag.uid'>
-          <div class="p-3 border-bottom"><b>{{$t('page')}} {{pag.num}}</b></div>
+          <div class="p-1 text-white rounded ml-3 border-bottom TableOfContents_page"><b>{{$t('page')}} {{pag.num}}</b></div>
           <b-media
             :ref="`article-${art.uid}`"
-            class="article"
+            class="article border-bottom"
             v-for="(art, idx) in pag.articles"
             v-bind:key="idx"
             v-bind:class="{activepage: pag.uid === selectedPageUid, active: art.uid === selectedArticleUid}"
             v-on:click.stop.prevent="onClick(art, pag)">
-            <div>
-              <image-item
-                :height="200"
-                :item="article"
-                v-if="art.type === 'image'"
-                class="my-2 ml-3"
+            <image-item
+              :height="200"
+              :item="article"
+              v-if="art.type === 'image'"
+              class="my-2 ml-3"
+              :headers="headers"
+              />
+            <article-item :item="art"
+              show-excerpt
+              show-entities
+              show-size
+              show-pages
+              show-type
+              class="mx-3 py-3"
+            />
+            <div v-if="isLoggedIn">
+              <div v-bind:key="i" v-for="(image, i) in art.images">
+                <image-item
+                  class="mx-3 mb-2"
+                  :item="image"
+                  :headers="headers"
                 />
-              <article-item :item="art" class="p-3"
-                show-excerpt
-                show-entities
-                show-size
-                show-pages
-                show-type
-              />
-              <image-item
-                :height="200"
-                class="mx-3 mb-2"
-                :item="image"
-                v-for="(image, i) in art.images"
-                v-bind:key="i"
-              />
-            </div>
-            <div class="ml-3 mb-3"
-              v-if="art.uid === selectedArticleUid
-                && art.issue.accessRights === 'OpenPublic'">
-              <b-button
-                variant="outline-success" size="sm"
-                v-on:click.prevent="showModalShareArticle()"
-                >
-                <div class="d-flex flex-row align-items-center">
-                  <div class="d-flex dripicons dripicons-web mr-2" />
-                  <div>
-                    {{$t('actions.share')}}
-                  </div>
-                </div>
-              </b-button>
+                <div class="text-right mr-3 mb-2">
+                <router-link class="btn btn-outline-secondary btn-sm "
+                  :to="getSimilarImagesHref(image)">
+                  get similar images
+                </router-link>
+              </div>
+              </div>
             </div>
           </b-media>
         </div>
@@ -86,6 +79,7 @@ import ArticleItem from './lists/ArticleItem';
 import ImageItem from './lists/ImageItem';
 
 import CopyToClipboard from '../modals/CopyToClipboard';
+import { getAuthenticationBearer } from '@/services';
 
 export default {
   data: () => ({
@@ -94,6 +88,7 @@ export default {
     selectedArticleUid: '',
     selectedPageUid: '',
     showModalShare: false,
+    headers: null,
   }),
   props: {
     articles: {
@@ -117,6 +112,11 @@ export default {
     ArticleItem,
     ImageItem,
     CopyToClipboard,
+  },
+  computed: {
+    isLoggedIn() {
+      return this.$store.state.user.userData;
+    },
   },
   methods: {
     orderedTopics(topics) {
@@ -173,9 +173,6 @@ export default {
       //   }
       // }
     },
-    isLoggedIn() {
-      return this.$store.state.user.userData;
-    },
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
       if (idx !== -1) {
@@ -194,15 +191,9 @@ export default {
     hideModalShareArticle() {
       this.showModalShare = false;
     },
-  },
-  filters: {
-    substring: (val, count = 10) => {
-      val = val.trim();
-      if (val.length >= count - 3) {
-        return `${val.substring(0, count)}...`;
-      }
-      return val;
-    },
+    getSimilarImagesHref(image) {
+      return `/search/images?p=1&similarTo=${image.uid}`
+    }
   },
   watch: {
     $route: {
@@ -218,7 +209,15 @@ export default {
         }
       },
     },
-  }
+  },
+  mounted() {
+    this.headers = {
+      Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
+    }
+  },
+  beforeDestroy() {
+    clearTimeout(this.retryTimer);
+  },
 };
 </script>
 
@@ -245,6 +244,14 @@ export default {
       background-color: $clr-bg-secondary;
       cursor: inherit;
     }
+  }
+
+  .TableOfContents_page{
+    position: sticky;
+    top: 10px;
+    background: var(--dark);
+    z-index:2;
+    display: inline-block;
   }
 }
 </style>

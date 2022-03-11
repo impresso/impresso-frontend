@@ -6,22 +6,22 @@
   },
   "recipes": [
     {
-      "caption": "Reconstruct the coverage of the composer Robert Schumann",
+      "caption": "Search for the composer Robert Schumann",
       "text": "Explore the newspapers’ mentions of specific persons or locations",
       "img_src": "https://media.giphy.com/media/IhVFxKbsZjDUWI2zpw/giphy.gif",
-      "query": "/app/search?f=%5B%7B\"type\"%3A\"hasTextContents\"%7D,%7B\"precision\"%3A\"exact\",\"type\"%3A\"string\",\"q\"%3A\"Robert%20Schumann\"%7D%5D&g=articles&p=1&o=-relevance",
+      "query": "/app/search?sq=CgIYAgoXEAIYByABKg9yb2JlcnQgc2NodW1hbm4KIggBGBAqHGFpZGEtMDAwMS01MC1Sb2JlcnRfU2NodW1hbm4%3D&p=1",
       "video": "https://vimeo.com/347022479/"
     },
     {
       "caption": "Find performances of Robert Schumann’s music",
       "text": "Use topics to identify the most relevant articles",
       "img_src": "https://media.giphy.com/media/gk9EkcWRb7qQMr7zk0/giphy.gif",
-      "query": "/app/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22Robert%20Schumann%22%7D,%7B%22type%22%3A%22topic%22,%22q%22%3A%5B%22tmrero-fr-alpha_tp79_fr%22%5D,%22r%22%3A%5B0,1%5D,%22op%22%3A%22OR%22,%22context%22%3A%22include%22%7D%5D&g=articles&p=1&o=-relevance",
+      "query": "/app/search?sq=CgIYAgoeCAEQAhgSKhZ0bS1mci1hbGwtdjIuMF90cDk2X2ZyChcQAhgHIAEqD1JvYmVydCBTY2h1bWFubg%3D%3D&p=1",
       "video": "https://vimeo.com/347022433/"
     },
     {
       "caption": "Create a collection",
-      "text": "Collections are curated lists of articles",
+      "text": "Collections are curated lists of articles which can e.g. be searched, compared and exported.",
       "img_src": "https://media.giphy.com/media/VJrqLAd4mdQWnmuFR7/giphy.gif",
       "video": "https://vimeo.com/347022422/"
     },
@@ -29,14 +29,14 @@
       "caption": "Search for horoscopes",
       "text": "Distinguish between horoscopes and articles which mention the term",
       "img_src": "https://media.giphy.com/media/RlHsYmDdVTs9NJ8Ddz/giphy.gif",
-      "query": "/app/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22horoscope%22%7D%5D&g=articles&p=1&o=-relevance",
+      "query": "/app/search?sq=CgIYAgoeCAEQAhgSKhZ0bS1mci1hbGwtdjIuMF90cDQ0X2Zy&p=1",
       "video": "https://vimeo.com/347022471/"
     },
     {
      "caption": "How to limit the date range of your query?",
      "text": "Focus on the years 1927-1928",
      "img_src": "https://media.giphy.com/media/mC7d6yRqLqZugfdqRa/giphy.gif",
-     "query": "/app/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22precision%22%3A%22exact%22,%22type%22%3A%22string%22,%22q%22%3A%22Robert%20Schumann%22%7D%5D&g=articles&p=1&o=-relevance#/search?f=%5B%7B%22type%22%3A%22hasTextContents%22%7D,%7B%22type%22%3A%22daterange%22,%22q%22%3A%5B%221927-01-01T00%3A00%3A00Z%20TO%201928-12-31T23%3A59%3A59Z%22%5D,%22op%22%3A%22OR%22%7D%5D&g=articles&p=1&o=-relevance",
+     "query": "/app/search?sq=CgIYAgoMEAIYByABKgRqZXV4ChIQAhgHIAEqCm9seW1waXF1ZXMKMhACGAoqLDE5MjctMDEtMDFUMDA6MDA6MDBaIFRPIDE5MjgtMTItMzFUMjM6NTk6NTla&p=1",
      "video": "https://vimeo.com/364796757"
    },
 {

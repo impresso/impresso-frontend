@@ -6,6 +6,7 @@
         v-bind:checked="isChecked"
         v-on:change="$emit('toggleSelected', item)" />
       <image-item
+        :headers="headers"
         fluid-grow
         :enableSimilarTo="enableSimilarTo"
         :item="item"
@@ -33,6 +34,7 @@ export default {
     enableCheckbox: Boolean,
     enableSimilarTo: Boolean,
     isChecked: Boolean,
+    headers: Object
   },
 };
 </script>

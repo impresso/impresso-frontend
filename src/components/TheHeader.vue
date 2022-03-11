@@ -57,7 +57,7 @@
       </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">
-          <b-nav-item :to="{ name: 'faq'}" active-class="active">
+          <b-nav-item :to="{ name: 'faq'}" class="small-caps" active-class="active">
             <span>{{$t("label_faq")}}</span>
           </b-nav-item>
 
@@ -130,7 +130,12 @@
 
             <b-dropdown-text class="px-3" v-html="$t('current_version', { version })"/>
           </b-nav-item-dropdown>
-          <b-nav-item class="small-caps border-left" v-else :to="loginRouteParams">{{$t("login")}}</b-nav-item>
+          <b-nav-item class="small-caps ml-2" v-else :to="loginRouteParams">
+            <span>{{$t("login")}}</span>
+          </b-nav-item>
+          <b-nav-item class="small-caps mx-2" v-if="!user" :to="registerRouteParams">
+            <span>{{$t("register")}}</span>
+          </b-nav-item>
         </b-navbar-nav>
     </b-navbar>
     <b-alert :show="showAlert" dismissible variant="warning" class="m-0 px-3">
@@ -210,6 +215,14 @@ export default {
     loginRouteParams() {
       return {
         name: 'login',
+        query: {
+          redirect: this.$route.path,
+        },
+      };
+    },
+    registerRouteParams() {
+      return {
+        name: 'register',
         query: {
           redirect: this.$route.path,
         },
@@ -631,6 +644,7 @@ export default {
 {
   "en": {
     "login": "Login",
+    "register": "Register",
     "logout": "Logout",
     "dashboard": "Dashboard",
     "collections": "Collections",
@@ -646,7 +660,7 @@ export default {
     "label_compare": "Inspect & Compare",
     "label_text_reuse": "Text reuse",
     "label_current_search": "browse results ...",
-    "label_faq": "FAQ",
+    "label_faq": "faq",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",
