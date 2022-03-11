@@ -258,10 +258,14 @@ export default {
     }
   },
   created() {
+    // eslint-disable-next-line
+    console.debug('[IssueViewerPage] created()')
     window.addEventListener('fullscreenchange', this.fullscreenChange);
     window.addEventListener('keydown', this.keyDown);
   },
   destroyed() {
+    // eslint-disable-next-line
+    console.debug('[IssueViewerPage] destroyed()')
     window.removeEventListener('fullscreenchange', this.fullscreenChange);
     window.removeEventListener('keydown', this.keyDown);
   },
