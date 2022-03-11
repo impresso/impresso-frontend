@@ -41,16 +41,14 @@
       <div v-if="item.locations.length">
         <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
         <span v-for="(location, idx) in item.locations" v-bind:key="idx">
-          <item-label :item="location" type="location" />
-          <item-selector :uid="location.uid" :item="location" type="location"/>
+          <item-selector :uid="location.uid" :label="location.name" :item="location" type="location"/>
           <span v-if="idx !== item.locations.length - 1">, </span>
         </span>
       </div>
       <div v-if="item.persons.length">
         <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
         <span v-for="(person, idx) in item.persons" v-bind:key="idx">
-          <item-label :item="person" type="person" />
-          <item-selector :uid="person.uid" :item="person" type="person"/>
+          <item-selector :uid="person.uid" :label="person.name" :item="person" type="person"/>
           <span v-if="idx !== item.persons.length - 1">, </span>
         </span>
       </div>
@@ -86,7 +84,6 @@
 
 <script>
 import ItemSelector from '../ItemSelector';
-import ItemLabel from './ItemLabel';
 import VizBar from '../../base/VizBar';
 import { getShortArticleId } from '@/logic/ids';
 
@@ -151,7 +148,6 @@ export default {
   },
   components: {
     ItemSelector,
-    ItemLabel,
     VizBar,
   },
 };
@@ -164,6 +160,14 @@ export default {
   .date {
     text-transform: lowercase;
     font-variant: small-caps;
+  }
+  article{
+    h2{
+      font-size: 1.2em;
+    }
+    .article-meta, .article-excerpt{
+      font-size: 0.9em;
+    }
   }
   article.reference {
     h2, .article-meta {

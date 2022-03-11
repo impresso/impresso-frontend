@@ -1,5 +1,6 @@
 <template>
-  <span class="dripicons-enter icon-link" v-on:click.prevent.stop="selectItem"></span>
+  <span v-if="label" class="ItemSelector_label" v-on:click.prevent.stop="selectItem">{{ label }}</span>
+  <span v-else class="dripicons-enter icon-link" v-on:click.prevent.stop="selectItem"></span>
 </template>
 
 <script>
@@ -26,7 +27,10 @@ export default {
     defaultClickActionDisabled: {
       type: Boolean,
       default: false
-    }
+    },
+    label: {
+      type: String
+    },
   },
   methods: {
     selectItem() {
@@ -59,5 +63,11 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="css">
+.ItemSelector_label{
+  cursor: pointer;
+}
+.ItemSelector_label:hover{
+  box-shadow: 0 1px 0px 0 black;
+}
 </style>

@@ -12,13 +12,13 @@
             <template v-slot:title>
               <span v-html="$t('table_of_contents')"/>
             </template>
-            <div class="p-2 px-3">
+            <div class="p-2 px-3 mb-1">
               <p v-html="$t('stats', {
                 countArticles: issue.countArticles,
                 countPages: issue.countPages,
                 accessRights: $t(`buckets.accessRight.${issue.accessRights }`)
               })" />
-              <b-form inline>
+              <b-form inline class="pb-1">
                 <b-form-checkbox
                   :disabled="countActiveFilters === 0"
                   v-model="applyCurrentSearchFilters"
@@ -26,7 +26,7 @@
                   {{ $t('actions.addCurrentSearch') }}
                 </b-form-checkbox>
               </b-form>
-              <b-alert variant="transparent" class="p-1 small" show>
+              <b-alert variant="transparent" class="pb-1 small" show v-if="(countActiveFilters === 0 || ignoredFilters.length)">
                 <div v-if="countActiveFilters === 0">
                   {{ $t('applyCurrentSearchFiltersDisabled') }}
                 </div>
@@ -38,14 +38,30 @@
                 v-if="applyCurrentSearchFilters"
                 :filters="filters"
                 @changed="handleFiltersChanged"
+                class="pb-1"
               />
-              <b-input class="mb-3" v-model.trim="suggestionQuery"
+              <b-input class="mb-2" v-model.trim="suggestionQuery"
                 debounce="500" :placeholder="$t('label_filter_articles')" />
-                <b-form-checkbox :disabled="!hasMatchingArticles"
+                <!-- <b-form-checkbox :disabled="!hasMatchingArticles"
                   v-model="displayOnlyMatchingArticles"
                   switch>
                   <span v-html="$tc('filter_included_only', paginationTotalRows)"/>
-                </b-form-checkbox>
+                </b-form-checkbox> -->
+              <div class="mb-2 IssueViewerPage_matchingArticles" v-if="hasMatchingArticles">
+                <div v-if="isLoadingServiceQuery">{{ $t('actions.loading') }}</div>
+                <div v-else-if="applyCurrentSearchFilters && !suggestionQuery.length" v-html="$tc('numbers.articlesMatchingSearchFilters', matchingArticles.length, {
+                    n: $n(matchingArticles.length),
+                    q: suggestionQuery,
+                })"/>
+                <div v-else-if="applyCurrentSearchFilters" v-html="$tc('numbers.articlesMatchingWithinSearch', matchingArticles.length, {
+                    n: $n(matchingArticles.length),
+                    q: suggestionQuery,
+                })"/>
+                <div v-else v-html="$tc('numbers.articlesMatching', matchingArticles.length, {
+                    n: $n(matchingArticles.length),
+                    q: suggestionQuery,
+                })"/>
+              </div>
             </div>
           </b-tab>
         </b-tabs>
@@ -236,6 +252,7 @@ export default {
     matchingArticles: /** @type {Article[]} */ [],
     outlinesVisible: false,
     isFullscreen: false,
+    isLoadingServiceQuery: false,
     displayOnlyMatchingArticles: false,
     headers: /** @type {{[key: string] : string }} */ ({}),
   }),
@@ -258,10 +275,14 @@ export default {
     }
   },
   created() {
+    // eslint-disable-next-line
+    console.debug('[IssueViewerPage] created()')
     window.addEventListener('fullscreenchange', this.fullscreenChange);
     window.addEventListener('keydown', this.keyDown);
   },
   destroyed() {
+    // eslint-disable-next-line
+    console.debug('[IssueViewerPage] destroyed()')
     window.removeEventListener('fullscreenchange', this.fullscreenChange);
     window.removeEventListener('keydown', this.keyDown);
   },
@@ -363,10 +384,9 @@ export default {
     /** @returns {import('@/models/ArticleBase').default[]} */
     tableOfContentsArticles() {
       let items = []
-      if ((this.suggestionQuery.length || this.filters.length) && this.displayOnlyMatchingArticles) {
+      if (this.hasMatchingArticles) {
         items = this.matchingArticles;
-      }
-      if (this.tableOfContents) {
+      } else if (this.tableOfContents) {
         items = this.tableOfContents.articles;
       }
       // enrich with corresponding images
@@ -395,7 +415,7 @@ export default {
     },
     /** @returns {{ q: string, limit: number, page: number, issueUid?: string, filters: Filter[] }} */
     serviceQuery() {
-      return {
+      const sq = {
         q: this.suggestionQuery,
         limit: this.paginationPerPage,
         page: this.paginationCurrentPage,
@@ -403,7 +423,10 @@ export default {
         filters: this.applyCurrentSearchFilters
           ? this.filters.map(getFilterQuery)
           : [],
-      };
+      }
+      // eslint-disable-next-line
+      console.debug('[IssueViewerPage] computed serviceQuery', sq)
+      return sq;
     },
     /** @returns {any} */
     paginationList() {
@@ -501,13 +524,17 @@ export default {
           return;
         }
         if (this.issue == null) return;
+        // eslint-disable-next-line
+        console.debug('[IssueViewerPage] @serviceQuery changed, params:', params)
         const { q, limit, page, issueUid, filters } = params;
         this.matchingArticles = [];
         if (q.length > 1 || filters.length) {
           const additionalFilters = [{ type: 'issue', q: issueUid }]
           if (q.length > 1) {
-            additionalFilters.push({ type: 'string', q });
+            const regex = /\*+$/i;
+            additionalFilters.push({ type: 'string', q: (q + '*').replace(regex, '*') });
           }
+          this.isLoadingServiceQuery = true
           searchService.find({
             lock: false,
             query: {
@@ -517,6 +544,10 @@ export default {
           }).then(({ data, total }) => {
             this.paginationTotalRows = total;
             this.matchingArticles = data.map(article => new Article(article));
+            this.isLoadingServiceQuery = false;
+          }).catch((err) => {
+            console.warn('[IssueViewerPage] @serviceQuery Error', err)
+            this.isLoadingServiceQuery = false;
           });
         }
       },
@@ -649,11 +680,12 @@ export default {
 <i18n>
 {
   "en": {
-    "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages ({accessRights})",
+    "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages <br/><span class='small'>{accessRights}</span>",
     "label_previous_page": "Previous Page (Shift + ←)",
     "label_next_page": "Next Page (Shift + →)",
     "label_display": "Display as",
     "label_filter_articles": "Search words...",
+    "label_matching_articles": "",
     "table_of_contents": "table of contents",
     "toggle_outlines_on": "show article outlines",
     "toggle_outlines_off": "hide article outlines",
@@ -666,12 +698,14 @@ export default {
 </i18n>
 
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
-
-section.i-layout-section {
-  background-color: $clr-bg-secondary;
-}
-section.i-layout-section > div.header {
-  background-color: $clr-bg-primary;
-}
+  @import "impresso-theme/src/scss/variables.sass";
+  .IssueViewerPage_matchingArticles .number{
+    font-weight: bold
+  }
+  section.i-layout-section {
+    background-color: $clr-bg-secondary;
+  }
+  section.i-layout-section > div.header {
+    background-color: $clr-bg-primary;
+  }
 </style>

@@ -16,14 +16,14 @@
               </div>
             </div>
           </b-tab>
-          <b-tab :active="tab === TabObservingList" @click="switchTab(TabObservingList)">
+          <!-- <b-tab :active="tab === TabObservingList" @click="switchTab(TabObservingList)">
             <template v-slot:title >
               <span v-html="$t('tabs.entities.observingList', { n: observedItemIds.length })"/>
             </template>
             <div class="p-3" v-if="!observedItemIds.length">
               <p class="text-center"><em>{{$t('label_observing_list_empty')}}</em></p>
             </div>
-          </b-tab>
+          </b-tab> -->
         </b-tabs>
         <div class="px-3 pb-3 pt-2" v-if="observedItemIds.length">
           <b-button size="sm" class="ml-2" variant="outline-primary" @click="resetObservedItems">
@@ -44,7 +44,6 @@
             v-bind:item="entity"
             v-bind:active="entity.uid === selectedId"
             show-link
-            is-observable
             :observed="observedItemIds.includes(entity.uid)"
             @toggle-observed="handleToggleObserved"
         />
