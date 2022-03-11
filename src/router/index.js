@@ -10,7 +10,8 @@ import UserLoginPage from '../components/UserLoginPage';
 import TestPage from '../components/TestPage';
 import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
 import NewspapersDetailPage from '../components/NewspapersDetailPage';
-import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
+// import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
+import EntitiesTemporaryPage from '../components/EntitiesTemporaryPage';
 import EntitiesDetailPage from '../components/EntitiesDetailPage';
 import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
@@ -242,24 +243,26 @@ const router = new Router({
     {
       path: '/entities',
       component: () => import(/* webpackChunkName: "entities" */ '../pages/Entities.vue'),
-      children: [{
-        path: '',
-        component: EntitiesExplorerPage,
-        name: 'entities',
-        meta: {
-          requiresAuth: false,
-          realm: 'entities',
+      children: [
+        {
+          path: '',
+          component: EntitiesTemporaryPage,
+          name: 'entities',
+          meta: {
+            requiresAuth: false,
+            realm: 'entities',
+          },
         },
-      },
-      {
-        path: ':entity_id',
-        component: EntitiesDetailPage,
-        name: 'entity',
-        meta: {
-          requiresAuth: false,
-          realm: 'entities',
-        },
-      }],
+        {
+          path: ':entity_id',
+          component: EntitiesDetailPage,
+          name: 'entity',
+          meta: {
+            requiresAuth: false,
+            realm: 'entities',
+          },
+        }
+      ],
     },
     {
       path: '/playground',
