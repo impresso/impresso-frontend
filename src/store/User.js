@@ -7,7 +7,6 @@ export default {
   state: {
     rememberCredetials: false,
     userData: false,
-    token: '',
   },
   getters: {
     user(state) {
@@ -21,12 +20,8 @@ export default {
     SET_USER(state, payload) {
       state.userData = payload;
     },
-    SET_ACCESS_TOKEN(state, token) {
-      state.token = token
-    },
     CLEAR_USER(state) {
       state.userData = false;
-      state.token = '';
     },
   },
   actions: {
@@ -65,7 +60,7 @@ export default {
       }).then((res) => {
         console.info('Authentication response:', res);
         return res;
-      }).then(({ user, accessToken }) => {
+      }).then(({ user }) => {
         console.info('LOGIN: user', user.username, 'logged in!');
         // don't save cookie
         // const expiredDate = new Date(authentication?.payload?.exp * 1000)
@@ -76,7 +71,6 @@ export default {
           picture: user.profile.picture,
           pattern: user.profile.pattern,
         }));
-        commit('SET_ACCESS_TOKEN', accessToken)
         return user;
       });
     },
