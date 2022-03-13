@@ -212,7 +212,6 @@ export default new Vuex.Store({
       'search.filterFacetYearExpanded',
       'user.rememberCredetials',
       'user.userData',
-      'user.token',
       'collections.collectionsSortOrder',
       'issue.viewerMode',
       'issue.showOutlines',
