@@ -18,7 +18,7 @@
           </section>
         </b-navbar>
 
-        <b-tabs pills class="mx-3">
+        <b-tabs pills class="mr-3">
           <template v-slot:tabs-end>
             <b-nav-item :to="getRoute({ name: 'newspaper_metadata'})" exact active-class='active' class="pl-2">
               <span>{{$t('route.newspaper_metadata')}}</span>
@@ -31,17 +31,16 @@
         <!--  order by -->
         <b-navbar class="px-3 py-0 border-bottom">
 
-          <b-nav-form class="p-2 border-right">
+          <b-nav-form class="p-2">
             <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
               {{ $t('actions.addToCurrentFilters') }}
             </b-button>
           </b-nav-form>
-          <b-nav-form class="p-2 border-right">
+          <b-nav-form class="p-2 ">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
           </b-nav-form>
-
           <b-navbar-nav v-if="$route.name === 'newspaper'"
           class="p-2 ml-auto">
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
@@ -125,27 +124,11 @@
         <div class="p-4">
           <b-row>
             <b-col
-              sm="12" md="4" lg="3"
+              sm="12" md="6" lg="4" xl="2"
               v-for="(issue, i) in issues"
               v-bind:key="i"
               class="mb-4">
-              <b-card class="mb-2">
-                <router-link v-bind:to="{ name: 'page', params: {
-                  issue_uid: issue.uid,
-                  page_uid: issue.frontPage.uid,
-                }}">
-                  <b-card-img-lazy
-                    :src="issue.frontPage.getIiifThumbnail({ dim: 250 })"
-                    :alt="$d(issue.date, 'long')" top />
-                </router-link>
-                <b-card-body>
-                  <router-link
-                    class='small-caps'
-                    v-bind:to="{ name: 'issue', params: { issue_uid: issue.uid } }">
-                      {{$d(new Date(issue.date), "long")}}
-                  </router-link>
-                </b-card-body>
-              </b-card>
+              <issue-item :item="issue" />
             </b-col>
           </b-row>
         </div>
@@ -169,6 +152,7 @@ import Facet from '@/models/Facet';
 import SearchQuery from '@/models/SearchQuery';
 import Pagination from './modules/Pagination';
 import Timeline from './modules/Timeline';
+import IssueItem from './modules/lists/IssueItem';
 import StackedBarsPanel from './modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
@@ -360,6 +344,7 @@ export default {
     Pagination,
     Timeline,
     StackedBarsPanel,
+    IssueItem
   },
 };
 </script>
