@@ -4,7 +4,7 @@
       <template v-slot:header>
         <div class="p-3 border-bottom">
 
-          <div class="input-group input-group-sm mb-2">
+          <div class="input-group input-group-sm">
             <input type="text" name="" :value="collectionsQ" class="form-control"
               v-bind:placeholder="$t('placeholder')"
               v-on:input="onQueryChange"
@@ -15,7 +15,7 @@
             </div>
           </div>
 
-          <div class="input-group input-group-sm">
+          <!-- div class="input-group input-group-sm">
             <input type="text" name="" value="" class="form-control"
               v-bind:placeholder="$t('inputNewPlaceholder')"
               v-on:input="onInputNew"
@@ -31,7 +31,7 @@
                 {{$t('create_new')}}
               </b-button>
             </div>
-          </div>
+          </div-->
 
           <div v-if="newCollectionError !== ''"
             class="alert alert-danger text-small mt-2 mb-0" role="alert">

@@ -48,7 +48,11 @@
           active-class="active">
           <span>{{$t("label_text_reuse")}}</span>
         </b-nav-item>
-        <b-nav-item v-if="user" :to="{ name: 'collections'}" active-class="active">
+        <b-nav-item
+          v-if="user"
+          :to="getRouteWithSearchQuery({ name: 'collections'})"
+          :active="$route.path.indexOf('/collections') === 0"
+        >
           <span>{{$t("collections")}}</span>
         </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
