@@ -6,7 +6,7 @@
         <template v-slot:tabs-end>
           <b-nav-item class="pl-2 active"
             active-class='none'
-            :to="{ name:'collections' }">
+            :to="getRouteWithSearchQuery({ name:'collections' })">
             {{ $tc('tabs.collections', paginationTotalRows, {total: $n(paginationTotalRows)}) }}</b-nav-item>
         </template>
       </b-tabs>
@@ -25,6 +25,14 @@ import CollectionList from '@/components/modules/CollectionList';
 export default {
   components: {
     CollectionList,
+  },
+  methods: {
+    getRouteWithSearchQuery(route) {
+      return {
+        ...this.$route,
+        ...route
+      };
+    },
   },
   computed: {
     paginationTotalRows: {
