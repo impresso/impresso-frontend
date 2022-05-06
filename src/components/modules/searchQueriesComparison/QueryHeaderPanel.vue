@@ -15,7 +15,7 @@
         </template>
       </b-tab>
 
-      <b-tab :active="comparable.type === 'query'"
+      <b-tab active
              :title="getTabLabel('query')">
         <div class="px-1 pb-2">
           <search-pills :enable-add-filter="filters.length > 0"
@@ -25,16 +25,6 @@
           <InfoIgnoredFilters :ignoredFilters="ignoredFilters"/>
           <autocomplete v-on:submit="onSuggestion" />
         </div>
-      </b-tab>
-
-      <!-- collection -->
-      <b-tab :active="comparable.type === 'collection'"
-             :title="getTabLabel('collection')">
-        <collection-picker
-          class="mx-1"
-          :collections="collections"
-          :active="comparable.id"
-          @input="onCollectionSelected" />
       </b-tab>
       <b-tab v-if="!left" disabled>
         <template v-slot:title>
@@ -93,7 +83,7 @@ import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
 import InfoButton from '@/components/base/InfoButton';
 import Autocomplete from '../../Autocomplete';
-import CollectionPicker from '../../base/CollectionPicker';
+// import CollectionPicker from '../../base/CollectionPicker';
 import InfoIgnoredFilters from '../../base/InfoIgnoredFilters';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 
@@ -158,7 +148,7 @@ export default {
   components: {
     SearchPills,
     Autocomplete,
-    CollectionPicker,
+    // CollectionPicker,
     InfoButton,
     InfoIgnoredFilters,
   },

@@ -1,5 +1,6 @@
 <template>
   <div class="side-by-side-facets-panel container-fluid">
+    <!-- This row is composed of threee columns! -->
     <div class="row"
       v-for="(facet, facetIndex) in facets"
       :key="facetIndex">

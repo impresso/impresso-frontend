@@ -214,6 +214,7 @@ export default {
   watch: {
     /** @param {string} value */
     async displayStyle(value) {
+      // percent value against total number of articles per year
       if (value === 'percent' && this.cachedUnfilteredCounts == null) {
         const query = {
           limit: 0,

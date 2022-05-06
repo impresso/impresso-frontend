@@ -21,9 +21,12 @@
       </div>
       <!-- body -->
       <div class="aspects-container container-fluid">
-        <side-by-side-facets-panel :facets="sideBySideTimelineFacets"
-                                   :comparable-loading-flags="loadingFlags"
-                                   @insert-recent-search-query="handleInsertRecentSearchQuery"/>
+        <!-- this component contains the three columns (show timeline only) -->
+        <side-by-side-facets-panel
+          :facets="sideBySideTimelineFacets"
+          :comparable-loading-flags="loadingFlags"
+          @insert-recent-search-query="handleInsertRecentSearchQuery"
+        />
 
         <div class="d-flex justify-content-center p-4" v-if="mode === modes.Compare">
           <!-- scale -->
@@ -200,9 +203,22 @@ const CollectionRegex = /c:(.*)/
  */
 function queryParameterToComparable(value) {
   if (typeof value != 'string') return { type: ComparableTypes.Query }
-
+  // previous method /c:(.*)/
   const collectionMatch = value.match(CollectionRegex)
-  if (collectionMatch != null) return { type: ComparableTypes.Collection, id: collectionMatch[1] }
+  if (collectionMatch != null) {
+    return {
+      type: ComparableTypes.Query,
+      query: {
+        filters: [
+          {
+            type: 'collection',
+            q:collectionMatch[1]
+          }
+        ]
+      }
+    }
+  }
+  // return { type: ComparableTypes.Collection, id: collectionMatch[1] }
 
   return {
     type: ComparableTypes.Query,
@@ -380,6 +396,7 @@ export default {
     }
   },
   async mounted() {
+    // @todo: remove collections prefecth
     // get collections on created.
     const { data } = await collections.find();
     this.collections = data.map(d => new Collection(d));
@@ -400,6 +417,10 @@ export default {
     },
     /** @returns {Comparable} */
     leftComparableEnriched() {
+      // add additional filters if any to the original left comparable query
+      // e.g. this.leftComparable must be can be smthing like { type: "query", query: {filters:[]} }:
+      // Before, it was { type: "collection", id: "local-xzy" } but we integrated
+      // colleciton in query filters.
       if (this.leftComparable?.query?.filters != null && this.filtersWithItems[QueryIndex.Left] != null) {
         return {
           type: this.leftComparable.type,
