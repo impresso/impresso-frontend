@@ -15,25 +15,16 @@
         </template>
       </b-tab>
 
-      <b-tab :active="comparable.type === 'query'"
+      <b-tab active
              :title="getTabLabel('query')">
         <div class="px-1 pb-2">
           <search-pills :enable-add-filter="filters.length > 0"
                         :includedFilterTypes="supportedFilterTypes"
                         :filters="filters"
                         @changed="handleFiltersChanged" />
+          <InfoIgnoredFilters :ignoredFilters="ignoredFilters"/>
           <autocomplete v-on:submit="onSuggestion" />
         </div>
-      </b-tab>
-
-      <!-- collection -->
-      <b-tab :active="comparable.type === 'collection'"
-             :title="getTabLabel('collection')">
-        <collection-picker
-          class="mx-1"
-          :collections="collections"
-          :active="comparable.id"
-          @input="onCollectionSelected" />
       </b-tab>
       <b-tab v-if="!left" disabled>
         <template v-slot:title>
@@ -92,11 +83,12 @@ import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
 import InfoButton from '@/components/base/InfoButton';
 import Autocomplete from '../../Autocomplete';
-import CollectionPicker from '../../base/CollectionPicker';
+// import CollectionPicker from '../../base/CollectionPicker';
+import InfoIgnoredFilters from '../../base/InfoIgnoredFilters';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 
 const SupportedFilterTypes = [
-  'string', 'title', 'accessRight',
+  'string', 'title', 'accessRight', 'type',
   'location', 'country', 'person', 'language',
   'topic', 'newspaper', 'collection', 'daterange'
 ]
@@ -156,8 +148,9 @@ export default {
   components: {
     SearchPills,
     Autocomplete,
-    CollectionPicker,
+    // CollectionPicker,
     InfoButton,
+    InfoIgnoredFilters,
   },
   methods: {
     /** @param {Filter[]} filters */
@@ -225,8 +218,11 @@ export default {
     },
     /** @returns {Filter[]} */
     filters() {
-      return this.comparable?.query?.filters ?? []
+      return this.comparable?.query?.filters.filter(d => d.type !== 'hasTextContents') ?? []
     },
+    ignoredFilters() {
+      return this.filters.filter(d => !SupportedFilterTypes.includes(d.type));
+    }
   },
 };
 </script>

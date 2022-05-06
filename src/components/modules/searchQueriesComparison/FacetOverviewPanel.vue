@@ -34,7 +34,7 @@
           <div slot-scope="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
-              <b v-html="$tc('numbers.results', tooltipScope.tooltip.item.w, {
+              <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w, {
                 n: $n(tooltipScope.tooltip.item.w),
               })"/>
             </div>
@@ -214,6 +214,7 @@ export default {
   watch: {
     /** @param {string} value */
     async displayStyle(value) {
+      // percent value against total number of articles per year
       if (value === 'percent' && this.cachedUnfilteredCounts == null) {
         const query = {
           limit: 0,

@@ -143,6 +143,14 @@
             ]
           },
           {
+            "id": "limited-search-filters",
+            "title": "Limited search filters for this query",
+            "summary": "",
+            "description": [
+              ""
+            ]
+          },
+          {
             "id": "how-does-the-image-search-work",
             "title": "How does the image search work?",
             "summary": "We retrieve images which are similar to each other.",
