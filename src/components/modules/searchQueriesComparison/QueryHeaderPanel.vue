@@ -22,6 +22,7 @@
                         :includedFilterTypes="supportedFilterTypes"
                         :filters="filters"
                         @changed="handleFiltersChanged" />
+          <InfoIgnoredFilters :ignoredFilters="ignoredFilters"/>
           <autocomplete v-on:submit="onSuggestion" />
         </div>
       </b-tab>
@@ -93,10 +94,11 @@ import SearchPills from '../../SearchPills';
 import InfoButton from '@/components/base/InfoButton';
 import Autocomplete from '../../Autocomplete';
 import CollectionPicker from '../../base/CollectionPicker';
+import InfoIgnoredFilters from '../../base/InfoIgnoredFilters';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 
 const SupportedFilterTypes = [
-  'string', 'title', 'accessRight',
+  'string', 'title', 'accessRight', 'type',
   'location', 'country', 'person', 'language',
   'topic', 'newspaper', 'collection', 'daterange'
 ]
@@ -158,6 +160,7 @@ export default {
     Autocomplete,
     CollectionPicker,
     InfoButton,
+    InfoIgnoredFilters,
   },
   methods: {
     /** @param {Filter[]} filters */
@@ -227,6 +230,9 @@ export default {
     filters() {
       return this.comparable?.query?.filters ?? []
     },
+    ignoredFilters() {
+      return this.filters.filter(d => !SupportedFilterTypes.includes(d.type));
+    }
   },
 };
 </script>
