@@ -218,7 +218,7 @@ export default {
     },
     /** @returns {Filter[]} */
     filters() {
-      return this.comparable?.query?.filters ?? []
+      return this.comparable?.query?.filters.filter(d => d.type !== 'hasTextContents') ?? []
     },
     ignoredFilters() {
       return this.filters.filter(d => !SupportedFilterTypes.includes(d.type));
