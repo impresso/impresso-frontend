@@ -8,7 +8,7 @@
         <section>
 
           <span class="label small-caps">
-            <router-link v-bind:to="{ name: 'collections' }">&larr; {{$t("Collections")}}</router-link>
+            <router-link v-bind:to="updateCurrentRoute({ name:'collections' })">&larr; {{$t("Collections")}}</router-link>
           </span>
 
           <h3>{{collection.name}}</h3>
@@ -18,7 +18,7 @@
 
 
         <section class="ml-auto py-3 text-right">
-          <router-link :to="{ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} }" class="m-1">
+          <router-link :to="updateCurrentRoute({ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} })" class="m-1">
             <b-button
               variant="outline-info" size="sm"
               v-b-modal.confirmDelete>{{ $t('compare_collection') }}
@@ -69,7 +69,7 @@
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
             :class="{ active: tabItem.name === tab.name }"
             active-class='none'
-            :to="{ name: 'collection', params: { collection_uid: $route.params.collection_uid }, query: { tab: tabItem.name }}">
+            :to="updateCurrentRoute({ query: { tab: tabItem.name }})">
             <span v-html="tabItem.label"/>
           </b-nav-item>
         </template>
@@ -79,19 +79,19 @@
         class="px-0 py-0 border-bottom" v-if="tab.name !== TAB_RECOMMENDATIONS
           && (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)">
 
-        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-2">
-          <b-nav-form class="p-2">
+        <b-navbar-nav v-if="$route.params.collection_uid">
+          <b-nav-form class="p-2 ml-3">
             <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
               {{ $t('actions.addToCurrentFilters') }}
             </b-button>
           </b-nav-form>
-          <b-nav-form class="py-2 pr-2">
+          <b-nav-form class="p-2">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
           </b-nav-form>
         </b-navbar-nav>
-        <b-navbar-nav class="mr-2">
+        <b-navbar-nav class="ml-3">
           <b-button @click="handleExportCollection" size="sm" variant="outline-primary" class="d-flex align-items-center">
             <div>{{$t('label_export_csv')}}</div>
             <div class="dripicons-export ml-1"></div>
@@ -407,6 +407,15 @@ export default {
     },
     handleRecommendersSettingsUpdated(settings) {
       this.recommendersSettings = settings
+    },
+    updateCurrentRoute(route) {
+      return {
+        ...route,
+        query: {
+          ...this.$route.query,
+          ...route.query
+        }
+      };
     },
     loadCollectionItems() {
       this.fetching = true;
