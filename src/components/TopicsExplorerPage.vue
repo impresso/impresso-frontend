@@ -267,7 +267,7 @@ export default {
     handleToggleHighlighted(item) {
       console.info('handleToggleHighlighted', item);
       this.$store.dispatch('topics/TOGGLE_VISUALIZED_ITEM', item).then((isHighlighted) => {
-        if (isHighlighted) {
+        if (isHighlighted && this.graph) {
           this.graph.zoomTo(item);
         }
         this.tooltip = {
@@ -347,8 +347,8 @@ export default {
     updateGraph() {
       // TODO: when nodes list is empty the graph code below throws
       // an error.
-      if (this.nodes.length === 0) return
-
+      if (this.nodes.length === 0) return;
+      if (!this.graph) return;
       this.graph.updateDimension({
         name: 'nodeColor',
         property: this.colorBy,
@@ -398,13 +398,19 @@ export default {
       this.graph.applyDimensions();
     },
     itemsFiltered(items) {
-      this.fadeinNodes(items);
+      if (this.graph){
+        this.fadeinNodes(items);
+      }
     },
     itemsVisualized(items) {
-      this.highlightNodes(items);
+      if (this.graph){
+        this.highlightNodes(items);
+      }
     },
     applyCurrentSearchFilters() {
-      this.fadeinNodes(this.itemsFiltered);
+      if (this.graph){
+        this.fadeinNodes(this.itemsFiltered);
+      }
     }
   },
   components: {
