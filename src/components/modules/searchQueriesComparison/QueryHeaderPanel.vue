@@ -79,18 +79,20 @@
 </template>
 
 <script>
-import SearchQueryModel from '@/models/SearchQuery';
+// import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
 import InfoButton from '@/components/base/InfoButton';
 import Autocomplete from '../../Autocomplete';
 // import CollectionPicker from '../../base/CollectionPicker';
 import InfoIgnoredFilters from '../../base/InfoIgnoredFilters';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
+import { serializeFilters } from '@/logic/filters'
 
 const SupportedFilterTypes = [
   'string', 'title', 'accessRight', 'type',
   'location', 'country', 'person', 'language',
-  'topic', 'newspaper', 'collection', 'daterange'
+  'topic', 'newspaper', 'collection', 'daterange',
+  'isFront',
 ]
 
 /**
@@ -197,10 +199,12 @@ export default {
     searchPageLink(comparable) {
       const searchQuery = comparableToQuery(comparable)
       if (searchQuery == null) return searchQuery
-
       return {
         name: 'search',
-        query: SearchQueryModel.serialize(searchQuery)
+        query: {
+          ...this.$route.query,
+          sq: serializeFilters(searchQuery.filters)
+        }
       }
     },
   },
