@@ -100,7 +100,12 @@ export default {
           }).catch((err) => {
             // notably CORS
             console.warn(err.message, imageUrl)
-            this.errorMessage = [err.message, err.code].join('. ')
+            if (err.response) {
+              console.warn(err.response.status)
+              this.errorMessage = this.$t('login_message')
+            } else {
+              this.errorMessage = [err.message, err.code].join('. ')
+            }
           });
       }
     }
@@ -131,3 +136,10 @@ export default {
   }
 }
 </style>
+<i18n>
+{
+  "en": {
+    "login_message": "Login to view image"
+  }
+}
+</i18n>
