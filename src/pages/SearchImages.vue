@@ -175,11 +175,17 @@ export default {
     facets: [],
     /** @type {Filter[]} */
     filtersWithItems: [],
+    headers: null,
   }),
   mounted() {
     this.facets = buildEmptyFacets(AllowedFacetTypes);
-    this.headers = {
-      Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
+    const token = getAuthenticationBearer()
+    if (token) {
+      this.headers = {
+        Authorization: 'Bearer ' + token
+      }
+    } else {
+      this.headers = null
     }
   },
   computed: {
