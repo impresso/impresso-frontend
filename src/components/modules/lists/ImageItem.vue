@@ -3,7 +3,7 @@
     <img-authentified v-if="shouldForwardAuthentication"
       :height="height"
       class="image"
-      :src="src"
+      :src="srcCORSFriendly"
       :headers="headers"
     >
       <template v-slot:loading>
@@ -16,7 +16,7 @@
       :height="height"
       :center="center"
       class="image"
-      :src="src"
+      :src="srcCORSFriendly"
     />
     <div v-else>{{ $t('iiif.missing') }}</div>
     <!-- v-if="showMeta" -->
@@ -70,8 +70,18 @@ export default {
       }
       return Array.isArray(this.item.regions) && this.item.regions.length > 0;
     },
+    srcCORSFriendly() {
+      if (process.env.NODE_ENV === 'production' && this.hasValidSrc && this.item.regions[0].iiifFragment.indexOf(process.env.VUE_APP_BASE_URL) === 0) {
+        return this.src.replace(process.env.VUE_APP_BASE_URL, window.location.origin)
+      } else if (process.env.NODE_ENV !== 'production') {
+        console.debug('[ImageItem] Cannot test srcCORSFriendly in development mode :( for item:', this.item.uid)
+      }
+      return this.src
+    },
     src() {
-      return this.hasValidSrc ? this.item.regions[0].iiifFragment: null;
+      return this.hasValidSrc
+        ? this.item.regions[0].iiifFragment
+        : null;
     },
     shouldForwardAuthentication() {
       if (this.hasValidSrc) {
