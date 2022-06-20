@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="ImgAuthentified" :style="style">
-    <div v-if="errorMessage" class="p-2 text-small">{{errorMessage}}</div>
+    <div v-if="errorMessage" class="p-2 text-small">{{ errorMessage }}</div>
     <div v-else class="ImgAuthentified_image" :style="imageStyle" />
     <div v-if="!errorMessage && isVisible" class="ImgAuthentified_loader">
       <slot name="loading">loading...</slot>
@@ -77,14 +77,13 @@ export default {
   watch: {
     isVisible: {
       async handler() {
-        const imageUrl = this.src.replace('https://impresso-project.ch/api', 'https://dev.impresso-project.ch/api')
-
+        const imageUrl = this.src
         await axios.get(imageUrl, {
           responseType: 'arraybuffer',
           headers: this.headers
         })
           .then(({ data, status, headers }) => {
-            if(status === 200) {
+            if (status === 200) {
               const base64 = Buffer.from(data, 'binary').toString('base64')
 
               this.isReady = true
@@ -99,8 +98,14 @@ export default {
               i.src = `data:${headers['content-type']};charset=utf-8;base64,${base64}`;
             }
           }).catch((err) => {
+            // notably CORS
             console.warn(err.message, imageUrl)
-            this.errorMessage = [err.message, err.code].join('. ')
+            if (err.response) {
+              console.warn(err.response.status)
+              this.errorMessage = this.$t('login_message')
+            } else {
+              this.errorMessage = [err.message, err.code].join('. ')
+            }
           });
       }
     }
@@ -131,3 +136,10 @@ export default {
   }
 }
 </style>
+<i18n>
+{
+  "en": {
+    "login_message": "Login to view image"
+  }
+}
+</i18n>
