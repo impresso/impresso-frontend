@@ -27,16 +27,16 @@ export default class CategoricalCircleChart {
    * @param {DataItem[]} data
    * @param {{ id: string, extractor: LineValueExtractor}[]} lineMetrics
    * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
-   * @param {{ itemsDictionary?: {[key: string]: string} }} options
+   * @param {{ itemsDictionary?: {[key: string]: string}, onClick?: (any) => undefined }} options
    */
   // eslint-disable-next-line no-unused-vars
   render(data, lineMetrics = [], areaMetrics = [], options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
-    const { itemsDictionary = {} } = options
+    const { itemsDictionary = {}, onClick = () => null } = options
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
-    const maxValue = /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))
+    const maxValue = /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value))))) ?? d3.max(data.map(d => d.value))
 
     // X
     const x = d3.scaleBand()
@@ -107,7 +107,7 @@ export default class CategoricalCircleChart {
     bar
       .selectAll('circle')
       .data(dataItem => lineMetrics
-        .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value)}))
+        .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value), item: dataItem }))
         .filter(({ value }) => !isNaN(value)),
       ({ id }) => id)
       .join('circle')
@@ -119,5 +119,6 @@ export default class CategoricalCircleChart {
       .attr('cx', x.bandwidth() / 2)
       .attr('cy', y.bandwidth() / 2)
       .attr('fill', ({ value }) => d3.interpolateGreys(0.5 + (value / maxValue) / 2))
+      .on('click', item => onClick(item))
   }
 }

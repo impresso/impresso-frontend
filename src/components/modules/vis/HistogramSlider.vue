@@ -2,7 +2,7 @@
   <b-container class="histogram-slider">
     <b-col>
       <b-row ref="chartContainer">
-        <svg ref="chart" class="chart" preserveAspectRatio="none"/>
+        <svg ref="chart" class="chart" preserveAspectRatio="none"></svg>
       </b-row>
       <b-row>
         <vue-slider
