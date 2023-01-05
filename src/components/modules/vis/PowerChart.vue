@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from 'vue'
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import LineChart from '@/d3-modules/LineChart'
 import CategoricalMultiValueBarChart from '@/d3-modules/CategoricalMultiValueBarChart'
 import CategoricalCircleChart from '@/d3-modules/CategoricalCircleChart'
@@ -73,10 +73,29 @@ export default defineComponent({
       const Chart = getChartClass(props.chartType)
       instance.value = new Chart({ element: chart.value })
       render()
+      window.addEventListener('resize', render);
+    })
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', render);
+    })
+
+    watch(() => props.chartType, () => {
+      if (instance.value != null) {
+        instance.value.element.textContent = ''
+      }
+      const Chart = getChartClass(props.chartType)
+      instance.value = new Chart({ element: chart.value })
+      render()
     })
 
     watch(
-      props.data,
+      () => ({
+        data: JSON.stringify(props.data),
+        lineMetrics: props.lineMetrics,
+        areaMetrics: props.areaMetrics,
+        colorPalette: props.colorPalette
+      }),
       () => {
         if (instance.value == null) return
         render()

@@ -20,6 +20,13 @@ const Template = args => ({
   template: `
     <div style="height: 300px;">
       <PowerVisBase v-bind="args" @item:click="itemClicked">
+        <template v-slot:header>
+          <span>Header rendered here. For example, dropdown box(es)</span>
+          <p>Below are sample TR passages where every rendered item (circle) is clickable</p>  
+        </template>
+        <template v-slot:footer>
+          <span>footer rendered here. for example, checkboxes</span>
+        </template>
       </PowerVisBase>
     </div>
   `

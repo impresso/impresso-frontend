@@ -17,6 +17,8 @@ import TopicsPage from '../components/TopicsPage';
 import TopicsExplorerPage from '../components/TopicsExplorerPage';
 import TopicDetailPage from '../components/TopicDetailPage';
 import PowerUserVisualisation from '../pages/PowerUserVisualisation'
+// import PowerUserVisualisation from '../pages/PowerUserVisualisationOld'
+
 import IssueViewerPage from '../pages/IssueViewerPage'
 import {getShortArticleId} from '@/logic/ids'
 import store from '../store';

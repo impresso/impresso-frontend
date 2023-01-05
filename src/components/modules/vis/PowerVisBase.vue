@@ -1,13 +1,14 @@
 <template>
-  <div>
+  <div class="chart-container">
     <!-- slot:header -->
     <div slot="header">
-      <span>Header rendered here. For example, dropdown box(es)</span>
-      <p>Below are sample TR passages where every rendered item (circle) is clickable</p>
+      <slot name="header">
+      </slot>
     </div>
     <!-- slot:body -->
-    <div><em v-if="loading">{{ $t('actions.loading') }}</em></div>
+    <div v-if="loading || chartType == null"><em>{{ $t('actions.loading') }}</em></div>
     <PowerChart
+      v-else
       :data="chartData.items"
       :chart-type="chartType"
       :line-metrics="chartData.lineMetrics"
@@ -17,8 +18,9 @@
       @item:click="e => $emit('item:click', e)"
     />
     <!-- slot:footer -->
-    <div slot="footer" class="border-top p-2 pb-3" style="max-height: 180px;overflow:scroll">
-      <span>footer rendered here. for example, checkboxes</span>
+    <div slot="footer">
+      <slot name="footer" class="border-top p-2 pb-3" style="max-height: 180px;overflow:scroll">
+      </slot>
     </div>
   </div>
 </template>
@@ -27,7 +29,7 @@
 import { schemeCategory10, schemeAccent } from 'd3'
 import { computed, defineComponent } from 'vue'
 import { withMissingDates } from '@/logic/time'
-import PowerChart from './PowerChart.vue'
+import PowerChart from './PowerChart'
 
 function colorForLineMetric(index) {
   if (index < 0) return '#ffffffff'
@@ -76,7 +78,7 @@ const getChartType = (domain?: string, facetType?: string): string => {
 }
 
 
-const MetricsByFacetType = {
+export const MetricsByFacetType = {
   numeric: {
     line: () => [
       lineMetricExtractorFactory('min'),
@@ -103,9 +105,6 @@ const MetricsByFacetType = {
 //   itemsDictionary: Record<string, any>
 // }
 
-const DefaultNumberOfItemsInChart = 10
-
-
 export default defineComponent({
   components: { PowerChart },
   props: {
@@ -116,6 +115,11 @@ export default defineComponent({
     data: {
       type: Object, // as PropType<Data>,
       default: () => {}
+    },
+    idFilters: {
+      type: Object, // as PropType<Record<string, boolean>>,
+      required: false,
+      default: null
     }
   },
   emits: ['item:click'],
@@ -157,16 +161,11 @@ export default defineComponent({
 
       const colorPalette = { ...linePalette, ...areaPalette }
 
-      const selectedItems = lineMetrics.map(({ id }) => id)
-        .concat(areaMetrics.map(({ id }) => id))
-        .reduce((acc, id, index) => {
-          if (index > DefaultNumberOfItemsInChart) return acc
-          acc[id] = true
-          return acc
-        }, {})
+      const idFilters = props.idFilters || {}
+      const hasFilters = props.idFilters != null
 
-      const filteredLineMetrics = lineMetrics.filter(metric => selectedItems[metric.id])
-      const filteredAreaMetrics = areaMetrics.filter(metric => selectedItems[metric.id])
+      const filteredLineMetrics = lineMetrics.filter(metric => !hasFilters || idFilters[metric.id])
+      const filteredAreaMetrics = areaMetrics.filter(metric => !hasFilters || idFilters[metric.id])
 
       return {
         items: entrichedItems,
@@ -177,7 +176,18 @@ export default defineComponent({
       }
     })
 
-    return { chartData, chartType: getChartType(props.data.meta.domain, props.data.meta.facetType) }
+    const chartType = computed(() => {
+      if (props.data == null || props.data.meta == null) return undefined
+      return getChartType(props.data.meta.domain, props.data.meta.facetType)
+    })
+
+    return { chartData, chartType }
   }
 })
 </script>
+
+<style scoped>
+ .chart-container {
+  height: 50%;
+ }
+</style>
