@@ -1,49 +1,49 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-import * as services from '@/services';
-import HomePage from '../components/HomePage';
-import HomePage2020 from '../components/HomePage2020';
-import FaqPage from '../components/FaqPage';
-import TermsOfUsePage from '../components/TermsOfUsePage';
-import IssuePage from '../components/IssuePage';
-import UserLoginPage from '../components/UserLoginPage';
-import TestPage from '../components/TestPage';
-import NewspapersExplorerPage from '../components/NewspapersExplorerPage';
-import NewspapersDetailPage from '../components/NewspapersDetailPage';
+import Vue from 'vue'
+import Router from 'vue-router'
+import * as services from '@/services'
+import HomePage from '../components/HomePage'
+import HomePage2020 from '../components/HomePage2020'
+import FaqPage from '../components/FaqPage'
+import TermsOfUsePage from '../components/TermsOfUsePage'
+import IssuePage from '../components/IssuePage'
+import UserLoginPage from '../components/UserLoginPage'
+import TestPage from '../components/TestPage'
+import NewspapersExplorerPage from '../components/NewspapersExplorerPage'
+import NewspapersDetailPage from '../components/NewspapersDetailPage'
 // import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
-import EntitiesTemporaryPage from '../components/EntitiesTemporaryPage';
-import EntitiesDetailPage from '../components/EntitiesDetailPage';
-import TopicsPage from '../components/TopicsPage';
-import TopicsExplorerPage from '../components/TopicsExplorerPage';
-import TopicDetailPage from '../components/TopicDetailPage';
+import EntitiesTemporaryPage from '../components/EntitiesTemporaryPage'
+import EntitiesDetailPage from '../components/EntitiesDetailPage'
+import TopicsPage from '../components/TopicsPage'
+import TopicsExplorerPage from '../components/TopicsExplorerPage'
+import TopicDetailPage from '../components/TopicDetailPage'
 import PowerUserVisualisation from '../pages/PowerUserVisualisation'
 // import PowerUserVisualisation from '../pages/PowerUserVisualisationOld'
 
 import IssueViewerPage from '../pages/IssueViewerPage'
-import {getShortArticleId} from '@/logic/ids'
-import store from '../store';
+import { getShortArticleId } from '@/logic/ids'
+import store from '../store'
 
-Vue.use(Router);
+Vue.use(Router)
 
-const BASE_URL = process.env.BASE_URL || '/';
+const BASE_URL = process.env.BASE_URL || '/'
 // eslint-disable-next-line
-console.debug('[router] Router with BASE_URL to:', BASE_URL);
+console.debug('[router] Router with BASE_URL to:', BASE_URL)
 
 const router = new Router({
   mode: 'history',
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
-      return savedPosition;
+      return savedPosition
     }
     if (to.hash) {
-      const el = document.querySelector('div#app-content');
+      const el = document.querySelector('div#app-content')
       // console.log('---', el.scrollLeft, el.scrollTop);
-      const rect = el.getBoundingClientRect();
-      const ela = document.querySelector(to.hash);
-      const recta = ela.getBoundingClientRect();
-      el.scrollTop = recta.top - rect.top - 10;
+      const rect = el.getBoundingClientRect()
+      const ela = document.querySelector(to.hash)
+      const recta = ela.getBoundingClientRect()
+      el.scrollTop = recta.top - rect.top - 10
     }
-    return {};
+    return {}
   },
   base: BASE_URL,
   routes: [
@@ -117,10 +117,12 @@ const router = new Router({
       name: 'logout',
       component: UserLoginPage,
       beforeEnter: () => {
-        store.dispatch('user/LOGOUT').then(() => {
-        }, (err) => {
-          this.error = this.$t(err.message);
-        });
+        store.dispatch('user/LOGOUT').then(
+          () => {},
+          err => {
+            this.error = this.$t(err.message)
+          },
+        )
       },
       meta: {
         realm: 'user',
@@ -148,24 +150,28 @@ const router = new Router({
     {
       path: '/collections',
       component: () => import(/* webpackChunkName: "collections" */ '../pages/Collections.vue'),
-      children: [{
-        path: '',
-        component: () => import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
-        name: 'collections',
-        meta: {
-          requiresAuth: true,
-          realm: 'user',
+      children: [
+        {
+          path: '',
+          component: () =>
+            import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
+          name: 'collections',
+          meta: {
+            requiresAuth: true,
+            realm: 'user',
+          },
         },
-      },
-      {
-        path: ':collection_uid',
-        component: () => import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
-        name: 'collection',
-        meta: {
-          requiresAuth: true,
-          realm: 'user',
+        {
+          path: ':collection_uid',
+          component: () =>
+            import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
+          name: 'collection',
+          meta: {
+            requiresAuth: true,
+            realm: 'user',
+          },
         },
-      }],
+      ],
     },
     {
       path: '/issue/:issue_uid',
@@ -200,47 +206,49 @@ const router = new Router({
     {
       path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
       name: 'article',
-      redirect: (to) => ({
+      redirect: to => ({
         name: 'issue-viewer',
         params: {
-          issue_uid: to.params.issue_uid
+          issue_uid: to.params.issue_uid,
         },
         query: {
           p: to.params.page_uid.match(/p0*(\d+)$/)[1],
           articleId: getShortArticleId(to.params.article_uid),
         },
-      })
+      }),
     },
     {
       path: '/newspapers',
       component: () => import(/* webpackChunkName: "newspapers" */ '../pages/Newspapers.vue'),
-      children: [{
-        path: '',
-        component: NewspapersExplorerPage,
-        name: 'newspapers',
-        meta: {
-          requiresAuth: false,
-          realm: 'newspapers',
+      children: [
+        {
+          path: '',
+          component: NewspapersExplorerPage,
+          name: 'newspapers',
+          meta: {
+            requiresAuth: false,
+            realm: 'newspapers',
+          },
         },
-      },
-      {
-        path: ':newspaper_uid',
-        component: NewspapersDetailPage,
-        name: 'newspaper',
-        meta: {
-          requiresAuth: false,
-          realm: 'newspapers',
+        {
+          path: ':newspaper_uid',
+          component: NewspapersDetailPage,
+          name: 'newspaper',
+          meta: {
+            requiresAuth: false,
+            realm: 'newspapers',
+          },
         },
-      },
-      {
-        path: ':newspaper_uid/metadata',
-        component: NewspapersDetailPage,
-        name: 'newspaper_metadata',
-        meta: {
-          requiresAuth: false,
-          realm: 'newspapers',
+        {
+          path: ':newspaper_uid/metadata',
+          component: NewspapersDetailPage,
+          name: 'newspaper_metadata',
+          meta: {
+            requiresAuth: false,
+            realm: 'newspapers',
+          },
         },
-      }],
+      ],
     },
     {
       path: '/entities',
@@ -263,7 +271,7 @@ const router = new Router({
             requiresAuth: false,
             realm: 'entities',
           },
-        }
+        },
       ],
     },
     {
@@ -276,52 +284,81 @@ const router = new Router({
     {
       path: '/topics',
       component: TopicsPage,
-      children: [{
-        path: '',
-        component: TopicsExplorerPage,
-        name: 'topics',
-        meta: {
-          requiresAuth: false,
+      children: [
+        {
+          path: '',
+          component: TopicsExplorerPage,
+          name: 'topics',
+          meta: {
+            requiresAuth: false,
+          },
         },
-      },
-      {
-        path: ':topic_uid',
-        component: TopicDetailPage,
-        name: 'topic',
-        meta: {
-          requiresAuth: false,
+        {
+          path: ':topic_uid',
+          component: TopicDetailPage,
+          name: 'topic',
+          meta: {
+            requiresAuth: false,
+          },
         },
-      }],
+      ],
     },
     {
       path: '/article/:article_uid',
       beforeEnter: (to, from, next) => {
-        services.articles.get(to.params.article_uid).then((res) => {
+        services.articles.get(to.params.article_uid).then(res => {
           next({
             name: 'issue-viewer',
             params: {
-              issue_uid: res.issue.uid
+              issue_uid: res.issue.uid,
             },
             query: {
               p: res.pages[0]?.num,
               articleId: getShortArticleId(res.uid),
-              text: '1'
+              text: '1',
             },
-          });
-        });
+          })
+        })
       },
     },
     {
       path: '/compare',
-      component: () => import(/* webpackChunkName: "search-queries-comparison" */ '../pages/SearchQueriesComparison'),
+      component: () =>
+        import(
+          /* webpackChunkName: "search-queries-comparison" */ '../pages/SearchQueriesComparison'
+        ),
       name: 'compare',
       meta: {
         requiresAuth: false,
       },
     },
     {
+      path: '/text-reuse',
+      component: () => import(/* webpackChunkName: "tr" */ '../pages/TextReuse.vue'),
+      name: 'text-reuse',
+      meta: {
+        requiresAuth: false,
+        realm: 'newspapers',
+      },
+      children: [
+        {
+          path: '',
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
+            ),
+          name: 'text-reuse-overview',
+          meta: {
+            requiresAuth: false,
+            realm: 'newspapers',
+          },
+        },
+      ],
+    },
+    {
       path: '/text-reuse-clusters',
-      component: () => import(/* webpackChunkName: "tr-clusters" */ '../pages/TextReuseClusters.vue'),
+      component: () =>
+        import(/* webpackChunkName: "tr-clusters" */ '../pages/TextReuseClusters.vue'),
       name: 'text-reuse-clusters',
       meta: {
         requiresAuth: false,
@@ -329,7 +366,10 @@ const router = new Router({
       children: [
         {
           path: '',
-          component: () => import(/* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseClusterDetailPage.vue'),
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseClusterDetailPage.vue'
+            ),
           name: 'text-reuse-cluster-passages',
           meta: {
             requiresAuth: false,
@@ -337,7 +377,10 @@ const router = new Router({
         },
         {
           path: 'card',
-          component: () => import(/* webpackChunkName: "tr-clusters-details-id-card" */ '../components/TextReuseClusterIdCardPage.vue'),
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-details-id-card" */ '../components/TextReuseClusterIdCardPage.vue'
+            ),
           name: 'text-reuse-cluster-detail',
           meta: {
             requiresAuth: false,
@@ -345,7 +388,10 @@ const router = new Router({
         },
         {
           path: 'connected-clusters',
-          component: () => import(/* webpackChunkName: "tr-clusters-connected" */ '../components/TextReuseConnectedClusters.vue'),
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-connected" */ '../components/TextReuseConnectedClusters.vue'
+            ),
           name: 'text-reuse-connected-clusters',
           meta: {
             requiresAuth: false,
@@ -358,34 +404,37 @@ const router = new Router({
       component: PowerUserVisualisation,
       name: 'powervis',
       meta: { requiresAuth: false },
-    }],
-});
+    },
+  ],
+})
 
 router.beforeEach((to, from, next) => {
-  console.info('Routing to', to.name, to.path, 'from', from.name, from.path);
-  Vue.prototype.$renderMetaTags({ title: to.name });
+  console.info('Routing to', to.name, to.path, 'from', from.name, from.path)
+  Vue.prototype.$renderMetaTags({ title: to.name })
   // clean yellow alert error messages
-  store.dispatch('CLEAN_ERROR_MESSAGE');
+  store.dispatch('CLEAN_ERROR_MESSAGE')
   if (to.name === 'login' && from.name && from.name !== 'login') {
-    store.dispatch('SET_REDIRECTION_ROUTE', {
-      ...from,
-    }).then(next);
+    store
+      .dispatch('SET_REDIRECTION_ROUTE', {
+        ...from,
+      })
+      .then(next)
   } else if (to.meta.requiresAuth === false) {
-    next();
+    next()
   } else {
-    services.app.authentication.getAccessToken().then((jwt) => {
+    services.app.authentication.getAccessToken().then(jwt => {
       if (jwt) {
-        next();
+        next()
       } else {
         next({
           name: 'login',
           query: {
             redirect: to.path,
           },
-        });
+        })
       }
-    });
+    })
   }
-});
+})
 
-export default router;
+export default router
