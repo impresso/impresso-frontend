@@ -19,9 +19,8 @@
         <search-pills :filters="filters" @changed="handleFiltersChanged" />
         <search-input @submit="handleSearchInputSubmit" placeholder="..."></search-input>
       </div>
-      {{ filters }}
     </i-layout-section>
-    <router-view>oulalla</router-view>
+    <router-view></router-view>
   </i-layout>
 </template>
 <script>

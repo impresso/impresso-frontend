@@ -70,7 +70,7 @@
         </b-nav-item>
         <b-nav-item
           v-if="textReuseEnabled"
-          :to="getRouteWithSearchQuery({ name: 'text-reuse' })"
+          :to="getRouteWithSearchQuery({ name: 'textReuseOverview' })"
           active-class="active"
         >
           <span>{{ $t('label_text_reuse_star') }}</span>

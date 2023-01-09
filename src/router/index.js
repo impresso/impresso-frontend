@@ -335,10 +335,10 @@ const router = new Router({
     {
       path: '/text-reuse',
       component: () => import(/* webpackChunkName: "tr" */ '../pages/TextReuse.vue'),
-      name: 'text-reuse',
+      name: 'textReuse',
       meta: {
         requiresAuth: false,
-        realm: 'newspapers',
+        realm: 'textReuse',
       },
       children: [
         {
@@ -347,10 +347,34 @@ const router = new Router({
             import(
               /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
             ),
-          name: 'text-reuse-overview',
+          name: 'textReuseOverview',
           meta: {
             requiresAuth: false,
-            realm: 'newspapers',
+            realm: 'textReuse',
+          },
+        },
+        {
+          path: 'clusters',
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
+            ),
+          name: 'textReuseClusters',
+          meta: {
+            requiresAuth: false,
+            realm: 'textReuse',
+          },
+        },
+        {
+          path: 'passages',
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
+            ),
+          name: 'textReusePassages',
+          meta: {
+            requiresAuth: false,
+            realm: 'textReuse',
           },
         },
       ],

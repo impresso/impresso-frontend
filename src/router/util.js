@@ -1,4 +1,3 @@
-
 /**
  * @param {import('vue/types/vue').Vue} vueInstance
  * @param {string} parameter
@@ -26,4 +25,5 @@ export const CommonQueryParameters = Object.freeze({
   // string used to filter list of items
   SuggestionQuery: 'q',
   OrderBy: 'sort',
+  PageNumber: 'p',
 })
