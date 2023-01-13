@@ -40,7 +40,7 @@
     </template>
     <TextReuseOverview
       v-if="$route.name === 'textReuseOverview'"
-      :data="clustersAsPowerVisData"
+      :filters="filters"
       :loading="isLoading"
     />
     <List
