@@ -27,8 +27,15 @@
 import { defineComponent } from 'vue'
 
 import PowerVisBase from '@/components/modules/vis/PowerVisBase'
-
+import { serializeFilters } from '@/logic/filters'
+import { DefaultFacetTypesForIndex } from '@/logic/facets'
 import { stats } from '@/services'
+
+const NoFacetFilters = {
+  search: ['string'],
+  tr_clusters: [],
+  tr_passages: [],
+}
 
 const StatsQueryParams = {
   tr_vs_newspapers: {
@@ -38,6 +45,11 @@ const StatsQueryParams = {
   },
   trcsize_vs_time: {
     facet: 'textReuseClusterSize',
+    index: 'tr_passages',
+    domain: 'time',
+  },
+  troverlap_vs_time: {
+    facet: 'textReuseClusterLexicalOverlap',
     index: 'tr_passages',
     domain: 'time',
   },
@@ -54,14 +66,9 @@ export default defineComponent({
     PowerVisBase,
   },
   props: {
-    data: {
-      type: Object,
-      default: () => {},
-    },
-    visualisation: {
-      type: String,
-      // one of the keys of StatsQueryParams
-      default: 'tr_vs_newspapers',
+    filters: {
+      type: Array,
+      default: () => [],
     },
     loading: {
       type: Boolean,
@@ -71,6 +78,7 @@ export default defineComponent({
   data: () => ({
     items: [],
     stats: {},
+    visualisation: 'trcsize_vs_time',
     statsLoading: false,
     visualisationOptions: VisualisationOptions,
   }),
@@ -78,13 +86,30 @@ export default defineComponent({
     const itemClicked = () => {}
     return { itemClicked }
   },
+  methods: {
+    /**
+     * @param {string} index
+     * @param {string} type
+     * @returns {boolean}
+     */
+    isFilterTypeSupporedInIndex(index, type) {
+      // NOTE: daterange is the only filter type that does not have corresponding facet at the moment
+      const filterTypes = DefaultFacetTypesForIndex[index].concat(['daterange'])
+      return filterTypes.includes(type) && !NoFacetFilters[index].includes(type)
+    },
+  },
   computed: {
     statsApiQueryParameters() {
       const { index, facet, domain } = StatsQueryParams[this.visualisation]
+      const supportedFilters = this.filters.filter(({ type }) =>
+        this.isFilterTypeSupporedInIndex(index, type),
+      )
+
       const query = {
         index,
         facet,
         domain,
+        filters: serializeFilters(supportedFilters),
       }
       return {
         query,
