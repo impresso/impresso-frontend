@@ -27,6 +27,13 @@
 import SearchPills from '@/components/SearchPills'
 import SearchInput from '@/components/modules/SearchInput'
 import { searchQueryGetter } from '@/logic/queryParams'
+import { serializeFilters, optimizeFilters } from '@/logic/filters'
+import { CommonQueryParameters } from '@/router/util'
+
+/**
+ * @typedef {import('../models').Filter} Filter
+ * @typedef {import('../models').SearchQuery} SearchQuery
+ */
 
 export default {
   components: {
@@ -51,6 +58,9 @@ export default {
     handleFiltersChanged(filters) {
       // eslint-disable-next-line
       console.debug('[TextReuse] handleFiltersChanged', filters)
+      this.$navigation.updateQueryParameters({
+        [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters)),
+      })
     },
     handleSearchInputSubmit(filters) {
       // eslint-disable-next-line
