@@ -86,6 +86,7 @@ import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { searchQueryGetter, mapPagination, mapOrderBy } from '@/logic/queryParams'
 import { textReuseClusterPassages, textReuseClusters } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
+// import { serializeFilters } from '@/logic/filters'
 
 const ClustersOrderByOptions = ['date', '-date']
 
@@ -182,7 +183,6 @@ export default {
       // filter by type
       return this.searchQuery.filters
     },
-
     clustersOrderBy: mapOrderBy(ClustersOrderByOptions, '-date'),
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
     clustersPaginationList() {
@@ -234,7 +234,7 @@ export default {
         }
         // eslint-disable-next-line
         console.debug(
-          '[TextReuseExplorer] @clustersSearchApiQueryParameters \n query:',
+          '[TextReuseExplorer] @searchApiQueryParameters \n query:',
           query,
           hash,
           previousValue,
