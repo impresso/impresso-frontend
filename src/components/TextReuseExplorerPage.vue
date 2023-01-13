@@ -39,6 +39,7 @@
         </template>
       </b-tabs>
     </template>
+    <TextReuseOverview v-if="$route.name === 'textReuseOverview'" :data="clustersAsPowerVisData" :loading="isLoading" />
     <List
       v-if="$route.name === 'textReuseClusters'"
       :items="clusters"
@@ -78,6 +79,7 @@
 import InfoButton from '@/components/base/InfoButton'
 import List from '@/components/modules/lists/List'
 import ClusterItem from '@/components/modules/lists/ClusterItem'
+import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { searchQueryGetter, mapPagination, mapOrderBy } from '@/logic/queryParams'
 import { textReuseClusterPassages, textReuseClusters } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
@@ -89,6 +91,7 @@ export default {
     ClusterItem,
     InfoButton,
     List,
+    TextReuseOverview
   },
   props: {
     /** @type {import('vue').PropOptions<Number>} */
@@ -201,6 +204,23 @@ export default {
           .join(''),
       }
     },
+    clustersAsPowerVisData() {
+      return {
+        items: this.clusters?.map(item => {
+          return {
+            domain: item.cluster.timeCoverage.from,
+            value: {
+              mean: item.cluster.lexicalOverlap
+            }
+          }
+        }) ?? [],
+        meta: {
+          facetType: 'numeric',
+          domain: 'time',
+          resolution: 'day'
+        }
+      }
+    }
   },
   watch: {
     searchApiQueryParameters: {
