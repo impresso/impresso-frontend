@@ -12,7 +12,6 @@
         <template v-slot:tabs-end>
           <b-nav-item
             :to="goToRoute({ name: 'textReuseOverview' })"
-            exact
             active-class="active"
             class="pl-2"
           >
@@ -39,7 +38,11 @@
         </template>
       </b-tabs>
     </template>
-    <TextReuseOverview v-if="$route.name === 'textReuseOverview'" :data="clustersAsPowerVisData" :loading="isLoading" />
+    <TextReuseOverview
+      v-if="$route.name === 'textReuseOverview'"
+      :data="clustersAsPowerVisData"
+      :loading="isLoading"
+    />
     <List
       v-if="$route.name === 'textReuseClusters'"
       :items="clusters"
@@ -91,7 +94,7 @@ export default {
     ClusterItem,
     InfoButton,
     List,
-    TextReuseOverview
+    TextReuseOverview,
   },
   props: {
     /** @type {import('vue').PropOptions<Number>} */
@@ -206,21 +209,22 @@ export default {
     },
     clustersAsPowerVisData() {
       return {
-        items: this.clusters?.map(item => {
-          return {
-            domain: item.cluster.timeCoverage.from,
-            value: {
-              mean: item.cluster.lexicalOverlap
+        items:
+          this.clusters?.map(item => {
+            return {
+              domain: item.cluster.timeCoverage.from,
+              value: {
+                mean: item.cluster.lexicalOverlap,
+              },
             }
-          }
-        }) ?? [],
+          }) ?? [],
         meta: {
           facetType: 'numeric',
           domain: 'time',
-          resolution: 'day'
-        }
+          resolution: 'day',
+        },
       }
-    }
+    },
   },
   watch: {
     searchApiQueryParameters: {
