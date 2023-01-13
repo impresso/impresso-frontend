@@ -85,21 +85,15 @@ LineChart.args = {
   data: {
     items: [
       {
-        domain: {
-          value: '20',
-          label: 'Twenty'
-        },
+        domain: 20,
         value: {
-          min: 3186482,
+          count: 3186482,
         },
       },
       {
-        domain: {
-          value: '100',
-          label: 'One hundred'
-        },
+        domain: 100,
         value: {
-          min: 3186482 / 2,
+          count: 3186482,
         },
       },
     ],
