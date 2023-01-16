@@ -82,8 +82,10 @@ export default {
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
       addToCurrentFilters: 'Add as search filter',
       removeFromCurrentFilters: 'Exclude from current search',
-      addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
-      addToCurrentItemsDetailed: 'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
+      addToCurrentFiltersDetailed:
+        'Add selected option as search filter|Add <b> {count}</b> selected options',
+      addToCurrentItemsDetailed:
+        'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
       addRangeToCurrentFilters: 'Apply range',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
@@ -123,30 +125,43 @@ export default {
       options: ' | (1 option) | ({n} options)',
       moreOptions: ' | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
-      articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
-      articlesInCommon: 'no articles | <span class="number">1</span> article in common | <span class="number">{n}</span> articles in common',
-      images: 'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
-      pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
-      issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
-      results: 'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
+      articles:
+        'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
+      articlesInCommon:
+        'no articles | <span class="number">1</span> article in common | <span class="number">{n}</span> articles in common',
+      images:
+        'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
+      pages:
+        'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
+      issues:
+        'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
+      results:
+        'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
       resultsPercent: '<span class="number">{n}</span>%',
-      articlesMatching: 'no article contains <span class="highlight">{q}</span> | <span class="number">1</span> article contains <span class="highlight">{q}</span> | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span>',
-      articlesMatchingWithinSearch: 'no articles matching <span class="highlight">{q}</span> and your search filters | <span class="number">1</span> article contains <span class="highlight">{q}</span> and your search filters | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span> and your search filters',
-      articlesMatchingSearchFilters: 'no articles matching your search filters | <span class="number">1</span> article matching your search filters | <span class="number">{n}</span> articles matching your search filters',
-      relatedTopics: 'no related topics | <span class="number">1</span> related topic | <span class="number">{n}</span> related topics',
+      articlesMatching:
+        'no article contains <span class="highlight">{q}</span> | <span class="number">1</span> article contains <span class="highlight">{q}</span> | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span>',
+      articlesMatchingWithinSearch:
+        'no articles matching <span class="highlight">{q}</span> and your search filters | <span class="number">1</span> article contains <span class="highlight">{q}</span> and your search filters | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span> and your search filters',
+      articlesMatchingSearchFilters:
+        'no articles matching your search filters | <span class="number">1</span> article matching your search filters | <span class="number">{n}</span> articles matching your search filters',
+      relatedTopics:
+        'no related topics | <span class="number">1</span> related topic | <span class="number">{n}</span> related topics',
       resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
       collection: {
         countItems: '{countItems} saved items',
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
-      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
-      ignoredFilters: 'no message | * 1 search filter can\'t be applied. | * {n} search filters can\'t be applied.',
+      unigramMentions:
+        'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
+      ignoredFilters:
+        "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
     },
     dates: {
       lastModifiedDate: 'last modified',
       publicationDate: 'published in {date}',
       publicationLifespan: '(published from {from} to {to})',
-      includedLifespan: 'available from <span class="date small-caps">{from}</span> to <span class="date small-caps">{to}</span>',
+      includedLifespan:
+        'available from <span class="date small-caps">{from}</span> to <span class="date small-caps">{to}</span>',
       notYetAvailable: 'not yet available',
     },
     result: {
@@ -174,15 +189,18 @@ export default {
       Timeout: 'Timeout:',
       BadRequest: 'Bad request.',
       Conflict: {
-        UsernameExistError: 'This username is already taken!'
+        UsernameExistError: 'This username is already taken!',
       },
       BadGateway: {
-        SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
-        SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
+        SequelizeConnectionRefusedError:
+          'Please reload the page. Connection troubles (network) with the impresso database',
+        SequelizeConnectionError:
+          'Please reload the page. Connection troubles (timeout) with the impresso database',
       },
       LoginFailed: 'Login Failed! The username and/or password was incorrect. Please try again.',
       Notauthenticated: 'Please logout, then login again. Authentication failed',
-      Invalidauthenticationinformationnostrategyset: 'Please reload the page, a couple of errors occurred',
+      Invalidauthenticationinformationnostrategyset:
+        'Please reload the page, a couple of errors occurred',
     },
     paths: {
       newspapers: {
@@ -268,7 +286,7 @@ export default {
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> collection applies',
         description: 'check one or more collection to filter results',
-        empty: '... you haven\'t saved any result item in your collection',
+        empty: "... you haven't saved any result item in your collection",
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
@@ -290,7 +308,8 @@ export default {
         title: 'Country | Country | Countries',
         filterTitle: 'filter by country of publication',
         filtered: 'results are filtered when:',
-        selected: 'filter results if they are published in <b>one of {count} selected</b> countries',
+        selected:
+          'filter results if they are published in <b>one of {count} selected</b> countries',
         description: 'check one or more countries to filter results',
         empty: '(no results)',
       },
@@ -322,6 +341,11 @@ export default {
         description: 'total number of articles per content length',
         empty: '(no results)',
       },
+      textReuseClusterDayDelta: {
+        filterTitle: 'Day delta',
+      },
+      textReuseClusterSize: { filterTitle: 'Cluster size' },
+      textReuseClusterLexicalOverlap: { filterTitle: 'Lexical overlap' },
     },
     tabs: {
       powervis: 'apply filters to visualisation',
@@ -386,4 +410,4 @@ export default {
   fr: {
     language: 'Langue',
   },
-};
+}
