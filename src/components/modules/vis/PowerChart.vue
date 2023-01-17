@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch, PropType } from 'vue'
 import LineChart from '@/d3-modules/LineChart'
 import CategoricalMultiValueBarChart from '@/d3-modules/CategoricalMultiValueBarChart'
 import CategoricalCircleChart from '@/d3-modules/CategoricalCircleChart'
@@ -27,7 +27,7 @@ export default defineComponent({
   name: 'MultiChart',
   props: {
     chartType: {
-      type: String, // as PropType<ChartType>,
+      type: String as PropType<ChartType>,
       default: 'multivalue'
     },
     data: {

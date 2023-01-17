@@ -4,9 +4,11 @@
     "node": true
   },
   "extends": [
-    "plugin:vue/essential",
-    "@vue/airbnb",
-    "eslint:recommended"
+    "plugin:vue/base",
+    "plugin:import/recommended"
+    // "plugin:vue/essential",
+    // "@vue/airbnb",
+    // "eslint:recommended"
   ],
   "rules": {
     "no-console": [

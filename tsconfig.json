@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "allowJs": true,
-    "checkJs": true,
+    "checkJs": false,
     "noEmit": true,
     "noImplicitAny": false,
     "paths": {
@@ -18,7 +18,8 @@
     },
     "lib": [
       "es2019",
-      "ESNext.Array"
+      "ESNext.Array",
+      "DOM"
     ]
   },
   "include": [
@@ -29,5 +30,9 @@
   "exclude": [
     "node_modules",
     "dist"
-  ]
+  ],
+  "vueCompilerOptions": {
+    "target": 2.7,
+    "extensions": [ ".vue"]
+  }
 }

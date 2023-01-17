@@ -29,7 +29,7 @@
 import { schemeCategory10, schemeAccent } from 'd3'
 import { computed, defineComponent } from 'vue'
 import { withMissingDates } from '@/logic/time'
-import PowerChart from './PowerChart'
+import PowerChart from './PowerChart.vue'
 
 function colorForLineMetric(index) {
   if (index < 0) return '#ffffffff'
@@ -99,11 +99,11 @@ export const MetricsByFacetType = {
   }
 }
 
-// interface Data {
-//   meta: any
-//   items: any
-//   itemsDictionary: Record<string, any>
-// }
+interface Data {
+  meta: any
+  items: any
+  itemsDictionary: Record<string, any>
+}
 
 export default defineComponent({
   components: { PowerChart },
@@ -125,7 +125,8 @@ export default defineComponent({
   emits: ['item:click'],
   setup(props) {
     const chartData = computed(() => {
-      const { meta = {}, items: statsItems, itemsDictionary } = props.data != null ? props.data : {}
+      const data: Data  = (props.data != null ? props.data : {}) as Data
+      const { meta = {}, items: statsItems, itemsDictionary } = data
 
       const items = meta.domain === 'time'
         ? statsItems.map(({ domain, value }) => ({

@@ -26,10 +26,14 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-import PowerVisBase from '@/components/modules/vis/PowerVisBase'
+import PowerVisBase from '@/components/modules/vis/PowerVisBase.vue'
 import { serializeFilters } from '@/logic/filters'
 import { DefaultFacetTypesForIndex } from '@/logic/facets'
 import { stats } from '@/services'
+
+interface FilterLike {
+  type: string
+}
 
 const NoFacetFilters = {
   search: ['string'],
@@ -101,7 +105,8 @@ export default defineComponent({
   computed: {
     statsApiQueryParameters() {
       const { index, facet, domain } = StatsQueryParams[this.visualisation]
-      const supportedFilters = this.filters.filter(({ type }) =>
+      const filters = this.filters as FilterLike[]
+      const supportedFilters = filters.filter(({ type }) =>
         this.isFilterTypeSupporedInIndex(index, type),
       )
 
