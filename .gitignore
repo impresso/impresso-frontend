@@ -29,3 +29,6 @@ tmp/
 
 # redis files
 *.rdb
+
+# Local Netlify folder
+.netlify
