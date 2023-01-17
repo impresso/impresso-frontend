@@ -1,5 +1,5 @@
 <template>
-  <PowerVisBase :data="stats" :loading="loading" @item:click="itemClicked">
+  <PowerVisBase :data="stats" :loading="statsLoading" @item:click="itemClicked">
     <template v-slot:header>
       <b-navbar-nav class="p-3 mb-3 ml-auto border-bottom">
         <label class="mr-2">{{ $t('visualisationType') }}</label>
