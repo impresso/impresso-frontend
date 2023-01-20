@@ -18,7 +18,7 @@
           </template>
         </b-tabs>
         <div class="p-3 border-bottom bg-light">
-          <search-pills :filters="filters" @changed="handleFiltersChanged" />
+          <search-pills :filters="filtersWithItems" @changed="handleFiltersChanged" />
           <search-input @submit="handleSearchInputSubmit" placeholder="..."></search-input>
         </div>
       </template>
@@ -47,12 +47,17 @@
 import SearchPills from '@/components/SearchPills'
 import SearchInput from '@/components/modules/SearchInput'
 import { searchQueryGetter } from '@/logic/queryParams'
-import { serializeFilters, optimizeFilters, SupportedFiltersByContext } from '@/logic/filters'
+import {
+  serializeFilters,
+  optimizeFilters,
+  SupportedFiltersByContext,
+  joinFiltersWithItems,
+} from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
 import FilterFacet from '@/components/modules/FilterFacet'
 import FilterRange from '@/components/modules/FilterRange'
 import Facet from '@/models/Facet'
-import { searchFacets } from '@/services'
+import { filtersItems, searchFacets } from '@/services'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -77,6 +82,7 @@ export default {
   data: () => ({
     isLoading: false,
     facets: FacetTypes.map(type => new Facet({ type })),
+    filtersWithItems: [],
   }),
   computed: {
     searchQuery: {
@@ -158,6 +164,12 @@ export default {
           }
         })
     },
+    async loadFilterItems() {
+      const filtersWithItems = await filtersItems
+        .find({ query: { filters: serializeFilters(this.filters) } })
+        .then(joinFiltersWithItems)
+      this.filtersWithItems = filtersWithItems
+    },
   },
   mounted() {
     // eslint-disable-next-line
@@ -171,7 +183,7 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query, hash, previousValue)
-
+        await this.loadFilterItems()
         FacetTypes.forEach(type => this.loadFacet(type))
       },
       immediate: true,
