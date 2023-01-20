@@ -48,10 +48,10 @@ export default {
   },
   computed: {
     overflow() {
-      if (!this.isCollapsed) {
-        return 'auto'
+      if (this.maxHeight && this.isCollapsed) {
+        return 'hidden'
       }
-      return 'scroll'
+      return 'auto'
     },
     gradientStyle() {
       if (!this.isCollapsed) {
