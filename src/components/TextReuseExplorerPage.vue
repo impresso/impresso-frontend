@@ -249,6 +249,7 @@ export default {
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
         filters: optimizeFilters(this.supportedFilters),
+        addons: { newspaper: 'text' },
       }
       return {
         query,

@@ -58,6 +58,7 @@ import FilterFacet from '@/components/modules/FilterFacet'
 import FilterRange from '@/components/modules/FilterRange'
 import Facet from '@/models/Facet'
 import { filtersItems, searchFacets } from '@/services'
+import FilterFactory from '@/models/FilterFactory'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -67,6 +68,7 @@ import { filtersItems, searchFacets } from '@/services'
 
 const FacetTypes = [
   'newspaper',
+  'collection',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
@@ -97,7 +99,7 @@ export default {
       return this.filters.filter(({ type }) => SupportedFiltersByContext.textReuse.includes(type))
     },
     standardFacets() {
-      return this.facets.filter(({ type }) => ['newspaper'].includes(type))
+      return this.facets.filter(({ type }) => ['newspaper', 'collection'].includes(type))
     },
 
     rangeFacets() {
@@ -139,10 +141,41 @@ export default {
     handleFacetFiltersChanged(filters) {
       // eslint-disable-next-line
       console.debug('[TextReuse] handleFacetFiltersChanged', filters)
+      // filter exists, update it
+      const filterExists = this.filters.some(({ type }) => type === filters[0].type)
+      if (filterExists) {
+        this.handleFiltersChanged(
+          this.filters.map(filter => {
+            const updatedFilter = filters.find(({ type }) => type === filter.type)
+            return updatedFilter || filter
+          }),
+        )
+        return
+      } else {
+        this.handleFiltersChanged([...this.filters, ...filters])
+      }
     },
-    handleSearchInputSubmit(filters) {
+    handleSearchInputSubmit({ q }) {
+      if (q.trim().length === 0) {
+        return
+      }
       // eslint-disable-next-line
-      console.debug('[TextReuse] handleSearchInputSubmit', filters)
+      console.debug('[TextReuse] handleSearchInputSubmit q:', q)
+
+      const filterExists = this.filters.some(({ type }) => type === 'string')
+      const stringFilter = FilterFactory.create({ type: 'string', q })
+      if (filterExists) {
+        this.handleFiltersChanged(
+          this.filters.map(filter => {
+            if (filter.type === 'string') {
+              return stringFilter
+            }
+            return filter
+          }),
+        )
+      } else {
+        this.handleFiltersChanged([...this.filters, stringFilter])
+      }
     },
     focusHandler(value) {
       this.hasFocus = !!value

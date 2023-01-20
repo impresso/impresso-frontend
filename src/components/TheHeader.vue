@@ -721,7 +721,7 @@ export default {
     "label_entities": "Entities",
     "label_compare": "Inspect & Compare",
     "label_text_reuse": "Text reuse",
-    "label_text_reuse_star": "Text resue (new)",
+    "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
     "label_faq": "faq",
     "label_terms_of_use": "Terms of Use",
