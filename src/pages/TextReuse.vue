@@ -22,7 +22,7 @@
           <search-input @submit="handleSearchInputSubmit" placeholder="..."></search-input>
         </div>
       </template>
-      <filterRange
+      <FilterRange
         v-for="(facet, index) in rangeFacets"
         class="py-2 mx-3"
         :key="`r-${index}`"
@@ -103,13 +103,16 @@ export default {
     },
 
     rangeFacets() {
-      return this.facets.filter(({ type }) =>
+      const rangeFacets = this.facets.filter(({ type }) =>
         [
           'textReuseClusterSize',
           'textReuseClusterLexicalOverlap',
           'textReuseClusterDayDelta',
         ].includes(type),
       )
+      // eslint-disable-next-line
+      console.debug('rangeFacets', rangeFacets)
+      return rangeFacets
     },
     /** @returns {{ query: any, hash: string }} */
     searchFacetApiQueryParams() {
@@ -202,6 +205,8 @@ export default {
         .find({ query: { filters: serializeFilters(this.filters) } })
         .then(joinFiltersWithItems)
       this.filtersWithItems = filtersWithItems
+      // eslint-disable-next-line
+      console.debug('[TextReuse] loadFilterItems', filtersWithItems)
     },
   },
   mounted() {
