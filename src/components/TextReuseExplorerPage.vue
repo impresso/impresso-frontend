@@ -13,6 +13,7 @@
           <b-nav-item
             :to="goToRoute({ name: 'textReuseOverview' })"
             active-class="active"
+            exact
             class="pl-2"
           >
             <span>{{ $t('routeTextReuseOverview') }}</span>
