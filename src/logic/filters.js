@@ -6,15 +6,7 @@ import { protobuf } from 'impresso-jscommons'
  */
 
 export function toCanonicalFilter(filter) {
-  const {
-    context,
-    op,
-    type,
-    precision,
-    q,
-    daterange,
-    uids
-  } = filter || {}
+  const { context, op, type, precision, q, daterange, uids } = filter || {}
   return { context, op, type, precision, q, daterange, uids }
 }
 
@@ -30,12 +22,10 @@ export const NumericRangeFacets = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
-  'contentLength'
+  'contentLength',
 ]
 
-export const TimeRangeFacets = [
-  'daterange'
-]
+export const TimeRangeFacets = ['daterange']
 
 export const RangeFacets = NumericRangeFacets.concat(TimeRangeFacets)
 
@@ -52,11 +42,12 @@ const getFilterMergeKey = ({ type, op = 'OR', context = 'inclusive', precision =
  * @param {function} fn
  * @returns {object}
  */
-const omitBy = (object, fn) => Object.keys(object).reduce((acc, key) => {
-  const value = object[key]
-  if (!fn(value)) acc[key] = value
-  return acc
-}, {})
+const omitBy = (object, fn) =>
+  Object.keys(object).reduce((acc, key) => {
+    const value = object[key]
+    if (!fn(value)) acc[key] = value
+    return acc
+  }, {})
 
 /**
  * Optimize filters by merging filters of the same type with the same
@@ -70,24 +61,26 @@ export function optimizeFilters(filters) {
     const items = map.get(key) || []
     map.set(key, items.concat([filter]))
     return map
-  }, new Map());
-  return [...groupingMap.entries()]
-    .map(([, filters]) => {
-      const { type, context, precision, op } = filters[0];
-      const q = filters
-        .flatMap(({ q }) => {
-          return Array.isArray(q) ? q : [q]
-        })
-        .filter(value => value != null)
+  }, new Map())
+  return [...groupingMap.entries()].map(([, filters]) => {
+    const { type, context, precision, op } = filters[0]
+    const q = filters
+      .flatMap(({ q }) => {
+        return Array.isArray(q) ? q : [q]
+      })
+      .filter(value => value != null)
 
-      return omitBy({
+    return omitBy(
+      {
         type,
         context,
         precision,
         op,
-        q: q.length > 1 ? q : q[0]
-      }, value => value == null)
-    })
+        q: q.length > 1 ? q : q[0],
+      },
+      value => value == null,
+    )
+  })
 }
 
 export const serializeFilters = toSerializedFilters
@@ -98,7 +91,8 @@ export const serializeFilters = toSerializedFilters
  * @returns {Filter[]}
  */
 export function deserializeFilters(serializedFilters, defaultFilters = []) {
-  if (typeof serializedFilters === 'string') return protobuf.searchQuery.deserialize(serializedFilters).filters ?? defaultFilters
+  if (typeof serializedFilters === 'string')
+    return protobuf.searchQuery.deserialize(serializedFilters).filters ?? defaultFilters
   return defaultFilters
 }
 
@@ -118,14 +112,13 @@ export const containsFilter = expectedFilter => filter => {
   const expectedMergeKey = getFilterMergeKey(expectedFilter)
   const mergeKey = getFilterMergeKey(filter)
 
-  const [noramlisedQA, noramlisedQB] = [expectedFilter, filter]
-    .map(({ q }) => {
-      if (Array.isArray(q)) {
-        if (q.length === 1) return q[0]
-        return JSON.stringify(q)
-      }
-      return q
-    })
+  const [noramlisedQA, noramlisedQB] = [expectedFilter, filter].map(({ q }) => {
+    if (Array.isArray(q)) {
+      if (q.length === 1) return q[0]
+      return JSON.stringify(q)
+    }
+    return q
+  })
   return expectedMergeKey === mergeKey && noramlisedQA === noramlisedQB
 }
 
@@ -175,11 +168,18 @@ export const SupportedFiltersByContext = Object.freeze({
     'textReuseClusterDayDelta',
     'daterange',
     'newspaper',
-    'collection'
+    'collection',
   ],
-  entities: [
+  textReusePassages: [
+    'textReuseClusterSize',
+    'textReuseClusterSize',
+    'textReuseClusterLexicalOverlap',
+    'textReuseClusterDayDelta',
+    'daterange',
+    'newspaper',
+    'collection',
     'string',
-    'type',
-    'uid'
-  ]
+    'title',
+  ],
+  entities: ['string', 'type', 'uid'],
 })

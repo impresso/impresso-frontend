@@ -40,7 +40,7 @@
     </template>
     <TextReuseOverview
       v-if="$route.name === 'textReuseOverview'"
-      :filters="filters"
+      :filters="supportedFilters"
       :loading="isLoading"
     />
     <List
@@ -75,6 +75,38 @@
         </div>
       </template>
     </List>
+    <List
+      v-if="$route.name === 'textReusePassages'"
+      :items="passages"
+      :pagination-list="passagesPaginationList"
+      @change-page="
+        page => {
+          this.paginationCurrentPage = page
+        }
+      "
+    >
+      <template v-slot:header>
+        <b-navbar-nav class="p-2 ml-auto">
+          <i-dropdown
+            v-model="clustersOrderBy"
+            :options="
+              clustersOrderByOptions.map(value => ({
+                value,
+                text: $t(`sort_${value}`),
+              }))
+            "
+            class="mr-auto"
+            size="sm"
+            variant="outline-primary"
+          ></i-dropdown>
+        </b-navbar-nav>
+      </template>
+      <template v-slot:default>
+        <div class="d-flex flex-wrap">
+          <TextReusePassageItem v-for="item in passages" :item="item" :key="item.id" />
+        </div>
+      </template>
+    </List>
   </i-layout-section>
 </template>
 
@@ -82,17 +114,23 @@
 import InfoButton from '@/components/base/InfoButton'
 import List from '@/components/modules/lists/List'
 import ClusterItem from '@/components/modules/lists/ClusterItem'
+import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem'
 import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { searchQueryGetter, mapPagination, mapOrderBy } from '@/logic/queryParams'
-import { textReuseClusterPassages, textReuseClusters } from '@/services'
+import { textReusePassages, textReuseClusters } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
+import { optimizeFilters, SupportedFiltersByContext } from '@/logic/filters'
 // import { serializeFilters } from '@/logic/filters'
+
+const supportedSearchIndexFilters = filter =>
+  SupportedFiltersByContext.textReusePassages.includes(filter.type)
 
 const ClustersOrderByOptions = ['date', '-date']
 
 export default {
   components: {
     ClusterItem,
+    TextReusePassageItem,
     InfoButton,
     List,
     TextReuseOverview,
@@ -157,11 +195,11 @@ export default {
       console.debug('[TextReuseExplorer] loadPassages() \n loading...')
 
       try {
-        const [passages, info] = await textReuseClusterPassages
+        const [passages, total] = await textReusePassages
           .find({ query })
-          .then(result => [result, result.info])
-        this.passages = []
-        this.totalPassages = info.total
+          .then(result => [result.data, result.total])
+        this.passages = passages
+        this.totalPassages = total
         // eslint-disable-next-line
         console.debug(
           '[TextReuseExplorer] loadPassages() \n - total: ',
@@ -183,6 +221,9 @@ export default {
       // filter by type
       return this.searchQuery.filters
     },
+    supportedFilters() {
+      return this.filters.filter(supportedSearchIndexFilters)
+    },
     clustersOrderBy: mapOrderBy(ClustersOrderByOptions, '-date'),
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
     clustersPaginationList() {
@@ -192,12 +233,21 @@ export default {
         perPage: this.paginationPerPage,
       }
     },
+    /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
+    passagesPaginationList() {
+      return {
+        currentPage: this.paginationCurrentPage,
+        totalRows: this.totalPassages,
+        perPage: this.paginationPerPage,
+      }
+    },
     /** @returns {{ query: any, hash: string }} */
     searchApiQueryParameters() {
       const query = {
         skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
+        filters: optimizeFilters(this.supportedFilters),
       }
       return {
         query,
