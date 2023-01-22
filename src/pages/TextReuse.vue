@@ -22,6 +22,22 @@
           <search-input @submit="handleSearchInputSubmit" placeholder="..."></search-input>
         </div>
       </template>
+      <template v-if="timelineValues.length">
+        <FilterTimeline
+          class="py-2 mx-3"
+          :key="`t-year`"
+          group-by="passages"
+          disableRelativeDisplayStyle
+          :facet="timelineFacets[0]"
+          :facet-filters="filters"
+          :values="timelineValues"
+          :min-date="minDate"
+          :max-date="maxDate"
+          :start-year="minDate.getFullYear()"
+          :end-year="maxDate.getFullYear()"
+          @changed="handleFacetFiltersChanged"
+        />
+      </template>
       <FilterRange
         v-for="(facet, index) in rangeFacets"
         class="py-2 mx-3"
@@ -59,6 +75,8 @@ import FilterRange from '@/components/modules/FilterRange'
 import Facet from '@/models/Facet'
 import { filtersItems, searchFacets } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
+import { facetToTimelineValues } from '@/logic/facets'
+import FilterTimeline from '@/components/modules/FilterTimeline'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -69,6 +87,7 @@ import FilterFactory from '@/models/FilterFactory'
 const FacetTypes = [
   'newspaper',
   'collection',
+  'year',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
@@ -80,6 +99,7 @@ export default {
     SearchInput,
     FilterFacet,
     FilterRange,
+    FilterTimeline,
   },
   data: () => ({
     isLoading: false,
@@ -101,7 +121,38 @@ export default {
     standardFacets() {
       return this.facets.filter(({ type }) => ['newspaper', 'collection'].includes(type))
     },
-
+    timelineFacets() {
+      return this.facets.filter(({ type }) => type === 'year')
+    },
+    /** @returns {any[]} */
+    timelineValues() {
+      if (!this.timelineFacets.length) return []
+      const yearFacet = this.timelineFacets[0]
+      if (!yearFacet.buckets.length) return []
+      return facetToTimelineValues(yearFacet)
+    },
+    /** @returns {Date} */
+    minDate() {
+      if (this.timelineValues.length) {
+        const y = this.timelineValues.reduce(
+          (min, d) => (d.t < min ? d.t : min),
+          this.timelineValues[0].t,
+        )
+        return new Date(`${y}-01-01`)
+      }
+      return new Date(`${this.startYear}-01-01`)
+    },
+    /** @returns {Date} */
+    maxDate() {
+      if (this.timelineValues.length) {
+        const y = this.timelineValues.reduce(
+          (max, d) => (d.t > max ? d.t : max),
+          this.timelineValues[0].t,
+        )
+        return new Date(`${y}-12-31`)
+      }
+      return new Date(`${this.endYear}-12-31`)
+    },
     rangeFacets() {
       const rangeFacets = this.facets.filter(({ type }) =>
         [
