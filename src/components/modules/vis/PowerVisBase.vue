@@ -15,6 +15,7 @@
       :area-metrics="chartData.areaMetrics"
       :color-palette="chartData.colorPalette"
       :items-dictionary="chartData.itemsDictionary"
+      :horizontal="chartData.horizontal"
       @item:click="e => $emit('item:click', e)"
     />
     <!-- slot:footer -->
@@ -173,7 +174,8 @@ export default defineComponent({
         lineMetrics: filteredLineMetrics,
         areaMetrics: filteredAreaMetrics,
         itemsDictionary,
-        colorPalette
+        colorPalette,
+        horizontal: meta.horizontal
       }
     })
 

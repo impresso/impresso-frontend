@@ -3,21 +3,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeUnmount, onMounted, ref, watch, PropType } from 'vue'
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import LineChart from '@/d3-modules/LineChart'
 import CategoricalMultiValueBarChart from '@/d3-modules/CategoricalMultiValueBarChart'
+import CategoricalMultiValueBarChartHorizontal from '@/d3-modules/CategoricalMultiValueBarChartHorizontal'
+
 import CategoricalCircleChart from '@/d3-modules/CategoricalCircleChart'
 
 type ChartClass = typeof LineChart | typeof CategoricalCircleChart | typeof CategoricalMultiValueBarChart
 type ChartType = 'multivalue' | 'circle' | 'line'
 
-const getChartClass = (type: ChartType): ChartClass => {
+const getChartClass = (type: ChartType | string, horizontal?: boolean): ChartClass => {
   switch(type) {
   case 'circle':
     return CategoricalCircleChart
   case 'line':
     return LineChart
   default:
+    if (horizontal) return CategoricalMultiValueBarChartHorizontal
     return CategoricalMultiValueBarChart
   }
 }
@@ -27,7 +30,7 @@ export default defineComponent({
   name: 'MultiChart',
   props: {
     chartType: {
-      type: String as PropType<ChartType>,
+      type: String, // as PropType<ChartType>,
       default: 'multivalue'
     },
     data: {
@@ -49,6 +52,10 @@ export default defineComponent({
     colorPalette: {
       type: Object,
       default: () => {}
+    },
+    horizontal: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['item:click'],
@@ -70,7 +77,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      const Chart = getChartClass(props.chartType)
+      const Chart = getChartClass(props.chartType, props.horizontal)
       instance.value = new Chart({ element: chart.value })
       render()
       window.addEventListener('resize', render);
@@ -84,7 +91,7 @@ export default defineComponent({
       if (instance.value != null) {
         instance.value.element.textContent = ''
       }
-      const Chart = getChartClass(props.chartType)
+      const Chart = getChartClass(props.chartType, props.horizontal)
       instance.value = new Chart({ element: chart.value })
       render()
     })

@@ -18,11 +18,10 @@ const Template = args => ({
     itemClicked: action('item clicked'),
   },
   template: `
-    <div style="height: 300px;">
+    <div style="height: 600px;">
       <PowerVisBase v-bind="args" @item:click="itemClicked">
         <template v-slot:header>
           <span>Header rendered here. For example, dropdown box(es)</span>
-          <p>Below are sample TR passages where every rendered item (circle) is clickable</p>  
         </template>
         <template v-slot:footer>
           <span>footer rendered here. for example, checkboxes</span>
@@ -38,7 +37,7 @@ TRPassages.args = {
     items: [
       {
         domain: {
-          label: "L'Express",
+          label: 'L\'Express',
           value: 'EXP',
         },
         value: {
@@ -53,7 +52,7 @@ TRPassages.args = {
       },
       {
         domain: {
-          label: "L'Impartial",
+          label: 'L\'Impartial',
           value: 'IMP',
         },
         value: {
@@ -68,8 +67,8 @@ TRPassages.args = {
       },
     ],
     itemsDictionary: {
-      EXP: "L'Express",
-      IMP: "L'Impartial",
+      EXP: 'L\'Express',
+      IMP: 'L\'Impartial',
     },
     meta: {
       facetType: 'term',
@@ -103,4 +102,89 @@ LineChart.args = {
       filters: [],
     },
   },
+}
+
+
+
+export const BarChart = Template.bind({})
+
+BarChart.args = {
+  data: {
+    items: [
+      {
+        domain: {
+          label: 'L\'Express',
+          value: 'EXP'
+        },
+        value: {
+          count: 2816866,
+          stddev: 23.252782736769444,
+          min: 0,
+          max: 100,
+          mean: 63.649138850604686,
+          p99_7: 100
+        }
+      },
+      {
+        domain: {
+          label: 'L\'Impartial',
+          value: 'IMP'
+        },
+        value: {
+          count: 2633785,
+          stddev: 23.457636568110768,
+          min: 0,
+          max: 100,
+          mean: 64.4376687794933,
+          p99_7: 100
+        }
+      },
+      {
+        domain: {
+          label: 'Journal de Genève',
+          value: 'JDG'
+        },
+        value: {
+          count: 2176771,
+          stddev: 22.100577396781706,
+          min: 0,
+          max: 100,
+          mean: 63.21553174509588,
+          p99_7: 100
+        }
+      },
+      {
+        domain: {
+          label: 'Gazette de Lausanne',
+          value: 'GDL'
+        },
+        value: {
+          count: 2006765,
+          stddev: 22.58950937575116,
+          min: 0,
+          max: 100,
+          mean: 63.33867054229699,
+          p99_7: 100
+        }
+      }
+    ],
+    meta: {
+      facetType: 'numeric',
+      domain: 'newspaper',
+      filters: []
+    }
+  }
+}
+
+
+export const BarChartHorizontal = Template.bind({})
+
+BarChartHorizontal.args = {
+  data: {
+    items: BarChart.args.data.items,
+    meta: {
+      ...BarChart.args.data.meta,
+      horizontal: true
+    }
+  }
 }
