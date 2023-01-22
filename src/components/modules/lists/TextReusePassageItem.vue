@@ -1,5 +1,5 @@
 <template>
-  <div class="TextReusePassageItem m-3 pb-3 border-bottom">
+  <div class="TextReusePassageItem m-3 pb-4 border-bottom">
     <div>
       <router-link
         :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.id } }"
@@ -10,14 +10,17 @@
       <ItemSelector :uid="item.newspaper.id" :item="item.newspaper" type="newspaper" /> &nbsp;
       <span class="small-caps date">{{ $d(new Date(item.date), 'long') }}</span>
       <span class="small-caps date"> – {{ pages }}</span>
+      <p class="small my-2" v-html="textReuseClusterSummary"></p>
       <h3>
         <router-link
           :to="{
-            name: 'article',
+            name: 'issue-viewer',
             params: {
               issue_uid: item.issue.id,
-              page_uid: item.issue.id + '-p' + String(item.pageNumbers[0]).padStart(4, '0'),
-              article_uid: item.article.id,
+            },
+            query: {
+              p: item.pageNumbers[0],
+              articleId: item.article.id.match(/-([i0-9]+$)/)[1],
             },
           }"
         >
@@ -52,11 +55,34 @@ export default {
     item: {
       type: Object,
     },
+    click: {
+      type: Function,
+    },
   },
   computed: {
     pages() {
       return this.$tc('pp', this.item.pageNumbers.length, {
         pages: this.item.pageNumbers.join(','),
+      })
+    },
+    textReuseClusterSummary() {
+      const clusterSizeLabel = this.$tc(
+        'numbers.clusterSize',
+        this.item.textReuseCluster.clusterSize,
+        {
+          n: this.item.textReuseCluster.clusterSize,
+        },
+      )
+      const lexicalOverlapLabel = this.$tc(
+        'numbers.lexicalOverlap',
+        this.item.textReuseCluster.lexicalOverlap,
+        {
+          n: Math.round(this.item.textReuseCluster.lexicalOverlap * 100) / 100,
+        },
+      )
+      return this.$t('textReuseClusterSummary', {
+        clusterSize: clusterSizeLabel,
+        lexicalOverlap: lexicalOverlapLabel,
       })
     },
   },
@@ -67,4 +93,17 @@ export default {
 .TextReusePassageItem {
   max-width: 350px;
 }
+.TextReusePassageItem h3 a {
+  word-break: break-word;
+}
+.TextReusePassageItem .number {
+  font-weight: bold;
+}
 </style>
+<i18n>
+{
+  "en": {
+    "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap}"
+  }
+}
+</i18n>
