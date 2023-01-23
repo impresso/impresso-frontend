@@ -85,6 +85,11 @@
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
+        <b-nav-item v-if="connectivityStatus">
+          <span class="badge border border-accent rounded">{{
+            $t('connectivityStatus.online')
+          }}</span>
+        </b-nav-item>
       </b-navbar-nav>
 
       <b-navbar-nav class="ml-auto">

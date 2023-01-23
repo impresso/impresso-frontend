@@ -2,6 +2,7 @@ export default {
   en: {
     connectivityStatus: {
       offline: '⚡ offline!',
+      online: '🌐 online',
     },
     untitled: '(untitled)',
     language: 'Language',
@@ -156,6 +157,7 @@ export default {
       unigramMentions:
         'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
       ignoredFilters:
+        // eslint-disable-next-line quotes
         "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
     },
     dates: {
@@ -288,6 +290,7 @@ export default {
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> collection applies',
         description: 'check one or more collection to filter results',
+        // eslint-disable-next-line quotes
         empty: "... you haven't saved any result item in your collection",
       },
       newspaper: {
