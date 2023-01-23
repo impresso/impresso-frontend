@@ -171,7 +171,7 @@ export const SupportedFiltersByContext = Object.freeze({
     'collection',
   ],
   textReusePassages: [
-    'textReuseClusterSize',
+    'textReuseCluster',
     'textReuseClusterSize',
     'textReuseClusterLexicalOverlap',
     'textReuseClusterDayDelta',

@@ -26,6 +26,7 @@
             {'dripicons-print': filter.type === 'country'},
             {'dripicons-shopping-bag': filter.type === 'accessRight'},
             {'dripicons-store': filter.type === 'partner'},
+            {'dripicons-conversation': filter.type === 'textReuseCluster'},
             {'dripicons-scale': numericTypes.includes(filter.type)},
           ]"
           :title="$tc(`label.${filter.type}.title`, 0)" />
@@ -57,7 +58,12 @@
         <!--  type:generic -->
         <span class="label sp-generic-item"
           v-if="['year'].includes(filter.type)"
-          :class="filter.context">{{ filter.q && Array.isArray(filter.q) ? filter.q.join(', ') : '' }}
+          :class="filter.context">{{ Array.isArray(filter.q) ? filter.q.join(', ') : filter.q }}
+        </span>
+        <!--  type:text reuse id -->
+        <span class="label sp-generic-item"
+          v-if="['textReuseCluster'].includes(filter.type)"
+          :class="filter.context">{{ Array.isArray(filter.q) ? filter.q.join(', ') : filter.q }}
         </span>
         <!--  type:collections -->
         <span class="label sp-collection"
@@ -486,6 +492,10 @@ export default {
         "textReuseClusterDayDelta": {
           "title": "filter by text reuse time span in days",
           "item": "Text reuse time span"
+        },
+        "textReuseCluster": {
+          "title": "filter by text reuse cluster",
+          "item": "Text reuse cluster id"
         },
         "contentLength": {
           "title": "filter by content length",

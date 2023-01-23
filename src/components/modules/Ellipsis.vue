@@ -33,6 +33,10 @@ export default {
       type: Number,
       default: 0,
     },
+    additionalHeight: {
+      type: Number,
+      default: 0,
+    },
     backgroundColor: {
       type: String,
       default: '#f8f9fa',
@@ -76,7 +80,7 @@ export default {
       } else {
         this.height =
           this.maxHeight !== 0
-            ? Math.min(+this.$refs.contents.scrollHeight, this.maxHeight)
+            ? Math.min(+this.$refs.contents.scrollHeight, this.maxHeight) + this.additionalHeight
             : +this.$refs.contents.scrollHeight
       }
     },

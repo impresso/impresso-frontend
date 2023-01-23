@@ -1,5 +1,5 @@
 <template>
-  <div class="TextReusePassageItem m-3 pb-4 border-bottom">
+  <div class="TextReusePassageItem">
     <div>
       <router-link
         :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.id } }"
@@ -10,7 +10,13 @@
       <ItemSelector :uid="item.newspaper.id" :item="item.newspaper" type="newspaper" /> &nbsp;
       <span class="small-caps date">{{ $d(new Date(item.date), 'long') }}</span>
       <span class="small-caps date"> – {{ pages }}</span>
-      <p class="small my-2" v-html="textReuseClusterSummary"></p>
+      <p class="small my-2">
+        <span v-html="textReuseClusterSummary"></span>
+        <br />
+        <button class="btn btn-link small btn-sm p-0" @click="() => this.$emit('click', item)">
+          <u>{{ $t('seeTextReuseCluster', { textReuseCluster: item.textReuseCluster.id }) }}</u>
+        </button>
+      </p>
       <h3>
         <router-link
           :to="{
@@ -29,7 +35,12 @@
       </h3>
     </div>
     <div class="border shadow-sm p-1">
-      <Ellipsis v-bind:max-height="200" v-bind:initialHeight="80" @click.prevent.stop>
+      <Ellipsis
+        v-bind:max-height="200"
+        v-bind:initialHeight="80"
+        :additional-height="0"
+        @click.prevent.stop
+      >
         <p class="text-sample p-2">
           <span>{{ item.content }}</span>
         </p>
@@ -103,6 +114,7 @@ export default {
 <i18n>
 {
   "en": {
+    "seeTextReuseCluster": "see all passages in this cluster",
     "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap}"
   }
 }

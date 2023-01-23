@@ -351,6 +351,17 @@ export default {
       },
       textReuseClusterSize: { filterTitle: 'Cluster size' },
       textReuseClusterLexicalOverlap: { filterTitle: 'Lexical overlap' },
+      textReuseCluster: {
+        title: 'Text reuse clusters',
+        filterTitle: 'filter by text reuse clusters',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they are within the range',
+        empty: '(no results)',
+        context: {
+          include: 'included in selected clusters',
+          exclude: '<b>NOT</b> included in selected clusters',
+        }
+      }
     },
     tabs: {
       powervis: 'apply filters to visualisation',

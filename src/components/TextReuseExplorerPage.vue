@@ -104,7 +104,13 @@
       </template>
       <template v-slot:default>
         <div class="d-flex flex-wrap">
-          <TextReusePassageItem v-for="item in passages" :item="item" :key="item.id" />
+          <TextReusePassageItem
+            :item="item"
+            class="m-3 pb-4 border-bottom"
+            v-for="item in passages"
+            :key="item.id"
+            @click="handleTextReusePassageClick"
+          />
         </div>
       </template>
     </List>
@@ -120,7 +126,8 @@ import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { searchQueryGetter, mapPagination, mapOrderBy } from '@/logic/queryParams'
 import { textReusePassages, textReuseClusters } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
-import { optimizeFilters, SupportedFiltersByContext } from '@/logic/filters'
+import { optimizeFilters, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
+import FilterFactory from '@/models/FilterFactory'
 // import { serializeFilters } from '@/logic/filters'
 
 const supportedSearchIndexFilters = filter =>
@@ -211,6 +218,37 @@ export default {
         this.isLoading = false
       }
     },
+    /** @param {Filter[]} filters */
+    handleFiltersChanged(filters) {
+      // eslint-disable-next-line
+      console.debug('[TextReuseExplorer] handleFiltersChanged', filters)
+      this.$navigation.updateQueryParameters({
+        [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters)),
+      })
+    },
+    handleTextReusePassageClick(passage) {
+      // eslint-disable-next-line
+      console.debug('[TextReuseExplorer] handleTextReusePassageClick', passage)
+      // filter exists, update it
+      const filterExists = this.filters.some(({ type }) => type === 'textReuseCluster')
+      const trcFilter = FilterFactory.create({
+        type: 'textReuseCluster',
+        q: passage.textReuseCluster.id,
+      })
+      if (filterExists) {
+        this.handleFiltersChanged(
+          this.filters.map(filter => {
+            if (filter.type === 'textReuseCluster') {
+              return trcFilter
+            }
+            return filter
+          }),
+        )
+        return
+      } else {
+        this.handleFiltersChanged([...this.filters, trcFilter])
+      }
+    },
   },
   computed: {
     paginationCurrentPage: mapPagination(),
@@ -285,12 +323,7 @@ export default {
           return false
         }
         // eslint-disable-next-line
-        console.debug(
-          '[TextReuseExplorer] @searchApiQueryParameters \n query:',
-          query,
-          hash,
-          previousValue,
-        )
+        console.debug('[TextReuseExplorer] @searchApiQueryParameters \n query:', query)
         await this.loadClusters({ query })
         await this.loadPassages({ query })
       },
