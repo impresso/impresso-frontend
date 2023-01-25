@@ -127,7 +127,7 @@ export default {
       moreOptions: ' | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       clusterSize: ' | single cluster | <span class="number">{n}</span> passages',
-      lexicalOverlap: ' | no overlap | <span class="number">{n}%</span> lexical overlap',
+      lexicalOverlap: '<span class="number">{n}%</span> lexical overlap',
       articles:
         'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
       articlesInCommon:
@@ -141,6 +141,8 @@ export default {
       results:
         'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
       resultsPercent: '<span class="number">{n}</span>%',
+      resultsAbsolute:
+        '<span class="number">0</span> | <span class="number">{n}</span> | <span class="number">{n}</span>',
       articlesMatching:
         'no article contains <span class="highlight">{q}</span> | <span class="number">1</span> article contains <span class="highlight">{q}</span> | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span>',
       articlesMatchingWithinSearch:
@@ -360,8 +362,8 @@ export default {
         context: {
           include: 'included in selected clusters',
           exclude: '<b>NOT</b> included in selected clusters',
-        }
-      }
+        },
+      },
     },
     tabs: {
       powervis: 'apply filters to visualisation',
