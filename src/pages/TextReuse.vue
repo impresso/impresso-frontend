@@ -56,7 +56,7 @@
         @changed="handleFacetFiltersChanged"
       />
     </i-layout-section>
-    <router-view></router-view>
+    <router-view :filtersWithItems="filtersWithItems"></router-view>
   </i-layout>
 </template>
 <script>
@@ -271,7 +271,7 @@ export default {
           return false
         }
         // eslint-disable-next-line
-        console.debug('[TextReuse] @searchApiQueryParameters \n query:', query, hash, previousValue)
+        console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
         await this.loadFilterItems()
         FacetTypes.forEach(type => this.loadFacet(type))
       },
