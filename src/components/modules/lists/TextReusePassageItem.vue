@@ -81,19 +81,27 @@ export default {
         'numbers.clusterSize',
         this.item.textReuseCluster.clusterSize,
         {
-          n: this.item.textReuseCluster.clusterSize,
+          n: this.$n(this.item.textReuseCluster.clusterSize),
         },
       )
       const lexicalOverlapLabel = this.$tc(
         'numbers.lexicalOverlap',
         this.item.textReuseCluster.lexicalOverlap,
         {
-          n: Math.round(this.item.textReuseCluster.lexicalOverlap * 100) / 100,
+          n: this.$n(Math.round(this.item.textReuseCluster.lexicalOverlap * 100) / 100),
         },
       )
+      const sizeLabel = this.$tc('numbers.resultsAbsolute', parseInt(this.item.size), {
+        n: this.$n(this.item.size),
+      })
+
       return this.$t('textReuseClusterSummary', {
         clusterSize: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
+        size: sizeLabel,
+        timespan: this.$tc('numbers.days', this.item.textReuseCluster.timeDifferenceDay, {
+          n: this.item.textReuseCluster.timeDifferenceDay,
+        }),
       })
     },
   },
@@ -114,8 +122,11 @@ export default {
 <i18n>
 {
   "en": {
+    "numbers": {
+      "days": "<span class='number'>{n}</span> day|<span class='number'>{n}</span> days"
+    },
     "seeTextReuseCluster": "see all passages in this cluster",
-    "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap}"
+    "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap} over {timespan}. Content length: {size} tokens."
   }
 }
 </i18n>
