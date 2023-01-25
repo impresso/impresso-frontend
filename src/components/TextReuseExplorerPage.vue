@@ -5,7 +5,24 @@
         <section class="pt-2 pb-1">
           <span class="label small-caps">{{ $t('textReuse') }}</span>
           <small><info-button name="which-text-reuse" class="text-muted"/></small>
-          <h3 class="mb-1">...</h3>
+          <h3 class="mb-1">
+            <span v-if="isLoading">
+              ... (loading)
+            </span>
+            <span v-if="$route.name === 'textReuseOverview'">
+              Overview of text reuse
+            </span>
+            <span v-if="$route.name === 'textReuseClusters'">
+              List of text reuse clusters
+            </span>
+            <span v-if="$route.name === 'textReusePassages'">
+              List of text reuse passages
+            </span>
+          </h3>
+          <section class="text-serif TextReuseExplorerPage_summary">
+            <span v-html="incipit" />
+            <SearchQuerySummary :search-query="{ filters: filtersWithItems }" />
+          </section>
         </section>
       </b-navbar>
       <b-tabs pills class="mr-3">
@@ -23,18 +40,14 @@
             active-class="active"
             class="pl-2"
           >
-            <span>{{
-              $tc('routeTextReuseClusters', totalClusters, { n: $n(totalClusters) })
-            }}</span>
+            <span v-html="$tc('routeTextReuseClusters', totalClusters, { n: $n(totalClusters) })" />
           </b-nav-item>
           <b-nav-item
             :to="goToRoute({ name: 'textReusePassages' })"
             active-class="active"
             class="pl-2"
           >
-            <span>{{
-              $tc('routeTextReusePassages', totalPassages, { n: $n(totalPassages) })
-            }}</span>
+            <span v-html="$tc('routeTextReusePassages', totalPassages, { n: $n(totalPassages) })" />
           </b-nav-item>
         </template>
       </b-tabs>
@@ -57,9 +70,9 @@
       <template v-slot:header>
         <b-navbar-nav class="p-2 ml-auto">
           <i-dropdown
-            v-model="clustersOrderBy"
+            v-model="orderBy"
             :options="
-              clustersOrderByOptions.map(value => ({
+              orderByOptions.map(value => ({
                 value,
                 text: $t(`sort_${value}`),
               }))
@@ -89,9 +102,9 @@
       <template v-slot:header>
         <b-navbar-nav class="p-2 ml-auto">
           <i-dropdown
-            v-model="clustersOrderBy"
+            v-model="orderBy"
             :options="
-              clustersOrderByOptions.map(value => ({
+              orderByOptions.map(value => ({
                 value,
                 text: $t(`sort_${value}`),
               }))
@@ -121,6 +134,7 @@
 import InfoButton from '@/components/base/InfoButton'
 import List from '@/components/modules/lists/List'
 import ClusterItem from '@/components/modules/lists/ClusterItem'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem'
 import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { searchQueryGetter, mapPagination, mapOrderBy } from '@/logic/queryParams'
@@ -133,7 +147,18 @@ import FilterFactory from '@/models/FilterFactory'
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
 
-const ClustersOrderByOptions = ['date', '-date']
+const OrderByOptions = [
+  'date',
+  '-date',
+  'clusterSize',
+  '-clusterSize',
+  'timeDifferenceDay',
+  '-timeDifferenceDay',
+  'lexicalOverlap',
+  '-lexicalOverlap',
+  'size',
+  '-size',
+]
 
 export default {
   components: {
@@ -142,12 +167,17 @@ export default {
     InfoButton,
     List,
     TextReuseOverview,
+    SearchQuerySummary,
   },
   props: {
     /** @type {import('vue').PropOptions<Number>} */
     paginationPerPage: {
       type: Number,
       default: 20,
+    },
+    filtersWithItems: {
+      type: Array,
+      default: () => [],
     },
   },
   data: () => ({
@@ -156,7 +186,7 @@ export default {
     passages: [],
     totalPassages: -1,
     isLoading: false,
-    clustersOrderByOptions: ClustersOrderByOptions,
+    orderByOptions: OrderByOptions,
   }),
   methods: {
     goToRoute(route) {
@@ -263,7 +293,7 @@ export default {
     supportedFilters() {
       return this.filters.filter(supportedSearchIndexFilters)
     },
-    clustersOrderBy: mapOrderBy(ClustersOrderByOptions, '-date'),
+    orderBy: mapOrderBy(OrderByOptions, '-date'),
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
     clustersPaginationList() {
       return {
@@ -286,6 +316,7 @@ export default {
         skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
+        orderBy: this.orderBy,
         filters: optimizeFilters(this.supportedFilters),
         addons: { newspaper: 'text' },
       }
@@ -315,6 +346,18 @@ export default {
         },
       }
     },
+    incipit() {
+      const passagesLabel = this.$tc('routeTextReusePassages', this.totalPassages, {
+        n: this.$n(this.totalPassages),
+      })
+      const clustersLabel = this.$tc('routeTextReuseClusters', this.totalClusters, {
+        n: this.$n(this.totalClusters),
+      })
+      return this.$t('textReuseSummaryIncipit', {
+        passages: passagesLabel,
+        clusters: clustersLabel,
+      })
+    },
   },
   watch: {
     searchApiQueryParameters: {
@@ -336,9 +379,19 @@ export default {
   {
     "en": {
       "textReuse": "text reuse",
-      "routeTextReuseClusters": "no clusters available | 1 cluster | {n} clusters",
-      "routeTextReusePassages": "no passages available | 1 passage | {n} passages",
+      "textReuseSummaryIncipit": "{passages} in {clusters}",
+      "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
+      "routeTextReusePassages": "no passages | <span class='number'>1</span> passage | <span class='number'>{n}</span> passages",
       "routeTextReuseOverview": "overview"
     }
   }
   </i18n>
+<style lang="css">
+.TextReuseExplorerPage_summary .number {
+  font-weight: bold;
+}
+.TextReuseExplorerPage_summary p {
+  margin: 0;
+  display: inline;
+}
+</style>
