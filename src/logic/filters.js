@@ -169,6 +169,7 @@ export const SupportedFiltersByContext = Object.freeze({
     'daterange',
     'newspaper',
     'collection',
+    'string',
   ],
   textReusePassages: [
     'textReuseCluster',
