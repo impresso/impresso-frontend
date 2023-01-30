@@ -7,7 +7,13 @@
       >
         {{ item.newspaper.name || item.newspaper.id }}
       </router-link>
-      <ItemSelector :uid="item.newspaper.id" :item="item.newspaper" type="newspaper" /> &nbsp;
+      <ItemSelector
+        :uid="item.newspaper.id"
+        :item="item.newspaper"
+        type="newspaper"
+        context="textReuse"
+      />
+      &nbsp;
       <span class="small-caps date">{{ $d(new Date(item.date), 'long') }}</span>
       <span class="small-caps date"> – {{ pages }}</span>
       <p class="small my-2">
@@ -15,6 +21,12 @@
         <br />
         <button class="btn btn-link small btn-sm p-0" @click="() => this.$emit('click', item)">
           <u>{{ $t('seeTextReuseCluster', { textReuseCluster: item.textReuseCluster.id }) }}</u>
+          <ItemSelector
+            :uid="item.textReuseCluster.id"
+            :item="item.textReuseCluster"
+            type="textReuseCluster"
+            context="textReuse"
+          />
         </button>
       </p>
       <h3>
@@ -34,6 +46,7 @@
         </router-link>
       </h3>
     </div>
+    {{ item.collections }}
     <div class="border shadow-sm p-1">
       <Ellipsis
         v-bind:max-height="200"

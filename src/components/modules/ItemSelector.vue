@@ -1,5 +1,7 @@
 <template>
-  <span v-if="label" class="ItemSelector_label" v-on:click.prevent.stop="selectItem">{{ label }}</span>
+  <span v-if="label" class="ItemSelector_label" v-on:click.prevent.stop="selectItem">{{
+    label
+  }}</span>
   <span v-else class="dripicons-enter icon-link" v-on:click.prevent.stop="selectItem"></span>
 </template>
 
@@ -26,10 +28,14 @@ export default {
     },
     defaultClickActionDisabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     label: {
-      type: String
+      type: String,
+    },
+    context: {
+      type: String,
+      default: 'search',
     },
   },
   methods: {
@@ -42,32 +48,37 @@ export default {
         type: this.type,
       }
       if (!this.defaultClickActionDisabled) {
-        this.$store.dispatch('monitor/ACTIVATE', {
-          ...params,
-          filters: this.filters,
-          filtersUpdatedCallback: filters => {
-            this.filters = filters
-          }
+        // this.$store.dispatch('monitor/ACTIVATE', {
+        //   ...params,
+        //   filters: this.filters,
+        //   filtersUpdatedCallback: filters => {
+        //     this.filters = filters
+        //   }
+        // })
+        this.$store.dispatch('selectionMonitor/show', {
+          item: this.item,
+          context: this.context,
+          type: this.type,
         })
       }
 
       this.$emit('click', {
         params,
-        defaultActionExecuted: !this.defaultClickActionDisabled
+        defaultActionExecuted: !this.defaultClickActionDisabled,
       })
     },
   },
   computed: {
-    filters: mapFilters()
-  }
-};
+    filters: mapFilters(),
+  },
+}
 </script>
 
 <style lang="css">
-.ItemSelector_label{
+.ItemSelector_label {
   cursor: pointer;
 }
-.ItemSelector_label:hover{
+.ItemSelector_label:hover {
   box-shadow: 0 1px 0px 0 black;
 }
 </style>
