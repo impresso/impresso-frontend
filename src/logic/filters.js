@@ -184,3 +184,8 @@ export const SupportedFiltersByContext = Object.freeze({
   ],
   entities: ['string', 'type', 'uid'],
 })
+
+export const SupportedIndexByContext = Object.freeze({
+  search: 'search',
+  textReuse: 'tr_passages',
+})
