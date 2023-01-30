@@ -1,5 +1,10 @@
 import * as d3 from 'd3'
 
+
+function getQuadDistance(x0, y0, x1, y1) {
+  return Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2)
+}
+
 export default class LineChart {
   constructor({
     element = null,
@@ -19,9 +24,29 @@ export default class LineChart {
     this.axes = this.svg.append('g').attr('class', 'axes')
     this.lines = this.svg.append('g').attr('class', 'lines')
     this.areas = this.svg.append('g').attr('class', 'areas')
-
     this.x = d3.scaleUtc()
     this.y = d3.scaleLinear()
+  }
+  
+  getClosestPoint(x0, y0, data) {
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+    let x = 0;
+    let y = 0;
+    // console.debug('getClosestPoint', x0, y0, data)
+    data.forEach((point, i) => {
+      const x1 = this.x(point.domain);
+      const y1 = this.y(point.value.count);
+      const distance = getQuadDistance(x0, y0, x1, y1);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = i;
+        x = x1;
+        y = y1;
+      }
+    });
+    const closestPoint = data[closestIndex];
+    return {closestPoint, closestIndex, closestDistance, x, y};
   }
 
   /**
@@ -39,7 +64,6 @@ export default class LineChart {
     const { colorPalette = {} } = options
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
-
     // X
     this.x
       .domain(/** @type {Date[]} */ (d3.extent(data, d => d.domain)))
@@ -92,6 +116,26 @@ export default class LineChart {
       .data(lineMetrics)
       .join('g')
       .attr('class', ({ id }) => id)
+
+    // mousemove
+    if (typeof options.onMouseMove === 'function') {
+      this.svg.on('mousemove', () => {
+        const [x, y] = d3.mouse(this.svg.node())
+        const point = this.getClosestPoint(x, y, data)
+        const date = this.x.invert(x)
+        const value = this.y.invert(y)
+        // eslint-disable-next-line no-console
+        console.debug('onMouseMove', x,y, date, point)
+        
+        options.onMouseMove({
+          x,
+          y,
+          date,
+          value,
+          point
+        })
+      })
+    }
 
     // Areas
 

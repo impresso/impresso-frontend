@@ -1,5 +1,5 @@
 <template>
-  <PowerVisBase :data="stats" :loading="statsLoading" @item:click="itemClicked">
+  <PowerVisBase :data="stats" :loading="statsLoading" @item:click="itemClicked" @mousemove="handleMousemove">
     <template v-slot:header>
       <b-navbar-nav class="p-3 mb-3 ml-auto border-bottom">
         <label class="mr-2">{{ $t('visualisationType') }}</label>
@@ -16,6 +16,11 @@
           variant="outline-primary"
         ></i-dropdown>
       </b-navbar-nav>
+      <div class="position-relative">
+      <tooltip :tooltip="tooltip">
+        {{ JSON.stringify(tooltip.item) }}
+      </tooltip>
+    </div>
     </template>
     <template v-slot:footer>
       <div>TextReuseOverview Footer</div>
@@ -27,6 +32,7 @@
 import { defineComponent } from 'vue'
 
 import PowerVisBase from '@/components/modules/vis/PowerVisBase.vue'
+import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
 import { serializeFilters } from '@/logic/filters'
 import { DefaultFacetTypesForIndex } from '@/logic/facets'
 import { stats } from '@/services'
@@ -68,6 +74,7 @@ export default defineComponent({
   name: 'TextReuseOverview',
   components: {
     PowerVisBase,
+    Tooltip,
   },
   props: {
     filters: {
@@ -85,6 +92,12 @@ export default defineComponent({
     visualisation: 'trcsize_vs_time',
     statsLoading: false,
     visualisationOptions: VisualisationOptions,
+    tooltip: {
+      x: 0,
+      y: 0,
+      isActive: true,
+      item: {},
+    },
   }),
   setup() {
     const itemClicked = () => {}
@@ -100,6 +113,15 @@ export default defineComponent({
       // NOTE: daterange is the only filter type that does not have corresponding facet at the moment
       const filterTypes = DefaultFacetTypesForIndex[index].concat(['daterange'])
       return filterTypes.includes(type) && !NoFacetFilters[index].includes(type)
+    },
+    handleMousemove(event) {
+      const { x, y } = event
+      this.tooltip = {
+        x: event.point.x,
+        y: event.point.y,
+        isActive: true,
+        item: event.point.closestPoint,
+      }
     },
   },
   computed: {

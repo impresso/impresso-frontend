@@ -17,6 +17,7 @@
       :items-dictionary="chartData.itemsDictionary"
       :horizontal="chartData.horizontal"
       @item:click="e => $emit('item:click', e)"
+      @mousemove="e => $emit('mousemove', e)"
     />
     <!-- slot:footer -->
     <div slot="footer">
@@ -123,7 +124,7 @@ export default defineComponent({
       default: null
     }
   },
-  emits: ['item:click'],
+  emits: ['item:click', 'mousemove'],
   setup(props) {
     const chartData = computed(() => {
       const data: Data  = (props.data != null ? props.data : {}) as Data
@@ -191,6 +192,8 @@ export default defineComponent({
 
 <style scoped>
  .chart-container {
-  height: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
  }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="chart h-100 w-100 position:relative" ref="chart"></div>
+  <div class="chart position:relative" ref="chart"></div>
 </template>
 
 <script lang="ts">
@@ -58,7 +58,10 @@ export default defineComponent({
       default: false
     }
   },
-  emits: ['item:click'],
+  emits: [
+    'item:click',
+    'mousemove'
+  ],
   setup(props, { emit }) {
     const chart = ref()
     const instance = ref()
@@ -71,7 +74,8 @@ export default defineComponent({
         {
           itemsDictionary: props.itemsDictionary,
           colorPalette: props.colorPalette,
-          onClick: e => emit('item:click', e)
+          onClick: e => emit('item:click', e),
+          onMouseMove: e => emit('mousemove', e)
         }
       )
     }
@@ -118,5 +122,6 @@ export default defineComponent({
 <style scoped>
   .chart {
     display: block;
+    flex-grow: 1;
   }
 </style>
