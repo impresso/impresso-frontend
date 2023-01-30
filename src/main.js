@@ -192,7 +192,13 @@ Promise.race([
         components: {
           App,
         },
-        render: h => h(App),
+        render: h =>
+          h(App, {
+            props: {
+              startYear: window.impressoDocumentsYearSpan.firstYear,
+              endYear: window.impressoDocumentsYearSpan.lastYear,
+            },
+          }),
       })
     },
   )

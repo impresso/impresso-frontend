@@ -1,59 +1,97 @@
 <template>
-<div id="app" class="bg-light">
-  <div id="app-header">
-    <the-header />
+  <div id="app" class="bg-light">
+    <div id="app-header">
+      <the-header />
+    </div>
+    <div id="app-content">
+      <router-view />
+    </div>
+    <div id="app-monitor" class="fullscreen">
+      <monitor />
+    </div>
+    <div id="app-selection-monitor" class="fullscreen">
+      <SelectionMonitor
+        :filters="filters"
+        @change="handleChangeFilters"
+        :startYear="startYear"
+        :endYear="endYear"
+      />
+    </div>
+    <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
+      <disclaimer-notice />
+    </div>
+    <div id="app-loading" class="fullscreen locked" v-if="is_locked">
+      <status-indicator />
+    </div>
+    <cookie-disclaimer />
   </div>
-  <div id="app-content">
-    <router-view />
-  </div>
-  <div id="app-monitor" class="fullscreen">
-    <monitor/>
-  </div>
-  <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
-    <disclaimer-notice />
-  </div>
-  <div id="app-loading" class="fullscreen locked" v-if="is_locked">
-    <status-indicator />
-  </div>
-  <cookie-disclaimer />
-</div>
 </template>
 
 <script>
-import WebFontLoader from 'webfontloader';
-import TheHeader from './components/TheHeader';
-import Monitor from './components/Monitor';
-import DisclaimerNotice from './components/modals/DisclaimerNotice';
-import StatusIndicator from './components/modals/StatusIndicator';
-import CookieDisclaimer from './components/modals/CookieDisclaimer';
+import WebFontLoader from 'webfontloader'
+import TheHeader from './components/TheHeader'
+import Monitor from './components/Monitor'
+import SelectionMonitor from './components/SelectionMonitor'
+import DisclaimerNotice from './components/modals/DisclaimerNotice'
+import StatusIndicator from './components/modals/StatusIndicator'
+import CookieDisclaimer from './components/modals/CookieDisclaimer'
+import { CommonQueryParameters } from './router/util'
+import { optimizeFilters, serializeFilters } from './logic/filters'
+import { searchQueryGetter } from './logic/queryParams'
 
 export default {
   name: 'app',
   components: {
     TheHeader,
     Monitor,
+    SelectionMonitor,
     DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
   },
+  props: {
+    startYear: {
+      type: Number,
+      default: 1700,
+    },
+    endYear: {
+      type: Number,
+      default: new Date().getFullYear(),
+    },
+  },
   computed: {
+    searchQuery: {
+      ...searchQueryGetter(),
+    },
+    /** @returns {Filter[]} */
+    filters() {
+      // filter by type
+      return this.searchQuery.filters
+    },
     termsAgreed() {
-      console.info('Terms agreement:', this.$store.state.settings.termsAgreed);
+      console.info('Terms agreement:', this.$store.state.settings.termsAgreed)
       if (this.$store.state.user.userData) {
-        return true;
+        return true
       }
-      return this.$store.state.settings.termsAgreed;
+      return this.$store.state.settings.termsAgreed
     },
     is_locked() {
-      return this.$store.state.processingLocked;
-    }
+      return this.$store.state.processingLocked
+    },
   },
   methods: {
+    handleChangeFilters(filters) {
+      // eslint-disable-next-line no-console
+      console.debug('[App] handleChangeFilters', serializeFilters(optimizeFilters(filters)))
+      this.$navigation.updateQueryParameters({
+        [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters)),
+      })
+    },
   },
   mounted() {
     window.addEventListener('click', () => {
-      this.$root.$emit('bv::hide::popover');
-    });
+      this.$root.$emit('bv::hide::popover')
+    })
   },
   created() {
     // load typekit
@@ -61,74 +99,77 @@ export default {
       typekit: {
         id: process.env.VUE_APP_TYPEKIT_ID,
       },
-    });
+    })
   },
-};
+}
 </script>
 
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'impresso-theme/src/scss/variables.sass';
 body,
 html {
-    height: 100%;
+  height: 100%;
 }
 #app {
-    display: grid;
-    grid-template-columns: auto;
-    grid-template-rows: min-content auto;
-    grid-template-areas: "appheader" "appcontent";
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: min-content auto;
+  grid-template-areas: 'appheader' 'appcontent';
+  height: 100%;
+  #app-header {
+    grid-area: appheader;
+  }
+
+  #app-content {
+    grid-area: appcontent;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .fullscreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 100%;
-    #app-header {
-        grid-area: appheader;
+    pointer-events: none;
+    &.locked {
+      background: rgba($clr-primary, 0.25);
+      pointer-events: auto;
     }
+  }
 
-    #app-content {
-        grid-area: appcontent;
-        overflow-y: auto;
-        position: relative;
-    }
+  #app-search-query-explorer {
+    z-index: 1040;
+  }
 
-    .fullscreen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      &.locked{
-        background: rgba($clr-primary, 0.25);
-        pointer-events: auto;
-      }
-    }
+  #app-explorer {
+    z-index: 1041;
+  }
 
-    #app-search-query-explorer{
-      z-index: 1040;
-    }
+  #app-selection-monitor {
+    z-index: 1042;
+  }
+  #app-monitor {
+    z-index: 1042;
+  }
 
-    #app-explorer{
-      z-index: 1041;
-    }
-
-    #app-monitor {
-      z-index: 1042;
-    }
-
-    #app-loading {
-      z-index: 1043;
-    }
+  #app-loading {
+    z-index: 1043;
+  }
 }
 select {
   appearance: inherit;
 }
 span.number {
-  font-family: "questa-sans", sans-serif;
+  font-family: 'questa-sans', sans-serif;
 }
 svg {
   text {
-    font-family: "questa-sans", sans-serif;
+    font-family: 'questa-sans', sans-serif;
   }
   // axis
-  g.tick > line{
+  g.tick > line {
     stroke: $clr-tertiary;
   }
   path.domain {
@@ -136,30 +177,30 @@ svg {
   }
 }
 
-ul.nav.nav-pills{
+ul.nav.nav-pills {
   border-bottom: 1px solid #dee2e6;
 }
-ul.nav.nav-pills .nav-item{
-    .nav-link {
-      background-color: transparent;
-      font-variant: small-caps;
-      margin-bottom: -1px;
-      border: 1px solid transparent;
-      font-size: 15px; // like small-caps
-      color: #6e8091;
-    }
-    &.active .nav-link{
-      color: black;
-      border-color: #dee2e6;
-      border-bottom-color: #f8f9fa;
-      background-color: transparent;
-    }
-    .nav-link.active{
-      color: black;
-      border-color: #dee2e6;
-      border-bottom-color: #f8f9fa;
-      background-color: transparent;
-    }
+ul.nav.nav-pills .nav-item {
+  .nav-link {
+    background-color: transparent;
+    font-variant: small-caps;
+    margin-bottom: -1px;
+    border: 1px solid transparent;
+    font-size: 15px; // like small-caps
+    color: #6e8091;
+  }
+  &.active .nav-link {
+    color: black;
+    border-color: #dee2e6;
+    border-bottom-color: #f8f9fa;
+    background-color: transparent;
+  }
+  .nav-link.active {
+    color: black;
+    border-color: #dee2e6;
+    border-bottom-color: #f8f9fa;
+    background-color: transparent;
+  }
 }
 
 $clr-white: #ffffff;
@@ -173,36 +214,36 @@ $clr-grey-900: #ddd;
   background: $clr-grey-900;
 }
 .pt-1px {
-    padding-top: 1px;
+  padding-top: 1px;
 }
 .pb-1px {
-    padding-bottom: 1px;
+  padding-bottom: 1px;
 }
 .mt-1px {
-    margin-top: 1px;
+  margin-top: 1px;
 }
 .mt-2px {
-    margin-top: 2px;
+  margin-top: 2px;
 }
 .mb-1px {
-    margin-bottom: 1px;
+  margin-bottom: 1px;
 }
 .mr-1px {
-    margin-right: 1px;
+  margin-right: 1px;
 }
 .ml-1px {
-    margin-left: 1px;
+  margin-left: 1px;
 }
 .opacity-50 {
   opacity: 0.5;
 }
 
 .border-primary {
-    border-color: $clr-primary !important;
+  border-color: $clr-primary !important;
 }
 
 .border-tertiary {
-    border-color: $clr-tertiary !important;
+  border-color: $clr-tertiary !important;
 }
 
 .border-radius {
@@ -232,7 +273,7 @@ $clr-grey-900: #ddd;
   color: $clr-white;
 }
 
-.modal-backdrop-disabled{
+.modal-backdrop-disabled {
   pointer-events: none;
 }
 
@@ -247,7 +288,7 @@ $clr-grey-900: #ddd;
   white-space: nowrap;
 }
 
-.text-small{
+.text-small {
   font-size: 14px;
 }
 .custom-control-input {
@@ -262,11 +303,18 @@ $clr-grey-900: #ddd;
   border-color: $clr-tertiary;
 }
 
-.btn.disabled, .btn:disabled {
+.btn.disabled,
+.btn:disabled {
   opacity: 0.45 !important;
 }
-.btn-outline-primary.disabled, .btn-outline-primary:disabled {
+.btn-outline-primary.disabled,
+.btn-outline-primary:disabled {
   background-color: $clr-tertiary !important;
+}
+
+.btn {
+  border-radius: 2px;
+  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 5px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
 }
 
 // --- input range sliders ---
@@ -296,28 +344,28 @@ $clr-grey-900: #ddd;
 .vue-slider .vue-slider-rail {
   @include slider-rail;
 }
-input[type="range"]::-webkit-slider-runnable-track {
+input[type='range']::-webkit-slider-runnable-track {
   @include slider-rail;
 }
-input[type="range"]::-moz-range-track {
+input[type='range']::-moz-range-track {
   @include slider-rail;
 }
-input[type="range"]::-ms-track {
+input[type='range']::-ms-track {
   @include slider-rail;
 }
 
 .vue-slider .vue-slider-dot-handle {
   @include slider-dot;
 }
-input[type="range"]::-webkit-slider-thumb {
+input[type='range']::-webkit-slider-thumb {
   margin-top: -0.45rem;
   @include slider-dot;
 }
-input[type="range"]::-moz-range-thumb {
+input[type='range']::-moz-range-thumb {
   margin-top: -0.45rem;
   @include slider-dot;
 }
-input[type="range"]::-ms-thumb {
+input[type='range']::-ms-thumb {
   margin-top: -0.45rem;
   @include slider-dot;
 }
@@ -325,13 +373,13 @@ input[type="range"]::-ms-thumb {
 .vue-slider:focus .vue-slider-dot-handle {
   @include slider-dot-focus;
 }
-input[type="range"]:focus::-webkit-slider-thumb {
+input[type='range']:focus::-webkit-slider-thumb {
   @include slider-dot-focus;
 }
-input[type="range"]:focus::-moz-range-thumb {
+input[type='range']:focus::-moz-range-thumb {
   @include slider-dot-focus;
 }
-input[type="range"]:focus::-ms-thumb {
+input[type='range']:focus::-ms-thumb {
   @include slider-dot-focus;
 }
 
@@ -339,23 +387,23 @@ input[type="range"]:focus::-ms-thumb {
   @include slider-dot-focus;
   @include slider-dot-active;
 }
-input[type="range"]:active::-webkit-slider-thumb {
+input[type='range']:active::-webkit-slider-thumb {
   @include slider-dot-active;
 }
-input[type="range"]:active::-moz-range-thumb {
+input[type='range']:active::-moz-range-thumb {
   @include slider-dot-active;
 }
-input[type="range"]:active::-ms-thumb {
+input[type='range']:active::-ms-thumb {
   @include slider-dot-active;
 }
 
-.vue-slider .vue-slider-mark-label{
+.vue-slider .vue-slider-mark-label {
   font-size: 12px;
 }
 
 .vue-slider .vue-slider-process {
   background-color: $clr-primary;
-  box-shadow: 0px 0px 0 6px rgba(0,0,0,.1);
+  box-shadow: 0px 0px 0 6px rgba(0, 0, 0, 0.1);
   height: 2px !important;
   margin-top: 0px;
   border-radius: 1px;
@@ -369,16 +417,12 @@ input[type="range"]:active::-ms-thumb {
 }
 
 .vue-slider .vue-slider-mark-step {
-    width: 1px;
-    height: 5px;
-    border-radius: 0;
-    background-color: currentColor;
-    margin-top: -1.5px;
+  width: 1px;
+  height: 5px;
+  border-radius: 0;
+  background-color: currentColor;
+  margin-top: -1.5px;
 }
-
-
-
-
 
 // hack: hide bottom border on header dropdowns
 .header {
@@ -387,7 +431,8 @@ input[type="range"]:active::-ms-thumb {
     z-index: 1001;
   }
   // add dots to fix bottom corners
-  .dropdown.show::before, .dropdown.show::after {
+  .dropdown.show::before,
+  .dropdown.show::after {
     content: '';
     position: absolute;
     bottom: 0px;
@@ -417,30 +462,30 @@ input[type="range"]:active::-ms-thumb {
 }
 
 .tooltip-inner {
-    max-width: auto;
-    text-align: left;
-    box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
+  max-width: auto;
+  text-align: left;
+  box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 
-    .number{
-      color: white;
-      font-weight: bold;
-    }
+  .number {
+    color: white;
+    font-weight: bold;
+  }
 }
 .fixed-pagination-footer {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    background: transparentize($clr-primary, 0.8);
-    max-width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparentize($clr-primary, 0.8);
+  max-width: 100%;
 
-    .pagination {
-        li.page-item > a,
-        li.page-item > .page-link {
-            border-color: $clr-secondary;
-            padding: 0.15em 0.6em;
-        }
+  .pagination {
+    li.page-item > a,
+    li.page-item > .page-link {
+      border-color: $clr-secondary;
+      padding: 0.15em 0.6em;
     }
+  }
 }
 .dark-mode,
 .navbar-dark {
@@ -477,7 +522,6 @@ input[type="range"]:active::-ms-thumb {
   color: $clr-primary;
 }
 
-
 .overlay-region {
   background-color: transparentize($clr-accent-secondary, 1);
   transition: background-color 300ms;
@@ -496,7 +540,7 @@ input[type="range"]:active::-ms-thumb {
   outline: 1px solid $clr-accent-secondary;
 }
 
-.overlay-match{
+.overlay-match {
   background: transparentize($clr-accent, 0.5);
   outline: 2px solid $clr-accent;
 }
@@ -512,11 +556,12 @@ input[type="range"]:active::-ms-thumb {
   }
 }
 
-.btn-sm, .btn-group-sm > .btn {
+.btn-sm,
+.btn-group-sm > .btn {
   white-space: nowrap;
 }
 
-.btn-outline-icon{
+.btn-outline-icon {
   color: $clr-grey-400;
   background-color: transparent;
   background-image: none;
@@ -528,37 +573,37 @@ input[type="range"]:active::-ms-thumb {
   padding: 0;
   margin: 0;
   font-size: 1rem;
-  >span{
+  > span {
     color: inherit;
   }
-  &:hover{
+  &:hover {
     border-color: #17191c;
     color: #17191c;
   }
 }
 
-.badge-info{
+.badge-info {
   background-color: #049dae;
 }
-.badge-language{
+.badge-language {
   background-color: #e1e6ea;
 }
-.ngram-highlight{
+.ngram-highlight {
   background-color: #17191c;
   color: white;
-  font-family: "questa-sans", sans-serif;
+  font-family: 'questa-sans', sans-serif;
 
-  &::after{
+  &::after {
     content: '"';
   }
-  &::before{
+  &::before {
     content: '"';
   }
 }
 
-.search-results-summary .ngram-highlight{
-  padding: 0 .25rem;
-  margin: 0 .25rem;
+.search-results-summary .ngram-highlight {
+  padding: 0 0.25rem;
+  margin: 0 0.25rem;
 }
 
 .toast {
@@ -569,7 +614,6 @@ input[type="range"]:active::-ms-thumb {
   overflow: hidden;
   border: 1px solid;
 }
-
 
 // uncomment to add background to transparent footers
 // .fixed-pagination-footer::before{
@@ -583,10 +627,10 @@ input[type="range"]:active::-ms-thumb {
 // }
 /* bounce animation */
 .bounce-enter-active {
-  animation: bounce-in .5s;
+  animation: bounce-in 0.5s;
 }
 .bounce-leave-active {
-  animation: bounce-in .5s reverse;
+  animation: bounce-in 0.5s reverse;
 }
 @keyframes bounce-in {
   0% {
@@ -600,19 +644,20 @@ input[type="range"]:active::-ms-thumb {
   }
 }
 
-.article-matches em, .highlight,
+.article-matches em,
+.highlight,
 span.highlight {
-  outline:inherit;
+  outline: inherit;
   background-color: #ffeb78;
 }
 
 .bg-dark {
-  .article-matches em, .highlight,
+  .article-matches em,
+  .highlight,
   span.highlight {
     background-color: #ffeb78;
     color: black;
-    outline:inherit;
+    outline: inherit;
   }
 }
-
 </style>
