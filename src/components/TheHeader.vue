@@ -70,7 +70,7 @@
         </b-nav-item>
         <b-nav-item
           v-if="textReuseEnabled"
-          :to="getRouteWithSearchQuery({ name: 'textReuseOverview' })"
+          :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
           active-class="active"
         >
           <span>{{ $t('label_text_reuse_star') }}</span>
@@ -379,11 +379,12 @@ export default {
         language_code: languageCode,
       })
     },
-    getRouteWithSearchQuery(route) {
+    getRouteWithSearchQuery(route, additionalQueryParameters = {}) {
       return {
         ...route,
         query: {
           ...route.query,
+          ...additionalQueryParameters,
           sq: this.searchQueryHash,
         },
       }
