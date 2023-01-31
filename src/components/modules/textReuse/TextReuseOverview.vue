@@ -1,5 +1,10 @@
 <template>
-  <PowerVisBase :data="stats" :loading="statsLoading" @item:click="itemClicked" @mousemove="handleMousemove">
+  <PowerVisBase
+    :data="stats"
+    :loading="statsLoading"
+    @item:click="itemClicked"
+    @mousemove="handleMousemove"
+  >
     <template v-slot:header>
       <b-navbar-nav class="p-3 mb-3 ml-auto border-bottom">
         <label class="mr-2">{{ $t('visualisationType') }}</label>
@@ -17,10 +22,18 @@
         ></i-dropdown>
       </b-navbar-nav>
       <div class="position-relative">
-      <tooltip :tooltip="tooltip">
-        {{ JSON.stringify(tooltip.item) }}
-      </tooltip>
-    </div>
+        <tooltip :tooltip="tooltip">
+          {{ $d(tooltip.item?.point?.domain, 'year') }}<br />
+          <span v-if="tooltip.item && tooltip.item?.term">
+            {{ tooltip.item?.term }} <span class="number">{{ tooltip.item?.count }}</span>
+          </span>
+          <span v-else-if="typeof tooltip.item.valueKey === 'string'">
+            {{ tooltip.item.valueKey }}
+            <span class="number">{{ tooltip.item.point.value[tooltip.item.valueKey] }}</span>
+          </span>
+          <pre v-else class="text-white">{{ JSON.stringify(tooltip.item, null, 2) }}</pre>
+        </tooltip>
+      </div>
     </template>
     <template v-slot:footer>
       <div>TextReuseOverview Footer</div>
@@ -96,7 +109,10 @@ export default defineComponent({
       x: 0,
       y: 0,
       isActive: true,
-      item: {},
+      item: {
+        term: null,
+        count: 0,
+      },
     },
   }),
   setup() {
@@ -118,9 +134,13 @@ export default defineComponent({
       const { x, y } = event
       this.tooltip = {
         x: event.point.x,
-        y: event.point.y,
+        y: event.point.y + 10,
         isActive: true,
-        item: event.point.closestPoint,
+        item: {
+          ...event.point.closestItem,
+          valueKey: event.point.closestValueKey,
+          point: event.point.closestPoint,
+        },
       }
     },
   },
