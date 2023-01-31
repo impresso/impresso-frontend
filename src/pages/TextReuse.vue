@@ -62,7 +62,6 @@
 <script>
 import SearchPills from '@/components/SearchPills'
 import SearchInput from '@/components/modules/SearchInput'
-import { searchQueryGetter } from '@/logic/queryParams'
 import {
   serializeFilters,
   optimizeFilters,
@@ -104,17 +103,18 @@ export default {
   data: () => ({
     isLoading: false,
     facets: FacetTypes.map(type => new Facet({ type })),
-    filtersWithItems: [],
   }),
+  props: {
+    filters: {
+      type: Array,
+      default: () => [],
+    },
+    filtersWithItems: {
+      type: Array,
+      default: () => [],
+    },
+  },
   computed: {
-    searchQuery: {
-      ...searchQueryGetter(),
-    },
-    /** @returns {Filter[]} */
-    filters() {
-      // filter by type
-      return this.searchQuery.filters
-    },
     allowedFilters() {
       return this.filters.filter(({ type }) => SupportedFiltersByContext.textReuse.includes(type))
     },
@@ -251,14 +251,6 @@ export default {
           }
         })
     },
-    async loadFilterItems() {
-      const filtersWithItems = await filtersItems
-        .find({ query: { filters: serializeFilters(this.filters) } })
-        .then(joinFiltersWithItems)
-      this.filtersWithItems = filtersWithItems
-      // eslint-disable-next-line
-      console.debug('[TextReuse] loadFilterItems', filtersWithItems)
-    },
   },
   mounted() {
     // eslint-disable-next-line
@@ -272,7 +264,6 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
-        await this.loadFilterItems()
         FacetTypes.forEach(type => this.loadFacet(type))
       },
       immediate: true,

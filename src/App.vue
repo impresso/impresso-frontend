@@ -4,7 +4,7 @@
       <the-header />
     </div>
     <div id="app-content">
-      <router-view />
+      <router-view :filters="filters" :filters-with-items="filtersWithItems" />
     </div>
     <div id="app-monitor" class="fullscreen">
       <monitor />
@@ -36,8 +36,9 @@ import DisclaimerNotice from './components/modals/DisclaimerNotice'
 import StatusIndicator from './components/modals/StatusIndicator'
 import CookieDisclaimer from './components/modals/CookieDisclaimer'
 import { CommonQueryParameters } from './router/util'
-import { optimizeFilters, serializeFilters } from './logic/filters'
+import { joinFiltersWithItems, optimizeFilters, serializeFilters } from './logic/filters'
 import { searchQueryGetter } from './logic/queryParams'
+import { filtersItems } from './services'
 
 export default {
   name: 'app',
@@ -49,6 +50,9 @@ export default {
     StatusIndicator,
     CookieDisclaimer,
   },
+  data: () => ({
+    filtersWithItems: [],
+  }),
   props: {
     startYear: {
       type: Number,
@@ -87,6 +91,14 @@ export default {
         [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters)),
       })
     },
+    async loadFilterItems() {
+      const filtersWithItems = await filtersItems
+        .find({ query: { filters: serializeFilters(this.filters) } })
+        .then(joinFiltersWithItems)
+      this.filtersWithItems = filtersWithItems
+      // eslint-disable-next-line
+      console.debug('[App] loadFilterItems', filtersWithItems)
+    },
   },
   mounted() {
     window.addEventListener('click', () => {
@@ -100,6 +112,11 @@ export default {
         id: process.env.VUE_APP_TYPEKIT_ID,
       },
     })
+  },
+  watch: {
+    filters() {
+      this.loadFilterItems()
+    },
   },
 }
 </script>
