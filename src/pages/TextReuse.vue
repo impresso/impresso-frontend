@@ -18,7 +18,21 @@
           </template>
         </b-tabs>
         <div class="p-3 border-bottom bg-light">
-          <search-pills :filters="filtersWithItems" @changed="handleFiltersChanged" />
+          <div class="mb-2" v-if="ignoredFilters.length">
+            <em
+              class="small"
+              v-html="
+                $tc('numbers.ignoredFilters', ignoredFilters.length, {
+                  n: ignoredFilters.length,
+                })
+              "
+            />
+          </div>
+          <search-pills
+            :filters="filtersWithItems"
+            @changed="handleFiltersChanged"
+            :includedFilterTypes="allowedFilterTypes"
+          />
           <search-input @submit="handleSearchInputSubmit" placeholder="..."></search-input>
         </div>
       </template>
@@ -56,7 +70,7 @@
         @changed="handleFacetFiltersChanged"
       />
     </i-layout-section>
-    <router-view :filtersWithItems="filtersWithItems"></router-view>
+    <router-view :filters="filters" :filtersWithItems="filtersWithItems"></router-view>
   </i-layout>
 </template>
 <script>
@@ -90,6 +104,7 @@ const FacetTypes = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
+  'textReuseCluster',
 ]
 
 export default {
@@ -118,8 +133,17 @@ export default {
     allowedFilters() {
       return this.filters.filter(({ type }) => SupportedFiltersByContext.textReuse.includes(type))
     },
+    allowedFilterTypes() {
+      // we have to remove the 'isFront' filter from the list of allowed filters, see front immplementation in searchPills
+      return [...SupportedFiltersByContext.textReusePassages].filter(type => type !== 'isFront')
+    },
+    ignoredFilters() {
+      return this.filters.filter(({ type }) => !SupportedFiltersByContext.textReuse.includes(type))
+    },
     standardFacets() {
-      return this.facets.filter(({ type }) => ['newspaper', 'collection'].includes(type))
+      return this.facets.filter(({ type }) =>
+        ['newspaper', 'collection', 'textReuseCluster'].includes(type),
+      )
     },
     timelineFacets() {
       return this.facets.filter(({ type }) => type === 'year')
@@ -174,6 +198,8 @@ export default {
         page: 1,
         filters: this.allowedFilters,
       }
+      // eslint-disable-next-line
+      console.debug('[TextReuse] searchFacetApiQueryParams', query)
       return {
         query,
         hash: JSON.stringify(query)

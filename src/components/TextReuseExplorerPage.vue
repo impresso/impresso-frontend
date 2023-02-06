@@ -12,16 +12,13 @@
             <span v-if="$route.name === 'textReuseOverview'">
               Overview of text reuse
             </span>
-            <span v-if="$route.name === 'textReuseClusters'">
-              List of text reuse clusters
-            </span>
             <span v-if="$route.name === 'textReusePassages'">
               List of text reuse passages
             </span>
           </h3>
           <section class="text-serif TextReuseExplorerPage_summary">
             <span v-html="incipit" />
-            <SearchQuerySummary :search-query="{ filters: filtersWithItems }" />
+            <SearchQuerySummary :search-query="{ filters: supportedFiltersWithItems }" />
           </section>
         </section>
       </b-navbar>
@@ -34,13 +31,6 @@
             class="pl-2"
           >
             <span>{{ $t('routeTextReuseOverview') }}</span>
-          </b-nav-item>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReuseClusters' })"
-            active-class="active"
-            class="pl-2"
-          >
-            <span v-html="$tc('routeTextReuseClusters', totalClusters, { n: $n(totalClusters) })" />
           </b-nav-item>
           <b-nav-item
             :to="goToRoute({ name: 'textReusePassages' })"
@@ -137,12 +127,11 @@ import ClusterItem from '@/components/modules/lists/ClusterItem'
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem'
 import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
-import { searchQueryGetter, mapPagination, mapOrderBy } from '@/logic/queryParams'
+import { mapPagination, mapOrderBy } from '@/logic/queryParams'
 import { textReusePassages, textReuseClusters } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 import { optimizeFilters, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
-// import { serializeFilters } from '@/logic/filters'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -178,6 +167,14 @@ export default {
     filtersWithItems: {
       type: Array,
       default: () => [],
+    },
+    filters: {
+      type: Array,
+      default: () => [],
+    },
+    withClusters: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -282,16 +279,11 @@ export default {
   },
   computed: {
     paginationCurrentPage: mapPagination(),
-    searchQuery: {
-      ...searchQueryGetter(),
-    },
-    /** @returns {Filter[]} */
-    filters() {
-      // filter by type
-      return this.searchQuery.filters
-    },
     supportedFilters() {
       return this.filters.filter(supportedSearchIndexFilters)
+    },
+    supportedFiltersWithItems() {
+      return this.filtersWithItems.filter(supportedSearchIndexFilters)
     },
     orderBy: mapOrderBy(OrderByOptions, '-date'),
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
@@ -347,6 +339,13 @@ export default {
       }
     },
     incipit() {
+      if (!this.withClusters) {
+        return this.$t('textReuseSummaryIncipitWithoutClusters', {
+          passages: this.$tc('routeTextReusePassages', this.totalPassages, {
+            n: this.$n(this.totalPassages),
+          }),
+        })
+      }
       const passagesLabel = this.$tc('routeTextReusePassages', this.totalPassages, {
         n: this.$n(this.totalPassages),
       })
@@ -380,6 +379,7 @@ export default {
     "en": {
       "textReuse": "text reuse",
       "textReuseSummaryIncipit": "{passages} in {clusters}",
+      "textReuseSummaryIncipitWithoutClusters": "{passages}",
       "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
       "routeTextReusePassages": "no passages | <span class='number'>1</span> passage | <span class='number'>{n}</span> passages",
       "routeTextReuseOverview": "overview"
