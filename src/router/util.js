@@ -26,4 +26,6 @@ export const CommonQueryParameters = Object.freeze({
   SuggestionQuery: 'q',
   OrderBy: 'sort',
   PageNumber: 'p',
+  VisualisationType: 'vis',
+  VisualisationOrderBy: 'vis_sort',
 })

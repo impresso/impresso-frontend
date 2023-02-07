@@ -226,6 +226,8 @@ export default {
         return
       }
       this.isLoading = true
+      this.passages = []
+      this.totalPassages = 0
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] loadPassages() \n loading...')
 
@@ -366,7 +368,9 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuseExplorer] @searchApiQueryParameters \n query:', query)
-        await this.loadClusters({ query })
+        if (this.withClusters) {
+          await this.loadClusters({ query })
+        }
         await this.loadPassages({ query })
       },
       immediate: true,
