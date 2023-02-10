@@ -185,10 +185,25 @@ export const SupportedFiltersByContext = Object.freeze({
     'isFront',
     'title',
   ],
+  textReuseClusters: [
+    'textReuseCluster',
+    'textReuseClusterSize',
+    'textReuseClusterLexicalOverlap',
+    'textReuseClusterDayDelta',
+    'newspaper',
+  ],
   entities: ['string', 'type', 'uid'],
+})
+
+export const SupportedFiltersByIndex = Object.freeze({
+  search: SupportedFiltersByContext.search,
+  tr_passages: SupportedFiltersByContext.textReusePassages,
+  tr_clusters: SupportedFiltersByContext.textReuseClusters,
 })
 
 export const SupportedIndexByContext = Object.freeze({
   search: 'search',
   textReuse: 'tr_passages',
+  textReusePassages: 'tr_passages',
+  textReuseClusters: 'tr_clusters',
 })
