@@ -66,7 +66,8 @@
         search-index="tr_passages"
         :facet="facet"
         :key="index"
-        :filters="filters"
+        :context-filters="allowedFilters"
+        collapsible
         @changed="handleFacetFiltersChanged"
       />
     </i-layout-section>
@@ -272,6 +273,7 @@ export default {
           console.debug('[TextReuse] loadFacet', type, response)
           const facet = this.facets.find(facet => facet.type === type)
           if (facet) {
+            facet.numBuckets = response[0].numBuckets
             facet.setBuckets(response[0].buckets)
             //   facet.update(response.data)
           }
