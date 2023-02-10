@@ -70,7 +70,7 @@ import { defineComponent } from 'vue'
 
 import PowerVisBase from '@/components/modules/vis/PowerVisBase.vue'
 import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
-import { serializeFilters } from '@/logic/filters'
+import { serializeFilters, SupportedFiltersByIndex } from '@/logic/filters'
 import { DefaultFacetTypesForIndex } from '@/logic/facets'
 import { stats } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
@@ -91,6 +91,11 @@ const StatsQueryParams = {
     index: 'tr_passages',
     domain: 'time',
   },
+  // tr_vs_collections: {
+  //   facet: 'collection',
+  //   index: 'tr_passages',
+  //   domain: 'time',
+  // },
   trcsize_vs_time: {
     facet: 'textReuseClusterSize',
     index: 'tr_passages',
@@ -143,7 +148,7 @@ export default defineComponent({
     tooltip: {
       x: 0,
       y: 0,
-      isActive: true,
+      isActive: false,
       item: {
         term: null,
         count: 0,
@@ -170,7 +175,7 @@ export default defineComponent({
       this.tooltip = {
         x: event.point.x,
         y: event.point.y + 10,
-        isActive: true,
+        isActive: event.point.closestValueKey !== null,
         item: {
           ...event.point.closestItem,
           valueKey: event.point.closestValueKey,
@@ -223,9 +228,20 @@ export default defineComponent({
     },
     statsApiQueryParameters() {
       const { index, facet, domain } = StatsQueryParams[this.visualisation]
+      const supportedFilterTypes = SupportedFiltersByIndex[index]
       const filters = this.filters as FilterLike[]
-      const supportedFilters = filters.filter(({ type }) =>
-        this.isFilterTypeSupporedInIndex(index, type),
+      const supportedFilters = filters.filter(({ type }) => supportedFilterTypes.includes(type))
+
+      // eslint-disable-next-line
+      console.info(
+        '@statsApiQueryParameters check filters:',
+        filters,
+        '\n - using index:',
+        index,
+        '\n - supportedFilterTypes:',
+        supportedFilterTypes,
+        '\n - supportedFilters:',
+        supportedFilters,
       )
 
       const query = {
@@ -254,12 +270,13 @@ export default defineComponent({
         console.debug(
           '[TextReuseOverview] @statsApiQueryParameters \n query:',
           query,
-          hash,
-          previousValue,
+          // hash,
+          // previousValue,
         )
         try {
           this.statsLoading = true
           this.stats = await stats.find({ query })
+          // this.stats.meta = { horizontal: true }
           // eslint-disable-next-line
           console.debug('[TextReuseOverview] @statsApiQueryParameters \n result:', this.stats)
         } finally {
