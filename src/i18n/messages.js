@@ -355,6 +355,7 @@ export default {
       textReuseClusterLexicalOverlap: { filterTitle: 'Lexical overlap' },
       textReuseCluster: {
         title: 'Text reuse clusters',
+        description: 'check one or more text reuse cluster to filter results',
         filterTitle: 'filter by text reuse clusters',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are within the range',
