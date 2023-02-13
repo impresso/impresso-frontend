@@ -42,6 +42,8 @@ export default {
       let t = ''
       if (this.type === 'topic') {
         t = `<span class="small-caps">${this.item.language}</span> ${this.item.htmlExcerpt}`
+      } else if (this.type === 'textReuseCluster') {
+        t = this.getTextReuseClusterSummary(this.item)
       } else if (this.type === 'collection') {
         if (this.item.name) {
           const usernameValue = this.item.creator ? this.item.creator.username : 'unknown'
@@ -67,7 +69,58 @@ export default {
       return t
     },
   },
+  methods: {
+    getTextReuseClusterSummary(item) {
+      const clusterSizeLabel = this.$tc('numbers.clusterSize', item.clusterSize, {
+        n: this.$n(item.clusterSize),
+      })
+      const lexicalOverlapLabel = this.$tc('numbers.lexicalOverlap', item.lexicalOverlap, {
+        n: this.$n(Math.round(item.lexicalOverlap * 100) / 100),
+      })
+      let dates = []
+      if (!item.maxDate || !item.minDate) {
+        dates = []
+      } else if (item.timeDifferenceDay === 0) {
+        dates = [this.$d(item.maxDate, 'short')]
+      } else if (item.timeDifferenceDay < 30) {
+        // show time difference in days
+        dates = [this.$d(item.minDate, 'short'), this.$d(item.maxDate, 'short')]
+      } else if (item.timeDifferenceDay < 365) {
+        //   // show time difference in months
+        dates = [this.$d(item.minDate, 'month'), this.$d(item.maxDate, 'month')]
+      } else {
+        const minYear = item.minDate.getFullYear()
+        const maxYear = item.maxDate.getFullYear()
+        if (minYear === maxYear) {
+          dates = [minYear]
+        } else {
+          dates = [minYear, maxYear]
+        }
+      }
+
+      return this.$t('textReuseClusterSummary', {
+        shortId: item.shortId,
+        textSampleExcerpt: item.textSampleExcerpt,
+        clusterSize: clusterSizeLabel,
+        lexicalOverlap: lexicalOverlapLabel,
+        timespan: this.$tc('numbers.days', item.timeDifferenceDay, {
+          n: item.timeDifferenceDay,
+        }),
+        dates: dates.join(' - '),
+      })
+    },
+  },
 }
 </script>
 
 <style lang="css"></style>
+<i18n>
+{
+  "en": {
+    "numbers": {
+      "days": "the same day|over <span class='number'>{n}</span> day|over <span class='number'>{n}</span> days"
+    },
+    "textReuseClusterSummary": "<b>{shortId}</b><br/><div>{clusterSize} with {lexicalOverlap} {timespan} ({dates}).</div><blockquote class='my-1 ml-0 border-left pl-2'>{textSampleExcerpt}</blockquote>"
+  }
+}
+</i18n>

@@ -314,7 +314,8 @@ export default {
         "accessRight": "available as",
         "topic": "with topic",
         "pub": {
-          "newspaper": "published in"
+          "newspaper": "published in",
+          "textReuseCluster": "in clusters"
         },
         "pubof": {
           "newspaper": "of",
@@ -338,7 +339,8 @@ export default {
         "accessRight": "not available as",
         "topic": "without topic",
         "pub": {
-          "newspaper": "not published in"
+          "newspaper": "not published in",
+          "textReuseCluster": "not in clusters"
         },
         "pubof": {
           "newspaper": "not published in"
