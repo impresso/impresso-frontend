@@ -19,6 +19,7 @@ export default class LineChart {
 
     this.axes = this.svg.append('g').attr('class', 'axes')
     this.lines = this.svg.append('g').attr('class', 'lines')
+    this.points = this.svg.append('g').attr('class', 'points')
     this.areas = this.svg.append('g').attr('class', 'areas')
     this.x = d3.scaleUtc()
     this.y = d3.scaleLinear()
@@ -86,6 +87,9 @@ export default class LineChart {
   render(data, lineMetrics = [], areaMetrics = [], options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
     const { colorPalette = {} } = options
+    const dataWithValues = data.filter(
+      d => typeof d.value === 'object' && Object.keys(d.value).length,
+    )
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
     // X
@@ -156,6 +160,12 @@ export default class LineChart {
       .join('g')
       .attr('class', ({ id }) => id)
 
+    console.info('lineMetrics', lineMetrics, dataWithValues)
+    const pointsContainers = this.points
+      .selectAll('g')
+      .data(lineMetrics)
+      .attr('class', ({ id }) => id)
+
     // mousemove
     if (typeof options.onMouseMove === 'function') {
       this.svg.on('mousemove', () => {
@@ -222,7 +232,7 @@ export default class LineChart {
       })
       .join('path')
       .attr('class', 'missing')
-      .attr('stroke', '#eee')
+      .attr('stroke', ({ metric }) => colorPalette[metric])
       .attr('d', ({ data }) => line(data))
 
     // line with data
@@ -234,5 +244,27 @@ export default class LineChart {
       .attr('stroke', ({ metric }) => colorPalette[metric])
       .attr('stroke-width', 1.5)
       .attr('d', ({ data }) => line(data))
+
+    // show points, same colors as lines
+    const pointsData = dataWithValues.reduce((acc, d) => {
+      const values = Object.keys(d.value).map(k => ({
+        k,
+        t: d.domain,
+        x: this.x(d.domain),
+        y: this.y(d.value[k]),
+      }))
+      return acc.concat(values)
+    }, [])
+    console.info('pointsData', pointsData)
+    // for every x,y in pointData, show a circle in pointsContainers group
+
+    this.points
+      .selectAll('circle')
+      .data(pointsData)
+      .join('circle')
+      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .attr('r', 2.5)
+      .attr('fill', 'black')
+    // .attr('fill', ({ metric }) => colorPalette[metric])
   }
 }
