@@ -1,52 +1,70 @@
 <template>
-  <div v-if="isActive" class="SelectionMonitor  rounded drop-shadow bg-light" v-on:click.stop>
-    <div class="d-flex my-2 align-items-center">
-      <b-tabs pills class="px-2" style="flex-grow:1">
-        <template v-slot:tabs-end>
-          <b-nav-item class="active">
-            <span v-html="$t(`tabs.${monitor.type}.${monitor.scope}`)" />
-          </b-nav-item>
-        </template>
-      </b-tabs>
-      <div class="pr-3 SelectionMonitor_close">
-        <span class="dripicons-cross" v-on:click="hide" />
-      </div>
-    </div>
-    <!--  title -->
-    <h2 class="mx-3" v-if="monitor.item">
-      <ItemLabel :item="monitor.item" :type="monitor.type" />
-      <span class="small-caps pl-2">{{ monitor.type }}</span>
-    </h2>
-    <div class="mx-3">
-    {{ minDate.getFullYear()}} to {{ maxDate.getFullYear() }}
-  </div>
-    <div class="mx-2">
-      <timeline class="bg-light"
-              :domain="[startYear, endYear]"
-              :contrast="false"
-              :values="timelineValues">
-          <div slot-scope="tooltipScope">
-            <div v-if="tooltipScope.tooltip.item">
-              {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-              <b>{{ tooltipScope.tooltip.item.w }}</b>
-            </div>
+  <div v-if="isActive" class="SelectionMonitor  rounded drop-shadow bg-light" :class="monitor.type" v-on:click.stop>
+    <div class="d-flex flex-column h-100">
+      <!-- top -->
+      <section>
+        <!-- header -->
+        <div class="d-flex my-2 align-items-center">
+          <b-tabs pills class="px-2" style="flex-grow:1">
+            <template v-slot:tabs-end>
+              <b-nav-item class="active">
+                <span v-html="$t(`tabs.${monitor.type}.${monitor.scope}`)" />
+              </b-nav-item>
+            </template>
+          </b-tabs>
+          <div class="pr-3 SelectionMonitor_close">
+            <span class="dripicons-cross" v-on:click="hide" />
           </div>
-        </timeline>
-      </div>
-    <div class="mx-3">
-      <b-form-group class="m-0">
-        <b-form-checkbox v-model="applyCurrentSearchFilters">
-          <span v-html="$t('labels.applyCurrentSearchFilters', { count: this.supportedFilters.length })"/>
-        </b-form-checkbox>
-      </b-form-group>
-      <p class="ml-1">
-        <span v-html="statsLabel" />
-        <SearchQuerySummary v-if="applyCurrentSearchFilters" class="d-inline" :search-query="{ filters: monitorFilters}" />
-      </p>
-    </div>
-    <div class="p-2 border-tertiary border-top d-flex justify-content-between">
-      <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">{{ $t(monitorFilterExists ? 'actions.removeFromCurrentFilters':'actions.addToCurrentFilters') }}</button>
-      <button v-on:click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">{{ $t('actions.close') }}</button>
+        </div>
+        <!-- end header -->
+        <!-- title -->
+        <h2 class="mx-3" v-if="monitor.item">
+          <ItemLabel :item="monitor.item" :type="monitor.type" />
+          <span class="small-caps pl-2">{{ monitor.type }}</span>
+        </h2>
+        <div class="mx-3">
+          {{ minDate.getFullYear()}} to {{ maxDate.getFullYear() }}
+        </div>
+        <!-- end title -->
+        <!-- timeline -->
+        <div class="mx-2">
+          <timeline class="bg-light"
+                :domain="[startYear, endYear]"
+                :contrast="false"
+                :values="timelineValues">
+            <div slot-scope="tooltipScope">
+              <div v-if="tooltipScope.tooltip.item">
+                {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+                <b>{{ tooltipScope.tooltip.item.w }}</b>
+              </div>
+            </div>
+          </timeline>
+        </div>
+        <!-- end timeline -->
+        <!-- filters -->
+        <div class="mx-3">
+          <b-form-group class="m-0">
+            <b-form-checkbox v-model="applyCurrentSearchFilters">
+              <span v-html="$t('labels.applyCurrentSearchFilters', { count: this.supportedFilters.length })"/>
+            </b-form-checkbox>
+          </b-form-group>
+          <p class="ml-1">
+            <span v-html="statsLabel" />
+            <SearchQuerySummary v-if="applyCurrentSearchFilters" class="d-inline" :search-query="{ filters: monitorFilters}" />
+          </p>
+        </div>
+        <!-- end filters -->
+        <!-- actions -->
+        <div class="p-2 border-tertiary border-top d-flex justify-content-between">
+          <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">{{ $t(monitorFilterExists ? 'actions.removeFromCurrentFilters':'actions.addToCurrentFilters') }}</button>
+          <button v-on:click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">{{ $t('actions.close') }}</button>
+        </div>
+        <!-- end actions -->
+      </section>
+      <!-- end top -->
+      <!-- bottom -->
+      <TextReuseClusterMonitor :item="monitor.item" v-if="monitor.type === 'textReuseCluster'" class="flex-grow-1 bg-dark" />
+      <!-- end bottom -->
     </div>
   </div>
 </template>
@@ -59,6 +77,7 @@ import { SupportedFiltersByContext, SupportedIndexByContext } from '@/logic/filt
 import { searchFacets } from '@/services'
 import Timeline from '@/components/modules/Timeline'
 import FilterFactory from '@/models/FilterFactory'
+import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
 
 export default {
   props:{
@@ -77,6 +96,7 @@ export default {
     Timeline,
     SearchQuerySummary,
     ItemLabel,
+    TextReuseClusterMonitor
   },
   name: 'SelectionMonitor',
   computed: {
@@ -237,6 +257,16 @@ export default {
   margin-top: -175px;
   pointer-events: auto;
 }
+
+.SelectionMonitor.textReuseCluster {
+
+  width: 800px;
+  top: 10%;
+  bottom: 10%;
+  margin-top: auto;
+  margin-left:-400px;
+}
+
 .SelectionMonitor_body {
   max-height: 300px;
   overflow-y: scroll;
