@@ -1,26 +1,12 @@
 <template>
   <div class="TextReusePassageItem">
     <div>
-      <router-link
-        :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.id } }"
-        class="article-newspaper"
-      >
-        {{ item.newspaper.name || item.newspaper.id }}
-      </router-link>
-      <ItemSelector
-        :uid="item.newspaper.id"
-        :item="item.newspaper"
-        type="newspaper"
-        context="textReuse"
-      />
-      &nbsp;
-      <span class="small-caps date">{{ $d(new Date(item.date), 'long') }}</span>
-      <span class="small-caps date"> – {{ pages }}</span>
+      <TextReusePassageItemLabel :item="item" />
       <p class="small my-2">
         <span v-html="textReuseClusterSummary"></span>
         <br />
-        <button class="btn btn-link small btn-sm p-0" @click="() => this.$emit('click', item)">
-          <u>{{ $t('seeTextReuseCluster', { textReuseCluster: item.textReuseCluster.id }) }}</u>
+        <button class="btn btn-link small btn-sm p-0">
+          <u>{{ $t('seeTextReuseCluster', { textReuseCluster: item.textReuseCluster.id }) }} </u>
           <ItemSelector
             :uid="item.textReuseCluster.id"
             :item="item.textReuseCluster"
@@ -29,24 +15,8 @@
           />
         </button>
       </p>
-      <h3>
-        <router-link
-          :to="{
-            name: 'issue-viewer',
-            params: {
-              issue_uid: item.issue.id,
-            },
-            query: {
-              p: item.pageNumbers[0],
-              articleId: item.article.id.match(/-([i0-9]+$)/)[1],
-            },
-          }"
-        >
-          {{ item.title }}
-        </router-link>
-      </h3>
     </div>
-    {{ item.collections }}
+    <!-- {{ item.collections }} -->
     <div class="border shadow-sm p-1">
       <Ellipsis
         v-bind:max-height="200"
@@ -65,9 +35,12 @@
 <script>
 import Ellipsis from '../Ellipsis'
 import ItemSelector from '../ItemSelector'
+import TextReusePassageItemLabel from './TextReusePassageItemLabel'
+
 export default {
   components: {
     // ClusterDetailsPanel,
+    TextReusePassageItemLabel,
     Ellipsis,
     ItemSelector,
   },
@@ -84,11 +57,6 @@ export default {
     },
   },
   computed: {
-    pages() {
-      return this.$tc('pp', this.item.pageNumbers.length, {
-        pages: this.item.pageNumbers.join(','),
-      })
-    },
     textReuseClusterSummary() {
       const clusterSizeLabel = this.$tc(
         'numbers.clusterSize',
