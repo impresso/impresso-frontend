@@ -27,6 +27,7 @@
     "bootstrap-vue": "2.2.2",
     "core-js": "3.6.4",
     "d3": "5.15.0",
+    "diff": "^5.1.0",
     "dripicons": "2.0.0",
     "filepond": "4.9.4",
     "filepond-plugin-file-validate-size": "2.2.0",
