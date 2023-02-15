@@ -227,6 +227,15 @@ $clr-grey-400: #5a6672;
 $clr-grey-800: #c6ccd2;
 $clr-grey-900: #ddd;
 
+:root {
+  --clr-white: #ffffff;
+  --clr-grey-100: #17191c;
+  --clr-grey-300: #424a52;
+  --clr-grey-400: #5a6672;
+  --clr-grey-800: #c6ccd2;
+  --clr-grey-900: #ddd;
+}
+
 .bg-medium {
   background: $clr-grey-900;
 }
