@@ -62,6 +62,7 @@ export default {
 }
 .TextReusePassageItemLabel h3 {
   font-size: inherit;
+  margin-bottom: 0;
 }
 
 .bg-dark .TextReusePassageItemLabel,

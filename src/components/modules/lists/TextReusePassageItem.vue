@@ -6,13 +6,14 @@
         <span v-html="textReuseClusterSummary"></span>
         <br />
         <button class="btn btn-link small btn-sm p-0">
-          <u>{{ $t('seeTextReuseCluster', { textReuseCluster: item.textReuseCluster.id }) }} </u>
           <ItemSelector
             :uid="item.textReuseCluster.id"
             :item="item.textReuseCluster"
             type="textReuseCluster"
             context="textReuse"
-          />
+          >
+            {{ $t('seeTextReuseCluster') }}
+          </ItemSelector>
         </button>
       </p>
     </div>

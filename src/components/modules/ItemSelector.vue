@@ -1,8 +1,9 @@
 <template>
-  <span v-if="label" class="ItemSelector_label" v-on:click.prevent.stop="selectItem">{{
-    label
-  }}</span>
-  <span v-else class="dripicons-enter icon-link" v-on:click.prevent.stop="selectItem"></span>
+  <span v-on:click.prevent.stop="selectItem">
+    <slot></slot>
+    <span v-if="label" class="ItemSelector_label">{{ label }}</span>
+    <span v-else class="dripicons-enter icon-link"></span>
+  </span>
 </template>
 
 <script>
