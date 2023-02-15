@@ -21,6 +21,7 @@
 
 <script>
 export default {
+  name: 'ItemLabel',
   props: {
     item: {
       type: Object,
@@ -44,6 +45,8 @@ export default {
         t = `<span class="small-caps">${this.item.language}</span> ${this.item.htmlExcerpt}`
       } else if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)
+      } else if (this.type === 'textReusePassage') {
+        t = this.getTextReusePassageSummary(this.item)
       } else if (this.type === 'collection') {
         if (this.item.name) {
           const usernameValue = this.item.creator ? this.item.creator.username : 'unknown'
@@ -108,6 +111,9 @@ export default {
         }),
         dates: dates.join(' - '),
       })
+    },
+    getTextReusePassageSummary(item) {
+      return [this.$d(this.item.date, 'short'), item.title].join(' ')
     },
   },
 }
