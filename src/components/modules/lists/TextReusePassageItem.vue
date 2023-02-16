@@ -1,7 +1,6 @@
 <template>
   <div class="TextReusePassageItem">
     <div>
-      <TextReusePassageItemLabel :item="item" />
       <p class="small my-2">
         <span v-html="textReuseClusterSummary"></span>
         <br />
@@ -16,9 +15,11 @@
           </ItemSelector>
         </button>
       </p>
+      <span class="small-caps">{{ $t('fromArticle') }}</span>
+      <TextReusePassageItemLabel :item="item" class="border-left pl-2 my-2 small border-tertiary" />
     </div>
     <!-- {{ item.collections }} -->
-    <div class="border shadow-sm p-1">
+    <div class="rounded border border-tertiary bg-white shadow-sm p-1">
       <Ellipsis
         v-bind:max-height="200"
         v-bind:initialHeight="80"
@@ -107,6 +108,7 @@ export default {
     "numbers": {
       "days": "<span class='number'>{n}</span> day|<span class='number'>{n}</span> days"
     },
+    "fromArticle": "From article",
     "seeTextReuseCluster": "see all passages in this cluster",
     "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap} over {timespan}. Content length: {size} tokens."
   }
