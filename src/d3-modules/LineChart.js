@@ -264,7 +264,7 @@ export default class LineChart {
       .join('circle')
       .attr('transform', d => `translate(${d.x},${d.y})`)
       .attr('r', 2.5)
-      .attr('fill', 'black')
-    // .attr('fill', ({ metric }) => colorPalette[metric])
+      // .attr('fill', 'black')
+      .attr('fill', ({ k }) => colorPalette[k])
   }
 }
