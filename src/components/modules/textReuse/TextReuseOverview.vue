@@ -60,7 +60,7 @@
       </div>
     </template>
     <template v-slot:footer>
-      <div>TextReuseOverview Footer</div>
+      <div class="p-3" v-html="$t(`use_${visualisation}_description`)" />
     </template>
   </PowerVisBase>
 </template>
@@ -248,6 +248,7 @@ export default defineComponent({
         index,
         facet,
         domain,
+        stats: 'min,max,mean',
         sort: this.visualisationOrderBy,
         filters: serializeFilters(supportedFilters),
       }
@@ -293,16 +294,21 @@ export default defineComponent({
   "en": {
     "visualisationType": "type of visualisation:",
     "visualisationOrderBy": "order By:",
-    "use_tr_vs_newspapers" :"Text Reuse between Newspaper Titles",
+    "use_tr_vs_newspapers" :"Number of text reuse over time, by newspaper",
+    "use_tr_vs_newspapers_description": "This graph shows the number of passages of text reuse per year. Each line represents text reuse passages in a single newspaper title.",
     "use_tr_vs_time": "Text Reuse over Time",
-    "use_trcsize_vs_newspapers": "Cluster Sizes per Newspaper Title",
-    "use_trcsize_vs_time": "Cluster Sizes over Time",
+    "use_trcsize_vs_newspaper": "Median, min and max cluster size, by newspaper",
+    "use_trcsize_vs_newspaper_description": "This graph shows the median, minimum and maximum number of text reuse passages per cluster in a given newspaper title.",
+    "use_trcsize_vs_time": "Median, Min and Max cluster size over Time",
+    "use_trcsize_vs_time_description": "This graph shows the median number of text reuse passages per cluster over time.",
     "use_troverlap_vs_newspapers" :"Text Reuse lexical Overlap between Newspaper Titles",
-    "use_troverlap_vs_time": "Lexical Overlap over Time",
+    "use_troverlap_vs_time": "Median, Min and Max lexical Overlap over Time",
+    "use_troverlap_vs_time_description": "This graph shows the median, minimum and maximum lexical overlap between text reuse passages over time.",
     "use_trdelta_vs_newspapers": "Publication Time Delta per Newspaper Title",
     "use_trcount_vs_newspapers": " Sum of Passages per Newspaper Title",
     "use_trcount_vs_time": "Sum of Passages over Time",
     "use_trnewspapers_vs_newspapers": "Co-occurrence of text reuse passages between newspaper titles",
+    "use_trnewspapers_vs_newspapers_description": "<b>Note: search filters are not available</b>.<br/> This graph shows the co-occurrence of text reuse passages between newspaper titles. The size of the circle represents the number of text reuse passages between the two newspaper titles. The color of the circle represents the number of clusters in which the two newspaper titles co-occur.",
     "use_orderby_count desc": "count (descending)",
     "use_orderby_count asc": "count (ascending)"
   }
