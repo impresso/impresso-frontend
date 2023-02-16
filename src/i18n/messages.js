@@ -356,9 +356,9 @@ export default {
       textReuseCluster: {
         title: 'Text reuse clusters',
         description: 'check one or more text reuse cluster to filter results',
+        selected: 'filter results if <b>one of {count} selected</b> text reuse cluster applies',
         filterTitle: 'filter by text reuse clusters',
         filtered: 'results are filtered when:',
-        selected: 'filter results if they are within the range',
         empty: '(no results)',
         context: {
           include: 'included in selected clusters',
