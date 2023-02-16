@@ -18,18 +18,29 @@
       </div>
 
       <div class="d-flex flex-row TextReuseClusterMonitor_header">
-        <TextReusePassageItemLabel :item="startPassage" class="py-2 mx-3 border-bottom" />
-        <TextReusePassageItemLabel :item="endPassage" class="py-2 mx-3 border-bottom" />
+        <TextReusePassageItemLabel
+          v-if="startPassage"
+          :item="startPassage"
+          class="py-2 mx-3 border-bottom"
+        />
+        <TextReusePassageItemLabel
+          v-if="endPassage"
+          :item="endPassage"
+          class="py-2 mx-3 border-bottom"
+        />
       </div>
     </div>
     <div class="position-relative flex-grow-1 mb-1">
       <div class="left w-50 position-absolute h-100 ">
-        <p class="p-3">
+        <p class="p-3" v-if="diff.length">
           <span v-for="part in diff">
             <span v-if="part.added" class="added">{{ part.value }}</span>
             <span v-else-if="part.removed" class="removed">{{ part.value }}</span>
             <span v-else-if="part.value">{{ part.value }}</span>
           </span>
+        </p>
+        <p class="p-3" v-else>
+          {{ startPassage.content }}
         </p>
       </div>
       <div class="right w-50 position-absolute h-100">
@@ -50,6 +61,7 @@ import ItemLabel from './modules/lists/ItemLabel'
 import { textReusePassages } from '@/services'
 import TextReusePassage from '@/models/TextReusePassage'
 import TextReusePassageItemLabel from './modules/lists/TextReusePassageItemLabel'
+import { optimizeFilters } from '@/logic/filters'
 // onmounted load the first 2 text reuse passages from textreusepassage endpoint
 
 const OrderByOptions = ['date', '-date', 'size', '-size']
@@ -65,6 +77,10 @@ export default {
     item: {
       type: Object,
       required: true,
+    },
+    filters: {
+      type: Array,
+      default: () => [],
     },
   },
   data: () => ({
@@ -115,7 +131,9 @@ export default {
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
         orderBy: this.orderBy,
-        filters: [{ type: 'textReuseCluster', q: this.item.id }],
+        filters: this.filters.length
+          ? optimizeFilters(this.filters)
+          : [{ type: 'textReuseCluster', q: this.item.id }],
         addons: { newspaper: 'text' },
       }
       return {

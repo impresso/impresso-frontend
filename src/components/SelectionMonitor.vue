@@ -63,7 +63,8 @@
       </section>
       <!-- end top -->
       <!-- bottom -->
-      <TextReuseClusterMonitor :item="monitor.item" v-if="monitor.type === 'textReuseCluster'" class="flex-grow-1 bg-dark" />
+      <TextReuseClusterMonitor 
+        :filters="applyCurrentSearchFilters? monitorFilters: []" :item="monitor.item" v-if="monitor.type === 'textReuseCluster'" class="flex-grow-1 bg-dark" />
       <!-- end bottom -->
     </div>
   </div>
