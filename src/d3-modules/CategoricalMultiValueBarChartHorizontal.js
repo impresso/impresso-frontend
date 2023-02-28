@@ -1,14 +1,12 @@
 import * as d3 from 'd3'
 
 export default class CategoricalMultiValueBarChartHorizontal {
-  constructor({
-    element = null,
-    margin = { top: 5, bottom: 45, left: 100, right: 5}
-  }) {
+  constructor({ element = null, margin = { top: 5, bottom: 45, left: 100, right: 5 } }) {
     this.margin = margin
     this.element = element
 
-    this.svg = d3.select(element)
+    this.svg = d3
+      .select(element)
       .append('svg')
       .attr('fill', 'none')
       .attr('stroke-linejoin', 'round')
@@ -30,21 +28,38 @@ export default class CategoricalMultiValueBarChartHorizontal {
    * @param {{ colorPalette?: {[key: string]: string} }} options
    */
   render(data, lineMetrics = [], areaMetrics = [], options = {}) {
-    const { width, height } = this.element.getBoundingClientRect()
-    const { colorPalette = {} } = options
+    const { width, height: boxHeight } = this.element.getBoundingClientRect()
+    const height = options.bandwidth ? options.bandwidth * data.length : boxHeight
 
+    const { colorPalette = {} } = options
+    const xDomain = [
+      /** @type {number} */ (d3.min(data, d =>
+        d3.min(lineMetrics.map(({ extractor }) => extractor(d.value))),
+      )),
+      /** @type {number} */ (d3.max(data, d =>
+        d3.max(lineMetrics.map(({ extractor }) => extractor(d.value))),
+      )),
+    ]
+    console.debug('CategoricalMultiValueBarChartHorizontal.render extent:', xDomain, options)
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
     // X
-    const x = d3.scaleLinear()
-      .domain([0, /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))]).nice()
+    const x = d3
+      .scaleLinear()
+      .domain(xDomain) // [0, /** @type {number} */ (d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value)))))]).nice()
       .range([this.margin.left, width - this.margin.right])
 
-    const xAxis = g => g
-      .attr('transform', `translate(0,${height - this.margin.bottom})`)
-      .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
-      .selectAll('text')
-      .style('text-anchor', 'end')
+    const xAxis = g =>
+      g
+        .attr('transform', `translate(0,${height - this.margin.bottom})`)
+        .call(
+          d3
+            .axisBottom(x)
+            .ticks(width / 80)
+            .tickSizeOuter(0),
+        )
+        .selectAll('text')
+        .style('text-anchor', 'end')
 
     this.axes
       .selectAll('g.x')
@@ -54,25 +69,30 @@ export default class CategoricalMultiValueBarChartHorizontal {
       .call(xAxis)
 
     // Y
-    const y =     d3.scaleBand()
+    const y = d3
+      .scaleBand()
       .domain(data.map(({ domain }) => `${domain.value}`))
       .range([height - this.margin.bottom, this.margin.top])
 
-    const yAxis = g => g
-      .attr('transform', `translate(${this.margin.left}, 0)`)
-      .call(d3.axisLeft(y))
-      .call(g => g.select('.domain').remove())
-      .call(g => g.select('.tick:last-of-type text').clone()
-        .attr('x', 3)
-        .attr('text-anchor', 'start')
-        .attr('font-weight', 'bold'))
-      .selectAll('text')
-      .attr('transform', 'rotate(-45)')
-      .text(itemValue => {
-        const dataItem = data.find(({ domain }) => itemValue === domain.value)
-        return dataItem != null ? dataItem.domain.label : ''
-      })
-
+    const yAxis = g =>
+      g
+        .attr('transform', `translate(${this.margin.left}, 0)`)
+        .call(d3.axisLeft(y))
+        .call(g => g.select('.domain').remove())
+        .call(g =>
+          g
+            .select('.tick:last-of-type text')
+            .clone()
+            .attr('x', 3)
+            .attr('text-anchor', 'start')
+            .attr('font-weight', 'bold'),
+        )
+        .selectAll('text')
+        // .attr('transform', 'rotate(-45)')
+        .text(itemValue => {
+          const dataItem = data.find(({ domain }) => itemValue === domain.value)
+          return dataItem != null ? dataItem.domain.label : ''
+        })
 
     this.axes
       .selectAll('g.y')
@@ -94,11 +114,14 @@ export default class CategoricalMultiValueBarChartHorizontal {
       .join('g')
       .attr('class', 'lines')
       .selectAll('rect')
-      .data(dataItem => {
-        return lineMetrics
-          .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value)}))
-          .filter(({ value }) => !isNaN(value))
-      }, ({ id }) => id)
+      .data(
+        dataItem => {
+          return lineMetrics
+            .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value) }))
+            .filter(({ value }) => !isNaN(value))
+        },
+        ({ id }) => id,
+      )
       .join('rect')
       .attr('class', ({ id }) => id)
       .attr('width', 1)
@@ -113,17 +136,20 @@ export default class CategoricalMultiValueBarChartHorizontal {
       .join('g')
       .attr('class', 'areas')
       .selectAll('rect')
-      .data(dataItem => {
-        return areaMetrics
-          .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value)}))
-          .filter(({ value: [valueA, valueB] }) => !isNaN(valueA) && !isNaN(valueB))
-      }, ({ id }) => id)
+      .data(
+        dataItem => {
+          return areaMetrics
+            .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value) }))
+            .filter(({ value: [valueA, valueB] }) => !isNaN(valueA) && !isNaN(valueB))
+        },
+        ({ id }) => id,
+      )
       .join('rect')
       .attr('class', ({ id }) => id)
       .attr('width', ({ value: [valueA, valueB] }) => x(valueB) - x(valueA))
-      .attr('y', y.bandwidth()/4)
-      .attr('x', ({ value: [a, ] }) => x(a))
-      .attr('height', y.bandwidth()/2)
+      .attr('y', y.bandwidth() / 4)
+      .attr('x', ({ value: [a] }) => x(a))
+      .attr('height', y.bandwidth() / 2)
       .attr('fill', metric => colorPalette[metric.id])
   }
 }
