@@ -142,7 +142,7 @@ export default defineComponent({
   },
   data: () => ({
     items: [],
-    stats: {},
+    stats: {} as { meta?: any; items?: any[]},
     statsLoading: false,
     visualisationOptions: VisualisationOptions,
     tooltip: {
@@ -276,8 +276,10 @@ export default defineComponent({
         )
         try {
           this.statsLoading = true
-          this.stats = await stats.find({ query })
-          // this.stats.meta = { horizontal: true }
+          const s: { meta?: any; items?: any[] } = await stats.find({ query })
+          s.meta = s.meta || {}
+          s.meta.horizontal = true
+          this.stats = s
           // eslint-disable-next-line
           console.debug('[TextReuseOverview] @statsApiQueryParameters \n result:', this.stats)
         } finally {
