@@ -75,6 +75,45 @@ import { DefaultFacetTypesForIndex } from '@/logic/facets'
 import { stats } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 
+interface DomainValueItem {
+  domain: { label: string, value: string }
+  value: { count: number, items: { term: string, count: number }[] }
+}
+
+interface Data { meta?: any; items?: DomainValueItem[], itemsDictionary?: Record<string, string> }
+
+type DataSorter = (data: Data) => Data
+
+const newspaperTermSorter = (data: Data) => {
+  const { items, meta, itemsDictionary } = data
+
+  // order of the items in the domain
+  const domainOrder = Object.fromEntries(items?.map((item, index) => {
+    return [item.domain.value, index] as [string, number]
+  }) ?? [])
+
+  // iterate over the items and sort the value items to match the domain order
+  const fullySortedItems = items?.map(item => {
+    const { domain, value } = item
+    const valueItems = value.items
+
+    const sortedValueItems = valueItems?.sort((a, b) => {
+      const aDomainOrder = domainOrder[a.term] ?? 0
+      const bDomainOrder = domainOrder[b.term] ?? 0
+      return aDomainOrder - bDomainOrder
+    })
+
+    return { domain, value: { ...value, items: sortedValueItems } }
+  })
+
+  return { meta, items: fullySortedItems, itemsDictionary }
+}
+
+const getSorter = (domain: string, facetType: string): DataSorter => {
+  if (domain === 'newspaper' && facetType == 'term') return newspaperTermSorter
+  return (data) => data
+}
+
 interface FilterLike {
   type: string
 }
@@ -142,7 +181,7 @@ export default defineComponent({
   },
   data: () => ({
     items: [],
-    stats: {} as { meta?: any; items?: any[]},
+    stats: {} as Data,
     statsLoading: false,
     visualisationOptions: VisualisationOptions,
     tooltip: {
@@ -276,10 +315,13 @@ export default defineComponent({
         )
         try {
           this.statsLoading = true
-          const s: { meta?: any; items?: any[] } = await stats.find({ query })
-          s.meta = s.meta || {}
-          s.meta.horizontal = true
-          this.stats = s
+          const statsResult = await stats.find({ query })
+          statsResult.meta = statsResult.meta || {}
+          statsResult.meta.horizontal = true
+
+          const toSortedItems = getSorter(statsResult.meta.domain, statsResult.meta.facetType)
+
+          this.stats = toSortedItems(statsResult)
           // eslint-disable-next-line
           console.debug('[TextReuseOverview] @statsApiQueryParameters \n result:', this.stats)
         } finally {

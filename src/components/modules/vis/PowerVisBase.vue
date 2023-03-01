@@ -94,8 +94,8 @@ export const MetricsByFacetType = {
   },
   term: {
     line: response => {
-      const itemsIds = Object.keys(response.itemsDictionary)
-      return itemsIds.map(itemCountLineMetricExtractorFactory)
+      const itemsIds: string[] | undefined = response.items?.[0]?.value?.items?.map(({ term }) => term) ?? Object.keys(response.itemsDictionary)
+      return itemsIds?.map(itemCountLineMetricExtractorFactory) ?? []
     },
     area: () => []
   }

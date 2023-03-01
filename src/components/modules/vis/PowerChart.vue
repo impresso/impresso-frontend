@@ -27,7 +27,7 @@ const getChartClass = (type: ChartType | string, horizontal?: boolean): ChartCla
 
 
 export default defineComponent({
-  name: 'MultiChart',
+  name: 'PowerChart',
   props: {
     chartType: {
       type: String, // as PropType<ChartType>,
