@@ -1,68 +1,74 @@
 <template>
-  <PowerVisBase
-    :data="stats"
-    :loading="statsLoading"
-    @item:click="itemClicked"
-    @mousemove="handleMousemove"
-  >
-    <template v-slot:header>
-      <b-navbar-nav class="border-bottom d-flex flex-row">
-        <b-nav-text class="ml-3 mr-2 py-3">
-          <label>{{ $t('visualisationType') }}</label></b-nav-text
-        >
-        <b-nav-text class="mr-1 py-3">
-          <i-dropdown
-            v-model="visualisation"
-            :options="
-              visualisationOptions.map(value => ({
-                value,
-                text: $t(`use_${value}`),
-              }))
-            "
-            class="mr-auto"
-            size="sm"
-            variant="outline-primary"
-          ></i-dropdown
-        ></b-nav-text>
-        <b-nav-text
-          v-if="visualisationOrderByOptions.length > 0"
-          class="border-left ml-3 pl-3 mr-2 py-3"
-        >
-          <label>{{ $t('visualisationOrderBy') }}</label></b-nav-text
-        >
-        <b-nav-text v-if="visualisationOrderByOptions.length > 0" class=" py-3">
-          <i-dropdown
-            v-model="visualisationOrderBy"
-            :options="
-              visualisationOrderByOptions.map(value => ({
-                value,
-                text: $t(`use_orderby_${value}`),
-              }))
-            "
-            class="mr-auto"
-            size="sm"
-            variant="outline-primary"
-          ></i-dropdown
-        ></b-nav-text>
-      </b-navbar-nav>
-      <div class="position-relative">
-        <tooltip :tooltip="tooltip">
-          {{ $d(tooltip.item?.point?.domain, 'year') }}<br />
-          <span v-if="tooltip.item && tooltip.item?.term">
-            {{ tooltip.item?.term }} <span class="number">{{ tooltip.item?.count }}</span>
-          </span>
-          <span v-else-if="typeof tooltip.item.valueKey === 'string'">
-            {{ tooltip.item.valueKey }}
-            <span class="number">{{ tooltip.item.point.value[tooltip.item.valueKey] }}</span>
-          </span>
-          <pre v-else class="text-white">{{ JSON.stringify(tooltip.item, null, 2) }}</pre>
-        </tooltip>
-      </div>
-    </template>
-    <template v-slot:footer>
-      <div class="p-3" v-html="$t(`use_${visualisation}_description`)" />
-    </template>
-  </PowerVisBase>
+  <div class="h-100 d-flex flex-column">
+    <!-- start -->
+    <b-navbar-nav class="border-bottom d-flex flex-row flex-shrink-1">
+      <b-nav-text class="ml-3 mr-2 py-3">
+        <label>{{ $t('visualisationType') }}</label></b-nav-text
+      >
+      <b-nav-text class="mr-1 py-3">
+        <i-dropdown
+          v-model="visualisation"
+          :options="
+            visualisationTypes.map(value => ({
+              value,
+              text: $t(`use_${value}`),
+            }))
+          "
+          class="mr-auto"
+          size="sm"
+          variant="outline-primary"
+        ></i-dropdown
+      ></b-nav-text>
+      <b-nav-text
+        v-if="visualisationOrderByOptions.length > 0"
+        class="border-left ml-3 pl-3 mr-2 py-3"
+      >
+        <label>{{ $t('visualisationOrderBy') }}</label></b-nav-text
+      >
+      <b-nav-text v-if="visualisationOrderByOptions.length > 0" class=" py-3">
+        <i-dropdown
+          v-model="visualisationOrderBy"
+          :options="
+            visualisationOrderByOptions.map(value => ({
+              value,
+              text: $t(`use_orderby_${value}`),
+            }))
+          "
+          class="mr-auto"
+          size="sm"
+          variant="outline-primary"
+        ></i-dropdown
+      ></b-nav-text>
+    </b-navbar-nav>
+    <!-- end navbar -->
+    <PowerVisBase
+      class="flex-grow-1"
+      :data="stats"
+      :loading="statsLoading"
+      @item:click="itemClicked"
+      @mousemove="handleMousemove"
+      :options="visualisationOptions"
+    >
+      <template v-slot:header>
+        <div class="position-relative">
+          <tooltip :tooltip="tooltip">
+            {{ $d(tooltip.item?.point?.domain, 'year') }}<br />
+            <span v-if="tooltip.item && tooltip.item?.term">
+              {{ tooltip.item?.term }} <span class="number">{{ tooltip.item?.count }}</span>
+            </span>
+            <span v-else-if="typeof tooltip.item.valueKey === 'string'">
+              {{ tooltip.item.valueKey }}
+              <span class="number">{{ tooltip.item.point.value[tooltip.item.valueKey] }}</span>
+            </span>
+            <pre v-else class="text-white">{{ JSON.stringify(tooltip.item, null, 2) }}</pre>
+          </tooltip>
+        </div>
+      </template>
+      <template v-slot:footer>
+        <div class="p-3" v-html="$t(`use_${visualisation}_description`)" />
+      </template>
+    </PowerVisBase>
+  </div>
 </template>
 
 <script lang="ts">
@@ -145,6 +151,7 @@ const StatsQueryParams = {
     index: 'tr_passages',
     domain: 'newspaper',
     orderByOptions: ['count asc', 'count desc'],
+    options: { bandwidth: 20, transformLabels: '', margin: { left: 150 } },
   },
   troverlap_vs_time: {
     facet: 'textReuseClusterLexicalOverlap',
@@ -161,7 +168,7 @@ const StatsQueryParams = {
   // trcount_vs_newspapers: {},
   // trcount_vs_time: {},
 }
-const VisualisationOptions = Object.keys(StatsQueryParams)
+const VisualisationTypes = Object.keys(StatsQueryParams)
 
 export default defineComponent({
   name: 'TextReuseOverview',
@@ -183,7 +190,7 @@ export default defineComponent({
     items: [],
     stats: {} as Data,
     statsLoading: false,
-    visualisationOptions: VisualisationOptions,
+    visualisationTypes: VisualisationTypes,
     tooltip: {
       x: 0,
       y: 0,
@@ -229,8 +236,8 @@ export default defineComponent({
       get() {
         const { [CommonQueryParameters.VisualisationType]: visualisation } = this.$route?.query
         // if visualisation type is undefined or not in the list of options, return the first option
-        if (typeof visualisation !== 'string' || !VisualisationOptions.includes(visualisation)) {
-          return VisualisationOptions[0]
+        if (typeof visualisation !== 'string' || !VisualisationTypes.includes(visualisation)) {
+          return VisualisationTypes[0]
         }
         return visualisation
       },
@@ -242,6 +249,10 @@ export default defineComponent({
     },
     visualisationOrderByOptions() {
       return StatsQueryParams[this.visualisation].orderByOptions || []
+    },
+    /** options for current visualisation */
+    visualisationOptions() {
+      return StatsQueryParams[this.visualisation].options || {}
     },
     // get visualisation order by from URL parameters
     visualisationOrderBy: {
@@ -358,3 +369,17 @@ export default defineComponent({
   }
 }
 </i18n>
+<style lang="scss">
+.TextReuseOverview_PowerVisBaseWrapper {
+  overflow-y: hidden;
+}
+.TextReuseOverview_PowerVisBaseWrapper_stats {
+  max-width: 200px;
+  height: 100%;
+  overflow-y: scroll;
+}
+.TextReuseOverview__listVisualisation {
+  height: 100%;
+  overflow-y: scroll;
+}
+</style>

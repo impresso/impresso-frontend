@@ -10,118 +10,120 @@ import CategoricalMultiValueBarChartHorizontal from '@/d3-modules/CategoricalMul
 
 import CategoricalCircleChart from '@/d3-modules/CategoricalCircleChart'
 
-type ChartClass = typeof LineChart | typeof CategoricalCircleChart | typeof CategoricalMultiValueBarChart
+type ChartClass =
+  | typeof LineChart
+  | typeof CategoricalCircleChart
+  | typeof CategoricalMultiValueBarChart
 type ChartType = 'multivalue' | 'circle' | 'line'
 
 const getChartClass = (type: ChartType | string, horizontal?: boolean): ChartClass => {
-  switch(type) {
-  case 'circle':
-    return CategoricalCircleChart
-  case 'line':
-    return LineChart
-  default:
-    if (horizontal) return CategoricalMultiValueBarChartHorizontal
-    return CategoricalMultiValueBarChart
+  switch (type) {
+    case 'circle':
+      return CategoricalCircleChart
+    case 'line':
+      return LineChart
+    default:
+      if (horizontal) return CategoricalMultiValueBarChartHorizontal
+      return CategoricalMultiValueBarChart
   }
 }
-
 
 export default defineComponent({
   name: 'PowerChart',
   props: {
     chartType: {
       type: String, // as PropType<ChartType>,
-      default: 'multivalue'
+      default: 'multivalue',
     },
     data: {
       type: Array, // DataItem[]
-      default: () => []
+      default: () => [],
     },
     lineMetrics: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     areaMetrics: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     itemsDictionary: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     colorPalette: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     horizontal: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+    options: {
+      type: Object,
+      default: () => {},
+    },
   },
-  emits: [
-    'item:click',
-    'mousemove'
-  ],
+  emits: ['item:click', 'mousemove'],
   setup(props, { emit }) {
     const chart = ref()
     const instance = ref()
 
     const render = () => {
-      instance.value.render(
-        props.data,
-        props.lineMetrics,
-        props.areaMetrics,
-        {
-          itemsDictionary: props.itemsDictionary,
-          colorPalette: props.colorPalette,
-          onClick: e => emit('item:click', e),
-          onMouseMove: e => emit('mousemove', e)
-        }
-      )
+      instance.value.render(props.data, props.lineMetrics, props.areaMetrics, {
+        itemsDictionary: props.itemsDictionary,
+        colorPalette: props.colorPalette,
+        onClick: e => emit('item:click', e),
+        onMouseMove: e => emit('mousemove', e),
+        ...props.options,
+      })
     }
 
     onMounted(() => {
       const Chart = getChartClass(props.chartType, props.horizontal)
       instance.value = new Chart({ element: chart.value })
       render()
-      window.addEventListener('resize', render);
+      window.addEventListener('resize', render)
     })
 
     onBeforeUnmount(() => {
-      window.removeEventListener('resize', render);
+      window.removeEventListener('resize', render)
     })
 
-    watch(() => props.chartType, () => {
-      if (instance.value != null) {
-        instance.value.element.textContent = ''
-      }
-      const Chart = getChartClass(props.chartType, props.horizontal)
-      instance.value = new Chart({ element: chart.value })
-      render()
-    })
+    watch(
+      () => props.chartType,
+      () => {
+        if (instance.value != null) {
+          instance.value.element.textContent = ''
+        }
+        const Chart = getChartClass(props.chartType, props.horizontal)
+        instance.value = new Chart({ element: chart.value })
+        render()
+      },
+    )
 
     watch(
       () => ({
         data: JSON.stringify(props.data),
         lineMetrics: props.lineMetrics,
         areaMetrics: props.areaMetrics,
-        colorPalette: props.colorPalette
+        colorPalette: props.colorPalette,
       }),
       () => {
         if (instance.value == null) return
         render()
       },
-      { deep: true }
+      { deep: true },
     )
 
     return { chart }
-  }
+  },
 })
 </script>
 
 <style scoped>
-  .chart {
-    display: block;
-    flex-grow: 1;
-  }
+.chart {
+  display: block;
+  flex-grow: 1;
+}
 </style>
