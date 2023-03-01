@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 
 export default class CategoricalMultiValueBarChartHorizontal {
-  constructor({ element = null, margin = { top: 5, bottom: 45, left: 100, right: 5 } }) {
+  constructor({ element = null, margin = { top: 5, bottom: 45, left: 100, right: 20 } }) {
     this.margin = margin
     this.element = element
 
@@ -11,6 +11,10 @@ export default class CategoricalMultiValueBarChartHorizontal {
       .attr('fill', 'none')
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
+      .attr('class', 'position-absolute top-0')
+    this.element.style.position = 'relative'
+    // scroll y
+    this.element.style.overflowY = 'auto'
 
     this.axes = this.svg.append('g').attr('class', 'axes')
     this.bars = this.svg.append('g').attr('class', 'bars')
@@ -30,8 +34,9 @@ export default class CategoricalMultiValueBarChartHorizontal {
   render(data, lineMetrics = [], areaMetrics = [], options = {}) {
     const { width, height: boxHeight } = this.element.getBoundingClientRect()
     const height = options.bandwidth ? options.bandwidth * data.length : boxHeight
+    const { colorPalette = {}, margin = {}, transformLabels = 'rotate(-45)' } = options
+    this.margin = { ...this.margin, ...margin }
 
-    const { colorPalette = {} } = options
     const xDomain = [
       /** @type {number} */ (d3.min(data, d =>
         d3.min(lineMetrics.map(({ extractor }) => extractor(d.value))),
@@ -72,6 +77,7 @@ export default class CategoricalMultiValueBarChartHorizontal {
     const y = d3
       .scaleBand()
       .domain(data.map(({ domain }) => `${domain.value}`))
+      // height is calculated against options.bandwidth if available
       .range([height - this.margin.bottom, this.margin.top])
 
     const yAxis = g =>
@@ -87,8 +93,9 @@ export default class CategoricalMultiValueBarChartHorizontal {
             .attr('text-anchor', 'start')
             .attr('font-weight', 'bold'),
         )
+
         .selectAll('text')
-        // .attr('transform', 'rotate(-45)')
+        .attr('transform', transformLabels)
         .text(itemValue => {
           const dataItem = data.find(({ domain }) => itemValue === domain.value)
           return dataItem != null ? dataItem.domain.label : ''
