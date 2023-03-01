@@ -9,7 +9,7 @@
         <i-dropdown
           v-model="visualisation"
           :options="
-            visualisationOptions.map(value => ({
+            visualisationTypes.map(value => ({
               value,
               text: $t(`use_${value}`),
             }))
@@ -47,7 +47,7 @@
       :loading="statsLoading"
       @item:click="itemClicked"
       @mousemove="handleMousemove"
-      :options="{ bandwidth: 100 }"
+      :options="visualisationOptions"
     >
       <template v-slot:header>
         <div class="position-relative">
@@ -112,6 +112,7 @@ const StatsQueryParams = {
     index: 'tr_passages',
     domain: 'newspaper',
     orderByOptions: ['count asc', 'count desc'],
+    options: { bandwidth: 20, transformLabels: '', margin: { left: 150 } },
   },
   troverlap_vs_time: {
     facet: 'textReuseClusterLexicalOverlap',
@@ -128,7 +129,7 @@ const StatsQueryParams = {
   // trcount_vs_newspapers: {},
   // trcount_vs_time: {},
 }
-const VisualisationOptions = Object.keys(StatsQueryParams)
+const VisualisationTypes = Object.keys(StatsQueryParams)
 
 export default defineComponent({
   name: 'TextReuseOverview',
@@ -150,7 +151,7 @@ export default defineComponent({
     items: [],
     stats: {} as { meta?: any; items?: any[] },
     statsLoading: false,
-    visualisationOptions: VisualisationOptions,
+    visualisationTypes: VisualisationTypes,
     tooltip: {
       x: 0,
       y: 0,
@@ -196,8 +197,8 @@ export default defineComponent({
       get() {
         const { [CommonQueryParameters.VisualisationType]: visualisation } = this.$route?.query
         // if visualisation type is undefined or not in the list of options, return the first option
-        if (typeof visualisation !== 'string' || !VisualisationOptions.includes(visualisation)) {
-          return VisualisationOptions[0]
+        if (typeof visualisation !== 'string' || !VisualisationTypes.includes(visualisation)) {
+          return VisualisationTypes[0]
         }
         return visualisation
       },
@@ -209,6 +210,10 @@ export default defineComponent({
     },
     visualisationOrderByOptions() {
       return StatsQueryParams[this.visualisation].orderByOptions || []
+    },
+    /** options for current visualisation */
+    visualisationOptions() {
+      return StatsQueryParams[this.visualisation].options || {}
     },
     // get visualisation order by from URL parameters
     visualisationOrderBy: {
