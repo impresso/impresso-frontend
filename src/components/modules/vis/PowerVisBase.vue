@@ -1,7 +1,7 @@
 <template>
-  <div class="chart-container">
+  <div class="chart-container d-flex flex-column">
     <!-- slot:header -->
-    <div slot="header">
+    <div slot="header" class="flex-shrink-1">
       <slot name="header"> </slot>
     </div>
     <!-- slot:body -->
@@ -9,6 +9,7 @@
       <em>{{ $t('actions.loading') }}</em>
     </div>
     <PowerChart
+      class="flex-grow-1 overflow-auto position-relative"
       v-else
       :data="chartData.items"
       :chart-type="chartType"
@@ -19,10 +20,11 @@
       :horizontal="chartData.horizontal"
       @item:click="e => $emit('item:click', e)"
       @mousemove="e => $emit('mousemove', e)"
+      @mouseleave="e => $emit('mouseleave', e)"
       :options="options"
     />
     <!-- slot:footer -->
-    <div slot="footer">
+    <div slot="footer" class="flex-shrink-1 border-top">
       <slot name="footer" class="border-top p-2 pb-3" style="max-height: 180px;overflow:scroll">
       </slot>
     </div>
@@ -95,7 +97,9 @@ export const MetricsByFacetType = {
   },
   term: {
     line: response => {
-      const itemsIds: string[] | undefined = response.items?.[0]?.value?.items?.map(({ term }) => term) ?? Object.keys(response.itemsDictionary)
+      const itemsIds: string[] | undefined =
+        response.items?.[0]?.value?.items?.map(({ term }) => term) ??
+        Object.keys(response.itemsDictionary)
       return itemsIds?.map(itemCountLineMetricExtractorFactory) ?? []
     },
     area: () => [],
@@ -130,7 +134,7 @@ export default defineComponent({
       default: null,
     },
   },
-  emits: ['item:click', 'mousemove'],
+  emits: ['item:click', 'mousemove', 'mouseleave'],
   setup(props) {
     const chartData = computed(() => {
       const data: Data = (props.data != null ? props.data : {}) as Data
@@ -203,11 +207,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style scoped>
-.chart-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-</style>

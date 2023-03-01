@@ -1,5 +1,5 @@
 <template>
-  <div class="chart position:relative" ref="chart"></div>
+  <div class="chart flex-grow-1 overflow-auto" ref="chart"></div>
 </template>
 
 <script lang="ts">

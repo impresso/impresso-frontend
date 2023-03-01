@@ -47,20 +47,39 @@
       :loading="statsLoading"
       @item:click="itemClicked"
       @mousemove="handleMousemove"
+      @mouseleave="handleMouseleave"
       :options="visualisationOptions"
     >
       <template v-slot:header>
         <div class="position-relative">
-          <tooltip :tooltip="tooltip">
-            {{ $d(tooltip.item?.point?.domain, 'year') }}<br />
-            <span v-if="tooltip.item && tooltip.item?.term">
-              {{ tooltip.item?.term }} <span class="number">{{ tooltip.item?.count }}</span>
-            </span>
-            <span v-else-if="typeof tooltip.item.valueKey === 'string'">
+          <tooltip v-if="tooltip.isActive" :tooltip="tooltip">
+            <div v-if="['troverlap_vs_newspapers', 'trcsize_vs_newspaper'].includes(visualisation)">
+              <span class="text-bold">{{ tooltip.item.point.domain.label }}</span>
+
+              <span
+                class="border-bottom d-block my-1 pb-2"
+                v-html="
+                  $tc('numbers.results', tooltip.item.point.value.count, {
+                    n: $n(tooltip.item.point.value.count),
+                  })
+                "
+              />
               {{ tooltip.item.valueKey }}
-              <span class="number">{{ tooltip.item.point.value[tooltip.item.valueKey] }}</span>
-            </span>
-            <pre v-else class="text-white">{{ JSON.stringify(tooltip.item, null, 2) }}</pre>
+              <span class="number">{{
+                Number(tooltip.item.point.value[tooltip.item.valueKey]).toFixed(2)
+              }}</span>
+            </div>
+            <div v-else>
+              {{ $d(tooltip.item?.point?.domain, 'year') }}<br />
+              <span v-if="tooltip.item && tooltip.item?.term">
+                {{ tooltip.item?.term }} <span class="number">{{ tooltip.item?.count }}</span>
+              </span>
+              <span v-else-if="typeof tooltip.item.valueKey === 'string'">
+                {{ tooltip.item.valueKey }}
+                <span class="number">{{ tooltip.item.point.value[tooltip.item.valueKey] }}</span>
+              </span>
+              <pre v-else class="text-white">{{ JSON.stringify(tooltip.item, null, 2) }}</pre>
+            </div>
           </tooltip>
         </div>
       </template>
@@ -82,11 +101,15 @@ import { stats } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 
 interface DomainValueItem {
-  domain: { label: string, value: string }
-  value: { count: number, items: { term: string, count: number }[] }
+  domain: { label: string; value: string }
+  value: { count: number; items: { term: string; count: number }[] }
 }
 
-interface Data { meta?: any; items?: DomainValueItem[], itemsDictionary?: Record<string, string> }
+interface Data {
+  meta?: any
+  items?: DomainValueItem[]
+  itemsDictionary?: Record<string, string>
+}
 
 type DataSorter = (data: Data) => Data
 
@@ -94,9 +117,11 @@ const newspaperTermSorter = (data: Data) => {
   const { items, meta, itemsDictionary } = data
 
   // order of the items in the domain
-  const domainOrder = Object.fromEntries(items?.map((item, index) => {
-    return [item.domain.value, index] as [string, number]
-  }) ?? [])
+  const domainOrder = Object.fromEntries(
+    items?.map((item, index) => {
+      return [item.domain.value, index] as [string, number]
+    }) ?? [],
+  )
 
   // iterate over the items and sort the value items to match the domain order
   const fullySortedItems = items?.map(item => {
@@ -117,7 +142,7 @@ const newspaperTermSorter = (data: Data) => {
 
 const getSorter = (domain: string, facetType: string): DataSorter => {
   if (domain === 'newspaper' && facetType == 'term') return newspaperTermSorter
-  return (data) => data
+  return data => data
 }
 
 interface FilterLike {
@@ -150,8 +175,26 @@ const StatsQueryParams = {
     facet: 'textReuseClusterSize',
     index: 'tr_passages',
     domain: 'newspaper',
-    orderByOptions: ['count asc', 'count desc'],
-    options: { bandwidth: 20, transformLabels: '', margin: { left: 150 } },
+    orderByOptions: ['count asc', 'count desc', 'mean asc', 'mean desc', 'max asc', 'max desc'],
+    options: {
+      bandwidth: 20,
+      transformLabels: '',
+      margin: { left: 150 },
+      truncateLabelsAtLength: 20,
+      floatingPointPrecision: 0,
+    },
+  },
+  troverlap_vs_newspapers: {
+    facet: 'textReuseClusterLexicalOverlap',
+    index: 'tr_passages',
+    domain: 'newspaper',
+    orderByOptions: ['count asc', 'count desc', 'mean asc', 'mean desc', 'max asc', 'max desc'],
+    options: {
+      bandwidth: 20,
+      transformLabels: '',
+      margin: { left: 150 },
+      truncateLabelsAtLength: 20,
+    },
   },
   troverlap_vs_time: {
     facet: 'textReuseClusterLexicalOverlap',
@@ -217,7 +260,6 @@ export default defineComponent({
       return filterTypes.includes(type) && !NoFacetFilters[index].includes(type)
     },
     handleMousemove(event) {
-      const { x, y } = event
       this.tooltip = {
         x: event.point.x,
         y: event.point.y + 10,
@@ -226,6 +268,18 @@ export default defineComponent({
           ...event.point.closestItem,
           valueKey: event.point.closestValueKey,
           point: event.point.closestPoint,
+        },
+      }
+    },
+    handleMouseleave() {
+      console.debug('handleMouseleave')
+      this.tooltip = {
+        x: 0,
+        y: 0,
+        isActive: false,
+        item: {
+          term: null,
+          count: 0,
         },
       }
     },
@@ -326,15 +380,19 @@ export default defineComponent({
         )
         try {
           this.statsLoading = true
-          const statsResult = await stats.find({ query })
-          statsResult.meta = statsResult.meta || {}
-          statsResult.meta.horizontal = true
+          const s: { meta?: any; items?: any[] } = await stats.find({ query })
+          s.meta = s.meta || {}
+          s.meta.horizontal = true
+          this.stats = s
+          // const statsResult = await stats.find({ query })
+          // statsResult.meta = statsResult.meta || {}
+          // statsResult.meta.horizontal = true
 
-          const toSortedItems = getSorter(statsResult.meta.domain, statsResult.meta.facetType)
+          // const toSortedItems = getSorter(statsResult.meta.domain, statsResult.meta.facetType)
 
-          this.stats = toSortedItems(statsResult)
-          // eslint-disable-next-line
-          console.debug('[TextReuseOverview] @statsApiQueryParameters \n result:', this.stats)
+          // this.stats = this.visualisation === 'trc' ? toSortedItems(statsResult):statsResult
+          // // eslint-disable-next-line
+          // console.debug('[TextReuseOverview] @statsApiQueryParameters \n result:', this.stats)
         } finally {
           this.statsLoading = false
         }
@@ -349,7 +407,7 @@ export default defineComponent({
   "en": {
     "visualisationType": "type of visualisation:",
     "visualisationOrderBy": "order By:",
-    "use_tr_vs_newspapers" :"Number of text reuse over time, by newspaper",
+    "use_tr_vs_newspapers" :"Number of text reuse passages over time, by newspaper",
     "use_tr_vs_newspapers_description": "This graph shows the number of passages of text reuse per year. Each line represents text reuse passages in a single newspaper title.",
     "use_tr_vs_time": "Text Reuse over Time",
     "use_trcsize_vs_newspaper": "Median, min and max cluster size, by newspaper",
@@ -365,7 +423,11 @@ export default defineComponent({
     "use_trnewspapers_vs_newspapers": "Co-occurrence of text reuse passages between newspaper titles",
     "use_trnewspapers_vs_newspapers_description": "<b>Note: search filters are not available</b>.<br/> This graph shows the co-occurrence of text reuse passages between newspaper titles. The size of the circle represents the number of text reuse passages between the two newspaper titles. The color of the circle represents the number of clusters in which the two newspaper titles co-occur.",
     "use_orderby_count desc": "count (descending)",
-    "use_orderby_count asc": "count (ascending)"
+    "use_orderby_count asc": "count (ascending)",
+    "use_orderby_mean desc": "mean (ascending)",
+    "use_orderby_mean asc": "mean (descending)",
+    "use_orderby_max desc": "max (ascending)",
+    "use_orderby_max asc": "max (descending)"
   }
 }
 </i18n>
@@ -374,7 +436,7 @@ export default defineComponent({
   overflow-y: hidden;
 }
 .TextReuseOverview_PowerVisBaseWrapper_stats {
-  max-width: 200px;
+  max-width: 300px;
   height: 100%;
   overflow-y: scroll;
 }
