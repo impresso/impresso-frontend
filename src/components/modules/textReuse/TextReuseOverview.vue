@@ -1,5 +1,5 @@
 <template>
-  <div class="h-100 d-flex flex-column">
+  <div class="h-100 d-flex flex-column" @mouseleave="handleMouseleave">
     <!-- start -->
     <b-navbar-nav class="border-bottom d-flex flex-row flex-shrink-1">
       <b-nav-text class="ml-3 mr-2 py-3">
@@ -45,7 +45,7 @@
       class="flex-grow-1"
       :data="stats"
       :loading="statsLoading"
-      @item:click="itemClicked"
+      @item:click="handleItemClicked"
       @mousemove="handleMousemove"
       @mouseleave="handleMouseleave"
       :options="visualisationOptions"
@@ -177,7 +177,7 @@ const StatsQueryParams = {
     domain: 'newspaper',
     orderByOptions: ['count asc', 'count desc', 'mean asc', 'mean desc', 'max asc', 'max desc'],
     options: {
-      bandwidth: 20,
+      bandwidth: 40,
       transformLabels: '',
       margin: { left: 150 },
       truncateLabelsAtLength: 20,
@@ -190,10 +190,11 @@ const StatsQueryParams = {
     domain: 'newspaper',
     orderByOptions: ['count asc', 'count desc', 'mean asc', 'mean desc', 'max asc', 'max desc'],
     options: {
-      bandwidth: 20,
+      bandwidth: 40,
       transformLabels: '',
       margin: { left: 150 },
       truncateLabelsAtLength: 20,
+      floatingPointPrecision: 2,
     },
   },
   troverlap_vs_time: {
@@ -282,6 +283,18 @@ export default defineComponent({
           count: 0,
         },
       }
+    },
+    handleItemClicked({ item }) {
+      if (!item) return
+      console.debug('handleItemClicked', item.term)
+      this.$store.dispatch('selectionMonitor/show', {
+        item: {
+          name: item.term,
+          uid: item.term,
+        },
+        context: 'textReuse',
+        type: 'newspaper',
+      })
     },
   },
   computed: {
