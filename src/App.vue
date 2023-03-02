@@ -11,7 +11,7 @@
     </div>
     <div id="app-selection-monitor" class="fullscreen">
       <SelectionMonitor
-        :filters="filters"
+        :filters="filtersWithItems"
         @change="handleChangeFilters"
         :startYear="startYear"
         :endYear="endYear"
@@ -221,6 +221,7 @@ ul.nav.nav-pills .nav-item {
 }
 
 $clr-white: #ffffff;
+// $clr-dark: #212529;
 $clr-grey-100: #17191c;
 $clr-grey-300: #424a52;
 $clr-grey-400: #5a6672;
@@ -342,6 +343,9 @@ $clr-grey-900: #ddd;
   border-radius: 2px;
   box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 3px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
 }
+// .btn-outline-primary:hover {
+//   color: $clr-dark;
+// }
 
 // --- input range sliders ---
 // using classes that are browser specific,
