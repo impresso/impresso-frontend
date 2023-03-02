@@ -23,6 +23,7 @@ export default class LineChart {
     this.areas = this.svg.append('g').attr('class', 'areas')
     this.x = d3.scaleUtc()
     this.y = d3.scaleLinear()
+    this.closestPoint = null
   }
 
   getClosestPoint(x0, y0, data) {
@@ -45,31 +46,39 @@ export default class LineChart {
       }
     })
     const closestPoint = data[closestIndex]
-
-    closestDistance = Infinity
-    // get closest value mapping all point.value properties
-    Object.keys(closestPoint.value).forEach(k => {
-      if (!isNaN(closestPoint.value[k])) {
-        const y1 = this.y(closestPoint.value[k])
-        const dy = Math.abs(y1 - y0)
-        if (dy < closestDistance) {
-          closestDistance = dy
-          y = y1
-          closestValueKey = k
-        }
-      } else if (Array.isArray(closestPoint.value[k])) {
-        closestPoint.value[k].forEach(d => {
-          const y1 = this.y(d.count)
-          const dy = Math.abs(y1 - y0)
-          if (dy < closestDistance) {
-            closestDistance = dy
-            y = y1
-            closestItem = d
-            closestValueKey = k
+    const availableKeys = Object.keys(closestPoint.value)
+    if (availableKeys.length === 1) {
+      closestValueKey = availableKeys[0]
+      closestItem = closestPoint.value[closestValueKey]
+      y = this.y(closestItem)
+    } else {
+      closestDistance = Infinity
+      // get closest value mapping all point.value properties
+      availableKeys
+        .filter(k => k !== 'count')
+        .forEach(k => {
+          if (!isNaN(closestPoint.value[k])) {
+            const y1 = this.y(closestPoint.value[k])
+            const dy = Math.abs(y1 - y0)
+            if (dy < closestDistance) {
+              closestDistance = dy
+              y = y1
+              closestValueKey = k
+            }
+          } else if (Array.isArray(closestPoint.value[k])) {
+            closestPoint.value[k].forEach(d => {
+              const y1 = this.y(d.count)
+              const dy = Math.abs(y1 - y0)
+              if (dy < closestDistance) {
+                closestDistance = dy
+                y = y1
+                closestItem = d
+                closestValueKey = k
+              }
+            })
           }
         })
-      }
-    })
+    }
 
     return { closestPoint, closestIndex, closestDistance, x, y, closestItem, closestValueKey }
   }
@@ -174,7 +183,7 @@ export default class LineChart {
         const date = this.x.invert(x)
         const value = this.y.invert(y)
         // eslint-disable-next-line no-console
-        console.debug('onMouseMove', x, y, date, point)
+        // console.debug('onMouseMove', x, y, date, point)
 
         options.onMouseMove({
           x,
@@ -183,6 +192,22 @@ export default class LineChart {
           value,
           point,
         })
+        // assign closest point to instance
+        this.closestPoint = point
+      })
+    }
+
+    // add item:click event
+    if (typeof options.onClick === 'function') {
+      this.svg.on('click', () => {
+        const { closestPoint } = this
+        if (closestPoint) {
+          const { closestItem, closestValueKey } = closestPoint
+          options.onClick({
+            item: closestItem,
+            key: closestValueKey,
+          })
+        }
       })
     }
 
