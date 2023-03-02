@@ -97,9 +97,12 @@ export const MetricsByFacetType = {
   },
   term: {
     line: response => {
-      const itemsIds: string[] | undefined =
-        response.items?.[0]?.value?.items?.map(({ term }) => term) ??
-        Object.keys(response.itemsDictionary)
+      const { domain, facetType }  = response.meta ?? {}
+
+      let itemsIds: string[] | undefined = Object.keys(response.itemsDictionary)
+      if (domain === 'newspaper' && facetType == 'term') {
+        itemsIds = response.items?.[0]?.value?.items?.map(({ term }) => term)
+      }
       return itemsIds?.map(itemCountLineMetricExtractorFactory) ?? []
     },
     area: () => [],
