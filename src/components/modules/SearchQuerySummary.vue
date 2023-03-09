@@ -46,6 +46,8 @@ export default {
       const enumerables = []
       const translationTable = {}
 
+      console.debug('[SearchQuerySummary] filtersIndex', filtersIndex)
+
       let isOnFront = false
       let hasDaterange = false
 
@@ -76,6 +78,15 @@ export default {
           prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.',
         })
       }
+
+      ;['textReuseClusterSize', 'textReuseLexicalOverlap'].forEach(type => {
+        if (filtersIndex[type]) {
+          translationTable[type] = this.getRangeTranslation({
+            filters: filtersIndex[type],
+            type,
+          })
+        }
+      })
       // other translations
       ;['string', 'title', 'daterange'].concat(this.enumerables).forEach(type => {
         if (filtersIndex[type]) {
@@ -218,6 +229,22 @@ export default {
         return sections
       }, {})
     },
+    getRangeTranslation({ filters, type }) {
+      const sections = this.getContextSections(filters)
+      return Object.keys(sections)
+        .reduce((acc, context) => {
+          acc.push(
+            this.$t(`${context}.${type}`, {
+              min: sections[context][0].q[0],
+              max: sections[context][0].q[1],
+            }),
+          )
+          return acc
+        }, [])
+        .join('; ')
+
+      return type
+    },
     getTranslation({ filters, type, prefix = '' }) {
       const sections = this.getContextSections(filters)
       return ['include', 'exclude']
@@ -308,7 +335,7 @@ export default {
 <i18n>
   {
     "en": {
-      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster}",
+      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize}",
       "isFront": "appearing on the <em>front page</em>",
       "include": {
         "accessRight": "available as",
@@ -333,7 +360,8 @@ export default {
         "country": "printed in",
         "type": "- tagged as",
         "year": "in year",
-        "textReuseCluster": "in clusters"
+        "textReuseCluster": "in clusters",
+        "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>"
       },
       "exclude": {
         "accessRight": "not available as",
@@ -356,7 +384,9 @@ export default {
         "language": "not written in",
         "country": "not printed in",
         "type": "- not tagged as",
-        "year": "not in year"
+        "year": "not in year",
+        "textReuseCluster": "not in clusters",
+        "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>"
       }
     }
   }
