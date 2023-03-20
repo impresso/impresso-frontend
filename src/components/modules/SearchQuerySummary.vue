@@ -79,7 +79,7 @@ export default {
         })
       }
 
-      ;['textReuseClusterSize', 'textReuseLexicalOverlap'].forEach(type => {
+      ;['textReuseClusterSize', 'textReuseClusterLexicalOverlap'].forEach(type => {
         if (filtersIndex[type]) {
           translationTable[type] = this.getRangeTranslation({
             filters: filtersIndex[type],
@@ -335,7 +335,7 @@ export default {
 <i18n>
   {
     "en": {
-      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize}",
+      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap}",
       "isFront": "appearing on the <em>front page</em>",
       "include": {
         "accessRight": "available as",
@@ -361,7 +361,8 @@ export default {
         "type": "- tagged as",
         "year": "in year",
         "textReuseCluster": "in clusters",
-        "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>"
+        "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+        "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>"
       },
       "exclude": {
         "accessRight": "not available as",
@@ -386,7 +387,8 @@ export default {
         "type": "- not tagged as",
         "year": "not in year",
         "textReuseCluster": "not in clusters",
-        "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>"
+        "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+        "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>"
       }
     }
   }
