@@ -35,6 +35,7 @@ const getTimeFormatForResolution = resolution =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
 
 export default {
+  name: 'Timeline',
   props: {
     values: Array,
     brush: Array, // brush values
