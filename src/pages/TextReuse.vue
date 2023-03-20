@@ -77,17 +77,12 @@
 <script>
 import SearchPills from '@/components/SearchPills'
 import SearchInput from '@/components/modules/SearchInput'
-import {
-  serializeFilters,
-  optimizeFilters,
-  SupportedFiltersByContext,
-  joinFiltersWithItems,
-} from '@/logic/filters'
+import { serializeFilters, optimizeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
 import FilterFacet from '@/components/modules/FilterFacet'
 import FilterRange from '@/components/modules/FilterRange'
 import Facet from '@/models/Facet'
-import { filtersItems, searchFacets } from '@/services'
+import { searchFacets } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import { facetToTimelineValues } from '@/logic/facets'
 import FilterTimeline from '@/components/modules/FilterTimeline'
@@ -261,21 +256,22 @@ export default {
     focusHandler(value) {
       this.hasFocus = !!value
     },
-    loadFacet(type) {
+    loadFacet(type, opts = {}) {
       // eslint-disable-next-line
       console.debug('[TextReuse] loadFacet', type)
       searchFacets
         .get(type, {
-          query: this.searchFacetApiQueryParams.query,
+          query: {
+            ...this.searchFacetApiQueryParams.query,
+            ...opts,
+          },
         })
         .then(response => {
-          // eslint-disable-next-line no-console
-          console.debug('[TextReuse] loadFacet', type, response)
           const facet = this.facets.find(facet => facet.type === type)
+          console.debug('[TextReuse] loadFacet', response)
           if (facet) {
             facet.numBuckets = response[0].numBuckets
             facet.setBuckets(response[0].buckets)
-            //   facet.update(response.data)
           }
         })
     },
@@ -292,7 +288,13 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
-        FacetTypes.forEach(type => this.loadFacet(type))
+        await this.loadFacet('newspaper')
+        await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
+        await this.loadFacet('collection')
+        await this.loadFacet('textReuseCluster')
+        await this.loadFacet('textReuseClusterSize', { groupby: 'textReuseCluster' })
+        await this.loadFacet('textReuseClusterLexicalOverlap', { groupby: 'textReuseCluster' })
+        await this.loadFacet('textReuseClusterDayDelta', { groupby: 'textReuseCluster' })
       },
       immediate: true,
       deep: false,
