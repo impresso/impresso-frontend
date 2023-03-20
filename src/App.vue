@@ -235,6 +235,11 @@ $clr-grey-900: #ddd;
   --clr-grey-400: #5a6672;
   --clr-grey-800: #c6ccd2;
   --clr-grey-900: #ddd;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 1rem;
+  --spacing-4: 1.5rem;
+  --spacing-5: 3rem;
 }
 
 .bg-medium {
