@@ -13,11 +13,20 @@ import TextReuseCluster from '@/models/TextReuseCluster'
  * @param {Object} item Optional object of for instance type Newspaper or Entity
  */
 export default class Bucket {
-  constructor({ val = '', count = -1, item = {}, included = true, type = '' } = {}) {
+  constructor({
+    val = '',
+    count = -1,
+    item = {},
+    included = true,
+    type = '',
+    upper = undefined,
+    lower = undefined,
+  } = {}) {
     this.val = String(val)
     this.count = parseInt(count, 10)
     this.included = included
-
+    this.upper = upper
+    this.lower = lower
     switch (type) {
       case 'topic':
         this.item = new Topic(item)
