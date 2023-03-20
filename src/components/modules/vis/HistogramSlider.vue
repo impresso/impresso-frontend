@@ -132,7 +132,7 @@ export default {
       svg.attr('height', this.chartHeight)
 
       const counts = this.buckets.map(({ count }) => count)
-
+      console.debug('renderChart()', this.buckets)
       const x = d3
         .scaleBand()
         .domain(this.buckets.map(({ val }) => val))
@@ -176,13 +176,19 @@ export default {
           const yOffset = this.chartHeight - y(bucket.count)
           return `translate(${xOffset}, ${yOffset})`
         })
-
+      
       maxval
         .selectAll('text')
         .data(d => [d])
         .join('text')
         .attr('dy', -5)
-        .text(bucket => this.$t('maxval', {n : this.$n(Math.round(bucket.count)), v:bucket.val}))
+        .text(bucket => {
+          const tlabel = bucket.upper && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
+          return this.$t(tlabel, {
+            n : this.$n(Math.round(bucket.count)), 
+            ... bucket 
+          })
+        })
         .attr('text-anchor', bucket => {
           const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
           const oneThirdWidth = width / 3
@@ -238,6 +244,7 @@ export default {
 <i18n>
 {
   "en": {
-    "maxval": "{v} ({n} results)"
+    "maxval": "{v} ({n} results)",
+    "maxvalrange": "{lower} - {upper} ({n} results)"
   }
 }
