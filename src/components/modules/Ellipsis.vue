@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="ellipsis">
+  <div class="Ellipsis">
     <div
       class="contents"
       ref="contents"
@@ -18,6 +18,7 @@
 
 <script>
 export default {
+  name: 'Ellipsis',
   data: () => ({
     isCollapsed: true,
     height: 0,
@@ -88,8 +89,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-.ellipsis {
+<style lang="scss">
+.Ellipsis {
   position: relative;
 
   .contents {
