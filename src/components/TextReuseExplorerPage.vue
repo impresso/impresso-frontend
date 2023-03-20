@@ -18,7 +18,10 @@
           </h3>
           <section class="text-serif TextReuseExplorerPage_summary">
             <span v-html="incipit" />
-            <SearchQuerySummary :search-query="{ filters: supportedFiltersWithItems }" />
+            <SearchQuerySummary
+              v-on:updated="summaryUpdatedHandler"
+              :search-query="{ filters: supportedFiltersWithItems }"
+            />
           </section>
         </section>
       </b-navbar>
@@ -37,8 +40,53 @@
             active-class="active"
             class="pl-2"
           >
-            <span v-html="$tc('routeTextReusePassages', totalPassages, { n: $n(totalPassages) })" />
+            <span
+              v-html="
+                $tc('routeTextReusePassages', totalPassages, {
+                  n: isLoadingPassages ? '...' : $n(totalPassages),
+                })
+              "
+            />
           </b-nav-item>
+
+          <b-nav-item
+            :to="goToRoute({ name: 'textReuseClusters' })"
+            active-class="active"
+            class="pl-2"
+          >
+            <span
+              v-html="
+                $tc('routeTextReuseClusters', totalClusters, {
+                  n: isLoadingClusters ? '...' : $n(totalClusters),
+                })
+              "
+            />
+          </b-nav-item>
+
+          <!-- <b-button class="p-2 small-caps" v-b-modal.createCollectionFromFilters>
+            <span class="dripicons-archive pr-1"></span>
+            {{ $t('query_add_to_collection') }}
+          </b-button> -->
+          <b-nav-text class="p-0 d-flex align-items-center ml-3">
+            <AddToCollection
+              @item:click="handleAddToCollectionClick"
+              @create="handleCreateCollection"
+              :title="$t('addTrQueryResultsToCollection')"
+            >
+              <template slot="empty">
+                <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>
+                <b-button
+                  size="sm"
+                  class="small-caps rounded shadow-sm mt-3"
+                  variant="outline-secondary"
+                  v-b-modal.createCollectionFromFilters
+                >
+                  <span class="dripicons-archive pr-1"></span>
+                  {{ $t('query_add_to_collection') }}
+                </b-button>
+              </template>
+            </AddToCollection>
+          </b-nav-text>
         </template>
       </b-tabs>
     </template>
@@ -75,7 +123,7 @@
       </template>
       <template v-slot:default>
         <div class="d-flex flex-wrap">
-          <ClusterItem v-for="item in clusters" :item="item" :key="item.cluster.id" />
+          <ClusterItem v-for="item in clusters" :item="item" :key="item.id" />
         </div>
       </template>
     </List>
@@ -117,6 +165,14 @@
         </div>
       </template>
     </List>
+    <CreateCollection
+      id="createCollectionFromFilters"
+      :filters="supportedFilters"
+      index="tr_passages"
+      :title="$t('query_add_to_collection')"
+      :description="summary"
+      @create="handleCreateCollection"
+    />
   </i-layout-section>
 </template>
 
@@ -128,10 +184,13 @@ import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem'
 import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { mapPagination, mapOrderBy } from '@/logic/queryParams'
-import { textReusePassages, textReuseClusters } from '@/services'
+import { textReusePassages, search as searchService } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 import { optimizeFilters, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
+import TextReuseCluster from '@/models/TextReuseCluster'
+import CreateCollection from './modules/collections/CreateCollection'
+import AddToCollection from './modules/collections/AddToCollection'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -157,6 +216,8 @@ export default {
     List,
     TextReuseOverview,
     SearchQuerySummary,
+    CreateCollection,
+    AddToCollection,
   },
   props: {
     /** @type {import('vue').PropOptions<Number>} */
@@ -174,18 +235,24 @@ export default {
     },
     withClusters: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   data: () => ({
+    summary: '',
     clusters: [],
     totalClusters: -1,
     passages: [],
     totalPassages: -1,
     isLoading: false,
+    isLoadingPassages: false,
+    isLoadingClusters: false,
     orderByOptions: OrderByOptions,
   }),
   methods: {
+    summaryUpdatedHandler(summary) {
+      this.summary = summary
+    },
     goToRoute(route) {
       return {
         ...route,
@@ -198,34 +265,34 @@ export default {
       }
     },
     async loadClusters({ query }) {
-      if (this.isLoading) {
+      if (this.isLoadingClusters) {
         // eslint-disable-next-line
         console.debug('[TextReuseExplorer] loadClusters() \n busy.')
         return
       }
-      this.isLoading = true
+      this.isLoadingClusters = true
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] loadClusters() \n loading...')
 
       try {
-        const [clusters, info] = await textReuseClusters
-          .find({ query })
-          .then(result => [result.clusters, result.info])
-        this.clusters = clusters
-        this.totalClusters = info.total
+        const [clusters, total] = await textReusePassages
+          .find({ query: { ...query, groupby: 'textReuseClusterId' } })
+          .then(result => [result.data, result.total])
+        this.clusters = clusters.map(d => TextReuseCluster.fromTextReusePassage(d))
+        this.totalClusters = total
         // eslint-disable-next-line
         console.debug('[TextReuseExplorer] loadClusters() \n - total: ', this.totalClusters)
       } finally {
-        this.isLoading = false
+        this.isLoadingClusters = false
       }
     },
     async loadPassages({ query }) {
-      if (this.isLoading) {
+      if (this.isLoadingPassages) {
         // eslint-disable-next-line
         console.debug('[TextReuseExplorer] loadPassages() \n busy.')
         return
       }
-      this.isLoading = true
+      this.isLoadingPassages = true
       this.passages = []
       this.totalPassages = 0
       // eslint-disable-next-line
@@ -244,7 +311,7 @@ export default {
           passages,
         )
       } finally {
-        this.isLoading = false
+        this.isLoadingPassages = false
       }
     },
     /** @param {Filter[]} filters */
@@ -278,8 +345,79 @@ export default {
         this.handleFiltersChanged([...this.filters, trcFilter])
       }
     },
+    handleAddToCollectionClick(item) {
+      // eslint-disable-next-line
+      console.debug('[TextReuseExplorer] handleAddToCollectionClick', item)
+      searchService
+        .create(
+          {
+            taskname: 'add_to_collection_from_tr_passages_query',
+            group_by: 'articles',
+            index: 'tr_passages',
+            collection_uid: item.uid,
+            filters: optimizeFilters(this.supportedFilters),
+          },
+          { ignoreErrors: true },
+        )
+        .then(() => {
+          console.debug('[TextReuseExplorer]  success', item)
+        })
+        .catch(err => {
+          if (err.code === 400) {
+            // eslint-disable-next-line
+            console.warn('[TextReuseExplorer] handleAddToCollectionClick', err.data)
+            this.$bvToast.toast('You cannot add to this collection', {
+              title: 'Error',
+              variant: 'danger',
+              solid: true,
+            })
+            return
+          } else if ((err.code = 501)) {
+            // too many jobs...
+            this.$bvToast.toast(
+              'Please wait, you already have a job running. Check its completion in the running tabs.',
+              {
+                title: 'Please wait...',
+                variant: 'danger',
+                solid: true,
+              },
+            )
+          }
+          // eslint-disable-next-line
+          console.error('[TextReuseExplorer] handleAddToCollectionClick', err)
+        })
+    },
+    handleCreateCollection(name, description) {
+      // eslint-disable-next-line
+      console.debug(
+        '[TextReuseExplorer] handleCreateCollection \n - name: ',
+        name,
+        '\n - description: ',
+        description,
+      )
+      searchService
+        .create(
+          {
+            taskname: 'create_collection_from',
+            group_by: 'articles',
+            index: 'tr_passages',
+            filters: optimizeFilters(this.supportedFilters),
+          },
+          { ignoreErrors: true },
+        )
+        .then(() => {
+          console.debug('[TextReuseExplorer]  success')
+        })
+        .catch(err => {
+          // eslint-disable-next-line
+          console.error('[TextReuseExplorer] handleCreateCollection', err)
+        })
+    },
   },
   computed: {
+    isLoggedIn() {
+      return this.$store.state.user.userData
+    },
     paginationCurrentPage: mapPagination(),
     supportedFilters() {
       return this.filters.filter(supportedSearchIndexFilters)
@@ -322,24 +460,6 @@ export default {
           .join(''),
       }
     },
-    clustersAsPowerVisData() {
-      return {
-        items:
-          this.clusters?.map(item => {
-            return {
-              domain: item.cluster.timeCoverage.from,
-              value: {
-                mean: item.cluster.lexicalOverlap,
-              },
-            }
-          }) ?? [],
-        meta: {
-          facetType: 'numeric',
-          domain: 'time',
-          resolution: 'day',
-        },
-      }
-    },
     incipit() {
       if (!this.withClusters) {
         return this.$t('textReuseSummaryIncipitWithoutClusters', {
@@ -368,10 +488,9 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuseExplorer] @searchApiQueryParameters \n query:', query)
-        if (this.withClusters) {
-          await this.loadClusters({ query })
-        }
+
         await this.loadPassages({ query })
+        await this.loadClusters({ query })
       },
       immediate: true,
     },
@@ -386,7 +505,10 @@ export default {
       "textReuseSummaryIncipitWithoutClusters": "{passages}",
       "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
       "routeTextReusePassages": "no passages | <span class='number'>1</span> passage | <span class='number'>{n}</span> passages",
-      "routeTextReuseOverview": "overview"
+      "routeTextReuseOverview": "overview",
+      "query_add_to_collection": "Create new collection",
+      "no_collections_found": "No collections found",
+      "addTrQueryResultsToCollection": "Add results to collection"
     }
   }
   </i18n>
