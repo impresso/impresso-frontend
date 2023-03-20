@@ -37,7 +37,6 @@
       class="bg-light pb-2 mb-3"
       :values="values"
       :brush="brush"
-      :domain="[startYear, endYear]"
       :percentage="isPercentage"
       @brushed="onTimelineBrushed"
     >
@@ -103,6 +102,7 @@ import FilterMonitor from '@/components/modules/FilterMonitor'
 import { getFilterHash } from '../../models/SearchQuery'
 
 export default {
+  name: 'FilterTimeline',
   props: {
     startYear: Number,
     endYear: Number,
@@ -176,6 +176,10 @@ export default {
         text: this.$t(`label.display.${value}`),
         value,
       }))
+    },
+    // a string of min amd max date
+    dateRangeString() {
+      return `${this.startDaterange} - ${this.endDaterange}`
     },
   },
   methods: {
@@ -259,6 +263,11 @@ export default {
         })
         this.temporaryFilter.hasChanges = true
       }
+    },
+  },
+  watch: {
+    dateRangeString() {
+      console.debug('[FilterTimeline] changed minDate', this.minDate)
     },
   },
 }

@@ -46,8 +46,10 @@
           </span>
         </div>
       </div>
+
       <!-- .description -->
     </base-title-bar>
+
     <div
       v-for="{ filter, filterIndex } in includedFilterItems"
       :key="filterIndex"
@@ -70,6 +72,17 @@
         :operators="facet.operators"
         @changed="filter => updateFilter(filterIndex, filter)"
       />
+    </div>
+    <div v-if="showBuckets && unfilteredBuckets.length > 0">
+      <b-button size="sm" variant="link" @click="toggleAllVisibleBuckets">
+        {{
+          $t(selectedBucketsIds.length ? 'clearSelection' : 'selectAll', {
+            count: unfilteredBuckets.length,
+            selected: selectedBucketsIds.length,
+          })
+        }}
+      </b-button>
+      <!-- add checkbox that when selected, select all filter-facet-bucket checkboxes -->
     </div>
     <div v-if="showBuckets">
       <filter-facet-bucket
@@ -241,6 +254,18 @@ export default {
     toggleVisibility() {
       this.isCollapsed = !this.isCollapsed
     },
+    toggleAllVisibleBuckets() {
+      if (this.selectedBucketsIds.length) {
+        this.clearSelectedItems()
+      } else {
+        this.selectedBucketsIds = this.unfilteredBuckets.map(b => b.val)
+        this.selectedBucketsItems = this.unfilteredBuckets.map(b => ({
+          checked: true,
+          ...b.item,
+          count: b.count,
+        }))
+      }
+    },
     toggleBucket(bucket) {
       const idx = this.selectedBucketsIds.indexOf(bucket.val)
       if (idx !== -1 && !bucket.checked) {
@@ -355,3 +380,12 @@ export default {
 </script>
 
 <style lang="css" scoped></style>
+
+<i18n>
+  {
+    "en": {
+      "clearSelection": "Clear selection ({selected})",
+      "selectAll": "Select all ({count})"
+    }
+  }
+</i18n>
