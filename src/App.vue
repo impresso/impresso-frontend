@@ -323,6 +323,9 @@ $clr-grey-900: #ddd;
 .text-small {
   font-size: 14px;
 }
+.small-caps {
+  font-variant: small-caps;
+}
 .custom-control-input {
   width: 0;
   height: 0;
