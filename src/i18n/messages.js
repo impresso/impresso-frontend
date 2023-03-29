@@ -165,6 +165,9 @@ export default {
       ignoredFilters:
         // eslint-disable-next-line quotes
         "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
+      ignoredFiltersDetailed:
+        // eslint-disable-next-line quotes
+        "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail}).",
     },
     dates: {
       lastModifiedDate: 'last modified',
