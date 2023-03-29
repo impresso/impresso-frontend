@@ -9,12 +9,7 @@
             <span v-if="isLoading">
               ... (loading)
             </span>
-            <span v-if="$route.name === 'textReuseOverview'">
-              Overview of text reuse
-            </span>
-            <span v-if="$route.name === 'textReusePassages'">
-              List of text reuse passages
-            </span>
+            <span>{{ $t('routes.' + $route.name) }}</span>
           </h3>
           <section class="text-serif TextReuseExplorerPage_summary">
             <span v-html="incipit" />
@@ -36,6 +31,19 @@
             <span>{{ $t('routeTextReuseOverview') }}</span>
           </b-nav-item>
           <b-nav-item
+            :to="goToRoute({ name: 'textReuseClusters' })"
+            active-class="active"
+            class="pl-2"
+          >
+            <span
+              v-html="
+                $tc('routeTextReuseClusters', totalClusters, {
+                  n: isLoadingClusters ? '...' : $n(totalClusters),
+                })
+              "
+            />
+          </b-nav-item>
+          <b-nav-item
             :to="goToRoute({ name: 'textReusePassages' })"
             active-class="active"
             class="pl-2"
@@ -49,24 +57,6 @@
             />
           </b-nav-item>
 
-          <b-nav-item
-            :to="goToRoute({ name: 'textReuseClusters' })"
-            active-class="active"
-            class="pl-2"
-          >
-            <span
-              v-html="
-                $tc('routeTextReuseClusters', totalClusters, {
-                  n: isLoadingClusters ? '...' : $n(totalClusters),
-                })
-              "
-            />
-          </b-nav-item>
-
-          <!-- <b-button class="p-2 small-caps" v-b-modal.createCollectionFromFilters>
-            <span class="dripicons-archive pr-1"></span>
-            {{ $t('query_add_to_collection') }}
-          </b-button> -->
           <b-nav-text class="p-0 d-flex align-items-center ml-3">
             <AddToCollection
               @item:click="handleAddToCollectionClick"
@@ -106,19 +96,24 @@
       "
     >
       <template v-slot:header>
-        <b-navbar-nav class="p-2 ml-auto">
-          <i-dropdown
-            v-model="orderBy"
-            :options="
-              orderByOptions.map(value => ({
-                value,
-                text: $t(`sort_${value}`),
-              }))
-            "
-            class="mr-auto"
-            size="sm"
-            variant="outline-primary"
-          ></i-dropdown>
+        <b-navbar-nav class="d-flex flex-row pt-1">
+          <b-nav-text class="ml-3 mr-2 text-muted">
+            <label>{{ $t('sortBy') }}</label></b-nav-text
+          >
+          <b-nav-text class="mr-1">
+            <i-dropdown
+              v-model="orderBy"
+              :options="
+                orderByOptions.map(value => ({
+                  value,
+                  text: $t(`sort_${value}`),
+                }))
+              "
+              class="mr-auto"
+              size="sm"
+              variant="outline-primary"
+            ></i-dropdown
+          ></b-nav-text>
         </b-navbar-nav>
       </template>
       <template v-slot:default>
@@ -508,7 +503,23 @@ export default {
       "routeTextReuseOverview": "overview",
       "query_add_to_collection": "Create new collection",
       "no_collections_found": "No collections found",
-      "addTrQueryResultsToCollection": "Add results to collection"
+      "addTrQueryResultsToCollection": "Add results to collection",
+      "sort_-date": "Date (newest first)",
+      "sort_date": "Date (oldest first)",
+      "sort_-clusterSize": "Cluster size (biggest first)",
+      "sort_clusterSize": "Cluster size (smallest first)",
+      "sort_-timeDifferenceDay": "Time difference (biggest first)",
+      "sort_timeDifferenceDay": "Time difference (smallest first)",
+      "sort_-size": "Passage size, number of tokens (biggest first)",
+      "sort_size": "Passage size, number of tokens (smallest first)",
+      "sort_-lexicalOverlap": "Lexical overlap (biggest first)",
+      "sort_lexicalOverlap": "Lexical overlap (smallest first)",
+      "routes": {
+        "textReuse": "Text reuse",
+        "textReuseOverview": "Overview of text reuse",
+        "textReusePassages": "List of text reuse passages",
+        "textReuseClusters": "List of text reuse clusters"
+      }
     }
   }
   </i18n>
