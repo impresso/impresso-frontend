@@ -47,7 +47,7 @@
         <div
           class="text-small border-bottom AddToCollection_item"
           v-for="(item, i) in collections"
-          v-key="item.uid"
+          :key="item.uid"
           @click="() => $emit('item:click', item)"
         >
           <span class="mr-1 text-muted">{{ i + 1 }} of {{ total }}</span>
