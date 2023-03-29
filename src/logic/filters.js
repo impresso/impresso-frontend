@@ -172,6 +172,10 @@ export const SupportedFiltersByContext = Object.freeze({
     'collection',
     'isFront',
     'string',
+    'language',
+    'topic',
+    'type',
+    'country',
   ],
   textReusePassages: [
     'textReuseCluster',
@@ -184,6 +188,9 @@ export const SupportedFiltersByContext = Object.freeze({
     'string',
     'isFront',
     'title',
+    'topic',
+    'type',
+    'country',
   ],
   textReuseClusters: [
     'textReuseCluster',
