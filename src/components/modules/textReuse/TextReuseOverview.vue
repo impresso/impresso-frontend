@@ -52,7 +52,10 @@
     >
       <template v-slot:header>
         <div class="position-relative">
-          <tooltip v-if="tooltip.isActive" :tooltip="tooltip">
+          <tooltip v-if="tooltip.isActive && tooltip.item" :tooltip="tooltip">
+            <div v-if="visualisationDomain === 'time'" class="border-bottom pb-1 mb-1 border-white">
+              {{ $d(tooltip.item?.point?.domain, 'year') }}
+            </div>
             <div v-if="['troverlap_vs_newspapers', 'trcsize_vs_newspaper'].includes(visualisation)">
               <span class="text-bold">{{ tooltip.item.point.domain.label }}</span>
 
@@ -69,16 +72,23 @@
                 Number(tooltip.item.point.value[tooltip.item.valueKey]).toFixed(2)
               }}</span>
             </div>
+            <div v-else-if="tooltip.item.valueKey === 'items'">
+              <b>{{ tooltip.item.term }}</b>
+              <div
+                v-html="$tc(visualisationLabel, tooltip.item.count, { n: $n(tooltip.item.count) })"
+              />
+            </div>
+            <span v-else-if="typeof tooltip.item.valueKey === 'string'">
+              {{ tooltip.item.valueKey }}
+              <span class="number">{{ $n(tooltip.item.point.value[tooltip.item.valueKey]) }}</span>
+            </span>
             <div v-else>
               {{ $d(tooltip.item?.point?.domain, 'year') }}<br />
-              <span v-if="tooltip.item && tooltip.item?.term">
-                {{ tooltip.item?.term }} <span class="number">{{ tooltip.item?.count }}</span>
-              </span>
-              <span v-else-if="typeof tooltip.item.valueKey === 'string'">
-                {{ tooltip.item.valueKey }}
-                <span class="number">{{ tooltip.item.point.value[tooltip.item.valueKey] }}</span>
-              </span>
-              <pre v-else class="text-white">{{ JSON.stringify(tooltip.item, null, 2) }}</pre>
+              {{ tooltip.item?.term }}
+              <div
+                v-html="$tc(visualisationLabel, tooltip.item.count, { n: $n(tooltip.item.count) })"
+              />
+              <!-- <pre v-else class="text-white">{{ JSON.stringify(tooltip.item, null, 2) }}</pre> -->
             </div>
           </tooltip>
         </div>
@@ -156,10 +166,18 @@ const NoFacetFilters = {
 }
 
 const StatsQueryParams = {
+  trc_vs_newspapers: {
+    facet: 'newspaper',
+    index: 'tr_passages',
+    domain: 'time',
+    groupby: 'textReuseCluster',
+    unit: 'numbers.clusters',
+  },
   tr_vs_newspapers: {
     facet: 'newspaper',
     index: 'tr_passages',
     domain: 'time',
+    unit: 'numbers.passages',
   },
   // tr_vs_collections: {
   //   facet: 'collection',
@@ -203,9 +221,10 @@ const StatsQueryParams = {
     domain: 'time',
   },
   trnewspapers_vs_newspapers: {
-    facet: 'newspaper',
-    index: 'tr_clusters',
+    facet: 'textReuseClusterNewspapers',
+    index: 'tr_passages',
     domain: 'newspaper',
+    groupby: 'textReuseCluster',
   },
   // troverlap_vs_newspapers: {},
   // trdelta_vs_newspapers: {},
@@ -261,12 +280,19 @@ export default defineComponent({
       return filterTypes.includes(type) && !NoFacetFilters[index].includes(type)
     },
     handleMousemove(event) {
+      // if it is term, get the right label.
+      const term =
+        this.stats.itemsDictionary && event.point.closestItem?.term
+          ? this.stats.itemsDictionary[event.point.closestItem.term]
+          : event.point.closestItem?.term
+
       this.tooltip = {
         x: event.point.x,
         y: event.point.y + 10,
         isActive: event.point.closestValueKey !== null,
         item: {
           ...event.point.closestItem,
+          term,
           valueKey: event.point.closestValueKey,
           point: event.point.closestPoint,
         },
@@ -317,6 +343,16 @@ export default defineComponent({
     visualisationOrderByOptions() {
       return StatsQueryParams[this.visualisation].orderByOptions || []
     },
+    /** return a translation label string */
+    visualisationLabel() {
+      const unit = StatsQueryParams[this.visualisation].unit
+      if (!unit) return 'results'
+      return unit
+    },
+    /** get visualisation domain */
+    visualisationDomain() {
+      return StatsQueryParams[this.visualisation].domain
+    },
     /** options for current visualisation */
     visualisationOptions() {
       return StatsQueryParams[this.visualisation].options || {}
@@ -344,7 +380,7 @@ export default defineComponent({
       },
     },
     statsApiQueryParameters() {
-      const { index, facet, domain } = StatsQueryParams[this.visualisation]
+      const { index, facet, domain, groupby } = StatsQueryParams[this.visualisation]
       const supportedFilterTypes = SupportedFiltersByIndex[index]
       const filters = this.filters as FilterLike[]
       const supportedFilters = filters.filter(({ type }) => supportedFilterTypes.includes(type))
@@ -368,6 +404,9 @@ export default defineComponent({
         stats: 'min,max,mean',
         sort: this.visualisationOrderBy,
         filters: serializeFilters(supportedFilters),
+      }
+      if (groupby) {
+        query['groupby'] = groupby
       }
       return {
         query,
@@ -422,6 +461,8 @@ export default defineComponent({
     "visualisationOrderBy": "order By:",
     "use_tr_vs_newspapers" :"Number of text reuse passages over time, by newspaper",
     "use_tr_vs_newspapers_description": "This graph shows the number of passages of text reuse per year. Each line represents text reuse passages in a single newspaper title.",
+    "use_trc_vs_newspapers" :"Number of text reuse clusters over time, by newspaper",
+    "use_trc_vs_newspapers_description": "This graph shows the number of clusters of text reuse passages per year. Each line represents text reuse clusters in a single newspaper title.",
     "use_tr_vs_time": "Text Reuse over Time",
     "use_trcsize_vs_newspaper": "Median, min and max cluster size, by newspaper",
     "use_trcsize_vs_newspaper_description": "This graph shows the median, minimum and maximum number of text reuse passages per cluster in a given newspaper title.",
