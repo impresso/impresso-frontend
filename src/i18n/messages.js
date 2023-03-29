@@ -128,6 +128,10 @@ export default {
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       clusterSize: ' | single cluster | <span class="number">{n}</span> passages',
       lexicalOverlap: '<span class="number">{n}%</span> lexical overlap',
+      passages:
+        '0 passages | <span class="number">{n}</span> passage | <span class="number">{n}</span> passages',
+      clusters:
+        '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
       articles:
         'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
       articlesInCommon:
