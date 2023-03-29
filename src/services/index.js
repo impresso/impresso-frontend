@@ -90,6 +90,8 @@ app.hooks({
           } else if (route === 'authentication.create') {
             console.warn('Ignore NotAuthenticated error on "authentication.create" route.')
           } else if (!silentErrorCodes.includes(context.error.code)) {
+            // eslint-disable-next-line no-console
+            console.warn('app.hooks.error.all', context.error)
             window.app.$store.dispatch('DISPLAY_ERROR', {
               error: context.error,
               origin: 'app.hooks.error.all',
