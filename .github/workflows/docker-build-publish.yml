@@ -19,7 +19,7 @@ jobs:
       run: echo "##[set-output name=hash;]$(git rev-parse --short ${GITHUB_SHA})"
       id: extract_hash
     - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@v5
       env:
         GIT_BRANCH: ${{ steps.extract_branch.outputs.branch }}
         GIT_REVISION: ${{ steps.extract_hash.outputs.hash }}
