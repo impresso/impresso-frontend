@@ -17,7 +17,7 @@
 export default class TextReuseCluster {
   constructor({
     id = '',
-    textSampleArticle = '',
+    textSampleArticle = {},
     textSampleTitle = '',
     textSampleContent = '',
     textSampleExcerpt = '',
@@ -31,7 +31,8 @@ export default class TextReuseCluster {
   } = {}) {
     this.id = String(id)
     this.shortId = this.id.split('-').pop()
-    this.textSampleArticle = String(textSampleArticle)
+
+    this.textSampleArticle = textSampleArticle
     this.textSampleTitle = String(textSampleTitle)
     this.textSampleContent = String(textSampleContent)
     this.textSampleExcerpt = String(textSampleExcerpt)
@@ -61,7 +62,6 @@ export default class TextReuseCluster {
     const minDate = new Date(
       +maxDate - item.textReuseCluster.timeDifferenceDay * 24 * 60 * 60 * 1000,
     )
-
     return new TextReuseCluster({
       id: item.textReuseCluster.id,
       textSampleTitle: item.title,
