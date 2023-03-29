@@ -22,8 +22,9 @@
             <em
               class="small"
               v-html="
-                $tc('numbers.ignoredFilters', ignoredFilters.length, {
+                $tc('numbers.ignoredFiltersDetailed', ignoredFilters.length, {
                   n: ignoredFilters.length,
+                  detail: ignoredFilters.map(f => f.type).join(', '),
                 })
               "
             />
@@ -95,8 +96,11 @@ import FilterTimeline from '@/components/modules/FilterTimeline'
 
 const FacetTypes = [
   'newspaper',
+  'topic',
   'collection',
   'year',
+  'country',
+  'type',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
@@ -134,11 +138,15 @@ export default {
       return [...SupportedFiltersByContext.textReusePassages].filter(type => type !== 'isFront')
     },
     ignoredFilters() {
-      return this.filters.filter(({ type }) => !SupportedFiltersByContext.textReuse.includes(type))
+      // we exclude also `hasTextContents` as it is useless for text reuse
+      return this.filters.filter(
+        ({ type }) =>
+          !SupportedFiltersByContext.textReusePassages.includes(type) && type !== 'hasTextContents',
+      )
     },
     standardFacets() {
       return this.facets.filter(({ type }) =>
-        ['newspaper', 'collection', 'textReuseCluster'].includes(type),
+        ['newspaper', 'collection', 'textReuseCluster', 'topic', 'type', 'country'].includes(type),
       )
     },
     timelineFacets() {
@@ -292,6 +300,9 @@ export default {
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
         await this.loadFacet('collection')
         await this.loadFacet('textReuseCluster')
+        await this.loadFacet('topic')
+        await this.loadFacet('type')
+        await this.loadFacet('country')
         await this.loadFacet('textReuseClusterSize', { groupby: 'textReuseCluster' })
         await this.loadFacet('textReuseClusterLexicalOverlap', { groupby: 'textReuseCluster' })
         await this.loadFacet('textReuseClusterDayDelta', { groupby: 'textReuseCluster' })
