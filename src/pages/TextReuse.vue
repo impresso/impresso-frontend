@@ -53,12 +53,21 @@
           @changed="handleFacetFiltersChanged"
         />
       </template>
+      <FilterDynamicRange
+        v-for="(facet, i) in dynamicRangeFacets"
+        class="py-2 mx-3"
+        index="tr_passages"
+        :key="`rd-${i}`"
+        :facet="facet"
+        :facet-filters="allowedFilters"
+        @changed="handleFacetFiltersChanged"
+      />
       <FilterRange
         v-for="(facet, index) in rangeFacets"
         class="py-2 mx-3"
         :key="`r-${index}`"
         :facet="facet"
-        :facet-filters="filters"
+        :facet-filters="allowedFilters"
         @changed="handleFacetFiltersChanged"
       />
       <FilterFacet
@@ -82,6 +91,7 @@ import { serializeFilters, optimizeFilters, SupportedFiltersByContext } from '@/
 import { CommonQueryParameters } from '@/router/util'
 import FilterFacet from '@/components/modules/FilterFacet'
 import FilterRange from '@/components/modules/FilterRange'
+import FilterDynamicRange from '@/components/modules/FilterDynamicRange'
 import Facet from '@/models/Facet'
 import { searchFacets } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
@@ -114,6 +124,7 @@ export default {
     FilterFacet,
     FilterRange,
     FilterTimeline,
+    FilterDynamicRange,
   },
   data: () => ({
     isLoading: false,
@@ -183,14 +194,14 @@ export default {
     },
     rangeFacets() {
       const rangeFacets = this.facets.filter(({ type }) =>
-        [
-          'textReuseClusterSize',
-          'textReuseClusterLexicalOverlap',
-          'textReuseClusterDayDelta',
-        ].includes(type),
+        ['textReuseClusterLexicalOverlap'].includes(type),
       )
-      // eslint-disable-next-line
-      console.debug('rangeFacets', rangeFacets)
+      return rangeFacets
+    },
+    dynamicRangeFacets() {
+      const rangeFacets = this.facets.filter(({ type }) =>
+        ['textReuseClusterSize', 'textReuseClusterDayDelta'].includes(type),
+      )
       return rangeFacets
     },
     /** @returns {{ query: any, hash: string }} */
@@ -266,7 +277,7 @@ export default {
     },
     loadFacet(type, opts = {}) {
       // eslint-disable-next-line
-      console.debug('[TextReuse] loadFacet', type)
+      console.debug('[TextReuse] loadFacet', type, 'query', this.searchFacetApiQueryParams.query)
       searchFacets
         .get(type, {
           query: {
@@ -303,9 +314,9 @@ export default {
         await this.loadFacet('topic')
         await this.loadFacet('type')
         await this.loadFacet('country')
-        await this.loadFacet('textReuseClusterSize', { groupby: 'textReuseCluster' })
+        // await this.loadFacet('textReuseClusterSize', { groupby: 'textReuseCluster' })
         await this.loadFacet('textReuseClusterLexicalOverlap', { groupby: 'textReuseCluster' })
-        await this.loadFacet('textReuseClusterDayDelta', { groupby: 'textReuseCluster' })
+        // await this.loadFacet('textReuseClusterDayDelta', { groupby: 'textReuseCluster' })
       },
       immediate: true,
       deep: false,
