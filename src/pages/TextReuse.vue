@@ -60,15 +60,8 @@
         :key="`rd-${i}`"
         :facet="facet"
         :facet-filters="allowedFilters"
-        @changed="handleFacetFiltersChanged"
-      />
-      <FilterRange
-        v-for="(facet, index) in rangeFacets"
-        class="py-2 mx-3"
-        :key="`r-${index}`"
-        :facet="facet"
-        :facet-filters="allowedFilters"
-        @changed="handleFacetFiltersChanged"
+        @changed="handleFiltersChanged"
+        @clicked="handleFacetFiltersClicked"
       />
       <FilterFacet
         v-for="(facet, index) in standardFacets"
@@ -192,15 +185,13 @@ export default {
       }
       return new Date(`${this.endYear}-12-31`)
     },
-    rangeFacets() {
-      const rangeFacets = this.facets.filter(({ type }) =>
-        ['textReuseClusterLexicalOverlap'].includes(type),
-      )
-      return rangeFacets
-    },
     dynamicRangeFacets() {
       const rangeFacets = this.facets.filter(({ type }) =>
-        ['textReuseClusterSize', 'textReuseClusterDayDelta'].includes(type),
+        [
+          'textReuseClusterSize',
+          'textReuseClusterDayDelta',
+          'textReuseClusterLexicalOverlap',
+        ].includes(type),
       )
       return rangeFacets
     },
@@ -249,6 +240,20 @@ export default {
       } else {
         this.handleFiltersChanged([...this.filters, ...filters])
       }
+    },
+    /**
+     * dispatch SelectionMonitor show action to preview the filter
+     * @param {Object} facet
+     * @param {Object} value
+     */
+    handleFacetFiltersClicked(filter) {
+      // open selection monitor
+      this.$store.dispatch('selectionMonitor/show', {
+        item: filter,
+        context: 'textReuse',
+        type: filter.type,
+        applyCurrentSearchFilters: true,
+      })
     },
     handleSearchInputSubmit({ q }) {
       if (q.trim().length === 0) {
