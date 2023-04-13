@@ -1,5 +1,10 @@
 <template>
-  <div v-if="isActive" class="SelectionMonitor  rounded drop-shadow bg-light" :class="monitor.type" v-on:click.stop>
+  <div
+    v-if="isActive"
+    class="SelectionMonitor  rounded drop-shadow bg-light"
+    :class="monitor.type"
+    v-on:click.stop
+  >
     <div class="d-flex flex-column h-100">
       <!-- top -->
       <section>
@@ -22,16 +27,16 @@
           <ItemLabel :item="monitor.item" :type="monitor.type" />
           <span class="small-caps pl-2">{{ monitor.type }}</span>
         </h2>
-        <div class="mx-3">
-          {{ minDate.getFullYear()}} to {{ maxDate.getFullYear() }}
-        </div>
+        <div class="mx-3">{{ minDate.getFullYear() }} to {{ maxDate.getFullYear() }}</div>
         <!-- end title -->
         <!-- timeline -->
         <div class="mx-2">
-          <timeline class="bg-light"
-                :domain="[startYear, endYear]"
-                :contrast="false"
-                :values="timelineValues">
+          <timeline
+            class="bg-light"
+            :domain="[startYear, endYear]"
+            :contrast="false"
+            :values="timelineValues"
+          >
             <div slot-scope="tooltipScope">
               <div v-if="tooltipScope.tooltip.item">
                 {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
@@ -45,26 +50,49 @@
         <div class="mx-3">
           <b-form-group class="m-0">
             <b-form-checkbox v-model="applyCurrentSearchFilters">
-              <span v-html="$t('labels.applyCurrentSearchFilters', { count: this.supportedFilters.length })"/>
+              <span
+                v-html="
+                  $t('labels.applyCurrentSearchFilters', { count: this.supportedFilters.length })
+                "
+              />
             </b-form-checkbox>
           </b-form-group>
           <p class="ml-1">
             <span v-html="statsLabel" />
-            <SearchQuerySummary v-if="applyCurrentSearchFilters" class="d-inline" :search-query="{ filters: monitorFilters}" />
+            <SearchQuerySummary
+              class="d-inline"
+              :search-query="{
+                filters: applyCurrentSearchFilters ? monitorFilters : [monitorFilter],
+              }"
+            />
           </p>
         </div>
         <!-- end filters -->
         <!-- actions -->
         <div class="p-2 border-tertiary border-top d-flex justify-content-between">
-          <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">{{ $t(monitorFilterExists ? 'actions.removeFromCurrentFilters':'actions.addToCurrentFilters') }}</button>
-          <button v-on:click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">{{ $t('actions.close') }}</button>
+          <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
+            {{
+              $t(
+                monitorFilterExists
+                  ? 'actions.removeFromCurrentFilters'
+                  : 'actions.addToCurrentFilters',
+              )
+            }}
+          </button>
+          <button v-on:click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">
+            {{ $t('actions.close') }}
+          </button>
         </div>
         <!-- end actions -->
       </section>
       <!-- end top -->
       <!-- bottom -->
-      <TextReuseClusterMonitor 
-        :filters="applyCurrentSearchFilters? monitorFilters: []" :item="monitor.item" v-if="monitor.type === 'textReuseCluster'" class="flex-grow-1 bg-dark" />
+      <TextReuseClusterMonitor
+        :filters="applyCurrentSearchFilters ? monitorFilters : []"
+        :item="monitor.item"
+        v-if="monitor.type === 'textReuseCluster'"
+        class="flex-grow-1 bg-dark"
+      />
       <!-- end bottom -->
     </div>
   </div>
@@ -81,7 +109,7 @@ import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
 
 export default {
-  props:{
+  props: {
     filters: {
       type: Array,
       default: () => [],
@@ -91,13 +119,13 @@ export default {
     },
     endYear: {
       type: Number,
-    }
+    },
   },
   components: {
     Timeline,
     SearchQuerySummary,
     ItemLabel,
-    TextReuseClusterMonitor
+    TextReuseClusterMonitor,
   },
   name: 'SelectionMonitor',
   computed: {
@@ -109,8 +137,14 @@ export default {
     monitorFilter() {
       return FilterFactory.create({
         type: this.monitor.type,
-        q: [this.monitor.item.id ?? this.monitor.item.uid],
-        items: this.monitor.items.length ? this.monitor.items : [this.monitor.item],
+        q: Array.isArray(this.monitor.item.q)
+          ? this.monitor.item.q.map(d => String(d))
+          : [this.monitor.item.id ?? this.monitor.item.uid],
+        // items: this.monitor.items.length
+        //   ? this.monitor.items
+        //   : typeof this.monitor.item.q !== 'undefined'
+        //   ? []
+        //   : [this.monitor.item],
       })
     },
     monitorFilters() {
@@ -124,7 +158,7 @@ export default {
       const query = {
         index: SupportedIndexByContext[this.context],
         limit: 500,
-        filters: []
+        filters: [],
       }
       if (this.applyCurrentSearchFilters) {
         query.filters = [...this.supportedFilters]
@@ -133,7 +167,10 @@ export default {
       if (this.monitor.item) {
         query.filters.push({
           type: this.monitor.type,
-          q: this.monitor.item.id ?? this.monitor.item.uid,
+          q:
+            typeof this.monitor.item.q !== 'undefined'
+              ? this.monitor.item.q
+              : this.monitor.item.id ?? this.monitor.item.uid,
         })
       }
 
@@ -151,6 +188,9 @@ export default {
     context() {
       return this.$store.state.selectionMonitor.context
     },
+    applyCurrentSearchFiltersOnInit() {
+      return this.$store.state.selectionMonitor.applyCurrentSearchFilters
+    },
     monitor() {
       return this.$store.state.selectionMonitor
     },
@@ -159,10 +199,10 @@ export default {
       if (this.isLoading) {
         return this.$t('actions.loading')
       }
-      let key = 'itemStats';
+      let key = 'itemStats'
 
       if (this.applyCurrentSearchFilters && this.filters.length) {
-        key = 'itemStatsFiltered';
+        key = 'itemStatsFiltered'
       }
       return this.$t(key, {
         count: this.$n(this.total),
@@ -193,7 +233,6 @@ export default {
       }
       return new Date(`${this.endYear}-12-31`)
     },
-
   },
   data: () => ({
     total: 0,
@@ -206,9 +245,10 @@ export default {
       this.$store.dispatch('selectionMonitor/hide')
     },
     applyFilter() {
-      const filterExists = this.filters.some(f => f.type === this.monitorFilter.type)
       // if the filter type is already in the list, we need to merge the values
-      const updatedFilters = this.monitorFilterExists ? this.filters.filter(f => f.type !== this.monitorFilter.type): this.monitorFilters
+      const updatedFilters = this.monitorFilterExists
+        ? this.filters.filter(f => f.type !== this.monitorFilter.type)
+        : this.monitorFilters
       // eslint-disable-next-line
       console.debug('[SelectionMonitor] applyFilter', updatedFilters)
       this.$emit('change', updatedFilters)
@@ -217,18 +257,28 @@ export default {
       // eslint-disable-next-line
       console.debug('[ItemSelector] loadTimeline')
       searchFacets
-        .get('year', {
-          query: this.timelineApiQueryParams.query,
-        })
+        .get(
+          'year',
+          {
+            query: this.timelineApiQueryParams.query,
+          },
+          { ignoreErrors: true },
+        )
         .then(response => {
           // eslint-disable-next-line no-console
           console.debug('[ItemSelector] loadTimeline success', response)
-          this.timelineValues = Helpers.timeline.fromBuckets(response[0].buckets);
+          this.timelineValues = Helpers.timeline.fromBuckets(response[0].buckets)
           this.total = response[0].buckets.reduce((acc, bucket) => acc + bucket.count, 0)
         })
-    }
+    },
   },
   watch: {
+    applyCurrentSearchFiltersOnInit: {
+      handler() {
+        this.applyCurrentSearchFilters = this.applyCurrentSearchFiltersOnInit
+      },
+      immediate: true,
+    },
     timelineApiQueryParams: {
       async handler({ query, hash }, previousValue) {
         if (previousValue && previousValue.hash === hash) {
@@ -260,12 +310,11 @@ export default {
 }
 
 .SelectionMonitor.textReuseCluster {
-
   width: 800px;
   top: 10%;
   bottom: 10%;
   margin-top: auto;
-  margin-left:-400px;
+  margin-left: -400px;
 }
 
 .SelectionMonitor_body {
@@ -291,6 +340,9 @@ export default {
     "tabs": {
       "textReuseCluster": {
         "overview": "cluster of text reuse"
+      },
+      "textReuseClusterLexicalOverlap": {
+        "overview": "lexical overlap"
       },
       "newspaper": {
         "overview": "newspaper"
@@ -325,3 +377,4 @@ export default {
     "itemStatsFiltered": "<b class='number'>{count}</b> results in {context}, using current available search filters"
   }
 }
+</i18n>

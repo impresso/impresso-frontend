@@ -31,6 +31,7 @@ import 'vue-slider-component/theme/default.css'
  * will need to normalise them.
  */
 export default {
+  name: 'HistogramSlider',
   model: {
     prop: 'value',
     event: 'change',
@@ -119,126 +120,185 @@ export default {
   },
   methods: {
     renderChart() {
-      // const topMargin = 14
-      // const { width } = this.$refs.chartContainer.getBoundingClientRect()
-      // const svg = d3.select(this.$refs.chart)
+      const topMargin = 14
+      const { width } = this.$refs.chartContainer.getBoundingClientRect()
+      const svg = d3.select(this.$refs.chart)
 
-      // svg.attr('width', width)
-      // svg.attr('height', this.chartHeight)
+      svg.attr('width', width)
+      svg.attr('height', this.chartHeight)
 
-      // const counts = this.buckets.map(({ count }) => count)
-      // console.debug('renderChart()', this.buckets)
-      // const x = d3
-      //   .scaleBand()
-      //   .domain(this.buckets.map(({ val }) => val))
-      //   .range([0, width])
-      //   .paddingInner(0.05)
+      const counts = this.buckets.map(({ count }) => count)
 
-      // const yScaler =
-      //   {
-      //     linear: d3.scaleLinear,
-      //     sqrt: d3.scaleSqrt,
-      //     symlog: d3.scaleSymlog,
-      //   }[this.scaleType] ?? d3.scaleLinear
+      const maxCountBucketIndex = counts.indexOf(Math.max(...counts))
+      console.debug('renderChart()', this.buckets)
+      const x = d3
+        .scaleBand()
+        .domain(this.buckets.map(({ val }) => val))
+        .range([0, width])
+        .paddingInner(0.05)
 
-      // const y = yScaler()
-      //   .domain([Math.min(...counts), Math.max(...counts)])
-      //   .range([0, this.chartHeight - topMargin])
-      
-      // // return the index of the bar with the maximum value
-      // const barIndexWithMaximumValue = this.buckets.reduce((acc, d, i) => {
-      //   if (acc === -1) return i
-      //   if (d.count > this.buckets[acc].count) return i
-      //   return acc
-      // }, -1)
+      const yScaler =
+        {
+          linear: d3.scaleLinear,
+          sqrt: d3.scaleSqrt,
+          symlog: d3.scaleSymlog,
+        }[this.scaleType] ?? d3.scaleLinear
 
-      // const bars = svg.selectAll('g.bars')
-      //   .data([null])
-      //   .join('g')
-      //   .attr('class', 'bars')
-      //   .selectAll('g.bar')
-      //   .data(this.buckets)
-      //   .join('g')
-      //   .attr('class', (d, i) => i === barIndexWithMaximumValue ? 'bar max' : 'bar')
-      //   .attr('transform', d => `translate(${x(d.val) ?? 0}, ${this.chartHeight - y(d.count)})`)
-      
-      // // add rects to the bars
-      // bars.append('rect').attr('width', x.bandwidth()).attr('height', d => Math.max(1, y(d.count)))
-      
-      // // add a black line on top of the bars
-      // bars.append('line').attr('x1', 0).attr('x2', x.bandwidth()).attr('y1', 0).attr('y2', 0).attr('stroke', 'black')
+      const y = yScaler()
+        .domain([Math.min(...counts), Math.max(...counts)])
+        .range([0, this.chartHeight - topMargin])
 
-      // selectAll('rect').join('rect').attr('x', d => x(d.val) ?? 0)
-      //   .attr('width', x.bandwidth())
-      //   .attr('y', d => this.chartHeight - y(d.count))
-      //   .attr('height', d => Math.max(1, y(d.count)))
+      // return the index of the bar with the maximum value
+      const barIndexWithMaximumValue = this.buckets.reduce((acc, d, i) => {
+        if (acc === -1) return i
+        if (d.count > this.buckets[acc].count) return i
+        return acc
+      }, -1)
 
-      // bars.
-      //   .selectAll('rect')
-      //   .join('rect')
-      //   .attr('class', 'bar')
-      //   .attr('x', d => x(d.val) ?? 0)
-      //   .attr('width', x.bandwidth())
-      //   .attr('y', d => this.chartHeight - y(d.count))
-      //   .attr('height', d => Math.max(1, y(d.count)))
-      //   // add black lines to the top of the bars
-      //   .append('line')
-      //   .attr('x1', 0)
-      //   .attr('y1', 0)
-      //   .attr('x2', x.bandwidth())
-      //   .attr('y2', 0)
-      //   .attr('stroke', 'black')
+      const bars = svg
+        .selectAll('g.bars')
+        .data([null])
+        .join('g')
+        .attr('class', 'bars')
+        .selectAll('g.bar')
+        .data(this.buckets)
+        .join('g')
+        .attr('class', (d, i) => (i === barIndexWithMaximumValue ? 'bar max' : 'bar'))
+        .attr('transform', d => `translate(${x(d.val) ?? 0}, ${this.chartHeight - y(d.count)})`)
+
+      // add rects to the bars
+      bars
+        .append('rect')
+        .attr('width', x.bandwidth())
+        .attr('height', d => Math.max(1, y(d.count)))
+
+      // add a black line on top of the bars
+      bars
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', x.bandwidth())
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('stroke', 'black')
+
+      bars
+        .join('rect')
+        .attr('class', 'bar')
+        .attr('x', d => x(d.val) ?? 0)
+        .attr('width', x.bandwidth())
+        .attr('y', d => this.chartHeight - y(d.count))
+        .attr('height', d => Math.max(1, y(d.count)))
+        // add black lines to the top of the bars
+        .append('line')
+        .attr('x1', 0)
+        .attr('y1', 0)
+        .attr('x2', x.bandwidth())
+        .attr('y2', 0)
+        .attr('stroke', 'black')
+
+      const hoveredBar = svg
+        .selectAll('g.hovered-bar')
+        .data([null])
+        .join('g')
+
+      const hoveredBackground = hoveredBar
+        .append('rect')
+        .attr('class', 'hovered-background')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', x.bandwidth())
+        .attr('height', 0)
+      const hoveredValue = hoveredBar
+        .append('rect')
+        .attr('class', 'hovered-value')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', x.bandwidth())
+        .attr('height', 0)
       // emit mouse events based on mouse position
-      // svg
-      //   .on('mousemove', () => {
-      //     const [xPos] = d3.mouse(this.$refs.chart)
-      //     console.debug('xPos', xPos)
-      //     const bucket = this.buckets.find(({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth())
-      //     if (bucket) {
-      //       this.$emit('mousemove', bucket)
-      //     }
-      //   })
-      //   .on('mouseleave', () => {
-      //     this.$emit('mousemove', null)
-      //   })
 
-      // const maxval = svg
-      //   .selectAll('g.maxval')
-      //   .data(maxCountBucketIndex >= 0 ? [this.buckets[maxCountBucketIndex]] : [])
-      //   .join('g')
-      //   .attr('class', 'maxval')
-      //   .attr('transform', bucket => {
-      //     const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
-      //     const yOffset = this.chartHeight - y(bucket.count)
-      //     return `translate(${xOffset}, ${yOffset})`
-      //   })
-      
-      // maxval
-      //   .selectAll('text')
-      //   .data(d => [d])
-      //   .join('text')
-      //   .attr('dy', -5)
-      //   .text(bucket => {
-      //     const tlabel = bucket.upper && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
-      //     return this.$t(tlabel, {
-      //       n : this.$n(Math.round(bucket.count)), 
-      //       ... bucket 
-      //     })
-      //   })
-      //   .attr('text-anchor', bucket => {
-      //     const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
-      //     const oneThirdWidth = width / 3
-      //     if (xOffset <= oneThirdWidth) return 'start'
-      //     if (xOffset >= 2 * oneThirdWidth) return 'end'
-      //     return 'middle'
-      //   })
+      svg
+        .on('mousemove', () => {
+          const [xPos] = d3.mouse(this.$refs.chart)
+          const bucket = this.buckets.find(
+            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth(),
+          )
+          if (bucket) {
+            const xBucket = x(bucket.val) ?? 0
+            const yBucket = this.chartHeight - y(bucket.count)
+            this.$emit('mousemove', {
+              pointer: {
+                x: xBucket + x.bandwidth() / 2,
+                y: yBucket,
+              },
+              hspace: this.chartWidth,
+              bucket,
+            })
+            // translate the hovered bar to the correct position using transform for x and y
+            hoveredBar.attr('transform', `translate(${xBucket}, ${yBucket})`)
 
-      // maxval
-      //   .selectAll('circle.point')
-      //   .data(d => [d])
-      //   .join('circle')
-      //   .attr('class', 'point')
-      //   .attr('r', 1) // 3      
+            hoveredValue
+              // assign height
+              .attr('height', Math.max(2, this.chartHeight - yBucket - 1))
+            hoveredBackground
+              // assign height
+              .attr('height', this.chartHeight - topMargin)
+          } else {
+            this.$emit('mousemove', null)
+          }
+        })
+        .on('mouseleave', () => {
+          this.$emit('mousemove', null)
+          hoveredValue.attr('height', 0)
+          hoveredBackground.attr('height', 0)
+        })
+        .on('click', () => {
+          const [xPos] = d3.mouse(this.$refs.chart)
+          const bucket = this.buckets.find(
+            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth(),
+          )
+          if (bucket) {
+            this.$emit('click', { bucket })
+          }
+        })
+
+      const maxval = svg
+        .selectAll('g.maxval')
+        .data(maxCountBucketIndex >= 0 ? [this.buckets[maxCountBucketIndex]] : [])
+        .join('g')
+        .attr('class', 'maxval')
+        .attr('transform', bucket => {
+          const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
+          const yOffset = this.chartHeight - y(bucket.count)
+          return `translate(${xOffset}, ${yOffset})`
+        })
+
+      maxval
+        .selectAll('text')
+        .data(d => [d])
+        .join('text')
+        .attr('dy', -5)
+        .text(bucket => {
+          const tlabel = bucket.upper && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
+          return this.$t(tlabel, {
+            n: this.$n(Math.round(bucket.count)),
+            ...bucket,
+          })
+        })
+        .attr('text-anchor', bucket => {
+          const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
+          const oneThirdWidth = width / 3
+          if (xOffset <= oneThirdWidth) return 'start'
+          if (xOffset >= 2 * oneThirdWidth) return 'end'
+          return 'middle'
+        })
+
+      maxval
+        .selectAll('circle.point')
+        .data(d => [d])
+        .join('circle')
+        .attr('class', 'point')
+        .attr('r', 2) // 3
     },
     formatTooltip(d) {
       return this.$n(d)
@@ -246,7 +306,7 @@ export default {
   },
   watch: {
     buckets() {
-      // if is mounted 
+      // if is mounted
       if (this.$refs.chart) {
         this.renderChart()
       }
@@ -270,10 +330,16 @@ export default {
       .bar {
         fill: #d8d8d8;
       }
+
       .bar.max {
         fill: #999999;
       }
-
+    }
+    .hovered-value {
+      fill: #999999;
+    }
+    .hovered-background {
+      fill: #b65656;
     }
     .maxval {
       font-size: 12px;
@@ -291,3 +357,4 @@ export default {
     "maxvalrange": "{lower} - {upper} ({n} results)"
   }
 }
+</i18n>
