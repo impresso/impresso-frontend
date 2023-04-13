@@ -1,22 +1,53 @@
 <template>
-  <div class="TextReuseClusterMonitor d-flex flex-column" v-if="passages.length > 0">
+  <div class="TextReuseClusterMonitor d-flex flex-column" v-if="totalPassages > 0">
     <div class="flex-shrink-1">
-      <div class="p-3">
-        <span class="text-white mr-2">{{ passages.length }} passages</span>
-        <i-dropdown
-          v-model="orderBy"
-          :options="
-            orderByOptions.map(value => ({
-              value,
-              text: $t(`sort_${value}`),
-            }))
-          "
-          class="mr-auto"
-          size="sm"
-          variant="outline-primary"
-        ></i-dropdown>
+      <!-- add pagination for startPassage and endPassage -->
+      <div class="d-flex flex-row p-3">
+        <div class="w-50">
+          <i-dropdown
+            v-model="startPassageOrderBy"
+            :options="
+              orderByOptions.map(value => ({
+                value,
+                text: $t(`sort_${value}`),
+              }))
+            "
+            class="mr-auto"
+            size="sm"
+            variant="outline-primary"
+          ></i-dropdown>
+          <Pagination
+            size="sm"
+            :totalRows="totalPassages"
+            :perPage="1"
+            :currentPage="startPassageOffset"
+            @change="handleStartPassageOffsetChange"
+            class="d-flex justify-content-center"
+          />
+        </div>
+        <div class="w-50">
+          <i-dropdown
+            v-model="endPassageOrderBy"
+            :options="
+              orderByOptions.map(value => ({
+                value,
+                text: $t(`sort_${value}`),
+              }))
+            "
+            class="mr-auto"
+            size="sm"
+            variant="outline-primary"
+          ></i-dropdown>
+          <Pagination
+            size="sm"
+            :totalRows="totalPassages"
+            :perPage="1"
+            :currentPage="endPassageOffset"
+            @change="handleEndPassageOffsetChange"
+            class="d-flex justify-content-center"
+          />
+        </div>
       </div>
-
       <div class="d-flex flex-row TextReuseClusterMonitor_header">
         <TextReusePassageItemLabel
           v-if="startPassage"
@@ -62,6 +93,7 @@ import { textReusePassages } from '@/services'
 import TextReusePassage from '@/models/TextReusePassage'
 import TextReusePassageItemLabel from './modules/lists/TextReusePassageItemLabel'
 import { optimizeFilters } from '@/logic/filters'
+import Pagination from '@/components/modules/Pagination'
 // onmounted load the first 2 text reuse passages from textreusepassage endpoint
 
 const OrderByOptions = ['date', '-date', 'size', '-size']
@@ -71,6 +103,7 @@ export default {
   components: {
     ItemLabel,
     TextReusePassageItemLabel,
+    Pagination,
   },
   props: {
     // item is a textReuseCluster item
@@ -84,53 +117,93 @@ export default {
     },
   },
   data: () => ({
-    paginationCurrentPage: 1,
-    paginationPerPage: 2,
-    orderBy: 'date',
-
-    passages: [],
     totalPassages: -1,
+
+    startPassage: null,
+    endPassage: null,
+
+    startPassageOrderBy: 'date',
+    endPassageOrderBy: '-date',
+
+    startPassageOffset: 0,
+    endPassageOffset: 1,
+
+    startPassageIsLoading: false,
+    endPassageIsLoading: false,
+
     isLoading: false,
     orderByOptions: OrderByOptions,
   }),
 
   methods: {
-    async loadPassages({ query }) {
-      this.isLoading = true
-      const { data, total } = await textReusePassages.find({ query }).catch(err => {
-        console.error('[TextReuseClusterMonitor] loadPassages', err)
-        this.isLoading = false
-        return { data: [] }
-      })
-      this.passages = data.map(d => new TextReusePassage(d))
-      this.totalPassages = total
+    handleStartPassageOffsetChange(offset) {
+      this.startPassageOffset = offset
+    },
+    handleEndPassageOffsetChange(offset) {
+      this.endPassageOffset = offset
+    },
+    async loadStartPassage({ query }) {
+      this.startPassageIsLoading = true
+      await textReusePassages
+        .find({ query })
+        .then(res => {
+          this.startPassage = new TextReusePassage(res.data[0])
+          this.totalPassages = res.total
+          this.startPassageIsLoading = false
+          return res
+        })
+        .catch(err => {
+          console.error('[TextReuseClusterMonitor] loadPassages', err)
+          this.startPassageIsLoading = false
+        })
+    },
+    async loadEndPassage({ query }) {
+      this.endPassageIsLoading = true
+      await textReusePassages
+        .find({ query })
+        .then(res => {
+          this.endPassage = new TextReusePassage(res.data[0])
+          this.totalPassages = res.total
+          this.endPassageIsLoading = false
+          return res
+        })
+        .catch(err => {
+          console.error('[TextReuseClusterMonitor] loadPassages', err)
+          this.endPassageIsLoading = false
+          return { data: [] }
+        })
     },
   },
   computed: {
-    startPassage() {
-      if (this.passages.length) {
-        return this.passages[0]
-      }
-      return null
-    },
-    endPassage() {
-      if (this.passages.length > 1) {
-        return this.passages[1]
-      }
-      return null
-    },
     diff() {
       if (this.startPassage && this.endPassage) {
         return diffChars(this.startPassage.content, this.endPassage.content)
       }
       return []
     },
-    searchApiQueryParameters() {
+    searchApiStartPassageQueryParameters() {
       const query = {
-        skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
-        page: this.paginationCurrentPage,
-        limit: this.paginationPerPage,
-        orderBy: this.orderBy,
+        page: this.startPassageOffset,
+        limit: 1,
+        orderBy: this.startPassageOrderBy,
+        filters: this.filters.length
+          ? optimizeFilters(this.filters)
+          : [{ type: 'textReuseCluster', q: this.item.id }],
+        addons: { newspaper: 'text' },
+      }
+      return {
+        query,
+        hash: JSON.stringify(query)
+          .split('')
+          .sort()
+          .join(''),
+      }
+    },
+    searchApiEndPassageQueryParameters() {
+      const query = {
+        page: this.endPassageOffset,
+        limit: 1,
+        orderBy: this.endPassageOrderBy,
         filters: this.filters.length
           ? optimizeFilters(this.filters)
           : [{ type: 'textReuseCluster', q: this.item.id }],
@@ -146,14 +219,31 @@ export default {
     },
   },
   watch: {
-    searchApiQueryParameters: {
+    searchApiStartPassageQueryParameters: {
       async handler({ query, hash }, previousValue) {
         if (previousValue && previousValue.hash === hash) {
           return false
         }
         // eslint-disable-next-line
-        console.debug('[TextReuseExplorer] @searchApiQueryParameters \n query:', query)
-        await this.loadPassages({ query })
+        console.debug(
+          '[TextReuseClusterMonitor] @searchApiStartPassageQueryParameters \n query:',
+          query,
+        )
+        await this.loadStartPassage({ query })
+      },
+      immediate: true,
+    },
+    searchApiEndPassageQueryParameters: {
+      async handler({ query, hash }, previousValue) {
+        if (previousValue && previousValue.hash === hash) {
+          return false
+        }
+        // eslint-disable-next-line
+        console.debug(
+          '[TextReuseClusterMonitor] @searchApiEndPassageQueryParameters \n query:',
+          query,
+        )
+        await this.loadEndPassage({ query })
       },
       immediate: true,
     },
@@ -180,7 +270,7 @@ export default {
 
 .TextReuseClusterMonitor p .removed {
   color: inherit;
-  opacity: 0.5;
+  opacity: 1;
 }
 .TextReuseClusterMonitor p .added {
   color: inherit;
@@ -195,11 +285,11 @@ export default {
   color: var(--clr-grey-800);
 }
 .TextReuseClusterMonitor.bg-dark p .added {
-  background-color: transparent;
+  background-color: #42fd002e;
   color: white;
 }
 .TextReuseClusterMonitor.bg-dark p .removed {
-  background-color: transparent;
-  color: var(--clr-grey-600);
+  background-color: #ff272763;
+  color: white;
 }
 </style>
