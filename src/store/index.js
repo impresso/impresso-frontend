@@ -21,7 +21,7 @@ import selectionMonitor from './SelectionMonitor'
 Vue.use(Vuex)
 
 const ERRORS_DO_NOT_DISPLAY = ['NavigationDuplicated'] // error names not to display to the user
-const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError', 'NotAuthenticated'] // error to avoid loopholes
+const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError', 'NotAuthenticated', 'BadRequest'] // error to avoid loopholes
 
 let processingTimer // timeout object
 
