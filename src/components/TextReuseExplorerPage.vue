@@ -3,7 +3,7 @@
     <template v-slot:header>
       <b-navbar type="light" variant="light">
         <section class="pt-2 pb-1">
-          <span class="label small-caps">{{ $t('textReuse') }}</span>
+          <span class="label small-caps">{{ $t('textReuse').toLowerCase() }}</span>
           <small><info-button name="which-text-reuse" class="text-muted"/></small>
           <h3 class="mb-1">
             <span v-if="isLoading">
@@ -12,11 +12,33 @@
             <span>{{ $t('routes.' + $route.name) }}</span>
           </h3>
           <section class="text-serif TextReuseExplorerPage_summary">
-            <span v-html="incipit" />
-            <SearchQuerySummary
-              v-on:updated="summaryUpdatedHandler"
-              :search-query="{ filters: supportedFiltersWithItems }"
-            />
+            <div>
+              <span v-html="incipit" />
+              <SearchQuerySummary
+                v-on:updated="summaryUpdatedHandler"
+                :search-query="{ filters: supportedFiltersWithItems }"
+              />
+            </div>
+            <div class="ml-2">
+              <AddToCollection
+                @item:click="handleAddToCollectionClick"
+                @create="handleCreateCollection"
+                :title="$t('addTrQueryResultsToCollection')"
+              >
+                <template slot="empty">
+                  <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>
+                  <b-button
+                    size="sm"
+                    class="small-caps rounded shadow-sm mt-3"
+                    variant="outline-secondary"
+                    v-b-modal.createCollectionFromFilters
+                  >
+                    <span class="dripicons-archive pr-1"></span>
+                    {{ $t('query_add_to_collection') }}
+                  </b-button>
+                </template>
+              </AddToCollection>
+            </div>
           </section>
         </section>
       </b-navbar>
@@ -29,6 +51,14 @@
             class="pl-2"
           >
             <span>{{ $t('routeTextReuseOverview') }}</span>
+          </b-nav-item>
+          <b-nav-item
+            :to="goToRoute({ name: 'textReuseStatistics' })"
+            active-class="active"
+            exact
+            class="pl-2"
+          >
+            <span>{{ $t('routeTextReuseStatistics') }}</span>
           </b-nav-item>
           <b-nav-item
             :to="goToRoute({ name: 'textReuseClusters' })"
@@ -57,31 +87,17 @@
             />
           </b-nav-item>
 
-          <b-nav-text class="p-0 d-flex align-items-center ml-3">
-            <AddToCollection
-              @item:click="handleAddToCollectionClick"
-              @create="handleCreateCollection"
-              :title="$t('addTrQueryResultsToCollection')"
-            >
-              <template slot="empty">
-                <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>
-                <b-button
-                  size="sm"
-                  class="small-caps rounded shadow-sm mt-3"
-                  variant="outline-secondary"
-                  v-b-modal.createCollectionFromFilters
-                >
-                  <span class="dripicons-archive pr-1"></span>
-                  {{ $t('query_add_to_collection') }}
-                </b-button>
-              </template>
-            </AddToCollection>
-          </b-nav-text>
+          <b-nav-text class="p-0 d-flex align-items-center ml-3"> </b-nav-text>
         </template>
       </b-tabs>
     </template>
     <TextReuseOverview
       v-if="$route.name === 'textReuseOverview'"
+      :filters="supportedFilters"
+      :loading="isLoading"
+    ></TextReuseOverview>
+    <TextReuseStatistics
+      v-if="$route.name === 'textReuseStatistics'"
       :filters="supportedFilters"
       :loading="isLoading"
     />
@@ -177,6 +193,7 @@ import List from '@/components/modules/lists/List'
 import ClusterItem from '@/components/modules/lists/ClusterItem'
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem'
+import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics'
 import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { mapPagination, mapOrderBy } from '@/logic/queryParams'
 import { textReusePassages, search as searchService } from '@/services'
@@ -209,6 +226,7 @@ export default {
     TextReusePassageItem,
     InfoButton,
     List,
+    TextReuseStatistics,
     TextReuseOverview,
     SearchQuerySummary,
     CreateCollection,
@@ -495,30 +513,32 @@ export default {
 <i18n>
   {
     "en": {
-      "textReuse": "text reuse",
+      "textReuse": "Text Reuse",
       "textReuseSummaryIncipit": "{passages} in {clusters}",
       "textReuseSummaryIncipitWithoutClusters": "{passages}",
       "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
       "routeTextReusePassages": "no passages | <span class='number'>1</span> passage | <span class='number'>{n}</span> passages",
       "routeTextReuseOverview": "overview",
+      "routeTextReuseStatistics": "statistics",
       "query_add_to_collection": "Create new collection",
       "no_collections_found": "No collections found",
-      "addTrQueryResultsToCollection": "Add results to collection",
+      "addTrQueryResultsToCollection": "Save articles to collection",
       "sort_-date": "Date (newest first)",
       "sort_date": "Date (oldest first)",
-      "sort_-clusterSize": "Cluster size (biggest first)",
+      "sort_-clusterSize": "Cluster size (largest first)",
       "sort_clusterSize": "Cluster size (smallest first)",
-      "sort_-timeDifferenceDay": "Time difference (biggest first)",
+      "sort_-timeDifferenceDay": "Time difference (largest first)",
       "sort_timeDifferenceDay": "Time difference (smallest first)",
-      "sort_-size": "Passage size, number of tokens (biggest first)",
+      "sort_-size": "Passage size, number of tokens (largest first)",
       "sort_size": "Passage size, number of tokens (smallest first)",
-      "sort_-lexicalOverlap": "Lexical overlap (biggest first)",
+      "sort_-lexicalOverlap": "Lexical overlap (largest first)",
       "sort_lexicalOverlap": "Lexical overlap (smallest first)",
       "routes": {
-        "textReuse": "Text reuse",
-        "textReuseOverview": "Overview of text reuse",
-        "textReusePassages": "List of text reuse passages",
-        "textReuseClusters": "List of text reuse clusters"
+        "textReuse": "Text Reuse",
+        "textReuseStatistics": "Statistics",
+        "textReuseOverview": "Overview of Text Reuse Distribution",
+        "textReusePassages": "List of Text Reuse Passages",
+        "textReuseClusters": "List of Text Reuse Clusters"
       }
     }
   }
@@ -526,6 +546,10 @@ export default {
 <style lang="css">
 .TextReuseExplorerPage_summary .number {
   font-weight: bold;
+}
+.TextReuseExplorerPage_summary {
+  display: flex;
+  flex: 0 1;
 }
 .TextReuseExplorerPage_summary p {
   margin: 0;
