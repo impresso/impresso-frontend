@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="filter-facet">
     <base-title-bar>
       {{ $t(`label.${facet.type}.filterTitle`) }}
@@ -73,17 +73,6 @@
         @changed="filter => updateFilter(filterIndex, filter)"
       />
     </div>
-    <div v-if="showBuckets && unfilteredBuckets.length > 0">
-      <b-button size="sm" variant="link" @click="toggleAllVisibleBuckets">
-        {{
-          $t(selectedBucketsIds.length ? 'clearSelection' : 'selectAll', {
-            count: unfilteredBuckets.length,
-            selected: selectedBucketsIds.length,
-          })
-        }}
-      </b-button>
-      <!-- add checkbox that when selected, select all filter-facet-bucket checkboxes -->
-    </div>
     <div v-if="showBuckets">
       <filter-facet-bucket
         v-for="bucket in unfilteredBuckets"
@@ -102,10 +91,10 @@
         @toggle-bucket="toggleBucket"
       />
       <b-button
-        v-if="facet.numBuckets > 0 && facet.numBuckets > facet.buckets.length"
+        v-if="facet.numBuckets > 0 && countMissingBuckets"
         size="sm"
         variant="outline-secondary"
-        class="mt-2 mr-1"
+        class="mt-2 mr-1 rounded shadow-sm"
         @click="loadMoreBuckets"
       >
         <span v-if="isMoreLoading" v-html="$t('actions.loading')" />
