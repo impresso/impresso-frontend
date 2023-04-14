@@ -126,7 +126,7 @@ export default {
     "numbers": {
       "days": "the same day|over <span class='number'>{n}</span> day|over <span class='number'>{n}</span> days"
     },
-    "textReuseClusterSummary": "<b>{shortId}</b><br/><div>{clusterSize} with {lexicalOverlap} {timespan} ({dates}).</div><blockquote class='my-1 ml-0 border-left pl-2'>{textSampleExcerpt}</blockquote>"
+    "textReuseClusterSummary": "cluster <b>{shortId}</b><br/><div>{lexicalOverlap} {timespan} ({dates}).</div><blockquote class='my-1 ml-0 border-left pl-2'>{textSampleExcerpt}</blockquote>"
   }
 }
 </i18n>
