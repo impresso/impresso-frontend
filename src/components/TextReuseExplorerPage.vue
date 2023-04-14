@@ -60,7 +60,7 @@
           >
             <span>{{ $t('routeTextReuseStatistics') }}</span>
           </b-nav-item>
-          <b-nav-item
+          <!-- <b-nav-item
             :to="goToRoute({ name: 'textReuseClusters' })"
             active-class="active"
             class="pl-2"
@@ -72,7 +72,7 @@
                 })
               "
             />
-          </b-nav-item>
+          </b-nav-item> -->
           <b-nav-item
             :to="goToRoute({ name: 'textReusePassages' })"
             active-class="active"
@@ -517,7 +517,7 @@ export default {
       "textReuseSummaryIncipit": "{passages} in {clusters}",
       "textReuseSummaryIncipitWithoutClusters": "{passages}",
       "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
-      "routeTextReusePassages": "no passages | <span class='number'>1</span> passage | <span class='number'>{n}</span> passages",
+      "routeTextReusePassages": "no passages | view <span class='number'>1</span> passage | view <span class='number'>{n}</span> passages",
       "routeTextReuseOverview": "overview",
       "routeTextReuseStatistics": "statistics",
       "query_add_to_collection": "Create new collection",
