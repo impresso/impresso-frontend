@@ -345,7 +345,7 @@ export default {
           "textReuseCluster": "in clusters"
         },
         "pubof": {
-          "newspaper": "of",
+          "newspaper": "in",
           "textReuseCluster" : "clustered in"
         },
         "newspaper": "published in",
