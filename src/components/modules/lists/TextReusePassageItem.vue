@@ -1,28 +1,14 @@
 <template>
+  <!-- on hover, show the buttons -->
   <div class="TextReusePassageItem">
     <div>
-      <p class="small my-2">
-        <span v-html="textReuseClusterSummary"></span>
-        <br />
-        <button class="btn btn-link small btn-sm p-0">
-          <ItemSelector
-            :uid="item.textReuseCluster.id"
-            :item="item.textReuseCluster"
-            type="textReuseCluster"
-            context="textReuse"
-          >
-            {{ $t('seeTextReuseCluster') }}
-          </ItemSelector>
-        </button>
-      </p>
-      <span class="small-caps">{{ $t('fromArticle') }}</span>
       <TextReusePassageItemLabel :item="item" class="border-left pl-2 my-2 small border-tertiary" />
     </div>
     <!-- {{ item.collections }} -->
     <div class="rounded border border-tertiary bg-white shadow-sm p-1">
       <Ellipsis
-        v-bind:max-height="200"
-        v-bind:initialHeight="80"
+        v-bind:max-height="300"
+        v-bind:initialHeight="200"
         :additional-height="0"
         @click.prevent.stop
       >
@@ -31,6 +17,16 @@
         </p>
       </Ellipsis>
     </div>
+    <div class="small text-muted mb-2" v-html="textReuseClusterSummary"></div>
+
+    <b-button
+      variant="outline-secondary"
+      size="sm"
+      class="TextReusePassageItem_compareBtn float-left rounded shadow-sm"
+      @click="handleClusterClick"
+    >
+      {{ $t('seeTextReuseCluster') }}
+    </b-button>
   </div>
 </template>
 
@@ -44,7 +40,6 @@ export default {
     // ClusterDetailsPanel,
     TextReusePassageItemLabel,
     Ellipsis,
-    ItemSelector,
   },
   props: {
     selected: Boolean,
@@ -56,6 +51,27 @@ export default {
     },
     click: {
       type: Function,
+    },
+  },
+  methods: {
+    handleClusterClick() {
+      // <ItemSelector
+      //     :uid="item.textReuseCluster.id"
+      //     :item="item.textReuseCluster"
+      //     type="textReuseCluster"
+      //     context="textReuse"
+      //   >
+      //     {{ $t('seeTextReuseCluster') }}
+      //   </ItemSelector>
+      this.$store.dispatch('selectionMonitor/show', {
+        type: 'textReuseCluster',
+        item: this.item.textReuseCluster,
+        context: 'textReuse',
+        scope: 'comparePassages',
+        applyCurrentSearchFilters: false,
+        displayTimeline: false,
+        displayActionButtons: false,
+      })
     },
   },
   computed: {
@@ -92,6 +108,13 @@ export default {
 </script>
 
 <style lang="css">
+/* .TextReusePassageItem_compareBtn {
+  transition: opacity 0.2s ease-in-out;
+  opacity: 0.9;
+}
+.TextReusePassageItem:hover .TextReusePassageItem_compareBtn {
+  opacity: 1;
+} */
 .TextReusePassageItem {
   max-width: 350px;
 }
@@ -109,7 +132,7 @@ export default {
       "days": "<span class='number'>{n}</span> day|<span class='number'>{n}</span> days"
     },
     "fromArticle": "From article",
-    "seeTextReuseCluster": "see all passages in this cluster",
+    "seeTextReuseCluster": "compare with passages in cluster",
     "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap} over {timespan}. Content length: {size} tokens."
   }
 }
