@@ -13,7 +13,7 @@
           <b-tabs pills class="px-2" style="flex-grow:1">
             <template v-slot:tabs-end>
               <b-nav-item class="active">
-                <span v-html="$t(`tabs.${monitor.type}.${monitor.scope}`)" />
+                <span v-html="$t(`tabs.${monitor.type}.${monitor.scope}`).toLowerCase()" />
               </b-nav-item>
             </template>
           </b-tabs>
@@ -23,6 +23,18 @@
         </div>
         <!-- end header -->
         <!-- title -->
+        <!-- if this is a range filter, allow to modify it with input text fields -->
+        <SelectionMonitorFilter
+          v-if="
+            [
+              'textReuseClusterLexicalOverlap',
+              'textReuseClusterDayDelta',
+              'textReuseClusterSize',
+            ].includes(monitor.type)
+          "
+          :filter="monitorFilter"
+          @changeFilter="handleChangeFilter"
+        />
         <h2 class="mx-3" v-if="monitor.item">
           <ItemLabel :item="monitor.item" :type="monitor.type" />
           <span class="small-caps pl-2">{{ monitor.type }}</span>
@@ -30,7 +42,7 @@
         <div class="mx-3">{{ minDate.getFullYear() }} to {{ maxDate.getFullYear() }}</div>
         <!-- end title -->
         <!-- timeline -->
-        <div class="mx-2">
+        <div v-if="monitor.displayTimeline" class="mx-2">
           <timeline
             class="bg-light"
             :domain="[startYear, endYear]"
@@ -62,14 +74,17 @@
             <SearchQuerySummary
               class="d-inline"
               :search-query="{
-                filters: applyCurrentSearchFilters ? monitorFilters : [monitorFilter],
+                filters: [monitorFilter],
               }"
             />
           </p>
         </div>
         <!-- end filters -->
         <!-- actions -->
-        <div class="p-2 border-tertiary border-top d-flex justify-content-between">
+        <div
+          class="p-2 border-tertiary border-top d-flex justify-content-between"
+          v-if="monitor.displayActionButtons"
+        >
           <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
             {{
               $t(
@@ -94,6 +109,8 @@
         class="flex-grow-1 bg-dark"
       />
       <!-- end bottom -->
+      <div>(most recent of passages)</div>
+      <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
     </div>
   </div>
 </template>
@@ -107,6 +124,7 @@ import { searchFacets } from '@/services'
 import Timeline from '@/components/modules/Timeline'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
+import SelectionMonitorFilter from './SelectionMonitorFilter.vue'
 
 export default {
   props: {
@@ -126,6 +144,7 @@ export default {
     SearchQuerySummary,
     ItemLabel,
     TextReuseClusterMonitor,
+    SelectionMonitorFilter,
   },
   name: 'SelectionMonitor',
   computed: {
@@ -147,7 +166,11 @@ export default {
         //   : [this.monitor.item],
       })
     },
+
     monitorFilters() {
+      if (this.additionalFilters.length) {
+        return [...this.supportedFilters, ...this.additionalFilters]
+      }
       return [...this.supportedFilters, this.monitorFilter]
     },
     monitorFilterExists() {
@@ -164,7 +187,9 @@ export default {
         query.filters = [...this.supportedFilters]
       }
       // add curent item in filters
-      if (this.monitor.item) {
+      if (this.additionalFilters.length) {
+        query.filters.push(...this.additionalFilters)
+      } else if (this.monitor.item) {
         query.filters.push({
           type: this.monitor.type,
           q:
@@ -206,7 +231,7 @@ export default {
       }
       return this.$t(key, {
         count: this.$n(this.total),
-        context: this.context,
+        context: this.$t('contexts.' + this.context),
         // from: this.itemTimelineDomain[0],
         // to: this.itemTimelineDomain[1],
       })
@@ -239,8 +264,14 @@ export default {
     timelineValues: [],
     applyCurrentSearchFilters: false,
     isLoading: false,
+    additionalFilters: [],
   }),
   methods: {
+    handleChangeFilter(newFilter) {
+      // eslint-disable-next-line
+      console.debug('[SelectionMonitor] handleChangeFilter', newFilter)
+      this.additionalFilters = [newFilter]
+    },
     hide() {
       this.$store.dispatch('selectionMonitor/hide')
     },
@@ -286,7 +317,7 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[ItemSelector] @searchApiQueryParameters \n query:', query)
-        if (this.isActive) {
+        if (this.isActive && this.monitor.displayTimeline) {
           this.loadTimeline()
         }
       },
@@ -337,12 +368,22 @@ export default {
     "labels": {
       "applyCurrentSearchFilters": "Apply current search filters (<span class='number'>{count}</span>)"
     },
+    "contexts": {
+      "textReuse": "Text Reuse"
+    },
     "tabs": {
       "textReuseCluster": {
-        "overview": "cluster of text reuse"
+        "overview": "cluster of text reuse",
+        "comparePassages": "compare text reuse passages"
+      },
+      "textReuseClusterSize": {
+        "closeUp": "text reuse cluster size  - close-up view"
       },
       "textReuseClusterLexicalOverlap": {
-        "overview": "lexical overlap"
+        "closeUp": "lexical overlap  - close-up view"
+      },
+      "textReuseClusterDayDelta": {
+        "closeUp": "Time span in days  - close-up view"
       },
       "newspaper": {
         "overview": "newspaper"
@@ -374,7 +415,7 @@ export default {
     },
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> results in {context}",
-    "itemStatsFiltered": "<b class='number'>{count}</b> results in {context}, using current available search filters"
+    "itemStatsFiltered": "<b class='number'>{count}</b> results in {context} using current search filters"
   }
 }
 </i18n>

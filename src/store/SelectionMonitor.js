@@ -9,9 +9,12 @@ export default {
     items: [],
     // search query namespace, see SupportedFiltersByContext
     context: 'search',
-    // `overview` or `filter` or `detail`
+    // `overview` or `filter` or `detail` or very specific scopes, like `comparePassages`
+    // they are used to compose the title label
     scope: 'overview',
     type: null,
+    displayTimeline: true,
+    displayActionButtons: true,
   },
   mutations: {
     SET_SELECTION(
@@ -23,6 +26,8 @@ export default {
         scope = 'overview',
         items = [],
         applyCurrentSearchFilters = false,
+        displayTimeline = true,
+        displayActionButtons = true,
       },
     ) {
       state.isActive = true
@@ -32,6 +37,8 @@ export default {
       state.scope = scope
       state.type = type
       state.applyCurrentSearchFilters = applyCurrentSearchFilters
+      state.displayTimeline = displayTimeline
+      state.displayActionButtons = displayActionButtons
     },
     CLEAR_SELECTION(state) {
       state.isActive = false
@@ -41,6 +48,8 @@ export default {
       state.scope = 'overview'
       state.type = null
       state.applyCurrentSearchFilters = false
+      state.displayTimeline = true
+      state.displayActionButtons = true
     },
   },
   actions: {
