@@ -70,7 +70,7 @@
             <span v-else-if="part.value">{{ part.value }}</span>
           </span>
         </p>
-        <p class="p-3" v-else>
+        <p class="p-3" v-else-if="startPassage">
           {{ startPassage.content }}
         </p>
       </div>
