@@ -2,7 +2,7 @@
   <i-layout-section main>
     <template v-slot:header>
       <b-navbar type="light" variant="light">
-        <section class="pt-2 pb-1">
+        <section class="pt-2 pb-1 w-100">
           <span class="label small-caps">{{ $t('textReuse').toLowerCase() }}</span>
           <small><info-button name="which-text-reuse" class="text-muted"/></small>
           <h3 class="mb-1">
@@ -11,7 +11,7 @@
             </span>
             <span>{{ $t('routes.' + $route.name) }}</span>
           </h3>
-          <section class="text-serif TextReuseExplorerPage_summary">
+          <section class="text-serif  TextReuseExplorerPage_summary">
             <div>
               <span v-html="incipit" />
               <SearchQuerySummary
@@ -549,7 +549,9 @@ export default {
 }
 .TextReuseExplorerPage_summary {
   display: flex;
-  flex: 0 1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 .TextReuseExplorerPage_summary p {
   margin: 0;
