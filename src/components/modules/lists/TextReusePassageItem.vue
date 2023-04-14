@@ -132,7 +132,7 @@ export default {
       "days": "<span class='number'>{n}</span> day|<span class='number'>{n}</span> days"
     },
     "fromArticle": "From article",
-    "seeTextReuseCluster": "compare with passages in cluster",
+    "seeTextReuseCluster": "Compare with other passages in cluster",
     "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap} over {timespan}. Content length: {size} tokens."
   }
 }
