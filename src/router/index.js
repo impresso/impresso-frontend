@@ -354,6 +354,18 @@ const router = new Router({
           },
         },
         {
+          path: 'statistics',
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
+            ),
+          name: 'textReuseStatistics',
+          meta: {
+            requiresAuth: false,
+            realm: 'textReuse',
+          },
+        },
+        {
           path: 'clusters',
           component: () =>
             import(

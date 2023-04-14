@@ -356,7 +356,7 @@ export default {
         empty: '(no results)',
       },
       textReuseClusterDayDelta: {
-        filterTitle: 'Day delta',
+        filterTitle: 'Time span in days',
       },
       textReuseClusterSize: { filterTitle: 'Cluster size' },
       textReuseClusterLexicalOverlap: { filterTitle: 'Lexical overlap' },

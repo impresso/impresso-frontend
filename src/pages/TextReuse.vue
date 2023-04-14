@@ -252,6 +252,7 @@ export default {
         item: filter,
         context: 'textReuse',
         type: filter.type,
+        scope: 'closeUp',
         applyCurrentSearchFilters: true,
       })
     },
