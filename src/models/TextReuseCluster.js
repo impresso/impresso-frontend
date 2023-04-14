@@ -67,7 +67,7 @@ export default class TextReuseCluster {
       textSampleTitle: item.title,
       textSampleContent: item.content,
       textSampleExcerpt:
-        item.content.length > 100 ? `${item.content.substring(0, 100)}...` : item.content,
+        item.content.length > 200 ? `${item.content.substring(0, 200)}...` : item.content,
       textSampleArticle: item.article,
       textSampleDate: item.date,
       timeDifferenceDay: item.textReuseCluster.timeDifferenceDay,
