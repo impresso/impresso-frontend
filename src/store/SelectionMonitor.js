@@ -15,6 +15,7 @@ export default {
     type: null,
     displayTimeline: true,
     displayActionButtons: true,
+    debug: false,
   },
   mutations: {
     SET_SELECTION(

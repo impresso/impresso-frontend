@@ -499,6 +499,15 @@ input[type='range']:active::-ms-thumb {
   padding: 0;
 }
 
+// change button color when bg-dark
+.bg-dark .btn.dropdown-toggle {
+  border-color: var(--clr-grey-800);
+  &:not(.disabled):focus,
+  &:hover {
+    background-color: transparent;
+  }
+}
+
 .tooltip-inner {
   max-width: auto;
   text-align: left;

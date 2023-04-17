@@ -64,8 +64,8 @@ export default {
       //     {{ $t('seeTextReuseCluster') }}
       //   </ItemSelector>
       this.$store.dispatch('selectionMonitor/show', {
-        type: 'textReuseCluster',
-        item: this.item.textReuseCluster,
+        type: 'textReusePassage',
+        item: this.item,
         context: 'textReuse',
         scope: 'comparePassages',
         applyCurrentSearchFilters: false,

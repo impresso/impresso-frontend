@@ -115,7 +115,13 @@ export default {
       })
     },
     getTextReusePassageSummary(item) {
-      return [this.$d(this.item.date, 'short'), item.title].join(' ')
+      const passageDate = item.date instanceof Date ? item.date : new Date(item.date)
+      // generate excerpt with ellipsis at the end if needed
+      const excerpt = item.content.length > 50 ? `${item.content.substring(0, 50)}…` : item.content
+      return [
+        `<span class='small-caps'>${this.$d(passageDate, 'long').toLowerCase()}</span>`,
+        `"${excerpt}"`,
+      ].join(' ')
     },
   },
 }

@@ -108,8 +108,13 @@
         v-if="monitor.type === 'textReuseCluster'"
         class="flex-grow-1 bg-dark"
       />
+      <TextReusePassageMonitor
+        :filters="applyCurrentSearchFilters ? monitorFilters : []"
+        :item="monitor.item"
+        v-if="monitor.type === 'textReusePassage'"
+        class="flex-grow-1 bg-dark"
+      ></TextReusePassageMonitor>
       <!-- end bottom -->
-      <div>(most recent of passages)</div>
       <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
     </div>
   </div>
@@ -145,6 +150,7 @@ export default {
     ItemLabel,
     TextReuseClusterMonitor,
     SelectionMonitorFilter,
+    TextReusePassageMonitor: () => import('./TextReusePassageMonitor.vue'),
   },
   name: 'SelectionMonitor',
   computed: {
@@ -340,7 +346,8 @@ export default {
   pointer-events: auto;
 }
 
-.SelectionMonitor.textReuseCluster {
+.SelectionMonitor.textReuseCluster,
+.SelectionMonitor.textReusePassage {
   width: 800px;
   top: 10%;
   bottom: 10%;
@@ -374,6 +381,9 @@ export default {
     "tabs": {
       "textReuseCluster": {
         "overview": "cluster of text reuse",
+        "comparePassages": "compare text reuse passages"
+      },
+      "textReusePassage": {
         "comparePassages": "compare text reuse passages"
       },
       "textReuseClusterSize": {
