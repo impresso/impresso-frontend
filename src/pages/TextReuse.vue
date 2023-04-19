@@ -75,7 +75,7 @@
         collapsible
         @changed="handleFacetFiltersChanged"
         :info-button-id="
-          facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : false
+          facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : null
         "
       />
     </i-layout-section>
