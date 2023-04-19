@@ -2,6 +2,7 @@
   <div class="FilterDynamicRange">
     <BaseTitleBar>
       {{ $t(`label.${facet.type}.filterTitle`).toLowerCase() }}
+      <InfoButton v-if="infoButtonId" :name="infoButtonId" class="ml-1" />
     </BaseTitleBar>
     <!-- min 100px height -->
     <div v-if="loading" class="text-center" style="height: 100px">
@@ -64,6 +65,8 @@ import { serializeFilters } from '@/logic/filters'
 import { stats as statsService, searchFacets as searchFacetsService } from '@/services'
 import Tooltip from './tooltips/Tooltip'
 import FilterFactory from '@/models/FilterFactory'
+import InfoButton from '@/components/base/InfoButton'
+
 /** export vue component that display range facets based on actual stats for the solr field */
 export default {
   name: 'FilterDynamicRange',
@@ -71,6 +74,7 @@ export default {
     BaseTitleBar,
     HistogramSlider,
     Tooltip,
+    InfoButton,
   },
   data() {
     return {
@@ -89,6 +93,9 @@ export default {
     }
   },
   props: {
+    infoButtonId: {
+      type: String,
+    },
     facet: {
       type: Object,
       required: true,

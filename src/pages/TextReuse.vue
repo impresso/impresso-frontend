@@ -62,6 +62,7 @@
         :facet-filters="allowedFilters"
         @changed="handleFiltersChanged"
         @clicked="handleFacetFiltersClicked"
+        :info-button-id="`text-reuse-filter-${facet.type}`"
       />
       <FilterFacet
         v-for="(facet, index) in standardFacets"
