@@ -71,6 +71,7 @@ export default {
         applyCurrentSearchFilters: false,
         displayTimeline: false,
         displayActionButtons: false,
+        displayCurrentSearchFilters: false,
       })
     },
   },

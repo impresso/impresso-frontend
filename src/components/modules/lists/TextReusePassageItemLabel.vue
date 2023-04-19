@@ -2,6 +2,7 @@
   <div class="TextReusePassageItemLabel">
     <h3>
       <router-link
+        v-if="item.article"
         :to="{
           name: 'issue-viewer',
           params: {

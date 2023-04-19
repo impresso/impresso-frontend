@@ -39,7 +39,9 @@
           <ItemLabel :item="monitor.item" :type="monitor.type" />
           <span class="small-caps pl-2">{{ monitor.type }}</span>
         </h2>
-        <div class="mx-3">{{ minDate.getFullYear() }} to {{ maxDate.getFullYear() }}</div>
+        <div v-if="monitor.displayTimeline" class="mx-3">
+          {{ minDate.getFullYear() }} to {{ maxDate.getFullYear() }}
+        </div>
         <!-- end title -->
         <!-- timeline -->
         <div v-if="monitor.displayTimeline" class="mx-2">
@@ -59,7 +61,7 @@
         </div>
         <!-- end timeline -->
         <!-- filters -->
-        <div class="mx-3">
+        <div class="mx-3" v-if="monitor.displayCurrentSearchFilters">
           <b-form-group class="m-0">
             <b-form-checkbox v-model="applyCurrentSearchFilters">
               <span
@@ -112,7 +114,7 @@
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
         :item="monitor.item"
         v-if="monitor.type === 'textReusePassage'"
-        class="flex-grow-1 bg-dark"
+        class="flex-grow-1 bg-dark mt-2"
       ></TextReusePassageMonitor>
       <!-- end bottom -->
       <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
@@ -189,7 +191,7 @@ export default {
         limit: 500,
         filters: [],
       }
-      if (this.applyCurrentSearchFilters) {
+      if (this.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
         query.filters = [...this.supportedFilters]
       }
       // add curent item in filters

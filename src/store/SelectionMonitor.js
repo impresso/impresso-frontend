@@ -29,6 +29,7 @@ export default {
         applyCurrentSearchFilters = false,
         displayTimeline = true,
         displayActionButtons = true,
+        displayCurrentSearchFilters = true,
       },
     ) {
       state.isActive = true
@@ -40,6 +41,7 @@ export default {
       state.applyCurrentSearchFilters = applyCurrentSearchFilters
       state.displayTimeline = displayTimeline
       state.displayActionButtons = displayActionButtons
+      state.displayCurrentSearchFilters = displayCurrentSearchFilters
     },
     CLEAR_SELECTION(state) {
       state.isActive = false
@@ -51,6 +53,7 @@ export default {
       state.applyCurrentSearchFilters = false
       state.displayTimeline = true
       state.displayActionButtons = true
+      state.displayCurrentSearchFilters = true
     },
   },
   actions: {
