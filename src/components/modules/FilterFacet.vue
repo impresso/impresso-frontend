@@ -12,9 +12,9 @@
       />
       <info-button
         class="ml-1"
-        v-if="facet.type === 'person' || facet.type === 'location'"
+        v-if="infoButtonId || facet.type === 'person' || facet.type === 'location'"
         :target="facet.type"
-        name="what-is-nep"
+        :name="infoButtonId || 'what-is-nep'"
       />
       <info-button v-if="facet.type === 'newspaper'" name="which-newspapers" class="ml-1" />
       <info-button v-if="facet.type === 'topic'" name="how-to-read-the-topics" class="ml-1" />
@@ -167,6 +167,7 @@ export default {
     },
     isLoading: Boolean,
     collapsible: Boolean,
+    infoButtonId: String,
   },
   computed: {
     showBuckets() {

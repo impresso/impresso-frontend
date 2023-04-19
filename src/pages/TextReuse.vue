@@ -39,6 +39,7 @@
       </template>
       <template v-if="timelineValues.length">
         <FilterTimeline
+          info-button-id="text-reuse-filter-year"
           class="py-2 mx-3"
           :key="`t-year`"
           group-by="passages"
@@ -73,6 +74,9 @@
         :context-filters="allowedFilters"
         collapsible
         @changed="handleFacetFiltersChanged"
+        :info-button-id="
+          facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : false
+        "
       />
     </i-layout-section>
     <router-view :filters="filters" :filtersWithItems="filtersWithItems"></router-view>

@@ -2,6 +2,7 @@
   <div class="filter-timeline">
     <base-title-bar
       >{{ $t(`label.timeline.${groupBy}`) }}
+      <InfoButton v-if="infoButtonId" :name="infoButtonId" />
       <div slot="options">
         <b-button
           v-show="filters.length"
@@ -104,6 +105,7 @@ import { getFilterHash } from '../../models/SearchQuery'
 export default {
   name: 'FilterTimeline',
   props: {
+    infoButtonId: String,
     startYear: Number,
     endYear: Number,
     minDate: Date,
