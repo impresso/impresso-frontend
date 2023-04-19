@@ -33,17 +33,9 @@ export default {
     loading: Boolean,
   },
   data: () => ({
-    facets: [
-      'newspaper',
-      'country',
-      'type',
-      'language',
-      'person',
-      'location',
-      'topic',
-      'partner',
-      'accessRight',
-    ].map(type => new Facet({ type })),
+    facets: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic'].map(
+      type => new Facet({ type }),
+    ),
   }),
   computed: {
     /** @returns {{ query: any, hash: string }} */
