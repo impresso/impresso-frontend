@@ -8,7 +8,7 @@
         </div>
         <div class="w-50">
           <div class="mx-3 d-flex flex-row align-items-center">
-            with n.
+            with #
 
             <!-- input form to increase pagination-->
             <b-form-input
