@@ -365,13 +365,34 @@
         ]
       },
       {
+        "title": "Personal Collections",
+        "faq": [
+          {
+            "id": "what-is-a-personal-collection",
+            "title": "What is a personal collection?",
+            "summary": "A personal collection is a set of articles that you can save on Impresso. A collection becomes part of each article, so that you can use it as you would use any other filter, like, country of publication, publication date, language, etc.",
+            "description": []
+          },
+          {
+            "id": "why-collections-are-limited",
+            "title": "Why are personal collections limited to 10 000 articles?",
+            "summary": "We have set a limit of 10 000 articles per collection to avoid performance issues.",
+            "description": [
+              "If your search returned more results, only the 10.000 most relevant items will be stored. If you need to create a collection with more items, please contact us."
+            ]
+          }
+        ]
+      },
+      {
         "title": "How do filters for text reuse data work?",
         "faq": [
           {
             "id": "text-reuse-filter-year",
             "title": "Number of passages per year",
             "summary": "Displays the total count of passages per year for a given query or filter operation.",
-            "description": "This gives a first indication, during which years text reuse occurred more commonly. Time sliders and precise date entry allow users to filter for exact date ranges to inspect."
+            "description": [
+              "This gives a first indication, during which years text reuse occurred more commonly. Time sliders and precise date entry allow users to filter for exact date ranges to inspect."
+            ]
           },
           {
             "id": "text-reuse-filter-textReuseClusterSize",

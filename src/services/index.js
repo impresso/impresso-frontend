@@ -81,7 +81,18 @@ app.hooks({
         if (window.app && window.app.$store) {
           // handle not authenticated error when removing authentication
           if (context.params.ignoreErrors) {
-            console.warn('app.hooks.error.all:ignoreErrors', context.error)
+            console.warn(
+              'app.hooks.error.all:ignoreErrors',
+              context.error?.name,
+              '\n - route:',
+              route,
+              '\n - code:',
+              context.error?.code,
+              '\n - type:',
+              context.error?.type,
+              '\n - data:',
+              context.error?.data,
+            )
           } else if (
             route === 'authentication.remove' &&
             context.error.name === 'NotAuthenticated'

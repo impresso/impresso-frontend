@@ -105,7 +105,11 @@
           v-on:hidden="updateLastNotificationDate"
         >
           <template slot="button-content">
-            <div class="dripicons-cloud-download position-relative" style="top:0.25em" />
+            <div
+              class="d-inline-block dripicons-cloud-download position-relative"
+              style="top:0.25em"
+            />
+            <span class="ml-1 small-caps">{{ $t('label_jobs') }}</span>
             <transition name="bounce">
               <b-badge v-if="runningJobs.length > 0" pill variant="danger" class="border">
                 {{ runningJobs.length }}
@@ -730,6 +734,7 @@ export default {
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
     "label_faq": "faq",
+    "label_jobs" : "jobs",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",

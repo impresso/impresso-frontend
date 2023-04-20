@@ -8,33 +8,36 @@
     modal-class="CreateCollection"
     dialog-class="drop-shadow rounded"
     o
-  >
+    ><div class="mt-3">
+      <p>
+        {{ $t('describeCollectionLimits') }}
+        <InfoButton :name="infoButtonId" />
+      </p>
+    </div>
     <form v-on:submit="submitHandler">
       <label for="inputName">{{ $t('Collection_Name') }}</label>
-      <p v-if="errorByInputField.inputName" v-html="errorByInputField.inputName" />
+      <p class="text-danger" v-if="inputNameError.length" v-html="inputNameError" />
       <b-form-input
+        :class="{
+          'is-invalid': inputNameError.length,
+        }"
         type="text"
         aria-required="true"
         required
         v-bind:placeholder="$t('Collection_Name')"
         name="inputName"
         ref="inputName"
-        v-model="inputName"
+        v-model.trim="inputName"
       />
       <label for="inputDescription" class="mt-3">Description</label>
       <textarea
         type="text"
         name="inputDescription"
         class="form-control"
-        v-model="inputDescription"
+        v-model.trim="inputDescription"
       />
     </form>
-    <div class="mt-3 small-caps">
-      <p>{{ $t('describeCollectionLimits') }}</p>
-      <p class="mb-0">
-        {{ $t('describeCollectionLimitsMore') }}
-      </p>
-    </div>
+
     <template slot="modal-footer">
       <b-button
         size="sm"
@@ -57,6 +60,9 @@
 </template>
 
 <script>
+import InfoButton from '@/components/base/InfoButton.vue'
+import { collections } from '@/services'
+
 export default {
   name: 'CreateCollection',
   props: {
@@ -72,6 +78,11 @@ export default {
       type: String,
       required: true,
     },
+    // description name used to generate the id
+    name: {
+      type: String,
+      required: false,
+    },
     index: {
       type: String,
       default: 'search',
@@ -80,42 +91,77 @@ export default {
       type: String,
       required: true,
     },
+    infoButtonId: {
+      type: String,
+      default: 'why-collections-are-limited',
+    },
   },
   data() {
     return {
       inputName: '',
-      inputDescription: this.description,
+      inputDescription: '',
+      inputNameError: '',
+      inputDescriptionError: '',
       errorByInputField: {},
+      formValidated: false,
     }
   },
-  emits: ['create', 'close'],
+  emits: ['collection:created', 'close'],
+  computed: {
+    metadata() {
+      return [String(this.name).trim(), String(this.description).replace(/(<([^>]+)>)/gi, '')]
+    },
+  },
   methods: {
     submitHandler(e) {
       e.preventDefault()
       // eslint-disable-next-line no-console
       console.debug('[CreateCollection] @submitHandler', this.inputName)
-      this.errorByInputField = {}
+      this.formValidated = true
       // check thqt the name is not empty
-      if (this.inputName === '') {
-        this.errorByInputField.inputName = this.$t('CollectionNameRequired')
+      if (this.inputName.trim() === '') {
+        this.inputNameError = this.$t('CollectionNameRequired')
         return
       }
-
-      this.$emit('create', this.inputName, this.inputDescription)
+      collections
+        .create(
+          { name: this.inputName, description: this.inputDescription },
+          { ignoreErrors: true },
+        )
+        .then(res => {
+          console.debug('[CreateCollection] @submitHandler, collection.create OK', res)
+          this.$emit('collection:created', res)
+        })
+        .catch(({ message, code, name }) => {
+          console.debug('[CreateCollection] @submitHandler, collection.create ERROR', {
+            message,
+            code,
+            name,
+          })
+          if (code === 409) {
+            this.inputNameError = this.$t('CollectionNameExists')
+          }
+        })
     },
   },
   watch: {
-    description(v) {
-      this.inputDescription = v.replace(/(<([^>]+)>)/gi, '')
+    metadata: {
+      handler([name, description]) {
+        this.inputDescription = description
+        this.inputName = name
+      },
+      immediate: true,
     },
   },
+  components: { InfoButton },
 }
 </script>
 <style lang="scss">
 .CreateCollection {
   .modal-content {
-    border-radius: 3px;
+    border-radius: 2px;
     box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.5);
   }
   .modal-header {
     border-bottom: 0;
@@ -136,7 +182,8 @@ export default {
         "cancel": "Cancel",
         "create": "Create"
       },
-      "CollectionNameRequired": "Please enter a name for your collection."
+      "CollectionNameRequired": "Please enter a name for your collection.",
+      "CollectionNameExists": "A collection with this name already exists."
     }
   }
 </i18n>

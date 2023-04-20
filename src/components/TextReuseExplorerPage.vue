@@ -22,7 +22,7 @@
             <div class="ml-2">
               <AddToCollection
                 @item:click="handleAddToCollectionClick"
-                @create="handleCreateCollection"
+                @create="handleAddToCollectionCreate"
                 :title="$t('addTrQueryResultsToCollection')"
               >
                 <template slot="empty">
@@ -182,8 +182,33 @@
       index="tr_passages"
       :title="$t('query_add_to_collection')"
       :description="summary"
+      :name="newCollectionName"
       @create="handleCreateCollection"
+      @collection:created="handleCollectionCreated"
     />
+    <ConfirmModal
+      id="confirmAddToCollectionFromFilters"
+      :title="$t('confirmAddToCollectionFromFilters')"
+      :okLabel="$t('saveToTheCollection')"
+      @ok="saveArticlesInSelectedCollection"
+      @close="
+        () => {
+          $bvModal.hide('confirmAddToCollectionFromFilters')
+        }
+      "
+    >
+      Selected collection:
+      <div
+        v-if="selectedCollection"
+        class="shadow-sm border px-3 mt-2 p-2 rounded"
+        style="background-color: rgba(0,0,0,.025)"
+      >
+        <ItemLabel :item="selectedCollection" type="collection" />
+        <blockquote class="p-2 px-3 mt-2 text-small">
+          {{ selectedCollection.description }}
+        </blockquote>
+      </div>
+    </ConfirmModal>
   </i-layout-section>
 </template>
 
@@ -196,13 +221,15 @@ import TextReusePassageItem from '@/components/modules/lists/TextReusePassageIte
 import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics'
 import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { mapPagination, mapOrderBy } from '@/logic/queryParams'
-import { textReusePassages, search as searchService } from '@/services'
+import { textReusePassages, search as searchService, collections } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 import { optimizeFilters, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseCluster from '@/models/TextReuseCluster'
 import CreateCollection from './modules/collections/CreateCollection'
 import AddToCollection from './modules/collections/AddToCollection'
+import ConfirmModal from './modules/collections/ConfirmModal.vue'
+import ItemLabel from './modules/lists/ItemLabel.vue'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -231,6 +258,8 @@ export default {
     SearchQuerySummary,
     CreateCollection,
     AddToCollection,
+    ConfirmModal,
+    ItemLabel,
   },
   props: {
     /** @type {import('vue').PropOptions<Number>} */
@@ -261,6 +290,10 @@ export default {
     isLoadingPassages: false,
     isLoadingClusters: false,
     orderByOptions: OrderByOptions,
+    // this is sent to createcollection modal to prefill the input field
+    newCollectionName: '',
+    // this is the collection being selected to contains the articles
+    selectedCollection: null,
   }),
   methods: {
     summaryUpdatedHandler(summary) {
@@ -361,21 +394,53 @@ export default {
     handleAddToCollectionClick(item) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleAddToCollectionClick', item)
+      this.selectedCollection = item
+      // open up confimation modal...?
+      this.$bvModal.show('confirmAddToCollectionFromFilters')
+    },
+    // opens up create Collection modal
+    handleAddToCollectionCreate({ name = '' }) {
+      // eslint-disable-next-line
+      console.debug('[TextReuseExplorer] handleAddToCollectionCreate name:', name)
+      this.newCollectionName = name
+      this.$bvModal.show('createCollectionFromFilters')
+    },
+    handleCollectionCreated(collection) {
+      // eslint-disable-next-line
+      console.debug('[TextReuseExplorer] handleCollectionCreated', collection)
+      this.$bvModal.hide('createCollectionFromFilters')
+      this.$bvToast.toast('Collection created', {
+        title: 'Success',
+        variant: 'success',
+        solid: true,
+      })
+      this.selectedCollection = collection
+      this.saveArticlesInSelectedCollection()
+    },
+    saveArticlesInSelectedCollection() {
+      if (!this.selectedCollection) {
+        console.warn(
+          '[TextReuseExplorer] saveArticlesInSelectedCollection() \n no collection selected... nothing to do.',
+        )
+        return
+      }
       searchService
         .create(
           {
             taskname: 'add_to_collection_from_tr_passages_query',
             group_by: 'articles',
             index: 'tr_passages',
-            collection_uid: item.uid,
+            collection_uid: this.selectedCollection.uid,
             filters: optimizeFilters(this.supportedFilters),
           },
           { ignoreErrors: true },
         )
         .then(() => {
-          console.debug('[TextReuseExplorer]  success', item)
+          console.debug('[TextReuseExplorer]  success')
         })
         .catch(err => {
+          // eslint-disable-next-line
+          console.error('[TextReuseExplorer] handleCreateCollection', err)
           if (err.code === 400) {
             // eslint-disable-next-line
             console.warn('[TextReuseExplorer] handleAddToCollectionClick', err.data)
@@ -396,35 +461,21 @@ export default {
               },
             )
           }
-          // eslint-disable-next-line
-          console.error('[TextReuseExplorer] handleAddToCollectionClick', err)
         })
+      this.$bvModal.hide('confirmAddToCollectionFromFilters')
     },
-    handleCreateCollection(name, description) {
+    async handleCreateCollection(name, description) {
+      const collection = await collections.create({ name, description })
       // eslint-disable-next-line
       console.debug(
         '[TextReuseExplorer] handleCreateCollection \n - name: ',
         name,
         '\n - description: ',
         description,
+        collection,
       )
-      searchService
-        .create(
-          {
-            taskname: 'create_collection_from',
-            group_by: 'articles',
-            index: 'tr_passages',
-            filters: optimizeFilters(this.supportedFilters),
-          },
-          { ignoreErrors: true },
-        )
-        .then(() => {
-          console.debug('[TextReuseExplorer]  success')
-        })
-        .catch(err => {
-          // eslint-disable-next-line
-          console.error('[TextReuseExplorer] handleCreateCollection', err)
-        })
+
+      this.$bvModal.hide('createCollectionFromFilters')
     },
   },
   computed: {
@@ -539,7 +590,9 @@ export default {
         "textReuseOverview": "Overview of Text Reuse Distribution",
         "textReusePassages": "List of Text Reuse Passages",
         "textReuseClusters": "List of Text Reuse Clusters"
-      }
+      },
+      "confirmAddToCollectionFromFilters": "Add all filtered articles to a collection",
+      "saveToTheCollection": "Save to my collection"
     }
   }
   </i18n>
