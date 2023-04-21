@@ -29,7 +29,7 @@
           ></span>
         </b-button>
       </div>
-      <div slot="description" class="mb-2">
+      <div slot="description">
         <div v-if="isFiltered" v-html="$t(`label.${facet.type}.filtered`)" />
         <div v-else-if="selectedBucketsIds.length">
           <span v-html="$t(`label.${facet.type}.selected`, { count: selectedBucketsIds.length })" />
@@ -41,9 +41,9 @@
           <span v-else-if="!isLoading && !facet.buckets.length">
             {{ $t(`label.${facet.type}.empty`) }}
           </span>
-          <span v-else>
+          <!-- <span v-else>
             {{ $t(`label.${facet.type}.description`) }}
-          </span>
+          </span> -->
         </div>
       </div>
 
@@ -73,7 +73,7 @@
         @changed="filter => updateFilter(filterIndex, filter)"
       />
     </div>
-    <div v-if="showBuckets">
+    <div v-if="showBuckets" class="pt-2">
       <filter-facet-bucket
         v-for="bucket in unfilteredBuckets"
         :key="bucket.val"
@@ -140,7 +140,7 @@ export default {
     event: 'changed',
   },
   data: () => ({
-    isCollapsed: false,
+    isCollapsed: true,
     selectedBucketsIds: [],
     selectedBucketsItems: [],
     //
@@ -171,13 +171,19 @@ export default {
   },
   computed: {
     showBuckets() {
-      // always show if iscollaplible is selected.
+      // if it is filtered, always show
+      if (this.isFiltered || this.isCollapsible === false) {
+        return true
+      }
       return this.isCollapsible ? !this.isCollapsed : true
     },
     isCollapsible() {
       return this.collapsible && !this.isFiltered
     },
     isFiltered() {
+      if (this.contextFilters.length) {
+        return this.contextFilters.some(filter => filter.type === this.facet.type)
+      }
       return this.facetFilters.length
     },
     includedFilterItems() {
