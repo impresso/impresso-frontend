@@ -208,7 +208,14 @@ ul.nav.nav-pills .nav-item {
   .nav-link.active {
     color: $clr-primary;
     font-weight: bold;
-    box-shadow: 0 4px 0px -3px $clr-primary;
+    /** box shadow that looks like a border bottom solid  */
+    box-shadow: 0 2px 0px -1px $clr-primary; // 0 2px 0 -1px $clr-primary inset;
+  }
+  // hover
+  &:hover .nav-link {
+    color: $clr-primary;
+    /** box shadow that looks like a border bottom solid  */
+    box-shadow: 0 2px 0px -1px $clr-primary;
   }
 }
 // ul.nav.nav-pills {
