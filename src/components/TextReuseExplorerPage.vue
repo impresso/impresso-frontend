@@ -4,12 +4,13 @@
       <b-navbar type="light" variant="light">
         <section class="pt-2 pb-1 w-100">
           <span class="label small-caps">{{ $t('textReuse').toLowerCase() }}</span>
-          <small><info-button name="text-reuse" class="text-muted ml-1"/></small>
+
           <h3 class="mb-1">
             <span v-if="isLoading">
               ... (loading)
             </span>
             <span>{{ $t('routes.' + $route.name) }}</span>
+            <small><InfoButton name="text-reuse" class="ml-1"/></small>
           </h3>
           <section class="text-serif  TextReuseExplorerPage_summary">
             <div>

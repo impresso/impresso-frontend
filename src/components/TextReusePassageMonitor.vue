@@ -187,12 +187,12 @@ export default {
   color: var(--clr-grey-800);
 }
 .TextReusePassageMonitor p .added {
-  background-color: #42fd002e;
+  background-color: #0c7bdc;
   color: white;
 }
 .TextReusePassageMonitor p .removed {
-  background-color: #ff272763;
-  color: white;
+  background-color: #ffc20a;
+  color: black;
 }
 .TextReusePassageMonitor_pagination {
   color: var(--clr-grey-800);

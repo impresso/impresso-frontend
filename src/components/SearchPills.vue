@@ -12,147 +12,144 @@
         variant="transparent"
       ></b-button>
     </div>
-    <b-dropdown
-      size="sm"
-      variant="outline-primary"
-      class="mr-1 mb-1 search-pill"
-      v-for="{ filter, filterIndex } in pills"
-      :key="filterIndex"
-    >
-      <!--  button content -->
-      <template slot="button-content">
-        <!-- badge: initial type instead of icons -->
-        <span
-          class="filter-icon"
-          :class="[
-            { 'dripicons-align-justify': filter.type === 'string' },
-            { 'dripicons-minus': filter.type === 'title' },
-            { 'dripicons-message': filter.type === 'topic' },
-            { 'dripicons-user': filter.type === 'person' },
-            { 'dripicons-location': filter.type === 'location' },
-            { 'dripicons-pamphlet': filter.type === 'newspaper' },
-            { 'dripicons-web': filter.type === 'language' },
-            { 'dripicons-pulse': filter.type === 'daterange' },
-            { 'dripicons-calendar': filter.type === 'year' },
-            { 'dripicons-suitcase': filter.type === 'collection' },
-            { 'dripicons-tag': filter.type === 'type' },
-            { 'dripicons-print': filter.type === 'country' },
-            { 'dripicons-shopping-bag': filter.type === 'accessRight' },
-            { 'dripicons-store': filter.type === 'partner' },
-            { 'dripicons-conversation': filter.type === 'textReuseCluster' },
-            { 'dripicons-scale': numericTypes.includes(filter.type) },
-          ]"
-          :title="$tc(`label.${filter.type}.title`, 0)"
-        />
-        <!--  type:string, type:title -->
-        <span
-          class="label sp-string sp-title"
-          v-if="['string', 'title'].includes(filter.type)"
-          v-html="labelByItems({ items: filter.items, max: 2, prop: 'uid', op: filter.op })"
-          :class="[filter.context, filter.precision]"
-        >
-        </span>
-        <!--  type:topic -->
-        <span
-          class="label sp-topic"
-          v-if="filter.type === 'topic'"
-          v-html="labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt', op: filter.op })"
-          :class="filter.context"
-        >
-        </span>
-        <!--  type:person, type:location, type:newspaper -->
-        <span
-          class="label sp-labelled"
-          v-if="['person', 'location', 'newspaper'].indexOf(filter.type) !== -1"
-          v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
-          :class="filter.context"
-        >
-        </span>
-        <!--  type:language and other items -->
-        <span
-          class="label sp-generic-item"
-          v-if="
-            ['language', 'country', 'type', 'accessRight', 'partner'].indexOf(filter.type) !== -1
-          "
-          v-html="
-            labelByItems({
-              items: filter.items,
-              max: 2,
-              prop: 'uid',
-              translate: true,
-              type: filter.type,
-              op: filter.op,
-            })
-          "
-          :class="filter.context"
-        >
-        </span>
-        <!--  type:generic -->
-        <span
-          class="label sp-generic-item"
-          v-if="['year'].includes(filter.type)"
-          :class="filter.context"
-          >{{ Array.isArray(filter.q) ? filter.q.join(', ') : filter.q }}
-        </span>
-        <!--  type:text reuse id -->
-        <span
-          class="label sp-generic-item"
-          v-if="['textReuseCluster'].includes(filter.type)"
-          :class="filter.context"
-          >{{ Array.isArray(filter.q) ? filter.q.join(', ') : filter.q }}
-        </span>
-        <!--  type:collections -->
-        <span
-          class="label sp-collection"
-          v-if="filter.type === 'collection'"
-          v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
-          :class="filter.context"
-        >
-        </span>
+    <div v-for="{ filter, filterIndex } in pills" :key="filterIndex">
+      <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill">
+        <!--  button content -->
+        <template slot="button-content">
+          <!-- badge: initial type instead of icons -->
+          <span
+            class="filter-icon"
+            :class="[
+              { 'dripicons-align-justify': filter.type === 'string' },
+              { 'dripicons-minus': filter.type === 'title' },
+              { 'dripicons-message': filter.type === 'topic' },
+              { 'dripicons-user': filter.type === 'person' },
+              { 'dripicons-location': filter.type === 'location' },
+              { 'dripicons-pamphlet': filter.type === 'newspaper' },
+              { 'dripicons-web': filter.type === 'language' },
+              { 'dripicons-pulse': filter.type === 'daterange' },
+              { 'dripicons-calendar': filter.type === 'year' },
+              { 'dripicons-suitcase': filter.type === 'collection' },
+              { 'dripicons-tag': filter.type === 'type' },
+              { 'dripicons-print': filter.type === 'country' },
+              { 'dripicons-shopping-bag': filter.type === 'accessRight' },
+              { 'dripicons-store': filter.type === 'partner' },
+              { 'dripicons-conversation': filter.type === 'textReuseCluster' },
+              { 'dripicons-scale': numericTypes.includes(filter.type) },
+            ]"
+            :title="$tc(`label.${filter.type}.title`, 0)"
+          />
+          <!--  type:string, type:title -->
+          <span
+            class="label sp-string sp-title"
+            v-if="['string', 'title'].includes(filter.type)"
+            v-html="labelByItems({ items: filter.items, max: 2, prop: 'uid', op: filter.op })"
+            :class="[filter.context, filter.precision]"
+          >
+          </span>
+          <!--  type:topic -->
+          <span
+            class="label sp-topic"
+            v-if="filter.type === 'topic'"
+            v-html="
+              labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt', op: filter.op })
+            "
+            :class="filter.context"
+          >
+          </span>
+          <!--  type:person, type:location, type:newspaper -->
+          <span
+            class="label sp-labelled"
+            v-if="['person', 'location', 'newspaper'].indexOf(filter.type) !== -1"
+            v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
+            :class="filter.context"
+          >
+          </span>
+          <!--  type:language and other items -->
+          <span
+            class="label sp-generic-item"
+            v-if="
+              ['language', 'country', 'type', 'accessRight', 'partner'].indexOf(filter.type) !== -1
+            "
+            v-html="
+              labelByItems({
+                items: filter.items,
+                max: 2,
+                prop: 'uid',
+                translate: true,
+                type: filter.type,
+                op: filter.op,
+              })
+            "
+            :class="filter.context"
+          >
+          </span>
+          <!--  type:generic -->
+          <span
+            class="label sp-generic-item"
+            v-if="['year'].includes(filter.type)"
+            :class="filter.context"
+            >{{ Array.isArray(filter.q) ? filter.q.join(', ') : filter.q }}
+          </span>
+          <!--  type:text reuse id -->
+          <span
+            class="label sp-generic-item"
+            v-if="['textReuseCluster'].includes(filter.type)"
+            :class="filter.context"
+            >{{ Array.isArray(filter.q) ? filter.q.join(', ') : filter.q }}
+          </span>
+          <!--  type:collections -->
+          <span
+            class="label sp-collection"
+            v-if="filter.type === 'collection'"
+            v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
+            :class="filter.context"
+          >
+          </span>
 
-        <!--  type: (with slider) -->
-        <span
-          class="label sp-collection"
-          v-if="numericTypes.includes(filter.type)"
-          v-html="labelForNumeric({ items: filter.items, type: filter.type })"
-          :class="filter.context"
-        >
-        </span>
+          <!--  type: (with slider) -->
+          <span
+            class="label sp-collection"
+            v-if="numericTypes.includes(filter.type)"
+            v-html="labelForNumeric({ items: filter.items, type: filter.type })"
+            :class="filter.context"
+          >
+          </span>
 
-        <!--  type:daterange -->
-        <span
-          class="label sp-daterange"
-          v-if="filter.type === 'daterange'"
-          :class="filter.context"
-          v-html="labelByDaterangeItems({ items: filter.items, max: 2 })"
-        >
-        </span>
-      </template>
+          <!--  type:daterange -->
+          <span
+            class="label sp-daterange"
+            v-if="filter.type === 'daterange'"
+            :class="filter.context"
+            v-html="labelByDaterangeItems({ items: filter.items, max: 2 })"
+          >
+          </span>
+        </template>
 
-      <div class="p-2 pb-1 sp-contents">
-        <div class="description">
-          {{ $tc(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}
+        <div class="p-2 pb-1 sp-contents">
+          <div class="description">
+            {{ $tc(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}
+          </div>
+          <filter-monitor
+            checkbox
+            :filter="filter"
+            @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
+            :operators="['AND', 'OR']"
+          />
         </div>
-        <filter-monitor
-          checkbox
-          :filter="filter"
-          @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
-          :operators="['AND', 'OR']"
-        />
-      </div>
 
-      <!-- type is not string, add Remove button -->
-      <div class="px-2 mt-1 mb-2">
-        <b-button
-          block
-          size="sm"
-          variant="outline-primary"
-          @click="handleFilterRemoved(filterIndex)"
-          >{{ $t('actions.remove') }}</b-button
-        >
-      </div>
-    </b-dropdown>
-
+        <!-- type is not string, add Remove button -->
+        <div class="px-2 mt-1 mb-2">
+          <b-button
+            block
+            size="sm"
+            variant="outline-primary"
+            @click="handleFilterRemoved(filterIndex)"
+            >{{ $t('actions.remove') }}</b-button
+          >
+        </div>
+      </b-dropdown>
+    </div>
     <b-button
       v-if="enableAddFilter"
       class="mb-1"

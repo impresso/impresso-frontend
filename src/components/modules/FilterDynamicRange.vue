@@ -3,6 +3,12 @@
     <BaseTitleBar>
       {{ $t(`label.${facet.type}.filterTitle`).toLowerCase() }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" class="ml-1" />
+
+      <div slot="options">
+        <b-button v-show="isFiltered" size="sm" variant="outline-primary" @click="resetValues">
+          {{ $t(`actions.reset`) }}
+        </b-button>
+      </div>
     </BaseTitleBar>
     <!-- min 100px height -->
     <div v-if="loading" class="text-center" style="height: 100px">
@@ -30,31 +36,10 @@
         </slot>
       </tooltip>
     </div>
-    <div class="p-2" v-if="hasChanged || filterValue">
-      <b-row no-gutters>
-        <b-col class="pr-1">
-          <b-button
-            size="sm"
-            v-if="filterValue"
-            block
-            variant="outline-primary"
-            @click="resetValues"
-          >
-            {{ $t('actions.dismiss') }}
-          </b-button>
-        </b-col>
-        <b-col class="pl-1">
-          <b-button
-            size="sm"
-            v-if="hasChanged"
-            block
-            variant="outline-primary"
-            @click="applyValues"
-          >
-            {{ $t('actions.apply') }}
-          </b-button>
-        </b-col>
-      </b-row>
+    <div class="p-2" v-if="hasChanged">
+      <b-button size="sm" v-if="hasChanged" block variant="outline-primary" @click="applyValues">
+        {{ $t(isFiltered ? 'actions.applyChanges' : 'actions.apply') }}
+      </b-button>
     </div>
   </div>
 </template>
@@ -93,6 +78,7 @@ export default {
     }
   },
   props: {
+    isFiltered: Boolean,
     infoButtonId: {
       type: String,
     },
@@ -125,7 +111,7 @@ export default {
         type: this.facet.type,
         q: this.sliderValue.map(v => v.toString()),
       })
-      // if filterValue, change its values
+      // if isFiltered, change its values
       this.$emit('changed', [...this.otherFilters, rangeFilter])
     },
     resetValues() {
@@ -177,10 +163,7 @@ export default {
     hasChanged() {
       return this.value.join(',') !== this.sliderValue.join(',')
     },
-    filterValue() {
-      // check for type
-      return this.facetFilters.find(filter => filter.type === this.facet.type)
-    },
+
     otherFilters() {
       return this.facetFilters.filter(filter => filter.type !== this.facet.type)
     },

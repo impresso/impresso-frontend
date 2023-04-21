@@ -34,7 +34,10 @@
             @changed="handleFiltersChanged"
             :includedFilterTypes="allowedFilterTypes"
           />
-          <search-input @submit="handleSearchInputSubmit" placeholder="..."></search-input>
+          <search-input
+            @submit="handleSearchInputSubmit"
+            placeholder="start searching..."
+          ></search-input>
         </div>
       </template>
       <template v-if="timelineValues.length">
@@ -61,6 +64,7 @@
         :key="`rd-${i}`"
         :facet="facet"
         :facet-filters="allowedFilters"
+        :isFiltered="allowedFilters.some(f => f.type === facet.type)"
         @changed="handleFiltersChanged"
         @clicked="handleFacetFiltersClicked"
         :info-button-id="`text-reuse-filter-${facet.type}`"
@@ -103,6 +107,7 @@ import FilterTimeline from '@/components/modules/FilterTimeline'
  */
 
 const FacetTypes = [
+  'textReuseCluster',
   'newspaper',
   'topic',
   'collection',
@@ -112,7 +117,6 @@ const FacetTypes = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
-  'textReuseCluster',
 ]
 
 export default {

@@ -563,7 +563,7 @@ input[type='range']:active::-ms-thumb {
   cursor: pointer;
   vertical-align: middle;
   line-height: 1;
-  color: $clr-tertiary;
+  color: inherit; // $clr-tertiary;
 }
 .icon-link:hover {
   color: $clr-primary;
