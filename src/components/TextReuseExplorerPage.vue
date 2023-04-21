@@ -43,7 +43,7 @@
           </section>
         </section>
       </b-navbar>
-      <b-tabs pills class="mr-3">
+      <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
           <b-nav-item
             :to="goToRoute({ name: 'textReuseOverview' })"
