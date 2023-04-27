@@ -218,6 +218,21 @@ ul.nav.nav-pills .nav-item {
     box-shadow: 0 2px 0px -1px $clr-primary;
   }
 }
+
+.bg-dark ul.nav.nav-pills {
+  border-bottom: 1px solid $clr-grey-400;
+}
+.bg-dark ul.nav.nav-pills .nav-item {
+  .nav-link {
+    color: $clr-grey-800;
+  }
+  &.active .nav-link,
+  .nav-link.active {
+    color: white;
+    box-shadow: 0 2px 0px -1px white;
+  }
+}
+
 // ul.nav.nav-pills {
 //   border-bottom: 1px solid #dee2e6;
 // }
@@ -371,9 +386,24 @@ $clr-grey-900: #ddd;
   background-color: $clr-tertiary !important;
 }
 
-.btn-outline-primary {
+.btn-outline-primary,
+.btn-outline-secondary {
   border-radius: 2px;
   box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 3px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+}
+.btn-primary {
+  border-radius: 2px;
+  box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 3px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px,
+    inset rgba(255, 255, 255, 0.18) 0px 1px 1px 0px;
+}
+.dropdown-toggle[aria-expanded='true'] {
+  border-bottom: 1px solid white !important;
+}
+
+.bg-dark .btn-primary {
+  background-color: white;
+  color: black;
+  border: 1px solid $clr-primary;
 }
 // .btn-outline-primary:hover {
 //   color: $clr-dark;
@@ -521,6 +551,7 @@ input[type='range']:active::-ms-thumb {
 .dropdown-menu {
   min-width: 100px;
   padding: 0;
+  top: -0.5px !important;
 }
 
 // change button color when bg-dark

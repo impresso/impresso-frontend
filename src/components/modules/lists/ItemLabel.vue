@@ -1,7 +1,8 @@
-<template lang="html">
+<template>
   <div v-if="!detailed" class="d-inline" v-html="label" />
   <div v-else>
     <div v-if="type === 'newspaper'">
+      <div><label className="small-caps">newspaper's metadata</label></div>
       total pages: {{ $n(item.countArticles) }} <br />
       total issues: {{ $n(item.countIssues) }} <br />
       total extracted articles: {{ $n(item.countArticles) }};<br />
@@ -10,11 +11,14 @@
       last issue: <span v-if="item.lastIssue">{{ $d(item.lastIssue.date, 'short') }}</span>
     </div>
     <div v-if="type === 'topic'">
+      <div><label className="small-caps">top words in topic</label></div>
       <div class="d-inline-block word" v-for="(word, idx) in item.words" :key="idx">
         <span :style="{ opacity: word.l }">{{ word.w }}</span>
-        <span v-if="idx < item.words.length - 1">&middot;&nbsp;</span>
+        <span v-if="idx < item.words.length - 1">&nbsp;&middot;&nbsp;</span>
       </div>
-      <span class="small-caps">({{ $t(`buckets.language.${item.language}`) }})</span>
+      <span class="small-caps"
+        >&nbsp;({{ $t(`buckets.language.${item.language}`).toLowerCase() }})</span
+      >
     </div>
   </div>
 </template>
@@ -107,7 +111,6 @@ export default {
           dates = [minYear, maxYear]
         }
       }
-
       return this.$t('textReuseClusterSummary', {
         shortId: item.shortId,
         textSampleExcerpt: item.textSampleExcerpt,

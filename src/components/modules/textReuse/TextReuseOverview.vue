@@ -4,11 +4,12 @@
       <!-- <h2>Facets – top ten buckets</h2> -->
       <b-row>
         <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
-          <stacked-bars-panel
+          <StackedBarsPanel
             class=""
             :label="facet.type"
             :buckets="facet.buckets"
             :facet-type="facet.type"
+            :search-index="searchIndex"
           />
         </b-col>
       </b-row>
@@ -31,6 +32,10 @@ export default {
       default: () => [],
     },
     loading: Boolean,
+    searchIndex: {
+      type: String,
+      default: 'tr_passages',
+    },
   },
   data: () => ({
     facets: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic'].map(
@@ -41,7 +46,7 @@ export default {
     /** @returns {{ query: any, hash: string }} */
     searchFacetApiQueryParams() {
       const query = {
-        index: 'tr_passages',
+        index: this.searchIndex,
         limit: 10,
         order_by: '-count',
         page: 1,

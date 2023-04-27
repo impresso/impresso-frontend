@@ -8,7 +8,7 @@ export default {
     // items that are currently selected
     items: [],
     // search query namespace, see SupportedFiltersByContext
-    context: 'search',
+    searchIndex: 'search',
     // `overview` or `filter` or `detail` or very specific scopes, like `comparePassages`
     // they are used to compose the title label
     scope: 'overview',
@@ -23,7 +23,7 @@ export default {
       {
         item,
         type,
-        context = 'search',
+        searchIndex = 'search',
         scope = 'overview',
         items = [],
         applyCurrentSearchFilters = false,
@@ -35,7 +35,7 @@ export default {
       state.isActive = true
       state.item = item
       state.items = items
-      state.context = context
+      state.searchIndex = searchIndex
       state.scope = scope
       state.type = type
       state.applyCurrentSearchFilters = applyCurrentSearchFilters
@@ -47,7 +47,7 @@ export default {
       state.isActive = false
       state.item = null
       state.items = []
-      state.context = 'search'
+      state.searchIndex = 'search'
       state.scope = 'overview'
       state.type = null
       state.applyCurrentSearchFilters = false
@@ -57,9 +57,11 @@ export default {
     },
   },
   actions: {
-    // context is the namespace of the search query.
-    // see SupportedFiltersByContext
+    // searchIndex is the namespace of the search query.
+    // see SupportedFiltersBysearchIndex
     show({ commit }, payload) {
+      // eslint-disable-next-line no-console
+      console.debug('store.SelectionMonitor.show', payload)
       commit('SET_SELECTION', payload)
     },
     hide({ commit }) {

@@ -4,18 +4,24 @@
       <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
       <span v-else>{{ item }}</span>
       <span v-if="bucket.count > -1">
-        (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })"/>)
+        (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
       </span>
-      <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
+      <item-selector
+        :uid="bucket.val"
+        :item="bucket.item"
+        :type="type"
+        :searchIndex="searchIndex"
+      />
     </b-form-checkbox>
   </div>
 </template>
 
 <script>
-import ItemSelector from './ItemSelector';
-import ItemLabel from './lists/ItemLabel';
+import ItemSelector from './ItemSelector'
+import ItemLabel from './lists/ItemLabel'
 
 export default {
+  name: 'FilterFacetBucket',
   data: () => ({
     operators: ['or', 'and', 'not'],
     operator: 'or',
@@ -35,26 +41,30 @@ export default {
       type: Boolean,
       default: true,
     },
+    searchIndex: {
+      type: String,
+      default: 'search',
+    },
   },
   computed: {
     isChecked: {
       get() {
-        return this.checked;
+        return this.checked
       },
       set(checked) {
-        this.checked = checked;
-        this.bucket.checked = checked;
-        this.bucket.operator = this.operator;
-        this.$emit('toggle-bucket', this.bucket);
+        this.checked = checked
+        this.bucket.checked = checked
+        this.bucket.operator = this.operator
+        this.$emit('toggle-bucket', this.bucket)
       },
     },
     selectedOperator() {
-      return this.$t(`operator.${this.operator}`);
+      return this.$t(`operator.${this.operator}`)
     },
   },
   methods: {
     selectOperator(operator) {
-      this.operator = operator;
+      this.operator = operator
     },
   },
   components: {
@@ -62,16 +72,16 @@ export default {
     ItemLabel,
   },
   mounted() {
-    this.checked = !!this.bucket.checked;
+    this.checked = !!this.bucket.checked
   },
-};
+}
 </script>
 
 <style lang="scss">
-.bucket span{
+.bucket span {
   font-variant: normal;
 }
-.bucket label{
+.bucket label {
   font-variant: normal;
 }
 </style>

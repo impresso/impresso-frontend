@@ -176,6 +176,8 @@ export const SupportedFiltersByContext = Object.freeze({
     'topic',
     'type',
     'country',
+    'location',
+    'person',
   ],
   textReusePassages: [
     'textReuseCluster',
@@ -191,6 +193,8 @@ export const SupportedFiltersByContext = Object.freeze({
     'topic',
     'type',
     'country',
+    'location',
+    'person',
   ],
   textReuseClusters: [
     'textReuseCluster',

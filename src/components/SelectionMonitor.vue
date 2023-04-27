@@ -82,25 +82,6 @@
           </p>
         </div>
         <!-- end filters -->
-        <!-- actions -->
-        <div
-          class="p-2 border-tertiary border-top d-flex justify-content-between"
-          v-if="monitor.displayActionButtons"
-        >
-          <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
-            {{
-              $t(
-                monitorFilterExists
-                  ? 'actions.removeFromCurrentFilters'
-                  : 'actions.addToCurrentFilters',
-              )
-            }}
-          </button>
-          <button v-on:click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">
-            {{ $t('actions.close') }}
-          </button>
-        </div>
-        <!-- end actions -->
       </section>
       <!-- end top -->
       <!-- bottom -->
@@ -113,10 +94,54 @@
       <TextReusePassageMonitor
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
         :item="monitor.item"
-        v-if="monitor.type === 'textReusePassage'"
+        v-else-if="monitor.type === 'textReusePassage'"
         class="flex-grow-1 bg-dark mt-2"
       ></TextReusePassageMonitor>
+      <!-- detailed label -->
+      <EntityMonitor
+        v-else-if="['person', 'location'].includes(monitor.type)"
+        :filters="applyCurrentSearchFilters ? monitorFilters : []"
+        :id="monitor.item.id || monitor.item.uid || ''"
+        :type="monitor.type"
+        :search-index="monitor.searchIndex"
+      />
+      <div
+        v-else-if="['topic', 'newspaper'].includes(monitor.type)"
+        class="m-3 border-top"
+        style="max-height: 150px; overflow: scroll"
+      >
+        <item-label :item="monitor.item" :type="monitor.type" detailed />
+        <!-- button url  -->
+        <div class="text-right bg-dark p-2" v-if="detailsUrl">
+          <router-link
+            class="btn btn-secondary px-5 rounded btn-sm"
+            :to="detailsUrl"
+            @click.native="hide"
+          >
+            {{ $t('actions.detail') }}
+          </router-link>
+        </div>
+      </div>
       <!-- end bottom -->
+      <!-- actions -->
+      <div
+        class="p-2 border-tertiary border-top d-flex justify-content-between"
+        v-if="monitor.displayActionButtons"
+      >
+        <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
+          {{
+            $t(
+              monitorFilterExists
+                ? 'actions.removeFromCurrentFilters'
+                : 'actions.addToCurrentFilters',
+            )
+          }}
+        </button>
+        <button v-on:click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">
+          {{ $t('actions.close') }}
+        </button>
+      </div>
+      <!-- end actions -->
       <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
     </div>
   </div>
@@ -126,13 +151,16 @@
 import Helpers from '@/plugins/Helpers'
 import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
-import { SupportedFiltersByContext, SupportedIndexByContext } from '@/logic/filters'
+import { SupportedFiltersByIndex } from '@/logic/filters'
 import { searchFacets } from '@/services'
 import Timeline from '@/components/modules/Timeline'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
 import SelectionMonitorFilter from './SelectionMonitorFilter.vue'
 
+/**
+ * SelectionMonitor component is initialized in App.vue and it is always available. The filters props is kept in sync with the current search filters.
+ */
 export default {
   props: {
     filters: {
@@ -153,12 +181,13 @@ export default {
     TextReuseClusterMonitor,
     SelectionMonitorFilter,
     TextReusePassageMonitor: () => import('./TextReusePassageMonitor.vue'),
+    EntityMonitor: () => import('./EntityMonitor.vue'),
   },
   name: 'SelectionMonitor',
   computed: {
     supportedFilters() {
       return this.filters.filter(filter =>
-        SupportedFiltersByContext[this.context].includes(filter.type),
+        SupportedFiltersByIndex[this.monitor.searchIndex].includes(filter.type),
       )
     },
     monitorFilter() {
@@ -184,14 +213,42 @@ export default {
     monitorFilterExists() {
       return this.filters.some(filter => filter.type === this.monitor.type)
     },
+
+    /** @returns {object} */
+    detailsUrl() {
+      if (!this.monitor.item) {
+        return null
+      } else if (this.monitor.type === 'newspaper') {
+        return {
+          name: 'newspaper',
+          params: {
+            newspaper_uid: this.monitor.item.uid,
+          },
+        }
+      } else if (this.monitor.type === 'topic') {
+        return {
+          name: 'topic',
+          params: {
+            topic_uid: this.monitor.item.uid,
+          },
+        }
+        // @ts-ignore
+      }
+      return null
+    },
     /** @returns {{ query: any, hash: string }} */
     timelineApiQueryParams() {
       const query = {
-        index: SupportedIndexByContext[this.context],
+        index: this.monitor.searchIndex,
         limit: 500,
         filters: [],
       }
-      if (this.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
+      console.debug(
+        '[SelectionMonitor] timelineApiQueryParams',
+        this.displayCurrentSearchFilters,
+        this.applyCurrentSearchFilters,
+      )
+      if (this.monitor.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
         query.filters = [...this.supportedFilters]
       }
       // add curent item in filters
@@ -218,9 +275,6 @@ export default {
     isActive() {
       return this.$store.state.selectionMonitor.isActive
     },
-    context() {
-      return this.$store.state.selectionMonitor.context
-    },
     applyCurrentSearchFiltersOnInit() {
       return this.$store.state.selectionMonitor.applyCurrentSearchFilters
     },
@@ -239,9 +293,7 @@ export default {
       }
       return this.$t(key, {
         count: this.$n(this.total),
-        context: this.$t('contexts.' + this.context),
-        // from: this.itemTimelineDomain[0],
-        // to: this.itemTimelineDomain[1],
+        searchIndex: this.$t('searchIndexes.' + this.monitor.searchIndex),
       })
     },
     /** @returns {Date} */
@@ -377,7 +429,9 @@ export default {
     "labels": {
       "applyCurrentSearchFilters": "Apply current search filters (<span class='number'>{count}</span>)"
     },
-    "contexts": {
+    "searchIndexes": {
+      "search": "articles",
+      "tr_passages": "text reuse passages",
       "textReuse": "Text Reuse"
     },
     "tabs": {
@@ -426,8 +480,8 @@ export default {
       }
     },
     "itemStatsEmpty": "No results apparently",
-    "itemStats": "<b class='number'>{count}</b> results in {context}",
-    "itemStatsFiltered": "<b class='number'>{count}</b> results in {context} using current search filters"
+    "itemStats": "<b class='number'>{count}</b> {searchIndex}",
+    "itemStatsFiltered": "<b class='number'>{count}</b> {searchIndex} using current search filters"
   }
 }
 </i18n>

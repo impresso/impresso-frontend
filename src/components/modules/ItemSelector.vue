@@ -7,13 +7,12 @@
 </template>
 
 <script>
-import { mapFilters } from '@/logic/queryParams'
-
 /**
  * Item selector component: given a specific item, display it on the Monitor component
- * <item-selector :uid="your-item.uid" :type="person" >
+ * <item-selector :uid="your-item.uid" :type="person" :search-index="search" >
  */
 export default {
+  name: 'ItemSelector',
   props: {
     uid: {
       type: String,
@@ -34,7 +33,7 @@ export default {
     label: {
       type: String,
     },
-    context: {
+    searchIndex: {
       type: String,
       default: 'search',
     },
@@ -49,17 +48,11 @@ export default {
         type: this.type,
       }
       if (!this.defaultClickActionDisabled) {
-        // this.$store.dispatch('monitor/ACTIVATE', {
-        //   ...params,
-        //   filters: this.filters,
-        //   filtersUpdatedCallback: filters => {
-        //     this.filters = filters
-        //   }
-        // })
         this.$store.dispatch('selectionMonitor/show', {
           item: this.item,
-          context: this.context,
+          searchIndex: this.searchIndex,
           type: this.type,
+          applyCurrentSearchFilters: true,
         })
       }
 
@@ -68,9 +61,6 @@ export default {
         defaultActionExecuted: !this.defaultClickActionDisabled,
       })
     },
-  },
-  computed: {
-    filters: mapFilters(),
   },
 }
 </script>

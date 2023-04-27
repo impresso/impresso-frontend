@@ -97,9 +97,9 @@ export default {
     height: 100%;
     overflow: hidden;
   }
-  .btn {
-    background-color: #f8f9fa;
-  }
+  // .btn {
+  //   background-color: #f8f9fa;
+  // }
   > .more {
     position: absolute;
     bottom: 0;

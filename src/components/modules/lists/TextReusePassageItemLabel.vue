@@ -27,7 +27,7 @@
       :uid="item.newspaper.id"
       :item="item.newspaper"
       type="newspaper"
-      context="textReuse"
+      search-index="textReuse"
     />
     &nbsp;
     <span class="small-caps date">{{ $d(new Date(item.date), 'long') }}</span>

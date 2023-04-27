@@ -80,6 +80,7 @@
         :loading="isLoading"
         :bucket="bucket"
         :type="facet.type"
+        :search-index="searchIndex"
         @toggle-bucket="toggleBucket"
       />
       <filter-facet-bucket
@@ -88,6 +89,7 @@
         :loading="isLoading"
         :bucket="bucket"
         :type="facet.type"
+        :search-index="searchIndex"
         @toggle-bucket="toggleBucket"
       />
       <b-button

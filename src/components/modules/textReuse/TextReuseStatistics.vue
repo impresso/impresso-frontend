@@ -318,7 +318,7 @@ export default defineComponent({
           name: item.term,
           uid: item.term,
         },
-        context: 'textReuse',
+        searchIndex: 'tr_passages',
         type: 'newspaper',
       })
     },
