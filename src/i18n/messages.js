@@ -95,6 +95,7 @@ export default {
       login: 'log in',
       generatePattern: 'Generate Pattern',
       getSimilarImages: 'view similar images ...',
+      previewFilter: 'Preview filter',
       requestNewPassword: 'Request New Password',
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
@@ -103,6 +104,7 @@ export default {
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
       addCurrentSearch: 'Add filters from your current search query',
+      updateCurrentFilters: 'modify filter in current search',
       viewTopic: 'go to topic',
     },
     filters: {
@@ -180,6 +182,9 @@ export default {
       includedLifespan:
         'available from <span class="date small-caps">{from}</span> to <span class="date small-caps">{to}</span>',
       notYetAvailable: 'not yet available',
+      fromTo: 'from <span class="date">{from}</span> to <span class="date">{to}</span>',
+      allResultsFallBetween:
+        'All results fall between <span class="date">{from}</span> and <span class="date">{to}</span>',
     },
     result: {
       label: {
