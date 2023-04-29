@@ -256,10 +256,23 @@ export default {
      * @param {Object} value
      */
     handleFacetFiltersClicked(filter) {
+      if (filter.type === 'textReuseClusterLexicalOverlap') {
+        this.$store.dispatch('selectionMonitor/show', {
+          item: {
+            ...filter,
+            q: [String(filter.q[0]), String(parseInt(filter.q[0], 10) + 0.99)],
+          },
+          searchIndex: 'tr_passages',
+          type: filter.type,
+          scope: 'closeUp',
+          applyCurrentSearchFilters: true,
+        })
+        return
+      }
       // open selection monitor
       this.$store.dispatch('selectionMonitor/show', {
         item: filter,
-        context: 'textReuse',
+        searchIndex: 'tr_passages',
         type: filter.type,
         scope: 'closeUp',
         applyCurrentSearchFilters: true,
