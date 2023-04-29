@@ -35,12 +35,18 @@
         </router-link>
       </div>
     </div>
-    <div
+    <ListOfItems
       v-else-if="tab === 'results' && searchIndex === 'tr_passages'"
-      class="d-flex justify-content-center"
+      :filters="filters"
+      :enabled="item !== null"
+      service="textReusePassages"
     >
-      <TextReusePassageItem v-for="match in matches" :key="match.id" :item="match" />
-    </div>
+      <template v-slot:default="items">
+        <div class="d-flex justify-content-center">
+          <TextReusePassageItem v-for="match in items.items" :key="match.id" :item="match" />
+        </div>
+      </template>
+    </ListOfItems>
     <div v-else-if="item">{{ item }}</div>
   </div>
 </template>
@@ -168,7 +174,12 @@ export default defineComponent({
       deep: false,
     },
   },
-  components: { WikidataBlock, Spinner, TextReusePassageItem },
+  components: {
+    WikidataBlock,
+    Spinner,
+    TextReusePassageItem,
+    ListOfItems: () => import('./ListOfItems.vue'),
+  },
 })
 </script>
 
