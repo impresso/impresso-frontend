@@ -1,20 +1,33 @@
 <template>
-  <section>
-    <div class="d-flex mx-3">
+  <section class="mx-3">
+    Between
+    <div class="d-flex align-items-center">
       <!-- add two inputs to change range usong b form input-->
-      <b-form-input v-model="rangeStart" type="number" placeholder="Min" size="sm" class="mr-2">
+      <b-form-input
+        v-model="rangeStart"
+        type="number"
+        placeholder="Min"
+        size="sm"
+        class="px-2 py-0 rounded"
+      >
       </b-form-input>
-      <b-form-input v-model="rangeEnd" type="number" placeholder="Max" size="sm" class="mr-2" />
+      <div data-v-6546ca54="" class="mx-2 text-small">and</div>
+      <b-form-input
+        v-model="rangeEnd"
+        type="number"
+        placeholder="Max"
+        size="sm"
+        class="px-2 py-0 rounded"
+      />
     </div>
-    <div class="mx-3">
+    <div v-if="!pristine" class="m-3 text-center">
       <b-button
         size="sm"
         variant="outline-secondary"
-        class="btn btn-sm btn-outline"
-        v-if="!pristine"
+        class="px-5 btn btn-sm btn-outline"
         @click="applyFilter"
       >
-        {{ $t('actions.applyFilter') }}
+        {{ $t('actions.previewFilter') }}
       </b-button>
     </div>
   </section>
