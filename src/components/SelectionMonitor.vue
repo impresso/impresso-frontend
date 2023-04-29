@@ -32,16 +32,15 @@
               'textReuseClusterSize',
             ].includes(monitor.type)
           "
-          :filter="monitorFilter"
+          :filter="additionalFilters.length ? additionalFilters[0] : monitorFilter"
           @changeFilter="handleChangeFilter"
+          class="border p-2 rounded"
         />
         <h2 class="mx-3" v-if="monitor.item">
           <ItemLabel :item="monitor.item" :type="monitor.type" />
-          <span class="small-caps pl-2">{{ monitor.type }}</span>
+          <span class="small-caps pl-2">{{ $t('types_' + monitor.type) }}</span>
         </h2>
-        <div v-if="monitor.displayTimeline" class="mx-3">
-          {{ minDate.getFullYear() }} to {{ maxDate.getFullYear() }}
-        </div>
+
         <!-- end title -->
         <!-- timeline -->
         <div v-if="monitor.displayTimeline" class="mx-2">
@@ -71,14 +70,25 @@
               />
             </b-form-checkbox>
           </b-form-group>
-          <p class="ml-1">
+          <p class="ml-1 SelectionMonitor_summary">
             <span v-html="statsLabel" />
             <SearchQuerySummary
               class="d-inline"
               :search-query="{
-                filters: [monitorFilter],
+                filters: additionalFilters.length ? additionalFilters : [monitorFilter],
               }"
             />
+            <span v-if="monitor.displayTimeline && this.total">
+              <br />
+              <span
+                v-html="
+                  $t('dates.allResultsFallBetween', {
+                    from: minDate.getFullYear(),
+                    to: maxDate.getFullYear(),
+                  })
+                "
+              />
+            </span>
           </p>
         </div>
         <!-- end filters -->
@@ -97,6 +107,24 @@
         v-else-if="monitor.type === 'textReusePassage'"
         class="flex-grow-1 bg-dark mt-2"
       ></TextReusePassageMonitor>
+      <!-- range closeup view-->
+      <ListOfItems
+        v-else-if="
+          [
+            'textReuseClusterLexicalOverlap',
+            'textReuseClusterDayDelta',
+            'textReuseClusterSize',
+          ].includes(monitor.type)
+        "
+        :filters="applyCurrentSearchFilters ? monitorFilters : []"
+        :searchIndex="monitor.searchIndex"
+      >
+        <template v-slot:default="props">
+          <div class="d-flex justify-content-center">
+            <TextReusePassageItem v-for="match in props.items" :key="match.id" :item="match" />
+          </div>
+        </template>
+      </ListOfItems>
       <!-- detailed label -->
       <EntityMonitor
         v-else-if="['person', 'location'].includes(monitor.type)"
@@ -130,11 +158,7 @@
       >
         <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
           {{
-            $t(
-              monitorFilterExists
-                ? 'actions.removeFromCurrentFilters'
-                : 'actions.addToCurrentFilters',
-            )
+            $t(monitorFilterExists ? 'actions.updateCurrentFilters' : 'actions.addToCurrentFilters')
           }}
         </button>
         <button v-on:click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">
@@ -143,6 +167,13 @@
       </div>
       <!-- end actions -->
       <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
+      <!-- <pre v-if="monitor.item" class="text-small">{{
+        JSON.stringify(
+          monitorFilters.map(d => ({ type: d.type, q: d.q })),
+          null,
+          2,
+        )
+      }}</pre> -->
     </div>
   </div>
 </template>
@@ -151,17 +182,22 @@
 import Helpers from '@/plugins/Helpers'
 import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
-import { SupportedFiltersByIndex } from '@/logic/filters'
+import { SupportedFiltersByIndex, optimizeFilters } from '@/logic/filters'
 import { searchFacets } from '@/services'
 import Timeline from '@/components/modules/Timeline'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
 import SelectionMonitorFilter from './SelectionMonitorFilter.vue'
+import ListOfItems from './ListOfItems.vue'
+import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
+import { defineComponent } from 'vue'
 
 /**
- * SelectionMonitor component is initialized in App.vue and it is always available. The filters props is kept in sync with the current search filters.
+ * SelectionMonitor component is initialized in App.vue and it is always available.
+ * The filters props is kept in sync with the current search filters.
  */
-export default {
+export default defineComponent({
+  name: 'SelectionMonitor',
   props: {
     filters: {
       type: Array,
@@ -182,8 +218,9 @@ export default {
     SelectionMonitorFilter,
     TextReusePassageMonitor: () => import('./TextReusePassageMonitor.vue'),
     EntityMonitor: () => import('./EntityMonitor.vue'),
+    ListOfItems: () => import('./ListOfItems.vue'),
+    TextReusePassageItem,
   },
-  name: 'SelectionMonitor',
   computed: {
     supportedFilters() {
       return this.filters.filter(filter =>
@@ -196,24 +233,21 @@ export default {
         q: Array.isArray(this.monitor.item.q)
           ? this.monitor.item.q.map(d => String(d))
           : [this.monitor.item.id ?? this.monitor.item.uid],
-        // items: this.monitor.items.length
-        //   ? this.monitor.items
-        //   : typeof this.monitor.item.q !== 'undefined'
-        //   ? []
-        //   : [this.monitor.item],
       })
     },
-
+    isMonitorFilterChanged() {
+      return !this.additionalFilters.length
+    },
     monitorFilters() {
+      const otherFilters = this.supportedFilters.filter(filter => filter.type !== this.monitor.type)
       if (this.additionalFilters.length) {
-        return [...this.supportedFilters, ...this.additionalFilters]
+        return otherFilters.concat(...this.additionalFilters)
       }
-      return [...this.supportedFilters, this.monitorFilter]
+      return otherFilters.concat(this.monitorFilter)
     },
     monitorFilterExists() {
       return this.filters.some(filter => filter.type === this.monitor.type)
     },
-
     /** @returns {object} */
     detailsUrl() {
       if (!this.monitor.item) {
@@ -249,19 +283,9 @@ export default {
         this.applyCurrentSearchFilters,
       )
       if (this.monitor.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
-        query.filters = [...this.supportedFilters]
-      }
-      // add curent item in filters
-      if (this.additionalFilters.length) {
-        query.filters.push(...this.additionalFilters)
-      } else if (this.monitor.item) {
-        query.filters.push({
-          type: this.monitor.type,
-          q:
-            typeof this.monitor.item.q !== 'undefined'
-              ? this.monitor.item.q
-              : this.monitor.item.id ?? this.monitor.item.uid,
-        })
+        query.filters = [...this.monitorFilters]
+      } else if (!this.applyCurrentSearchFilters && this.monitor.item) {
+        query.filters = [{ ...this.monitorFilter }]
       }
 
       return {
@@ -318,6 +342,9 @@ export default {
       }
       return new Date(`${this.endYear}-12-31`)
     },
+    monitorType() {
+      return this.monitor.type
+    },
   },
   data: () => ({
     total: 0,
@@ -336,13 +363,24 @@ export default {
       this.$store.dispatch('selectionMonitor/hide')
     },
     applyFilter() {
-      // if the filter type is already in the list, we need to merge the values
-      const updatedFilters = this.monitorFilterExists
-        ? this.filters.filter(f => f.type !== this.monitorFilter.type)
-        : this.monitorFilters
-      // eslint-disable-next-line
-      console.debug('[SelectionMonitor] applyFilter', updatedFilters)
-      this.$emit('change', updatedFilters)
+      if (!this.monitorFilterExists) {
+        this.$emit('change', this.monitorFilters)
+      } else if (this.additionalFilters.length) {
+        // additionalFilters are the edited version of the monitorFilter filter.
+        // if they're present we substitute the current filter with the edited version.
+        this.$emit(
+          'change',
+          this.filters
+            .filter(f => f.type !== this.monitorFilter.type)
+            .concat(this.additionalFilters),
+        )
+      } else {
+        // we replace the current filter with the monitorFilter
+        this.$emit(
+          'change',
+          this.filters.filter(f => f.type !== this.monitorFilter.type).concat(this.monitorFilter),
+        )
+      }
     },
     loadTimeline() {
       // eslint-disable-next-line
@@ -370,6 +408,11 @@ export default {
       },
       immediate: true,
     },
+    monitorType: {
+      handler() {
+        this.additionalFilters = []
+      },
+    },
     timelineApiQueryParams: {
       async handler({ query, hash }, previousValue) {
         if (previousValue && previousValue.hash === hash) {
@@ -385,7 +428,7 @@ export default {
       deep: false,
     },
   },
-}
+})
 </script>
 
 <style lang="css">
@@ -403,10 +446,19 @@ export default {
 .SelectionMonitor.textReuseCluster,
 .SelectionMonitor.textReusePassage {
   width: 800px;
-  top: 10%;
-  bottom: 10%;
+  top: 100px;
+  height: 600px;
   margin-top: auto;
   margin-left: -400px;
+}
+.SelectionMonitor.textReuseClusterSize,
+.SelectionMonitor.textReusePassageSize,
+.SelectionMonitor.textReuseClusterDayDelta,
+.SelectionMonitor.textReuseClusterLexicalOverlap {
+  /** pu the  */
+  top: 100px;
+  width: 400px;
+  margin-top: auto;
 }
 
 .SelectionMonitor_body {
@@ -422,6 +474,33 @@ export default {
 .SelectionMonitor h2 {
   font-size: inherit;
 }
+
+.SelectionMonitor_summary .date {
+  font-weight: bold;
+  /* all-small-caps */
+  text-transform: lowercase;
+  font-variant: small-caps;
+}
+
+/** for lg screen,increase selectionMonitorWidth */
+@media (min-width: 992px) {
+  .SelectionMonitor.textReuseCluster,
+  .SelectionMonitor.textReusePassage {
+    width: 600px;
+    margin-left: -300px;
+  }
+  .SelectionMonitor.textReuseClusterSize,
+  .SelectionMonitor.textReusePassageSize,
+  .SelectionMonitor.textReuseClusterDayDelta,
+  .SelectionMonitor.textReuseClusterLexicalOverlap {
+    width: 600px;
+    margin-left: -300px;
+  }
+  .SelectionMonitor .TextReusePassageItem {
+    max-width: initial;
+    margin: 0 var(--spacing-3);
+  }
+}
 </style>
 <i18n>
 {
@@ -434,6 +513,9 @@ export default {
       "tr_passages": "text reuse passages",
       "textReuse": "Text Reuse"
     },
+    "types_textReuseClusterSize": "cluster size",
+    "types_textReuseClusterDayDelta": "time span in days",
+    "types_textReuseClusterLexicalOverlap": "lexical overlap",
     "tabs": {
       "textReuseCluster": {
         "overview": "cluster of text reuse",
