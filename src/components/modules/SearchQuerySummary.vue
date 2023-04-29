@@ -79,7 +79,11 @@ export default {
         })
       }
 
-      ;['textReuseClusterSize', 'textReuseClusterLexicalOverlap'].forEach(type => {
+      ;[
+        'textReuseClusterSize',
+        'textReuseClusterLexicalOverlap',
+        'textReuseClusterDayDelta',
+      ].forEach(type => {
         if (filtersIndex[type]) {
           translationTable[type] = this.getRangeTranslation({
             filters: filtersIndex[type],
@@ -335,7 +339,7 @@ export default {
 <i18n>
   {
     "en": {
-      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap}",
+      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} ",
       "isFront": "appearing on the <em>front page</em>",
       "include": {
         "accessRight": "available as",
@@ -362,7 +366,8 @@ export default {
         "year": "in year",
         "textReuseCluster": "in clusters",
         "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-        "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>"
+        "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
+        "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
       },
       "exclude": {
         "accessRight": "not available as",
@@ -388,7 +393,8 @@ export default {
         "year": "not in year",
         "textReuseCluster": "not in clusters",
         "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-        "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>"
+        "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+        "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
       }
     }
   }
