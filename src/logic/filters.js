@@ -56,14 +56,21 @@ const omitBy = (object, fn) =>
  * @returns {Filter[]}
  */
 export function optimizeFilters(filters) {
-  const groupingMap = filters.reduce((map, filter) => {
-    const key = getFilterMergeKey(filter)
+  const groupingMap = filters.reduce((map, filter, i) => {
+    let key = getFilterMergeKey(filter)
+    // DO NOT GROUP range filters together
+    if (RangeFacets.includes(filter.type)) {
+      key += `-${i}`
+    }
+
     const items = map.get(key) || []
     map.set(key, items.concat([filter]))
     return map
   }, new Map())
+
   return [...groupingMap.entries()].map(([, filters]) => {
     const { type, context, precision, op } = filters[0]
+
     const q = filters
       .flatMap(({ q }) => {
         return Array.isArray(q) ? q : [q]
