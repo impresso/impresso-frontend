@@ -116,6 +116,7 @@
             'textReuseClusterSize',
           ].includes(monitor.type)
         "
+        :params="{ addons: { newspaper: 'text' } }"
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
         :searchIndex="monitor.searchIndex"
       >

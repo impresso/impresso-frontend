@@ -395,6 +395,15 @@
             ]
           },
           {
+            "id": "how-to-read-histograms",
+            "title": "How to read histograms",
+            "summary": "Each histogram is divided into 100 slots and results are evenly distributed across them. In the case of lexical overlap we are dealing with percentages and 1 slot corresponds to 1%. The histogram mouseover shows the number of results for each percentage value, e.g. “value: 61%  12434 results”.",
+            "description": [
+              "For the cluster size and time span filters these slots are filled and distributed depending on the total number of passages a query yields. For example, a query which yields 2000 passages is divided by the number of slots available, in this case 2000 / 100 = 20. Each slot then covers a range of 20 passages. The mouseover for the first slot then reads “range:  0-20   12434 results and for the second slot it reads “range 20-30 …” and so on.",
+              "Another example: A time span of 72700 days then corresponds to a range size of 72700 / 100 = 727. The second slot then covers the range 727 – 1454 and so on. (edited)"
+            ]
+          },
+          {
             "id": "text-reuse-filter-textReuseClusterSize",
             "title": "Cluster size",
             "summary": "Distribution of text reuse cluster sizes, i.e. the number of passages they contain.",

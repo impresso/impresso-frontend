@@ -58,6 +58,24 @@
         />
       </template>
       <FilterDynamicRange
+        class="py-2 mx-3"
+        index="tr_passages"
+        :facet="textReuseClusterSizeFacet"
+        :facet-filters="allowedFilters"
+        :isFiltered="allowedFilters.some(f => f.type === textReuseClusterSizeFacet.type)"
+        @changed="handleFiltersChanged"
+        @clicked="handleFacetFiltersClicked"
+        :info-button-id="`text-reuse-filter-${textReuseClusterSizeFacet.type}`"
+        count-label="numbers.passages"
+      >
+        <template v-slot:description>
+          <div class="mb-3">
+            How to read histograms
+            <InfoButton name="how-to-read-histograms" class="ml-1" />
+          </div>
+        </template>
+      </FilterDynamicRange>
+      <FilterDynamicRange
         v-for="(facet, i) in dynamicRangeFacets"
         class="py-2 mx-3"
         index="tr_passages"
@@ -67,6 +85,8 @@
         :isFiltered="allowedFilters.some(f => f.type === facet.type)"
         @changed="handleFiltersChanged"
         @clicked="handleFacetFiltersClicked"
+        count-label="numbers.passages"
+        :isPercentage="facet.type === 'textReuseClusterLexicalOverlap'"
         :info-button-id="`text-reuse-filter-${facet.type}`"
       />
       <FilterFacet
@@ -77,9 +97,7 @@
         :key="index"
         :context-filters="allowedFilters"
         collapsible
-        lazy
-        :lazy-delay="index * 500"
-        @changed="handleFacetFiltersChanged"
+        @changed="fs => handleFacetFiltersChanged(fs, facet.type)"
         :info-button-id="
           facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : null
         "
@@ -101,6 +119,7 @@ import { searchFacets } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import { facetToTimelineValues } from '@/logic/facets'
 import FilterTimeline from '@/components/modules/FilterTimeline'
+import InfoButton from '@/components/base/InfoButton.vue'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -132,6 +151,7 @@ export default {
     FilterRange,
     FilterTimeline,
     FilterDynamicRange,
+    InfoButton,
   },
   data: () => ({
     isLoading: false,
@@ -209,13 +229,12 @@ export default {
       }
       return new Date(`${this.endYear}-12-31`)
     },
+    textReuseClusterSizeFacet() {
+      return this.facets.find(({ type }) => type === 'textReuseClusterSize')
+    },
     dynamicRangeFacets() {
       const rangeFacets = this.facets.filter(({ type }) =>
-        [
-          'textReuseClusterSize',
-          'textReuseClusterDayDelta',
-          'textReuseClusterLexicalOverlap',
-        ].includes(type),
+        ['textReuseClusterDayDelta', 'textReuseClusterLexicalOverlap'].includes(type),
       )
       return rangeFacets
     },
@@ -248,7 +267,12 @@ export default {
         [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters)),
       })
     },
-    handleFacetFiltersChanged(filters) {
+    handleFacetFiltersChanged(filters, type) {
+      if (!filters.length) {
+        // reset only filter by type
+        this.handleFiltersChanged(this.filters.filter(({ type: t }) => t !== type))
+        return
+      }
       // eslint-disable-next-line
       console.debug('[TextReuse] handleFacetFiltersChanged', filters)
       // filter exists, update it
@@ -275,7 +299,7 @@ export default {
         this.$store.dispatch('selectionMonitor/show', {
           item: {
             ...filter,
-            q: [String(filter.q[0]), String(parseInt(filter.q[0], 10) + 0.99)],
+            q: [String(filter.q[0]), String(parseInt(filter.q[0], 10) + 0.999)],
           },
           searchIndex: 'tr_passages',
           type: filter.type,
@@ -352,15 +376,14 @@ export default {
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
         // await this.loadFacet('newspaper')
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
-        // await this.loadFacet('collection')
-        // await this.loadFacet('textReuseCluster')
-        // await this.loadFacet('topic')
-        // await this.loadFacet('type')
-        // await this.loadFacet('country')
-        // await this.loadFacet('language')
-        // await this.loadFacet('textReuseClusterSize', { groupby: 'textReuseCluster' })
-        // await this.loadFacet('textReuseClusterLexicalOverlap', { groupby: 'textReuseCluster' })
-        // await this.loadFacet('textReuseClusterDayDelta', { groupby: 'textReuseCluster' })
+        await this.loadFacet('collection')
+        await this.loadFacet('textReuseCluster')
+        await this.loadFacet('topic')
+        await this.loadFacet('type')
+        await this.loadFacet('country')
+        await this.loadFacet('language')
+        await this.loadFacet('person')
+        await this.loadFacet('location')
       },
       immediate: true,
       deep: false,

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div>
     <b-progress
       v-if="processingStatus"

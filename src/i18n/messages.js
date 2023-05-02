@@ -2,7 +2,7 @@ export default {
   en: {
     connectivityStatus: {
       offline: '⚡ offline!',
-      online: '🌐 online',
+      online: '',
     },
     untitled: '(untitled)',
     language: 'Language',

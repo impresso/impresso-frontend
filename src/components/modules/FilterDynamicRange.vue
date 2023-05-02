@@ -3,13 +3,16 @@
     <BaseTitleBar>
       {{ $t(`label.${facet.type}.filterTitle`).toLowerCase() }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" class="ml-1" />
-
+      <div slot="description">
+        <slot name="description"></slot>
+      </div>
       <div slot="options">
         <b-button v-show="isFiltered" size="sm" variant="outline-primary" @click="resetValues">
           {{ $t(`actions.reset`) }}
         </b-button>
       </div>
     </BaseTitleBar>
+
     <!-- min 100px height -->
     <div v-if="loading" class="text-center" style="height: 100px">
       <b-spinner small type="grow" variant="primary" />
@@ -29,9 +32,7 @@
         <slot :tooltip="tooltip">
           <div v-if="tooltip.item">
             <div v-html="tooltip.item.label"></div>
-            <div
-              v-html="$tc('numbers.results', tooltip.item.count, { n: $n(tooltip.item.count) })"
-            />
+            <div v-html="$tc(countLabel, tooltip.item.count, { n: $n(tooltip.item.count) })" />
           </div>
         </slot>
       </tooltip>
@@ -79,6 +80,14 @@ export default {
   },
   props: {
     isFiltered: Boolean,
+    countLabel: {
+      type: String,
+      default: 'numbers.results',
+    },
+    isPercentage: {
+      type: Boolean,
+      default: false,
+    },
     infoButtonId: {
       type: String,
     },
@@ -98,7 +107,6 @@ export default {
       type: String,
       default: 'search',
     },
-
     maxExpectedBuckets: {
       type: Number,
       default: 100,
@@ -125,13 +133,28 @@ export default {
       }
       // eslint-disable-next-line
       // console.debug('[FilterDynamicRange] handleMouseMove', value.pointer)
-      const label =
-        value.bucket.upper && value.bucket.upper !== value.bucket.lower
-          ? this.$t('valueAsRange', {
-              upper: this.$n(value.bucket.upper),
-              lower: this.$n(value.bucket.lower),
-            })
-          : this.$t('value', { val: this.$n(value.bucket.val) })
+      let label = ''
+      if (this.isPercentage) {
+        label =
+          value.bucket.upper && value.bucket.upper !== value.bucket.lower
+            ? this.$t('valuePercentage', {
+                upper: this.$n(value.bucket.upper),
+                lower: this.$n(value.bucket.lower),
+              })
+            : this.$t('valuePercentage', {
+                upper: this.$n(value.bucket.upper + 0.999),
+                lower: this.$n(value.bucket.lower),
+              })
+      } else {
+        label =
+          value.bucket.upper && value.bucket.upper !== value.bucket.lower
+            ? this.$t('valueAsRange', {
+                upper: this.$n(value.bucket.upper),
+                lower: this.$n(value.bucket.lower),
+              })
+            : this.$t('value', { val: this.$n(value.bucket.val) })
+      }
+
       this.tooltip = {
         item: {
           label,
@@ -252,6 +275,7 @@ export default {
 {
   "en": {
     "value": "value: <span class='number'>{val}</span>",
+    "valuePercentage": "value: <span class='number'>{lower}% - {upper}%</span>",
     "valueAsRange": "range: <span class='number'>{lower} - {upper}</span>"
   }
 }

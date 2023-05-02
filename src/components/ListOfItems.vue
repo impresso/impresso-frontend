@@ -66,7 +66,6 @@ export default defineComponent({
     items: [],
     totalItems: 0,
     page: 1,
-    limit: 10,
   }),
   computed: {
     service() {

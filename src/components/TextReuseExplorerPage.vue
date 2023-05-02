@@ -46,7 +46,7 @@
       <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
           <b-nav-item
-            :to="goToRoute({ name: 'textReuseOverview' })"
+            :to="goToRoute({ name: 'textReuseOverview', query: { p: 1 } })"
             active-class="active"
             exact
             class="pl-2"
