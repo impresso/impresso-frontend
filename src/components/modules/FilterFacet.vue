@@ -49,7 +49,7 @@
 
       <!-- .description -->
     </base-title-bar>
-
+    <LazyObserver v-if="lazy" :delay="lazyDelay" @onIntersect="onIntersectHandler" />
     <div
       v-for="{ filter, filterIndex } in includedFilterItems"
       :key="filterIndex"
@@ -128,8 +128,11 @@ import InfoButton from '@/components/base/InfoButton'
 import { toSerializedFilter } from '@/logic/filters'
 import Bucket from '@/models/Bucket'
 import { searchFacets } from '@/services'
+import LazyObserver from '../LazyObserver.vue'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
+  name: 'FilterFacet',
   /**
    * Model is a list of 0 or more filters of the same type (type
    * that matches the facet type). Model is changed whenver:
@@ -150,8 +153,14 @@ export default {
     skip: 0,
     additionalBuckets: [],
     isMoreLoading: false,
+    lazyIsPristine: true,
   }),
   props: {
+    lazy: Boolean,
+    lazyDelay: {
+      type: Number,
+      default: 100,
+    },
     searchIndex: {
       type: String,
       default: 'search',
@@ -336,7 +345,7 @@ export default {
             skip: this.skip,
           },
         })
-        .then(([{ buckets }]) => {
+        .then(([{ numBuckets, buckets }]) => {
           console.info('loadMoreBuckets', buckets, this.skip)
           this.additionalBuckets = this.additionalBuckets.concat(
             buckets.map(
@@ -348,6 +357,7 @@ export default {
             ),
           )
           this.skip = this.additionalBuckets.length + this.facet.buckets.length
+          this.facet.numBuckets = numBuckets
         })
         .catch(err => {
           console.error(err)
@@ -355,6 +365,33 @@ export default {
         .then(() => {
           this.isMoreLoading = false
         })
+    },
+    onIntersectHandler() {
+      if (this.lazyIsPristine) {
+        console.debug('[FilterFacet] @onIntersect type:', this.facet.type)
+        this.lazyIsPristine = false
+        // load initial buckets
+        searchFacets
+          .get(
+            this.facet.type,
+            {
+              query: {
+                index: this.searchIndex,
+                filters: this.contextFilters,
+                limit: this.limit,
+                skip: this.skip,
+              },
+            },
+            { ignoreErrors: true },
+          )
+          .then(([{ numBuckets, buckets }]) => {
+            this.facet.numBuckets = numBuckets
+            this.facet.setBuckets(buckets)
+          })
+          .catch(err => {
+            console.error(err)
+          })
+      }
     },
   },
   watch: {
@@ -373,8 +410,9 @@ export default {
     InfoButton,
     FilterMonitor,
     FilterFacetBucket,
+    LazyObserver,
   },
-}
+})
 </script>
 
 <style lang="css" scoped></style>

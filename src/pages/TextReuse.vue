@@ -77,6 +77,8 @@
         :key="index"
         :context-filters="allowedFilters"
         collapsible
+        lazy
+        :lazy-delay="index * 500"
         @changed="handleFacetFiltersChanged"
         :info-button-id="
           facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : null
@@ -115,6 +117,8 @@ const FacetTypes = [
   'country',
   'type',
   'language',
+  'person',
+  'location',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
@@ -168,6 +172,8 @@ export default {
           'type',
           'country',
           'language',
+          'person',
+          'location',
         ].includes(type),
       )
     },
@@ -344,16 +350,16 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
-        await this.loadFacet('newspaper')
+        // await this.loadFacet('newspaper')
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
-        await this.loadFacet('collection')
-        await this.loadFacet('textReuseCluster')
-        await this.loadFacet('topic')
-        await this.loadFacet('type')
-        await this.loadFacet('country')
-        await this.loadFacet('language')
+        // await this.loadFacet('collection')
+        // await this.loadFacet('textReuseCluster')
+        // await this.loadFacet('topic')
+        // await this.loadFacet('type')
+        // await this.loadFacet('country')
+        // await this.loadFacet('language')
         // await this.loadFacet('textReuseClusterSize', { groupby: 'textReuseCluster' })
-        await this.loadFacet('textReuseClusterLexicalOverlap', { groupby: 'textReuseCluster' })
+        // await this.loadFacet('textReuseClusterLexicalOverlap', { groupby: 'textReuseCluster' })
         // await this.loadFacet('textReuseClusterDayDelta', { groupby: 'textReuseCluster' })
       },
       immediate: true,
