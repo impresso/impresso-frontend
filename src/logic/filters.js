@@ -194,6 +194,7 @@ export const SupportedFiltersByContext = Object.freeze({
     'daterange',
     'newspaper',
     'collection',
+    'language',
     'string',
     'isFront',
     'title',

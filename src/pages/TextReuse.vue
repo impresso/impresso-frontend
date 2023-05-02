@@ -114,6 +114,7 @@ const FacetTypes = [
   'year',
   'country',
   'type',
+  'language',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
@@ -159,7 +160,15 @@ export default {
     },
     standardFacets() {
       return this.facets.filter(({ type }) =>
-        ['newspaper', 'collection', 'textReuseCluster', 'topic', 'type', 'country'].includes(type),
+        [
+          'newspaper',
+          'collection',
+          'textReuseCluster',
+          'topic',
+          'type',
+          'country',
+          'language',
+        ].includes(type),
       )
     },
     timelineFacets() {
@@ -342,6 +351,7 @@ export default {
         await this.loadFacet('topic')
         await this.loadFacet('type')
         await this.loadFacet('country')
+        await this.loadFacet('language')
         // await this.loadFacet('textReuseClusterSize', { groupby: 'textReuseCluster' })
         await this.loadFacet('textReuseClusterLexicalOverlap', { groupby: 'textReuseCluster' })
         // await this.loadFacet('textReuseClusterDayDelta', { groupby: 'textReuseCluster' })
