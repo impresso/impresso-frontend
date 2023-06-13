@@ -16,6 +16,7 @@
     <status-indicator />
   </div>
   <cookie-disclaimer />
+  <TroublesAhead />
 </div>
 </template>
 
@@ -26,6 +27,7 @@ import Monitor from './components/Monitor';
 import DisclaimerNotice from './components/modals/DisclaimerNotice';
 import StatusIndicator from './components/modals/StatusIndicator';
 import CookieDisclaimer from './components/modals/CookieDisclaimer';
+import TroublesAhead from './components/modals/TroublesAhead';
 
 export default {
   name: 'app',
@@ -35,6 +37,7 @@ export default {
     DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
+    TroublesAhead
   },
   computed: {
     termsAgreed() {
