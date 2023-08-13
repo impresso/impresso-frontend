@@ -29,6 +29,7 @@ module.exports = {
       .use('i18n')
       .loader('@intlify/vue-i18n-loader')
       .end();
+    // config.module.rule('ts').use('babel-loader').end();
   },
   pages: {
     index: {

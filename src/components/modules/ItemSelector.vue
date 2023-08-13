@@ -1,16 +1,18 @@
 <template>
-  <span v-if="label" class="ItemSelector_label" v-on:click.prevent.stop="selectItem">{{ label }}</span>
-  <span v-else class="dripicons-enter icon-link" v-on:click.prevent.stop="selectItem"></span>
+  <span v-on:click.prevent.stop="selectItem">
+    <slot></slot>
+    <span v-if="label" class="ItemSelector_label">{{ label }}</span>
+    <span v-else class="dripicons-enter icon-link"></span>
+  </span>
 </template>
 
 <script>
-import { mapFilters } from '@/logic/queryParams'
-
 /**
  * Item selector component: given a specific item, display it on the Monitor component
- * <item-selector :uid="your-item.uid" :type="person" >
+ * <item-selector :uid="your-item.uid" :type="person" :search-index="search" >
  */
 export default {
+  name: 'ItemSelector',
   props: {
     uid: {
       type: String,
@@ -26,10 +28,14 @@ export default {
     },
     defaultClickActionDisabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     label: {
-      type: String
+      type: String,
+    },
+    searchIndex: {
+      type: String,
+      default: 'search',
     },
   },
   methods: {
@@ -42,32 +48,28 @@ export default {
         type: this.type,
       }
       if (!this.defaultClickActionDisabled) {
-        this.$store.dispatch('monitor/ACTIVATE', {
-          ...params,
-          filters: this.filters,
-          filtersUpdatedCallback: filters => {
-            this.filters = filters
-          }
+        this.$store.dispatch('selectionMonitor/show', {
+          item: this.item,
+          searchIndex: this.searchIndex,
+          type: this.type,
+          applyCurrentSearchFilters: true,
         })
       }
 
       this.$emit('click', {
         params,
-        defaultActionExecuted: !this.defaultClickActionDisabled
+        defaultActionExecuted: !this.defaultClickActionDisabled,
       })
     },
   },
-  computed: {
-    filters: mapFilters()
-  }
-};
+}
 </script>
 
 <style lang="css">
-.ItemSelector_label{
+.ItemSelector_label {
   cursor: pointer;
 }
-.ItemSelector_label:hover{
+.ItemSelector_label:hover {
   box-shadow: 0 1px 0px 0 black;
 }
 </style>

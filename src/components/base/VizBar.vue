@@ -3,13 +3,15 @@
     <div class="d-flex">
       <div class="mr-2 small-caps" v-if="showPercent">{{ toolTitle }}</div>
       <div class="flex-grow-1">
-        <item-label :item="item" :type="type" class="mr-1"/>
-        <item-selector
-        :uid="uid"
-        :item="item"
-        :type="type"
-        :default-click-action-disabled="defaultClickActionDisabled"
-        @click="param => $emit('click', param)"/>
+        <ItemLabel :item="item" :type="type" class="mr-1" />
+        <ItemSelector
+          :uid="uid"
+          :item="item"
+          :type="type"
+          :search-index="searchIndex"
+          :default-click-action-disabled="defaultClickActionDisabled"
+          @click="param => $emit('click', param)"
+        />
       </div>
       <div v-if="count">{{ $n(count) }}</div>
     </div>
@@ -20,8 +22,8 @@
 </template>
 
 <script>
-import ItemLabel from '../modules/lists/ItemLabel';
-import ItemSelector from '../modules/ItemSelector';
+import ItemLabel from '../modules/lists/ItemLabel'
+import ItemSelector from '../modules/ItemSelector'
 
 export default {
   props: {
@@ -34,8 +36,12 @@ export default {
     item: { type: Object },
     defaultClickActionDisabled: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+    searchIndex: {
+      type: String,
+      default: 'search',
+    },
   },
   components: {
     ItemSelector,
@@ -44,9 +50,9 @@ export default {
   computed: {
     /** @returns {string} */
     toolTitle() {
-      const title = this.percent ? `${this.$n(this.percent)}%` : '';
-      return title;
+      const title = this.percent ? `${this.$n(this.percent)}%` : ''
+      return title
     },
   },
-};
+}
 </script>

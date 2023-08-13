@@ -2,6 +2,7 @@ export default {
   en: {
     connectivityStatus: {
       offline: '⚡ offline!',
+      online: '',
     },
     untitled: '(untitled)',
     language: 'Language',
@@ -19,6 +20,7 @@ export default {
         ar: 'article',
         ob: 'obituary',
         tb: 'tables',
+        section: 'section',
         uc: 'unclassified content',
         page: 'page article',
         death_notice: 'obituary (other)',
@@ -64,6 +66,7 @@ export default {
       accept: 'accept',
       browseAll: 'show all ...',
       compare: 'compare ...',
+      detail: 'more details...',
       downloadCsv: 'download csv',
       share: 'share...',
       more: 'more...',
@@ -81,15 +84,18 @@ export default {
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
       addToCurrentFilters: 'Add as search filter',
-      removeFromCurrentFilters: 'Exclude from current search',
-      addToCurrentFiltersDetailed: 'Add selected option as search filter|Add <b> {count}</b> selected options',
-      addToCurrentItemsDetailed: 'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
+      removeFromCurrentFilters: 'Remove filter from current search',
+      addToCurrentFiltersDetailed:
+        'Add selected option as search filter|Add <b> {count}</b> selected options',
+      addToCurrentItemsDetailed:
+        'View results for the item in this list ... | View results for 1 item in search page... | View results for <b> {count}</b> items in search page ...',
       addRangeToCurrentFilters: 'Apply range',
       viewAll: 'explore all ...',
       select_collection: 'Select a collection',
       login: 'log in',
       generatePattern: 'Generate Pattern',
       getSimilarImages: 'view similar images ...',
+      previewFilter: 'Preview filter',
       requestNewPassword: 'Request New Password',
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
@@ -98,6 +104,7 @@ export default {
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
       addCurrentSearch: 'Add filters from your current search query',
+      updateCurrentFilters: 'modify filter in current search',
       viewTopic: 'go to topic',
     },
     filters: {
@@ -123,31 +130,61 @@ export default {
       options: ' | (1 option) | ({n} options)',
       moreOptions: ' | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
-      articles: 'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
-      articlesInCommon: 'no articles | <span class="number">1</span> article in common | <span class="number">{n}</span> articles in common',
-      images: 'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
-      pages: 'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
-      issues: 'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
-      results: 'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
+      clusterSize: ' | single cluster | <span class="number">{n}</span> passages',
+      lexicalOverlap: '<span class="number">{n}%</span> lexical overlap',
+      ofPassages:
+        ' | of <span class="number">{n}</span> passages | of <span class="number">{n}</span> passages',
+      passages:
+        '0 passages | <span class="number">{n}</span> passage | <span class="number">{n}</span> passages',
+      clusters:
+        '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
+      articles:
+        'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
+      articlesInCommon:
+        'no articles | <span class="number">1</span> article in common | <span class="number">{n}</span> articles in common',
+      images:
+        'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
+      pages:
+        'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
+      issues:
+        'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
+      results:
+        'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
       resultsPercent: '<span class="number">{n}</span>%',
-      articlesMatching: 'no article contains <span class="highlight">{q}</span> | <span class="number">1</span> article contains <span class="highlight">{q}</span> | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span>',
-      articlesMatchingWithinSearch: 'no articles matching <span class="highlight">{q}</span> and your search filters | <span class="number">1</span> article contains <span class="highlight">{q}</span> and your search filters | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span> and your search filters',
-      articlesMatchingSearchFilters: 'no articles matching your search filters | <span class="number">1</span> article matching your search filters | <span class="number">{n}</span> articles matching your search filters',
-      relatedTopics: 'no related topics | <span class="number">1</span> related topic | <span class="number">{n}</span> related topics',
+      resultsAbsolute:
+        '<span class="number">0</span> | <span class="number">{n}</span> | <span class="number">{n}</span>',
+      articlesMatching:
+        'no article contains <span class="highlight">{q}</span> | <span class="number">1</span> article contains <span class="highlight">{q}</span> | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span>',
+      articlesMatchingWithinSearch:
+        'no articles matching <span class="highlight">{q}</span> and your search filters | <span class="number">1</span> article contains <span class="highlight">{q}</span> and your search filters | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span> and your search filters',
+      articlesMatchingSearchFilters:
+        'no articles matching your search filters | <span class="number">1</span> article matching your search filters | <span class="number">{n}</span> articles matching your search filters',
+      relatedTopics:
+        'no related topics | <span class="number">1</span> related topic | <span class="number">{n}</span> related topics',
       resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
       collection: {
         countItems: '{countItems} saved items',
       },
       of: '<span class="number">{index}</span> of <span class="number">{total}</span>',
-      unigramMentions: 'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
-      ignoredFilters: 'no message | * 1 search filter can\'t be applied. | * {n} search filters can\'t be applied.',
+      unigramMentions:
+        'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
+      ignoredFilters:
+        // eslint-disable-next-line quotes
+        "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
+      ignoredFiltersDetailed:
+        // eslint-disable-next-line quotes
+        "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail}).",
     },
     dates: {
       lastModifiedDate: 'last modified',
       publicationDate: 'published in {date}',
       publicationLifespan: '(published from {from} to {to})',
-      includedLifespan: 'available from <span class="date small-caps">{from}</span> to <span class="date small-caps">{to}</span>',
+      includedLifespan:
+        'available from <span class="date small-caps">{from}</span> to <span class="date small-caps">{to}</span>',
       notYetAvailable: 'not yet available',
+      fromTo: 'from <span class="date">{from}</span> to <span class="date">{to}</span>',
+      allResultsFallBetween:
+        'All results fall between <span class="date">{from}</span> and <span class="date">{to}</span>',
     },
     result: {
       label: {
@@ -174,15 +211,18 @@ export default {
       Timeout: 'Timeout:',
       BadRequest: 'Bad request.',
       Conflict: {
-        UsernameExistError: 'This username is already taken!'
+        UsernameExistError: 'This username is already taken!',
       },
       BadGateway: {
-        SequelizeConnectionRefusedError: 'Please reload the page. Connection troubles (network) with the impresso database',
-        SequelizeConnectionError: 'Please reload the page. Connection troubles (timeout) with the impresso database',
+        SequelizeConnectionRefusedError:
+          'Please reload the page. Connection troubles (network) with the impresso database',
+        SequelizeConnectionError:
+          'Please reload the page. Connection troubles (timeout) with the impresso database',
       },
       LoginFailed: 'Login Failed! The username and/or password was incorrect. Please try again.',
       Notauthenticated: 'Please logout, then login again. Authentication failed',
-      Invalidauthenticationinformationnostrategyset: 'Please reload the page, a couple of errors occurred',
+      Invalidauthenticationinformationnostrategyset:
+        'Please reload the page, a couple of errors occurred',
     },
     paths: {
       newspapers: {
@@ -268,7 +308,8 @@ export default {
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> collection applies',
         description: 'check one or more collection to filter results',
-        empty: '... you haven\'t saved any result item in your collection',
+        // eslint-disable-next-line quotes
+        empty: "... you haven't saved any result item in your collection",
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
@@ -290,7 +331,8 @@ export default {
         title: 'Country | Country | Countries',
         filterTitle: 'filter by country of publication',
         filtered: 'results are filtered when:',
-        selected: 'filter results if they are published in <b>one of {count} selected</b> countries',
+        selected:
+          'filter results if they are published in <b>one of {count} selected</b> countries',
         description: 'check one or more countries to filter results',
         empty: '(no results)',
       },
@@ -321,6 +363,23 @@ export default {
         selected: 'filter results if they are within the range',
         description: 'total number of articles per content length',
         empty: '(no results)',
+      },
+      textReuseClusterDayDelta: {
+        filterTitle: 'Time span in days',
+      },
+      textReuseClusterSize: { filterTitle: 'Cluster size' },
+      textReuseClusterLexicalOverlap: { filterTitle: 'Lexical overlap' },
+      textReuseCluster: {
+        title: 'Text reuse clusters',
+        description: 'check one or more text reuse cluster to filter results',
+        selected: 'filter results if <b>one of {count} selected</b> text reuse cluster applies',
+        filterTitle: 'filter by text reuse clusters',
+        filtered: 'results are filtered when:',
+        empty: '(no results)',
+        context: {
+          include: 'included in selected clusters',
+          exclude: '<b>NOT</b> included in selected clusters',
+        },
       },
     },
     tabs: {
@@ -386,4 +445,4 @@ export default {
   fr: {
     language: 'Langue',
   },
-};
+}
