@@ -63,17 +63,10 @@
         </b-nav-item>
         <b-nav-item
           v-if="textReuseEnabled"
-          :to="getRouteWithSearchQuery({ name: 'text-reuse-cluster-detail' })"
-          active-class="active"
-        >
-          <span>{{ $t('label_text_reuse') }}</span>
-        </b-nav-item>
-        <b-nav-item
-          v-if="textReuseEnabled"
           :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
           active-class="active"
         >
-          <span>{{ $t('label_text_reuse_star') }}</span>
+          <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
         <b-nav-item
           v-if="user"
