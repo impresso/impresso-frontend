@@ -138,6 +138,7 @@ const FacetTypes = [
   'language',
   'person',
   'location',
+  'nag',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
@@ -194,6 +195,7 @@ export default {
           'language',
           'person',
           'location',
+          // 'nag'
         ].includes(type),
       )
     },
@@ -344,7 +346,7 @@ export default {
     },
     loadFacet(type, opts = {}) {
       // eslint-disable-next-line
-      console.debug('[TextReuse] loadFacet', type, 'query', this.searchFacetApiQueryParams.query)
+      console.debug('[TextReuse] loadFacet fetching \n - type:', type) //  '\n - query', this.searchFacetApiQueryParams.query)
       searchFacets
         .get(type, {
           query: {
@@ -354,7 +356,7 @@ export default {
         })
         .then(response => {
           const facet = this.facets.find(facet => facet.type === type)
-          console.debug('[TextReuse] loadFacet', response)
+          console.debug('[TextReuse] loadFacet success \n - type:', type, '\n - ', response)
           if (facet) {
             facet.numBuckets = response[0].numBuckets
             facet.setBuckets(response[0].buckets)
@@ -384,6 +386,7 @@ export default {
         await this.loadFacet('language')
         await this.loadFacet('person')
         await this.loadFacet('location')
+        // await this.loadFacet('nag')
       },
       immediate: true,
       deep: false,
