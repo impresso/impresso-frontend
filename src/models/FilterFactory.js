@@ -44,7 +44,7 @@ export default {
       filter = new FilterRegex(filterData)
     }
 
-    if (['entity', 'person', 'location'].indexOf(filterData.type) !== -1) {
+    if (['entity', 'person', 'location', 'nag'].indexOf(filterData.type) !== -1) {
       filter = new FilterEntity(filterData)
     }
 

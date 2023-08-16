@@ -271,6 +271,10 @@ export default {
         filterTitle: 'filter by News Agency',
         optionsDescription: 'Total number of articles per News Agency',
         empty: 'No news agency available',
+        context: {
+          include: 'written by',
+          exclude: '<b>NOT</b> written by',
+        },
       },
       type: {
         title: 'Article content type | Article content types | Article content types',

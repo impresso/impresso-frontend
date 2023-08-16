@@ -30,7 +30,8 @@
               { 'dripicons-pulse': filter.type === 'daterange' },
               { 'dripicons-calendar': filter.type === 'year' },
               { 'dripicons-suitcase': filter.type === 'collection' },
-              { 'dripicons-tag': filter.type === 'type' },
+              { 'dripicons-tag': filter.type === 'type'  },
+
               { 'dripicons-print': filter.type === 'country' },
               { 'dripicons-shopping-bag': filter.type === 'accessRight' },
               { 'dripicons-store': filter.type === 'partner' },
@@ -60,7 +61,7 @@
           <!--  type:person, type:location, type:newspaper -->
           <span
             class="label sp-labelled"
-            v-if="['person', 'location', 'newspaper'].indexOf(filter.type) !== -1"
+            v-if="['person', 'location', 'newspaper', 'nag'].indexOf(filter.type) !== -1"
             v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
             :class="filter.context"
           >
@@ -539,6 +540,9 @@ export default {
         },
         "location": {
           "title": "filter by location (experimental)"
+        },
+        "nag": {
+          "title": "filter by News Agency"
         },
         "collection": {
           "title": "filter by collection"
