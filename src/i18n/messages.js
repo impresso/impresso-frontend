@@ -267,6 +267,7 @@ export default {
       },
       nag: {
         title: 'News Agency | News Agency | News Agencies',
+        filtered: 'results are filtered when:',
         optionsTitle: 'News Agency',
         filterTitle: 'filter by News Agency',
         optionsDescription: 'Total number of articles per News Agency',

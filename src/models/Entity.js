@@ -46,6 +46,10 @@ export default class Entity {
   }
 
   static getNameFromUid(uid) {
+    if (uid.indexOf('bert-') === 0) {
+      // debugger
+      return uid.replace(/^bert-[a-z]+-\d+/, '').split('_').join(' ');
+    }
     return uid.replace(/^aida-\d+-\d+-/, '')
       .split('_').join(' ')
       .replace(/\$([0-9a-z]+)\$/g, (m, c) => decodeURIComponent(`%${c}`));
