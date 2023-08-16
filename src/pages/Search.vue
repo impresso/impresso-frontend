@@ -212,7 +212,7 @@ import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
-import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters';
+import { SupportedFiltersByContext } from '@/logic/filters';
 import {
   searchQueryGetter,
   searchQuerySetter,
@@ -220,7 +220,6 @@ import {
 import {
   search as searchService,
   searchFacets as searchFacetsService,
-  filtersItems as filtersItemsService,
   exporter as exporterService,
   collectionsItems as collectionsItemsService,
 } from '@/services';
@@ -231,6 +230,7 @@ const FACET_TYPES_DPFS = [
   'person',
   'location',
   'topic',
+  'nag',
 ];
 
 const FACET_TYPES_S = [
@@ -259,9 +259,14 @@ export default {
     paginationTotalRows: 0,
     /** @type {Facet[]} */
     facets: [],
-    /** @type {Filter[]} */
-    filtersWithItems: [],
   }),
+  props: {
+    
+    filtersWithItems: {
+      type: Array,
+      default: () => [],
+    },
+  },
   computed: {
     searchQuery: {
       ...searchQueryGetter(),
@@ -584,7 +589,6 @@ export default {
         const [
           namedEntityFacets,
           topicFacets,
-          filtersWithItems,
           collectionFacets,
           collectionsItemsIndex,
         ] = await Promise.all([
@@ -600,12 +604,7 @@ export default {
               group_by: groupBy,
             },
           }),
-          filtersItemsService.find({
-            query: {
-              filters: this.searchQueryHash,
-            },
-          }).then(joinFiltersWithItems),
-          this.isLoggedIn
+           this.isLoggedIn
             ? searchFacetsService.get('collection', {
               query: {
                 filters,
@@ -626,7 +625,7 @@ export default {
             : {},
         ]);
         facets = facets.concat(collectionFacets, namedEntityFacets, topicFacets);
-        this.filtersWithItems = filtersWithItems;
+        // this.filtersWithItems = filtersWithItems;
         // TODO sort facets based on the right order
         this.facets = facets.map(f => new FacetModel(f));
         if (this.isLoggedIn) {
