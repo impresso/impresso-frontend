@@ -65,6 +65,7 @@ export default {
       agree: 'I agree to the terms of use',
       accept: 'accept',
       browseAll: 'show all ...',
+      changePassword: 'Change password',
       compare: 'compare ...',
       detail: 'more details...',
       downloadCsv: 'download csv',
@@ -85,6 +86,7 @@ export default {
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
       addToCurrentFilters: 'Add as search filter',
       removeFromCurrentFilters: 'Remove filter from current search',
+      resetPassword: 'Reset my password',
       addToCurrentFiltersDetailed:
         'Add selected option as search filter|Add <b> {count}</b> selected options',
       addToCurrentItemsDetailed:
@@ -100,6 +102,7 @@ export default {
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
+      resetMyPassword: 'Reset your password',
       resetObservedItems: 'reset observed list',
       loadRandomPage: 'load random page',
       useCurrentQuery: 'Use most recent search query',
@@ -209,7 +212,9 @@ export default {
       loggedInOnly: 'You need to be logged in to access this content.',
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',
+      formError: 'Please correct the form below. <b>{error}</b>',
       BadRequest: 'Bad request.',
+      NotImplemented: 'Not implemented.',
       Conflict: {
         UsernameExistError: 'This username is already taken!',
       },
@@ -223,6 +228,8 @@ export default {
       Notauthenticated: 'Please logout, then login again. Authentication failed',
       Invalidauthenticationinformationnostrategyset:
         'Please reload the page, a couple of errors occurred',
+      ResetPasswordGeneralError:
+        'The reset password service is not is currently unavailable. Please try again later. <br/><br/>If the problem persists, please contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>. <br/><br/> Message received: <b>{error}</b>',
     },
     paths: {
       newspapers: {

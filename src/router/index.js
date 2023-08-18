@@ -148,6 +148,36 @@ const router = new Router({
       },
     },
     {
+      path: '/password-reset',
+      name: 'passwordReset',
+      component: () =>
+        import(/* webpackChunkName: "userPasswordReset" */ '../pages/PasswordReset.vue'),
+      meta: {
+        realm: 'user',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/password-reset/:token',
+      name: 'PasswordChange',
+      component: () =>
+        import(/* webpackChunkName: "userPasswordReset" */ '../pages/PasswordChange.vue'),
+      meta: {
+        realm: 'user',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/password-reset-sent',
+      name: 'passwordResetSent',
+      component: () =>
+        import(/* webpackChunkName: "userPasswordReset" */ '../pages/PasswordResetSent.vue'),
+      meta: {
+        realm: 'user',
+        requiresAuth: false,
+      },
+    },
+    {
       path: '/collections',
       component: () => import(/* webpackChunkName: "collections" */ '../pages/Collections.vue'),
       children: [
@@ -335,7 +365,6 @@ const router = new Router({
     {
       path: '/text-reuse',
       component: () => import(/* webpackChunkName: "tr" */ '../pages/TextReuse.vue'),
-      name: 'textReuse',
       meta: {
         requiresAuth: false,
         realm: 'textReuse',
