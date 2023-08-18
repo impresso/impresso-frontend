@@ -25,6 +25,7 @@ ENV NODE_ENV production
 ENV GIT_TAG=${GIT_TAG}
 ENV GIT_BRANCH=${GIT_BRANCH}
 ENV GIT_REVISION=${GIT_REVISION}
+ENV NODE_OPTIONS --openssl-legacy-provider
 
 RUN npm run build
 
