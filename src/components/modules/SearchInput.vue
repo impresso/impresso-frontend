@@ -1,12 +1,13 @@
-<template lang="html">
+<template>
   <b-input-group>
     <b-form-input
-    class="border-primary"
-    :placeholder="placeholder"
-    v-model.trim="q"
-    @keyup.enter="submit"
-    @input.native="change"
-    @keyup.native="change" />
+      class="border-primary"
+      :placeholder="placeholder"
+      v-model.trim="q"
+      @keyup.enter="submit"
+      @input.native="change"
+      @keyup.native="change"
+    />
     <b-input-group-append>
       <b-btn variant="outline-primary" class="px-2" @click="submit">
         <div class="search-submit dripicons-search"></div>
@@ -33,7 +34,7 @@ export default {
   watch: {
     initial: {
       handler(val) {
-        this.q = val;
+        this.q = val
       },
       immediate: true,
     },
@@ -42,20 +43,20 @@ export default {
     change() {
       this.$emit('change', {
         q: this.q,
-      });
+      })
     },
     submit() {
       this.$emit('submit', {
         q: this.q,
-      });
+      })
     },
   },
-};
+}
 </script>
 
 <style scoped lang="css">
-  .input-group > .form-control{
-    border-top-width: 0;
-    border-left-width: 0;
-  }
+.input-group > .form-control {
+  border-top-width: 0;
+  border-left-width: 0;
+}
 </style>

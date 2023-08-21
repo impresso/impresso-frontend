@@ -1,12 +1,16 @@
-<template lang="html">
+<template>
   <section class="search-results-summary text-serif textbox-fancy border-tertiary">
     <span v-html="incipit" />
-    <search-query-summary class="d-inline" :search-query='searchQuery' v-on:updated='onSummaryUpdated' />
+    <search-query-summary
+      class="d-inline"
+      :search-query="searchQuery"
+      v-on:updated="onSummaryUpdated"
+    />
   </section>
 </template>
 
 <script>
-import SearchQuerySummary from './SearchQuerySummary';
+import SearchQuerySummary from './SearchQuerySummary'
 
 export default {
   props: {
@@ -16,22 +20,22 @@ export default {
   },
   computed: {
     incipit() {
-      const n = this.$n(this.totalRows);
+      const n = this.$n(this.totalRows)
       return this.$tc('incipit', this.totalRows, {
         n,
         groupByLabel: this.$tc(`numbers.${this.groupBy}`, this.totalRows, { n }),
-      });
+      })
     },
   },
   methods: {
     onSummaryUpdated(summary) {
-      this.$emit('onSummary', summary);
+      this.$emit('onSummary', summary)
     },
   },
   components: {
     SearchQuerySummary,
   },
-};
+}
 </script>
 
 <i18n>
@@ -79,8 +83,6 @@ export default {
     "isFront": "appearing on the <em>front page</em>",
     "message": "Found <span class='number'>{count}</span> {groupByLabel} {type} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
-  },
-  "fr": {
   },
   "it": {
   },

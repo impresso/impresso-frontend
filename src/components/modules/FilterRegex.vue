@@ -1,9 +1,10 @@
-<template lang="html">
+<template>
   <filter-wrapper
     v-bind:id="filter.key"
     v-bind:title="filter.query"
     icon="rocket"
-    v-on:remove="remove">
+    v-on:remove="remove"
+  >
     <b-input
       type="text"
       v-model="filter.query"
@@ -19,12 +20,12 @@
 </template>
 
 <script>
-import FilterFactory from '@/models/FilterFactory';
+import FilterFactory from '@/models/FilterFactory'
 
-import 'vue-awesome/icons/edit';
-import 'vue-awesome/icons/check';
+import 'vue-awesome/icons/edit'
+import 'vue-awesome/icons/check'
 
-import FilterWrapper from './FilterWrapper';
+import FilterWrapper from './FilterWrapper'
 
 export default {
   data: () => ({
@@ -36,23 +37,23 @@ export default {
   props: ['filter'],
   methods: {
     updateFilter() {
-      this.$emit('input', FilterFactory.create(this.filter));
+      this.$emit('input', FilterFactory.create(this.filter))
     },
     submitFilter() {
-      this.$emit('submit');
-      this.disabled = true;
+      this.$emit('submit')
+      this.disabled = true
     },
     remove() {
-      this.$emit('remove');
+      this.$emit('remove')
     },
     editFilter() {
-      this.disabled = false;
+      this.disabled = false
     },
   },
   components: {
     FilterWrapper,
   },
-};
+}
 </script>
 
 <i18n>

@@ -26,7 +26,7 @@
         <search-query-summary class="m-0" :search-query="{ filters: jobSearchFilters }" />
       </blockquote>
       <blockquote v-else-if="item.extra.collection" class="pl-2 my-1 border-left">
-        <span style="line-height:0.8" v-html="item.extra.collection.description" />
+        <span style="line-height: 0.8" v-html="item.extra.collection.description" />
       </blockquote>
       <blockquote v-else v-html="item.description" class="pl-2 my-1 border-left small"></blockquote>
 
@@ -125,17 +125,14 @@ export default {
   },
   methods: {
     onExport() {
-      const today = new Date()
-        .toISOString()
-        .split('T')
-        .shift()
+      const today = new Date().toISOString().split('T').shift()
       const anchor = document.createElement('a')
       document.body.appendChild(anchor)
       const headers = new Headers()
       headers.append('Authorization', `Bearer ${getAuthenticationBearer()}`)
       fetch(this.jobMediaUrl, { headers })
-        .then(res => res.blob())
-        .then(blobby => {
+        .then((res) => res.blob())
+        .then((blobby) => {
           const objectUrl = window.URL.createObjectURL(blobby)
           anchor.href = objectUrl
           anchor.download = `export-${today}-${this.item.id}.zip`
@@ -191,7 +188,6 @@ span.DON {
           "test": "Echo (TEST)",
           "RDX": "Remove {total} item(s) from your collection",
           "BCQ": "Saving {total} item(s) in your collection",
-          "RDX": "Remove {total} item(s) from your collection",
           "execute_solr_query": "Saving items in your collection",
           "BCT": "Add {total} item(s) to your collection from Text Reuse"
 

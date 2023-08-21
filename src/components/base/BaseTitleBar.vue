@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="tb" :class="getClasses">
     <div class="tb-heading d-flex aling-items-center flex-column">
       <div class="tb-title" :class="{ 'small-caps': smallCaps, 'font-weight-bold': true }">

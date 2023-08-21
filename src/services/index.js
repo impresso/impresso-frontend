@@ -9,11 +9,12 @@ import uploadedImagesHooks from './hooks/uploadedImages'
 import imagesHooks from './hooks/images'
 import NamesService from './names'
 
-const MiddleLayerApiBase = `${process.env.VUE_APP_MIDDLELAYER_API}`
+const MiddleLayerApiBase = `${import.meta.env.VITE_MIDDLELAYER_API}`
 const socket = io(MiddleLayerApiBase || window.location.hostname, {
-  path: process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH,
+  path: import.meta.env.VITE_MIDDLELAYER_API_SOCKET_PATH,
 })
 
+console.log('MiddleLayerApiBase', MiddleLayerApiBase)
 export const app = feathers()
 
 app.configure(
@@ -34,7 +35,7 @@ socket.on('reconnect', () => {
   }
 }) // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
-socket.on('connect_error', err => {
+socket.on('connect_error', (err) => {
   if (window.app && window.app.$store) {
     err.message = `Could not connect to the API: ${err.message}`
     console.error(err)
@@ -43,14 +44,14 @@ socket.on('connect_error', err => {
   }
 })
 
-const needsLockScreen = p => ['search.find', 'ngram-trends.create'].includes(p)
+const needsLockScreen = (p) => ['search.find', 'ngram-trends.create'].includes(p)
 
 const silentErrorCodes = [404, 409]
 
 app.hooks({
   before: {
     all: [
-      context => {
+      (context) => {
         const route = `${context.path}.${context.method}`
         if (window.app && window.app.$store) {
           window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'LOADING' })
@@ -63,7 +64,7 @@ app.hooks({
   },
   after: {
     all: [
-      context => {
+      (context) => {
         const route = `${context.path}.${context.method}`
         if (window.app && window.app.$store) {
           window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'DONE' })
@@ -76,7 +77,7 @@ app.hooks({
   },
   error: {
     all: [
-      context => {
+      (context) => {
         const route = `${context.path}.${context.method}`
         if (window.app && window.app.$store) {
           // handle not authenticated error when removing authentication
@@ -118,7 +119,7 @@ app.hooks({
   },
 })
 
-app.service('logs').on('created', payload => {
+app.service('logs').on('created', (payload) => {
   console.info('@logs->created', payload)
   if (payload.job) {
     const extra = {}
@@ -177,8 +178,8 @@ export const articlesSearch = app.service('articles-search')
 export const entityMentionsTimeline = app.service('entity-mentions-timeline')
 export const textReuseConnectedClusters = app.service('text-reuse-connected-clusters')
 
-export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API
-export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH
+export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
+export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('')
 
 export const getAuthenticationBearer = () => app.authentication.options.storage['feathers-jwt']

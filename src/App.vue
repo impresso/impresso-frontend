@@ -3,12 +3,15 @@
     <div id="app-header">
       <the-header />
     </div>
+
     <div id="app-content">
       <router-view :filters="filters" :filters-with-items="filtersWithItems" />
     </div>
+
     <div id="app-monitor" class="fullscreen">
       <monitor />
     </div>
+
     <div id="app-selection-monitor" class="fullscreen">
       <SelectionMonitor
         :filters="filtersWithItems"
@@ -17,12 +20,15 @@
         :endYear="endYear"
       />
     </div>
+
     <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
       <disclaimer-notice />
     </div>
+
     <div id="app-loading" class="fullscreen locked" v-if="is_locked">
       <status-indicator />
     </div>
+
     <cookie-disclaimer />
   </div>
 </template>
@@ -109,7 +115,7 @@ export default {
     // load typekit
     WebFontLoader.load({
       typekit: {
-        id: process.env.VUE_APP_TYPEKIT_ID,
+        id: import.meta.env.VITE_TYPEKIT_ID,
       },
     })
   },

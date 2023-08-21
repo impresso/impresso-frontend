@@ -1,98 +1,119 @@
-<template lang="html">
-  <b-modal v-on:hidden="$emit(events.Hide)"
-          :id="id"
-          ref="facet-explorer-modal"
-          :scrollable="false"
-          body-class="p-0">
+<template>
+  <b-modal
+    v-on:hidden="$emit(events.Hide)"
+    :id="id"
+    ref="facet-explorer-modal"
+    :scrollable="false"
+    body-class="p-0"
+  >
     <template v-slot:modal-header class="mt-2 mr-0">
       <div>
         <div class="tb-title small-caps font-weight-bold">{{ $t('explore') }}</div>
-        <b-button v-for="(availableType, i) in typeOptions" v-bind:key="i"
-                  class="mr-1 mt-1"
-                  variant="outline-primary" size="sm"
-                  v-on:click="handleTypeChange(availableType)"
-                  v-bind:class="{ 'active' : currentType === availableType }">
+        <b-button
+          v-for="(availableType, i) in typeOptions"
+          v-bind:key="i"
+          class="mr-1 mt-1"
+          variant="outline-primary"
+          size="sm"
+          v-on:click="handleTypeChange(availableType)"
+          v-bind:class="{ active: currentType === availableType }"
+        >
           {{ $t(`labels.${availableType}`) }}
         </b-button>
         <div class="small mt-2">
           <span v-if="isLoading">{{ $t('loading') }}</span>
-          <span v-else v-html="$tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-            searchQuery,
-          })"></span>
+          <span
+            v-else
+            v-html="
+              $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
+                searchQuery,
+              })
+            "
+          ></span>
         </div>
         <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
           <b-input-group>
-            <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
-                          v-model.trim="searchQueryModel"
-                          autofocus/>
+            <b-form-input
+              :placeholder="$tc('searchField.placeholder', totalResults)"
+              v-model.trim="searchQueryModel"
+              autofocus
+            />
             <b-input-group-append>
-              <b-btn class="pt-2 pb-1 px-2"
-                      variant="outline-primary"
-                      v-on:click="search">
+              <b-btn class="pt-2 pb-1 px-2" variant="outline-primary" v-on:click="search">
                 <div class="search-submit dripicons-search"></div>
               </b-btn>
             </b-input-group-append>
           </b-input-group>
         </form>
-
       </div>
       <div class="ml-auto">
-        <b-button pill class="dripicons-cross px-0" variant="outline-danger"
-          style="width:1.5em; height:1.5em"
-          size="sm" v-on:click.prevent="closeDialog">
+        <b-button
+          pill
+          class="dripicons-cross px-0"
+          variant="outline-danger"
+          style="width: 1.5em; height: 1.5em"
+          size="sm"
+          v-on:click.prevent="closeDialog"
+        >
         </b-button>
       </div>
-
     </template>
     <!-- .modal-body -->
     <div class="bg-light">
-      <div v-if='isLoading'
-           class="position-absolute w-100 h-100"
-           style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
+      <div
+        v-if="isLoading"
+        class="position-absolute w-100 h-100"
+        style="z-index: 1; left: -1px; background: rgba(255, 255, 255, 0.8)"
+      >
         <i-spinner class="text-center pt-4" />
       </div>
-      <facet-explorer v-if="!RangeFacets.includes(currentType)"
-                      :filter-type="currentType"
-                      :buckets="buckets"
-                      v-model="filter">
-          <template v-slot:pagination>
-            <pagination v-model="currentPageModel"
-                        v-bind:perPage="pageSize"
-                        v-bind:totalRows="totalResults"
-                        v-bind:showDescription="false"/>
-          </template>
-      </facet-Explorer>
-      <range-facet-explorer class="p-3" v-if="NumericRangeFacets.includes(currentType)"
-                      :filter-type="currentType"
-                      :buckets="buckets"
-                      :range="range"
-                      v-model="filter"
-                      />
-      <time-facet-explorer v-if="TimeRangeFacets.includes(currentType)"
+      <facet-explorer
+        v-if="!RangeFacets.includes(currentType)"
+        :filter-type="currentType"
+        :buckets="buckets"
+        v-model="filter"
+      >
+        <template v-slot:pagination>
+          <pagination
+            v-model="currentPageModel"
+            v-bind:perPage="pageSize"
+            v-bind:totalRows="totalResults"
+            v-bind:showDescription="false"
+          />
+        </template>
+      </facet-explorer>
+      <range-facet-explorer
+        class="p-3"
+        v-if="NumericRangeFacets.includes(currentType)"
+        :filter-type="currentType"
+        :buckets="buckets"
+        :range="range"
+        v-model="filter"
+      />
+      <time-facet-explorer
+        v-if="TimeRangeFacets.includes(currentType)"
         v-model="filter"
         :filter-type="currentType"
-        :buckets="buckets" />
-    </div><!-- .modal-body -->
+        :buckets="buckets"
+      />
+    </div>
+    <!-- .modal-body -->
     <!-- footer -->
     <template v-slot:modal-footer="{ close }">
-      <b-button @click="close()" size="sm" variant="outline-primary">{{ $t('actions.close') }}</b-button>
+      <b-button @click="close()" size="sm" variant="outline-primary">{{
+        $t('actions.close')
+      }}</b-button>
     </template>
   </b-modal>
 </template>
 
 <script>
-import {
-  entities,
-  topics,
-  newspapers,
-  collections,
-  searchFacets
-} from '@/services'
-import FacetExplorer from './modules/FacetExplorer';
-import TimeFacetExplorer from './modules/TimeFacetExplorer';
-import RangeFacetExplorer from './modules/RangeFacetExplorer';
-import Pagination from './modules/Pagination';
-import Bucket from '@/models/Bucket';
+import { entities, topics, newspapers, collections, searchFacets } from '@/services'
+import FacetExplorer from './modules/FacetExplorer'
+import TimeFacetExplorer from './modules/TimeFacetExplorer'
+import RangeFacetExplorer from './modules/RangeFacetExplorer'
+import Pagination from './modules/Pagination'
+import Bucket from '@/models/Bucket'
 import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filters'
 
 const TypeToServiceMap = Object.freeze({
@@ -100,31 +121,35 @@ const TypeToServiceMap = Object.freeze({
   location: entities,
   topic: topics,
   newspaper: newspapers,
-  collection: collections
+  collection: collections,
 })
 
 const PageSize = 20
 
 const Events = Object.freeze({
-  Hide: 'onHide'
+  Hide: 'onHide',
 })
 
 function buildEntitySearchQuery(page, limit, type, q) {
   const query = {
     page,
-    limit
+    limit,
   }
 
   if (type === 'person') {
-    query.filters = [{
-      type: 'type',
-      q: 'Person',
-    }];
+    query.filters = [
+      {
+        type: 'type',
+        q: 'Person',
+      },
+    ]
   } else if (type === 'location') {
-    query.filters = [{
-      type: 'type',
-      q: 'Location',
-    }];
+    query.filters = [
+      {
+        type: 'type',
+        q: 'Location',
+      },
+    ]
   }
   if (q != null && q.length > 0) {
     query.q = q
@@ -132,25 +157,26 @@ function buildEntitySearchQuery(page, limit, type, q) {
   return query
 }
 
-async function search({
-  searchingEnabled,
-  filters,
-  type,
-  searchQuery,
-  currentPage,
-  pageSize
-}, index) {
+async function search(
+  { searchingEnabled, filters, type, searchQuery, currentPage, pageSize },
+  index,
+) {
   const service = TypeToServiceMap[type]
   if (searchingEnabled) {
     const query = buildEntitySearchQuery(currentPage, pageSize, type, searchQuery)
     const response = await service.find({ query })
     return {
       totalResults: response.total,
-      buckets: response.data.filter(d => d.uid.length).map(item => new Bucket({
-        val: item.uid,
-        item,
-        type,
-      }))
+      buckets: response.data
+        .filter((d) => d.uid.length)
+        .map(
+          (item) =>
+            new Bucket({
+              val: item.uid,
+              item,
+              type,
+            }),
+        ),
     }
   } else {
     const query = {
@@ -158,38 +184,59 @@ async function search({
       page: currentPage,
       limit: pageSize,
       order_by: '-count',
-      index
-    };
+      index,
+    }
     const response = await searchFacets.get(type, { query })
     const result = response[0]
     return {
       totalResults: result.numBuckets,
-      buckets: result.buckets.map(d => new Bucket({
-        ...d,
-        type
-      })),
-      range: Number.isFinite(result.min) && Number.isFinite(result.max)
-        ? [result.min, result.max] : undefined
+      buckets: result.buckets.map(
+        (d) =>
+          new Bucket({
+            ...d,
+            type,
+          }),
+      ),
+      range:
+        Number.isFinite(result.min) && Number.isFinite(result.max)
+          ? [result.min, result.max]
+          : undefined,
     }
   }
 }
 
 const AllSupportedFilterTypes = [
-  'location', 'country', 'person', 'language',
-  'topic', 'newspaper', 'collection', 'year', 'month',
-  'textReuseClusterSize', 'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta', 'daterange'
+  'location',
+  'country',
+  'person',
+  'language',
+  'topic',
+  'newspaper',
+  'collection',
+  'year',
+  'month',
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta',
+  'daterange',
 ]
 
 const DefaultFilterTypes = [
-  'location', 'country', 'person', 'language',
-  'topic', 'newspaper', 'collection', 'year', 'month'
+  'location',
+  'country',
+  'person',
+  'language',
+  'topic',
+  'newspaper',
+  'collection',
+  'year',
+  'month',
 ]
 
 export default {
   model: {
     prop: 'filters',
-    event: 'changed'
+    event: 'changed',
   },
   data: () => ({
     /** @type {string | undefined} */
@@ -206,17 +253,17 @@ export default {
     pageSize: PageSize,
     RangeFacets,
     NumericRangeFacets,
-    TimeRangeFacets
+    TimeRangeFacets,
   }),
   props: {
     /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
     filters: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     searchingEnabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     // Only used when "searchingEnabled" is on
     initialSearchQuery: String,
@@ -224,17 +271,23 @@ export default {
     initialType: String,
     includedTypes: {
       type: Array,
-      default: () => undefined
+      default: () => undefined,
     },
     index: {
       type: String,
-      default: 'search'
-    }
+      default: 'search',
+    },
   },
   methods: {
-    openDialog() { this.$bvModal.show(this.id) },
-    closeDialog() { this.$bvModal.hide(this.id) },
-    handleTypeChange(type) { this.currentType = type },
+    openDialog() {
+      this.$bvModal.show(this.id)
+    },
+    closeDialog() {
+      this.$bvModal.hide(this.id)
+    },
+    handleTypeChange(type) {
+      this.currentType = type
+    },
     async search() {
       if (!this.isVisible) return
       try {
@@ -247,7 +300,7 @@ export default {
       } finally {
         this.isLoading = false
       }
-    }
+    },
   },
   computed: {
     filter: {
@@ -263,24 +316,32 @@ export default {
 
         this.$emit('changed', updatedFilters)
         this.closeDialog()
-      }
+      },
     },
     currentPageModel: {
-      get() { return this.currentPage },
-      set(val) { this.currentPage = val }
+      get() {
+        return this.currentPage
+      },
+      set(val) {
+        this.currentPage = val
+      },
     },
     searchQueryModel: {
-      get() { return this.searchQuery },
-      set(q) { this.searchQuery = q }
+      get() {
+        return this.searchQuery
+      },
+      set(q) {
+        this.searchQuery = q
+      },
     },
     typeOptions() {
       if (this.includedTypes) {
-        return this.includedTypes.filter(type => AllSupportedFilterTypes.includes(type))
+        return this.includedTypes.filter((type) => AllSupportedFilterTypes.includes(type))
       }
       if (this.searchingEnabled) {
-        return ['newspaper', 'person', 'location', 'topic', 'collection'];
+        return ['newspaper', 'person', 'location', 'topic', 'collection']
       }
-      return DefaultFilterTypes;
+      return DefaultFilterTypes
     },
     searchParameters() {
       const {
@@ -289,7 +350,7 @@ export default {
         currentType: type,
         searchQuery,
         currentPage,
-        pageSize
+        pageSize,
       } = this
       return {
         filters,
@@ -297,9 +358,9 @@ export default {
         type,
         searchQuery,
         currentPage,
-        pageSize
+        pageSize,
       }
-    }
+    },
   },
   mounted() {
     this.id = `facet-explorer-modal-${this._uid}`
@@ -312,8 +373,10 @@ export default {
   },
   watch: {
     searchParameters: {
-      async handler() { return this.search() },
-      immediate: true
+      async handler() {
+        return this.search()
+      },
+      immediate: true,
     },
     isVisible: {
       async handler() {
@@ -321,15 +384,17 @@ export default {
         this.openDialog()
         return this.search()
       },
-      immediate: true
+      immediate: true,
     },
     initialSearchQuery: {
       handler() {
         this.searchQuery = this.initialSearchQuery
       },
-      immediate: true
+      immediate: true,
     },
-    currentType() { this.currentPage = 1 },
+    currentType() {
+      this.currentPage = 1
+    },
     initialType: {
       handler() {
         if (this.initialType == null) {
@@ -338,15 +403,13 @@ export default {
           this.currentType = this.initialType
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
-};
+}
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>
 
 <i18n>
   {

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="cookie-disclaimer" v-if="!cookiesAccepted">
     <div class="d-flex p-4">
       <div class="flex-grow-1">
@@ -14,15 +14,15 @@
 export default {
   methods: {
     accept() {
-      this.$store.dispatch('settings/ACCEPT_COOKIES');
+      this.$store.dispatch('settings/ACCEPT_COOKIES')
     },
   },
   computed: {
     cookiesAccepted() {
-      return this.$store.state.settings.cookiesAccepted;
+      return this.$store.state.settings.cookiesAccepted
     },
   },
-};
+}
 </script>
 
 <style lang="css" scoped>
@@ -31,12 +31,12 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #FFEB78;
+  background-color: #ffeb78;
   z-index: 1090;
   padding-right: 80px;
 }
 
 .cookie-disclaimer a {
-  text-decoration: underline;;
+  text-decoration: underline;
 }
 </style>

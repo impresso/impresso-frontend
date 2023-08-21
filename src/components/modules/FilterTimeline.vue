@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="filter-timeline">
     <base-title-bar
       >{{ $t(`label.timeline.${groupBy}`) }}
@@ -174,7 +174,7 @@ export default {
       return this.displayStyle === 'percent'
     },
     displayStyleOptions() {
-      return ['percent', 'sum'].map(value => ({
+      return ['percent', 'sum'].map((value) => ({
         text: this.$t(`label.display.${value}`),
         value,
       }))

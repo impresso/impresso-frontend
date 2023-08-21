@@ -1,16 +1,20 @@
-<template lang="html">
+<template>
   <b-tabs pills class="mx-2 pt-2">
     <template v-slot:tabs-end>
-      <b-nav-item v-for="(tab, i) in tabs" v-bind:key="i" active-class='none'
+      <b-nav-item
+        v-for="(tab, i) in tabs"
+        v-bind:key="i"
+        active-class="none"
         :class="{ active: isActive(tab) }"
-        :to="{ name: tab, query: currentSearchQueryParams }"><span v-html="$t(`tabs.${tab}`)"/>
+        :to="{ name: tab, query: currentSearchQueryParams }"
+        ><span v-html="$t(`tabs.${tab}`)" />
       </b-nav-item>
     </template>
   </b-tabs>
 </template>
 
 <script>
-import { searchQueryHashGetter } from '@/logic/queryParams';
+import { searchQueryHashGetter } from '@/logic/queryParams'
 
 export default {
   props: {
@@ -25,15 +29,15 @@ export default {
     /** @returns {string} */
     selectedTab() {
       if (this.tabs.includes(this.$route.name)) {
-        return this.$route.name ?? 'search';
+        return this.$route.name ?? 'search'
       }
-      return 'search';
+      return 'search'
     },
     /** @returns {Object} */
     currentSearchQueryParams() {
       return {
         sq: this.searchQueryHash,
-      };
+      }
     },
   },
   methods: {
@@ -42,14 +46,13 @@ export default {
      * @returns {boolean}
      */
     isActive(tab) {
-      return this.selectedTab === tab;
+      return this.selectedTab === tab
     },
   },
-};
+}
 </script>
 
-<style lang="css" scoped>
-</style>
+<style lang="css" scoped></style>
 
 <i18n>
 {

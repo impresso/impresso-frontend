@@ -1,5 +1,5 @@
 # 1. build
-FROM node:12-alpine AS frontend_builder
+FROM node:18-alpine AS frontend_builder
 
 ARG GIT_TAG
 ARG GIT_BRANCH
@@ -9,8 +9,8 @@ WORKDIR /impresso_frontend
 
 RUN apk add --no-cache git build-base python3
 
-# COPY package.json package-lock.json ./
-COPY package.json ./
+COPY package.json package-lock.json ./
+# COPY package.json ./
 
 RUN npm install
 
@@ -26,7 +26,7 @@ ENV NODE_ENV production
 ENV GIT_TAG=${GIT_TAG}
 ENV GIT_BRANCH=${GIT_BRANCH}
 ENV GIT_REVISION=${GIT_REVISION}
-# ENV NODE_OPTIONS --openssl-legacy-provider
+ENV NODE_OPTIONS --openssl-legacy-provider
 
 RUN npm run build
 

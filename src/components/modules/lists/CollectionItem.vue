@@ -1,7 +1,7 @@
-<template lang="html">
+<template>
   <div>
     <span v-if="item.name">
-      <b>{{ item.name }}</b> @{{ item.creator.username }}<br/>
+      <b>{{ item.name }}</b> @{{ item.creator.username }}<br />
       {{ $t('dates.lastModifiedDate') }} {{ $d(item.lastModifiedDate, 'short') }}
     </span>
     <span v-else>{{ item.uid }}</span>
@@ -15,5 +15,5 @@ export default {
       type: Object,
     },
   },
-};
+}
 </script>

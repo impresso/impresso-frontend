@@ -1,28 +1,29 @@
-<template lang="html">
+<template>
   <filter-wrapper
     v-on:remove="remove"
     icon="network-1"
     v-bind:title="filter.item.name"
-    v-bind:id="filter.key">
+    v-bind:id="filter.key"
+  >
     <div slot="settings">
       <filter-setting-context v-model="filter" />
     </div>
     <div class="p-2">
       <icon v-if="filter.item.hasLabel('person')" name="user-circle"></icon>
       <icon v-if="filter.item.hasLabel('location')" name="map-marker"></icon>
-      {{filter.item.name}}
+      {{ filter.item.name }}
     </div>
   </filter-wrapper>
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
+import Icon from 'vue-awesome/components/Icon'
 
-import 'vue-awesome/icons/user-circle';
-import 'vue-awesome/icons/map-marker';
+import 'vue-awesome/icons/user-circle'
+import 'vue-awesome/icons/map-marker'
 
-import FilterSettingContext from './FilterSettingContext';
-import FilterWrapper from './FilterWrapper';
+import FilterSettingContext from './FilterSettingContext'
+import FilterWrapper from './FilterWrapper'
 
 export default {
   model: {
@@ -31,10 +32,10 @@ export default {
   props: ['filter'],
   methods: {
     submitFilter() {
-      this.$emit('submit');
+      this.$emit('submit')
     },
     remove() {
-      this.$emit('remove');
+      this.$emit('remove')
     },
   },
   components: {
@@ -42,7 +43,7 @@ export default {
     FilterSettingContext,
     FilterWrapper,
   },
-};
+}
 </script>
 
 <i18n>

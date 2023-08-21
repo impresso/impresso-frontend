@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="page-item" :class="{ active }">
     <div class="number text-center position-absolute">{{ item.num }}</div>
     <img :src="item.getIiifThumbnail({ dim: 30 })" width="100%" />

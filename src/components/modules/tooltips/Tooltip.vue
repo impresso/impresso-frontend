@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div
     class="tooltip"
     :class="{ active: tooltip.isActive }"
@@ -97,7 +97,7 @@ export default {
     text-align: left;
     display: inline-block;
 
-  border-radius: 2px;
+    border-radius: 2px;
   }
 
   p {

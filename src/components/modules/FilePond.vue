@@ -1,16 +1,16 @@
-<template lang="html">
+<template>
   <div class="filepond"></div>
 </template>
 
 <script>
-import * as FilePond from 'filepond';
-import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+import * as FilePond from 'filepond'
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type'
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size'
 
-import 'filepond/dist/filepond.min.css';
+import 'filepond/dist/filepond.min.css'
 
-FilePond.registerPlugin(FilePondPluginFileValidateType);
-FilePond.registerPlugin(FilePondPluginFileValidateSize);
+FilePond.registerPlugin(FilePondPluginFileValidateType)
+FilePond.registerPlugin(FilePondPluginFileValidateSize)
 
 export default {
   data: () => ({
@@ -26,37 +26,33 @@ export default {
   mounted() {
     if (this.handler) {
       this.handler.$on('init', (options = {}) => {
-        this.filepond = FilePond.create(
-          this.$el,
-          options,
-        );
-      });
+        this.filepond = FilePond.create(this.$el, options)
+      })
 
       this.handler.$on('dispatch', (cb) => {
         if (cb && this.filepond) {
-          cb.call(null, this.filepond);
+          cb.call(null, this.filepond)
         }
-      });
+      })
 
       this.handler.$on('destroy', () => {
-        this.destroy();
-      });
+        this.destroy()
+      })
     }
   },
   methods: {
     destroy() {
-      this.files = [];
+      this.files = []
 
       if (this.filepond) {
-        FilePond.destroy(this.$el);
+        FilePond.destroy(this.$el)
       }
     },
   },
   beforeDestroy() {
-    this.destroy();
+    this.destroy()
   },
-};
+}
 </script>
 
-<style lang="css" scoped>
-</style>
+<style lang="css" scoped></style>

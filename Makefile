@@ -1,5 +1,12 @@
 BUILD_TAG ?= latest
 
+run-dev:
+	GIT_TAG=$(shell git describe --tags --abbrev=0 HEAD) \
+	GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD) \
+	GIT_REVISION=$(shell git rev-parse --short HEAD) \
+	PUBLIC_PATH=/app/ \
+	yarn run dev
+
 build:
 	docker build \
 	-t impresso/impresso-frontend:${BUILD_TAG} \
@@ -16,7 +23,7 @@ build-netlify:
 	netlify deploy --prod --dir=dist
 
 
-run-dev:
+run-docker-dev:
 	GIT_TAG=$(shell git describe --tags --abbrev=0 HEAD) \
 	GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD) \
 	GIT_REVISION=$(shell git rev-parse --short HEAD) \

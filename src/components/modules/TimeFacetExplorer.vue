@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="time-facet-explorer">
     <timeline
       :values="timevalues"
@@ -6,13 +6,18 @@
       :brush="currentTimelineSelectionSpan"
       :height="'120px'"
       @brush-end="handleTimelineBrushed"
-      @clear-selection="handleTimelineCleared">
+      @clear-selection="handleTimelineCleared"
+    >
       <div slot-scope="tooltipScope">
         <div v-if="tooltipScope.tooltip.item">
           {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-          <span v-html="$tc('numbers.articles', tooltipScope.tooltip.item.w, {
-            n: $n(tooltipScope.tooltip.item.w),
-          })"/>
+          <span
+            v-html="
+              $tc('numbers.articles', tooltipScope.tooltip.item.w, {
+                n: $n(tooltipScope.tooltip.item.w),
+              })
+            "
+          />
         </div>
       </div>
     </timeline>
@@ -21,12 +26,14 @@
         :start="timelineSelectionStart"
         :end="timelineSelectionEnd"
         @changed="handleFilterChanged"
-        />
+      />
       <b-button
         block
         @click="applyFilter()"
-        size="sm" variant="success"
-        v-html="$t('actions.addRangeToCurrentFilters')"></b-button>
+        size="sm"
+        variant="success"
+        v-html="$t('actions.addRangeToCurrentFilters')"
+      ></b-button>
     </div>
   </div>
 </template>
@@ -34,13 +41,13 @@
 <script>
 import Timeline from '@/components/modules/Timeline'
 import FilterDateRange from '@/components/modules/FilterDateRange'
-import Helpers from '@/plugins/Helpers';
-import Daterange from '@/models/Daterange';
+import Helpers from '@/plugins/Helpers'
+import Daterange from '@/models/Daterange'
 
 export default {
   model: {
     prop: 'filter',
-    event: 'change'
+    event: 'change',
   },
   data: () => ({
     timelineSpan: /** @type {Date[]} */ ([]),
@@ -50,16 +57,16 @@ export default {
   props: {
     filter: {
       /** @type {import('vue').PropType<import('../../models/models').Filter>} */
-      type: Object
+      type: Object,
     },
     filterType: {
       type: String,
-      required: true
+      required: true,
     },
     buckets: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   components: {
     Timeline,
@@ -67,15 +74,12 @@ export default {
   },
   computed: {
     timevalues() {
-      return Helpers.timeline.fromBuckets(this.buckets);
+      return Helpers.timeline.fromBuckets(this.buckets)
     },
     /** @return {Date[]} */
     currentTimelineSelectionSpan() {
       if (this.timelineSelectionStart != null && this.timelineSelectionEnd != null) {
-        return [
-          this.timelineSelectionStart,
-          this.timelineSelectionEnd
-        ]
+        return [this.timelineSelectionStart, this.timelineSelectionEnd]
       }
       return []
     },
@@ -85,24 +89,19 @@ export default {
     let { firstDate } = window.impressoDocumentsDateSpan
     const lastDate = new Date()
     firstDate = new Date(firstDate)
-    this.timelineSpan = [
-      firstDate.getFullYear(),
-      lastDate.getFullYear()
-    ];
+    this.timelineSpan = [firstDate.getFullYear(), lastDate.getFullYear()]
   },
   methods: {
     handleFilterChanged(filter) {
-      console.info('(wip) @handleFilterChanged:', filter);
+      console.info('(wip) @handleFilterChanged:', filter)
     },
     applyFilter() {
-      const originalFilter = this.filter
-        ? this.filter
-        : { type: this.filterType }
+      const originalFilter = this.filter ? this.filter : { type: this.filterType }
       const updatedFilter = Object.assign({}, originalFilter, {
         q: new Daterange({
           start: this.timelineSelectionStart,
-          end: this.timelineSelectionEnd
-        }).getValue()
+          end: this.timelineSelectionEnd,
+        }).getValue(),
       })
       this.$emit('change', updatedFilter)
     },
@@ -114,9 +113,8 @@ export default {
       this.timelineSelectionStart = null
       this.timelineSelectionEnd = null
     },
-  }
-};
+  },
+}
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

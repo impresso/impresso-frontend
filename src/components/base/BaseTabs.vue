@@ -1,19 +1,21 @@
-<template lang="html">
+<template>
   <b-nav tabs class="tabbed-nav pl-2 pt-1 align-items-end">
-    <b-nav-item v-for="(t, i) in tabs"
+    <b-nav-item
+      v-for="(t, i) in tabs"
       v-bind:key="i"
       class="small-caps"
       v-on:click="toggle(t)"
       v-bind:active="t === tab"
-      v-bind:disabled="t.disabled">
-      {{t.label}}
+      v-bind:disabled="t.disabled"
+    >
+      {{ t.label }}
     </b-nav-item>
   </b-nav>
 </template>
 
 <script>
 /*
-<template lang="html">
+<template>
   <div class="container">
     <base-tabs v-model="tab" v-bind:tabs="tabs"></base-tabs>
     <div v-for="t in tabs" v-show="t === tab">
@@ -55,11 +57,11 @@ export default {
   },
   methods: {
     toggle(tab) {
-      this.$emit('input', tab);
+      this.$emit('input', tab)
     },
   },
   mounted() {
-    this.toggle(this.tabs.find(d => d.active) || this.tabs[0]);
+    this.toggle(this.tabs.find((d) => d.active) || this.tabs[0])
   },
-};
+}
 </script>

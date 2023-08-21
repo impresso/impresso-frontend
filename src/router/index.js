@@ -25,7 +25,7 @@ import store from '../store'
 
 Vue.use(Router)
 
-const BASE_URL = process.env.BASE_URL || '/'
+const BASE_URL = import.meta.env.BASE_URL || '/'
 // eslint-disable-next-line
 console.debug('[router] Router with BASE_URL to:', BASE_URL)
 

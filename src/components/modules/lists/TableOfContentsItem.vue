@@ -1,37 +1,34 @@
-<template lang="html">
+<template>
   <div class="TableOfContentsItem">
-  <b-media :class="{ active }">
-    <article-item :item="item" class="p-3 clearfix"
-      show-excerpt
-      show-entities
-      show-size
-      show-pages
-      show-matches
-      show-type>
-      <template v-slot:title>
-        <h2 style="font-weight: bold;">
-          {{item.title}}
-        </h2>
-      </template>
-      <template v-slot:actions>
-        <slot name="actions"></slot>
-      </template>
-    </article-item>
-    <div v-bind:key="i" v-for="(image, i) in item.images">
-      <image-item
-        :height="200"
-        class="mx-3 mb-2"
-        :item="image"
-        :headers="headers"
-      />
-      <div class=" ml-3 mb-3">
-        <router-link class="btn btn-outline-secondary btn-sm "
-          :to="getSimilarImagesHref(image)">
-          get similar images
-        </router-link>
+    <b-media :class="{ active }">
+      <article-item
+        :item="item"
+        class="p-3 clearfix"
+        show-excerpt
+        show-entities
+        show-size
+        show-pages
+        show-matches
+        show-type
+      >
+        <template v-slot:title>
+          <h2 style="font-weight: bold">
+            {{ item.title }}
+          </h2>
+        </template>
+        <template v-slot:actions>
+          <slot name="actions"></slot>
+        </template>
+      </article-item>
+      <div v-bind:key="i" v-for="(image, i) in item.images">
+        <image-item :height="200" class="mx-3 mb-2" :item="image" :headers="headers" />
+        <div class="ml-3 mb-3">
+          <router-link class="btn btn-outline-secondary btn-sm" :to="getSimilarImagesHref(image)">
+            get similar images
+          </router-link>
+        </div>
       </div>
-    </div>
-  </b-media>
+    </b-media>
   </div>
 </template>
 
@@ -43,30 +40,28 @@ export default {
   props: {
     active: Boolean,
     item: Object,
-    headers: {}
+    headers: {},
   },
-  methods:{
+  methods: {
     getSimilarImagesHref(image) {
       return `/search/images?p=1&similarTo=${image.uid}`
-    }
+    },
   },
   components: {
     ArticleItem,
     ImageItem,
-  }
+  },
 }
 </script>
 
 <style lang="scss">
-.TableOfContentsItem{
-  h2{
+.TableOfContentsItem {
+  h2 {
     font-size: 1.1em;
   }
-  .active{
+  .active {
     box-shadow: inset 0.15em 0 #343a40;
     background-color: #f2f2f2;
-
-
   }
 }
 </style>

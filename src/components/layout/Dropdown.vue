@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <b-dropdown v-bind:text="selected.text" v-bind:size="size" v-bind:variant="variant">
     <b-dropdown-item
       v-for="option in options"
@@ -6,7 +6,8 @@
       v-bind:key="option.value"
       v-on:click="select(option.value)"
       v-bind:disabled="option.disabled"
-    >{{option.text}}</b-dropdown-item>
+      >{{ option.text }}</b-dropdown-item
+    >
   </b-dropdown>
 </template>
 
@@ -20,7 +21,9 @@ export default {
       default: false,
     },
     options: {
-      default() { return []; },
+      default() {
+        return []
+      },
     },
     size: {
       default: 'md',
@@ -32,17 +35,16 @@ export default {
   computed: {
     selected: {
       get() {
-        return this.options.find(option => option.value === this.value) || {};
+        return this.options.find((option) => option.value === this.value) || {}
       },
     },
   },
   methods: {
     select(option) {
-      this.$emit('input', option);
+      this.$emit('input', option)
     },
   },
-};
+}
 </script>
 
-<style scoped lang="less">
-</style>
+<style scoped lang="less"></style>

@@ -33,28 +33,28 @@ Vue.use(EventBus)
 Vue.use(ImpressoLayout)
 Vue.use(MetaTags, { suffix: 'impresso' })
 Vue.use(Navigation)
-if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
-  Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID })
+if (import.meta.env.VITE_TAWK_TO_SITE_ID) {
+  Vue.use(TawkTo, { siteId: import.meta.env.VITE_TAWK_TO_SITE_ID })
 }
-if (process.env.VUE_APP_GA_TRACKING_ID) {
+if (import.meta.env.VITE_GA_TRACKING_ID) {
   Vue.use(
     VueGtag,
     {
       config: {
-        id: process.env.VUE_APP_GA_TRACKING_ID,
+        id: import.meta.env.VITE_GA_TRACKING_ID,
       },
     },
     router,
   )
 }
-Vue.config.productionTip = process.env.NODE_ENV === 'production'
-Vue.config.errorHandler = error =>
+Vue.config.productionTip = import.meta.env.NODE_ENV === 'production'
+Vue.config.errorHandler = (error) =>
   store.dispatch('DISPLAY_ERROR', {
     error,
     origin: 'Vue.config.errorHandler',
   })
 
-window.addEventListener('unhandledrejection', event => {
+window.addEventListener('unhandledrejection', (event) => {
   if (event.reason) {
     store.dispatch('DISPLAY_ERROR', {
       error: event.reason,
@@ -90,21 +90,25 @@ console.info(
   '%cimpresso-frontend version',
   'font-weight: bold',
   '\n - tag:',
-  process.env.VUE_APP_GIT_TAG,
+  import.meta.env.VITE_GIT_TAG,
   '\n - branch:',
-  process.env.VUE_APP_GIT_BRANCH,
-  `\n - url: https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}`,
+  import.meta.env.VITE_GIT_BRANCH,
+  `\n - url: https://github.com/impresso/impresso-frontend/commit/${
+    import.meta.env.VITE_GIT_REVISION
+  }`,
   '\n - Adobe TYPEKIT_ID:',
-  process.env.VUE_APP_TYPEKIT_ID,
+  import.meta.env.VITE_TYPEKIT_ID,
   '\n - host:',
-  process.env.VUE_APP_MIDDLELAYER_API,
+  import.meta.env.VITE_MIDDLELAYER_API,
 )
+
+console.info('STICAZZI')
 
 Promise.race([
   services.app.reAuthenticate(),
   reducedTimeoutPromise({ service: 'app.reAuthenticate' }),
 ])
-  .catch(err => {
+  .catch((err) => {
     if (err.code === 401) {
       // eslint-disable-next-line
       console.debug('[main] Not authenticated (status 401):', err.message)
@@ -128,14 +132,14 @@ Promise.race([
     console.debug('[main] Loading app & data version...')
     return Promise.race([
       reducedTimeoutPromise({ service: 'version' }),
-      services.version.find().then(res => ({
+      services.version.find().then((res) => ({
         version: res.version,
         apiVersion: res.apiVersion,
         documentsDateSpan: res.documentsDateSpan,
         newspapers: res.newspapers,
         features: res.features,
       })),
-    ]).catch(err => {
+    ]).catch((err) => {
       console.warn(err)
       return {
         version: 'n/a',
@@ -192,7 +196,7 @@ Promise.race([
         components: {
           App,
         },
-        render: h =>
+        render: (h) =>
           h(App, {
             props: {
               startYear: window.impressoDocumentsYearSpan.firstYear,
