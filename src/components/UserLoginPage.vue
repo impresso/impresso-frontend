@@ -15,6 +15,7 @@
               v-model="email"
               type="email"
               class="form-control"
+              placeholder="Email address"
               required
               autofocus
               v-bind:autocomplete="autocomplete()"
@@ -28,17 +29,24 @@
               required
               v-bind:autocomplete="autocomplete()"
             />
-            <div class="checkbox mb-3">
+            <div class="checkbox">
               <label>
                 <input type="checkbox" value="remember-me" v-model="rememberCredentials" />
                 {{ $t('login_remember') }}
               </label>
             </div>
+
             <div class="footer mb-3">
-              <button class="btn btn-sm btn-primary btn-block" type="submit">
+              <button class="btn btn-md btn-primary btn-block" type="submit">
                 {{ $t('login_button') }}
               </button>
             </div>
+            <!-- Password forgotten -->
+
+            <p class="mb-0">
+              Did you forget your password? <br />
+              <router-link :to="{ name: 'passwordReset' }" v-html="$t('actions.resetMyPassword')" />
+            </p>
           </div>
           <div class="footer p-3">
             <h5>Do you need an account?</h5>
@@ -109,6 +117,9 @@ export default {
 <style scoped lang="scss">
 @import 'impresso-theme/src/scss/variables.sass';
 
+#UserLoginPage a {
+  text-decoration: underline;
+}
 #UserLoginPage {
   height: 100%;
   background: url(./../assets/img/login_bg.jpg) no-repeat center center fixed;
@@ -128,7 +139,7 @@ export default {
 .login-form {
   background: white;
   width: 100%;
-  max-width: 330px;
+  max-width: 350px;
   margin: 40px auto;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
   .header {
@@ -139,6 +150,10 @@ export default {
 
   .footer {
     background: #f4f5f6;
+  }
+
+  form {
+    border-radius: 2px;
   }
 }
 
