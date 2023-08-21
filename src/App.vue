@@ -387,7 +387,8 @@ $clr-grey-900: #ddd;
 }
 
 .btn-outline-primary,
-.btn-outline-secondary {
+.btn-outline-secondary,
+.btn-primary {
   border-radius: 2px;
   box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 3px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
 }
