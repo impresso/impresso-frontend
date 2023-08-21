@@ -24,6 +24,7 @@
     "@feathersjs/authentication-client": "4.3.3",
     "@feathersjs/feathers": "4.3.3",
     "@feathersjs/socketio-client": "4.3.3",
+    "@intlify/unplugin-vue-i18n": "^0.12.3",
     "axios": "^0.24.0",
     "bootstrap-vue": "2.2.2",
     "core-js": "3.6.4",
