@@ -11,7 +11,7 @@ import TawkTo from '@/plugins/TawkTo'
 import EventBus from '@/plugins/EventBus'
 import MetaTags from '@/plugins/MetaTags'
 import Navigation from '@/plugins/Navigation'
-
+import { createI18n, castToVueI18n } from 'vue-i18n-bridge'
 import * as services from '@/services'
 
 import 'dripicons/webfont/webfont.css'
@@ -26,7 +26,7 @@ import dateTimeFormats from './i18n/dateTimeFormats'
 import numberFormats from '@/i18n/numberFormats'
 
 Vue.use(BootstrapVue)
-Vue.use(VueI18n)
+Vue.use(VueI18n, { bridge: true })
 // custom created plugins
 Vue.use(Helpers)
 Vue.use(EventBus)
@@ -64,14 +64,22 @@ window.addEventListener('unhandledrejection', (event) => {
 })
 
 // Create VueI18n instance with options
-const i18n = new VueI18n({
-  fallbackLocale: 'en',
-  locale: store.state.settings.language_code,
-  messages,
-  dateTimeFormats,
-  numberFormats,
-  silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
-})
+const i18n = castToVueI18n(
+  createI18n(
+    {
+      fallbackLocale: 'en',
+      locale: store.state.settings.language_code,
+      messages,
+      dateTimeFormats,
+      numberFormats,
+      legacy: false,
+      silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
+    },
+    VueI18n,
+  ),
+)
+
+Vue.use(i18n)
 
 const reducedTimeoutPromise = ({ ms = 500, service }) =>
   new Promise((resolve, reject) => {

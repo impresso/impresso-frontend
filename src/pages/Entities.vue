@@ -288,7 +288,6 @@ a.d-block.active {
     "label_order": "Order By",
     "sort_name": "by name, A-Z",
     "sort_-name": "by name, Z-A",
-    "sort_count": "least articles",
     "sort_-count": "most mentioned in different articles",
     "sort_count": "least mentioned in different articles",
     "sort_-count-mentions": "most mentioned",
