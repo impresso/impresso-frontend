@@ -162,6 +162,7 @@ export const SupportedFiltersByContext = Object.freeze({
     'entity',
     'person',
     'location',
+    'nag',
     'topicmodel',
     'topic-string',
     'entity-string',

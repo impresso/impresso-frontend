@@ -25,6 +25,7 @@ export default {
         'topic',
         'person',
         'location',
+        'nag',
         'language',
         'country',
         'year',
@@ -156,6 +157,7 @@ export default {
         case 'location':
         case 'person':
         case 'collection':
+        case 'nag':
           t = item.name
           break
         case 'newspaper':
@@ -355,6 +357,7 @@ export default {
         "newspaper": "published in",
         "person": "mentioning",
         "location": "mentioning",
+        "nag": "gathered by",
         "string": "containing",
         "title": "where title includes",
         "daterange": "published",
@@ -382,6 +385,7 @@ export default {
         "newspaper": "not published in",
         "person": "not mentioning",
         "location": "not mentioning",
+        "nag": "not gathered by",
         "string": "not containing",
         "title": "where title does not include",
         "daterange": "not published",

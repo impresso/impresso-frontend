@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <b-media class="py-3 border-bottom overflow-hidden search-result-list-item">
     <div
       v-if="isAvailable()"

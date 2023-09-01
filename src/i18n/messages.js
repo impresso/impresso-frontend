@@ -272,6 +272,18 @@ export default {
         optionsTitle: 'Day of publication',
         optionsDescription: 'Total number of articles per day',
       },
+      nag: {
+        title: 'News Agency | News Agency | News Agencies',
+        filtered: 'results are filtered when:',
+        optionsTitle: 'News Agency',
+        filterTitle: 'filter by News Agency',
+        optionsDescription: 'Total number of articles per News Agency',
+        empty: 'No news agency available',
+        context: {
+          include: 'written by',
+          exclude: '<b>NOT</b> written by',
+        },
+      },
       type: {
         title: 'Article content type | Article content types | Article content types',
         optionsTitle: 'Article content type',

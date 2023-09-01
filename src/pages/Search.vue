@@ -212,7 +212,7 @@ import Article from '@/models/Article';
 import FacetModel from '@/models/Facet';
 import FilterFactory from '@/models/FilterFactory';
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets';
-import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters';
+import { SupportedFiltersByContext } from '@/logic/filters';
 import {
   searchQueryGetter,
   searchQuerySetter,
@@ -220,7 +220,6 @@ import {
 import {
   search as searchService,
   searchFacets as searchFacetsService,
-  filtersItems as filtersItemsService,
   exporter as exporterService,
   collectionsItems as collectionsItemsService,
 } from '@/services';
@@ -231,6 +230,7 @@ const FACET_TYPES_DPFS = [
   'person',
   'location',
   'topic',
+  'nag',
 ];
 
 const FACET_TYPES_S = [
@@ -258,10 +258,15 @@ export default {
     searchResults: [],
     paginationTotalRows: 0,
     /** @type {Facet[]} */
-    facets: [],
-    /** @type {Filter[]} */
-    filtersWithItems: [],
+    facets: []
   }),
+  props: {
+    
+    filtersWithItems: {
+      type: Array,
+      default: () => [],
+    },
+  },
   computed: {
     searchQuery: {
       ...searchQueryGetter(),
@@ -581,56 +586,42 @@ export default {
         this.searchResults = data.map(d => new Article(d));
         let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info });
         // get remaining facets and enriched filters.
-        const [
-          namedEntityFacets,
-          topicFacets,
-          filtersWithItems,
-          collectionFacets,
-          collectionsItemsIndex,
-        ] = await Promise.all([
-          searchFacetsService.get('person,location', {
+        const namedEntityFacets = await searchFacetsService.get('person,location', {
+          query: {
+            filters,
+            group_by: groupBy,
+          },
+        });
+        const topicFacets = await searchFacetsService.get('topic', {
+          query: {
+            filters,
+            group_by: groupBy,
+          },
+        });
+        const nagFacets = await searchFacetsService.get('nag', {
+          query: {
+            filters,
+            group_by: groupBy,
+          },
+        });
+        facets = facets.concat(namedEntityFacets, topicFacets, nagFacets);
+        if(this.isLoggedIn) {
+          const collectionFacets = await searchFacetsService.get('collection', {
             query: {
               filters,
               group_by: groupBy,
             },
-          }),
-          searchFacetsService.get('topic', {
+          });
+          facets = facets.concat(collectionFacets);
+          const collectionsItemsIndex =  await collectionsItemsService.find({
             query: {
-              filters,
-              group_by: groupBy,
+              item_uids: this.searchResults.map(d => d.uid),
+              limit: 100,
             },
-          }),
-          filtersItemsService.find({
-            query: {
-              filters: this.searchQueryHash,
-            },
-          }).then(joinFiltersWithItems),
-          this.isLoggedIn
-            ? searchFacetsService.get('collection', {
-              query: {
-                filters,
-                group_by: groupBy,
-              },
-            })
-            : [],
-          this.isLoggedIn
-            ? collectionsItemsService.find({
-              query: {
-                item_uids: this.searchResults.map(d => d.uid),
-                limit: 100,
-              },
-            }).then(({ data }) => data.reduce((acc, d) => {
-              acc[d.itemId] = d;
-              return acc;
-            }, {}))
-            : {},
-        ]);
-        facets = facets.concat(collectionFacets, namedEntityFacets, topicFacets);
-        this.filtersWithItems = filtersWithItems;
-        // TODO sort facets based on the right order
-        this.facets = facets.map(f => new FacetModel(f));
-        if (this.isLoggedIn) {
-          // add collections.
+          }).then(({ data }) => data.reduce((acc, d) => {
+            acc[d.itemId] = d;
+            return acc;
+          }, {}));
           this.searchResults = this.searchResults.map((article) => {
             if (collectionsItemsIndex[article.uid]) {
               article.collections = collectionsItemsIndex[article.uid].collections;
@@ -638,6 +629,9 @@ export default {
             return article;
           });
         }
+        
+
+        this.facets = facets.map(f => new FacetModel(f));
       },
       immediate: true,
     },

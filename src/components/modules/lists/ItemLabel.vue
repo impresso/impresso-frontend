@@ -75,6 +75,9 @@ export default {
         t = this.item ? this.item.y : this.val
       } else if (['type', 'country', 'language'].includes(this.type)) {
         t = this.$t(`buckets.${this.type}.${this.item.uid}`)
+      } else if(this.type === 'nag') {
+        t = this.item.uid.replace(/^bert-[a-z]+-\d+-/, '').split('_').join(' ');
+      
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {
