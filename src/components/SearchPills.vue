@@ -395,9 +395,6 @@ export default {
     border-color: #caccce;
     color: #caccce;
   }
-  .search-pill span.label {
-    color: var(--dark);
-  }
 }
 .bg-dark button.dropdown-toggle {
   color: #caccce;

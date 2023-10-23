@@ -264,7 +264,9 @@ export default {
     searchQueryHash: searchQueryHashGetter(),
     /** @returns {Filter[]} */
     enrichedFilters() {
-      return this.filtersWithItems.length ? this.filtersWithItems : this.filters
+      return this.filtersWithItems.length
+        ? this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+        : this.filters
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
