@@ -146,9 +146,7 @@
             "id": "limited-search-filters",
             "title": "Limited search filters for this query",
             "summary": "",
-            "description": [
-              ""
-            ]
+            "description": [""]
           },
           {
             "id": "how-does-the-image-search-work",
@@ -165,9 +163,7 @@
             "id": "how-search-images-work-with-search-filters",
             "title": "The search image page has limited search filters",
             "summary": "Available filters: by publication date, by newspaper titles and whether retrieved images are on the front page",
-            "description": [
-              ""
-            ]
+            "description": [""]
           },
           {
             "id": "how-to-make-and-and-or-queries",
@@ -197,9 +193,7 @@
             "id": "how-search-ngrams-work-with-search-filters",
             "title": "This ngram trends page has limited search filters",
             "summary": "At the moment we are not allowing to filter by full text search queries while getting ngram frequencies.",
-            "description": [
-              ""
-            ]
+            "description": [""]
           },
           {
             "id": "relative-vs-absolute-year-graph",
@@ -367,6 +361,81 @@
             "title": "What is lexical overlap?",
             "summary": "Percentage of...",
             "description": []
+          }
+        ]
+      },
+      {
+        "title": "Personal Collections",
+        "faq": [
+          {
+            "id": "what-is-a-personal-collection",
+            "title": "What is a personal collection?",
+            "summary": "A personal collection is a set of articles that you can save on Impresso. A collection becomes part of each article, so that you can use it as you would use any other filter, like, country of publication, publication date, language, etc.",
+            "description": []
+          },
+          {
+            "id": "why-collections-are-limited",
+            "title": "Why are personal collections limited to 10 000 articles?",
+            "summary": "We have set a limit of 10 000 articles per collection to avoid performance issues.",
+            "description": [
+              "If your search returned more results, only the 10.000 most relevant items will be stored. If you need to create a collection with more items, please contact us."
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Text reuse filters",
+        "faq": [
+          {
+            "id": "text-reuse-filter-year",
+            "title": "Number of passages per year",
+            "summary": "Displays the total count of passages per year for a given query or filter operation.",
+            "description": [
+              "This gives a first indication, during which years text reuse occurred more commonly. Time sliders and precise date entry allow users to filter for exact date ranges to inspect."
+            ]
+          },
+          {
+            "id": "how-to-read-histograms",
+            "title": "How to read histograms",
+            "summary": "Each histogram is divided into 100 slots and results are evenly distributed across them. In the case of lexical overlap we are dealing with percentages and 1 slot corresponds to 1%. The histogram mouseover shows the number of results for each percentage value, e.g. “value: 61%  12434 results”.",
+            "description": [
+              "For the cluster size and time span filters these slots are filled and distributed depending on the total number of passages a query yields. For example, a query which yields 2000 passages is divided by the number of slots available, in this case 2000 / 100 = 20. Each slot then covers a range of 20 passages. The mouseover for the first slot then reads “range:  0-20   12434 results and for the second slot it reads “range 20-30 …” and so on.",
+              "Another example: A time span of 72700 days then corresponds to a range size of 72700 / 100 = 727. The second slot then covers the range 727 – 1454 and so on. (edited)"
+            ]
+          },
+          {
+            "id": "text-reuse-filter-textReuseClusterSize",
+            "title": "Cluster size",
+            "summary": "Distribution of text reuse cluster sizes, i.e. the number of passages they contain.",
+            "description": [
+              "This filter displays the distribution of text reuse cluster sizesand indication the highest score. The histogram groups clusters of size n and displays their sum. This gives a first indication of averages as well as outliers.",
+              "Sliders can be used to specify a cluster size range of interest. Filtering by cluster size allows to exclude or explicitly focus on outliers but different cluster sizes may also correspond to different types of content."
+            ]
+          },
+          {
+            "id": "text-reuse-filter-textReuseClusterLexicalOverlap",
+            "title": "Lexical overlap",
+            "summary": "Reveals the distribution of lexical overlap in percent.",
+            "description": [
+              "Reveals the distribution of lexical overlap in percent and indicates the largest number of clusters for a given score. Extremely low lexical overlap decreases the chance to discover meaningful text reuse whilst extremely high overlap will only reveal near-copies of content and may be too restrictive for some purposes."
+            ]
+          },
+          {
+            "id": "text-reuse-filter-textReuseClusterDayDelta",
+            "title": "Time span in days",
+            "summary": "Reveals the number of days between the earliest and latest publication date of articles article in text reuse clusters.",
+            "description": [
+              "Reveals the number of days between the earliest and latest publication date of articles article in text reuse clusters and indicates the largest number of passages for a given score. This is an efficient approach to discover or filter for instances of slow, mid-range and rapid text reuse. The histogram groups clusters by the number of days in between publication dates and displays their sum. (edited)"
+            ]
+          },
+          {
+            "id": "text-reuse-filter-textReuseCluster",
+            "title": "Filter by text reuse clusters",
+            "summary": "Allows to filter for specific text reuse clusters, sorted by number of passages.",
+            "description": [
+              "List of text reuse clusters which match a given query, sorted by number of passages.",
+              "Each cluster is characterised with basic information (passages count, lexical overlap, time periods and years covered) as well as a snippet preview of the passage. Clusters can be selected manually for further inspection in the Text reuse app or in other impresso components such as Search."
+            ]
           }
         ]
       }

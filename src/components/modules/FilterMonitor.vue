@@ -1,20 +1,14 @@
-<template lang="html">
+<template>
   <div class="filter-monitor">
     <div v-if="checkbox">
       <!--  context -->
       <b-form-group>
-        <b-form-radio-group
-          switches
-          v-model="currentContext"
-          v-bind:options="checkboxContexts">
+        <b-form-radio-group switches v-model="currentContext" v-bind:options="checkboxContexts">
         </b-form-radio-group>
       </b-form-group>
       <!--  operator -->
       <b-form-group v-if="currentContext === 'include' && availableItems.length > 1">
-        <b-form-radio-group
-          switches
-          v-model="editedFilter.op"
-          v-bind:options="checkboxOperators">
+        <b-form-radio-group switches v-model="editedFilter.op" v-bind:options="checkboxOperators">
         </b-form-radio-group>
       </b-form-group>
     </div>
@@ -23,73 +17,114 @@
       <!--  context -->
       <b-dropdown size="sm" variant="outline-primary" class="mr-1">
         <template slot="button-content">
-          <span v-html="$t(`label.${type}.context.${currentContext}`)"/>
+          <span v-html="$t(`label.${type}.context.${currentContext}`)" />
         </template>
         <b-dropdown-item
           v-for="option in contexts"
           v-bind:active="currentContext === option"
           v-bind:key="option"
           v-on:click="currentContext = option"
-        ><span class="small" v-html="$t(`label.${type}.context.${option}`)"></span></b-dropdown-item>
+          ><span class="small" v-html="$t(`label.${type}.context.${option}`)"></span
+        ></b-dropdown-item>
       </b-dropdown>
       <!--  operator -->
       <b-dropdown v-if="operators.length > 1" size="sm" variant="outline-primary">
         <template slot="button-content">
-          <span v-html="$t(`op.${editedFilter.op}.${currentContext}`)"/>
+          <span v-html="$t(`op.${editedFilter.op}.${currentContext}`)" />
         </template>
         <b-dropdown-item
           v-for="option in operators"
           v-bind:active="editedFilter.op === option"
           v-bind:key="option"
           v-on:click="editedFilter.op = option"
-        ><span class="small" v-html="$t(`op.${option}.${currentContext}`)"></span></b-dropdown-item>
+          ><span class="small" v-html="$t(`op.${option}.${currentContext}`)"></span
+        ></b-dropdown-item>
       </b-dropdown>
     </div>
     <div class="items" :class="{ reduced: tooManyItems }">
       <div v-for="(item, idx) in filter.items" :key="idx" class="mt-2">
         <div v-if="RangeFacets.includes(type)">
-          <filter-number-range v-if="NumericRangeFacets.includes(type)" :start="parseInt(item.start, 10)" :end="parseInt(item.end, 10)" @changed="handleRangeChanged"/>
-          <filter-daterange v-else :start="new Date(item.start)" :end="new Date(item.end)" @changed="handleRangeChanged"/>
+          <filter-number-range
+            v-if="NumericRangeFacets.includes(type)"
+            :start="parseInt(item.start, 10)"
+            :end="parseInt(item.end, 10)"
+            @changed="handleRangeChanged"
+          />
+          <filter-daterange
+            v-else
+            :start="new Date(item.start)"
+            :end="new Date(item.end)"
+            @changed="handleRangeChanged"
+          />
         </div>
-        <b-form-checkbox v-else-if="StringTypes.includes(type)" v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
+        <b-form-checkbox
+          v-else-if="StringTypes.includes(type)"
+          v-model="checkedItems[item.uid]"
+          @change="toggleFilterItem($event, item.uid)"
+        >
           <b-form-input
             size="sm"
             placeholder=""
             class="accepted"
-            v-model="item.uid" @click.prevent.stop @change="changeStringFilterItemAtIndex($event, idx)">
+            v-model="item.uid"
+            @click.prevent.stop
+            @change="changeStringFilterItemAtIndex($event, idx)"
+          >
           </b-form-input>
         </b-form-checkbox>
-        <b-form-checkbox v-else v-model="checkedItems[item.uid]" @change="toggleFilterItem($event, item.uid)">
-          <item-label :item="item" :type="type"/>
+        <b-form-checkbox
+          v-else
+          v-model="checkedItems[item.uid]"
+          @change="toggleFilterItem($event, item.uid)"
+        >
+          <item-label :item="item" :type="type" />
           <span v-if="!item.uid">...</span>
-          <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
-          <item-selector :uid="item.uid" :item="item" :type="type"/>
+          <span v-if="item.count"
+            >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
+          >
+          <item-selector :uid="item.uid" :item="item" :type="type" />
         </b-form-checkbox>
       </div>
       <!-- bucket items -->
       <div class="items-to-add text-small m-2" v-if="itemsToAdd.length">
         <div v-for="(item, idx) in itemsToAdd" :key="idx">
           <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
-          <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{ item.name }}</span>
-          <span v-if="['language', 'country'].indexOf(type) !== -1">{{ $t(`buckets.${type}.${item.uid}`) }}</span>
+          <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{
+            item.name
+          }}</span>
+          <span v-if="['language', 'country'].indexOf(type) !== -1">{{
+            $t(`buckets.${type}.${item.uid}`)
+          }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
-          <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"/>)</span>
-          <item-selector :uid="item.uid" :item="item" :type="type"/>
-          <b-button class="dripicons-cross ml-auto" variant="transparent" size="sm" style="padding:0.25rem 0.5rem 0 0.5rem"
+          <span v-if="item.count"
+            >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
+          >
+          <item-selector :uid="item.uid" :item="item" :type="type" />
+          <b-button
+            class="dripicons-cross ml-auto"
+            variant="transparent"
+            size="sm"
+            style="padding:0.25rem 0.5rem 0 0.5rem"
             @click.prevent.stop="removeItem(idx)"
           />
         </div>
       </div>
       <!-- string to add -->
       <div class="strings-to-add m-2 ml-4" v-if="stringsToAdd.length">
-        <b-form inline v-for="(item, idx) in stringsToAdd" :key="idx"
-          class="mb-2">
+        <b-form inline v-for="(item, idx) in stringsToAdd" :key="idx" class="mb-2">
           <b-form-input
             size="sm"
-            placeholder="..." class="mr-1"
-            v-model="item.uid" @click.prevent.stop >
+            placeholder="..."
+            class="mr-1"
+            v-model="item.uid"
+            @click.prevent.stop
+          >
           </b-form-input>
-          <b-button class="dripicons-cross" variant="transparent" size="sm" style="padding:0.25rem 0.5rem 0 0.5rem"
+          <b-button
+            class="dripicons-cross"
+            variant="transparent"
+            size="sm"
+            style="padding:0.25rem 0.5rem 0 0.5rem"
             @click.prevent.stop="removeStringItem(idx)"
           />
         </b-form>
@@ -99,10 +134,13 @@
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
-            <b-button size="sm" variant="outline-primary" block
-              v-on:click.prevent="showEntitySuggester = !showEntitySuggester;"
-              >
-                {{$t('actions.addUsingEmbeddings')}}
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              block
+              v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
+            >
+              {{ $t('actions.addUsingEmbeddings') }}
             </b-button>
           </div>
         </b-col>
@@ -112,7 +150,8 @@
         :filter="filter"
         :type="type"
         @filter-changed="handleFilterChanged"
-        class="border p-2 bg-light"/>
+        class="border p-2 bg-light"
+      />
     </div>
     <!-- @entity-selected="addEmbeddingSuggestion"/> -->
     <!-- add new string as an OR filter -->
@@ -120,26 +159,36 @@
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
-            <b-button size="sm" variant="outline-primary" block
-              @click.prevent.stop="addStringItem(type)" :disabled="hasEmptyStringItems">
-                {{$t('actions.addItem')}}
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              block
+              @click.prevent.stop="addStringItem(type)"
+              :disabled="hasEmptyStringItems"
+            >
+              {{ $t('actions.addItem') }}
             </b-button>
           </div>
         </b-col>
         <b-col cols="6">
           <div class="ml-1">
-            <b-button size="sm" variant="outline-primary" block
-              v-on:click.prevent="showEmbeddings = !showEmbeddings;"
-              >
-                {{$t('actions.addUsingEmbeddings')}}
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              block
+              v-on:click.prevent="showEmbeddings = !showEmbeddings"
+            >
+              {{ $t('actions.addUsingEmbeddings') }}
             </b-button>
           </div>
         </b-col>
       </b-row>
-      <embeddings-search v-if="showEmbeddings"
-                         :filter="editedFilter"
-                         @click.stop.prevent
-                         @embdding-selected="addEmbeddingSuggestion"/>
+      <embeddings-search
+        v-if="showEmbeddings"
+        :filter="editedFilter"
+        @click.stop.prevent
+        @embdding-selected="addEmbeddingSuggestion"
+      />
 
       <!-- <b-form-group v-if="checkbox">
        <b-form-radio-group
@@ -155,33 +204,36 @@
       block
       size="sm"
       variant="outline-primary"
-      @click="applyChanges()">
-      <span v-if="validStringsToAdd.length > 0 || itemsToAdd.length > 0 || excludedItemsIds.length > 0">
+      @click="applyChanges()"
+    >
+      <span
+        v-if="validStringsToAdd.length > 0 || itemsToAdd.length > 0 || excludedItemsIds.length > 0"
+      >
         {{
           $t('actions.applyChangesDetailed', {
             added: validStringsToAdd.length || itemsToAdd.length,
-            removed: excludedItemsIds.length
+            removed: excludedItemsIds.length,
           })
         }}
       </span>
-      <span v-else>{{ $t(`actions.applyChanges`)}}</span>
+      <span v-else>{{ $t(`actions.applyChanges`) }}</span>
     </b-button>
   </div>
 </template>
 
 <script>
-import FilterDaterange from '@/components/modules/FilterDateRange';
-import FilterNumberRange from '@/components/modules/FilterNumberRange';
-import ItemSelector from '@/components/modules/ItemSelector';
-import ItemLabel from '@/components/modules/lists/ItemLabel';
-import CollectionItem from '@/components/modules/lists/CollectionItem';
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch';
+import FilterDaterange from '@/components/modules/FilterDateRange'
+import FilterNumberRange from '@/components/modules/FilterNumberRange'
+import ItemSelector from '@/components/modules/ItemSelector'
+import ItemLabel from '@/components/modules/lists/ItemLabel'
+import CollectionItem from '@/components/modules/lists/CollectionItem'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
 import EntitySuggester from '@/components/modules/EntitySuggester'
 import {
   toCanonicalFilter,
   toSerializedFilter,
   RangeFacets,
-  NumericRangeFacets
+  NumericRangeFacets,
 } from '@/logic/filters'
 
 const StringTypes = ['string', 'title']
@@ -193,7 +245,7 @@ const EntityTypes = ['person', 'location', 'entity']
 export default {
   model: {
     prop: 'filter',
-    event: 'changed'
+    event: 'changed',
   },
   data: () => ({
     showEmbeddings: false,
@@ -204,7 +256,7 @@ export default {
     RangeFacets,
     NumericRangeFacets,
     StringTypes,
-    EntityTypes
+    EntityTypes,
   }),
   props: {
     operators: {
@@ -236,13 +288,15 @@ export default {
   computed: {
     tooManyItems() {
       const filterItems = this.filter.items || []
-      return this.stringsToAdd.length + filterItems.length + this.itemsToAdd.length > 5;
+      return this.stringsToAdd.length + filterItems.length + this.itemsToAdd.length > 5
     },
     hasEmptyStringItems() {
-      return this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.uid.length === 0).length > 0;
+      return (
+        this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.uid.length === 0).length > 0
+      )
     },
     validStringsToAdd() {
-      return this.stringsToAdd.filter(d => d.checked && d.uid.length);
+      return this.stringsToAdd.filter(d => d.checked && d.uid.length)
     },
     checkedItems() {
       return this.availableItems.reduce((acc, item) => {
@@ -254,39 +308,43 @@ export default {
       const filterItems = this.filter.items || []
       return filterItems.concat(this.itemsToAdd)
     },
-    type() { return this.filter.type || '' },
+    type() {
+      return this.filter.type || ''
+    },
     checkboxPrecisions() {
       return this.precisions.map(value => ({
         text: this.$t(`label.${this.type}.precision.${value}`),
         value,
-      }));
+      }))
     },
     checkboxContexts() {
       return this.contexts.map(value => ({
         text: this.$t(`label.${this.type}.context.${value}`),
         value,
-      }));
+      }))
     },
     checkboxOperators() {
       return this.operators.map(value => ({
         text: this.$t(`op.${value}.${this.currentContext}`),
         value,
-      }));
+      }))
     },
     hasChanges() {
-      return this.itemsToAdd.length > 0
-        || this.validStringsToAdd.length > 0
-        || this.excludedItemsIds.length > 0
-        || toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
+      return (
+        this.itemsToAdd.length > 0 ||
+        this.validStringsToAdd.length > 0 ||
+        this.excludedItemsIds.length > 0 ||
+        toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
+      )
     },
     currentContext: {
       get() {
-        return this.editedFilter.context
-          ? this.editedFilter.context
-          : 'include'
+        return this.editedFilter.context ? this.editedFilter.context : 'include'
       },
-      set(context) { this.editedFilter = { ...this.editedFilter, context } }
-    }
+      set(context) {
+        this.editedFilter = { ...this.editedFilter, context }
+      },
+    },
   },
   methods: {
     applyChanges() {
@@ -297,24 +355,26 @@ export default {
           acc[item.uid] = item
           return acc
         }, {})
-        const availableItemsIds = [...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid))]
+        const availableItemsIds = [
+          ...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid)),
+        ]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
         const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
 
         this.$emit('changed', {
           ...this.editedFilter,
           items: selectedItems,
-          q: selectedItemsIds
+          q: selectedItemsIds,
         })
       } else if (StringTypes.includes(type)) {
         const newFilter = {
           ...this.editedFilter,
           q: this.editedFilter.q
-            .filter((d) => !this.excludedItemsIds.includes(d))
+            .filter(d => !this.excludedItemsIds.includes(d))
             .concat(this.validStringsToAdd.map(d => d.uid)),
-        };
-        this.$emit('changed', newFilter);
-        this.stringsToAdd = [];
+        }
+        this.$emit('changed', newFilter)
+        this.stringsToAdd = []
       } else {
         this.$emit('changed', this.editedFilter)
       }
@@ -323,21 +383,23 @@ export default {
       this.stringsToAdd.push({
         uid: '',
         checked: true,
-      });
+      })
     },
     removeStringItem(idx) {
-      this.stringsToAdd.splice(idx, 1);
+      this.stringsToAdd.splice(idx, 1)
     },
     removeItem(idx) {
-      this.itemsToAdd.splice(idx, 1);
+      this.itemsToAdd.splice(idx, 1)
     },
     changeStringFilterItemAtIndex(value, idx) {
-      const q = this.filter.items.map((d, i) => {
-        if(i === idx) {
-          return value;
-        }
-        return d.uid;
-      }).filter(d => d.length);
+      const q = this.filter.items
+        .map((d, i) => {
+          if (i === idx) {
+            return value
+          }
+          return d.uid
+        })
+        .filter(d => d.length)
       this.editedFilter = { ...this.editedFilter, q }
     },
     toggleFilterItem(selected, uid) {
@@ -361,12 +423,13 @@ export default {
         items: [item],
         q,
       }
-      if (!NumericRangeFacets.includes(this.editedFilter.type)) this.$emit('daterange-changed', this.editedFilter);
+      if (!NumericRangeFacets.includes(this.editedFilter.type))
+        this.$emit('daterange-changed', this.editedFilter)
     },
-    handleFilterChanged({items}) {
-      console.info('handleFilterChanged');
-      this.itemsToAdd = items; // TODO:  exclude item already present
-    }
+    handleFilterChanged({ items }) {
+      console.info('handleFilterChanged')
+      this.itemsToAdd = items // TODO:  exclude item already present
+    },
   },
   components: {
     FilterDaterange,
@@ -375,7 +438,7 @@ export default {
     ItemLabel,
     ItemSelector,
     FilterNumberRange,
-    EntitySuggester
+    EntitySuggester,
   },
   watch: {
     /**
@@ -390,16 +453,16 @@ export default {
         if (this.itemsToAdd) {
           this.editedFilter = {
             ...this.editedFilter,
-            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid)),
           }
         }
         this.excludedItemsIds = []
       },
       immediate: true,
-      deep: true
-    }
-  }
-};
+      deep: true,
+    },
+  },
+}
 </script>
 
 <style lang="scss">
@@ -414,7 +477,7 @@ label.custom-control-label {
 }
 .reduced {
   max-height: 200px;
-  overflow:scroll;
+  overflow: scroll;
 }
 </style>
 <i18n>

@@ -29,3 +29,7 @@ tmp/
 
 # redis files
 *.rdb
+
+# Local Netlify folder
+.netlify
+impresso-frontend.code-workspace

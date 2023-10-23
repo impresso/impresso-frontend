@@ -20,14 +20,15 @@
           v-bind:currentPage="paginationList.currentPage"
           v-bind:totalRows="paginationList.totalRows"
           v-on:change="onInputPagination"
-          class="float-left small-caps" />
+          class="float-left small-caps"
+        />
       </div>
     </template>
   </i-layout-section>
 </template>
 
 <script>
-import Pagination from '../Pagination';
+import Pagination from '../Pagination'
 
 export default {
   props: {
@@ -50,24 +51,24 @@ export default {
   },
   methods: {
     onInputPagination(page) {
-      this.$emit('change-page', page);
+      this.$emit('change-page', page)
     },
   },
   components: {
     Pagination,
   },
-};
+}
 </script>
 
 <style lang="scss">
-  .items {
-    &.with-pagination{
-      margin-bottom: 3rem;
-    }
-    .item.active {
-      background: white;
-      -webkit-box-shadow: inset 3px 0px #343a40, inset 0px 1px 0px #343a4063;
-      box-shadow: inset 3px 0px #343a40, inset 0px 1px 0px #343a4063;
-    }
+.items {
+  &.with-pagination {
+    margin-bottom: 3rem;
   }
+  .item.active {
+    background: white;
+    -webkit-box-shadow: inset 3px 0px #343a40, inset 0px 1px 0px #343a4063;
+    box-shadow: inset 3px 0px #343a40, inset 0px 1px 0px #343a4063;
+  }
+}
 </style>

@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="tb" :class="getClasses">
-    <div class="tb-heading">
-      <div class="tb-title" :class="{'small-caps': smallCaps, 'font-weight-bold': true}">
+    <div class="tb-heading d-flex aling-items-center flex-column">
+      <div class="tb-title" :class="{ 'small-caps': smallCaps, 'font-weight-bold': true }">
         <slot></slot>
       </div>
       <div class="tb-description">
@@ -26,14 +26,14 @@ export default {
     getClasses() {
       return {
         'with-options': !!this.$slots.options,
-      };
+      }
     },
   },
-};
+}
 </script>
 
 <style scoped lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'impresso-theme/src/scss/variables.sass';
 
 .tb {
   // padding-top:1px;

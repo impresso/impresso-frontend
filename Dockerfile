@@ -1,5 +1,5 @@
 # 1. build
-FROM node:12-alpine AS frontend_builder
+FROM node:17-alpine AS frontend_builder
 
 ARG GIT_TAG
 ARG GIT_BRANCH
@@ -9,16 +9,17 @@ WORKDIR /impresso_frontend
 
 RUN apk add --no-cache git build-base python3
 
+ENV NODE_OPTIONS --openssl-legacy-provider
+
 COPY package.json package-lock.json ./
-
-RUN npm install
-
 COPY src ./src
 COPY static ./static
 COPY public ./public
 
-COPY .eslintrc .eslintignore .postcssrc.js .babelrc vue.config.js ./
+COPY .eslintrc.cjs .eslintignore .postcssrc.js .babelrc vue.config.js tsconfig.json ./
 COPY .env .env.production ./
+
+RUN npm install
 
 ENV PUBLIC_PATH /app/
 ENV NODE_ENV production

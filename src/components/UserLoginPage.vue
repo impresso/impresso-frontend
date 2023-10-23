@@ -1,23 +1,25 @@
-<template lang="html">
+<template>
   <i-layout id="UserLoginPage">
     <i-layout-section class="section">
       <div class="login-form">
         <form v-on:submit.prevent="authenticate" class="form-signin">
           <div class="header p-3">
-            {{$t("login_title")}}
+            {{ $t('login_title') }}
           </div>
           <div class="body py-4 px-3">
             <div class="alert alert-danger" v-show="error" role="alert">
-              {{error}}
+              {{ error }}
             </div>
             <label for="inputEmail" class="sr-only">Email address</label>
             <input
               v-model="email"
               type="email"
               class="form-control"
+              placeholder="Email address"
               required
               autofocus
-              v-bind:autocomplete="autocomplete()">
+              v-bind:autocomplete="autocomplete()"
+            />
             <label for="inputPassword" class="sr-only">Password</label>
             <input
               v-model="password"
@@ -25,23 +27,37 @@
               class="form-control"
               placeholder="Password"
               required
-              v-bind:autocomplete="autocomplete()">
-            <div class="checkbox mb-3">
+              v-bind:autocomplete="autocomplete()"
+            />
+            <div class="checkbox">
               <label>
-                <input type="checkbox" value="remember-me" v-model="rememberCredentials"> {{$t("login_remember")}}
+                <input type="checkbox" value="remember-me" v-model="rememberCredentials" />
+                {{ $t('login_remember') }}
               </label>
             </div>
-            <div class="footer mb-3">
-              <button class="btn btn-sm btn-primary btn-block" type="submit">{{$t("login_button")}}</button>
-            </div>
 
+            <div class="footer mb-3">
+              <button class="btn btn-md btn-primary btn-block" type="submit">
+                {{ $t('login_button') }}
+              </button>
+            </div>
+            <!-- Password forgotten -->
+
+            <p class="mb-0">
+              Did you forget your password? <br />
+              <router-link :to="{ name: 'passwordReset' }" v-html="$t('actions.resetMyPassword')" />
+            </p>
           </div>
           <div class="footer p-3">
             <h5>Do you need an account?</h5>
-            <router-link to="register" class="btn btn-sm btn-outline-primary btn-block">{{$t("signup_button")}}</router-link>
-            <p class="mt-3">Any Questions? <br/>Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a></p>
+            <router-link to="register" class="btn btn-sm btn-outline-primary btn-block">{{
+              $t('signup_button')
+            }}</router-link>
+            <p class="mt-3">
+              Any Questions? <br />Contact us at
+              <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
+            </p>
           </div>
-
         </form>
       </div>
     </i-layout-section>
@@ -49,7 +65,6 @@
 </template>
 
 <script>
-
 export default {
   data: () => ({
     email: '',
@@ -58,49 +73,54 @@ export default {
   }),
   methods: {
     autocomplete() {
-      return this.rememberCredentials === true ? 'on' : 'off';
+      return this.rememberCredentials === true ? 'on' : 'off'
     },
     authenticate() {
-      this.error = false;
-      const path = this.$route.query.redirect || window.redirect || '/';
+      this.error = false
+      const path = this.$route.query.redirect || window.redirect || '/'
 
-      this.$store.dispatch('user/LOGIN', {
-        email: this.email,
-        password: this.password,
-      }).then(() => {
-        this.$router.push({
-          path,
-          ...this.$store.getters.redirectionParams,
-        });
-      }).catch((err) => {
-        if (err.code === 401) {
-          this.error = this.$t('errors.LoginFailed');
-        }
-        console.warn('error', err);
-      });
+      this.$store
+        .dispatch('user/LOGIN', {
+          email: this.email,
+          password: this.password,
+        })
+        .then(() => {
+          this.$router.push({
+            path,
+            ...this.$store.getters.redirectionParams,
+          })
+        })
+        .catch(err => {
+          if (err.code === 401) {
+            this.error = this.$t('errors.LoginFailed')
+          }
+          console.warn('error', err)
+        })
     },
   },
   computed: {
     rememberCredentials: {
       get() {
-        return this.$store.state.user.rememberCredentials;
+        return this.$store.state.user.rememberCredentials
       },
       set(val) {
         this.$store.commit('user/SET_REMEMBER_CREDENTIALS', {
           remember: val,
-        });
+        })
       },
     },
   },
-  components: {
-  },
-};
+  components: {},
+}
 </script>
 
 <style scoped lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'impresso-theme/src/scss/variables.sass';
 
-#UserLoginPage{
+#UserLoginPage a {
+  text-decoration: underline;
+}
+#UserLoginPage {
   height: 100%;
   background: url(./../assets/img/login_bg.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
@@ -109,26 +129,32 @@ export default {
   background-size: cover;
   background-color: rgba(0, 0, 0, 0.3);
   background-blend-mode: multiply;
-  .section{
+  .section {
     align-items: center;
-    background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAG0lEQVQYV2NkYGD4z8DAwMgABXAGNgGwSgwVAFbmAgXQdISfAAAAAElFTkSuQmCC) repeat;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAG0lEQVQYV2NkYGD4z8DAwMgABXAGNgGwSgwVAFbmAgXQdISfAAAAAElFTkSuQmCC)
+      repeat;
   }
-};
+}
 
-.login-form{
+.login-form {
   background: white;
   width: 100%;
-  max-width: 330px;
+  max-width: 350px;
   margin: 40px auto;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
-  .header{
+
+  .header {
     background: $clr-accent-light;
     font-weight: bold;
     font-size: larger;
   }
 
-  .footer{
+  .footer {
     background: #f4f5f6;
+  }
+
+  form {
+    border-radius: 2px;
   }
 }
 
@@ -137,10 +163,10 @@ export default {
     position: relative;
     z-index: 2;
   }
-  input[type="email"] {
+  input[type='email'] {
     margin-bottom: -1px;
   }
-  input[type="password"] {
+  input[type='password'] {
     margin-bottom: 10px;
   }
 }

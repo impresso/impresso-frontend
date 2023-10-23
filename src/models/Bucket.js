@@ -1,8 +1,9 @@
-import Entity from '@/models/Entity';
-import Topic from '@/models/Topic';
-import Newspaper from '@/models/Newspaper';
-import Year from '@/models/Year';
-import Collection from '@/models/Collection';
+import Entity from '@/models/Entity'
+import Topic from '@/models/Topic'
+import Newspaper from '@/models/Newspaper'
+import Year from '@/models/Year'
+import Collection from '@/models/Collection'
+import TextReuseCluster from '@/models/TextReuseCluster'
 
 /**
  * @class Bucket is an object representing a Solr search engine facet bucket
@@ -18,37 +19,43 @@ export default class Bucket {
     item = {},
     included = true,
     type = '',
+    upper = undefined,
+    lower = undefined,
   } = {}) {
-    this.val = String(val);
-    this.count = parseInt(count, 10);
-    this.included = included;
-
+    this.val = String(val)
+    this.count = parseInt(count, 10)
+    this.included = included
+    this.upper = upper
+    this.lower = lower
     switch (type) {
-    case 'topic':
-      this.item = new Topic(item);
-      break;
-    case 'person':
-    case 'location':
-      this.item = new Entity(item);
-      break;
-    case 'newspaper':
-      this.item = new Newspaper(item);
-      break;
-    case 'collection':
-      this.item = new Collection(item);
-      break;
-    case 'year':
-      this.item = new Year(item);
-      break;
-    default:
-      this.item = {
-        uid: this.val,
-      };
-      break;
+      case 'topic':
+        this.item = new Topic(item)
+        break
+      case 'person':
+      case 'location':
+        this.item = new Entity(item)
+        break
+      case 'newspaper':
+        this.item = new Newspaper(item)
+        break
+      case 'collection':
+        this.item = new Collection(item)
+        break
+      case 'year':
+        this.item = new Year(item)
+        break
+      case 'textReuseCluster':
+        this.item = TextReuseCluster.fromTextReusePassage(item)
+        break
+      default:
+        this.item = {
+          uid: this.val,
+        }
+        break
     }
 
     if (!this.val.length) {
-      throw new Error('Bucket should have a valid value "val", empty value given');
+      throw new Error('Bucket should have a valid value "val", empty value given')
     }
   }
 }

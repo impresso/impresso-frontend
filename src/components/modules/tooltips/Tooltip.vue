@@ -1,9 +1,11 @@
 <template lang="html">
-  <div class="tooltip"
-       :class='{active: tooltip.isActive}'
-       :style="{
-          transform: `translate(${x}px, ${y}px`,
-       }">
+  <div
+    class="tooltip"
+    :class="{ active: tooltip.isActive }"
+    :style="{
+      transform: `translate(${x}px, ${y}px`,
+    }"
+  >
     <div class="tooltip-wrapper" ref="wrapper">
       <div class="tooltip-inner">
         <slot></slot>
@@ -13,12 +15,12 @@
 </template>
 
 <script>
-
 /**
  * @typedef {{ x: number, y: number, isActive: boolean, item?: any }} TooltipProperties
  */
 
 export default {
+  name: 'Tooltip',
   props: {
     /** @type {import('vue').PropOptions<TooltipProperties>} */
     tooltip: {
@@ -27,8 +29,8 @@ export default {
       default: () => ({
         x: 0,
         y: 0,
-        isActive: false
-      })
+        isActive: false,
+      }),
     },
     maxWidth: {
       type: Number,
@@ -37,15 +39,14 @@ export default {
     /* calculate Y value instead of taking it from tooltip. */
     calculateY: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   computed: {
     /** @returns {number} */
     x() {
-      const { width = null } = this.$el && this.$el.parentNode
-        ? this.$el.parentNode.getBoundingClientRect()
-        : {}
+      const { width = null } =
+        this.$el && this.$el.parentNode ? this.$el.parentNode.getBoundingClientRect() : {}
 
       if (width == null) return this.tooltip.x
 
@@ -54,7 +55,7 @@ export default {
       const halfTooltipWidth = tooltipWidth / 2
 
       if (this.tooltip.x < halfTooltipWidth) return halfTooltipWidth
-      if (this.tooltip.x > (width - halfTooltipWidth)) return width - halfTooltipWidth
+      if (this.tooltip.x > width - halfTooltipWidth) return width - halfTooltipWidth
 
       return this.tooltip.x
     },
@@ -66,49 +67,52 @@ export default {
       const { height = 0 } = this.$refs.wrapper?.getBoundingClientRect() ?? {}
 
       return this.tooltip.y + top - height * 2
-    }
+    },
   },
-};
+}
 </script>
 
 <style scoped lang="less">
-.tooltip{
+.tooltip {
   position: absolute;
   top: 0;
   pointer-events: none;
   z-index: 1071;
 
-  &.active.fadeOut, &.fadeOut{
-    transition: opacity .2s ease-in-out;
+  &.active.fadeOut,
+  &.fadeOut {
+    transition: opacity 0.2s ease-in-out;
     opacity: 0;
   }
-  .tooltip-wrapper{
+  .tooltip-wrapper {
     width: 200px;
     position: absolute;
     left: -100px;
     text-align: center;
   }
 
-  .tooltip-inner{
+  .tooltip-inner {
     background: black;
     color: white;
     text-align: left;
     display: inline-block;
+
+  border-radius: 2px;
   }
 
-  p{
+  p {
     color: #eee;
     margin-bottom: 0;
   }
-  .tooltip-inner h1{
+  .tooltip-inner h1 {
     color: white;
     font-size: 1rem;
     font-weight: bold;
     border-bottom: 1px solid #999;
-    padding-bottom: .75rem;
+    padding-bottom: 0.75rem;
   }
 
-  &.active{
+  &.active {
     opacity: 1;
   }
 }
