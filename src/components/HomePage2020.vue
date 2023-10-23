@@ -47,18 +47,18 @@
           >
         </p>
 
-        <div class="pl-3 my-3 border-left" style="border-width: 2px !important;">
+        <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
           info @ impresso-project [dot] ch
           <br />
           project website: <a href="/" target="_blank">impresso-project.ch</a>
           <br />
-          <img src="@/assets/img/GitHub-Mark-Light-32px.png" class="mr-2" style="max-height:1em" />
+          <img src="@/assets/img/GitHub-Mark-Light-32px.png" class="mr-2" style="max-height: 1em" />
           github: <a href="https://github.com/impresso" target="_blank">impresso</a>
           <br />
           <img
             src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
             class="mr-2"
-            style="max-height:1em"
+            style="max-height: 1em"
           />
           twitter:
           <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
@@ -88,7 +88,7 @@
           <info-button name="which-newspapers" class="ml-2 mt-1 d-inline-block" />
         </h2>
         <section class="mx-4">
-          <p style="font-size:1.2em">
+          <p style="font-size: 1.2em">
             How can newspapers help understand the past? How to explore them?
           </p>
           <div class="p-3 mb-3 mt-5 enhance-contents position-relative shadow">
@@ -133,10 +133,16 @@
             Take a moment to familiarise yourself with <em>impresso</em>'s
             <b>advanced search</b> and <b> exploration workflows</b>
           </p>
-          <div class="border-bottom" style="position:relative">
+          <div class="border-bottom" style="position: relative">
             <div
               class="arrow-down"
-              style="position:absolute; left:50%; margin-left: -20px; top: -1px; border-top-color: #343a40"
+              style="
+                position: absolute;
+                left: 50%;
+                margin-left: -20px;
+                top: -1px;
+                border-top-color: #343a40;
+              "
             ></div>
           </div>
           <div class="arrow-down mx-auto"></div>
@@ -183,14 +189,18 @@
               </b-col>
             </b-row>
           </b-container>
-          <p class="text-center text-white">
-            ... then here are a few examples to get you started!
-          </p>
+          <p class="text-center text-white">... then here are a few examples to get you started!</p>
         </section>
-        <div class="border-bottom" style="position:relative">
+        <div class="border-bottom" style="position: relative">
           <div
             class="arrow-down"
-            style="position:absolute; left:50%; margin-left: -20px; top: -1px; border-top-color: #343a40"
+            style="
+              position: absolute;
+              left: 50%;
+              margin-left: -20px;
+              top: -1px;
+              border-top-color: #343a40;
+            "
           ></div>
         </div>
         <div class="arrow-down mx-auto"></div>
@@ -303,7 +313,7 @@ export default {
             },
           })
           .then(joinFiltersWithItems)
-          .then(filtersWithItems => {
+          .then((filtersWithItems) => {
             this.filtersWithItems = filtersWithItems
           })
       },
@@ -324,7 +334,7 @@ export default {
 <style lang="scss">
 @import 'impresso-theme/src/scss/variables.sass';
 
-.bg-dark #HomePage2020 {
+#HomePage2020.bg-dark {
   ul.nav.nav-pills .nav-item.active .nav-link {
     color: $clr-white;
     border-color: $clr-secondary;
@@ -369,6 +379,10 @@ export default {
 
   .stats a {
     color: $clr-white;
+  }
+
+  a {
+    color: var(--light);
   }
 }
 

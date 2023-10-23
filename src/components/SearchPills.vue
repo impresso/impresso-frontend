@@ -133,7 +133,7 @@
           <filter-monitor
             checkbox
             :filter="filter"
-            @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
+            @changed="(updatedFilter) => handleFilterUpdated(filterIndex, updatedFilter)"
             :operators="['AND', 'OR']"
           />
         </div>
@@ -272,7 +272,7 @@ export default {
     /** @return {boolean} */
     isResettable() {
       if (this.disableReset) return false
-      return !!this.filters.filter(d => d.type !== 'hasTextContents').length
+      return !!this.filters.filter((d) => d.type !== 'hasTextContents').length
     },
   },
   methods: {
@@ -298,7 +298,7 @@ export default {
       this.$emit('changed', newFilters)
     },
     handleFrontpageFilterRemoved() {
-      const newFilters = this.filters.filter(d => d.type !== 'isFront')
+      const newFilters = this.filters.filter((d) => d.type !== 'isFront')
       this.$emit('changed', newFilters)
     },
     handleReset() {
@@ -395,8 +395,10 @@ export default {
     border-color: #caccce;
     color: #caccce;
   }
+  .search-pill span.label {
+    color: var(--dark);
+  }
 }
-
 .bg-dark button.dropdown-toggle {
   color: #caccce;
 }
