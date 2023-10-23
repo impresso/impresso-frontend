@@ -22,6 +22,8 @@ COPY public ./public
 COPY .eslintrc.cjs .eslintignore .postcssrc.js .babelrc vite.config.js ./
 COPY .env .env.production ./
 
+RUN npm install
+
 ENV PUBLIC_PATH /app/
 ENV NODE_ENV production
 ENV GIT_TAG=${GIT_TAG}

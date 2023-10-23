@@ -30,6 +30,7 @@
     </div>
 
     <cookie-disclaimer />
+    <TroublesAhead v-if="enableTroublesAhead" />
   </div>
 </template>
 
@@ -41,6 +42,7 @@ import SelectionMonitor from './components/SelectionMonitor'
 import DisclaimerNotice from './components/modals/DisclaimerNotice'
 import StatusIndicator from './components/modals/StatusIndicator'
 import CookieDisclaimer from './components/modals/CookieDisclaimer'
+import TroublesAhead from './components/modals/TroublesAhead'
 import { CommonQueryParameters } from './router/util'
 import { joinFiltersWithItems, optimizeFilters, serializeFilters } from './logic/filters'
 import { searchQueryGetter } from './logic/queryParams'
@@ -55,9 +57,11 @@ export default {
     DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
+    TroublesAhead,
   },
   data: () => ({
     filtersWithItems: [],
+    enableTroublesAhead: process.env.VUE_APP_MAINTENANCE.length > 0,
   }),
   props: {
     startYear: {
@@ -118,6 +122,7 @@ export default {
         id: import.meta.env.VITE_TYPEKIT_ID,
       },
     })
+    console.info('enable MAINTENANCE:', process.env.VUE_APP_MAINTENANCE.length)
   },
   watch: {
     filters() {
