@@ -1,9 +1,22 @@
 # impresso-frontend
 
 Welcome to the _impresso_ app frontend website to search, explore and create personal collections from the 40 millions (and counting!) newspapers articles of the _impresso_ collection.
-This is a website that uses vue2 framework build in node v12.
 
-## Use docker stack for development (node v12)
+## Install for development
+
+This is a website that uses vue2 framework build in node v17 and **is not compatible with node v18**. We provide a dockerfile-dev which points to the right node version to use. Alternatively, you can use `nvm install 17` and then install with `--openssl-legacy-provider` option
+
+```
+NODE_OPTIONS=--openssl-legacy-provider npm install
+```
+
+FInally run with:
+
+```
+NODE_OPTIONS=--openssl-legacy-provider npm start
+```
+
+### Use docker stack for development (node v12)
 
 We provide a Dockerfile-dev to streamline node 12 installation with now unsupported modules.
 
