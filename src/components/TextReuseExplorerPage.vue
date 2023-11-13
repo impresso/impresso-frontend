@@ -6,13 +6,11 @@
           <span class="label small-caps">{{ $t('textReuse').toLowerCase() }}</span>
 
           <h3 class="mb-1">
-            <span v-if="isLoading">
-              ... (loading)
-            </span>
+            <span v-if="isLoading"> ... (loading) </span>
             <span>{{ $t('routes.' + $route.name) }}</span>
-            <small><InfoButton name="text-reuse" class="ml-1"/></small>
+            <small><InfoButton name="text-reuse" class="ml-1" /></small>
           </h3>
-          <section class="text-serif  TextReuseExplorerPage_summary">
+          <section class="text-serif TextReuseExplorerPage_summary">
             <div>
               <span v-html="incipit" />
               <SearchQuerySummary
@@ -61,7 +59,7 @@
           >
             <span>{{ $t('routeTextReuseStatistics') }}</span>
           </b-nav-item>
-          <!-- <b-nav-item
+          <b-nav-item
             :to="goToRoute({ name: 'textReuseClusters' })"
             active-class="active"
             class="pl-2"
@@ -73,7 +71,7 @@
                 })
               "
             />
-          </b-nav-item> -->
+          </b-nav-item>
           <b-nav-item
             :to="goToRoute({ name: 'textReusePassages' })"
             active-class="active"
@@ -103,7 +101,7 @@
       :loading="isLoading"
     />
     <List
-      v-if="$route.name === 'textReuseClusters'"
+      v-if="$route.name === 'textReuseClusters'  && !isLoadingClusters"
       :items="clusters"
       :pagination-list="clustersPaginationList"
       @change-page="
@@ -140,7 +138,7 @@
       </template>
     </List>
     <List
-      v-if="$route.name === 'textReusePassages'"
+      v-if="$route.name === 'textReusePassages' && !isLoadingPassages"
       :items="passages"
       :pagination-list="passagesPaginationList"
       @change-page="
@@ -150,7 +148,7 @@
       "
     >
       <template v-slot:header>
-        <b-navbar-nav class="p-2 ml-auto">
+        <b-navbar-nav class="py-2 pl-3 ml-auto">
           <i-dropdown
             v-model="orderBy"
             :options="
@@ -202,7 +200,7 @@
       <div
         v-if="selectedCollection"
         class="shadow-sm border px-3 mt-2 p-2 rounded"
-        style="background-color: rgba(0,0,0,.025)"
+        style="background-color: rgba(0, 0, 0, 0.025)"
       >
         <ItemLabel :item="selectedCollection" type="collection" />
         <blockquote class="p-2 px-3 mt-2 text-small">
@@ -341,9 +339,8 @@ export default {
       }
       this.isLoadingPassages = true
       this.passages = []
-      this.totalPassages = 0
       // eslint-disable-next-line
-      console.debug('[TextReuseExplorer] loadPassages() \n loading...')
+      console.debug('[TextReuseExplorer] loadPassages() \n loading...', query)
 
       try {
         const [passages, total] = await textReusePassages
@@ -355,7 +352,6 @@ export default {
         console.debug(
           '[TextReuseExplorer] loadPassages() \n - total: ',
           this.totalPassages,
-          passages,
         )
       } finally {
         this.isLoadingPassages = false
@@ -493,6 +489,7 @@ export default {
     orderBy: mapOrderBy(OrderByOptions, '-date'),
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
     clustersPaginationList() {
+
       return {
         currentPage: this.paginationCurrentPage,
         totalRows: this.totalClusters,
@@ -501,6 +498,11 @@ export default {
     },
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
     passagesPaginationList() {
+      console.debug('[TextReuseExplorer] passagesPaginationList()', {
+        currentPage: this.paginationCurrentPage,
+        totalRows: this.totalPassages,
+        perPage: this.paginationPerPage,
+      })
       return {
         currentPage: this.paginationCurrentPage,
         totalRows: this.totalPassages,
@@ -560,6 +562,7 @@ export default {
       immediate: true,
     },
   },
+
 }
 </script>
 <i18n>
