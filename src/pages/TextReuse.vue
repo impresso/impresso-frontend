@@ -380,7 +380,7 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
-        // await this.loadFacet('newspaper')
+        await this.loadFacet('newspaper')
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
         await this.loadFacet('collection')
         await this.loadFacet('textReuseCluster')
