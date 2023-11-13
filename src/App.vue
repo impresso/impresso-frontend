@@ -61,7 +61,7 @@ export default {
   },
   data: () => ({
     filtersWithItems: [],
-    enableTroublesAhead: process.env.VUE_APP_MAINTENANCE.length > 0,
+    enableTroublesAhead: import.meta.env.VITE_MAINTENANCE.length > 0,
   }),
   props: {
     startYear: {
@@ -122,7 +122,7 @@ export default {
         id: import.meta.env.VITE_TYPEKIT_ID,
       },
     })
-    console.info('enable MAINTENANCE:', process.env.VUE_APP_MAINTENANCE.length)
+    console.info('[App] enable MAINTENANCE:', this.enableTroublesAhead)
   },
   watch: {
     filters() {

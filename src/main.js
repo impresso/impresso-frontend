@@ -11,7 +11,7 @@ import TawkTo from '@/plugins/TawkTo'
 import EventBus from '@/plugins/EventBus'
 import MetaTags from '@/plugins/MetaTags'
 import Navigation from '@/plugins/Navigation'
-import { createI18n, castToVueI18n } from 'vue-i18n-bridge'
+import { createI18n, castToVueI18n, useI18n } from 'vue-i18n-bridge'
 import * as services from '@/services'
 
 import 'dripicons/webfont/webfont.css'
@@ -72,13 +72,14 @@ const i18n = castToVueI18n(
       messages,
       dateTimeFormats,
       numberFormats,
-      legacy: false,
+      // legacy: false,
       silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
     },
     VueI18n,
   ),
 )
 
+// this installs `i18n` instance which is created by `createI18n`
 Vue.use(i18n)
 
 const reducedTimeoutPromise = ({ ms = 500, service }) =>
@@ -109,8 +110,6 @@ console.info(
   '\n - host:',
   import.meta.env.VITE_MIDDLELAYER_API,
 )
-
-console.info('STICAZZI')
 
 Promise.race([
   services.app.reAuthenticate(),
@@ -211,6 +210,13 @@ Promise.race([
               endYear: window.impressoDocumentsYearSpan.lastYear,
             },
           }),
+        beforeCreate() {
+          this.customT = function (...input) {
+            return JSON.stringify(input)
+          }
+          Vue.prototype.$t = this.customT
+          Vue.prototype.$tc = this.customT
+        },
       })
     },
   )
