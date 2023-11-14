@@ -487,8 +487,8 @@ export default defineComponent({
 @media (min-width: 992px) {
   .SelectionMonitor.textReuseCluster,
   .SelectionMonitor.textReusePassage {
-    width: 600px;
-    margin-left: -300px;
+    width: 800px;
+    margin-left: -400px;
   }
   .SelectionMonitor.textReuseClusterSize,
   .SelectionMonitor.textReusePassageSize,
