@@ -32,7 +32,6 @@
 
 <script>
 import Ellipsis from '../Ellipsis'
-import ItemSelector from '../ItemSelector'
 import TextReusePassageItemLabel from './TextReusePassageItemLabel'
 
 export default {
