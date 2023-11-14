@@ -8,7 +8,7 @@
           <h3 class="mb-1">
             <span v-if="isLoading"> ... (loading) </span>
             <span>{{ $t('routes.' + $route.name) }}</span>
-            <small><InfoButton name="text-reuse" class="ml-1" /></small>
+            <small><InfoButton name="text-reuse" class="ml-1"/></small>
           </h3>
           <section class="text-serif TextReuseExplorerPage_summary">
             <div>
@@ -101,7 +101,7 @@
       :loading="isLoading"
     />
     <List
-      v-if="$route.name === 'textReuseClusters'  && !isLoadingClusters"
+      v-if="$route.name === 'textReuseClusters' && !isLoadingClusters"
       :items="clusters"
       :pagination-list="clustersPaginationList"
       @change-page="
@@ -133,7 +133,12 @@
       </template>
       <template v-slot:default>
         <div class="d-flex flex-wrap">
-          <ClusterItem v-for="item in clusters" :item="item" :key="item.id" />
+          <ClusterItem
+            class="m-3 pb-4 border-bottom"
+            v-for="item in clusters"
+            :item="item"
+            :key="item.id"
+          />
         </div>
       </template>
     </List>
@@ -349,10 +354,7 @@ export default {
         this.passages = passages
         this.totalPassages = total
         // eslint-disable-next-line
-        console.debug(
-          '[TextReuseExplorer] loadPassages() \n - total: ',
-          this.totalPassages,
-        )
+        console.debug('[TextReuseExplorer] loadPassages() \n - total: ', this.totalPassages)
       } finally {
         this.isLoadingPassages = false
       }
@@ -489,7 +491,6 @@ export default {
     orderBy: mapOrderBy(OrderByOptions, '-date'),
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
     clustersPaginationList() {
-
       return {
         currentPage: this.paginationCurrentPage,
         totalRows: this.totalClusters,
@@ -562,7 +563,6 @@ export default {
       immediate: true,
     },
   },
-
 }
 </script>
 <i18n>
