@@ -84,6 +84,18 @@ export default {
       type: String,
       default: 'numbers.results',
     },
+    valueLabel: {
+      type: String,
+      default: 'value',
+    },
+    valueAsRangeLabel: {
+      type: String,
+      default: 'valueAsRange',
+    },
+    valuePercentageLabel: {
+      type: String,
+      default: 'valuePercentage',
+    },
     isPercentage: {
       type: Boolean,
       default: false,
@@ -131,28 +143,30 @@ export default {
         this.tooltip.isActive = false
         return
       }
+
       // eslint-disable-next-line
       // console.debug('[FilterDynamicRange] handleMouseMove', value.pointer)
       let label = ''
+
       if (this.isPercentage) {
         label =
           value.bucket.upper && value.bucket.upper !== value.bucket.lower
-            ? this.$t('valuePercentage', {
+            ? this.$t(this.valuePercentageLabel, {
                 upper: this.$n(value.bucket.upper),
                 lower: this.$n(value.bucket.lower),
               })
-            : this.$t('valuePercentage', {
+            : this.$t(this.valuePercentageLabel, {
                 upper: this.$n(value.bucket.upper + 0.999),
                 lower: this.$n(value.bucket.lower),
               })
       } else {
         label =
           value.bucket.upper && value.bucket.upper !== value.bucket.lower
-            ? this.$t('valueAsRange', {
+            ? this.$t(this.valueAsRangeLabel, {
                 upper: this.$n(value.bucket.upper),
                 lower: this.$n(value.bucket.lower),
               })
-            : this.$t('value', { val: this.$n(value.bucket.val) })
+            : this.$t(this.valueLabel, { val: this.$n(value.bucket.val) })
       }
 
       this.tooltip = {
@@ -276,7 +290,14 @@ export default {
   "en": {
     "value": "value: <span class='number'>{val}</span>",
     "valuePercentage": "value: <span class='number'>{lower}% - {upper}%</span>",
-    "valueAsRange": "range: <span class='number'>{lower} - {upper}</span>"
+    "valueAsRange": "range: <span class='number'>{lower} - {upper}</span>",
+
+    "textReuseClusterSizeValueLabel":  "cluster size: <span class='number'>{val}</span> passages per cluster",
+    "textReuseClusterSizeValueAsRangeLabel": "cluster size: <span class='number'>{lower} - {upper}</span>",
+    "textReuseClusterLexicalOverlapValuePercentageLabel": "<span class='number'>{lower}% - {upper}%</span> lexical overlap",
+
+    "textReuseClusterDayDeltaValueLabel": "<span class='number'>{val}</span> days",
+    "textReuseClusterDayDeltaValueAsRangeLabel": "<span class='number'>{lower} - {upper}</span> days"
   }
 }
 </i18n>

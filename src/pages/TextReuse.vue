@@ -66,6 +66,8 @@
         @changed="handleFiltersChanged"
         @clicked="handleFacetFiltersClicked"
         :info-button-id="`text-reuse-filter-${textReuseClusterSizeFacet.type}`"
+        value-label="textReuseClusterSizeValueLabel"
+        value-as-range-label="textReuseClusterSizeValueAsRangeLabel"
         count-label="numbers.passages"
       >
         <template v-slot:description>
@@ -87,8 +89,12 @@
         @clicked="handleFacetFiltersClicked"
         count-label="numbers.passages"
         :isPercentage="facet.type === 'textReuseClusterLexicalOverlap'"
+        :value-percentage-label="facet.type  + 'ValuePercentageLabel'"
+        :value-label="facet.type  + 'ValueLabel'"
+        :value-as-range-label="facet.type  + 'ValueAsRangeLabel'"
         :info-button-id="`text-reuse-filter-${facet.type}`"
       />
+
       <FilterFacet
         v-for="(facet, index) in standardFacets"
         class="border-top py-2 mx-3"
@@ -374,7 +380,7 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
-        // await this.loadFacet('newspaper')
+        await this.loadFacet('newspaper')
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
         await this.loadFacet('collection')
         await this.loadFacet('textReuseCluster')
