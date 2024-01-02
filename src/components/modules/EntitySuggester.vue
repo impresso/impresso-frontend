@@ -1,15 +1,19 @@
-<template lang="html">
+<template>
   <div class="entity-suggester">
-    <b-input placeholder="filter entities" v-model.trim="suggestionQuery"/>
+    <b-input placeholder="filter entities" v-model.trim="suggestionQuery" />
     <div class="d-flex flex-wrap">
-      <div class="item-label-wrapper border border-tertiary m-1 px-1"
-        v-for="(item, i) in items" :key="i"
+      <div
+        class="item-label-wrapper border border-tertiary m-1 px-1"
+        v-for="(item, i) in items"
+        :key="i"
         @click="toggleSelectedItem(item)"
-        :class="{ active: selectedItemsIds.includes(item.uid) }">
-        <item-label :item="item" :type="type"/>
+        :class="{ active: selectedItemsIds.includes(item.uid) }"
+      >
+        <item-label :item="item" :type="type" />
       </div>
     </div>
-    <b-pagination v-if="paginationTotalRows > paginationPerPage"
+    <b-pagination
+      v-if="paginationTotalRows > paginationPerPage"
       v-model="paginationCurrentPage"
       :total-rows="paginationTotalRows"
       :per-page="paginationPerPage"
@@ -46,29 +50,27 @@ export default {
   },
   computed: {
     filterItemsIds() {
-      const items = this.filter?.items ?? [];
-      return items.map(({ uid }) => uid);
+      const items = this.filter?.items ?? []
+      return items.map(({ uid }) => uid)
     },
     selectedItemsIds() {
-      return this.selectedItems
-        .map(({ uid }) => uid)
-        .concat(this.filterItemsIds);
+      return this.selectedItems.map(({ uid }) => uid).concat(this.filterItemsIds)
     },
     serviceQuery() {
       return {
         q: this.suggestionQuery,
         page: this.paginationCurrentPage,
-        limit: this.paginationPerPage
+        limit: this.paginationPerPage,
       }
-    }
+    },
   },
   methods: {
     toggleSelectedItem(item) {
-      const idx = this.selectedItemsIds.indexOf(item.uid);
+      const idx = this.selectedItemsIds.indexOf(item.uid)
       if (idx === -1) {
-        this.selectedItems.push(item);
+        this.selectedItems.push(item)
       } else {
-        this.selectedItems.splice(idx, 1);
+        this.selectedItems.splice(idx, 1)
       }
       //
       // let items = [];
@@ -81,8 +83,8 @@ export default {
         ...this.filter,
         items: this.selectedItems,
         q: this.selectedItemsIds,
-      });
-    }
+      })
+    },
   },
   components: {
     ItemLabel,
@@ -90,34 +92,36 @@ export default {
   watch: {
     serviceQuery: {
       handler(params) {
-        const { q, limit, page } = params;
+        const { q, limit, page } = params
         const query = {
           page,
           limit,
           filters: [{ type: 'type', q: this.type }],
-        };
-        this.items = [];
-        if (q.length) {
-          query.q = q.split('*').concat(['*']).join('');
-          this.isLoading = true;
-          return entitiesService.find({
-            query,
-          }).then(({ data, total }) => {
-            this.paginationTotalRows = total;
-            this.items = data.map(d => new Entity(d));
-            this.isLoading = false;
-          });
         }
-      }
+        this.items = []
+        if (q.length) {
+          query.q = q.split('*').concat(['*']).join('')
+          this.isLoading = true
+          return entitiesService
+            .find({
+              query,
+            })
+            .then(({ data, total }) => {
+              this.paginationTotalRows = total
+              this.items = data.map((d) => new Entity(d))
+              this.isLoading = false
+            })
+        }
+      },
     },
-  }
+  },
 }
 </script>
 
 <style lang="scss" scoped>
-.item-label-wrapper{
+.item-label-wrapper {
   font-size: 0.9em;
-  &.active{
+  &.active {
     background: black;
     color: white;
   }

@@ -130,13 +130,13 @@ export default {
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
-      options: ' | (1 option) | ({n} options)',
-      moreOptions: ' | (1 more option) | ({n} more options)',
+      options: '- | (1 option) | ({n} options)',
+      moreOptions: '- | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
-      clusterSize: ' | single cluster | <span class="number">{n}</span> passages',
+      clusterSize: '- | single cluster | <span class="number">{n}</span> passages',
       lexicalOverlap: '<span class="number">{n}%</span> lexical overlap',
       ofPassages:
-        ' | of <span class="number">{n}</span> passages | of <span class="number">{n}</span> passages',
+        '- | of <span class="number">{n}</span> passages | of <span class="number">{n}</span> passages',
       passages:
         '0 passages | <span class="number">{n}</span> passage | <span class="number">{n}</span> passages',
       clusters:
@@ -229,7 +229,7 @@ export default {
       Invalidauthenticationinformationnostrategyset:
         'Please reload the page, a couple of errors occurred',
       ResetPasswordGeneralError:
-        'The reset password service is not is currently unavailable. Please try again later. <br/><br/>If the problem persists, please contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>. <br/><br/> Message received: <b>{error}</b>',
+        'The reset password service is not is currently unavailable. Please try again later. <br/><br/>If the problem persists, please contact us at info[at]impresso-project.ch. <br/><br/> Message received: <b>{error}</b>',
     },
     paths: {
       newspapers: {

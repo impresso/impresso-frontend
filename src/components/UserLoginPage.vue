@@ -90,7 +90,7 @@ export default {
             ...this.$store.getters.redirectionParams,
           })
         })
-        .catch(err => {
+        .catch((err) => {
           if (err.code === 401) {
             this.error = this.$t('errors.LoginFailed')
           }
@@ -142,7 +142,6 @@ export default {
   max-width: 350px;
   margin: 40px auto;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
-
   .header {
     background: $clr-accent-light;
     font-weight: bold;

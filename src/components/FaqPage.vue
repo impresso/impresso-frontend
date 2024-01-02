@@ -2,23 +2,35 @@
   <div id="faq-items" class="container py-5">
     <b-row class="justify-content-md-center">
       <b-col col xl="6" lg="8" md="10">
-        <h1 class="mb-4">{{faq.title}}</h1>
+        <h1 class="mb-4">{{ faq.title }}</h1>
+
         <div v-for="(group, i) in faq.groups" v-bind:key="i" class="my-4">
-          <h2 class="py-3"><i>{{group.title}}</i></h2>
+          <h2 class="py-3">
+            <i>{{ group.title }}</i>
+          </h2>
+
           <div v-for="(term, j) in group.faq" v-bind:key="j" class="my-3">
             <a :id="`${term.id}`"></a>
+
             <div class="accordion-toggle" v-b-toggle="`accordion-${i}-${j}`">
-              <strong>{{term.title}}</strong>
+              <strong>{{ term.title }}</strong>
             </div>
+
             <div class="faq-item pb-1">
               <b-collapse
                 v-bind:id="`accordion-${i}-${j}`"
                 v-bind:visible="isOpen(term.id)"
                 class="description py-2"
                 accordion="my-accordion"
-                role="tabpanel">
-                <div class="summary my-1 p-3 bg-light border-left">{{term.summary}}</div>
-                <p v-for="(paragraph, index) in term.description"  v-bind:key="index" v-html="paragraph" />
+                role="tabpanel"
+              >
+                <div class="summary my-1 p-3 bg-light border-left">{{ term.summary }}</div>
+
+                <p
+                  v-for="(paragraph, index) in term.description"
+                  v-bind:key="index"
+                  v-html="paragraph"
+                />
               </b-collapse>
             </div>
           </div>
@@ -26,40 +38,41 @@
       </b-col>
     </b-row>
   </div>
-
 </template>
 
 <script>
-import content from '@/assets/faqpage.json';
+import content from '@/assets/faqpage.json'
 
-const ApiVersionLine = apiVersion => `
+const ApiVersionLine = (apiVersion) => `
 API: v${apiVersion.version}, 
 Revision <a href="https://github.com/impresso/impresso-middle-layer/commit/${apiVersion.revision}" target="_blank">${apiVersion.revision}</a>, 
 "${apiVersion.branch}" branch.
 `
 
 const WebappVersionLine = `
-Web App: v${process.env.VUE_APP_VERSION},
-Revision <a href="https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}" target="_blank">${process.env.VUE_APP_GIT_REVISION}</a>, 
-"${process.env.VUE_APP_GIT_BRANCH}" branch.
+Web App: v${import.meta.env.VITE_VERSION},
+Revision <a href="https://github.com/impresso/impresso-frontend/commit/${
+  import.meta.env.VITE_GIT_REVISION
+}" target="_blank">${import.meta.env.VITE_GIT_REVISION}</a>, 
+"${import.meta.env.VITE_GIT_BRANCH}" branch.
 `
 
 export default {
   computed: {
     faq: {
       get() {
-        const faqContent = content[this.activeLanguageCode];
+        const faqContent = content[this.activeLanguageCode]
         faqContent.groups.push(this.getVersionGroup())
         return faqContent
       },
     },
     activeLanguageCode() {
-      return this.$store.state.settings.language_code;
+      return this.$store.state.settings.language_code
     },
   },
   methods: {
     isOpen(term) {
-      return this.$route.hash === `#${term}`;
+      return this.$route.hash === `#${term}`
     },
     getVersionGroup() {
       return {
@@ -69,42 +82,39 @@ export default {
             id: 'version-of-impresso',
             title: this.$t('title.whichVersion'),
             summary: this.$t('summary.version'),
-            description: [
-              WebappVersionLine,
-              ApiVersionLine(window.impressoApiVersion)
-            ]
-          }
-        ]
+            description: [WebappVersionLine, ApiVersionLine(window.impressoApiVersion)],
+          },
+        ],
       }
-    }
+    },
   },
-};
+}
 </script>
 
 <style lang="scss">
-  #faq-items{
-    img {
-      max-width: 100%;
-      zoom: 50%;
-    }
-    .accordion-toggle {
-      cursor: n-resize;
-      &.collapsed {
-        cursor: s-resize;
-        &::before {
-          content: '+';
-        }
-      }
+#faq-items {
+  img {
+    max-width: 100%;
+    zoom: 50%;
+  }
+  .accordion-toggle {
+    cursor: n-resize;
+    &.collapsed {
+      cursor: s-resize;
       &::before {
-        content: '-';
-        position: absolute;
-        margin-left:-1em;
-        font-size: 1.6em;
-        line-height: 0.7;
-        color: gray;
+        content: '+';
       }
+    }
+    &::before {
+      content: '-';
+      position: absolute;
+      margin-left: -1em;
+      font-size: 1.6em;
+      line-height: 0.7;
+      color: gray;
     }
   }
+}
 </style>
 
 <i18n>

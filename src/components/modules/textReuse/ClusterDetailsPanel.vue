@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="cluster-details-panel">
     <!-- header -->
     <div class="d-flex">
@@ -7,24 +7,28 @@
       </h2>
 
       <div class="lexical-overlap" v-b-tooltip.hover :title="$t('lexicalOverlap')">
-        {{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 0 })}}
+        {{ $n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 0 }) }}
       </div>
 
       <span class="px-1">–</span>
 
-      <div class="small-caps" v-html="$tc('numbers.articles', cluster.clusterSize, {
-        n: $n(cluster.clusterSize),
-      })"/>
-
+      <div
+        class="small-caps"
+        v-html="
+          $tc('numbers.articles', cluster.clusterSize, {
+            n: $n(cluster.clusterSize),
+          })
+        "
+      />
     </div>
 
     <div v-if="textSample != null">
       <!-- text sample -->
-      <div class="my-2" >
-        <span class="small-caps">{{$t('sampleLabel')}}</span>
+      <div class="my-2">
+        <span class="small-caps">{{ $t('sampleLabel') }}</span>
         <ellipsis v-bind:initialHeight="80" @click.prevent.stop>
           <p class="text-sample">
-            <span>{{textSample}}</span>
+            <span>{{ textSample }}</span>
           </p>
         </ellipsis>
       </div>
@@ -32,22 +36,25 @@
       <!-- time span -->
       <timeline-with-span
         v-b-tooltip.hover.bottom.html
-        :title="$t('filters.daterange.item', {
-          start: $d(new Date(cluster.timeCoverage.from), 'short'),
-          end: $d(new Date(cluster.timeCoverage.to), 'short')
-        })"
+        :title="
+          $t('filters.daterange.item', {
+            start: $d(new Date(cluster.timeCoverage.from), 'short'),
+            end: $d(new Date(cluster.timeCoverage.to), 'short'),
+          })
+        "
         :height="30"
         :startDate="impressoCollectionStartDate"
         :endDate="impressoCollectionEndDate"
         :spanStartDate="new Date(cluster.timeCoverage.from)"
-        :spanEndDate="new Date(cluster.timeCoverage.to)" />
+        :spanEndDate="new Date(cluster.timeCoverage.to)"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import TimelineWithSpan from '@/components/modules/textReuse/TimelineWithSpan';
-import Ellipsis from '@/components/modules/Ellipsis';
+import TimelineWithSpan from '@/components/modules/textReuse/TimelineWithSpan'
+import Ellipsis from '@/components/modules/Ellipsis'
 
 export default {
   props: {
@@ -56,8 +63,8 @@ export default {
       required: true,
     },
     textSample: {
-      type: String
-    }
+      type: String,
+    },
   },
   components: {
     TimelineWithSpan,
@@ -76,42 +83,41 @@ export default {
         return parts[parts.length - 1]
       }
       return ''
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style lang="scss">
-  @import "impresso-theme/src/scss/variables.sass";
+@import 'impresso-theme/src/scss/variables.sass';
 
-  .cluster-details-panel {
-    h2{
-      font-size: inherit;
-    }
-    &.selected, &:hover{
-      h2 span,
-      .text-sample > span{
-        background-color: #c5e8f3;
-      }
-    }
-
-    .text-sample {
-      & > span{
-        background-color: lighten($clr-grey-800, 10%);
-      }
-      font-size: .9em;
-      line-height: 20px;
-    }
-
-    .lexical-overlap {
-
-    }
-
-    .number {
-      font-weight: 600;
+.cluster-details-panel {
+  h2 {
+    font-size: inherit;
+  }
+  &.selected,
+  &:hover {
+    h2 span,
+    .text-sample > span {
+      background-color: #c5e8f3;
     }
   }
 
+  .text-sample {
+    & > span {
+      background-color: lighten($clr-grey-800, 10%);
+    }
+    font-size: 0.9em;
+    line-height: 20px;
+  }
+
+  .lexical-overlap {
+  }
+
+  .number {
+    font-weight: 600;
+  }
+}
 </style>
 
 <i18n>

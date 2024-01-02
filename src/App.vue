@@ -3,12 +3,15 @@
     <div id="app-header">
       <the-header />
     </div>
+
     <div id="app-content">
       <router-view :filters="filters" :filters-with-items="filtersWithItems" />
     </div>
+
     <div id="app-monitor" class="fullscreen">
       <monitor />
     </div>
+
     <div id="app-selection-monitor" class="fullscreen">
       <SelectionMonitor
         :filters="filtersWithItems"
@@ -17,12 +20,15 @@
         :endYear="endYear"
       />
     </div>
+
     <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
       <disclaimer-notice />
     </div>
+
     <div id="app-loading" class="fullscreen locked" v-if="is_locked">
       <status-indicator />
     </div>
+
     <cookie-disclaimer />
     <TroublesAhead v-if="enableTroublesAhead" />
   </div>
@@ -55,7 +61,7 @@ export default {
   },
   data: () => ({
     filtersWithItems: [],
-    enableTroublesAhead: process.env.VUE_APP_MAINTENANCE.length > 0,
+    enableTroublesAhead: import.meta.env.VITE_MAINTENANCE.length > 0,
   }),
   props: {
     startYear: {
@@ -113,10 +119,10 @@ export default {
     // load typekit
     WebFontLoader.load({
       typekit: {
-        id: process.env.VUE_APP_TYPEKIT_ID,
+        id: import.meta.env.VITE_TYPEKIT_ID,
       },
     })
-    console.info('enable MAINTENANCE:', process.env.VUE_APP_MAINTENANCE.length)
+    console.info('[App] enable MAINTENANCE:', this.enableTroublesAhead)
   },
   watch: {
     filters() {

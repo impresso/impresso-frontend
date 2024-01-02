@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout-section :width="width">
     <!-- <div slot="header" class="border-bottom border-tertiary bg-light"> -->
     <template v-slot:header>

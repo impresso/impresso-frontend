@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="bucket">
     <b-form-checkbox v-model="isChecked">
       <item-label v-if="bucket.item" :item="bucket.item" :type="type" />

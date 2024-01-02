@@ -1,24 +1,26 @@
-<template lang="html">
-<div :class="{ 'dark-mode': darkMode }" >
-  <b-pagination
-    v-bind:size="size"
-    v-bind:value="currentPage"
-    v-bind:total-rows="totalRows"
-    v-bind:per-page="perPage"
-    v-on:change="onChange"
-    v-on:input="onInput"
-    v-bind:align="align"
-    class="m-0"
-  ></b-pagination>
-  <div v-if="showDescription">
-    {{$t("description", {
-      firstResult: firstResult,
-      lastResult: lastResult,
-      totalRows: $n(totalRows),
-      totalPages: $n(totalPages)
-    })}}
+<template>
+  <div :class="{ 'dark-mode': darkMode }">
+    <b-pagination
+      v-bind:size="size"
+      v-bind:value="currentPage"
+      v-bind:total-rows="totalRows"
+      v-bind:per-page="perPage"
+      v-on:change="onChange"
+      v-on:input="onInput"
+      v-bind:align="align"
+      class="m-0"
+    ></b-pagination>
+    <div v-if="showDescription">
+      {{
+        $t('description', {
+          firstResult: firstResult,
+          lastResult: lastResult,
+          totalRows: $n(totalRows),
+          totalPages: $n(totalPages),
+        })
+      }}
+    </div>
   </div>
-</div>
 </template>
 <script>
 export default {
@@ -51,36 +53,36 @@ export default {
   },
   computed: {
     firstResult() {
-      return ((this.currentPage - 1) * this.perPage) + 1;
+      return (this.currentPage - 1) * this.perPage + 1
     },
     lastResult() {
-      let result = this.currentPage * this.perPage;
+      let result = this.currentPage * this.perPage
 
       if (result > this.totalRows) {
-        result = this.totalRows;
+        result = this.totalRows
       }
 
-      return result;
+      return result
     },
     totalPages() {
-      return Math.ceil(this.totalRows / this.perPage);
+      return Math.ceil(this.totalRows / this.perPage)
     },
   },
   methods: {
     onChange(val) {
-      this.$emit('change', val);
+      this.$emit('change', val)
     },
     onInput(val) {
-      this.$emit('input', val);
+      this.$emit('input', val)
     },
   },
-};
+}
 </script>
 
 <style scoped lang="less">
-  .dark-mode{
-    background: transparent;
-  }
+.dark-mode {
+  background: transparent;
+}
 </style>
 
 <i18n>

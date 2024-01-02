@@ -1,17 +1,24 @@
-<template lang="html">
+<template>
   <i-layout class="collection-list">
     <i-layout-section main>
       <template v-slot:header>
         <div class="p-3 border-bottom">
-
           <div class="input-group input-group-sm">
-            <input type="text" name="" :value="collectionsQ" class="form-control"
+            <input
+              type="text"
+              name=""
+              :value="collectionsQ"
+              class="form-control"
               v-bind:placeholder="$t('placeholder')"
               v-on:input="onQueryChange"
-              />
+            />
             <div class="input-group-append">
-              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm"
-              variant="outline-primary"></i-dropdown>
+              <i-dropdown
+                v-model="orderBy"
+                v-bind:options="orderByOptions"
+                size="sm"
+                variant="outline-primary"
+              ></i-dropdown>
             </div>
           </div>
 
@@ -33,39 +40,44 @@
             </div>
           </div-->
 
-          <div v-if="newCollectionError !== ''"
-            class="alert alert-danger text-small mt-2 mb-0" role="alert">
-            {{newCollectionError}}
+          <div
+            v-if="newCollectionError !== ''"
+            class="alert alert-danger text-small mt-2 mb-0"
+            role="alert"
+          >
+            {{ newCollectionError }}
           </div>
-
         </div>
       </template>
 
       <template v-slot:default>
         <div v-if="collections.length > 0">
-          <div v-for="(collection, index) in collections"
-            class="d-flex flex-row border-bottom "
+          <div
+            v-for="(collection, index) in collections"
+            class="d-flex flex-row border-bottom"
             :class="{
               active: collection.uid === $route.params.collection_uid,
-              'mb-4': index === collections.length - 1
+              'mb-4': index === collections.length - 1,
             }"
-            v-bind:key="index">
+            v-bind:key="index"
+          >
             <div
               class="w-100 m-0 px-3 py-2 details-panel"
               v-on:click="select(collection, $event)"
-              v-bind:class="{ 'selected': collection.uid === $route.params.collection_uid }"
-              for="collection.uid">
+              v-bind:class="{ selected: collection.uid === $route.params.collection_uid }"
+              for="collection.uid"
+            >
               <div class="py-1">
                 <div>
-                  {{collection.name}}
+                  {{ collection.name }}
                 </div>
               </div>
               <div>
                 <div class="description small pb-1">
-                  <span  v-if="collection.description">{{collection.description}} – </span>
+                  <span v-if="collection.description">{{ collection.description }} – </span>
                   <!-- <span v-if="collection.countItems">{{collection.countItems}} {{$t('items')}} – </span> -->
                   <span v-if="collection.creationDate">
-                    {{$t('created')}} {{ $d(collection.creationDate, 'compact')}}
+                    {{ $t('created') }} {{ $d(collection.creationDate, 'compact') }}
                   </span>
                 </div>
               </div>
@@ -82,29 +94,31 @@
           <p class="text-center p-4" v-html="$t('no_match')" />
         </div>
 
-        <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+        <div
+          v-if="paginationTotalRows > paginationPerPage"
+          slot="footer"
+          class="fixed-pagination-footer p-1 m-0"
+        >
           <pagination
             size="sm"
             v-bind:perPage="paginationPerPage"
             v-bind:currentPage="paginationCurrentPage"
             v-bind:totalRows="paginationTotalRows"
             v-on:change="onInputPagination"
-            class="float-left small-caps" />
+            class="float-left small-caps"
+          />
         </div>
       </template>
-
-
-
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
-import Pagination from './Pagination';
+import Pagination from './Pagination'
 
 export default {
   props: {
-    method: {type: Function },
+    method: { type: Function },
   },
   data: () => ({
     // show: false,
@@ -122,36 +136,36 @@ export default {
   computed: {
     paginationPerPage: {
       get() {
-        return this.$store.state.collections.collectionsPaginationPerPage;
+        return this.$store.state.collections.collectionsPaginationPerPage
       },
     },
     paginationCurrentPage: {
       get() {
-        return this.$store.state.collections.collectionsPaginationCurrentPage;
+        return this.$store.state.collections.collectionsPaginationCurrentPage
       },
       set(val) {
-        this.$store.commit('collections/UPDATE_PAGINATION_LIST_CURRENT_PAGE', val);
+        this.$store.commit('collections/UPDATE_PAGINATION_LIST_CURRENT_PAGE', val)
       },
     },
     paginationTotalRows: {
       get() {
-        return this.$store.state.collections.collectionsPaginationTotalRows;
+        return this.$store.state.collections.collectionsPaginationTotalRows
       },
     },
     orderBy: {
       get() {
-        return this.$store.state.collections.collectionsOrderBy;
+        return this.$store.state.collections.collectionsOrderBy
       },
       set(val) {
-        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', val);
+        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', val)
       },
     },
     collectionsQ: {
       get() {
-        return this.$store.state.collections.collectionsQ;
+        return this.$store.state.collections.collectionsQ
       },
       set(val) {
-        this.$store.commit('collections/SET_COLLECTIONS_Q', val);
+        this.$store.commit('collections/SET_COLLECTIONS_Q', val)
       },
     },
     orderByOptions: {
@@ -185,33 +199,33 @@ export default {
             value: 'size',
             text: `${this.$t('size')}`,
           },
-        ];
+        ]
       },
     },
     collections: {
       get() {
-        return this.$store.getters['collections/collections'];
+        return this.$store.getters['collections/collections']
       },
     },
   },
   methods: {
     fetch() {
-      this.fetching = true;
+      this.fetching = true
       this.$store.dispatch('collections/LOAD_COLLECTIONS').then(() => {
-        this.fetching = false;
-      });
+        this.fetching = false
+      })
     },
     onQueryChange(q) {
-      this.collectionsQ = q.target.value;
-      this.fetch();
+      this.collectionsQ = q.target.value
+      this.fetch()
     },
     onInputPagination(page) {
-      this.paginationCurrentPage = page;
-      this.fetch();
+      this.paginationCurrentPage = page
+      this.fetch()
     },
     onInputOrder(orderBy) {
-      this.orderBy = orderBy;
-      this.fetch();
+      this.orderBy = orderBy
+      this.fetch()
     },
     select(collection) {
       this.$router.push({
@@ -220,56 +234,58 @@ export default {
           collection_uid: collection.uid !== '' ? collection.uid : undefined,
         },
         query: { tab: this.$route.query.tab },
-      });
+      })
     },
     onInputNew() {
-      const len = this.inputNew.trim().length;
-      this.newCollectionError = '';
+      const len = this.inputNew.trim().length
+      this.newCollectionError = ''
 
-      if (len > 0 && len < 3 || len > 50) {
-        this.newCollectionError = this.$t('NotValidLength');
+      if ((len > 0 && len < 3) || len > 50) {
+        this.newCollectionError = this.$t('NotValidLength')
       }
     },
     addCollection(collectionName) {
-      this.inputNew = '';
-      this.onInputNew();
-      this.$store.dispatch('collections/ADD_COLLECTION', {
-        name: collectionName.trim(),
-      }).then((res) => {
-        this.fetch();
-        this.select(res);
-      }).catch(e => {
-        if (e.code === 400) {
-          this.newCollectionError = this.$t('NotValidLength')
-        } else
-        if (e.code === 409) {
-          this.newCollectionError = this.$t('name_already_exists')
-        } else {
-          throw e
-        }
-      });
+      this.inputNew = ''
+      this.onInputNew()
+      this.$store
+        .dispatch('collections/ADD_COLLECTION', {
+          name: collectionName.trim(),
+        })
+        .then((res) => {
+          this.fetch()
+          this.select(res)
+        })
+        .catch((e) => {
+          if (e.code === 400) {
+            this.newCollectionError = this.$t('NotValidLength')
+          } else if (e.code === 409) {
+            this.newCollectionError = this.$t('name_already_exists')
+          } else {
+            throw e
+          }
+        })
     },
   },
   mounted() {
-    this.fetch();
+    this.fetch()
   },
   watch: {
     orderBy: {
       handler(val) {
-        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', val);
-        this.paginationCurrentPage = 1;
-        this.fetch();
+        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', val)
+        this.paginationCurrentPage = 1
+        this.fetch()
       },
     },
     collectionsQ: {
       handler(val) {
-        this.collectionsQ = val;
-        this.paginationCurrentPage = 1;
-        this.fetch();
+        this.collectionsQ = val
+        this.paginationCurrentPage = 1
+        this.fetch()
       },
     },
-  }
-};
+  },
+}
 </script>
 
 <style lang="scss">
@@ -291,7 +307,7 @@ export default {
     }
     .details-panel {
       box-shadow: inset 0.15em 0 #343a40;
-background-color: #f2f2f2;
+      background-color: #f2f2f2;
       // background-color: $clr-bg-secondary;
     }
   }

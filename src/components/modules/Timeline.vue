@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`">
     <tooltip :tooltip="tooltip">
       <slot :tooltip="tooltip">
@@ -31,7 +31,7 @@ import ContrastTimeline from '@/d3-modules/ContrastTimeline'
 import Timeline from '@/d3-modules/Timeline'
 import Tooltip from './tooltips/Tooltip'
 
-const getTimeFormatForResolution = resolution =>
+const getTimeFormatForResolution = (resolution) =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
 
 export default {
@@ -119,12 +119,12 @@ export default {
       this.$emit('highlight-off')
     })
 
-    this.timeline.on('mousemove', data => {
+    this.timeline.on('mousemove', (data) => {
       this.moveTooltip(data)
       this.$emit('highlight', data)
     })
 
-    this.timeline.on('brushed', data => {
+    this.timeline.on('brushed', (data) => {
       if (this.timelineTimer) {
         clearTimeout(this.timelineTimer)
       }
@@ -134,11 +134,11 @@ export default {
       this.$emit('brushing', data)
     })
 
-    this.timeline.on('brush-end', data => {
+    this.timeline.on('brush-end', (data) => {
       this.$emit('brush-end', data)
     })
 
-    this.timeline.on('highlighted', data => {
+    this.timeline.on('highlighted', (data) => {
       this.moveTooltip(data)
     })
     this.timeline.on('clear-selection', () => {

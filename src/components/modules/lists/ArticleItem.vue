@@ -1,5 +1,5 @@
-<template lang="html">
-  <article :class="{ reference : asReference }">
+<template>
+  <article :class="{ reference: asReference }">
     <slot name="title">
       <h2 v-if="item.title" class="mb-0 font-weight-bold">
         <router-link v-if="showLink" :to="routerLinkUrl" v-html="item.title"></router-link>
@@ -13,23 +13,27 @@
       </div>
     </slot>
     <div v-if="showMeta" class="article-meta">
-      <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
-        {{ item.newspaper.name}}
+      <router-link
+        :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid } }"
+        class="article-newspaper"
+      >
+        {{ item.newspaper.name }}
       </router-link>
-      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
-      <span class="date">{{ $d(item.date, "long") }}</span>
+      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper" /> &nbsp;
+      <span class="date">{{ $d(item.date, 'long') }}</span>
       <span> – {{ pages }}</span>
-      <div>{{$t(`buckets.accessRight.${item.accessRight}`)}}</div>
+      <div>{{ $t(`buckets.accessRight.${item.accessRight}`) }}</div>
     </div>
 
-
-    <div v-if="showExcerpt && item.type !=='image'" class="article-excerpt mt-2">
+    <div v-if="showExcerpt && item.type !== 'image'" class="article-excerpt mt-2">
       <span class="article-excerpt">{{ item.excerpt }}</span>
       <b-badge v-if="showSize || showType" variant="light" class="mr-1 pt-1">
         <span v-if="showType && item.type">{{ $t(`buckets.type.${item.type}`) }} | </span>
         <span v-if="showSize">
-          <span v-if="item.size > 1200">{{ $t('readingTime', { min: parseInt(item.size / 1200) }) }}</span>
-          <span v-else>{{ $t('reducedReadingTime')}}</span>
+          <span v-if="item.size > 1200">{{
+            $t('readingTime', { min: parseInt(item.size / 1200) })
+          }}</span>
+          <span v-else>{{ $t('reducedReadingTime') }}</span>
         </span>
       </b-badge>
       <span v-if="showPages">{{ pages }}</span>
@@ -41,14 +45,19 @@
       <div v-if="item.locations.length">
         <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
         <span v-for="(location, idx) in item.locations" v-bind:key="idx">
-          <item-selector :uid="location.uid" :label="location.name" :item="location" type="location"/>
+          <item-selector
+            :uid="location.uid"
+            :label="location.name"
+            :item="location"
+            type="location"
+          />
           <span v-if="idx !== item.locations.length - 1">, </span>
         </span>
       </div>
       <div v-if="item.persons.length">
         <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
         <span v-for="(person, idx) in item.persons" v-bind:key="idx">
-          <item-selector :uid="person.uid" :label="person.name" :item="person" type="person"/>
+          <item-selector :uid="person.uid" :label="person.name" :item="person" type="person" />
           <span v-if="idx !== item.persons.length - 1">, </span>
         </span>
       </div>
@@ -64,7 +73,7 @@
             :uid="rel.topic.uid"
             :item="rel.topic"
             type="topic"
-            />
+          />
         </b-col>
       </b-row>
     </div>
@@ -75,7 +84,8 @@
           v-for="(match, i) in item.matches"
           v-bind:key="i"
           v-html="match.fragment"
-          v-show="match.fragment.trim().length > 0" />
+          v-show="match.fragment.trim().length > 0"
+        />
       </ul>
     </div>
     <slot name="footer"></slot>
@@ -83,15 +93,15 @@
 </template>
 
 <script>
-import ItemSelector from '../ItemSelector';
-import VizBar from '../../base/VizBar';
-import { getShortArticleId } from '@/logic/ids';
+import ItemSelector from '../ItemSelector'
+import VizBar from '../../base/VizBar'
+import { getShortArticleId } from '@/logic/ids'
 
 export default {
   props: {
     item: {
       type: Object,
-      required: true
+      required: true,
     },
     showExcerpt: Boolean,
     showMatches: Boolean,
@@ -107,12 +117,12 @@ export default {
   },
   computed: {
     pages() {
-      return this.$tc('pp', this.item.nbPages, { pages: this.item.pages.map(d => d.num).join(',') });
+      return this.$tc('pp', this.item.nbPages, {
+        pages: this.item.pages.map((d) => d.num).join(','),
+      })
     },
     routerLinkUrl() {
-      const issueUid = this.item.issue
-        ? this.item.issue.uid
-        : this.item.uid.match(/(^.+)-i/)[1];
+      const issueUid = this.item.issue ? this.item.issue.uid : this.item.uid.match(/(^.+)-i/)[1]
       return {
         name: 'issue-viewer',
         params: {
@@ -122,20 +132,20 @@ export default {
           ...this.$route.query,
           articleId: getShortArticleId(this.item.uid),
           p: this.item.pages[0]?.num,
-        }
+        },
       }
     },
     routerLinkParams() {
       const params = {
         article_uid: this.item.uid,
         page_uid: this.item.pages[0]?.uid,
-      };
-      if (this.item.issue) {
-        params.issue_uid = this.item.issue.uid;
-      } else {
-        params.issue_uid = this.item.uid.match(/(^.+)-i/)[1];
       }
-      return params;
+      if (this.item.issue) {
+        params.issue_uid = this.item.issue.uid
+      } else {
+        params.issue_uid = this.item.uid.match(/(^.+)-i/)[1]
+      }
+      return params
     },
   },
   methods: {
@@ -143,67 +153,69 @@ export default {
       this.$emit('click:title', {
         name: 'article',
         params: this.routerLinkParams,
-      });
+      })
     },
   },
   components: {
     ItemSelector,
     VizBar,
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
-  .article-newspaper {
-    font-weight: bold;
+.article-newspaper {
+  font-weight: bold;
+}
+.date {
+  text-transform: lowercase;
+  font-variant: small-caps;
+}
+article {
+  h2 {
+    font-size: 1.2em;
+  }
+  .article-meta,
+  .article-excerpt {
+    font-size: 0.9em;
+  }
+}
+article.reference {
+  h2,
+  .article-meta {
+    font-size: inherit;
+    display: inline-block;
+  }
+  h2::after {
+    content: ', ';
   }
   .date {
-    text-transform: lowercase;
-    font-variant: small-caps;
+    text-transform: none;
+    font-variant: normal;
   }
-  article{
-    h2{
-      font-size: 1.2em;
-    }
-    .article-meta, .article-excerpt{
-      font-size: 0.9em;
-    }
+  .article-newspaper {
+    font-weight: normal;
   }
-  article.reference {
-    h2, .article-meta {
-      font-size: inherit;
-      display: inline-block;
-    }
-    h2::after {
-      content: ', ';
-    }
-    .date {
-      text-transform: none;
-      font-variant: normal;
-    }
-    .article-newspaper{
-      font-weight: normal;
-    }
 
-    .article-excerpt{
-      margin-top: auto !important;
-      font-size: inherit;
-    }
-  }
-  .article-extras .badge{
+  .article-excerpt {
+    margin-top: auto !important;
     font-size: inherit;
   }
-  .article-topics > div{
-    columns: 4 270px;
-    div {
-      break-inside: avoid-column;
-    }
+}
+.article-extras .badge {
+  font-size: inherit;
+}
+.article-topics > div {
+  columns: 4 270px;
+  div {
+    break-inside: avoid-column;
   }
-  ul.article-matches{
-    list-style-type: none;
-    font-size: smaller;
-  }
-  ul.article-matches li{
-    border-left: 2px solid gold;
-  }
+}
+ul.article-matches {
+  list-style-type: none;
+  font-size: smaller;
+}
+ul.article-matches li {
+  border-left: 2px solid gold;
+}
 </style>

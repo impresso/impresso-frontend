@@ -1,14 +1,16 @@
-<template lang="html">
+<template>
   <b-card class="IssueItem">
     <router-link :to="routerLinkUrl">
       <b-card-img-lazy
         class="bg-light border"
         :src="item.frontPage.getIiifThumbnail({ dim: 700 })"
-        :alt="$d(item.date, 'long')" top />
+        :alt="$d(item.date, 'long')"
+        top
+      />
     </router-link>
     <b-card-body>
       <router-link :to="routerLinkUrl">
-        <span class="date">{{ $d(new Date(item.date), "long") }}</span>
+        <span class="date">{{ $d(new Date(item.date), 'long') }}</span>
       </router-link>
     </b-card-body>
   </b-card>
@@ -19,8 +21,8 @@ export default {
   props: {
     item: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     routerLinkUrl() {
@@ -32,10 +34,10 @@ export default {
         query: {
           ...this.$route.query,
           p: this.item.frontPage.num,
-        }
+        },
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

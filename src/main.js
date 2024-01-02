@@ -11,7 +11,7 @@ import TawkTo from '@/plugins/TawkTo'
 import EventBus from '@/plugins/EventBus'
 import MetaTags from '@/plugins/MetaTags'
 import Navigation from '@/plugins/Navigation'
-
+import { createI18n, castToVueI18n, useI18n } from 'vue-i18n-bridge'
 import * as services from '@/services'
 
 import 'dripicons/webfont/webfont.css'
@@ -26,35 +26,35 @@ import dateTimeFormats from './i18n/dateTimeFormats'
 import numberFormats from '@/i18n/numberFormats'
 
 Vue.use(BootstrapVue)
-Vue.use(VueI18n)
+Vue.use(VueI18n, { bridge: true })
 // custom created plugins
 Vue.use(Helpers)
 Vue.use(EventBus)
 Vue.use(ImpressoLayout)
 Vue.use(MetaTags, { suffix: 'impresso' })
 Vue.use(Navigation)
-if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
-  Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID })
+if (import.meta.env.VITE_TAWK_TO_SITE_ID) {
+  Vue.use(TawkTo, { siteId: import.meta.env.VITE_TAWK_TO_SITE_ID })
 }
-if (process.env.VUE_APP_GA_TRACKING_ID) {
+if (import.meta.env.VITE_GA_TRACKING_ID) {
   Vue.use(
     VueGtag,
     {
       config: {
-        id: process.env.VUE_APP_GA_TRACKING_ID,
+        id: import.meta.env.VITE_GA_TRACKING_ID,
       },
     },
     router,
   )
 }
-Vue.config.productionTip = process.env.NODE_ENV === 'production'
-Vue.config.errorHandler = error =>
+Vue.config.productionTip = import.meta.env.NODE_ENV === 'production'
+Vue.config.errorHandler = (error) =>
   store.dispatch('DISPLAY_ERROR', {
     error,
     origin: 'Vue.config.errorHandler',
   })
 
-window.addEventListener('unhandledrejection', event => {
+window.addEventListener('unhandledrejection', (event) => {
   if (event.reason) {
     store.dispatch('DISPLAY_ERROR', {
       error: event.reason,
@@ -64,14 +64,23 @@ window.addEventListener('unhandledrejection', event => {
 })
 
 // Create VueI18n instance with options
-const i18n = new VueI18n({
-  fallbackLocale: 'en',
-  locale: store.state.settings.language_code,
-  messages,
-  dateTimeFormats,
-  numberFormats,
-  silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
-})
+const i18n = castToVueI18n(
+  createI18n(
+    {
+      fallbackLocale: 'en',
+      locale: store.state.settings.language_code,
+      messages,
+      dateTimeFormats,
+      numberFormats,
+      // legacy: false,
+      silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
+    },
+    VueI18n,
+  ),
+)
+
+// this installs `i18n` instance which is created by `createI18n`
+Vue.use(i18n)
 
 const reducedTimeoutPromise = ({ ms = 500, service }) =>
   new Promise((resolve, reject) => {
@@ -90,21 +99,23 @@ console.info(
   '%cimpresso-frontend version',
   'font-weight: bold',
   '\n - tag:',
-  process.env.VUE_APP_GIT_TAG,
+  import.meta.env.VITE_GIT_TAG,
   '\n - branch:',
-  process.env.VUE_APP_GIT_BRANCH,
-  `\n - url: https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}`,
+  import.meta.env.VITE_GIT_BRANCH,
+  `\n - url: https://github.com/impresso/impresso-frontend/commit/${
+    import.meta.env.VITE_GIT_REVISION
+  }`,
   '\n - Adobe TYPEKIT_ID:',
-  process.env.VUE_APP_TYPEKIT_ID,
+  import.meta.env.VITE_TYPEKIT_ID,
   '\n - host:',
-  process.env.VUE_APP_MIDDLELAYER_API,
+  import.meta.env.VITE_MIDDLELAYER_API,
 )
 
 Promise.race([
   services.app.reAuthenticate(),
   reducedTimeoutPromise({ service: 'app.reAuthenticate' }),
 ])
-  .catch(err => {
+  .catch((err) => {
     if (err.code === 401) {
       // eslint-disable-next-line
       console.debug('[main] Not authenticated (status 401):', err.message)
@@ -128,14 +139,14 @@ Promise.race([
     console.debug('[main] Loading app & data version...')
     return Promise.race([
       reducedTimeoutPromise({ service: 'version' }),
-      services.version.find().then(res => ({
+      services.version.find().then((res) => ({
         version: res.version,
         apiVersion: res.apiVersion,
         documentsDateSpan: res.documentsDateSpan,
         newspapers: res.newspapers,
         features: res.features,
       })),
-    ]).catch(err => {
+    ]).catch((err) => {
       console.warn(err)
       return {
         version: 'n/a',
@@ -192,13 +203,20 @@ Promise.race([
         components: {
           App,
         },
-        render: h =>
+        render: (h) =>
           h(App, {
             props: {
               startYear: window.impressoDocumentsYearSpan.firstYear,
               endYear: window.impressoDocumentsYearSpan.lastYear,
             },
           }),
+        beforeCreate() {
+          this.customT = function (...input) {
+            return JSON.stringify(input)
+          }
+          Vue.prototype.$t = this.customT
+          Vue.prototype.$tc = this.customT
+        },
       })
     },
   )

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <p class="search-query-summary">
     <span v-html="reducedSummary" />
     <!-- <span v-else v-html="$t('extendedSummary', summaryProps)"/> -->
@@ -10,7 +10,7 @@ import Helpers from '../../plugins/Helpers'
 import { namesService } from '../../services'
 
 function getStarAndEndDates(item) {
-  return [item.start, item.end].map(v => new Date(v))
+  return [item.start, item.end].map((v) => new Date(v))
 }
 
 export default {
@@ -83,7 +83,7 @@ export default {
         'textReuseClusterSize',
         'textReuseClusterLexicalOverlap',
         'textReuseClusterDayDelta',
-      ].forEach(type => {
+      ].forEach((type) => {
         if (filtersIndex[type]) {
           translationTable[type] = this.getRangeTranslation({
             filters: filtersIndex[type],
@@ -92,7 +92,7 @@ export default {
         }
       })
       // other translations
-      ;['string', 'title', 'daterange'].concat(this.enumerables).forEach(type => {
+      ;['string', 'title', 'daterange'].concat(this.enumerables).forEach((type) => {
         if (filtersIndex[type]) {
           if (this.isEnumerable(type)) {
             enumerables.push(
@@ -171,14 +171,15 @@ export default {
           break
         case 'title':
         case 'string':
-          t = `<span class="highlight precision-${item.precision}">${item.uid ||
-            item.q}</span>${item.distance || ''}`
+          t = `<span class="highlight precision-${item.precision}">${item.uid || item.q}</span>${
+            item.distance || ''
+          }`
           break
         case 'topic':
           if (item.htmlExcerpt) {
             t = item.htmlExcerpt
           } else if (item.excerpt.length) {
-            t = item.excerpt.map(d => d.w).join(' · ')
+            t = item.excerpt.map((d) => d.w).join(' · ')
           } else {
             t = item.uid
           }
@@ -201,7 +202,7 @@ export default {
         const { op = 'OR' } = filter
         const operator = this.$t(`op.${op.toLowerCase()}`)
         return filter.items
-          .map(item =>
+          .map((item) =>
             [
               `<span class="item ${filter.type}">`,
               this.getLabel({
@@ -254,7 +255,7 @@ export default {
       return ['include', 'exclude']
         .reduce((results, context) => {
           if (sections[context]) {
-            const mapped = sections[context].map(filter => this.getFilterAsLabel(filter))
+            const mapped = sections[context].map((filter) => this.getFilterAsLabel(filter))
             const last = mapped.pop()
             const terms = [this.$t(`${context}.${prefix}${type}`)]
             if (mapped.length) {
@@ -272,13 +273,13 @@ export default {
       const results = []
       const sections = {}
 
-      filters.forEach(d => {
+      filters.forEach((d) => {
         if (!sections[d.context]) {
           sections[d.context] = []
         }
         sections[d.context].push(d)
       })
-      ;['include', 'exclude'].forEach(context => {
+      ;['include', 'exclude'].forEach((context) => {
         if (sections[context]) {
           if (this.reduced) {
             results.push(
@@ -363,7 +364,7 @@ export default {
         "language": "written in",
         "country": "printed in",
         "type": "- tagged as",
-        "year": "in year",
+        
         "textReuseCluster": "in clusters",
         "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
         "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
@@ -390,7 +391,6 @@ export default {
         "language": "not written in",
         "country": "not printed in",
         "type": "- not tagged as",
-        "year": "not in year",
         "textReuseCluster": "not in clusters",
         "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
         "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",

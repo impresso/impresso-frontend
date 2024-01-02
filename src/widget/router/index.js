@@ -1,7 +1,7 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
+import Vue from 'vue'
+import VueRouter from 'vue-router'
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
 const propsFromRoute = ({ query }) => ({
   backgroundColor: query.backgroundColor,
@@ -42,13 +42,12 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
-
   },
-];
+]
 
 const router = new VueRouter({
-  base: process.env.BASE_URL,
+  base: import.meta.env.BASE_URL,
   routes,
-});
+})
 
-export default router;
+export default router

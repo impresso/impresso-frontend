@@ -1,7 +1,7 @@
-<template lang="html">
-<main v-bind:style="style">
-  <slot></slot>
-</main>
+<template>
+  <main v-bind:style="style">
+    <slot></slot>
+  </main>
 </template>
 
 <script>
@@ -23,30 +23,30 @@ export default {
   },
   computed: {
     style() {
-      const style = {};
+      const style = {}
 
       if (this.width) {
-        style.width = this.width;
+        style.width = this.width
       }
 
       if (this.minWidth) {
-        style['min-width'] = this.minWidth;
+        style['min-width'] = this.minWidth
       }
 
       if (this.maxWidth) {
-        style['max-width'] = this.maxWidth;
+        style['max-width'] = this.maxWidth
       }
 
-      return style;
+      return style
     },
   },
-};
+}
 </script>
 
 <style scoped lang="less">
 main {
-    height: 100%;
-    display: flex;
-    margin: 0 auto; // center if width is not 100% of viewport
+  height: 100%;
+  display: flex;
+  margin: 0 auto; // center if width is not 100% of viewport
 }
 </style>

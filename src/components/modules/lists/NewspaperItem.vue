@@ -1,22 +1,24 @@
-<template lang="html">
+<template>
   <div class="newspaper-item d-flex align-items-center" :class="{ active }">
     <div class="flex-grow-1">
-      <router-link v-if="showLink"
-        v-bind:class="{ active: active }"
-        v-bind:to="itemUrl">
-        <strong>{{ item.name}}</strong>
+      <router-link v-if="showLink" v-bind:class="{ active: active }" v-bind:to="itemUrl">
+        <strong>{{ item.name }}</strong>
       </router-link>
       <div v-else>
-        <h2 v-if="showName" class="sans" :class="{ 'font-weight-bold': item.included }">{{ item.name}} ({{ item.startYear}} - {{ item.endYear}})</h2>
+        <h2 v-if="showName" class="sans" :class="{ 'font-weight-bold': item.included }">
+          {{ item.name }} ({{ item.startYear }} - {{ item.endYear }})
+        </h2>
         <div class="small" v-html="stats"></div>
         <div class="small" v-if="showDate" v-html="dates"></div>
       </div>
       <div class="small-caps" v-html="stats"></div>
       <div class="small-caps" v-html="dates"></div>
-      <div v-if="item.countIssues < 0">{{$t('unavailable')}}</div>
+      <div v-if="item.countIssues < 0">{{ $t('unavailable') }}</div>
     </div>
     <div v-if="isObservable" class="px-2" @click="$emit('toggle-observed', item)">
-      <div class="item-observed" :class="{ active: observed }"><div class="icon dripicons-preview" /></div>
+      <div class="item-observed" :class="{ active: observed }">
+        <div class="icon dripicons-preview" />
+      </div>
     </div>
   </div>
 </template>
@@ -45,28 +47,28 @@ export default {
         params: {
           newspaper_uid: this.item.uid,
         },
-      };
+      }
     },
     dates() {
       if (this.item.firstIssue) {
-        let from;
-        let to;
+        let from
+        let to
 
         if (this.item.firstIssue.date instanceof Date) {
-          from = this.$d(this.item.firstIssue.date, 'short');
-          to = this.$d(this.item.lastIssue.date, 'short');
+          from = this.$d(this.item.firstIssue.date, 'short')
+          to = this.$d(this.item.lastIssue.date, 'short')
         } else {
-          from = this.$d(new Date(this.item.firstIssue.date), 'short');
-          to = this.$d(new Date(this.item.lastIssue.date), 'short');
+          from = this.$d(new Date(this.item.firstIssue.date), 'short')
+          to = this.$d(new Date(this.item.lastIssue.date), 'short')
         }
-        return this.$t('availability', { from, to });
-      } else if(this.item.startYear) {
+        return this.$t('availability', { from, to })
+      } else if (this.item.startYear) {
         return this.$t('availability', {
           from: this.item.startYear,
-          to: this.item.endYear
+          to: this.item.endYear,
         })
       }
-      return '';
+      return ''
     },
     stats() {
       if (this.item.countIssues > 0) {
@@ -80,26 +82,26 @@ export default {
           this.$tc('numbers.issues', this.item.countIssues, {
             n: this.$n(this.item.countIssues),
           }),
-        ].join(', ');
+        ].join(', ')
       }
-      return '';
+      return ''
     },
   },
-};
+}
 </script>
 
 <style lang="scss">
 .newspaper-item {
-  h2{
+  h2 {
     font-size: inherit;
   }
-  .date{
+  .date {
     text-transform: lowercase;
   }
   .number {
   }
 }
-.newspaper-item.active{
+.newspaper-item.active {
   box-shadow: inset 0.15em 0 #343a40;
   background-color: #f2f2f2;
 }

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="Ellipsis">
     <div
       class="contents"

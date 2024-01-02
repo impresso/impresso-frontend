@@ -1,14 +1,12 @@
-<template lang="html">
-    <div v-bind:id="id" class="ts-item">
-      <div class="display-region" v-bind:style="style">
-      </div>
-    </div>
+<template>
+  <div v-bind:id="id" class="ts-item">
+    <div class="display-region" v-bind:style="style"></div>
+  </div>
 </template>
 
 <script>
-import OpenSeadragon from 'openseadragon';
-
-const uuid = require('uuid');
+import OpenSeadragon from 'openseadragon'
+import { v4 as uuidv4 } from 'uuid'
 
 export default {
   props: {
@@ -21,7 +19,7 @@ export default {
     },
   },
   data: () => ({
-    id: `os-viewer-${uuid.v4()}`,
+    id: `os-viewer-${uuidv4()}`,
     viewer: false,
     style: {
       top: 0,
@@ -48,7 +46,7 @@ export default {
       pinchToZoom: false,
       flickEnabled: false,
       pinchRotate: false,
-    };
+    }
 
     this.viewer = OpenSeadragon({
       id: this.id,
@@ -58,51 +56,52 @@ export default {
       gestureSettingsMouse: gestureSettings,
       panHorizontal: false,
       panVertical: false,
-    });
+    })
 
-    this.$emit('mounted');
+    this.$emit('mounted')
   },
   methods: {
     update() {
       if (this.bounds && this.viewer.viewport && this.active) {
-        const topleft = this.viewer
-          .viewport.pixelFromPointNoRotate(this.bounds.getTopLeft(), false);
-        const bottomright = this.viewer
-          .viewport.pixelFromPointNoRotate(this.bounds.getBottomRight(), false);
+        const topleft = this.viewer.viewport.pixelFromPointNoRotate(this.bounds.getTopLeft(), false)
+        const bottomright = this.viewer.viewport.pixelFromPointNoRotate(
+          this.bounds.getBottomRight(),
+          false,
+        )
 
-        this.style.top = `${Math.round(topleft.y)}px`;
-        this.style.left = `${Math.round(topleft.x)}px`;
+        this.style.top = `${Math.round(topleft.y)}px`
+        this.style.left = `${Math.round(topleft.x)}px`
 
-        const width = Math.abs(topleft.x - bottomright.x);
-        const height = Math.abs(topleft.y - bottomright.y);
+        const width = Math.abs(topleft.x - bottomright.x)
+        const height = Math.abs(topleft.y - bottomright.y)
 
         // make sure width and height are non-negative so IE doesn't throw
-        this.style.width = `${Math.round(Math.max(width, 0))}px`;
-        this.style.height = `${Math.round(Math.max(height, 0))}px`;
+        this.style.width = `${Math.round(Math.max(width, 0))}px`
+        this.style.height = `${Math.round(Math.max(height, 0))}px`
 
-        this.style.display = 'block';
+        this.style.display = 'block'
       } else {
-        this.style.display = 'none';
+        this.style.display = 'none'
       }
     },
   },
   watch: {
     bounds: {
       handler() {
-        this.update();
+        this.update()
       },
     },
   },
-};
+}
 </script>
 
 <style scoped lang="less">
 .ts-item {
-    // pointer-events: none;
-    height: 100%;
-    width: 100%;
-    position: relative;
-    cursor: pointer;
-    outline: none !important;
+  // pointer-events: none;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+  outline: none !important;
 }
 </style>

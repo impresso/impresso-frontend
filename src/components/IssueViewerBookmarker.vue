@@ -1,21 +1,32 @@
-<template lang="html">
+<template>
   <div class="issue-viewer-bookmarker" :class="{ active, visible }">
-    <div class="bg-dark p-2 drop-shadow d-flex align-items-center" style="background: black !important">
+    <div
+      class="bg-dark p-2 drop-shadow d-flex align-items-center"
+      style="background: black !important"
+    >
       <div class="mr-2">
-        {{$t('label_selected_article') }}
+        {{ $t('label_selected_article') }}
       </div>
-      <div class="text-white font-weight-bold mr-2 text-ellipsis">{{ title }}</div>"
-      <b-button size="sm" class="mx-2 text-white" variant="outline-primary"
-        @click="$emit('click-full-text')">
+      <div class="text-white font-weight-bold mr-2 text-ellipsis">{{ title }}</div>
+      "
+      <b-button
+        size="sm"
+        class="mx-2 text-white"
+        variant="outline-primary"
+        @click="$emit('click-full-text')"
+      >
         <div class="d-flex align-items-center">
           {{ $t('closeReadingView') }}
           <div class="d-flex dripicons dripicons-align-justify ml-2" />
         </div>
       </b-button>
-      <b-button pill class="dripicons-cross p-0"
-        style="width:1.5em; height:1.5em; line-height: 1.75em"
+      <b-button
+        pill
+        class="dripicons-cross p-0"
+        style="width: 1.5em; height: 1.5em; line-height: 1.75em"
         @click="handleRemoveSelection"
-        variant="outline-primary">
+        variant="outline-primary"
+      >
       </b-button>
     </div>
   </div>
@@ -33,35 +44,35 @@ export default {
   },
   mounted() {
     if (this.visible) {
-      this.show();
+      this.show()
     }
   },
   computed: {
     articleId() {
-      return this.article?.uid;
+      return this.article?.uid
     },
   },
   watch: {
     articleId: {
       handler(uid) {
-        this.active = false;
-        if (uid) this.show();
-      }
-    }
+        this.active = false
+        if (uid) this.show()
+      },
+    },
   },
   methods: {
-    show(delay=600) {
-      if (!this.articleId) return;
+    show(delay = 600) {
+      if (!this.articleId) return
       setTimeout(() => {
-        this.active = true;
-        this.title = this.article?.title;
-      }, delay);
+        this.active = true
+        this.title = this.article?.title
+      }, delay)
     },
     handleRemoveSelection() {
-      this.active = false;
+      this.active = false
       this.$emit('remove-selection')
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -85,7 +96,7 @@ export default {
     top: 10px;
     padding: 5px 50px;
     transform: translateY(-70px);
-    transition: transform .6s cubic-bezier(.8,-.5,.2,1.4);
+    transition: transform 0.6s cubic-bezier(0.8, -0.5, 0.2, 1.4);
   }
   &.active > div {
     transform: translateY(0);

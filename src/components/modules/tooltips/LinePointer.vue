@@ -1,6 +1,8 @@
-<template lang="html">
+<template>
   <div class="line-pointer" :style="style">
-    <div v-if="label" class="line-pointer-label"><span>{{label}}</span></div>
+    <div v-if="label" class="line-pointer-label">
+      <span>{{ label }}</span>
+    </div>
   </div>
 </template>
 
@@ -25,10 +27,10 @@ export default {
         transform: `translateX(${this.x}px)`,
         width: `${this.width}px`,
         backgroundColor: this.backgroundColor,
-      };
+      }
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -37,22 +39,23 @@ export default {
   height: 100%;
   top: 0;
   pointer-events: none;
-  &.active.fadeOut, &.fadeOut{
-    transition: opacity .2s ease-in-out;
+  &.active.fadeOut,
+  &.fadeOut {
+    transition: opacity 0.2s ease-in-out;
     opacity: 0;
   }
-  .line-pointer-label{
+  .line-pointer-label {
     position: absolute;
     top: 0;
     width: 50px;
     left: -25px;
-    font-size:12px;
+    font-size: 12px;
     text-align: center;
-    >span{
+    > span {
       background: black;
       color: white;
       padding: 0 0.25rem;
-      border-radius: 0.1rem
+      border-radius: 0.1rem;
     }
   }
 }

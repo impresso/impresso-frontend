@@ -1,4 +1,4 @@
-import uuid from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import FilterBoolean from '@/models/FilterBoolean'
 import FilterEntity from '@/models/FilterEntity'
 import FilterString from '@/models/FilterString'
@@ -14,7 +14,7 @@ export default {
    * @param {object} filterData
    * @returns {import('.').Filter}
    */
-  create: filterData => {
+  create: (filterData) => {
     let filter = { ...filterData }
 
     if (filterData.type === 'mention') {
@@ -80,7 +80,7 @@ export default {
     }
 
     if (filter.getHash != null) {
-      filter.key = filterData.key || uuid.v4()
+      filter.key = filterData.key || uuidv4()
     }
     return filter
   },
