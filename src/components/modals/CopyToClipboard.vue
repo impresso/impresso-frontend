@@ -28,13 +28,9 @@
       <b-col cols="8">
         <div class="mr-2 me-2">
           <label>{{ $t('iframe_preview') }}</label>
-          <div class="d-flex CopyToClipboard__preview" :style="getIframeWrapperStyle">
-            <div
-              v-if="isShown"
-              class="h-100 w-100"
-              ref="iframeWrapper"
-              v-html="[iframeCode, iframeCaptionCode].join('\n')"
-            />
+          <div class="CopyToClipboard__preview" :style="getIframeWrapperStyle">
+            <div v-if="isShown" class="h-100 w-100" ref="iframeWrapper" v-html="iframeCode" />
+            <div v-html="iframeCaptionCode" />
           </div>
           <hr />
           <label class="font-weight-bold mt-2">{{ $t('iframe_code') }}</label>
@@ -144,7 +140,7 @@
             $t('options_customise_viewport_max_height')
           }}</label>
 
-          <b-input-group size="sm" class="mt-1">
+          <b-input-group size="sm">
             <b-input-group-prepend is-text>px</b-input-group-prepend>
             <b-input
               id="form-input-max-height"
@@ -153,6 +149,23 @@
               @input="debounceInput($event, 'maxHeight')"
             ></b-input>
           </b-input-group>
+
+          <label for="form-input-caption-padding" class="mt-2">{{
+            $t('options_customise_caption_padding')
+          }}</label>
+
+          <b-input-group size="sm">
+            <b-input-group-prepend is-text>px</b-input-group-prepend>
+            <b-input
+              id="form-input-caption-padding"
+              type="number"
+              :value="captionPadding"
+              @input="debounceInput($event, 'captionPadding')"
+            ></b-input>
+          </b-input-group>
+          <small id="form-input-caption-padding-help" class="form-text text-muted">{{
+            $t('options_customise_caption_padding_help')
+          }}</small>
         </div>
       </b-col>
     </b-row>
@@ -172,9 +185,9 @@ import { newspapers as NewspapersService } from '@/services'
 export default {
   data: () => ({
     maxHeight: 400,
+    captionPadding: 10,
     isShown: false,
     coordsMargin: 20,
-    captionHeight: 40,
     backgroundColor: 'e1e1e1',
     overlayBackgroundColor: 'ff00ff33',
     ratio: 141.4,
@@ -208,11 +221,10 @@ export default {
     iframeCaptionCode() {
       const date = this.$d(this.article.date, 'long')
       const url = `${process.env.VUE_APP_BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
-
       return [
-        `<p style="padding: 0 10px; margin: 0; font-style: italic"><a href="${url}">${this.title}</a></p>`,
-        `<p style="padding: 0 10px;  margin: 0; font-size: .8em"><b>${this.article.newspaper.name}</b> ${this.computedPartner}</p>`,
-        `<p style="padding: 0 10px 10px;; margin: 0; font-size: .8em">${date}</p>`,
+        `<p style="padding: ${this.captionPadding}px ${this.captionPadding}px 0; margin: 0; font-style: italic"><a href="${url}">${this.title}</a></p>`,
+        `<p style="padding: 0 ${this.captionPadding}px;  margin: 0; font-size: .8em"><b>${this.article.newspaper.name}</b> ${this.computedPartner}</p>`,
+        `<p style="padding: 0 ${this.captionPadding}px ${this.captionPadding}px; margin: 0; font-size: .8em">${date}</p>`,
       ].join('')
     },
     iframeCode() {
@@ -361,6 +373,13 @@ export default {
 .CopyToClipboard__preview a {
   text-decoration: underline;
 }
+.CopyToClipboard label {
+  margin-bottom: 0;
+}
+.CopyToClipboard hr {
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
 @media (min-width: 992px) {
   .CopyToClipboard.modal-dialog {
     max-width: 800px;
@@ -392,6 +411,8 @@ export default {
     "options_customise": "customize style",
     "options_customise_viewport": "customize viewport",
     "options_customise_viewport_max_height": "max. height",
+    "options_customise_caption_padding_help": "padding around caption",
+    "options_customise_caption_padding": "caption padding",
     "adapt_ratio_to_coords": "Fit highlight area",
     "fixed_ratio": "Fit highlight area",
     "fixed_height": "Fit maximum height"
