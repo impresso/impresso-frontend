@@ -1,5 +1,5 @@
 <template>
-  <figure class="position-relative IIIFFragment">
+  <figure @click="e => $emit('click', e)" class="position-relative IIIFFragment">
     <img class="shadow-sm" :src="imageUrl" alt="IIIF Fragment" />
     <div class="IIIFFragment__regions" :style="computedRegionsStyle">
       <div

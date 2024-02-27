@@ -2,6 +2,7 @@
   <b-media class="py-3 border-bottom  search-result-list-item">
     <div v-if="isAvailable()" class="thumbnail" slot="aside">
       <IIIFFragment
+        @click="goToArticle"
         v-if="article.pages.length > 0 && article.regions.length > 0"
         :iiif="article.pages[0].iiif"
         size=",240"
@@ -187,6 +188,16 @@ export default {
     },
     hideModalShareArticle() {
       this.showModalShare = false
+    },
+    goToArticle() {
+      this.$router.push({
+        name: 'article',
+        params: {
+          issue_uid: this.article.issue.uid,
+          page_uid: this.article.pages.length > 0 ? this.article.pages[0].uid : undefined,
+          article_uid: this.article.uid,
+        },
+      })
     },
   },
   components: {
