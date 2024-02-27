@@ -15,15 +15,21 @@ build-netlify:
 	NODE_OPTIONS=--openssl-legacy-provider npm run build && \
 	netlify deploy --prod --dir=dist
 
-
 run-dev:
+	GIT_TAG=$(shell git describe --tags --abbrev=0 HEAD) \
+	GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD) \
+	GIT_REVISION=$(shell git rev-parse --short HEAD) \
+	PUBLIC_PATH=/app/ \
+	NODE_OPTIONS=--openssl-legacy-provider npm start
+
+run-docker-dev:
 	GIT_TAG=$(shell git describe --tags --abbrev=0 HEAD) \
 	GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD) \
 	GIT_REVISION=$(shell git rev-parse --short HEAD) \
 	PUBLIC_PATH=/app/ \
 	docker-compose -f docker-compose-dev.yml up
 
-run-dev-build:
+run-docker-dev-build:
 	GIT_TAG=$(shell git describe --tags --abbrev=0 HEAD) \
 	GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD) \
 	GIT_REVISION=$(shell git rev-parse --short HEAD) \

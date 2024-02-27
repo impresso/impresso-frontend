@@ -279,11 +279,17 @@ $clr-grey-900: #ddd;
   --clr-grey-400: #5a6672;
   --clr-grey-800: #c6ccd2;
   --clr-grey-900: #ddd;
+  --clr-grey-100-rgba-20: rgba(23, 25, 28, 0.2);
+  --clr-grey-300-rgba-20: rgba(66, 74, 82, 0.2);
+  --clr-grey-400-rgba-20: rgba(90, 102, 114, 0.2);
+  --clr-grey-800-rgba-20: rgba(198, 204, 210, 0.2);
+  --clr-grey-900-rgba-20: rgba(221, 221, 221, 0.2);
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
   --spacing-3: 1rem;
   --spacing-4: 1.5rem;
   --spacing-5: 3rem;
+  --accent: #28a745;
 }
 
 .bg-medium {
