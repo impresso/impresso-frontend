@@ -7,7 +7,6 @@ import VueGtag from 'vue-gtag'
 
 import Helpers from '@/plugins/Helpers'
 import ImpressoLayout from '@/plugins/Layout'
-import TawkTo from '@/plugins/TawkTo'
 import EventBus from '@/plugins/EventBus'
 import MetaTags from '@/plugins/MetaTags'
 import Navigation from '@/plugins/Navigation'
@@ -33,9 +32,7 @@ Vue.use(EventBus)
 Vue.use(ImpressoLayout)
 Vue.use(MetaTags, { suffix: 'impresso' })
 Vue.use(Navigation)
-if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
-  Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID })
-}
+
 if (process.env.VUE_APP_GA_TRACKING_ID) {
   Vue.use(
     VueGtag,
@@ -173,6 +170,9 @@ Promise.race([
         '[main] App latest notification date:',
         store.state.settings.lastNotificationDate,
       )
+      window.impressoFrontendVersion = process.env.VUE_APP_GIT_TAG
+      window.impressoFrontendRevision = process.env.VUE_APP_GIT_REVISION
+      window.impressoFrontendBranch = process.env.VUE_APP_GIT_BRANCH
       window.impressoVersion = version
       window.impressoApiVersion = apiVersion
       window.impressoDocumentsDateSpan = documentsDateSpan

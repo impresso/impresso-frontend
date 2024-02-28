@@ -49,9 +49,9 @@
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
           <span>{{ $t('label_newspapers') }}</span>
         </b-nav-item>
-        <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
+        <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
           <span>{{ $t('label_topics') }}</span>
-        </b-nav-item>
+        </b-nav-item> -->
         <!-- b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
           <span>{{$t("label_entities")}}</span>
         </b-nav-item -->
@@ -69,13 +69,7 @@
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
-        <b-nav-item
-          v-if="user"
-          :to="getRouteWithSearchQuery({ name: 'collections' })"
-          :active="$route.path.indexOf('/collections') === 0"
-        >
-          <span>{{ $t('collections') }}</span>
-        </b-nav-item>
+
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
@@ -87,14 +81,20 @@
       </b-navbar-nav>
 
       <b-navbar-nav class="ml-auto">
-        <b-nav-item :to="{ name: 'faq' }" class="small-caps" active-class="active">
+        <b-nav-item :to="{ name: 'faq' }" active-class="active">
           <span>{{ $t('label_faq') }}</span>
         </b-nav-item>
-
+        <b-nav-item
+          v-if="user"
+          :to="getRouteWithSearchQuery({ name: 'collections' })"
+          :active="$route.path.indexOf('/collections') === 0"
+        >
+          <span>{{ $t('collections') }}</span>
+        </b-nav-item>
         <b-nav-item-dropdown
+          v-if="user && jobs.length"
           right
           no-caret
-          v-if="user"
           ref="ddownJobs"
           v-on:hidden="updateLastNotificationDate"
         >
@@ -103,7 +103,7 @@
               class="d-inline-block dripicons-cloud-download position-relative"
               style="top: 0.25em"
             />
-            <span class="ml-1 small-caps">{{ $t('label_jobs') }}</span>
+            <span class="ml-1">{{ $t('label_jobs') }}</span>
             <transition name="bounce">
               <b-badge v-if="runningJobs.length > 0" pill variant="danger" class="border">
                 {{ runningJobs.length }}
@@ -136,32 +136,23 @@
             </div>
           </div>
         </b-nav-item-dropdown>
-        <!-- <b-nav-item-dropdown v-bind:text="languages[activeLanguageCode].code" class="p-2" right>
-            <b-dropdown-item v-for="language in languages"
-            v-bind:active="activeLanguageCode === language.code"
-            v-bind:key="language.code"
-            v-bind:disabled="language.disabled"
-            v-on:click="selectLanguage(language.code)">
-              <span>{{language.name}}</span>
-            </b-dropdown-item>
-          </b-nav-item-dropdown> -->
-        <b-nav-item-dropdown v-if="user" class="user-space pl-1 pr-2" right>
+      </b-navbar-nav>
+      <!-- user area -->
+      <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
+        <b-nav-item-dropdown class="px-0" right>
           <template slot="button-content">
-            <div class="d-inline-block mt-2">
-              <div
-                class="user-picture mt-1 float-left position-relative"
-                :style="userPicture"
-              ></div>
-              <div class="user-label pt-2">
+            <div class="d-flex px-2 py-1 align-items-center">
+              <div class="user-picture position-relative mr-2 me-2" :style="userPicture"></div>
+              <div class="user-label mr-4 me-4">
                 <div class="user-fullname">{{ userFullName }}</div>
                 <div class="user-role small-caps">{{ userRole }}</div>
               </div>
             </div>
           </template>
           <b-dropdown-item :to="{ name: 'user' }">{{ $t('profile') }}</b-dropdown-item>
-          <b-nav-item :to="{ name: 'termsOfUse' }" active-class="active">
+          <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
             {{ $t('label_terms_of_use') }}
-          </b-nav-item>
+          </b-dropdown-item>
           <b-dropdown-item :to="{ name: 'collections' }" active-class="active">{{
             $t('collections')
           }}</b-dropdown-item>
@@ -177,12 +168,19 @@
             <span v-html="$t('join_slack_channel')"></span>
           </b-dropdown-item>
 
-          <b-dropdown-text class="px-3" v-html="$t('current_version', { version })" />
+          <b-dropdown-item>
+            <span v-html="$t('current_version', { version })"></span>
+          </b-dropdown-item>
         </b-nav-item-dropdown>
-        <b-nav-item class="small-caps ml-2" v-else :to="loginRouteParams">
+      </b-navbar-nav>
+      <!-- end of user area -->
+      <!-- login area -->
+      <b-navbar-nav v-if="!user" class="TheHeader__userArea mx-2">
+        <b-nav-item class="small-caps" :to="loginRouteParams">
           <span>{{ $t('login') }}</span>
         </b-nav-item>
-        <b-nav-item class="small-caps mx-2" v-if="!user" :to="registerRouteParams">
+        <BNavText class="small-caps mx-1 py-1">|</BNavText>
+        <b-nav-item class="small-caps" :to="registerRouteParams">
           <span>{{ $t('register') }}</span>
         </b-nav-item>
       </b-navbar-nav>
@@ -218,12 +216,14 @@ import JobItem from '@/components/modules/lists/JobItem'
 import Pagination from '@/components/modules/Pagination'
 import SearchQueryExplorer from './modals/SearchQueryExplorer'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
+import { BNavText } from 'bootstrap-vue'
 
 Icon.register({
   slack: {
     width: 1664,
     height: 1792,
-    d: 'M1519 776q62 0 103.5 40.5t41.5 101.5q0 97-93 130l-172 59 56 167q7 21 7 47 0 59-42 102t-101 43q-47 0-85.5-27t-53.5-72l-55-165-310 106 55 164q8 24 8 47 0 59-42 102t-102 43q-47 0-85-27t-53-72l-55-163-153 53q-29 9-50 9-61 0-101.5-40t-40.5-101q0-47 27.5-85t71.5-53l156-53-105-313-156 54q-26 8-48 8-60 0-101-40.5t-41-100.5q0-47 27.5-85t71.5-53l157-53-53-159q-8-24-8-47 0-60 42-102.5t102-42.5q47 0 85 27t53 72l54 160 310-105-54-160q-8-24-8-47 0-59 42.5-102t101.5-43q47 0 85.5 27.5t53.5 71.5l53 161 162-55q21-6 43-6 60 0 102.5 39.5t42.5 98.5q0 45-30 81.5t-74 51.5l-157 54 105 316 164-56q24-8 46-8zM725 1038l310-105-105-315-310 107z',
+    d:
+      'M1519 776q62 0 103.5 40.5t41.5 101.5q0 97-93 130l-172 59 56 167q7 21 7 47 0 59-42 102t-101 43q-47 0-85.5-27t-53.5-72l-55-165-310 106 55 164q8 24 8 47 0 59-42 102t-102 43q-47 0-85-27t-53-72l-55-163-153 53q-29 9-50 9-61 0-101.5-40t-40.5-101q0-47 27.5-85t71.5-53l156-53-105-313-156 54q-26 8-48 8-60 0-101-40.5t-41-100.5q0-47 27.5-85t71.5-53l157-53-53-159q-8-24-8-47 0-60 42-102.5t102-42.5q47 0 85 27t53 72l54 160 310-105-54-160q-8-24-8-47 0-59 42.5-102t101.5-43q47 0 85.5 27.5t53.5 71.5l53 161 162-55q21-6 43-6 60 0 102.5 39.5t42.5 98.5q0 45-30 81.5t-74 51.5l-157 54 105 316 164-56q24-8 46-8zM725 1038l310-105-105-315-310 107z',
   },
 })
 
@@ -301,7 +301,7 @@ export default {
       return this.$store.state.jobs.totalItems
     },
     runningJobs() {
-      return this.jobs.filter((d) => d.status === 'RUN')
+      return this.jobs.filter(d => d.status === 'RUN')
     },
     currentSearchResults() {
       return this.$store.state.search.paginationTotalRows
@@ -329,9 +329,9 @@ export default {
       return name === '' ? this.user.username : name
     },
     userRole() {
-      if (this.user.displayName && this.user.displayName.length) {
-        return this.user.displayName
-      }
+      // if (this.user.displayName && this.user.displayName.length) {
+      //   return this.user.displayName
+      // }
       return this.user.isStaff ? this.$t('staff') : this.$t('researcher')
     },
     userPicture() {
@@ -356,7 +356,7 @@ export default {
       return this.$store.state.connectivityStatus
     },
     version() {
-      return window.impressoVersion
+      return window.impressoFrontendVersion
     },
     textReuseEnabled() {
       // @ts-ignore
@@ -413,7 +413,7 @@ export default {
       handler(jobs) {
         if (jobs.length && this.$refs.ddownJobs) {
           const lastModifiedDate = jobs
-            .map((d) => d.lastModifiedDate.getTime())
+            .map(d => d.lastModifiedDate.getTime())
             .sort()
             .pop()
           if (this.$store.getters['settings/lastNotificationDate'] - lastModifiedDate < 0) {
@@ -436,6 +436,7 @@ export default {
     JobItem,
     Pagination,
     SearchQueryExplorer,
+    BNavText,
   },
 }
 </script>
@@ -446,6 +447,25 @@ export default {
 #TheHeader {
   height: 56px;
 }
+
+.TheHeader__userArea {
+  background-color: transparent;
+}
+.TheHeader__userArea .nav-item .nav-link.dropdown-toggle {
+  padding: 0;
+  border-radius: var(--border-radius-sm);
+}
+.TheHeader__userArea .nav-item.show {
+  border-radius: var(--border-radius-sm);
+}
+.TheHeader__userArea .nav-item.show .nav-link.dropdown-toggle {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+#app-header .dropdown-toggle[aria-expanded='true'] {
+  border-bottom: 0px solid transparent !important;
+}
+
 #app-header {
   .Cookie--blood-orange {
     background: $clr-secondary;
@@ -471,11 +491,12 @@ export default {
     top: 0;
     left: 0;
   }
+
   .badge-pill {
     position: absolute;
     line-height: 0.9;
-    top: 0.5em;
-    right: 0.5em;
+    top: 0;
+    right: 0;
     border-radius: 10px;
     min-width: 20px;
     height: 20px;
@@ -487,7 +508,7 @@ export default {
       padding: 0;
       height: 0.4rem;
       overflow: hidden;
-      background: #ffeb78;
+      background: var(--impresso-yellow);
       display: block;
       min-width: auto;
       // border: 1px solid black!important;
@@ -536,8 +557,8 @@ export default {
   .navbar-nav .nav-link {
     padding-top: 0;
     padding-bottom: 0;
-    line-height: 56px;
-    height: 56px;
+    // line-height: 56px;
+    // height: 56px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -554,8 +575,8 @@ export default {
       position: absolute;
       width: 100%;
       height: 0px;
-      border-bottom: 1px solid #ffeb78;
-      bottom: -3px;
+      border-bottom: 1px solid var(--impresso-yellow);
+      bottom: 0px;
       transform: scaleX(0);
       transform-origin: left;
       transition: transform 0.2s ease-in;
@@ -589,12 +610,10 @@ export default {
 
   .navbar-dark .b-nav-dropdown {
     border-left: 1px solid transparent;
-    border-right: 1px solid $clr-grey-400;
+    border-right: 1px solid transparent;
 
     &.show {
-      background: $clr-grey-300 !important;
-      border-color: $clr-grey-100;
-      box-shadow: 1px 0px 0px $clr-grey-400;
+      background: var(--clr-grey-100) !important;
     }
 
     &.show > a {
@@ -602,10 +621,14 @@ export default {
     }
   }
   .navbar-dark .b-nav-dropdown .dropdown-menu {
-    background: $clr-grey-300 !important;
+    background: var(--clr-grey-100) !important;
     padding: 0.5rem 0;
-    border-top-color: $clr-primary;
     margin-top: 0px;
+    top: auto !important;
+
+    border: 0px solid;
+    border-bottom-left-radius: var(--border-radius-sm);
+    border-bottom-right-radius: var(--border-radius-sm);
 
     &.dropdown-menu-right {
       margin-right: -1px;
@@ -621,7 +644,7 @@ export default {
 
     .dropdown-item.active {
       color: $clr-white;
-      background: $clr-grey-400;
+      background: var(--clr-grey-400);
     }
 
     .btn-outline-primary {
@@ -634,23 +657,14 @@ export default {
     }
   }
 
-  .dropdown-toggle {
-    padding-right: 1.25rem;
-
-    &::after {
-      position: absolute;
-      top: 50%;
-      right: 0.75rem;
-      line-height: 2.25rem;
-      margin-top: -1rem;
-      font-size: 0.8em;
-    }
+  .dropdown-toggle::after {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    line-height: 2.25rem;
+    margin-top: -1rem;
+    font-size: 0.8em;
   }
-
-  // .user-space > a.dropdown-toggle {
-  //     padding: 0.25rem 1.5rem 0.125rem 0.5rem;
-  //
-  // }
 
   .user-picture {
     background: $clr-primary;
@@ -658,10 +672,6 @@ export default {
     height: 2em;
     border-radius: 2em;
     border: 1px solid $clr-accent-light;
-  }
-
-  .user-label {
-    margin-left: 2.5em;
   }
 
   .user-fullname {
@@ -708,9 +718,9 @@ export default {
 <i18n>
 {
   "en": {
-    "login": "Login",
-    "register": "Register",
-    "logout": "Logout",
+    "login": "login",
+    "register": "register",
+    "logout": "logout",
     "dashboard": "Dashboard",
     "collections": "Collections",
     "profile": "Profile",
@@ -726,13 +736,13 @@ export default {
     "label_text_reuse": "Text reuse",
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
-    "label_faq": "faq",
-    "label_jobs" : "jobs",
+    "label_faq": "Faq",
+    "label_jobs" : "Running tasks",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",
     "join_slack_channel": "Join us on <b>Slack!</b>",
-    "current_version": "v <span class='small-caps'>{version}</span>"
+    "current_version": "frontend <span class='small-caps'>{version}</span>"
   }
 }
 </i18n>

@@ -290,6 +290,8 @@ $clr-grey-900: #ddd;
   --spacing-4: 1.5rem;
   --spacing-5: 3rem;
   --accent: #28a745;
+  --impresso-yellow: #ffeb78;
+  --border-radius-sm: 3px;
 }
 
 .bg-medium {
@@ -762,14 +764,14 @@ input[type='range']:active::-ms-thumb {
 .highlight,
 span.highlight {
   outline: inherit;
-  background-color: #ffeb78;
+  background-color: var(--impresso-yellow);
 }
 
 .bg-dark {
   .article-matches em,
   .highlight,
   span.highlight {
-    background-color: #ffeb78;
+    background-color: var(--impresso-yellow);
     color: black;
     outline: inherit;
   }

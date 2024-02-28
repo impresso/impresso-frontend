@@ -51,77 +51,153 @@
       <b-col>
         <div class="ml-2" v-if="isShown">
           <label for="form-input-title">{{ $t('article_title') }}</label>
-          <b-input-group size="sm" class="mb-2 mr-sm-2 mb-sm-0">
+          <b-input-group size="sm">
             <b-input
               id="form-input-title"
               :value="title"
               @input="debounceInput($event, 'title')"
             ></b-input>
           </b-input-group>
-          <hr />
-          <label for="form-input-bgcolor">{{ $t('options_bgcolor') }}</label>
-          <b-input-group size="sm" prepend="#" class="mb-2 mr-sm-2 mb-sm-0">
-            <b-input
-              id="form-input-bgcolor"
-              :value="backgroundColor"
-              @input="debounceInput($event, 'backgroundColor')"
-            ></b-input>
-          </b-input-group>
-          <small id="form-input-bgcolor-help" class="form-text text-muted">{{
-            $t('options_bgcolor_help')
-          }}</small>
+          <hr class="my-2" />
+          <b-row>
+            <b-col>
+              <label for="form-input-bgcolor">{{ $t('options_bgcolor') }}</label>
+              <b-input-group size="sm">
+                <b-input-group-prepend>
+                  <div
+                    class="border border-dark text-center"
+                    :style="{
+                      backgroundColor: `#${backgroundColor}`,
+                      height: '100%',
+                      zIndex: 1,
+                      width: '30px',
+                    }"
+                  >
+                    #
+                  </div>
+                </b-input-group-prepend>
+                <b-input
+                  id="form-input-bgcolor"
+                  :value="backgroundColor"
+                  @input="debounceInput($event, 'backgroundColor')"
+                ></b-input>
+              </b-input-group>
 
-          <label for="form-input-ovcolor" class="mt-2">{{ $t('options_ovcolor') }}</label>
-          <b-input-group size="sm" prepend="#" class="mb-2 mr-sm-2 mb-sm-0">
-            <b-input
-              id="form-input-ovcolor"
-              :value="overlayBackgroundColor"
-              @input="debounceInput($event, 'overlayBackgroundColor')"
-            ></b-input>
-          </b-input-group>
-          <small id="form-input-ovcolor-help" class="form-text text-muted">{{
-            $t('options_ovcolor_help')
-          }}</small>
+              <small id="form-input-bgcolor-help" class="form-text text-muted">{{
+                $t('options_bgcolor_help')
+              }}</small>
+            </b-col>
+            <b-col>
+              <label for="form-input-text-color">{{ $t('options_text_color') }}</label>
+              <b-input-group size="sm">
+                <b-input-group-prepend>
+                  <div
+                    class="border border-dark text-center"
+                    :style="{
+                      backgroundColor: `#${backgroundColor}`,
+                      color: textColor,
+                      height: '100%',
+                      zIndex: 1,
+                      width: '30px',
+                    }"
+                  >
+                    css
+                  </div>
+                </b-input-group-prepend>
+                <b-input
+                  id="form-input-bgcolor"
+                  :value="textColor"
+                  @input="debounceInput($event, 'textColor')"
+                ></b-input>
+              </b-input-group>
 
+              <small
+                id="form-input-bgcolor-help"
+                class="form-text text-muted"
+                v-html="$t('options_text_color_help')"
+              />
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col>
+              <label for="form-input-ovcolor">{{ $t('options_ovcolor') }}</label>
+              <b-input-group size="sm">
+                <b-input-group-prepend>
+                  <div
+                    class="border border-dark text-center"
+                    :style="{
+                      backgroundColor: `#${overlayBackgroundColor}`,
+                      height: '100%',
+                      zIndex: 1,
+                      width: '30px',
+                    }"
+                  >
+                    #
+                  </div>
+                </b-input-group-prepend>
+                <b-input
+                  id="form-input-ovcolor"
+                  :value="overlayBackgroundColor"
+                  @input="debounceInput($event, 'overlayBackgroundColor')"
+                ></b-input>
+              </b-input-group>
+              <small id="form-input-ovcolor-help" class="form-text text-muted">{{
+                $t('options_ovcolor_help')
+              }}</small>
+            </b-col>
+          </b-row>
           <label for="form-input-coords-x" class="mt-2">{{ $t('options_ovcoords') }}</label>
           <!-- printout coords in inut elements -->
-          <b-input-group size="sm" class="mt-1">
-            <b-input-group-prepend is-text>x</b-input-group-prepend>
-            <b-input
-              id="form-input-coords-x"
-              type="number"
-              :value="cx"
-              @input="debounceInput($event, 'cx')"
-            ></b-input>
-          </b-input-group>
-          <b-input-group size="sm" class="mt-1">
-            <b-input-group-prepend is-text>y</b-input-group-prepend>
-            <b-input
-              id="form-input-coords-y"
-              type="number"
-              :value="cy"
-              @input="debounceInput($event, 'cy')"
-            ></b-input>
-          </b-input-group>
-          <b-input-group size="sm" class="mt-1">
-            <b-input-group-prepend is-text>w</b-input-group-prepend>
-            <b-input
-              id="form-input-coords-w"
-              type="number"
-              :value="cw"
-              @input="debounceInput($event, 'cw')"
-            ></b-input>
-          </b-input-group>
-          <b-input-group size="sm" class="mt-1">
-            <b-input-group-prepend is-text>h</b-input-group-prepend>
-            <b-input
-              id="form-input-coords-h"
-              type="number"
-              :value="ch"
-              @input="debounceInput($event, 'ch')"
-            >
-            </b-input>
-          </b-input-group>
+          <b-row>
+            <b-col>
+              <b-input-group size="sm" class="mt-1">
+                <b-input-group-prepend is-text>x</b-input-group-prepend>
+                <b-input
+                  id="form-input-coords-x"
+                  type="number"
+                  :value="cx"
+                  @input="debounceInput($event, 'cx')"
+                ></b-input>
+              </b-input-group>
+            </b-col>
+            <b-col>
+              <b-input-group size="sm" class="mt-1">
+                <b-input-group-prepend is-text>y</b-input-group-prepend>
+                <b-input
+                  id="form-input-coords-y"
+                  type="number"
+                  :value="cy"
+                  @input="debounceInput($event, 'cy')"
+                ></b-input>
+              </b-input-group>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col>
+              <b-input-group size="sm" class="mt-1">
+                <b-input-group-prepend is-text>w</b-input-group-prepend>
+                <b-input
+                  id="form-input-coords-w"
+                  type="number"
+                  :value="cw"
+                  @input="debounceInput($event, 'cw')"
+                ></b-input>
+              </b-input-group>
+            </b-col>
+            <b-col>
+              <b-input-group size="sm" class="mt-1">
+                <b-input-group-prepend is-text>h</b-input-group-prepend>
+                <b-input
+                  id="form-input-coords-h"
+                  type="number"
+                  :value="ch"
+                  @input="debounceInput($event, 'ch')"
+                >
+                </b-input>
+              </b-input-group>
+            </b-col>
+          </b-row>
+
           <hr />
 
           <label for="form-input-ratio" class="mt-2">{{ $t('options_customise_viewport') }}</label>
@@ -149,23 +225,40 @@
               @input="debounceInput($event, 'maxHeight')"
             ></b-input>
           </b-input-group>
+          <b-row class="mt-2">
+            <b-col>
+              <label for="form-input-caption-padding">{{
+                $t('options_customise_caption_padding')
+              }}</label>
 
-          <label for="form-input-caption-padding" class="mt-2">{{
-            $t('options_customise_caption_padding')
-          }}</label>
-
-          <b-input-group size="sm">
-            <b-input-group-prepend is-text>px</b-input-group-prepend>
-            <b-input
-              id="form-input-caption-padding"
-              type="number"
-              :value="captionPadding"
-              @input="debounceInput($event, 'captionPadding')"
-            ></b-input>
-          </b-input-group>
-          <small id="form-input-caption-padding-help" class="form-text text-muted">{{
-            $t('options_customise_caption_padding_help')
-          }}</small>
+              <b-input-group size="sm">
+                <b-input-group-prepend is-text>px</b-input-group-prepend>
+                <b-input
+                  id="form-input-caption-padding"
+                  type="number"
+                  :value="captionPadding"
+                  @input="debounceInput($event, 'captionPadding')"
+                ></b-input>
+              </b-input-group>
+              <small id="form-input-caption-padding-help" class="form-text text-muted">{{
+                $t('options_customise_caption_padding_help')
+              }}</small>
+            </b-col>
+            <b-col>
+              <label for="form-input-viewport-coords-margin">
+                {{ $t('options_customise_viewport_coords_margin') }}
+              </label>
+              <b-input-group size="sm">
+                <b-input-group-prepend is-text>px</b-input-group-prepend>
+                <b-input
+                  id="form-input-viewport-coords-margin"
+                  type="number"
+                  :value="coordsMargin"
+                  @input="debounceInput($event, 'coordsMargin')"
+                ></b-input>
+              </b-input-group>
+            </b-col>
+          </b-row>
         </div>
       </b-col>
     </b-row>
@@ -189,6 +282,7 @@ export default {
     isShown: false,
     coordsMargin: 20,
     backgroundColor: 'e1e1e1',
+    textColor: 'inherit',
     overlayBackgroundColor: 'ff00ff33',
     ratio: 141.4,
     fitCoords: true,
@@ -222,9 +316,11 @@ export default {
       const date = this.$d(this.article.date, 'long')
       const url = `${process.env.VUE_APP_BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
       return [
+        `<div style="color: ${this.textColor}">`,
         `<p style="padding: ${this.captionPadding}px ${this.captionPadding}px 0; margin: 0; font-style: italic"><a href="${url}">${this.title}</a></p>`,
         `<p style="padding: 0 ${this.captionPadding}px;  margin: 0; font-size: .8em"><b>${this.article.newspaper.name}</b> ${this.computedPartner}</p>`,
         `<p style="padding: 0 ${this.captionPadding}px ${this.captionPadding}px; margin: 0; font-size: .8em">${date}</p>`,
+        '</div>',
       ].join('')
     },
     iframeCode() {
@@ -405,6 +501,8 @@ export default {
     "modal_title_share_article" : "share newspaper article",
     "options_bgcolor": "background color",
     "options_bgcolor_help": "format hex RGB",
+    "options_text_color": "text color",
+    "options_text_color_help": "All <a href='https://developer.mozilla.org/en-US/docs/Web/CSS/color_value' target='_blank'>css color</a> formats",
     "options_ovcolor": "highlight area color",
     "options_ovcoords": "highlight area coords",
     "options_ovcolor_help": "format hex RGB + alpha",
@@ -413,6 +511,7 @@ export default {
     "options_customise_viewport_max_height": "max. height",
     "options_customise_caption_padding_help": "padding around caption",
     "options_customise_caption_padding": "caption padding",
+    "options_customise_viewport_coords_margin": "highlight padding",
     "adapt_ratio_to_coords": "Fit highlight area",
     "fixed_ratio": "Fit highlight area",
     "fixed_height": "Fit maximum height"
