@@ -170,6 +170,9 @@ Promise.race([
         '[main] App latest notification date:',
         store.state.settings.lastNotificationDate,
       )
+      window.impressoFrontendVersion = process.env.VUE_APP_GIT_TAG
+      window.impressoFrontendRevision = process.env.VUE_APP_GIT_REVISION
+      window.impressoFrontendBranch = process.env.VUE_APP_GIT_BRANCH
       window.impressoVersion = version
       window.impressoApiVersion = apiVersion
       window.impressoDocumentsDateSpan = documentsDateSpan
