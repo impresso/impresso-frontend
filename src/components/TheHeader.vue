@@ -92,10 +92,9 @@
           <span>{{ $t('collections') }}</span>
         </b-nav-item>
         <b-nav-item-dropdown
-          class="small-caps"
+          v-if="user && jobs.length"
           right
           no-caret
-          v-if="user"
           ref="ddownJobs"
           v-on:hidden="updateLastNotificationDate"
         >
@@ -450,7 +449,7 @@ export default {
 }
 
 .TheHeader__userArea {
-  background-color: var(--clr-grey-300);
+  background-color: transparent;
 }
 .TheHeader__userArea .nav-item .nav-link.dropdown-toggle {
   padding: 0;
@@ -628,7 +627,8 @@ export default {
     top: auto !important;
 
     border: 0px solid;
-    border-radius: var(--border-radius-sm);
+    border-bottom-left-radius: var(--border-radius-sm);
+    border-bottom-right-radius: var(--border-radius-sm);
 
     &.dropdown-menu-right {
       margin-right: -1px;
@@ -737,7 +737,7 @@ export default {
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
     "label_faq": "Faq",
-    "label_jobs" : "running tasks",
+    "label_jobs" : "Running tasks",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",
