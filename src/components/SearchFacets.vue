@@ -19,7 +19,8 @@
       :key="`r-${index}`"
       :facet="facet"
       :facet-filters="getFacetFilters(facet.type)"
-      @changed="filters => facetFiltersUpdated(facet.type, filters)"/>
+      @changed="filters => facetFiltersUpdated(facet.type, filters)"
+    />
     <filter-facet
       class="border-top py-2 mx-3"
       v-for="(facet, index) in standardFacets"
@@ -28,12 +29,14 @@
       :context-filters="filters"
       :facet-filters="getFacetFilters(facet.type)"
       @changed="filters => facetFiltersUpdated(facet.type, filters)"
-      collapsible/>
+      collapsible
+    />
   </div>
 </template>
 
 <script>
 import FilterFacet from '@/components/modules/FilterFacet'
+import FilterFacetDateRange from '@/components/modules/FilterFacetDateRange'
 import FilterTimeline from '@/components/modules/FilterTimeline'
 import FilterRange from '@/components/modules/FilterRange'
 import { facetToTimelineValues } from '@/logic/facets'
@@ -73,7 +76,7 @@ export default {
     endYear: {
       type: Number,
       default: 2020,
-    }
+    },
   },
   data: () => ({
     selectedFacet: false,
@@ -82,7 +85,9 @@ export default {
   computed: {
     /** @returns {Facet[]} */
     standardFacets() {
-      return this.facets.filter(({ type }) => !TimelineFacetTypes.includes(type) && !RangeFacetTypes.includes(type))
+      return this.facets.filter(
+        ({ type }) => !TimelineFacetTypes.includes(type) && !RangeFacetTypes.includes(type),
+      )
     },
     /** @returns {Facet[]} */
     rangeFacets() {
@@ -94,30 +99,46 @@ export default {
     },
     /** @returns {Filter[]} */
     daterangeFilters() {
-      return this.filters.filter(({ type }) => type === 'daterange');
+      return this.filters.filter(({ type }) => type === 'daterange')
+    },
+    impressoMinDate() {
+      const date = new Date(window.impressoDocumentsYearSpan.firstYear + '-01-01')
+      date.setUTCHours(0, 0, 0, 0)
+      return date
+    },
+    impressoMaxDate() {
+      const date = new Date(window.impressoDocumentsYearSpan.lastYear + '-12-31')
+      date.setUTCHours(23, 59, 59, 0)
+      return date
     },
     /** @returns {Date} */
     minDate() {
       if (this.timelineValues.length) {
-        const y = this.timelineValues.reduce((min, d) => (d.t < min ? d.t : min), this.timelineValues[0].t);
-        return new Date(`${y}-01-01`);
+        const y = this.timelineValues.reduce(
+          (min, d) => (d.t < min ? d.t : min),
+          this.timelineValues[0].t,
+        )
+        return new Date(`${y}-01-01`)
       }
-      return new Date(`${this.startYear}-01-01`);
+      return new Date(`${this.startYear}-01-01`)
     },
     /** @returns {Date} */
     maxDate() {
       if (this.timelineValues.length) {
-        const y = this.timelineValues.reduce((max, d) => (d.t > max ? d.t : max), this.timelineValues[0].t);
-        return new Date(`${y}-12-31`);
+        const y = this.timelineValues.reduce(
+          (max, d) => (d.t > max ? d.t : max),
+          this.timelineValues[0].t,
+        )
+        return new Date(`${y}-12-31`)
       }
-      return new Date(`${this.endYear}-12-31`);
+      return new Date(`${this.endYear}-12-31`)
     },
     /** @returns {any[]} */
     timelineValues() {
       const yearFacet = this.facets.find(({ type }) => type === 'year')
       if (!yearFacet || !yearFacet.buckets.length) return []
       return facetToTimelineValues(yearFacet)
-    }
+    },
   },
   methods: {
     /**
@@ -125,23 +146,25 @@ export default {
      * @returns {Filter[]}
      */
     getFacetFilters(type) {
-      return this.filters
-        .filter(d => d.type === type)
-        .map(filter => FilterFactory.create(filter));
+      return this.filters.filter(d => d.type === type).map(filter => FilterFactory.create(filter))
     },
     /**
      * @param {string} type
      */
     resetFilters(type) {
-      this.$emit('changed', this.filters.filter(d => d.type !== type));
+      this.$emit(
+        'changed',
+        this.filters.filter(d => d.type !== type),
+      )
     },
     /**
      * @param {Filter[]} daterangeFilters
      */
     updateDaterangeFilters(daterangeFilters) {
-      this.$emit('changed', this.filters
-        .filter(({ type }) => type !== 'daterange')
-        .concat(daterangeFilters));
+      this.$emit(
+        'changed',
+        this.filters.filter(({ type }) => type !== 'daterange').concat(daterangeFilters),
+      )
     },
     /**
      * @param {string} type
@@ -153,7 +176,7 @@ export default {
       const mergedFilters = this.filters
         .map(filter => {
           if (filter.type === type) {
-            if (updatedFiltersIndex < (updatedFilters.length - 1)) {
+            if (updatedFiltersIndex < updatedFilters.length - 1) {
               updatedFiltersIndex += 1
               return updatedFilters[updatedFiltersIndex - 1]
             }
@@ -171,30 +194,31 @@ export default {
     FilterTimeline,
     FilterFacet,
     FilterRange,
+    FilterFacetDateRange,
   },
-};
+}
 </script>
 
 <style scoped lang="scss">
-.facet-filter{
+.facet-filter {
   display: grid;
   grid-template-columns: auto min-content;
-  grid-template-areas: "left" "right";
-  .left{
-    grid-area: "left"
+  grid-template-areas: 'left' 'right';
+  .left {
+    grid-area: 'left';
   }
-  .right{
+  .right {
     opacity: 0;
-    grid-area: "right"
+    grid-area: 'right';
   }
-  &:hover{
-    .right{
+  &:hover {
+    .right {
       opacity: 1;
     }
   }
 }
 
-.filter-opts{
+.filter-opts {
   position: absolute;
   width: 240px;
   left: auto;
@@ -204,7 +228,6 @@ export default {
   border: 1px solid;
   box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 }
-
 </style>
 <i18n>
   {
