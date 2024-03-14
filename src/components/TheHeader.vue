@@ -188,7 +188,9 @@
     <b-alert :show="showAlert" dismissible variant="warning" class="m-0 px-3">
       <div v-for="(error, idx) in errorMessages" v-bind:key="idx">
         <span>
-          <span v-if="error.name === 'NotAuthenticated'">{{ $t('errors.Notauthenticated') }}</span>
+          <span v-if="error.name === 'NotAuthenticated' && user">{{
+            $t('errors.Notauthenticated')
+          }}</span>
           <span v-else-if="error.name === 'BadGateway'">{{
             $t(`errors.BadGateway.${error.message}`)
           }}</span>
@@ -310,6 +312,13 @@ export default {
       return this.$store.state.settings.language_code
     },
     showAlert() {
+      if (
+        this.$store.state.errorMessages.length &&
+        !user &&
+        this.$store.state.errorMessages[0].name === 'NotAuthenticated'
+      ) {
+        return false
+      }
       return this.$store.state.errorMessages.length > 0
     },
     errorMessages() {

@@ -24,7 +24,7 @@
     "@feathersjs/feathers": "4.3.3",
     "@feathersjs/socketio-client": "4.3.3",
     "axios": "^0.24.0",
-    "bootstrap-vue": "2.2.2",
+    "bootstrap-vue": "2.22.0",
     "core-js": "3.6.4",
     "d3": "5.15.0",
     "diff": "^5.1.0",
