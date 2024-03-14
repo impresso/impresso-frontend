@@ -292,8 +292,15 @@ $clr-grey-900: #ddd;
   --accent: #28a745;
   --impresso-yellow: #ffeb78;
   --border-radius-sm: 3px;
+  --border-radius-md: 8px;
+  --bs-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.125);
+  --bs-box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  --bs-box-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.075);
 }
-
+.rounded {
+  border-radius: var(--border-radius-md) !important;
+}
 .bg-medium {
   background: $clr-grey-900;
 }
