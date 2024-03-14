@@ -9,9 +9,8 @@
           type="text"
           placeholder="..."
           autocomplete="off"
-          class="rounded"
         ></b-form-input>
-        <b-input-group-append>
+        <b-input-group-append v-if="showCalendar">
           <b-form-datepicker
             button-only
             right
@@ -39,7 +38,7 @@
           placeholder="..."
           autocomplete="off"
         ></b-form-input>
-        <b-input-group-append>
+        <b-input-group-append v-if="showCalendar">
           <b-form-datepicker
             button-only
             right
@@ -77,6 +76,7 @@ export default {
     maxDate: { type: Date, required: true },
     startDate: { type: Date, required: false },
     endDate: { type: Date, required: false },
+    showCalendar: { type: Boolean, default: true },
   },
   computed: {
     /**
