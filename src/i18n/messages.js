@@ -61,6 +61,7 @@ export default {
     actions: {
       search: 'Search',
       addFilter: 'Add filter ...',
+      addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
       agree: 'I agree to the terms of use',
       accept: 'accept',
@@ -275,7 +276,7 @@ export default {
       type: {
         title: 'Article content type | Article content types | Article content types',
         optionsTitle: 'Article content type',
-        filterTitle: 'filter by article type',
+        filterTitle: 'article type',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> article types applies',
         description: 'check one or more article types to filter results',
@@ -287,7 +288,7 @@ export default {
       },
       topic: {
         title: 'Topic | Topic | Topics',
-        filterTitle: 'filter by topic',
+        filterTitle: 'topic',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> topic applies',
         description: 'check one or more topics to filter results',
@@ -295,7 +296,7 @@ export default {
       },
       person: {
         title: 'Person | Person | Persons',
-        filterTitle: 'filter by person',
+        filterTitle: 'person',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> people are mentioned',
         description: 'check one or more persons to filter results',
@@ -303,7 +304,7 @@ export default {
       },
       location: {
         title: 'Location | Location | Locations',
-        filterTitle: 'filter by location',
+        filterTitle: 'location',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> locations are mentioned',
         description: 'check one or more locations to filter results',
@@ -311,7 +312,7 @@ export default {
       },
       collection: {
         title: 'Collection | Collection | Collections',
-        filterTitle: 'filter by collection',
+        filterTitle: 'collection',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> collection applies',
         description: 'check one or more collection to filter results',
@@ -320,7 +321,7 @@ export default {
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
-        filterTitle: 'filter by newspaper titles',
+        filterTitle: 'newspaper titles',
         filtered: 'results are filtered when:',
         selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
         description: 'check one or more newspaper to filter results',
@@ -328,7 +329,7 @@ export default {
       },
       language: {
         title: 'Language | Language | Languages',
-        filterTitle: 'filter by language of articles',
+        filterTitle: 'language of articles',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are written in <b>one of {count} selected</b> languages',
         description: 'check one or more language to filter results',
@@ -336,7 +337,7 @@ export default {
       },
       country: {
         title: 'Country | Country | Countries',
-        filterTitle: 'filter by country of publication',
+        filterTitle: 'country of publication',
         filtered: 'results are filtered when:',
         selected:
           'filter results if they are published in <b>one of {count} selected</b> countries',
@@ -345,7 +346,7 @@ export default {
       },
       accessRight: {
         title: 'Access right | Access right | Access Rights',
-        filterTitle: 'filter by access right',
+        filterTitle: 'access right',
         filtered: 'results are filtered when:',
         selected: 'filter results if their access right is <b>one of {count} selected</b>',
         description: 'filter results based on access right',
@@ -357,7 +358,7 @@ export default {
       },
       partner: {
         title: 'Data Provider | Data Provider | Data Providers',
-        filterTitle: 'filter by archive',
+        filterTitle: 'archive',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are published in <b>one of {count} selected</b> archives',
         description: 'check one or more data provider to filter results',
@@ -365,7 +366,7 @@ export default {
       },
       contentLength: {
         title: 'Content Length | Content Length | Content Lengths',
-        filterTitle: 'filter by content length',
+        filterTitle: 'content length',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are within the range',
         description: 'total number of articles per content length',
@@ -380,7 +381,7 @@ export default {
         title: 'Text reuse clusters',
         description: 'check one or more text reuse cluster to filter results',
         selected: 'filter results if <b>one of {count} selected</b> text reuse cluster applies',
-        filterTitle: 'filter by text reuse clusters',
+        filterTitle: 'text reuse clusters',
         filtered: 'results are filtered when:',
         empty: '(no results)',
         context: {
