@@ -48,9 +48,11 @@
         </p>
 
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
-          info @ impresso-project [dot] ch
-          <br />
-          project website: <a href="/" target="_blank">impresso-project.ch</a>
+          <p>
+            info @ impresso-project [dot] ch
+            <br />
+            project website: <a href="/" target="_blank">impresso-project.ch</a>
+          </p>
           <br />
           <img
             src="@/assets/img/GitHub-Mark-Light-32px.png"
@@ -91,6 +93,141 @@
     <i-layout-section
       :class="{ ' ml-1px border-top border-left': showLines, 'border-tertiary': darkMode }"
     >
+      <div class="container-fluid text-tertiary">
+        <div class="row">
+          <div class="col">
+            <h1 class="huge m-4 my-2">
+              Media Monitoring <br />of the <span class="text-accent">Past</span>
+            </h1>
+            <section
+              v-if="!user"
+              class="p-3 mb-3 mt-5 text-tertiary rounded enhance-contents position-relative shadow"
+            >
+              <div class="starburst-mask">
+                <div class="starburst-wrapper">
+                  <div class="position-absolute text">
+                    Gain full Access for <b>free</b>!<br />
+                    <div class="dripicons-jewel"></div>
+                  </div>
+                  <div class="position-absolute rotating">
+                    <div class="starburst example" id="example-2"><span>&nbsp;</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <p>
+                For legal reasons not all content is available.
+                <br />
+                To gain access to the <b class="text-white">full impresso corpus</b> please
+                <router-link class="text-white" :to="{ name: 'register' }">register</router-link>
+                and sign our Non-Disclosure-Agreement.
+              </p>
+              <b-button
+                :variant="darkMode ? 'primary' : 'outline-primary'"
+                size="sm"
+                href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
+                target="_self"
+              >
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons dripicons-download mr-2" />
+                  <div>{{ $t('download_nda') }}</div>
+                </div>
+              </b-button>
+              <p class="mb-0 mt-3">
+                ... and return the signed form to
+                <a class="text-white" href="mailto:info@impresso-project.ch" target="_self"
+                  >info@impresso-project.ch</a
+                >
+              </p>
+            </section>
+
+            <section class="mx-4">
+              <p style="font-size: 1.2em">
+                How can newspapers help understand the past? How to explore them?
+              </p>
+
+              <p class="text-white my-5">
+                Take a moment to familiarise yourself with <em>impresso</em>'s
+                <b>advanced search</b> and <b> exploration workflows</b>
+              </p>
+
+              <b-container class="challenges my-4 enhance-contents border-0 p-0 rounded shadow">
+                <b-row class="p-0">
+                  <b-col lg="6" md="12">
+                    <img
+                      src="./../assets/img/challenges-screenshot.png"
+                      class="w-100"
+                      alt="impresso challenges"
+                    />
+                  </b-col>
+                  <b-col lg="6" md="12">
+                    <div class="py-3 pr-3 ">
+                      <h3 :class="{ 'text-white': darkMode }">
+                        <i class="pb-3">Impresso Challenges</i>
+                      </h3>
+                      <p :class="{ 'text-white': darkMode }">
+                        <b
+                          >How to explore the newspapers with persons or locations? <br />What are
+                          topics good for? <br />What elements can be compared?
+                        </b>
+                      </p>
+                      <p>
+                        Get a better understanding of this interfaces’ features and how they can
+                        interact with 3 challenges, starting with an initiation and leading to an
+                        expert level use of the interface.
+                      </p>
+                      <b-button
+                        :variant="darkMode ? 'primary' : 'outline-primary'"
+                        size="sm"
+                        href="./../assets/impresso-challenges-1.2.3.pdf"
+                        target="_blank"
+                      >
+                        <div class="d-flex flex-row align-items-center">
+                          <div class="d-flex dripicons dripicons-download mr-2" />
+                          <div>
+                            download challenges
+                            <b-badge pill variant="secondary" class="ml-1">PDF</b-badge>
+                          </div>
+                        </div>
+                      </b-button>
+                    </div>
+                  </b-col>
+                </b-row>
+              </b-container>
+            </section>
+          </div>
+          <div class="col">
+            <h2 class="text-white mt-5">
+              Mining 200 years <br />of historical newspapers, and radio.
+            </h2>
+            <p class="text-white">
+              Just a few examples to get you started!
+            </p>
+            <div v-for="recipe in recipes" :key="recipe.caption">
+              {{ recipe.caption }}
+
+              <p>{{ recipe.text }}</p>
+
+              <a
+                v-bind:href="recipe.query"
+                class="btn border-primary text-dark bg-light small-caps mr-1"
+                v-if="recipe.query"
+                >{{ $t('perform_query') }}</a
+              >
+              <a
+                v-bind:href="recipe.video"
+                target="_blank"
+                class="btn btn-secondary text-light small-caps"
+                >{{ $t('watch_video') }}</a
+              >
+
+              <a v-bind:href="recipe.video" target="_blank">
+                <img v-bind:src="recipe.img_src" class="img-fluid" :title="recipe.query" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="text-tertiary p-3">
         <h1 class="huge m-4 my-2">
           Media Monitoring <br />of the <span class="text-accent">Past</span>
@@ -102,111 +239,7 @@
           Mining 200 years <br />of historical newspapers
           <info-button name="which-newspapers" class="ml-2 mt-1 d-inline-block" />
         </h2>
-        <section class="mx-4">
-          <p style="font-size: 1.2em">
-            How can newspapers help understand the past? How to explore them?
-          </p>
 
-          <section v-if="!user" class="p-3 mb-3 mt-5 enhance-contents position-relative shadow">
-            <div class="starburst-mask">
-              <div class="starburst-wrapper">
-                <div class="position-absolute text">
-                  Gain full Access for <b>free</b>!<br />
-                  <div class="dripicons-jewel"></div>
-                </div>
-                <div class="position-absolute rotating">
-                  <div class="starburst example" id="example-2"><span>&nbsp;</span></div>
-                </div>
-              </div>
-            </div>
-
-            <p>
-              For legal reasons not all content is available.
-              <br />
-              To gain access to the <b class="text-white">full impresso corpus</b> please
-              <router-link class="text-white" :to="{ name: 'register' }">register</router-link> and
-              sign our Non-Disclosure-Agreement.
-            </p>
-            <b-button
-              :variant="darkMode ? 'primary' : 'outline-primary'"
-              size="sm"
-              href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
-              target="_self"
-            >
-              <div class="d-flex flex-row align-items-center">
-                <div class="d-flex dripicons dripicons-download mr-2" />
-                <div>{{ $t('download_nda') }}</div>
-              </div>
-            </b-button>
-            <p class="mb-0 mt-3">
-              ... and return the signed form to
-              <a class="text-white" href="mailto:info@impresso-project.ch" target="_self"
-                >info@impresso-project.ch</a
-              >
-            </p>
-          </section>
-          <p class="text-center text-white my-5">
-            Take a moment to familiarise yourself with <em>impresso</em>'s
-            <b>advanced search</b> and <b> exploration workflows</b>
-          </p>
-          <div class="border-bottom" style="position: relative">
-            <div
-              class="arrow-down"
-              style="
-                position: absolute;
-                left: 50%;
-                margin-left: -20px;
-                top: -1px;
-                border-top-color: #343a40;
-              "
-            ></div>
-          </div>
-          <div class="arrow-down mx-auto"></div>
-          <b-container class="challenges my-4 enhance-contents border-0 p-0">
-            <b-row class="p-0">
-              <b-col lg="6" md="12">
-                <img
-                  src="./../assets/img/challenges-screenshot.png"
-                  class="w-100"
-                  alt="impresso challenges"
-                />
-              </b-col>
-              <b-col lg="6" md="12">
-                <div class="py-3 pr-3">
-                  <h3 :class="{ 'text-white': darkMode }">
-                    <i class="pb-3">Impresso Challenges</i>
-                  </h3>
-                  <p :class="{ 'text-white': darkMode }">
-                    <b
-                      >How to explore the newspapers with persons or locations? <br />What are
-                      topics good for? <br />What elements can be compared?
-                    </b>
-                  </p>
-                  <p>
-                    Get a better understanding of this interfaces’ features and how they can
-                    interact with 3 challenges, starting with an initiation and leading to an expert
-                    level use of the interface.
-                  </p>
-                  <b-button
-                    :variant="darkMode ? 'primary' : 'outline-primary'"
-                    size="sm"
-                    href="./../assets/impresso-challenges-1.2.3.pdf"
-                    target="_blank"
-                  >
-                    <div class="d-flex flex-row align-items-center">
-                      <div class="d-flex dripicons dripicons-download mr-2" />
-                      <div>
-                        download challenges
-                        <b-badge pill variant="secondary" class="ml-1">PDF</b-badge>
-                      </div>
-                    </div>
-                  </b-button>
-                </div>
-              </b-col>
-            </b-row>
-          </b-container>
-          <p class="text-center text-white">... then here are a few examples to get you started!</p>
-        </section>
         <div class="border-bottom" style="position: relative">
           <div
             class="arrow-down"
@@ -239,6 +272,7 @@ import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { optimizeFilters, serializeFilters, joinFiltersWithItems } from '@/logic/filters'
 import { getFilterQuery } from '../models/SearchQuery'
 // import SearchQuery from '@/models/SearchQuery';
+import content from '@/assets/homepage.json'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -265,6 +299,7 @@ export default {
     /** @type {Filter[]} */
     filtersWithItems: [],
     impressoInfo: window.impressoInfo,
+    recipes: content.recipes,
   }),
   props: {
     showLines: {
