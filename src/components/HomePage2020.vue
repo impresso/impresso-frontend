@@ -52,23 +52,38 @@
           <br />
           project website: <a href="/" target="_blank">impresso-project.ch</a>
           <br />
-          <img src="@/assets/img/GitHub-Mark-Light-32px.png" class="mr-2" style="max-height: 1em" />
-          github: <a href="https://github.com/impresso" target="_blank">impresso</a>
-          <br />
           <img
-            src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
+            src="@/assets/img/GitHub-Mark-Light-32px.png"
+            alt="GitHub icon"
             class="mr-2"
             style="max-height: 1em"
           />
-          twitter:
-          <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
+          github:
+          <a :href="impressoInfo.project.repoUrl" target="_blank">
+            {{ impressoInfo.project.repoUrlLabel }}</a
+          >
+          <p>
+            <img
+              src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
+              class="mr-2"
+              style="max-height: 1em"
+              alt="X (former witter) icon"
+            />
+            X (former witter):
+            <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
+          </p>
+          <p>
+            version:
+            <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
+              {{ impressoInfo.frontend.version }}</a
+            >
+            <br />
+            middle layer:
+            <a :href="impressoInfo.middleLayer.gitCommitUrl" target="_blank">
+              {{ impressoInfo.middleLayer.version }}</a
+            >
+          </p>
         </div>
-        <!-- <br>
-      <viz-bar-multi title="Langues" variant="compact" :items="[{name: 'Français', count: 70}, {name: 'Deutsch', count: 20}, {name: 'English', count: 10}]" />
-      <viz-bar-multi title="OCR / OLR" variant="compact" :items="[{name: 'OCR', count: 20}, {name: 'OLR', count: 80}]" />
-      <viz-bar-multi title="Statistiques" variant="compact" :items="[{name: 'Ravioli', count: 110}, {name: 'Spaghetti', count: 20}, {name: 'Penne', count: 70}]" />
-      <viz-bar-multi title="Autres" :items="[{name: 'ita', count: 35}, {name: 'FRançais', count: 60}, {name: 'DEutsch', count: 25}, {name: 'ENglish newsppapa', count: 10}]" />
-      <viz-bar-multi :items="[{name: 'FRançais', count: 20}, {name: 'DEutsch', count: 70}, {name: 'ENglish newsppapa', count: 10}]" /> -->
 
         <br />
       </div>
@@ -91,7 +106,8 @@
           <p style="font-size: 1.2em">
             How can newspapers help understand the past? How to explore them?
           </p>
-          <div class="p-3 mb-3 mt-5 enhance-contents position-relative shadow">
+
+          <section v-if="!user" class="p-3 mb-3 mt-5 enhance-contents position-relative shadow">
             <div class="starburst-mask">
               <div class="starburst-wrapper">
                 <div class="position-absolute text">
@@ -128,7 +144,7 @@
                 >info@impresso-project.ch</a
               >
             </p>
-          </div>
+          </section>
           <p class="text-center text-white my-5">
             Take a moment to familiarise yourself with <em>impresso</em>'s
             <b>advanced search</b> and <b> exploration workflows</b>
@@ -248,6 +264,7 @@ export default {
   data: () => ({
     /** @type {Filter[]} */
     filtersWithItems: [],
+    impressoInfo: window.impressoInfo,
   }),
   props: {
     showLines: {
@@ -283,6 +300,9 @@ export default {
       }
       return query
     },
+    user() {
+      return this.$store.getters['user/user']
+    },
   },
   methods: {
     handleFiltersChanged(filters) {
@@ -315,7 +335,7 @@ export default {
             },
           })
           .then(joinFiltersWithItems)
-          .then((filtersWithItems) => {
+          .then(filtersWithItems => {
             this.filtersWithItems = filtersWithItems
           })
       },
