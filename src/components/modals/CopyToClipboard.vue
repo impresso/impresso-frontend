@@ -476,6 +476,15 @@ export default {
   margin-top: 0.5rem;
   margin-bottom: 0.25rem;
 }
+
+.CopyToClipboard label {
+  text-transform: uppercase;
+  font-size: var(--impresso-font-size-smallcaps);
+  font-variant: normal;
+  letter-spacing: var(--impresso-letter-spacing-smallcaps);
+  font-weight: var(--impresso-wght-smallcaps);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
+}
 @media (min-width: 992px) {
   .CopyToClipboard.modal-dialog {
     max-width: 800px;

@@ -295,7 +295,6 @@ label {
 }
 
 .checkbox label,
-label[for],
 .small-caps {
   text-transform: uppercase;
   font-size: var(--impresso-font-size-smallcaps);
