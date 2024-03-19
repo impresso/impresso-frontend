@@ -179,8 +179,14 @@ $clr-grey-900: #ddd;
 
 :root {
   --impresso-color-paper: #fafbf2;
+
   --impresso-color-yellow-code: 255, 235, 120;
   --impresso-color-yellow: #ffeb78;
+  --impresso-color-yellow-alpha-20: rgba(255, 235, 120, 0.2);
+  --impresso-color-yellow-alpha-30: rgba(255, 235, 120, 0.3);
+  --impresso-color-yellow-alpha-50: rgba(255, 235, 120, 0.5);
+  --impresso-color-yellow-alpha-80: rgba(255, 235, 120, 0.8);
+
   --impresso-color-black: #343a40;
   --impresso-color-black-rgb: 52, 58, 64;
   --impresso-border-radius-xs: 5px;
@@ -188,8 +194,8 @@ $clr-grey-900: #ddd;
   --impresso-border-radius-md: 15px;
   --impresso-border-radius-lg: 20px;
   --impresso-border-radius-xl: 30px;
-  --impresso-font-size-smallcaps: 0.68em;
-  --impresso-letter-spacing-smallcaps: 0.8px;
+  --impresso-font-size-smallcaps: 0.72em;
+  --impresso-letter-spacing-smallcaps: 0.85px;
   --impresso-wght-smallcaps: 580;
   --clr-white: #ffffff;
   --clr-grey-100: #17191c;
@@ -235,6 +241,7 @@ body {
   font-family: var(--bs-font-sans-serif);
   font-weight: 450;
   font-variation-settings: 'wght' 450;
+  text-rendering: optimizeLegibility;
 }
 body,
 html {
@@ -269,7 +276,6 @@ em {
 }
 .text-sans,
 .sans,
-label,
 legend,
 .small-caps,
 .textbox-fancy .label,
@@ -281,6 +287,15 @@ h6.dropdown-header {
   font-weight: 450;
   font-variation-settings: 'wght' 450;
 }
+
+label {
+  font-family: var(--bs-font-sans-serif);
+  font-weight: 450;
+  font-variation-settings: 'wght' 450;
+}
+
+.checkbox label,
+label[for],
 .small-caps {
   text-transform: uppercase;
   font-size: var(--impresso-font-size-smallcaps);
@@ -367,6 +382,13 @@ h6.dropdown-header {
   position: absolute;
   top: 3px;
   left: 3px;
+}
+.btn-md {
+  border-radius: var(--impresso-border-radius-sm);
+  box-shadow: var(--bs-box-shadow-sm);
+  border-width: 0;
+
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
 .shadow-sm {
   box-shadow: var(--bs-box-shadow-sm);
@@ -888,6 +910,11 @@ input[type='range']:active::-ms-thumb {
     background: gold;
     color: black;
   }
+}
+.badge {
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--bs-box-shadow-sm);
+  font-size: var(--impresso-font-size-smallcaps);
 }
 
 .badge-info {

@@ -1,5 +1,5 @@
 <template>
-  <b-media class="py-3 border-bottom  search-result-list-item">
+  <b-media class="py-3 border-bottom  search-result-list-item SearchResultListItem">
     <div v-if="isAvailable()" class="thumbnail" slot="aside">
       <IIIFFragment
         @click="goToArticle"
@@ -13,7 +13,7 @@
       <p class="message">{{ $t('login_message') }}</p>
     </div>
     <div class="d-flex">
-      <div class="list-item-details">
+      <div class="list-item-details me-3 mr-3">
         <!-- if article -->
         <article-item
           :item="article"
@@ -89,6 +89,16 @@
           </b-button>
         </div>
       </div>
+      <div>
+        <p>Extrait:</p>
+        <IIIFFragment
+          @click="goToArticle"
+          v-if="coordsFromArticleRegion"
+          :iiif="article.pages[0].iiif"
+          size="!250,240"
+          :coords="article.regions[0].coords"
+        />
+      </div>
       <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
         <b-checkbox
           class="mr-0 select-item"
@@ -115,6 +125,7 @@ const MatchOverlayClass = 'overlay-match'
 export default {
   data: () => ({
     showModalShare: false,
+    coordsFromArticleRegion: null,
   }),
   model: {
     prop: 'article',
@@ -199,6 +210,38 @@ export default {
         },
       })
     },
+    getCoordsFromArticleRegions() {
+      let x0 = Infinity
+      let x1 = 0
+      let y0 = Infinity
+      let y1 = 0
+
+      this.article.regions.forEach(d => {
+        if (d.coords.x < x0) {
+          x0 = d.coords.x
+        }
+        if (d.coords.y < y0) {
+          y0 = d.coords.y
+        }
+        if (d.coords.x + d.coords.w > x1) {
+          x1 = d.coords.x + d.coords.w
+        }
+        if (d.coords.y + d.coords.h > y1) {
+          y1 = d.coords.y + d.coords.h
+        }
+      })
+      return {
+        x: x0,
+        y: y0,
+        w: x1 - x0,
+        h: y1 - y0,
+      }
+    },
+  },
+  mounted() {
+    if (this.article.pages.length > 0 && this.article.regions.length > 0) {
+      this.coordsFromArticleRegion = this.getCoordsFromArticleRegions()
+    }
   },
   components: {
     LazyOpenSeadragonArticlePageViewer,
@@ -211,8 +254,10 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
-.search-result-list-item {
+.SearchResultListItem .list-item-details {
+  max-width: 800px;
+}
+.SearchResultListItem {
   .thumbnail {
     width: 215px;
     height: 240px;
@@ -231,7 +276,6 @@ export default {
   h2 {
     font-size: 1.2em;
     font-weight: 500;
-    font-family: 'questa', serif;
     a {
       text-decoration: underline;
       // text-decoration-color:#ccc;
@@ -240,19 +284,9 @@ export default {
       }
     }
   }
-  .article-matches,
-  .article-meta,
-  .article-excerpt {
-    font-size: 0.9em;
-  }
-  ul.article-matches {
-    list-style: none;
-    padding: 0;
-    li {
-      border-left: 2px solid black;
-      margin: 1em 0;
-      padding-left: 1em;
-    }
+
+  .article-collections .badge {
+    font-size: inherit;
   }
 }
 </style>

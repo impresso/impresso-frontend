@@ -124,7 +124,8 @@
               </p>
               <b-button
                 :variant="darkMode ? 'primary' : 'outline-primary'"
-                size="sm"
+                size="lg"
+                class="border-primary rounded shadow-sm"
                 href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
                 target="_self"
               >

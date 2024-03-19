@@ -1,34 +1,40 @@
 <template lang="html">
   <div>
     <div class="mt-2">
-      <search-pills :filters="filters"
+      <search-pills
+        :filters="filters"
         :includedFilterTypes="supportedFilterTypes"
         @changed="handleFiltersChanged"
         :index="'tr_passages'"
-        :enableAddFilter="true" />
+        :enableAddFilter="true"
+      />
     </div>
 
-    <search-input class="mt-3"
-        @submit="onSubmitted"
-        :initial="value"
-        :placeholder="$t('placeholder')"/>
+    <search-input
+      class="mt-3"
+      @submit="onSubmitted"
+      :initial="value"
+      :placeholder="$t('placeholder')"
+    />
 
     <div class="mt-3">
-      <label class="mr-2">{{$t('sortBy')}}</label>
-      <i-dropdown v-model="orderByModel"
-      :options="orderByOptions"
-      size="sm"
-      variant="outline-primary" />
+      <label class="mr-2">{{ $t('sortBy') }}</label>
+      <i-dropdown
+        v-model="orderByModel"
+        :options="orderByOptions"
+        size="sm"
+        variant="outline-primary"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import SearchInput from '@/components/modules/SearchInput'
-import SearchPills from '@/components/SearchPills';
+import SearchPills from '@/components/SearchPills'
 
 const SortingMethod = {
-  PassagesCount: 'passages-count'
+  PassagesCount: 'passages-count',
 }
 
 export default {
@@ -40,16 +46,16 @@ export default {
     },
     filters: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     supportedFilterTypes: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   components: {
     SearchInput,
-    SearchPills
+    SearchPills,
   },
   methods: {
     onSubmitted({ q }) {
@@ -57,12 +63,12 @@ export default {
     },
     handleFiltersChanged(filters) {
       this.$emit('filtersChanged', filters)
-    }
+    },
   },
   computed: {
     orderByModel: {
       get() {
-        return this.orderBy || '';
+        return this.orderBy || ''
       },
       set(val) {
         this.$emit('orderByChanged', val === '' ? undefined : val)
@@ -84,20 +90,12 @@ export default {
           value: SortingMethod.PassagesCount,
           text: `${this.$t('sort.passagesCount')} ${this.$t('sort.asc')}`,
           disabled: false,
-        }
-      ];
-    }
-  }
-};
+        },
+      ]
+    },
+  },
+}
 </script>
-
-<style lang="scss" scoped>
-  @import "impresso-theme/src/scss/variables.sass";
-  .label {
-    font-family: $font-family-sans-serif;
-    font-variant: all-small-caps;
-  }
-</style>
 
 <i18n>
 {
