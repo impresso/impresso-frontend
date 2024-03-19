@@ -142,21 +142,22 @@
             </section>
 
             <section class="mx-4">
-              <p style="font-size: 1.2em">
+              <h2>
                 How can newspapers help understand the past? How to explore them?
-              </p>
+              </h2>
 
               <p class="text-white my-5">
                 Take a moment to familiarise yourself with <em>impresso</em>'s
                 <b>advanced search</b> and <b> exploration workflows</b>
               </p>
 
-              <b-container class="challenges my-4 enhance-contents border-0 p-0 rounded shadow">
-                <b-row class="p-0">
+              <b-container class="challenges my-4 enhance-contents border-0 p-0  shadow">
+                <b-row class="p-0 rounded" style="overflow: hidden">
                   <b-col lg="6" md="12">
                     <img
                       src="./../assets/img/challenges-screenshot.png"
-                      class="w-100"
+                      class="w-100 h-100"
+                      style="object-fit: contain; object-position: center; border-start-start-radius: var(--border-radius-md);border-end-start-radius: var(--border-radius-md);opacity:.8"
                       alt="impresso challenges"
                     />
                   </b-col>
@@ -178,15 +179,16 @@
                       </p>
                       <b-button
                         :variant="darkMode ? 'primary' : 'outline-primary'"
-                        size="sm"
+                        size="lg"
                         href="./../assets/impresso-challenges-1.2.3.pdf"
                         target="_blank"
+                        class="rounded border-0"
                       >
                         <div class="d-flex flex-row align-items-center">
                           <div class="d-flex dripicons dripicons-download mr-2" />
-                          <div>
+                          <div class="small-caps">
                             download challenges
-                            <b-badge pill variant="secondary" class="ml-1">PDF</b-badge>
+                            <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
                           </div>
                         </div>
                       </b-button>
@@ -203,58 +205,21 @@
             <p class="text-white">
               Just a few examples to get you started!
             </p>
-            <div v-for="recipe in recipes" :key="recipe.caption">
-              {{ recipe.caption }}
-
-              <p>{{ recipe.text }}</p>
-
-              <a
-                v-bind:href="recipe.query"
-                class="btn border-primary text-dark bg-light small-caps mr-1"
-                v-if="recipe.query"
-                >{{ $t('perform_query') }}</a
-              >
-              <a
-                v-bind:href="recipe.video"
-                target="_blank"
-                class="btn btn-secondary text-light small-caps"
-                >{{ $t('watch_video') }}</a
-              >
-
-              <a v-bind:href="recipe.video" target="_blank">
-                <img v-bind:src="recipe.img_src" class="img-fluid" :title="recipe.query" />
-              </a>
+            <div class="d-flex flex-wrap">
+              <Recipe
+                v-for="recipe in recipes"
+                class="m-3 p-3"
+                :key="recipe.caption"
+                :caption="recipe.caption"
+                :text="recipe.text"
+                :video="recipe.video"
+                :img_src="recipe.img_src"
+              />
             </div>
           </div>
         </div>
       </div>
-      <div class="text-tertiary p-3">
-        <h1 class="huge m-4 my-2">
-          Media Monitoring <br />of the <span class="text-accent">Past</span>
-        </h1>
-        <!-- <h1 class="text-white mt-5">Today, 100 years ago.</h1>
-      This section lists front pages with the most important events. -->
 
-        <h2 class="p-4 m-0">
-          Mining 200 years <br />of historical newspapers
-          <info-button name="which-newspapers" class="ml-2 mt-1 d-inline-block" />
-        </h2>
-
-        <div class="border-bottom" style="position: relative">
-          <div
-            class="arrow-down"
-            style="
-              position: absolute;
-              left: 50%;
-              margin-left: -20px;
-              top: -1px;
-              border-top-color: #343a40;
-            "
-          ></div>
-        </div>
-        <div class="arrow-down mx-auto"></div>
-        <recipes :dark-mode="darkMode" class="mt-2" />
-      </div>
       <home-page-footer />
     </i-layout-section>
   </i-layout>
@@ -267,6 +232,7 @@ import SearchPills from '@/components/SearchPills'
 import Recipes from './modules/homepage/Recipes'
 import HomePageFooter from './HomePageFooter'
 import InfoButton from './base/InfoButton'
+import Recipe from './Recipe'
 import { filtersItems as filtersItemsService } from '@/services'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { optimizeFilters, serializeFilters, joinFiltersWithItems } from '@/logic/filters'
@@ -384,6 +350,7 @@ export default {
     HomePageFooter,
     InfoButton,
     SearchPills,
+    Recipe,
   },
 }
 </script>

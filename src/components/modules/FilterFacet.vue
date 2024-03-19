@@ -53,7 +53,7 @@
     <div
       v-for="{ filter, filterIndex } in includedFilterItems"
       :key="filterIndex"
-      class="bg-white border p-2"
+      class=" p-2 bg-white border rounded shadow-sm my-2"
     >
       <filter-monitor
         :items-to-add="selectedBucketsItems"
@@ -65,7 +65,7 @@
     <div
       v-for="{ filter, filterIndex } in excludedFilterItems"
       :key="filterIndex"
-      class="bg-light border p-2"
+      class=" p-2 bg-white border rounded shadow-sm my-2"
     >
       <filter-monitor
         :filter="filter"

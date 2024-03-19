@@ -15,7 +15,8 @@
       class="py-0 pr-1 border-primary"
     >
       <b-navbar-brand :to="getRouteWithSearchQuery({ name: 'home' })">
-        <img src="./../assets/img/impresso-logo-h-i@2x.png" />
+        <!-- <img v-if="" src="./../assets/img/impresso-logo-h-i@2x.png" /> -->
+        <Logo />
       </b-navbar-brand>
 
       <b-navbar-nav>
@@ -217,6 +218,7 @@ import Icon from 'vue-awesome/components/Icon'
 import JobItem from '@/components/modules/lists/JobItem'
 import Pagination from '@/components/modules/Pagination'
 import SearchQueryExplorer from './modals/SearchQueryExplorer'
+import Logo from '@/components/Logo'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { BNavText } from 'bootstrap-vue'
 
@@ -441,6 +443,7 @@ export default {
   },
   components: {
     Icon,
+    Logo,
     // Toast,
     JobItem,
     Pagination,
