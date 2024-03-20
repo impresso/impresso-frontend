@@ -26,26 +26,11 @@
           class="position-relative"
         >
           <span>{{ $tc('label_search', 0) }}</span>
-          <transition name="bounce">
+          <!-- <transition name="bounce">
             <b-badge v-if="countActiveFilters" pill variant="tiny" class="position-absolute">
             </b-badge>
-          </transition>
+          </transition> -->
         </b-nav-item>
-
-        <b-nav-item-dropdown no-caret v-if="countActiveFilters" ref="ddownSearchResults">
-          <template slot="button-content">
-            <span :title="$t('label_current_search')">...</span>
-          </template>
-          <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" :to="{ name: 'search' }">
-            {{$t('actions.resetQuery')}}
-          </b-button> -->
-          <search-query-explorer
-            style="min-width: 400px"
-            class="px-2"
-            :search-query="searchQuery"
-            dark-mode
-          />
-        </b-nav-item-dropdown>
 
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
           <span>{{ $t('label_newspapers') }}</span>
@@ -217,7 +202,6 @@
 import Icon from 'vue-awesome/components/Icon'
 import JobItem from '@/components/modules/lists/JobItem'
 import Pagination from '@/components/modules/Pagination'
-import SearchQueryExplorer from './modals/SearchQueryExplorer'
 import Logo from '@/components/Logo'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { BNavText } from 'bootstrap-vue'
@@ -447,7 +431,6 @@ export default {
     // Toast,
     JobItem,
     Pagination,
-    SearchQueryExplorer,
     BNavText,
   },
 }
@@ -741,7 +724,7 @@ export default {
     "label_text_reuse": "Text reuse",
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
-    "label_faq": "Faq",
+    "label_faq": "Help",
     "label_jobs" : "Running tasks",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
