@@ -182,6 +182,36 @@ Promise.race([
         firstYear: new Date(documentsDateSpan.firstDate).getFullYear(),
         lastYear: new Date(documentsDateSpan.lastDate).getFullYear(),
       }
+      window.impressoInfo = {
+        frontend: {
+          version: window.impressoFrontendVersion,
+          revision: window.impressoFrontendRevision,
+          branch: window.impressoFrontendBranch,
+          gitRepoUrl: process.env.VUE_APP_GIT_REPO,
+          gitCommitUrl: `${process.env.VUE_APP_GIT_REPO}/commit/${window.impressoFrontendRevision}`,
+          gitCommitUrlLabel: process.env.VUE_APP_GIT_REPO.split('/')
+            .slice(3, 5)
+            .join('/'),
+        },
+        middleLayer: {
+          version: 'v' + window.impressoApiVersion.version,
+          revision: window.impressoApiVersion.revision,
+          branch: window.impressoApiVersion.branch,
+          gitRepoUrl: process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO,
+          gitCommitUrl: `${process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO}/commit/${window.impressoApiVersion.revision}`,
+          gitCommitUrlLabel: process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO.split('/')
+            .slice(3, 5)
+            .join('/'),
+        },
+        project: {
+          repoUrl: process.env.VUE_APP_GIT_REPO.split('/')
+            .slice(0, 4)
+            .join('/'),
+          repoUrlLabel: process.env.VUE_APP_GIT_REPO.split('/')
+            .slice(3, 5)
+            .join('/'),
+        },
+      }
 
       window.app = new Vue({
         el: '#app',

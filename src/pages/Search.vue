@@ -44,7 +44,7 @@
               variant="outline-primary"
             ></i-dropdown>
           </b-navbar-nav>
-          <b-navbar-nav class="px-3 py-3">
+          <!-- <b-navbar-nav class="px-3 py-3">
             <label class="mr-1">{{ $t('label_display') }}</label>
             <b-nav-form>
               <b-form-radio-group
@@ -57,7 +57,7 @@
                 <b-form-radio value="tiles">{{ $t('display_button_tiles') }}</b-form-radio>
               </b-form-radio-group>
             </b-nav-form>
-          </b-navbar-nav>
+          </b-navbar-nav> -->
         </b-navbar>
 
         <b-navbar variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
@@ -135,7 +135,7 @@
                 <info-button name="can-i-download-part-of-the-data" class="float-right" />
               </b-dropdown-item>
             </b-dropdown>
-            <b-form-checkbox
+            <!-- <b-form-checkbox
               v-if="isLoggedIn"
               class="mx-1"
               v-b-tooltip.hover.topleft.html.o100.d500
@@ -144,7 +144,7 @@
               v-bind:checked="this.allSelected"
               v-on:change="toggleSelectAll"
             >
-            </b-form-checkbox>
+            </b-form-checkbox> -->
           </b-navbar-nav>
         </b-navbar>
       </div>
@@ -209,7 +209,7 @@
               v-bind:key="searchResult.article_uid"
             >
               <search-results-list-item
-                v-bind:checkbox="true"
+                v-bind:checkbox="false"
                 v-on:toggleSelected="toggleSelected(searchResult)"
                 v-bind:checked="isChecked(searchResult)"
                 v-on:click="onClickResult(searchResult)"

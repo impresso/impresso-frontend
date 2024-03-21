@@ -1,20 +1,22 @@
 <template>
-  <figure @click="e => $emit('click', e)" class="position-relative IIIFFragment">
-    <img class="shadow-sm" :src="imageUrl" alt="IIIF Fragment" />
-    <div class="IIIFFragment__regions" :style="computedRegionsStyle">
-      <div
-        v-for="region in computedRegions"
-        :key="region.id"
-        class="IIIFFragment__region position-absolute"
-        :style="{
-          top: `${region.y}%`,
-          left: `${region.x}%`,
-          width: `${region.w}%`,
-          height: `${region.h}%`,
-        }"
-      ></div>
-    </div>
-  </figure>
+  <div class="IIIFFragment">
+    <figure @click="e => $emit('click', e)" class="position-relative IIIFFragment overflow-hidden">
+      <img class="shadow-sm" :src="imageUrl" alt="IIIF Fragment" />
+      <div class="IIIFFragment__regions" :style="computedRegionsStyle">
+        <div
+          v-for="region in computedRegions"
+          :key="region.id"
+          class="IIIFFragment__region position-absolute"
+          :style="{
+            top: `${region.y}%`,
+            left: `${region.x}%`,
+            width: `${region.w}%`,
+            height: `${region.h}%`,
+          }"
+        ></div>
+      </div>
+    </figure>
+  </div>
 </template>
 <script>
 import axios from 'axios'
@@ -38,6 +40,11 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    fitToRegions: {
+      // IIIF size parameter
+      type: Boolean,
+      default: true,
+    },
     size: {
       // IIIF size parameter
       type: String,
@@ -57,6 +64,20 @@ export default defineComponent({
     },
   },
   computed: {
+    computedRegionsBoundaries() {
+      return this.regions.reduce(
+        (acc, region) => {
+          const { x, y, w, h } = region.coords
+          return {
+            x: Math.min(acc.x, x),
+            y: Math.min(acc.y, y),
+            w: Math.max(acc.w, w),
+            h: Math.max(acc.h, h),
+          }
+        },
+        { x: Infinity, y: Infinity, w: 0, h: 0 },
+      )
+    },
     imageUrl() {
       // remove inof.json from IIIF if any
       const iiif = this.iiif.replace('/info.json', '')
@@ -64,7 +85,6 @@ export default defineComponent({
       if (this.coords) {
         // /125,15,120,140/max/0/default.jpg
         const { x, y, w, h } = this.coords
-
         return `${iiif}/${x},${y},${w},${h}/${this.size}/0/default.jpg`
       }
       return `${iiif}/full/${this.size}/0/default.jpg`
@@ -88,6 +108,35 @@ export default defineComponent({
           h: (h / this.height) * 100,
         }
       })
+    },
+  },
+  methods: {
+    getCoordsFromArticleRegions() {
+      let x0 = Infinity
+      let x1 = 0
+      let y0 = Infinity
+      let y1 = 0
+
+      this.regions.forEach(d => {
+        if (d.coords.x < x0) {
+          x0 = d.coords.x
+        }
+        if (d.coords.y < y0) {
+          y0 = d.coords.y
+        }
+        if (d.coords.x + d.coords.w > x1) {
+          x1 = d.coords.x + d.coords.w
+        }
+        if (d.coords.y + d.coords.h > y1) {
+          y1 = d.coords.y + d.coords.h
+        }
+      })
+      return {
+        x: x0,
+        y: y0,
+        w: x1 - x0,
+        h: y1 - y0,
+      }
     },
   },
   mounted() {

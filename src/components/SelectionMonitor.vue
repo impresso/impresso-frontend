@@ -13,7 +13,7 @@
           <b-tabs pills class="px-2" style="flex-grow:1">
             <template v-slot:tabs-end>
               <b-nav-item class="active">
-                <span v-html="$t(`tabs.${monitor.type}.${monitor.scope}`).toLowerCase()" />
+                <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`).toLowerCase()" />
               </b-nav-item>
             </template>
           </b-tabs>
@@ -514,54 +514,36 @@ export default defineComponent({
       "tr_passages": "text reuse passages",
       "textReuse": "Text Reuse"
     },
+    "types_country": "country of publication",
+    "types_language": "language",
+    "types_accessRight": "access right",
+    "types_partner": "archive / parnter institution",
+    "types_topic": "topic",
+    "types_collection"  : "collection",
+    "types_newspaper": "newspaper",
+    "types_person": "person",
+    "types_location": "location",
+    "types_type": "article type",
+    "types_textReuseCluster": "cluster of text reuse",
     "types_textReuseClusterSize": "cluster size",
     "types_textReuseClusterDayDelta": "time span in days",
     "types_textReuseClusterLexicalOverlap": "lexical overlap",
-    "tabs": {
-      "textReuseCluster": {
-        "overview": "cluster of text reuse",
-        "comparePassages": "compare text reuse passages"
-      },
-      "textReusePassage": {
-        "comparePassages": "compare text reuse passages"
-      },
-      "textReuseClusterSize": {
-        "closeUp": "text reuse cluster size  - close-up view"
-      },
-      "textReuseClusterLexicalOverlap": {
-        "closeUp": "lexical overlap  - close-up view"
-      },
-      "textReuseClusterDayDelta": {
-        "closeUp": "Time span in days  - close-up view"
-      },
-      "newspaper": {
-        "overview": "newspaper"
-      },
-      "topic": {
-        "overview": "topic"
-      },
-      "partner": {
-        "overview": "partner"
-      },
-      "accessRight": {
-        "overview": "access right"
-      },
-      "language": {
-        "overview": "language"
-      },
-      "type": {
-        "overview": "article type"
-      },
-      "country": {
-        "overview": "country of publication"
-      },
-      "person": {
-        "overview": "person"
-      },
-      "location"  : {
-        "overview": "location"
-      }
-    },
+    "tabs_collection_overview": "collection",
+    "tabs_textReuseCluster_overview": "cluster of text reuse",
+    "tabs_textReuseCluster_comparePassages": "compare text reuse passages",
+    "tabs_textReusePassage_comparePassages": "compare text reuse passages",
+    "tabs_textReuseClusterSize_closeUp": "text reuse cluster size  - close-up view",
+    "tabs_textReuseClusterLexicalOverlap_closeUp": "lexical overlap  - close-up view",
+    "tabs_textReuseClusterDayDelta_closeUp": "Time span in days  - close-up view",
+    "tabs_newspaper_overview": "newspaper",
+    "tabs_topic_overview": "topic",
+    "tabs_partner_overview": "archive / parnter institution",
+    "tabs_accessRight_overview": "access right",
+    "tabs_language_overview": "language",
+    "tabs_type_overview": "article type",
+    "tabs_country_overview": "country of publication",
+    "tabs_person_overview": "person",
+    "tabs_location_overview": "location",
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",
     "itemStatsFiltered": "<b class='number'>{count}</b> {searchIndex} using current search filters"

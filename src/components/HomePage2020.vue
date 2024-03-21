@@ -48,27 +48,44 @@
         </p>
 
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
-          info @ impresso-project [dot] ch
-          <br />
-          project website: <a href="/" target="_blank">impresso-project.ch</a>
-          <br />
-          <img src="@/assets/img/GitHub-Mark-Light-32px.png" class="mr-2" style="max-height: 1em" />
-          github: <a href="https://github.com/impresso" target="_blank">impresso</a>
+          <p>
+            info @ impresso-project [dot] ch
+            <br />
+            project website: <a href="/" target="_blank">impresso-project.ch</a>
+          </p>
           <br />
           <img
-            src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
+            src="@/assets/img/GitHub-Mark-Light-32px.png"
+            alt="GitHub icon"
             class="mr-2"
             style="max-height: 1em"
           />
-          twitter:
-          <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
+          github:
+          <a :href="impressoInfo.project.repoUrl" target="_blank">
+            {{ impressoInfo.project.repoUrlLabel }}</a
+          >
+          <p>
+            <img
+              src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
+              class="mr-2"
+              style="max-height: 1em"
+              alt="X (former witter) icon"
+            />
+            X (former witter):
+            <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
+          </p>
+          <p>
+            version:
+            <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
+              {{ impressoInfo.frontend.version }}</a
+            >
+            <br />
+            middle layer:
+            <a :href="impressoInfo.middleLayer.gitCommitUrl" target="_blank">
+              {{ impressoInfo.middleLayer.version }}</a
+            >
+          </p>
         </div>
-        <!-- <br>
-      <viz-bar-multi title="Langues" variant="compact" :items="[{name: 'Français', count: 70}, {name: 'Deutsch', count: 20}, {name: 'English', count: 10}]" />
-      <viz-bar-multi title="OCR / OLR" variant="compact" :items="[{name: 'OCR', count: 20}, {name: 'OLR', count: 80}]" />
-      <viz-bar-multi title="Statistiques" variant="compact" :items="[{name: 'Ravioli', count: 110}, {name: 'Spaghetti', count: 20}, {name: 'Penne', count: 70}]" />
-      <viz-bar-multi title="Autres" :items="[{name: 'ita', count: 35}, {name: 'FRançais', count: 60}, {name: 'DEutsch', count: 25}, {name: 'ENglish newsppapa', count: 10}]" />
-      <viz-bar-multi :items="[{name: 'FRançais', count: 20}, {name: 'DEutsch', count: 70}, {name: 'ENglish newsppapa', count: 10}]" /> -->
 
         <br />
       </div>
@@ -76,136 +93,135 @@
     <i-layout-section
       :class="{ ' ml-1px border-top border-left': showLines, 'border-tertiary': darkMode }"
     >
-      <div class="text-tertiary p-3">
-        <h1 class="huge m-4 my-2">
-          Media Monitoring <br />of the <span class="text-accent">Past</span>
-        </h1>
-        <!-- <h1 class="text-white mt-5">Today, 100 years ago.</h1>
-      This section lists front pages with the most important events. -->
-
-        <h2 class="p-4 m-0">
-          Mining 200 years <br />of historical newspapers
-          <info-button name="which-newspapers" class="ml-2 mt-1 d-inline-block" />
-        </h2>
-        <section class="mx-4">
-          <p style="font-size: 1.2em">
-            How can newspapers help understand the past? How to explore them?
-          </p>
-          <div class="p-3 mb-3 mt-5 enhance-contents position-relative shadow">
-            <div class="starburst-mask">
-              <div class="starburst-wrapper">
-                <div class="position-absolute text">
-                  Gain full Access for <b>free</b>!<br />
-                  <div class="dripicons-jewel"></div>
-                </div>
-                <div class="position-absolute rotating">
-                  <div class="starburst example" id="example-2"><span>&nbsp;</span></div>
-                </div>
-              </div>
-            </div>
-
-            <p>
-              For legal reasons not all content is available.
-              <br />
-              To gain access to the <b class="text-white">full impresso corpus</b> please
-              <router-link class="text-white" :to="{ name: 'register' }">register</router-link> and
-              sign our Non-Disclosure-Agreement.
-            </p>
-            <b-button
-              :variant="darkMode ? 'primary' : 'outline-primary'"
-              size="sm"
-              href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
-              target="_self"
+      <div class="container-fluid text-tertiary">
+        <div class="row">
+          <div class="col-lg-6">
+            <h1 class="huge m-4 my-2">
+              Media Monitoring <br />of the <span class="text-accent">Past</span>
+            </h1>
+            <section
+              v-if="!user"
+              class="p-3 mb-3 mt-5 text-tertiary rounded enhance-contents position-relative shadow"
             >
-              <div class="d-flex flex-row align-items-center">
-                <div class="d-flex dripicons dripicons-download mr-2" />
-                <div>{{ $t('download_nda') }}</div>
-              </div>
-            </b-button>
-            <p class="mb-0 mt-3">
-              ... and return the signed form to
-              <a class="text-white" href="mailto:info@impresso-project.ch" target="_self"
-                >info@impresso-project.ch</a
-              >
-            </p>
-          </div>
-          <p class="text-center text-white my-5">
-            Take a moment to familiarise yourself with <em>impresso</em>'s
-            <b>advanced search</b> and <b> exploration workflows</b>
-          </p>
-          <div class="border-bottom" style="position: relative">
-            <div
-              class="arrow-down"
-              style="
-                position: absolute;
-                left: 50%;
-                margin-left: -20px;
-                top: -1px;
-                border-top-color: #343a40;
-              "
-            ></div>
-          </div>
-          <div class="arrow-down mx-auto"></div>
-          <b-container class="challenges my-4 enhance-contents border-0 p-0">
-            <b-row class="p-0">
-              <b-col lg="6" md="12">
-                <img
-                  src="./../assets/img/challenges-screenshot.png"
-                  class="w-100"
-                  alt="impresso challenges"
-                />
-              </b-col>
-              <b-col lg="6" md="12">
-                <div class="py-3 pr-3">
-                  <h3 :class="{ 'text-white': darkMode }">
-                    <i class="pb-3">Impresso Challenges</i>
-                  </h3>
-                  <p :class="{ 'text-white': darkMode }">
-                    <b
-                      >How to explore the newspapers with persons or locations? <br />What are
-                      topics good for? <br />What elements can be compared?
-                    </b>
-                  </p>
-                  <p>
-                    Get a better understanding of this interfaces’ features and how they can
-                    interact with 3 challenges, starting with an initiation and leading to an expert
-                    level use of the interface.
-                  </p>
-                  <b-button
-                    :variant="darkMode ? 'primary' : 'outline-primary'"
-                    size="sm"
-                    href="./../assets/impresso-challenges-1.2.3.pdf"
-                    target="_blank"
-                  >
-                    <div class="d-flex flex-row align-items-center">
-                      <div class="d-flex dripicons dripicons-download mr-2" />
-                      <div>
-                        download challenges
-                        <b-badge pill variant="secondary" class="ml-1">PDF</b-badge>
-                      </div>
-                    </div>
-                  </b-button>
+              <div class="starburst-mask">
+                <div class="starburst-wrapper">
+                  <div class="position-absolute text">
+                    Gain full Access for <b>free</b>!<br />
+                    <div class="dripicons-jewel"></div>
+                  </div>
+                  <div class="position-absolute rotating">
+                    <div class="starburst example" id="example-2"><span>&nbsp;</span></div>
+                  </div>
                 </div>
-              </b-col>
-            </b-row>
-          </b-container>
-          <p class="text-center text-white">... then here are a few examples to get you started!</p>
-        </section>
-        <div class="border-bottom" style="position: relative">
-          <div
-            class="arrow-down"
-            style="
-              position: absolute;
-              left: 50%;
-              margin-left: -20px;
-              top: -1px;
-              border-top-color: #343a40;
-            "
-          ></div>
+              </div>
+
+              <p>
+                For legal reasons not all content is available.
+                <br />
+                To gain access to the <b class="text-white">full impresso corpus</b> please
+                <router-link class="text-white" :to="{ name: 'register' }">register</router-link>
+                and sign our Non-Disclosure-Agreement.
+              </p>
+              <b-button
+                :variant="darkMode ? 'primary' : 'outline-primary'"
+                size="lg"
+                class="border-primary rounded shadow-sm"
+                href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
+                target="_self"
+              >
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons dripicons-download mr-2" />
+                  <div>{{ $t('download_nda') }}</div>
+                </div>
+              </b-button>
+              <p class="mb-0 mt-3">
+                ... and return the signed form to
+                <a class="text-white" href="mailto:info@impresso-project.ch" target="_self"
+                  >info@impresso-project.ch</a
+                >
+              </p>
+            </section>
+
+            <section class="mx-4">
+              <h2>
+                How can newspapers help understand the past? How to explore them?
+              </h2>
+
+              <p class="text-white my-5">
+                Take a moment to familiarise yourself with <em>impresso</em>'s
+                <b>advanced search</b> and <b> exploration workflows</b>
+              </p>
+
+              <b-container class="challenges my-4 enhance-contents border-0 p-0  shadow">
+                <b-row class="p-0 rounded" style="overflow: hidden">
+                  <b-col lg="6" md="12">
+                    <img
+                      src="./../assets/img/challenges-screenshot.png"
+                      class="w-100 h-100"
+                      style="object-fit: contain; object-position: center; border-start-start-radius: var(--border-radius-md);border-end-start-radius: var(--border-radius-md);opacity:.8"
+                      alt="impresso challenges"
+                    />
+                  </b-col>
+                  <b-col lg="6" md="12">
+                    <div class="py-3 pr-3 ">
+                      <h3 :class="{ 'text-white': darkMode }">
+                        <i class="pb-3">Impresso Challenges</i>
+                      </h3>
+                      <p :class="{ 'text-white': darkMode }">
+                        <b
+                          >How to explore the newspapers with persons or locations? <br />What are
+                          topics good for? <br />What elements can be compared?
+                        </b>
+                      </p>
+                      <p>
+                        Get a better understanding of this interfaces’ features and how they can
+                        interact with 3 challenges, starting with an initiation and leading to an
+                        expert level use of the interface.
+                      </p>
+                      <b-button
+                        :variant="darkMode ? 'primary' : 'outline-primary'"
+                        size="lg"
+                        href="./../assets/impresso-challenges-1.2.3.pdf"
+                        target="_blank"
+                        class="rounded border-0"
+                      >
+                        <div class="d-flex flex-row align-items-center">
+                          <div class="d-flex dripicons dripicons-download mr-2" />
+                          <div class="small-caps">
+                            download challenges
+                            <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
+                          </div>
+                        </div>
+                      </b-button>
+                    </div>
+                  </b-col>
+                </b-row>
+              </b-container>
+            </section>
+          </div>
+          <div class="col">
+            <h2 class="text-white mt-5">
+              Mining 200 years <br />of historical newspapers, and radio.
+            </h2>
+            <p class="text-white">
+              Just a few examples to get you started!
+            </p>
+            <div class="d-flex flex-wrap">
+              <Recipe
+                v-for="recipe in recipes"
+                class="m-3 p-3"
+                :key="recipe.caption"
+                :query="recipe.query"
+                :caption="recipe.caption"
+                :text="recipe.text"
+                :video="recipe.video"
+                :img_src="recipe.img_src"
+              />
+            </div>
+          </div>
         </div>
-        <div class="arrow-down mx-auto"></div>
-        <recipes :dark-mode="darkMode" class="mt-2" />
       </div>
+
       <home-page-footer />
     </i-layout-section>
   </i-layout>
@@ -218,11 +234,13 @@ import SearchPills from '@/components/SearchPills'
 import Recipes from './modules/homepage/Recipes'
 import HomePageFooter from './HomePageFooter'
 import InfoButton from './base/InfoButton'
+import Recipe from './Recipe'
 import { filtersItems as filtersItemsService } from '@/services'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { optimizeFilters, serializeFilters, joinFiltersWithItems } from '@/logic/filters'
 import { getFilterQuery } from '../models/SearchQuery'
 // import SearchQuery from '@/models/SearchQuery';
+import content from '@/assets/homepage.json'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -248,6 +266,8 @@ export default {
   data: () => ({
     /** @type {Filter[]} */
     filtersWithItems: [],
+    impressoInfo: window.impressoInfo,
+    recipes: content.recipes,
   }),
   props: {
     showLines: {
@@ -283,6 +303,9 @@ export default {
       }
       return query
     },
+    user() {
+      return this.$store.getters['user/user']
+    },
   },
   methods: {
     handleFiltersChanged(filters) {
@@ -315,7 +338,7 @@ export default {
             },
           })
           .then(joinFiltersWithItems)
-          .then((filtersWithItems) => {
+          .then(filtersWithItems => {
             this.filtersWithItems = filtersWithItems
           })
       },
@@ -329,6 +352,7 @@ export default {
     HomePageFooter,
     InfoButton,
     SearchPills,
+    Recipe,
   },
 }
 </script>
@@ -389,7 +413,7 @@ export default {
 }
 
 h1.huge {
-  font-size: 800%;
+  font-size: 6vw;
   line-height: 0.9;
 }
 .stats span.number {

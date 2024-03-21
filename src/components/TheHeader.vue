@@ -15,7 +15,8 @@
       class="py-0 pr-1 border-primary"
     >
       <b-navbar-brand :to="getRouteWithSearchQuery({ name: 'home' })">
-        <img src="./../assets/img/impresso-logo-h-i@2x.png" />
+        <!-- <img v-if="" src="./../assets/img/impresso-logo-h-i@2x.png" /> -->
+        <Logo />
       </b-navbar-brand>
 
       <b-navbar-nav>
@@ -25,26 +26,11 @@
           class="position-relative"
         >
           <span>{{ $tc('label_search', 0) }}</span>
-          <transition name="bounce">
+          <!-- <transition name="bounce">
             <b-badge v-if="countActiveFilters" pill variant="tiny" class="position-absolute">
             </b-badge>
-          </transition>
+          </transition> -->
         </b-nav-item>
-
-        <b-nav-item-dropdown no-caret v-if="countActiveFilters" ref="ddownSearchResults">
-          <template slot="button-content">
-            <span :title="$t('label_current_search')">...</span>
-          </template>
-          <!-- <b-button class="ml-2 my-2" size="sm" variant="outline-primary bg-light" :to="{ name: 'search' }">
-            {{$t('actions.resetQuery')}}
-          </b-button> -->
-          <search-query-explorer
-            style="min-width: 400px"
-            class="px-2"
-            :search-query="searchQuery"
-            dark-mode
-          />
-        </b-nav-item-dropdown>
 
         <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
           <span>{{ $t('label_newspapers') }}</span>
@@ -145,7 +131,7 @@
               <div class="user-picture position-relative mr-2 me-2" :style="userPicture"></div>
               <div class="user-label mr-4 me-4">
                 <div class="user-fullname">{{ userFullName }}</div>
-                <div class="user-role small-caps">{{ userRole }}</div>
+                <div class="user-role mt-1 small-caps">{{ userRole }}</div>
               </div>
             </div>
           </template>
@@ -176,12 +162,12 @@
       <!-- end of user area -->
       <!-- login area -->
       <b-navbar-nav v-if="!user" class="TheHeader__userArea mx-2">
-        <b-nav-item class="small-caps" :to="loginRouteParams">
-          <span>{{ $t('login') }}</span>
+        <b-nav-item :to="loginRouteParams">
+          <span class="small-caps">{{ $t('login') }}</span>
         </b-nav-item>
-        <BNavText class="small-caps mx-1 py-1">|</BNavText>
-        <b-nav-item class="small-caps" :to="registerRouteParams">
-          <span>{{ $t('register') }}</span>
+        <BNavText class="mx-1">|</BNavText>
+        <b-nav-item :to="registerRouteParams">
+          <span class="small-caps">{{ $t('register') }}</span>
         </b-nav-item>
       </b-navbar-nav>
     </b-navbar>
@@ -216,7 +202,7 @@
 import Icon from 'vue-awesome/components/Icon'
 import JobItem from '@/components/modules/lists/JobItem'
 import Pagination from '@/components/modules/Pagination'
-import SearchQueryExplorer from './modals/SearchQueryExplorer'
+import Logo from '@/components/Logo'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { BNavText } from 'bootstrap-vue'
 
@@ -441,10 +427,10 @@ export default {
   },
   components: {
     Icon,
+    Logo,
     // Toast,
     JobItem,
     Pagination,
-    SearchQueryExplorer,
     BNavText,
   },
 }
@@ -461,7 +447,7 @@ export default {
   background-color: transparent;
 }
 .TheHeader__userArea .nav-item .nav-link.dropdown-toggle {
-  padding: 0;
+  // padding: 0;
   border-radius: var(--border-radius-sm);
 }
 .TheHeader__userArea .nav-item.show {
@@ -471,6 +457,14 @@ export default {
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
 }
+
+.TheHeader .navbar-nav .nav-link {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100px;
+}
+
 #app-header .dropdown-toggle[aria-expanded='true'] {
   border-bottom: 0px solid transparent !important;
 }
@@ -552,7 +546,6 @@ export default {
     h1 {
       background: transparent;
       color: white;
-      font-size: 1.1em;
       text-align: center;
       padding: 1px 4px;
       .title {
@@ -563,17 +556,7 @@ export default {
       }
     }
   }
-  .navbar-nav .nav-link {
-    padding-top: 0;
-    padding-bottom: 0;
-    // line-height: 56px;
-    // height: 56px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 100px;
-    font-size: 0.9rem;
-  }
+
   .navbar-dark .navbar-nav .nav-link {
     color: $clr-grey-800;
     > span {
@@ -644,7 +627,6 @@ export default {
     }
     .dropdown-item {
       color: $clr-grey-800;
-      font-size: 0.9em;
       padding: 0.5rem 1rem;
     }
     .dropdown-item.disabled {
@@ -672,7 +654,6 @@ export default {
     right: 0.75rem;
     line-height: 2.25rem;
     margin-top: -1rem;
-    font-size: 0.8em;
   }
 
   .user-picture {
@@ -685,7 +666,7 @@ export default {
 
   .user-fullname {
     padding-bottom: 0.125rem;
-    font-size: 0.8em;
+
     line-height: 1em;
     font-weight: bold;
     color: white;
@@ -693,7 +674,7 @@ export default {
 
   .user-role {
     line-height: 1;
-    font-size: 0.8em;
+    // font-size: 0.8em;
   }
 }
 
@@ -713,13 +694,11 @@ export default {
 @media (min-width: 992px) {
   #app-header .navbar-nav .nav-link {
     max-width: 120px;
-    font-size: 1rem;
   }
 }
 @media (min-width: 1200px) {
   #app-header .navbar-nav .nav-link {
     max-width: 220px;
-    font-size: 1rem;
   }
 }
 </style>
@@ -745,7 +724,7 @@ export default {
     "label_text_reuse": "Text reuse",
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
-    "label_faq": "Faq",
+    "label_faq": "Help",
     "label_jobs" : "Running tasks",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
