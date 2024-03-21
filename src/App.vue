@@ -383,7 +383,7 @@ label {
   left: 3px;
 }
 .btn-md {
-  border-radius: var(--impresso-border-radius-sm);
+  border-radius: var(--border-radius-md);
   box-shadow: var(--bs-box-shadow-sm);
   border-width: 0;
 

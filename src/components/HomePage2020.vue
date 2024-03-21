@@ -95,7 +95,7 @@
     >
       <div class="container-fluid text-tertiary">
         <div class="row">
-          <div class="col">
+          <div class="col-lg-6">
             <h1 class="huge m-4 my-2">
               Media Monitoring <br />of the <span class="text-accent">Past</span>
             </h1>
@@ -211,6 +211,7 @@
                 v-for="recipe in recipes"
                 class="m-3 p-3"
                 :key="recipe.caption"
+                :query="recipe.query"
                 :caption="recipe.caption"
                 :text="recipe.text"
                 :video="recipe.video"
@@ -412,7 +413,7 @@ export default {
 }
 
 h1.huge {
-  font-size: 800%;
+  font-size: 6vw;
   line-height: 0.9;
 }
 .stats span.number {
