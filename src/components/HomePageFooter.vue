@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <footer class="p-5 bg-dark mt-5">
     <div class="container">
       <div class="row">
@@ -47,36 +47,6 @@
       </div>
 
       <div class="line double my-4"></div>
-
-      <div class="row">
-        <div class="col-sm-4">
-          <h3>connect with us</h3>
-          info @ impresso-project [dot] ch<br />
-          github: <a href="https://github.com/impresso"> <b>impresso</b></a
-          ><br />
-          twitter: <a href="https://twitter.com/impressoproject"> <b>@impressoproject</b></a>
-        </div>
-        <div class="col-sm-4">
-          <h3>other relevant links</h3>
-          project <a href="https://impresso-project.ch/project/overview/"> overview</a><br />
-          project <a href="https://impresso-project.ch/consortium#people"> team</a>
-        </div>
-        <div class="col-sm-4">
-          <h3>stay in the loop</h3>
-          <p>
-            <a
-              class="button"
-              id="chimpSignup"
-              style="padding: 6px 10px; font-size:90%; letter-spacing:1px"
-              href="https://mailchi.mp/1059270fc024/impresso-project"
-              target="_blank"
-              >Join our mailing list</a
-            >
-          </p>
-        </div>
-      </div>
-
-      <div class="line my-4"></div>
 
       <div class="row text-center">
         <div class="logo col-sm-12">
