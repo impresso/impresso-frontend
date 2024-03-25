@@ -141,7 +141,6 @@ export default defineComponent({
   },
   mounted() {
     const iiif = this.iiif.replace('/info.json', '').replace('https://impresso-project.ch/', '/')
-    console.info('[IIIFFragment]', this.computedImageUrl, this.matches)
     axios
       .get(`${iiif}/info.json`)
       .then(response => {
@@ -150,7 +149,6 @@ export default defineComponent({
         this.image = new Image()
         // get actual size fo the image
         this.image.onload = () => {
-          console.info('image loaded')
           this.imageWidth = this.image.naturalWidth
           this.imageHeight = this.image.naturalHeight
           this.isLoaded = true
