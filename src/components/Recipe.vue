@@ -4,11 +4,7 @@
 
     <p>{{ text }}</p>
 
-    <a v-bind:href="video" target="_blank" class="btn btn-secondary text-light small-caps">{{
-      $t('watch_video')
-    }}</a>
-
-    <a v-bind:href="video" target="_blank" class="Recipe__videoWrapper">
+    <a v-if="!query || showVideo" v-bind:href="video" target="_blank" class="Recipe__videoWrapper">
       <div class="position-absolute">
         <img v-bind:src="img_src" alt="video previe" class="img-fluid rounded" />
         <div class="Recipe__videoBackground "></div>
@@ -57,6 +53,7 @@ export default {
     video: String,
     img_src: String,
     query: String,
+    showVideo: Boolean,
   },
 
   data: () => ({}),
@@ -102,6 +99,7 @@ export default {
   right: 0;
   bottom: 0;
   border-radius: var(--impresso-border-radius-md);
+  object-fit: cover;
 }
 
 .Recipe__videoBackground {

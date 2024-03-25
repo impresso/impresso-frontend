@@ -142,15 +142,10 @@
               </p>
             </section>
 
-            <section class="mx-4">
+            <section>
               <h2>
                 How can newspapers help understand the past? How to explore them?
               </h2>
-
-              <p class="text-white my-5">
-                Take a moment to familiarise yourself with <em>impresso</em>'s
-                <b>advanced search</b> and <b> exploration workflows</b>
-              </p>
 
               <b-container class="challenges my-4 enhance-contents border-0 p-0  shadow">
                 <b-row class="p-0 rounded" style="overflow: hidden">
@@ -208,7 +203,7 @@
             </p>
             <div class="d-flex flex-wrap">
               <Recipe
-                v-for="recipe in recipes"
+                v-for="recipe in computedRecipesWithQuery"
                 class="m-3 p-3"
                 :key="recipe.caption"
                 :query="recipe.query"
@@ -221,8 +216,23 @@
           </div>
         </div>
       </div>
-
-      <home-page-footer />
+      <!-- video recipes (old) -->
+      <div class="d-flex flex-wrap align-items-center">
+        <h2 class="p-3 m-3 " style="max-width: 480px">
+          Take a moment to familiarise yourself with <em>impresso</em>'s <b>advanced search</b> and
+          <b> exploration workflows</b>
+        </h2>
+        <Recipe
+          v-for="recipe in computedRecipesWithoutQuery"
+          class="p-3 m-3 "
+          :key="recipe.caption"
+          :caption="recipe.caption"
+          :text="recipe.text"
+          :video="recipe.video"
+          :img_src="recipe.img_src"
+        />
+      </div>
+      <HomePageFooter />
     </i-layout-section>
   </i-layout>
 </template>
@@ -305,6 +315,12 @@ export default {
     },
     user() {
       return this.$store.getters['user/user']
+    },
+    computedRecipesWithQuery() {
+      return this.recipes.filter(recipe => recipe.query)
+    },
+    computedRecipesWithoutQuery() {
+      return this.recipes.filter(recipe => !recipe.query)
     },
   },
   methods: {

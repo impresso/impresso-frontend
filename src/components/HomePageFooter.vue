@@ -1,10 +1,10 @@
 <template>
-  <footer class="p-5 bg-dark mt-5">
-    <div class="container">
+  <footer class="bg-dark m-xl-3">
+    <div class="container-fluid">
       <div class="line double my-4"></div>
       <h3 class="mb-3">Partners</h3>
       <div class="row">
-        <div class="col-sm-12 col-md-6">
+        <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo">
             <a
               href="https://dhlab.epfl.ch/"
@@ -19,7 +19,7 @@
             </p>
           </div>
         </div>
-        <div class="col-sm-12 col-md-6">
+        <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo ">
             <a
               href="http://www.cl.uzh.ch/en.html"
@@ -31,7 +31,7 @@
             <p>Institute of Computational Linguistics Zurich University, Switzerland</p>
           </div>
         </div>
-        <div class="col-sm-12 col-md-6">
+        <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo ">
             <a href="/consortium/#unil" title="History department, University of Lausanne, UNIL.">
               <UnilLogo class="mb-3" />
@@ -39,7 +39,7 @@
             <p>History department, <br />University of Lausanne, UNIL.</p>
           </div>
         </div>
-        <div class="col-sm-12 col-md-6">
+        <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo">
             <a
               href="https://www.c2dh.uni.lu"
