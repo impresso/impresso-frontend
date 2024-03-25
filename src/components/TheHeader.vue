@@ -300,7 +300,7 @@ export default {
     showAlert() {
       if (
         this.$store.state.errorMessages.length &&
-        !user &&
+        !this.user &&
         this.$store.state.errorMessages[0].name === 'NotAuthenticated'
       ) {
         return false

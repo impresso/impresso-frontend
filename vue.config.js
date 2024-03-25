@@ -1,6 +1,6 @@
-const readFile = require('fs').readFileSync;
+const readFile = require('fs').readFileSync
 
-const PackageJsonPath = `${__dirname}/package.json`;
+const PackageJsonPath = `${__dirname}/package.json`
 
 function getVersion() {
   try {
@@ -28,7 +28,7 @@ module.exports = {
       .type('javascript/auto')
       .use('i18n')
       .loader('@intlify/vue-i18n-loader')
-      .end();
+      .end()
     // config.module.rule('ts').use('babel-loader').end();
   },
   pages: {
@@ -47,10 +47,23 @@ module.exports = {
       template: 'public/widget.html',
       // output as dist/index.html
       filename: 'widget/index.html',
-    }
+    },
   },
   devServer: {
     public: 'http://localhost:8080',
+
+    proxy: {
+      '^/api/socket.io': {
+        target: process.env.VUE_APP_MIDDLELAYER_API,
+        ws: true,
+        changeOrigin: true,
+      },
+      '^/api/proxy': {
+        target: process.env.VUE_APP_MIDDLELAYER_API,
+        ws: false,
+        changeOrigin: true,
+      },
+    },
   },
-  publicPath: getPublicPath()
+  publicPath: getPublicPath(),
 }

@@ -3,10 +3,11 @@
     <div v-if="isAvailable()" class="thumbnail" slot="aside">
       <IIIFFragment
         @click="goToArticle"
-        v-if="article.pages.length > 0 && article.regions.length > 0"
+        v-if="computedRegionsInArticleFirstPage"
         :iiif="article.pages[0].iiif"
-        size=",240"
-        :regions="article.regions"
+        size="!250,240"
+        fit-to-regions
+        :regions="computedRegionsInArticleFirstPage"
       />
     </div>
     <div v-else class="error bg-light border" slot="aside">
@@ -89,14 +90,12 @@
           </b-button>
         </div>
       </div>
-      <div>
-        <p>Extrait:</p>
+      <div v-if="showContext && computedRegionsInArticleFirstPage">
         <IIIFFragment
           @click="goToArticle"
-          v-if="coordsFromArticleRegion"
           :iiif="article.pages[0].iiif"
           size="!250,240"
-          :coords="article.regions[0].coords"
+          :regions="computedRegionsInArticleFirstPage"
         />
       </div>
       <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
@@ -130,7 +129,25 @@ export default {
   model: {
     prop: 'article',
   },
-  props: ['article', 'checkbox', 'checked'],
+  props: {
+    article: {
+      type: Object,
+      default: () => ({}),
+    },
+    checkbox: {
+      type: Boolean,
+
+      default: false,
+    },
+    checked: {
+      type: Boolean,
+      default: false,
+    },
+    showContext: {
+      type: Boolean,
+      default: false,
+    },
+  },
   computed: {
     pageViewerOptions() {
       return {
@@ -165,6 +182,13 @@ export default {
         })
 
       return regionsOverlays.concat(matchesOverlays)
+    },
+    computedRegionsInArticleFirstPage() {
+      if (this.article.pages.length > 0 && this.article.regions.length > 0) {
+        return this.article.regions.filter(({ pageUid }) => pageUid === this.article.pages[0].uid)
+      }
+
+      return null
     },
   },
   methods: {

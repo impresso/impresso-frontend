@@ -74,7 +74,7 @@ const reducedTimeoutPromise = ({ ms = 500, service }) =>
   new Promise((resolve, reject) => {
     let id = setTimeout(() => {
       clearTimeout(id)
-      reject(`Timed out in ${ms} ms for service: ${service}`)
+      reject(new Error(`Timed out in ${ms} ms for service: ${service}`))
     }, ms)
   })
 
@@ -99,13 +99,13 @@ console.info(
 
 Promise.race([
   services.app.reAuthenticate(),
-  reducedTimeoutPromise({ service: 'app.reAuthenticate' }),
+  reducedTimeoutPromise({ ms: 2000, service: 'app.reAuthenticate' }),
 ])
   .catch(err => {
     if (err.code === 401) {
       // eslint-disable-next-line
       console.debug('[main] Not authenticated (status 401):', err.message)
-      if (store.state.user.userData) {
+      if (store.state.user) {
         // eslint-disable-next-line
         console.debug(
           '[main] Authentication failed ... but an user is present in logalStorage. Force logging out.',

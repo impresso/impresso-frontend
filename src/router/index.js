@@ -474,8 +474,23 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  console.info('Routing to', to.name, to.path, 'from', from.name, from.path)
+  const pathWithPrefix = String(BASE_URL + to.path).replace(/\/+/g, '/')
+  // console.info('[router/index] Routing \-to : to', to.name, to.path, 'from', from.name, from.path)
   Vue.prototype.$renderMetaTags({ title: to.name })
+  // # forward page to matomo analytics using base.URL
+  if (window._paq) {
+    console.info(
+      '[router/index] Matomo tracking \n - path: ',
+      pathWithPrefix,
+      ' \n - title:',
+      to.name,
+    )
+    window._paq.push(['setCustomUrl', pathWithPrefix])
+    window._paq.push(['setDocumentTitle', to.name])
+    window._paq.push(['trackPageView'])
+  } else {
+    console.warn('[router/index] Matomo not loaded')
+  }
   // clean yellow alert error messages
   store.dispatch('CLEAN_ERROR_MESSAGE')
   if (to.name === 'login' && from.name && from.name !== 'login') {
