@@ -1,37 +1,52 @@
-<template lang="html">
+<template>
   <section class="search-bar" v-ClickOutside="hideSuggestions">
     <b-input-group>
       <b-form-input
-      :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
-      :placeholder="$tc('placeholder.search', filterCount)"
-      v-model.trim="q"
-      @input.native="search"
-      @focus.native="selectInput"
-      @blur.native="blurHandler"
-      v-on:keyup.native="keyup" />
+        :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
+        :placeholder="$tc('placeholder.search', filterCount)"
+        v-model.trim="q"
+        @input.native="search"
+        @focus.native="selectInput"
+        @blur.native="blurHandler"
+        v-on:keyup.native="keyup"
+      />
       <b-input-group-append>
-        <b-btn variant="outline-primary" :title="$tc('placeholder.search', filterCount)"
-          @click="submit({ type: 'string', q })">
+        <b-btn
+          variant="outline-primary"
+          :title="$tc('placeholder.search', filterCount)"
+          @click="submit({ type: 'string', q })"
+        >
           <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
           <div v-else class="d-flex search-submit dripicons-search"></div>
         </b-btn>
-        <b-btn variant="outline-primary" :title="$t('actions.addFilter')"
-          @click="showExplorer">
-            <div class="d-flex dripicons-experiment"></div>
+        <b-btn variant="outline-primary" :title="$t('actions.addFilter')" @click="showExplorer">
+          <div class="d-flex dripicons-experiment"></div>
         </b-btn>
       </b-input-group-append>
     </b-input-group>
 
-    <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
+    <div
+      class="suggestions border-left border-right border-bottom border-primary drop-shadow"
+      v-show="showSuggestions"
+    >
       <div class="border-bottom ">
-        <div class="suggestion p-1"  v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
-            @click="submitStaticSuggestion(suggestion)"
-            :data-idx="suggestion.idx"
-            @mouseover="select(suggestion)" :class="{selected: selectedIndex === suggestion.idx}">
+        <div
+          class="suggestion p-1"
+          v-for="(suggestion, index) in staticSuggestions"
+          v-bind:key="index"
+          @click="submitStaticSuggestion(suggestion)"
+          :data-idx="suggestion.idx"
+          @mouseover="select(suggestion)"
+          :class="{ selected: selectedIndex === suggestion.idx }"
+        >
           <div :class="`suggestion-${suggestion.type}`">
-            <span class="small" v-if='suggestion.h' v-html='suggestion.h'/>
-            <span class="small" v-else>...<b>{{ q }}</b></span>
-            <b-badge variant="light" class="border border-medium">{{ $t(`label.${suggestion.type}.title`) }}</b-badge>
+            <span class="small" v-if="suggestion.h" v-html="suggestion.h" />
+            <span class="small" v-else
+              >...<b>{{ q }}</b></span
+            >
+            <b-badge variant="light" class="border border-medium">{{
+              $t(`label.${suggestion.type}.title`)
+            }}</b-badge>
           </div>
         </div>
       </div>
@@ -42,22 +57,35 @@
           </div>
           <div class="col">
             <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
-            <div v-for="(s, j) in suggestionIndex[type]" :key="j"
-                @click="submit(s)" @mouseover="select(s)"
-                :data-idx="s.idx"
-                class="suggestion pr-1 pl-2 py-1" :class="{
-                  selected: selectedIndex === s.idx,
-                }">
+            <div
+              v-for="(s, j) in suggestionIndex[type]"
+              :key="j"
+              @click="submit(s)"
+              @mouseover="select(s)"
+              :data-idx="s.idx"
+              class="suggestion pr-1 pl-2 py-1"
+              :class="{
+                selected: selectedIndex === s.idx,
+              }"
+            >
               <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
-                <span class="small">... <b>{{ q }}</b></span>
+                <span class="small"
+                  >... <b>{{ q }}</b></span
+                >
                 <b-badge variant="light" class="border border-medium">
-                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
+                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge
+                >
               </div>
               <div v-else :class="`${type} small`">
                 <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
-                <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
+                <span
+                  v-if="['collection', 'newspaper'].indexOf(type) !== -1"
+                  v-html="s.item.name"
+                />
                 <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
-                <span v-if="s.type === 'daterange'">{{$d(s.daterange.start, 'short')}} - {{$d(s.daterange.end, 'short')}}</span>
+                <span v-if="s.type === 'daterange'"
+                  >{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}</span
+                >
               </div>
             </div>
           </div>
@@ -65,29 +93,24 @@
       </div>
     </div>
 
-    <explorer v-model="explorerFilters"
-          :is-visible="explorerVisible"
-          @onHide="handleExplorerHide"
-          :searching-enabled="true"
-          :initial-search-query="q"
-          :initial-type="explorerInitialType"
-          :included-types="explorerIncludedTypes"/>
+    <explorer
+      v-model="explorerFilters"
+      :is-visible="explorerVisible"
+      @onHide="handleExplorerHide"
+      :searching-enabled="true"
+      :initial-search-query="q"
+      :initial-type="explorerInitialType"
+      :included-types="explorerIncludedTypes"
+    />
   </section>
 </template>
 
 <script>
-import ClickOutside from 'vue-click-outside';
-import FilterFactory from '@/models/FilterFactory';
-import Explorer from './Explorer';
+import ClickOutside from 'vue-click-outside'
+import FilterFactory from '@/models/FilterFactory'
+import Explorer from './Explorer'
 
-const AVAILABLE_TYPES = [
-  'mention',
-  'newspaper',
-  'topic',
-  'location',
-  'person',
-  'collection',
-];
+const AVAILABLE_TYPES = ['mention', 'newspaper', 'topic', 'location', 'person', 'collection']
 
 export default {
   data: () => ({
@@ -110,7 +133,6 @@ export default {
     selectableSuggestions: [],
     showSuggestions: false,
     explorerVisible: false,
-
   }),
   props: {
     variant: {
@@ -119,13 +141,7 @@ export default {
     },
     explorerIncludedTypes: {
       type: Array,
-      default: () => [
-        'newspaper',
-        'topic',
-        'location',
-        'person',
-        'collection',
-      ],
+      default: () => ['newspaper', 'topic', 'location', 'person', 'collection'],
     },
     /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
@@ -135,222 +151,245 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.getters['user/user'];
+      return this.$store.getters['user/user']
     },
     staticSuggestions() {
       return this.initialSuggestions.concat(this.recentSuggestions).map((d, idx) => ({
         ...d,
         idx,
-      }));
+      }))
     },
     explorerInitialType() {
-      if(this.explorerIncludedTypes.includes(this.suggestionType)) {
-        return this.suggestionType;
+      if (this.explorerIncludedTypes.includes(this.suggestionType)) {
+        return this.suggestionType
       }
-      return this.explorerIncludedTypes[0];
+      return this.explorerIncludedTypes[0]
     },
     suggestionType() {
-      if (!this.selectableSuggestions[this.selectedIndex]){
-        return 'string';
+      if (!this.selectableSuggestions[this.selectedIndex]) {
+        return 'string'
       }
-      return this.selectableSuggestions[this.selectedIndex].type;
+      return this.selectableSuggestions[this.selectedIndex].type
     },
     suggestionIndex() {
-      const index = this.$helpers.groupBy(this.suggestions, 'type');
+      const index = this.$helpers.groupBy(this.suggestions, 'type')
 
-      let idx = this.staticSuggestions.length - 1;
-      let selectableSuggestions = [...this.staticSuggestions];
+      let idx = this.staticSuggestions.length - 1
+      let selectableSuggestions = [...this.staticSuggestions]
 
-      AVAILABLE_TYPES.forEach((type) => {
+      AVAILABLE_TYPES.forEach(type => {
         if (index[type]) {
-          index[type] = index[type].map((d) => {
-            idx += 1;
+          index[type] = index[type].map(d => {
+            idx += 1
             // add correct index to choice
             return {
               ...d,
               idx,
-            };
-          });
+            }
+          })
           // exclude extra suggestions for mentions
           if (type !== 'mention') {
             // add custom one
-            idx += 1;
+            idx += 1
             index[type].push({
               type,
               fake: true,
               idx,
-            });
+            })
           }
         }
-        selectableSuggestions = selectableSuggestions.concat(index[type]);
-      });
+        selectableSuggestions = selectableSuggestions.concat(index[type])
+      })
       // update maximum index
       // TODO: Remove side effect from computed property.
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.maxSelectedIndex = idx;
+      this.maxSelectedIndex = idx
       // TODO: Remove side effect from computed property.
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.selectableSuggestions = selectableSuggestions;
-      return index;
+      this.selectableSuggestions = selectableSuggestions
+      return index
     },
     suggestionTypes() {
-      return AVAILABLE_TYPES.filter(d => !!this.suggestionIndex[d]);
+      return AVAILABLE_TYPES.filter(d => !!this.suggestionIndex[d])
     },
     explorerFilters: {
-      get() { return [] },
+      get() {
+        return []
+      },
       set(filters) {
         const filter = filters[0]
-        this.$emit('submit', filter);
-        this.q = '';
-      }
+        this.$emit('submit', filter)
+        this.q = ''
+      },
     },
     filterCount() {
-      return typeof this.filters === 'undefined' ?
-        1 : this.filters.filter(d => d.type !== 'hasTextContents').length + 1;
+      return typeof this.filters === 'undefined'
+        ? 1
+        : this.filters.filter(d => d.type !== 'hasTextContents').length + 1
     },
   },
   methods: {
     showExplorer() {
-      this.explorerVisible = true;
+      this.explorerVisible = true
     },
     handleExplorerHide() {
       this.explorerVisible = false
     },
     typeIcon(type) {
       switch (type) {
-      case 'collection': return 'suitcase';
-      case 'newspaper': return 'pamphlet';
-      case 'topic': return 'message';
-      case 'location': return 'location';
-      case 'person': return 'user';
-      default: return '';
+        case 'collection':
+          return 'suitcase'
+        case 'newspaper':
+          return 'pamphlet'
+        case 'topic':
+          return 'message'
+        case 'location':
+          return 'location'
+        case 'person':
+          return 'user'
+        default:
+          return ''
       }
     },
     hideSuggestions() {
-      this.selected = this.suggestion;
-      this.showSuggestions = false;
+      this.selected = this.suggestion
+      this.showSuggestions = false
     },
     search() {
-      this.showSuggestions = this.q.length > 0;
+      this.showSuggestions = this.q.length > 0
       // debugger;
       if (this.q.length) {
-        this.$store.dispatch('autocomplete/SUGGEST_RECENT_QUERY', this.q).then((res) => {
+        this.$store.dispatch('autocomplete/SUGGEST_RECENT_QUERY', this.q).then(res => {
           this.recentSuggestions = res.map(d => ({
             ...d,
             type: 'string',
-          }));
-        });
+          }))
+        })
       }
 
       if (this.q.length > 1) {
-        this.$store.dispatch('autocomplete/SEARCH', {
-          q: this.q.trim(),
-        }).then((res) => {
-          this.suggestions = [...res, ...this.collectionSuggestions];
-        })
-        if (this.user) {
-          this.$store.dispatch('autocomplete/SUGGEST_COLLECTIONS', {
+        this.$store
+          .dispatch('autocomplete/SEARCH', {
             q: this.q.trim(),
-          }).then((res) => {
-            this.collectionSuggestions = res;
-            this.suggestions = [...res, ...this.suggestions];
           })
+          .then(res => {
+            this.suggestions = [...res, ...this.collectionSuggestions]
+          })
+        if (this.user) {
+          this.$store
+            .dispatch('autocomplete/SUGGEST_COLLECTIONS', {
+              q: this.q.trim(),
+            })
+            .then(res => {
+              this.collectionSuggestions = res
+              this.suggestions = [...res, ...this.suggestions]
+            })
         }
       } else {
         // if length of the query is 0 then we clear the suggestions
-        this.suggestions = [];
-        this.selectedIndex = 0;
+        this.suggestions = []
+        this.selectedIndex = 0
       }
     },
     submitStaticSuggestion({ type, q }) {
-      const sq = String(q || this.q || '').trim();
+      const sq = String(q || this.q || '').trim()
       if (sq.length) {
-        console.info('submitStaticSuggestion', type, sq);
+        console.info('submitStaticSuggestion', type, sq)
         this.submit({
           type,
           q: sq,
-        });
-        this.q = '';
+        })
+        this.q = ''
       }
     },
     submit({ type, item = {}, q, fake = false } = {}) {
       if (fake) {
         // select one item from the explorer
-        this.showExplorer();
+        this.showExplorer()
       } else if (['string', 'title', 'mention'].includes(type)) {
-        const sq = String(q || item.name || this.q || '').trim();
+        const sq = String(q || item.name || this.q || '').trim()
         if (sq.length) {
           this.$store.dispatch('autocomplete/SAVE_RECENT_QUERY', {
             q: sq,
-          });
-          this.$emit('submit', FilterFactory.create({
-            type,
-            q: [sq],
-            op: 'OR',
-          }));
-          this.q = '';
+          })
+          this.$emit(
+            'submit',
+            FilterFactory.create({
+              type,
+              q: [sq],
+              op: 'OR',
+            }),
+          )
+          this.q = ''
         } else {
           this.$emit('submitEmpty')
         }
       } else {
-        this.$emit('submit', FilterFactory.create({
-          type,
-          q: [item.uid],
-          items: [item],
-        }));
-        this.q = '';
+        this.$emit(
+          'submit',
+          FilterFactory.create({
+            type,
+            q: [item.uid],
+            items: [item],
+          }),
+        )
+        this.q = ''
       }
     },
     select(suggestion) {
-      this.selectedIndex = suggestion.idx;
+      this.selectedIndex = suggestion.idx
     },
     selectInput(e) {
-      this.showSuggestions = this.q.length > 0;
-      e.target.select();
-      this.$emit('input-focus', true);
+      this.showSuggestions = this.q.length > 0
+      e.target.select()
+      this.$emit('input-focus', true)
     },
     blurHandler() {
-      this.$emit('input-focus', false);
+      this.$emit('input-focus', false)
     },
     keyup(event) {
       switch (event.key) {
-      case 'Enter':
-        console.info('@keyup ENTER', this.selectedIndex, this.selectableSuggestions[this.selectedIndex]);
-        this.submit(this.selectableSuggestions[this.selectedIndex]);
-        this.selectInput(event);
-        break;
-      case 'ArrowDown':
-        this.selectedIndex += 1;
-        break;
-      case 'ArrowUp':
-        this.selectedIndex -= 1;
-        break;
-      case 'Escape':
-        this.hideSuggestions();
-        break;
-      default:
-        // this.selected = this.suggestion;
-        break;
+        case 'Enter':
+          console.info(
+            '@keyup ENTER',
+            this.selectedIndex,
+            this.selectableSuggestions[this.selectedIndex],
+          )
+          this.submit(this.selectableSuggestions[this.selectedIndex])
+          this.selectInput(event)
+          break
+        case 'ArrowDown':
+          this.selectedIndex += 1
+          break
+        case 'ArrowUp':
+          this.selectedIndex -= 1
+          break
+        case 'Escape':
+          this.hideSuggestions()
+          break
+        default:
+          // this.selected = this.suggestion;
+          break
       }
       if (this.selectedIndex > this.maxSelectedIndex) {
-        this.selectedIndex = 0;
+        this.selectedIndex = 0
       } else if (this.selectedIndex < 0) {
-        this.selectedIndex = this.maxSelectedIndex;
+        this.selectedIndex = this.maxSelectedIndex
       }
     },
   },
   components: {
-    Explorer
+    Explorer,
   },
   directives: {
     ClickOutside,
   },
-};
+}
 </script>
 
 <style scoped lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
-.search-bar{
+@import 'impresso-theme/src/scss/variables.sass';
+.search-bar {
   position: relative;
   input.form-control.search-input {
     border-color: $clr-primary;
@@ -370,7 +409,7 @@ export default {
   }
   .suggestions {
     position: absolute;
-    top:38px;
+    top: 38px;
     width: 100%;
     background: white;
     z-index: 10;
@@ -385,7 +424,7 @@ export default {
       padding-top: 4px;
       // border-radius: 50%;
       top: 50%;
-      left: .25rem;
+      left: 0.25rem;
       margin-top: -12px;
       position: absolute;
     }
@@ -412,27 +451,27 @@ export default {
   }
 }
 
-.search-bar .input-group > .form-control{
+.search-bar .input-group > .form-control {
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
   z-index: 1;
 }
 
-.search-box .search-bar .input-group > .form-control{
+.search-box .search-bar .input-group > .form-control {
   background: white;
-  &:focus{
+  &:focus {
     border-width: 0;
   }
 }
 
 .bg-dark {
-  .search-bar .input-group > .form-control{
+  .search-bar .input-group > .form-control {
     border-top-width: 0;
     border-left-width: 0;
     border-right-width: 0;
     background: transparent;
-    &:focus{
+    &:focus {
       background: transparent;
     }
   }
