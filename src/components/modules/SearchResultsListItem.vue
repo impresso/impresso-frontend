@@ -90,10 +90,9 @@
           </b-button>
         </div>
       </div>
-      <div>
+      <div v-if="showContext && computedRegionsInArticleFirstPage">
         <IIIFFragment
           @click="goToArticle"
-          v-if="computedRegionsInArticleFirstPage"
           :iiif="article.pages[0].iiif"
           size="!250,240"
           :regions="computedRegionsInArticleFirstPage"
@@ -130,7 +129,25 @@ export default {
   model: {
     prop: 'article',
   },
-  props: ['article', 'checkbox', 'checked'],
+  props: {
+    article: {
+      type: Object,
+      default: () => ({}),
+    },
+    checkbox: {
+      type: Boolean,
+
+      default: false,
+    },
+    checked: {
+      type: Boolean,
+      default: false,
+    },
+    showContext: {
+      type: Boolean,
+      default: false,
+    },
+  },
   computed: {
     pageViewerOptions() {
       return {
