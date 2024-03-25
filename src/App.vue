@@ -221,6 +221,12 @@ $clr-grey-900: #ddd;
   --spacing-3: 1rem;
   --spacing-4: 1.5rem;
   --spacing-5: 3rem;
+  --negative-spacing-1: -0.25rem;
+  --negative-spacing-2: -0.5rem;
+  --negative-spacing-3: -1rem;
+  --negative-spacing-4: -1.5rem;
+  --negative-spacing-5: -3rem;
+
   --accent: #28a745;
   --impresso-yellow: #ffeb78;
   --border-radius-sm: 3px;
