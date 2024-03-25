@@ -1,8 +1,10 @@
 <template>
   <footer class="p-5 bg-dark mt-5">
     <div class="container">
+      <div class="line double my-4"></div>
+      <h3 class="mb-3">Partners</h3>
       <div class="row">
-        <div class="col-sm-4">
+        <div class="col-sm-12 col-md-6">
           <div class="logo">
             <a
               href="https://dhlab.epfl.ch/"
@@ -17,20 +19,27 @@
             </p>
           </div>
         </div>
-        <div class="col-sm-4">
-          <div class="logo">
+        <div class="col-sm-12 col-md-6">
+          <div class="logo ">
             <a
               href="http://www.cl.uzh.ch/en.html"
               target="_blank"
               title="Institute for Computational Linguistics Zurich University, Switzerland"
             >
               <UzhLogo />
-              <!-- <img src="https://impresso-project.ch/assets/images/uzh-logo.jpg" /> -->
             </a>
             <p>Institute of Computational Linguistics Zurich University, Switzerland</p>
           </div>
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-12 col-md-6">
+          <div class="logo ">
+            <a href="/consortium/#unil" title="History department, University of Lausanne, UNIL.">
+              <UnilLogo class="mb-3" />
+            </a>
+            <p>History department, <br />University of Lausanne, UNIL.</p>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-6">
           <div class="logo">
             <a
               href="https://www.c2dh.uni.lu"
@@ -47,101 +56,45 @@
       </div>
 
       <div class="line double my-4"></div>
-
-      <div class="row text-center">
-        <div class="logo col-sm-12">
-          <a
-            href="http://www.snf.ch/en/Pages/default.aspx"
-            target="_blank"
-            title="Swiss National Science Foundation"
-            id="snsf-logo"
-          >
-            <SnsfLogo />
-          </a>
+      <h3 class="mb-3">Associated Partners</h3>
+      <div class="row">
+        <div v-for="(d, index) in partners" :key="index" class="col-sm-12 col-md-6 mb-3">
+          <a :href="d.href" :title="d.title" target="_blank">{{ d.title }}</a>
         </div>
       </div>
 
-      <div class="line my-4"></div>
+      <div class="line double my-4"></div>
+      <h3 class="mb-3">Funding agencies</h3>
 
-      <div class="row text-center">
-        <div class="col-sm-6 col-lg-3">
-          <div class="logo smaller">
+      <div class="row">
+        <div class="col-sm-12 col-md-6">
+          <div class="logo">
             <a
-              href="https://impresso-project.ch/consortium/#snl"
-              title="Swiss National Library, SNL"
+              href="http://www.snf.ch/en/Pages/default.aspx"
+              target="_blank"
+              title="Swiss National Science Foundation"
             >
-              <ScccLogo class="mb-3" />
-              <p>Swiss National Library, SNL</p>
+              <SnsfLogo />
             </a>
+            <p>
+              The Swiss National Science Foundation (SNSF) funds excellent research at universities
+              and other institutions – from chemistry to medicine to sociology
+            </p>
           </div>
         </div>
-        <div class="col-sm-6 col-lg-3">
-          <div class="logo smaller">
+        <div class="col-sm-12 col-md-6">
+          <div class="logo">
             <a
-              href="https://impresso-project.ch/consortium/#bnl"
-              title="National Library of Luxembourg, BnL."
+              href="https://www.fnr.lu/"
+              target="_blank"
+              title="Luxembourg National Research Fund - Aller à l'accueil"
             >
-              <BnlLogo class="mb-3" />
-              <p>National Library of Luxembourg, BnL.</p>
+              <FnrLogo />
             </a>
-          </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <div class="logo smaller">
-            <a
-              href="https://impresso-project.ch/consortium/#aev"
-              title="State Archives of Valais, AEV."
-            >
-              <AevswLogo class="mb-3" />
-              <p>State Archives of Valais, AEV.</p>
-            </a>
-          </div>
-        </div>
-
-        <div class="col-sm-6 col-lg-3">
-          <div class="logo smaller">
-            <a
-              href="https://impresso-project.ch/consortium/#swa"
-              title="Swiss Economic Archives, SWA."
-            >
-              <UbLogo class="mb-3" />
-              <p>Swiss Economic Archives, SWA.</p>
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#le-temps" title="Le Temps">
-              <LetempsLogo class="mb-3" />
-              <p>Le Temps</p>
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <div class="logo smaller">
-            <a
-              href="https://impresso-project.ch/consortium/#nzz"
-              title="Neue Zürcher Zeitung, NZZ."
-            >
-              <NzzLogo class="mb-3" />
-              <p>Neue Zürcher Zeitung, NZZ.</p>
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <div class="logo smaller">
-            <a href="/consortium/#unil" title="History department, University of Lausanne, UNIL.">
-              <UnilLogo class="mb-3" />
-              <p>History department, <br />University of Lausanne, UNIL.</p>
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-6 col-lg-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#infoclio" title="infoclio">
-              <InfoclioLogo class="mb-3" />
-              <p>infoclio</p>
-            </a>
+            <p>
+              The Luxembourg National Research Fund (FNR) is the main funder of research activities
+              in Luxembourg
+            </p>
           </div>
         </div>
       </div>
@@ -162,6 +115,8 @@ import UbLogo from '../assets/img/UbLogo.vue'
 import LetempsLogo from '../assets/img/LetempsLogo.vue'
 import NzzLogo from '../assets/img/NzzLogo.vue'
 import InfoclioLogo from '../assets/img/InfoclioLogo.vue'
+import FnrLogo from '../assets/img/FnrLogo.vue'
+import partners from './footerLinks.json'
 
 export default {
   components: {
@@ -177,7 +132,11 @@ export default {
     LetempsLogo,
     NzzLogo,
     InfoclioLogo,
+    FnrLogo,
   },
+  data: () => ({
+    partners,
+  }),
 }
 </script>
 
@@ -224,17 +183,16 @@ footer {
         max-height: 100px;
         transition: all 0.2s ease;
       }
-
+    }
+    p {
+      width: 100%;
+      text-align: left;
+      color: var(--clr-grey-600);
+      transition: all 0.2s ease;
+    }
+    &:hover {
       p {
-        width: 100%;
-        text-align: left;
-        color: var(--clr-grey-600);
-        transition: all 0.2s ease;
-      }
-      &:hover {
-        p {
-          color: white;
-        }
+        color: white;
       }
     }
   }

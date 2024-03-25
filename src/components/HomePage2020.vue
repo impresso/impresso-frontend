@@ -405,6 +405,9 @@ export default {
 
   .stats a {
     color: $clr-white;
+    &:hover {
+      color: var(--impresso-color-yellow);
+    }
   }
 
   a {

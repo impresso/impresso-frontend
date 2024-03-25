@@ -1,0 +1,96 @@
+[
+  {
+    "title": "National Library of Switzerland (Bibliothèque Nationale Suisse, BN)",
+    "href": "https://www.nb.admin.ch/snl/en/home.html"
+  },
+  {
+    "title": "National Library of Luxembourg (Bibliothèque Nationale du Luxembourg, BNL)",
+    "href": "https://bnl.public.lu/en.html"
+  },
+
+  {
+    "title": "Austrian National Library (Österreichische Nationalbibliothek, ONB)",
+    "href": "https://www.onb.ac.at/en/"
+  },
+  {
+    "title": "Berlin State Library (Staatsbibliothek zu Berlin, SBB)",
+    "href": "https://staatsbibliothek-berlin.de/en/"
+  },
+
+  {
+    "title": "The British Library (BL)",
+    "href": "https://www.bl.uk/"
+  },
+  {
+    "title": "French National Library (Bibliothèque nationale de France, BnF)",
+    "href": "https://www.bnf.fr/en"
+  },
+
+  {
+    "title": "Hamburg State and University Library (Staats- und Universitätsbibliothek Hamburg, HUB)",
+    "href": "https://www.sub.uni-hamburg.de/en/service/english.html"
+  },
+  {
+    "title": "Royal Library of Belgium (Bibliothèque royale de Belgique/Koninklijke Bibliotheek van België, KBR)",
+    "href": "https://www.kbr.be/en/"
+  },
+
+  {
+    "title": "Royal Library of the Netherlands (Koninklijke Bibliotheek, KB)",
+    "href": "https://www.kb.nl/en"
+  },
+  {
+    "title": "Cantonal and University Library of Lausanne (Bibliothèque cantonale et universitaire de Lausanne, BCUL)",
+    "href": "https://www.bcu-lausanne.ch/en/"
+  },
+
+  {
+    "title": "Radio Television Suisse (French speaking part of the Schweizerische Radio- und Fernsehgesellschaft, RTS)",
+    "href": "https://www.rts.ch/"
+  },
+  {
+    "title": "Austrian Broadcasting Corporation (Österreichischer Rundfunk, ORF)",
+    "href": "https://der.orf.at/index.html"
+  },
+
+  {
+    "title": "British Broadcasting Corporation (BBC)",
+    "href": "https://www.bbc.com"
+  },
+  {
+    "title": "DeutschlandRadio",
+    "href": "https://www.deutschlandradio.de/"
+  },
+
+  {
+    "title": "French National Audiovisual Institute (Institut National de l'Audiovisuel, INA)",
+    "href": "https://www.ina.fr/"
+  },
+  {
+    "title": "Netherlands Institute for Sounds and Vision (Nederlands Instituut voor Beeld en Geluid, NISV)",
+    "href": "https://www.beeldengeluid.nl/en"
+  },
+
+  {
+    "title": "Le Temps",
+    "href": "https://www.letemps.ch/"
+  },
+  {
+    "title": "Neue Zürcher Zeitung, NZZ",
+    "href": "https://www.nzz.ch/"
+  },
+
+  {
+    "title": "Entangled Media Histories Research Network for European Media Historians (EMHIS)",
+    "href": "https://emhis.blogg.lu.se/"
+  },
+  {
+    "title": "Memoriav, the Swiss network for audiovisual cultural heritage preservation",
+    "href": "https://memoriav.ch/en/"
+  },
+
+  {
+    "title": "infoclio",
+    "href": "https://www.infoclio.ch/"
+  }
+]
