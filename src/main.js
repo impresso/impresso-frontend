@@ -105,7 +105,7 @@ Promise.race([
     if (err.code === 401) {
       // eslint-disable-next-line
       console.debug('[main] Not authenticated (status 401):', err.message)
-      if (store.state.user.userData) {
+      if (store.state.user) {
         // eslint-disable-next-line
         console.debug(
           '[main] Authentication failed ... but an user is present in logalStorage. Force logging out.',
