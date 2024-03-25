@@ -1,131 +1,100 @@
-<template lang="html">
-  <footer class="p-5 bg-light">
+<template>
+  <footer class="p-5 bg-dark mt-5">
     <div class="container">
+      <div class="line double my-4"></div>
+      <h3 class="mb-3">Partners</h3>
       <div class="row">
-        <div class="col-sm-4">
+        <div class="col-sm-12 col-md-6">
           <div class="logo">
-            <a href="https://dhlab.epfl.ch/" target="_blank" title="Digital Humanities Laboratory (DHLAB) Ecole Polytechnique Federale de Lausanne, Switzerland">
-              <img src="https://impresso-project.ch/assets/images/EPFL-Logo-BLACK.png">
+            <a
+              href="https://dhlab.epfl.ch/"
+              target="_blank"
+              title="Digital Humanities Laboratory (DHLAB) Ecole Polytechnique Federale de Lausanne, Switzerland"
+            >
+              <EpflLogo />
             </a>
-            <p>Digital Humanities Laboratory (DHLAB) Ecole Polytechnique Federale de Lausanne, Switzerland</p>
+            <p>
+              Digital Humanities Laboratory (DHLAB) Ecole Polytechnique Federale de Lausanne,
+              Switzerland
+            </p>
           </div>
         </div>
-        <div class="col-sm-4">
-          <div class="logo">
-            <a href="http://www.cl.uzh.ch/en.html" target="_blank" title="Institute for Computational Linguistics Zurich University, Switzerland">
-              <img src="https://impresso-project.ch/assets/images/uzh-logo.jpg">
+        <div class="col-sm-12 col-md-6">
+          <div class="logo ">
+            <a
+              href="http://www.cl.uzh.ch/en.html"
+              target="_blank"
+              title="Institute for Computational Linguistics Zurich University, Switzerland"
+            >
+              <UzhLogo />
             </a>
             <p>Institute of Computational Linguistics Zurich University, Switzerland</p>
           </div>
         </div>
-        <div class="col-sm-4">
-          <div class="logo">
-            <a href="https://www.c2dh.uni.lu" target="_blank" title="Centre for Contemporary and Digital History (C2DH) Luxembourg University, Luxembourg.">
-              <img src="https://impresso-project.ch/assets/images/c2dh-logo.png">
+        <div class="col-sm-12 col-md-6">
+          <div class="logo ">
+            <a href="/consortium/#unil" title="History department, University of Lausanne, UNIL.">
+              <UnilLogo class="mb-3" />
             </a>
-            <p>Centre for Contemporary and Digital History (C2DH) Luxembourg University, Luxembourg.</p>
+            <p>History department, <br />University of Lausanne, UNIL.</p>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <div class="logo">
+            <a
+              href="https://www.c2dh.uni.lu"
+              target="_blank"
+              title="Centre for Contemporary and Digital History (C2DH) Luxembourg University, Luxembourg."
+            >
+              <UniLogo />
+            </a>
+            <p>
+              Centre for Contemporary and Digital History (C2DH) Luxembourg University, Luxembourg.
+            </p>
           </div>
         </div>
       </div>
 
       <div class="line double my-4"></div>
+      <h3 class="mb-3">Associated Partners</h3>
+      <div class="row">
+        <div v-for="(d, index) in partners" :key="index" class="col-sm-12 col-md-6 mb-3">
+          <a :href="d.href" :title="d.title" target="_blank">{{ d.title }}</a>
+        </div>
+      </div>
+
+      <div class="line double my-4"></div>
+      <h3 class="mb-3">Funding agencies</h3>
 
       <div class="row">
-        <div class="col-sm-4">
-          <h3>connect with us</h3>
-          info @ impresso-project [dot] ch<br>
-          github: <a href="https://github.com/impresso"> <b>impresso</b></a><br>
-          twitter: <a href="https://twitter.com/impressoproject"> <b>@impressoproject</b></a>
-        </div>
-        <div class="col-sm-4">
-          <h3>other relevant links</h3>
-          project <a href="https://impresso-project.ch/project/overview/"> overview</a><br>
-          project <a href="https://impresso-project.ch/consortium#people"> team</a>
-        </div>
-        <div class="col-sm-4">
-          <h3>stay in the loop</h3>
-          <p>
-            <a class="button" id="chimpSignup" style="padding: 6px 10px; font-size:90%; letter-spacing:1px" href="https://mailchi.mp/1059270fc024/impresso-project" target="_blank">Join our mailing list</a>
-          </p>
-        </div>
-      </div>
-
-      <div class="line my-4"></div>
-
-      <div class="row text-center">
-        <div class="logo col-sm-12">
-          <a href="http://www.snf.ch/en/Pages/default.aspx" target="_blank" title="Swiss National Science Foundation">
-            <img src="https://impresso-project.ch/assets/images/snf-rgb-e-logo.png">
-          </a>
-        </div>
-      </div>
-
-      <div class="line my-4"></div>
-
-      <div class="row text-center">
-        <div class="col-sm-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#snl" title="Swiss National Library, SNL">
-              <img src="https://impresso-project.ch/assets/images/snl-logo.png">
-              <p>Swiss National Library, SNL</p>
+        <div class="col-sm-12 col-md-6">
+          <div class="logo">
+            <a
+              href="http://www.snf.ch/en/Pages/default.aspx"
+              target="_blank"
+              title="Swiss National Science Foundation"
+            >
+              <SnsfLogo />
             </a>
+            <p>
+              The Swiss National Science Foundation (SNSF) funds excellent research at universities
+              and other institutions – from chemistry to medicine to sociology
+            </p>
           </div>
         </div>
-        <div class="col-sm-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#bnl" title="National Library of Luxembourg, BnL.">
-              <img src="https://impresso-project.ch/assets/images/bnl-logo.png">
-              <p>National Library of Luxembourg, BnL.</p>
+        <div class="col-sm-12 col-md-6">
+          <div class="logo">
+            <a
+              href="https://www.fnr.lu/"
+              target="_blank"
+              title="Luxembourg National Research Fund - Aller à l'accueil"
+            >
+              <FnrLogo />
             </a>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#aev" title="State Archives of Valais, AEV.">
-              <img src="https://impresso-project.ch/assets/images/aev-logo.png">
-              <p>State Archives of Valais, AEV.</p>
-            </a>
-          </div>
-        </div>
-
-        <div class="col-sm-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#swa" title="Swiss Economic Archives, SWA.">
-              <img src="https://impresso-project.ch/assets/images/unibasel-logo.jpg">
-              <p>Swiss Economic Archives, SWA.</p>
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#le-temps" title="Le Temps">
-              <img src="https://impresso-project.ch/assets/images/letemps-logo.svg">
-              <p>Le Temps</p>
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#nzz" title="Neue Zürcher Zeitung, NZZ.">
-              <img src="https://impresso-project.ch/assets/images/nzz-logo.png">
-              <p>Neue Zürcher Zeitung, NZZ.</p>
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="logo smaller">
-            <a href="/consortium/#unil" title="History department, University of Lausanne, UNIL.">
-              <img src="https://impresso-project.ch/assets/images/unil-logo.png">
-              <p>History department, <br/>University of Lausanne, UNIL.</p>
-            </a>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="logo smaller">
-            <a href="https://impresso-project.ch/consortium/#infoclio" title="infoclio">
-              <img src="https://impresso-project.ch/assets/images/infoclio-ch-logo.jpeg">
-              <p>infoclio</p>
-            </a>
+            <p>
+              The Luxembourg National Research Fund (FNR) is the main funder of research activities
+              in Luxembourg
+            </p>
           </div>
         </div>
       </div>
@@ -134,48 +103,107 @@
 </template>
 
 <script>
-export default {};
+import EpflLogo from '../assets/img/EpflLogo.vue'
+import UzhLogo from '../assets/img/UzhLogo.vue'
+import UniLogo from '../assets/img/UniLogo.vue'
+import SnsfLogo from '../assets/img/SnsfLogo.vue'
+import UnilLogo from '../assets/img/UnilLogo.vue'
+import BnlLogo from '../assets/img/BnlLogo.vue'
+import ScccLogo from '../assets/img/ScccLogo.vue'
+import AevswLogo from '../assets/img/AevswLogo.vue'
+import UbLogo from '../assets/img/UbLogo.vue'
+import LetempsLogo from '../assets/img/LetempsLogo.vue'
+import NzzLogo from '../assets/img/NzzLogo.vue'
+import InfoclioLogo from '../assets/img/InfoclioLogo.vue'
+import FnrLogo from '../assets/img/FnrLogo.vue'
+import partners from './footerLinks.json'
+
+export default {
+  components: {
+    EpflLogo,
+    UzhLogo,
+    UniLogo,
+    SnsfLogo,
+    UnilLogo,
+    BnlLogo,
+    ScccLogo,
+    AevswLogo,
+    UbLogo,
+    LetempsLogo,
+    NzzLogo,
+    InfoclioLogo,
+    FnrLogo,
+  },
+  data: () => ({
+    partners,
+  }),
+}
 </script>
 
 <style lang="scss" scoped>
-footer{
+footer {
   font-size: smaller;
-  color: lighten(black, 50%);
+  color: var(--clr-grey-600);
+
+  h3 {
+    color: var(--clr-grey-700);
+  }
   .logo {
-    a{
-      display: block;
+    a svg,
+    a svg path {
+      fill: var(--clr-grey-900);
+    }
+    a:hover svg,
+    a:hover svg path {
+      fill: var(--impresso-color-yellow);
+    }
+
+    a#snsf-logo {
+      display: inline-block;
+      height: 100% !important;
+      margin: 3rem 0;
+      min-width: 240px;
+      svg {
+        max-width: 240px;
+      }
+    }
+
+    a {
+      display: flex;
+      flex-direction: column;
+      align-items: left;
       margin-bottom: 20px;
-      height: 130px;
       position: relative;
-      img {
-        max-width: 100%;
-        max-height: 70px;
-        filter: grayscale(1);
+      width: auto !important;
+      text-decoration: none;
+
+      svg {
+        min-width: 100px;
+        max-width: 180px;
+        max-height: 100px;
+        transition: all 0.2s ease;
       }
+    }
+    p {
+      width: 100%;
+      text-align: left;
+      color: var(--clr-grey-600);
+      transition: all 0.2s ease;
+    }
+    &:hover {
       p {
-        position: absolute;
-        width: 100%;
-        bottom: 0;
-        color: lighten(black, 50%);
-      }
-      &:hover {
-        img {
-          filter: grayscale(0);
-        }
-        p {
-          color: black;
-        }
+        color: white;
       }
     }
   }
 
-  .line{
-    border-bottom: 1px solid black;
-    &.double{
+  .line {
+    border-bottom: 1px solid var(--clr-grey-700);
+    &.double {
       border-bottom-width: 2px;
     }
   }
-  a:hover{
+  a:hover {
     background: none;
   }
 }
