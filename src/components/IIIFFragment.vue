@@ -1,7 +1,7 @@
 <template>
   <div class="IIIFFragment">
     <figure @click="e => $emit('click', e)" class="position-relative IIIFFragment overflow-hidden">
-      <img class="shadow-sm" :src="imageUrl" alt="IIIF Fragment" />
+      <img class="shadow-sm" :src="computedImageUrl" alt="IIIF Fragment" />
       <div class="IIIFFragment__regions" :style="computedRegionsStyle">
         <div
           v-for="region in computedRegions"
@@ -43,7 +43,7 @@ export default defineComponent({
     fitToRegions: {
       // IIIF size parameter
       type: Boolean,
-      default: true,
+      default: false,
     },
     size: {
       // IIIF size parameter
@@ -64,24 +64,13 @@ export default defineComponent({
     },
   },
   computed: {
-    computedRegionsBoundaries() {
-      return this.regions.reduce(
-        (acc, region) => {
-          const { x, y, w, h } = region.coords
-          return {
-            x: Math.min(acc.x, x),
-            y: Math.min(acc.y, y),
-            w: Math.max(acc.w, w),
-            h: Math.max(acc.h, h),
-          }
-        },
-        { x: Infinity, y: Infinity, w: 0, h: 0 },
-      )
-    },
-    imageUrl() {
+    computedImageUrl() {
       // remove inof.json from IIIF if any
       const iiif = this.iiif.replace('/info.json', '')
-      let url = ''
+      if (this.fitToRegions) {
+        const coords = this.getCoordsFromArticleRegions()
+        return `${iiif}/${coords.x},${coords.y},${coords.w},${coords.h}/${this.size}/0/default.jpg`
+      }
       if (this.coords) {
         // /125,15,120,140/max/0/default.jpg
         const { x, y, w, h } = this.coords
@@ -98,8 +87,19 @@ export default defineComponent({
     },
     computedRegions() {
       if (!this.isLoaded) return []
+      const offsets = this.fitToRegions ? this.getCoordsFromArticleRegions() : null
       return this.regions.map((region, id) => {
         const { x, y, w, h } = region.coords
+        if (offsets) {
+          return {
+            id,
+            x: ((x - offsets.x) / offsets.w) * 100,
+            y: ((y - offsets.y) / offsets.h) * 100,
+            w: (w / offsets.w) * 100,
+            h: (h / offsets.h) * 100,
+          }
+        }
+
         return {
           id,
           x: (x / this.width) * 100,
@@ -140,8 +140,8 @@ export default defineComponent({
     },
   },
   mounted() {
-    const iiif = this.iiif.replace('/info.json', '')
-    console.info('[IIIFFragment]', this.imageUrl, this.matches)
+    const iiif = this.iiif.replace('/info.json', '').replace('https://impresso-project.ch/', '/')
+    console.info('[IIIFFragment]', this.computedImageUrl, this.matches)
     axios
       .get(`${iiif}/info.json`)
       .then(response => {
@@ -155,7 +155,7 @@ export default defineComponent({
           this.imageHeight = this.image.naturalHeight
           this.isLoaded = true
         }
-        this.image.src = this.imageUrl
+        this.image.src = this.computedImageUrl
       })
       .catch(error => {
         console.error(error)
@@ -177,8 +177,8 @@ export default defineComponent({
 }
 .IIIFFragment__region {
   position: absolute;
-  border: 1px solid var(--dark) !important;
-  background-color: var(--clr-grey-400-rgba-20);
+  background-color: var(--impresso-color-pastel-blue-alpha-20);
   z-index: 2;
+  mix-blend-mode: multiply;
 }
 </style>

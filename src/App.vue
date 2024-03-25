@@ -189,6 +189,10 @@ $clr-grey-900: #ddd;
 
   --impresso-color-black: #343a40;
   --impresso-color-black-rgb: 52, 58, 64;
+
+  --impresso-color-pastel-blue: rgba(86, 204, 242);
+  --impresso-color-pastel-blue-alpha-20: rgba(86, 204, 242, 0.2);
+
   --impresso-border-radius-xs: 5px;
   --impresso-border-radius-sm: 10px;
   --impresso-border-radius-md: 15px;
@@ -211,6 +215,7 @@ $clr-grey-900: #ddd;
   --clr-grey-400-rgba-20: rgba(90, 102, 114, 0.2);
   --clr-grey-800-rgba-20: rgba(198, 204, 210, 0.2);
   --clr-grey-900-rgba-20: rgba(221, 221, 221, 0.2);
+
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
   --spacing-3: 1rem;
