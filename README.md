@@ -12,11 +12,21 @@ with `--openssl-legacy-provider` option
 NODE_OPTIONS=--openssl-legacy-provider npm install
 ```
 
+If required, cnfigure Vue proxy to `api` and `socket.io` in `.env.development.local` if needed, do not put any slash at the end of the env variables:
+
+```sh
+VUE_APP_MIDDLELAYER_API="https://...."
+VUE_APP_MIDDLELAYER_API_PATH="/api"
+VUE_APP_MIDDLELAYER_API_SOCKET_PATH="/api/socket.io"
+```
+
 FInally run with:
+
 
 ```
 NODE_OPTIONS=--openssl-legacy-provider npm start
 ```
+
 
 ### Use docker stack for development (node v12)
 
