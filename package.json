@@ -20,9 +20,9 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@feathersjs/authentication-client": "4.3.3",
-    "@feathersjs/feathers": "4.3.3",
-    "@feathersjs/socketio-client": "4.3.3",
+    "@feathersjs/authentication-client": "^5.0.22",
+    "@feathersjs/feathers": "^5.0.22",
+    "@feathersjs/socketio-client": "^5.0.22",
     "axios": "^0.24.0",
     "bootstrap-vue": "2.22.0",
     "core-js": "3.6.4",
