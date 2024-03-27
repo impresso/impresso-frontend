@@ -767,7 +767,7 @@ export default {
     "label_order": "Order By",
     "label_group": "Group By",
     "label_isFront": "Frontpage",
-    "label_embeddings": "find similar words",
+    "label_embeddings": "add similar words",
     "label_hasTextContents": "Contains Text",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",

@@ -3,18 +3,20 @@
     <!--  header -->
     <div slot="header" class="border-bottom bg-light">
       <slot name="tabs">
-        <search-tabs/>
+        <search-tabs />
       </slot>
       <div class="my-3 mx-3" :class="{ focus: hasFocus }">
-        <search-pills
-          :filters="filters"
-          @changed="handleFiltersChanged"
-        />
-        <span v-if="ignoredFilters.length">
-          <em class="small" v-html="$tc('numbers.ignoredFilters', ignoredFilters.length, {
-            n: ignoredFilters.length,
-          })"/>
-          &nbsp;
+        <search-pills :filters="filters" @changed="handleFiltersChanged" />
+        <span v-if="filters.length && ignoredFilters.length">
+          <i
+            class="small"
+            v-html="
+              $tc('numbers.ignoredFilters', ignoredFilters.length, {
+                n: ignoredFilters.length,
+              })
+            "
+          />
+
           <info-button :name="infoButtonName" />
         </span>
         <slot name="header" :focusHandler="focusHandler">
@@ -32,7 +34,8 @@
         :filters="filters"
         :start-year="startYear"
         :end-year="endYear"
-        @changed="handleFiltersChanged"/>
+        @changed="handleFiltersChanged"
+      />
     </div>
   </i-layout-section>
 </template>
@@ -81,11 +84,11 @@ export default {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
       // propagate filters changed
-      this.$emit('changed', filters);
+      this.$emit('changed', filters)
     },
     focusHandler(value) {
-      this.hasFocus = !!value;
-    }
+      this.hasFocus = !!value
+    },
   },
   computed: {
     /** @return {boolean} */
@@ -94,10 +97,10 @@ export default {
       return `how-${this.contextTag}-work-with-search-filters`
     },
     startYear() {
-      return window.impressoDocumentsYearSpan.firstYear;
+      return window.impressoDocumentsYearSpan.firstYear
     },
     endYear() {
-      return window.impressoDocumentsYearSpan.lastYear;
+      return window.impressoDocumentsYearSpan.lastYear
     },
   },
   components: {
@@ -106,22 +109,22 @@ export default {
     SearchTabs,
     SearchFacets,
   },
-};
+}
 </script>
 <style lang="scss">
-  @import "@/styles/variables.sass";
-  .search-box{
-    border: 1px solid #777;
-  }
-  .search-box.focus{
+@import '@/styles/variables.sass';
+.search-box {
+  border: 1px solid #777;
+}
+.search-box.focus {
+  box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
+  border-color: black;
+  border-radius: 2px;
+}
+.bg-dark {
+  .search-box.focus {
     box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
-    border-color: black;
-    border-radius: 2px;
+    border-color: white;
   }
-  .bg-dark{
-    .search-box.focus {
-      box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
-      border-color: white;
-    }
-  }
+}
 </style>
