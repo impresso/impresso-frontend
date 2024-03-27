@@ -131,9 +131,9 @@ export default {
 
 @font-face {
   font-family: 'Satoshi-Variable';
-  src: url('/fonts/Satoshi-Variable.woff2') format('woff2'),
-    url('/fonts/Satoshi-Variable.woff') format('woff'),
-    url('/fonts/Satoshi-Variable.ttf') format('truetype');
+  src: url('/assets/fonts/Satoshi-Variable.woff2') format('woff2'),
+    url('/assets/fonts/Satoshi-Variable.woff') format('woff'),
+    url('/assets/fonts/Satoshi-Variable.ttf') format('truetype');
   font-weight: 300 900;
   font-display: swap;
   font-style: normal;
@@ -141,9 +141,9 @@ export default {
 
 @font-face {
   font-family: 'Satoshi-VariableItalic';
-  src: url('/fonts/Satoshi-VariableItalic.woff2') format('woff2'),
-    url('/fonts/Satoshi-VariableItalic.woff') format('woff'),
-    url('/fonts/Satoshi-VariableItalic.ttf') format('truetype');
+  src: url('/assets/fonts/Satoshi-VariableItalic.woff2') format('woff2'),
+    url('/assets/fonts/Satoshi-VariableItalic.woff') format('woff'),
+    url('/assets/fonts/Satoshi-VariableItalic.ttf') format('truetype');
   font-weight: 300 900;
   font-display: swap;
   font-style: italic;
@@ -151,9 +151,9 @@ export default {
 
 @font-face {
   font-family: 'Sentient-Variable';
-  src: url('/fonts/Sentient-Variable.woff2') format('woff2'),
-    url('/fonts/Sentient-Variable.woff') format('woff'),
-    url('/fonts/Sentient-Variable.ttf') format('truetype');
+  src: url('/assets/fonts/Sentient-Variable.woff2') format('woff2'),
+    url('/assets/fonts/Sentient-Variable.woff') format('woff'),
+    url('/assets/fonts/Sentient-Variable.ttf') format('truetype');
   font-weight: 300 900;
   font-display: swap;
   font-style: normal;
@@ -161,9 +161,9 @@ export default {
 
 @font-face {
   font-family: 'Sentient-VariableItalic';
-  src: url('/fonts/Sentient-VariableItalic.woff2') format('woff2'),
-    url('/fonts/Sentient-VariableItalic.woff') format('woff'),
-    url('/fonts/Sentient-VariableItalic.ttf') format('truetype');
+  src: url('/assets/fonts/Sentient-VariableItalic.woff2') format('woff2'),
+    url('/assets/fonts/Sentient-VariableItalic.woff') format('woff'),
+    url('/assets/fonts/Sentient-VariableItalic.ttf') format('truetype');
   font-weight: 300 900;
   font-display: swap;
   font-style: normal;
