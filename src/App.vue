@@ -826,7 +826,8 @@ input[type='range']:active::-ms-thumb {
 .dropdown-menu {
   min-width: 100px;
   padding: 0;
-  top: -0.5px !important;
+  // top: -0.5px !important;
+  margin-top: -1px;
 }
 
 // change button color when bg-dark
