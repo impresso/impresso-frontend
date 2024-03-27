@@ -200,21 +200,30 @@ $clr-grey-900: #ddd;
   --impresso-border-radius-xl: 30px;
   --impresso-font-size-smallcaps: 0.72em;
   --impresso-letter-spacing-smallcaps: 0.85px;
+  --impresso-font-size-smaller: 0.85em;
   --impresso-wght-smallcaps: 580;
-  --clr-white: #ffffff;
-  --clr-grey-100: #17191c;
-  --clr-grey-300: #424a52;
-  --clr-grey-400: #5a6672;
-  --clr-grey-500: #6e8091;
-  --clr-grey-600: #8a9aa7;
-  --clr-grey-700: #a7b6c2;
-  --clr-grey-800: #c6ccd2;
-  --clr-grey-900: #ddd;
-  --clr-grey-100-rgba-20: rgba(23, 25, 28, 0.2);
-  --clr-grey-300-rgba-20: rgba(66, 74, 82, 0.2);
-  --clr-grey-400-rgba-20: rgba(90, 102, 114, 0.2);
-  --clr-grey-800-rgba-20: rgba(198, 204, 210, 0.2);
-  --clr-grey-900-rgba-20: rgba(221, 221, 221, 0.2);
+  --clr-white: #f8f8ff;
+  --clr-white-rgba-20: #ffffff33;
+  --clr-dark: var(--impresso-color-black);
+
+  --clr-grey-100: #3d4146;
+  --clr-grey-200: #5b5e65;
+  --clr-grey-300: #84868e;
+  --clr-grey-400: #a9aab4;
+  --clr-grey-500: #c2c3cb;
+  --clr-grey-600: #d4d5e1;
+  --clr-grey-700: #e1e1ee;
+  --clr-grey-800: #ececfb;
+  --clr-grey-900: #f8f8ff;
+  --clr-grey-100-rgba-20: #464d5333;
+  --clr-grey-200-rgba-20: #585d6633;
+  --clr-grey-300-rgba-20: #7c7f8c33;
+  --clr-grey-400-rgba-20: #a0a1a333;
+  --clr-grey-500-rgba-20: #b1b2c633;
+  --clr-grey-600-rgba-20: #c3c4d933;
+  --clr-grey-700-rgba-20: #d5d5ec33;
+  --clr-grey-800-rgba-20: #e7e7ff33;
+  --clr-grey-900-rgba-20: #f8f8ff33;
 
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
@@ -246,6 +255,8 @@ $clr-grey-900: #ddd;
   --bs-box-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.075);
 
   --bs-font-size-base: 1rem;
+  --impresso-font-size-3: 1.75rem;
+  --impresso-font-size-4: 1.5rem;
 }
 
 body {

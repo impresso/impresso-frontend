@@ -1,10 +1,7 @@
 <template>
-  <i-layout
-    id="HomePage2020"
-    :class="{ 'pt-1px bg-light border-top': showLines, 'bg-dark border-tertiary': darkMode }"
-  >
+  <i-layout id="HomePage2020" class="HomePage bg-dark">
     <i-layout-section
-      width="400px"
+      class="HomePage__sidebar"
       :class="{ ' mr-1px border-top border-right': showLines, 'border-tertiary': darkMode }"
     >
       <!--  header -->
@@ -90,141 +87,151 @@
         <br />
       </div>
     </i-layout-section>
-    <i-layout-section
-      :class="{ ' ml-1px border-top border-left': showLines, 'border-tertiary': darkMode }"
-    >
-      <div class="container-fluid text-tertiary">
-        <div class="row">
-          <div class="col-lg-6">
-            <h1 class="huge m-4 my-2">
-              Media Monitoring <br />of the <span class="text-accent">Past</span>
-            </h1>
-            <section
-              v-if="!user"
-              class="p-3 mb-3 mt-5 text-tertiary rounded enhance-contents position-relative shadow"
-            >
-              <div class="starburst-mask">
-                <div class="starburst-wrapper">
-                  <div class="position-absolute text">
-                    Gain full Access for <b>free</b>!<br />
-                    <div class="dripicons-jewel"></div>
-                  </div>
-                  <div class="position-absolute rotating">
-                    <div class="starburst example" id="example-2"><span>&nbsp;</span></div>
-                  </div>
-                </div>
+    <i-layout-section>
+      <div class="d-flex flex-wrap align-items-center">
+        <section class="HomePage__card">
+          <h1 class="HomePage__hugeHeading">
+            Media Monitoring <br />of the <span class="text-accent">Past</span>
+          </h1>
+          <h2 style="font-style: italic;">
+            Mining 200 years <br />of historical newspapers, and radio.
+          </h2>
+        </section>
+        <section
+          v-if="!user"
+          class="HomePage__card p-3 mb-3 mt-5 text-tertiary rounded enhance-contents position-relative shadow"
+        >
+          <div class="starburst-mask">
+            <div class="starburst-wrapper">
+              <div class="position-absolute text">
+                Gain full Access for <b>free</b>!<br />
+                <div class="dripicons-jewel"></div>
               </div>
-
-              <p>
-                For legal reasons not all content is available.
-                <br />
-                To gain access to the <b class="text-white">full impresso corpus</b> please
-                <router-link class="text-white" :to="{ name: 'register' }">register</router-link>
-                and sign our Non-Disclosure-Agreement.
-              </p>
-              <b-button
-                :variant="darkMode ? 'primary' : 'outline-primary'"
-                size="lg"
-                class="border-primary rounded shadow-sm"
-                href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
-                target="_self"
-              >
-                <div class="d-flex flex-row align-items-center">
-                  <div class="d-flex dripicons dripicons-download mr-2" />
-                  <div>{{ $t('download_nda') }}</div>
-                </div>
-              </b-button>
-              <p class="mb-0 mt-3">
-                ... and return the signed form to
-                <a class="text-white" href="mailto:info@impresso-project.ch" target="_self"
-                  >info@impresso-project.ch</a
-                >
-              </p>
-            </section>
-
-            <section>
-              <h2>
-                How can newspapers help understand the past? How to explore them?
-              </h2>
-
-              <b-container class="challenges my-4 enhance-contents border-0 p-0  shadow">
-                <b-row class="p-0 rounded" style="overflow: hidden">
-                  <b-col lg="6" md="12">
-                    <img
-                      src="./../assets/img/challenges-screenshot.png"
-                      class="w-100 h-100"
-                      style="object-fit: contain; object-position: center; border-start-start-radius: var(--border-radius-md);border-end-start-radius: var(--border-radius-md);opacity:.8"
-                      alt="impresso challenges"
-                    />
-                  </b-col>
-                  <b-col lg="6" md="12">
-                    <div class="py-3 pr-3 ">
-                      <h3 :class="{ 'text-white': darkMode }">
-                        <i class="pb-3">Impresso Challenges</i>
-                      </h3>
-                      <p :class="{ 'text-white': darkMode }">
-                        <b
-                          >How to explore the newspapers with persons or locations? <br />What are
-                          topics good for? <br />What elements can be compared?
-                        </b>
-                      </p>
-                      <p>
-                        Get a better understanding of this interfaces’ features and how they can
-                        interact with 3 challenges, starting with an initiation and leading to an
-                        expert level use of the interface.
-                      </p>
-                      <b-button
-                        :variant="darkMode ? 'primary' : 'outline-primary'"
-                        size="lg"
-                        href="./../assets/impresso-challenges-1.2.3.pdf"
-                        target="_blank"
-                        class="rounded border-0"
-                      >
-                        <div class="d-flex flex-row align-items-center">
-                          <div class="d-flex dripicons dripicons-download mr-2" />
-                          <div class="small-caps">
-                            download challenges
-                            <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
-                          </div>
-                        </div>
-                      </b-button>
-                    </div>
-                  </b-col>
-                </b-row>
-              </b-container>
-            </section>
-          </div>
-          <div class="col">
-            <h2 class="text-white mt-5">
-              Mining 200 years <br />of historical newspapers, and radio.
-            </h2>
-            <p class="text-white">
-              Just a few examples to get you started!
-            </p>
-            <div class="d-flex flex-wrap">
-              <Recipe
-                v-for="recipe in computedRecipesWithQuery"
-                class="m-3 p-3"
-                :key="recipe.caption"
-                :query="recipe.query"
-                :caption="recipe.caption"
-                :text="recipe.text"
-                :video="recipe.video"
-                :img_src="recipe.img_src"
-              />
+              <div class="position-absolute rotating">
+                <div class="starburst example" id="example-2"><span>&nbsp;</span></div>
+              </div>
             </div>
           </div>
+
+          <p>
+            For legal reasons not all content is available.
+            <br />
+            To gain access to the <b class="text-white">full impresso corpus</b> please
+            <router-link class="text-white" :to="{ name: 'register' }">register</router-link>
+            and sign our Non-Disclosure-Agreement.
+          </p>
+          <b-button
+            :variant="darkMode ? 'primary' : 'outline-primary'"
+            size="lg"
+            class="border-primary rounded shadow-sm"
+            href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
+            target="_self"
+          >
+            <div class="d-flex flex-row align-items-center">
+              <div class="d-flex dripicons dripicons-download mr-2" />
+              <div>{{ $t('download_nda') }}</div>
+            </div>
+          </b-button>
+          <p class="mb-0 mt-3">
+            ... and return the signed form to
+            <a class="text-white" href="mailto:info@impresso-project.ch" target="_self"
+              >info@impresso-project.ch</a
+            >
+          </p>
+        </section>
+
+        <div class="HomePage__card">
+          <h3>
+            Try the Impresso Challenges
+          </h3>
+          <p>
+            How to explore the newspapers with persons or locations? <br />What are topics good for?
+            <br />What elements can be compared?
+          </p>
+          <b-button
+            variant="primary"
+            size="lg"
+            href="./../assets/impresso-challenges-1.2.3.pdf"
+            target="_blank"
+            class="rounded border"
+          >
+            <div class="d-flex flex-row w-100 align-items-center">
+              <div class="d-flex dripicons dripicons-download mr-2" />
+              <div class="small-caps">
+                download challenges
+                <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
+              </div>
+            </div>
+          </b-button>
+          <!-- <b-row class="p-0 rounded" style="overflow: hidden">
+            <b-col lg="6" md="12" class="bg-white">
+              <img
+                src="./../assets/img/challenges-screenshot.png"
+                class="w-100 h-100"
+                style="object-fit: contain; object-position: center; border-start-start-radius: var(--border-radius-md);border-end-start-radius: var(--border-radius-md);opacity:.8"
+                alt="impresso challenges"
+              />
+            </b-col>
+            <b-col lg="6" md="12">
+              <div class="py-3 pr-3">
+                
+                <p>
+                  <b
+                    >How to explore the newspapers with persons or locations? <br />What are topics
+                    good for? <br />What elements can be compared?
+                  </b>
+                </p>
+                <p>
+                  Get a better understanding of this interfaces’ features and how they can interact
+                  with 3 challenges, starting with an initiation and leading to an expert level use
+                  of the interface.
+                </p>
+                <b-button
+                  :variant="darkMode ? 'primary' : 'outline-primary'"
+                  size="lg"
+                  href="./../assets/impresso-challenges-1.2.3.pdf"
+                  target="_blank"
+                  class="rounded border-0"
+                >
+                  <div class="d-flex flex-row align-items-center">
+                    <div class="d-flex dripicons dripicons-download mr-2" />
+                    <div class="small-caps">
+                      download challenges
+                      <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
+                    </div>
+                  </div>
+                </b-button>
+              </div>
+            </b-col>
+          </b-row> -->
         </div>
-      </div>
-      <!-- video recipes (old) -->
-      <div class="d-flex flex-wrap align-items-center">
-        <h2 class="p-3 m-3 " style="max-width: 480px">
+        <section class="HomePage__card">
+          <h3>
+            How can newspapers help understand the past? How to explore them?
+          </h3>
+
+          <p>
+            Just a few examples to get you started!
+          </p>
+        </section>
+        <Recipe
+          v-for="recipe in computedRecipesWithQuery"
+          class="HomePage__card "
+          :key="recipe.caption"
+          :query="recipe.query"
+          :caption="recipe.caption"
+          :text="recipe.text"
+          :video="recipe.video"
+          :img_src="recipe.img_src"
+        />
+
+        <h3 class="p-3 m-3 HomePage__card">
           Take a moment to familiarise yourself with <em>impresso</em>'s <b>advanced search</b> and
           <b> exploration workflows</b>
-        </h2>
+        </h3>
         <Recipe
           v-for="recipe in computedRecipesWithoutQuery"
-          class="p-3 m-3 "
+          class=" HomePage__card  "
           :key="recipe.caption"
           :caption="recipe.caption"
           :text="recipe.text"
@@ -245,10 +252,7 @@ import Recipes from './modules/homepage/Recipes'
 import HomePageFooter from './HomePageFooter'
 import InfoButton from './base/InfoButton'
 import Recipe from './Recipe'
-import { filtersItems as filtersItemsService } from '@/services'
-import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
-import { optimizeFilters, serializeFilters, joinFiltersWithItems } from '@/logic/filters'
-import { getFilterQuery } from '../models/SearchQuery'
+import { optimizeFilters, serializeFilters } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
 
@@ -274,8 +278,6 @@ const AllowedFilterTypes = [
 
 export default {
   data: () => ({
-    /** @type {Filter[]} */
-    filtersWithItems: [],
     impressoInfo: window.impressoInfo,
     recipes: content.recipes,
   }),
@@ -288,31 +290,32 @@ export default {
       type: Boolean,
       default: true,
     },
+    filters: {
+      type: Array,
+      default: () => [],
+    },
+    filtersWithItems: {
+      type: Array,
+      default: () => [],
+    },
   },
   computed: {
-    searchQuery: searchQueryGetter(),
-    searchQueryHash: searchQueryHashGetter(),
     /** @returns {Filter[]} */
     enrichedFilters() {
       return this.filtersWithItems.length
         ? this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
-        : this.filters
+        : this.allowedFilters
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
-      return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
+      return this.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
     /** @returns {Filter[]} */
-    filters() {
+    allowedFilters() {
       // filter by type
-      return this.searchQuery.filters.filter(({ type }) => AllowedFilterTypes.includes(type))
+      return this.filters.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
-    searchServiceQuery() {
-      const query = {
-        filters: this.filters.map(getFilterQuery),
-      }
-      return query
-    },
+
     user() {
       return this.$store.getters['user/user']
     },
@@ -341,26 +344,6 @@ export default {
       this.handleFiltersChanged(this.filters)
     },
   },
-  watch: {
-    searchServiceQuery: {
-      handler({ filters }) {
-        if (!filters.length) {
-          return
-        }
-        filtersItemsService
-          .find({
-            query: {
-              filters: this.searchQueryHash,
-            },
-          })
-          .then(joinFiltersWithItems)
-          .then(filtersWithItems => {
-            this.filtersWithItems = filtersWithItems
-          })
-      },
-      immediate: true,
-    },
-  },
   components: {
     Autocomplete,
     SearchTabs,
@@ -375,10 +358,26 @@ export default {
 
 <style lang="scss">
 @import 'impresso-theme/src/scss/variables.sass';
+.HomePage__card {
+  max-width: 420px;
+  margin: var(--spacing-3);
+  padding: var(--spacing-3);
+}
 
+.HomePage__sidebar {
+  min-width: 400px;
+}
+.HomePage.bg-dark {
+  color: var(--clr-grey-500);
+}
+
+.HomePage h3 {
+  font-family: var(--bs-font-sans-serif);
+  color: var(--clr-grey-700);
+}
 #HomePage2020.bg-dark {
   ul.nav.nav-pills .nav-item.active .nav-link {
-    color: $clr-white;
+    color: var(--clr-white);
     border-color: $clr-secondary;
     border-bottom-color: #343a40; // theme-color("dark")
   }
@@ -387,22 +386,22 @@ export default {
   .input-group > .form-control,
   .input-group > .custom-select,
   .input-group > .custom-file {
-    color: $clr-white;
+    color: var(--clr-white);
     background-color: #343a40;
-    border-color: $clr-white !important;
+    border-color: var(--clr-white) !important;
     &::placeholder {
-      color: $clr-white;
+      color: var(--clr-white);
     }
     &:hover {
-      background-color: black;
+      background-color: var(--clr-dark);
     }
   }
   .btn-outline-primary {
-    border-color: #caccce;
-    color: #caccce;
+    border-color: var(--clr-grey-500);
+    color: var(--clr-grey-500);
     text-decoration: none;
     &:hover {
-      color: $clr-white;
+      color: var(--clr-white);
     }
   }
 
@@ -420,7 +419,7 @@ export default {
   }
 
   .stats a {
-    color: $clr-white;
+    color: var(--clr-white);
     &:hover {
       color: var(--impresso-color-yellow);
     }
@@ -431,8 +430,8 @@ export default {
   }
 }
 
-h1.huge {
-  font-size: 6vw;
+h1.HomePage__hugeHeading {
+  font-size: 8vh;
   line-height: 0.9;
 }
 .stats span.number {
@@ -440,15 +439,15 @@ h1.huge {
 }
 
 .bg-dark {
-  h1.huge {
+  h1.HomePage__hugeHeading {
     text-shadow: 1px 1px 1px #17191c;
   }
-  h1.huge,
+  h1.HomePage__hugeHeading,
   h2 {
-    color: white;
+    color: var(--clr-white);
   }
   .stats span.number {
-    color: white;
+    color: var(--clr-white);
   }
 
   &.border-tertiary,

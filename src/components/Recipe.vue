@@ -18,7 +18,7 @@
     </a>
     <a
       v-bind:href="query"
-      class="btn btn-md btn-primary border-0 btn-block text-dark bg-light mt-3"
+      class="btn btn-md btn-outline-primary border btn-block  mt-3"
       v-if="query"
       >{{ $t('perform_query') }}</a
     >
@@ -62,20 +62,19 @@ export default {
 
 <style lang="css">
 .Recipe {
-  background: #e9fff71f;
+  background: var(--clr-grey-100);
   border-radius: var(--impresso-border-radius-md);
-  max-width: 480px;
 }
-.Recipe:hover {
-  background-color: #e9fff73b;
-}
+
 .Recipe:hover h3 {
   color: var(--clr-white);
 }
 .Recipe h3 {
   color: var(--clr-grey-800);
   font-family: var(--bs-font-sans-serif);
+  font-size: var(--impresso-font-size-4);
 }
+
 .Recipe__videoWrapper {
   padding-top: 47%;
   height: 0;
