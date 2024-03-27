@@ -8,6 +8,12 @@
       contextTag="search-ngrams"
       @changed="handleFiltersChanged"
     >
+      <div slot="header">
+        <!-- tehre is a hidden filter in allowed filter :) -->
+        <div v-if="allowedFilters.length < 2" class=" mx-1 small">
+          Filter your search with the options below.
+        </div>
+      </div>
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
           {{ $t('label.isFront') }}
@@ -493,11 +499,13 @@ export default {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
       const sq = serializeFilters(optimizeFilters(filters).concat(this.ignoredFilters))
+      const query = {
+        sq,
+      }
+      if (this.unigrams.length > 0) query[QueryParameters.Unigrams] = this.unigrams.join(',')
       this.$router.push({
         name: 'searchNgrams',
-        query: {
-          sq,
-        },
+        query,
       })
     },
     /** @returns {Date} */
