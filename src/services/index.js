@@ -9,11 +9,11 @@ import uploadedImagesHooks from './hooks/uploadedImages'
 import imagesHooks from './hooks/images'
 import NamesService from './names'
 
-const MiddleLayerApiBase = `${process.env.VUE_APP_MIDDLELAYER_API}`
-const socket = io(MiddleLayerApiBase || window.location.hostname, {
+// e.g io api base is http://localhost
+// and path is  something like /path/to/socket.io defined in the backend
+const socket = io(process.env.VUE_APP_MIDDLELAYER_API, {
   path: process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH,
 })
-
 export const app = feathers()
 
 app.configure(

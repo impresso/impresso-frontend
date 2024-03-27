@@ -1,6 +1,7 @@
 const readFile = require('fs').readFileSync
 
 const PackageJsonPath = `${__dirname}/package.json`
+const SocketIoProxyPath = `^${process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH}`
 
 function getVersion() {
   try {
@@ -19,6 +20,14 @@ process.env.VUE_APP_GIT_TAG = process.env.GIT_TAG || 'latest'
 process.env.VUE_APP_GIT_BRANCH = process.env.GIT_BRANCH || ''
 process.env.VUE_APP_GIT_REVISION = process.env.GIT_REVISION || ''
 process.env.VUE_APP_VERSION = getVersion()
+
+console.log('[vue.config] SocketIoProxyPath', SocketIoProxyPath)
+console.log('[vue.config] process.env.VUE_APP_MIDDLELAYER_API', process.env.VUE_APP_MIDDLELAYER_API)
+console.log('[vue.config] process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH', process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH)
+console.log('[vue.config] process.env.VUE_APP_GIT_TAG', process.env.VUE_APP_GIT_TAG)
+console.log('[vue.config] process.env.VUE_APP_GIT_BRANCH', process.env.VUE_APP_GIT_BRANCH)
+console.log('[vue.config] process.env.VUE_APP_GIT_REVISION', process.env.VUE_APP_GIT_REVISION)
+
 
 module.exports = {
   chainWebpack: config => {
@@ -53,7 +62,7 @@ module.exports = {
     public: 'http://localhost:8080',
 
     proxy: {
-      '^/api/socket.io': {
+      [SocketIoProxyPath]: {
         target: process.env.VUE_APP_MIDDLELAYER_API,
         ws: true,
         changeOrigin: true,
