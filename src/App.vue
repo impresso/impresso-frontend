@@ -149,25 +149,25 @@ export default {
   font-style: italic;
 }
 
-@font-face {
-  font-family: 'Sentient-Variable';
-  src: url('/assets/fonts/Sentient-Variable.woff2') format('woff2'),
-    url('/assets/fonts/Sentient-Variable.woff') format('woff'),
-    url('/assets/fonts/Sentient-Variable.ttf') format('truetype');
-  font-weight: 300 900;
-  font-display: swap;
-  font-style: normal;
-}
+// @font-face {
+//   font-family: 'Sentient-Variable';
+//   src: url('/assets/fonts/Sentient-Variable.woff2') format('woff2'),
+//     url('/assets/fonts/Sentient-Variable.woff') format('woff'),
+//     url('/assets/fonts/Sentient-Variable.ttf') format('truetype');
+//   font-weight: 300 900;
+//   font-display: swap;
+//   font-style: normal;
+// }
 
-@font-face {
-  font-family: 'Sentient-VariableItalic';
-  src: url('/assets/fonts/Sentient-VariableItalic.woff2') format('woff2'),
-    url('/assets/fonts/Sentient-VariableItalic.woff') format('woff'),
-    url('/assets/fonts/Sentient-VariableItalic.ttf') format('truetype');
-  font-weight: 300 900;
-  font-display: swap;
-  font-style: normal;
-}
+// @font-face {
+//   font-family: 'Sentient-VariableItalic';
+//   src: url('/assets/fonts/Sentient-VariableItalic.woff2') format('woff2'),
+//     url('/assets/fonts/Sentient-VariableItalic.woff') format('woff'),
+//     url('/assets/fonts/Sentient-VariableItalic.ttf') format('truetype');
+//   font-weight: 300 900;
+//   font-display: swap;
+//   font-style: normal;
+// }
 
 $clr-white: #ffffff;
 // $clr-dark: #212529;
