@@ -1,7 +1,11 @@
 <template>
   <div class="IIIFFragment">
     <figure @click="e => $emit('click', e)" class="position-relative IIIFFragment overflow-hidden">
-      <img class="shadow-sm" :src="computedImageUrl" alt="IIIF Fragment" />
+      <img
+        class="shadow-sm"
+        :src="computedImageUrl"
+        :alt="isNotFound ? 'Image not available' : ''"
+      />
       <div class="IIIFFragment__regions" :style="computedRegionsStyle">
         <div
           v-for="region in computedRegions"
@@ -16,6 +20,9 @@
         ></div>
       </div>
     </figure>
+    <div v-if="errorMessage" class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
   </div>
 </template>
 <script>
@@ -32,6 +39,8 @@ export default defineComponent({
       imageHeight: 0,
       image: null,
       isLoaded: false,
+      isNotFound: false,
+      errorMessage: null,
     }
   },
   props: {
@@ -138,26 +147,48 @@ export default defineComponent({
         h: y1 - y0,
       }
     },
+    async getIIIFInfo() {
+      const iiif = this.iiif
+        .replace('/info.json', '')
+        .replace(String(process.env.VUE_APP_BASE_URL), '')
+
+      const status = await axios
+        .get(`${iiif}/info.json`)
+        .then(response => {
+          this.width = response.data.width
+          this.height = response.data.height
+          this.image = new Image()
+          // get actual size fo the image
+          this.image.onload = () => {
+            this.imageWidth = this.image.naturalWidth
+            this.imageHeight = this.image.naturalHeight
+            this.isLoaded = true
+          }
+          this.image.src = this.computedImageUrl
+          return 'success'
+        })
+        .catch(error => {
+          if (error.response.status !== 404) {
+            this.errorMessage = error.message + iiif
+            return 'error'
+          }
+          console.warn(
+            '[IIIFFragment] Error catch on @mounted iiif',
+            iiif,
+            '\nerror:',
+            error.message,
+            error,
+          )
+          this.isLoaded = false
+          this.isNotFound = true
+          return 'not found'
+        })
+      console.info('[IIIFFragment] \n - iiif:', iiif, '\n - status:', status)
+    },
   },
+
   mounted() {
-    const iiif = this.iiif.replace('/info.json', '').replace('https://impresso-project.ch/', '/')
-    axios
-      .get(`${iiif}/info.json`)
-      .then(response => {
-        this.width = response.data.width
-        this.height = response.data.height
-        this.image = new Image()
-        // get actual size fo the image
-        this.image.onload = () => {
-          this.imageWidth = this.image.naturalWidth
-          this.imageHeight = this.image.naturalHeight
-          this.isLoaded = true
-        }
-        this.image.src = this.computedImageUrl
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    this.getIIIFInfo()
     // load iiiif info.json
   },
 })
