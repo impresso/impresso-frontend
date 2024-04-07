@@ -5,7 +5,7 @@
         @click="goToArticle"
         v-if="computedRegionsInArticleFirstPage"
         :iiif="article.pages[0].iiif"
-        size="!250,240"
+        size="!248,240"
         fit-to-regions
         :regions="computedRegionsInArticleFirstPage"
       />
@@ -84,7 +84,7 @@
         <IIIFFragment
           @click="goToArticle"
           :iiif="article.pages[0].iiif"
-          size="!250,240"
+          size="!248,240"
           :regions="computedRegionsInArticleFirstPage"
         />
       </div>
@@ -283,13 +283,13 @@ export default {
 }
 .SearchResultListItem {
   .thumbnail {
-    width: 215px;
+    width: 250px;
     height: 240px;
     position: relative;
     cursor: move;
   }
   .error {
-    width: 215px;
+    width: 250px;
     height: 240px;
     position: relative;
     text-align: center;
