@@ -56,17 +56,7 @@
           </b-badge>
         </div>
 
-        <router-link
-          :to="{
-            name: 'article',
-            params: {
-              issue_uid: article.issue.uid,
-              page_uid: article.pages.length > 0 ? article.pages[0].uid : undefined,
-              article_uid: article.uid,
-            },
-          }"
-          class="btn btn-sm btn-outline-primary mr-1"
-        >
+        <router-link :to="computedArticleRouterLink" class="btn btn-sm btn-outline-primary mr-1">
           {{ $t('view') }}
         </router-link>
 
@@ -187,8 +177,25 @@ export default {
       if (this.article.pages.length > 0 && this.article.regions.length > 0) {
         return this.article.regions.filter(({ pageUid }) => pageUid === this.article.pages[0].uid)
       }
-
       return null
+    },
+    computedArticleRouterLink() {
+      if (this.article.pages.length === 0) {
+        return {
+          name: 'issue',
+          params: {
+            issue_uid: this.article.issue.uid,
+          },
+        }
+      }
+      return {
+        name: 'article',
+        params: {
+          issue_uid: this.article.issue.uid,
+          page_uid: this.article.pages.length > 0 ? this.article.pages[0].uid : undefined,
+          article_uid: this.article.uid,
+        },
+      }
     },
   },
   methods: {
@@ -225,14 +232,7 @@ export default {
       this.showModalShare = false
     },
     goToArticle() {
-      this.$router.push({
-        name: 'article',
-        params: {
-          issue_uid: this.article.issue.uid,
-          page_uid: this.article.pages.length > 0 ? this.article.pages[0].uid : undefined,
-          article_uid: this.article.uid,
-        },
-      })
+      this.$router.push(this.computedArticleRouterLink)
     },
     getCoordsFromArticleRegions() {
       let x0 = Infinity
