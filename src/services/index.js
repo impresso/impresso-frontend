@@ -11,7 +11,9 @@ import NamesService from './names'
 
 // e.g io api base is http://localhost
 // and path is  something like /path/to/socket.io defined in the backend
-const socket = io(process.env.VUE_APP_MIDDLELAYER_API, {
+const SocketBasePath =
+  process.env.NODE_ENV === 'development' ? '' : process.env.VUE_APP_MIDDLELAYER_API
+const socket = io(SocketBasePath, {
   path: process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH,
 })
 export const app = feathers()
