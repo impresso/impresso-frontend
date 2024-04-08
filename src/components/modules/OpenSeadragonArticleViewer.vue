@@ -32,21 +32,20 @@ function createPageOverlay(tiledImage) {
  * @returns {{ overlay: any, rect: Rect }}
  */
 function createRegionOverlay(tiledImage, region, clickHandler) {
-
   // @ts-ignore
   const overlay = window.document.createElement('div')
   overlay.setAttribute('class', 'overlay-region')
   overlay.dataset.articleUid = region.articleUid
 
-  overlay.addEventListener('mouseenter', (event) => {
+  overlay.addEventListener('mouseenter', event => {
     const articleUid = event.target.dataset.articleUid
 
-    event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+    event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach(item => {
       item.classList.add('selected')
     })
   })
 
-  overlay.addEventListener('click', (event) => {
+  overlay.addEventListener('click', event => {
     const articleUid = event.target.dataset.articleUid
     event.stopPropagation()
     clickHandler(articleUid)
@@ -60,10 +59,10 @@ function createRegionOverlay(tiledImage, region, clickHandler) {
     // })
   })
 
-  overlay.addEventListener('mouseleave', (event) => {
+  overlay.addEventListener('mouseleave', event => {
     const articleUid = event.target.dataset.articleUid
 
-    event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach((item) => {
+    event.target.parentNode.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach(item => {
       item.classList.remove('selected')
     })
   })
@@ -72,7 +71,7 @@ function createRegionOverlay(tiledImage, region, clickHandler) {
     region.coords.x,
     region.coords.y,
     region.coords.w,
-    region.coords.h
+    region.coords.h,
   )
 
   return { overlay, rect }
@@ -99,18 +98,8 @@ function getMarginaliaOverlayRect(tiledImage, isRight) {
   const { x, y, width, height } = tiledImage.getBounds()
   const factor = 2.5
   return isRight
-    ? new Rect(
-      x + width,
-      y,
-      width / factor,
-      height
-    )
-    : new Rect(
-      x - width / factor,
-      y,
-      width / factor,
-      height
-    )
+    ? new Rect(x + width, y, width / factor, height)
+    : new Rect(x - width / factor, y, width / factor, height)
 }
 
 const DefaultZoomLevel = 0.0008
@@ -133,35 +122,35 @@ export default {
     isDragging: false,
     marginaliaPanelLeft: createMarginaliaOverlay(true),
     marginaliaPanelRight: createMarginaliaOverlay(false),
-    currentZoomLevel: DefaultZoomLevel
+    currentZoomLevel: DefaultZoomLevel,
   }),
   props: {
     /** @type {import('vue').PropOptions<string[]>} */
     pages: {
-      type: Array
+      type: Array,
     },
     defaultCurrentPageIndex: {
       type: Number,
-      default: 0
+      default: 0,
     },
     article: Object,
     /** @type {import('vue').PropOptions<Region[]>} */
     regions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     /** @type {import('vue').PropOptions<MarginaliaSection[]>} */
     marginaliaSections: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   methods: {
     /**
      * @returns {Promise<Viewer>}
      */
     async getViewer() {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         setTimeout(() => {
           if (this.viewer != null) return resolve(this.viewer)
 
@@ -175,8 +164,8 @@ export default {
               dblClickToZoom: true,
             },
             defaultZoomLevel: DefaultZoomLevel,
-            collectionMode:       true,
-            collectionRows:       1,
+            collectionMode: true,
+            collectionRows: 1,
             // collectionTileSize:   512,
             collectionTileMargin: 16,
             // debugMode: true
@@ -190,15 +179,19 @@ export default {
 
             if (currentX < firstItemX) currentX = firstItemX
 
-            const itemsBounds = [...Array(viewer.world.getItemCount()).keys()].map(i => viewer.world.getItemAt(i).getBounds())
+            const itemsBounds = [...Array(viewer.world.getItemCount()).keys()].map(i =>
+              viewer.world.getItemAt(i).getBounds(),
+            )
             const currentItemIndex = itemsBounds.findIndex((item, index, bounds) => {
               if (index + 1 >= bounds.length) return true
 
-              const previousItem = index > 0 ? bounds[index-1] : undefined
-              const nextItem = bounds[index+1]
+              const previousItem = index > 0 ? bounds[index - 1] : undefined
+              const nextItem = bounds[index + 1]
 
               const leftBoundary = previousItem
-                ? (previousItem.x + previousItem.width) + (item.x - (previousItem.x + previousItem.width)) / 2
+                ? previousItem.x +
+                  previousItem.width +
+                  (item.x - (previousItem.x + previousItem.width)) / 2
                 : item.x
               const rightBoundary = item.x + item.width + (nextItem.x - (item.x + item.width)) / 2
 
@@ -215,12 +208,14 @@ export default {
           this.$emit('page-changed', this.currentPageIndex)
 
           this.viewer.addHandler('canvas-drag', () => {
-            this.isDragging = true;
-          });
+            this.isDragging = true
+          })
 
           this.viewer.addHandler('canvas-drag-end', () => {
-            setTimeout(() => { this.isDragging = false }, 0);
-          });
+            setTimeout(() => {
+              this.isDragging = false
+            }, 0)
+          })
 
           this.viewer.addHandler('zoom', ({ zoom }) => {
             this.currentZoomLevel = /** @type {number} */ (zoom)
@@ -229,7 +224,7 @@ export default {
           resolve(this.viewer)
         }, 0)
       })
-    }
+    },
   },
   mounted() {
     this.currentPageIndex = this.defaultCurrentPageIndex
@@ -249,7 +244,7 @@ export default {
     fontSize() {
       const newFontSize = ((this.currentZoomLevel * 0.7) / DefaultZoomLevel) * MaxFontSizePc
       return newFontSize > MaxFontSizePc ? MaxFontSizePc : newFontSize
-    }
+    },
   },
   watch: {
     pages: {
@@ -268,15 +263,15 @@ export default {
         viewer.open(pages)
       },
       immediate: true,
-      deep: true
+      deep: true,
     },
     defaultCurrentPageIndex: {
       handler(idx) {
-        if (this.viewer && this.currentPageIndex !== idx) {
+        if (this.viewer && this.currentPageIndex !== idx && this.viewer.world.getItemAt(idx)) {
           this.viewer.viewport.fitBounds(this.viewer.world.getItemAt(idx).getBounds(), true)
           this.viewer.viewport.zoomTo(DefaultZoomLevel)
         }
-      }
+      },
     },
     readyData: {
       async handler({ regions, article }) {
@@ -288,65 +283,54 @@ export default {
         if (tiledImage == null) return
 
         this.currentOverlays = regions.map(region => {
-          const { overlay, rect } = createRegionOverlay(
-            tiledImage,
-            region,
-            articleUid => {
-              if (this.isDragging) return
-              this.$emit('article-selected', articleUid)
-            }
-          )
+          const { overlay, rect } = createRegionOverlay(tiledImage, region, articleUid => {
+            if (this.isDragging) return
+            this.$emit('article-selected', articleUid)
+          })
           if (article.uid && region.articleUid === article.uid) {
-            overlay.classList.add('active');
+            overlay.classList.add('active')
           }
           viewer.addOverlay(overlay, rect)
           return overlay
         })
 
         // page overlay (page selection background)
-        const { overlay, rect } = createPageOverlay(tiledImage);
+        const { overlay, rect } = createPageOverlay(tiledImage)
         viewer.addOverlay(overlay, rect)
         this.currentOverlays.push(overlay)
 
         // marginalia repositioning
         viewer.removeOverlay(this.marginaliaPanelLeft.$el)
-        viewer.addOverlay(
-          this.marginaliaPanelLeft.$el,
-          getMarginaliaOverlayRect(tiledImage, false)
-        )
+        viewer.addOverlay(this.marginaliaPanelLeft.$el, getMarginaliaOverlayRect(tiledImage, false))
 
         viewer.removeOverlay(this.marginaliaPanelRight.$el)
-        viewer.addOverlay(
-          this.marginaliaPanelRight.$el,
-          getMarginaliaOverlayRect(tiledImage, true)
-        )
+        viewer.addOverlay(this.marginaliaPanelRight.$el, getMarginaliaOverlayRect(tiledImage, true))
       },
       immediate: true,
-      deep: true
+      deep: true,
     },
     marginaliaSections: {
       handler() {
         this.marginaliaPanelLeft.$set(
           this.marginaliaPanelLeft,
           'sections',
-          this.marginaliaSections.filter(({ isLeft }) => isLeft)
+          this.marginaliaSections.filter(({ isLeft }) => isLeft),
         )
         this.marginaliaPanelRight.$set(
           this.marginaliaPanelRight,
           'sections',
-          this.marginaliaSections.filter(({ isLeft }) => !isLeft)
+          this.marginaliaSections.filter(({ isLeft }) => !isLeft),
         )
       },
       immediate: true,
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 }
 </script>
 
-
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'impresso-theme/src/scss/variables.sass';
 
 .os-article-viewer {
   height: 100%;
