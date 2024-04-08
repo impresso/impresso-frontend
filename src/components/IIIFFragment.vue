@@ -71,13 +71,20 @@ export default defineComponent({
       type: Array,
       default: () => [],
     },
+    coordMinArea: {
+      type: Number,
+      default: 250 * 250,
+    },
   },
   computed: {
     computedImageUrl() {
       // remove inof.json from IIIF if any
-      const iiif = this.iiif.replace('/info.json', '')
-      if (this.fitToRegions) {
+      let iiif = this.iiif.replace('/info.json', '')
+      if (this.regions.length && this.fitToRegions) {
         const coords = this.getCoordsFromArticleRegions()
+        if (coords.w * coords.h < this.coordMinArea) {
+          return `${iiif}/full/${this.size}/0/default.jpg`
+        }
         return `${iiif}/${coords.x},${coords.y},${coords.w},${coords.h}/${this.size}/0/default.jpg`
       }
       if (this.coords) {

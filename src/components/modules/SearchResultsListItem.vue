@@ -3,7 +3,7 @@
     <div v-if="isAvailable()" class="thumbnail" slot="aside">
       <IIIFFragment
         @click="goToArticle"
-        v-if="computedRegionsInArticleFirstPage"
+        v-if="article.pages.length"
         :iiif="article.pages[0].iiif"
         size="!248,240"
         fit-to-regions
@@ -177,7 +177,8 @@ export default {
       if (this.article.pages.length > 0 && this.article.regions.length > 0) {
         return this.article.regions.filter(({ pageUid }) => pageUid === this.article.pages[0].uid)
       }
-      return null
+      console.warn('[SearchResultsListItem] No regions found for article', this.article)
+      return []
     },
     computedArticleRouterLink() {
       if (this.article.pages.length === 0) {
