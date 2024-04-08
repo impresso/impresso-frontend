@@ -128,6 +128,9 @@ export default class Timeline extends Line {
     }
 
     this.brushDebounceTimer = setTimeout(() => {
+      if (!this.contextBrush) {
+        return
+      }
       const to = [
         min instanceof Date ? min : this.brushTimeParse(min),
         max instanceof Date ? max : this.brushTimeParse(max),

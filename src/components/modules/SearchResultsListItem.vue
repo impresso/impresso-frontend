@@ -3,9 +3,9 @@
     <div v-if="isAvailable()" class="thumbnail" slot="aside">
       <IIIFFragment
         @click="goToArticle"
-        v-if="computedRegionsInArticleFirstPage"
+        v-if="article.pages.length"
         :iiif="article.pages[0].iiif"
-        size="!250,240"
+        size="!248,240"
         fit-to-regions
         :regions="computedRegionsInArticleFirstPage"
       />
@@ -56,17 +56,7 @@
           </b-badge>
         </div>
 
-        <router-link
-          :to="{
-            name: 'article',
-            params: {
-              issue_uid: article.issue.uid,
-              page_uid: article.pages.length > 0 ? article.pages[0].uid : undefined,
-              article_uid: article.uid,
-            },
-          }"
-          class="btn btn-sm btn-outline-primary mr-1"
-        >
+        <router-link :to="computedArticleRouterLink" class="btn btn-sm btn-outline-primary mr-1">
           {{ $t('view') }}
         </router-link>
 
@@ -94,7 +84,7 @@
         <IIIFFragment
           @click="goToArticle"
           :iiif="article.pages[0].iiif"
-          size="!250,240"
+          size="!248,240"
           :regions="computedRegionsInArticleFirstPage"
         />
       </div>
@@ -187,8 +177,26 @@ export default {
       if (this.article.pages.length > 0 && this.article.regions.length > 0) {
         return this.article.regions.filter(({ pageUid }) => pageUid === this.article.pages[0].uid)
       }
-
-      return null
+      console.warn('[SearchResultsListItem] No regions found for article', this.article)
+      return []
+    },
+    computedArticleRouterLink() {
+      if (this.article.pages.length === 0) {
+        return {
+          name: 'issue',
+          params: {
+            issue_uid: this.article.issue.uid,
+          },
+        }
+      }
+      return {
+        name: 'article',
+        params: {
+          issue_uid: this.article.issue.uid,
+          page_uid: this.article.pages.length > 0 ? this.article.pages[0].uid : undefined,
+          article_uid: this.article.uid,
+        },
+      }
     },
   },
   methods: {
@@ -225,14 +233,7 @@ export default {
       this.showModalShare = false
     },
     goToArticle() {
-      this.$router.push({
-        name: 'article',
-        params: {
-          issue_uid: this.article.issue.uid,
-          page_uid: this.article.pages.length > 0 ? this.article.pages[0].uid : undefined,
-          article_uid: this.article.uid,
-        },
-      })
+      this.$router.push(this.computedArticleRouterLink)
     },
     getCoordsFromArticleRegions() {
       let x0 = Infinity
@@ -283,13 +284,13 @@ export default {
 }
 .SearchResultListItem {
   .thumbnail {
-    width: 215px;
+    width: 250px;
     height: 240px;
     position: relative;
     cursor: move;
   }
   .error {
-    width: 215px;
+    width: 250px;
     height: 240px;
     position: relative;
     text-align: center;

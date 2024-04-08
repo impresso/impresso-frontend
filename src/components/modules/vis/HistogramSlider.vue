@@ -130,7 +130,7 @@ export default {
       const counts = this.buckets.map(({ count }) => count)
 
       const maxCountBucketIndex = counts.indexOf(Math.max(...counts))
-      console.debug('renderChart()', this.buckets)
+      // console.debug('renderChart()', this.buckets)
       const x = d3
         .scaleBand()
         .domain(this.buckets.map(({ val }) => val))

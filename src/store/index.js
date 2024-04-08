@@ -172,7 +172,7 @@ export default new Store({
         error.code,
         error.name,
         error.message,
-        error.stack,
+        error,
       )
       if (errorRoute.length && errorRoute[0] === 'errors-collector') {
         console.info(

@@ -2,6 +2,7 @@ const readFile = require('fs').readFileSync
 
 const PackageJsonPath = `${__dirname}/package.json`
 const SocketIoProxyPath = `^${process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH}`
+const ApiIiifProxyPath = `^${process.env.VUE_APP_MIDDLELAYER_API_PATH}/proxy/`
 
 function getVersion() {
   try {
@@ -22,12 +23,15 @@ process.env.VUE_APP_GIT_REVISION = process.env.GIT_REVISION || ''
 process.env.VUE_APP_VERSION = getVersion()
 
 console.log('[vue.config] SocketIoProxyPath', SocketIoProxyPath)
+console.log('[vue.config] ApiIiifProxyPath', ApiIiifProxyPath)
 console.log('[vue.config] process.env.VUE_APP_MIDDLELAYER_API', process.env.VUE_APP_MIDDLELAYER_API)
-console.log('[vue.config] process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH', process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH)
+console.log(
+  '[vue.config] process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH',
+  process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH,
+)
 console.log('[vue.config] process.env.VUE_APP_GIT_TAG', process.env.VUE_APP_GIT_TAG)
 console.log('[vue.config] process.env.VUE_APP_GIT_BRANCH', process.env.VUE_APP_GIT_BRANCH)
 console.log('[vue.config] process.env.VUE_APP_GIT_REVISION', process.env.VUE_APP_GIT_REVISION)
-
 
 module.exports = {
   chainWebpack: config => {
@@ -67,7 +71,8 @@ module.exports = {
         ws: true,
         changeOrigin: true,
       },
-      '^/api/proxy': {
+      // this is from IIIF stored in the datagase, thsy usually contain /api/proxy
+      [ApiIiifProxyPath]: {
         target: process.env.VUE_APP_MIDDLELAYER_API,
         ws: false,
         changeOrigin: true,
