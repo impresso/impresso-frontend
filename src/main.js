@@ -7,7 +7,6 @@ import VueGtag from 'vue-gtag'
 
 import Helpers from '@/plugins/Helpers'
 import ImpressoLayout from '@/plugins/Layout'
-import TawkTo from '@/plugins/TawkTo'
 import EventBus from '@/plugins/EventBus'
 import MetaTags from '@/plugins/MetaTags'
 import Navigation from '@/plugins/Navigation'
@@ -33,9 +32,7 @@ Vue.use(EventBus)
 Vue.use(ImpressoLayout)
 Vue.use(MetaTags, { suffix: 'impresso' })
 Vue.use(Navigation)
-if (process.env.VUE_APP_TAWK_TO_SITE_ID) {
-  Vue.use(TawkTo, { siteId: process.env.VUE_APP_TAWK_TO_SITE_ID })
-}
+
 if (process.env.VUE_APP_GA_TRACKING_ID) {
   Vue.use(
     VueGtag,
@@ -77,7 +74,7 @@ const reducedTimeoutPromise = ({ ms = 500, service }) =>
   new Promise((resolve, reject) => {
     let id = setTimeout(() => {
       clearTimeout(id)
-      reject(`Timed out in ${ms} ms for service: ${service}`)
+      reject(new Error(`Timed out in ${ms} ms for service: ${service}`))
     }, ms)
   })
 
@@ -102,13 +99,13 @@ console.info(
 
 Promise.race([
   services.app.reAuthenticate(),
-  reducedTimeoutPromise({ service: 'app.reAuthenticate' }),
+  reducedTimeoutPromise({ ms: 2000, service: 'app.reAuthenticate' }),
 ])
   .catch(err => {
     if (err.code === 401) {
       // eslint-disable-next-line
       console.debug('[main] Not authenticated (status 401):', err.message)
-      if (store.state.user.userData) {
+      if (store.state.user) {
         // eslint-disable-next-line
         console.debug(
           '[main] Authentication failed ... but an user is present in logalStorage. Force logging out.',
@@ -173,6 +170,9 @@ Promise.race([
         '[main] App latest notification date:',
         store.state.settings.lastNotificationDate,
       )
+      window.impressoFrontendVersion = process.env.VUE_APP_GIT_TAG
+      window.impressoFrontendRevision = process.env.VUE_APP_GIT_REVISION
+      window.impressoFrontendBranch = process.env.VUE_APP_GIT_BRANCH
       window.impressoVersion = version
       window.impressoApiVersion = apiVersion
       window.impressoDocumentsDateSpan = documentsDateSpan
@@ -181,6 +181,36 @@ Promise.race([
       window.impressoDocumentsYearSpan = {
         firstYear: new Date(documentsDateSpan.firstDate).getFullYear(),
         lastYear: new Date(documentsDateSpan.lastDate).getFullYear(),
+      }
+      window.impressoInfo = {
+        frontend: {
+          version: window.impressoFrontendVersion,
+          revision: window.impressoFrontendRevision,
+          branch: window.impressoFrontendBranch,
+          gitRepoUrl: process.env.VUE_APP_GIT_REPO,
+          gitCommitUrl: `${process.env.VUE_APP_GIT_REPO}/commit/${window.impressoFrontendRevision}`,
+          gitCommitUrlLabel: process.env.VUE_APP_GIT_REPO.split('/')
+            .slice(3, 5)
+            .join('/'),
+        },
+        middleLayer: {
+          version: 'v' + window.impressoApiVersion.version,
+          revision: window.impressoApiVersion.revision,
+          branch: window.impressoApiVersion.branch,
+          gitRepoUrl: process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO,
+          gitCommitUrl: `${process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO}/commit/${window.impressoApiVersion.revision}`,
+          gitCommitUrlLabel: process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO.split('/')
+            .slice(3, 5)
+            .join('/'),
+        },
+        project: {
+          repoUrl: process.env.VUE_APP_GIT_REPO.split('/')
+            .slice(0, 4)
+            .join('/'),
+          repoUrlLabel: process.env.VUE_APP_GIT_REPO.split('/')
+            .slice(3, 5)
+            .join('/'),
+        },
       }
 
       window.app = new Vue({

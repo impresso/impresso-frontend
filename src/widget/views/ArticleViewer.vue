@@ -1,24 +1,17 @@
-<template lang="html">
+<template>
   <div :style="getBackgroundStyle">
     <div class="image">
-      <open-seadragon-viewer :style="getOverlayStyle"
-        v-bind:handler="handler" />
-    </div>
-    <div class="caption">
-      <div class="p-3" v-if="article">
-        <h1 class="mb-2">{{ article.title }}</h1>
-        {{ article.newspaper.name }} - {{ article.date }}
-      </div>
+      <open-seadragon-viewer :style="getOverlayStyle" v-bind:handler="handler" />
     </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
-import { articles } from '@/services';
-import Article from '@/models/Article';
-import { validateOrIgnore } from '../logic/props';
-import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer';
+import Vue from 'vue'
+import { articles } from '@/services'
+import Article from '@/models/Article'
+import { validateOrIgnore } from '../logic/props'
+import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer'
 
 export default {
   data: () => ({
@@ -39,11 +32,12 @@ export default {
     OpenSeadragonViewer,
   },
   mounted() {
+    console.info('[ArticleViewer] mounted:', this.$route.params, this.$route.query)
     if (this.articleUid) {
-      articles.get(this.articleUid).then((res) => {
-        this.article = new Article(res);
-        this.initViewer();
-      });
+      articles.get(this.articleUid).then(res => {
+        this.article = new Article(res)
+        this.initViewer()
+      })
     }
     // ({ iiif, accessRights }) => {
     //   this.imageURL = `${iiif}/${this.coords}/full/0/default.jpg`;
@@ -52,45 +46,58 @@ export default {
   },
   computed: {
     articleUid() {
-      const { articleUid } = this.$route.params;
+      const { articleUid } = this.$route.params
       // GAZ-1843-03-08-a-i0007
-      if (!/^[A-Za-z]+-\d{4}-\d{2}-\d{2}-[a-z]-i\d{4}$/.test(articleUid)) {
-        console.error('articleUid() not valid:', articleUid);
-        return null;
+      if (!/^[A-Za-z\d]+-\d{4}-\d{2}-\d{2}-[a-z]-i\d{4}$/.test(articleUid)) {
+        console.error('articleUid() not valid:', articleUid)
+        return null
       }
-      return articleUid;
+      return articleUid
     },
     pageUid() {
-      const { pageUid } = this.$route.params;
+      const { pageUid } = this.$route.params
       // GAZ-1843-03-08-a-p0003
-      if (!/^[A-Za-z]+-\d{4}-\d{2}-\d{2}-[a-z]-p\d{4}$/.test(pageUid)) {
-        console.warn('pageUid() not valid:', pageUid, 'returning index.');
-        return null;
+      if (!/^[A-Za-z\d]+-\d{4}-\d{2}-\d{2}-[a-z]-p\d{4}$/.test(pageUid)) {
+        console.warn('pageUid() not valid:', pageUid, 'returning index.')
+        return null
       }
-      return pageUid;
+      return pageUid
     },
     getBackgroundStyle() {
       return {
-        backgroundColor: validateOrIgnore(
-          'backgroundColor',
-          this.backgroundColor,
-        ),
-      };
+        backgroundColor: validateOrIgnore('backgroundColor', this.backgroundColor),
+      }
     },
     getOverlayStyle() {
       return {
-        '--overlay-color': validateOrIgnore(
-          'overlayBackgroundColor',
-          this.overlayBackgroundColor,
-        ),
-      };
+        '--overlay-color': validateOrIgnore('overlayBackgroundColor', this.overlayBackgroundColor),
+      }
     },
   },
   methods: {
+    hasValidCoords() {
+      return /^[0-9]+,[0-9]+,[0-9]+,[0-9]+$/.test(this.coords)
+    },
+    drawHighlightRectangle(viewer, coords) {
+      const overlay = window.document.createElement('div')
+      overlay.setAttribute('class', 'overlay-region')
+      Object.keys(this.getOverlayStyle).forEach(cssProp => {
+        overlay[cssProp] = this.getOverlayStyle[cssProp]
+      })
+      const rect = viewer.viewport.imageToViewportRectangle(...coords)
+      viewer.addOverlay(overlay, rect)
+    },
+    fitBounds(viewer, coords) {
+      const margin = isNaN(this.coordsMargin) ? 10 : parseInt(this.coordsMargin, 10)
+      const rect = viewer.viewport.imageToViewportRectangle(
+        ...[coords[0] - margin, coords[1] - margin, coords[2] + margin * 2, coords[3] + margin * 2],
+      )
+      viewer.viewport.fitBoundsWithConstraints(rect)
+    },
     initViewer() {
-      const self = this;
-      this.isOSVieverLoaded = false;
-      this.handler.$emit('destroy');
+      const self = this
+      this.isOSVieverLoaded = false
+      this.handler.$emit('destroy')
       this.handler.$emit('init', {
         sequenceMode: true,
         showSequenceControl: false,
@@ -104,70 +111,57 @@ export default {
           dblClickToZoom: true,
         },
         visibilityRatio: 0.5,
-      });
+      })
 
-      this.handler.$emit('dispatch', (viewer) => {
+      this.handler.$emit('dispatch', viewer => {
         viewer.addHandler('tile-loaded', () => {
           if (self.isOSVieverLoaded) {
-            return;
+            return
           }
-          console.info('OSViewer @tile-loaded, n. regions:', self.article.regions.length, 'style:', self.getOverlayStyle);
-          self.isOSVieverLoaded = true;
+          console.info(
+            'OSViewer @tile-loaded, n. regions:',
+            self.article.regions.length,
+            'style:',
+            self.getOverlayStyle,
+            self.coords,
+          )
+          self.isOSVieverLoaded = true
 
-          self.article.regions.forEach((region) => {
+          if (self.hasValidCoords()) {
+            const coords = self.coords.split(',').map(v => parseInt(v, 10))
+            self.drawHighlightRectangle(viewer, coords)
+            self.fitBounds(viewer, coords)
+
+            return
+          }
+
+          self.article.regions.forEach(region => {
             // create one overlay per region
-            const overlay = window.document.createElement('div');
-            overlay.setAttribute('class', 'overlay-region');
+            const overlay = window.document.createElement('div')
+            overlay.setAttribute('class', 'overlay-region')
             // self.getOverlayStyle
-            Object.keys(self.getOverlayStyle).forEach((cssProp) => {
-              overlay[cssProp] = self.getOverlayStyle[cssProp];
+            Object.keys(self.getOverlayStyle).forEach(cssProp => {
+              overlay[cssProp] = self.getOverlayStyle[cssProp]
             })
             const rect = viewer.viewport.imageToViewportRectangle(
               region.coords.x,
               region.coords.y,
               region.coords.w,
-              region.coords.h);
-            viewer.addOverlay(overlay, rect);
-            console.info('overlay-region', region.coords);
-          });
-
-          const coords = validateOrIgnore(
-            'coords',
-            self.coords,
-            false,
-          );
-
-          if (coords) {
-            const margin = parseInt(validateOrIgnore(
-              'coordsMargin',
-              self.coordsMargin,
-            ), 10);
-            setTimeout(function() {
-              const args = coords.split(',').map((v, k) => {
-                const v0 = parseInt(v, 10);
-                return k > 1 ? v0 + (margin * 2) : v0 - margin;
-              });
-              // args[0] = args[0] - margin;
-              // args[1] = args[1] - margin;
-              // args[2] = args[2] + (margin * 2);
-              // args[3] = args[3] + (margin * 2);
-              viewer.viewport.fitBounds(viewer.viewport.imageToViewportRectangle(
-                // 75,203,1291,626
-                ... args,
-                // ...coords.split(','), // -45,163,1351,666
-              ));
-            }, 0);
-          }
-        });
-      });
-    }
-  }
-};
+              region.coords.h,
+            )
+            viewer.addOverlay(overlay, rect)
+            console.info('overlay-region', region.coords)
+          })
+        })
+      })
+    },
+  },
+}
 </script>
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'impresso-theme/src/scss/variables.sass';
 
-div.overlay-region{
+div.overlay-region {
   // background-color: $clr-accent-secondary;
   background-color: var(--overlay-color);
   // transparentize($clr-accent-secondary, 0.2);

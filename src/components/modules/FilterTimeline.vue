@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="filter-timeline">
     <base-title-bar
       >{{ $t(`label.timeline.${groupBy}`) }}
@@ -37,7 +37,9 @@
     <timeline
       class="bg-light pb-2 mb-3"
       :values="values"
+      :brushable="false"
       :brush="brush"
+      @brush-end="onTimelineBrushEnd"
       :percentage="isPercentage"
       @brushed="onTimelineBrushed"
     >
@@ -60,11 +62,17 @@
       </b-button>
     </div>
 
-    <div class="border p-2 bg-white" v-for="(filter, i) in filters" :key="i">
+    <div
+      class=" p-2 bg-white border rounded"
+      v-for="(filter, i) in filters"
+      :key="i"
+      style="box-shadow: var(--bs-box-shadow-sm)"
+    >
       <filter-monitor
         :filter="filter"
         @daterange-changed="updateBrush($event)"
         @changed="updateDaterangeFilterAtIndex($event, i)"
+        @remove="removeFilter(i)"
       />
     </div>
     <!-- temporary filter -->
@@ -218,16 +226,22 @@ export default {
       this.$emit('changed', [this.temporaryFilter].concat(this.filters))
       this.temporaryFilter = null
     },
+    removeFilter(i) {
+      this.$emit(
+        'changed',
+        this.filters.filter((_, j) => i !== j),
+      )
+    },
     removeTemporaryDaterangeFilter() {
       this.temporaryFilter = null
     },
-    addTemporaryDaterangeFilter() {
+    addTemporaryDaterangeFilter({ start, end } = {}) {
       if (this.temporaryFilter) {
         return
       }
       const daterange = new Daterange({
-        start: this.minDate,
-        end: this.maxDate,
+        start: start || this.minDate,
+        end: end || this.maxDate,
       })
       console.info('addDaterangeFilter() q:', daterange.getValue())
       this.temporaryFilter = new FilterDaterange({
@@ -238,6 +252,15 @@ export default {
       this.temporaryFilter.hash = getFilterHash(this.temporaryFilter)
       // set selectedIndex as first item.
       this.selectedFilterIndex = 0
+    },
+    onTimelineBrushEnd(data) {
+      console.info('[FilterTimeline] @BrushEnd', data)
+      if (!this.temporaryFilter && !this.filters.length) {
+        this.addTemporaryDaterangeFilter({
+          start: data.minDate,
+          end: data.maxDate,
+        })
+      }
     },
     onTimelineBrushed(data) {
       if (!this.temporaryFilter) {

@@ -13,7 +13,7 @@
       </b-form-group>
     </div>
 
-    <div v-else>
+    <div v-else class="d-flex flex-wrap">
       <!--  context -->
       <b-dropdown size="sm" variant="outline-primary" class="mr-1">
         <template slot="button-content">
@@ -40,9 +40,15 @@
           ><span class="small" v-html="$t(`op.${option}.${currentContext}`)"></span
         ></b-dropdown-item>
       </b-dropdown>
+      <b-button
+        class="dripicons-cross ms-auto ml-auto rounded p-0"
+        size="sm"
+        variant="transparent"
+        @click="$emit('remove')"
+      ></b-button>
     </div>
     <div class="items" :class="{ reduced: tooManyItems }">
-      <div v-for="(item, idx) in filter.items" :key="idx" class="mt-2">
+      <div v-for="(item, idx) in filterItems" :key="idx" class="mt-2">
         <div v-if="RangeFacets.includes(type)">
           <filter-number-range
             v-if="NumericRangeFacets.includes(type)"
@@ -50,12 +56,16 @@
             :end="parseInt(item.end, 10)"
             @changed="handleRangeChanged"
           />
-          <filter-daterange
-            v-else
-            :start="new Date(item.start)"
-            :end="new Date(item.end)"
-            @changed="handleRangeChanged"
-          />
+          <div v-if="type === 'daterange'">
+            <FilterDateRangeCalendar
+              :show-calendar="!checkbox"
+              :start-date="new Date(item.start)"
+              :end-date="new Date(item.end)"
+              :min-date="minDate"
+              :max-date="maxDate"
+              @changed="handleRangeChanged"
+            />
+          </div>
         </div>
         <b-form-checkbox
           v-else-if="StringTypes.includes(type)"
@@ -222,7 +232,8 @@
 </template>
 
 <script>
-import FilterDaterange from '@/components/modules/FilterDateRange'
+// import FilterDaterange from '@/components/modules/FilterDateRange'
+import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar'
 import FilterNumberRange from '@/components/modules/FilterNumberRange'
 import ItemSelector from '@/components/modules/ItemSelector'
 import ItemLabel from '@/components/modules/lists/ItemLabel'
@@ -284,6 +295,25 @@ export default {
       type: Array,
       default: () => [],
     },
+    // ony required when type is daterange. This is implemented in FilterFacetDateRange component
+    minDate: {
+      type: Date,
+      required: false,
+      default: () => {
+        const date = new Date(window.impressoDocumentsYearSpan.firstYear + '-01-01')
+        date.setUTCHours(0, 0, 0, 0)
+        return date
+      },
+    },
+    maxDate: {
+      type: Date,
+      required: false,
+      default: () => {
+        const date = new Date(window.impressoDocumentsYearSpan.lastYear + '-12-31')
+        date.setUTCHours(23, 59, 59, 0)
+        return date
+      },
+    },
   },
   computed: {
     tooManyItems() {
@@ -328,6 +358,20 @@ export default {
         text: this.$t(`op.${value}.${this.currentContext}`),
         value,
       }))
+    },
+    serializedFilters() {
+      return [
+        this.hasChanges,
+        this.excludedItemsIds.length,
+        this.validStringsToAdd.length,
+        this.itemsToAdd.length,
+        toSerializedFilter(this.filter),
+        toSerializedFilter(this.editedFilter),
+        toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter),
+      ]
+    },
+    filterItems() {
+      return [...this.filter.items]
     },
     hasChanges() {
       return (
@@ -418,9 +462,10 @@ export default {
       // this.editedFilter.precisions = 'soft'
     },
     handleRangeChanged({ item, q }) {
+      console.info('[FilterMonitor] @handleRangeChanged', item, q)
       this.editedFilter = {
         ...this.editedFilter,
-        items: [item],
+        // items: [item],
         q,
       }
       if (!NumericRangeFacets.includes(this.editedFilter.type))
@@ -432,7 +477,8 @@ export default {
     },
   },
   components: {
-    FilterDaterange,
+    // FilterDaterange,
+    FilterDateRangeCalendar,
     CollectionItem,
     EmbeddingsSearch,
     ItemLabel,
@@ -512,7 +558,7 @@ label.custom-control-label {
         "apply": "apply changes"
       },
       "country": {
-        "title": "Filter by country of publication",
+        "title": "country of publication",
         "context": {
           "include": "newspapers published in",
           "exclude": "newspapers <b>NOT</b> published in"
@@ -533,7 +579,7 @@ label.custom-control-label {
         "apply": "apply changes"
       },
       "topic": {
-        "title": "filter by topic",
+        "title": "topic",
         "selected": "filter results if <b>one of {count} selected</b> topic applies",
         "filtered": "filter results if <b>one of {count} selected</b> topic applies",
         "description": "check one or more topics to filter results",
@@ -558,7 +604,7 @@ label.custom-control-label {
         }
       },
       "collection": {
-        "title": "filter by collection",
+        "title": "collection",
         "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
         "description": "check one or more newspaper to filter results",
         "clear": "reset",
@@ -570,7 +616,7 @@ label.custom-control-label {
         }
       },
       "newspaper": {
-        "title": "filter by newspaper titles",
+        "title": "newspaper titles",
         "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
         "description": "check one or more newspaper to filter results",
         "clear": "reset",
@@ -582,7 +628,7 @@ label.custom-control-label {
         }
       },
       "language": {
-        "title": "filter by language of articles",
+        "title": "language of articles",
         "selected": "filter results if they are written in <b>one of {count} selected</b> languages",
         "description": "check one or more language to filter results",
         "apply": "apply changes",
@@ -593,7 +639,7 @@ label.custom-control-label {
         }
       },
       "daterange": {
-        "title": "filter by date of publication",
+        "title": "date of publication",
         "selected": "filter results if they are published between <b>one of {count} selected</b> languages",
         "description": "check one or more language to filter results",
         "apply": "apply changes",
@@ -604,7 +650,7 @@ label.custom-control-label {
         }
       },
       "textReuseClusterSize": {
-        "title": "filter by text reuse cluster size",
+        "title": "text reuse cluster size",
         "apply": "apply changes",
         "clear": "reset",
         "context": {
@@ -613,7 +659,7 @@ label.custom-control-label {
         }
       },
       "textReuseClusterLexicalOverlap": {
-        "title": "filter by text reuse cluster lexical overlap",
+        "title": "text reuse cluster lexical overlap",
         "apply": "apply changes",
         "clear": "reset",
         "context": {
@@ -622,7 +668,7 @@ label.custom-control-label {
         }
       },
       "textReuseClusterDayDelta": {
-        "title": "filter by text reuse cluster time span (days)",
+        "title": "text reuse cluster time span (days)",
         "apply": "apply changes",
         "clear": "reset",
         "context": {
@@ -631,7 +677,7 @@ label.custom-control-label {
         }
       },
       "contentLength": {
-        "title": "filter by content length span",
+        "title": "content length span",
         "apply": "apply changes",
         "clear": "reset",
         "context": {

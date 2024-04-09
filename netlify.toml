@@ -1,3 +1,18 @@
+
+## This rule redirects to an external API, signing requests with a secret
+[[redirects]]
+  from = "/api/socket.io/*"
+  to = "https://impresso-project.ch/api/socket.io/:splat"
+  status = 200
+  force = true
+
+## This rule redirects to an external API, signing requests with a secret
+[[redirects]]
+  from = "/api/proxy/*"
+  to = "https://impresso-project.ch/api/proxy/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
