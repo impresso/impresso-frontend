@@ -371,7 +371,7 @@ export default {
       ]
     },
     filterItems() {
-      return [...this.filter.items]
+      return this.filter && Array.isArray(this.filter.items) ? [...this.filter.items] : []
     },
     hasChanges() {
       return (
