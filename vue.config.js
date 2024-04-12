@@ -2,7 +2,11 @@ const readFile = require('fs').readFileSync
 
 const PackageJsonPath = `${__dirname}/package.json`
 const SocketIoProxyPath = `^${process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH}`
-const ApiIiifProxyPath = `^${process.env.VUE_APP_MIDDLELAYER_API_PATH}/proxy/`
+const ApiIiifProxyPath = [
+  '^',
+  String(process.env.VUE_APP_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
+  '/proxy/',
+].join('')
 
 function getVersion() {
   try {
@@ -24,6 +28,11 @@ process.env.VUE_APP_VERSION = getVersion()
 
 console.log('[vue.config] SocketIoProxyPath', SocketIoProxyPath)
 console.log('[vue.config] ApiIiifProxyPath', ApiIiifProxyPath)
+console.log('[vue.config] process.env.NODE_ENV', process.env.NODE_ENV)
+console.log(
+  '[vue.config] process.env.VUE_APP_USE_PROXY_MIDDLEWARE (check src/services/index.js)',
+  process.env.VUE_APP_USE_PROXY_MIDDLEWARE,
+)
 console.log('[vue.config] process.env.VUE_APP_MIDDLELAYER_API', process.env.VUE_APP_MIDDLELAYER_API)
 console.log(
   '[vue.config] process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH',
@@ -64,7 +73,6 @@ module.exports = {
   },
   devServer: {
     public: 'http://localhost:8080',
-
     proxy: {
       [SocketIoProxyPath]: {
         target: process.env.VUE_APP_MIDDLELAYER_API,
