@@ -1,7 +1,7 @@
 <template>
   <span v-on:click.prevent.stop="selectItem">
     <slot></slot>
-    <span v-if="label" class="ItemSelector_label">{{ label }}</span>
+    <span v-if="label" class="ItemSelector_label underline">{{ label }}</span>
     <span v-else class="dripicons-enter icon-link"></span>
   </span>
 </template>
@@ -69,7 +69,8 @@ export default {
 .ItemSelector_label {
   cursor: pointer;
 }
-.ItemSelector_label:hover {
+.ItemSelector_label:hover,
+.ItemSelector_label.underline {
   box-shadow: 0 1px 0px 0 black;
 }
 </style>

@@ -90,7 +90,9 @@
           <item-label :item="item" :type="type" />
           <span v-if="!item.uid">...</span>
           <span v-if="item.count"
-            >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
+            >&nbsp;(<span
+              v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"
+            />)&nbsp;</span
           >
           <item-selector :uid="item.uid" :item="item" :type="type" />
         </b-form-checkbox>
@@ -371,7 +373,7 @@ export default {
       ]
     },
     filterItems() {
-      return [...this.filter.items]
+      return this.filter && Array.isArray(this.filter.items) ? [...this.filter.items] : []
     },
     hasChanges() {
       return (
@@ -625,6 +627,18 @@ label.custom-control-label {
         "context": {
           "include": "Published in",
           "exclude": "<b>NOT</b> published in"
+        }
+      },
+      "partner": {
+        "title": "data provider",
+        "selected": "filter results if they are provided by <b>one of {count} selected</b> data providers",
+        "description": "check one or more data provider to filter results",
+        "clear": "reset",
+        "apply": "apply changes",
+        "update": "apply changes (added: {added}, removed: {removed})",
+        "context": {
+          "include": "Provided by",
+          "exclude": "<b>NOT</b> provided by"
         }
       },
       "language": {
