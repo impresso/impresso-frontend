@@ -226,6 +226,7 @@ export default {
       Conflict: {
         UsernameExistError: 'This username is already taken!',
       },
+      MethodNotAllowed: 'Method not allowed.',
       BadGateway: {
         SequelizeConnectionRefusedError:
           'Please reload the page. Connection troubles (network) with the impresso database',
