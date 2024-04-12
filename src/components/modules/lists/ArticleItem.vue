@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <article :class="{ reference: asReference, ArticleItem: true }">
     <slot name="title">
       <h2 v-if="item.title" class="mb-0 font-weight-bold">
@@ -20,9 +20,16 @@
         {{ item.newspaper.name }}
       </router-link>
       <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper" /> &nbsp;
-      <span class="date">{{ $d(item.date, 'long') }}</span>
+      <span>{{ $d(item.date, 'long') }}</span>
       <span> – {{ pages }}</span>
-      <div>{{ $t(`buckets.accessRight.${item.accessRight}`) }}</div>
+      <div>
+        {{ $t(`buckets.accessRight.${item.accessRight}`) }} &mdash; {{ $t('providedBy') }}
+        <ItemSelector
+          :label="$t(`buckets.dataProvider.${item.dataProvider}`)"
+          :item="{ uid: item.dataProvider }"
+          type="partner"
+        />
+      </div>
     </div>
 
     <div

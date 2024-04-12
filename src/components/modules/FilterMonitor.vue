@@ -627,6 +627,18 @@ label.custom-control-label {
           "exclude": "<b>NOT</b> published in"
         }
       },
+      "partner": {
+        "title": "data provider",
+        "selected": "filter results if they are provided by <b>one of {count} selected</b> data providers",
+        "description": "check one or more data provider to filter results",
+        "clear": "reset",
+        "apply": "apply changes",
+        "update": "apply changes (added: {added}, removed: {removed})",
+        "context": {
+          "include": "Provided by",
+          "exclude": "<b>NOT</b> provided by"
+        }
+      },
       "language": {
         "title": "language of articles",
         "selected": "filter results if they are written in <b>one of {count} selected</b> languages",

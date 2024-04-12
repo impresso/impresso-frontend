@@ -38,7 +38,7 @@
         />
         <h2 class="mx-3" v-if="monitor.item">
           <ItemLabel :item="monitor.item" :type="monitor.type" />
-          <span class="small-caps pl-2">{{ $t('types_' + monitor.type) }}</span>
+          <!-- <span class="small-caps pl-2">{{ $t('types_' + monitor.type) }}</span> -->
         </h2>
 
         <!-- end title -->
