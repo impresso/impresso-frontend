@@ -90,7 +90,9 @@
           <item-label :item="item" :type="type" />
           <span v-if="!item.uid">...</span>
           <span v-if="item.count"
-            >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
+            >&nbsp;(<span
+              v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"
+            />)&nbsp;</span
           >
           <item-selector :uid="item.uid" :item="item" :type="type" />
         </b-form-checkbox>

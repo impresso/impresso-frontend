@@ -25,6 +25,7 @@
       <div>
         {{ $t(`buckets.accessRight.${item.accessRight}`) }} &mdash; {{ $t('providedBy') }}
         <ItemSelector
+          :uid="item.dataProvider"
           :label="$t(`buckets.dataProvider.${item.dataProvider}`)"
           :item="{ uid: item.dataProvider }"
           type="partner"
