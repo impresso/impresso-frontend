@@ -99,6 +99,7 @@ export default {
   }),
   methods: {
     async loadEndPassage({ query }) {
+      console.debug('[TextReusePassageMonitor] loadEndPassage', query)
       this.endPassageIsLoading = true
       await textReusePassages
         .find({ query })
@@ -128,12 +129,13 @@ export default {
         : [{ type: 'textReuseCluster', q: this.item.textReuseCluster.id }]
       filters.push({ type: 'id', q: this.item.id, context: 'exclude' })
       const query = {
-        page: this.endPassageOffset,
+        skip: parseInt(this.endPassageOffset, 10),
         limit: 1,
         orderBy: this.endPassageOrderBy,
         filters,
         addons: { newspaper: 'text' },
       }
+
       return {
         query,
         hash: JSON.stringify(query)
