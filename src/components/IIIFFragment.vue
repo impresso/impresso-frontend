@@ -5,6 +5,10 @@
         class="shadow-sm"
         :src="computedImageUrl"
         :alt="isNotFound ? 'Image not available' : ''"
+        :style="{
+          transform: `scale(${scale})`,
+          'transform-origin': 'left top',
+        }"
       />
       <div class="IIIFFragment__regions" :style="computedRegionsStyle">
         <div
@@ -58,6 +62,11 @@ export default defineComponent({
       // IIIF size parameter
       type: String,
       default: 'max',
+    },
+    scale: {
+      // scale down size parameter when printing image
+      type: Number,
+      default: 1,
     },
     coords: {
       // IIIF size parameter
