@@ -206,7 +206,7 @@
             <b-col
               cols="12"
               v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.article_uid"
+              v-bind:key="searchResult.uid"
             >
               <search-results-list-item
                 v-bind:checkbox="false"

@@ -137,7 +137,7 @@ export default {
             query: { q, language, limit },
           })
           .then(({ data }) => {
-            this.words = data.filter(w => w !== q)
+            this.words = data.filter(w => w !== q.toLowerCase())
           })
           .catch(e => {
             console.warn('Error received from embeddings.find service:', e)
