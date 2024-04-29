@@ -1,12 +1,12 @@
 <template>
   <div class="border p-2 bg-light">
     <div class="mb-2" v-html="$t('embedding_howto')" />
-    <b-input-group>
+    <div class="d-flex">
       <b-form-input
         type="text"
         size="sm"
-        class="form-control w-25"
-        style="border-color: black; color: black"
+        class="form-control"
+        style="border-color: black; color: black; flex-grow: 1"
         @keydown.space.prevent
         @click.prevent.stop
         name="inputEmbeddings"
@@ -19,7 +19,9 @@
         :options="languageEmbeddingsOptions"
         size="sm"
         variant="outline-primary"
-        style="border-left-color: black"
+        style="border-left-color: black;width: 75px;
+  text-overflow: ellipsis;"
+        class="pl-1 pr-4"
       />
       <b-form-select
         name="limitEmbeddings"
@@ -27,8 +29,10 @@
         :options="limitEmbeddingsOptions"
         size="sm"
         variant="outline-primary"
+        style="width:75px "
+        class="pl-1 pr-4"
       />
-    </b-input-group>
+    </div>
     <div class="my-2">
       <i-spinner v-if="isLoading" class="text-center p-3" />
       <div v-else-if="errorType" role="alert" v-html="$t(`error_${errorType}`, { query })" />
