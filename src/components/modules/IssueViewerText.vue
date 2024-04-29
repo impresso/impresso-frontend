@@ -1,60 +1,75 @@
-<template lang="html">
-  <div id="IssueViewerText" class="px-3 bg-light">
+<template>
+  <div id="IssueViewerText" class="px-3 bg-light w-100">
     <i-spinner v-if="!article" class="text-center p-5" />
     <div v-if="article">
-      <article-item :item="article" show-entities show-topics/>
+      <article-item :item="article" show-entities show-topics />
       <div class="my-2" />
-      <collection-add-to :item="article" :text="$t('add_to_collection')" />
+      <!-- <collection-add-to :item="article" :text="$t('add_to_collection')" /> -->
       <b-badge
         v-for="(collection, i) in article.collections"
         v-bind:key="`co_${i}`"
         variant="info"
-        class="mt-1 mr-1">
+        class="mt-1 mr-1"
+      >
         <router-link
           class="text-white"
-          v-bind:to="{name: 'collection', params: {collection_uid: collection.uid}}">
+          v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+        >
           {{ collection.name }}
         </router-link>
         <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
       </b-badge>
       <div class="alert alert-light" role="alert" v-if="!article.isCC">
-        <p>{{ $t('wrongLayout') }} <icon name="image"/></p>
+        <p>{{ $t('wrongLayout') }} <icon name="image" /></p>
       </div>
       <div v-if="hasValidRegions === false">
-        <p>{{article.excerpt}}</p>
+        <p>{{ article.excerpt }}</p>
       </div>
-      <b-container fluid
-        v-else
-        class="region-row mt-3 mb-3 position-relative">
+      <b-container fluid v-else class="region-row mt-3 mb-3 position-relative">
         <label class="text-right d-flex align-items-center">
-          <div class="ml-auto" style="line-height:1.25" v-if="textReusePassages.length"
-            v-html="$tc('textReuseLabel', textReusePassages.length, {
-              n: textReusePassages.length,
-            })"/>
+          <div
+            class="ml-auto"
+            style="line-height:1.25"
+            v-if="textReusePassages.length"
+            v-html="
+              $tc('textReuseLabel', textReusePassages.length, {
+                n: textReusePassages.length,
+              })
+            "
+          />
           <div v-else class="ml-auto" style="line-height:1.25" v-html="$tc('textReuseLabel', 0)" />
-          <info-button class="ml-2" name="text-reuse"/>
+          <info-button class="ml-2" name="text-reuse" />
         </label>
-        <b-row class="mt-1" v-for="(region, i) in article.regions" v-bind:key="i">
-          <div v-if="article.isCC" class="col col-sm-5 bg-white border">
+        <!-- computed regions -->
+        <b-row
+          class="IssueViewerText__regions mt-1"
+          v-for="(region, i) in computedRegions"
+          v-bind:key="i"
+        >
+          <div v-if="article.isCC" class="col col-sm-5">
             <div class="py-3">
-              <img v-bind:src="region.iiifFragment" style="width: 100%" />
+              <img
+                v-bind:src="region.iiifFragment"
+                alt="IIIF Region"
+                :style="{ width: `${region.nw * 100}%` }"
+              />
             </div>
           </div>
-          <div
-            class="col"
-            :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
-            <div class='region py-3'>
-              <annotated-text v-if="regionsAnnotationTree[i]"
+          <div class="col" :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
+            <div class="region py-3">
+              <annotated-text
+                v-if="regionsAnnotationTree[i]"
                 :children="regionsAnnotationTree[i].children"
                 :cluster-colours="clusterColourMap"
                 :selected-cluster-id="selectedClusterId"
-                @onClusterSelected="clusterSelectedHandler"/>
+                @onClusterSelected="clusterSelectedHandler"
+              />
             </div>
           </div>
         </b-row>
       </b-container>
     </div>
-    <hr class="py-4">
+    <hr class="py-4" />
     <b-container fluid class="similar-items px-0">
       <h3>Similar Articles</h3>
       <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
@@ -66,18 +81,21 @@
           lg="6"
           xl="4"
           v-for="(searchResult, index) in articlesSuggestions"
-          v-bind:key="`${index}_ra`">
+          v-bind:key="`${index}_ra`"
+        >
           <search-results-similar-item
             :searchResult="searchResult"
-            :topics="commonTopics(searchResult.topics)" />
+            :topics="commonTopics(searchResult.topics)"
+          />
         </b-col>
       </b-row>
     </b-container>
     <div
-      :style='`top:${hoverPassageLineTopOffset}px`'
+      :style="`top:${hoverPassageLineTopOffset}px`"
       class="passage-control bs-tooltip-left"
       role="tooltip"
-      v-if="selectedPassage">
+      v-if="selectedPassage"
+    >
       <div class="tooltip-inner">
         {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
       </div>
@@ -86,11 +104,11 @@
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
-import { articlesSuggestions, articleTextReusePassages } from '@/services';
-import CollectionAddTo from './CollectionAddTo';
-import SearchResultsSimilarItem from './SearchResultsSimilarItem';
-import ArticleItem from './lists/ArticleItem';
+import Icon from 'vue-awesome/components/Icon'
+import { articlesSuggestions, articleTextReusePassages } from '@/services'
+import CollectionAddTo from './CollectionAddTo'
+import SearchResultsSimilarItem from './SearchResultsSimilarItem'
+import ArticleItem from './lists/ArticleItem'
 import AnnotatedText from './AnnotatedText'
 import InfoButton from '@/components/base/InfoButton'
 
@@ -98,13 +116,21 @@ import {
   getNamedEntitiesFromArticleResponse,
   getAnnotateTextTree,
   passageToPassageEntity,
-} from '@/logic/articleAnnotations';
+} from '@/logic/articleAnnotations'
 
-const colourScheme =  [
-  '#8dd3c7', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5',
-  '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f'
-];
-
+const colourScheme = [
+  '#8dd3c7',
+  '#bebada',
+  '#fb8072',
+  '#80b1d3',
+  '#fdb462',
+  '#b3de69',
+  '#fccde5',
+  '#d9d9d9',
+  '#bc80bd',
+  '#ccebc5',
+  '#ffed6f',
+]
 
 export default {
   data() {
@@ -114,8 +140,8 @@ export default {
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: undefined,
-      viewerTopOffset: 0
-    };
+      viewerTopOffset: 0,
+    }
   },
   updated() {
     const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
@@ -131,18 +157,40 @@ export default {
   computed: {
     articlePages() {
       if (!this.article.pages || !this.article.pages.length) {
-        return this.$t('no_page_info');
+        return this.$t('no_page_info')
       }
       if (this.article.pages.length === 1) {
-        return this.$t('page', { num: this.article.pages[0]?.num });
+        return this.$t('page', { num: this.article.pages[0]?.num })
       }
-      return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') });
+      return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') })
     },
     topics() {
-      return this.article.topics.filter(rel => rel.topic);
+      return this.article.topics.filter(rel => rel.topic)
     },
     hasValidRegions() {
-      return !!this.article.regions.filter(({ isEmpty }) => !isEmpty).length;
+      // verify that regions exist and conform to this:
+      // "regions": [{
+      //   "coords": {
+      //   "x": 583,
+      //   "y": 1327,
+      //   "w": 245,
+      //   "h": 57
+      // }}]
+      return !this.article.regions.some(({ coords }) => {
+        return isNaN(coords.x) || isNaN(coords.y) || isNaN(coords.w) || isNaN(coords.h)
+      })
+    },
+    // this wuld ensure to have a max width of 100% for the largest region and smaller fr the ther ones
+    computedRegions() {
+      if (!this.hasValidRegions) return []
+      const regions = this.article.regions
+      const maxRegionWidth = Math.max(...regions.map(({ coords }) => coords.w))
+
+      return regions.map(r => ({
+        ...r,
+        // nrmalised width
+        nw: Math.min(1, r.coords.w / maxRegionWidth),
+      }))
     },
     clusterColourMap() {
       const clusterIds = [...new Set(this.textReusePassages.map(({ clusterId }) => clusterId))]
@@ -152,20 +200,20 @@ export default {
       }, {})
     },
     regionsAnnotationTree() {
-      if (!this.article) return [];
+      if (!this.article) return []
 
-      const entities = getNamedEntitiesFromArticleResponse(this.article);
+      const entities = getNamedEntitiesFromArticleResponse(this.article)
       const passageEntities = this.textReusePassages.map(passageToPassageEntity)
 
-      const lineBreaks = this.article.contentLineBreaks;
-      const regionBreaks = this.article.regionBreaks;
+      const lineBreaks = this.article.contentLineBreaks
+      const regionBreaks = this.article.regionBreaks
 
       return getAnnotateTextTree(
         this.article.content,
         entities.concat(passageEntities),
         lineBreaks,
-        regionBreaks
-      ).children;
+        regionBreaks,
+      ).children
     },
     selectedPassage() {
       if (this.selectedPassageId) {
@@ -179,7 +227,7 @@ export default {
     textReuseEnabled() {
       // @ts-ignore
       return !!window.impressoFeatures?.textReuse?.enabled
-    }
+    },
   },
   props: ['article_uid'],
   components: {
@@ -192,20 +240,22 @@ export default {
   },
   methods: {
     commonTopics(suggestionTopics) {
-      return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid));
+      return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid))
       // sort by master topics relevance
       // .sort((a, b) => b.relevance - a.relevance);
     },
     onRemoveCollection(collection, item) {
-      const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+      const idx = item.collections.findIndex(c => c.uid === collection.uid)
       if (idx !== -1) {
-        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
-          collection,
-          item,
-        }).then(() => {
-          item.collections.splice(idx, 1);
-          this.$forceUpdate();
-        });
+        this.$store
+          .dispatch('collections/REMOVE_COLLECTION_ITEM', {
+            collection,
+            item,
+          })
+          .then(() => {
+            item.collections.splice(idx, 1)
+            this.$forceUpdate()
+          })
       }
     },
     mouseenterPassageHandler(e) {
@@ -222,7 +272,7 @@ export default {
       e.target.addEventListener('click', this.passageClickHandler)
 
       this.selectedPassageId = id
-      this.hoverPassageLineTopOffset =  e.pageY
+      this.hoverPassageLineTopOffset = e.pageY
     },
     mouseleavePassageHandler(e) {
       const { id } = e.target.dataset
@@ -238,58 +288,58 @@ export default {
       this.$router.push({
         name: 'text-reuse-clusters',
         query: {
-          q: `#${this.selectedClusterId}`
-        }
+          q: `#${this.selectedClusterId}`,
+        },
       })
     },
     clusterSelectedHandler(trClusterId) {
       const { query } = this.$route
       const updatedQuery = Object.assign({}, query, {
-        trClusterId: query.trClusterId === trClusterId ? undefined : trClusterId
+        trClusterId: query.trClusterId === trClusterId ? undefined : trClusterId,
       })
       this.$router.replace({ query: updatedQuery }).catch(() => {})
-    }
+    },
   },
   watch: {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
-        this.articlesSuggestions = [];
+        this.articlesSuggestions = []
 
         const trPromise = this.textReuseEnabled
           ? articleTextReusePassages
-            .find({ query: { id: articleUid }})
-            .then(({ passages }) => passages)
+              .find({ query: { id: articleUid } })
+              .then(({ passages }) => passages)
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
           this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
-          trPromise
+          trPromise,
         ])
         this.article = article
         this.textReusePassages = textReusePassages
 
-        articlesSuggestions.get(articleUid).then((res) => {
-          this.articlesSuggestions = res.data;
-        });
+        articlesSuggestions.get(articleUid).then(res => {
+          this.articlesSuggestions = res.data
+        })
       },
     },
   },
-};
+}
 </script>
 
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'impresso-theme/src/scss/variables.sass';
 
-#IssueViewerText{
+#IssueViewerText {
   overflow: none;
   height: 100%;
 
-  article h2{
+  article h2 {
     font-size: 3.5rem;
   }
 
-  article .article-excerpt{
+  article .article-excerpt {
     font-size: inherit;
   }
 
@@ -298,20 +348,20 @@ export default {
   }
 
   span.location,
-  span.person{
-    box-shadow:inset 0px -2px 0px 0px transparentize($clr-tertiary, 0.5);
+  span.person {
+    box-shadow: inset 0px -2px 0px 0px transparentize($clr-tertiary, 0.5);
     transition: box-shadow 0.2s;
     cursor: pointer;
 
     &::before {
-      font-family: "dripicons-v2";
+      font-family: 'dripicons-v2';
       font-size: 75%;
       opacity: 0.6;
       padding-right: 2px;
     }
 
     &:hover {
-      box-shadow:inset 0px -24px 0px 0px transparentize($clr-tertiary, 0.5);
+      box-shadow: inset 0px -24px 0px 0px transparentize($clr-tertiary, 0.5);
     }
   }
 
@@ -346,11 +396,10 @@ export default {
   }
 
   .region-row {
-    margin:1px;
+    margin: 1px;
   }
 
-  .region{
-
+  .region {
     p {
       margin-bottom: 0;
     }
