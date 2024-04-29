@@ -22,7 +22,7 @@ export default {
         tb: 'tables',
         section: 'section',
         uc: 'unclassified content',
-        page: 'page article',
+        page: 'No article segmentation',
         death_notice: 'obituary (other)',
         weather: 'weather forecast',
         w: 'weather news (other)',

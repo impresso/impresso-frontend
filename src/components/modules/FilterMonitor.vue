@@ -123,7 +123,7 @@
       </div>
       <!-- string to add -->
       <div class="strings-to-add m-2 ml-4" v-if="stringsToAdd.length">
-        <b-form inline v-for="(item, idx) in stringsToAdd" :key="idx" class="mb-2">
+        <div v-for="(item, idx) in stringsToAdd" :key="idx" class="mb-2 d-flex">
           <b-form-input
             size="sm"
             placeholder="..."
@@ -139,7 +139,7 @@
             style="padding:0.25rem 0.5rem 0 0.5rem"
             @click.prevent.stop="removeStringItem(idx)"
           />
-        </b-form>
+        </div>
       </div>
     </div>
     <div v-if="EntityTypes.includes(type)">

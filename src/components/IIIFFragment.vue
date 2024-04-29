@@ -108,6 +108,8 @@ export default defineComponent({
         width: `${this.imageWidth}px`,
         height: `${this.imageHeight}px`,
         opacity: this.isLoaded ? 1 : 0,
+        transform: `scale(${this.scale})`,
+        'transform-origin': 'left top',
       }
     },
     computedRegions() {
