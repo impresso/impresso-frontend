@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import { max } from 'd3'
+
 export default {
   name: 'Ellipsis',
   data: () => ({
@@ -82,7 +84,8 @@ export default {
         this.height =
           this.maxHeight !== 0
             ? Math.min(+this.$refs.contents.scrollHeight, this.maxHeight) + this.additionalHeight
-            : +this.$refs.contents.scrollHeight
+            : Math.min(+this.$refs.contents.scrollHeight, window.innerHeight / 2) +
+              this.additionalHeight
       }
     },
   },
