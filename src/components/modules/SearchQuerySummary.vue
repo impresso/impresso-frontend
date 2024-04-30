@@ -196,10 +196,29 @@ export default {
       }
       return t
     },
-    getFilterAsLabel(filter) {
+    getFilterAsLabel(filter, limit = 5) {
       if (filter.items) {
         const { op = 'OR' } = filter
         const operator = this.$t(`op.${op.toLowerCase()}`)
+        if (filter.items.length > limit) {
+          return (
+            filter.items
+              .slice(0, limit)
+              .map(item =>
+                [
+                  `<span class="item ${filter.type}">`,
+                  this.getLabel({
+                    item,
+                    type: filter.type,
+                    filter,
+                  }),
+                  '</span>',
+                ].join(''),
+              )
+              .join(` <span class="operator">${operator}</span> `) +
+            ` [... ${filter.items.length - limit} additional options]</span>`
+          )
+        }
         return filter.items
           .map(item =>
             [
@@ -305,17 +324,21 @@ export default {
   span.item.topic,
   span.item.location,
   span.item.daterange > span.date {
-    font-family: 'questa-sans', sans-serif;
+    font-family: var(--bs-font-sans-serif);
     font-variant: small-caps;
     text-transform: lowercase;
   }
   span.item.collection {
-    font-family: 'questa-sans', sans-serif;
+    font-family: var(--bs-font-sans-serif);
     color: #049dae;
   }
-  span.item.newspaper {
+  span.item.newspaper,
+  span.item.country {
     color: black;
+    font-family: var(--bs-font-serif);
     font-weight: bold;
+    font-weight: var(--impresso-wght-bold);
+    font-variation-settings: 'wght' var(--impresso-wght-bold);
   }
   .precision-exact::before,
   .precision-exact::after {

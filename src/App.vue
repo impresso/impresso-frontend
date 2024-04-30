@@ -201,6 +201,8 @@ $clr-grey-900: #ddd;
   --impresso-font-size-smallcaps: 0.72em;
   --impresso-letter-spacing-smallcaps: 0.08em;
   --impresso-font-size-smaller: 0.85em;
+  --impresso-wght: 450;
+  --impresso-wght-bold: 700;
   --impresso-wght-smallcaps: 580;
   --impresso-wght-smallcaps-bold: 800;
   --clr-white: #f8f8ff;
