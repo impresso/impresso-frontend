@@ -11,7 +11,7 @@
             <small><InfoButton name="text-reuse" class="ml-1"/></small>
           </h3>
           <section class="text-serif  TextReuseExplorerPage_summary">
-            <Ellipsis v-bind:initialHeight="60">
+            <Ellipsis :initialHeight="60" :maxHeight="0">
               <span v-html="incipit" />
               <SearchQuerySummary
                 class="textbox-fancy"
