@@ -17,6 +17,10 @@ export default {
   props: {
     reduced: Boolean,
     searchQuery: Object,
+    limitNumberOfFilterItems: {
+      type: Number,
+      default: -1,
+    },
     enumerables: {
       type: Array,
       default: () => [
@@ -196,14 +200,17 @@ export default {
       }
       return t
     },
-    getFilterAsLabel(filter, limit = 5) {
+    getFilterAsLabel(filter) {
       if (filter.items) {
         const { op = 'OR' } = filter
         const operator = this.$t(`op.${op.toLowerCase()}`)
-        if (filter.items.length > limit) {
+        if (
+          this.limitNumberOfFilterItems > 0 &&
+          filter.items.length > this.limitNumberOfFilterItems
+        ) {
           return (
             filter.items
-              .slice(0, limit)
+              .slice(0, this.limitNumberOfFilterItems)
               .map(item =>
                 [
                   `<span class="item ${filter.type}">`,
@@ -216,7 +223,8 @@ export default {
                 ].join(''),
               )
               .join(` <span class="operator">${operator}</span> `) +
-            ` [... ${filter.items.length - limit} additional options]</span>`
+            ` [... ${filter.items.length -
+              this.limitNumberOfFilterItems} additional options]</span>`
           )
         }
         return filter.items
