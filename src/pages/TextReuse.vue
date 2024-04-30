@@ -89,9 +89,9 @@
         @clicked="handleFacetFiltersClicked"
         count-label="numbers.passages"
         :isPercentage="facet.type === 'textReuseClusterLexicalOverlap'"
-        :value-percentage-label="facet.type  + 'ValuePercentageLabel'"
-        :value-label="facet.type  + 'ValueLabel'"
-        :value-as-range-label="facet.type  + 'ValueAsRangeLabel'"
+        :value-percentage-label="facet.type + 'ValuePercentageLabel'"
+        :value-label="facet.type + 'ValueLabel'"
+        :value-as-range-label="facet.type + 'ValueAsRangeLabel'"
         :info-button-id="`text-reuse-filter-${facet.type}`"
       />
 
@@ -270,7 +270,7 @@ export default {
       // eslint-disable-next-line
       console.debug('[TextReuse] handleFiltersChanged', filters)
       this.$navigation.updateQueryParameters({
-        [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters)),
+        [CommonQueryParameters.SearchFilters]: serializeFilters(filters),
       })
     },
     handleFacetFiltersChanged(filters, type) {
@@ -323,16 +323,21 @@ export default {
         applyCurrentSearchFilters: true,
       })
     },
-    handleSearchInputSubmit({ q }) {
+    handleSearchInputSubmit({ q, appendIfExisting = false }) {
       if (q.trim().length === 0) {
         return
       }
-      // eslint-disable-next-line
-      console.debug('[TextReuse] handleSearchInputSubmit q:', q)
-
-      const filterExists = this.filters.some(({ type }) => type === 'string')
       const stringFilter = FilterFactory.create({ type: 'string', q })
-      if (filterExists) {
+      const filterExists = this.filters.some(({ type }) => type === 'string')
+      // eslint-disable-next-line
+      console.debug(
+        '[TextReuse] handleSearchInputSubmit \n - q:',
+        q,
+        '\n - appendIfExisting:',
+        appendIfExisting,
+      )
+
+      if (filterExists && appendIfExisting) {
         this.handleFiltersChanged(
           this.filters.map(filter => {
             if (filter.type === 'string') {
