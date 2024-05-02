@@ -127,7 +127,7 @@ import FilterMonitor from '@/components/modules/FilterMonitor'
 import InfoButton from '@/components/base/InfoButton'
 import { toSerializedFilter } from '@/logic/filters'
 import Bucket from '@/models/Bucket'
-import { searchFacets } from '@/services'
+import { getSearchFacetsService } from '@/services'
 import LazyObserver from '../LazyObserver.vue'
 import { defineComponent } from 'vue'
 
@@ -336,16 +336,15 @@ export default defineComponent({
         return
       }
       this.isMoreLoading = true
-      searchFacets
+      getSearchFacetsService(this.searchIndex)
         .get(this.facet.type, {
           query: {
-            index: this.searchIndex,
             filters: this.contextFilters,
             limit: this.limit,
             skip: this.skip,
           },
         })
-        .then(([{ numBuckets, buckets }]) => {
+        .then(({ numBuckets, buckets }) => {
           console.info('loadMoreBuckets', buckets, this.skip)
           this.additionalBuckets = this.additionalBuckets.concat(
             buckets.map(
@@ -371,12 +370,11 @@ export default defineComponent({
         console.debug('[FilterFacet] @onIntersect type:', this.facet.type)
         this.lazyIsPristine = false
         // load initial buckets
-        searchFacets
+        getSearchFacetsService(this.searchIndex)
           .get(
             this.facet.type,
             {
               query: {
-                index: this.searchIndex,
                 filters: this.contextFilters,
                 limit: this.limit,
                 skip: this.skip,
@@ -384,7 +382,7 @@ export default defineComponent({
             },
             { ignoreErrors: true },
           )
-          .then(([{ numBuckets, buckets }]) => {
+          .then(({ numBuckets, buckets }) => {
             this.facet.numBuckets = numBuckets
             this.facet.setBuckets(buckets)
           })

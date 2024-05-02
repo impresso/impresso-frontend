@@ -637,17 +637,18 @@ export default {
         // get remaining facets and enriched filters.
         const [
           namedEntityFacets,
-          topicFacets,
+          topicFacet,
           filtersWithItems,
-          collectionFacets,
+          collectionFacet,
           collectionsItemsIndex,
         ] = await Promise.all([
-          searchFacetsService.get('person,location', {
+          searchFacetsService.find({
             query: {
+              facets: ['person', 'location'],
               filters,
               group_by: groupBy,
             },
-          }),
+          }).then(response => response.data),
           searchFacetsService.get('topic', {
             query: {
               filters,
@@ -668,7 +669,7 @@ export default {
                   group_by: groupBy,
                 },
               })
-            : [],
+            : undefined,
           this.isLoggedIn
             ? collectionsItemsService
                 .find({
@@ -685,7 +686,7 @@ export default {
                 )
             : {},
         ])
-        facets = facets.concat(collectionFacets, namedEntityFacets, topicFacets)
+        facets = facets.concat([collectionFacet], namedEntityFacets, [topicFacet])
         this.filtersWithItems = filtersWithItems
         // TODO sort facets based on the right order
         this.facets = facets.map(f => new FacetModel(f))

@@ -526,7 +526,7 @@ export default {
           }],
           group_by: 'articles',
         }
-      }).then(([type]) => new Facet(type));
+      }).then((type) => new Facet(type));
     },
   },
 };

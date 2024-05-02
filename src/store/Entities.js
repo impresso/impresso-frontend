@@ -136,7 +136,7 @@ export default {
       };
       return services.searchFacets.get('year', {
         query,
-      }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
+      }).then(res => Helpers.timeline.fromBuckets(res.buckets));
     },
     LOAD_PAGE_TOPICS(context, pageId) {
       const query = {
@@ -148,21 +148,22 @@ export default {
       };
       return services.searchFacets.get('topic', {
         query,
-      }).then(([topic]) => new Facet(topic));
+      }).then((topic) => new Facet(topic));
     },
     LOAD_PAGE_ENTITIES(context, pageId) {
       const query = {
+        facets: ['location', 'person'],
         filters: [{
           type: 'page',
           q: pageId,
         }],
         group_by: 'articles',
       };
-      return services.searchFacets.get('location,person', {
+      return services.searchFacets.find({
         query,
-      }).then(([location, person]) => [
-        new Facet(location),
-        new Facet(person),
+      }).then((response) => [
+        new Facet(response.data[0]),
+        new Facet(response.data[1]),
       ]);
     },
   },

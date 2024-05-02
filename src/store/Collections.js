@@ -161,7 +161,7 @@ export default {
       };
       return services.searchFacets.get('year', {
         query,
-      }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
+      }).then(res => Helpers.timeline.fromBuckets(res.buckets));
     },
     LOAD_FACETS(context, payload) {
       const facetType = payload.type;
@@ -174,7 +174,7 @@ export default {
       };
       return services.searchFacets.get(facetType, {
         query,
-      }).then(([facetType]) => new Facet(facetType));
+      }).then((facetType) => new Facet(facetType));
     },
     EDIT_COLLECTION(context, payload) {
       return new Promise((resolve) => {

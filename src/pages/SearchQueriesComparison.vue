@@ -661,7 +661,8 @@ export default {
 
       try {
         this.loadingFlags[comparableIndex] = true
-        const [{ buckets = []} = {}] = await searchFacets.get(facetId, { query })
+        const result = await searchFacets.get(facetId, { query })
+        const buckets = result != null ? result.buckets : []
         return buckets.map(bucket => new Bucket({ ...bucket, type: facetId }))
       } finally {
         this.loadingFlags[comparableIndex] = false

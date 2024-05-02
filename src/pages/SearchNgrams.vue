@@ -297,13 +297,13 @@ export default {
 
         this.facets = facets.map(f => new FacetModel(f))
         if (this.isLoggedIn) {
-          const collectionsFacets = await searchFacetsService.get('collection', {
+          const collectionsFacet = await searchFacetsService.get('collection', {
             query: {
               filters,
               group_by: 'articles',
             },
           })
-          this.facets = facets.concat(collectionsFacets).map(f => new FacetModel(f))
+          this.facets = facets.concat(collectionsFacet).map(f => new FacetModel(f))
         }
       },
       immediate: true,

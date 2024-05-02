@@ -86,7 +86,7 @@ import {
   topics,
   newspapers,
   collections,
-  searchFacets
+  getSearchFacetsService
 } from '@/services'
 import FacetExplorer from './modules/FacetExplorer';
 import TimeFacetExplorer from './modules/TimeFacetExplorer';
@@ -158,10 +158,9 @@ async function search({
       page: currentPage,
       limit: pageSize,
       order_by: '-count',
-      index
     };
-    const response = await searchFacets.get(type, { query })
-    const result = response[0]
+    const response = await getSearchFacetsService(index).get(type, { query })
+    const result = response
     return {
       totalResults: result.numBuckets,
       buckets: result.buckets.map(d => new Bucket({
