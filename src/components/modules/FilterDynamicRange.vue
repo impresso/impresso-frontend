@@ -262,7 +262,7 @@ export default {
             query: {
               // searchFacets doesn't support serialized filters
               filters: this.facetFilters,
-              groupby: query.groupby,
+              group_by: query.groupby,
               rangeStart: this.start,
               rangeEnd: this.end + 1,
               rangeGap: this.gap,
