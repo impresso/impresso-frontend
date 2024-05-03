@@ -304,15 +304,13 @@ export default {
     async loadFacets() {
       this.facets = [];
       const query = {
+        facets: this.facetTypes,
         filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
         group_by: 'articles',
       };
-      for (let facetType of this.facetTypes) {
-        const result = await searchFacetsService.get(facetType, {
-          query,
-        }).then((facetType) => new Facet(facetType));
-        this.facets = this.facets.concat(result);
-      }
+
+      this.facets = await searchFacetsService.find({ query })
+        .then(result => result.data.map(item => new Facet(item)))
     },
   },
   watch: {

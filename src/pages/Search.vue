@@ -634,27 +634,25 @@ export default {
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
         let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info })
+
         // get remaining facets and enriched filters.
+        const facetTypes = [
+          ...["person", "location", "topic"],
+          ...(this.isLoggedIn ? ['collection'] : [])
+        ]
+
         const [
-          namedEntityFacets,
-          topicFacet,
+          extraFacets,
           filtersWithItems,
-          collectionFacet,
           collectionsItemsIndex,
         ] = await Promise.all([
           searchFacetsService.find({
             query: {
-              facets: ['person', 'location'],
+              facets: facetTypes,
               filters,
               group_by: groupBy,
             },
           }).then(response => response.data),
-          searchFacetsService.get('topic', {
-            query: {
-              filters,
-              group_by: groupBy,
-            },
-          }),
           filtersItemsService
             .find({
               query: {
@@ -662,14 +660,6 @@ export default {
               },
             })
             .then(joinFiltersWithItems),
-          this.isLoggedIn
-            ? searchFacetsService.get('collection', {
-                query: {
-                  filters,
-                  group_by: groupBy,
-                },
-              })
-            : undefined,
           this.isLoggedIn
             ? collectionsItemsService
                 .find({
@@ -686,7 +676,7 @@ export default {
                 )
             : {},
         ])
-        facets = facets.concat([collectionFacet], namedEntityFacets, [topicFacet])
+        facets = facets.concat(extraFacets)
         this.filtersWithItems = filtersWithItems
         // TODO sort facets based on the right order
         this.facets = facets.map(f => new FacetModel(f))
