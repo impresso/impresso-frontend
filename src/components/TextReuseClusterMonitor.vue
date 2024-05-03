@@ -185,7 +185,7 @@ export default {
       const query = {
         page: this.startPassageOffset,
         limit: 1,
-        orderBy: this.startPassageOrderBy,
+        order_by: this.startPassageOrderBy,
         filters: this.filters.length
           ? optimizeFilters(this.filters)
           : [{ type: 'textReuseCluster', q: this.item.id }],
@@ -203,7 +203,7 @@ export default {
       const query = {
         page: this.endPassageOffset,
         limit: 1,
-        orderBy: this.endPassageOrderBy,
+        order_by: this.endPassageOrderBy,
         filters: this.filters.length
           ? optimizeFilters(this.filters)
           : [{ type: 'textReuseCluster', q: this.item.id }],

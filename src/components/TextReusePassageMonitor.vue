@@ -131,7 +131,7 @@ export default {
       const query = {
         skip: parseInt(this.endPassageOffset, 10),
         limit: 1,
-        orderBy: this.endPassageOrderBy,
+        order_by: this.endPassageOrderBy,
         filters,
         addons: { newspaper: 'text' },
       }
