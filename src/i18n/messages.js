@@ -22,7 +22,7 @@ export default {
         tb: 'tables',
         section: 'section',
         uc: 'unclassified content',
-        page: 'page article',
+        page: 'No article segmentation',
         death_notice: 'obituary (other)',
         weather: 'weather forecast',
         w: 'weather news (other)',
@@ -46,6 +46,12 @@ export default {
       country: {
         CH: 'Switzerland',
         LU: 'Luxembourg',
+      },
+      dataProvider: {
+        SNL: 'Swiss National Library',
+        BNL: 'Luxembourg National Library',
+        NZZ: 'NZZ',
+        Migros: 'Migros',
       },
       partner: {
         SNL: 'Swiss National Library',
@@ -202,6 +208,7 @@ export default {
     },
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
     ppOf: 'p.{num} of {pages}',
+    providedBy: 'provided by',
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
     applyCurrentSearchFiltersDisabled: 'Current filters cannot be applied.',
@@ -219,6 +226,7 @@ export default {
       Conflict: {
         UsernameExistError: 'This username is already taken!',
       },
+      MethodNotAllowed: 'Method not allowed.',
       BadGateway: {
         SequelizeConnectionRefusedError:
           'Please reload the page. Connection troubles (network) with the impresso database',

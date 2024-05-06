@@ -1,10 +1,10 @@
-import Issue from './Issue';
-import Newspaper from './Newspaper';
-import Page from './Page';
-import Region from './Region';
-import ArticleTopic from './ArticleTopic';
-import Tag from './Tag';
-import ArticleBase from './ArticleBase';
+import Issue from './Issue'
+import Newspaper from './Newspaper'
+import Page from './Page'
+import Region from './Region'
+import ArticleTopic from './ArticleTopic'
+import Tag from './Tag'
+import ArticleBase from './ArticleBase'
 /**
  * @class Article is an object representing a newspaper article
  * @param {String} country Country Code
@@ -45,6 +45,7 @@ export default class Article extends ArticleBase {
     language = '',
     matches = [],
     nbPages = 0,
+    dataProvider = '',
     newspaper = new Newspaper(),
     pages = [],
     regions = [],
@@ -84,63 +85,64 @@ export default class Article extends ArticleBase {
       regionBreaks,
       mentions,
       content,
-    });
+    })
     // missing data from ArticleBase
-    this.country = String(country);
-    this.dl = parseInt(dl, 10);
-    this.isFront = Boolean(isFront);
-    this.language = String(language);
-    this.time = parseInt(time, 10);
-    this.year = parseInt(year, 10);
+    this.country = String(country)
+    this.dl = parseInt(dl, 10)
+    this.isFront = Boolean(isFront)
+    this.language = String(language)
+    this.time = parseInt(time, 10)
+    this.year = parseInt(year, 10)
 
     if (date instanceof Date) {
-      this.date = date;
+      this.date = date
     } else if (date) {
-      this.date = new Date(date);
+      this.date = new Date(date)
     }
 
     if (issue instanceof Issue) {
-      this.issue = issue;
+      this.issue = issue
     } else {
-      this.issue = new Issue(issue);
+      this.issue = new Issue(issue)
     }
 
-    this.labels = labels.map(label => String(label));
+    this.labels = labels.map(label => String(label))
 
+    this.dataProvider = dataProvider
     if (newspaper instanceof Newspaper) {
-      this.newspaper = newspaper;
+      this.newspaper = newspaper
     } else {
-      this.newspaper = new Newspaper(newspaper);
+      this.newspaper = new Newspaper(newspaper)
     }
 
-    this.pages = pages.map((page) => {
+    this.pages = pages.map(page => {
       if (page instanceof Page) {
-        return page;
+        return page
       }
-      return new Page(page);
-    });
+      return new Page(page)
+    })
 
-    this.regions = regions.map((region) => {
+    this.regions = regions.map(region => {
       if (region instanceof Region) {
-        return region;
+        return region
       }
-      return new Region(region);
-    });
+      return new Region(region)
+    })
 
-    this.tags = tags.map((tag) => {
+    this.tags = tags.map(tag => {
       if (tag instanceof Tag) {
-        return tag;
+        return tag
       }
-      return new Tag(tag);
-    });
+      return new Tag(tag)
+    })
 
-    this.topics = topics.map((topic) => {
+    this.topics = topics.map(topic => {
       if (topic instanceof ArticleTopic) {
-        return topic;
+        return topic
       }
-      return new ArticleTopic(topic);
-    });
+      return new ArticleTopic(topic)
+    })
 
-    this.images = images;
+    this.images = images
   }
 }

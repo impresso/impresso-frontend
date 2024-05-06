@@ -10,14 +10,15 @@
             <span>{{ $t('routes.' + $route.name) }}</span>
             <small><InfoButton name="text-reuse" class="ml-1"/></small>
           </h3>
-          <section class="text-serif TextReuseExplorerPage_summary">
-            <div>
+          <section class="text-serif  TextReuseExplorerPage_summary">
+            <Ellipsis :initialHeight="60" :maxHeight="0">
               <span v-html="incipit" />
               <SearchQuerySummary
+                class="textbox-fancy"
                 v-on:updated="summaryUpdatedHandler"
                 :search-query="{ filters: supportedFiltersWithItems }"
               />
-            </div>
+            </Ellipsis>
             <div class="ml-2">
               <AddToCollection
                 @item:click="handleAddToCollectionClick"
@@ -218,6 +219,7 @@
 
 <script>
 import InfoButton from '@/components/base/InfoButton'
+import Ellipsis from '@/components/modules/Ellipsis'
 import List from '@/components/modules/lists/List'
 import ClusterItem from '@/components/modules/lists/ClusterItem'
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
@@ -254,6 +256,7 @@ const OrderByOptions = [
 export default {
   components: {
     ClusterItem,
+    Ellipsis,
     TextReusePassageItem,
     InfoButton,
     List,

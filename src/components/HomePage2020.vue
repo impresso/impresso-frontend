@@ -66,9 +66,9 @@
               src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
               class="mr-2"
               style="max-height: 1em"
-              alt="X (former witter) icon"
+              alt="X (former Twitter) icon"
             />
-            X (former witter):
+            X (former Twitter):
             <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
           </p>
           <p>
@@ -142,7 +142,7 @@
 
         <div class="HomePage__card">
           <h3>
-            Try the Impresso Challenges
+            Learn Impresso with the Impresso Challenges
           </h3>
           <p>
             How to explore the newspapers with persons or locations? <br />What are topics good for?

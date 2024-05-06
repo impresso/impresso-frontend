@@ -90,7 +90,9 @@
           <item-label :item="item" :type="type" />
           <span v-if="!item.uid">...</span>
           <span v-if="item.count"
-            >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
+            >&nbsp;(<span
+              v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"
+            />)&nbsp;</span
           >
           <item-selector :uid="item.uid" :item="item" :type="type" />
         </b-form-checkbox>
@@ -121,7 +123,7 @@
       </div>
       <!-- string to add -->
       <div class="strings-to-add m-2 ml-4" v-if="stringsToAdd.length">
-        <b-form inline v-for="(item, idx) in stringsToAdd" :key="idx" class="mb-2">
+        <div v-for="(item, idx) in stringsToAdd" :key="idx" class="mb-2 d-flex">
           <b-form-input
             size="sm"
             placeholder="..."
@@ -137,7 +139,7 @@
             style="padding:0.25rem 0.5rem 0 0.5rem"
             @click.prevent.stop="removeStringItem(idx)"
           />
-        </b-form>
+        </div>
       </div>
     </div>
     <div v-if="EntityTypes.includes(type)">
@@ -371,7 +373,7 @@ export default {
       ]
     },
     filterItems() {
-      return [...this.filter.items]
+      return this.filter && Array.isArray(this.filter.items) ? [...this.filter.items] : []
     },
     hasChanges() {
       return (
@@ -625,6 +627,18 @@ label.custom-control-label {
         "context": {
           "include": "Published in",
           "exclude": "<b>NOT</b> published in"
+        }
+      },
+      "partner": {
+        "title": "data provider",
+        "selected": "filter results if they are provided by <b>one of {count} selected</b> data providers",
+        "description": "check one or more data provider to filter results",
+        "clear": "reset",
+        "apply": "apply changes",
+        "update": "apply changes (added: {added}, removed: {removed})",
+        "context": {
+          "include": "Provided by",
+          "exclude": "<b>NOT</b> provided by"
         }
       },
       "language": {

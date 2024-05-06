@@ -4,7 +4,7 @@ Welcome to the _impresso_ app frontend website to search, explore and create per
 
 ## Install for development
 
-This is a website that uses vue2 framework build in **node v17** and **is not compatible with node v18**. We provide a dockerfile-dev which points to the right node version to use. Alternatively, you can use `nvm install 17` and then install all dependencies 
+This is a website that uses vue2 framework build in **node v17** and **is not compatible with node v18**. We provide a dockerfile-dev which points to the right node version to use. Alternatively, you can use `nvm install 17` and then install all dependencies
 
 with `--openssl-legacy-provider` option
 
@@ -20,13 +20,17 @@ VUE_APP_MIDDLELAYER_API_PATH="/api"
 VUE_APP_MIDDLELAYER_API_SOCKET_PATH="/api/socket.io"
 ```
 
-FInally run with:
+To use vue proxy while developing, add this env variable to your `.env.development.local` file:
 
+```sh
+VUE_APP_USE_PROXY_MIDDLEWARE=true
+```
+
+Finally run with:
 
 ```
 NODE_OPTIONS=--openssl-legacy-provider npm start
 ```
-
 
 ### Use docker stack for development (node v12)
 
