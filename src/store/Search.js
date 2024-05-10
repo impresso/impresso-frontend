@@ -330,13 +330,13 @@ export default {
         },
       });
     },
-    LOAD_SEARCH_FACETS(context, { facets, limit = 5, skip = 0 } = {}) {
+    LOAD_SEARCH_FACETS(context, { facets, limit = 5, offset = 0 } = {}) {
       const query = {
         facets,
         filters: context.getters.getSearch.getFilters(),
         group_by: context.state.groupBy,
         limit,
-        skip,
+        offset,
       };
       console.info('Search/LOAD_SEARCH_FACETS query:', query);
       return services.searchFacets.find({

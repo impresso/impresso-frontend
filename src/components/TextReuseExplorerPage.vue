@@ -516,7 +516,7 @@ export default {
     /** @returns {{ query: any, hash: string }} */
     searchApiQueryParameters() {
       const query = {
-        skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
+        offset: this.paginationPerPage * (this.paginationCurrentPage - 1),
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
         orderBy: this.orderBy,

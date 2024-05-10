@@ -650,13 +650,13 @@ export default {
     async getAdditionalFacets(comparable, comparableIndex, facetId) {
       if (comparableIsEmpty(comparable)) return []
 
-      const skip = this.sideBySideFacets
+      const offset = this.sideBySideFacets
         .find(({ id }) => id === facetId)?.comparableItems[comparableIndex]?.buckets?.length ?? 0
 
       const query = {
         filters: comparable?.query?.filters ?? comparable?.filters,
         limit: 10,
-        skip
+        offset
       }
 
       try {

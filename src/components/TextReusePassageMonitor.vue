@@ -129,7 +129,7 @@ export default {
         : [{ type: 'textReuseCluster', q: this.item.textReuseCluster.id }]
       filters.push({ type: 'id', q: this.item.id, context: 'exclude' })
       const query = {
-        skip: parseInt(this.endPassageOffset, 10),
+        offset: parseInt(this.endPassageOffset, 10),
         limit: 1,
         order_by: this.endPassageOrderBy,
         filters,

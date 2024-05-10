@@ -464,7 +464,7 @@ export default {
         }
         console.info('@serviceQuery query:', query);
         const [
-          res, // { skip, limit, total, data, info },
+          res, // { offset, limit, total, data, info },
           filtersWithItems,
         ] = await Promise.all([
           imagesService.find({
@@ -479,7 +479,7 @@ export default {
         this.paginationTotalRows = res.total;
         this.searchResults = res.data.map(d => new Image(d));
         this.filtersWithItems = filtersWithItems;
-        this.paginationCurrentPage = Math.round(res.skip / res.limit) + 1;
+        this.paginationCurrentPage = Math.round(res.offset / res.limit) + 1;
 
         const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res);
         this.facets = facets.map(f => new FacetModel(f));

@@ -150,7 +150,7 @@ export default defineComponent({
     selectedBucketsItems: [],
     //
     limit: 10,
-    skip: 0,
+    offset: 0,
     additionalBuckets: [],
     isMoreLoading: false,
     lazyIsPristine: true,
@@ -341,7 +341,7 @@ export default defineComponent({
           query: {
             filters: this.contextFilters,
             limit: this.limit,
-            skip: this.skip,
+            offset: this.skip,
           },
         })
         .then(({ numBuckets, buckets }) => {
@@ -377,7 +377,7 @@ export default defineComponent({
               query: {
                 filters: this.contextFilters,
                 limit: this.limit,
-                skip: this.skip,
+                offset: this.skip,
               },
             },
             { ignoreErrors: true },

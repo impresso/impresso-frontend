@@ -185,7 +185,7 @@ export default {
       [this.passageItems, this.paginationInfo] = await textReuseClusterPassages
         .find({ query: {
           clusterId: this.clusterId,
-          skip: this.paginationPerPage * pageNumber,
+          offset: this.paginationPerPage * pageNumber,
           limit: this.paginationPerPage,
           orderBy
         }})

@@ -272,7 +272,7 @@ export default {
         filters: recommenderResponseToFilters(this.response, this.recommendersSettings).concat(collectionExlusionFilter),
         relevanceContext: recommenderResponseToRelevanceContext(this.response, this.recommendersSettings),
         pagination: {
-          skip: (this.paginationCurrentPage - 1) * this.paginationPerPage,
+          offset: (this.paginationCurrentPage - 1) * this.paginationPerPage,
           limit: this.paginationPerPage
         }
       }
