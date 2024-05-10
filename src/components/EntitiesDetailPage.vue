@@ -337,7 +337,7 @@ export default {
           type: 'entity',
           q: [ this.$route.params.entity_id ],
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
 
       this.facets = await searchFacetsService.find({ query })

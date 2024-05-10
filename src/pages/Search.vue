@@ -650,7 +650,7 @@ export default {
             query: {
               facets: facetTypes,
               filters,
-              group_by: groupBy,
+              // group_by: groupBy,
             },
           }).then(response => response.data),
           filtersItemsService

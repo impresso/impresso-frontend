@@ -229,7 +229,7 @@ export default {
           type: 'topic',
           q: [ this.topicUid ],
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
       for (let facetType of this.facetTypes) {
         const result = await searchFacetsService.get(facetType, {

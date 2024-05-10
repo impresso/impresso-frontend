@@ -132,7 +132,7 @@ export default {
           type: 'entity',
           q: entityId,
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
       return services.searchFacets.get('year', {
         query,
@@ -144,7 +144,7 @@ export default {
           type: 'page',
           q: pageId,
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
       return services.searchFacets.get('topic', {
         query,
@@ -157,7 +157,7 @@ export default {
           type: 'page',
           q: pageId,
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
       return services.searchFacets.find({
         query,

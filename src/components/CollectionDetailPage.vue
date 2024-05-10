@@ -524,7 +524,7 @@ export default {
             type: 'collection',
             q: this.collectionUid,
           }],
-          group_by: 'articles',
+          // group_by: 'articles',
         }
       }).then((type) => new Facet(type));
     },

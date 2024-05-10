@@ -472,7 +472,7 @@ export default {
       return services.searchFacets.get(granularity, {
         query: {
           filters,
-          group_by: 'articles',
+          // group_by: 'articles',
           limit: 500,
         },
       }).then(res => Helpers.timeline.fromBuckets(res.buckets));

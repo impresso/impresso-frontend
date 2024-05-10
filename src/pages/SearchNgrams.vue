@@ -300,7 +300,7 @@ export default {
           const collectionsFacet = await searchFacetsService.get('collection', {
             query: {
               filters,
-              group_by: 'articles',
+              // group_by: 'articles',
             },
           })
           this.facets = facets.concat(collectionsFacet).map(f => new FacetModel(f))

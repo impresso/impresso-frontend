@@ -156,7 +156,7 @@ export default {
           type: 'collection',
           q: collectionId,
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
         limit: 100000,
       };
       return services.searchFacets.get('year', {
@@ -170,7 +170,7 @@ export default {
           type: 'collection',
           q: payload.q,
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
       return services.searchFacets.get(facetType, {
         query,

@@ -306,7 +306,7 @@ export default {
       const query = {
         facets: this.facetTypes,
         filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
 
       this.facets = await searchFacetsService.find({ query })
