@@ -1,4 +1,3 @@
-import { Plugin as Fragment } from 'vue-fragment'
 import Layout from '@/components/layout/Layout';
 import Section from '@/components/layout/Section';
 import Dropdown from '@/components/layout/Dropdown';
@@ -14,7 +13,6 @@ const ImpressoLayout = {
     Vue.component('iDropdown', Dropdown);
     Vue.component('iSpinner', Spinner);
     Vue.component('iFirstNonemptyChild', FirstNonemptyChild);
-    Vue.use(Fragment)
   },
 };
 
