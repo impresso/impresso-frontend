@@ -94,12 +94,12 @@ export default {
         })
       }
     },
-    /** @returns {{ clusterId: string, skip: number, limit: number } | undefined} */
+    /** @returns {{ clusterId: string, offset: number, limit: number } | undefined} */
     clustersQuery() {
       if (this.clusterId == null) return undefined
       return {
         clusterId: this.clusterId,
-        skip: (this.pageNumber - 1) * this.perPage,
+        offset: (this.pageNumber - 1) * this.perPage,
         limit: this.perPage
       }
     }

@@ -48,7 +48,7 @@
 import BaseTitleBar from '@/components/base/BaseTitleBar'
 import HistogramSlider from '@/components/modules/vis/HistogramSlider'
 import { serializeFilters } from '@/logic/filters'
-import { stats as statsService, searchFacets as searchFacetsService } from '@/services'
+import { stats as statsService, getSearchFacetsService } from '@/services'
 import Tooltip from './tooltips/Tooltip'
 import FilterFactory from '@/models/FilterFactory'
 import InfoButton from '@/components/base/InfoButton'
@@ -257,13 +257,12 @@ export default {
             console.error('[FilterDynamicRange] error', error)
           })
         // when min and max have been calculated, set the range
-        await searchFacetsService
+        await getSearchFacetsService(this.index)
           .get(this.facet.type, {
             query: {
-              index: this.index,
               // searchFacets doesn't support serialized filters
               filters: this.facetFilters,
-              groupby: query.groupby,
+              group_by: query.groupby,
               rangeStart: this.start,
               rangeEnd: this.end + 1,
               rangeGap: this.gap,
@@ -272,7 +271,7 @@ export default {
           })
           .then(response => {
             console.debug('[FilterDynamicRange] loadFacet', response)
-            this.buckets = response[0].buckets
+            this.buckets = response.buckets
           })
           .catch(error => {
             // eslint-disable-next-line

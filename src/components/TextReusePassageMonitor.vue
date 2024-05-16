@@ -129,9 +129,9 @@ export default {
         : [{ type: 'textReuseCluster', q: this.item.textReuseCluster.id }]
       filters.push({ type: 'id', q: this.item.id, context: 'exclude' })
       const query = {
-        skip: parseInt(this.endPassageOffset, 10),
+        offset: parseInt(this.endPassageOffset, 10),
         limit: 1,
-        orderBy: this.endPassageOrderBy,
+        order_by: this.endPassageOrderBy,
         filters,
         addons: { newspaper: 'text' },
       }

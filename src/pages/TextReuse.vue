@@ -121,7 +121,7 @@ import FilterFacet from '@/components/modules/FilterFacet'
 import FilterRange from '@/components/modules/FilterRange'
 import FilterDynamicRange from '@/components/modules/FilterDynamicRange'
 import Facet from '@/models/Facet'
-import { searchFacets } from '@/services'
+import { getSearchFacetsService } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import { facetToTimelineValues } from '@/logic/facets'
 import FilterTimeline from '@/components/modules/FilterTimeline'
@@ -247,7 +247,6 @@ export default {
     /** @returns {{ query: any, hash: string }} */
     searchFacetApiQueryParams() {
       const query = {
-        index: 'tr_passages',
         limit: 10,
         order_by: '-count',
         page: 1,
@@ -356,7 +355,7 @@ export default {
     loadFacet(type, opts = {}) {
       // eslint-disable-next-line
       console.debug('[TextReuse] loadFacet', type, 'query', this.searchFacetApiQueryParams.query)
-      searchFacets
+      getSearchFacetsService('tr_passages')
         .get(type, {
           query: {
             ...this.searchFacetApiQueryParams.query,
@@ -367,8 +366,8 @@ export default {
           const facet = this.facets.find(facet => facet.type === type)
           console.debug('[TextReuse] loadFacet', response)
           if (facet) {
-            facet.numBuckets = response[0].numBuckets
-            facet.setBuckets(response[0].buckets)
+            facet.numBuckets = response.numBuckets
+            facet.setBuckets(response.buckets)
           }
         })
     },

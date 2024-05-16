@@ -290,7 +290,7 @@ export default {
         query: {
           text: this.searchText,
           page: this.paginationCurrentPage,
-          skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
+          offset: this.paginationPerPage * (this.paginationCurrentPage - 1),
           limit: this.paginationPerPage,
           orderBy: this.orderByValue,
           filters,

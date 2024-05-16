@@ -165,7 +165,22 @@ export const entities = app.service('entities')
 export const mentions = app.service('mentions')
 export const embeddings = app.service('embeddings')
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks)
-export const searchFacets = app.service('search-facets')
+export const searchFacets = app.service('search-facets/search')
+export const searchFacetsTRClusters = app.service('search-facets/tr-clusters')
+export const searchFacetsTRPassages = app.service('search-facets/tr-passages')
+export const getSearchFacetsService = (index) => {
+  switch (index.replace(/_/g, '-')) {
+    case 'search':
+      return searchFacets
+    case 'tr-clusters':
+      return searchFacetsTRClusters
+    case 'tr-passages':
+      return searchFacetsTRPassages
+    default:
+      throw new Error(`Unknown search facet index: ${index}`)
+  }
+}
+
 export const tableOfContents = app.service('table-of-contents')
 export const searchQueriesComparison = app.service('search-queries-comparison')
 export const errorCollector = app.service('errors-collector')

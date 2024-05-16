@@ -650,18 +650,19 @@ export default {
     async getAdditionalFacets(comparable, comparableIndex, facetId) {
       if (comparableIsEmpty(comparable)) return []
 
-      const skip = this.sideBySideFacets
+      const offset = this.sideBySideFacets
         .find(({ id }) => id === facetId)?.comparableItems[comparableIndex]?.buckets?.length ?? 0
 
       const query = {
         filters: comparable?.query?.filters ?? comparable?.filters,
         limit: 10,
-        skip
+        offset
       }
 
       try {
         this.loadingFlags[comparableIndex] = true
-        const [{ buckets = []} = {}] = await searchFacets.get(facetId, { query })
+        const result = await searchFacets.get(facetId, { query })
+        const buckets = result != null ? result.buckets : []
         return buckets.map(bucket => new Bucket({ ...bucket, type: facetId }))
       } finally {
         this.loadingFlags[comparableIndex] = false

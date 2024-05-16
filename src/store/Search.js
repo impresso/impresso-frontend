@@ -330,18 +330,19 @@ export default {
         },
       });
     },
-    LOAD_SEARCH_FACETS(context, { facets, limit = 5, skip = 0 } = {}) {
+    LOAD_SEARCH_FACETS(context, { facets, limit = 5, offset = 0 } = {}) {
       const query = {
+        facets,
         filters: context.getters.getSearch.getFilters(),
         group_by: context.state.groupBy,
         limit,
-        skip,
+        offset,
       };
       console.info('Search/LOAD_SEARCH_FACETS query:', query);
-      return services.searchFacets.get(facets.join(','), {
+      return services.searchFacets.find({
         query,
       }).then((results) => {
-        results.forEach((facet) => {
+        results.data.forEach((facet) => {
           context.commit('UPDATE_FACET', facet);
         });
       });
@@ -471,10 +472,10 @@ export default {
       return services.searchFacets.get(granularity, {
         query: {
           filters,
-          group_by: 'articles',
+          // group_by: 'articles',
           limit: 500,
         },
-      }).then(res => Helpers.timeline.fromBuckets(res[0].buckets));
+      }).then(res => Helpers.timeline.fromBuckets(res.buckets));
     },
     LOAD_ARTICLES(context, {
       page = 1,

@@ -332,18 +332,16 @@ export default {
       });
       this.facets = [];
       const query = {
+        facets: this.facetTypes,
         filters: [{
           type: 'entity',
           q: [ this.$route.params.entity_id ],
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
-      for (let facetType of this.facetTypes) {
-        const results = await searchFacetsService.get(facetType, {
-          query,
-        }).then(([facetType]) => new Facet(facetType));
-        this.facets = this.facets.concat(results);
-      }
+
+      this.facets = await searchFacetsService.find({ query })
+        .then(response => response.data.map(item => new Facet(item)))
     },
     loadItems(page = 1) {
       if (this.tab.name === TAB_ARTICLES) {

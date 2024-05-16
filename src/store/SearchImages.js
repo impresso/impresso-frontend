@@ -292,7 +292,7 @@ export default {
         commit('UPDATE_PAGINATION_TOTAL_ROWS', {
           paginationTotalRows: res.total,
         });
-        commit('UPDATE_PAGINATION_CURRENT_PAGE', Math.round(res.skip / res.limit) + 1);
+        commit('UPDATE_PAGINATION_CURRENT_PAGE', Math.round(res.offset / res.limit) + 1);
         commit('UPDATE_QUERY_COMPONENTS', res.info.queryComponents);
         // update facets
         if (res.total) {

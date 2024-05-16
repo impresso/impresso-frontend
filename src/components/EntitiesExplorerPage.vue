@@ -578,7 +578,7 @@ export default {
         entityId,
         filters,
         timeResolution: this.punchcardResolution,
-        skip: skipPerEntity[entityId]
+        offset: skipPerEntity[entityId]
       }));
 
       try {

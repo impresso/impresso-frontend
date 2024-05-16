@@ -110,7 +110,7 @@ export default {
         if (id == null) return
         this.isLoading = true
         try {
-          const response = await textReuseClustersService.get(this.cluster.id, { query: { includeDetails: true }})
+          const response = await textReuseClustersService.get(this.cluster.id, { query: { include_details: true }})
           const facets = response?.details?.facets ?? []
           this.resolution = response?.details?.resolution
           this.facets = facets.map(facet => new FacetModel(facet))

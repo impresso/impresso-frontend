@@ -229,13 +229,13 @@ export default {
           type: 'topic',
           q: [ this.topicUid ],
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
       for (let facetType of this.facetTypes) {
-        const results = await searchFacetsService.get(facetType, {
+        const result = await searchFacetsService.get(facetType, {
           query,
-        }).then(([facetType]) => new Facet(facetType));
-        this.facets = this.facets.concat(results);
+        }).then((facetType) => new Facet(facetType));
+        this.facets = this.facets.concat(result);
       }
     },
     async loadTimeline() {

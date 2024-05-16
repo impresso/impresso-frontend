@@ -397,8 +397,8 @@ export default defineComponent({
         .then(response => {
           // eslint-disable-next-line no-console
           console.debug('[ItemSelector] loadTimeline success', response)
-          this.timelineValues = Helpers.timeline.fromBuckets(response[0].buckets)
-          this.total = response[0].buckets.reduce((acc, bucket) => acc + bucket.count, 0)
+          this.timelineValues = Helpers.timeline.fromBuckets(response.buckets)
+          this.total = response.buckets.reduce((acc, bucket) => acc + bucket.count, 0)
         })
     },
   },
