@@ -31,7 +31,6 @@
     "filepond": "4.9.4",
     "filepond-plugin-file-validate-size": "2.2.0",
     "filepond-plugin-file-validate-type": "1.2.4",
-    "flatpickr": "4.6.3",
     "impresso-jscommons": "git+https://git@github.com/impresso/impresso-jscommons.git#v1.4.1",
     "impresso-theme": "git+https://git@github.com/impresso/impresso-theme.git",
     "markdown-it": "12.3.2",
