@@ -19,10 +19,9 @@
 
         <section class="ml-auto py-3 text-right">
           <router-link :to="updateCurrentRoute({ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} })" class="m-1">
-            <b-button
-              variant="outline-info" size="sm"
+            <button type="button" class="btn btn-outline-info btn-sm"
               v-b-modal.confirmDelete>{{ $t('compare_collection') }}
-            </b-button>
+            </button>
           </router-link>
 
           <b-dropdown class="m-1" size="sm" variant="outline-primary" :text="$t('edit_collection')"
@@ -36,16 +35,14 @@
               <textarea type="text" name="collectionDesc" class="form-control"
                 v-on:keyup.enter="save(collection)"
                 v-model="collection.description" />
-              <b-button variant="outline-primary" size="sm" class="form-control my-3"
+              <button type="button" class="btn btn-outline-primary btn-sm form-control my-3"
                 v-on:click="save(collection)">{{ $t('update_collection') }}
-              </b-button>
-              <b-button
-                class="form-control mb-3"
-                variant="outline-danger" size="sm"
+              </button>
+              <button type="button" class="btn btn-outline-danger btn-sm form-control mb-3"
                 v-on:click.alt="remove(collection)"
                 v-on:click.exact="$bvModal.show('confirmDelete')">
                 {{ $t('delete_collection') }}
-              </b-button>
+              </button>
             </div>
           </b-dropdown>
 
@@ -81,9 +78,9 @@
 
         <b-navbar-nav v-if="$route.params.collection_uid">
           <b-nav-form class="p-2 ml-3">
-            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
+            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click='applyFilter()'>
               {{ $t('actions.addToCurrentFilters') }}
-            </b-button>
+            </button>
           </b-nav-form>
           <b-nav-form class="p-2">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">

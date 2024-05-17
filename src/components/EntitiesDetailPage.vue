@@ -92,9 +92,8 @@
                       {{ parseWkDate(entity.wikidata.deathDate) }}
                       </span>
                     </p>
-                    <b-button
+                    <b-button variant="outline-primary" size="sm" target="_blank"
                       v-if="entity.wikidata.coordinates"
-                      variant="outline-primary" size="sm" target="_blank"
                       :href="`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${entity.wikidata.coordinates.latitude},${entity.wikidata.coordinates.longitude}`">
                       OpenStreetMaps
                     </b-button>
