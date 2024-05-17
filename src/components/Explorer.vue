@@ -26,11 +26,10 @@
                           v-model.trim="searchQueryModel"
                           autofocus/>
             <div class="input-group-append">
-              <b-btn class="pt-2 pb-1 px-2"
-                      variant="outline-primary"
-                      v-on:click="search">
+              <button type="button" class="btn btn-outline-primary pt-2 pb-1 px-2"
+                     v-on:click="search">
                 <div class="search-submit dripicons-search"></div>
-              </b-btn>
+              </button>
             </div>
           </div>
         </form>

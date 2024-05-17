@@ -8,9 +8,9 @@
     @input.native="change"
     @keyup.native="change" />
     <div class="input-group-append">
-      <b-btn variant="outline-primary" class="px-2" @click="submit">
+      <button type="button" class="btn btn-outline-primary px-2" @click="submit">
         <div class="search-submit dripicons-search"></div>
-      </b-btn>
+      </button>
     </div>
   </div>
 </template>

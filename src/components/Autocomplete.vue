@@ -11,17 +11,16 @@
         v-on:keyup.native="keyup"
       />
       <div class="input-group-append">
-        <b-btn
-          variant="outline-primary"
+        <button type="button" class="btn btn-outline-primary"
           :title="$tc('placeholder.search', filterCount)"
           @click="submit({ type: 'string', q })"
         >
           <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
           <div v-else class="d-flex search-submit dripicons-search"></div>
-        </b-btn>
-        <b-btn variant="outline-primary" :title="$t('actions.addFilter')" @click="showExplorer">
+        </button>
+        <button type="button" class="btn btn-outline-primary" :title="$t('actions.addFilter')" @click="showExplorer">
           <div class="d-flex dripicons-experiment"></div>
-        </b-btn>
+        </button>
       </div>
     </div>
 
