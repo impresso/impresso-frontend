@@ -21,18 +21,18 @@
           })"></span>
         </div>
         <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
-          <b-input-group>
+          <div class="input-group">
             <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
                           v-model.trim="searchQueryModel"
                           autofocus/>
-            <b-input-group-append>
+            <div class="input-group-append">
               <b-btn class="pt-2 pb-1 px-2"
                       variant="outline-primary"
                       v-on:click="search">
                 <div class="search-submit dripicons-search"></div>
               </b-btn>
-            </b-input-group-append>
-          </b-input-group>
+            </div>
+          </div>
         </form>
 
       </div>

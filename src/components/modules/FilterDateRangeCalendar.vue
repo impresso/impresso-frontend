@@ -1,7 +1,7 @@
 <template>
   <div class="FilterDateRange d-flex">
     <div class="flex-grow-1">
-      <b-input-group class="mb-1">
+      <div class="input-group mb-1">
         <b-form-input
           size="sm"
           id="start-date-datepicker"
@@ -10,7 +10,7 @@
           placeholder="..."
           autocomplete="off"
         ></b-form-input>
-        <b-input-group-append v-if="showCalendar">
+        <div class="input-group-append" v-if="showCalendar">
           <b-form-datepicker
             button-only
             right
@@ -22,14 +22,14 @@
             v-model="startValueCalendar"
             button-variant="outline-secondary"
           ></b-form-datepicker>
-        </b-input-group-append>
-      </b-input-group>
+        </div>
+      </div>
     </div>
     <div class="flex-shrink-1 mx-2">
       to
     </div>
     <div class="flex-grow-1">
-      <b-input-group class="mb-1">
+      <div class="input-group mb-1">
         <b-form-input
           size="sm"
           id="end-date-datepicker"
@@ -38,7 +38,7 @@
           placeholder="..."
           autocomplete="off"
         ></b-form-input>
-        <b-input-group-append v-if="showCalendar">
+        <div class="input-group-append" v-if="showCalendar">
           <b-form-datepicker
             button-only
             right
@@ -50,8 +50,8 @@
             :max="maxDate"
             v-model="endValueCalendar"
           ></b-form-datepicker>
-        </b-input-group-append>
-      </b-input-group>
+        </div>
+      </div>
     </div>
   </div>
 </template>

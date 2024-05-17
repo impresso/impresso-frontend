@@ -32,12 +32,12 @@
             <search-pills :filters="filters"
                           @changed="handleFiltersChanged"
                           :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']" />
-            <b-input-group>
+            <div class="input-group">
               <b-form-input
               placeholder="search for ..."
               v-model.trim="q"
               v-on:change.native="search"/>
-            </b-input-group>
+            </div>
           </div>
         </div>
       </div>

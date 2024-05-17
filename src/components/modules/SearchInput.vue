@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-input-group>
+  <div class="input-group">
     <b-form-input
     class="border-primary"
     :placeholder="placeholder"
@@ -7,12 +7,12 @@
     @keyup.enter="submit"
     @input.native="change"
     @keyup.native="change" />
-    <b-input-group-append>
+    <div class="input-group-append">
       <b-btn variant="outline-primary" class="px-2" @click="submit">
         <div class="search-submit dripicons-search"></div>
       </b-btn>
-    </b-input-group-append>
-  </b-input-group>
+    </div>
+  </div>
 </template>
 
 <script>

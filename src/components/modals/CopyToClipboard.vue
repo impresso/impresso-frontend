@@ -51,19 +51,19 @@
       <b-col>
         <div class="ml-2" v-if="isShown">
           <label for="form-input-title">{{ $t('article_title') }}</label>
-          <b-input-group size="sm">
+          <div class="input-group input-group-sm">
             <b-input
               id="form-input-title"
               :value="title"
               @input="debounceInput($event, 'title')"
             ></b-input>
-          </b-input-group>
+          </div>
           <hr class="my-2" />
           <b-row>
             <b-col>
               <label for="form-input-bgcolor">{{ $t('options_bgcolor') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
@@ -75,13 +75,13 @@
                   >
                     #
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-bgcolor"
                   :value="backgroundColor"
                   @input="debounceInput($event, 'backgroundColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
 
               <small id="form-input-bgcolor-help" class="form-text text-muted">{{
                 $t('options_bgcolor_help')
@@ -89,8 +89,8 @@
             </b-col>
             <b-col>
               <label for="form-input-text-color">{{ $t('options_text_color') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
@@ -103,13 +103,13 @@
                   >
                     css
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-bgcolor"
                   :value="textColor"
                   @input="debounceInput($event, 'textColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
 
               <small
                 id="form-input-bgcolor-help"
@@ -121,8 +121,8 @@
           <b-row>
             <b-col>
               <label for="form-input-ovcolor">{{ $t('options_ovcolor') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
@@ -134,13 +134,13 @@
                   >
                     #
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-ovcolor"
                   :value="overlayBackgroundColor"
                   @input="debounceInput($event, 'overlayBackgroundColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
               <small id="form-input-ovcolor-help" class="form-text text-muted">{{
                 $t('options_ovcolor_help')
               }}</small>
@@ -150,43 +150,43 @@
           <!-- printout coords in inut elements -->
           <b-row>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>x</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">x</div></div>
                 <b-input
                   id="form-input-coords-x"
                   type="number"
                   :value="cx"
                   @input="debounceInput($event, 'cx')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>y</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">y</div></div>
                 <b-input
                   id="form-input-coords-y"
                   type="number"
                   :value="cy"
                   @input="debounceInput($event, 'cy')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
           <b-row>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>w</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">w</div></div>
                 <b-input
                   id="form-input-coords-w"
                   type="number"
                   :value="cw"
                   @input="debounceInput($event, 'cw')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>h</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">h</div></div>
                 <b-input
                   id="form-input-coords-h"
                   type="number"
@@ -194,7 +194,7 @@
                   @input="debounceInput($event, 'ch')"
                 >
                 </b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
 
@@ -216,30 +216,30 @@
             $t('options_customise_viewport_max_height')
           }}</label>
 
-          <b-input-group size="sm">
-            <b-input-group-prepend is-text>px</b-input-group-prepend>
+          <div class="input-group input-group-sm">
+            <div class="input-group-prepend"><div class="input-group-text">px</div></div>
             <b-input
               id="form-input-max-height"
               type="number"
               :value="maxHeight"
               @input="debounceInput($event, 'maxHeight')"
             ></b-input>
-          </b-input-group>
+          </div>
           <b-row class="mt-2">
             <b-col>
               <label for="form-input-caption-padding">{{
                 $t('options_customise_caption_padding')
               }}</label>
 
-              <b-input-group size="sm">
-                <b-input-group-prepend is-text>px</b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend"><div class="input-group-text">px</div></div>
                 <b-input
                   id="form-input-caption-padding"
                   type="number"
                   :value="captionPadding"
                   @input="debounceInput($event, 'captionPadding')"
                 ></b-input>
-              </b-input-group>
+              </div>
               <small id="form-input-caption-padding-help" class="form-text text-muted">{{
                 $t('options_customise_caption_padding_help')
               }}</small>
@@ -248,26 +248,20 @@
               <label for="form-input-viewport-coords-margin">
                 {{ $t('options_customise_viewport_coords_margin') }}
               </label>
-              <b-input-group size="sm">
-                <b-input-group-prepend is-text>px</b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend"><div class="input-group-text">px</div></div>
                 <b-input
                   id="form-input-viewport-coords-margin"
                   type="number"
                   :value="coordsMargin"
                   @input="debounceInput($event, 'coordsMargin')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
         </div>
       </b-col>
     </b-row>
-    <!-- {{ widgetLink }}
-    <b-input-group prepend="URL">
-      <template v-slot:append>
-
-      </template>
-    </b-input-group> -->
   </b-modal>
 </template>
 

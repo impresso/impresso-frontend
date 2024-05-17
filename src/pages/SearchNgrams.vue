@@ -58,7 +58,7 @@
             >Enter unigram
             <info-button name="what-are-ngram" />
           </span>
-          <b-input-group>
+          <div class="input-group">
             <b-form-tags
               v-model="unigrams"
               :disabled="isLoading"
@@ -85,7 +85,7 @@
                 />
               </div>
             </b-dropdown>
-          </b-input-group>
+          </div>
         </b-navbar>
       </div>
       <div

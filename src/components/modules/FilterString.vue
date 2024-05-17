@@ -1,7 +1,7 @@
 <template lang="html">
   <filter-wrapper v-on:remove="remove" v-bind:title="filter.query" :id="filter.key">
     <div slot="settings">
-      <b-input-group class="mb-3">
+      <div class="input-group mb-3">
         <b-input
           type="text"
           v-model="filter.query"
@@ -12,7 +12,7 @@
         />
         <b-button v-on:click="editFilter" v-show="disabled" size="sm"><icon name="edit" /></b-button>
         <b-button v-on:click="submitFilter" v-show="!disabled" size="sm"><icon name="check" /></b-button>
-      </b-input-group>
+      </div>
       <i-layout>
         <i-layout-section width="50%">
           <filter-setting-context v-model="filter" />

@@ -132,19 +132,19 @@
                   maxlength="20" />
               </b-form-group>
 
-              <b-input-group id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="mb-4">
+              <div id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="input-group mb-4">
                 <b-form-input
                   id="pattern"
                   v-model="patternAsText"
                   maxlength="70">
                 </b-form-input>
-                <b-input-group-append>
+                <div class="input-group-append">
                   <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="10"></b-form-input>
                   <b-button size="sm" class="text-nowrap" variant="outline-primary" @click="onGeneratePattern">
                     {{$t('actions.generatePattern')}}
                   </b-button>
-                </b-input-group-append>
-              </b-input-group>
+                </div>
+              </div>
 
               <div class="d-flex w-100 mb-3">
                   <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
