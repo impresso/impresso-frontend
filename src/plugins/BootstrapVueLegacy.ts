@@ -26,7 +26,6 @@ import { BFormGroup } from 'bootstrap-vue/src/components/form-group/form-group'
 import { BFormRadioGroup } from 'bootstrap-vue/src/components/form-radio/form-radio-group'
 import { BFormCheckbox } from 'bootstrap-vue/src/components/form-checkbox/form-checkbox'
 import { BFormInput } from 'bootstrap-vue/src/components/form-input/form-input'
-import { BFormCheckboxGroup } from 'bootstrap-vue/src/components/form-checkbox/form-checkbox-group'
 import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
 import { BTab } from 'bootstrap-vue/src/components/tabs/tab'
 import { BForm } from 'bootstrap-vue/src/components/form/form'
@@ -66,7 +65,6 @@ const BootstrapVueLegacy = {
     vue.component('BFormRadioGroup', BFormRadioGroup);
     vue.component('BFormCheckbox', BFormCheckbox);
     vue.component('BFormInput', BFormInput);
-    vue.component('BFormCheckboxGroup', BFormCheckboxGroup);
     vue.component('BVTransporter', BVTransporter);
     vue.component('BTab', BTab);
     vue.component('BForm', BForm);

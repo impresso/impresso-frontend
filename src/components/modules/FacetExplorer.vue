@@ -1,13 +1,18 @@
-<template lang="html">
+<template>
   <div class="facet-explorer">
     <div>
       <!-- The Loop -->
       <div class="position-relative">
-        <b-form-checkbox-group v-model="selectedIds" class="position-relative px-3 pt-2 pb-5" style="min-height: 4em; max-height: 16em; overflow: scroll">
+        <div
+          role="group"
+          tabindex="-1"
+          class="position-relative px-3 pt-2 pb-5 bv-no-focus-ring"
+          style="min-height: 4em; max-height: 16em; overflow: scroll">
           <b-form-checkbox v-for="(bucket, idx) in buckets"
                            v-bind:key="idx"
                            :value="bucket.val"
-                           class="d-block">
+                           class="d-block"
+                           @change="handleChecked($event, bucket.val)">
             <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
             <span v-if="bucket.count > -1">
               (<span v-html="$tc('numbers.results', bucket.count, { n : $n(bucket.count) })"/>)
@@ -17,7 +22,7 @@
               <span v-for="(match, i) in bucket.item.matches" v-html="match" :key="i"/>
             </div>
           </b-form-checkbox>
-        </b-form-checkbox-group>
+        </div>
         <div class="fixed-pagination-footer p-1 mb-2 small">
           <slot name="pagination">
           </slot>
@@ -50,7 +55,7 @@ export default {
   data: () => ({
     /** @type {string[]} */
     selectedIds: [],
-    selectedIdsEntities: []
+    selectedIdsEntities: [],
   }),
   props: {
     filter: {
@@ -90,6 +95,14 @@ export default {
     }
   },
   methods: {
+    handleChecked(isSet, val) {
+      if (!isSet) {
+        this.selectedIds.forEach((id, idx) => {
+          if (id === val) this.selectedIds.splice(idx, 1)
+        })
+      }
+      else this.selectedIds.push(val)
+    },
     applyFilter() {
       const entities = getEntitiesForIds(
         this.selectedIds,
@@ -110,7 +123,7 @@ export default {
     filter: {
       handler() {
         const entities = this.filter ? this.filter.items : []
-        this.selectedIds = this.filterIds
+        this.selectedIds = [...this.filterIds]
         this.selectedIdsEntities = getEntitiesForIds(this.filterIds, entities)
       },
       immediate: true
