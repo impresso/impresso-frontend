@@ -8,7 +8,7 @@
     :text="title"
   >
     <div v-if="!isLoggedIn" class="p-2 bg-light">
-      <b-button size="sm" class="w-100" variant="outline-primary" v-bind:to="{ name: 'login' }">
+      <b-button size="sm" class="w-100" variant="outline-primary" @click="$router.push({ name: 'login' })">
         {{ $t('login') }}
       </b-button>
     </div>

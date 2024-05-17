@@ -140,7 +140,7 @@
         <div class="align-self-center">
           <p>{{ $t('errors.loggedInOnly') }}</p>
           <br/>
-          <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
+          <b-button @click="handleLoginClick()" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
         </div>
       </div>
       <open-seadragon-viewer
@@ -391,6 +391,9 @@ export default {
       if (!this.isMarginaliaLoaded) {
         await this.loadMarginalia();
       }
+    },
+    handleLoginClick() {
+      this.$router.push({ name: 'login' })
     },
     renderMetaTags() {
       let tags = {};

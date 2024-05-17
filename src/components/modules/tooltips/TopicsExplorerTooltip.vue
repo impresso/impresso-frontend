@@ -15,10 +15,10 @@
         <span  v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
       </div>
       <b-button-group class="my-2 w-100">
-        <b-button class="mr-1" :to="{name: 'topic', params: { topic_uid: tooltip.item.uid }}" variant="outline-success"  size="sm">
+        <b-button class="mr-1" @click="$router.push({name: 'topic', params: { topic_uid: tooltip.item.uid }})" variant="outline-success"  size="sm">
             {{ $t('actions.viewTopic') }}
         </b-button>
-        <b-button class="ml-1" :to="searchRouteLink" variant="outline-success"  size="sm">
+        <b-button class="ml-1" @click="$router.push(searchRouteLink)" variant="outline-success"  size="sm">
             {{ $t('actions.searchMore') }}
         </b-button>
       </b-button-group>

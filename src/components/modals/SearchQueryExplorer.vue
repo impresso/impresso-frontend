@@ -14,7 +14,7 @@
       <div class="search-query-explorer-result" v-for="(item, index) in results" :key="index" >
         <p class="mb-2">
           <span v-html="getCurrentIndex(index)" />
-          <b-button size="sm" class="ml-2" :to="getRouteWithSearchQuery({ name: 'search' })" variant="outline-primary">
+          <b-button size="sm" class="ml-2" @click="$router.push(getRouteWithSearchQuery({ name: 'search' }))" variant="outline-primary">
             {{ $t('actions.browseAll') }}
           </b-button>
         </p>
