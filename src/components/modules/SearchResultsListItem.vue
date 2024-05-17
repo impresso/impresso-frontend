@@ -1,105 +1,108 @@
 <template>
-  <b-media class="py-3 border-bottom  search-result-list-item SearchResultListItem">
-    <div v-if="isAvailable()" class="thumbnail" slot="aside">
-      <IIIFFragment
-        @click="goToArticle"
-        v-if="article.pages.length"
-        :iiif="article.pages[0].iiif"
-        size="!496,480"
-        :scale="0.5"
-        fit-to-regions
-        :regions="computedRegionsInArticleFirstPage"
-      />
-    </div>
-    <div v-else class="error bg-light border" slot="aside">
-      <p class="message">{{ $t('login_message') }}</p>
-    </div>
-    <div class="d-flex">
-      <div class="list-item-details me-3 mr-3">
-        <!-- if article -->
-        <article-item
-          :item="article"
-          show-meta
-          show-excerpt
-          show-entities
-          show-matches
-          show-link
-          class="mb-2"
-        />
-        <b-badge
-          class="mb-2"
-          pill
-          v-for="tag in article.tags"
-          variant="secondary"
-          v-bind:key="tag.uid"
-          >{{ tag.name }}</b-badge
-        >
-        <div
-          v-if="article.collections && article.collections.length > 0"
-          class="article-collections mb-2"
-        >
-          <b-badge
-            v-for="(collection, i) in article.collections"
-            v-bind:key="i"
-            variant="info"
-            class="mr-1"
-          >
-            <router-link
-              class="text-white"
-              v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
-            >
-              {{ collection.name }}
-            </router-link>
-            <a
-              class="dripicons dripicons-cross"
-              v-on:click="onRemoveCollection(collection, article)"
-            />
-          </b-badge>
-        </div>
-
-        <router-link :to="computedArticleRouterLink" class="btn btn-sm btn-outline-primary mr-1">
-          {{ $t('view') }}
-        </router-link>
-
-        <slot name="secondary-action">
-          <collection-add-to v-bind:item="article" v-bind:text="$t('add_to_collection')" />
-        </slot>
-
-        <div v-if="article.accessRight === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
-          <b-button
-            variant="outline-success"
-            size="sm"
-            v-on:click="showModalShareArticle()"
-            :title="$t('share_article')"
-          >
-            <div class="d-flex flex-row align-items-center">
-              <div class="d-flex dripicons dripicons-web mr-1" />
-              <div>
-                {{ $t('actions.share') }}
-              </div>
-            </div>
-          </b-button>
-        </div>
-      </div>
-      <div v-if="showContext && computedRegionsInArticleFirstPage">
+  <div class="media py-3 border-bottom  search-result-list-item SearchResultListItem">
+    <div class="media-aside align-self-start">
+      <div v-if="isAvailable()" class="thumbnail" slot="aside">
         <IIIFFragment
           @click="goToArticle"
+          v-if="article.pages.length"
           :iiif="article.pages[0].iiif"
-          size="!248,240"
+          size="!496,480"
+          :scale="0.5"
+          fit-to-regions
           :regions="computedRegionsInArticleFirstPage"
         />
       </div>
-      <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
-        <b-checkbox
-          class="mr-0 select-item"
-          v-bind:checked="checked"
-          v-on:change="toggleSelected"
-        />
+      <div v-else class="error bg-light border" slot="aside">
+        <p class="message">{{ $t('login_message') }}</p>
       </div>
     </div>
+    <div class="media-body">
+      <div class="d-flex">
+        <div class="list-item-details me-3 mr-3">
+          <!-- if article -->
+          <article-item
+            :item="article"
+            show-meta
+            show-excerpt
+            show-entities
+            show-matches
+            show-link
+            class="mb-2"
+          />
+          <b-badge
+            class="mb-2"
+            pill
+            v-for="tag in article.tags"
+            variant="secondary"
+            v-bind:key="tag.uid"
+            >{{ tag.name }}</b-badge
+          >
+          <div
+            v-if="article.collections && article.collections.length > 0"
+            class="article-collections mb-2"
+          >
+            <b-badge
+              v-for="(collection, i) in article.collections"
+              v-bind:key="i"
+              variant="info"
+              class="mr-1"
+            >
+              <router-link
+                class="text-white"
+                v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+              >
+                {{ collection.name }}
+              </router-link>
+              <a
+                class="dripicons dripicons-cross"
+                v-on:click="onRemoveCollection(collection, article)"
+              />
+            </b-badge>
+          </div>
 
-    <copy-to-clipboard :article="article" v-if="showModalShare" @closed="hideModalShareArticle" />
-  </b-media>
+          <router-link :to="computedArticleRouterLink" class="btn btn-sm btn-outline-primary mr-1">
+            {{ $t('view') }}
+          </router-link>
+
+          <slot name="secondary-action">
+            <collection-add-to v-bind:item="article" v-bind:text="$t('add_to_collection')" />
+          </slot>
+
+          <div v-if="article.accessRight === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
+            <b-button
+              variant="outline-success"
+              size="sm"
+              v-on:click="showModalShareArticle()"
+              :title="$t('share_article')"
+            >
+              <div class="d-flex flex-row align-items-center">
+                <div class="d-flex dripicons dripicons-web mr-1" />
+                <div>
+                  {{ $t('actions.share') }}
+                </div>
+              </div>
+            </b-button>
+          </div>
+        </div>
+        <div v-if="showContext && computedRegionsInArticleFirstPage">
+          <IIIFFragment
+            @click="goToArticle"
+            :iiif="article.pages[0].iiif"
+            size="!248,240"
+            :regions="computedRegionsInArticleFirstPage"
+          />
+        </div>
+        <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
+          <b-checkbox
+            class="mr-0 select-item"
+            v-bind:checked="checked"
+            v-on:change="toggleSelected"
+          />
+        </div>
+      </div>
+      <copy-to-clipboard :article="article" v-if="showModalShare" @closed="hideModalShareArticle" />
+    </div>
+  </div>
 </template>
 
 <script>
