@@ -1,6 +1,7 @@
 import { VueConstructor } from 'vue';
 
 import BButton from '@/components/legacy/bootstrap/BButton.vue';
+import BCol from '@/components/legacy/bootstrap/BCol.vue';
 
 // boostrap-vue
 import { BNavbar } from 'bootstrap-vue/src/components/navbar/navbar'
@@ -20,7 +21,6 @@ import { BContainer } from 'bootstrap-vue/src/components/layout/container'
 import { BRow } from 'bootstrap-vue/src/components/layout/row'
 import { BButtonGroup } from 'bootstrap-vue/src/components/button-group/button-group'
 import { BPagination } from 'bootstrap-vue/src/components/pagination/pagination'
-import { BCol } from 'bootstrap-vue/src/components/layout/col'
 import { BBadge } from 'bootstrap-vue/src/components/badge/badge'
 import { BFormGroup } from 'bootstrap-vue/src/components/form-group/form-group'
 import { BFormRadioGroup } from 'bootstrap-vue/src/components/form-radio/form-radio-group'
@@ -30,6 +30,7 @@ import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transpor
 import { BTab } from 'bootstrap-vue/src/components/tabs/tab'
 import { BForm } from 'bootstrap-vue/src/components/form/form'
 import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
+import { BNavText } from 'bootstrap-vue/src/components/nav/nav-text'
 
 
 import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
@@ -41,6 +42,7 @@ import { BVModalPlugin } from 'bootstrap-vue/src/components/modal/helpers/bv-mod
 const BootstrapVueLegacy = {
   install(vue: VueConstructor) {
     vue.component('BButton', BButton);
+    vue.component('BCol', BCol);
 
     vue.component('BNavbar', BNavbar);
     vue.component('BNavbarBrand', BNavbarBrand);
@@ -59,7 +61,6 @@ const BootstrapVueLegacy = {
     vue.component('BRow', BRow);
     vue.component('BButtonGroup', BButtonGroup);
     vue.component('BPagination', BPagination);
-    vue.component('BCol', BCol);
     vue.component('BBadge', BBadge);
     vue.component('BFormGroup', BFormGroup);
     vue.component('BFormRadioGroup', BFormRadioGroup);
@@ -70,6 +71,7 @@ const BootstrapVueLegacy = {
     vue.component('BForm', BForm);
     vue.component('BInput', BFormInput);
     vue.component('BTooltip', BTooltip);
+    vue.component('BNavText', BNavText);
 
     vue.directive('BModal', VBModal);
     vue.directive('BTooltip', VBTooltip);

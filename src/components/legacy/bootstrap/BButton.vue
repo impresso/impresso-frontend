@@ -30,7 +30,7 @@ const props = defineProps({
 const attrs = useAttrs()
 Object.keys(attrs)
 
-const allowedAttrs = ['onClick']
+const allowedAttrs = ['onClick', 'title']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BButton: Unknown attributes: ${unknownAttrs.join(', ')}`)
