@@ -2,6 +2,7 @@ import { VueConstructor } from 'vue';
 
 import BButton from '@/components/legacy/bootstrap/BButton.vue';
 import BCol from '@/components/legacy/bootstrap/BCol.vue';
+import BRow from '@/components/legacy/bootstrap/BRow.vue';
 
 // boostrap-vue
 import { BNavbar } from 'bootstrap-vue/src/components/navbar/navbar'
@@ -18,7 +19,6 @@ import { BModal } from 'bootstrap-vue/src/components/modal/modal'
 import { BNavForm } from 'bootstrap-vue/src/components/nav/nav-form'
 import { BPopover } from 'bootstrap-vue/src/components/popover/popover'
 import { BContainer } from 'bootstrap-vue/src/components/layout/container'
-import { BRow } from 'bootstrap-vue/src/components/layout/row'
 import { BButtonGroup } from 'bootstrap-vue/src/components/button-group/button-group'
 import { BPagination } from 'bootstrap-vue/src/components/pagination/pagination'
 import { BBadge } from 'bootstrap-vue/src/components/badge/badge'
@@ -43,6 +43,7 @@ const BootstrapVueLegacy = {
   install(vue: VueConstructor) {
     vue.component('BButton', BButton);
     vue.component('BCol', BCol);
+    vue.component('BRow', BRow);
 
     vue.component('BNavbar', BNavbar);
     vue.component('BNavbarBrand', BNavbarBrand);
@@ -58,7 +59,6 @@ const BootstrapVueLegacy = {
     vue.component('BNavForm', BNavForm);
     vue.component('BPopover', BPopover);
     vue.component('BContainer', BContainer);
-    vue.component('BRow', BRow);
     vue.component('BButtonGroup', BButtonGroup);
     vue.component('BPagination', BPagination);
     vue.component('BBadge', BBadge);
