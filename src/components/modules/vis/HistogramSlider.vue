@@ -121,7 +121,6 @@ export default {
   methods: {
     renderChart() {
       const topMargin = 14
-      console.log('!!!',this.$refs)
       const { width } = this.$refs.chartContainer.$el.getBoundingClientRect()
       const svg = d3.select(this.$refs.chart)
 

@@ -14,7 +14,7 @@
             <div class="question">
               <strong><a href="#" v-b-toggle="`accordion-${i}-${j}`" class="my-1 d-block">{{question.question}}</a></strong>
             </div>
-            <b-collapse class="answer" v-bind:id="`accordion-${i}-${j}`" accordion="my-accordion" role="tabpanel">
+            <!-- deprecated --><b-collapse class="answer" v-bind:id="`accordion-${i}-${j}`" accordion="my-accordion" role="tabpanel">
               <div class="p-4 bg-light" v-html="question.answer" />
             </b-collapse>
           </div>
@@ -27,6 +27,7 @@
 <script>
 import content from '@/assets/homepage.json';
 
+/** @deprecated See HomePage2020 */
 export default {
   data: () => ({
     faq: content.faq,

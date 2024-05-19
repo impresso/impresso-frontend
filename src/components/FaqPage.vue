@@ -7,19 +7,17 @@
           <h2 class="py-3"><i>{{group.title}}</i></h2>
           <div v-for="(term, j) in group.faq" v-bind:key="j" class="my-3">
             <a :id="`${term.id}`"></a>
-            <div class="accordion-toggle" v-b-toggle="`accordion-${i}-${j}`">
+            <div
+              class="accordion-toggle"
+              :class="{ collapsed: !isOpen(term.id), 'not-collapsed': isOpen(term.id) }"
+              @click="toggleOpen(term.id)">
               <strong>{{term.title}}</strong>
             </div>
             <div class="faq-item pb-1">
-              <b-collapse
-                v-bind:id="`accordion-${i}-${j}`"
-                v-bind:visible="isOpen(term.id)"
-                class="description py-2"
-                accordion="my-accordion"
-                role="tabpanel">
+              <div class="collapsable-container" :class="{ show: isOpen(term.id) }">
                 <div class="summary my-1 p-3 bg-light border-left">{{term.summary}}</div>
                 <p v-for="(paragraph, index) in term.description"  v-bind:key="index" v-html="paragraph" />
-              </b-collapse>
+              </div>
             </div>
           </div>
         </div>
@@ -33,14 +31,14 @@
 import content from '@/assets/faqpage.json';
 
 const ApiVersionLine = apiVersion => `
-API: v${apiVersion.version}, 
-Revision <a href="https://github.com/impresso/impresso-middle-layer/commit/${apiVersion.revision}" target="_blank">${apiVersion.revision}</a>, 
+API: v${apiVersion.version},
+Revision <a href="https://github.com/impresso/impresso-middle-layer/commit/${apiVersion.revision}" target="_blank">${apiVersion.revision}</a>,
 "${apiVersion.branch}" branch.
 `
 
 const WebappVersionLine = `
 Web App: v${process.env.VUE_APP_VERSION},
-Revision <a href="https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}" target="_blank">${process.env.VUE_APP_GIT_REVISION}</a>, 
+Revision <a href="https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}" target="_blank">${process.env.VUE_APP_GIT_REVISION}</a>,
 "${process.env.VUE_APP_GIT_BRANCH}" branch.
 `
 
@@ -58,6 +56,13 @@ export default {
     },
   },
   methods: {
+    toggleOpen(term) {
+      if (this.isOpen(term)) {
+        this.$router.push({ hash: '' });
+      } else {
+        this.$router.push({ hash: `#${term}` });
+      }
+    },
     isOpen(term) {
       return this.$route.hash === `#${term}`;
     },
@@ -102,6 +107,16 @@ export default {
         font-size: 1.6em;
         line-height: 0.7;
         color: gray;
+      }
+    }
+    .collapsable-container {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease-in-out;
+
+      &.show {
+        max-height: 1000px;
+        transition: max-height 0.3 ease-in-out;
       }
     }
   }
