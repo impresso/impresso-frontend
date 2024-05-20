@@ -1,6 +1,6 @@
 <template>
-  <li class="nav-item">
-    <a :class="linkClasses" :href="href" target="_self" v-on="$listeners">
+  <li role="presentation">
+    <a role="menuitem" :class="linkClasses" :href="href" :target="props.target" :aria-disabled="disabled ? true : undefined" v-on="$listeners" @click="onClick">
       <slot></slot>
     </a>
   </li>
@@ -14,25 +14,44 @@
 import { computed, useAttrs, getCurrentInstance } from 'vue'
 import {  } from 'vue-router'
 
+interface WithHide {
+  hide: (force?: boolean) => void
+}
+
 const props = defineProps({
   to: {
     type: Object
   },
   activeClass: String,
-  active: Boolean
+  disabled: Boolean,
+  active: Boolean,
+  target: {
+    type: String,
+    default: '_self'
+  },
+  href: String
 })
 const attrs = useAttrs()
 
 const router = getCurrentInstance()?.proxy.$router
 const route = getCurrentInstance()?.proxy.$route
+const parent = getCurrentInstance()?.proxy?.$parent
+
+const onClick = () => {
+  if ((parent as any as WithHide)?.hide) {
+    const el = parent as any as WithHide
+    el.hide(true)
+  }
+}
 
 const allowedAttrs = ['onClick', 'title', 'id']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
-  console.warn(`BNavItem: Unknown attributes: ${unknownAttrs.join(', ')}`)
+  console.warn(`BDropdownItem: Unknown attributes: ${unknownAttrs.join(', ')}`)
 }
 
 const href = computed(() => {
+  if (props.href != null) return props.href
   if (props.to && router != null) {
     const { href } = router.resolve(props.to)
     return href
@@ -41,7 +60,8 @@ const href = computed(() => {
 })
 
 const linkClasses = computed(() => ({
-  'nav-link': true,
-  [String(props.activeClass)]: props.active || href.value === route?.fullPath
+  'dropdown-item': true,
+  [String(props.activeClass)]: props.active || href.value === route?.fullPath,
+  'disabled': props.disabled
 }))
 </script>

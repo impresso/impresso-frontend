@@ -6,9 +6,9 @@ import BRow from '@/components/legacy/bootstrap/BRow.vue';
 import BNavbar from '@/components/legacy/bootstrap/BNavbar.vue';
 import BNavbarNav from '@/components/legacy/bootstrap/BNavbarNav.vue';
 import BNavItem from '@/components/legacy/bootstrap/BNavItem.vue';
+import BDropdownItem from '@/components/legacy/bootstrap/BDropdownItem.vue';
 
 // boostrap-vue
-import { BDropdownItem } from 'bootstrap-vue/src/components/dropdown/dropdown-item'
 import { BAlert } from 'bootstrap-vue/src/components/alert/alert'
 import { BProgress } from 'bootstrap-vue/src/components/progress/progress'
 import { BTabs } from 'bootstrap-vue/src/components/tabs/tabs'
