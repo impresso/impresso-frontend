@@ -22,7 +22,6 @@ const props = defineProps({
   xxl: String,
 })
 const attrs = useAttrs()
-Object.keys(attrs)
 
 const allowedAttrs = ['onClick', 'title']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))

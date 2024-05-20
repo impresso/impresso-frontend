@@ -3,9 +3,10 @@ import { VueConstructor } from 'vue';
 import BButton from '@/components/legacy/bootstrap/BButton.vue';
 import BCol from '@/components/legacy/bootstrap/BCol.vue';
 import BRow from '@/components/legacy/bootstrap/BRow.vue';
+import BNavbar from '@/components/legacy/bootstrap/BNavbar.vue';
 
 // boostrap-vue
-import { BNavbar } from 'bootstrap-vue/src/components/navbar/navbar'
+// import { BNavbar } from 'bootstrap-vue/src/components/navbar/navbar'
 import { BNavbarBrand } from 'bootstrap-vue/src/components/navbar/navbar-brand'
 import { BNavbarNav } from 'bootstrap-vue/src/components/navbar/navbar-nav'
 import { BNavItem } from 'bootstrap-vue/src/components/nav/nav-item'
@@ -44,8 +45,8 @@ const BootstrapVueLegacy = {
     vue.component('BButton', BButton);
     vue.component('BCol', BCol);
     vue.component('BRow', BRow);
-
     vue.component('BNavbar', BNavbar);
+
     vue.component('BNavbarBrand', BNavbarBrand);
     vue.component('BNavbarNav', BNavbarNav);
     vue.component('BNavItem', BNavItem);
