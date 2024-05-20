@@ -14,10 +14,10 @@
       variant="dark"
       class="py-0 pr-1 border-primary"
     >
-      <b-navbar-brand :to="getRouteWithSearchQuery({ name: 'home' })">
+      <a class="navbar-brand" @click="$router.push(getRouteWithSearchQuery({ name: 'home' }))" target="_self">
         <!-- <img v-if="" src="./../assets/img/impresso-logo-h-i@2x.png" /> -->
         <Logo />
-      </b-navbar-brand>
+      </a>
 
       <b-navbar-nav>
         <b-nav-item
