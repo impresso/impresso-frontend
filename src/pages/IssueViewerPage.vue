@@ -8,10 +8,12 @@
       width="350px">
       <template v-slot:header v-if="issue">
         <b-tabs pills class="mx-2 pt-2">
-          <b-tab active>
-            <template v-slot:title>
+          <template v-slot:tabs-start>
+            <b-nav-item active-class="active" active>
               <span v-html="$t('table_of_contents')"/>
-            </template>
+            </b-nav-item>
+          </template>
+          <template v-slot:default>
             <div class="p-2 px-3 mb-1">
               <p v-html="$t('stats', {
                 countArticles: issue.countArticles,
@@ -63,7 +65,7 @@
                 })"/>
               </div>
             </div>
-          </b-tab>
+          </template>
         </b-tabs>
       </template>
       <template v-slot:default>

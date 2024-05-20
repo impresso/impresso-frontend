@@ -6,17 +6,30 @@
     middle: containsComparison,
   }">
   <div class="p-2 container">
-    <b-tabs pills content-class="mt-3" :align="alignment"
+    <b-tabs pills content-class="mt-3" :class="`justify-content-${alignment}`"
             v-if="comparable.type !== 'intersection'">
-      <!-- query -->
-      <b-tab v-if="left" disabled>
-        <template v-slot:title>
-          <div class="side left">A</div>
-        </template>
-      </b-tab>
+      <template v-slot:tabs-end>
+        <!-- A -->
+        <li v-if="left" class="nav-item">
+          <div class="nav-link ">
+            <div class="side left">A</div>
+          </div>
+        </li>
+        <li class="nav-item">
+          <div class="nav-link active">
+            <span>{{ getTabLabel('query') }}</span>
+          </div>
+        </li>
+        <!-- B -->
+        <li v-if="!left" class="nav-item">
+          <div class="nav-link ">
+            <div class="side right">B</div>
+          </div>
+        </li>
 
-      <b-tab active
-             :title="getTabLabel('query')">
+      </template>
+
+      <template v-slot:default>
         <div class="px-1 pb-2">
           <search-pills :enable-add-filter="filters.length > 0"
                         :includedFilterTypes="supportedFilterTypes"
@@ -25,36 +38,35 @@
           <InfoIgnoredFilters :ignoredFilters="ignoredFilters"/>
           <autocomplete v-on:submit="onSuggestion" />
         </div>
-      </b-tab>
-      <b-tab v-if="!left" disabled>
-        <template v-slot:title>
-          <div class="side right">B</div>
-        </template>
-      </b-tab>
+      </template>
     </b-tabs>
 
     <!-- intersection -->
     <div class="row justify-content-between" v-if="containsComparison">
       <div class="col-auto w-100">
-        <b-tabs pills content-class="mt-3" align="center">
-          <b-tab v-for="(option, i) in modeOptions" :key="i"
-            :active="option === mode"
-            @click="$emit('mode-changed', option)">
-            <template v-slot:title>
-              <div v-html="$t(`comparison.labels.${option}`)"></div>
-            </template>
-          </b-tab>
-          <section class="px-1 text-center">
-            <h3>
-              <span class="textbox-fancy" v-if="!isNaN(this.total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
-                n: $n(this.total),
-              })"/>
-              <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
-              <info-button class="ml-2" name="compare-and-inspect" />
-            </h3>
-            <div v-if="mode === 'inspect'" v-html="$t(`comparison.descriptions.${comparable.type}.inspect`)"/>
-            <div v-else-if="mode === 'compare'" v-html="$t(`comparison.descriptions.${comparable.type}.compare`)"/>
-          </section>
+        <b-tabs pills content-class="mt-3" class="justify-content-center">
+
+          <template v-slot:tabs-end>
+            <li v-for="(option, i) in modeOptions" :key="i" class="nav-item">
+              <a class="nav-link" :class="{ active: option === mode }" @click="$emit('mode-changed', option)">
+                <div v-html="$t(`comparison.labels.${option}`)"></div>
+              </a>
+            </li>
+          </template>
+
+          <template v-slot:default>
+            <section class="px-1 text-center">
+              <h3>
+                <span class="textbox-fancy" v-if="!isNaN(total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
+                  n: $n(total),
+                })"/>
+                <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
+                <info-button class="ml-2" name="compare-and-inspect" />
+              </h3>
+              <div v-if="mode === 'inspect'" v-html="$t(`comparison.descriptions.${comparable.type}.inspect`)"/>
+              <div v-else-if="mode === 'compare'" v-html="$t(`comparison.descriptions.${comparable.type}.compare`)"/>
+            </section>
+          </template>
         </b-tabs>
       </div>
     </div>
@@ -214,7 +226,7 @@ export default {
       if (this.comparable.type === 'intersection') {
         return 'center';
       }
-      return this.left ? 'left' : 'right';
+      return this.left ? 'start' : 'end';
     },
     /** @returns {boolean} */
     containsComparison() {

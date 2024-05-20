@@ -7,9 +7,9 @@ import BNavbar from '@/components/legacy/bootstrap/BNavbar.vue';
 import BNavbarNav from '@/components/legacy/bootstrap/BNavbarNav.vue';
 import BNavItem from '@/components/legacy/bootstrap/BNavItem.vue';
 import BDropdownItem from '@/components/legacy/bootstrap/BDropdownItem.vue';
+import BTabs from '@/components/legacy/bootstrap/BTabs.vue';
 
 // boostrap-vue
-import { BTabs } from 'bootstrap-vue/src/components/tabs/tabs'
 import { BDropdown } from 'bootstrap-vue/src/components/dropdown/dropdown'
 import { BModal } from 'bootstrap-vue/src/components/modal/modal'
 import { BNavForm } from 'bootstrap-vue/src/components/nav/nav-form'
@@ -23,7 +23,6 @@ import { BFormRadioGroup } from 'bootstrap-vue/src/components/form-radio/form-ra
 import { BFormCheckbox } from 'bootstrap-vue/src/components/form-checkbox/form-checkbox'
 import { BFormInput } from 'bootstrap-vue/src/components/form-input/form-input'
 import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
-import { BTab } from 'bootstrap-vue/src/components/tabs/tab'
 import { BForm } from 'bootstrap-vue/src/components/form/form'
 import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
 import { BNavText } from 'bootstrap-vue/src/components/nav/nav-text'
@@ -65,7 +64,6 @@ const BootstrapVueLegacy = {
     vue.component('BFormCheckbox', BFormCheckbox);
     vue.component('BFormInput', BFormInput);
     vue.component('BVTransporter', BVTransporter);
-    vue.component('BTab', BTab);
     vue.component('BForm', BForm);
     vue.component('BInput', BFormInput);
     vue.component('BTooltip', BTooltip);

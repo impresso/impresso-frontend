@@ -18,7 +18,10 @@ const props = defineProps({
   to: {
     type: Object
   },
-  activeClass: String,
+  activeClass: {
+    type: String,
+    default: 'active'
+  },
   active: Boolean
 })
 const attrs = useAttrs()
