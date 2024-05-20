@@ -1,12 +1,14 @@
 <template>
   <div>
-    <b-progress
-      v-if="processingStatus"
-      :value="100"
-      variant="info"
-      animated
-      height="4px"
-    ></b-progress>
+    <div class="progress" v-if="processingStatus">
+      <div
+        class="progress-bar bg-info progress-bar-animated"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="100"
+        :style="`width: ${100}%; height: 4px;`"></div>
+    </div>
     <b-navbar
       id="TheHeader"
       toggleable="md"

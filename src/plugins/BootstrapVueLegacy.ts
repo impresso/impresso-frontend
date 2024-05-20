@@ -9,8 +9,6 @@ import BNavItem from '@/components/legacy/bootstrap/BNavItem.vue';
 import BDropdownItem from '@/components/legacy/bootstrap/BDropdownItem.vue';
 
 // boostrap-vue
-import { BAlert } from 'bootstrap-vue/src/components/alert/alert'
-import { BProgress } from 'bootstrap-vue/src/components/progress/progress'
 import { BTabs } from 'bootstrap-vue/src/components/tabs/tabs'
 import { BDropdown } from 'bootstrap-vue/src/components/dropdown/dropdown'
 import { BModal } from 'bootstrap-vue/src/components/modal/modal'
@@ -32,6 +30,7 @@ import { BNavText } from 'bootstrap-vue/src/components/nav/nav-text'
 
 // TODO: complex components
 import { BNavItemDropdown } from 'bootstrap-vue/src/components/nav/nav-item-dropdown'
+import { BAlert } from 'bootstrap-vue/src/components/alert/alert'
 
 
 import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
@@ -52,7 +51,6 @@ const BootstrapVueLegacy = {
     vue.component('BNavItemDropdown', BNavItemDropdown);
     vue.component('BDropdownItem', BDropdownItem);
     vue.component('BAlert', BAlert);
-    vue.component('BProgress', BProgress);
     vue.component('BTabs', BTabs);
     vue.component('BDropdown', BDropdown);
     vue.component('BModal', BModal);

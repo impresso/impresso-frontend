@@ -37,7 +37,15 @@
         <span class="text-white" v-if="item.isActive()"> {{ percentage }} %</span>
       </div>
       <div class="p-2 position-relative" v-if="item.isRunning()">
-        <b-progress :value="percentage" variant="info" animated height="4px" />
+        <div class="progress">
+          <div
+            class="progress-bar bg-info progress-bar-animated"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :aria-valuenow="percentage"
+            :style="`width: ${percentage}%; height: 4px;`"></div>
+        </div>
       </div>
     </div>
     <b-button-group v-if="isExportable || hasSearchQuery">
