@@ -8,9 +8,9 @@ import BNavbarNav from '@/components/legacy/bootstrap/BNavbarNav.vue';
 import BNavItem from '@/components/legacy/bootstrap/BNavItem.vue';
 import BDropdownItem from '@/components/legacy/bootstrap/BDropdownItem.vue';
 import BTabs from '@/components/legacy/bootstrap/BTabs.vue';
+import BDropdown from '@/components/legacy/bootstrap/BDropdown.vue';
 
 // boostrap-vue
-import { BDropdown } from 'bootstrap-vue/src/components/dropdown/dropdown'
 import { BModal } from 'bootstrap-vue/src/components/modal/modal'
 import { BNavForm } from 'bootstrap-vue/src/components/nav/nav-form'
 import { BPopover } from 'bootstrap-vue/src/components/popover/popover'
