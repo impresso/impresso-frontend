@@ -11,9 +11,9 @@ import BTabs from '@/components/legacy/bootstrap/BTabs.vue';
 import BDropdown from '@/components/legacy/bootstrap/BDropdown.vue';
 import BContainer from '@/components/legacy/bootstrap/BContainer.vue';
 import BButtonGroup from '@/components/legacy/bootstrap/BButtonGroup.vue';
+import BBadge from '@/components/legacy/bootstrap/BBadge.vue';
 
 // boostrap-vue
-import { BBadge } from 'bootstrap-vue/src/components/badge/badge'
 import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
 import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
 import { BNavText } from 'bootstrap-vue/src/components/nav/nav-text'
