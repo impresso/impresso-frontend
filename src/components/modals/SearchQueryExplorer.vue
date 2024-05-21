@@ -36,7 +36,7 @@
           size="sm"
           v-bind:showDescription="false"
           :dark-mode="darkMode"
-          align="center"
+          class="justify-content-center"
         />
       </div>
     </div>

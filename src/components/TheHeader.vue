@@ -113,12 +113,12 @@
             <div class="pt-2 pb-1">
               <pagination
                 @click.prevent.stop
-                align="center"
-                v-model="jobsPaginationCurrentPage"
+                :current-page="jobsPaginationCurrentPage"
+                @change="$event => jobsPaginationCurrentPage = $event"
                 :total-rows="jobsPaginationTotalRows"
                 :per-page="jobsPaginationPerPage"
                 aria-controls="my-table"
-                class="small-caps"
+                class="small-caps justify-content-center"
                 :showDescription="false"
               />
             </div>

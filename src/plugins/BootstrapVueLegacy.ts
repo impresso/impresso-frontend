@@ -9,27 +9,26 @@ import BNavItem from '@/components/legacy/bootstrap/BNavItem.vue';
 import BDropdownItem from '@/components/legacy/bootstrap/BDropdownItem.vue';
 import BTabs from '@/components/legacy/bootstrap/BTabs.vue';
 import BDropdown from '@/components/legacy/bootstrap/BDropdown.vue';
+import BContainer from '@/components/legacy/bootstrap/BContainer.vue';
+import BButtonGroup from '@/components/legacy/bootstrap/BButtonGroup.vue';
 
 // boostrap-vue
-import { BModal } from 'bootstrap-vue/src/components/modal/modal'
-import { BNavForm } from 'bootstrap-vue/src/components/nav/nav-form'
-import { BPopover } from 'bootstrap-vue/src/components/popover/popover'
-import { BContainer } from 'bootstrap-vue/src/components/layout/container'
-import { BButtonGroup } from 'bootstrap-vue/src/components/button-group/button-group'
-import { BPagination } from 'bootstrap-vue/src/components/pagination/pagination'
 import { BBadge } from 'bootstrap-vue/src/components/badge/badge'
+import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
+import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
+import { BNavText } from 'bootstrap-vue/src/components/nav/nav-text'
+import { BForm } from 'bootstrap-vue/src/components/form/form'
+import { BNavForm } from 'bootstrap-vue/src/components/nav/nav-form'
 import { BFormGroup } from 'bootstrap-vue/src/components/form-group/form-group'
 import { BFormRadioGroup } from 'bootstrap-vue/src/components/form-radio/form-radio-group'
 import { BFormCheckbox } from 'bootstrap-vue/src/components/form-checkbox/form-checkbox'
 import { BFormInput } from 'bootstrap-vue/src/components/form-input/form-input'
-import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
-import { BForm } from 'bootstrap-vue/src/components/form/form'
-import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
-import { BNavText } from 'bootstrap-vue/src/components/nav/nav-text'
 
 // TODO: complex components
 import { BNavItemDropdown } from 'bootstrap-vue/src/components/nav/nav-item-dropdown'
 import { BAlert } from 'bootstrap-vue/src/components/alert/alert'
+import { BModal } from 'bootstrap-vue/src/components/modal/modal'
+import { BPopover } from 'bootstrap-vue/src/components/popover/popover'
 
 
 import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
@@ -57,7 +56,6 @@ const BootstrapVueLegacy = {
     vue.component('BPopover', BPopover);
     vue.component('BContainer', BContainer);
     vue.component('BButtonGroup', BButtonGroup);
-    vue.component('BPagination', BPagination);
     vue.component('BBadge', BBadge);
     vue.component('BFormGroup', BFormGroup);
     vue.component('BFormRadioGroup', BFormRadioGroup);

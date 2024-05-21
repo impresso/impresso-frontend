@@ -55,7 +55,9 @@
                       :buckets="buckets"
                       v-model="filter">
           <template v-slot:pagination>
-            <pagination v-model="currentPageModel"
+            <pagination
+                        :current-page="currentPageModel"
+                        @change="$event => currentPageModel = $event"
                         v-bind:perPage="pageSize"
                         v-bind:totalRows="totalResults"
                         v-bind:showDescription="false"/>

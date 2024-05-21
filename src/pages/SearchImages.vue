@@ -92,7 +92,8 @@
         <div v-if="paginationTotalRows && paginationCurrentPage > 0" class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-bind:perPage="paginationPerPage"
-            v-model="paginationCurrentPage"
+            :current-page="paginationCurrentPage"
+            @change="$event => paginationCurrentPage = $event"
             v-bind:totalRows="paginationTotalRows"
             class="float-left small-caps"
             />

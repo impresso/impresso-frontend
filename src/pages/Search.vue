@@ -240,7 +240,8 @@
         <div class="fixed-pagination-footer p-1 m-0" slot="footer">
           <pagination
             v-if="searchResults.length"
-            v-model="paginationCurrentPage"
+            :current-page="paginationCurrentPage"
+            @change="$event => paginationCurrentPage = $event"
             :per-page="paginationPerPage"
             :total-rows="paginationTotalRows"
             class="float-left small-caps"
@@ -387,6 +388,7 @@ export default {
         return parseInt(this.$route.query.p ?? 1, 10)
       },
       set(p) {
+        console.log('ooo', p)
         this.$navigation.updateQueryParametersWithHistory({
           p,
         })
