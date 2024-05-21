@@ -87,7 +87,7 @@
             />
           </b-nav-item>
 
-          <b-nav-text class="p-0 d-flex align-items-center ml-3"> </b-nav-text>
+          <li class="navbar-text p-0 d-flex align-items-center ml-3"> </li>
         </template>
       </b-tabs>
     </template>
@@ -113,10 +113,9 @@
     >
       <template v-slot:header>
         <b-navbar-nav class="d-flex flex-row pt-1">
-          <b-nav-text class="ml-3 mr-2 text-muted">
-            <label>{{ $t('sortBy') }}</label></b-nav-text
-          >
-          <b-nav-text class="mr-1">
+          <li class="navbar-text ml-3 mr-2 text-muted">
+            <label>{{ $t('sortBy') }}</label></li>
+          <li class="navbar-text mr-1">
             <i-dropdown
               v-model="orderBy"
               :options="
@@ -129,7 +128,7 @@
               size="sm"
               variant="outline-primary"
             ></i-dropdown
-          ></b-nav-text>
+          ></li>
         </b-navbar-nav>
       </template>
       <template v-slot:default>

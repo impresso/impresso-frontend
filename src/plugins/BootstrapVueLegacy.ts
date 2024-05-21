@@ -14,9 +14,6 @@ import BButtonGroup from '@/components/legacy/bootstrap/BButtonGroup.vue';
 import BBadge from '@/components/legacy/bootstrap/BBadge.vue';
 
 // boostrap-vue
-import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
-import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
-import { BNavText } from 'bootstrap-vue/src/components/nav/nav-text'
 import { BForm } from 'bootstrap-vue/src/components/form/form'
 import { BNavForm } from 'bootstrap-vue/src/components/nav/nav-form'
 import { BFormGroup } from 'bootstrap-vue/src/components/form-group/form-group'
@@ -29,6 +26,8 @@ import { BNavItemDropdown } from 'bootstrap-vue/src/components/nav/nav-item-drop
 import { BAlert } from 'bootstrap-vue/src/components/alert/alert'
 import { BModal } from 'bootstrap-vue/src/components/modal/modal'
 import { BPopover } from 'bootstrap-vue/src/components/popover/popover'
+import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
+import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
 
 
 import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
@@ -65,7 +64,6 @@ const BootstrapVueLegacy = {
     vue.component('BForm', BForm);
     vue.component('BInput', BFormInput);
     vue.component('BTooltip', BTooltip);
-    vue.component('BNavText', BNavText);
 
     vue.directive('BModal', VBModal);
     vue.directive('BTooltip', VBTooltip);
