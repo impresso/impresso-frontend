@@ -34,7 +34,7 @@
 
           <ValidationObserver v-slot="{ invalid }">
 
-            <b-form @submit.prevent="onSubmit">
+            <form @submit.prevent="onSubmit">
 
               <validation-provider name="username" rules="required|min:4|userRegex" v-slot="{ errors }">
                 <b-form-group
@@ -167,7 +167,7 @@
                 $t('actions.requestAccount')
               }}</b-button>
 
-            </b-form>
+            </form>
 
           </ValidationObserver>
         </b-col>

@@ -16,10 +16,12 @@
           </span>
         </div>
         <div class="col p-0 align-self-end">
-          <b-nav-form class="display-style">
-            <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
-            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
-          </b-nav-form>
+          <li class="form-inline display-style">
+            <form class="form-inline">
+              <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
+              <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
+            </form>
+          </li>
         </div>
       </div>
       <div class="row mb-3">

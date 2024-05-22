@@ -31,16 +31,20 @@
         <!--  order by -->
         <b-navbar class="px-3 py-0 border-bottom">
 
-          <b-nav-form class="p-2">
-            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
-              {{ $t('actions.addToCurrentFilters') }}
-            </b-button>
-          </b-nav-form>
-          <b-nav-form class="p-2 ">
-            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-              {{ $t('actions.searchMore') }}
-            </router-link>
-          </b-nav-form>
+          <li class="p-2 form-inline">
+            <form class="form-inline">
+              <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
+                {{ $t('actions.addToCurrentFilters') }}
+              </b-button>
+            </form>
+          </li>
+          <li class="p-2 form-inline">
+            <form class="form-inline">
+              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                {{ $t('actions.searchMore') }}
+              </router-link>
+            </form>
+          </li>
           <b-navbar-nav v-if="$route.name === 'newspaper'"
           class="p-2 ml-auto">
             <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>

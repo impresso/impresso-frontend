@@ -30,7 +30,7 @@
 
           <ValidationObserver v-slot="{ invalid }">
 
-            <b-form @submit.prevent="onSubmit" v-if="user.uid">
+            <form @submit.prevent="onSubmit" v-if="user.uid">
 
               <validation-provider name="email" rules="required|email" v-slot="{ errors }">
                 <b-form-group
@@ -97,7 +97,7 @@
                 <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
               -->
 
-            </b-form>
+            </form>
 
           </ValidationObserver>
         </b-col>
@@ -107,7 +107,7 @@
       <b-row class="mb-5">
         <b-col md="6" offset-md="3">
           <ValidationObserver v-slot="{ invalid }">
-            <b-form @submit.prevent="onSubmitChangePassword">
+            <form @submit.prevent="onSubmitChangePassword">
               <div v-if="passwordSubmitted">
                 <b-alert v-if="passwordSubmittedSuccess" variant="success" show dismissible>{{ $t('form_password_changed') }}</b-alert>
                 <b-alert v-else variant="danger" show dismissible>
@@ -177,7 +177,7 @@
                 </ValidationProvider>
               </ValidationObserver><!-- new password -->
               <b-button size="sm" type='submit' :disabled="invalid" variant="outline-primary">{{ $t('actions.requestNewPassword') }}</b-button>
-            </b-form>
+            </form>
           </ValidationObserver>
         </b-col>
       </b-row>

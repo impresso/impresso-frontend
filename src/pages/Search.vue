@@ -46,7 +46,7 @@
           </b-navbar-nav>
           <!-- <b-navbar-nav class="px-3 py-3">
             <label class="mr-1">{{ $t('label_display') }}</label>
-            <b-nav-form>
+            <form>
               <b-form-radio-group
                 v-model="displayStyle"
                 button-variant="outline-primary"
@@ -56,7 +56,7 @@
                 <b-form-radio value="list">{{ $t('display_button_list') }}</b-form-radio>
                 <b-form-radio value="tiles">{{ $t('display_button_tiles') }}</b-form-radio>
               </b-form-radio-group>
-            </b-nav-form>
+            </form>
           </b-navbar-nav> -->
         </b-navbar>
 

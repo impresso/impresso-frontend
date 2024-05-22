@@ -6,13 +6,15 @@
         <template v-slot:toolbar>
           <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
             <b-navbar-nav>
-              <b-nav-form class="p-2 border-right">
-                <label class="mr-2">{{ $t('order by') }}</label>
-                <i-dropdown v-model="orderByModel"
-                  :options="orderByOptions"
-                  size="sm"
-                  variant="outline-primary" />
-              </b-nav-form>
+              <li class="p-2 border-right form-inline">
+                <form class="form-inline">
+                  <label class="mr-2">{{ $t('order by') }}</label>
+                  <i-dropdown v-model="orderByModel"
+                    :options="orderByOptions"
+                    size="sm"
+                    variant="outline-primary" />
+                </form>
+              </li>
             </b-navbar-nav>
           </b-navbar>
         </template>

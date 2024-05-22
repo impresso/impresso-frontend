@@ -20,14 +20,14 @@
                 countPages: issue.countPages,
                 accessRights: $t(`buckets.accessRight.${issue.accessRights }`)
               })" />
-              <b-form inline class="pb-1">
+              <form class="pb-1 form-inline">
                 <b-form-checkbox
                   :disabled="countActiveFilters === 0"
                   v-model="applyCurrentSearchFilters"
                   switch>
                   {{ $t('actions.addCurrentSearch') }}
                 </b-form-checkbox>
-              </b-form>
+              </form>
               <b-alert variant="transparent" class="pb-1 small" show v-if="(countActiveFilters === 0 || ignoredFilters.length)">
                 <div v-if="countActiveFilters === 0">
                   {{ $t('applyCurrentSearchFiltersDisabled') }}

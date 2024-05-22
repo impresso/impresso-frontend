@@ -13,7 +13,7 @@
         <b-navbar-nav>
           <!-- filters toggle -->
           <div class="current-search-panel">
-            <b-form inline>
+            <form class="form-inline">
               <b-form-checkbox
                 v-model="applyCurrentSearchFilters"
                 :disabled="countActiveFilters === 0"
@@ -26,7 +26,7 @@
                 </template>
                 <search-query-explorer style="min-width:300px" class="px-2 pt-2" :search-query="searchQuery"/>
               </b-dropdown>
-            </b-form>
+            </form>
           </div>
         </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
@@ -134,7 +134,7 @@
             <span v-html="punchModalTitle"/>
           </template>
           <template v-slot:default>
-            <b-form inline>
+            <form class="form-inline">
               <b-form-checkbox
                 v-model="applyCurrentSearchFilters"
                 :disabled="countActiveFilters === 0"
@@ -147,7 +147,7 @@
                 </template>
                 <search-query-explorer style="min-width:300px" class="px-2 pt-2" :search-query="searchQuery"/>
               </b-dropdown>
-            </b-form>
+            </form>
             <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
             <search-query-explorer dark-mode no-pagination no-label :search-query="selectedEntitySearchQuery"/>
           </template>

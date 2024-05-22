@@ -34,7 +34,7 @@
               v-html="$t('actions.resetMyPassword')"
             />
           </b-alert>
-          <b-form @submit.prevent="onSubmit">
+          <form @submit.prevent="onSubmit">
             <b-form-group
               id="input-group-1"
               label="New password:"
@@ -68,7 +68,7 @@
             <b-button type="submit" class="mt-2" size="sm" variant="outline-secondary">{{
               $t('actions.changePassword')
             }}</b-button>
-          </b-form>
+          </form>
         </b-col>
       </b-row>
     </b-container>

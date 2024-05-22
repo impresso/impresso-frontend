@@ -42,14 +42,16 @@
       <div slot="header">
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="p-2 border-right">
-            <b-nav-form>
-              <!-- <b-form-group class="ml-2 mr-3">
-              <b-form-checkbox v-model="applyRandomPage" switch>
-                {{ $t('label_applyRandomPage') }}
-              </b-form-checkbox>
-              </b-form-group> -->
-              <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>{{ $t('actions.loadRandomPage') }}</b-button>
-            </b-nav-form>
+            <li class="form-inline">
+              <form class="form-inline">
+                <!-- <b-form-group class="ml-2 mr-3">
+                <b-form-checkbox v-model="applyRandomPage" switch>
+                  {{ $t('label_applyRandomPage') }}
+                </b-form-checkbox>
+                </b-form-group> -->
+                <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>{{ $t('actions.loadRandomPage') }}</b-button>
+              </form>
+            </li>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">

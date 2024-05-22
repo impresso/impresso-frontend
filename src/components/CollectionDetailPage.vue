@@ -77,16 +77,20 @@
           && (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)">
 
         <b-navbar-nav v-if="$route.params.collection_uid">
-          <b-nav-form class="p-2 ml-3">
-            <button type="button" class="btn btn-outline-primary btn-sm" v-on:click='applyFilter()'>
-              {{ $t('actions.addToCurrentFilters') }}
-            </button>
-          </b-nav-form>
-          <b-nav-form class="p-2">
-            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-              {{ $t('actions.searchMore') }}
-            </router-link>
-          </b-nav-form>
+          <li class="p-2 ml-3 form-inline">
+            <form class="form-inline">
+              <button type="button" class="btn btn-outline-primary btn-sm" v-on:click='applyFilter()'>
+                {{ $t('actions.addToCurrentFilters') }}
+              </button>
+            </form>
+          </li>
+          <li class="p-2 form-inline">
+            <form class="form-inline">
+              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                {{ $t('actions.searchMore') }}
+              </router-link>
+            </form>
+          </li>
         </b-navbar-nav>
         <b-navbar-nav class="ml-3">
           <b-button @click="handleExportCollection" size="sm" variant="outline-primary" class="d-flex align-items-center">
@@ -214,13 +218,15 @@
         @settings-updated="handleRecommendersSettingsUpdated">
         <template v-slot:additional-navbar>
           <b-navbar-nav class="ml-auto">
-            <b-nav-form class="p-2">
-              <label class="mr-1">{{ $t('label_display') }}</label>
-              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-              </b-form-radio-group>
-            </b-nav-form>
+            <li class="p-2 form-inline">
+              <form class="form-inline">
+                <label class="mr-1">{{ $t('label_display') }}</label>
+                <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
+                  <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
+                  <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
+                </b-form-radio-group>
+              </form>
+            </li>
           </b-navbar-nav>
         </template>
       </collection-recommendations-panel>
