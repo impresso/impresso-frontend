@@ -12,9 +12,9 @@ import BDropdown from '@/components/legacy/bootstrap/BDropdown.vue';
 import BContainer from '@/components/legacy/bootstrap/BContainer.vue';
 import BButtonGroup from '@/components/legacy/bootstrap/BButtonGroup.vue';
 import BBadge from '@/components/legacy/bootstrap/BBadge.vue';
+import BFormGroup from '@/components/legacy/bootstrap/BFormGroup.vue';
 
 // boostrap-vue
-import { BFormGroup } from 'bootstrap-vue/src/components/form-group/form-group'
 import { BFormRadioGroup } from 'bootstrap-vue/src/components/form-radio/form-radio-group'
 import { BFormCheckbox } from 'bootstrap-vue/src/components/form-checkbox/form-checkbox'
 import { BFormInput } from 'bootstrap-vue/src/components/form-input/form-input'
@@ -49,7 +49,6 @@ const BootstrapVueLegacy = {
     vue.component('BTabs', BTabs);
     vue.component('BDropdown', BDropdown);
     vue.component('BModal', BModal);
-    vue.component('BNavForm', BNavForm);
     vue.component('BPopover', BPopover);
     vue.component('BContainer', BContainer);
     vue.component('BButtonGroup', BButtonGroup);
