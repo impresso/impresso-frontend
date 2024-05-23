@@ -203,14 +203,11 @@
           <label for="form-input-ratio" class="mt-2">{{ $t('options_customise_viewport') }}</label>
           <!-- adapt to article region by default -->
 
-          <b-form-radio-group v-model="fitCoords" v-slot="{ ariaDescribedby }">
-            <b-form-radio :value="true" :aria-describedby="ariaDescribedby" name="some-radios">
-              {{ $t('fixed_ratio') }}
-            </b-form-radio>
-            <b-form-radio :value="false" :aria-describedby="ariaDescribedby" name="some-radios">
-              {{ $t('fixed_height') }}
-            </b-form-radio>
-          </b-form-radio-group>
+          <radio-group
+            :modelValue="String(fitCoords)"
+            :options="fitCoordsOptions"
+            @update:modelValue="fitCoords = $event == 'true'"
+            type="radio" />
 
           <label for="form-input-max-height" class="mt-2">{{
             $t('options_customise_viewport_max_height')
@@ -268,6 +265,7 @@
 <script>
 import Partner from '@/models/Partner'
 import { newspapers as NewspapersService } from '@/services'
+import RadioGroup from '@/components/layout/RadioGroup.vue';
 
 export default {
   data: () => ({
@@ -295,6 +293,12 @@ export default {
     article: Object,
   },
   computed: {
+    fitCoordsOptions() {
+      return [
+        { value: "true", text: this.$t('fixed_ratio') },
+        { value: "false", text: this.$t('fixed_height') },
+      ]
+    },
     customisation() {
       const params = [
         `backgroundColor=${this.backgroundColor}`,

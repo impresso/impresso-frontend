@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout-section>
 
     <div slot="header">
@@ -106,10 +106,11 @@
           </b-navbar-form> -->
           <div class="p-2 m-auto">
             <label class="mr-1">{{ $t('label_display') }}</label>
-            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-            </b-form-radio-group>
+            <radio-group
+              :modelValue="displayStyle"
+              @update:modelValue="displayStyle = $event"
+              :options="displayStyleOptions"
+              type="button" />
           </div>
         </b-navbar-nav>
 
@@ -221,10 +222,11 @@
             <li class="p-2 form-inline">
               <form class="form-inline">
                 <label class="mr-1">{{ $t('label_display') }}</label>
-                <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-                  <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-                  <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-                </b-form-radio-group>
+                <radio-group
+                  :modelValue="displayStyle"
+                  @update:modelValue="displayStyle = $event"
+                  :options="displayStyleOptions"
+                  type="button" />
               </form>
             </li>
           </b-navbar-nav>
@@ -256,6 +258,7 @@ import { exporter as exporterService,
   searchFacets as searchFacetsService,
   collectionsItems as collectionsItemsService
 } from '@/services';
+import RadioGroup from '@/components/layout/RadioGroup.vue';
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs',
@@ -292,8 +295,15 @@ export default {
     StackedBarsPanel,
     CollectionRecommendationsPanel,
     InfoButton,
+    RadioGroup,
   },
   computed: {
+    displayStyleOptions() {
+      return [
+        {value: 'list', text: this.$t('display_button_list')},
+        {value: 'tiles', text: this.$t('display_button_tiles')}
+      ]
+    },
     collectionUid() {
       return this.$route.params.collection_uid;
     },
@@ -325,7 +335,11 @@ export default {
     },
     displayStyle: {
       get() {
-        return this.$store.state.search.displayStyle;
+        const style = this.$store.state.search.displayStyle
+        if (['list', 'tiles'].includes(style)) {
+          return style
+        }
+        return 'list'
       },
       set(displayStyle) {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);

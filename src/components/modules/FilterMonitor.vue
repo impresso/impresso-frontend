@@ -3,13 +3,19 @@
     <div v-if="checkbox">
       <!--  context -->
       <b-form-group>
-        <b-form-radio-group switches v-model="currentContext" v-bind:options="checkboxContexts">
-        </b-form-radio-group>
+        <radio-group
+          :modelValue="currentContext"
+          @update:modelValue="currentContext = $event"
+          :options="checkboxContexts"
+          type="radio" />
       </b-form-group>
       <!--  operator -->
       <b-form-group v-if="currentContext === 'include' && availableItems.length > 1">
-        <b-form-radio-group switches v-model="editedFilter.op" v-bind:options="checkboxOperators">
-        </b-form-radio-group>
+        <radio-group
+          :modelValue="editedFilter.op"
+          @update:modelValue="editedFilter.op = $event"
+          :options="checkboxOperators"
+          type="radio" />
       </b-form-group>
     </div>
 
@@ -201,14 +207,6 @@
         @click.stop.prevent
         @embdding-selected="addEmbeddingSuggestion"
       />
-
-      <!-- <b-form-group v-if="checkbox">
-       <b-form-radio-group
-         switches
-         :options="checkboxPrecisions"
-         v-model="editedFilter.precision">
-       </b-form-radio-group>
-      </b-form-group> -->
     </div>
     <b-button
       class="mt-2"
@@ -242,6 +240,7 @@ import ItemLabel from '@/components/modules/lists/ItemLabel'
 import CollectionItem from '@/components/modules/lists/CollectionItem'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
 import EntitySuggester from '@/components/modules/EntitySuggester'
+import RadioGroup from '@/components/layout/RadioGroup.vue';
 import {
   toCanonicalFilter,
   toSerializedFilter,
@@ -487,6 +486,7 @@ export default {
     ItemSelector,
     FilterNumberRange,
     EntitySuggester,
+    RadioGroup,
   },
   watch: {
     /**

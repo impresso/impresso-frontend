@@ -15,7 +15,6 @@ import BBadge from '@/components/legacy/bootstrap/BBadge.vue';
 import BFormGroup from '@/components/legacy/bootstrap/BFormGroup.vue';
 
 // boostrap-vue
-import { BFormRadioGroup } from 'bootstrap-vue/src/components/form-radio/form-radio-group'
 import { BFormCheckbox } from 'bootstrap-vue/src/components/form-checkbox/form-checkbox'
 import { BFormInput } from 'bootstrap-vue/src/components/form-input/form-input'
 
@@ -54,7 +53,6 @@ const BootstrapVueLegacy = {
     vue.component('BButtonGroup', BButtonGroup);
     vue.component('BBadge', BBadge);
     vue.component('BFormGroup', BFormGroup);
-    vue.component('BFormRadioGroup', BFormRadioGroup);
     vue.component('BFormCheckbox', BFormCheckbox);
     vue.component('BFormInput', BFormInput);
     vue.component('BVTransporter', BVTransporter);

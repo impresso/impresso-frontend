@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout id="IssuePage" class="bg-light" ref="issuePage">
     <i-layout-section width="350px">
       <div slot="header" class="border-bottom border-tertiary">
@@ -105,10 +105,11 @@
             </div>
           </b-navbar-nav>
           <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
-            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="image">{{ $t('facsimileView') }}&nbsp;<icon name="image"/></b-form-radio>
-              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/>&nbsp;{{ $t('closeReadingView') }}</b-form-radio>
-            </b-form-radio-group>
+            <radio-group
+              :modelValue="mode"
+              @update:modelValue="mode = $event"
+              :options="modeOptions"
+              type="button" />
             <small>
               <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
             </small>
@@ -181,6 +182,8 @@ import Pagination from './modules/Pagination';
 import InfoButton from './base/InfoButton';
 import { toCanonicalFilter, SupportedFiltersByContext } from '../logic/filters'
 import { mapSearchQuery } from '@/logic/queryParams'
+import RadioGroup from '@/components/layout/RadioGroup.vue';
+
 
 export default {
   data: () => ({
@@ -223,6 +226,12 @@ export default {
     window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
+    modeOptions() {
+      return [
+        { value: 'image', text: this.$t('facsimileView'), iconName: 'image' },
+        { value: 'text', text: this.$t('closeReadingView'), iconName: 'align-left', disabled: !this.article },
+      ]
+    },
     searchQuery: mapSearchQuery(),
     currentSearchFilters() {
       return this.searchQuery.filters.filter(filter => SupportedFiltersByContext.search.includes(filter.type))
@@ -755,6 +764,7 @@ export default {
     SearchPills,
     Pagination,
     InfoButton,
+    RadioGroup,
   },
   watch: {
     $route: {
