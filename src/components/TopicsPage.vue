@@ -100,7 +100,7 @@ export default {
     },
     applyCurrentSearchFilters: {
       get() {
-        return this.$store.state.topics.applyCurrentSearchFilters;
+        return this.$store.state.topics.applyCurrentSearchFilters === true;
       },
       set(value) {
         this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);

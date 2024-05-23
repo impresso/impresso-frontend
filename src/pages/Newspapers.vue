@@ -72,7 +72,7 @@ export default {
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     includedOnly: {
       get() {
-        return this.$route.query.included ?? '';
+        return this.$route.query.included !== '';
       },
       set(included) {
         this.$navigation.updateQueryParametersWithHistory({
@@ -109,7 +109,7 @@ export default {
         limit: this.paginationPerPage,
         page: this.paginationCurrentPage,
         orderBy: this.orderBy,
-        includedOnly: this.includedOnly,
+        includedOnly: this.includedOnly ?? '',
       };
     },
   },
