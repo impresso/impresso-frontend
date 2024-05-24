@@ -14,9 +14,9 @@ import BButtonGroup from '@/components/legacy/bootstrap/BButtonGroup.vue';
 import BBadge from '@/components/legacy/bootstrap/BBadge.vue';
 import BFormGroup from '@/components/legacy/bootstrap/BFormGroup.vue';
 import BFormCheckbox from '@/components/legacy/bootstrap/BFormCheckbox.vue';
+import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue';
 
 // boostrap-vue
-import { BFormInput } from 'bootstrap-vue/src/components/form-input/form-input'
 
 // TODO: complex components
 import { BNavItemDropdown } from 'bootstrap-vue/src/components/nav/nav-item-dropdown'
