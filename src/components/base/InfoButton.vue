@@ -2,44 +2,43 @@
   <span v-if="content" class="info-button">
     <div
       class="info-button-trigger icon-link dripicons-information d-inline-block"
-      :id="targetId"
+      ref="reference"
       @click.prevent.stop="togglePopover"
-    ></div>
-    <b-popover :target="targetId" boundary="window" placement="right" custom-class="drop-shadow">
-      <template v-if="content.title" v-slot:title>{{ content.title }}</template>
-      <div v-if="content.summary" v-html="content.summary" />
-      <router-link
-        v-if="content.description"
-        class="d-block text-right small-caps"
-        v-bind:to="{ name: `faq`, hash: `#${content.id}` }"
-      >
-        {{ $t('more_info') }} &rarr;
-      </router-link>
-    </b-popover>
+    >
+    </div>
+    <div
+      v-if="show"
+      ref="floating"
+      role="tooltip"
+      tabindex="-1"
+      class="popover b-popover bs-popover-right drop-shadow"
+      :style="floatingStyles">
+      <div class="arrow" style="top: 83px;"></div>
+      <h3 class="popover-header" v-if="content.title" >
+        {{ content.title }}
+      </h3>
+
+      <div class="popover-body">
+        <div v-if="content.summary" v-html="content.summary" />
+        <router-link
+          v-if="content.description"
+          class="d-block text-right small-caps"
+          v-bind:to="{ name: `faq`, hash: `#${content.id}` }"
+        >
+          {{ $t('more_info') }} &rarr;
+        </router-link>
+      </div>
+    </div>
   </span>
 </template>
 
-<script>
-/**
- * Usage of this component
- *
- * import InfoButton from './base/InfoButton';
- *
- * in template:
- * <info-button name="who-is-behind-impresso" class="ml-2 mt-1 d-inline-block" />
- *
- * then the name refers to the identifier of the faq item.
- * faqContent is structured as such:
- * "en": {
- *  "title": "FAQ",
- *  "groups": [
- *    {
- *      "title": "About the impresso project",
- *      "faq": [
- *       {
- *          "id": "who-is-behind-impresso",
- */
+<script setup lang="ts">
+import { computed, defineProps, getCurrentInstance, ref } from 'vue'
+import { useFloating } from '@floating-ui/vue';
+import { useClickOutside } from '@/composables/useClickOutside'
+
 import faqContent from '@/assets/faqpage.json'
+
 // flatten down the faqContent object to get a dict like {language : { id : <item> } }
 const FaqContentsMap = Object.entries(faqContent).reduce((acc, [language, item]) => {
   acc[language] = item.groups.reduce((acc, group) => {
@@ -51,50 +50,35 @@ const FaqContentsMap = Object.entries(faqContent).reduce((acc, [language, item])
   return acc
 }, {})
 
-export default {
-  props: [
-    'target', // optional
-    'name', // name = ID required
-  ],
-  data: () => ({
-    show: false,
-    currentTargetId: null,
-  }),
-  computed: {
-    targetId() {
-      return `ib_${this.target || this.name}`
-    },
-    /**
-     * return an object
-     * returns null if no content is found
-     */
-    content() {
-      return FaqContentsMap[this.activeLanguageCode][this.name] || { title: this.name }
-    },
-    activeLanguageCode() {
-      return this.$store.state.settings.language_code
-    },
-  },
-  methods: {
-    togglePopover(status) {
-      if (typeof status === 'boolean') {
-        this.show = status
-      } else {
-        this.show = !!this.show
-      }
-      console.info('popover show:', this.show, this.targetId, this.currentTargetId)
+const reference = ref(null);
+const floating = ref(null);
+const { floatingStyles } = useFloating(reference, floating, {
+  placement: 'right',
+});
 
-      if (this.currentTargetId) {
-        if (this.currentTargetId !== this.targetId) {
-          this.$root.$emit('bv::hide::popover', this.currentTargetId)
-        }
-      }
-      if (this.show) {
-        this.$root.$emit('bv::show::popover', this.targetId)
-      }
-    },
+const props = defineProps({
+  target: String,
+  name: {
+    type: String,
+    required: true,
   },
-}
+})
+
+
+const show = ref(false)
+
+const store = computed(() => getCurrentInstance()?.proxy.$store)
+const activeLanguageCode = computed(() => store.value?.state.settings.language_code)
+const content = computed(() => FaqContentsMap[activeLanguageCode.value][props.name] || { title: props.name })
+
+
+const togglePopover = () => show.value = !show.value
+
+useClickOutside(
+  floating,
+  () => show.value = false,
+  reference
+)
 </script>
 
 <style lang="scss">

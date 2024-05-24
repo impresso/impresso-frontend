@@ -22,7 +22,6 @@ import BAlert from '@/components/legacy/bootstrap/BAlert.vue';
 
 // TODO: complex components
 import { BModal } from 'bootstrap-vue/src/components/modal/modal'
-import { BPopover } from 'bootstrap-vue/src/components/popover/popover'
 import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
 import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
 
@@ -49,7 +48,6 @@ const BootstrapVueLegacy = {
     vue.component('BTabs', BTabs);
     vue.component('BDropdown', BDropdown);
     vue.component('BModal', BModal);
-    vue.component('BPopover', BPopover);
     vue.component('BContainer', BContainer);
     vue.component('BButtonGroup', BButtonGroup);
     vue.component('BBadge', BBadge);
