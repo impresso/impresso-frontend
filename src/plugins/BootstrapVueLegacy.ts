@@ -15,11 +15,11 @@ import BBadge from '@/components/legacy/bootstrap/BBadge.vue';
 import BFormGroup from '@/components/legacy/bootstrap/BFormGroup.vue';
 import BFormCheckbox from '@/components/legacy/bootstrap/BFormCheckbox.vue';
 import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue';
+import BNavItemDropdown from '@/components/legacy/bootstrap/BNavItemDropdown.vue';
 
 // boostrap-vue
 
 // TODO: complex components
-import { BNavItemDropdown } from 'bootstrap-vue/src/components/nav/nav-item-dropdown'
 import { BAlert } from 'bootstrap-vue/src/components/alert/alert'
 import { BModal } from 'bootstrap-vue/src/components/modal/modal'
 import { BPopover } from 'bootstrap-vue/src/components/popover/popover'
