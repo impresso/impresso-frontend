@@ -16,11 +16,11 @@ import BFormGroup from '@/components/legacy/bootstrap/BFormGroup.vue';
 import BFormCheckbox from '@/components/legacy/bootstrap/BFormCheckbox.vue';
 import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue';
 import BNavItemDropdown from '@/components/legacy/bootstrap/BNavItemDropdown.vue';
+import BAlert from '@/components/legacy/bootstrap/BAlert.vue';
 
 // boostrap-vue
 
 // TODO: complex components
-import { BAlert } from 'bootstrap-vue/src/components/alert/alert'
 import { BModal } from 'bootstrap-vue/src/components/modal/modal'
 import { BPopover } from 'bootstrap-vue/src/components/popover/popover'
 import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
@@ -31,6 +31,7 @@ import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
 import { VBTooltip } from 'bootstrap-vue/src/directives/tooltip/tooltip'
 
 import { BVModalPlugin } from 'bootstrap-vue/src/components/modal/helpers/bv-modal'
+import { BVToastPlugin } from 'bootstrap-vue/src/components/toast/helpers/bv-toast'
 
 
 const BootstrapVueLegacy = {
@@ -63,6 +64,7 @@ const BootstrapVueLegacy = {
     vue.directive('BTooltip', VBTooltip);
 
     vue.use(BVModalPlugin);
+    vue.use(BVToastPlugin);
   },
 };
 
