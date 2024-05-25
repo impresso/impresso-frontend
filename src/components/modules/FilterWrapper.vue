@@ -8,18 +8,20 @@
       <span v-on:click="remove" class="btn-pill dripicons-cross" />
     </b-badge>
 
-    <b-tooltip v-bind:target="id" triggers="click blur">
+    <div v-bind:target="id" triggers="click blur">
       <b-button-group>
         <slot name="controls"></slot>
       </b-button-group>
       <slot name="settings"></slot>
-    </b-tooltip>
+    </div>
 
   </div>
 </template>
 
 <script>
-
+/**
+ * @deprecated Used in Filter*.vue components which are not used anywhere.
+ */
 export default {
   methods: {
     remove() {

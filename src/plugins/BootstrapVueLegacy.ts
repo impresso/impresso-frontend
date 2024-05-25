@@ -21,15 +21,17 @@ import BAlert from '@/components/legacy/bootstrap/BAlert.vue';
 // boostrap-vue
 
 // TODO: complex components
+
+// modal
 import { BModal } from 'bootstrap-vue/src/components/modal/modal'
 import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
-import { BTooltip } from 'bootstrap-vue/src/components/tooltip/tooltip'
-
-
 import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
-import { VBTooltip } from 'bootstrap-vue/src/directives/tooltip/tooltip'
-
 import { BVModalPlugin } from 'bootstrap-vue/src/components/modal/helpers/bv-modal'
+
+// toggle
+import { VBToggle } from 'bootstrap-vue/src/directives/toggle/toggle'
+
+// toast
 import { BVToastPlugin } from 'bootstrap-vue/src/components/toast/helpers/bv-toast'
 
 
@@ -56,10 +58,9 @@ const BootstrapVueLegacy = {
     vue.component('BFormInput', BFormInput);
     vue.component('BVTransporter', BVTransporter);
     vue.component('BInput', BFormInput);
-    vue.component('BTooltip', BTooltip);
 
     vue.directive('BModal', VBModal);
-    vue.directive('BTooltip', VBTooltip);
+    vue.directive('BToggle', VBToggle);
 
     vue.use(BVModalPlugin);
     vue.use(BVToastPlugin);

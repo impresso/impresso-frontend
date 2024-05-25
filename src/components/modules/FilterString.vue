@@ -26,6 +26,10 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere.
+ */
+
 import Icon from 'vue-awesome/components/Icon';
 import FilterFactory from '@/models/FilterFactory';
 

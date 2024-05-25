@@ -92,29 +92,29 @@
             </section>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
-            <div v-b-tooltip.ds500 :title="$t('label_previous_page')">
+            <WithTooltip :content="$t('label_previous_page')" delay>
               <b-button class="border-dark" variant="light" size="sm"
                 :disabled="currentPageIndex === 0"
                 @click="changeCurrentPageIndex(currentPageIndex - 1)">
                 <div class="dripicons dripicons-media-previous pt-1"></div>
               </b-button>
-            </div>
+            </WithTooltip>
             <div class="px-2 pt-1 border-top border-bottom" v-html="$t('ppOf', {
               num: page.num,
               pages: issue.pages.length
             })"></div>
-            <div v-b-tooltip.ds500 :title="$t('label_next_page')">
+            <WithTooltip :content="$t('label_next_page')" delay>
               <b-button class="border-dark" variant="light" size="sm"
                 :disabled="(currentPageIndex + 1) === issue.pages.length"
                 @click="changeCurrentPageIndex(currentPageIndex + 1)">
                 <div class="dripicons dripicons-media-next pt-1"></div>
               </b-button>
-            </div>
+            </WithTooltip>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar variant="light" class="px-0 py-0">
           <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
-            <div v-b-tooltip.hover :title="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')">
+            <WithTooltip placement="top" :content="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')">
               <b-button
                 :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
                 @click="outlinesVisible = !outlinesVisible">
@@ -124,8 +124,8 @@
                   <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
                 </div>
               </b-button>
-            </div>
-            <div v-b-tooltip.hover :title="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
+            </WithTooltip>
+            <WithTooltip placement="top" :content="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
               <b-button
                 :variant="isFullscreen ? 'primary' : 'outline-primary'"
                 size="sm"
@@ -135,7 +135,7 @@
                   <div class="d-flex dripicons my-1" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
                 </div>
               </b-button>
-            </div>
+            </WithTooltip>
           </b-navbar-nav>
 
           <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
@@ -225,6 +225,8 @@ import SearchPills from '@/components/SearchPills'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
 import CollectionAddTo from '@/components/modules/CollectionAddTo';
+import WithTooltip from '@/components/base/WithTooltip.vue'
+
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -266,7 +268,8 @@ export default {
     SearchPills,
     IssueViewerBookmarker,
     IssueViewerTableOfContents,
-    CollectionAddTo
+    CollectionAddTo,
+    WithTooltip
   },
   mounted() {
     if (this.suggestionQuery.length) {

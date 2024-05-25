@@ -100,7 +100,7 @@
               <span class="badge">
                 <span class='small-caps' id='selected-article-language'>{{ article.language }}</span> |
                 <span>{{ articlePages }}</span>
-                <b-tooltip target="selected-article-language" :title="$t(`buckets.language.${article.language}`)"></b-tooltip>
+                <div :title="$t(`buckets.language.${article.language}`)"></div>
               </span>
             </div>
           </b-navbar-nav>

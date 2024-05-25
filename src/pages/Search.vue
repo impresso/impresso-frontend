@@ -124,7 +124,6 @@
             <!-- <b-form-checkbox
               v-if="isLoggedIn"
               class="mx-1"
-              v-b-tooltip.hover.topleft.html.o100.d500
               v-bind:title="$t('select_all')"
               v-bind:indeterminate="this.allIndeterminate"
               v-bind:checked="this.allSelected"
