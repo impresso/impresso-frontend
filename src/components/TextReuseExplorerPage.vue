@@ -217,6 +217,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import InfoButton from '@/components/base/InfoButton'
 import Ellipsis from '@/components/modules/Ellipsis'
 import List from '@/components/modules/lists/List'
@@ -302,6 +303,7 @@ export default {
     selectedCollection: null,
   }),
   methods: {
+    ...mapActions('notifications', ['addNotification']),
     summaryUpdatedHandler(summary) {
       this.summary = summary
     },
@@ -410,10 +412,11 @@ export default {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleCollectionCreated', collection)
       this.$bvModal.hide('createCollectionFromFilters')
-      this.$bvToast.toast('Collection created', {
+
+      this.addNotification({
         title: 'Success',
-        variant: 'success',
-        solid: true,
+        message: 'Collection created',
+        type: 'success'
       })
       this.selectedCollection = collection
       this.saveArticlesInSelectedCollection()
@@ -445,22 +448,19 @@ export default {
           if (err.code === 400) {
             // eslint-disable-next-line
             console.warn('[TextReuseExplorer] handleAddToCollectionClick', err.data)
-            this.$bvToast.toast('You cannot add to this collection', {
+            this.addNotification({
               title: 'Error',
-              variant: 'danger',
-              solid: true,
+              message: 'You cannot add to this collection',
+              type: 'error'
             })
             return
           } else if ((err.code = 501)) {
             // too many jobs...
-            this.$bvToast.toast(
-              'Please wait, you already have a job running. Check its completion in the running tabs.',
-              {
-                title: 'Please wait...',
-                variant: 'danger',
-                solid: true,
-              },
-            )
+            this.addNotification({
+              title: 'Please wait...',
+              message: 'Please wait, you already have a job running. Check its completion in the running tabs.',
+              type: 'error'
+            })
           }
         })
       this.$bvModal.hide('confirmAddToCollectionFromFilters')

@@ -266,6 +266,7 @@
 import Partner from '@/models/Partner'
 import { newspapers as NewspapersService } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
+import { mapActions } from 'vuex'
 
 export default {
   data: () => ({
@@ -388,6 +389,7 @@ export default {
     })
   },
   methods: {
+    ...mapActions('notifications', ['addNotification']),
     debounceInput(value, prop) {
       clearTimeout(this.delayTimer)
       this.delayTimer = setTimeout(() => {
@@ -408,12 +410,7 @@ export default {
       const title = this.$t('url_copied_title')
       const message = this.$tc('url_copied_message')
 
-      this.$bvToast.toast(message + 'sticazzi', {
-        title: title,
-        variant: 'success',
-        toaster: 'b-toaster-bottom-center',
-        solid: true,
-      })
+      this.addNotification({ title, message, type: 'success' })
     },
     setCoordsFromArticleRegions() {
       let x0 = Infinity

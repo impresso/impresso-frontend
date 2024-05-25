@@ -28,9 +28,6 @@ import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transpor
 import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
 import { BVModalPlugin } from 'bootstrap-vue/src/components/modal/helpers/bv-modal'
 
-// toast
-import { BVToastPlugin } from 'bootstrap-vue/src/components/toast/helpers/bv-toast'
-
 
 const BootstrapVueLegacy = {
   install(vue: VueConstructor) {
@@ -59,7 +56,6 @@ const BootstrapVueLegacy = {
     vue.directive('BModal', VBModal);
 
     vue.use(BVModalPlugin);
-    vue.use(BVToastPlugin);
   },
 };
 

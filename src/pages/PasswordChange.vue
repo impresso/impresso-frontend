@@ -77,6 +77,8 @@
 
 <script>
 import { passwordReset as passwordResetService } from '@/services'
+import { mapActions } from 'vuex'
+
 const PasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_\-@$!%*?&])[A-Za-z\d@$!%*?&_\-]{8,}$/
 
 export default {
@@ -93,6 +95,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('notifications', ['addNotification']),
     onSubmit(e) {
       e.stopPropagation()
       e.preventDefault()
@@ -131,10 +134,10 @@ export default {
         )
         .then(() => {
           // add a toast message
-          this.$bvToast.toast('Your password has been changed.', {
+          this.addNotification({
             title: 'Password changed successfully.',
-            variant: 'success',
-            solid: true,
+            message: 'Your password has been changed.',
+            type: 'success'
           })
           this.isComplete = true
           // go to login pqge qfter 500 ms
