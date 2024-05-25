@@ -35,13 +35,13 @@
           <hr />
           <label class="font-weight-bold mt-2">{{ $t('iframe_code') }}</label>
 
-          <b-form-textarea
+          <textarea
             id="inputLink"
             ref="inputLink"
             readonly
             :value="[iframeCode, iframeCaptionCode].join('\n')"
-            class="mb-2"
-          />
+            class="mb-2 form-control"
+          /></textarea>
 
           <b-button variant="outline-primary" size="sm" v-on:click="copyArticleUrlToClipboard()"
             >{{ $t('copy_to_clipboard') }}
