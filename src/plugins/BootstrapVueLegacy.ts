@@ -28,9 +28,6 @@ import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transpor
 import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
 import { BVModalPlugin } from 'bootstrap-vue/src/components/modal/helpers/bv-modal'
 
-// toggle
-import { VBToggle } from 'bootstrap-vue/src/directives/toggle/toggle'
-
 // toast
 import { BVToastPlugin } from 'bootstrap-vue/src/components/toast/helpers/bv-toast'
 
@@ -60,7 +57,6 @@ const BootstrapVueLegacy = {
     vue.component('BInput', BFormInput);
 
     vue.directive('BModal', VBModal);
-    vue.directive('BToggle', VBToggle);
 
     vue.use(BVModalPlugin);
     vue.use(BVToastPlugin);
