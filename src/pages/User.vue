@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <main id="UserDashboard">
     <b-container>
       <b-row>
@@ -182,6 +182,9 @@
         </b-col>
       </b-row>
     </b-container>
+    <Modal :show="isDeleteConfirmationDialogVisible" @close="hideDeleteConfirmationDialog" @ok="handleDeleteUserAfterConfirmation">
+      {{ this.$t('Are you sure you want to permanently delete your profile?') }}
+    </Modal>
   </main>
 </template>
 
@@ -189,6 +192,7 @@
 import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
 import { required, email, confirmed, min, regex } from 'vee-validate/dist/rules';
 import { PasswordRegex } from '@/logic/user';
+import Modal from '@/components/base/Modal.vue';
 
 extend('required', {
   ...required,
@@ -237,12 +241,20 @@ export default {
       '#3e8696', '#dce5f4', '#45535f', '#4a818a', '#b2bdcc', '#2e4051', '#62797d'
     ],
     numColors: 5,
+    isDeleteConfirmationDialogVisible: false,
   }),
   components: {
     ValidationProvider,
     ValidationObserver,
+    Modal,
   },
   methods: {
+    showDeleteConfirmationDialog() {
+      this.isDeleteConfirmationDialogVisible = true;
+    },
+    hideDeleteConfirmationDialog() {
+      this.isDeleteConfirmationDialogVisible = false;
+    },
     onSubmitChangePassword() {
       this.passwordSubmitted = false;
       this.passwordSubmittedError = '';
@@ -278,12 +290,10 @@ export default {
       });
     },
     confirmDelete() {
-      this.$bvModal.msgBoxConfirm(this.$t('Are you sure you want to permanently delete your profile?'))
-        .then((ok) => {
-          if (ok) {
-            this.$store.dispatch('user/REMOVE_CURRENT_USER', this.user);
-          }
-        });
+      this.showDeleteConfirmationDialog();
+    },
+    handleDeleteUserAfterConfirmation() {
+      this.$store.dispatch('user/REMOVE_CURRENT_USER', this.user);
     },
     onGeneratePattern() {
       this.user.colors = [];

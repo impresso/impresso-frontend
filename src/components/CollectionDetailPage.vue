@@ -20,7 +20,7 @@
         <section class="ml-auto py-3 text-right">
           <router-link :to="updateCurrentRoute({ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} })" class="m-1">
             <button type="button" class="btn btn-outline-info btn-sm"
-              v-b-modal.confirmDelete>{{ $t('compare_collection') }}
+              @click="showConfirmDeleteModal()">{{ $t('compare_collection') }}
             </button>
           </router-link>
 
@@ -40,7 +40,7 @@
               </button>
               <button type="button" class="btn btn-outline-danger btn-sm form-control mb-3"
                 v-on:click.alt="remove(collection)"
-                v-on:click.exact="$bvModal.show('confirmDelete')">
+                v-on:click.exact="showConfirmDeleteModal()">
                 {{ $t('delete_collection') }}
               </button>
             </div>
@@ -48,9 +48,9 @@
 
         </section>
 
-        <b-modal id="confirmDelete" v-on:ok="remove(collection)">
+        <Modal id="confirmDelete" :show="isConfirmDeleteModalVisible" @ok="remove(collection)">
           {{this.$t('confirm_delete', [collection.name])}}
-        </b-modal>
+        </Modal>
       </b-navbar>
 
       <b-navbar v-else type="light" variant="light">
@@ -259,6 +259,8 @@ import { exporter as exporterService,
   collectionsItems as collectionsItemsService
 } from '@/services';
 import RadioGroup from '@/components/layout/RadioGroup.vue';
+import Modal from '@/components/base/Modal.vue'
+import { hide } from '@floating-ui/vue';
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs',
@@ -285,6 +287,7 @@ export default {
     timevalues: [],
     facets: [],
     facetTypes: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic', 'partner', 'accessRight'],
+    isConfirmDeleteModalVisible: false,
   }),
   components: {
     SearchResultsListItem,
@@ -296,6 +299,7 @@ export default {
     CollectionRecommendationsPanel,
     InfoButton,
     RadioGroup,
+    Modal,
   },
   computed: {
     displayStyleOptions() {
@@ -408,6 +412,12 @@ export default {
     },
   },
   methods: {
+    showConfirmDeleteModal() {
+      this.isConfirmDeleteModalVisible = true;
+    },
+    hideConfirmDeleteModal() {
+      this.isConfirmDeleteModalVisible = false;
+    },
     handleExportCollection() {
       exporterService.create({
         description: this.collectionUid,

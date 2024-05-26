@@ -19,14 +19,9 @@ import BNavItemDropdown from '@/components/legacy/bootstrap/BNavItemDropdown.vue
 import BAlert from '@/components/legacy/bootstrap/BAlert.vue';
 
 // boostrap-vue
-
-// TODO: complex components
-
-// modal
-import { BModal } from 'bootstrap-vue/src/components/modal/modal'
-import { BVTransporter } from 'bootstrap-vue/src/components/transporter/transporter'
-import { VBModal } from 'bootstrap-vue/src/directives/modal/modal'
-import { BVModalPlugin } from 'bootstrap-vue/src/components/modal/helpers/bv-modal'
+import { BFormSelect } from 'bootstrap-vue/src/components/form-select/form-select'
+import { BSpinner } from 'bootstrap-vue/src/components/spinner/spinner'
+import { BFormDatepicker } from 'bootstrap-vue/src/components/form-datepicker/form-datepicker'
 
 
 const BootstrapVueLegacy = {
@@ -36,26 +31,22 @@ const BootstrapVueLegacy = {
     vue.component('BRow', BRow);
     vue.component('BNavbar', BNavbar);
     vue.component('BNavbarNav', BNavbarNav);
-
+    vue.component('BFormSelect', BFormSelect);
+    vue.component('BSpinner', BSpinner);
+    vue.component('BFormDatepicker', BFormDatepicker);
     vue.component('BNavItem', BNavItem);
     vue.component('BNavItemDropdown', BNavItemDropdown);
     vue.component('BDropdownItem', BDropdownItem);
     vue.component('BAlert', BAlert);
     vue.component('BTabs', BTabs);
     vue.component('BDropdown', BDropdown);
-    vue.component('BModal', BModal);
     vue.component('BContainer', BContainer);
     vue.component('BButtonGroup', BButtonGroup);
     vue.component('BBadge', BBadge);
     vue.component('BFormGroup', BFormGroup);
     vue.component('BFormCheckbox', BFormCheckbox);
     vue.component('BFormInput', BFormInput);
-    vue.component('BVTransporter', BVTransporter);
     vue.component('BInput', BFormInput);
-
-    vue.directive('BModal', VBModal);
-
-    vue.use(BVModalPlugin);
   },
 };
 

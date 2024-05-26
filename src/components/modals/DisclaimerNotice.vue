@@ -1,9 +1,9 @@
-<template lang="html">
-  <b-modal scrollable centered ok-only no-close-on-backdrop hideHeaderClose static visible
+<template>
+  <Modal
+    :show="isShown"
+    scrollable centered ok-only no-close-on-backdrop hideHeaderClose
     id="disclaimerNotice"
-    ref="disclaimerNotice"
-    :title="content.title"
-    >
+    :title="content.title">
     <template v-slot:modal-footer>
       <b-button variant="primary" size="sm" @click="agreeTerms()">{{ $t('actions.agree') }}</b-button>
     </template>
@@ -12,13 +12,20 @@
       v-bind:key="i"
       v-html="para" />
     </div>
-  </b-modal>
+  </Modal>
 </template>
 
 <script>
+import Modal from '@/components/base/Modal.vue'
 import content from '@/assets/disclaimer.json';
 
 export default {
+  data: () => ({
+    isShown: false,
+  }),
+  mounted() {
+    this.isShown = true;
+  },
   methods: {
     agreeTerms() {
       this.$store.dispatch('settings/ACCEPT_TERMS_OF_USE');
@@ -34,5 +41,8 @@ export default {
       return this.$store.state.settings.language_code;
     },
   },
+  components: {
+    Modal,
+  }
 };
 </script>

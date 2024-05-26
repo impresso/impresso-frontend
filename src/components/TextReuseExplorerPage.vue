@@ -31,7 +31,7 @@
                     size="sm"
                     class="small-caps rounded shadow-sm mt-3"
                     variant="outline-secondary"
-                    v-b-modal.createCollectionFromFilters
+                    @click="showCreateCollectionModal()"
                   >
                     <span class="dripicons-archive pr-1"></span>
                     {{ $t('query_add_to_collection') }}
@@ -182,6 +182,7 @@
     </List>
     <CreateCollection
       id="createCollectionFromFilters"
+      :show="isCreateCollectionModalVisible"
       :filters="supportedFilters"
       index="tr_passages"
       :title="$t('query_add_to_collection')"
@@ -189,15 +190,17 @@
       :name="newCollectionName"
       @create="handleCreateCollection"
       @collection:created="handleCollectionCreated"
+      @close="hideCreateCollectionModal"
     />
     <ConfirmModal
       id="confirmAddToCollectionFromFilters"
       :title="$t('confirmAddToCollectionFromFilters')"
       :okLabel="$t('saveToTheCollection')"
       @ok="saveArticlesInSelectedCollection"
+      :show="isConfirmAddToCollectionDialogVisible"
       @close="
         () => {
-          $bvModal.hide('confirmAddToCollectionFromFilters')
+          isConfirmAddToCollectionDialogVisible = false
         }
       "
     >
@@ -236,6 +239,7 @@ import CreateCollection from './modules/collections/CreateCollection'
 import AddToCollection from './modules/collections/AddToCollection'
 import ConfirmModal from './modules/collections/ConfirmModal.vue'
 import ItemLabel from './modules/lists/ItemLabel.vue'
+import { hide } from '@floating-ui/vue'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -301,8 +305,16 @@ export default {
     newCollectionName: '',
     // this is the collection being selected to contains the articles
     selectedCollection: null,
+    isCreateCollectionModalVisible: false,
+    isConfirmAddToCollectionDialogVisible: false,
   }),
   methods: {
+    showCreateCollectionModal() {
+      this.isCreateCollectionModalVisible = true
+    },
+    hideCreateCollectionModal() {
+      this.isCreateCollectionModalVisible = false
+    },
     ...mapActions('notifications', ['addNotification']),
     summaryUpdatedHandler(summary) {
       this.summary = summary
@@ -399,19 +411,19 @@ export default {
       console.debug('[TextReuseExplorer] handleAddToCollectionClick', item)
       this.selectedCollection = item
       // open up confimation modal...?
-      this.$bvModal.show('confirmAddToCollectionFromFilters')
+      this.isConfirmAddToCollectionDialogVisible = true
     },
     // opens up create Collection modal
     handleAddToCollectionCreate({ name = '' }) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleAddToCollectionCreate name:', name)
       this.newCollectionName = name
-      this.$bvModal.show('createCollectionFromFilters')
+      this.showCreateCollectionModal()
     },
     handleCollectionCreated(collection) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleCollectionCreated', collection)
-      this.$bvModal.hide('createCollectionFromFilters')
+      this.hideCreateCollectionModal()
 
       this.addNotification({
         title: 'Success',
@@ -463,7 +475,7 @@ export default {
             })
           }
         })
-      this.$bvModal.hide('confirmAddToCollectionFromFilters')
+      this.isConfirmAddToCollectionDialogVisible = false
     },
     async handleCreateCollection(name, description) {
       const collection = await collections.create({ name, description })
@@ -476,7 +488,7 @@ export default {
         collection,
       )
 
-      this.$bvModal.hide('createCollectionFromFilters')
+      this.hideCreateCollectionModal()
     },
   },
   computed: {

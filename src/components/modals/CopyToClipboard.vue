@@ -1,11 +1,10 @@
 <template>
-  <b-modal
+  <Modal
+    :show="isModalVisible"
     dialog-class="CopyToClipboard"
     content-class="CopyToClipboard__content drop-shadow rounded"
-    scrollable
     @shown="delayIframePreview"
-    visible
-  >
+    @close="handleModalClosed">
     <template #modal-header="{ close }">
       <!-- Emulate built in modal header close button action -->
 
@@ -259,13 +258,14 @@
         </div>
       </b-col>
     </b-row>
-  </b-modal>
+  </Modal>
 </template>
 
 <script>
 import Partner from '@/models/Partner'
 import { newspapers as NewspapersService } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
+import Modal from '@/components/base/Modal.vue'
 import { mapActions } from 'vuex'
 
 export default {
@@ -286,6 +286,7 @@ export default {
     title: '',
     newspaper: null,
     partner: null,
+    isModalVisible: false,
   }),
   model: {
     prop: 'article',
@@ -359,9 +360,9 @@ export default {
     },
   },
   mounted() {
-    this.$root.$on('bv::modal::hidden', () => {
-      this.$emit('closed')
-    })
+    setTimeout(() => {
+      this.isModalVisible = true
+    }, 0)
     // set initial coord value from article
     if (this.article?.regions?.length) {
       this.setCoordsFromArticleRegions()
@@ -389,6 +390,10 @@ export default {
     })
   },
   methods: {
+    handleModalClosed() {
+      this.isModalVisible = false
+      this.$emit('closed')
+    },
     ...mapActions('notifications', ['addNotification']),
     debounceInput(value, prop) {
       clearTimeout(this.delayTimer)
@@ -445,6 +450,10 @@ export default {
       )
     },
   },
+  components: {
+    RadioGroup,
+    Modal,
+  }
 }
 </script>
 

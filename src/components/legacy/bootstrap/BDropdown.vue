@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAttrs, ref } from 'vue'
+import { useAttrs, ref, watch } from 'vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 
 const props = defineProps({
@@ -38,6 +38,7 @@ const props = defineProps({
   text: String,
   right: Boolean,
 })
+const emit = defineEmits(['shown', 'hidden'])
 const attrs = useAttrs()
 
 const isOpen = ref(false)
@@ -56,5 +57,13 @@ useClickOutside(
   () => isOpen.value = false,
   buttonRef
 )
+
+watch(isOpen, (value) => {
+  if (value) {
+    emit('shown')
+  } else {
+    emit('hidden')
+  }
+}, { immediate: true })
 
 </script>
