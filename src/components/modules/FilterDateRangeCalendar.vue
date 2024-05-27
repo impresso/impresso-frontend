@@ -11,17 +11,14 @@
           autocomplete="off"
         ></b-form-input>
         <div class="input-group-append" v-if="showCalendar">
-          <b-form-datepicker
-            button-only
-            right
+          <DatepickerButton
             size="sm"
             locale="en-US"
-            aria-controls="start-date-datepicker"
             :min="minDate"
             :max="maxDate"
             v-model="startValueCalendar"
-            button-variant="outline-secondary"
-          ></b-form-datepicker>
+            required
+            button-variant="outline-secondary"/>
         </div>
       </div>
     </div>
@@ -39,17 +36,14 @@
           autocomplete="off"
         ></b-form-input>
         <div class="input-group-append" v-if="showCalendar">
-          <b-form-datepicker
-            button-only
-            right
+          <DatepickerButton
             size="sm"
-            button-variant="outline-secondary"
             locale="en-US"
-            aria-controls="end-date-datepicker"
             :min="minDate"
             :max="maxDate"
             v-model="endValueCalendar"
-          ></b-form-datepicker>
+            required
+            button-variant="outline-secondary"/>
         </div>
       </div>
     </div>
@@ -59,13 +53,15 @@
 <script>
 import BaseTitleBar from '@/components/base/BaseTitleBar'
 import Daterange from '@/models/Daterange'
-import FilterDaterange from '@/models/FilterDaterange'
 import FilterMonitor from '@/components/modules/FilterMonitor'
+import DatepickerButton from '@/components/base/DatepickerButton.vue'
+
 export default {
   name: 'FilterDateRangeCalendar',
   components: {
     BaseTitleBar,
     FilterMonitor,
+    DatepickerButton,
   },
   props: {
     filters: {

@@ -19,9 +19,6 @@ import BNavItemDropdown from '@/components/legacy/bootstrap/BNavItemDropdown.vue
 import BAlert from '@/components/legacy/bootstrap/BAlert.vue';
 import BFormSelect from '@/components/legacy/bootstrap/BFormSelect.vue';
 
-// boostrap-vue
-import { BFormDatepicker } from 'bootstrap-vue/src/components/form-datepicker/form-datepicker'
-
 
 const BootstrapVueLegacy = {
   install(vue: VueConstructor) {
@@ -31,7 +28,6 @@ const BootstrapVueLegacy = {
     vue.component('BNavbar', BNavbar);
     vue.component('BNavbarNav', BNavbarNav);
     vue.component('BFormSelect', BFormSelect);
-    vue.component('BFormDatepicker', BFormDatepicker);
     vue.component('BNavItem', BNavItem);
     vue.component('BNavItemDropdown', BNavItemDropdown);
     vue.component('BDropdownItem', BDropdownItem);
