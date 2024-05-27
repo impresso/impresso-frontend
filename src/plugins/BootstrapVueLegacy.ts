@@ -20,7 +20,6 @@ import BAlert from '@/components/legacy/bootstrap/BAlert.vue';
 import BFormSelect from '@/components/legacy/bootstrap/BFormSelect.vue';
 
 // boostrap-vue
-import { BSpinner } from 'bootstrap-vue/src/components/spinner/spinner'
 import { BFormDatepicker } from 'bootstrap-vue/src/components/form-datepicker/form-datepicker'
 
 
@@ -32,7 +31,6 @@ const BootstrapVueLegacy = {
     vue.component('BNavbar', BNavbar);
     vue.component('BNavbarNav', BNavbarNav);
     vue.component('BFormSelect', BFormSelect);
-    vue.component('BSpinner', BSpinner);
     vue.component('BFormDatepicker', BFormDatepicker);
     vue.component('BNavItem', BNavItem);
     vue.component('BNavItemDropdown', BNavItemDropdown);
