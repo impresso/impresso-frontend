@@ -152,7 +152,7 @@
             <search-query-explorer dark-mode no-pagination no-label :search-query="selectedEntitySearchQuery"/>
           </template>
         </punch-explorer>
-        <!-- <b-modal modal-class="modal-backdrop-disabled" content-class="drop-shadow"
+        <!-- <modal modal-class="modal-backdrop-disabled" content-class="drop-shadow"
           hide-backdrop
           no-fade no-close-on-backdrop
           title-class="sans"
@@ -172,7 +172,7 @@
                 Close
             </b-button>
           </template>
-        </b-modal> -->
+        </modal> -->
       </div>
       <div v-else>
         <div class="text-center p-5 m-5" v-html="$t('no-entities-selected')" />

@@ -39,9 +39,16 @@ const BootstrapVueLegacy = {
     vue.component('BBadge', BBadge);
     vue.component('BFormGroup', BFormGroup);
     vue.component('BFormCheckbox', BFormCheckbox);
+    vue.component('BCheckbox', BFormCheckbox);
     vue.component('BFormInput', BFormInput);
     vue.component('BInput', BFormInput);
   },
 };
+
+/*
+Find non-captured components:
+
+<b-(?!button|col|row|navbar|form-select|nav-item|dropdown-item|alert|tabs|dropdown|container|badge|form-group|form-checkbox|form-input|input|checkbox)
+*/
 
 export default BootstrapVueLegacy;

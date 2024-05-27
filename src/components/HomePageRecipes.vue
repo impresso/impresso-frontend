@@ -2,11 +2,11 @@
   <div class="container-fluid mb-5">
     <b-row class="justify-content-md-center mb-5">
       <b-col class="m-0 p-0">
-        <b-carousel
+        <bb-carousel
           class="recipe"
           :interval="6000"
           indicators>
-          <b-carousel-slide
+          <bb-carousel-slide
             v-for="(recipe, i) in recipes"
             v-bind:key="i"
             v-bind:caption="recipe.caption"
@@ -14,14 +14,16 @@
             v-bind:img-src="recipe.img_src">
             <a v-bind:href="recipe.query" class="btn btn-outline-primary bg-light" v-if="recipe.query">Perform this query ... </a>
             <a v-bind:href="recipe.video" target="_blank" class="btn btn-primary">Watch the video</a>
-          </b-carousel-slide>
-        </b-carousel>
+          </bb-carousel-slide>
+        </bb-carousel>
       </b-col>
     </b-row>
   </div>
 </template>
 
 <script>
+/** @deprecated See HomePage2020 */
+
 import content from '@/assets/homepage.json';
 
 export default {

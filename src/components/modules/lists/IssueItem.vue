@@ -7,20 +7,6 @@
       </router-link>
     </div>
   </div>
-
-  <!-- <b-card class="IssueItem">
-    
-      <b-card-img-lazy
-        class="bg-light border"
-        :src="item.frontPage.getIiifThumbnail({ dim: 700 })"
-        :alt="$d(item.date, 'long')" top />
-    </router-link>
-    <b-card-body>
-      <router-link :to="routerLinkUrl">
-        <span class="date">{{ $d(new Date(item.date), "long") }}</span>
-      </router-link>
-    </b-card-body>
-  </b-card> -->
 </template>
 
 <script>

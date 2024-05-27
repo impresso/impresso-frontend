@@ -86,25 +86,6 @@
     </li>
 
   </ul>
-
-  <!-- <b-pagination
-    v-bind:size="size"
-    v-bind:value="currentPage"
-    v-bind:total-rows="totalRows"
-    v-bind:per-page="perPage"
-    v-on:change="onChange"
-    v-on:input="onInput"
-    v-bind:align="align"
-    class="m-0"
-  ></b-pagination>
-  <div v-if="showDescription">
-    {{$t("description", {
-      firstResult: firstResult,
-      lastResult: lastResult,
-      totalRows: $n(totalRows),
-      totalPages: $n(totalPages)
-    })}}
-  </div> -->
 </div>
 </template>
 
