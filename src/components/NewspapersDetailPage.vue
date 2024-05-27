@@ -22,22 +22,17 @@
 
       <BTabs pills class="mx-3">
         <template v-slot:tabs-end>
-          <b-nav-item
+          <BNavItem
             :to="getRoute({ name: 'newspaper_metadata' })"
             exact
             active-class="active"
             class="pl-2"
           >
             <span>{{ $t('route.newspaper_metadata') }}</span>
-          </b-nav-item>
-          <b-nav-item
-            :to="getRoute({ name: 'newspaper' })"
-            exact
-            active-class="active"
-            class="pl-2"
-          >
+          </BNavItem>
+          <BNavItem :to="getRoute({ name: 'newspaper' })" exact active-class="active" class="pl-2">
             <span>{{ $t('route.newspaper', { total: $n(total) }) }}</span>
-          </b-nav-item>
+          </BNavItem>
         </template>
       </BTabs>
       <!--  order by -->
