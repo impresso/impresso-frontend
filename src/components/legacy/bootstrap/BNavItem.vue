@@ -5,11 +5,15 @@
       :to="props.to"
       :exact="props.exact"
       :active-class="props.activeClass"
+      :active="props.active"
       class="nav-link"
       v-on="$listeners"
     >
       <slot></slot>
     </router-link>
+    <template v-else>
+      <slot></slot>
+    </template>
   </li>
 </template>
 
