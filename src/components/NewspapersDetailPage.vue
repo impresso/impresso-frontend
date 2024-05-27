@@ -36,20 +36,20 @@
         </template>
       </BTabs>
       <!--  order by -->
-      <BNavbar class="px-3 py-0 border-bottom">
-        <BNavbarNav class="py-2">
-          <BNavItem>
+      <BNavbar class="px-3 py-1 border-bottom">
+        <BNavbarNav class="p-2" v-if="$route.name !== 'newspaper'">
+          <BNavItem class="px-2">
             <b-button size="sm" variant="outline-primary" v-on:click="applyFilter()">
               {{ $t('actions.addToCurrentFilters') }}
             </b-button>
           </BNavItem>
-          <BNavItem>
+          <BNavItem class="px-2">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
           </BNavItem>
         </BNavbarNav>
-        <BNavbarNav v-if="$route.name === 'newspaper'" class="p-2 ml-auto">
+        <BNavbarNav v-if="$route.name === 'newspaper'" class="p-2">
           <i-dropdown
             v-model="orderBy"
             v-bind:options="orderByOptions"
@@ -116,7 +116,7 @@
         </div>
       </div>
     </div>
-    <div v-if="!$route.name == 'newspaper_metadata'">
+    <div v-if="$route.name !== 'newspaper_metadata'">
       <div class="p-4">
         <div class="row">
           <div
@@ -153,6 +153,7 @@ import StackedBarsPanel from './modules/vis/StackedBarsPanel'
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
+import BButton from './legacy/bootstrap/BButton.vue'
 import BNavbar from './legacy/bootstrap/BNavbar.vue'
 import BNavItem from './legacy/bootstrap/BNavItem.vue'
 import BNavbarNav from './legacy/bootstrap/BNavbarNav.vue'
@@ -340,12 +341,13 @@ export default {
     issuesServiceQuery: {
       handler(query) {
         this.issues = []
-        if (this.$route.name === 'newspaper') {
-          IssuesService.find({ query }).then(({ total, data }) => {
+
+        IssuesService.find({ query })
+          .then(({ total, data }) => {
             this.total = total
             this.issues = data.map(d => new Issue(d))
           })
-        }
+          .catch(console.error)
       },
       immediate: true,
     },
