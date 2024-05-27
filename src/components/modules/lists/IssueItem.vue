@@ -1,6 +1,15 @@
-<template lang="html">
-  <b-card class="IssueItem">
-    <router-link :to="routerLinkUrl">
+<template>
+  <div class="IssueItem card">
+    <img class="card-img-top" :src="computedIIIFFrontPageSrc" alt="Card image cap" />
+    <div class="card-body">
+      <router-link :to="routerLinkUrl">
+        <span>{{ $d(new Date(item.date), 'long') }}</span>
+      </router-link>
+    </div>
+  </div>
+
+  <!-- <b-card class="IssueItem">
+    
       <b-card-img-lazy
         class="bg-light border"
         :src="item.frontPage.getIiifThumbnail({ dim: 700 })"
@@ -11,18 +20,27 @@
         <span class="date">{{ $d(new Date(item.date), "long") }}</span>
       </router-link>
     </b-card-body>
-  </b-card>
+  </b-card> -->
 </template>
 
 <script>
+import LazyObserver from '@/components/LazyObserver.vue'
+
 export default {
   props: {
     item: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
+    size: {
+      type: Number,
+      default: 400,
+    },
   },
   computed: {
+    computedIIIFFrontPageSrc() {
+      return this.item.frontPage.getIiifThumbnail({ dim: this.size })
+    },
     routerLinkUrl() {
       return {
         name: 'issue-viewer',
@@ -32,10 +50,10 @@ export default {
         query: {
           ...this.$route.query,
           p: this.item.frontPage.num,
-        }
+        },
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
