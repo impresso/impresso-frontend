@@ -167,7 +167,7 @@
         <b-nav-item :to="loginRouteParams">
           <span class="small-caps">{{ $t('login') }}</span>
         </b-nav-item>
-        <BNavText class="mx-1">|</BNavText>
+        <li class="navbar-text mx-1">|</li>
         <b-nav-item :to="registerRouteParams">
           <span class="small-caps">{{ $t('register') }}</span>
         </b-nav-item>
@@ -206,7 +206,6 @@ import JobItem from '@/components/modules/lists/JobItem'
 import Pagination from '@/components/modules/Pagination'
 import Logo from '@/components/Logo'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
-import { BNavText } from 'bootstrap-vue'
 
 Icon.register({
   slack: {
@@ -433,7 +432,6 @@ export default {
     // Toast,
     JobItem,
     Pagination,
-    BNavText,
   },
 }
 </script>
