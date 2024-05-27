@@ -19,8 +19,7 @@
         :options="languageEmbeddingsOptions"
         size="sm"
         variant="outline-primary"
-        style="border-left-color: black;width: 75px;
-  text-overflow: ellipsis;"
+        style="border-left-color: black;width: 75px; text-overflow: ellipsis;"
         class="pl-1 pr-4"
       />
       <b-form-select

@@ -17,9 +17,9 @@ import BFormCheckbox from '@/components/legacy/bootstrap/BFormCheckbox.vue';
 import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue';
 import BNavItemDropdown from '@/components/legacy/bootstrap/BNavItemDropdown.vue';
 import BAlert from '@/components/legacy/bootstrap/BAlert.vue';
+import BFormSelect from '@/components/legacy/bootstrap/BFormSelect.vue';
 
 // boostrap-vue
-import { BFormSelect } from 'bootstrap-vue/src/components/form-select/form-select'
 import { BSpinner } from 'bootstrap-vue/src/components/spinner/spinner'
 import { BFormDatepicker } from 'bootstrap-vue/src/components/form-datepicker/form-datepicker'
 
