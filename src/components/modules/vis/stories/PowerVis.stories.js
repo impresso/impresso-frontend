@@ -2,7 +2,6 @@ import { action } from '@storybook/addon-actions'
 import PowerVisBase from '../PowerVisBase.vue'
 
 import 'impresso-theme/dist/css/bootpresso.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 export default {
   title: 'Components/Modules/Vis/PowerVis',

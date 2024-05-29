@@ -25,7 +25,6 @@
     "@feathersjs/socketio-client": "4.3.3",
     "@floating-ui/vue": "^1.0.6",
     "axios": "^0.24.0",
-    "bootstrap-vue": "2.22.0",
     "d3": "5.15.0",
     "diff": "^5.1.0",
     "dripicons": "2.0.0",
