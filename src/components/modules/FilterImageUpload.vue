@@ -3,10 +3,10 @@
     <div v-show="image.thumbnail" class="media">
       <div class="media-aside align-self-start">
         <div style="width:128px;" slot="aside">
-          <b-img
+          <img
             fluid-grow
             slot="aside"
-            v-bind:src="`data:image/png;base64,${image.thumbnail}`" />
+            src="`data:image/png;base64,${image.thumbnail}`" />
         </div>
       </div>
       <div class="media-body">

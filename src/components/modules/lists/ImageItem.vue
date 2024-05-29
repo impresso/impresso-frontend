@@ -10,12 +10,10 @@
         <LoadingIndicator/>
       </template>
     </img-authentified>
-    <b-img-lazy v-else-if="hasValidSrc"
-      :fluid="fluid"
-      :fluid-grow="fluidGrow"
+    <img v-else-if="hasValidSrc"
       :height="height"
-      :center="center"
       class="image"
+      :class="imageClass"
       :src="srcCORSFriendly"
     />
     <div v-else>{{ $t('iiif.missing') }}</div>
@@ -39,6 +37,7 @@
 import ItemSelector from '@/components/modules/ItemSelector';
 import ImgAuthentified from '@/components/base/ImgAuthentified';
 import LoadingIndicator from '@/components/modules/LoadingIndicator';
+import { image } from 'd3';
 
 export default {
   props: {
@@ -53,6 +52,14 @@ export default {
     headers: Object
   },
   computed: {
+    imageClass() {
+      return {
+        'img-fluid': this.fluidGrow,
+        'w-100': this.fluidGrow,
+        'mx-auto': this.center,
+        'd-block': this.center,
+      };
+    },
     pages() {
       return this.$tc('pp', this.item.nbPages, {
         pages: this.item.pages.map(d => d.num).join(','),

@@ -10,8 +10,7 @@
       <div slot="header">
         <div v-if="similarToImage" class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex">
           <div class="flex-shrink-1 mr-2" style="width: 100px">
-            <b-img v-if="similarToImage.regions.length"
-              fluid
+            <img v-if="similarToImage.regions.length"
               style="max-height: 100px"
               v-bind:src="similarToImage.regions[0].iiifFragment" />
           </div>
@@ -77,7 +76,7 @@
 
      <!--  body -->
       <div class="p-1 my-2">
-        <b-card-group rows class="row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
+        <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
           <div class="mb-3"
             v-for="searchResult in searchResults" :key="searchResult.uid">
             <search-results-image-item
@@ -90,7 +89,7 @@
               @click:search="onClickSearch"
               :headers="headers" />
           </div>
-        </b-card-group>
+        </div>
         <div v-if="paginationTotalRows && paginationCurrentPage > 0" class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-bind:perPage="paginationPerPage"

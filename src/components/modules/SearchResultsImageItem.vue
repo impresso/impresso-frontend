@@ -1,25 +1,26 @@
-<template lang="html">
-  <b-card class="search-results-image-item">
-    <b-card-text>
-      <b-checkbox v-if="enableCheckbox"
-        class="m-0 select-item"
-        v-bind:checked="isChecked"
-        v-on:change="$emit('toggleSelected', item)" />
-      <image-item
-        :headers="headers"
-        fluid-grow
-        :enableSimilarTo="enableSimilarTo"
-        :item="item"
-        show-meta
-      />
-    </b-card-text>
-    <template v-slot:footer v-if="enableSimilarTo">
-      <b-button variant="outline-primary" v-on:click="$emit('click:search', item)" class="buttonFindSimilar"
-        size="sm">
+<template>
+  <div class="card search-results-image-item mx-1">
+    <div class="card-body">
+      <p class="card-text">
+        <b-checkbox v-if="enableCheckbox"
+          class="m-0 select-item"
+          v-bind:checked="isChecked"
+          v-on:change="$emit('toggleSelected', item)" />
+        <image-item
+          :headers="headers"
+          fluid-grow
+          :enableSimilarTo="enableSimilarTo"
+          :item="item"
+          show-meta
+        />
+      </p>
+    </div>
+    <div v-if="enableSimilarTo" class="card-footer">
+      <b-button variant="outline-primary" v-on:click="$emit('click:search', item)" class="buttonFindSimilar" size="sm">
         {{ $t('actions.getSimilarImages') }}
       </b-button>
-    </template>
-  </b-card>
+    </div>
+  </div>
 </template>
 
 <script>

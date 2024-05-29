@@ -157,9 +157,10 @@
                   label-for="nda"
                   :class="{'border-danger': errors[0] }"
                   :description="errors[0]">
-                  <b-form-file
-                    id="nda" :state="errors.length === 0" @input="validate" v-model="nda"
-                    placeholder="Choose a file or drop it here..." />
+                  <div class="custom-file b-form-file" id="nda" :state="errors.length === 0" @input="validate" v-model="nda"
+                    placeholder="Choose a file or drop it here...">
+                    NOTE: This code is not used. Implement file upload when needed.
+                  </div>
                 </b-form-group>
               </ValidationProvider>
 
