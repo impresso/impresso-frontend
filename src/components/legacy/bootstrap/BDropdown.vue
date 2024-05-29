@@ -66,4 +66,8 @@ watch(isOpen, (value) => {
   }
 }, { immediate: true })
 
+defineExpose({
+  hide: () => isOpen.value = false,
+})
+
 </script>
