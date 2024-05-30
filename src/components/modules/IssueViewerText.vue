@@ -111,6 +111,8 @@ import SearchResultsSimilarItem from './SearchResultsSimilarItem'
 import ArticleItem from './lists/ArticleItem'
 import AnnotatedText from './AnnotatedText'
 import InfoButton from '@/components/base/InfoButton'
+import { articles as articlesService } from '@/services'
+import Article from '@/models/Article'
 
 import {
   getNamedEntitiesFromArticleResponse,
@@ -313,7 +315,7 @@ export default {
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
-          this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
+          articlesService.get(articleUid).then(d => new Article(d)),
           trPromise,
         ])
         this.article = article

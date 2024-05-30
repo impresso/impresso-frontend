@@ -8,9 +8,7 @@ import collections from './Collections'
 import user from './User'
 import search from './Search'
 import searchImages from './SearchImages'
-import autocomplete from './Autocomplete'
 import issue from './Issue'
-import articles from './Articles'
 import topics from './Topics'
 import jobs from './Jobs'
 import entities from './Entities'
@@ -28,11 +26,9 @@ let processingTimer // timeout object
 
 export default new Store({
   modules: {
-    articles,
     settings,
     search,
     searchImages,
-    autocomplete,
     user,
     issue,
     collections,
@@ -236,7 +232,6 @@ export default new Store({
         'issue.viewerMode',
         'issue.showOutlines',
         'newspapers.orderBy',
-        'autocomplete.queries',
       ],
     }),
   ],

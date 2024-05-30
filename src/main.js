@@ -3,6 +3,9 @@
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
 import VueGtag from 'vue-gtag'
+import { createPinia, PiniaVuePlugin } from 'pinia'
+import { createPersistedState } from 'pinia-plugin-persistedstate'
+
 
 import Helpers from '@/plugins/Helpers'
 import ImpressoLayout from '@/plugins/Layout'
@@ -24,7 +27,7 @@ import messages from './i18n/messages'
 import dateTimeFormats from './i18n/dateTimeFormats'
 import numberFormats from '@/i18n/numberFormats'
 
-// Vue.use(BootstrapVue)
+Vue.use(PiniaVuePlugin)
 Vue.use(BootstrapVueLegacyComponents)
 Vue.use(VueI18n)
 // custom created plugins
@@ -33,6 +36,11 @@ Vue.use(EventBus)
 Vue.use(ImpressoLayout)
 Vue.use(MetaTags, { suffix: 'impresso' })
 Vue.use(Navigation)
+
+const pinia = createPinia()
+pinia.use(createPersistedState({
+  key: id => `__impresso__${id}`,
+}))
 
 if (process.env.VUE_APP_GA_TRACKING_ID) {
   Vue.use(
@@ -219,6 +227,7 @@ Promise.race([
         i18n,
         router,
         store,
+        pinia,
         template: '<App/>',
         components: {
           App,

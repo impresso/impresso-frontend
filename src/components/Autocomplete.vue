@@ -106,7 +106,9 @@
 
 <script>
 import ClickOutside from 'vue-click-outside'
+import { mapStores } from 'pinia'
 import FilterFactory from '@/models/FilterFactory'
+import { useAutocompleteStore } from '@/stores/autocomplete'
 import Explorer from './Explorer'
 
 const AVAILABLE_TYPES = ['mention', 'newspaper', 'topic', 'location', 'person', 'collection']
@@ -149,6 +151,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useAutocompleteStore),
     user() {
       return this.$store.getters['user/user']
     },
@@ -258,27 +261,21 @@ export default {
       this.showSuggestions = this.q.length > 0
       // debugger;
       if (this.q.length) {
-        this.$store.dispatch('autocomplete/SUGGEST_RECENT_QUERY', this.q).then(res => {
-          this.recentSuggestions = res.map(d => ({
-            ...d,
-            type: 'string',
-          }))
-        })
+        const res = this.autocompleteStore.suggestRecentQuery(this.q)
+        this.recentSuggestions = res.map(d => ({
+          ...d,
+          type: 'string',
+        }))
       }
 
       if (this.q.length > 1) {
-        this.$store
-          .dispatch('autocomplete/SEARCH', {
-            q: this.q.trim(),
-          })
+        this.autocompleteStore
+          .search(this.q.trim())
           .then(res => {
             this.suggestions = [...res, ...this.collectionSuggestions]
           })
         if (this.user) {
-          this.$store
-            .dispatch('autocomplete/SUGGEST_COLLECTIONS', {
-              q: this.q.trim(),
-            })
+          this.autocompleteStore.suggestCollections(this.q.trim())
             .then(res => {
               this.collectionSuggestions = res
               this.suggestions = [...res, ...this.suggestions]
@@ -308,9 +305,7 @@ export default {
       } else if (['string', 'title', 'mention'].includes(type)) {
         const sq = String(q || item.name || this.q || '').trim()
         if (sq.length) {
-          this.$store.dispatch('autocomplete/SAVE_RECENT_QUERY', {
-            q: sq,
-          })
+          this.autocompleteStore.saveRecentQuery(sq)
           this.$emit(
             'submit',
             FilterFactory.create({
