@@ -5,7 +5,7 @@
       <template slot="header">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item class="active" active-class="none">
+            <b-nav-item :to="{ name: 'textReuse' }" class="active" active-class="none">
               <span
                 v-html="
                   $tc('searchTextReuseLabel', 10000, {
@@ -115,7 +115,7 @@
 <script>
 import SearchPills from '@/components/SearchPills'
 import SearchInput from '@/components/modules/SearchInput'
-import { serializeFilters, optimizeFilters, SupportedFiltersByContext } from '@/logic/filters'
+import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
 import FilterFacet from '@/components/modules/FilterFacet'
 import FilterRange from '@/components/modules/FilterRange'
