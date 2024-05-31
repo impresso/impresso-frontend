@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown b-dropdown btn-group" :class="{show: isOpen}">
+  <div class="dropdown b-dropdown btn-group" :class="{ show: isOpen }">
     <button
       aria-haspopup="menu"
       :aria-expanded="isOpen"
@@ -10,17 +10,19 @@
         [`btn-${variant}`]: variant != undefined,
       }"
       @click="isOpen = !isOpen"
-      ref="buttonRef">
+      ref="buttonRef"
+    >
       <slot name="button-content">
-        {{text}}
+        {{ text }}
       </slot>
     </button>
     <ul
       role="menu"
       tabindex="-1"
       class="dropdown-menu"
-      :class="{show: isOpen, 'dropdown-menu-right': right}"
-      ref="dropdownRef">
+      :class="{ show: isOpen, 'dropdown-menu-right': right }"
+      ref="dropdownRef"
+    >
       <li role="presentation">
         <slot></slot>
       </li>
@@ -52,22 +54,47 @@ if (unknownAttrs.length) {
 const dropdownRef = ref()
 const buttonRef = ref()
 
-useClickOutside(
-  dropdownRef,
-  () => isOpen.value = false,
-  buttonRef
+useClickOutside(dropdownRef, () => (isOpen.value = false), buttonRef)
+
+watch(
+  isOpen,
+  value => {
+    if (value) {
+      emit('shown')
+    } else {
+      emit('hidden')
+    }
+  },
+  { immediate: true },
 )
 
-watch(isOpen, (value) => {
-  if (value) {
-    emit('shown')
-  } else {
-    emit('hidden')
-  }
-}, { immediate: true })
-
 defineExpose({
-  hide: () => isOpen.value = false,
+  hide: () => (isOpen.value = false),
 })
-
 </script>
+<style>
+.dropdown .dropdown-toggle {
+  z-index: 1001 !important;
+}
+.dropdown.show .dropdown-toggle {
+  background-color: #fff;
+  z-index: 1003 !important;
+}
+.dropdown .btn.dropdown-toggle:not(.disabled):hover,
+.dropdown .btn.dropdown-toggle:not(.disabled):focus {
+  background-color: #fff;
+}
+.dropdown .btn.dropdown-toggle[aria-expanded='true'] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.dropdown .dropdown-menu {
+  z-index: 1000;
+  min-width: 100%;
+  border-bottom-left-radius: var(--impresso-border-radius-xs);
+  border-bottom-right-radius: var(--impresso-border-radius-xs);
+}
+.dropdown.show .dropdown-menu {
+  z-index: 1002;
+}
+</style>
