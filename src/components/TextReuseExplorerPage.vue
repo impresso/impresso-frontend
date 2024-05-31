@@ -14,7 +14,6 @@
             <Ellipsis :initialHeight="60" :maxHeight="0">
               <span v-html="incipit" />
               <SearchQuerySummary
-                class="textbox-fancy"
                 v-on:updated="summaryUpdatedHandler"
                 :search-query="{ filters: supportedFiltersWithItems }"
               />
@@ -87,7 +86,7 @@
             />
           </b-nav-item>
 
-          <li class="navbar-text p-0 d-flex align-items-center ml-3"> </li>
+          <li class="navbar-text p-0 d-flex align-items-center ml-3"></li>
         </template>
       </b-tabs>
     </template>
@@ -114,7 +113,8 @@
       <template v-slot:header>
         <b-navbar-nav class="d-flex flex-row pt-1">
           <li class="navbar-text ml-3 mr-2 text-muted">
-            <label>{{ $t('sortBy') }}</label></li>
+            <label>{{ $t('sortBy') }}</label>
+          </li>
           <li class="navbar-text mr-1">
             <i-dropdown
               v-model="orderBy"
@@ -127,8 +127,8 @@
               class="mr-auto"
               size="sm"
               variant="outline-primary"
-            ></i-dropdown
-          ></li>
+            ></i-dropdown>
+          </li>
         </b-navbar-nav>
       </template>
       <template v-slot:default>
@@ -342,7 +342,7 @@ export default {
 
       try {
         const [clusters, total] = await textReusePassages
-          .find({ query: { ...query, groupby: 'textReuseClusterId' } })
+          .find({ query: { ...query, group_by: 'textReuseClusterId' } })
           .then(result => [result.data, result.total])
         this.clusters = clusters.map(d => TextReuseCluster.fromTextReusePassage(d))
         this.totalClusters = total
@@ -428,7 +428,7 @@ export default {
       this.addNotification({
         title: 'Success',
         message: 'Collection created',
-        type: 'success'
+        type: 'success',
       })
       this.selectedCollection = collection
       this.saveArticlesInSelectedCollection()
@@ -463,15 +463,16 @@ export default {
             this.addNotification({
               title: 'Error',
               message: 'You cannot add to this collection',
-              type: 'error'
+              type: 'error',
             })
             return
           } else if ((err.code = 501)) {
             // too many jobs...
             this.addNotification({
               title: 'Please wait...',
-              message: 'Please wait, you already have a job running. Check its completion in the running tabs.',
-              type: 'error'
+              message:
+                'Please wait, you already have a job running. Check its completion in the running tabs.',
+              type: 'error',
             })
           }
         })
