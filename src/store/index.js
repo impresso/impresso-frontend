@@ -7,7 +7,6 @@ import settings from './Settings'
 import user from './User'
 import search from './Search'
 import searchImages from './SearchImages'
-import issue from './Issue'
 import topics from './Topics'
 import jobs from './Jobs'
 import monitor from './Monitor'
@@ -27,7 +26,6 @@ export default new Store({
     search,
     searchImages,
     user,
-    issue,
     topics,
     jobs,
     monitor,
@@ -222,8 +220,6 @@ export default new Store({
         'search.filterFacetYearExpanded',
         'user.rememberCredetials',
         'user.userData',
-        'issue.viewerMode',
-        'issue.showOutlines',
         'newspapers.orderBy',
       ],
     }),
