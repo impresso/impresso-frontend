@@ -10,7 +10,6 @@ import searchImages from './SearchImages'
 import issue from './Issue'
 import topics from './Topics'
 import jobs from './Jobs'
-import entities from './Entities'
 import monitor from './Monitor'
 import selectionMonitor from './SelectionMonitor'
 import notifications from './Notifications'
@@ -31,7 +30,6 @@ export default new Store({
     issue,
     topics,
     jobs,
-    entities,
     monitor,
     selectionMonitor,
     notifications,

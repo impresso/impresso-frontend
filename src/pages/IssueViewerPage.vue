@@ -226,6 +226,8 @@ import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
 import CollectionAddTo from '@/components/modules/CollectionAddTo';
 import WithTooltip from '@/components/base/WithTooltip.vue'
+import { mapStores } from 'pinia'
+import { useEntitiesStore } from '@/stores/entities'
 
 
 /**
@@ -292,6 +294,7 @@ export default {
     window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
+    ...mapStores(useEntitiesStore),
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     searchQuery: {
       ...searchQueryGetter(),
@@ -639,8 +642,8 @@ export default {
       if (this.issue == null) return
       if (this.pagesMarginalia[pageIndex] == null) {
         const results = await Promise.all([
-          this.$store.dispatch('entities/LOAD_PAGE_TOPICS', this.pageId),
-          this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', this.pageId)
+          this.entitiesStore.loadPageTopics(this.pageId),
+          this.entitiesStore.loadPageEntities(this.pageId)
         ])
 
         const topicsSection = {

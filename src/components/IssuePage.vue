@@ -183,6 +183,8 @@ import InfoButton from './base/InfoButton';
 import { toCanonicalFilter, SupportedFiltersByContext } from '../logic/filters'
 import { mapSearchQuery } from '@/logic/queryParams'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
+import { mapStores } from 'pinia'
+import { useEntitiesStore } from '@/stores/entities'
 
 
 export default {
@@ -226,6 +228,7 @@ export default {
     window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
+    ...mapStores(useEntitiesStore),
     modeOptions() {
       return [
         { value: 'image', text: this.$t('facsimileView'), iconName: 'image' },
@@ -618,11 +621,11 @@ export default {
     },
     loadPageTopics({ uid }) {
       // console.info('...loading marginalia topics', uid);
-      return this.$store.dispatch('entities/LOAD_PAGE_TOPICS', uid);
+      return this.entitiesStore.loadPageTopics(uid);
     },
     loadPageEntities({ uid }) {
       // console.info('...loading marginalia named entities', uid);
-      return this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', uid);
+      return this.entitiesStore.loadPageEntities(uid);
     },
     loadArticle({ uid }) {
       // console.info('...loading article', uid);
