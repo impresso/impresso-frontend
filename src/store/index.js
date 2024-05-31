@@ -11,7 +11,6 @@ import issue from './Issue'
 import topics from './Topics'
 import jobs from './Jobs'
 import entities from './Entities'
-import embeddings from './Embeddings'
 import monitor from './Monitor'
 import selectionMonitor from './SelectionMonitor'
 import notifications from './Notifications'
@@ -33,7 +32,6 @@ export default new Store({
     topics,
     jobs,
     entities,
-    embeddings,
     monitor,
     selectionMonitor,
     notifications,
