@@ -74,6 +74,9 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import { useCollectionsStore } from '@/stores/collections'
+
 export default {
   data: () => ({
     show: false,
@@ -89,6 +92,7 @@ export default {
     this.focusInput()
   },
   computed: {
+    ...mapStores(useCollectionsStore),
     filteredCollections() {
       return this.collections.filter(collection => {
         const searchRegex = new RegExp(this.inputString, 'i')
@@ -97,13 +101,13 @@ export default {
     },
     collections: {
       get() {
-        return this.$store.getters['collections/collections']
+        return this.collectionsStore.collections
       },
     },
   },
   methods: {
     fetch() {
-      return this.$store.dispatch('collections/LOAD_COLLECTIONS')
+      return this.collectionsStore.loadCollections()
     },
     focusInput() {
       this.$refs.inputString.focus()
@@ -146,41 +150,34 @@ export default {
 
       if (!checked) {
         // add items to collection
-        this.$store
-          .dispatch('collections/ADD_COLLECTION_ITEMS', {
-            items: itemsFiltered,
-            collection,
-            contentType: 'article',
+        this.collectionsStore.addCollectionItems({
+          items: itemsFiltered,
+          collection,
+          contentType: 'article',
+        }).then(() => {
+          itemsFiltered.forEach(item => {
+            item.collections.push(collection)
           })
-          .then(() => {
-            itemsFiltered.forEach(item => {
-              item.collections.push(collection)
-            })
-          })
+        })
       } else {
         // remove items from collection
-        this.$store
-          .dispatch('collections/REMOVE_COLLECTION_ITEMS', {
-            items: itemsFiltered,
-            collection,
-            contentType: 'article',
+        this.collectionsStore.removeCollectionItems({
+          items: itemsFiltered,
+          collection,
+          contentType: 'article',
+        }).then(() => {
+          itemsFiltered.forEach(item => {
+            const idx = item.collections.findIndex(c => c.uid === collection.uid)
+            item.collections.splice(idx, 1)
           })
-          .then(() => {
-            itemsFiltered.forEach(item => {
-              const idx = item.collections.findIndex(c => c.uid === collection.uid)
-              item.collections.splice(idx, 1)
-            })
-          })
+        })
       } // end remove items from collection
     },
     addCollection(collectionName) {
       if (this.isDisabled) {
         return
       }
-      this.$store
-        .dispatch('collections/ADD_COLLECTION', {
-          name: collectionName,
-        })
+      this.collectionsStore.addCollection({ name: collectionName })
         .then(collection => {
           this.toggleActive(collection)
           this.inputString = ''

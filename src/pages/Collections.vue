@@ -20,7 +20,9 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import CollectionList from '@/components/modules/CollectionList';
+import { useCollectionsStore } from '@/stores/collections'
 
 export default {
   components: {
@@ -35,9 +37,10 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useCollectionsStore),
     paginationTotalRows: {
       get() {
-        return this.$store.state.collections.collectionsPaginationTotalRows;
+        return this.collectionsStore.collectionsPaginationTotalRows
       },
     },
   },

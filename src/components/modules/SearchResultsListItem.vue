@@ -106,11 +106,13 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import CollectionAddTo from './CollectionAddTo'
 import ArticleItem from './lists/ArticleItem'
 import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePageViewer'
 import CopyToClipboard from '../modals/CopyToClipboard'
 import IIIFFragment from '../IIIFFragment.vue'
+import { useCollectionsStore } from '@/stores/collections'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -143,6 +145,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useCollectionsStore),
     pageViewerOptions() {
       return {
         tileSources: [this.article.pages[0]?.iiif],
@@ -207,8 +210,8 @@ export default {
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => c.uid === collection.uid)
       if (idx !== -1) {
-        this.$store
-          .dispatch('collections/REMOVE_COLLECTION_ITEM', {
+        this.collectionsStore
+          .removeCollectionItem({
             collection,
             item,
           })

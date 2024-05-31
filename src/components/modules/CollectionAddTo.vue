@@ -13,7 +13,9 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import CollectionAddToList from './CollectionAddToList';
+import { useCollectionsStore } from '@/stores/collections'
 
 export default {
   data: () => ({
@@ -30,13 +32,16 @@ export default {
   methods: {
     fetch() {
       if (this.isLoggedIn()) {
-        return this.$store.dispatch('collections/LOAD_COLLECTIONS');
+        return this.collectionsStore.loadCollections()
       }
       return {};
     },
     isLoggedIn() {
       return this.$store.state.user.userData;
     },
+  },
+  computed: {
+    ...mapStores(useCollectionsStore),
   },
 };
 </script>

@@ -104,6 +104,7 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import Icon from 'vue-awesome/components/Icon'
 import { articlesSuggestions, articleTextReusePassages } from '@/services'
 import CollectionAddTo from './CollectionAddTo'
@@ -113,6 +114,7 @@ import AnnotatedText from './AnnotatedText'
 import InfoButton from '@/components/base/InfoButton'
 import { articles as articlesService } from '@/services'
 import Article from '@/models/Article'
+import { useCollectionsStore } from '@/stores/collections'
 
 import {
   getNamedEntitiesFromArticleResponse,
@@ -157,6 +159,7 @@ export default {
     })
   },
   computed: {
+    ...mapStores(useCollectionsStore),
     articlePages() {
       if (!this.article.pages || !this.article.pages.length) {
         return this.$t('no_page_info')
@@ -249,8 +252,8 @@ export default {
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => c.uid === collection.uid)
       if (idx !== -1) {
-        this.$store
-          .dispatch('collections/REMOVE_COLLECTION_ITEM', {
+        this.collectionsStore
+          .removeCollectionItem({
             collection,
             item,
           })

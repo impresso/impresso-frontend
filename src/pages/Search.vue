@@ -238,6 +238,7 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import Autocomplete from '@/components/Autocomplete'
 import Pagination from '@/components/modules/Pagination'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
@@ -264,6 +265,7 @@ import {
   exporter as exporterService,
   collectionsItems as collectionsItemsService,
 } from '@/services'
+import { useCollectionsStore } from '@/stores/collections'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -300,6 +302,7 @@ export default {
     visibleModal: null,
   }),
   computed: {
+    ...mapStores(useCollectionsStore),
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
@@ -459,7 +462,7 @@ export default {
       })
     },
     nameSelectedCollectionOnShown() {
-      return this.$store.dispatch('collections/LOAD_COLLECTIONS')
+      return this.collectionsStore.loadCollections()
     },
     onSummary(msg) {
       this.inputDescription = msg
@@ -522,8 +525,8 @@ export default {
     createQueryCollection() {
       if (!this.nameCollectionOkDisabled) {
         this.hideModal('nameCollection')
-        this.$store
-          .dispatch('collections/ADD_COLLECTION', {
+        return this.collectionsStore
+          .addCollection({
             name: this.inputName,
             description: this.inputDescription,
           })

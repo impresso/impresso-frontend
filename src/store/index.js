@@ -4,7 +4,6 @@ import createPersistedState from 'vuex-persistedstate'
 import { errorCollector } from '@/services'
 
 import settings from './Settings'
-import collections from './Collections'
 import user from './User'
 import search from './Search'
 import searchImages from './SearchImages'
@@ -31,7 +30,6 @@ export default new Store({
     searchImages,
     user,
     issue,
-    collections,
     topics,
     jobs,
     entities,
@@ -228,7 +226,6 @@ export default new Store({
         'search.filterFacetYearExpanded',
         'user.rememberCredetials',
         'user.userData',
-        'collections.collectionsSortOrder',
         'issue.viewerMode',
         'issue.showOutlines',
         'newspapers.orderBy',

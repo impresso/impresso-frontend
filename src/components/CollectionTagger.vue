@@ -37,8 +37,10 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/times';
+import { useCollectionsStore } from '@/stores/collections'
 
 export default {
   data: () => ({
@@ -51,19 +53,18 @@ export default {
     item: Object,
   },
   computed: {
+    ...mapStores(useCollectionsStore),
     collections: {
       get() {
-        return this.$store.getters['collections/collections'];
+        return this.collectionsStore.collections
       },
     },
     collectionsSortOrder: {
       get() {
-        return this.$store.getters['collections/collectionsSortOrder'];
+        return this.collectionsStore.collectionsSortOrder
       },
       set(collectionsSortOrder) {
-        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', {
-          collectionsSortOrder,
-        });
+        this.collectionsStore.setCollectionsSortOrder(collectionsSortOrder)
       },
     },
   },
@@ -76,16 +77,16 @@ export default {
 
       if (idx >= 0) {
         this.item.collections.splice(idx, 1);
-        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+        this.collectionsStore.removeCollectionItem({
           collection,
           item: this.item,
-        });
+        })
       } else {
         this.item.collections.push(collection);
-        this.$store.dispatch('collections/ADD_COLLECTION_ITEM', {
+        this.collectionsStore.addCollectionItem({
           collection,
           item: this.item,
-        });
+        })
       }
     },
     toggle() {
