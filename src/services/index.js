@@ -8,6 +8,7 @@ import articlesSuggestionsHooks from './hooks/articlesSuggestions'
 import uploadedImagesHooks from './hooks/uploadedImages'
 import imagesHooks from './hooks/images'
 import NamesService from './names'
+import { useJobsStore } from '@/stores/jobs'
 
 // e.g io api base is http://localhost
 // and path is  something like /path/to/socket.io defined in the backend
@@ -130,8 +131,9 @@ app.service('logs').on('created', payload => {
     if (payload.collection) {
       extra.collection = payload.collection
     }
-    if (window.app && window.app.$store) {
-      window.app.$store.dispatch('jobs/UPDATE_JOB', {
+    if (window.app) {
+      const jobsStore = useJobsStore()
+      jobsStore.updateJob({
         ...payload.job,
         progress: payload.progress,
         extra,

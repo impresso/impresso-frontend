@@ -206,6 +206,8 @@ import JobItem from '@/components/modules/lists/JobItem'
 import Pagination from '@/components/modules/Pagination'
 import Logo from '@/components/Logo'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
+import { mapStores } from 'pinia'
+import { useJobsStore } from '@/stores/jobs'
 
 Icon.register({
   slack: {
@@ -253,12 +255,13 @@ export default {
   }),
   // mounted() {
   //   if (this.user) {
-  //     this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
+  //     this.jobsStore.loadJobs().then(() => {
   //       console.info('Jobs loaded.');
   //     });
   //   }
   // },
   computed: {
+    ...mapStores(useJobsStore),
     searchQueryHash: searchQueryHashGetter(),
     searchQuery: searchQueryGetter(),
     loginRouteParams() {
@@ -284,10 +287,10 @@ export default {
       return this.searchQuery.countActiveItems()
     },
     jobs() {
-      return this.$store.state.jobs.items
+      return this.jobsStore.items
     },
     jobsPaginationTotalRows() {
-      return this.$store.state.jobs.totalItems
+      return this.jobsStore.totalItems
     },
     runningJobs() {
       return this.jobs.filter(d => d.status === 'RUN')
@@ -364,7 +367,7 @@ export default {
       this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE', new Date())
     },
     test() {
-      return this.$store.dispatch('jobs/TEST')
+      return this.jobsStore.createTestJob()
     },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode
@@ -387,7 +390,7 @@ export default {
     jobsPaginationCurrentPage: {
       handler(page) {
         if (this.user) {
-          this.$store.dispatch('jobs/LOAD_JOBS', {
+          this.jobsStore.loadJobs({
             page,
             limit: this.jobsPaginationPerPage,
           })
@@ -398,7 +401,7 @@ export default {
     user: {
       handler(user) {
         if (user) {
-          this.$store.dispatch('jobs/LOAD_JOBS', {
+          this.jobsStore.loadJobs({
             page: 1,
             limit: this.jobsPaginationPerPage,
           })

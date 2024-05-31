@@ -1,6 +1,3 @@
-import SuggestionCollection from '@/models/SuggestionCollection'
-import SuggestionFactory from '@/models/SuggestionFactory'
-import { collections as collectionsService, suggestions as suggestionsService } from '@/services'
 import { defineStore } from 'pinia'
 
 interface State {
