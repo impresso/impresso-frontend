@@ -43,6 +43,8 @@
 import Topic from '@/models/Topic';
 import { serializeFilters } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
+import { mapStores } from 'pinia'
+import { useMonitorStore } from '@/stores/monitor'
 
 export default {
   model: {
@@ -64,6 +66,7 @@ export default {
     isLoading: false,
   }),
   computed: {
+    ...mapStores(useMonitorStore),
     searchRouteLink() {
       return {
         name: 'search',
@@ -97,7 +100,7 @@ export default {
       this.$store.dispatch('topics/LOAD_TOPIC', this.tooltip.item.uid).then((item) => {
         this.isLoading = false;
         this.tooltip.isActive = false;
-        this.$store.dispatch('monitor/ACTIVATE', {
+        this.monitorStore.activate({
           item,
           type: 'topic',
           disableFilterModification: true

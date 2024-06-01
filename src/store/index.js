@@ -8,7 +8,6 @@ import user from './User'
 import search from './Search'
 import searchImages from './SearchImages'
 import topics from './Topics'
-import monitor from './Monitor'
 import selectionMonitor from './SelectionMonitor'
 import notifications from './Notifications'
 
@@ -26,7 +25,6 @@ export default new Store({
     searchImages,
     user,
     topics,
-    monitor,
     selectionMonitor,
     notifications,
   },

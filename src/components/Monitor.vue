@@ -98,7 +98,8 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapState, mapActions, mapStores } from 'pinia'
+import { useMonitorStore } from '@/stores/monitor'
 import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
 import WikidataBlock from './modules/WikidataBlock';
@@ -115,7 +116,7 @@ import { containsFilter } from '@/logic/filters'
  * Display info about the current selected item.
  * Trigger from inside a component:
        ```
-       this.$store.dispatch('monitor/ACTIVATE', {
+       this.monitorStore.activate({
           item: {...},
           type: '...facet type...',
           filters: [...],
@@ -160,8 +161,8 @@ export default {
     switchTab(tab) {
       this.tab = tab;
     },
-    ...mapActions('monitor', {
-      fadeOut: 'HIDE'
+    ...mapActions(useMonitorStore, {
+      fadeOut: 'hide'
     }),
     /**
      * @param {string} context
@@ -179,7 +180,7 @@ export default {
 
       if (!isAlreadyIncluded) {
         const updatedFilters = [...this.searchQueryFilters].concat(newFilter)
-        await this.$store.dispatch('monitor/UPDATE_FILTERS', updatedFilters);
+        await this.monitorStore.updateFilters(updatedFilters)
       }
       this.fadeOut();
     },
@@ -188,7 +189,8 @@ export default {
     }
   },
   computed: {
-    ...mapState('monitor', [
+    ...mapStores(useMonitorStore),
+    ...mapState(useMonitorStore, [
       'type',
       'item',
       'isActive',
@@ -198,11 +200,12 @@ export default {
       'groupBy',
       'isPending'
     ]),
-    ...mapState('monitor', {
+    ...mapState(useMonitorStore, {
       itemTimeline: 'timeline',
       searchQueryFilters: 'filters',
+      applyCurrentSearchFiltersValue: 'applyCurrentSearchFilters'
     }),
-    ...mapState('monitor', {
+    ...mapState(useMonitorStore, {
       filterModificationsEnabled: state => !state.disableFilterModification
     }),
     /** @returns {[number, number] | []} */
@@ -299,12 +302,12 @@ export default {
     applyCurrentSearchFilters: {
       /** @returns {boolean} */
       get() {
-        return this.$store.state.monitor.applyCurrentSearchFilters;
+        return this.applyCurrentSearchFiltersValue
       },
       /** @param {boolean} val */
       set(val) {
-        this.$store.dispatch('monitor/SET_APPLY_CURRENT_SEARCH_FILTERS', val);
-        this.$store.dispatch('monitor/LOAD_ITEM_TIMELINE');
+        this.monitorStore.setApplyCurrentSearchFilters(val)
+        this.monitorStore.loadItemTimeline()
       },
     },
   },
