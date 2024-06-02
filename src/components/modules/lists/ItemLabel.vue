@@ -1,6 +1,6 @@
 <template>
-  <div v-if="!detailed" class="d-inline" v-html="label" />
-  <div v-else>
+  <div v-if="!detailed" class="ItemLabel d-inline" v-html="label" />
+  <div v-else class="ItemLabel">
     <div v-if="type === 'newspaper'">
       <div><label className="small-caps">newspaper's metadata</label></div>
       total pages: {{ $n(item.countArticles) }} <br />
