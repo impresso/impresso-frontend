@@ -141,7 +141,7 @@
       >
         <item-label :item="monitor.item" :type="monitor.type" detailed />
         <!-- button url  -->
-        <div class="text-right bg-dark p-2" v-if="detailsUrl">
+        <div class="text-right p-2" v-if="detailsUrl">
           <router-link
             class="btn btn-secondary px-5 rounded btn-sm"
             :to="detailsUrl"
