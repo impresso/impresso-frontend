@@ -3,12 +3,7 @@
   <div v-else class="ItemLabel">
     <div v-if="type === 'newspaper'">
       <div><label className="small-caps">newspaper's metadata</label></div>
-      total pages: {{ $n(item.countArticles) }} <br />
-      total issues: {{ $n(item.countIssues) }} <br />
-      total extracted articles: {{ $n(item.countArticles) }};<br />
-      first issue: <span v-if="item.firstIssue">{{ $d(item.firstIssue.date, 'short') }}</span>
-      <br />
-      last issue: <span v-if="item.lastIssue">{{ $d(item.lastIssue.date, 'short') }}</span>
+      <p v-html="newspaperDetailedLabel"></p>
     </div>
     <div v-if="type === 'topic'">
       <div><label className="small-caps">top words in topic</label></div>
@@ -81,6 +76,22 @@ export default {
         t = this.item.uid ?? this.item.id
       }
       return t
+    },
+    newspaperDetailedLabel() {
+      const firstIssueDate =
+        this.item.firstIssue?.date instanceof Date
+          ? this.$d(this.item.firstIssue.date, 'short')
+          : this.$d(new Date(this.item.firstIssue.date), 'short')
+      const lastIssueDate =
+        this.item.lastIssue?.date instanceof Date
+          ? this.$d(this.item.lastIssue.date, 'short')
+          : this.$d(new Date(this.item.lastIssue.date), 'short')
+      return [
+        `<span class="number"> ${this.$n(this.item.countArticles)}</span> articles,`,
+        `<span class="number">${this.$n(this.item.countPages)}</span> pages,`,
+        `<span class="number">${this.$n(this.item.countIssues)}</span> issues. <br/>`,
+        `Published from: ${firstIssueDate} to ${lastIssueDate}.`,
+      ].join(' ')
     },
   },
   methods: {
