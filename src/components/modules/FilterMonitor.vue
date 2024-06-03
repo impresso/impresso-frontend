@@ -1,15 +1,23 @@
 <template>
-  <div class="filter-monitor">
+  <div class="FilterMonitor filter-monitor">
     <div v-if="checkbox">
       <!--  context -->
       <b-form-group>
-        <b-form-radio-group switches v-model="currentContext" v-bind:options="checkboxContexts">
-        </b-form-radio-group>
+        <radio-group
+          :modelValue="currentContext"
+          @update:modelValue="currentContext = $event"
+          :options="checkboxContexts"
+          type="radio"
+        />
       </b-form-group>
       <!--  operator -->
       <b-form-group v-if="currentContext === 'include' && availableItems.length > 1">
-        <b-form-radio-group switches v-model="editedFilter.op" v-bind:options="checkboxOperators">
-        </b-form-radio-group>
+        <radio-group
+          :modelValue="editedFilter.op"
+          @update:modelValue="editedFilter.op = $event"
+          :options="checkboxOperators"
+          type="radio"
+        />
       </b-form-group>
     </div>
 
@@ -44,7 +52,7 @@
         class="dripicons-cross ms-auto ml-auto rounded p-0"
         size="sm"
         variant="transparent"
-        @click="$emit('remove')"
+        @click="removeFilter"
       ></b-button>
     </div>
     <div class="items" :class="{ reduced: tooManyItems }">
@@ -82,20 +90,22 @@
           >
           </b-form-input>
         </b-form-checkbox>
-        <b-form-checkbox
-          v-else
-          v-model="checkedItems[item.uid]"
-          @change="toggleFilterItem($event, item.uid)"
-        >
-          <item-label :item="item" :type="type" />
-          <span v-if="!item.uid">...</span>
-          <span v-if="item.count"
-            >&nbsp;(<span
-              v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"
-            />)&nbsp;</span
+        <div v-else class="d-flex text-small">
+          <b-form-checkbox
+            v-model="checkedItems[item.uid]"
+            @change="toggleFilterItem($event, item.uid)"
           >
-          <item-selector :uid="item.uid" :item="item" :type="type" />
-        </b-form-checkbox>
+          </b-form-checkbox>
+          <item-selector hide-icon :uid="item.uid" :item="item" :type="type">
+            <item-label :item="item" :type="type" />
+            <span v-if="!item.uid">...</span>
+            <span v-if="item.count"
+              >&nbsp;(<span
+                v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"
+              />)&nbsp;</span
+            >
+          </item-selector>
+        </div>
       </div>
       <!-- bucket items -->
       <div class="items-to-add text-small m-2" v-if="itemsToAdd.length">
@@ -201,14 +211,6 @@
         @click.stop.prevent
         @embdding-selected="addEmbeddingSuggestion"
       />
-
-      <!-- <b-form-group v-if="checkbox">
-       <b-form-radio-group
-         switches
-         :options="checkboxPrecisions"
-         v-model="editedFilter.precision">
-       </b-form-radio-group>
-      </b-form-group> -->
     </div>
     <b-button
       class="mt-2"
@@ -242,6 +244,7 @@ import ItemLabel from '@/components/modules/lists/ItemLabel'
 import CollectionItem from '@/components/modules/lists/CollectionItem'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
 import EntitySuggester from '@/components/modules/EntitySuggester'
+import RadioGroup from '@/components/layout/RadioGroup.vue'
 import {
   toCanonicalFilter,
   toSerializedFilter,
@@ -260,6 +263,7 @@ export default {
     prop: 'filter',
     event: 'changed',
   },
+  emits: ['changed', 'remove', 'daterange-changed'],
   data: () => ({
     showEmbeddings: false,
     showEntitySuggester: false,
@@ -393,6 +397,11 @@ export default {
     },
   },
   methods: {
+    removeFilter(e) {
+      e.preventDefault()
+      console.info('[FilterMonitor] @remove')
+      this.$emit('remove', this.filter)
+    },
     applyChanges() {
       const { type } = this.editedFilter
 
@@ -449,6 +458,7 @@ export default {
       this.editedFilter = { ...this.editedFilter, q }
     },
     toggleFilterItem(selected, uid) {
+      console.info('[FilterMonitor] @toggleFilterItem', selected, uid)
       if (selected) {
         this.excludedItemsIds = this.excludedItemsIds.filter(id => id !== uid)
       } else {
@@ -487,6 +497,7 @@ export default {
     ItemSelector,
     FilterNumberRange,
     EntitySuggester,
+    RadioGroup,
   },
   watch: {
     /**
@@ -513,17 +524,14 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.items .form-control.accepted {
+<style>
+.FilterMonitor .items .form-control.accepted {
   color: #343a40;
 }
-.items-to-add {
-  // background: yellow;
-}
-label.custom-control-label {
+.FilterMonitor label.custom-control-label {
   font-variant: none;
 }
-.reduced {
+.FilterMonitor .reduced {
   max-height: 200px;
   overflow: scroll;
 }

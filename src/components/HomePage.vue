@@ -15,6 +15,7 @@ import HomePageFaq from './HomePageFaq';
 import HomePageRecipes from './HomePageRecipes';
 import HomePageFooter from './HomePageFooter';
 
+/** @deprecated See HomePage2020 */
 export default {
   name: 'HomePage',
   data: () => ({

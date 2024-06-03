@@ -8,24 +8,26 @@
       width="350px">
       <template v-slot:header v-if="issue">
         <b-tabs pills class="mx-2 pt-2">
-          <b-tab active>
-            <template v-slot:title>
+          <template v-slot:tabs-start>
+            <b-nav-item active-class="active" active>
               <span v-html="$t('table_of_contents')"/>
-            </template>
+            </b-nav-item>
+          </template>
+          <template v-slot:default>
             <div class="p-2 px-3 mb-1">
               <p v-html="$t('stats', {
                 countArticles: issue.countArticles,
                 countPages: issue.countPages,
                 accessRights: $t(`buckets.accessRight.${issue.accessRights }`)
               })" />
-              <b-form inline class="pb-1">
+              <form class="pb-1 form-inline">
                 <b-form-checkbox
                   :disabled="countActiveFilters === 0"
                   v-model="applyCurrentSearchFilters"
                   switch>
                   {{ $t('actions.addCurrentSearch') }}
                 </b-form-checkbox>
-              </b-form>
+              </form>
               <b-alert variant="transparent" class="pb-1 small" show v-if="(countActiveFilters === 0 || ignoredFilters.length)">
                 <div v-if="countActiveFilters === 0">
                   {{ $t('applyCurrentSearchFiltersDisabled') }}
@@ -63,7 +65,7 @@
                 })"/>
               </div>
             </div>
-          </b-tab>
+          </template>
         </b-tabs>
       </template>
       <template v-slot:default>
@@ -90,29 +92,29 @@
             </section>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
-            <div v-b-tooltip.ds500 :title="$t('label_previous_page')">
+            <WithTooltip :content="$t('label_previous_page')" delay>
               <b-button class="border-dark" variant="light" size="sm"
                 :disabled="currentPageIndex === 0"
                 @click="changeCurrentPageIndex(currentPageIndex - 1)">
                 <div class="dripicons dripicons-media-previous pt-1"></div>
               </b-button>
-            </div>
+            </WithTooltip>
             <div class="px-2 pt-1 border-top border-bottom" v-html="$t('ppOf', {
               num: page.num,
               pages: issue.pages.length
             })"></div>
-            <div v-b-tooltip.ds500 :title="$t('label_next_page')">
+            <WithTooltip :content="$t('label_next_page')" delay>
               <b-button class="border-dark" variant="light" size="sm"
                 :disabled="(currentPageIndex + 1) === issue.pages.length"
                 @click="changeCurrentPageIndex(currentPageIndex + 1)">
                 <div class="dripicons dripicons-media-next pt-1"></div>
               </b-button>
-            </div>
+            </WithTooltip>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar variant="light" class="px-0 py-0">
           <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
-            <div v-b-tooltip.hover :title="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')">
+            <WithTooltip placement="top" :content="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')">
               <b-button
                 :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
                 @click="outlinesVisible = !outlinesVisible">
@@ -122,8 +124,8 @@
                   <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
                 </div>
               </b-button>
-            </div>
-            <div v-b-tooltip.hover :title="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
+            </WithTooltip>
+            <WithTooltip placement="top" :content="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
               <b-button
                 :variant="isFullscreen ? 'primary' : 'outline-primary'"
                 size="sm"
@@ -133,7 +135,7 @@
                   <div class="d-flex dripicons my-1" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
                 </div>
               </b-button>
-            </div>
+            </WithTooltip>
           </b-navbar-nav>
 
           <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
@@ -163,7 +165,7 @@
           <div class="align-self-center">
             <p>{{ $t('errors.loggedInOnly') }}</p>
             <br/>
-            <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
+            <b-button @click="handleLoginClick()" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
           </div>
         </div>
         <open-seadragon-article-viewer
@@ -223,6 +225,8 @@ import SearchPills from '@/components/SearchPills'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
 import CollectionAddTo from '@/components/modules/CollectionAddTo';
+import WithTooltip from '@/components/base/WithTooltip.vue'
+
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -264,7 +268,8 @@ export default {
     SearchPills,
     IssueViewerBookmarker,
     IssueViewerTableOfContents,
-    CollectionAddTo
+    CollectionAddTo,
+    WithTooltip
   },
   mounted() {
     if (this.suggestionQuery.length) {
@@ -547,6 +552,9 @@ export default {
     },
   },
   methods: {
+    handleLoginClick() {
+      this.$router.push({ name: 'login' })
+    },
     keyDown(e) {
       if (e.shiftKey) {
         switch (e.key) {

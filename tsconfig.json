@@ -11,6 +11,7 @@
     "checkJs": false,
     "noEmit": true,
     "noImplicitAny": false,
+    "resolveJsonModule": true,
     "paths": {
       "@/*": [
         "src/*"

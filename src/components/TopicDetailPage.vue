@@ -23,20 +23,26 @@
 
       <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
         <b-navbar-nav>
-          <b-nav-form class="p-2 border-right">
-            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
-              {{ $t('actions.addToCurrentFilters') }}
-            </b-button>
-          </b-nav-form>
-          <b-nav-form class="p-2 border-right">
-            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-              {{ $t('actions.searchMore') }}
-            </router-link>
-          </b-nav-form>
-          <b-nav-form v-if="tab.name === TAB_ARTICLES" class="p-2 border-right">
-            <label >{{ $t('order by') }}&nbsp;</label>
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </b-nav-form>
+          <li class="p-2 border-right form-inline">
+            <form class="form-inline">
+              <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
+                {{ $t('actions.addToCurrentFilters') }}
+              </b-button>
+            </form>
+          </li>
+          <li class="p-2 border-right form-inline">
+            <form class="form-inline">
+              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                {{ $t('actions.searchMore') }}
+              </router-link>
+            </form>
+          </li>
+          <li v-if="tab.name === TAB_ARTICLES" class="p-2 border-right form-inline">
+            <form class="form-inline">
+              <label >{{ $t('order by') }}&nbsp;</label>
+              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+            </form>
+          </li>
           <!-- <b-nav-item>
             <b-form-group class="mx-3">
               <b-form-checkbox v-model="applyCurrentSearchFilters">

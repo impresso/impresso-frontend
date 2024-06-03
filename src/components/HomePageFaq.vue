@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div id="faq-items" class="container py-5">
     <b-row class="justify-content-md-center mb-5">
       <b-col col xl="6" lg="8" md="10">
@@ -12,11 +12,11 @@
             v-bind:key="`${i}-${j}`"
             class="faq-item pb-1">
             <div class="question">
-              <strong><a href="#" v-b-toggle="`accordion-${i}-${j}`" class="my-1 d-block">{{question.question}}</a></strong>
+              <strong><a href="#" class="my-1 d-block">{{question.question}}</a></strong>
             </div>
-            <b-collapse class="answer" v-bind:id="`accordion-${i}-${j}`" accordion="my-accordion" role="tabpanel">
+            <!-- deprecated --><collapse class="answer" v-bind:id="`accordion-${i}-${j}`" accordion="my-accordion" role="tabpanel">
               <div class="p-4 bg-light" v-html="question.answer" />
-            </b-collapse>
+            </collapse>
           </div>
         </div>
       </b-col>
@@ -27,6 +27,7 @@
 <script>
 import content from '@/assets/homepage.json';
 
+/** @deprecated See HomePage2020 */
 export default {
   data: () => ({
     faq: content.faq,

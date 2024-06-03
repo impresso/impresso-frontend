@@ -19,6 +19,10 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere.
+ */
+
 import FilterFactory from '@/models/FilterFactory';
 
 import 'vue-awesome/icons/edit';

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <main id="UserDashboard">
     <b-container>
       <b-row>
@@ -30,7 +30,7 @@
 
           <ValidationObserver v-slot="{ invalid }">
 
-            <b-form @submit.prevent="onSubmit" v-if="user.uid">
+            <form @submit.prevent="onSubmit" v-if="user.uid">
 
               <validation-provider name="email" rules="required|email" v-slot="{ errors }">
                 <b-form-group
@@ -74,19 +74,19 @@
                   maxlength="20"></b-form-input>
               </b-form-group>
 
-              <b-input-group id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="mb-4">
+              <div id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="input-group mb-4">
                 <b-form-input
                   id="pattern"
                   v-model="patternAsText"
                   maxlength="70">
                 </b-form-input>
-                <b-input-group-append>
+                <div class="input-group-append">
                   <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
                   <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
                     {{$t('actions.generatePattern')}}
                   </b-button>
-                </b-input-group-append>
-              </b-input-group>
+                </div>
+              </div>
 
               <div v-if="user" class="d-flex w-100 mb-3">
                   <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
@@ -97,7 +97,7 @@
                 <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
               -->
 
-            </b-form>
+            </form>
 
           </ValidationObserver>
         </b-col>
@@ -107,7 +107,7 @@
       <b-row class="mb-5">
         <b-col md="6" offset-md="3">
           <ValidationObserver v-slot="{ invalid }">
-            <b-form @submit.prevent="onSubmitChangePassword">
+            <form @submit.prevent="onSubmitChangePassword">
               <div v-if="passwordSubmitted">
                 <b-alert v-if="passwordSubmittedSuccess" variant="success" show dismissible>{{ $t('form_password_changed') }}</b-alert>
                 <b-alert v-else variant="danger" show dismissible>
@@ -177,11 +177,14 @@
                 </ValidationProvider>
               </ValidationObserver><!-- new password -->
               <b-button size="sm" type='submit' :disabled="invalid" variant="outline-primary">{{ $t('actions.requestNewPassword') }}</b-button>
-            </b-form>
+            </form>
           </ValidationObserver>
         </b-col>
       </b-row>
     </b-container>
+    <Modal :show="isDeleteConfirmationDialogVisible" @close="hideDeleteConfirmationDialog" @ok="handleDeleteUserAfterConfirmation">
+      {{ this.$t('Are you sure you want to permanently delete your profile?') }}
+    </Modal>
   </main>
 </template>
 
@@ -189,6 +192,7 @@
 import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
 import { required, email, confirmed, min, regex } from 'vee-validate/dist/rules';
 import { PasswordRegex } from '@/logic/user';
+import Modal from '@/components/base/Modal.vue';
 
 extend('required', {
   ...required,
@@ -237,12 +241,20 @@ export default {
       '#3e8696', '#dce5f4', '#45535f', '#4a818a', '#b2bdcc', '#2e4051', '#62797d'
     ],
     numColors: 5,
+    isDeleteConfirmationDialogVisible: false,
   }),
   components: {
     ValidationProvider,
     ValidationObserver,
+    Modal,
   },
   methods: {
+    showDeleteConfirmationDialog() {
+      this.isDeleteConfirmationDialogVisible = true;
+    },
+    hideDeleteConfirmationDialog() {
+      this.isDeleteConfirmationDialogVisible = false;
+    },
     onSubmitChangePassword() {
       this.passwordSubmitted = false;
       this.passwordSubmittedError = '';
@@ -278,12 +290,10 @@ export default {
       });
     },
     confirmDelete() {
-      this.$bvModal.msgBoxConfirm(this.$t('Are you sure you want to permanently delete your profile?'))
-        .then((ok) => {
-          if (ok) {
-            this.$store.dispatch('user/REMOVE_CURRENT_USER', this.user);
-          }
-        });
+      this.showDeleteConfirmationDialog();
+    },
+    handleDeleteUserAfterConfirmation() {
+      this.$store.dispatch('user/REMOVE_CURRENT_USER', this.user);
     },
     onGeneratePattern() {
       this.user.colors = [];

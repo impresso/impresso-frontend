@@ -38,7 +38,7 @@
 
         </div>
         <div class="pb-2 px-3">
-          <b-button size="sm" variant="outline-primary" block :disabled="!visualizedTopics.length" :to="searchPageLink">
+          <b-button size="sm" variant="outline-primary" block :disabled="!visualizedTopics.length" @click="$router.push(searchPageLink)">
             <span v-html="$tc('actions.addToCurrentItemsDetailed', visualizedTopics.length)" />
           </b-button>
         </div>
@@ -100,7 +100,7 @@ export default {
     },
     applyCurrentSearchFilters: {
       get() {
-        return this.$store.state.topics.applyCurrentSearchFilters;
+        return this.$store.state.topics.applyCurrentSearchFilters === true;
       },
       set(value) {
         this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);

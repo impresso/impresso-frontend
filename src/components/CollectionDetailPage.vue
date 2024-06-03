@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout-section>
 
     <div slot="header">
@@ -19,10 +19,9 @@
 
         <section class="ml-auto py-3 text-right">
           <router-link :to="updateCurrentRoute({ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} })" class="m-1">
-            <b-button
-              variant="outline-info" size="sm"
-              v-b-modal.confirmDelete>{{ $t('compare_collection') }}
-            </b-button>
+            <button type="button" class="btn btn-outline-info btn-sm"
+              @click="showConfirmDeleteModal()">{{ $t('compare_collection') }}
+            </button>
           </router-link>
 
           <b-dropdown class="m-1" size="sm" variant="outline-primary" :text="$t('edit_collection')"
@@ -36,24 +35,22 @@
               <textarea type="text" name="collectionDesc" class="form-control"
                 v-on:keyup.enter="save(collection)"
                 v-model="collection.description" />
-              <b-button variant="outline-primary" size="sm" class="form-control my-3"
+              <button type="button" class="btn btn-outline-primary btn-sm form-control my-3"
                 v-on:click="save(collection)">{{ $t('update_collection') }}
-              </b-button>
-              <b-button
-                class="form-control mb-3"
-                variant="outline-danger" size="sm"
+              </button>
+              <button type="button" class="btn btn-outline-danger btn-sm form-control mb-3"
                 v-on:click.alt="remove(collection)"
-                v-on:click.exact="$bvModal.show('confirmDelete')">
+                v-on:click.exact="showConfirmDeleteModal()">
                 {{ $t('delete_collection') }}
-              </b-button>
+              </button>
             </div>
           </b-dropdown>
 
         </section>
 
-        <b-modal id="confirmDelete" v-on:ok="remove(collection)">
+        <Modal id="confirmDelete" :show="isConfirmDeleteModalVisible" @ok="remove(collection)">
           {{this.$t('confirm_delete', [collection.name])}}
-        </b-modal>
+        </Modal>
       </b-navbar>
 
       <b-navbar v-else type="light" variant="light">
@@ -80,16 +77,20 @@
           && (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)">
 
         <b-navbar-nav v-if="$route.params.collection_uid">
-          <b-nav-form class="p-2 ml-3">
-            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
-              {{ $t('actions.addToCurrentFilters') }}
-            </b-button>
-          </b-nav-form>
-          <b-nav-form class="p-2">
-            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-              {{ $t('actions.searchMore') }}
-            </router-link>
-          </b-nav-form>
+          <li class="p-2 ml-3 form-inline">
+            <form class="form-inline">
+              <button type="button" class="btn btn-outline-primary btn-sm" v-on:click='applyFilter()'>
+                {{ $t('actions.addToCurrentFilters') }}
+              </button>
+            </form>
+          </li>
+          <li class="p-2 form-inline">
+            <form class="form-inline">
+              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                {{ $t('actions.searchMore') }}
+              </router-link>
+            </form>
+          </li>
         </b-navbar-nav>
         <b-navbar-nav class="ml-3">
           <b-button @click="handleExportCollection" size="sm" variant="outline-primary" class="d-flex align-items-center">
@@ -105,10 +106,11 @@
           </b-navbar-form> -->
           <div class="p-2 m-auto">
             <label class="mr-1">{{ $t('label_display') }}</label>
-            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-            </b-form-radio-group>
+            <radio-group
+              :modelValue="displayStyle"
+              @update:modelValue="displayStyle = $event"
+              :options="displayStyleOptions"
+              type="button" />
           </div>
         </b-navbar-nav>
 
@@ -217,13 +219,16 @@
         @settings-updated="handleRecommendersSettingsUpdated">
         <template v-slot:additional-navbar>
           <b-navbar-nav class="ml-auto">
-            <b-nav-form class="p-2">
-              <label class="mr-1">{{ $t('label_display') }}</label>
-              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-              </b-form-radio-group>
-            </b-nav-form>
+            <li class="p-2 form-inline">
+              <form class="form-inline">
+                <label class="mr-1">{{ $t('label_display') }}</label>
+                <radio-group
+                  :modelValue="displayStyle"
+                  @update:modelValue="displayStyle = $event"
+                  :options="displayStyleOptions"
+                  type="button" />
+              </form>
+            </li>
           </b-navbar-nav>
         </template>
       </collection-recommendations-panel>
@@ -253,6 +258,9 @@ import { exporter as exporterService,
   searchFacets as searchFacetsService,
   collectionsItems as collectionsItemsService
 } from '@/services';
+import RadioGroup from '@/components/layout/RadioGroup.vue';
+import Modal from '@/components/base/Modal.vue'
+import { hide } from '@floating-ui/vue';
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs',
@@ -279,6 +287,7 @@ export default {
     timevalues: [],
     facets: [],
     facetTypes: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic', 'partner', 'accessRight'],
+    isConfirmDeleteModalVisible: false,
   }),
   components: {
     SearchResultsListItem,
@@ -289,8 +298,16 @@ export default {
     StackedBarsPanel,
     CollectionRecommendationsPanel,
     InfoButton,
+    RadioGroup,
+    Modal,
   },
   computed: {
+    displayStyleOptions() {
+      return [
+        {value: 'list', text: this.$t('display_button_list')},
+        {value: 'tiles', text: this.$t('display_button_tiles')}
+      ]
+    },
     collectionUid() {
       return this.$route.params.collection_uid;
     },
@@ -322,7 +339,11 @@ export default {
     },
     displayStyle: {
       get() {
-        return this.$store.state.search.displayStyle;
+        const style = this.$store.state.search.displayStyle
+        if (['list', 'tiles'].includes(style)) {
+          return style
+        }
+        return 'list'
       },
       set(displayStyle) {
         this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
@@ -391,6 +412,12 @@ export default {
     },
   },
   methods: {
+    showConfirmDeleteModal() {
+      this.isConfirmDeleteModalVisible = true;
+    },
+    hideConfirmDeleteModal() {
+      this.isConfirmDeleteModalVisible = false;
+    },
     handleExportCollection() {
       exporterService.create({
         description: this.collectionUid,

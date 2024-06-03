@@ -10,8 +10,7 @@
       <div slot="header">
         <div v-if="similarToImage" class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex">
           <div class="flex-shrink-1 mr-2" style="width: 100px">
-            <b-img v-if="similarToImage.regions.length"
-              fluid
+            <img v-if="similarToImage.regions.length"
               style="max-height: 100px"
               v-bind:src="similarToImage.regions[0].iiifFragment" />
           </div>
@@ -42,14 +41,16 @@
       <div slot="header">
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="p-2 border-right">
-            <b-nav-form>
-              <!-- <b-form-group class="ml-2 mr-3">
-              <b-form-checkbox v-model="applyRandomPage" switch>
-                {{ $t('label_applyRandomPage') }}
-              </b-form-checkbox>
-              </b-form-group> -->
-              <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>{{ $t('actions.loadRandomPage') }}</b-button>
-            </b-nav-form>
+            <li class="form-inline">
+              <form class="form-inline">
+                <!-- <b-form-group class="ml-2 mr-3">
+                <b-form-checkbox v-model="applyRandomPage" switch>
+                  {{ $t('label_applyRandomPage') }}
+                </b-form-checkbox>
+                </b-form-group> -->
+                <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>{{ $t('actions.loadRandomPage') }}</b-button>
+              </form>
+            </li>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
@@ -75,7 +76,7 @@
 
      <!--  body -->
       <div class="p-1 my-2">
-        <b-card-group rows class="row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
+        <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
           <div class="mb-3"
             v-for="searchResult in searchResults" :key="searchResult.uid">
             <search-results-image-item
@@ -88,11 +89,12 @@
               @click:search="onClickSearch"
               :headers="headers" />
           </div>
-        </b-card-group>
+        </div>
         <div v-if="paginationTotalRows && paginationCurrentPage > 0" class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-bind:perPage="paginationPerPage"
-            v-model="paginationCurrentPage"
+            :current-page="paginationCurrentPage"
+            @change="$event => paginationCurrentPage = $event"
             v-bind:totalRows="paginationTotalRows"
             class="float-left small-caps"
             />

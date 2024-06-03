@@ -1,7 +1,6 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
 import VueI18n from 'vue-i18n'
 import VueGtag from 'vue-gtag'
 
@@ -10,12 +9,13 @@ import ImpressoLayout from '@/plugins/Layout'
 import EventBus from '@/plugins/EventBus'
 import MetaTags from '@/plugins/MetaTags'
 import Navigation from '@/plugins/Navigation'
+import BootstrapVueLegacyComponents from '@/plugins/BootstrapVueLegacy.ts'
 
 import * as services from '@/services'
 
 import 'dripicons/webfont/webfont.css'
 import 'impresso-theme/dist/css/bootpresso.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import './assets/legacy/bootstrap-vue.css'
 
 import App from './App'
 import router from './router'
@@ -24,7 +24,8 @@ import messages from './i18n/messages'
 import dateTimeFormats from './i18n/dateTimeFormats'
 import numberFormats from '@/i18n/numberFormats'
 
-Vue.use(BootstrapVue)
+// Vue.use(BootstrapVue)
+Vue.use(BootstrapVueLegacyComponents)
 Vue.use(VueI18n)
 // custom created plugins
 Vue.use(Helpers)

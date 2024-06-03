@@ -65,13 +65,14 @@
       </PowerVisBase>
     </i-layout-section>
 
-    <b-modal hide-footer scrollable
+    <Modal hide-footer
       body-class="m-0 p-0"
       id="itemClickedActionModal"
-      ref="itemClickedActionModal"
-      v-bind:title="'TODO'">
+      :title="'TODO'"
+      :show="isItemModalVisible"
+      @close="hideItemModal()">
       <b>{{ JSON.stringify(itemEvent, null, 2) }}</b>
-    </b-modal>
+    </Modal>
 
   </i-layout>
 </template>
@@ -83,6 +84,7 @@ import { schemeCategory10, schemeAccent } from 'd3'
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import Autocomplete from '@/components/Autocomplete'
 import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase'
+import Modal from '@/components/base/Modal.vue'
 
 import {
   search,
@@ -198,9 +200,16 @@ export default {
     selectedItems: {},
     /** @type {(() => void) | undefined} */
     resizeHandler: undefined,
-    itemEvent: undefined
+    itemEvent: undefined,
+    isItemModalVisible: false
   }),
   methods: {
+    showItemModal() {
+      this.isItemModalVisible = true
+    },
+    hideItemModal() {
+      this.isItemModalVisible = false
+    },
     /** @param {Filter} filter */
     handleAutocompleteSubmit(filter) {
       this.handleFiltersChanged(this.filters.concat([filter]))
@@ -230,13 +239,14 @@ export default {
     },
     handleItemClicked(event) {
       this.itemEvent = event
-      this.$refs.itemClickedActionModal.show()
+      this.showItemModal()
     }
   },
   components: {
     SearchSidebar,
     Autocomplete,
-    PowerVisBase
+    PowerVisBase,
+    Modal,
   },
   mounted() {
     this.facets = buildEmptyFacets(this.facetTypes)

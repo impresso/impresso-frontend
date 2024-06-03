@@ -1,15 +1,15 @@
-<template lang="html">
-  <b-form-group v-bind:label="$t('title')">
-    <b-form-radio-group
-      stacked
-      v-model="filter.context"
-      v-bind:options="options">
-    </b-form-radio-group>
-  </b-form-group>
+<template>
+  <label>{{ $t('title') }}</label>
+  <radio-group
+    :modelValue="filter.context"
+    :options="options"
+    @update:modelValue="filter.context = $event"
+    type="radio" />
 </template>
 
 <script>
 import * as contexts from '@/models/Contexts';
+import RadioGroup from '@/components/layout/RadioGroup.vue';
 
 export default {
   computed: {
@@ -24,6 +24,9 @@ export default {
     prop: 'filter',
   },
   props: ['filter'],
+  components: {
+    RadioGroup,
+  }
 };
 </script>
 

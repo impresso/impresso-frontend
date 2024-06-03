@@ -26,7 +26,8 @@
       <pagination
         size="sm"
         v-bind:perPage="perPage"
-        v-model="pageNumber"
+        :current-page="pageNumber"
+        @change="$event => pageNumber = $event"
         v-bind:totalRows="totalClusters"
         class="float-left small-caps" />
     </div>

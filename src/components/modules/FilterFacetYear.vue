@@ -18,12 +18,12 @@
       </div>
     </div>
     <div class="row" v-show="expanded">
-      <b-input-group size="sm" v-bind:append="$t('label.start')" class="col">
+      <div v-bind:append="$t('label.start')" class="input-group input-group-sm col">
         <flat-pickr v-bind:value="filter.start" v-on:on-close="setStart" class="form-control"></flat-pickr>
-      </b-input-group>
-      <b-input-group size="sm" v-bind:append="$t('label.end')" class="col">
+      </div>
+      <div v-bind:append="$t('label.end')" class="input-group input-group-sm col">
         <flat-pickr v-bind:value="filter.end" v-on:on-close="setEnd" class="form-control"></flat-pickr>
-      </b-input-group>
+      </div>
     </div>
   </div>
 </template>

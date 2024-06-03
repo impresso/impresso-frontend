@@ -58,15 +58,12 @@
             >Enter unigram
             <info-button name="what-are-ngram" />
           </span>
-          <b-input-group>
-            <b-form-tags
+          <div class="input-group">
+            <tags-input
               v-model="unigrams"
               :disabled="isLoading"
-              separator=" ,;"
               :placeholder="unigrams.length === 0 ? 'search unigrams ...' : ''"
-              class="mb-2"
-            >
-            </b-form-tags>
+              class="mb-2"/>
             <b-dropdown
               ref="embeddings"
               class="mb-2"
@@ -85,7 +82,7 @@
                 />
               </div>
             </b-dropdown>
-          </b-input-group>
+          </div>
         </b-navbar>
       </div>
       <div
@@ -161,6 +158,7 @@ import MultiLinePlot from '@/components/modules/vis/MultiLinePlot'
 import Ellipsis from '@/components/modules/Ellipsis'
 import InfoButton from '@/components/base/InfoButton'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
+import TagsInput from '@/components/base/TagsInput.vue'
 
 import {
   search as searchService,
@@ -257,6 +255,7 @@ export default {
     SearchSidebar,
     InfoButton,
     EmbeddingsSearch,
+    TagsInput,
   },
   data: () => ({
     /** @type {Facet[]} */

@@ -2,10 +2,9 @@
   <div class="h-100 d-flex flex-column" @mouseleave="handleMouseleave">
     <!-- start -->
     <b-navbar-nav class="border-bottom d-flex flex-row flex-shrink-1">
-      <b-nav-text class="ml-3 mr-2 py-3">
-        <label>{{ $t('visualisationType') }}</label></b-nav-text
-      >
-      <b-nav-text class="mr-1 py-3">
+      <li class="navbar-text ml-3 mr-2 py-3">
+        <label>{{ $t('visualisationType') }}</label></li>
+      <li class="navbar-text mr-1 py-3">
         <i-dropdown
           v-model="visualisation"
           :options="
@@ -18,14 +17,13 @@
           size="sm"
           variant="dark"
         ></i-dropdown
-      ></b-nav-text>
-      <b-nav-text
+      ></li>
+      <li
         v-if="visualisationOrderByOptions.length > 0"
-        class="border-left ml-3 pl-3 mr-2 py-3"
+        class="navbar-text border-left ml-3 pl-3 mr-2 py-3"
       >
-        <label>{{ $t('visualisationOrderBy') }}</label></b-nav-text
-      >
-      <b-nav-text v-if="visualisationOrderByOptions.length > 0" class=" py-3">
+        <label>{{ $t('visualisationOrderBy') }}</label></li>
+      <li v-if="visualisationOrderByOptions.length > 0" class="navbar-text py-3">
         <i-dropdown
           v-model="visualisationOrderBy"
           :options="
@@ -38,7 +36,7 @@
           size="sm"
           variant="outline-primary"
         ></i-dropdown
-      ></b-nav-text>
+      ></li>
     </b-navbar-nav>
     <!-- end navbar -->
     <PowerVisBase

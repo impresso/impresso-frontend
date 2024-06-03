@@ -11,8 +11,8 @@
         <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
       </div>
       <div>
-        <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm"
-          >{{ $t('label_embeddings') }}
+        <b-button class="float-right mx-3 btn-sm" @click="showModal('embeddings')">
+          {{ $t('label_embeddings') }}
           <info-button class="ml-1" name="how-are-word-embeddings-generated" />
         </b-button>
         <b-form-group class="mx-3">
@@ -42,22 +42,9 @@
               v-bind:options="orderByOptions"
               size="sm"
               variant="outline-primary"
+              right
             ></i-dropdown>
           </b-navbar-nav>
-          <!-- <b-navbar-nav class="px-3 py-3">
-            <label class="mr-1">{{ $t('label_display') }}</label>
-            <b-nav-form>
-              <b-form-radio-group
-                v-model="displayStyle"
-                button-variant="outline-primary"
-                size="sm"
-                buttons
-              >
-                <b-form-radio value="list">{{ $t('display_button_list') }}</b-form-radio>
-                <b-form-radio value="tiles">{{ $t('display_button_tiles') }}</b-form-radio>
-              </b-form-radio-group>
-            </b-nav-form>
-          </b-navbar-nav> -->
         </b-navbar>
 
         <b-navbar variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
@@ -112,7 +99,7 @@
               <b-dropdown-item
                 v-if="selectedItems.length > 0"
                 class="p-2 small-caps"
-                v-b-modal.nameSelectionCollection
+                @click="showModal('nameSelectionCollection')"
               >
                 <span class="dripicons-checklist pr-1"></span>
                 {{ $tc('add_n_to_collection', selectedItems.length) }}
@@ -125,7 +112,7 @@
                 <span class="dripicons-export pr-1"></span>
                 {{ $t('selected_export_csv') }}
               </b-dropdown-item>
-              <b-dropdown-item class="p-2 small-caps" v-b-modal.nameCollection>
+              <b-dropdown-item class="p-2 small-caps" @click="showModal('nameCollection')">
                 <span class="dripicons-archive pr-1"></span>
                 {{ $t('query_add_to_collection') }}
               </b-dropdown-item>
@@ -138,7 +125,6 @@
             <!-- <b-form-checkbox
               v-if="isLoggedIn"
               class="mx-1"
-              v-b-tooltip.hover.topleft.html.o100.d500
               v-bind:title="$t('select_all')"
               v-bind:indeterminate="this.allIndeterminate"
               v-bind:checked="this.allSelected"
@@ -149,25 +135,25 @@
         </b-navbar>
       </div>
 
-      <b-modal
-        hide-footer
-        scrollable
-        body-class="m-0 p-0"
+      <Modal
         id="nameSelectionCollection"
-        ref="nameSelectionCollection"
-        v-on:shown="nameSelectedCollectionOnShown()"
-        v-bind:title="$tc('add_n_to_collection', selectedItems.length)"
+        hide-footer
+        body-class="m-0 p-0"
+        :title="$tc('add_n_to_collection', selectedItems.length)"
+        :show="isModalVisible('nameSelectionCollection')"
+        @shown="nameSelectedCollectionOnShown()"
       >
         <collection-add-to-list :items="selectedItems" />
-      </b-modal>
+      </Modal>
 
-      <b-modal
+      <Modal
         id="nameCollection"
-        ref="nameCollection"
-        v-bind:title="$t('query_add_to_collection')"
-        v-on:shown="nameCollectionOnShown()"
-        v-bind:ok-disabled="nameCollectionOkDisabled"
-        v-on:ok="createQueryCollection()"
+        :title="$t('query_add_to_collection')"
+        :show="isModalVisible('nameCollection')"
+        :okDisabled="nameCollectionOkDisabled"
+        @close="hideModal('nameCollection')"
+        @ok="createQueryCollection()"
+        @shown="nameCollectionOnShown()"
       >
         <form v-on:submit.stop.prevent="createQueryCollection()">
           <label for="inputName">Name</label>
@@ -194,11 +180,17 @@
             stored.
           </p>
         </div>
-      </b-modal>
+      </Modal>
 
-      <b-modal hide-footer id="embeddings" ref="embeddings" v-bind:title="$t('label_embeddings')">
+      <Modal
+        hide-footer
+        id="embeddings"
+        :title="$t('label_embeddings')"
+        :show="isModalVisible('embeddings')"
+        @close="hideModal('embeddings')"
+      >
         <embeddings-search @embdding-selected="addFilterFromEmbedding" />
-      </b-modal>
+      </Modal>
 
       <div class="p-1">
         <b-container fluid>
@@ -240,7 +232,8 @@
         <div class="fixed-pagination-footer p-1 m-0" slot="footer">
           <pagination
             v-if="searchResults.length"
-            v-model="paginationCurrentPage"
+            :current-page="paginationCurrentPage"
+            @change="$event => (paginationCurrentPage = $event)"
             :per-page="paginationPerPage"
             :total-rows="paginationTotalRows"
             class="float-left small-caps"
@@ -267,6 +260,7 @@ import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
+import Modal from '@/components/base/Modal'
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -310,6 +304,7 @@ export default {
     facets: [],
     /** @type {Filter[]} */
     filtersWithItems: [],
+    visibleModal: null,
   }),
   computed: {
     searchQuery: {
@@ -387,6 +382,7 @@ export default {
         return parseInt(this.$route.query.p ?? 1, 10)
       },
       set(p) {
+        console.log('ooo', p)
         this.$navigation.updateQueryParametersWithHistory({
           p,
         })
@@ -454,6 +450,15 @@ export default {
     this.facets = buildEmptyFacets(FACET_TYPES)
   },
   methods: {
+    isModalVisible(name) {
+      return this.visibleModal === name
+    },
+    showModal(name) {
+      this.visibleModal = name
+    },
+    hideModal() {
+      this.visibleModal = null
+    },
     handleFiltersChanged(filters) {
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
@@ -523,7 +528,7 @@ export default {
     },
     createQueryCollection() {
       if (!this.nameCollectionOkDisabled) {
-        this.$refs.nameCollection.hide()
+        this.hideModal('nameCollection')
         this.$store
           .dispatch('collections/ADD_COLLECTION', {
             name: this.inputName,
@@ -572,7 +577,7 @@ export default {
     },
     nameCollectionOnShown() {
       this.inputName = ''
-      this.$refs.inputName.focus()
+      this.$refs.inputName.$el.focus()
     },
     nameCollectionOnInput() {
       this.inputName.trim()
@@ -637,22 +642,20 @@ export default {
 
         // get remaining facets and enriched filters.
         const facetTypes = [
-          ...["person", "location", "topic"],
-          ...(this.isLoggedIn ? ['collection'] : [])
+          ...['person', 'location', 'topic'],
+          ...(this.isLoggedIn ? ['collection'] : []),
         ]
 
-        const [
-          extraFacets,
-          filtersWithItems,
-          collectionsItemsIndex,
-        ] = await Promise.all([
-          searchFacetsService.find({
-            query: {
-              facets: facetTypes,
-              filters,
-              // group_by: groupBy,
-            },
-          }).then(response => response.data),
+        const [extraFacets, filtersWithItems, collectionsItemsIndex] = await Promise.all([
+          searchFacetsService
+            .find({
+              query: {
+                facets: facetTypes,
+                filters,
+                // group_by: groupBy,
+              },
+            })
+            .then(response => response.data),
           filtersItemsService
             .find({
               query: {
@@ -711,6 +714,7 @@ export default {
     EmbeddingsSearch,
     SearchSidebar,
     InfoButton,
+    Modal,
   },
 }
 </script>

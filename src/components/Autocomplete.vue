@@ -1,6 +1,6 @@
 <template>
   <section class="search-bar" v-ClickOutside="hideSuggestions">
-    <b-input-group>
+    <div class="input-group">
       <b-form-input
         :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
         :placeholder="$tc('placeholder.search', filterCount)"
@@ -10,20 +10,19 @@
         @blur.native="blurHandler"
         v-on:keyup.native="keyup"
       />
-      <b-input-group-append>
-        <b-btn
-          variant="outline-primary"
+      <div class="input-group-append">
+        <button type="button" class="btn btn-outline-primary"
           :title="$tc('placeholder.search', filterCount)"
           @click="submit({ type: 'string', q })"
         >
           <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
           <div v-else class="d-flex search-submit dripicons-search"></div>
-        </b-btn>
-        <b-btn variant="outline-primary" :title="$t('actions.addFilter')" @click="showExplorer">
+        </button>
+        <button type="button" class="btn btn-outline-primary" :title="$t('actions.addFilter')" @click="showExplorer">
           <div class="d-flex dripicons-experiment"></div>
-        </b-btn>
-      </b-input-group-append>
-    </b-input-group>
+        </button>
+      </div>
+    </div>
 
     <div
       class="suggestions border-left border-right border-bottom border-primary drop-shadow"

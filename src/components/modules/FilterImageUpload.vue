@@ -1,18 +1,22 @@
-<template lang="html">
+<template>
   <div>
-    <b-media v-show="image.thumbnail">
-      <div style="width:128px;" slot="aside">
-        <b-img
-          fluid-grow
-          slot="aside"
-          v-bind:src="`data:image/png;base64,${image.thumbnail}`" />
+    <div v-show="image.thumbnail" class="media">
+      <div class="media-aside align-self-start">
+        <div style="width:128px;" slot="aside">
+          <img
+            fluid-grow
+            slot="aside"
+            src="`data:image/png;base64,${image.thumbnail}`" />
+        </div>
       </div>
-      <p>
-        <b>{{image.name}}</b>
-        <span class="date">{{ $d(image.creationDate, 'long') }}</span>
-      </p>
-      <b-button variant="outline-primary" size="sm" v-on:click="remove">{{ $t('actions.remove') }}</b-button>
-    </b-media>
+      <div class="media-body">
+        <p>
+          <b>{{image.name}}</b>
+          <span class="date">{{ $d(image.creationDate, 'long') }}</span>
+        </p>
+        <b-button variant="outline-primary" size="sm" v-on:click="remove">{{ $t('actions.remove') }}</b-button>
+      </div>
+    </div>
     <file-pond v-bind:handler="handler" />
   </div>
 </template>

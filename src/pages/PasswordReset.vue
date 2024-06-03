@@ -22,7 +22,7 @@
             v-html="$t('errors.ResetPasswordGeneralError', { error })"
           >
           </b-alert>
-          <b-form @submit.prevent="onSubmit">
+          <form @submit.prevent="onSubmit">
             <b-form-group
               id="input-group-1"
               label="Email address:"
@@ -40,7 +40,7 @@
             <b-button type="submit" class="mt-2" size="sm" variant="outline-primary">{{
               $t('actions.resetPassword')
             }}</b-button>
-          </b-form>
+          </form>
         </b-col>
       </b-row>
     </b-container>

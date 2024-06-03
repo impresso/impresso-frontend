@@ -1,11 +1,10 @@
 <template>
-  <b-modal
+  <Modal
+    :show="isModalVisible"
     dialog-class="CopyToClipboard"
     content-class="CopyToClipboard__content drop-shadow rounded"
-    scrollable
     @shown="delayIframePreview"
-    visible
-  >
+    @close="handleModalClosed">
     <template #modal-header="{ close }">
       <!-- Emulate built in modal header close button action -->
 
@@ -35,13 +34,13 @@
           <hr />
           <label class="font-weight-bold mt-2">{{ $t('iframe_code') }}</label>
 
-          <b-form-textarea
+          <textarea
             id="inputLink"
             ref="inputLink"
             readonly
             :value="[iframeCode, iframeCaptionCode].join('\n')"
-            class="mb-2"
-          />
+            class="mb-2 form-control"
+          /></textarea>
 
           <b-button variant="outline-primary" size="sm" v-on:click="copyArticleUrlToClipboard()"
             >{{ $t('copy_to_clipboard') }}
@@ -51,19 +50,19 @@
       <b-col>
         <div class="ml-2" v-if="isShown">
           <label for="form-input-title">{{ $t('article_title') }}</label>
-          <b-input-group size="sm">
+          <div class="input-group input-group-sm">
             <b-input
               id="form-input-title"
               :value="title"
               @input="debounceInput($event, 'title')"
             ></b-input>
-          </b-input-group>
+          </div>
           <hr class="my-2" />
           <b-row>
             <b-col>
               <label for="form-input-bgcolor">{{ $t('options_bgcolor') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
@@ -75,13 +74,13 @@
                   >
                     #
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-bgcolor"
                   :value="backgroundColor"
                   @input="debounceInput($event, 'backgroundColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
 
               <small id="form-input-bgcolor-help" class="form-text text-muted">{{
                 $t('options_bgcolor_help')
@@ -89,8 +88,8 @@
             </b-col>
             <b-col>
               <label for="form-input-text-color">{{ $t('options_text_color') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
@@ -103,13 +102,13 @@
                   >
                     css
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-bgcolor"
                   :value="textColor"
                   @input="debounceInput($event, 'textColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
 
               <small
                 id="form-input-bgcolor-help"
@@ -121,8 +120,8 @@
           <b-row>
             <b-col>
               <label for="form-input-ovcolor">{{ $t('options_ovcolor') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
@@ -134,13 +133,13 @@
                   >
                     #
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-ovcolor"
                   :value="overlayBackgroundColor"
                   @input="debounceInput($event, 'overlayBackgroundColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
               <small id="form-input-ovcolor-help" class="form-text text-muted">{{
                 $t('options_ovcolor_help')
               }}</small>
@@ -150,43 +149,43 @@
           <!-- printout coords in inut elements -->
           <b-row>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>x</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">x</div></div>
                 <b-input
                   id="form-input-coords-x"
                   type="number"
                   :value="cx"
                   @input="debounceInput($event, 'cx')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>y</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">y</div></div>
                 <b-input
                   id="form-input-coords-y"
                   type="number"
                   :value="cy"
                   @input="debounceInput($event, 'cy')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
           <b-row>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>w</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">w</div></div>
                 <b-input
                   id="form-input-coords-w"
                   type="number"
                   :value="cw"
                   @input="debounceInput($event, 'cw')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>h</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">h</div></div>
                 <b-input
                   id="form-input-coords-h"
                   type="number"
@@ -194,7 +193,7 @@
                   @input="debounceInput($event, 'ch')"
                 >
                 </b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
 
@@ -203,43 +202,40 @@
           <label for="form-input-ratio" class="mt-2">{{ $t('options_customise_viewport') }}</label>
           <!-- adapt to article region by default -->
 
-          <b-form-radio-group v-model="fitCoords" v-slot="{ ariaDescribedby }">
-            <b-form-radio :value="true" :aria-describedby="ariaDescribedby" name="some-radios">
-              {{ $t('fixed_ratio') }}
-            </b-form-radio>
-            <b-form-radio :value="false" :aria-describedby="ariaDescribedby" name="some-radios">
-              {{ $t('fixed_height') }}
-            </b-form-radio>
-          </b-form-radio-group>
+          <radio-group
+            :modelValue="String(fitCoords)"
+            :options="fitCoordsOptions"
+            @update:modelValue="fitCoords = $event == 'true'"
+            type="radio" />
 
           <label for="form-input-max-height" class="mt-2">{{
             $t('options_customise_viewport_max_height')
           }}</label>
 
-          <b-input-group size="sm">
-            <b-input-group-prepend is-text>px</b-input-group-prepend>
+          <div class="input-group input-group-sm">
+            <div class="input-group-prepend"><div class="input-group-text">px</div></div>
             <b-input
               id="form-input-max-height"
               type="number"
               :value="maxHeight"
               @input="debounceInput($event, 'maxHeight')"
             ></b-input>
-          </b-input-group>
+          </div>
           <b-row class="mt-2">
             <b-col>
               <label for="form-input-caption-padding">{{
                 $t('options_customise_caption_padding')
               }}</label>
 
-              <b-input-group size="sm">
-                <b-input-group-prepend is-text>px</b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend"><div class="input-group-text">px</div></div>
                 <b-input
                   id="form-input-caption-padding"
                   type="number"
                   :value="captionPadding"
                   @input="debounceInput($event, 'captionPadding')"
                 ></b-input>
-              </b-input-group>
+              </div>
               <small id="form-input-caption-padding-help" class="form-text text-muted">{{
                 $t('options_customise_caption_padding_help')
               }}</small>
@@ -248,32 +244,29 @@
               <label for="form-input-viewport-coords-margin">
                 {{ $t('options_customise_viewport_coords_margin') }}
               </label>
-              <b-input-group size="sm">
-                <b-input-group-prepend is-text>px</b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend"><div class="input-group-text">px</div></div>
                 <b-input
                   id="form-input-viewport-coords-margin"
                   type="number"
                   :value="coordsMargin"
                   @input="debounceInput($event, 'coordsMargin')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
         </div>
       </b-col>
     </b-row>
-    <!-- {{ widgetLink }}
-    <b-input-group prepend="URL">
-      <template v-slot:append>
-
-      </template>
-    </b-input-group> -->
-  </b-modal>
+  </Modal>
 </template>
 
 <script>
 import Partner from '@/models/Partner'
 import { newspapers as NewspapersService } from '@/services'
+import RadioGroup from '@/components/layout/RadioGroup.vue';
+import Modal from '@/components/base/Modal.vue'
+import { mapActions } from 'vuex'
 
 export default {
   data: () => ({
@@ -293,6 +286,7 @@ export default {
     title: '',
     newspaper: null,
     partner: null,
+    isModalVisible: false,
   }),
   model: {
     prop: 'article',
@@ -301,6 +295,12 @@ export default {
     article: Object,
   },
   computed: {
+    fitCoordsOptions() {
+      return [
+        { value: "true", text: this.$t('fixed_ratio') },
+        { value: "false", text: this.$t('fixed_height') },
+      ]
+    },
     customisation() {
       const params = [
         `backgroundColor=${this.backgroundColor}`,
@@ -360,9 +360,9 @@ export default {
     },
   },
   mounted() {
-    this.$root.$on('bv::modal::hidden', () => {
-      this.$emit('closed')
-    })
+    setTimeout(() => {
+      this.isModalVisible = true
+    }, 0)
     // set initial coord value from article
     if (this.article?.regions?.length) {
       this.setCoordsFromArticleRegions()
@@ -390,6 +390,11 @@ export default {
     })
   },
   methods: {
+    handleModalClosed() {
+      this.isModalVisible = false
+      this.$emit('closed')
+    },
+    ...mapActions('notifications', ['addNotification']),
     debounceInput(value, prop) {
       clearTimeout(this.delayTimer)
       this.delayTimer = setTimeout(() => {
@@ -410,12 +415,7 @@ export default {
       const title = this.$t('url_copied_title')
       const message = this.$tc('url_copied_message')
 
-      this.$bvToast.toast(message + 'sticazzi', {
-        title: title,
-        variant: 'success',
-        toaster: 'b-toaster-bottom-center',
-        solid: true,
-      })
+      this.addNotification({ title, message, type: 'success' })
     },
     setCoordsFromArticleRegions() {
       let x0 = Infinity
@@ -450,6 +450,10 @@ export default {
       )
     },
   },
+  components: {
+    RadioGroup,
+    Modal,
+  }
 }
 </script>
 

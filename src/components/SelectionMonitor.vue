@@ -9,8 +9,8 @@
       <!-- top -->
       <section>
         <!-- header -->
-        <div class="d-flex my-2 align-items-center">
-          <b-tabs pills class="px-2" style="flex-grow:1">
+        <div class="d-flex my-2 ml-2 ms-2 align-items-center ">
+          <b-tabs pills class="px-2 pb-2 pt-1 small-caps" style="flex-grow:1">
             <template v-slot:tabs-end>
               <b-nav-item class="active">
                 <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`).toLowerCase()" />
@@ -141,9 +141,9 @@
       >
         <item-label :item="monitor.item" :type="monitor.type" detailed />
         <!-- button url  -->
-        <div class="text-right bg-dark p-2" v-if="detailsUrl">
+        <div class="text-right mt-2" v-if="detailsUrl">
           <router-link
-            class="btn btn-secondary px-5 rounded btn-sm"
+            class="btn btn-secondary px-5 btn-sm d-block"
             :to="detailsUrl"
             @click.native="hide"
           >

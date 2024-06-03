@@ -25,6 +25,7 @@
     </div>
     <cookie-disclaimer />
     <TroublesAhead v-if="enableTroublesAhead" />
+    <Toaster />
   </div>
 </template>
 
@@ -37,6 +38,7 @@ import DisclaimerNotice from './components/modals/DisclaimerNotice'
 import StatusIndicator from './components/modals/StatusIndicator'
 import CookieDisclaimer from './components/modals/CookieDisclaimer'
 import TroublesAhead from './components/modals/TroublesAhead'
+import Toaster from '@/components/base/Toaster.vue'
 import { CommonQueryParameters } from './router/util'
 import { joinFiltersWithItems, optimizeFilters, serializeFilters } from './logic/filters'
 import { searchQueryGetter } from './logic/queryParams'
@@ -52,6 +54,7 @@ export default {
     StatusIndicator,
     CookieDisclaimer,
     TroublesAhead,
+    Toaster,
   },
   data: () => ({
     filtersWithItems: [],
@@ -816,10 +819,6 @@ input[type='range']:active::-ms-thumb {
   .dropdown.show::after {
     right: 0px;
   }
-}
-
-.list-item-details .dropdown {
-  position: inherit;
 }
 
 // fix size change on hover

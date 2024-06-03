@@ -1,7 +1,6 @@
-<template lang="html">
+<template>
   <p class="search-query-summary">
     <span v-html="reducedSummary" />
-    <!-- <span v-else v-html="$t('extendedSummary', summaryProps)"/> -->
   </p>
 </template>
 
@@ -377,7 +376,7 @@ export default {
         "topic": "with topic",
         "pub": {
           "newspaper": "published in",
-          "textReuseCluster": "in clusters"
+          "textReuseCluster": "appearing in clusters"
         },
         "pubof": {
           "newspaper": "in",
@@ -395,7 +394,7 @@ export default {
         "country": "printed in",
         "type": "- tagged as",
         "year": "in year",
-        "textReuseCluster": "in clusters",
+        "textReuseCluster": "showing up in clusters",
         "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
         "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
         "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"

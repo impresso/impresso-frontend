@@ -14,7 +14,6 @@
             <Ellipsis :initialHeight="60" :maxHeight="0">
               <span v-html="incipit" />
               <SearchQuerySummary
-                class="textbox-fancy"
                 v-on:updated="summaryUpdatedHandler"
                 :search-query="{ filters: supportedFiltersWithItems }"
               />
@@ -31,7 +30,7 @@
                     size="sm"
                     class="small-caps rounded shadow-sm mt-3"
                     variant="outline-secondary"
-                    v-b-modal.createCollectionFromFilters
+                    @click="showCreateCollectionModal()"
                   >
                     <span class="dripicons-archive pr-1"></span>
                     {{ $t('query_add_to_collection') }}
@@ -87,7 +86,7 @@
             />
           </b-nav-item>
 
-          <b-nav-text class="p-0 d-flex align-items-center ml-3"> </b-nav-text>
+          <li class="navbar-text p-0 d-flex align-items-center ml-3"></li>
         </template>
       </b-tabs>
     </template>
@@ -113,10 +112,10 @@
     >
       <template v-slot:header>
         <b-navbar-nav class="d-flex flex-row pt-1">
-          <b-nav-text class="ml-3 mr-2 text-muted">
-            <label>{{ $t('sortBy') }}</label></b-nav-text
-          >
-          <b-nav-text class="mr-1">
+          <li class="navbar-text ml-3 mr-2 text-muted">
+            <label>{{ $t('sortBy') }}</label>
+          </li>
+          <li class="navbar-text mr-1">
             <i-dropdown
               v-model="orderBy"
               :options="
@@ -128,8 +127,8 @@
               class="mr-auto"
               size="sm"
               variant="outline-primary"
-            ></i-dropdown
-          ></b-nav-text>
+            ></i-dropdown>
+          </li>
         </b-navbar-nav>
       </template>
       <template v-slot:default>
@@ -183,6 +182,7 @@
     </List>
     <CreateCollection
       id="createCollectionFromFilters"
+      :show="isCreateCollectionModalVisible"
       :filters="supportedFilters"
       index="tr_passages"
       :title="$t('query_add_to_collection')"
@@ -190,15 +190,17 @@
       :name="newCollectionName"
       @create="handleCreateCollection"
       @collection:created="handleCollectionCreated"
+      @close="hideCreateCollectionModal"
     />
     <ConfirmModal
       id="confirmAddToCollectionFromFilters"
       :title="$t('confirmAddToCollectionFromFilters')"
       :okLabel="$t('saveToTheCollection')"
       @ok="saveArticlesInSelectedCollection"
+      :show="isConfirmAddToCollectionDialogVisible"
       @close="
         () => {
-          $bvModal.hide('confirmAddToCollectionFromFilters')
+          isConfirmAddToCollectionDialogVisible = false
         }
       "
     >
@@ -218,6 +220,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import InfoButton from '@/components/base/InfoButton'
 import Ellipsis from '@/components/modules/Ellipsis'
 import List from '@/components/modules/lists/List'
@@ -236,6 +239,7 @@ import CreateCollection from './modules/collections/CreateCollection'
 import AddToCollection from './modules/collections/AddToCollection'
 import ConfirmModal from './modules/collections/ConfirmModal.vue'
 import ItemLabel from './modules/lists/ItemLabel.vue'
+import { hide } from '@floating-ui/vue'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -301,8 +305,17 @@ export default {
     newCollectionName: '',
     // this is the collection being selected to contains the articles
     selectedCollection: null,
+    isCreateCollectionModalVisible: false,
+    isConfirmAddToCollectionDialogVisible: false,
   }),
   methods: {
+    showCreateCollectionModal() {
+      this.isCreateCollectionModalVisible = true
+    },
+    hideCreateCollectionModal() {
+      this.isCreateCollectionModalVisible = false
+    },
+    ...mapActions('notifications', ['addNotification']),
     summaryUpdatedHandler(summary) {
       this.summary = summary
     },
@@ -329,7 +342,7 @@ export default {
 
       try {
         const [clusters, total] = await textReusePassages
-          .find({ query: { ...query, groupby: 'textReuseClusterId' } })
+          .find({ query: { ...query, group_by: 'textReuseClusterId' } })
           .then(result => [result.data, result.total])
         this.clusters = clusters.map(d => TextReuseCluster.fromTextReusePassage(d))
         this.totalClusters = total
@@ -398,23 +411,24 @@ export default {
       console.debug('[TextReuseExplorer] handleAddToCollectionClick', item)
       this.selectedCollection = item
       // open up confimation modal...?
-      this.$bvModal.show('confirmAddToCollectionFromFilters')
+      this.isConfirmAddToCollectionDialogVisible = true
     },
     // opens up create Collection modal
     handleAddToCollectionCreate({ name = '' }) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleAddToCollectionCreate name:', name)
       this.newCollectionName = name
-      this.$bvModal.show('createCollectionFromFilters')
+      this.showCreateCollectionModal()
     },
     handleCollectionCreated(collection) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleCollectionCreated', collection)
-      this.$bvModal.hide('createCollectionFromFilters')
-      this.$bvToast.toast('Collection created', {
+      this.hideCreateCollectionModal()
+
+      this.addNotification({
         title: 'Success',
-        variant: 'success',
-        solid: true,
+        message: 'Collection created',
+        type: 'success',
       })
       this.selectedCollection = collection
       this.saveArticlesInSelectedCollection()
@@ -446,25 +460,23 @@ export default {
           if (err.code === 400) {
             // eslint-disable-next-line
             console.warn('[TextReuseExplorer] handleAddToCollectionClick', err.data)
-            this.$bvToast.toast('You cannot add to this collection', {
+            this.addNotification({
               title: 'Error',
-              variant: 'danger',
-              solid: true,
+              message: 'You cannot add to this collection',
+              type: 'error',
             })
             return
           } else if ((err.code = 501)) {
             // too many jobs...
-            this.$bvToast.toast(
-              'Please wait, you already have a job running. Check its completion in the running tabs.',
-              {
-                title: 'Please wait...',
-                variant: 'danger',
-                solid: true,
-              },
-            )
+            this.addNotification({
+              title: 'Please wait...',
+              message:
+                'Please wait, you already have a job running. Check its completion in the running tabs.',
+              type: 'error',
+            })
           }
         })
-      this.$bvModal.hide('confirmAddToCollectionFromFilters')
+      this.isConfirmAddToCollectionDialogVisible = false
     },
     async handleCreateCollection(name, description) {
       const collection = await collections.create({ name, description })
@@ -477,7 +489,7 @@ export default {
         collection,
       )
 
-      this.$bvModal.hide('createCollectionFromFilters')
+      this.hideCreateCollectionModal()
     },
   },
   computed: {

@@ -11,6 +11,10 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere.
+ */
+
 import FilterWrapper from './FilterWrapper';
 import FilterSettingContext from './FilterSettingContext';
 

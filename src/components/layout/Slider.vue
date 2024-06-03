@@ -41,11 +41,11 @@ export default {
   <i-layout-section width="400px">
     <i-layout-slider v-model="activeSlide">
       <i-layout-section slot="left">
-        <b-btn slot="header" on:click="show('right')">Show second screen</b-btn>
+        <button slot="header" on:click="show('right')">Show second screen</button>
         <h1>This is the first screen</h1>
       </i-layout-section>
       <i-layout-section slot="right" class="bg-dark>
-        <b-btn slot="footer" on:click="show('left')">Show first screen</b-btn>
+        <button slot="footer" on:click="show('left')">Show first screen</button>
         <h1>This is the second screen</h1>
       </i-layout-section>
     </i-layout-slider>

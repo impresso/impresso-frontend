@@ -20,16 +20,16 @@
         <span v-else>
           {{ $t(`label.timelineDescription.${groupBy}.description.${displayStyle}`) }}
         </span>
-        <b-nav-form v-if="!disableRelativeDisplayStyle">
-          <b-form-radio-group
-            v-model="displayStyle"
-            :options="displayStyleOptions"
-            button-variant="outline-primary"
-            size="sm"
-            buttons
-          />
-          <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
-        </b-nav-form>
+        <li v-if="!disableRelativeDisplayStyle" class="form-inline">
+          <form class="form-inline">
+            <radio-group
+                :modelValue="displayStyle"
+                @update:modelValue="displayStyle = $event"
+                :options="displayStyleOptions"
+                type="button" />
+            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
+          </form>
+        </li>
       </div>
     </base-title-bar>
 
@@ -108,6 +108,7 @@ import BaseTitleBar from '@/components/base/BaseTitleBar'
 import InfoButton from '@/components/base/InfoButton'
 import Timeline from '@/components/modules/Timeline'
 import FilterMonitor from '@/components/modules/FilterMonitor'
+import RadioGroup from '@/components/layout/RadioGroup.vue';
 import { getFilterHash } from '../../models/SearchQuery'
 
 export default {
@@ -147,6 +148,7 @@ export default {
     InfoButton,
     Timeline,
     FilterMonitor,
+    RadioGroup,
   },
   computed: {
     brush() {

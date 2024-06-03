@@ -16,6 +16,10 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere.
+ */
+
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/user-circle';

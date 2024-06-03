@@ -53,7 +53,8 @@
         <div class="fixed-pagination-footer p-1 m-0" slot="footer"  v-if="articlesLoaded && recommendedArticles.length > 0">
           <pagination
             v-if="recommendedArticles.length"
-            v-model="paginationCurrentPage"
+            :current-page="paginationCurrentPage"
+            @change="$event => paginationCurrentPage = $event"
             :per-page="paginationPerPage"
             :total-rows="paginationTotalRows"
             class="float-left small-caps" />

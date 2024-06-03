@@ -17,6 +17,7 @@ import entities from './Entities'
 import embeddings from './Embeddings'
 import monitor from './Monitor'
 import selectionMonitor from './SelectionMonitor'
+import notifications from './Notifications'
 
 Vue.use(Vuex)
 
@@ -41,6 +42,7 @@ export default new Store({
     embeddings,
     monitor,
     selectionMonitor,
+    notifications,
   },
   state: {
     processingStatus: false,

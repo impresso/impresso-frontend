@@ -1,12 +1,15 @@
 <template>
   <div>
-    <b-progress
-      v-if="processingStatus"
-      :value="100"
-      variant="info"
-      animated
-      height="4px"
-    ></b-progress>
+    <div class="progress" v-if="processingStatus" style="height: 4px;">
+      <div
+        class="progress-bar bg-info progress-bar-animated progress-bar-striped"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="100"
+        :style="`width: ${100}%;`"
+      ></div>
+    </div>
     <b-navbar
       id="TheHeader"
       toggleable="md"
@@ -14,16 +17,21 @@
       variant="dark"
       class="py-0 pr-1 border-primary"
     >
-      <b-navbar-brand :to="getRouteWithSearchQuery({ name: 'home' })">
-        <!-- <img v-if="" src="./../assets/img/impresso-logo-h-i@2x.png" /> -->
+      <a
+        class="navbar-brand"
+        @click="$router.push(getRouteWithSearchQuery({ name: 'home' }))"
+        target="_self"
+        title="Home"
+      >
         <Logo />
-      </b-navbar-brand>
+      </a>
 
-      <b-navbar-nav>
+      <b-navbar-nav class="align-items-center text-center">
         <b-nav-item
           :to="getRouteWithSearchQuery({ name: 'search' })"
           active-class="active"
           class="position-relative"
+          title="Search"
         >
           <span>{{ $tc('label_search', 0) }}</span>
           <!-- <transition name="bounce">
@@ -32,7 +40,11 @@
           </transition> -->
         </b-nav-item>
 
-        <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
+        <b-nav-item
+          :to="getRouteWithSearchQuery({ name: 'newspapers' })"
+          active-class="active"
+          title="Newspapers"
+        >
           <span>{{ $t('label_newspapers') }}</span>
         </b-nav-item>
         <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
@@ -44,6 +56,7 @@
         <b-nav-item
           :to="{ name: 'compare', query: { left: searchQueryHash } }"
           active-class="active"
+          title="Inspect & Compare"
         >
           <span>{{ $t('label_compare') }}</span>
         </b-nav-item>
@@ -52,6 +65,7 @@
           v-if="textReuseEnabled"
           :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
           active-class="active"
+          title="Text reuse"
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
@@ -111,12 +125,12 @@
             <div class="pt-2 pb-1">
               <pagination
                 @click.prevent.stop
-                align="center"
-                v-model="jobsPaginationCurrentPage"
+                :current-page="jobsPaginationCurrentPage"
+                @change="$event => (jobsPaginationCurrentPage = $event)"
                 :total-rows="jobsPaginationTotalRows"
                 :per-page="jobsPaginationPerPage"
                 aria-controls="my-table"
-                class="small-caps"
+                class="small-caps justify-content-center"
                 :showDescription="false"
               />
             </div>
@@ -165,7 +179,7 @@
         <b-nav-item :to="loginRouteParams">
           <span class="small-caps">{{ $t('login') }}</span>
         </b-nav-item>
-        <BNavText class="mx-1">|</BNavText>
+        <li class="navbar-text mx-1">|</li>
         <b-nav-item :to="registerRouteParams">
           <span class="small-caps">{{ $t('register') }}</span>
         </b-nav-item>
@@ -204,7 +218,6 @@ import JobItem from '@/components/modules/lists/JobItem'
 import Pagination from '@/components/modules/Pagination'
 import Logo from '@/components/Logo'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
-import { BNavText } from 'bootstrap-vue'
 
 Icon.register({
   slack: {
@@ -431,7 +444,6 @@ export default {
     // Toast,
     JobItem,
     Pagination,
-    BNavText,
   },
 }
 </script>
@@ -559,6 +571,9 @@ export default {
 
   .navbar-dark .navbar-nav .nav-link {
     color: $clr-grey-800;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
     > span {
       position: relative;
     }

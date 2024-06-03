@@ -16,10 +16,16 @@
           </span>
         </div>
         <div class="col p-0 align-self-end">
-          <b-nav-form class="display-style">
-            <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
-            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
-          </b-nav-form>
+          <li class="form-inline display-style">
+            <form class="form-inline">
+              <radio-group
+                :modelValue="displayStyle"
+                @update:modelValue="displayStyle = $event"
+                :options="displayStyleOptions"
+                type="button" />
+              <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
+            </form>
+          </li>
         </div>
       </div>
       <div class="row mb-3">
@@ -79,6 +85,7 @@ import Timeline from '@/components/modules/Timeline'
 import InfoButton from '@/components/base/InfoButton'
 import Bucket from '@/models/Bucket'
 import { search } from '@/services'
+import RadioGroup from '@/components/layout/RadioGroup.vue';
 
 const DisplayStyles = ['percent', 'sum']
 
@@ -153,7 +160,8 @@ export default {
   components: {
     StackedBarsPanel,
     Timeline,
-    InfoButton
+    InfoButton,
+    RadioGroup,
   },
   computed: {
     /** @returns {string} */

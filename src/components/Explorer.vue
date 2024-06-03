@@ -1,12 +1,12 @@
-<template lang="html">
-  <b-modal v-on:hidden="$emit(events.Hide)"
-          :id="id"
-          ref="facet-explorer-modal"
-          :scrollable="false"
-          body-class="p-0">
-    <template v-slot:modal-header class="mt-2 mr-0">
+<template>
+  <Modal
+    :id="id"
+    :show="isModalVisible"
+    body-class="p-0"
+    @close="$emit(events.Hide)">
+    <template v-slot:modal-header="{ titleId, close }" class="mt-2 mr-0">
       <div>
-        <div class="tb-title small-caps font-weight-bold">{{ $t('explore') }}</div>
+        <div class="tb-title small-caps font-weight-bold" :id="titleId">{{ $t('explore') }}</div>
         <b-button v-for="(availableType, i) in typeOptions" v-bind:key="i"
                   class="mr-1 mt-1"
                   variant="outline-primary" size="sm"
@@ -21,25 +21,24 @@
           })"></span>
         </div>
         <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
-          <b-input-group>
+          <div class="input-group">
             <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
                           v-model.trim="searchQueryModel"
                           autofocus/>
-            <b-input-group-append>
-              <b-btn class="pt-2 pb-1 px-2"
-                      variant="outline-primary"
-                      v-on:click="search">
+            <div class="input-group-append">
+              <button type="button" class="btn btn-outline-primary pt-2 pb-1 px-2"
+                     v-on:click="search">
                 <div class="search-submit dripicons-search"></div>
-              </b-btn>
-            </b-input-group-append>
-          </b-input-group>
+              </button>
+            </div>
+          </div>
         </form>
 
       </div>
       <div class="ml-auto">
         <b-button pill class="dripicons-cross px-0" variant="outline-danger"
           style="width:1.5em; height:1.5em"
-          size="sm" v-on:click.prevent="closeDialog">
+          size="sm" v-on:click.prevent="close">
         </b-button>
       </div>
 
@@ -56,7 +55,9 @@
                       :buckets="buckets"
                       v-model="filter">
           <template v-slot:pagination>
-            <pagination v-model="currentPageModel"
+            <pagination
+                        :current-page="currentPageModel"
+                        @change="$event => currentPageModel = $event"
                         v-bind:perPage="pageSize"
                         v-bind:totalRows="totalResults"
                         v-bind:showDescription="false"/>
@@ -77,7 +78,7 @@
     <template v-slot:modal-footer="{ close }">
       <b-button @click="close()" size="sm" variant="outline-primary">{{ $t('actions.close') }}</b-button>
     </template>
-  </b-modal>
+  </Modal>
 </template>
 
 <script>
@@ -88,6 +89,7 @@ import {
   collections,
   getSearchFacetsService
 } from '@/services'
+import Modal from '@/components/base/Modal'
 import FacetExplorer from './modules/FacetExplorer';
 import TimeFacetExplorer from './modules/TimeFacetExplorer';
 import RangeFacetExplorer from './modules/RangeFacetExplorer';
@@ -205,7 +207,8 @@ export default {
     pageSize: PageSize,
     RangeFacets,
     NumericRangeFacets,
-    TimeRangeFacets
+    TimeRangeFacets,
+    isModalVisible: false,
   }),
   props: {
     /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
@@ -231,8 +234,12 @@ export default {
     }
   },
   methods: {
-    openDialog() { this.$bvModal.show(this.id) },
-    closeDialog() { this.$bvModal.hide(this.id) },
+    openDialog() {
+      this.isModalVisible = true
+    },
+    closeDialog() {
+      this.isModalVisible = false
+    },
     handleTypeChange(type) { this.currentType = type },
     async search() {
       if (!this.isVisible) return
@@ -308,6 +315,7 @@ export default {
     Pagination,
     RangeFacetExplorer,
     TimeFacetExplorer,
+    Modal,
   },
   watch: {
     searchParameters: {

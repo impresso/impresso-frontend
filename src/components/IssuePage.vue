@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout id="IssuePage" class="bg-light" ref="issuePage">
     <i-layout-section width="350px">
       <div slot="header" class="border-bottom border-tertiary">
@@ -32,12 +32,12 @@
             <search-pills :filters="filters"
                           @changed="handleFiltersChanged"
                           :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']" />
-            <b-input-group>
+            <div class="input-group">
               <b-form-input
               placeholder="search for ..."
               v-model.trim="q"
               v-on:change.native="search"/>
-            </b-input-group>
+            </div>
           </div>
         </div>
       </div>
@@ -100,15 +100,16 @@
               <span class="badge">
                 <span class='small-caps' id='selected-article-language'>{{ article.language }}</span> |
                 <span>{{ articlePages }}</span>
-                <b-tooltip target="selected-article-language" :title="$t(`buckets.language.${article.language}`)"></b-tooltip>
+                <div :title="$t(`buckets.language.${article.language}`)"></div>
               </span>
             </div>
           </b-navbar-nav>
           <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
-            <b-form-radio-group v-model="mode" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="image">{{ $t('facsimileView') }}&nbsp;<icon name="image"/></b-form-radio>
-              <b-form-radio value="text" v-bind:disabled="!article"><icon name="align-left"/>&nbsp;{{ $t('closeReadingView') }}</b-form-radio>
-            </b-form-radio-group>
+            <radio-group
+              :modelValue="mode"
+              @update:modelValue="mode = $event"
+              :options="modeOptions"
+              type="button" />
             <small>
               <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
             </small>
@@ -140,7 +141,7 @@
         <div class="align-self-center">
           <p>{{ $t('errors.loggedInOnly') }}</p>
           <br/>
-          <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
+          <b-button @click="handleLoginClick()" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
         </div>
       </div>
       <open-seadragon-viewer
@@ -181,6 +182,8 @@ import Pagination from './modules/Pagination';
 import InfoButton from './base/InfoButton';
 import { toCanonicalFilter, SupportedFiltersByContext } from '../logic/filters'
 import { mapSearchQuery } from '@/logic/queryParams'
+import RadioGroup from '@/components/layout/RadioGroup.vue';
+
 
 export default {
   data: () => ({
@@ -223,6 +226,12 @@ export default {
     window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
+    modeOptions() {
+      return [
+        { value: 'image', text: this.$t('facsimileView'), iconName: 'image' },
+        { value: 'text', text: this.$t('closeReadingView'), iconName: 'align-left', disabled: !this.article },
+      ]
+    },
     searchQuery: mapSearchQuery(),
     currentSearchFilters() {
       return this.searchQuery.filters.filter(filter => SupportedFiltersByContext.search.includes(filter.type))
@@ -391,6 +400,9 @@ export default {
       if (!this.isMarginaliaLoaded) {
         await this.loadMarginalia();
       }
+    },
+    handleLoginClick() {
+      this.$router.push({ name: 'login' })
     },
     renderMetaTags() {
       let tags = {};
@@ -752,6 +764,7 @@ export default {
     SearchPills,
     Pagination,
     InfoButton,
+    RadioGroup,
   },
   watch: {
     $route: {

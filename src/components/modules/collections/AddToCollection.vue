@@ -8,7 +8,7 @@
     :text="title"
   >
     <div v-if="!isLoggedIn" class="p-2 bg-light">
-      <b-button size="sm" class="w-100" variant="outline-primary" v-bind:to="{ name: 'login' }">
+      <b-button size="sm" class="w-100" variant="outline-primary" @click="$router.push({ name: 'login' })">
         {{ $t('login') }}
       </b-button>
     </div>
@@ -34,17 +34,18 @@
           or
         </slot> -->
         <!-- Using components -->
-        <b-input-group size="sm" class="p-3">
+        <div class="input-group input-group-sm p-3">
+
           <b-form-input v-model="q" placeholder="search collections ..."></b-form-input>
-          <b-input-group-append>
+          <div class="input-group-append">
             <b-button
               variant="outline-secondary"
               @click="() => $emit('create', { name: q })"
               size="sm"
               >{{ $t('actions.create') }}</b-button
             >
-          </b-input-group-append>
-        </b-input-group>
+          </div>
+        </div>
       </template>
       <template v-slot:default>
         <div

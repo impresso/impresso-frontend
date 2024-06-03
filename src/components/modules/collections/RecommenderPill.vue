@@ -24,7 +24,7 @@
 
       <!-- advanced mode -->
       <div class="advanced-features border-bottom">
-        <b-collapse v-model="isAdvancedPanelOpen">
+        <div class="collapsable-container" :class="{ show: isAdvancedPanelOpen }">
           <slot name="advanced-features" >
             <!-- advanced features -->
             <component class="px-3 pt-3 border-top" :is="currentSettingsComponent" v-model="parameters"/>
@@ -54,7 +54,7 @@
               </b-col>
             </b-row>
           </div>
-        </b-collapse>
+        </div>
       </div>
       <!-- weight -->
       <div class="border-bottom p-2 d-flex">
@@ -309,6 +309,17 @@ export default {
 
       .control-button {
         width: 100%;
+      }
+
+      .collapsable-container {
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease-in-out;
+
+        &.show {
+          max-height: 1000px;
+          transition: max-height 0.3 ease-in-out;
+        }
       }
     }
 

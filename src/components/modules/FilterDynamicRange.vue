@@ -15,7 +15,11 @@
 
     <!-- min 100px height -->
     <div v-if="loading" class="text-center" style="height: 100px">
-      <b-spinner small type="grow" variant="primary" />
+      <span
+        role="status"
+        aria-hidden
+        class="spinner-grow spinner-grow-sm text-primary">
+      </span>
     </div>
     <div v-else-if="loaded" class="position-relative">
       <HistogramSlider
