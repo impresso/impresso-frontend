@@ -97,4 +97,8 @@ defineExpose({
 .dropdown.show .dropdown-menu {
   z-index: 1002;
 }
+.dropdown-menu.dropdown-menu-right {
+  right: 0;
+  left: auto;
+}
 </style>
