@@ -116,6 +116,7 @@ import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePa
 import CopyToClipboard from '../modals/CopyToClipboard'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -148,7 +149,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useCollectionsStore),
+    ...mapStores(useCollectionsStore, useUserStore),
     pageViewerOptions() {
       return {
         tileSources: [this.article.pages[0]?.iiif],
@@ -234,7 +235,7 @@ export default {
       if (this.article.accessRight === 'OpenPublic') {
         return true
       }
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     showModalShareArticle() {
       this.showModalShare = true

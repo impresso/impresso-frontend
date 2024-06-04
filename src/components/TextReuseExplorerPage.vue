@@ -240,6 +240,8 @@ import AddToCollection from './modules/collections/AddToCollection'
 import ConfirmModal from './modules/collections/ConfirmModal.vue'
 import ItemLabel from './modules/lists/ItemLabel.vue'
 import { hide } from '@floating-ui/vue'
+import { mapStores } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -492,8 +494,9 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useUserStore),
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     paginationCurrentPage: mapPagination(),
     supportedFilters() {

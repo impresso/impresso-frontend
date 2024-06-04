@@ -186,6 +186,7 @@ import RadioGroup from '@/components/layout/RadioGroup.vue';
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useIssueStore } from '@/stores/issue'
+import { useUserStore } from '@/stores/user'
 import { search as searchService } from '@/services'
 import Article from '@/models/Article';
 
@@ -230,7 +231,7 @@ export default {
     window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
-    ...mapStores(useEntitiesStore, useIssueStore),
+    ...mapStores(useEntitiesStore, useIssueStore, useUserStore),
     modeOptions() {
       return [
         { value: 'image', text: this.$t('facsimileView'), iconName: 'image' },
@@ -252,7 +253,7 @@ export default {
       return false;
     },
     currentUser() {
-      return this.$store.getters['user/user'];
+      return this.userStore.user
     },
     issue() {
       return this.issueStore.issue

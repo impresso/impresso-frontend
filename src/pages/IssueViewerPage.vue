@@ -228,6 +228,7 @@ import CollectionAddTo from '@/components/modules/CollectionAddTo';
 import WithTooltip from '@/components/base/WithTooltip.vue'
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
+import { useUserStore } from '@/stores/user'
 
 
 /**
@@ -294,7 +295,7 @@ export default {
     window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
-    ...mapStores(useEntitiesStore),
+    ...mapStores(useEntitiesStore, useUserStore),
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     searchQuery: {
       ...searchQueryGetter(),
@@ -456,7 +457,7 @@ export default {
     },
     /** @returns {import('@/models/User').default} */
     currentUser() {
-      return this.$store.getters['user/user'];
+      return this.userStore.user
     },
     /** @returns {boolean} */
     isContentAvailable() {

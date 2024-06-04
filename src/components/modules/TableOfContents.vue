@@ -85,6 +85,7 @@ import ImageItem from './lists/ImageItem';
 import CopyToClipboard from '../modals/CopyToClipboard';
 import { getAuthenticationBearer } from '@/services';
 import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 export default {
   data: () => ({
@@ -119,9 +120,9 @@ export default {
     CopyToClipboard,
   },
   computed: {
-    ...mapStores(useCollectionsStore),
+    ...mapStores(useCollectionsStore, useUserStore),
     isLoggedIn() {
-      return this.$store.state.user.userData;
+      return this.userStore.userData
     },
   },
   methods: {

@@ -41,6 +41,7 @@ import { mapStores } from 'pinia'
 import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/times';
 import { useCollectionsStore } from '@/stores/collections'
+import { userUserStore } from '@/stores/user'
 
 export default {
   data: () => ({
@@ -53,7 +54,7 @@ export default {
     item: Object,
   },
   computed: {
-    ...mapStores(useCollectionsStore),
+    ...mapStores(useCollectionsStore, userUserStore),
     collections: {
       get() {
         return this.collectionsStore.collections
@@ -93,7 +94,7 @@ export default {
       this.show = !this.show;
     },
     isLoggedIn() {
-      return this.$store.state.user.userData;
+      return this.userStore.userData
     },
   },
   components: {

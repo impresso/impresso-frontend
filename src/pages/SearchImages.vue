@@ -135,6 +135,8 @@ import FilterFactory from '@/models/FilterFactory';
 import Image from '@/models/Image';
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
 import FacetModel from '@/models/Facet';
+import { useUserStore } from '@/stores/user'
+import { mapStores } from 'pinia'
 
 const AllowedFilterTypes = [
   'newspaper',
@@ -191,6 +193,7 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useUserStore),
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
@@ -295,7 +298,7 @@ export default {
       },
     },
     isLoggedIn() {
-      return this.$store.state.user.userData;
+      return this.userStore.userData
     },
     serviceQuery: {
       get() {

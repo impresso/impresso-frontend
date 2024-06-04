@@ -27,6 +27,7 @@ import messages from './i18n/messages'
 import dateTimeFormats from './i18n/dateTimeFormats'
 import numberFormats from '@/i18n/numberFormats'
 import { useSettingsStore } from './stores/settings'
+import { useUserStore } from './stores/user'
 
 Vue.use(PiniaVuePlugin)
 Vue.use(BootstrapVueLegacyComponents)
@@ -121,12 +122,15 @@ Promise.race([
     if (err.code === 401) {
       // eslint-disable-next-line
       console.debug('[main] Not authenticated (status 401):', err.message)
-      if (store.state.user) {
+      const userStore = useUserStore()
+
+      if (userStore.user) {
         // eslint-disable-next-line
         console.debug(
           '[main] Authentication failed ... but an user is present in logalStorage. Force logging out.',
         )
-        store.dispatch('user/LOGOUT')
+        userStore.logout()
+
         store.dispatch('DISPLAY_ERROR', {
           error: err,
           origin: 'services.app.reAuthenticate',

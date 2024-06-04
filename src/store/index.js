@@ -3,8 +3,6 @@ import Vuex, { Store } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import { errorCollector } from '@/services'
 
-import user from './User'
-
 Vue.use(Vuex)
 
 const ERRORS_DO_NOT_DISPLAY = ['NavigationDuplicated'] // error names not to display to the user
@@ -14,7 +12,6 @@ let processingTimer // timeout object
 
 export default new Store({
   modules: {
-    user,
   },
   state: {
     processingStatus: false,
@@ -192,8 +189,6 @@ export default new Store({
     createPersistedState({
       key: 'impresso',
       paths: [
-        'user.rememberCredetials',
-        'user.userData',
       ],
     }),
   ],

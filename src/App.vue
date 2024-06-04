@@ -45,6 +45,7 @@ import { searchQueryGetter } from './logic/queryParams'
 import { filtersItems } from './services'
 import { mapStores } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'app',
@@ -73,7 +74,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore),
+    ...mapStores(useSettingsStore, useUserStore),
     searchQuery: {
       ...searchQueryGetter(),
     },
@@ -84,7 +85,7 @@ export default {
     },
     termsAgreed() {
       console.info('Terms agreement:', this.settingsStore.termsAgreed)
-      if (this.$store.state.user.userData) {
+      if (this.userStore.userData) {
         return true
       }
       return this.settingsStore.termsAgreed

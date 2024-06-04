@@ -220,6 +220,7 @@ import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { mapStores } from 'pinia'
 import { useJobsStore } from '@/stores/jobs'
 import { useSettingsStore } from '@/stores/settings'
+import { useUserStore } from '@/stores/user'
 
 Icon.register({
   slack: {
@@ -273,7 +274,7 @@ export default {
   //   }
   // },
   computed: {
-    ...mapStores(useJobsStore, useSettingsStore),
+    ...mapStores(useJobsStore, useSettingsStore, useUserStore),
     searchQueryHash: searchQueryHashGetter(),
     searchQuery: searchQueryGetter(),
     loginRouteParams() {
@@ -327,7 +328,7 @@ export default {
       return this.$store.state.processingStatus
     },
     user() {
-      return this.$store.getters['user/user']
+      return this.userStore.user
     },
     headerTitle() {
       return this.$store.getters.headerTitle

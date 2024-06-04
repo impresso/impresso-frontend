@@ -170,7 +170,7 @@ import { searchFacets as searchFacetsService } from '@/services';
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useSettingsStore } from '@/stores/settings'
-
+import { useUserStore } from '@/stores/user'
 
 const TAB_ARTICLES = 'articles';
 const TAB_MENTIONS = 'mentions';
@@ -205,7 +205,7 @@ export default {
     StackedBarsPanel,
   },
   computed: {
-    ...mapStores(useEntitiesStore, useSettingsStore),
+    ...mapStores(useEntitiesStore, useSettingsStore, useUserStore),
     startYear() {
       return window.impressoDocumentsYearSpan.firstYear;
     },
@@ -414,7 +414,7 @@ export default {
       return numYear;
     },
     isLoggedIn() {
-      return this.$store.state.user.userData;
+      return this.userStore.userData
     },
   },
   watch: {

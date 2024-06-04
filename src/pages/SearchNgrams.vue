@@ -149,6 +149,8 @@
 
 <script>
 import { serializeFilters, optimizeFilters, toCanonicalFilter } from '@/logic/filters'
+import { useUserStore } from '@/stores/user'
+import { mapStores } from 'pinia'
 
 import FacetModel from '@/models/Facet'
 import SearchSidebar from '@/components/modules/SearchSidebar'
@@ -327,6 +329,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useUserStore),
     /** @type {import('vue').ComputedOptions<string[]>} */
     unigrams: {
       /** @returns {string[]} */
@@ -406,7 +409,7 @@ export default {
       },
     },
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     /** @returns {{ ngram: string, values: number[], total: number }[]} */
     trends() {

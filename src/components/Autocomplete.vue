@@ -109,6 +109,7 @@ import ClickOutside from 'vue-click-outside'
 import { mapStores } from 'pinia'
 import FilterFactory from '@/models/FilterFactory'
 import { useAutocompleteStore } from '@/stores/autocomplete'
+import { useUserStore } from '@/stores/user'
 import Explorer from './Explorer'
 
 const AVAILABLE_TYPES = ['mention', 'newspaper', 'topic', 'location', 'person', 'collection']
@@ -151,9 +152,9 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useAutocompleteStore),
+    ...mapStores(useAutocompleteStore, useUserStore),
     user() {
-      return this.$store.getters['user/user']
+      return this.userStore.user
     },
     staticSuggestions() {
       return this.initialSuggestions.concat(this.recentSuggestions).map((d, idx) => ({

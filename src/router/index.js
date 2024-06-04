@@ -22,6 +22,7 @@ import PowerUserVisualisation from '../pages/PowerUserVisualisation'
 import IssueViewerPage from '../pages/IssueViewerPage'
 import { getShortArticleId } from '@/logic/ids'
 import store from '../store'
+import { useUserStore } from '@/stores/user'
 
 Vue.use(Router)
 
@@ -117,7 +118,8 @@ const router = new Router({
       name: 'logout',
       component: UserLoginPage,
       beforeEnter: () => {
-        store.dispatch('user/LOGOUT').then(
+        const userStore = useUserStore()
+        userStore.logout().then(
           () => {},
           err => {
             this.error = this.$t(err.message)

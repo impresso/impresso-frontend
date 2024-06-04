@@ -273,6 +273,7 @@ import {
   collectionsItems as collectionsItemsService,
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -309,7 +310,7 @@ export default {
     visibleModal: null,
   }),
   computed: {
-    ...mapStores(useCollectionsStore),
+    ...mapStores(useCollectionsStore, useUserStore),
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
@@ -348,7 +349,7 @@ export default {
       },
     },
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     orderBy: {
       get() {

@@ -24,6 +24,7 @@
 import { mapStores } from 'pinia'
 import CollectionAddToList from './CollectionAddToList';
 import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 export default {
   data: () => ({
@@ -45,11 +46,11 @@ export default {
       return {}
     },
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
   },
   computed: {
-    ...mapStores(useCollectionsStore),
+    ...mapStores(useCollectionsStore, useUserStore),
   },
 };
 </script>

@@ -72,6 +72,7 @@
 <script>
 import { mapStores } from 'pinia'
 import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 export default {
   data: () => ({
@@ -88,7 +89,7 @@ export default {
     this.focusInput()
   },
   computed: {
-    ...mapStores(useCollectionsStore),
+    ...mapStores(useCollectionsStore, useUserStore),
     filteredCollections() {
       return this.collections.filter(collection => {
         const searchRegex = new RegExp(this.inputString, 'i')
@@ -190,7 +191,7 @@ export default {
         })
     },
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
   },
 }
