@@ -2,7 +2,6 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
-import VueGtag from 'vue-gtag'
 
 import Helpers from '@/plugins/Helpers'
 import ImpressoLayout from '@/plugins/Layout'
@@ -34,17 +33,6 @@ Vue.use(ImpressoLayout)
 Vue.use(MetaTags, { suffix: 'impresso' })
 Vue.use(Navigation)
 
-if (process.env.VUE_APP_GA_TRACKING_ID) {
-  Vue.use(
-    VueGtag,
-    {
-      config: {
-        id: process.env.VUE_APP_GA_TRACKING_ID,
-      },
-    },
-    router,
-  )
-}
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 Vue.config.errorHandler = error =>
   store.dispatch('DISPLAY_ERROR', {
