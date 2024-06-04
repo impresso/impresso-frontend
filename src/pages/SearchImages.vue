@@ -250,11 +250,6 @@ export default {
         );
       },
     },
-    // searchResults: {
-    //   get() {
-    //     return this.$store.getters['searchImages/results'];
-    //   },
-    // },
     orderByOptions: {
       get() {
         return [
@@ -391,20 +386,12 @@ export default {
     isChecked(item) {
       return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
     },
-    // onInputPagination(page = 1) {
-    //   this.$store.dispatch('searchImages/SET_RANDOM_PAGE', false);
-    //   this.search(page);
-    // },
     onClearSelection() {
       this.selectedItems = [];
     },
     onClickSearch(image) {
       console.info('.onClickSearch, image:', image);
       this.similarToImageUid = image.uid;
-    //   this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);
-    //   this.similarToImage = image;
-    //   this.$store.commit('searchImages/UPDATE_SIMILAR_TO', image.uid);
-    //   this.search(1);
     },
     onRemoveSimilarTo() {
       console.info('onRemoveSimilarTo');

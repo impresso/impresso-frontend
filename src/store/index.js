@@ -5,7 +5,6 @@ import { errorCollector } from '@/services'
 
 import settings from './Settings'
 import user from './User'
-import searchImages from './SearchImages'
 import topics from './Topics'
 import selectionMonitor from './SelectionMonitor'
 
@@ -19,7 +18,6 @@ let processingTimer // timeout object
 export default new Store({
   modules: {
     settings,
-    searchImages,
     user,
     topics,
     selectionMonitor,
