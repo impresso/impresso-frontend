@@ -219,7 +219,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions } from 'pinia'
+import { useNotificationsStore } from '@/stores/notifications'
 import InfoButton from '@/components/base/InfoButton'
 import Ellipsis from '@/components/modules/Ellipsis'
 import List from '@/components/modules/lists/List'
@@ -314,7 +315,7 @@ export default {
     hideCreateCollectionModal() {
       this.isCreateCollectionModalVisible = false
     },
-    ...mapActions('notifications', ['addNotification']),
+    ...mapActions(useNotificationsStore, ['addNotification']),
     summaryUpdatedHandler(summary) {
       this.summary = summary
     },

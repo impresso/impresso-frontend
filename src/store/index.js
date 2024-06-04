@@ -9,7 +9,6 @@ import search from './Search'
 import searchImages from './SearchImages'
 import topics from './Topics'
 import selectionMonitor from './SelectionMonitor'
-import notifications from './Notifications'
 
 Vue.use(Vuex)
 
@@ -26,7 +25,6 @@ export default new Store({
     user,
     topics,
     selectionMonitor,
-    notifications,
   },
   state: {
     processingStatus: false,
