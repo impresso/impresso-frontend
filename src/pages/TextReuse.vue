@@ -126,6 +126,8 @@ import FilterFactory from '@/models/FilterFactory'
 import { facetToTimelineValues } from '@/logic/facets'
 import FilterTimeline from '@/components/modules/FilterTimeline'
 import InfoButton from '@/components/base/InfoButton.vue'
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -174,6 +176,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useSelectionMonitorStore),
     allowedFilters() {
       return this.filters.filter(({ type }) => SupportedFiltersByContext.textReuse.includes(type))
     },
@@ -301,7 +304,7 @@ export default {
      */
     handleFacetFiltersClicked(filter) {
       if (filter.type === 'textReuseClusterLexicalOverlap') {
-        this.$store.dispatch('selectionMonitor/show', {
+        this.selectionMonitorStore.show({
           item: {
             ...filter,
             q: [String(filter.q[0]), String(parseInt(filter.q[0], 10) + 0.999)],
@@ -314,7 +317,7 @@ export default {
         return
       }
       // open selection monitor
-      this.$store.dispatch('selectionMonitor/show', {
+      this.selectionMonitorStore.show({
         item: filter,
         searchIndex: 'tr_passages',
         type: filter.type,

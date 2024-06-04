@@ -7,6 +7,9 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+
 /**
  * Item selector component: given a specific item, display it on the Monitor component
  * <item-selector :uid="your-item.uid" :type="person" :search-index="search" >
@@ -52,7 +55,7 @@ export default {
         type: this.type,
       }
       if (!this.defaultClickActionDisabled) {
-        this.$store.dispatch('selectionMonitor/show', {
+        this.selectionMonitorStore.show({
           item: this.item,
           searchIndex: this.searchIndex,
           type: this.type,
@@ -66,6 +69,9 @@ export default {
       })
     },
   },
+  computed: {
+    ...mapStores(useSelectionMonitorStore),
+  }
 }
 </script>
 

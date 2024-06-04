@@ -6,7 +6,6 @@ import { errorCollector } from '@/services'
 import settings from './Settings'
 import user from './User'
 import topics from './Topics'
-import selectionMonitor from './SelectionMonitor'
 
 Vue.use(Vuex)
 
@@ -20,7 +19,6 @@ export default new Store({
     settings,
     user,
     topics,
-    selectionMonitor,
   },
   state: {
     processingStatus: false,
