@@ -9,9 +9,6 @@
 
 export default {
   computed: {
-    status() {
-      return this.$store.state.processing_message;
-    },
   },
 };
 </script>

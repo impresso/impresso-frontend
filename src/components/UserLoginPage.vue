@@ -90,7 +90,7 @@ export default {
         .then(() => {
           this.$router.push({
             path,
-            ...this.$store.getters.redirectionParams,
+            ...this.userStore.redirectionParams,
           })
         })
         .catch(err => {

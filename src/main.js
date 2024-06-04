@@ -22,12 +22,12 @@ import './assets/legacy/bootstrap-vue.css'
 
 import App from './App'
 import router from './router'
-import store from './store'
 import messages from './i18n/messages'
 import dateTimeFormats from './i18n/dateTimeFormats'
 import numberFormats from '@/i18n/numberFormats'
 import { useSettingsStore } from './stores/settings'
 import { useUserStore } from './stores/user'
+import { useNotificationsStore } from './stores/notifications'
 
 Vue.use(PiniaVuePlugin)
 Vue.use(BootstrapVueLegacyComponents)
@@ -56,15 +56,19 @@ if (process.env.VUE_APP_GA_TRACKING_ID) {
   )
 }
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
-Vue.config.errorHandler = error =>
-  store.dispatch('DISPLAY_ERROR', {
+Vue.config.errorHandler = error => {
+  const notificationsStore = useNotificationsStore()
+  notificationsStore.displayError({
     error,
     origin: 'Vue.config.errorHandler',
   })
+}
+
 
 window.addEventListener('unhandledrejection', event => {
   if (event.reason) {
-    store.dispatch('DISPLAY_ERROR', {
+    const notificationsStore = useNotificationsStore()
+    notificationsStore.displayError({
       error: event.reason,
       origin: 'unhandledrejection',
     })
@@ -131,7 +135,8 @@ Promise.race([
         )
         userStore.logout()
 
-        store.dispatch('DISPLAY_ERROR', {
+        const notificationsStore = useNotificationsStore()
+        notificationsStore.displayError({
           error: err,
           origin: 'services.app.reAuthenticate',
         })
@@ -232,7 +237,6 @@ Promise.race([
         el: '#app',
         i18n,
         router,
-        store,
         pinia,
         template: '<App/>',
         components: {

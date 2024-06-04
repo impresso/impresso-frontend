@@ -9,6 +9,7 @@ import uploadedImagesHooks from './hooks/uploadedImages'
 import imagesHooks from './hooks/images'
 import NamesService from './names'
 import { useJobsStore } from '@/stores/jobs'
+import { useNotificationsStore } from '@/stores/notifications'
 
 // e.g io api base is http://localhost
 // and path is  something like /path/to/socket.io defined in the backend
@@ -36,7 +37,8 @@ app.configure(
 socket.on('reconnect', () => {
   app.reAuthenticate()
   if (window.app && window.app.$store) {
-    window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', true)
+    const notificationsStore = useNotificationsStore()
+    notificationsStore.displayConnectivityStatus(true)
   }
 }) // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
@@ -44,8 +46,9 @@ socket.on('connect_error', err => {
   if (window.app && window.app.$store) {
     err.message = `Could not connect to the API: ${err.message}`
     console.error(err)
-    window.app.$store.dispatch('DISPLAY_CONNECTIVITY_STATUS', false)
-    window.app.$store.commit('LOCK_SCREEN', false)
+    const notificationsStore = useNotificationsStore()
+    notificationsStore.displayConnectivityStatus(false)
+    notificationsStore.lockScreen(false)
   }
 })
 
@@ -59,9 +62,10 @@ app.hooks({
       context => {
         const route = `${context.path}.${context.method}`
         if (window.app && window.app.$store) {
-          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'LOADING' })
+          const notificationsStore = useNotificationsStore()
+          notificationsStore.updateProcessingActivity({ route, status: 'LOADING' })
           if (needsLockScreen(route) && context.params.lock !== false) {
-            window.app.$store.commit('LOCK_SCREEN', true)
+            notificationsStore.lockScreen(true)
           }
         }
       },
@@ -72,9 +76,10 @@ app.hooks({
       context => {
         const route = `${context.path}.${context.method}`
         if (window.app && window.app.$store) {
-          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'DONE' })
+          const notificationsStore = useNotificationsStore()
+          notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
           if (needsLockScreen(route)) {
-            window.app.$store.commit('LOCK_SCREEN', false)
+            notificationsStore.lockScreen(false)
           }
         }
       },
@@ -85,6 +90,8 @@ app.hooks({
       context => {
         const route = `${context.path}.${context.method}`
         if (window.app && window.app.$store) {
+          const notificationsStore = useNotificationsStore()
+
           // handle not authenticated error when removing authentication
           if (context.params.ignoreErrors) {
             console.warn(
@@ -109,14 +116,14 @@ app.hooks({
           } else if (!silentErrorCodes.includes(context.error.code)) {
             // eslint-disable-next-line no-console
             console.warn('app.hooks.error.all', context.error)
-            window.app.$store.dispatch('DISPLAY_ERROR', {
+            notificationsStore.displayError({
               error: context.error,
               origin: 'app.hooks.error.all',
             })
           }
-          window.app.$store.dispatch('UPDATE_PROCESSING_ACTIVITY', { route, status: 'DONE' })
+          notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
           if (needsLockScreen(route)) {
-            window.app.$store.commit('LOCK_SCREEN', false)
+            notificationsStore.lockScreen(false)
           }
         }
       },

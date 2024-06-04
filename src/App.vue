@@ -46,6 +46,7 @@ import { filtersItems } from './services'
 import { mapStores } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
 
 export default {
   name: 'app',
@@ -74,7 +75,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore, useUserStore),
+    ...mapStores(useSettingsStore, useUserStore, useNotificationsStore),
     searchQuery: {
       ...searchQueryGetter(),
     },
@@ -91,7 +92,7 @@ export default {
       return this.settingsStore.termsAgreed
     },
     is_locked() {
-      return this.$store.state.processingLocked
+      return this.notificationsStore.processingLocked
     },
   },
   methods: {

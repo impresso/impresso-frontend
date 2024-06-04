@@ -221,6 +221,7 @@ import { mapStores } from 'pinia'
 import { useJobsStore } from '@/stores/jobs'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
 
 Icon.register({
   slack: {
@@ -274,7 +275,7 @@ export default {
   //   }
   // },
   computed: {
-    ...mapStores(useJobsStore, useSettingsStore, useUserStore),
+    ...mapStores(useJobsStore, useSettingsStore, useUserStore, useNotificationsStore),
     searchQueryHash: searchQueryHashGetter(),
     searchQuery: searchQueryGetter(),
     loginRouteParams() {
@@ -312,26 +313,24 @@ export default {
       return this.settingsStore.language_code
     },
     showAlert() {
+      const messages = this.notificationsStore.errorMessages
       if (
-        this.$store.state.errorMessages.length &&
+        messages.length &&
         !this.user &&
-        this.$store.state.errorMessages[0].name === 'NotAuthenticated'
+        messages[0].name === 'NotAuthenticated'
       ) {
         return false
       }
-      return this.$store.state.errorMessages.length > 0
+      return messages.length > 0
     },
     errorMessages() {
-      return this.$store.state.errorMessages
+      return this.notificationsStore.errorMessages
     },
     processingStatus() {
-      return this.$store.state.processingStatus
+      return this.notificationsStore.processingStatus
     },
     user() {
       return this.userStore.user
-    },
-    headerTitle() {
-      return this.$store.getters.headerTitle
     },
     userFullName() {
       const name = `${this.user.firstname} ${this.user.lastname}`.trim()
@@ -362,7 +361,7 @@ export default {
       return style
     },
     connectivityStatus() {
-      return this.$store.state.connectivityStatus
+      return this.notificationsStore.connectivityStatus
     },
     version() {
       return window.impressoFrontendVersion

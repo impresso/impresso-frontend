@@ -284,9 +284,6 @@ export default {
         ...common,
       ];
     },
-    countMentions() {
-      return this.$store.state.mentions.pagination.totalRows;
-    },
     tabs() {
       return [
         {
