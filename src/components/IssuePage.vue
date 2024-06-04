@@ -186,7 +186,8 @@ import RadioGroup from '@/components/layout/RadioGroup.vue';
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useIssueStore } from '@/stores/issue'
-
+import { search as searchService } from '@/services'
+import Article from '@/models/Article';
 
 export default {
   data: () => ({
@@ -678,17 +679,29 @@ export default {
         // console.info('-> search() skip, q is empty.');
         return;
       }
-      this.$store.dispatch('search/GET_SEARCH_RESULTS', {
+
+      const query = {
         filters: filters.map(toCanonicalFilter),
-        orderBy: 'id',
-        groupBy: 'raw',
+        facets: [],
+        group_by: 'raw',
         page: this.matchesCurrentPage,
+        limit: 12,
+        order_by: 'id',
+      }
+
+      searchService.find({
+        query,
+      }).then((res) => {
+        if (query.groupBy === 'articles') {
+          res.data = res.data.map(result => new Article(result));
+        }
+        return res;
       }).then((result) => {
         this.isSearchLoaded = true;
         this.matches = result.data;
         this.matchesTotalRows = result.total;
         // console.info('-> search() success for q:', this.q);
-      });
+      })
     },
     selectArticle() {
       const self = this;

@@ -5,7 +5,6 @@ import { errorCollector } from '@/services'
 
 import settings from './Settings'
 import user from './User'
-import search from './Search'
 import searchImages from './SearchImages'
 import topics from './Topics'
 import selectionMonitor from './SelectionMonitor'
@@ -20,7 +19,6 @@ let processingTimer // timeout object
 export default new Store({
   modules: {
     settings,
-    search,
     searchImages,
     user,
     topics,
@@ -206,12 +204,6 @@ export default new Store({
         'settings.cookiesAccepted',
         'settings.lastNotificationDate',
         'settings.language_code',
-        'search.searches',
-        'search.currentSearchHash',
-        'search.displaySortBy',
-        'search.displaySortOrder',
-        'search.displayStyle',
-        'search.filterFacetYearExpanded',
         'user.rememberCredetials',
         'user.userData',
         'newspapers.orderBy',

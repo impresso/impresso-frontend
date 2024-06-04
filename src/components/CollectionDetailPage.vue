@@ -343,14 +343,14 @@ export default {
     },
     displayStyle: {
       get() {
-        const style = this.$store.state.search.displayStyle
+        const style = this.$store.state.settings.searchDisplayStyle
         if (['list', 'tiles'].includes(style)) {
           return style
         }
         return 'list'
       },
       set(displayStyle) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
+        this.$store.commit('settings/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
       },
     },
     tabs() {

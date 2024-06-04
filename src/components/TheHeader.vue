@@ -306,9 +306,6 @@ export default {
     runningJobs() {
       return this.jobs.filter(d => d.status === 'RUN')
     },
-    currentSearchResults() {
-      return this.$store.state.search.paginationTotalRows
-    },
     activeLanguageCode() {
       return this.$store.state.settings.language_code
     },

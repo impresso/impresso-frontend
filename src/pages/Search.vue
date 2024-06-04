@@ -538,11 +538,11 @@ export default {
             description: this.inputDescription,
           })
           .then(collection => {
-            const payload = {
+            return searchService.create({
+              group_by: 'articles',
               filters: this.filters.map(getFilterQuery),
-              collectionUid: collection.uid,
-            }
-            this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', payload)
+              collection_uid: collection.uid,
+            })
           })
       }
     },

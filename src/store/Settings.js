@@ -5,6 +5,7 @@ export default {
     termsAgreed: false,
     cookiesAccepted: false,
     lastNotificationDate: (new Date(0)).toISOString(),
+    searchDisplayStyle: 'list'
   },
   getters: {
     lastNotificationDate(state) {
@@ -24,6 +25,9 @@ export default {
     SET_LAST_NOTIFICATION_DATE(state) {
       state.lastNotificationDate = (new Date()).toISOString();
     },
+    UPDATE_SEARCH_DISPLAY_STYLE(state, displayStyle) {
+      state.searchDisplayStyle = displayStyle;
+    }
   },
   actions: {
     ACCEPT_TERMS_OF_USE({ commit }) {
