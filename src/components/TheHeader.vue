@@ -590,10 +590,14 @@ export default {
       color: white;
     }
   }
+  .navbar-dark .dropdown.show .dropdown-toggle {
+    background-color: var(--clr-grey-100);
+    color: #fff;
+  }
   .navbar-dark .navbar-nav .nav-link:focus,
   .navbar-dark .navbar-nav .nav-link:hover {
     color: $clr-white;
-    background: transparent;
+    background: var(--clr-grey-100) !important;
   }
   &::before {
     position: absolute;
