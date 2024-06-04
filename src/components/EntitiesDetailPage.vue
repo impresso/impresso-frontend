@@ -169,6 +169,7 @@ import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
 import { searchFacets as searchFacetsService } from '@/services';
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
+import { useSettingsStore } from '@/stores/settings'
 
 
 const TAB_ARTICLES = 'articles';
@@ -204,7 +205,7 @@ export default {
     StackedBarsPanel,
   },
   computed: {
-    ...mapStores(useEntitiesStore),
+    ...mapStores(useEntitiesStore, useSettingsStore),
     startYear() {
       return window.impressoDocumentsYearSpan.firstYear;
     },
@@ -314,7 +315,7 @@ export default {
       return null;
     },
     activeLanguageCode() {
-      return this.$store.state.settings.language_code;
+      return this.settingsStore.language_code
     },
     bbox() {
       if (!this.entity.wikidata) {

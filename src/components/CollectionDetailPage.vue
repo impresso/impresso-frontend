@@ -263,6 +263,7 @@ import RadioGroup from '@/components/layout/RadioGroup.vue';
 import Modal from '@/components/base/Modal.vue'
 import { hide } from '@floating-ui/vue';
 import { useCollectionsStore } from '@/stores/collections'
+import { useSettingsStore } from '@/stores/settings'
 
 
 const QueryParameters = Object.freeze({
@@ -305,7 +306,7 @@ export default {
     Modal,
   },
   computed: {
-    ...mapStores(useCollectionsStore),
+    ...mapStores(useCollectionsStore, useSettingsStore),
     displayStyleOptions() {
       return [
         {value: 'list', text: this.$t('display_button_list')},
@@ -343,14 +344,14 @@ export default {
     },
     displayStyle: {
       get() {
-        const style = this.$store.state.settings.searchDisplayStyle
+        const style = this.settingsStore.searchDisplayStyle
         if (['list', 'tiles'].includes(style)) {
           return style
         }
         return 'list'
       },
       set(displayStyle) {
-        this.$store.commit('settings/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
+        this.settingsStore.updateSearchDisplayStyle(displayStyle)
       },
     },
     tabs() {

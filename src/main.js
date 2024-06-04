@@ -26,6 +26,7 @@ import store from './store'
 import messages from './i18n/messages'
 import dateTimeFormats from './i18n/dateTimeFormats'
 import numberFormats from '@/i18n/numberFormats'
+import { useSettingsStore } from './stores/settings'
 
 Vue.use(PiniaVuePlugin)
 Vue.use(BootstrapVueLegacyComponents)
@@ -69,10 +70,16 @@ window.addEventListener('unhandledrejection', event => {
   }
 })
 
+// pinia cannot be used without a Vue instance
+// creating an instance here that won't be used
+// anywhere later
+const _throwawayApp = new Vue({ pinia })
+const settingsStore = useSettingsStore()
+
 // Create VueI18n instance with options
 const i18n = new VueI18n({
   fallbackLocale: 'en',
-  locale: store.state.settings.language_code,
+  locale: settingsStore.language_code,
   messages,
   dateTimeFormats,
   numberFormats,
@@ -173,11 +180,6 @@ Promise.race([
         documentsDateSpan,
         '\n - features:',
         features,
-      )
-      // eslint-disable-next-line
-      console.debug(
-        '[main] App latest notification date:',
-        store.state.settings.lastNotificationDate,
       )
       window.impressoFrontendVersion = process.env.VUE_APP_GIT_TAG
       window.impressoFrontendRevision = process.env.VUE_APP_GIT_REVISION

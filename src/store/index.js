@@ -3,7 +3,6 @@ import Vuex, { Store } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import { errorCollector } from '@/services'
 
-import settings from './Settings'
 import user from './User'
 import topics from './Topics'
 
@@ -16,7 +15,6 @@ let processingTimer // timeout object
 
 export default new Store({
   modules: {
-    settings,
     user,
     topics,
   },
@@ -196,10 +194,6 @@ export default new Store({
     createPersistedState({
       key: 'impresso',
       paths: [
-        'settings.termsAgreed',
-        'settings.cookiesAccepted',
-        'settings.lastNotificationDate',
-        'settings.language_code',
         'user.rememberCredetials',
         'user.userData',
         'newspapers.orderBy',

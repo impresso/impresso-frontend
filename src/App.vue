@@ -43,6 +43,8 @@ import { CommonQueryParameters } from './router/util'
 import { joinFiltersWithItems, optimizeFilters, serializeFilters } from './logic/filters'
 import { searchQueryGetter } from './logic/queryParams'
 import { filtersItems } from './services'
+import { mapStores } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
 
 export default {
   name: 'app',
@@ -71,6 +73,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useSettingsStore),
     searchQuery: {
       ...searchQueryGetter(),
     },
@@ -80,11 +83,11 @@ export default {
       return this.searchQuery.filters
     },
     termsAgreed() {
-      console.info('Terms agreement:', this.$store.state.settings.termsAgreed)
+      console.info('Terms agreement:', this.settingsStore.termsAgreed)
       if (this.$store.state.user.userData) {
         return true
       }
-      return this.$store.state.settings.termsAgreed
+      return this.settingsStore.termsAgreed
     },
     is_locked() {
       return this.$store.state.processingLocked

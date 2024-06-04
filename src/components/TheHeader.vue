@@ -219,6 +219,7 @@ import Logo from '@/components/Logo'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { mapStores } from 'pinia'
 import { useJobsStore } from '@/stores/jobs'
+import { useSettingsStore } from '@/stores/settings'
 
 Icon.register({
   slack: {
@@ -272,7 +273,7 @@ export default {
   //   }
   // },
   computed: {
-    ...mapStores(useJobsStore),
+    ...mapStores(useJobsStore, useSettingsStore),
     searchQueryHash: searchQueryHashGetter(),
     searchQuery: searchQueryGetter(),
     loginRouteParams() {
@@ -307,7 +308,7 @@ export default {
       return this.jobs.filter(d => d.status === 'RUN')
     },
     activeLanguageCode() {
-      return this.$store.state.settings.language_code
+      return this.settingsStore.language_code
     },
     showAlert() {
       if (
@@ -372,16 +373,14 @@ export default {
   },
   methods: {
     updateLastNotificationDate() {
-      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE', new Date())
+      this.settingsStore.updateLastNotificationDate()
     },
     test() {
       return this.jobsStore.createTestJob()
     },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode
-      this.$store.commit('settings/SET_LANGUAGE', {
-        language_code: languageCode,
-      })
+      this.settingsStore.setLanguageCode(languageCode)
     },
     getRouteWithSearchQuery(route, additionalQueryParameters = {}) {
       return {
@@ -423,7 +422,9 @@ export default {
             .map(d => d.lastModifiedDate.getTime())
             .sort()
             .pop()
-          if (this.$store.getters['settings/lastNotificationDate'] - lastModifiedDate < 0) {
+          const lastNotificationDate = this.settingsStore.lastNotificationDateAsDate
+
+          if (lastNotificationDate - lastModifiedDate < 0) {
             console.info(
               'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.',
             )

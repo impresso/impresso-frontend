@@ -29,6 +29,8 @@
 
 <script>
 import content from '@/assets/faqpage.json';
+import { mapStores } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
 
 const ApiVersionLine = apiVersion => `
 API: v${apiVersion.version},
@@ -44,6 +46,7 @@ Revision <a href="https://github.com/impresso/impresso-frontend/commit/${process
 
 export default {
   computed: {
+    ...mapStores(useSettingsStore),
     faq: {
       get() {
         const faqContent = content[this.activeLanguageCode];
@@ -52,7 +55,7 @@ export default {
       },
     },
     activeLanguageCode() {
-      return this.$store.state.settings.language_code;
+      return this.settingsStore.language_code
     },
   },
   methods: {
