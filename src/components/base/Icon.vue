@@ -1,16 +1,19 @@
 <template>
-  <svg>
+  <svg :width="width" :height="height" :viewBox="computedSvgViewbox">
     <g>
-      <path v-for="path in paths" :key="path.d" :d="path.d" />
-      <polygon v-for="poly in polygon" :key="poly.points" :points="poly.points" />
+      <path v-for="path in computedPaths" :key="path.d" :d="path.d" :strokeWidth="strokeWidth" />
+      <polygon v-for="poly in computedPolygons" :key="poly.points" :points="poly.points" />
     </g>
   </svg>
 </template>
 <script setup lang="ts">
+// usage <icon name="slack" />
+import { computed, defineProps } from 'vue'
 interface IconData {
   width: number
   height: number
   paths: { d: string }[]
+  polygons?: { points: string }[]
 }
 
 const Icons: Record<string, IconData> = {
@@ -26,8 +29,6 @@ const Icons: Record<string, IconData> = {
   },
 }
 
-// usage <icon name="slack" />
-import { defineProps } from 'vue'
 const props = defineProps({
   name: {
     type: String,
@@ -35,11 +36,37 @@ const props = defineProps({
   },
   paths: {
     type: Array,
-    default: () => Icons[props.name].paths,
+    default: () => [],
   },
-  polygon: {
+  polygons: {
     type: Array,
     default: () => [],
   },
+  width: {
+    type: Number,
+    default: 24,
+  },
+  height: {
+    type: Number,
+    default: 24,
+  },
+  strokeWidth: {
+    type: Number,
+    default: 1,
+  },
+})
+
+const computedPaths = computed(() => (props.paths.length ? props.paths : Icons[props.name].paths))
+const computedPolygons = computed(() =>
+  props.polygons.length ? props.polygons : Icons[props.name].polygons,
+)
+const computedSvgViewbox = computed(() => {
+  const { width, height } = Icons[props.name]
+  return `0 0 ${width} ${height}`
 })
 </script>
+<style scoped>
+svg {
+  fill: currentColor;
+}
+</style>
