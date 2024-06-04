@@ -134,7 +134,11 @@ import Timeline from './modules/Timeline';
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
 import { searchQueryHashGetter, mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
-import { searchFacets as searchFacetsService, search as searchService } from '@/services'
+import {
+  searchFacets as searchFacetsService,
+  search as searchService,
+  topics as topicsService,
+} from '@/services'
 import Helpers from '@/plugins/Helpers';
 
 const TAB_ARTICLES = 'articles';
@@ -307,7 +311,8 @@ export default {
       immediate: true,
       async handler({ params, query }) {
         // always reload entity
-        this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', params.topic_uid);
+        this.topic = await topicsService.get(params.topic_uid, { fl: 'id' })
+          .then(result => new Topic(result))
         this.total = +this.topic.countItems;
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);

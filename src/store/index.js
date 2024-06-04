@@ -4,7 +4,6 @@ import createPersistedState from 'vuex-persistedstate'
 import { errorCollector } from '@/services'
 
 import user from './User'
-import topics from './Topics'
 
 Vue.use(Vuex)
 
@@ -16,7 +15,6 @@ let processingTimer // timeout object
 export default new Store({
   modules: {
     user,
-    topics,
   },
   state: {
     processingStatus: false,
@@ -196,7 +194,6 @@ export default new Store({
       paths: [
         'user.rememberCredetials',
         'user.userData',
-        'newspapers.orderBy',
       ],
     }),
   ],

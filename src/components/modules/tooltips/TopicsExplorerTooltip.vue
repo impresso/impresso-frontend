@@ -45,6 +45,7 @@ import { serializeFilters } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
 import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
+import { topics as topicsService } from '@/services'
 
 export default {
   model: {
@@ -97,17 +98,19 @@ export default {
         return;
       }
       this.isLoading = true;
-      this.$store.dispatch('topics/LOAD_TOPIC', this.tooltip.item.uid).then((item) => {
-        this.isLoading = false;
-        this.tooltip.isActive = false;
-        this.monitorStore.activate({
-          item,
-          type: 'topic',
-          disableFilterModification: true
+      topicsService.get(this.tooltip.item.uid, { fl: 'id' })
+        .then(result => new Topic(result))
+        .then((item) => {
+          this.isLoading = false;
+          this.tooltip.isActive = false;
+          this.monitorStore.activate({
+            item,
+            type: 'topic',
+            disableFilterModification: true
+          });
+        }).catch(() => {
+          this.isLoading = true;
         });
-      }).catch(() => {
-        this.isLoading = true;
-      });
     },
   },
 };
