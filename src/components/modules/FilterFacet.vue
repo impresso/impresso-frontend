@@ -60,6 +60,7 @@
         :filter="filter"
         :operators="facet.operators"
         @changed="filter => updateFilter(filterIndex, filter)"
+        @remove="filter => removeFilter(filterIndex, filter)"
       />
     </div>
     <div
@@ -71,6 +72,7 @@
         :filter="filter"
         :operators="facet.operators"
         @changed="filter => updateFilter(filterIndex, filter)"
+        @remove="filter => removeFilter(filterIndex, filter)"
       />
     </div>
     <div v-if="showBuckets" class="pt-2">
@@ -294,7 +296,15 @@ export default defineComponent({
       } // nothing else matters
     },
     resetFilters() {
+      console.info('[FilterFacet] resetFilters')
       this.$emit('changed', [])
+    },
+    removeFilter(filterIndex, filter) {
+      console.info('[FilterFacet] removeFilter', filter)
+      this.$emit(
+        'changed',
+        this.facetFilters.filter((f, index) => index !== filterIndex),
+      )
     },
     updateFilter(filterIndex, filter) {
       const oldFilter = this.facetFilters[filterIndex]

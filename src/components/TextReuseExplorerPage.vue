@@ -14,7 +14,6 @@
             <Ellipsis :initialHeight="60" :maxHeight="0">
               <span v-html="incipit" />
               <SearchQuerySummary
-                class="textbox-fancy"
                 v-on:updated="summaryUpdatedHandler"
                 :search-query="{ filters: supportedFiltersWithItems }"
               />
@@ -342,7 +341,7 @@ export default {
 
       try {
         const [clusters, total] = await textReusePassages
-          .find({ query: { ...query, groupby: 'textReuseClusterId' } })
+          .find({ query: { ...query, group_by: 'textReuseClusterId' } })
           .then(result => [result.data, result.total])
         this.clusters = clusters.map(d => TextReuseCluster.fromTextReusePassage(d))
         this.totalClusters = total

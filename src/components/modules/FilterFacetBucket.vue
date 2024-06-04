@@ -1,18 +1,20 @@
-<template lang="html">
-  <div class="bucket">
-    <b-form-checkbox v-model="isChecked">
+<template>
+  <div class="FilterFacetBucket d-flex text-small">
+    <b-form-checkbox v-model="isChecked"> </b-form-checkbox>
+
+    <item-selector
+      hide-icon
+      :uid="bucket.val"
+      :item="bucket.item"
+      :type="type"
+      :searchIndex="searchIndex"
+    >
       <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
-      <span v-else>{{ item }}</span>
+      <span class="FilterFacetBucket__label" v-else>{{ item }}</span>
       <span v-if="bucket.count > -1">
         (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
       </span>
-      <item-selector
-        :uid="bucket.val"
-        :item="bucket.item"
-        :type="type"
-        :searchIndex="searchIndex"
-      />
-    </b-form-checkbox>
+    </item-selector>
   </div>
 </template>
 
@@ -77,12 +79,16 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.bucket span {
+<style>
+.FilterFacetBucket span,
+.FilterFacetBucket label {
   font-variant: normal;
 }
-.bucket label {
-  font-variant: normal;
+.FilterFacetBucket .ItemSelector {
+  cursor: pointer;
+}
+.FilterFacetBucket .ItemSelector:hover {
+  text-decoration: underline;
 }
 </style>
 

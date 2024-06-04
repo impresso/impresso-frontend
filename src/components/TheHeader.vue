@@ -16,16 +16,21 @@
       variant="dark"
       class="py-0 pr-1 border-primary"
     >
-      <a class="navbar-brand" @click="$router.push(getRouteWithSearchQuery({ name: 'home' }))" target="_self">
-        <!-- <img v-if="" src="./../assets/img/impresso-logo-h-i@2x.png" /> -->
+      <a
+        class="navbar-brand"
+        @click="$router.push(getRouteWithSearchQuery({ name: 'home' }))"
+        target="_self"
+        title="Home"
+      >
         <Logo />
       </a>
 
-      <b-navbar-nav>
+      <b-navbar-nav class="align-items-center text-center">
         <b-nav-item
           :to="getRouteWithSearchQuery({ name: 'search' })"
           active-class="active"
           class="position-relative"
+          title="Search"
         >
           <span>{{ $tc('label_search', 0) }}</span>
           <!-- <transition name="bounce">
@@ -34,7 +39,11 @@
           </transition> -->
         </b-nav-item>
 
-        <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
+        <b-nav-item
+          :to="getRouteWithSearchQuery({ name: 'newspapers' })"
+          active-class="active"
+          title="Newspapers"
+        >
           <span>{{ $t('label_newspapers') }}</span>
         </b-nav-item>
         <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
@@ -46,6 +55,7 @@
         <b-nav-item
           :to="{ name: 'compare', query: { left: searchQueryHash } }"
           active-class="active"
+          title="Inspect & Compare"
         >
           <span>{{ $t('label_compare') }}</span>
         </b-nav-item>
@@ -54,6 +64,7 @@
           v-if="textReuseEnabled"
           :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
           active-class="active"
+          title="Text reuse"
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
@@ -114,7 +125,7 @@
               <pagination
                 @click.prevent.stop
                 :current-page="jobsPaginationCurrentPage"
-                @change="$event => jobsPaginationCurrentPage = $event"
+                @change="$event => (jobsPaginationCurrentPage = $event)"
                 :total-rows="jobsPaginationTotalRows"
                 :per-page="jobsPaginationPerPage"
                 aria-controls="my-table"
@@ -562,6 +573,9 @@ export default {
 
   .navbar-dark .navbar-nav .nav-link {
     color: $clr-grey-800;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
     > span {
       position: relative;
     }

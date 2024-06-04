@@ -821,10 +821,6 @@ input[type='range']:active::-ms-thumb {
   }
 }
 
-.list-item-details .dropdown {
-  position: inherit;
-}
-
 // fix size change on hover
 .dropdown-toggle::after {
   height: 1rem;

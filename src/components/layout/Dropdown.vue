@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown b-dropdown btn-group" :class="{show: isOpen}">
+  <div class="dropdown b-dropdown btn-group" :class="{ show: isOpen }">
     <button
       aria-haspopup="menu"
       :aria-expanded="isOpen"
@@ -10,17 +10,17 @@
         [`btn-${variant}`]: variant != undefined,
       }"
       @click="isOpen = !isOpen"
-      ref="buttonRef">
-      {{selectedOption.text}}
+      ref="buttonRef"
+    >
+      {{ selectedOption.text }}
     </button>
     <ul
       role="menu"
       tabindex="-1"
       class="dropdown-menu"
-      :class="{show: isOpen }"
-      style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 31px, 0px);"
-      x-placement="bottom-start"
-      ref="dropdownRef">
+      :class="{ show: isOpen, 'dropdown-menu-right': right }"
+      ref="dropdownRef"
+    >
       <li v-for="option in options" role="presentation">
         <a
           role="menuitem"
@@ -28,8 +28,9 @@
           :aria-disabled="option.disabled"
           class="dropdown-item"
           :class="{ disabled: option.disabled }"
-          @click="selectOption(option)">
-          {{option.text}}
+          @click="selectOption(option)"
+        >
+          {{ option.text }}
         </a>
       </li>
     </ul>
@@ -61,7 +62,11 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary'
-  }
+  },
+  right: {
+    type: Boolean,
+    default: false
+  },
 })
 
 const emit = defineEmits(['update:value', 'input'])
@@ -88,5 +93,4 @@ useClickOutside(
   () => isOpen.value = false,
   buttonRef
 )
-
 </script>

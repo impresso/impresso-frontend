@@ -60,15 +60,18 @@
             </b-badge>
           </div>
 
-          <router-link :to="computedArticleRouterLink" class="btn btn-sm btn-outline-primary mr-1">
+          <!-- <router-link :to="computedArticleRouterLink" class="btn btn-sm btn-outline-primary mr-1">
             {{ $t('view') }}
-          </router-link>
+          </router-link> -->
 
           <slot name="secondary-action">
             <collection-add-to v-bind:item="article" v-bind:text="$t('add_to_collection')" />
           </slot>
 
-          <div v-if="article.accessRight === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
+          <div
+            v-if="article.accessRight === 'OpenPublic'"
+            class="shareArticleControl d-inline ml-1"
+          >
             <b-button
               variant="outline-success"
               size="sm"
@@ -327,7 +330,7 @@ export default {
 {
   "en": {
     "view": "View",
-    "add_to_collection": "Add to Collection ...",
+    "add_to_collection": "Save to Collection ...",
     "login_message": "Login to view image",
     "share_article": "Share ..."
   }

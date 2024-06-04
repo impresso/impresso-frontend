@@ -1,9 +1,9 @@
 <template>
-  <span v-on:click.prevent.stop="selectItem">
+  <div class="ItemSelector d-inline" v-on:click.prevent.stop="selectItem">
     <slot></slot>
     <span v-if="label" class="ItemSelector_label underline">{{ label }}</span>
-    <span v-else class="dripicons-enter icon-link"></span>
-  </span>
+    <span v-else-if="!hideIcon" class="dripicons-enter icon-link"></span>
+  </div>
 </template>
 
 <script>
@@ -36,6 +36,10 @@ export default {
     searchIndex: {
       type: String,
       default: 'search',
+    },
+    hideIcon: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {

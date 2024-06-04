@@ -42,6 +42,7 @@
               v-bind:options="orderByOptions"
               size="sm"
               variant="outline-primary"
+              right
             ></i-dropdown>
           </b-navbar-nav>
         </b-navbar>
@@ -181,7 +182,13 @@
         </div>
       </Modal>
 
-      <Modal hide-footer id="embeddings" :title="$t('label_embeddings')" :show="isModalVisible('embeddings')" @close="hideModal('embeddings')">
+      <Modal
+        hide-footer
+        id="embeddings"
+        :title="$t('label_embeddings')"
+        :show="isModalVisible('embeddings')"
+        @close="hideModal('embeddings')"
+      >
         <embeddings-search @embdding-selected="addFilterFromEmbedding" />
       </Modal>
 
@@ -226,7 +233,7 @@
           <pagination
             v-if="searchResults.length"
             :current-page="paginationCurrentPage"
-            @change="$event => paginationCurrentPage = $event"
+            @change="$event => (paginationCurrentPage = $event)"
             :per-page="paginationPerPage"
             :total-rows="paginationTotalRows"
             class="float-left small-caps"
@@ -638,22 +645,20 @@ export default {
 
         // get remaining facets and enriched filters.
         const facetTypes = [
-          ...["person", "location", "topic"],
-          ...(this.isLoggedIn ? ['collection'] : [])
+          ...['person', 'location', 'topic'],
+          ...(this.isLoggedIn ? ['collection'] : []),
         ]
 
-        const [
-          extraFacets,
-          filtersWithItems,
-          collectionsItemsIndex,
-        ] = await Promise.all([
-          searchFacetsService.find({
-            query: {
-              facets: facetTypes,
-              filters,
-              // group_by: groupBy,
-            },
-          }).then(response => response.data),
+        const [extraFacets, filtersWithItems, collectionsItemsIndex] = await Promise.all([
+          searchFacetsService
+            .find({
+              query: {
+                facets: facetTypes,
+                filters,
+                // group_by: groupBy,
+              },
+            })
+            .then(response => response.data),
           filtersItemsService
             .find({
               query: {
