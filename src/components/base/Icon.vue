@@ -53,6 +53,35 @@ const Icons: Record<string, IconData> = {
       },
     ],
   },
+  edit: {
+    width: 24,
+    height: 24,
+    paths: [
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;',
+        d: 'M3 21L12 21H21',
+      },
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;',
+        d:
+          'M12.2218 5.82839L15.0503 2.99996L20 7.94971L17.1716 10.7781M12.2218 5.82839L6.61522 11.435C6.42769 11.6225 6.32233 11.8769 6.32233 12.1421L6.32233 16.6776L10.8579 16.6776C11.1231 16.6776 11.3774 16.5723 11.565 16.3847L17.1716 10.7781M12.2218 5.82839L17.1716 10.7781',
+      },
+    ],
+  },
+  check: {
+    width: 24,
+    height: 24,
+    paths: [
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;',
+        d: 'M7 12.5L10 15.5L17 8.5',
+      },
+      {
+        d:
+          'M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z',
+      },
+    ],
+  },
 }
 
 const props = defineProps({
