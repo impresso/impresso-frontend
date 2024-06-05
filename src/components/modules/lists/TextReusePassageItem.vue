@@ -33,6 +33,8 @@
 <script>
 import Ellipsis from '../Ellipsis'
 import TextReusePassageItemLabel from './TextReusePassageItemLabel'
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 export default {
   components: {
@@ -62,7 +64,7 @@ export default {
       //   >
       //     {{ $t('seeTextReuseCluster') }}
       //   </ItemSelector>
-      this.$store.dispatch('selectionMonitor/show', {
+      this.selectionMonitorStore.show({
         type: 'textReusePassage',
         item: this.item,
         context: 'textReuse',
@@ -75,6 +77,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useSelectionMonitorStore),
     textReuseClusterSummary() {
       const clusterSizeLabel = this.$tc(
         'numbers.clusterSize',

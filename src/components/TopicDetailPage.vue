@@ -128,12 +128,18 @@ import Topic from '@/models/Topic';
 import Facet from '@/models/Facet';
 import Pagination from './modules/Pagination';
 import ArticleItem from './modules/lists/ArticleItem';
+import Article from '@/models/Article'
 import Ellipsis from './modules/Ellipsis';
 import Timeline from './modules/Timeline';
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
 import { searchQueryHashGetter, mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
-import { searchFacets as searchFacetsService } from '@/services'
+import {
+  searchFacets as searchFacetsService,
+  search as searchService,
+  topics as topicsService,
+} from '@/services'
+import Helpers from '@/plugins/Helpers';
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
@@ -245,32 +251,42 @@ export default {
       }
     },
     async loadTimeline() {
-      return this.$store.dispatch('search/LOAD_TIMELINE', {
-        filters: [
-          {
+      return searchFacetsService.get('year', {
+        query: {
+          filters: {
             q: this.$route.params.topic_uid,
             type: 'topic',
           },
-        ],
-      }).then((values) => {
+          limit: 500,
+        },
+      })
+      .then(res => Helpers.timeline.fromBuckets(res.buckets))
+      .then((values) => {
         this.timevalues = values;
-      });
+      })
     },
 
     async getArticles({
       page = 1,
     } = {}) {
       // console.info('getArticles page', page);
-      const response = await this.$store.dispatch('search/LOAD_ARTICLES', {
-        filters: [
-          {
-            type: 'topic',
-            q: this.$route.params.topic_uid,
-          },
-        ],
-        orderBy: this.orderBy,
-        page,
-      });
+      const response = await searchService.find({
+        query: {
+          page,
+          limit: 10,
+          filters: [
+            {
+              type: 'topic',
+              q: this.$route.params.topic_uid,
+            },
+          ],
+          order_by: this.orderBy,
+          group_by: 'articles',
+        },
+      }).then(res => ({
+        ...res,
+        data: res.data.map(d => new Article(d)),
+      }))
       // sres et articles
       this.articles = response.data;
       // set other data
@@ -295,7 +311,8 @@ export default {
       immediate: true,
       async handler({ params, query }) {
         // always reload entity
-        this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', params.topic_uid);
+        this.topic = await topicsService.get(params.topic_uid, { fl: 'id' })
+          .then(result => new Topic(result))
         this.total = +this.topic.countItems;
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);

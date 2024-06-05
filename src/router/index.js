@@ -21,7 +21,8 @@ import PowerUserVisualisation from '../pages/PowerUserVisualisation'
 
 import IssueViewerPage from '../pages/IssueViewerPage'
 import { getShortArticleId } from '@/logic/ids'
-import store from '../store'
+import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
 
 Vue.use(Router)
 
@@ -117,7 +118,8 @@ const router = new Router({
       name: 'logout',
       component: UserLoginPage,
       beforeEnter: () => {
-        store.dispatch('user/LOGOUT').then(
+        const userStore = useUserStore()
+        userStore.logout().then(
           () => {},
           err => {
             this.error = this.$t(err.message)
@@ -492,13 +494,16 @@ router.beforeEach((to, from, next) => {
     console.warn('[router/index] Matomo not loaded')
   }
   // clean yellow alert error messages
-  store.dispatch('CLEAN_ERROR_MESSAGE')
+  const notificationsStore = useNotificationsStore()
+  notificationsStore.cleanErrorMessage()
   if (to.name === 'login' && from.name && from.name !== 'login') {
-    store
-      .dispatch('SET_REDIRECTION_ROUTE', {
-        ...from,
-      })
-      .then(next)
+    const userStore = useUserStore()
+    userStore.setRedirectionRoute({
+      name: from.name,
+      path: from.path,
+      query: from.query,
+    })
+    next()
   } else if (to.meta.requiresAuth === false) {
     next()
   } else {

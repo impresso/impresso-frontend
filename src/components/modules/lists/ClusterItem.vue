@@ -32,6 +32,9 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
 
 import TextReusePassageItemLabel from './TextReusePassageItemLabel'
@@ -64,7 +67,7 @@ export default {
       //   >
       //     {{ $t('seeTextReuseCluster') }}
       //   </ItemSelector>
-      this.$store.dispatch('selectionMonitor/show', {
+      this.selectionMonitorStore.show({
         type: 'textReusePassage',
         item: this.textReusePassageItem,
         context: 'textReuse',
@@ -77,6 +80,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useSelectionMonitorStore),
     textReusePassageItem() {
       return {
         id: this.item.textSampleArticle.id,

@@ -78,6 +78,8 @@ import List from '../lists/List.vue'
 import { collections as collectionService } from '@/services'
 import Collection from '@/models/Collection'
 import ItemLabel from '../lists/ItemLabel.vue'
+import { mapStores } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'AddToCollection',
@@ -106,8 +108,9 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useUserStore),
     isLoggedIn() {
-      return !!this.$store.state.user.userData
+      return !!this.userStore.userData
     },
     paginationList() {
       return {

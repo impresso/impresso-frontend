@@ -100,7 +100,9 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import Pagination from './Pagination';
+import { useCollectionsStore } from '@/stores/collections'
 
 export default {
   props: {
@@ -120,38 +122,39 @@ export default {
     Pagination,
   },
   computed: {
+    ...mapStores(useCollectionsStore),
     paginationPerPage: {
       get() {
-        return this.$store.state.collections.collectionsPaginationPerPage;
+        return this.collectionsStore.collectionsPaginationPerPage
       },
     },
     paginationCurrentPage: {
       get() {
-        return this.$store.state.collections.collectionsPaginationCurrentPage;
+        return this.collectionsStore.collectionsPaginationCurrentPage
       },
       set(val) {
-        this.$store.commit('collections/UPDATE_PAGINATION_LIST_CURRENT_PAGE', val);
+        this.collectionsStore.updatePaginationListCurrentPage(val)
       },
     },
     paginationTotalRows: {
       get() {
-        return this.$store.state.collections.collectionsPaginationTotalRows;
+        return this.collectionsStore.collectionsPaginationTotalRows
       },
     },
     orderBy: {
       get() {
-        return this.$store.state.collections.collectionsOrderBy;
+        return this.collectionsStore.collectionsSortOrder
       },
       set(val) {
-        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', val);
+        this.collectionsStore.setCollectionsSortOrder(val)
       },
     },
     collectionsQ: {
       get() {
-        return this.$store.state.collections.collectionsQ;
+        return this.collectionsStore.collectionsQ
       },
       set(val) {
-        this.$store.commit('collections/SET_COLLECTIONS_Q', val);
+        this.collectionsStore.setCollectionsQ(val)
       },
     },
     orderByOptions: {
@@ -190,14 +193,14 @@ export default {
     },
     collections: {
       get() {
-        return this.$store.getters['collections/collections'];
+        return this.collectionsStore.collections
       },
     },
   },
   methods: {
     fetch() {
       this.fetching = true;
-      this.$store.dispatch('collections/LOAD_COLLECTIONS').then(() => {
+      this.collectionsStore.loadCollections().then(() => {
         this.fetching = false;
       });
     },
@@ -233,7 +236,7 @@ export default {
     addCollection(collectionName) {
       this.inputNew = '';
       this.onInputNew();
-      this.$store.dispatch('collections/ADD_COLLECTION', {
+      this.collectionsStore.addCollection({
         name: collectionName.trim(),
       }).then((res) => {
         this.fetch();
@@ -256,7 +259,7 @@ export default {
   watch: {
     orderBy: {
       handler(val) {
-        this.$store.commit('collections/SET_COLLECTIONS_SORT_ORDER', val);
+        this.collectionsStore.setCollectionsSortOrder(val)
         this.paginationCurrentPage = 1;
         this.fetch();
       },

@@ -86,6 +86,8 @@ import TopicsExplorerTooltip from '@/components/modules/tooltips/TopicsExplorerT
 import {topicsGraph} from '@/services';
 import { serializeFilters } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
+import { mapStores } from 'pinia'
+import { useTopicsStore } from '@/stores/topics'
 
 export default {
   props: {
@@ -131,6 +133,7 @@ export default {
     timerUnselectLink: 0,
   }),
   computed: {
+    ...mapStores(useTopicsStore),
     countActiveFilters() {
       return this.filters
         .filter(d => !['hasTextContents'].includes(d.type)).length;
@@ -148,13 +151,13 @@ export default {
       ];
     },
     itemsFiltered() {
-      return this.$store.state.topics.items;
+      return this.topicsStore.items
     },
     itemsVisualized() {
-      return this.$store.state.topics.visualizedItems;
+      return this.topicsStore.visualizedItems
     },
     visualizedItemsIndex() {
-      return this.$store.state.topics.visualizedItemsIndex;
+      return this.topicsStore.visualizedItemsIndex
     },
     isZoomed() {
       const { k, x, y} = this.zoomTransform;
@@ -266,7 +269,7 @@ export default {
     },
     handleToggleHighlighted(item) {
       console.info('handleToggleHighlighted', item);
-      this.$store.dispatch('topics/TOGGLE_VISUALIZED_ITEM', item).then((isHighlighted) => {
+      this.topicsStore.toggleVisualizedItem(item).then((isHighlighted) => {
         if (isHighlighted && this.graph) {
           this.graph.zoomTo(item);
         }

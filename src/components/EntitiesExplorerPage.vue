@@ -195,6 +195,7 @@ import {
 import { getQueryParameter } from '@/router/util'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import SearchQuery from '@/models/SearchQuery'
+import { searchFacets as searchFacetsService } from '@/services'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -545,7 +546,12 @@ export default {
 
       try {
         this.isTimelineLoading = true;
-        this.timevalues = await this.$store.dispatch('search/LOAD_TIMELINE', {filters})
+        this.timevalues = await searchFacetsService.get('year', {
+          query: {
+            filters,
+            limit: 500,
+          },
+        }).then(res => Helpers.timeline.fromBuckets(res.buckets))
       } finally {
         this.isTimelineLoading = false;
       }

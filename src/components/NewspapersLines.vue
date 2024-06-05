@@ -57,6 +57,8 @@
 <script>
 import * as d3 from 'd3';
 import Tooltip from './modules/tooltips/Tooltip';
+import { mapStores } from 'pinia'
+import { useMonitorStore } from '@/stores/monitor'
 
 export default {
   model: {
@@ -156,7 +158,7 @@ export default {
       this.tooltip.isActive = false;
     },
     selectNewspaper(item) {
-      this.$store.dispatch('monitor/ACTIVATE', {
+      this.monitorStore.activate({
         item,
         type: 'newspaper',
         disableFilterModification: true
@@ -218,6 +220,7 @@ export default {
     window.removeEventListener('resize', this.onResize);
   },
   computed: {
+    ...mapStores(useMonitorStore),
     tooltipProperties() {
       if (!this.tooltip.item || !this.tooltip.item.properties) {
         return '';

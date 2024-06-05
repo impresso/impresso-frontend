@@ -174,7 +174,7 @@
             </b-col>
             <b-col lg="6" md="12">
               <div class="py-3 pr-3">
-                
+
                 <p>
                   <b
                     >How to explore the newspapers with persons or locations? <br />What are topics
@@ -255,6 +255,8 @@ import Recipe from './Recipe'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
+import { mapStores } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -300,6 +302,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useUserStore),
     /** @returns {Filter[]} */
     enrichedFilters() {
       return this.filtersWithItems.length
@@ -317,7 +320,7 @@ export default {
     },
 
     user() {
-      return this.$store.getters['user/user']
+      return this.userStore.user
     },
     computedRecipesWithQuery() {
       return this.recipes.filter(recipe => recipe.query)

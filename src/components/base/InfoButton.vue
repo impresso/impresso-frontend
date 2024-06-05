@@ -36,6 +36,7 @@
 import { computed, defineProps, getCurrentInstance, ref } from 'vue'
 import { useFloating } from '@floating-ui/vue';
 import { useClickOutside } from '@/composables/useClickOutside'
+import { useSettingsStore } from '@/stores/settings'
 
 import faqContent from '@/assets/faqpage.json'
 
@@ -67,8 +68,8 @@ const props = defineProps({
 
 const show = ref(false)
 
-const store = computed(() => getCurrentInstance()?.proxy.$store)
-const activeLanguageCode = computed(() => store.value?.state.settings.language_code)
+const store = useSettingsStore()
+const activeLanguageCode = computed(() => store.language_code)
 const content = computed(() => FaqContentsMap[activeLanguageCode.value][props.name] || { title: props.name })
 
 

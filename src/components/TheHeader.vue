@@ -7,8 +7,7 @@
         aria-valuemin="0"
         aria-valuemax="100"
         aria-valuenow="100"
-        :style="`width: ${100}%;`"
-      ></div>
+        :style="`width: ${100}%;`"></div>
     </div>
     <b-navbar
       id="TheHeader"
@@ -218,6 +217,11 @@ import JobItem from '@/components/modules/lists/JobItem'
 import Pagination from '@/components/modules/Pagination'
 import Logo from '@/components/Logo'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
+import { mapStores } from 'pinia'
+import { useJobsStore } from '@/stores/jobs'
+import { useSettingsStore } from '@/stores/settings'
+import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
 
 Icon.register({
   slack: {
@@ -265,12 +269,13 @@ export default {
   }),
   // mounted() {
   //   if (this.user) {
-  //     this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
+  //     this.jobsStore.loadJobs().then(() => {
   //       console.info('Jobs loaded.');
   //     });
   //   }
   // },
   computed: {
+    ...mapStores(useJobsStore, useSettingsStore, useUserStore, useNotificationsStore),
     searchQueryHash: searchQueryHashGetter(),
     searchQuery: searchQueryGetter(),
     loginRouteParams() {
@@ -296,41 +301,36 @@ export default {
       return this.searchQuery.countActiveItems()
     },
     jobs() {
-      return this.$store.state.jobs.items
+      return this.jobsStore.items
     },
     jobsPaginationTotalRows() {
-      return this.$store.state.jobs.totalItems
+      return this.jobsStore.totalItems
     },
     runningJobs() {
       return this.jobs.filter(d => d.status === 'RUN')
     },
-    currentSearchResults() {
-      return this.$store.state.search.paginationTotalRows
-    },
     activeLanguageCode() {
-      return this.$store.state.settings.language_code
+      return this.settingsStore.language_code
     },
     showAlert() {
+      const messages = this.notificationsStore.errorMessages
       if (
-        this.$store.state.errorMessages.length &&
+        messages.length &&
         !this.user &&
-        this.$store.state.errorMessages[0].name === 'NotAuthenticated'
+        messages[0].name === 'NotAuthenticated'
       ) {
         return false
       }
-      return this.$store.state.errorMessages.length > 0
+      return messages.length > 0
     },
     errorMessages() {
-      return this.$store.state.errorMessages
+      return this.notificationsStore.errorMessages
     },
     processingStatus() {
-      return this.$store.state.processingStatus
+      return this.notificationsStore.processingStatus
     },
     user() {
-      return this.$store.getters['user/user']
-    },
-    headerTitle() {
-      return this.$store.getters.headerTitle
+      return this.userStore.user
     },
     userFullName() {
       const name = `${this.user.firstname} ${this.user.lastname}`.trim()
@@ -361,7 +361,7 @@ export default {
       return style
     },
     connectivityStatus() {
-      return this.$store.state.connectivityStatus
+      return this.notificationsStore.connectivityStatus
     },
     version() {
       return window.impressoFrontendVersion
@@ -373,16 +373,14 @@ export default {
   },
   methods: {
     updateLastNotificationDate() {
-      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE', new Date())
+      this.settingsStore.updateLastNotificationDate()
     },
     test() {
-      return this.$store.dispatch('jobs/TEST')
+      return this.jobsStore.createTestJob()
     },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode
-      this.$store.commit('settings/SET_LANGUAGE', {
-        language_code: languageCode,
-      })
+      this.settingsStore.setLanguageCode(languageCode)
     },
     getRouteWithSearchQuery(route, additionalQueryParameters = {}) {
       return {
@@ -399,7 +397,7 @@ export default {
     jobsPaginationCurrentPage: {
       handler(page) {
         if (this.user) {
-          this.$store.dispatch('jobs/LOAD_JOBS', {
+          this.jobsStore.loadJobs({
             page,
             limit: this.jobsPaginationPerPage,
           })
@@ -410,7 +408,7 @@ export default {
     user: {
       handler(user) {
         if (user) {
-          this.$store.dispatch('jobs/LOAD_JOBS', {
+          this.jobsStore.loadJobs({
             page: 1,
             limit: this.jobsPaginationPerPage,
           })
@@ -424,7 +422,9 @@ export default {
             .map(d => d.lastModifiedDate.getTime())
             .sort()
             .pop()
-          if (this.$store.getters['settings/lastNotificationDate'] - lastModifiedDate < 0) {
+          const lastNotificationDate = this.settingsStore.lastNotificationDateAsDate
+
+          if (lastNotificationDate - lastModifiedDate < 0) {
             console.info(
               'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.',
             )

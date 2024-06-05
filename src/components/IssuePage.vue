@@ -183,7 +183,12 @@ import InfoButton from './base/InfoButton';
 import { toCanonicalFilter, SupportedFiltersByContext } from '../logic/filters'
 import { mapSearchQuery } from '@/logic/queryParams'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
-
+import { mapStores } from 'pinia'
+import { useEntitiesStore } from '@/stores/entities'
+import { useIssueStore } from '@/stores/issue'
+import { useUserStore } from '@/stores/user'
+import { search as searchService } from '@/services'
+import Article from '@/models/Article';
 
 export default {
   data: () => ({
@@ -226,6 +231,7 @@ export default {
     window.removeEventListener('keydown', this.keyDown);
   },
   computed: {
+    ...mapStores(useEntitiesStore, useIssueStore, useUserStore),
     modeOptions() {
       return [
         { value: 'image', text: this.$t('facsimileView'), iconName: 'image' },
@@ -247,10 +253,10 @@ export default {
       return false;
     },
     currentUser() {
-      return this.$store.getters['user/user'];
+      return this.userStore.user
     },
     issue() {
-      return this.$store.state.issue.issue;
+      return this.issueStore.issue
     },
     isTocReady() {
       return this.issue && this.page && this.isTocLoaded;
@@ -288,19 +294,21 @@ export default {
     mode: {
       get() {
         // no article°uid? image without a doubt
-        return this.$route.params.article_uid ? this.$store.state.issue.viewerMode : 'image';
+        return this.$route.params.article_uid ?
+          this.issueStore.viewerMode :
+          'image';
       },
       set(mode) {
-        this.$store.commit('issue/UPDATE_VIEWER_MODE', mode);
+        this.issueStore.updateViewerMode(mode)
         this.init();
       },
     },
     showOutlines: {
       get() {
-        return this.$store.state.issue.showOutlines;
+        return this.issueStore.showOutlines;
       },
       set(showOutlines) {
-        this.$store.commit('issue/UPDATE_OUTLINES', showOutlines);
+        this.issueStore.updateOutlines(showOutlines)
       },
     },
     filters: {
@@ -610,27 +618,27 @@ export default {
     },
     loadIssue({ uid }) {
       // console.info('...loading issue', uid);
-      return this.$store.dispatch('issue/LOAD_ISSUE', uid);
+      return this.issueStore.loadIssue(uid);
     },
     loadPage({ uid }) {
       // console.info('...loading page', uid);
-      return this.$store.dispatch('issue/LOAD_PAGE', uid);
+      return this.issueStore.loadPage(uid);
     },
     loadPageTopics({ uid }) {
       // console.info('...loading marginalia topics', uid);
-      return this.$store.dispatch('entities/LOAD_PAGE_TOPICS', uid);
+      return this.entitiesStore.loadPageTopics(uid);
     },
     loadPageEntities({ uid }) {
       // console.info('...loading marginalia named entities', uid);
-      return this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', uid);
+      return this.entitiesStore.loadPageEntities(uid);
     },
     loadArticle({ uid }) {
       // console.info('...loading article', uid);
-      return this.$store.dispatch('issue/LOAD_ARTICLE', uid);
+      return this.issueStore.loadArticle(uid);
     },
     loadToC() {
       // console.info('...loading ToC', this.issue.uid);
-      return this.$store.dispatch('issue/LOAD_TABLE_OF_CONTENTS')
+      return this.issueStore.loadTableOfContents()
         .then((articles) => {
           this.tocArticles = articles;
           this.isTocLoaded = true;
@@ -672,17 +680,29 @@ export default {
         // console.info('-> search() skip, q is empty.');
         return;
       }
-      this.$store.dispatch('search/GET_SEARCH_RESULTS', {
+
+      const query = {
         filters: filters.map(toCanonicalFilter),
-        orderBy: 'id',
-        groupBy: 'raw',
+        facets: [],
+        group_by: 'raw',
         page: this.matchesCurrentPage,
+        limit: 12,
+        order_by: 'id',
+      }
+
+      searchService.find({
+        query,
+      }).then((res) => {
+        if (query.groupBy === 'articles') {
+          res.data = res.data.map(result => new Article(result));
+        }
+        return res;
       }).then((result) => {
         this.isSearchLoaded = true;
         this.matches = result.data;
         this.matchesTotalRows = result.total;
         // console.info('-> search() success for q:', this.q);
-      });
+      })
     },
     selectArticle() {
       const self = this;

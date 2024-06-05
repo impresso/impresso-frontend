@@ -192,6 +192,8 @@ import SelectionMonitorFilter from './SelectionMonitorFilter.vue'
 import ListOfItems from './ListOfItems.vue'
 import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
 import { defineComponent } from 'vue'
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 /**
  * SelectionMonitor component is initialized in App.vue and it is always available.
@@ -223,6 +225,7 @@ export default defineComponent({
     TextReusePassageItem,
   },
   computed: {
+    ...mapStores(useSelectionMonitorStore),
     supportedFilters() {
       return this.filters.filter(filter =>
         SupportedFiltersByIndex[this.monitor.searchIndex].includes(filter.type),
@@ -298,13 +301,13 @@ export default defineComponent({
       }
     },
     isActive() {
-      return this.$store.state.selectionMonitor.isActive
+      return this.selectionMonitorStore.isActive
     },
     applyCurrentSearchFiltersOnInit() {
-      return this.$store.state.selectionMonitor.applyCurrentSearchFilters
+      return this.selectionMonitorStore.applyCurrentSearchFilters
     },
     monitor() {
-      return this.$store.state.selectionMonitor
+      return this.selectionMonitorStore
     },
     /** @returns {string} */
     statsLabel() {
@@ -361,7 +364,7 @@ export default defineComponent({
       this.additionalFilters = [newFilter]
     },
     hide() {
-      this.$store.dispatch('selectionMonitor/hide')
+      this.selectionMonitorStore.hide()
     },
     applyFilter() {
       if (!this.monitorFilterExists) {

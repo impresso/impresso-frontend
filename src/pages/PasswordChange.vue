@@ -76,8 +76,10 @@
 </template>
 
 <script>
+import { mapActions } from 'pinia'
+import { useNotificationsStore } from '@/stores/notifications'
+
 import { passwordReset as passwordResetService } from '@/services'
-import { mapActions } from 'vuex'
 
 const PasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_\-@$!%*?&])[A-Za-z\d@$!%*?&_\-]{8,}$/
 
@@ -95,7 +97,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('notifications', ['addNotification']),
+    ...mapActions(useNotificationsStore, ['addNotification']),
     onSubmit(e) {
       e.stopPropagation()
       e.preventDefault()
@@ -144,7 +146,6 @@ export default {
           setTimeout(() => {
             this.$router.push({ name: 'home' })
           }, 1500)
-          // this.$router.push({ name: 'login', ...this.$store.getters.redirectionParams })
         })
         .catch(error => {
           console.log('[PasswordChange] error', error.message)

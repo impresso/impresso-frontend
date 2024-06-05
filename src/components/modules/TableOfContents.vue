@@ -78,12 +78,14 @@
 </template>
 
 <script>
-
+import { mapStores } from 'pinia'
 import ArticleItem from './lists/ArticleItem';
 import ImageItem from './lists/ImageItem';
 
 import CopyToClipboard from '../modals/CopyToClipboard';
 import { getAuthenticationBearer } from '@/services';
+import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 export default {
   data: () => ({
@@ -118,8 +120,9 @@ export default {
     CopyToClipboard,
   },
   computed: {
+    ...mapStores(useCollectionsStore, useUserStore),
     isLoggedIn() {
-      return this.$store.state.user.userData;
+      return this.userStore.userData
     },
   },
   methods: {
@@ -180,7 +183,7 @@ export default {
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
       if (idx !== -1) {
-        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+        this.collectionsStore.removeCollectionItem({
           collection,
           item,
         }).then(() => {

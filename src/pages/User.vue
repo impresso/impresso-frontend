@@ -193,6 +193,8 @@ import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
 import { required, email, confirmed, min, regex } from 'vee-validate/dist/rules';
 import { PasswordRegex } from '@/logic/user';
 import Modal from '@/components/base/Modal.vue';
+import { mapStores } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
 extend('required', {
   ...required,
@@ -258,7 +260,7 @@ export default {
     onSubmitChangePassword() {
       this.passwordSubmitted = false;
       this.passwordSubmittedError = '';
-      this.$store.dispatch('user/CHANGE_PASSWORD', {
+      this.userStore.changePassword({
         uid: this.user.uid,
         previousPassword: this.previousPassword,
         newPassword: this.newPassword,
@@ -279,7 +281,7 @@ export default {
     },
     onSubmit() {
       this.userSubmitted = false;
-      this.$store.dispatch('user/UPDATE_CURRENT_USER', this.user).then((user) => {
+      this.userStore.updateCurrentUser(this.user).then((user) => {
         this.userSubmittedSuccess = true;
         this.user = user;
       }).catch((err) => {
@@ -293,7 +295,7 @@ export default {
       this.showDeleteConfirmationDialog();
     },
     handleDeleteUserAfterConfirmation() {
-      this.$store.dispatch('user/REMOVE_CURRENT_USER', this.user);
+      console.error('TODO: Implement user deletion')
     },
     onGeneratePattern() {
       this.user.colors = [];
@@ -313,6 +315,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useUserStore),
     patternAsText: {
       get() {
         if (this.user) {
@@ -326,7 +329,7 @@ export default {
     },
   },
   async mounted() {
-    this.user = await this.$store.dispatch('user/GET_CURRENT_USER');
+    this.user = await this.userStore.getCurrentUser()
     console.info('UserPage mounted.',  this.user);
     if (this.user && this.user.pattern.length === 0) this.onGeneratePattern();
   },

@@ -163,6 +163,8 @@ import {
   searchFacets as searchFacetsService,
   newspapers as newspapersService,
 } from '@/services'
+import Helpers from '@/plugins/Helpers';
+
 
 const OrderByOptions = ['-date', 'date']
 const OrderByDefault = '-date'
@@ -305,13 +307,16 @@ export default {
       this.page = page
     },
     loadTimeline() {
-      return this.$store
-        .dispatch('search/LOAD_TIMELINE', {
+      return searchFacetsService.get('year', {
+        query: {
           filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
-        })
-        .then(values => {
-          this.timevalues = values
-        })
+          limit: 500,
+        },
+      })
+      .then(res => Helpers.timeline.fromBuckets(res.buckets))
+      .then(values => {
+        this.timevalues = values
+      })
     },
     async loadFacets() {
       this.facets = []
