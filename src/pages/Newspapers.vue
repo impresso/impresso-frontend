@@ -38,7 +38,7 @@
 
 <script>
 import Newspaper from '@/models/Newspaper'
-import List from '@/components/modules/lists/List';
+import List from '@/components/modules/lists/List.vue';
 import NewspaperItem from '@/components/modules/lists/NewspaperItem';
 import { newspapers as newspapersService} from '@/services';
 import { mapApplyCurrentSearchFilters, mapSuggestionQuery } from '@/logic/queryParams';
@@ -164,7 +164,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "filter_newspapers": "filter list of newspapers by name ...",

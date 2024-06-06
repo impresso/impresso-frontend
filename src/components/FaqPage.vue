@@ -39,9 +39,9 @@ Revision <a href="https://github.com/impresso/impresso-middle-layer/commit/${api
 `
 
 const WebappVersionLine = `
-Web App: v${process.env.VUE_APP_VERSION},
-Revision <a href="https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}" target="_blank">${process.env.VUE_APP_GIT_REVISION}</a>,
-"${process.env.VUE_APP_GIT_BRANCH}" branch.
+Web App: v${import.meta.env.VITE_VERSION},
+Revision <a href="https://github.com/impresso/impresso-frontend/commit/${import.meta.env.VITE_GIT_REVISION}" target="_blank">${import.meta.env.VITE_GIT_REVISION}</a>,
+"${import.meta.env.VITE_GIT_BRANCH}" branch.
 `
 
 export default {
@@ -125,7 +125,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "title": {

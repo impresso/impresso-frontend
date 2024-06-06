@@ -110,7 +110,7 @@ import CollectionAddTo from './CollectionAddTo'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem'
 import ArticleItem from './lists/ArticleItem'
 import AnnotatedText from './AnnotatedText'
-import InfoButton from '@/components/base/InfoButton'
+import InfoButton from '@/components/base/InfoButton.vue'
 import { articles as articlesService } from '@/services'
 import Article from '@/models/Article'
 import { useCollectionsStore } from '@/stores/collections'
@@ -414,7 +414,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",

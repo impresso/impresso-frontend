@@ -185,9 +185,9 @@
 import Timeline from '@/components/modules/Timeline'
 import SearchQueryExplorer from '@/components/modals/SearchQueryExplorer'
 import PunchExplorer from '@/components/modals/PunchExplorer'
-import Pagination from '@/components/modules/Pagination'
+import Pagination from '@/components/modules/Pagination.vue'
 import { searchQueryGetter, mapApplyCurrentSearchFilters } from '@/logic/queryParams'
-import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
+import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart.vue'
 import BaseTitleBar from '@/components/base/BaseTitleBar';
 import {
   entityMentionsTimeline as entityMentionsTimelineService
@@ -679,7 +679,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "entity-label-in-year" : "<b>{label}</b> in <span class='date smallcaps'>{year}</span>",

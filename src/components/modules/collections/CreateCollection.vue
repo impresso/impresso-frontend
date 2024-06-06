@@ -177,7 +177,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "Collection_Name": "Collection Name",

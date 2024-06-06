@@ -168,7 +168,7 @@ export default defineComponent({
     async getIIIFInfo() {
       const iiif = this.iiif
         .replace('/info.json', '')
-        .replace(String(process.env.VUE_APP_BASE_URL), '')
+        .replace(String(import.meta.env.VITE_BASE_URL), '')
 
       const status = await axios
         .get(`${iiif}/info.json`)

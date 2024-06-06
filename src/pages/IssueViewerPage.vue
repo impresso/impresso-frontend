@@ -269,10 +269,10 @@
 </template>
 
 <script>
-import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
-import PageItem from '@/components/modules/lists/PageItem'
-import List from '@/components/modules/lists/List'
-import IssueViewerText from '@/components/modules/IssueViewerText'
+import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
+import PageItem from '@/components/modules/lists/PageItem.vue'
+import List from '@/components/modules/lists/List.vue'
+import IssueViewerText from '@/components/modules/IssueViewerText.vue'
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
@@ -292,10 +292,10 @@ import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Issue from '@/models/Issue'
 import Article from '@/models/Article'
 import TableOfContents from '@/models/TableOfContents'
-import SearchPills from '@/components/SearchPills'
-import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
-import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
-import CollectionAddTo from '@/components/modules/CollectionAddTo'
+import SearchPills from '@/components/SearchPills.vue'
+import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
+import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents.vue'
+import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import WithTooltip from '@/components/base/WithTooltip.vue'
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
@@ -765,7 +765,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages <br/><span class='small'>{accessRights}</span>",

@@ -80,9 +80,9 @@
 
 <script>
 import Graph from '@/d3-modules/Graph';
-import InfoButton from '@/components/base/InfoButton';
-import Tooltip from '@/components/modules/tooltips/Tooltip';
-import TopicsExplorerTooltip from '@/components/modules/tooltips/TopicsExplorerTooltip';
+import InfoButton from '@/components/base/InfoButton.vue';
+import Tooltip from '@/components/modules/tooltips/Tooltip.vue';
+import TopicsExplorerTooltip from '@/components/modules/tooltips/TopicsExplorerTooltip.vue';
 import {topicsGraph} from '@/services';
 import { serializeFilters } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
@@ -621,7 +621,7 @@ export default {
   height: 1rem;
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "summary": "Explore the list of topics",

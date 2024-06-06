@@ -82,7 +82,7 @@
 <script>
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
 import Timeline from '@/components/modules/Timeline'
-import InfoButton from '@/components/base/InfoButton'
+import InfoButton from '@/components/base/InfoButton.vue'
 import Bucket from '@/models/Bucket'
 import { search } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
@@ -276,7 +276,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

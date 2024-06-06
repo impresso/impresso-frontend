@@ -71,7 +71,7 @@ import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
 import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem'
 import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem'
 
-import Pagination from '@/components/modules/Pagination'
+import Pagination from '@/components/modules/Pagination.vue'
 import Spinner from '@/components/layout/Spinner'
 
 import {
@@ -330,7 +330,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

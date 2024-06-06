@@ -81,9 +81,9 @@
 <script>
 import { schemeCategory10, schemeAccent } from 'd3'
 
-import SearchSidebar from '@/components/modules/SearchSidebar'
-import Autocomplete from '@/components/Autocomplete'
-import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase'
+import SearchSidebar from '@/components/modules/SearchSidebar.vue'
+import Autocomplete from '@/components/Autocomplete.vue'
+import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase.vue'
 import Modal from '@/components/base/Modal.vue'
 
 import {
@@ -436,7 +436,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "legendLabels": {

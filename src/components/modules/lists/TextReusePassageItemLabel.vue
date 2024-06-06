@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-import ItemSelector from '../ItemSelector'
+import ItemSelector from '../ItemSelector.vue'
 
 export default {
   name: 'TextReusePassageItemLabel',

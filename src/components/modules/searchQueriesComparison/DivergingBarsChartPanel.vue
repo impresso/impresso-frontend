@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import DivergingBarsChart from '@/components/modules/vis/DivergingBarsChart'
+import DivergingBarsChart from '@/components/modules/vis/DivergingBarsChart.vue'
 
 /**
  * @typedef {{ left: number, right: number, intersection: number, label: string }} FacetItem
@@ -89,7 +89,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "tooltip": {

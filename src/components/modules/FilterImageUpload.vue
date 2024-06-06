@@ -23,13 +23,13 @@
 
 <script>
 import Vue from 'vue';
-import FilePond from '@/components/modules/FilePond';
+import FilePond from '@/components/modules/FilePond.vue';
 import { uploadedImages } from '@/services';
 
-const MiddleLayerApiBase = process.env.VUE_APP_MIDDLELAYER_API || window.location.hostname;
+const MiddleLayerApiBase = import.meta.env.VITE_MIDDLELAYER_API || window.location.hostname;
 
 const FILEPOND_SERVICE_PATH = [
-  process.env.VUE_APP_MIDDLELAYER_API_PATH,
+  import.meta.env.VITE_MIDDLELAYER_API_PATH,
   '/filepond',
 ].join('/').replace(/\/\/+/g, '/');
 

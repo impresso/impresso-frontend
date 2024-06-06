@@ -162,7 +162,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_order": "Order By",

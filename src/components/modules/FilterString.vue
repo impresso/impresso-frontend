@@ -34,7 +34,7 @@
  * @deprecated Not used anywhere.
  */
 
-import Icon from '@/components/base/Icon'
+import Icon from '@/components/base/Icon.vue'
 import FilterFactory from '@/models/FilterFactory'
 
 import FilterSettingContext from './FilterSettingContext'
@@ -73,7 +73,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "query": "Text",

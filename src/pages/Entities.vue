@@ -61,7 +61,7 @@
 
 <script>
 import Entity from '@/models/Entity';
-import List from '@/components/modules/lists/List';
+import List from '@/components/modules/lists/List.vue';
 import EntityItem from '@/components/modules/lists/EntityItem';
 import { entities as entitiesService } from '@/services';
 
@@ -275,7 +275,7 @@ a.d-block.active {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_order": "Order By",

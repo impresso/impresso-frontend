@@ -147,7 +147,7 @@ export default {
   max-width: 100%;
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
   }

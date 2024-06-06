@@ -182,8 +182,8 @@
 </template>
 
 <script>
-import FilterMonitor from '@/components/modules/FilterMonitor'
-import Explorer from '@/components/Explorer'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
+import Explorer from '@/components/Explorer.vue'
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
 
@@ -516,7 +516,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "label": {

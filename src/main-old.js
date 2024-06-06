@@ -43,7 +43,7 @@ pinia.use(createPersistedState({
   key: id => `__impresso__${id}`,
 }))
 
-Vue.config.productionTip = process.env.NODE_ENV === 'production'
+Vue.config.productionTip = import.meta.env.NODE_ENV === 'production'
 Vue.config.errorHandler = error => {
   const notificationsStore = useNotificationsStore()
   notificationsStore.displayError({
@@ -96,14 +96,14 @@ console.info(
   '%cimpresso-frontend version',
   'font-weight: bold',
   '\n - tag:',
-  process.env.VUE_APP_GIT_TAG,
+  import.meta.env.VITE_GIT_TAG,
   '\n - branch:',
-  process.env.VUE_APP_GIT_BRANCH,
-  `\n - url: https://github.com/impresso/impresso-frontend/commit/${process.env.VUE_APP_GIT_REVISION}`,
+  import.meta.env.VITE_GIT_BRANCH,
+  `\n - url: https://github.com/impresso/impresso-frontend/commit/${import.meta.env.VITE_GIT_REVISION}`,
   '\n - Adobe TYPEKIT_ID:',
-  process.env.VUE_APP_TYPEKIT_ID,
+  import.meta.env.VITE_TYPEKIT_ID,
   '\n - host:',
-  process.env.VUE_APP_MIDDLELAYER_API,
+  import.meta.env.VITE_MIDDLELAYER_API,
 )
 
 Promise.race([
@@ -178,9 +178,9 @@ Promise.race([
         '\n - features:',
         features,
       )
-      window.impressoFrontendVersion = process.env.VUE_APP_GIT_TAG
-      window.impressoFrontendRevision = process.env.VUE_APP_GIT_REVISION
-      window.impressoFrontendBranch = process.env.VUE_APP_GIT_BRANCH
+      window.impressoFrontendVersion = import.meta.env.VITE_GIT_TAG
+      window.impressoFrontendRevision = import.meta.env.VITE_GIT_REVISION
+      window.impressoFrontendBranch = import.meta.env.VITE_GIT_BRANCH
       window.impressoVersion = version
       window.impressoApiVersion = apiVersion
       window.impressoDocumentsDateSpan = documentsDateSpan
@@ -195,9 +195,9 @@ Promise.race([
           version: window.impressoFrontendVersion,
           revision: window.impressoFrontendRevision,
           branch: window.impressoFrontendBranch,
-          gitRepoUrl: process.env.VUE_APP_GIT_REPO,
-          gitCommitUrl: `${process.env.VUE_APP_GIT_REPO}/commit/${window.impressoFrontendRevision}`,
-          gitCommitUrlLabel: process.env.VUE_APP_GIT_REPO.split('/')
+          gitRepoUrl: import.meta.env.VITE_GIT_REPO,
+          gitCommitUrl: `${import.meta.env.VITE_GIT_REPO}/commit/${window.impressoFrontendRevision}`,
+          gitCommitUrlLabel: import.meta.env.VITE_GIT_REPO.split('/')
             .slice(3, 5)
             .join('/'),
         },
@@ -205,17 +205,17 @@ Promise.race([
           version: 'v' + window.impressoApiVersion.version,
           revision: window.impressoApiVersion.revision,
           branch: window.impressoApiVersion.branch,
-          gitRepoUrl: process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO,
-          gitCommitUrl: `${process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO}/commit/${window.impressoApiVersion.revision}`,
-          gitCommitUrlLabel: process.env.VUE_APP_MIDDLE_LAYER_GIT_REPO.split('/')
+          gitRepoUrl: import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO,
+          gitCommitUrl: `${import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO}/commit/${window.impressoApiVersion.revision}`,
+          gitCommitUrlLabel: import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO.split('/')
             .slice(3, 5)
             .join('/'),
         },
         project: {
-          repoUrl: process.env.VUE_APP_GIT_REPO.split('/')
+          repoUrl: import.meta.env.VITE_GIT_REPO.split('/')
             .slice(0, 4)
             .join('/'),
-          repoUrlLabel: process.env.VUE_APP_GIT_REPO.split('/')
+          repoUrlLabel: import.meta.env.VITE_GIT_REPO.split('/')
             .slice(3, 5)
             .join('/'),
         },

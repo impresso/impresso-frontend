@@ -98,7 +98,7 @@ export default {
   background-color: #f2f2f2;
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "countItems": "no articles | <span class='number'>{count}</span> article | <span class='number'>{count}</span> articles",

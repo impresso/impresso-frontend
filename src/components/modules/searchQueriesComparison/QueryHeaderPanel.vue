@@ -93,7 +93,7 @@
 <script>
 // import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills';
-import InfoButton from '@/components/base/InfoButton';
+import InfoButton from '@/components/base/InfoButton.vue';
 import Autocomplete from '../../Autocomplete';
 // import CollectionPicker from '../../base/CollectionPicker';
 import InfoIgnoredFilters from '../../base/InfoIgnoredFilters';
@@ -341,7 +341,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "comparison": {

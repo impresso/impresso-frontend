@@ -100,11 +100,11 @@
 <script>
 import { mapState, mapActions, mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
-import Ellipsis from './modules/Ellipsis';
-import Timeline from './modules/Timeline';
-import WikidataBlock from './modules/WikidataBlock';
-import ItemLabel from './modules/lists/ItemLabel';
-import SearchQuerySummary from './modules/SearchQuerySummary';
+import Ellipsis from './modules/Ellipsis.vue';
+import Timeline from './modules/Timeline.vue';
+import WikidataBlock from './modules/WikidataBlock.vue';
+import ItemLabel from './modules/lists/ItemLabel.vue';
+import SearchQuerySummary from './modules/SearchQuerySummary.vue';
 import SearchQuery from '../models/SearchQuery';
 import { containsFilter } from '@/logic/filters'
 
@@ -342,7 +342,7 @@ export default {
     }
   }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "tabs": {

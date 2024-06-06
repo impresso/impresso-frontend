@@ -31,13 +31,13 @@
 
 <script>
 import WebFontLoader from 'webfontloader'
-import TheHeader from './components/TheHeader'
-import Monitor from './components/Monitor'
-import SelectionMonitor from './components/SelectionMonitor'
-import DisclaimerNotice from './components/modals/DisclaimerNotice'
-import StatusIndicator from './components/modals/StatusIndicator'
-import CookieDisclaimer from './components/modals/CookieDisclaimer'
-import TroublesAhead from './components/modals/TroublesAhead'
+import TheHeader from '@/components/TheHeader.vue'
+import Monitor from '@/components/Monitor.vue'
+import SelectionMonitor from '@/components/SelectionMonitor.vue'
+import DisclaimerNotice from '@/components/modals/DisclaimerNotice.vue'
+import StatusIndicator from '@/components/modals/StatusIndicator.vue'
+import CookieDisclaimer from '@/components/modals/CookieDisclaimer.vue'
+import TroublesAhead from '@/components/modals/TroublesAhead.vue'
 import Toaster from '@/components/base/Toaster.vue'
 import { CommonQueryParameters } from './router/util'
 import { joinFiltersWithItems, optimizeFilters, serializeFilters } from './logic/filters'
@@ -62,7 +62,7 @@ export default {
   },
   data: () => ({
     filtersWithItems: [],
-    enableTroublesAhead: process.env.VUE_APP_MAINTENANCE.length > 0,
+    enableTroublesAhead: import.meta.env.VITE_MAINTENANCE.length > 0,
   }),
   props: {
     startYear: {
@@ -121,10 +121,10 @@ export default {
     // load typekit
     WebFontLoader.load({
       typekit: {
-        id: process.env.VUE_APP_TYPEKIT_ID,
+        id: import.meta.env.VITE_TYPEKIT_ID,
       },
     })
-    console.info('enable MAINTENANCE:', process.env.VUE_APP_MAINTENANCE.length)
+    console.info('enable MAINTENANCE:', import.meta.env.VITE_MAINTENANCE.length)
   },
   watch: {
     filters() {

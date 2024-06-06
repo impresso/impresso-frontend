@@ -221,13 +221,13 @@
 <script>
 import { mapActions } from 'pinia'
 import { useNotificationsStore } from '@/stores/notifications'
-import InfoButton from '@/components/base/InfoButton'
-import Ellipsis from '@/components/modules/Ellipsis'
-import List from '@/components/modules/lists/List'
+import InfoButton from '@/components/base/InfoButton.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import List from '@/components/modules/lists/List.vue'
 import ClusterItem from '@/components/modules/lists/ClusterItem'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem'
-import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics'
+import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics.vue'
 import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
 import { mapPagination, mapOrderBy } from '@/logic/queryParams'
 import { textReusePassages, search as searchService, collections } from '@/services'
@@ -582,7 +582,7 @@ export default {
   },
 }
 </script>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "textReuse": "Text Reuse",

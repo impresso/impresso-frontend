@@ -37,7 +37,7 @@
 <script>
 import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
-import Pagination from '@/components/modules/Pagination'
+import Pagination from '@/components/modules/Pagination.vue'
 import { textReuseConnectedClusters as textReuseConnectedClustersService } from '@/services'
 import { getQueryParameter } from '@/router/util'
 

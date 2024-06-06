@@ -21,7 +21,7 @@
 
 <script>
 import { mapStores } from 'pinia'
-import CollectionList from '@/components/modules/CollectionList';
+import CollectionList from '@/components/modules/CollectionList.vue';
 import { useCollectionsStore } from '@/stores/collections'
 
 export default {
@@ -50,7 +50,7 @@ export default {
 <style scoped lang="less">
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "tabs": {

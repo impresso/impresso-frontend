@@ -301,7 +301,7 @@ background-color: #f2f2f2;
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "a-z": "a-z",

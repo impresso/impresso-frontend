@@ -35,7 +35,7 @@ export default {
 <style lang="scss">
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "welcome": {

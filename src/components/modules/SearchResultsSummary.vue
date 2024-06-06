@@ -34,7 +34,7 @@ export default {
 };
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "incipit": "Sorry, {groupByLabel} found | {groupByLabel} found | {groupByLabel} found"

@@ -111,7 +111,7 @@ import { mapStores } from 'pinia'
 import FilterFactory from '@/models/FilterFactory'
 import { useAutocompleteStore } from '@/stores/autocomplete'
 import { useUserStore } from '@/stores/user'
-import Explorer from './Explorer'
+import Explorer from './Explorer.vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 
 const AVAILABLE_TYPES = ['mention', 'newspaper', 'topic', 'location', 'person', 'collection']
@@ -506,7 +506,7 @@ export default {
 // }
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "placeholder" : {

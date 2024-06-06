@@ -204,7 +204,7 @@ export default {
   margin: 0;
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "sort_date": "by date",

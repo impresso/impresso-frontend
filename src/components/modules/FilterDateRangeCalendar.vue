@@ -53,7 +53,7 @@
 <script>
 import BaseTitleBar from '@/components/base/BaseTitleBar'
 import Daterange from '@/models/Daterange'
-import FilterMonitor from '@/components/modules/FilterMonitor'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import DatepickerButton from '@/components/base/DatepickerButton.vue'
 
 export default {
@@ -168,7 +168,7 @@ export default {
   },
 }
 </script>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "label": {

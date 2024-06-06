@@ -161,11 +161,11 @@
 <script>
 import Facet from '@/models/Facet';
 import SearchQuery from '@/models/SearchQuery';
-import Timeline from '@/components/modules/Timeline';
-import Pagination from '@/components/modules/Pagination';
-import ArticleItem from '@/components/modules/lists/ArticleItem';
-import MentionItem from '@/components/modules/lists/MentionItem';
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import Timeline from '@/components/modules/Timeline.vue';
+import Pagination from '@/components/modules/Pagination.vue';
+import ArticleItem from '@/components/modules/lists/ArticleItem.vue';
+import MentionItem from '@/components/modules/lists/MentionItem.vue';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue';
 import { searchFacets as searchFacetsService } from '@/services';
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
@@ -448,7 +448,7 @@ a:hover {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "count": "Mentioned only once {n} | Mentioned {n} times",

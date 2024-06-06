@@ -88,12 +88,12 @@
 </template>
 <script>
 import { diffChars } from 'diff'
-import ItemLabel from './modules/lists/ItemLabel'
+import ItemLabel from './modules/lists/ItemLabel.vue'
 import { textReusePassages } from '@/services'
 import TextReusePassage from '@/models/TextReusePassage'
-import TextReusePassageItemLabel from './modules/lists/TextReusePassageItemLabel'
+import TextReusePassageItemLabel from './modules/lists/TextReusePassageItemLabel.vue'
 import { optimizeFilters } from '@/logic/filters'
-import Pagination from '@/components/modules/Pagination'
+import Pagination from '@/components/modules/Pagination.vue'
 // onmounted load the first 2 text reuse passages from textreusepassage endpoint
 
 const OrderByOptions = ['date', '-date', 'size', '-size']

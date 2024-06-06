@@ -43,7 +43,7 @@
 
 <script>
 import BaseTitleBar from '@/components/base/BaseTitleBar'
-import InfoButton from '@/components/base/InfoButton'
+import InfoButton from '@/components/base/InfoButton.vue'
 import HistogramSlider from '@/components/modules/vis/HistogramSlider'
 
 export default {

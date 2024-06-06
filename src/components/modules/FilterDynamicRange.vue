@@ -55,7 +55,7 @@ import { serializeFilters } from '@/logic/filters'
 import { stats as statsService, getSearchFacetsService } from '@/services'
 import Tooltip from './tooltips/Tooltip'
 import FilterFactory from '@/models/FilterFactory'
-import InfoButton from '@/components/base/InfoButton'
+import InfoButton from '@/components/base/InfoButton.vue'
 
 /** export vue component that display range facets based on actual stats for the solr field */
 export default {
@@ -288,7 +288,7 @@ export default {
   },
 }
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "value": "value: <span class='number'>{val}</span>",

@@ -125,8 +125,8 @@
 <script>
 import BaseTitleBar from '@/components/base/BaseTitleBar'
 import FilterFacetBucket from '@/components/modules/FilterFacetBucket'
-import FilterMonitor from '@/components/modules/FilterMonitor'
-import InfoButton from '@/components/base/InfoButton'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 import { toSerializedFilter } from '@/logic/filters'
 import Bucket from '@/models/Bucket'
 import { getSearchFacetsService } from '@/services'
@@ -425,7 +425,7 @@ export default defineComponent({
 
 <style lang="css" scoped></style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "clearSelection": "Clear selection ({selected})",

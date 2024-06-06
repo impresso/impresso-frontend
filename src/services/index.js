@@ -14,12 +14,12 @@ import { useNotificationsStore } from '@/stores/notifications'
 // e.g io api base is http://localhost
 // and path is  something like /path/to/socket.io defined in the backend
 // const SocketBasePath =
-//   process.env.NODE_ENV === 'development' ? '' : process.env.VUE_APP_MIDDLELAYER_API
-const SocketBasePath = process.env.VUE_APP_USE_PROXY_MIDDLEWARE
+//   import.meta.env.NODE_ENV === 'development' ? '' : import.meta.env.VITE_MIDDLELAYER_API
+const SocketBasePath = import.meta.env.VITE_USE_PROXY_MIDDLEWARE
   ? ''
-  : process.env.VUE_APP_MIDDLELAYER_API
+  : import.meta.env.VITE_MIDDLELAYER_API
 const socket = io(SocketBasePath, {
-  path: process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH,
+  path: import.meta.env.VITE_MIDDLELAYER_API_SOCKET_PATH,
 })
 export const app = feathers()
 
@@ -207,8 +207,8 @@ export const entityMentionsTimeline = app.service('entity-mentions-timeline')
 export const textReuseConnectedClusters = app.service('text-reuse-connected-clusters')
 export const passwordReset = app.service('password-reset')
 
-export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API
-export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH
+export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
+export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('')
 
 export const getAuthenticationBearer = () => app.authentication.options.storage['feathers-jwt']

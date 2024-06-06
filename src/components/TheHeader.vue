@@ -212,10 +212,10 @@
 </template>
 
 <script>
-import Icon from '@/components/base/Icon'
-import JobItem from '@/components/modules/lists/JobItem'
-import Pagination from '@/components/modules/Pagination'
-import Logo from '@/components/Logo'
+import Icon from '@/components/base/Icon.vue'
+import JobItem from '@/components/modules/lists/JobItem.vue'
+import Pagination from '@/components/modules/Pagination.vue'
+import Logo from '@/components/Logo.vue'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { mapStores } from 'pinia'
 import { useJobsStore } from '@/stores/jobs'
@@ -713,7 +713,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "login": "login",

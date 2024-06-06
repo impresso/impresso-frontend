@@ -39,8 +39,8 @@
 import Daterange from '@/models/Daterange'
 import BaseTitleBar from '@/components/base/BaseTitleBar'
 import FilterDaterange from '@/models/FilterDaterange'
-import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar'
-import FilterMonitor from '@/components/modules/FilterMonitor'
+import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 
 export default {
   name: 'FilterFacetDateRange',
@@ -103,7 +103,7 @@ export default {
   },
 }
 </script>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "label_daterange_title": "publication date"

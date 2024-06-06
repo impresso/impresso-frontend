@@ -237,12 +237,12 @@
 
 <script>
 // import FilterDaterange from '@/components/modules/FilterDateRange'
-import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar'
+import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
 import FilterNumberRange from '@/components/modules/FilterNumberRange'
-import ItemSelector from '@/components/modules/ItemSelector'
+import ItemSelector from '@/components/modules/ItemSelector.vue'
 import ItemLabel from '@/components/modules/lists/ItemLabel'
 import CollectionItem from '@/components/modules/lists/CollectionItem'
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import EntitySuggester from '@/components/modules/EntitySuggester'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import {
@@ -536,7 +536,7 @@ export default {
   overflow: scroll;
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "op": {

@@ -95,7 +95,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "label_selected_article": "Selected article: ",

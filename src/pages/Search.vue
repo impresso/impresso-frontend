@@ -247,21 +247,21 @@
 <script>
 import { mapStores } from 'pinia'
 import Autocomplete from '@/components/Autocomplete'
-import Pagination from '@/components/modules/Pagination'
+import Pagination from '@/components/modules/Pagination.vue'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
 import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem'
-import SearchResultsSummary from '@/components/modules/SearchResultsSummary'
-import CollectionAddTo from '@/components/modules/CollectionAddTo'
-import CollectionAddToList from '@/components/modules/CollectionAddToList'
-import Ellipsis from '@/components/modules/Ellipsis'
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
+import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
+import CollectionAddToList from '@/components/modules/CollectionAddToList.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar'
-import InfoButton from '@/components/base/InfoButton'
+import InfoButton from '@/components/base/InfoButton.vue'
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
-import Modal from '@/components/base/Modal'
+import Modal from '@/components/base/Modal.vue'
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -759,7 +759,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_display": "Display As",

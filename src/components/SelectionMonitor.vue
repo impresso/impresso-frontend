@@ -185,7 +185,7 @@ import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
 import { SupportedFiltersByIndex, optimizeFilters } from '@/logic/filters'
 import { searchFacets } from '@/services'
-import Timeline from '@/components/modules/Timeline'
+import Timeline from '@/components/modules/Timeline.vue'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
 import SelectionMonitorFilter from './SelectionMonitorFilter.vue'
@@ -506,7 +506,7 @@ export default defineComponent({
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "labels": {

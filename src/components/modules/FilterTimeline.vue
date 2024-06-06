@@ -105,9 +105,9 @@ import Daterange from '@/models/Daterange'
 import FilterDaterange from '@/models/FilterDaterange'
 
 import BaseTitleBar from '@/components/base/BaseTitleBar'
-import InfoButton from '@/components/base/InfoButton'
+import InfoButton from '@/components/base/InfoButton.vue'
 import Timeline from '@/components/modules/Timeline'
-import FilterMonitor from '@/components/modules/FilterMonitor'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
 import { getFilterHash } from '../../models/SearchQuery'
 
@@ -301,7 +301,7 @@ export default {
 </script>
 
 <style lang="css" scoped></style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

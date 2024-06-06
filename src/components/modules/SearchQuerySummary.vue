@@ -366,7 +366,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} ",

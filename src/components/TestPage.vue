@@ -30,7 +30,7 @@
 <script>
 import * as d3 from 'd3'
 import Autocomplete from './Autocomplete';
-// import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart';
+// import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart.vue';
 // import HistogramSlider from '@/components/modules/vis/HistogramSlider';
 import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
 

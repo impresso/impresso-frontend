@@ -124,12 +124,12 @@ import {
   filtersItems as filtersItemsService,
   getAuthenticationBearer
 } from '@/services';
-import FilterImageUpload from '@/components/modules/FilterImageUpload';
+import FilterImageUpload from '@/components/modules/FilterImageUpload.vue';
 import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
-import Pagination from '@/components/modules/Pagination';
+import Pagination from '@/components/modules/Pagination.vue';
 import SearchSidebar from '@/components/modules/SearchSidebar';
-import SearchResultsSummary from '@/components/modules/SearchResultsSummary';
-import Ellipsis from '@/components/modules/Ellipsis';
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue';
+import Ellipsis from '@/components/modules/Ellipsis.vue';
 import SearchInput from '@/components/modules/SearchInput';
 import FilterFactory from '@/models/FilterFactory';
 import Image from '@/models/Image';
@@ -529,7 +529,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "label_order": "Order By",

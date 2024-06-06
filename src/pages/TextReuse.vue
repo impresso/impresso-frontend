@@ -113,7 +113,7 @@
   </i-layout>
 </template>
 <script>
-import SearchPills from '@/components/SearchPills'
+import SearchPills from '@/components/SearchPills.vue'
 import SearchInput from '@/components/modules/SearchInput'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
@@ -405,7 +405,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "searchTextReuseLabel": "search text reuse passages",

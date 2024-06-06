@@ -35,9 +35,9 @@ export default {
       this.handler.$on('init', ({ tileSources=[], ...options} = {}) => {
         if (this.viewer) return
         // add authentication options only if striclty necessary;
-        // that is, if tileSources contains `process.env.VUE_APP_BASE_URL`
-        // e.g. VUE_APP_BASE_URL=https://impresso-project.ch/
-        const localAuthenticationOptions = tileSources.some(d => d.indexOf(process.env.VUE_APP_BASE_URL) === 0)
+        // that is, if tileSources contains `import.meta.env.VITE_BASE_URL`
+        // e.g. VITE_BASE_URL=https://impresso-project.ch/
+        const localAuthenticationOptions = tileSources.some(d => d.indexOf(import.meta.env.VITE_BASE_URL) === 0)
           ? this.authenticationOptions
           : null
 

@@ -146,10 +146,10 @@ import Newspaper from '@/models/Newspaper'
 import Issue from '@/models/Issue'
 import Facet from '@/models/Facet'
 import SearchQuery from '@/models/SearchQuery'
-import Pagination from './modules/Pagination'
-import Timeline from './modules/Timeline'
-import IssueItem from './modules/lists/IssueItem'
-import StackedBarsPanel from './modules/vis/StackedBarsPanel'
+import Pagination from './modules/Pagination.vue'
+import Timeline from './modules/Timeline.vue'
+import IssueItem from './modules/lists/IssueItem.vue'
+import StackedBarsPanel from './modules/vis/StackedBarsPanel.vue'
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
@@ -412,7 +412,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "sort_date": "order by date ↑",

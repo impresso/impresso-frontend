@@ -44,9 +44,9 @@
 </template>
 
 <script>
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue';
 import ArticleItem from '@/components/modules/lists/ArticleItem';
-import Pagination from '@/components/modules/Pagination';
+import Pagination from '@/components/modules/Pagination.vue';
 import {
   toCanonicalFilter,
   joinFiltersWithItems,
@@ -241,7 +241,7 @@ export default {
 }
 
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "incipit": "{groupByLabel} found | {groupByLabel} found | {groupByLabel} found",

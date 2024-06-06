@@ -31,8 +31,8 @@
 </template>
 
 <script>
-import Ellipsis from '../Ellipsis'
-import TextReusePassageItemLabel from './TextReusePassageItemLabel'
+import Ellipsis from '../Ellipsis.vue'
+import TextReusePassageItemLabel from './TextReusePassageItemLabel.vue'
 import { mapStores } from 'pinia'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
@@ -128,7 +128,7 @@ export default {
   font-weight: bold;
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "numbers": {

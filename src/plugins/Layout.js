@@ -1,9 +1,9 @@
 import Layout from '@/components/layout/Layout';
-import Section from '@/components/layout/Section';
-import Dropdown from '@/components/layout/Dropdown';
+import Section from '@/components/layout/Section.vue';
+import Dropdown from '@/components/layout/Dropdown.vue';
 import Slider from '@/components/layout/Slider';
 import Spinner from '@/components/layout/Spinner';
-import FirstNonemptyChild from '@/components/layout/FirstNonemptyChild';
+import FirstNonemptyChild from '@/components/layout/FirstNonemptyChild.vue';
 
 const ImpressoLayout = {
   install(Vue) {

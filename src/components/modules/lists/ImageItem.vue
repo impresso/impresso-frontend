@@ -34,9 +34,9 @@
 </template>
 
 <script>
-import ItemSelector from '@/components/modules/ItemSelector';
+import ItemSelector from '@/components/modules/ItemSelector.vue';
 import ImgAuthentified from '@/components/base/ImgAuthentified';
-import LoadingIndicator from '@/components/modules/LoadingIndicator';
+import LoadingIndicator from '@/components/modules/LoadingIndicator.vue';
 import { image } from 'd3';
 
 export default {
@@ -78,9 +78,9 @@ export default {
       return Array.isArray(this.item.regions) && this.item.regions.length > 0;
     },
     srcCORSFriendly() {
-      if (process.env.NODE_ENV === 'production' && this.hasValidSrc && this.item.regions[0].iiifFragment.indexOf(process.env.VUE_APP_BASE_URL) === 0) {
-        return this.src.replace(process.env.VUE_APP_BASE_URL, window.location.origin)
-      } else if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.NODE_ENV === 'production' && this.hasValidSrc && this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0) {
+        return this.src.replace(import.meta.env.VITE_BASE_URL, window.location.origin)
+      } else if (import.meta.env.NODE_ENV !== 'production') {
         console.debug('[ImageItem] Cannot test srcCORSFriendly in development mode :( for item:', this.item.uid)
       }
       return this.src
@@ -92,7 +92,7 @@ export default {
     },
     shouldForwardAuthentication() {
       if (this.hasValidSrc) {
-        return this.item.regions[0].iiifFragment.indexOf(process.env.VUE_APP_BASE_URL) === 0
+        return this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0
       }
       return false
     },

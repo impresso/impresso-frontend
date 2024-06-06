@@ -9,12 +9,20 @@
     "Roman Kalyakin",
     "Paul Schroeder"
   ],
+  "type": "module",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "test:unit": "vitest",
+    "test:e2e": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
+    "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' http://localhost:4173 'cypress open --e2e'",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build --force",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "format": "prettier --write src/",
     "start": "npm run serve",
-    "build": "vue-cli-service build --skip-plugins @vue/cli-plugin-eslint",
-    "lint": "vue-cli-service lint",
     "test": "jest ./test/spec",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
@@ -45,7 +53,7 @@
     "vue-i18n": "9.13.1",
     "vue-matomo": "^4.2.0",
     "vue-router": "4.3.2",
-    "vue-slider-component": "3.2.24",
+    "vue-slider-component": "4.1.0-beta.7",
     "webfontloader": "1.6.28",
     "pinia": "2.1.7",
     "pinia-plugin-persistedstate": "3.2.1"
@@ -71,7 +79,7 @@
     "start-server-and-test": "^2.0.3",
     "typescript": "~5.4.0",
     "vite": "^5.2.8",
-    "vite-plugin-vue-devtools": "^7.0.25",
+    "vite-plugin-vue-devtools": "7.3.0-beta.2",
     "vitest": "^1.4.0",
     "vue-tsc": "^2.0.11",
 
@@ -92,6 +100,7 @@
 
     "jest": "29.7.0",
 
+    "autoprefixer": "10.4.19",
     "less": "4.2.0",
     "sass": "1.77.4"
   },

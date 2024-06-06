@@ -157,7 +157,7 @@ export default {
     }
   }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "source": {

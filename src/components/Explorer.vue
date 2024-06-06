@@ -89,7 +89,7 @@ import {
   collections,
   getSearchFacetsService
 } from '@/services'
-import Modal from '@/components/base/Modal'
+import Modal from '@/components/base/Modal.vue'
 import FacetExplorer from './modules/FacetExplorer';
 import TimeFacetExplorer from './modules/TimeFacetExplorer';
 import RangeFacetExplorer from './modules/RangeFacetExplorer';
@@ -355,7 +355,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "explore": "refine",

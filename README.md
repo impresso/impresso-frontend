@@ -15,15 +15,15 @@ NODE_OPTIONS=--openssl-legacy-provider npm install
 If required, cnfigure Vue proxy to `api` and `socket.io` in `.env.development.local` if needed, do not put any slash at the end of the env variables:
 
 ```sh
-VUE_APP_MIDDLELAYER_API="https://...."
-VUE_APP_MIDDLELAYER_API_PATH="/api"
-VUE_APP_MIDDLELAYER_API_SOCKET_PATH="/api/socket.io"
+VITE_MIDDLELAYER_API="https://...."
+VITE_MIDDLELAYER_API_PATH="/api"
+VITE_MIDDLELAYER_API_SOCKET_PATH="/api/socket.io"
 ```
 
 To use vue proxy while developing, add this env variable to your `.env.development.local` file:
 
 ```sh
-VUE_APP_USE_PROXY_MIDDLEWARE=true
+VITE_USE_PROXY_MIDDLEWARE=true
 ```
 
 Finally run with:

@@ -250,7 +250,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "placeholder": "... type or pick a collection name",

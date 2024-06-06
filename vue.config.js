@@ -6,10 +6,10 @@
 const readFile = require('fs').readFileSync
 
 const PackageJsonPath = `${__dirname}/package.json`
-const SocketIoProxyPath = `^${process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH}`
+const SocketIoProxyPath = `^${import.meta.env.VITE_MIDDLELAYER_API_SOCKET_PATH}`
 const ApiIiifProxyPath = [
   '^',
-  String(process.env.VUE_APP_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
+  String(import.meta.env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
   '/proxy/',
 ].join('')
 
@@ -22,30 +22,30 @@ function getVersion() {
 }
 
 function getPublicPath() {
-  if (process.env.PUBLIC_PATH) return process.env.PUBLIC_PATH
-  return process.env.NODE_ENV === 'production' ? '/app' : '/'
+  if (import.meta.env.PUBLIC_PATH) return import.meta.env.PUBLIC_PATH
+  return import.meta.env.NODE_ENV === 'production' ? '/app' : '/'
 }
 
-process.env.VUE_APP_GIT_TAG = process.env.GIT_TAG || 'latest'
-process.env.VUE_APP_GIT_BRANCH = process.env.GIT_BRANCH || ''
-process.env.VUE_APP_GIT_REVISION = process.env.GIT_REVISION || ''
-process.env.VUE_APP_VERSION = getVersion()
+import.meta.env.VITE_GIT_TAG = import.meta.env.GIT_TAG || 'latest'
+import.meta.env.VITE_GIT_BRANCH = import.meta.env.GIT_BRANCH || ''
+import.meta.env.VITE_GIT_REVISION = import.meta.env.GIT_REVISION || ''
+import.meta.env.VITE_VERSION = getVersion()
 
 console.log('[vue.config] SocketIoProxyPath', SocketIoProxyPath)
 console.log('[vue.config] ApiIiifProxyPath', ApiIiifProxyPath)
-console.log('[vue.config] process.env.NODE_ENV', process.env.NODE_ENV)
+console.log('[vue.config] import.meta.env.NODE_ENV', import.meta.env.NODE_ENV)
 console.log(
-  '[vue.config] process.env.VUE_APP_USE_PROXY_MIDDLEWARE (check src/services/index.js)',
-  process.env.VUE_APP_USE_PROXY_MIDDLEWARE,
+  '[vue.config] import.meta.env.VITE_USE_PROXY_MIDDLEWARE (check src/services/index.js)',
+  import.meta.env.VITE_USE_PROXY_MIDDLEWARE,
 )
-console.log('[vue.config] process.env.VUE_APP_MIDDLELAYER_API', process.env.VUE_APP_MIDDLELAYER_API)
+console.log('[vue.config] import.meta.env.VITE_MIDDLELAYER_API', import.meta.env.VITE_MIDDLELAYER_API)
 console.log(
-  '[vue.config] process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH',
-  process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH,
+  '[vue.config] import.meta.env.VITE_MIDDLELAYER_API_SOCKET_PATH',
+  import.meta.env.VITE_MIDDLELAYER_API_SOCKET_PATH,
 )
-console.log('[vue.config] process.env.VUE_APP_GIT_TAG', process.env.VUE_APP_GIT_TAG)
-console.log('[vue.config] process.env.VUE_APP_GIT_BRANCH', process.env.VUE_APP_GIT_BRANCH)
-console.log('[vue.config] process.env.VUE_APP_GIT_REVISION', process.env.VUE_APP_GIT_REVISION)
+console.log('[vue.config] import.meta.env.VITE_GIT_TAG', import.meta.env.VITE_GIT_TAG)
+console.log('[vue.config] import.meta.env.VITE_GIT_BRANCH', import.meta.env.VITE_GIT_BRANCH)
+console.log('[vue.config] import.meta.env.VITE_GIT_REVISION', import.meta.env.VITE_GIT_REVISION)
 
 module.exports = {
   chainWebpack: config => {
@@ -80,13 +80,13 @@ module.exports = {
     public: 'http://localhost:8080',
     proxy: {
       [SocketIoProxyPath]: {
-        target: process.env.VUE_APP_MIDDLELAYER_API,
+        target: import.meta.env.VITE_MIDDLELAYER_API,
         ws: true,
         changeOrigin: true,
       },
       // this is from IIIF stored in the datagase, thsy usually contain /api/proxy
       [ApiIiifProxyPath]: {
-        target: process.env.VUE_APP_MIDDLELAYER_API,
+        target: import.meta.env.VITE_MIDDLELAYER_API,
         ws: false,
         changeOrigin: true,
       },

@@ -51,7 +51,7 @@ export default {
 <style lang="css" scoped>
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "tabs": {

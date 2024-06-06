@@ -126,12 +126,12 @@
 import SearchQuery from '@/models/SearchQuery';
 import Topic from '@/models/Topic';
 import Facet from '@/models/Facet';
-import Pagination from './modules/Pagination';
-import ArticleItem from './modules/lists/ArticleItem';
+import Pagination from './modules/Pagination.vue';
+import ArticleItem from './modules/lists/ArticleItem.vue';
 import Article from '@/models/Article'
-import Ellipsis from './modules/Ellipsis';
-import Timeline from './modules/Timeline';
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import Ellipsis from './modules/Ellipsis.vue';
+import Timeline from './modules/Timeline.vue';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue';
 import { searchQueryHashGetter, mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import {
@@ -352,7 +352,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "topic": {

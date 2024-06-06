@@ -41,9 +41,9 @@
 </template>
 
 <script>
-import SearchPills from '@/components/SearchPills'
-import SearchTabs from '@/components/modules/SearchTabs'
-import InfoButton from '@/components/base/InfoButton'
+import SearchPills from '@/components/SearchPills.vue'
+import SearchTabs from '@/components/modules/SearchTabs.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 import SearchFacets from '@/components/SearchFacets'
 
 /**

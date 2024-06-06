@@ -73,7 +73,7 @@ export default {
   }
 }
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_full_text": "full text",

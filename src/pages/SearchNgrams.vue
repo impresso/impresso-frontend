@@ -155,11 +155,11 @@ import { mapStores } from 'pinia'
 import FacetModel from '@/models/Facet'
 import SearchSidebar from '@/components/modules/SearchSidebar'
 import BaseTitleBar from '@/components/base/BaseTitleBar'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
-import MultiLinePlot from '@/components/modules/vis/MultiLinePlot'
-import Ellipsis from '@/components/modules/Ellipsis'
-import InfoButton from '@/components/base/InfoButton'
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
+import MultiLinePlot from '@/components/modules/vis/MultiLinePlot.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import TagsInput from '@/components/base/TagsInput.vue'
 
 import {
@@ -556,7 +556,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "tabs": {

@@ -65,7 +65,7 @@
 
 <script>
 import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel';
-import LoadingIndicator from '@/components/modules/LoadingIndicator';
+import LoadingIndicator from '@/components/modules/LoadingIndicator.vue';
 import { ComparableTypes } from '@/logic/queryComparison'
 import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
@@ -246,7 +246,7 @@ export default {
     background: #ececec87;
   }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "missingSearchQueries": "Two queries are required to compute intersection"

@@ -229,7 +229,7 @@ export default {
   box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "groupBy": {

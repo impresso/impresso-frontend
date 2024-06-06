@@ -244,7 +244,7 @@ import SearchResultsListItem from '@/components/modules/SearchResultsListItem';
 import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem';
 import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
 import Article from '@/models/Article';
-import Pagination from '@/components/modules/Pagination';
+import Pagination from '@/components/modules/Pagination.vue';
 import SearchQuery from '@/models/SearchQuery';
 import Facet from '@/models/Facet';
 import Timeline from '@/components/modules/Timeline';
@@ -252,7 +252,7 @@ import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
-import InfoButton from '@/components/base/InfoButton';
+import InfoButton from '@/components/base/InfoButton.vue';
 import { getQueryParameter } from '../router/util';
 import { exporter as exporterService,
   collections as collectionsService,
@@ -576,7 +576,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "collections": "collections",

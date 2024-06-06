@@ -245,13 +245,13 @@
 </template>
 
 <script>
-import Autocomplete from './Autocomplete'
-import SearchTabs from './modules/SearchTabs'
-import SearchPills from '@/components/SearchPills'
-import Recipes from './modules/homepage/Recipes'
-import HomePageFooter from './HomePageFooter'
-import InfoButton from './base/InfoButton'
-import Recipe from './Recipe'
+import Autocomplete from './Autocomplete.vue'
+import SearchTabs from './modules/SearchTabs.vue'
+import SearchPills from '@/components/SearchPills.vue'
+import Recipes from './modules/homepage/Recipes.vue'
+import HomePageFooter from './HomePageFooter.vue'
+import InfoButton from './base/InfoButton.vue'
+import Recipe from './Recipe.vue'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
@@ -595,7 +595,7 @@ h1.HomePage__hugeHeading {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "toggle_lines_off": "lines: off",

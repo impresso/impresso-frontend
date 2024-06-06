@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import InfoButton from '@/components/base/InfoButton'
+import InfoButton from '@/components/base/InfoButton.vue'
 
 const TabsIds = Object.freeze({
   Details: 'details',
@@ -143,7 +143,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "tabs": {

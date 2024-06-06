@@ -183,7 +183,7 @@ export default defineComponent({
 })
 </script>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "tabs_overview_search": "overview",

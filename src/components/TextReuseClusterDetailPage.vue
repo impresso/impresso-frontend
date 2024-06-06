@@ -54,7 +54,7 @@
 <script>
 import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
 import PassageDetailsPanel from '@/components/modules/textReuse/PassageDetailsPanel'
-import Pagination from '@/components/modules/Pagination';
+import Pagination from '@/components/modules/Pagination.vue';
 
 import { textReuseClusterPassages } from '@/services'
 import Newspaper from '@/models/Newspaper'
@@ -206,7 +206,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "sort": {

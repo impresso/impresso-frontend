@@ -54,7 +54,7 @@ import { protobuf } from 'impresso-jscommons';
 import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel'
 import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
 
-import List from '@/components/modules/lists/List';
+import List from '@/components/modules/lists/List.vue';
 import { textReuseClusters, filtersItems } from '@/services';
 import { toCanonicalFilter, toSerializedFilters, SupportedFiltersByContext } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
@@ -361,7 +361,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "searchClustersLabel": "browse clusters | browse clusters (1) | browse {n} clusters",

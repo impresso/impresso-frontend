@@ -455,7 +455,7 @@ export default defineComponent({
   },
 })
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "visualisationType": "type of visualisation:",

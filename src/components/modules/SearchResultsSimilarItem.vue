@@ -89,7 +89,7 @@ h2 {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "add_to_collection": "Add to Collection ...",

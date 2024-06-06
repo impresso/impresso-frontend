@@ -136,7 +136,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "login_message": "Login to view image"

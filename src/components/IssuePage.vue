@@ -903,7 +903,7 @@ div.marginalia {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages",

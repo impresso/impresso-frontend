@@ -29,7 +29,7 @@
 
 import ContrastTimeline from '@/d3-modules/ContrastTimeline'
 import Timeline from '@/d3-modules/Timeline'
-import Tooltip from './tooltips/Tooltip'
+import Tooltip from './tooltips/Tooltip.vue'
 
 const getTimeFormatForResolution = resolution =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
