@@ -1,5 +1,5 @@
 <template>
-  <section class="search-bar" v-ClickOutside="hideSuggestions">
+  <section class="search-bar" ref="autocomplete">
     <div class="input-group">
       <b-form-input
         :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
@@ -12,6 +12,7 @@
       />
       <div class="input-group-append">
         <button type="button" class="btn btn-outline-primary"
+          ref="searchButton"
           :title="$tc('placeholder.search', filterCount)"
           @click="submit({ type: 'string', q })"
         >
@@ -105,12 +106,13 @@
 </template>
 
 <script>
-import ClickOutside from 'vue-click-outside'
+import { ref } from 'vue'
 import { mapStores } from 'pinia'
 import FilterFactory from '@/models/FilterFactory'
 import { useAutocompleteStore } from '@/stores/autocomplete'
 import { useUserStore } from '@/stores/user'
 import Explorer from './Explorer'
+import { useClickOutside } from '@/composables/useClickOutside'
 
 const AVAILABLE_TYPES = ['mention', 'newspaper', 'topic', 'location', 'person', 'collection']
 
@@ -150,6 +152,15 @@ export default {
       type: Array,
       default: () => [],
     },
+  },
+  beforeMount() {
+    const autocomplete = ref(this.$refs.autocomplete)
+    const button = ref(this.$refs.searchButton)
+    useClickOutside(
+      autocomplete,
+      () => this.hideSuggestions(),
+      button,
+    )
   },
   computed: {
     ...mapStores(useAutocompleteStore, useUserStore),
@@ -375,9 +386,6 @@ export default {
   },
   components: {
     Explorer,
-  },
-  directives: {
-    ClickOutside,
   },
 }
 </script>
