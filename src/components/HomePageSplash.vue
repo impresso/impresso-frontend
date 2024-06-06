@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import autocomplete from '@/components/Autocomplete';
+import autocomplete from '@/components/Autocomplete.vue';
 import content from '@/assets/homepage.json';
 
 export default {

@@ -186,7 +186,11 @@ export default {
       return this.selectableSuggestions[this.selectedIndex].type
     },
     suggestionIndex() {
-      const index = this.$helpers.groupBy(this.suggestions, 'type')
+      const key = 'type'
+      const index = this.suggestions.reduce((reduced, item) => {
+        (reduced[item[key]] = reduced[item[key]] || []).push(item);
+        return reduced;
+      }, {})
 
       let idx = this.staticSuggestions.length - 1
       let selectableSuggestions = [...this.staticSuggestions]

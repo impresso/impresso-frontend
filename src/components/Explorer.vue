@@ -90,10 +90,10 @@ import {
   getSearchFacetsService
 } from '@/services'
 import Modal from '@/components/base/Modal.vue'
-import FacetExplorer from './modules/FacetExplorer';
-import TimeFacetExplorer from './modules/TimeFacetExplorer';
-import RangeFacetExplorer from './modules/RangeFacetExplorer';
-import Pagination from './modules/Pagination';
+import FacetExplorer from './modules/FacetExplorer.vue';
+import TimeFacetExplorer from './modules/TimeFacetExplorer.vue';
+import RangeFacetExplorer from './modules/RangeFacetExplorer.vue';
+import Pagination from './modules/Pagination.vue';
 import Bucket from '@/models/Bucket';
 import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filters'
 

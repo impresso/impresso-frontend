@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel';
+import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel.vue';
 import LoadingIndicator from '@/components/modules/LoadingIndicator.vue';
 import { ComparableTypes } from '@/logic/queryComparison'
 import { mapStores } from 'pinia'

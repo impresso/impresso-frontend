@@ -32,8 +32,8 @@
 </template>
 
 <script>
-import Timeline from '@/components/modules/Timeline'
-import FilterDateRange from '@/components/modules/FilterDateRange'
+import Timeline from '@/components/modules/Timeline.vue'
+import FilterDateRange from '@/components/modules/FilterDateRange.vue'
 import Helpers from '@/plugins/Helpers';
 import Daterange from '@/models/Daterange';
 

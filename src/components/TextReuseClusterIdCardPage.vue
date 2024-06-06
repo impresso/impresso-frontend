@@ -49,7 +49,7 @@
 import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
 import Timeline from '@/components/modules/Timeline'
-import BaseTitleBar from '@/components/base/BaseTitleBar';
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue';
 import Helpers from '@/plugins/Helpers';
 
 import { textReuseClusters as textReuseClustersService } from '@/services'

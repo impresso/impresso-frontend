@@ -188,7 +188,7 @@ import PunchExplorer from '@/components/modals/PunchExplorer'
 import Pagination from '@/components/modules/Pagination.vue'
 import { searchQueryGetter, mapApplyCurrentSearchFilters } from '@/logic/queryParams'
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart.vue'
-import BaseTitleBar from '@/components/base/BaseTitleBar';
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue';
 import {
   entityMentionsTimeline as entityMentionsTimelineService
 } from '@/services'

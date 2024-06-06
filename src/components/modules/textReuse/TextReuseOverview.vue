@@ -24,7 +24,7 @@ import { getSearchFacetsService } from '@/services'
 export default {
   name: 'TextReuseOverview',
   components: {
-    StackedBarsPanel: () => import('@/components/modules/vis/StackedBarsPanel'),
+    StackedBarsPanel: () => import('@/components/modules/vis/StackedBarsPanel.vue'),
   },
   props: {
     filters: {

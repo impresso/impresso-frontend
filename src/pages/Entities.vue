@@ -62,7 +62,7 @@
 <script>
 import Entity from '@/models/Entity';
 import List from '@/components/modules/lists/List.vue';
-import EntityItem from '@/components/modules/lists/EntityItem';
+import EntityItem from '@/components/modules/lists/EntityItem.vue';
 import { entities as entitiesService } from '@/services';
 
 const QueryParameters = Object.freeze({

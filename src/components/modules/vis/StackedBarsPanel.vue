@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import VizBar from '../../base/VizBar'
+import VizBar from '../../base/VizBar.vue'
 import BucketModel from '../../../models/Bucket'
 
 /**

@@ -1,4 +1,4 @@
-import { VueConstructor } from 'vue';
+import type { App } from 'vue'
 
 import BButton from '@/components/legacy/bootstrap/BButton.vue';
 import BCol from '@/components/legacy/bootstrap/BCol.vue';
@@ -21,7 +21,7 @@ import BFormSelect from '@/components/legacy/bootstrap/BFormSelect.vue';
 
 
 const BootstrapVueLegacy = {
-  install(vue: VueConstructor) {
+  install(vue: App) {
     vue.component('BButton', BButton);
     vue.component('BCol', BCol);
     vue.component('BRow', BRow);

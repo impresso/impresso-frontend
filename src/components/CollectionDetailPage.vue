@@ -240,15 +240,15 @@
 import { mapStores } from 'pinia'
 import { protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection';
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem';
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem';
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue';
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue';
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue';
 import Article from '@/models/Article';
 import Pagination from '@/components/modules/Pagination.vue';
 import SearchQuery from '@/models/SearchQuery';
 import Facet from '@/models/Facet';
-import Timeline from '@/components/modules/Timeline';
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import Timeline from '@/components/modules/Timeline.vue';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'

@@ -238,12 +238,12 @@
 <script>
 // import FilterDaterange from '@/components/modules/FilterDateRange'
 import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
-import FilterNumberRange from '@/components/modules/FilterNumberRange'
+import FilterNumberRange from '@/components/modules/FilterNumberRange.vue'
 import ItemSelector from '@/components/modules/ItemSelector.vue'
-import ItemLabel from '@/components/modules/lists/ItemLabel'
-import CollectionItem from '@/components/modules/lists/CollectionItem'
+import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
+import CollectionItem from '@/components/modules/lists/CollectionItem.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
-import EntitySuggester from '@/components/modules/EntitySuggester'
+import EntitySuggester from '@/components/modules/EntitySuggester.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import {
   toCanonicalFilter,

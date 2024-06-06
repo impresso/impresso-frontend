@@ -56,7 +56,7 @@
 
 <script>
 import * as d3 from 'd3';
-import Tooltip from './modules/tooltips/Tooltip';
+import Tooltip from './modules/tooltips/Tooltip.vue';
 import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
 

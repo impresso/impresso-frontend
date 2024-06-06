@@ -35,7 +35,7 @@
 
 <script>
 import ItemSelector from '@/components/modules/ItemSelector.vue';
-import ImgAuthentified from '@/components/base/ImgAuthentified';
+import ImgAuthentified from '@/components/base/ImgAuthentified.vue';
 import LoadingIndicator from '@/components/modules/LoadingIndicator.vue';
 import { image } from 'd3';
 

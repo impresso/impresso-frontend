@@ -125,12 +125,12 @@ import {
   getAuthenticationBearer
 } from '@/services';
 import FilterImageUpload from '@/components/modules/FilterImageUpload.vue';
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue';
 import Pagination from '@/components/modules/Pagination.vue';
-import SearchSidebar from '@/components/modules/SearchSidebar';
+import SearchSidebar from '@/components/modules/SearchSidebar.vue';
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue';
 import Ellipsis from '@/components/modules/Ellipsis.vue';
-import SearchInput from '@/components/modules/SearchInput';
+import SearchInput from '@/components/modules/SearchInput.vue';
 import FilterFactory from '@/models/FilterFactory';
 import Image from '@/models/Image';
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';

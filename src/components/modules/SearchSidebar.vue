@@ -44,7 +44,7 @@
 import SearchPills from '@/components/SearchPills.vue'
 import SearchTabs from '@/components/modules/SearchTabs.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import SearchFacets from '@/components/SearchFacets'
+import SearchFacets from '@/components/SearchFacets.vue'
 
 /**
  * @typedef {import('@/models').Filter} Filter

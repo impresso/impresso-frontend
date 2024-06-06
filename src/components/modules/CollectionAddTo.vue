@@ -22,7 +22,7 @@
 
 <script>
 import { mapStores } from 'pinia'
-import CollectionAddToList from './CollectionAddToList';
+import CollectionAddToList from './CollectionAddToList.vue';
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 

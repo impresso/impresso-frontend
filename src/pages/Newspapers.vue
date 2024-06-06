@@ -39,7 +39,7 @@
 <script>
 import Newspaper from '@/models/Newspaper'
 import List from '@/components/modules/lists/List.vue';
-import NewspaperItem from '@/components/modules/lists/NewspaperItem';
+import NewspaperItem from '@/components/modules/lists/NewspaperItem.vue';
 import { newspapers as newspapersService} from '@/services';
 import { mapApplyCurrentSearchFilters, mapSuggestionQuery } from '@/logic/queryParams';
 

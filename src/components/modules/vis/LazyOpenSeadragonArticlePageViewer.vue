@@ -7,7 +7,7 @@
 
 <script>
 import Vue from 'vue';
-import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer';
+import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer.vue';
 
 /**
  * @typedef {object} Overlay

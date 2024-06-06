@@ -51,16 +51,12 @@
 </template>
 
 <script>
-import BaseTitleBar from '@/components/base/BaseTitleBar'
 import Daterange from '@/models/Daterange'
-import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import DatepickerButton from '@/components/base/DatepickerButton.vue'
 
 export default {
   name: 'FilterDateRangeCalendar',
   components: {
-    BaseTitleBar,
-    FilterMonitor,
     DatepickerButton,
   },
   props: {

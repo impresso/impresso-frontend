@@ -40,8 +40,8 @@
 </template>
 
 <script>
-import ItemLabel from './lists/ItemLabel'
-import ItemSelector from './ItemSelector'
+import ItemLabel from './lists/ItemLabel.vue'
+import ItemSelector from './ItemSelector.vue'
 
 function getEntitiesForIds(ids, entities = []) {
   return ids.map(id => entities.find(entity => entity && entity.uid  === id))

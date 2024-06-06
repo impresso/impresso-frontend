@@ -91,7 +91,7 @@ import {
   searchFacets,
   filtersItems as filtersItemsService
 } from '@/services'
-import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel';
+import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel.vue';
 import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel'
 import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel'
 import Spinner from '@/components/layout/Spinner'

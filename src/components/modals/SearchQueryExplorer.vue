@@ -45,7 +45,7 @@
 
 <script>
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue';
-import ArticleItem from '@/components/modules/lists/ArticleItem';
+import ArticleItem from '@/components/modules/lists/ArticleItem.vue';
 import Pagination from '@/components/modules/Pagination.vue';
 import {
   toCanonicalFilter,

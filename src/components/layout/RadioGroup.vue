@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { PropType, computed } from 'vue'
-import uuid from 'uuid'
+import { v4 } from 'uuid'
 import RadioGroupItem, { type Option } from './RadioGroupItem.vue'
 
 const props = defineProps({
@@ -31,7 +31,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue'])
 const isButton = computed(() => props.type === 'button')
-const uid = computed(() => uuid.v4())
+const uid = computed(() => v4())
 
 const gClass = computed(() => ({
   'bv-no-focus-ring': true,

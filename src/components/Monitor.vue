@@ -260,7 +260,7 @@ export default {
           },
         };
       // @ts-ignore
-      } else if (this.$helpers.isEntity(this.type)) {
+      } else if (['person', 'location'].indexOf(type) !== this.type) {
         return {
           name: 'entity',
           params: {

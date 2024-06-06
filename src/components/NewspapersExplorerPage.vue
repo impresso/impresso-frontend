@@ -43,7 +43,7 @@
     </div>
     <!--  newspaper lifespans -->
     <newspapers-lines class="m-3"
-      v-model="newspapers"
+      :newspapers="newspapers"
       :margin="{left: 210, right:60}"
       :scrollTop="scrollTop"
       :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"
@@ -51,10 +51,11 @@
   </i-layout-section>
 </template>
 <script>
-import NewspapersLines from './NewspapersLines';
-import Timeline from './modules/Timeline';
-import InfoButton from './base/InfoButton';
+import NewspapersLines from './NewspapersLines.vue';
+import Timeline from './modules/Timeline.vue';
+import InfoButton from './base/InfoButton.vue';
 import { pagesTimelines, issuesTimeline } from '@/services';
+import Helpers from '@/plugins/Helpers'
 
 export default {
   props: {
@@ -98,10 +99,10 @@ export default {
       issuesTimeline.get('stats', {})
     ]).then(([ pages, issues ]) => {
       const pagesValues = pages.values.length
-        ? this.$helpers.timeline.addEmptyIntervals(pages.values.sort((a, b) => a.t - b.t))
+        ? Helpers.timeline.addEmptyIntervals(pages.values.sort((a, b) => a.t - b.t))
         : [];
       const issuesValues = issues.values.length
-        ? this.$helpers.timeline.addEmptyIntervals(issues.values.sort((a, b) => a.t - b.t))
+        ? Helpers.timeline.addEmptyIntervals(issues.values.sort((a, b) => a.t - b.t))
         : [];
       this.timelinesValues = {
         pages: pagesValues,

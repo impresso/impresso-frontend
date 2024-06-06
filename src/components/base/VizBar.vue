@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import ItemLabel from '../modules/lists/ItemLabel'
-import ItemSelector from '../modules/ItemSelector'
+import ItemLabel from '../modules/lists/ItemLabel.vue'
+import ItemSelector from '../modules/ItemSelector.vue'
 
 export default {
   props: {

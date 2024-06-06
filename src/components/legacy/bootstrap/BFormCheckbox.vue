@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import uuid from 'uuid'
+import { v4 } from 'uuid'
 
 // TODO in Vue3 replace value with modelValue
 const props = defineProps({
@@ -42,7 +42,7 @@ if (unknownAttrs.length) {
   console.warn(`BFormCheckbox: Unknown attributes: ${unknownAttrs.join(', ')}`)
 }
 
-const uid = computed(() => uuid.v4())
+const uid = computed(() => v4())
 
 const cbClass = computed(() => ({
   'custom-control': true,

@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { PropType, computed } from 'vue'
-import uuid from 'uuid'
+import { v4 } from 'uuid'
 import Icon from '@/components/base/Icon.vue'
 
 export interface Option {
@@ -60,7 +60,7 @@ const props = defineProps({
   },
 })
 const emit = defineEmits(['update:modelValue'])
-const uid = computed(() => uuid.v4())
+const uid = computed(() => v4())
 
 const handleChanged = () => {
   if (props.modelValue) return
