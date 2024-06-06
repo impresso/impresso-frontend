@@ -262,11 +262,12 @@
 </template>
 
 <script>
+import { mapActions } from 'pinia'
+import { useNotificationsStore } from '@/stores/notifications'
 import Partner from '@/models/Partner'
 import { newspapers as NewspapersService } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
 import Modal from '@/components/base/Modal.vue'
-import { mapActions } from 'vuex'
 
 export default {
   data: () => ({
@@ -394,7 +395,7 @@ export default {
       this.isModalVisible = false
       this.$emit('closed')
     },
-    ...mapActions('notifications', ['addNotification']),
+    ...mapActions(useNotificationsStore, ['addNotification']),
     debounceInput(value, prop) {
       clearTimeout(this.delayTimer)
       this.delayTimer = setTimeout(() => {

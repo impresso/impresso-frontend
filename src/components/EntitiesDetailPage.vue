@@ -167,6 +167,10 @@ import ArticleItem from '@/components/modules/lists/ArticleItem';
 import MentionItem from '@/components/modules/lists/MentionItem';
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
 import { searchFacets as searchFacetsService } from '@/services';
+import { mapStores } from 'pinia'
+import { useEntitiesStore } from '@/stores/entities'
+import { useSettingsStore } from '@/stores/settings'
+import { useUserStore } from '@/stores/user'
 
 const TAB_ARTICLES = 'articles';
 const TAB_MENTIONS = 'mentions';
@@ -201,6 +205,7 @@ export default {
     StackedBarsPanel,
   },
   computed: {
+    ...mapStores(useEntitiesStore, useSettingsStore, useUserStore),
     startYear() {
       return window.impressoDocumentsYearSpan.firstYear;
     },
@@ -279,9 +284,6 @@ export default {
         ...common,
       ];
     },
-    countMentions() {
-      return this.$store.state.mentions.pagination.totalRows;
-    },
     tabs() {
       return [
         {
@@ -310,7 +312,7 @@ export default {
       return null;
     },
     activeLanguageCode() {
-      return this.$store.state.settings.language_code;
+      return this.settingsStore.language_code
     },
     bbox() {
       if (!this.entity.wikidata) {
@@ -323,10 +325,10 @@ export default {
   },
   methods: {
     getEntity() {
-      return this.$store.dispatch('entities/LOAD_DETAIL', this.$route.params.entity_id);
+      return this.entitiesStore.loadDetail(this.$route.params.entity_id);
     },
     async loadFacets() {
-      this.$store.dispatch('entities/LOAD_TIMELINE', this.$route.params.entity_id).then((values) => {
+      this.entitiesStore.loadTimeline(this.$route.params.entity_id).then((values) => {
         this.timevalues = values;
       });
       this.facets = [];
@@ -351,7 +353,7 @@ export default {
       return this.loadFacets();
     },
     loadArticles(page = 1) {
-      return this.$store.dispatch('entities/LOAD_ENTITY_ARTICLES', {
+      return this.entitiesStore.loadEntityArticles({
         page,
         orderBy: this.currentOrderBy,
         filters: [
@@ -370,7 +372,7 @@ export default {
       });
     },
     loadMentions(page = 1) {
-      return this.$store.dispatch('entities/LOAD_ENTITY_MENTIONS', {
+      return this.entitiesStore.loadEntityMentions({
         page,
         orderBy: this.currentOrderBy,
         filters: [
@@ -409,7 +411,7 @@ export default {
       return numYear;
     },
     isLoggedIn() {
-      return this.$store.state.user.userData;
+      return this.userStore.userData
     },
   },
   watch: {

@@ -55,6 +55,8 @@
 
 <script>
 import { embeddings as embeddingsService } from '@/services'
+import { mapStores } from 'pinia'
+import { useEmbeddingsStore } from '@/stores/embeddings'
 
 export default {
   data: () => ({
@@ -78,6 +80,7 @@ export default {
     filter: Object,
   },
   computed: {
+    ...mapStores(useEmbeddingsStore),
     filterQuery() {
       if (this.filter && Array.isArray(this.filter.q)) {
         const q = this.filter.q
@@ -91,18 +94,18 @@ export default {
     },
     limitEmbeddings: {
       get() {
-        return this.$store.state.embeddings.limit
+        return this.embeddingsStore.limit
       },
       set(limitEmbeddings) {
-        this.$store.commit('embeddings/UPDATE_LIMIT', limitEmbeddings)
+        this.embeddingsStore.updateLimit(limitEmbeddings)
       },
     },
     languageEmbeddings: {
       get() {
-        return this.$store.state.embeddings.language
+        return this.embeddingsStore.language
       },
       set(languageEmbeddings) {
-        this.$store.commit('embeddings/UPDATE_LANGUAGE', languageEmbeddings)
+        this.embeddingsStore.updateLanguage(languageEmbeddings)
       },
     },
     serviceQuery() {

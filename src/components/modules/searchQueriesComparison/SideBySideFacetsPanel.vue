@@ -67,6 +67,8 @@
 import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel';
 import LoadingIndicator from '@/components/modules/LoadingIndicator';
 import { ComparableTypes } from '@/logic/queryComparison'
+import { mapStores } from 'pinia'
+import { useMonitorStore } from '@/stores/monitor'
 
 /**
  * @typedef {import('../../../models').Bucket} Bucket
@@ -175,7 +177,7 @@ export default {
       const comparable = this.comparables[comparableIndex]
       const filters = comparable?.filters ?? comparable?.query?.filters
 
-      this.$store.dispatch('monitor/ACTIVATE', {
+      this.monitorStore.activate({
         item,
         type,
         filters,
@@ -206,6 +208,7 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useMonitorStore),
     /**
      * The span of the domain to fit the widest result on timeline.
      * @returns {[number, number]}

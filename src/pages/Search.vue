@@ -142,7 +142,7 @@
         :title="$tc('add_n_to_collection', selectedItems.length)"
         :show="isModalVisible('nameSelectionCollection')"
         @shown="nameSelectedCollectionOnShown()"
-      >
+        >
         <collection-add-to-list :items="selectedItems" />
       </Modal>
 
@@ -154,7 +154,7 @@
         @close="hideModal('nameCollection')"
         @ok="createQueryCollection()"
         @shown="nameCollectionOnShown()"
-      >
+        >
         <form v-on:submit.stop.prevent="createQueryCollection()">
           <label for="inputName">Name</label>
           <b-form-input
@@ -245,6 +245,7 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import Autocomplete from '@/components/Autocomplete'
 import Pagination from '@/components/modules/Pagination'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
@@ -271,6 +272,8 @@ import {
   exporter as exporterService,
   collectionsItems as collectionsItemsService,
 } from '@/services'
+import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -307,6 +310,7 @@ export default {
     visibleModal: null,
   }),
   computed: {
+    ...mapStores(useCollectionsStore, useUserStore),
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
@@ -345,7 +349,7 @@ export default {
       },
     },
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     orderBy: {
       get() {
@@ -466,7 +470,7 @@ export default {
       })
     },
     nameSelectedCollectionOnShown() {
-      return this.$store.dispatch('collections/LOAD_COLLECTIONS')
+      return this.collectionsStore.loadCollections()
     },
     onSummary(msg) {
       this.inputDescription = msg
@@ -529,17 +533,17 @@ export default {
     createQueryCollection() {
       if (!this.nameCollectionOkDisabled) {
         this.hideModal('nameCollection')
-        this.$store
-          .dispatch('collections/ADD_COLLECTION', {
+        return this.collectionsStore
+          .addCollection({
             name: this.inputName,
             description: this.inputDescription,
           })
           .then(collection => {
-            const payload = {
+            return searchService.create({
+              group_by: 'articles',
               filters: this.filters.map(getFilterQuery),
-              collectionUid: collection.uid,
-            }
-            this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', payload)
+              collection_uid: collection.uid,
+            })
           })
       }
     },

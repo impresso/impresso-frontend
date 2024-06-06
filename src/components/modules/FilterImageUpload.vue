@@ -56,15 +56,12 @@ export default {
       this.handler.$emit('dispatch', (pond) => {
         pond.onprocessfile = (error, file) => {
           console.info('File processed', file.filename, file.fileType, file.serverId);
-          this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', file.serverId);
-          this.$store.commit('searchImages/UPDATE_SIMILAR_TO', false);
           this.loadImage(file.serverId);
         };
       });
     },
     remove() {
       this.image = false;
-      this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);
       this.$emit('remove');
       this.handler.$emit('destroy');
       this.init();

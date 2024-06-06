@@ -11,21 +11,24 @@
 
 <script>
 import content from '@/assets/disclaimer.json';
+import { mapStores } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
 
 export default {
   methods: {
     agreeTerms() {
-      this.$store.dispatch('settings/ACCEPT_TERMS_OF_USE');
+      this.settingsStore.acceptTermsOfUse()
     },
   },
   computed: {
+    ...mapStores(useSettingsStore),
     content: {
       get() {
         return content[this.activeLanguageCode];
       },
     },
     activeLanguageCode() {
-      return this.$store.state.settings.language_code;
+      return this.settingsStore.language_code
     },
   },
 };

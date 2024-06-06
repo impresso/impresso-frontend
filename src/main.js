@@ -2,6 +2,9 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
+import { createPinia, PiniaVuePlugin } from 'pinia'
+import { createPersistedState } from 'pinia-plugin-persistedstate'
+
 
 import Helpers from '@/plugins/Helpers'
 import ImpressoLayout from '@/plugins/Layout'
@@ -18,12 +21,14 @@ import './assets/legacy/bootstrap-vue.css'
 
 import App from './App'
 import router from './router'
-import store from './store'
 import messages from './i18n/messages'
 import dateTimeFormats from './i18n/dateTimeFormats'
 import numberFormats from '@/i18n/numberFormats'
+import { useSettingsStore } from './stores/settings'
+import { useUserStore } from './stores/user'
+import { useNotificationsStore } from './stores/notifications'
 
-// Vue.use(BootstrapVue)
+Vue.use(PiniaVuePlugin)
 Vue.use(BootstrapVueLegacyComponents)
 Vue.use(VueI18n)
 // custom created plugins
@@ -33,26 +38,41 @@ Vue.use(ImpressoLayout)
 Vue.use(MetaTags, { suffix: 'impresso' })
 Vue.use(Navigation)
 
+const pinia = createPinia()
+pinia.use(createPersistedState({
+  key: id => `__impresso__${id}`,
+}))
+
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
-Vue.config.errorHandler = error =>
-  store.dispatch('DISPLAY_ERROR', {
+Vue.config.errorHandler = error => {
+  const notificationsStore = useNotificationsStore()
+  notificationsStore.displayError({
     error,
     origin: 'Vue.config.errorHandler',
   })
+}
+
 
 window.addEventListener('unhandledrejection', event => {
   if (event.reason) {
-    store.dispatch('DISPLAY_ERROR', {
+    const notificationsStore = useNotificationsStore()
+    notificationsStore.displayError({
       error: event.reason,
       origin: 'unhandledrejection',
     })
   }
 })
 
+// pinia cannot be used without a Vue instance
+// creating an instance here that won't be used
+// anywhere later
+const _throwawayApp = new Vue({ pinia })
+const settingsStore = useSettingsStore()
+
 // Create VueI18n instance with options
 const i18n = new VueI18n({
   fallbackLocale: 'en',
-  locale: store.state.settings.language_code,
+  locale: settingsStore.language_code,
   messages,
   dateTimeFormats,
   numberFormats,
@@ -94,13 +114,17 @@ Promise.race([
     if (err.code === 401) {
       // eslint-disable-next-line
       console.debug('[main] Not authenticated (status 401):', err.message)
-      if (store.state.user) {
+      const userStore = useUserStore()
+
+      if (userStore.user) {
         // eslint-disable-next-line
         console.debug(
           '[main] Authentication failed ... but an user is present in logalStorage. Force logging out.',
         )
-        store.dispatch('user/LOGOUT')
-        store.dispatch('DISPLAY_ERROR', {
+        userStore.logout()
+
+        const notificationsStore = useNotificationsStore()
+        notificationsStore.displayError({
           error: err,
           origin: 'services.app.reAuthenticate',
         })
@@ -154,11 +178,6 @@ Promise.race([
         '\n - features:',
         features,
       )
-      // eslint-disable-next-line
-      console.debug(
-        '[main] App latest notification date:',
-        store.state.settings.lastNotificationDate,
-      )
       window.impressoFrontendVersion = process.env.VUE_APP_GIT_TAG
       window.impressoFrontendRevision = process.env.VUE_APP_GIT_REVISION
       window.impressoFrontendBranch = process.env.VUE_APP_GIT_BRANCH
@@ -206,7 +225,7 @@ Promise.race([
         el: '#app',
         i18n,
         router,
-        store,
+        pinia,
         template: '<App/>',
         components: {
           App,

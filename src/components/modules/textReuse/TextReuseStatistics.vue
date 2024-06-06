@@ -100,6 +100,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 import PowerVisBase from '@/components/modules/vis/PowerVisBase.vue'
 import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
@@ -311,7 +313,7 @@ export default defineComponent({
     handleItemClicked({ item }) {
       if (!item) return
       console.debug('handleItemClicked', item.term)
-      this.$store.dispatch('selectionMonitor/show', {
+      this.selectionMonitorStore.show({
         item: {
           name: item.term,
           uid: item.term,
@@ -322,6 +324,7 @@ export default defineComponent({
     },
   },
   computed: {
+    ...mapStores(useSelectionMonitorStore),
     // get visualisation type from URL parameters
     visualisation: {
       get() {

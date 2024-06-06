@@ -237,6 +237,7 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import { protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection';
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem';
@@ -261,6 +262,9 @@ import { exporter as exporterService,
 import RadioGroup from '@/components/layout/RadioGroup.vue';
 import Modal from '@/components/base/Modal.vue'
 import { hide } from '@floating-ui/vue';
+import { useCollectionsStore } from '@/stores/collections'
+import { useSettingsStore } from '@/stores/settings'
+
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs',
@@ -302,6 +306,7 @@ export default {
     Modal,
   },
   computed: {
+    ...mapStores(useCollectionsStore, useSettingsStore),
     displayStyleOptions() {
       return [
         {value: 'list', text: this.$t('display_button_list')},
@@ -334,19 +339,19 @@ export default {
     },
     collections: {
       get() {
-        return this.$store.getters['collections/collections'];
+        return this.collectionsStore.collections
       },
     },
     displayStyle: {
       get() {
-        const style = this.$store.state.search.displayStyle
+        const style = this.settingsStore.searchDisplayStyle
         if (['list', 'tiles'].includes(style)) {
           return style
         }
         return 'list'
       },
       set(displayStyle) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
+        this.settingsStore.updateSearchDisplayStyle(displayStyle)
       },
     },
     tabs() {
@@ -481,27 +486,26 @@ export default {
       });
     },
     remove(collection) {
-      this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
-        this.$store.dispatch('collections/LOAD_COLLECTIONS').then(() => {
-          this.$router.push({
-            name: 'collections',
-          });
-        });
-      });
+      this.collectionsStore
+        .deleteCollection(collection.uid)
+        .then(() => this.collectionsStore.loadCollections())
+        .then(() => this.$router.push({ name: 'collections' }))
     },
     save(collection) {
       if (collection.uid) {
-        this.$store.dispatch('collections/EDIT_COLLECTION', {
+        this.collectionsStore.editCollection({
           uid: collection.uid,
           name: collection.name,
           description: collection.description,
         }).then((res) => {
           const idx = this.collections.findIndex(c => c.uid === res.uid);
-          this.collections[idx].name = res.name;
-          this.collections[idx].description = res.description;
+          if (idx >= 0 && this.collections[idx]) {
+            this.collections[idx].name = res.name;
+            this.collections[idx].description = res.description;
+          }
         });
       } else {
-        this.$store.dispatch('collections/ADD_COLLECTION', {
+        this.collectionsStore.addCollection({
           name: collection.name,
           description: collection.description,
         }).then((res) => {
@@ -539,10 +543,11 @@ export default {
     },
     loadTimeline() {
       this.isTimelineLoading = true;
-      return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
-        this.timevalues = values;
-        this.isTimelineLoading = false;
-      });
+      return this.collectionsStore.loadTimeline(this.$route.params.collection_uid)
+        .then((values) => {
+          this.timevalues = values;
+          this.isTimelineLoading = false;
+        });
     },
     loadFacets(type) {
       return searchFacetsService.get(type, {

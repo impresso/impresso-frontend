@@ -36,6 +36,8 @@
 <script>
 import ItemLabel from '@/components/modules/lists/ItemLabel'
 import ItemSelector from '@/components/modules/ItemSelector'
+import { mapStores } from 'pinia'
+import { useMonitorStore } from '@/stores/monitor'
 
 export default {
   components: {
@@ -49,6 +51,7 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useMonitorStore),
     /** @returns {boolean} */
     hasRecommendations() {
       return Object.keys(this.recommendations).length > 0
@@ -85,7 +88,7 @@ export default {
      * @param {any} params
      */
     handleItemClicked({ params }) {
-      this.$store.dispatch('monitor/ACTIVATE', {
+      this.monitorStore.activate({
         ...params,
         filters: [],
         disableFilterModification: true
