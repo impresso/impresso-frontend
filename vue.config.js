@@ -1,3 +1,8 @@
+// NOTE
+// TODO: migrate to vite.config.js and remove
+//
+//
+
 const readFile = require('fs').readFileSync
 
 const PackageJsonPath = `${__dirname}/package.json`
