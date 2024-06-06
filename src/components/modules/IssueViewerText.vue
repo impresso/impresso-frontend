@@ -20,7 +20,7 @@
         <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
       </b-badge>
       <div class="alert alert-light" role="alert" v-if="!article.isCC">
-        <p>{{ $t('wrongLayout') }} <icon name="image" /></p>
+        <p>{{ $t('wrongLayout') }}</p>
       </div>
       <div v-if="hasValidRegions === false">
         <p>{{ article.excerpt }}</p>
@@ -105,7 +105,6 @@
 
 <script>
 import { mapStores } from 'pinia'
-import Icon from 'vue-awesome/components/Icon'
 import { articlesSuggestions, articleTextReusePassages } from '@/services'
 import CollectionAddTo from './CollectionAddTo'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem'
@@ -239,7 +238,6 @@ export default {
     ArticleItem,
     CollectionAddTo,
     SearchResultsSimilarItem,
-    Icon,
     AnnotatedText,
     InfoButton,
   },

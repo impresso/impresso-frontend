@@ -2,16 +2,30 @@
   <label
     v-if="props.type === 'button'"
     class="btn btn-outline-primary btn-sm"
-    :class="{active: props.modelValue }">
-    <input type="radio" :value="props.option.value" :checked="props.modelValue" @change="handleChanged">
-    <Icon v-if="option.iconName != null && option.iconPosition == 'left'" :name="option.iconName"/>
+    :class="{ active: props.modelValue }"
+  >
+    <input
+      type="radio"
+      :value="props.option.value"
+      :checked="props.modelValue"
+      @change="handleChanged"
+    />
+    <Icon v-if="option.iconName != null && option.iconPosition == 'left'" :name="option.iconName" />
     {{ option.text }}
-    <Icon v-if="option.iconName != null && ['right', undefined].includes(option.iconPosition)" :name="option.iconName"/>
+    <Icon
+      v-if="option.iconName != null && ['right', undefined].includes(option.iconPosition)"
+      :name="option.iconName"
+    />
   </label>
-  <div
-    v-else-if="props.type === 'radio'"
-    class="custom-control custom-control-inline custom-radio">
-    <input type="radio" class="custom-control-input" :value="option.value" :id="uid" :checked="props.modelValue" @change="handleChanged">
+  <div v-else-if="props.type === 'radio'" class="custom-control custom-control-inline custom-radio">
+    <input
+      type="radio"
+      class="custom-control-input"
+      :value="option.value"
+      :id="uid"
+      :checked="props.modelValue"
+      @change="handleChanged"
+    />
     <label class="custom-control-label" :for="uid">
       <span v-html="option.text"></span>
     </label>
@@ -21,8 +35,7 @@
 <script setup lang="ts">
 import { PropType, computed } from 'vue'
 import uuid from 'uuid'
-import Icon from 'vue-awesome/components/Icon.vue'
-
+import Icon from '@/components/base/Icon.vue'
 
 export interface Option {
   value: string
@@ -34,7 +47,7 @@ export interface Option {
 
 const props = defineProps({
   modelValue: {
-    type: Boolean
+    type: Boolean,
   },
   type: {
     type: String as PropType<'radio' | 'button'>,
@@ -53,5 +66,4 @@ const handleChanged = () => {
   if (props.modelValue) return
   emit('update:modelValue', true)
 }
-
 </script>

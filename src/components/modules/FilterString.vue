@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <filter-wrapper v-on:remove="remove" v-bind:title="filter.query" :id="filter.key">
     <div slot="settings">
       <div class="input-group mb-3">
@@ -10,8 +10,12 @@
           v-bind:disabled="disabled"
           size="sm"
         />
-        <b-button v-on:click="editFilter" v-show="disabled" size="sm"><icon name="edit" /></b-button>
-        <b-button v-on:click="submitFilter" v-show="!disabled" size="sm"><icon name="check" /></b-button>
+        <b-button v-on:click="editFilter" v-show="disabled" size="sm">
+          <icon name="edit"
+        /></b-button>
+        <b-button v-on:click="submitFilter" v-show="!disabled" size="sm">
+          <icon name="check" />
+        </b-button>
       </div>
       <i-layout>
         <i-layout-section width="50%">
@@ -30,15 +34,12 @@
  * @deprecated Not used anywhere.
  */
 
-import Icon from 'vue-awesome/components/Icon';
-import FilterFactory from '@/models/FilterFactory';
+import Icon from '@/components/base/Icon'
+import FilterFactory from '@/models/FilterFactory'
 
-import 'vue-awesome/icons/edit';
-import 'vue-awesome/icons/check';
-
-import FilterSettingContext from './FilterSettingContext';
-import FilterSettingPrecision from './FilterSettingPrecision';
-import FilterWrapper from './FilterWrapper';
+import FilterSettingContext from './FilterSettingContext'
+import FilterSettingPrecision from './FilterSettingPrecision'
+import FilterWrapper from './FilterWrapper'
 
 export default {
   data: () => ({
@@ -50,17 +51,17 @@ export default {
   props: ['filter'],
   methods: {
     updateFilter() {
-      this.$emit('input', FilterFactory.create(this.filter));
+      this.$emit('input', FilterFactory.create(this.filter))
     },
     submitFilter() {
-      this.$emit('submit');
-      this.disabled = true;
+      this.$emit('submit')
+      this.disabled = true
     },
     remove() {
-      this.$emit('remove');
+      this.$emit('remove')
     },
     editFilter() {
-      this.disabled = false;
+      this.disabled = false
     },
   },
   components: {
@@ -69,7 +70,7 @@ export default {
     FilterSettingPrecision,
     Icon,
   },
-};
+}
 </script>
 
 <i18n>

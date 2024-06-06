@@ -2,7 +2,6 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
-import VueGtag from 'vue-gtag'
 import { createPinia, PiniaVuePlugin } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
 
@@ -44,17 +43,6 @@ pinia.use(createPersistedState({
   key: id => `__impresso__${id}`,
 }))
 
-if (process.env.VUE_APP_GA_TRACKING_ID) {
-  Vue.use(
-    VueGtag,
-    {
-      config: {
-        id: process.env.VUE_APP_GA_TRACKING_ID,
-      },
-    },
-    router,
-  )
-}
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 Vue.config.errorHandler = error => {
   const notificationsStore = useNotificationsStore()
