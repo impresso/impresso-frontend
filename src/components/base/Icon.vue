@@ -3,15 +3,14 @@
     :width="width * scale"
     :height="height * scale"
     :viewBox="computedSvgViewbox"
-    :class="['Icon', props.class]"
-    :style="props.style"
+    :class="{'Icon': true }"
   >
     <g>
       <path
         v-for="path in computedPaths"
         :key="path.d"
         :d="path.d"
-        :style="path.style"
+        :style="coerceStyleType(path.style)"
         :strokeWidth="strokeWidth"
       />
       <polygon v-for="poly in computedPolygons" :key="poly.points" :points="poly.points" />
@@ -21,14 +20,26 @@
 <script setup lang="ts">
 // usage <icon name="slack" />
 import { computed, defineProps } from 'vue'
+import type { CSSProperties } from 'vue/types/jsx'
+
+interface Path {
+  d: string
+  style?: string
+}
+
+interface Polygon {
+  points: string
+}
+
 interface IconData {
   width: number
   height: number
-  paths: {
-    d: string
-    style?: string
-  }[]
-  polygons?: { points: string }[]
+  paths: Path[]
+  polygons?: Polygon[]
+}
+
+const coerceStyleType = (style: string | undefined): CSSProperties => {
+  return style as any as CSSProperties
 }
 
 const Icons: Record<string, IconData> = {
@@ -93,14 +104,6 @@ const props = defineProps({
     type: Number,
     default: 1,
   },
-  class: {
-    type: String,
-    default: '',
-  },
-  style: {
-    type: String,
-    default: '',
-  },
   paths: {
     type: Array,
     default: () => [],
@@ -123,9 +126,9 @@ const props = defineProps({
   },
 })
 
-const computedPaths = computed(() => (props.paths.length ? props.paths : Icons[props.name].paths))
+const computedPaths = computed(() => (props.paths.length ? props.paths as any as Path[] : Icons[props.name].paths))
 const computedPolygons = computed(() =>
-  props.polygons.length ? props.polygons : Icons[props.name].polygons,
+  props.polygons.length ? props.polygons as Polygon[] : Icons[props.name].polygons,
 )
 const computedSvgViewbox = computed(() => {
   const { width, height } = Icons[props.name]
