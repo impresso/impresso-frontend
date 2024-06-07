@@ -31,7 +31,7 @@ const attrs = useAttrs()
 const emit = defineEmits(['hidden'])
 
 
-const allowedAttrs = ['onClick', 'title', 'id']
+const allowedAttrs = ['onClick', 'title', 'id', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BNavItem: Unknown attributes: ${unknownAttrs.join(', ')}`)

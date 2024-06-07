@@ -22,9 +22,9 @@
                     :domain="[start, end]"
                     :highlight="highlightA"
                     v-on:highlight="onHighlight($event, 'A')">
-                <div slot-scope="tooltipScope">
+                <template v-slot="tooltipScope">
                   <div v-if="tooltipScope.tooltip.item">
-                    {{ $d(tooltipScope.tooltip.item.t, 'year') }}
+                    {{ tooltipScope.tooltip.item.t ? $d(tooltipScope.tooltip.item.t, 'year') : '' }}
                     <br />
                     <b>{{ tooltipScope.tooltip.item.w }}</b> {{ totalLabel }}
                     <br />
@@ -33,7 +33,7 @@
                     ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
                     </span>
                   </div>
-                </div>
+                </template>
               </timeline>
           </b-navbar-nav>
 

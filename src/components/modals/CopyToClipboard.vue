@@ -40,7 +40,7 @@
             readonly
             :value="[iframeCode, iframeCaptionCode].join('\n')"
             class="mb-2 form-control"
-          /></textarea>
+          ></textarea>
 
           <b-button variant="outline-primary" size="sm" v-on:click="copyArticleUrlToClipboard()"
             >{{ $t('copy_to_clipboard') }}

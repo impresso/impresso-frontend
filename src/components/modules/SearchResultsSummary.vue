@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import SearchQuerySummary from './SearchQuerySummary';
+import SearchQuerySummary from './SearchQuerySummary.vue';
 
 export default {
   props: {

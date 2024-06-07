@@ -19,8 +19,8 @@
 </template>
 
 <script>
-import ItemSelector from './ItemSelector'
-import ItemLabel from './lists/ItemLabel'
+import ItemSelector from './ItemSelector.vue'
+import ItemLabel from './lists/ItemLabel.vue'
 
 export default {
   name: 'FilterFacetBucket',

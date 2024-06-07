@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`">
     <tooltip :tooltip="tooltip">
       <slot :tooltip="tooltip">

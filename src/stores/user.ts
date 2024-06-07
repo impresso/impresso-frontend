@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', {
           this.userData = false
         })
     },
-    login({ email, password }: { email: string, password: string }) {
+    async login({ email, password }: { email: string, password: string }) {
       return (app as any).authenticate({
         strategy: 'local',
         email,

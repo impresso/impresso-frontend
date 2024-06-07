@@ -7,7 +7,7 @@
       :active-class="props.activeClass"
       :active="props.active"
       class="nav-link"
-      v-on="$listeners"
+      v-bind="$attrs"
     >
       <slot></slot>
     </router-link>
@@ -43,7 +43,7 @@ const attrs = useAttrs()
 
 const router = getCurrentInstance()?.proxy.$router
 
-const allowedAttrs = ['onClick', 'title', 'id']
+const allowedAttrs = ['onClick', 'title', 'id', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BNavItem: Unknown attributes: ${unknownAttrs.join(', ')}`)

@@ -36,7 +36,7 @@ const emit = defineEmits(['input', 'change'])
 
 const attrs = useAttrs()
 
-const allowedAttrs = ['onClick', 'title']
+const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BFormCheckbox: Unknown attributes: ${unknownAttrs.join(', ')}`)

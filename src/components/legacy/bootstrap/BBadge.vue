@@ -1,5 +1,5 @@
 <template>
-  <span :class="bClass" v-on="$listeners">
+  <span :class="bClass" v-bind="$attrs">
     <slot></slot>
   </span>
 </template>
@@ -18,7 +18,7 @@ const props = defineProps({
 })
 const attrs = useAttrs()
 
-const allowedAttrs = ['onClick', 'title']
+const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BBadge: Unknown attributes: ${unknownAttrs.join(', ')}`)

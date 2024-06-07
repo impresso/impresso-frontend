@@ -29,10 +29,10 @@
 
 <script>
 import * as d3 from 'd3'
-import Autocomplete from './Autocomplete';
+import Autocomplete from './Autocomplete.vue';
 // import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart.vue';
 // import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue';
-import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
+import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
 
 export default {
   data: () => ({

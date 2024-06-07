@@ -190,7 +190,7 @@
 
 <script>
 import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
-import { required, email, confirmed, min, regex } from 'vee-validate/dist/rules';
+import { required, email, confirmed, min, regex } from 'vee-validate';
 import { PasswordRegex } from '@/logic/user';
 import Modal from '@/components/base/Modal.vue';
 import { mapStores } from 'pinia'

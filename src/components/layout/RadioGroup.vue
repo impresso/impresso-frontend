@@ -1,5 +1,5 @@
 <template>
-  <div role="radiogroup" tabindex="-1" :class="gClass" v-on="$listeners">
+  <div role="radiogroup" tabindex="-1" :class="gClass" v-bind="$attrs">
     <RadioGroupItem
       v-for="(option, idx) in options"
       :key="option.value"

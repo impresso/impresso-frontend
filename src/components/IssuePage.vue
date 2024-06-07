@@ -216,16 +216,15 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import { createApp } from 'vue'
+import IssueViewerText from './modules/IssueViewerText.vue'
+import OpenSeadragonViewer from './modules/OpenSeadragonViewer.vue'
 
-import IssueViewerText from './modules/IssueViewerText'
-import OpenSeadragonViewer from './modules/OpenSeadragonViewer'
-
-import SearchPills from './SearchPills'
-import TableOfContents from './modules/TableOfContents'
-import ThumbnailSlider from './modules/ThumbnailSlider'
-import Pagination from './modules/Pagination'
-import InfoButton from './base/InfoButton'
+import SearchPills from './SearchPills.vue'
+import TableOfContents from './modules/TableOfContents.vue'
+import ThumbnailSlider from './modules/ThumbnailSlider.vue'
+import Pagination from './modules/Pagination.vue'
+import InfoButton from './base/InfoButton.vue'
 import { toCanonicalFilter, SupportedFiltersByContext } from '../logic/filters'
 import { mapSearchQuery } from '@/logic/queryParams'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
@@ -239,7 +238,7 @@ import Article from '@/models/Article';
 export default {
   data: () => ({
     tab: 'toc',
-    handler: new Vue(),
+    handler: createApp(),
     bounds: {},
     // issue: null,
     page: null,

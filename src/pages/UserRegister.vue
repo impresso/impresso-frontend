@@ -184,7 +184,7 @@ import {
   ValidationObserver,
   extend
 } from 'vee-validate';
-import { required, email, confirmed, regex, ext } from 'vee-validate/dist/rules'
+import { required, email, confirmed, regex, ext } from 'vee-validate'
 import { users as usersService } from '@/services'
 import { PasswordRegex, UserRegex } from '@/logic/user'
 

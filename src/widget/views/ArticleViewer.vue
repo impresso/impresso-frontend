@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import { createApp } from 'vue'
 import { articles } from '@/services'
 import Article from '@/models/Article'
 import { validateOrIgnore } from '../logic/props'
@@ -17,7 +17,7 @@ export default {
   data: () => ({
     imageURL: null,
     article: null,
-    handler: new Vue(),
+    handler: createApp(),
     isOSVieverLoaded: false,
   }),
   props: {

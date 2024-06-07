@@ -37,7 +37,7 @@
 
 <script>
 import Daterange from '@/models/Daterange'
-import BaseTitleBar from '@/components/base/BaseTitleBar'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import FilterDaterange from '@/models/FilterDaterange'
 import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'

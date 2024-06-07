@@ -104,8 +104,8 @@
 </template>
 
 <script>
-import ItemSelector from '../ItemSelector'
-import VizBar from '../../base/VizBar'
+import ItemSelector from '../ItemSelector.vue'
+import VizBar from '../../base/VizBar.vue'
 import { getShortArticleId } from '@/logic/ids'
 
 export default {

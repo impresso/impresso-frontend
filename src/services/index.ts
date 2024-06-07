@@ -35,15 +35,15 @@ app.configure(
 )
 
 socket.on('reconnect', () => {
-  app.reAuthenticate()
-  if (window.app && window.app.$store) {
+  app.reAuthenticate(false)
+  if (window.app) {
     const notificationsStore = useNotificationsStore()
     notificationsStore.displayConnectivityStatus(true)
   }
 }) // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
 
 socket.on('connect_error', err => {
-  if (window.app && window.app.$store) {
+  if (window.app) {
     err.message = `Could not connect to the API: ${err.message}`
     console.error(err)
     const notificationsStore = useNotificationsStore()
@@ -61,7 +61,7 @@ app.hooks({
     all: [
       context => {
         const route = `${context.path}.${context.method}`
-        if (window.app && window.app.$store) {
+        if (window.app) {
           const notificationsStore = useNotificationsStore()
           notificationsStore.updateProcessingActivity({ route, status: 'LOADING' })
           if (needsLockScreen(route) && context.params.lock !== false) {
@@ -75,7 +75,7 @@ app.hooks({
     all: [
       context => {
         const route = `${context.path}.${context.method}`
-        if (window.app && window.app.$store) {
+        if (window.app) {
           const notificationsStore = useNotificationsStore()
           notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
           if (needsLockScreen(route)) {
@@ -89,7 +89,7 @@ app.hooks({
     all: [
       context => {
         const route = `${context.path}.${context.method}`
-        if (window.app && window.app.$store) {
+        if (window.app) {
           const notificationsStore = useNotificationsStore()
 
           // handle not authenticated error when removing authentication

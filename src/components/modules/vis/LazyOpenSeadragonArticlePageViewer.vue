@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import { createApp } from 'vue';
 import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer.vue';
 
 /**
@@ -20,7 +20,7 @@ import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer.vue';
 
 export default {
   data: () => ({
-    handler: new Vue(),
+    handler: createApp(),
     isVisible: false, // by default the item is not visible in the browser viewport
   }),
   props: {

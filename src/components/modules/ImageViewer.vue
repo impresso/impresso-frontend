@@ -7,12 +7,12 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import { createApp } from 'vue';
 import OpenSeadragonViewer from './OpenSeadragonViewer';
 
 export default {
   data: () => ({
-    handler: new Vue(),
+    handler: createApp(),
   }),
   props: {
     image: {

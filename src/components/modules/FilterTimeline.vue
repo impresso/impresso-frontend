@@ -104,9 +104,9 @@
 import Daterange from '@/models/Daterange'
 import FilterDaterange from '@/models/FilterDaterange'
 
-import BaseTitleBar from '@/components/base/BaseTitleBar'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import Timeline from '@/components/modules/Timeline'
+import Timeline from '@/components/modules/Timeline.vue'
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
 import { getFilterHash } from '../../models/SearchQuery'

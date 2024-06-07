@@ -42,9 +42,9 @@
 </template>
 
 <script>
-import BaseTitleBar from '@/components/base/BaseTitleBar'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import HistogramSlider from '@/components/modules/vis/HistogramSlider'
+import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue'
 
 export default {
   data: () => ({

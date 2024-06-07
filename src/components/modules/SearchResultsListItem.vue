@@ -110,10 +110,10 @@
 
 <script>
 import { mapStores } from 'pinia'
-import CollectionAddTo from './CollectionAddTo'
-import ArticleItem from './lists/ArticleItem'
-import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePageViewer'
-import CopyToClipboard from '../modals/CopyToClipboard'
+import CollectionAddTo from './CollectionAddTo.vue'
+import ArticleItem from './lists/ArticleItem.vue'
+import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePageViewer.vue'
+import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'

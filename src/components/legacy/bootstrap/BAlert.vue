@@ -5,7 +5,7 @@
     aria-live="polite"
     aria-atomic="true"
     :class="aClass"
-    v-on="$listeners">
+    v-bind="$attrs">
       <button v-if="props.dismissible" type="button" aria-label="Close" class="close" @click="dismiss">×</button>
       <div>
         <slot></slot>
@@ -43,7 +43,7 @@ watch(() => props.show, (value) => {
   dismissed.value = !value
 }, { immediate: true })
 
-const allowedAttrs = ['onClick']
+const allowedAttrs = ['onClick', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BAlert: Unknown attributes: ${unknownAttrs.join(', ')}`)

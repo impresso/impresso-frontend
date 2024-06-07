@@ -35,10 +35,10 @@
 </template>
 
 <script>
-import FilterFacet from '@/components/modules/FilterFacet'
-import FilterFacetDateRange from '@/components/modules/FilterFacetDateRange'
-import FilterTimeline from '@/components/modules/FilterTimeline'
-import FilterRange from '@/components/modules/FilterRange'
+import FilterFacet from '@/components/modules/FilterFacet.vue'
+import FilterFacetDateRange from '@/components/modules/FilterFacetDateRange.vue'
+import FilterTimeline from '@/components/modules/FilterTimeline.vue'
+import FilterRange from '@/components/modules/FilterRange.vue'
 import { facetToTimelineValues } from '@/logic/facets'
 import FilterFactory from '@/models/FilterFactory'
 

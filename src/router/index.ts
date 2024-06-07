@@ -1,25 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import * as services from '@/services'
-// import HomePage from '@/components/HomePage.vue'
+import HomePage from '@/components/HomePage.vue'
 import HomePage2020 from '@/components/HomePage2020.vue'
 import FaqPage from '@/components/FaqPage.vue'
-// import TermsOfUsePage from '@/components/TermsOfUsePage.vue'
-// import IssuePage from '@/components/IssuePage.vue'
+import TermsOfUsePage from '@/components/TermsOfUsePage.vue'
+import IssuePage from '@/components/IssuePage.vue'
 import UserLoginPage from '@/components/UserLoginPage.vue'
-// import TestPage from '@/components/TestPage.vue'
+import TestPage from '@/components/TestPage.vue'
 import NewspapersExplorerPage from '@/components/NewspapersExplorerPage.vue'
 import NewspapersDetailPage from '@/components/NewspapersDetailPage.vue'
-// import EntitiesExplorerPage from '@/components/EntitiesExplorerPage.vue';
-// import EntitiesTemporaryPage from '@/components/EntitiesTemporaryPage.vue'
-// import EntitiesDetailPage from '@/components/EntitiesDetailPage.vue'
-// import TopicsPage from '@/components/TopicsPage.vue'
-// import TopicsExplorerPage from '@/components/TopicsExplorerPage.vue'
-// import TopicDetailPage from '@/components/TopicDetailPage.vue'
-// import PowerUserVisualisation from '@/pages/PowerUserVisualisation.vue'
-// import PowerUserVisualisation from '@/pages/PowerUserVisualisationOld.vue'
+import EntitiesTemporaryPage from '@/components/EntitiesTemporaryPage.vue'
+import EntitiesDetailPage from '@/components/EntitiesDetailPage.vue'
+import TopicsPage from '@/components/TopicsPage.vue'
+import TopicsExplorerPage from '@/components/TopicsExplorerPage.vue'
+import TopicDetailPage from '@/components/TopicDetailPage.vue'
+import PowerUserVisualisation from '@/pages/PowerUserVisualisation.vue'
 
-// import IssueViewerPage from '@/pages/IssueViewerPage.vue'
-// import { getShortArticleId } from '@/logic/ids'
+import IssueViewerPage from '@/pages/IssueViewerPage.vue'
+import { getShortArticleId } from '@/logic/ids'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 
@@ -54,14 +52,14 @@ const router = createRouter({
         requiresAuth: false,
       },
     },
-    // {
-    //   path: '/2019',
-    //   name: '2019',
-    //   component: HomePage,
-    //   meta: {
-    //     requiresAuth: false,
-    //   },
-    // },
+    {
+      path: '/2019',
+      name: '2019',
+      component: HomePage,
+      meta: {
+        requiresAuth: false,
+      },
+    },
     {
       path: '/search/ngrams',
       name: 'searchNgrams',
@@ -78,14 +76,14 @@ const router = createRouter({
         requiresAuth: false,
       },
     },
-    // {
-    //   path: '/terms-of-use',
-    //   name: 'termsOfUse',
-    //   component: TermsOfUsePage,
-    //   meta: {
-    //     requiresAuth: false,
-    //   },
-    // },
+    {
+      path: '/terms-of-use',
+      name: 'termsOfUse',
+      component: TermsOfUsePage,
+      meta: {
+        requiresAuth: false,
+      },
+    },
     {
       path: '/search',
       name: 'search',
@@ -111,33 +109,33 @@ const router = createRouter({
         requiresAuth: false,
       },
     },
-    // {
-    //   path: '/user/logout',
-    //   name: 'logout',
-    //   component: UserLoginPage,
-    //   beforeEnter: () => {
-    //     const userStore = useUserStore()
-    //     userStore.logout().then(
-    //       () => {},
-    //       err => {
-    //         this.error = this.$t(err.message)
-    //       },
-    //     )
-    //   },
-    //   meta: {
-    //     realm: 'user',
-    //     requiresAuth: false,
-    //   },
-    // },
-    // {
-    //   path: '/user',
-    //   name: 'user',
-    //   component: () => import(/* webpackChunkName: "user" */ '@/pages/User.vue'),
-    //   meta: {
-    //     realm: 'user',
-    //     requiresAuth: true,
-    //   },
-    // },
+    {
+      path: '/user/logout',
+      name: 'logout',
+      component: UserLoginPage,
+      beforeEnter: () => {
+        const userStore = useUserStore()
+        userStore.logout().then(
+          () => {},
+          err => {
+            this.error = this.$t(err.message)
+          },
+        )
+      },
+      meta: {
+        realm: 'user',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/user',
+      name: 'user',
+      component: () => import(/* webpackChunkName: "user" */ '@/pages/User.vue'),
+      meta: {
+        realm: 'user',
+        requiresAuth: true,
+      },
+    },
     {
       path: '/user/register',
       name: 'register',
@@ -147,106 +145,106 @@ const router = createRouter({
         requiresAuth: false,
       },
     },
-    // {
-    //   path: '/password-reset',
-    //   name: 'passwordReset',
-    //   component: () =>
-    //     import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordReset.vue'),
-    //   meta: {
-    //     realm: 'user',
-    //     requiresAuth: false,
-    //   },
-    // },
-    // {
-    //   path: '/password-reset/:token',
-    //   name: 'PasswordChange',
-    //   component: () =>
-    //     import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordChange.vue'),
-    //   meta: {
-    //     realm: 'user',
-    //     requiresAuth: false,
-    //   },
-    // },
-    // {
-    //   path: '/password-reset-sent',
-    //   name: 'passwordResetSent',
-    //   component: () =>
-    //     import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordResetSent.vue'),
-    //   meta: {
-    //     realm: 'user',
-    //     requiresAuth: false,
-    //   },
-    // },
-    // {
-    //   path: '/collections',
-    //   component: () => import(/* webpackChunkName: "collections" */ '@/pages/Collections.vue'),
-    //   children: [
-    //     {
-    //       path: '',
-    //       component: () =>
-    //         import(/* webpackChunkName: "collections" */ '@/components/CollectionDetailPage.vue'),
-    //       name: 'collections',
-    //       meta: {
-    //         requiresAuth: true,
-    //         realm: 'user',
-    //       },
-    //     },
-    //     {
-    //       path: ':collection_uid',
-    //       component: () =>
-    //         import(/* webpackChunkName: "collections" */ '@/components/CollectionDetailPage.vue'),
-    //       name: 'collection',
-    //       meta: {
-    //         requiresAuth: true,
-    //         realm: 'user',
-    //       },
-    //     },
-    //   ],
-    // },
-    // {
-    //   path: '/issue/:issue_uid',
-    //   component: IssuePage,
-    //   name: 'issue',
-    //   props: true,
-    //   meta: {
-    //     requiresAuth: false,
-    //     realm: 'issueviewer',
-    //   },
-    // },
-    // {
-    //   path: '/issue/:issue_uid/view',
-    //   component: IssueViewerPage,
-    //   name: 'issue-viewer',
-    //   props: true,
-    //   meta: {
-    //     requiresAuth: false,
-    //     realm: 'issueviewer',
-    //   },
-    // },
-    // {
-    //   path: '/issue/:issue_uid/page/:page_uid',
-    //   component: IssuePage,
-    //   name: 'page',
-    //   props: true,
-    //   meta: {
-    //     requiresAuth: false,
-    //     realm: 'issueviewer',
-    //   },
-    // },
-    // {
-    //   path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
-    //   name: 'article',
-    //   redirect: to => ({
-    //     name: 'issue-viewer',
-    //     params: {
-    //       issue_uid: to.params.issue_uid,
-    //     },
-    //     query: {
-    //       p: to.params.page_uid.match(/p0*(\d+)$/)[1],
-    //       articleId: getShortArticleId(to.params.article_uid),
-    //     },
-    //   }),
-    // },
+    {
+      path: '/password-reset',
+      name: 'passwordReset',
+      component: () =>
+        import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordReset.vue'),
+      meta: {
+        realm: 'user',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/password-reset/:token',
+      name: 'PasswordChange',
+      component: () =>
+        import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordChange.vue'),
+      meta: {
+        realm: 'user',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/password-reset-sent',
+      name: 'passwordResetSent',
+      component: () =>
+        import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordResetSent.vue'),
+      meta: {
+        realm: 'user',
+        requiresAuth: false,
+      },
+    },
+    {
+      path: '/collections',
+      component: () => import(/* webpackChunkName: "collections" */ '@/pages/Collections.vue'),
+      children: [
+        {
+          path: '',
+          component: () =>
+            import(/* webpackChunkName: "collections" */ '@/components/CollectionDetailPage.vue'),
+          name: 'collections',
+          meta: {
+            requiresAuth: true,
+            realm: 'user',
+          },
+        },
+        {
+          path: ':collection_uid',
+          component: () =>
+            import(/* webpackChunkName: "collections" */ '@/components/CollectionDetailPage.vue'),
+          name: 'collection',
+          meta: {
+            requiresAuth: true,
+            realm: 'user',
+          },
+        },
+      ],
+    },
+    {
+      path: '/issue/:issue_uid',
+      component: IssuePage,
+      name: 'issue',
+      props: true,
+      meta: {
+        requiresAuth: false,
+        realm: 'issueviewer',
+      },
+    },
+    {
+      path: '/issue/:issue_uid/view',
+      component: IssueViewerPage,
+      name: 'issue-viewer',
+      props: true,
+      meta: {
+        requiresAuth: false,
+        realm: 'issueviewer',
+      },
+    },
+    {
+      path: '/issue/:issue_uid/page/:page_uid',
+      component: IssuePage,
+      name: 'page',
+      props: true,
+      meta: {
+        requiresAuth: false,
+        realm: 'issueviewer',
+      },
+    },
+    {
+      path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
+      name: 'article',
+      redirect: to => ({
+        name: 'issue-viewer',
+        params: {
+          issue_uid: to.params.issue_uid,
+        },
+        query: {
+          p: to.params.page_uid.match(/p0*(\d+)$/)[1],
+          articleId: getShortArticleId(to.params.article_uid),
+        },
+      }),
+    },
     {
       path: '/newspapers',
       component: () => import(/* webpackChunkName: "newspapers" */ '@/pages/Newspapers.vue'),
@@ -280,77 +278,77 @@ const router = createRouter({
         },
       ],
     },
-    // {
-    //   path: '/entities',
-    //   component: () => import(/* webpackChunkName: "entities" */ '@/pages/Entities.vue'),
-    //   children: [
-    //     {
-    //       path: '',
-    //       component: EntitiesTemporaryPage,
-    //       name: 'entities',
-    //       meta: {
-    //         requiresAuth: false,
-    //         realm: 'entities',
-    //       },
-    //     },
-    //     {
-    //       path: ':entity_id',
-    //       component: EntitiesDetailPage,
-    //       name: 'entity',
-    //       meta: {
-    //         requiresAuth: false,
-    //         realm: 'entities',
-    //       },
-    //     },
-    //   ],
-    // },
-    // {
-    //   path: '/playground',
-    //   component: TestPage,
-    //   meta: {
-    //     requiresAuth: true,
-    //   },
-    // },
-    // {
-    //   path: '/topics',
-    //   component: TopicsPage,
-    //   children: [
-    //     {
-    //       path: '',
-    //       component: TopicsExplorerPage,
-    //       name: 'topics',
-    //       meta: {
-    //         requiresAuth: false,
-    //       },
-    //     },
-    //     {
-    //       path: ':topic_uid',
-    //       component: TopicDetailPage,
-    //       name: 'topic',
-    //       meta: {
-    //         requiresAuth: false,
-    //       },
-    //     },
-    //   ],
-    // },
-    // {
-    //   path: '/article/:article_uid',
-    //   beforeEnter: (to, from, next) => {
-    //     services.articles.get(to.params.article_uid).then(res => {
-    //       next({
-    //         name: 'issue-viewer',
-    //         params: {
-    //           issue_uid: res.issue.uid,
-    //         },
-    //         query: {
-    //           p: res.pages[0]?.num,
-    //           articleId: getShortArticleId(res.uid),
-    //           text: '1',
-    //         },
-    //       })
-    //     })
-    //   },
-    // },
+    {
+      path: '/entities',
+      component: () => import(/* webpackChunkName: "entities" */ '@/pages/Entities.vue'),
+      children: [
+        {
+          path: '',
+          component: EntitiesTemporaryPage,
+          name: 'entities',
+          meta: {
+            requiresAuth: false,
+            realm: 'entities',
+          },
+        },
+        {
+          path: ':entity_id',
+          component: EntitiesDetailPage,
+          name: 'entity',
+          meta: {
+            requiresAuth: false,
+            realm: 'entities',
+          },
+        },
+      ],
+    },
+    {
+      path: '/playground',
+      component: TestPage,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/topics',
+      component: TopicsPage,
+      children: [
+        {
+          path: '',
+          component: TopicsExplorerPage,
+          name: 'topics',
+          meta: {
+            requiresAuth: false,
+          },
+        },
+        {
+          path: ':topic_uid',
+          component: TopicDetailPage,
+          name: 'topic',
+          meta: {
+            requiresAuth: false,
+          },
+        },
+      ],
+    },
+    {
+      path: '/article/:article_uid',
+      beforeEnter: (to, from, next) => {
+        services.articles.get(to.params.article_uid).then(res => {
+          next({
+            name: 'issue-viewer',
+            params: {
+              issue_uid: res.issue.uid,
+            },
+            query: {
+              p: res.pages[0]?.num,
+              articleId: getShortArticleId(res.uid),
+              text: '1',
+            },
+          })
+        })
+      },
+    },
     {
       path: '/compare',
       component: () =>
@@ -420,56 +418,56 @@ const router = createRouter({
         },
       ],
     },
-    // {
-    //   path: '/text-reuse-clusters',
-    //   component: () =>
-    //     import(/* webpackChunkName: "tr-clusters" */ '@/pages/TextReuseClusters.vue'),
-    //   name: 'text-reuse-clusters',
-    //   meta: {
-    //     requiresAuth: false,
-    //   },
-    //   children: [
-    //     {
-    //       path: '',
-    //       component: () =>
-    //         import(
-    //           /* webpackChunkName: "tr-clusters-details" */ '@/components/TextReuseClusterDetailPage.vue'
-    //         ),
-    //       name: 'text-reuse-cluster-passages',
-    //       meta: {
-    //         requiresAuth: false,
-    //       },
-    //     },
-    //     {
-    //       path: 'card',
-    //       component: () =>
-    //         import(
-    //           /* webpackChunkName: "tr-clusters-details-id-card" */ '@/components/TextReuseClusterIdCardPage.vue'
-    //         ),
-    //       name: 'text-reuse-cluster-detail',
-    //       meta: {
-    //         requiresAuth: false,
-    //       },
-    //     },
-    //     {
-    //       path: 'connected-clusters',
-    //       component: () =>
-    //         import(
-    //           /* webpackChunkName: "tr-clusters-connected" */ '@/components/TextReuseConnectedClusters.vue'
-    //         ),
-    //       name: 'text-reuse-connected-clusters',
-    //       meta: {
-    //         requiresAuth: false,
-    //       },
-    //     },
-    //   ],
-    // },
-    // {
-    //   path: '/powervis',
-    //   component: PowerUserVisualisation,
-    //   name: 'powervis',
-    //   meta: { requiresAuth: false },
-    // },
+    {
+      path: '/text-reuse-clusters',
+      component: () =>
+        import(/* webpackChunkName: "tr-clusters" */ '@/pages/TextReuseClusters.vue'),
+      name: 'text-reuse-clusters',
+      meta: {
+        requiresAuth: false,
+      },
+      children: [
+        {
+          path: '',
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-details" */ '@/components/TextReuseClusterDetailPage.vue'
+            ),
+          name: 'text-reuse-cluster-passages',
+          meta: {
+            requiresAuth: false,
+          },
+        },
+        {
+          path: 'card',
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-details-id-card" */ '@/components/TextReuseClusterIdCardPage.vue'
+            ),
+          name: 'text-reuse-cluster-detail',
+          meta: {
+            requiresAuth: false,
+          },
+        },
+        {
+          path: 'connected-clusters',
+          component: () =>
+            import(
+              /* webpackChunkName: "tr-clusters-connected" */ '@/components/TextReuseConnectedClusters.vue'
+            ),
+          name: 'text-reuse-connected-clusters',
+          meta: {
+            requiresAuth: false,
+          },
+        },
+      ],
+    },
+    {
+      path: '/powervis',
+      component: PowerUserVisualisation,
+      name: 'powervis',
+      meta: { requiresAuth: false },
+    },
   ],
 })
 

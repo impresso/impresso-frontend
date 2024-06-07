@@ -123,8 +123,8 @@
 </template>
 
 <script>
-import BaseTitleBar from '@/components/base/BaseTitleBar'
-import FilterFacetBucket from '@/components/modules/FilterFacetBucket'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import FilterFacetBucket from '@/components/modules/FilterFacetBucket.vue'
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { toSerializedFilter } from '@/logic/filters'

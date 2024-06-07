@@ -24,7 +24,7 @@
 <script>
 import Page from '@/models/Page';
 import Issue from '@/models/Issue';
-import ThumbnailSliderItem from './ThumbnailSliderItem';
+import ThumbnailSliderItem from './ThumbnailSliderItem.vue';
 
 export default {
   props: {

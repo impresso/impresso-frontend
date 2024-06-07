@@ -3,9 +3,8 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import initViewer, { Rect } from 'openseadragon'
-import MarginaliaPanel from '@/components/modules/MarginaliaPanel'
+import MarginaliaPanel from '@/components/modules/MarginaliaPanel.vue'
 
 /**
  * @typedef {import('openseadragon').Viewer} Viewer

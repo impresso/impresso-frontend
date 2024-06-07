@@ -1,4 +1,5 @@
-<script>
+<script lang="jsx">
+import { defineComponent } from 'vue'
 
 const getItemTag = item => {
   switch (item.entity.kind) {
@@ -102,7 +103,7 @@ const renderVericalLine = (h, context, child) => {
   return <span class="vertical-line" style={`backgroundColor: ${context.props.clusterColours[child.entity.clusterId]}; right: ${(offsetRight * 8)}px`} />
 }
 
-export default {
+export default defineComponent({
   name: 'annotated-text',
   functional: true,
   props: {
@@ -138,7 +139,7 @@ export default {
       )
     })
   }
-}
+})
 </script>
 
 <style lang="scss">

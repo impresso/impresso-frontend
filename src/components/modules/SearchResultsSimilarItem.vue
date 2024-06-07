@@ -37,9 +37,9 @@
 </template>
 
 <script>
-import ArticleItem from './lists/ArticleItem';
-import VizBar from '../base/VizBar';
-import InfoButton from '../base/InfoButton';
+import ArticleItem from './lists/ArticleItem.vue';
+import VizBar from '../base/VizBar.vue';
+import InfoButton from '../base/InfoButton.vue';
 
 export default {
   model: {

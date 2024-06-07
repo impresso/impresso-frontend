@@ -1,6 +1,6 @@
 <template>
   <li role="presentation">
-    <a role="menuitem" :class="linkClasses" :href="href" :target="props.target" :aria-disabled="disabled ? true : undefined" v-on="$listeners" @click="onClick">
+    <a role="menuitem" :class="linkClasses" :href="href" :target="props.target" :aria-disabled="disabled ? true : undefined" v-bind="$attrs" @click="onClick">
       <slot></slot>
     </a>
   </li>
@@ -44,7 +44,7 @@ const onClick = () => {
   }
 }
 
-const allowedAttrs = ['onClick', 'title', 'id']
+const allowedAttrs = ['onClick', 'title', 'id', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BDropdownItem: Unknown attributes: ${unknownAttrs.join(', ')}`)

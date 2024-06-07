@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem'
+import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem.vue'
 
 export default {
   data: () => ({

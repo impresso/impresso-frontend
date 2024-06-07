@@ -79,10 +79,10 @@
 
 <script>
 import { mapStores } from 'pinia'
-import ArticleItem from './lists/ArticleItem';
-import ImageItem from './lists/ImageItem';
+import ArticleItem from './lists/ArticleItem.vue';
+import ImageItem from './lists/ImageItem.vue';
 
-import CopyToClipboard from '../modals/CopyToClipboard';
+import CopyToClipboard from '../modals/CopyToClipboard.vue';
 import { getAuthenticationBearer } from '@/services';
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'

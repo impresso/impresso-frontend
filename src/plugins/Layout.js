@@ -3,7 +3,7 @@ import Section from '@/components/layout/Section.vue';
 import Dropdown from '@/components/layout/Dropdown.vue';
 import Slider from '@/components/layout/Slider.vue';
 import Spinner from '@/components/layout/Spinner.vue';
-import FirstNonemptyChild from '@/components/layout/FirstNonemptyChild.vue';
+import FirstNonemptyChild from '@/components/layout/FirstNonemptyChild';
 
 const ImpressoLayout = {
   install(Vue) {

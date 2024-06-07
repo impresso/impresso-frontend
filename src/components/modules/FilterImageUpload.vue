@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import { createApp } from 'vue';
 import FilePond from '@/components/modules/FilePond.vue';
 import { uploadedImages } from '@/services';
 
@@ -37,7 +37,7 @@ console.info('Current host:', MiddleLayerApiBase, 'filepond path:', FILEPOND_SER
 
 export default {
   data: () => ({
-    handler: new Vue(),
+    handler: createApp(),
     options: {
       server: {
         url: MiddleLayerApiBase,

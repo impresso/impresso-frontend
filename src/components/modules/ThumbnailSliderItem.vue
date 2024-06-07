@@ -7,8 +7,7 @@
 
 <script>
 import OpenSeadragon from 'openseadragon';
-
-const uuid = require('uuid');
+import { v4 } from 'uuid'
 
 export default {
   props: {
@@ -21,7 +20,7 @@ export default {
     },
   },
   data: () => ({
-    id: `os-viewer-${uuid.v4()}`,
+    id: `os-viewer-${v4()}`,
     viewer: false,
     style: {
       top: 0,
