@@ -1,7 +1,7 @@
 <template>
   <i-layout-section>
 
-    <div slot="header">
+    <template v-slot:header>
 
       <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
 
@@ -116,7 +116,7 @@
 
       </b-navbar>
 
-    </div>
+    </template>
 
     <div v-if="tab.name === TAB_ARTICLES" class="collection-group">
 

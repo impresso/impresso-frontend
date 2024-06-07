@@ -1,7 +1,7 @@
 <template>
   <div class="media py-3 border-bottom  search-result-list-item SearchResultListItem">
     <div class="media-aside align-self-start">
-      <div v-if="isAvailable()" class="thumbnail" slot="aside">
+      <div v-if="isAvailable()" class="thumbnail">
         <IIIFFragment
           @click="goToArticle"
           v-if="article?.pages?.length"
@@ -12,7 +12,7 @@
           :regions="computedRegionsInArticleFirstPage"
         />
       </div>
-      <div v-else class="error bg-light border" slot="aside">
+      <div v-else class="error bg-light border">
         <p class="message">{{ $t('login_message') }}</p>
       </div>
     </div>

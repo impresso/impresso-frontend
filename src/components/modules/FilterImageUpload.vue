@@ -2,10 +2,9 @@
   <div>
     <div v-show="image.thumbnail" class="media">
       <div class="media-aside align-self-start">
-        <div style="width:128px;" slot="aside">
+        <div style="width:128px;">
           <img
             fluid-grow
-            slot="aside"
             src="`data:image/png;base64,${image.thumbnail}`" />
         </div>
       </div>

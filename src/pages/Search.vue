@@ -24,7 +24,7 @@
     </search-sidebar>
 
     <i-layout-section main>
-      <div slot="header">
+      <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
             <label class="mr-1">{{ $t('label_group') }}</label>
@@ -133,7 +133,7 @@
             </b-form-checkbox> -->
           </b-navbar-nav>
         </b-navbar>
-      </div>
+      </template>
 
       <Modal
         id="nameSelectionCollection"
@@ -229,7 +229,7 @@
           </b-row>
         </b-container>
         <div class="my-5" />
-        <div class="fixed-pagination-footer p-1 m-0" slot="footer">
+        <div class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-if="searchResults.length"
             :current-page="paginationCurrentPage"

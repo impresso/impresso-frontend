@@ -3,14 +3,14 @@
     <BaseTitleBar>
       {{ $t(`label.${facet.type}.filterTitle`).toLowerCase() }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" class="ml-1" />
-      <div slot="description">
+      <template v-slot:description>
         <slot name="description"></slot>
-      </div>
-      <div slot="options">
+      </template>
+      <template v-slot:options>
         <b-button v-show="isFiltered" size="sm" variant="outline-primary" @click="resetValues">
           {{ $t(`actions.reset`) }}
         </b-button>
-      </div>
+      </template>
     </BaseTitleBar>
 
     <!-- min 100px height -->

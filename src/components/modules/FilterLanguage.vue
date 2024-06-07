@@ -4,9 +4,9 @@
     v-bind:id="filter.key"
     icon="web"
     v-bind:title="$t(`languages.${filter.language.uid}`)">
-    <div slot="settings">
+    <template v-slot:settings>
       <filter-setting-context v-model="filter" />
-    </div>
+    </template>
   </filter-wrapper>
 </template>
 

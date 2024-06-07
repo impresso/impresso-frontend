@@ -1,9 +1,9 @@
 <template>
   <i-layout-section main>
     <!-- slot:header -->
-    <div slot="header">
+    <template v-slot:header>
       <cluster-page-header :cluster="cluster" :resolution="resolution" />
-    </div>
+    </template>
 
 
     <b-container fluid class="p-4">
@@ -22,7 +22,8 @@
         </div>
       </div>
     </b-container>
-    <div slot="footer" class="fixed-pagination-footer p-1 m-0" v-if="totalClusters > 0">
+    <template v-slot:footer >
+    <div class="fixed-pagination-footer p-1 m-0" v-if="totalClusters > 0">
       <pagination
         size="sm"
         v-bind:perPage="perPage"
@@ -31,6 +32,7 @@
         v-bind:totalRows="totalClusters"
         class="float-left small-caps" />
     </div>
+    </template>
   </i-layout-section>
 </template>
 

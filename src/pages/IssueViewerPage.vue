@@ -114,7 +114,8 @@
     <!-- main section -->
     <i-layout-section main>
       <!-- header -->
-      <div slot="header" class="border-bottom" v-if="issue">
+      <template v-slot:header>
+      <div class="border-bottom" v-if="issue">
         <b-navbar variant="light" class="px-0 py-0 border-bottom">
           <b-navbar-nav class="p-2 pl-3">
             <section>
@@ -219,6 +220,7 @@
           </b-navbar-nav>
         </b-navbar>
       </div>
+      </template>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center position-relative" v-if="issue">
         <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable">

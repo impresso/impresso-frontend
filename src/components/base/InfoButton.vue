@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, getCurrentInstance, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useFloating } from '@floating-ui/vue';
 import { useClickOutside } from '@/composables/useClickOutside'
 import { useSettingsStore } from '@/stores/settings'

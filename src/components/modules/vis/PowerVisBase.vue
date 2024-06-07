@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container d-flex flex-column">
     <!-- slot:header -->
-    <div slot="header" class="flex-shrink-1">
+    <div class="flex-shrink-1">
       <slot name="header"> </slot>
     </div>
     <!-- slot:body -->
@@ -24,7 +24,7 @@
       :options="options"
     />
     <!-- slot:footer -->
-    <div slot="footer" class="flex-shrink-1 border-top">
+    <div class="flex-shrink-1 border-top">
       <slot name="footer" class="border-top p-2 pb-3" style="max-height: 180px;overflow:scroll">
       </slot>
     </div>

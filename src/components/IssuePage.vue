@@ -1,7 +1,9 @@
 <template>
   <i-layout id="IssuePage" class="bg-light" ref="issuePage">
     <i-layout-section width="350px">
-      <div slot="header" class="border-bottom border-tertiary">
+
+      <template v-slot:header>
+      <div class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item
@@ -61,6 +63,7 @@
           </div>
         </div>
       </div>
+      </template>
       <!--  ToC -->
       <table-of-contents
         v-if="!isTabSearch && isTocReady"
@@ -93,7 +96,8 @@
     </i-layout-section>
     <!--  page openseadragon or article -->
     <i-layout-section main>
-      <div slot="header" class="border-bottom">
+      <template v-slot:header>
+      <div class="border-bottom">
         <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
           <section class="p-2 pl-3">
             <h3 v-if="issue" class="m-0">
@@ -184,6 +188,7 @@
           </b-navbar-nav>
         </b-navbar>
       </div>
+      </template>
       <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
         <div class="align-self-center">
           <p>{{ $t('errors.loggedInOnly') }}</p>

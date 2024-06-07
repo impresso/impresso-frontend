@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout-section main>
-    <div slot="header">
+    <template v-slot:header>
       <b-navbar>
         <section>
           <span class="label small-caps">
@@ -53,7 +53,7 @@
         </b-navbar-nav>
 
       </b-navbar>
-    </div>
+    </template>
 
     <div v-if="tab.name === TAB_ARTICLES" class="mb-5">
       <div v-for="(article, idx) in articles" :key="idx" class="p-3 mb-2 border-bottom">

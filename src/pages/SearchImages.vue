@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout class="search-images">
     <search-sidebar width="400px"
       :filters="enrichedFilters"
@@ -7,7 +7,7 @@
       :excludedTypes="excludedTypes"
       contextTag="search-images"
       @changed="handleFiltersChanged">
-      <div slot="header">
+      <template v-slot:header>
         <div v-if="similarToImage" class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex">
           <div class="flex-shrink-1 mr-2" style="width: 100px">
             <img v-if="similarToImage.regions.length"
@@ -28,7 +28,7 @@
         <filter-image-upload
           v-if="enableUpload" />
         <search-input @submit="onSearchQuery"></search-input>
-      </div>
+      </template>
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch v-bind:value="true">
           {{$t('label.isFront')}}
@@ -38,7 +38,7 @@
 
     <i-layout-section main>
       <!-- header -->
-      <div slot="header">
+      <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="p-2 border-right">
             <li class="form-inline">
@@ -72,7 +72,7 @@
             <b class="small-caps font-weight-bold">{{$t("sort_by_similarity")}}</b>
           </b-navbar-nav>
         </b-navbar>
-     </div>
+      </template>
 
      <!--  body -->
       <div class="p-1 my-2">

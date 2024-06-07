@@ -3,7 +3,7 @@
     <base-title-bar
       >{{ $t(`label.timeline.${groupBy}`) }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" />
-      <div slot="options">
+      <template v-slot:options>
         <b-button
           v-show="filters.length"
           size="sm"
@@ -12,8 +12,8 @@
         >
           {{ $t('actions.reset') }}
         </b-button>
-      </div>
-      <div slot="description">
+      </template>
+      <template v-slot:description>
         <span v-if="filters.length">
           {{ $t(`label.timelineDescription.${groupBy}.filtered.${displayStyle}`) }}
         </span>
@@ -30,7 +30,7 @@
             <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
           </form>
         </li>
-      </div>
+      </template>
     </base-title-bar>
 
     <!--  timeline vis -->

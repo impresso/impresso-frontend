@@ -1,6 +1,6 @@
 <template>
   <filter-wrapper v-on:remove="remove" v-bind:title="filter.query" :id="filter.key">
-    <div slot="settings">
+    <template v-slot:settings>
       <div class="input-group mb-3">
         <b-input
           type="text"
@@ -25,7 +25,7 @@
           <filter-setting-precision v-model="filter" />
         </i-layout-section>
       </i-layout>
-    </div>
+    </template>
   </filter-wrapper>
 </template>
 

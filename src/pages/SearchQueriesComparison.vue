@@ -1,7 +1,7 @@
 <template>
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section class="border-top ">
-      <div slot="header">
+      <template v-slot:header>
         <div class="header row pm-fixer bg-light">
           <div class="one-third"
               v-for="(queryResult, queryIdx) in queriesResults"
@@ -18,7 +18,7 @@
                                 @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
           </div>
         </div>
-      </div>
+      </template>
       <!-- body -->
       <div class="aspects-container container-fluid">
         <!-- this component contains the three columns (show timeline only) -->

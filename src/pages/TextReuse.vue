@@ -2,7 +2,7 @@
   <i-layout>
     <i-layout-section width="400px">
       <!--  header -->
-      <template slot="header">
+      <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item :to="{ name: 'textReuse' }" class="active" active-class="none">

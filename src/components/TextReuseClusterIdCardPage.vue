@@ -1,9 +1,9 @@
 <template>
   <i-layout-section main>
     <!-- slot:header -->
-    <div slot="header">
+    <template v-slot:header>
       <cluster-page-header :cluster="cluster" :resolution="resolution" />
-    </div>
+    </template>
 
 
     <b-container fluid class="p-3">

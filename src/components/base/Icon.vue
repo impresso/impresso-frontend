@@ -19,7 +19,7 @@
 </template>
 <script setup lang="ts">
 // usage <icon name="slack" />
-import { computed, defineProps } from 'vue'
+import { computed } from 'vue'
 import type { CSSProperties } from 'vue/types/jsx'
 
 interface Path {

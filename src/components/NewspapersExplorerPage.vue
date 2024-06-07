@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout-section main v-on:scroll='onScroll'>
-    <div slot="header">
+    <template v-slot:header>
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
           <span class="label small-caps">{{$t('list_of_newspapers')}}</span>
@@ -40,7 +40,7 @@
       </section>
 
       </b-navbar>
-    </div>
+    </template>
     <!--  newspaper lifespans -->
     <newspapers-lines class="m-3"
       :newspapers="newspapers"

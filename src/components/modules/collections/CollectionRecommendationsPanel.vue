@@ -50,7 +50,7 @@
           <span>{{ $t('label.notfound') }}</span>
         </div>
 
-        <div class="fixed-pagination-footer p-1 m-0" slot="footer"  v-if="articlesLoaded && recommendedArticles.length > 0">
+        <div class="fixed-pagination-footer p-1 m-0"  v-if="articlesLoaded && recommendedArticles.length > 0">
           <pagination
             v-if="recommendedArticles.length"
             :current-page="paginationCurrentPage"

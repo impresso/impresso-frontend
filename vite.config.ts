@@ -10,7 +10,6 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 export default ({ mode }: { mode: string }) => {
 
   const env = loadEnv(mode, process.cwd())
-  console.log(env)
 
   const SocketIoProxyPath = `^${env.VITE_MIDDLELAYER_API_SOCKET_PATH}`
   const ApiIiifProxyPath = [
@@ -24,16 +23,7 @@ export default ({ mode }: { mode: string }) => {
     plugins: [
       vue(),
       vueJsx(),
-      VueDevTools({
-        // breaks JSON in i18n - look into it
-        // componentInspector: false,
-        // https://github.com/nuxt/devtools/issues/572
-        // componentInspector: {
-        //   cleanHtml: true,
-        //   // enabled: false,
-        //   // vue: 3
-        // }
-      }),
+      VueDevTools(),
       VueI18nPlugin({
         compositionOnly: false,
         strictMessage: false,

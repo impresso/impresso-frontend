@@ -4,9 +4,9 @@
     v-on:remove="remove"
     icon="archive"
     v-bind:title="filter.item.name">
-    <div slot="settings">
+    <template v-slot:settings>
       <filter-setting-context v-model="filter" />
-    </div>
+    </template>
   </filter-wrapper>
 </template>
 

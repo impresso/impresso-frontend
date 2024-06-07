@@ -1,7 +1,7 @@
 <template lang="html">
   <i-layout-section ref="explorerPage" class="topics-explorer-page" main>
     <!-- slot:header  -->
-    <div slot="header">
+    <template v-slot:header>
       <b-navbar>
         <section>
           <span class="label small-caps">
@@ -38,7 +38,7 @@
           <b-button v-on:click="zoomReset()" variant="secondary" size="sm">{{ $t('actions.reset') }}</b-button>
         </b-navbar-nav>
       </b-navbar>
-    </div><!-- slot:header -->
+    </template><!-- slot:header -->
     <!-- slot:body or default  -->
     <div class="d3-graph-wrapper position-relative h-100 small-caps bg-light" v-on:mousemove="onMousemove">
       <div id="d3-graph" ref="graph" class="h-100"></div>
@@ -62,7 +62,7 @@
       <topics-explorer-tooltip v-model="tooltip" @toggle-highlighted="handleToggleHighlighted"/>
     </div>
     <!-- slot:footer  -->
-    <div slot="footer">
+    <template v-slot:footer>
       <b-navbar class="border-top">
         <legend>
           <div class="border bg-white p-1" style="height: 40px; overflow:scroll">
@@ -74,7 +74,7 @@
         </legend>
         <!-- /{{ zoomTransform }}/ -->
       </b-navbar>
-    </div>
+    </template>
   </i-layout-section>
 </template>
 

@@ -24,7 +24,7 @@
     <div v-else class="d-flex flex-wrap">
       <!--  context -->
       <b-dropdown size="sm" variant="outline-primary" class="mr-1">
-        <template slot="button-content">
+        <template v-slot:button-content>
           <span v-html="$t(`label.${type}.context.${currentContext}`)" />
         </template>
         <b-dropdown-item
@@ -37,7 +37,7 @@
       </b-dropdown>
       <!--  operator -->
       <b-dropdown v-if="operators.length > 1" size="sm" variant="outline-primary">
-        <template slot="button-content">
+        <template v-slot:button-content>
           <span v-html="$t(`op.${editedFilter.op}.${currentContext}`)" />
         </template>
         <b-dropdown-item

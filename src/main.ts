@@ -54,7 +54,6 @@ app.use(createI18n({
 }))
 
 initSequence().then(() => app.mount('#app'))
-// app.mount('#app')
 
 window.addEventListener('unhandledrejection', event => {
   if (event.reason) {

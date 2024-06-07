@@ -1,7 +1,7 @@
 <template>
   <i-layout-section main class="newspaper-page">
     <!-- slot:header  -->
-    <div slot="header">
+    <template v-slot:header>
       <BNavbar>
         <section>
           <span class="label small-caps">
@@ -58,7 +58,7 @@
           ></i-dropdown>
         </BNavbarNav>
       </BNavbar>
-    </div>
+    </template>
     <!-- eof:header  -->
 
     <div class="px-3 py-2 " v-if="$route.name == 'newspaper_metadata'">

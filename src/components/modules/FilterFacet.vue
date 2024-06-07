@@ -18,7 +18,7 @@
       />
       <info-button v-if="facet.type === 'newspaper'" name="which-newspapers" class="ml-1" />
       <info-button v-if="facet.type === 'topic'" name="how-to-read-the-topics" class="ml-1" />
-      <div slot="options">
+      <template v-slot:options>
         <b-button v-show="isFiltered" size="sm" variant="outline-primary" @click="resetFilters">
           {{ $t(`actions.reset`) }}
         </b-button>
@@ -28,8 +28,8 @@
             :class="{ 'dripicons-plus': isCollapsed, 'dripicons-minus': !isCollapsed }"
           ></span>
         </b-button>
-      </div>
-      <div slot="description">
+      </template>
+      <template v-slot:description>
         <div v-if="isFiltered" v-html="$t(`label.${facet.type}.filtered`)" />
         <div v-else-if="selectedBucketsIds.length">
           <span v-html="$t(`label.${facet.type}.selected`, { count: selectedBucketsIds.length })" />
@@ -45,7 +45,7 @@
             {{ $t(`label.${facet.type}.description`) }}
           </span> -->
         </div>
-      </div>
+      </template>
 
       <!-- .description -->
     </base-title-bar>

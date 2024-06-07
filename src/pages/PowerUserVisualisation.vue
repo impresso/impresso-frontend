@@ -6,17 +6,17 @@
       :facets="facets"
       contextTag="powerUserVis"
       @changed="handleFiltersChanged">
-      <div slot="tabs">
+      <template v-slot:tabs>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item class="active"><span v-html="$t('tabs.powervis')"/>
             </b-nav-item>
           </template>
         </b-tabs>
-      </div>
-      <div slot="header">
+      </template>
+      <template v-slot:header>
         <autocomplete v-on:submit="handleAutocompleteSubmit" />
-      </div>
+      </template>
     </search-sidebar>
 
     <!-- main section -->

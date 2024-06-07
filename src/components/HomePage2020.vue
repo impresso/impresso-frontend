@@ -5,13 +5,15 @@
       :class="{ ' mr-1px border-top border-right': showLines, 'border-tertiary': darkMode }"
     >
       <!--  header -->
-      <div slot="header" :class="{ 'border-bottom border-secondary': showLines }">
-        <search-tabs focusOnSearch />
-        <div class="py-3 px-3">
-          <search-pills :filters="enrichedFilters" @changed="handleFiltersChanged" />
-          <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
+      <template v-slot:header>
+        <div :class="{ 'border-bottom border-secondary': showLines }">
+          <search-tabs focusOnSearch />
+          <div class="py-3 px-3">
+            <search-pills :filters="enrichedFilters" @changed="handleFiltersChanged" />
+            <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
+          </div>
         </div>
-      </div>
+      </template>
 
       <!--  body -->
       <div class="text-tertiary p-3 stats">

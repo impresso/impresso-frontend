@@ -1,7 +1,7 @@
 <template>
   <i-layout-section main>
     <!-- slot:header -->
-    <div slot="header">
+    <template v-slot:header>
       <cluster-page-header :cluster="cluster">
         <template v-slot:toolbar>
           <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
@@ -19,7 +19,7 @@
           </b-navbar>
         </template>
       </cluster-page-header>
-    </div>
+    </template>
 
     <div v-if="!cluster" class="d-none" style="height: 100%">
       <div class="d-flex flex-row justify-content-center" style="height: 100%">

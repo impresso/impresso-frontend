@@ -4,9 +4,9 @@
     v-bind:id="filter.key"
     icon="pamphlet"
     v-bind:title="filter.newspaper.name">
-    <div slot="settings">
+    <template v-slot:settings>
       <filter-setting-context v-model="filter" />
-    </div>
+    </template>
   </filter-wrapper>
 </template>
 

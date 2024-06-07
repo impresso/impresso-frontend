@@ -2,7 +2,7 @@
   <div class="FilterFacetDateRange">
     <BaseTitleBar
       >{{ $t('label_daterange_title') }} {{ minDate }} - {{ maxDate }}
-      <div slot="options">
+      <template v-slot:options>
         <b-button
           v-show="filters.length"
           size="sm"
@@ -11,7 +11,7 @@
         >
           {{ $t('actions.reset') }}
         </b-button>
-      </div>
+      </template>
     </BaseTitleBar>
     <!-- <div class="border p-2 bg-white" v-for="(filter, i) in daterangeFilters" :key="i">
       <FilterMonitor

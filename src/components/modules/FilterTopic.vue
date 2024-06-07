@@ -4,9 +4,9 @@
     v-on:remove="remove"
     icon="message"
     v-bind:title="filter.item.getHtmlExcerpt()">
-    <div slot="settings">
+    <template v-slot:settings>
       <filter-setting-context v-model="filter" />
-    </div>
+    </template>
   </filter-wrapper>
 </template>
 

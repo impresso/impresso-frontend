@@ -1,7 +1,7 @@
 <template>
   <i-layout-section main>
     <template v-slot:header>
-      <b-navbar type="light" variant="light" slot="header">
+      <b-navbar type="light" variant="light">
         <section v-if="observingList" class="top-section">
           <div class="label small-caps">
             {{ $t('entities') }}

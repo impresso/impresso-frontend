@@ -15,7 +15,7 @@
     <div v-for="{ filter, filterIndex } in pills" :key="filterIndex">
       <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill">
         <!--  button content -->
-        <template slot="button-content">
+        <template v-slot:button-content>
           <!-- badge: initial type instead of icons -->
           <span
             class="filter-icon"

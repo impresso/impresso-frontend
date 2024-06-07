@@ -11,7 +11,7 @@
     @close="$emit('close')">
     <slot></slot>
 
-    <template slot="modal-footer">
+    <template v-slot:modal-footer>
       <b-button
         size="sm"
         class="shadow-sm rounded"

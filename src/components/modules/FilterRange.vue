@@ -4,7 +4,7 @@
       {{ $t(`label.${facet.type}.filterTitle`) }}
       <info-button class="ml-1" :target="facet.type" name="filter-range" />
 
-      <div slot="options">
+      <template v-slot:options>
         <b-button
           size="sm"
           variant="outline-primary"
@@ -13,7 +13,7 @@
         >
           {{ $t('actions.reset') }}
         </b-button>
-      </div>
+      </template>
     </base-title-bar>
     <histogram-slider
       class="histo-slider"

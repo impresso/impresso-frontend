@@ -81,8 +81,9 @@
         <div v-else>
           <p class="text-center p-4" v-html="$t('no_match')" />
         </div>
-
-        <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+      </template>
+      <template v-slot:footer>
+        <div v-if="paginationTotalRows > paginationPerPage" class="fixed-pagination-footer p-1 m-0">
           <pagination
             size="sm"
             v-bind:perPage="paginationPerPage"
@@ -92,7 +93,6 @@
             class="float-left small-caps" />
         </div>
       </template>
-
 
 
     </i-layout-section>

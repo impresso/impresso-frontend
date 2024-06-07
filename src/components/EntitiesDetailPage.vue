@@ -1,49 +1,52 @@
-<template lang="html">
+<template>
   <i-layout-section v-if="entity" main>
-    <div slot="header" class="border-bottom bg-light">
-      <b-navbar type="light" variant="light">
-        <section>
-          <h3 v-if="entity">
-            <span v-html="entity.name" />
-            <span class="badge small-caps ml-1 bg-medium badge-light">
-              {{ $t(`types.${entity.type}`) }}
-            </span>
-          </h3>
 
-        </section>
-      </b-navbar>
+    <template v-slot:header>
+      <div class="border-bottom bg-light">
+        <b-navbar type="light" variant="light">
+          <section>
+            <h3 v-if="entity">
+              <span v-html="entity.name" />
+              <span class="badge small-caps ml-1 bg-medium badge-light">
+                {{ $t(`types.${entity.type}`) }}
+              </span>
+            </h3>
 
-      <b-tabs pills>
-        <template v-slot:tabs-end>
-          <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
-            :class="{ active: tabItem.name === tab.name }"
-            active-class='none'
-            :to="{ name: 'entity', params: { entity_id: entity.uid }, query: { tab: tabItem.name }}">
-            <span v-html="tabItem.label"/>
-          </b-nav-item>
-        </template>
-      </b-tabs>
-      <!-- navbars below the pills tabs -->
-      <b-navbar>
-        <b-navbar-nav class="pr-2 border-right">
-          <li>
-            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-              {{ $t('actions.searchMore') }}
-            </router-link>
-          </li>
-        </b-navbar-nav>
-        <b-navbar v-if="tab.name === 'overview'">
-          <div v-if="description">
-            "<span v-html="description" />" (wikidata)
-          </div>
+          </section>
         </b-navbar>
-        <b-navbar-nav v-if="tab.name === 'articles' || tab.name === 'mentions'" class="px-2 ">
-          <li>
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </li>
-        </b-navbar-nav>
-      </b-navbar>
-    </div>
+
+        <b-tabs pills>
+          <template v-slot:tabs-end>
+            <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
+              :class="{ active: tabItem.name === tab.name }"
+              active-class='none'
+              :to="{ name: 'entity', params: { entity_id: entity.uid }, query: { tab: tabItem.name }}">
+              <span v-html="tabItem.label"/>
+            </b-nav-item>
+          </template>
+        </b-tabs>
+        <!-- navbars below the pills tabs -->
+        <b-navbar>
+          <b-navbar-nav class="pr-2 border-right">
+            <li>
+              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                {{ $t('actions.searchMore') }}
+              </router-link>
+            </li>
+          </b-navbar-nav>
+          <b-navbar v-if="tab.name === 'overview'">
+            <div v-if="description">
+              "<span v-html="description" />" (wikidata)
+            </div>
+          </b-navbar>
+          <b-navbar-nav v-if="tab.name === 'articles' || tab.name === 'mentions'" class="px-2 ">
+            <li>
+              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+            </li>
+          </b-navbar-nav>
+        </b-navbar>
+      </div>
+    </template>
 
     <!-- BODY ILayout-->
     <div class="items p-3">
