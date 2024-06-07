@@ -4,7 +4,7 @@
       <div v-if="isAvailable()" class="thumbnail" slot="aside">
         <IIIFFragment
           @click="goToArticle"
-          v-if="article.pages.length"
+          v-if="article?.pages?.length"
           :iiif="article.pages[0].iiif"
           size="!496,480"
           :scale="0.5"
@@ -275,7 +275,7 @@ export default {
     },
   },
   mounted() {
-    if (this.article.pages.length > 0 && this.article.regions.length > 0) {
+    if (this.article?.pages?.length > 0 && this.article?.regions?.length > 0) {
       this.coordsFromArticleRegion = this.getCoordsFromArticleRegions()
     }
   },

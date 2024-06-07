@@ -43,17 +43,17 @@
       :percentage="isPercentage"
       @brushed="onTimelineBrushed"
     >
-      <div slot-scope="tooltipScope">
+      <template v-slot="tooltipScope">
         <div v-if="tooltipScope.tooltip.item">
-          {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-          <b>{{ $n(tooltipScope.tooltip.item.w) }}</b> {{ groupBy }}
+          {{ tooltipScope?.tooltip?.item?.t ? $d(tooltipScope.tooltip.item.t, 'year') : '' }} &middot;
+          <b>{{ tooltipScope?.tooltip?.item?.w ? $n(tooltipScope.tooltip.item.w) : '' }}</b> {{ groupBy }}
           <!-- <br />
           <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
           &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
           ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
           </span> -->
         </div>
-      </div>
+      </template>
     </timeline>
 
     <div v-if="!temporaryFilter && !filters.length">

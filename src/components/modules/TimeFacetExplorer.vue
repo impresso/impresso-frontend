@@ -7,14 +7,14 @@
       :height="'120px'"
       @brush-end="handleTimelineBrushed"
       @clear-selection="handleTimelineCleared">
-      <div slot-scope="tooltipScope">
+      <template v-slot="tooltipScope">
         <div v-if="tooltipScope.tooltip.item">
           {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
           <span v-html="$tc('numbers.articles', tooltipScope.tooltip.item.w, {
             n: $n(tooltipScope.tooltip.item.w),
           })"/>
         </div>
-      </div>
+      </template>
     </timeline>
     <div class="p-3" v-if="currentTimelineSelectionSpan.length">
       <filter-date-range

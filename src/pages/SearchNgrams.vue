@@ -101,7 +101,7 @@
           :round-value-fn="roundValueForDisplay"
           :height="300"
         >
-          <div slot-scope="tooltipScope">
+          <template v-slot="tooltipScope">
             <div>
               <div>
                 {{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;
@@ -118,7 +118,7 @@
                 }})
               </div>
             </div>
-          </div>
+          </template>
         </multi-line-plot>
         <div class="loading-overlay" v-if="isLoading">
           <em>{{ $t('loading') }}</em>

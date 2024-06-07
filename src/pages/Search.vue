@@ -7,9 +7,9 @@
       contextTag="search"
       @changed="handleFiltersChanged"
     >
-      <div slot="header" slot-scope="{ focusHandler }">
+      <template v-slot:header="{ focusHandler }">
         <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
-      </div>
+      </template>
       <div>
         <b-button class="float-right mx-3 btn-sm" @click="showModal('embeddings')">
           {{ $t('label_embeddings') }}

@@ -70,12 +70,12 @@
           height="120px"
           @brush-end="onTimelineBrushed"
           @clear-selection="handleTimelineCleared">
-          <div slot-scope="tooltipScope">
+          <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
               <b>{{ tooltipScope.tooltip.item.w }}</b>
             </div>
-          </div>
+          </template>
         </timeline>
       </section>
       <div v-if="$route.query.items" ref="visualisationWrapper">

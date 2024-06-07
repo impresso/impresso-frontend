@@ -86,7 +86,7 @@ export default {
     sliderMarks() {
       if (this.onlyRangeLabels) {
         return this.sliderRange.reduce((acc, d) => {
-          acc[d] = { label: this.$n(d) }
+          acc[d] = { label: d != null ? this.$n(d) : '' }
           return acc
         }, {})
       }

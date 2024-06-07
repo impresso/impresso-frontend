@@ -14,13 +14,13 @@
     </slot>
     <div v-if="showMeta" class="article-meta">
       <router-link
-        :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid } }"
+        :to="{ name: 'newspaper', params: { newspaper_uid: item?.newspaper?.uid } }"
         class="article-newspaper"
       >
         {{ item.newspaper.name }}
       </router-link>
-      <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper" /> &nbsp;
-      <span>{{ $d(item.date, 'long') }}</span>
+      <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
+      <span>{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span> – {{ pages }}</span>
       <div>
         {{ $t(`buckets.accessRight.${item.accessRight}`) }} &mdash; {{ $t('providedBy') }}
@@ -131,7 +131,7 @@ export default {
       return this.$tc('pp', this.item.nbPages, { pages: this.item.pages.map(d => d.num).join(',') })
     },
     routerLinkUrl() {
-      const issueUid = this.item.issue ? this.item.issue.uid : this.item.uid.match(/(^.+)-i/)[1]
+      const issueUid = this.item.issue ? this.item.issue.uid : this.item?.uid?.match(/(^.+)-i/)?.[1]
       return {
         name: 'issue-viewer',
         params: {
@@ -139,8 +139,8 @@ export default {
         },
         query: {
           ...this.$route.query,
-          articleId: getShortArticleId(this.item.uid),
-          p: this.item.pages[0]?.num,
+          articleId: this.item.uid ? getShortArticleId(this.item.uid) : undefined,
+          p: this.item.pages?.[0]?.num,
         },
       }
     },

@@ -37,14 +37,14 @@
               :highlight="timelineHighlightValue"
               :highlight-enabled-state="timelineHighlightEnabled"
               :brushable="false">
-          <div slot-scope="tooltipScope">
+          <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
               <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w, {
                 n: $n(tooltipScope.tooltip.item.w),
               })"/>
             </div>
-          </div>
+          </template>
         </timeline>
       </div>
     </div>

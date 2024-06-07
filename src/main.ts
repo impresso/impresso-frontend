@@ -48,6 +48,8 @@ app.use(createI18n({
   messages,
   datetimeFormats,
   numberFormats,
+  fallbackWarn: false,
+  fallbackRoot: false,
   silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
 }))
 
