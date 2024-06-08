@@ -23,7 +23,7 @@ export default ({ mode }: { mode: string }) => {
     plugins: [
       vue(),
       vueJsx(),
-      VueDevTools(),
+      // VueDevTools(),
       VueI18nPlugin({
         compositionOnly: false,
         strictMessage: false,

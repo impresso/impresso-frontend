@@ -137,8 +137,8 @@ export default {
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
-      options: ' | (1 option) | ({n} options)',
-      moreOptions: ' | (1 more option) | ({n} more options)',
+      options: '(no options) | (1 option) | ({n} options)',
+      moreOptions: 'no more options | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       clusterSize: ' | single cluster | <span class="number">{n}</span> passages',
       lexicalOverlap: '<span class="number">{n}%</span> lexical overlap',

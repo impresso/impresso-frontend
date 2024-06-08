@@ -1,10 +1,5 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import { createPersistedState } from 'pinia-plugin-persistedstate'
-import { createI18n } from 'vue-i18n'
 import { initSequence } from './init'
-import BootstrapVueLegacy from '@/plugins/BootstrapVueLegacy'
-import ImpressoLayout from '@/plugins/Layout'
 
 import App from '@/App.vue'
 import router from '@/router'
@@ -13,10 +8,9 @@ import 'dripicons/webfont/webfont.css'
 import 'impresso-theme/dist/css/bootpresso.css'
 import './assets/legacy/bootstrap-vue.css'
 import { useNotificationsStore } from './stores/notifications'
-import { useSettingsStore } from './stores/settings'
-import datetimeFormats from '@/i18n/dateTimeFormats'
-import numberFormats from '@/i18n/numberFormats'
-import messages from '@/i18n/messages'
+import { newI18n } from './plugins/i18n'
+import pinia from './plugins/pinia'
+import globalComponents from './plugins/globalComponents'
 
 
 const app = createApp(App)
@@ -29,29 +23,12 @@ app.config.errorHandler = (error) => {
   })
 }
 
-BootstrapVueLegacy.install(app)
-ImpressoLayout.install(app)
 
-const pinia = createPinia()
-pinia.use(createPersistedState({
-  key: id => `__impresso__${id}`,
-}))
 
 app.use(pinia)
 app.use(router)
-
-const settingsStore = useSettingsStore()
-app.use(createI18n({
-  legacy: true,
-  fallbackLocale: 'en',
-  locale: settingsStore.language_code,
-  datetimeFormats,
-  numberFormats,
-  sharedMessages: messages,
-  fallbackWarn: false,
-  // fallbackRoot: false,
-  silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
-}))
+app.use(newI18n())
+app.use(globalComponents)
 
 initSequence().then(() => app.mount('#app'))
 
