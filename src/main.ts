@@ -45,11 +45,11 @@ app.use(createI18n({
   legacy: true,
   fallbackLocale: 'en',
   locale: settingsStore.language_code,
-  messages,
   datetimeFormats,
   numberFormats,
+  sharedMessages: messages,
   fallbackWarn: false,
-  fallbackRoot: false,
+  // fallbackRoot: false,
   silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
 }))
 

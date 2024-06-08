@@ -34,7 +34,7 @@
     </div>
 
     <div
-      v-if="showExcerpt && !item.matches.length && item.type !== 'image'"
+      v-if="showExcerpt && !item?.matches?.length && item.type !== 'image'"
       class="article-excerpt mt-2"
     >
       <span class="article-excerpt">{{ item.excerpt }}</span>
@@ -53,7 +53,7 @@
     <slot name="actions"></slot>
 
     <div v-if="showEntities" class="article-extras article-entities mt-2">
-      <div v-if="item.locations.length">
+      <div v-if="item.locations?.length">
         <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
         <span class="small" v-for="(location, idx) in item.locations" v-bind:key="idx">
           <item-selector
@@ -65,7 +65,7 @@
           <span v-if="idx !== item.locations.length - 1">, </span>
         </span>
       </div>
-      <div v-if="item.persons.length">
+      <div v-if="item.persons?.length">
         <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
         <span class="small" v-for="(person, idx) in item.persons" v-bind:key="idx">
           <item-selector :uid="person.uid" :label="person.name" :item="person" type="person" />
@@ -128,7 +128,7 @@ export default {
   },
   computed: {
     pages() {
-      return this.$tc('pp', this.item.nbPages, { pages: this.item.pages.map(d => d.num).join(',') })
+      return this.$tc('pp', this.item.nbPages, { pages: this.item.pages?.map(d => d.num)?.join(',') })
     },
     routerLinkUrl() {
       const issueUid = this.item.issue ? this.item.issue.uid : this.item?.uid?.match(/(^.+)-i/)?.[1]
