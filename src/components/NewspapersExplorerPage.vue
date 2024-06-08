@@ -43,7 +43,7 @@
     </template>
     <!--  newspaper lifespans -->
     <newspapers-lines class="m-3"
-      :newspapers="newspapers"
+      :modelValue="newspapers"
       :margin="{left: 210, right:60}"
       :scrollTop="scrollTop"
       :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"

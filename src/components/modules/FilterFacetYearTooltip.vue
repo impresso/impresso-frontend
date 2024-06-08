@@ -6,17 +6,23 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere
+ */
+
 export default {
-  model: {
-    prop: 'tooltip',
-    default: {
-      x: 0,
-      y: 0,
-      year: new Date(),
-      count: 0,
-    },
+  props: {
+    tooltip: {
+      type: Object,
+      required: true,
+      default: {
+        x: 0,
+        y: 0,
+        year: new Date(),
+        count: 0,
+      },
+    }
   },
-  props: ['tooltip'],
   computed: {
     style() {
       return {

@@ -289,9 +289,6 @@ export default {
     partner: null,
     isModalVisible: false,
   }),
-  model: {
-    prop: 'article',
-  },
   props: {
     article: Object,
   },

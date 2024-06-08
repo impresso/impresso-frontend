@@ -12,6 +12,10 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere
+ */
+
 /*
 <template lang="html">
   <div class="container">
@@ -49,17 +53,18 @@ export default {
 
 */
 export default {
-  props: ['tabs', 'tab'],
-  model: {
-    prop: 'tab',
-  },
+  props: ['tabs', 'modelValue'],
+  emits: ['modelValue:updated'],
   methods: {
     toggle(tab) {
-      this.$emit('input', tab);
+      this.$emit('modelValue:updated', tab);
     },
   },
   mounted() {
     this.toggle(this.tabs.find(d => d.active) || this.tabs[0]);
   },
+  computed: {
+    tab() { return this.modelValue }
+  }
 };
 </script>

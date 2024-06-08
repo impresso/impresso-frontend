@@ -24,10 +24,6 @@ import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
 
 export default {
-  model: {
-    prop: 'filter',
-    event: 'change'
-  },
   components: {
     VueSlider
   },
@@ -35,7 +31,7 @@ export default {
     currentValue: undefined
   }),
   props: {
-    filter: {
+    modelValue: {
       /** @type {import('vue').PropType<import('../../models/models').Filter>} */
       type: Object
     },
@@ -53,7 +49,9 @@ export default {
       required: true
     }
   },
+  emits: ['update:modelValue'],
   computed: {
+    filter() { return this.modelValue },
     value: {
       get() {
         if (this.currentValue != null) return this.currentValue
@@ -98,7 +96,7 @@ export default {
         q: this.currentValue.map(v => String(v)),
         items: [{ start: this.currentValue[0], end: this.currentValue[1] }]
       })
-      this.$emit('change', updatedFilter)
+      this.$emit('update:modelValue', updatedFilter)
     }
   }
 }

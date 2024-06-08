@@ -61,10 +61,6 @@ import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
 
 export default {
-  model: {
-    prop: 'newspapers',
-    default: [],
-  },
   data: () => ({
     tooltip: {
       x: 0,
@@ -81,7 +77,10 @@ export default {
     width: 0,
   }),
   props: {
-    newspapers: Array,
+    modelValue: {
+      type: Array,
+      default: () => []
+    },
     highlight: Object,
     scrollTop: Number,
     margin: {
@@ -221,6 +220,7 @@ export default {
   },
   computed: {
     ...mapStores(useMonitorStore),
+    newspapers() { return this.modelValue },
     tooltipProperties() {
       if (!this.tooltip.item || !this.tooltip.item.properties) {
         return '';

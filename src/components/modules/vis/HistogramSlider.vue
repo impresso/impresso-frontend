@@ -32,13 +32,9 @@ import 'vue-slider-component/theme/default.css'
  */
 export default {
   name: 'HistogramSlider',
-  model: {
-    prop: 'value',
-    event: 'change',
-  },
   props: {
     /** @type {import('vue').PropOptions<Number[]>} */
-    value: {
+    modelValue: {
       type: Array,
     },
     /** @type {import('vue').PropOptions<Number[]>} */
@@ -62,6 +58,7 @@ export default {
       default: 'linear',
     },
   },
+  emits: ['update:modelValue'],
   mounted() {
     // @ts-ignore
     window.addEventListener('resize', this.renderChart.bind(this))
@@ -72,6 +69,7 @@ export default {
     window.removeEventListener('resize', this.renderChart.bind(this))
   },
   computed: {
+    value() { return this.modelValue },
     sliderValue: {
       /** @returns {undefined|number[]} */
       get() {

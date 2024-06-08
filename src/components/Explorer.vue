@@ -188,10 +188,6 @@ const DefaultFilterTypes = [
 ]
 
 export default {
-  model: {
-    prop: 'filters',
-    event: 'changed'
-  },
   data: () => ({
     /** @type {string | undefined} */
     id: undefined,
@@ -212,7 +208,7 @@ export default {
   }),
   props: {
     /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
-    filters: {
+    modelValue: {
       type: Array,
       default: () => []
     },
@@ -233,6 +229,7 @@ export default {
       default: 'search'
     }
   },
+  emits: ['update:modelValue'],
   methods: {
     openDialog() {
       this.isModalVisible = true
@@ -256,6 +253,7 @@ export default {
     }
   },
   computed: {
+    filters() { return this.modelValue },
     filter: {
       get() {
         return this.filters.find(({ type }) => type === this.currentType)
@@ -267,7 +265,7 @@ export default {
         if (index >= 0) updatedFilters[index] = filter
         else updatedFilters.push(filter)
 
-        this.$emit('changed', updatedFilters)
+        this.$emit('modelValue:updated', updatedFilters)
         this.closeDialog()
       }
     },

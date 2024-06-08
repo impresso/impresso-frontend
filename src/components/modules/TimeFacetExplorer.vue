@@ -38,17 +38,13 @@ import Helpers from '@/plugins/Helpers';
 import Daterange from '@/models/Daterange';
 
 export default {
-  model: {
-    prop: 'filter',
-    event: 'change'
-  },
   data: () => ({
     timelineSpan: /** @type {Date[]} */ ([]),
     timelineSelectionStart: null,
     timelineSelectionEnd: null,
   }),
   props: {
-    filter: {
+    modelValue: {
       /** @type {import('vue').PropType<import('../../models/models').Filter>} */
       type: Object
     },
@@ -61,11 +57,13 @@ export default {
       default: () => []
     }
   },
+  emits: ['update:modelValue'],
   components: {
     Timeline,
     FilterDateRange,
   },
   computed: {
+    filter() { return this.modelValue },
     timevalues() {
       return Helpers.timeline.fromBuckets(this.buckets);
     },
@@ -104,7 +102,7 @@ export default {
           end: this.timelineSelectionEnd
         }).getValue()
       })
-      this.$emit('change', updatedFilter)
+      this.$emit('update:modelValue', updatedFilter)
     },
     handleTimelineBrushed({ minDate, maxDate }) {
       this.timelineSelectionStart = minDate

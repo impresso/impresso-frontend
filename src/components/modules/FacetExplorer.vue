@@ -48,17 +48,14 @@ function getEntitiesForIds(ids, entities = []) {
 }
 
 export default {
-  model: {
-    prop: 'filter',
-    event: 'change'
-  },
+  emits: ['update:modelValue'],
   data: () => ({
     /** @type {string[]} */
     selectedIds: [],
     selectedIdsEntities: [],
   }),
   props: {
-    filter: {
+    modelValue: {
       /** @type {import('vue').PropType<import('../../models/models').Filter>} */
       type: Object
     },
@@ -77,6 +74,7 @@ export default {
       throw new Error('"filter" type must be equal to "filterType"')
   },
   computed: {
+    filter() { return this.modelValue },
     // Filter type https://github.com/impresso/impresso-jscommons/blob/master/proto/query.proto#L19-L45
     type() {
       return this.filter && this.filter.type
@@ -116,7 +114,7 @@ export default {
         q: this.selectedIds,
         items: entities
       })
-      this.$emit('change', updatedFilter)
+      this.$emit('update:modelValue', updatedFilter)
     },
   },
   watch: {

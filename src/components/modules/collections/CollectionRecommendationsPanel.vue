@@ -19,7 +19,7 @@
           <div>
             <b-row v-if="displayStyle === DisplayStyle.List">
               <b-col cols="12" v-for="article in recommendedArticles" :key="article.uid">
-                <search-results-list-item :article="article">
+                <search-results-list-item v-model="article">
                   <template v-slot:secondary-action>
                     <b-button
                       variant="outline-primary" size="sm"
@@ -35,7 +35,7 @@
                 <search-results-tiles-item
                   v-if="article.type === ArticleType"
                   @click="goToArticle(article)"
-                  :article="article" />
+                  v-model="article" />
                 <search-results-image-item
                   v-if="article.type !== ArticleType"
                   @click="goToArticle(article)"

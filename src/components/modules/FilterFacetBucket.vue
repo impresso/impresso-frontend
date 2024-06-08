@@ -29,9 +29,6 @@ export default {
     operator: 'or',
     checked: false,
   }),
-  model: {
-    prop: 'bucket',
-  },
   props: {
     bucket: {
       type: Object,

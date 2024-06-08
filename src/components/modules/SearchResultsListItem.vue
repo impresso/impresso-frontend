@@ -126,11 +126,8 @@ export default {
     showModalShare: false,
     coordsFromArticleRegion: null,
   }),
-  model: {
-    prop: 'article',
-  },
   props: {
-    article: {
+    modelValue: {
       type: Object,
       default: () => ({}),
     },
@@ -150,6 +147,7 @@ export default {
   },
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
+    article() { return this.modelValue },
     pageViewerOptions() {
       return {
         tileSources: [this.article.pages[0]?.iiif],

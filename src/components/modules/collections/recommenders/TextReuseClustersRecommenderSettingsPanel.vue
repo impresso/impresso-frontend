@@ -18,20 +18,18 @@
 
 <script>
 
-const ChangedEvent = 'changed'
+const ChangedEvent = 'update:modelValue'
 
 export default {
-  model: {
-    prop: 'parameters',
-    event: ChangedEvent
-  },
   props: {
-    parameters: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+  emits: ['update:modelValue'],
   computed: {
+    parameters() { return this.modelValue },
     numberToKeep: {
       /** @returns {number} */
       get() { return this.parameters.numberToKeep ?? 10 },

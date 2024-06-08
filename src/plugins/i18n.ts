@@ -16,6 +16,7 @@ export const newI18n = () => {
     sharedMessages: messages,
     // fallbackWarn: false,
     // fallbackRoot: true,
+    warnHtmlInMessage: 'off', // better remove HTML and disable this
     silentFallbackWarn: true,
     silentTranslationWarn: true, // setting this to `true` hides warn messages about translation keys.
   })

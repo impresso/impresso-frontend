@@ -142,10 +142,6 @@ export default defineComponent({
    * - new filter is created (the model was an empty array before)
    * - filters were removed (the model contained at least one filter but became an empty array)
    */
-  model: {
-    prop: 'facetFilters',
-    event: 'changed',
-  },
   data: () => ({
     isCollapsed: true,
     selectedBucketsIds: [],

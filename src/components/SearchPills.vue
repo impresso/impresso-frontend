@@ -191,14 +191,8 @@ import FilterFactory from '@/models/FilterFactory'
  * @typedef {import('@/models').Filter} Filter
  */
 
-/**
- * Use `v-model`.
- */
 export default {
-  model: {
-    prop: 'filters',
-    event: 'changed',
-  },
+  emits: ['changed'],
   data: () => ({
     explorerVisible: false,
   }),

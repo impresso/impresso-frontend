@@ -259,10 +259,6 @@ const EntityTypes = ['person', 'location', 'entity']
  * Use with `v-model`.
  */
 export default {
-  model: {
-    prop: 'filter',
-    event: 'changed',
-  },
   emits: ['changed', 'remove', 'daterange-changed'],
   data: () => ({
     showEmbeddings: false,

@@ -29,6 +29,9 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere
+ */
 
 import flatPickr from 'vue-flatpickr-component';
 import SkyLine from '@/d3-modules/SkyLine';
@@ -53,9 +56,6 @@ export default {
     },
     skyline: false,
   }),
-  model: {
-    prop: 'filter',
-  },
   props: ['filter'],
   methods: {
     toggleExpanded() {

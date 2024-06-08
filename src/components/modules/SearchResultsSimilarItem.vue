@@ -42,9 +42,6 @@ import VizBar from '../base/VizBar.vue';
 import InfoButton from '../base/InfoButton.vue';
 
 export default {
-  model: {
-    prop: 'article',
-  },
   props: ['searchResult', 'topics'],
   components: {
     ArticleItem,

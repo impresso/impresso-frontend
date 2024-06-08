@@ -13,6 +13,7 @@ import RadioGroup from '@/components/layout/RadioGroup.vue';
 
 export default {
   computed: {
+    filter() { return this.modelValue },
     options() {
       return Object.keys(precisions).map(key => ({
         value: precisions[key],
@@ -20,10 +21,9 @@ export default {
       }));
     },
   },
-  model: {
-    prop: 'filter',
+  props: {
+    modelValue: Object,
   },
-  props: ['filter'],
   components: {
     RadioGroup,
   }

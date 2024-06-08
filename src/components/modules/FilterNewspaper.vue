@@ -22,9 +22,6 @@ export default {
   data: () => ({
     disabled: true,
   }),
-  model: {
-    prop: 'filter',
-  },
   props: ['filter'],
   methods: {
     remove() {

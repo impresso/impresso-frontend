@@ -1,19 +1,19 @@
 <template>
-  <SearchResultsListItem class="SearchResultsTilesItem" :article="article" />
+  <SearchResultsListItem class="SearchResultsTilesItem" v-model="article" />
 </template>
 
 <script>
 import SearchResultsListItem from './SearchResultsListItem.vue'
 
 export default {
-  model: {
-    prop: 'article',
-  },
   props: {
-    article: {
+    modelValue: {
       type: Object,
       required: true,
     },
+  },
+  computed: {
+    article() { return this.modelValue }
   },
   methods: {
     click() {
