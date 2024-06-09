@@ -51,8 +51,8 @@
           <div class="border-top p-2 pb-3" style='max-height: 180px;overflow:scroll'>
             <div class="d-inline-flex mx-1 align-items-center" v-for="item in statsLegendItems" :key="item.id">
               <b-form-checkbox
-                :checked="selectedItems[item.id]"
-                @input="v => handleItemChanged(item.id, v)">
+                :modelValue="selectedItems[item.id]"
+                @update:modelValue="v => handleItemChanged(item.id, v)">
                 <div
                   class="pl-1 pr-1 d-flex"
                   :style="{'background-color': item.color.length > 7 ? item.color : `${item.color}77`}">
@@ -225,7 +225,7 @@ export default {
      * @param {boolean} value
      */
     handleItemChanged(id, value) {
-      this.$set(this.selectedItems, id, value)
+      this.selectedItems[id] = value
     },
     /**
      * @param {string} index

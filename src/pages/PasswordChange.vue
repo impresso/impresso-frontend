@@ -43,7 +43,7 @@
             >
               <b-form-input
                 id="input-1"
-                @update="() => (error = null)"
+                @update:modelValue="() => (error = null)"
                 v-model="password"
                 type="password"
                 required
@@ -57,7 +57,7 @@
               description="Confirm your new password."
             >
               <b-form-input
-                @update="() => (error = null)"
+                @update:modelValue="() => (error = null)"
                 id="input-2"
                 v-model="passwordConfirm"
                 type="password"

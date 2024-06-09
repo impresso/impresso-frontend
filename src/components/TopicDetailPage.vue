@@ -100,7 +100,7 @@
             :contrast="false"
             :values="timevalues">
         <template v-slot="tooltipScope">
-          <div v-if="tooltipScope.tooltip.item">
+          <div v-if="tooltipScope.tooltip.item?.t">
             {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
             <b>{{ tooltipScope.tooltip.item.w }}</b>
           </div>

@@ -5,10 +5,10 @@
         :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
         :placeholder="$tc('placeholder.search', filterCount)"
         v-model.trim="q"
-        @input.native="search"
-        @focus.native="selectInput"
-        @blur.native="blurHandler"
-        v-on:keyup.native="keyup"
+        @update:modelValue="search"
+        @focus="selectInput"
+        @blur="blurHandler"
+        @keyup="keyup"
       />
       <div class="input-group-append">
         <button type="button" class="btn btn-outline-primary"
@@ -274,6 +274,7 @@ export default {
       this.showSuggestions = false
     },
     search() {
+      console.log('searching')
       this.showSuggestions = this.q.length > 0
       // debugger;
       if (this.q.length) {

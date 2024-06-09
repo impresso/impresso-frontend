@@ -9,6 +9,7 @@ import 'impresso-theme/dist/css/bootpresso.css'
 import './assets/legacy/bootstrap-vue.css'
 import { useNotificationsStore } from './stores/notifications'
 import { newI18n } from './plugins/i18n'
+import { createNavigation } from './plugins/Navigation'
 import pinia from './plugins/pinia'
 import globalComponents from './plugins/globalComponents'
 
@@ -29,6 +30,7 @@ app.use(pinia)
 app.use(router)
 app.use(newI18n())
 app.use(globalComponents)
+app.use(createNavigation())
 
 initSequence().then(() => app.mount('#app'))
 

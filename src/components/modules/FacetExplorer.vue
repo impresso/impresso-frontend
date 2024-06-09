@@ -10,9 +10,9 @@
           style="min-height: 4em; max-height: 16em; overflow: scroll">
           <b-form-checkbox v-for="(bucket, idx) in buckets"
                            v-bind:key="idx"
-                           :value="bucket.val"
+                           :modelValue="bucket.val"
                            class="d-block"
-                           @change="handleChecked($event, bucket.val)">
+                           @update:modelValue="handleChecked($event, bucket.val)">
             <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
             <span v-if="bucket.count > -1">
               (<span v-html="$tc('numbers.results', bucket.count, { n : $n(bucket.count) })"/>)

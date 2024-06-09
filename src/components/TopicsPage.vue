@@ -16,7 +16,7 @@
           </template>
         </b-tabs>
         <div class='pb-2 px-3' v-if="tab === 'list'">
-          <b-form-input placeholder="filter topics ..." :value="q" v-on:change="changeQ" class="my-3"></b-form-input>
+          <b-form-input placeholder="filter topics ..." :modelValue="q" @update:modelValue="changeQ" class="my-3"></b-form-input>
           <b-form-checkbox v-if="countActiveFilters"
             v-model="applyCurrentSearchFilters"
           ><span v-html="$t('label_applyCurrentSearchFilters', { countActiveFilters })" /></b-form-checkbox>

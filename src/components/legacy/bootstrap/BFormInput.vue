@@ -1,12 +1,12 @@
 <template>
-  <input ref="inputRef" :type="props.type" :class="iClass" :value="props.value" v-bind="$attrs" />
+  <input ref="inputRef" :type="props.type" :class="iClass" :value="props.modelValue" @input="handleChanged" v-bind="$attrs" />
 </template>
 
 <script setup lang="ts">
 import { computed, useAttrs, onMounted, nextTick, ref, getCurrentInstance } from 'vue'
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: [String, Number],
     default: '',
   },
@@ -23,7 +23,7 @@ const props = defineProps({
     default: 'md',
   },
 })
-const emit = defineEmits(['input', 'change'])
+const emit = defineEmits(['update:modelValue'])
 
 const attrs = useAttrs()
 
@@ -51,11 +51,7 @@ onMounted(() => {
 
 const handleChanged = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('input', target.value)
-}
-
-if (inst?.proxy?.$listeners) {
-  inst.proxy.$listeners.input = handleChanged
+  emit('update:modelValue', target.value)
 }
 
 </script>

@@ -3,9 +3,10 @@
     <input
       type="checkbox"
       class="custom-control-input"
-      :value="props.value"
+      :value="props.modelValue"
+      :checked="props.modelValue"
       :id="uid"
-      :disabled="props.disabled ? 'disabled' : undefined"
+      :disabled="props.disabled"
       @change="handleChanged">
     <label class="custom-control-label" :for="uid">
       <slot></slot>
@@ -17,9 +18,8 @@
 import { computed, useAttrs } from 'vue'
 import { v4 } from 'uuid'
 
-// TODO in Vue3 replace value with modelValue
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Boolean,
     default: false,
   },
@@ -32,7 +32,7 @@ const props = defineProps({
     default: false,
   },
 })
-const emit = defineEmits(['input', 'change'])
+const emit = defineEmits(['update:modelValue'])
 
 const attrs = useAttrs()
 
@@ -52,7 +52,6 @@ const cbClass = computed(() => ({
 
 const handleChanged = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('input', target.checked)
-  emit('change', target.checked)
+  emit('update:modelValue', target.checked)
 }
 </script>

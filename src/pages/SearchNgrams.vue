@@ -15,7 +15,7 @@
         </div>
       </template>
       <b-form-group class="mx-3">
-        <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+        <b-form-checkbox v-model="isFront" switch :modelValue="true">
           {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>

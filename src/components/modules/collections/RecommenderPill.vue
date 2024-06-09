@@ -14,7 +14,7 @@
     <div class="content">
       <!-- toggles bar -->
       <div class="p-2 d-flex">
-        <b-form-checkbox v-model="recommenderEnabled" @change="handleControlChanged" switch>
+        <b-form-checkbox v-model="recommenderEnabled"  @update:modelValue="handleControlChanged" switch>
           {{ $t('enableRecommender') }}
         </b-form-checkbox>
         <b-form-checkbox class="ml-auto" v-model="isAdvancedPanelOpen" switch>
@@ -70,7 +70,7 @@
           step="0.1"
           class="pt-2 pb-2 pl-3 pr-3"
           :disabled="!recommenderEnabled"
-          @change="handleControlChanged">
+          @update:modelValue="handleControlChanged">
         </b-form-input>
       </div>
 

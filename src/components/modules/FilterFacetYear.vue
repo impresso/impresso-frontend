@@ -19,10 +19,10 @@
     </div>
     <div class="row" v-show="expanded">
       <div v-bind:append="$t('label.start')" class="input-group input-group-sm col">
-        <flat-pickr v-bind:value="filter.start" v-on:on-close="setStart" class="form-control"></flat-pickr>
+        <flat-pickr v-model="filter.start" @on-close="setStart" class="form-control"></flat-pickr>
       </div>
       <div v-bind:append="$t('label.end')" class="input-group input-group-sm col">
-        <flat-pickr v-bind:value="filter.end" v-on:on-close="setEnd" class="form-control"></flat-pickr>
+        <flat-pickr v-model="filter.end" @on-close="setEnd" class="form-control"></flat-pickr>
       </div>
     </div>
   </div>

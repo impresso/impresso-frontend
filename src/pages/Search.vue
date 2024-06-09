@@ -16,7 +16,7 @@
           <info-button class="ml-1" name="how-are-word-embeddings-generated" />
         </b-button>
         <b-form-group class="mx-3">
-          <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+          <b-form-checkbox v-model="isFront" switch v-bind:modelValue="true">
             {{ $t('label_isFront') }}
           </b-form-checkbox>
         </b-form-group>
@@ -127,8 +127,8 @@
               class="mx-1"
               v-bind:title="$t('select_all')"
               v-bind:indeterminate="this.allIndeterminate"
-              v-bind:checked="this.allSelected"
-              v-on:change="toggleSelectAll"
+              v-bind:modelValue="this.allSelected"
+              @update:modelValue="toggleSelectAll"
             >
             </b-form-checkbox> -->
           </b-navbar-nav>
@@ -158,7 +158,7 @@
         <form v-on:submit.stop.prevent="createQueryCollection()">
           <label for="inputName">Name</label>
           <b-form-input
-            v-on:input="nameCollectionOnInput"
+            @update:modelValue="nameCollectionOnInput"
             type="text"
             v-bind:placeholder="$t('Collection_Name')"
             name="inputName"

@@ -32,12 +32,11 @@ class Navigation {
   }
 }
 
-export default {
-  install(Vue) {
-    Vue.mixin({
-      created() {
-        this.$navigation = new Navigation(this)
-      }
-    })
+export const createNavigation = () => {
+  return {
+    install(app) {
+      app.config.globalProperties.$navigation = new Navigation(app)
+    }
   }
 }
+

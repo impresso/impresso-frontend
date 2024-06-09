@@ -78,7 +78,7 @@
         <b-form-checkbox
           v-else-if="StringTypes.includes(type)"
           v-model="checkedItems[item.uid]"
-          @change="toggleFilterItem($event, item.uid)"
+          @update:modelValue="toggleFilterItem($event, item.uid)"
         >
           <b-form-input
             size="sm"
@@ -86,14 +86,14 @@
             class="accepted"
             v-model="item.uid"
             @click.prevent.stop
-            @change="changeStringFilterItemAtIndex($event, idx)"
+            @update:modelValue="changeStringFilterItemAtIndex($event, idx)"
           >
           </b-form-input>
         </b-form-checkbox>
         <div v-else class="d-flex text-small">
           <b-form-checkbox
             v-model="checkedItems[item.uid]"
-            @change="toggleFilterItem($event, item.uid)"
+            @update:modelValue="toggleFilterItem($event, item.uid)"
           >
           </b-form-checkbox>
           <item-selector hide-icon :uid="item.uid" :item="item" :type="type">
