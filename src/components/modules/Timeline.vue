@@ -1,9 +1,9 @@
 <template>
   <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`">
     <tooltip :tooltip="tooltip">
-      <slot :tooltip="tooltip">
-        <div v-if="tooltip.item">
-          {{ tooltip.item }}
+      <slot :tooltip="{...tooltip, item }">
+        <div v-if="item">
+          {{ item }}
         </div>
       </slot>
     </tooltip>
@@ -64,9 +64,9 @@ export default {
     tooltip: {
       x: 0,
       y: 0,
-      isActive: false,
-      item: {},
+      isActive: false
     },
+    item: {},
   }),
   computed: {
     heightVal() {
@@ -77,12 +77,11 @@ export default {
   methods: {
     moveTooltip(data) {
       this.tooltip = {
-        item: data.datum,
         isActive: true,
         x: data.pointer.x + 50,
         y: data.pointer.y - 50,
-        hspace: this.timeline.width,
       }
+      this.item = data.datum
     },
     onResize() {
       this.timeline.resize()

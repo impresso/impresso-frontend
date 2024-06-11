@@ -11,6 +11,12 @@ const config: StorybookConfig = {
   framework: {
     name: '@storybook/vue3-vite',
     options: {}
-  }
+  },
+  env: (config) => ({
+    ...config,
+    // use rest transport in storybook to make mocking easier
+    VITE_API_TRANSPORT: 'rest',
+    VITE_MIDDLELAYER_API_BASE_URL: '/api'
+  })
 }
 export default config

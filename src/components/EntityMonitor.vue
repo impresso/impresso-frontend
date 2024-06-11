@@ -29,7 +29,7 @@
               entity_id: this.id,
             },
           }"
-          @click.native="hide"
+          @click="hide"
         >
           {{ $t('actions.detail') }}
         </router-link>
@@ -57,7 +57,6 @@ import { optimizeFilters } from '@/logic/filters'
 import { entities as entitiesService, textReusePassages } from '@/services'
 import WikidataBlock from './modules/WikidataBlock.vue'
 import Spinner from './layout/Spinner.vue'
-import TextReusePassage from '@/models/TextReusePassage'
 import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
 
 export default defineComponent({
