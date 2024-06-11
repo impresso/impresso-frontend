@@ -104,6 +104,7 @@ import {
   buildEmptyFacets
 } from '@/logic/facets'
 import { getQueryParameter, CommonQueryParameters } from '@/router/util'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @param {number} index
@@ -252,6 +253,9 @@ export default {
     this.facets = buildEmptyFacets(this.facetTypes)
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @returns {boolean} */
     textReuseEnabled() {
       // @ts-ignore

@@ -173,6 +173,7 @@ import {
   buildEmptyFacets,
 } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -330,6 +331,9 @@ export default {
   },
   computed: {
     ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @type {import('vue').ComputedOptions<string[]>} */
     unigrams: {
       /** @returns {string[]} */
@@ -549,7 +553,7 @@ export default {
     },
     /** @param {string} term */
     handleSuggestedTermSelected(term) {
-      this.$set(this, 'unigrams', this.unigrams.concat([term]))
+      this['unigrams'] = this.unigrams.concat([term])
       this.$refs.embeddings.hide(true)
     },
   },

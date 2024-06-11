@@ -264,6 +264,7 @@ import Modal from '@/components/base/Modal.vue'
 import { hide } from '@floating-ui/vue';
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
+import { Navigation } from '@/plugins/Navigation';
 
 
 const QueryParameters = Object.freeze({
@@ -307,6 +308,9 @@ export default {
   },
   computed: {
     ...mapStores(useCollectionsStore, useSettingsStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     displayStyleOptions() {
       return [
         {value: 'list', text: this.$t('display_button_list')},

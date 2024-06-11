@@ -28,9 +28,7 @@
             params: {
               entity_id: this.id,
             },
-          }"
-          @click="hide"
-        >
+          }">
           {{ $t('actions.detail') }}
         </router-link>
       </div>

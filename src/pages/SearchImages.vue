@@ -137,6 +137,7 @@ import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
 import FacetModel from '@/models/Facet';
 import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
+import { Navigation } from '@/plugins/Navigation';
 
 const AllowedFilterTypes = [
   'newspaper',
@@ -194,6 +195,9 @@ export default {
   },
   computed: {
     ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({

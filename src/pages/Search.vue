@@ -274,6 +274,7 @@ import {
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -311,6 +312,9 @@ export default {
   }),
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({

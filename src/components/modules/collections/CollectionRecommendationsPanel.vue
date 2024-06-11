@@ -287,7 +287,7 @@ export default {
       const rs = this.recommendersSettings
       rs[index] = settings
       this.recommendersSettings = rs
-      // this.$set(this.recommendersSettings, index, settings)
+      // this.recommendersSettings[index] =settings
       this.paginationCurrentPage = 1
     },
     handleSearchparametersChanged(settings) {
@@ -295,7 +295,7 @@ export default {
       const rs = this.recommendersSettings
       rs[index] = settings
       this.recommendersSettings = rs
-      // this.$set(this.recommendersSettings, index, settings)
+      // this.recommendersSettings[index] = settings
       this.paginationCurrentPage = 1
     },
     goToArticle(article) {

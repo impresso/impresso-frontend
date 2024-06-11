@@ -42,6 +42,7 @@ import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPa
 import Pagination from '@/components/modules/Pagination.vue'
 import { textReuseConnectedClusters as textReuseConnectedClustersService } from '@/services'
 import { getQueryParameter } from '@/router/util'
+import { Navigation } from '@/plugins/Navigation'
 
 const QueryParameters = Object.freeze({
   ClusterId: 'clusterId',
@@ -81,6 +82,9 @@ export default {
     },
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @returns {string} */
     clusterId() {
       return this.cluster?.id

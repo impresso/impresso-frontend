@@ -242,6 +242,7 @@ import ItemLabel from './modules/lists/ItemLabel.vue'
 import { hide } from '@floating-ui/vue'
 import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -495,6 +496,9 @@ export default {
   },
   computed: {
     ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     isLoggedIn() {
       return this.userStore.userData
     },

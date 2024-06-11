@@ -128,6 +128,7 @@ import FilterTimeline from '@/components/modules/FilterTimeline'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { mapStores } from 'pinia'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -177,6 +178,9 @@ export default {
   },
   computed: {
     ...mapStores(useSelectionMonitorStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     allowedFilters() {
       return this.filters.filter(({ type }) => SupportedFiltersByContext.textReuse.includes(type))
     },

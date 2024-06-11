@@ -109,6 +109,7 @@ import { serializeFilters, SupportedFiltersByIndex } from '@/logic/filters'
 import { DefaultFacetTypesForIndex } from '@/logic/facets'
 import { stats } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
+import { Navigation } from '@/plugins/Navigation'
 
 interface DomainValueItem {
   domain: { label: string; value: string }
@@ -325,6 +326,9 @@ export default defineComponent({
   },
   computed: {
     ...mapStores(useSelectionMonitorStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     // get visualisation type from URL parameters
     visualisation: {
       get() {

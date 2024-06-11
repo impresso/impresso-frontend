@@ -47,6 +47,7 @@ import { mapStores } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
+import { Navigation } from './plugins/Navigation'
 
 export default {
   name: 'app',
@@ -93,6 +94,9 @@ export default {
     },
     is_locked() {
       return this.notificationsStore.processingLocked
+    },
+    $navigation() {
+      return new Navigation(this)
     },
   },
   methods: {

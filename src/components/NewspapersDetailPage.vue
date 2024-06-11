@@ -164,6 +164,7 @@ import {
   newspapers as newspapersService,
 } from '@/services'
 import Helpers from '@/plugins/Helpers';
+import { Navigation } from '@/plugins/Navigation'
 
 
 const OrderByOptions = ['-date', 'date']
@@ -193,6 +194,9 @@ export default {
   }),
   computed: {
     filters: mapFilters(),
+    $navigation() {
+      return new Navigation(this)
+    },
     searchPageLink() {
       return {
         name: 'search',

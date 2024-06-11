@@ -58,6 +58,7 @@ import Pagination from '@/components/modules/Pagination.vue';
 
 import { textReuseClusterPassages } from '@/services'
 import Newspaper from '@/models/Newspaper'
+import { Navigation } from '@/plugins/Navigation';
 
 
 const QueryParameters = Object.freeze({
@@ -91,6 +92,9 @@ export default {
     Pagination
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @returns {string|undefined} */
     clusterId() {
       return /** @type {string} */ (this.$route.query.clusterId)

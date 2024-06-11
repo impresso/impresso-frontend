@@ -302,6 +302,7 @@ import WithTooltip from '@/components/base/WithTooltip.vue'
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -376,6 +377,9 @@ export default {
           p: '1',
         },
       }),
+    },
+    $navigation() {
+      return new Navigation(this)
     },
     /** @returns {Filter[]} */
     filters() {
@@ -722,7 +726,7 @@ export default {
             },
           })
           .then(response => response.data.map(article => new Article(article)))
-        this.$set(this.pagesArticles, pageIndex, articles)
+        this.pagesArticles[pageIndex] = articles
       }
     },
     async loadMarginalia(pageIndex) {
@@ -746,7 +750,7 @@ export default {
           }
         })
 
-        this.$set(this.pagesMarginalia, pageIndex, entitySections.concat([topicsSection]))
+        this.pagesMarginalia[pageIndex] = entitySections.concat([topicsSection])
       }
     },
     /** @param {string} articleUid */

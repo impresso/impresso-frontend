@@ -59,6 +59,7 @@ import { textReuseClusters, filtersItems } from '@/services';
 import { toCanonicalFilter, toSerializedFilters, SupportedFiltersByContext } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
 import { mapFilters } from '@/logic/queryParams'
+import { Navigation } from '@/plugins/Navigation';
 
 /**
  * @typedef {import('@/models').TextReuseCluster} TextReuseCluster
@@ -217,6 +218,9 @@ export default {
     }
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @returns {string[]} */
     supportedFilterTypes() { return SupportedFilterTypes },
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */

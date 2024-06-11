@@ -33,7 +33,7 @@ import { getLatestSerializedSearchQuery, setLatestSerializedSearchQuery } from '
  * To ensure old links still work we need to detect the presence of the query
  * parameter and migrate it to the new format.
  *
- * @param {import('vue/types/vue').Vue} vue
+ * @param {import('vue/types/vue').ComponentCustomProperties} vue
  */
 function tryMigrateLegacySearchQueryParameter(vue) {
   const { [CommonQueryParameters.LegacySearchFilters]: f } = vue.$route?.query
@@ -64,7 +64,7 @@ function tryMigrateLegacySearchQueryParameter(vue) {
 
 /**
  * Get serialised `SearchQuery` from a query parameter.
- * @param {import('vue/types/vue').Vue} vue
+ * @param {import('vue/types/vue').ComponentCustomProperties} vue
  * @return {string}
  */
 const getSearchQueryFromQueryParameterOrLocalStorage = vue => {
@@ -79,7 +79,7 @@ const getSearchQueryFromQueryParameterOrLocalStorage = vue => {
 
 export const searchQueryHashGetter = () => {
   /**
-   * @this {import('vue/types/vue').Vue}
+   * @this {import('vue/types/vue').ComponentCustomProperties}
    */
   const fn = function() {
     return getSearchQueryFromQueryParameterOrLocalStorage(this)
@@ -92,7 +92,7 @@ export const searchQueryHashGetter = () => {
  * @returns {{ get: SearchQueryGetter }}
  */
 export const searchQueryGetter = () => {
-  /** @this {import('vue/types/vue').Vue} */
+  /** @this {import('vue/types/vue').ComponentCustomProperties} */
   const get = function() {
     const sq = getSearchQueryFromQueryParameterOrLocalStorage(this)
     if (sq.length) {
@@ -115,7 +115,7 @@ export const searchQueryGetter = () => {
  */
 export const searchQuerySetter = ({ additionalQueryParams = {} } = {}) => {
   /**
-   * @this {import('vue/types/vue').Vue}
+   * @this {import('vue/types/vue').ComponentCustomProperties}
    * @param {SearchQuery} searchQuery
    */
   const set = function(searchQuery) {
@@ -140,13 +140,13 @@ export const mapSearchQuery = () => ({
  * @param {SetterMapOptions} options extra options for the mapping
  */
 export const mapFilters = ({ additionalQueryParams = {} } = {}) => {
-  /** @this {import('vue/types/vue').Vue} */
+  /** @this {import('vue/types/vue').ComponentCustomProperties} */
   const get = function() {
     return deserializeFilters(getSearchQueryFromQueryParameterOrLocalStorage(this))
   }
 
   /**
-   * @this {import('vue/types/vue').Vue}
+   * @this {import('vue/types/vue').ComponentCustomProperties}
    * @param {Filter[]} filters
    */
   const set = function(filters) {
@@ -164,7 +164,7 @@ export const mapFilters = ({ additionalQueryParams = {} } = {}) => {
 export const mapApplyCurrentSearchFilters = () => {
   return {
     /**
-     * @this {import('vue/types/vue').Vue}
+     * @this {import('vue/types/vue').ComponentCustomProperties}
      * @returns {boolean}
      */
     get() {
@@ -172,7 +172,7 @@ export const mapApplyCurrentSearchFilters = () => {
       return /** @type {boolean} */ (asq === 'true')
     },
     /**
-     * @this {import('vue/types/vue').Vue}
+     * @this {import('vue/types/vue').ComponentCustomProperties}
      * @param {boolean} value
      */
     set(value) {

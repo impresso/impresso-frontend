@@ -64,6 +64,7 @@ import Entity from '@/models/Entity';
 import List from '@/components/modules/lists/List.vue';
 import EntityItem from '@/components/modules/lists/EntityItem.vue';
 import { entities as entitiesService } from '@/services';
+import { Navigation } from '@/plugins/Navigation';
 
 const QueryParameters = Object.freeze({
   SelectedEntitiesIds: 'items',
@@ -90,6 +91,9 @@ export default {
     isLoading: false,
   }),
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     paginationList() {
       return {
         perPage: this.paginationPerPage,

@@ -5,6 +5,7 @@
 <script>
 import initViewer, { Rect } from 'openseadragon'
 import MarginaliaPanel from '@/components/modules/MarginaliaPanel.vue'
+import { createApp } from 'vue'
 
 /**
  * @typedef {import('openseadragon').Viewer} Viewer
@@ -83,9 +84,9 @@ function createRegionOverlay(tiledImage, region, clickHandler) {
 function createMarginaliaOverlay(isLeft) {
   // @ts-ignore
   const panelContainer = window.document.createElement('div')
-  const panel = new Vue(MarginaliaPanel)
-  panel.$mount(panelContainer, true)
-  panel.$set(panel, 'isLeft', !!isLeft)
+  const panel = createApp(MarginaliaPanel)
+  panel.mount(panelContainer, true)
+  panel['isLeft'] = !!isLeft
   return panel
 }
 
@@ -310,16 +311,8 @@ export default {
     },
     marginaliaSections: {
       handler() {
-        this.marginaliaPanelLeft.$set(
-          this.marginaliaPanelLeft,
-          'sections',
-          this.marginaliaSections.filter(({ isLeft }) => isLeft),
-        )
-        this.marginaliaPanelRight.$set(
-          this.marginaliaPanelRight,
-          'sections',
-          this.marginaliaSections.filter(({ isLeft }) => !isLeft),
-        )
+        this.marginaliaPanelLeft['sections'] = this.marginaliaSections.filter(({ isLeft }) => isLeft)
+        this.marginaliaPanelRight['sections'] = this.marginaliaSections.filter(({ isLeft }) => !isLeft)
       },
       immediate: true,
       deep: true,

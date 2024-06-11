@@ -139,14 +139,14 @@ export default {
      * @param {{ facetId: string, data: any }} param
      */
     onTimelineHighlight({ facetId, data }) {
-      this.$set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
+      this.timelineHighlights[facetId] = { enabled: true, data: data.datum };
     },
     /**
      * @param {{ facetId: string }} param
      */
     onTimelineHighlightOff({ facetId }) {
       this.timelineHighlights[facetId] = { enabled: false };
-      this.$set(this.timelineHighlights, facetId, { enabled: false });
+      this.timelineHighlights[facetId] = { enabled: false };
     },
     /**
      * @param {any} val

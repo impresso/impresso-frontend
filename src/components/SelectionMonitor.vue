@@ -1,6 +1,6 @@
 <template>
   <div
-    :style="{display: isActive ? 'block' : 'none'}"
+    v-if="isActive"
     class="SelectionMonitor rounded drop-shadow bg-light"
     :class="monitor.type"
     v-on:click.stop
@@ -235,9 +235,9 @@ export default defineComponent({
     monitorFilter() {
       return FilterFactory.create({
         type: this.monitor.type,
-        q: Array.isArray(this.monitor.item.q)
-          ? this.monitor.item.q.map(d => String(d))
-          : [this.monitor.item.id ?? this.monitor.item.uid],
+        q: Array.isArray(this.monitor.item?.q)
+          ? this.monitor.item?.q?.map(d => String(d))
+          : [this.monitor.item?.id ?? this.monitor.item?.uid],
       })
     },
     isMonitorFilterChanged() {
