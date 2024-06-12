@@ -64,7 +64,7 @@ export default {
     window.addEventListener('resize', this.renderChart.bind(this))
     this.renderChart()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // @ts-ignore
     window.removeEventListener('resize', this.renderChart.bind(this))
   },

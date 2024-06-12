@@ -80,7 +80,7 @@ export default {
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // @ts-ignore
     window.removeEventListener('resize', this.render.bind(this))
   },

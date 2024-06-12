@@ -247,7 +247,7 @@ export default {
       this.highlightNodes(this.itemsVisualized);
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.onResize);
   },
   methods: {

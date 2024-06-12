@@ -51,7 +51,7 @@ export default {
     const rect = this.$el.getBoundingClientRect()
     this.width = rect.width
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.observer.disconnect();
   },
   created() {

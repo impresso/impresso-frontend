@@ -221,7 +221,7 @@
 </template>
 
 <script>
-import { createApp } from 'vue'
+import mitt from 'mitt'
 import IssueViewerText from './modules/IssueViewerText.vue'
 import OpenSeadragonViewer from './modules/OpenSeadragonViewer.vue'
 
@@ -243,7 +243,7 @@ import Article from '@/models/Article';
 export default {
   data: () => ({
     tab: 'toc',
-    handler: createApp(),
+    handler: mitt(),
     bounds: {},
     // issue: null,
     page: null,
@@ -276,7 +276,7 @@ export default {
     window.addEventListener('fullscreenchange', this.fullscreenChange)
     window.addEventListener('keydown', this.keyDown)
   },
-  destroyed() {
+  unmounted() {
     window.removeEventListener('fullscreenchange', this.fullscreenChange)
     window.removeEventListener('keydown', this.keyDown)
   },
@@ -416,7 +416,7 @@ export default {
         // we reset the handler here. Why?
         await this.resetHandler()
         // we dispatch the gotoPage to change page in openseadragon
-        this.handler.$emit('dispatch', viewer => {
+        this.handler.emit('dispatch', viewer => {
           viewer.goToPage(this.currentPageIndex)
         })
         // force reload fo marginalia, page changed.
@@ -538,8 +538,8 @@ export default {
     resetHandler() {
       const self = this
       self.isLoaded = false
-      this.handler.$emit('destroy')
-      this.handler.$emit('init', {
+      this.handler.emit('destroy')
+      this.handler.emit('init', {
         sequenceMode: true,
         showSequenceControl: false,
         initialPage: 0,
@@ -552,7 +552,7 @@ export default {
         },
         visibilityRatio: 0.5,
       })
-      this.handler.$emit('dispatch', viewer => {
+      this.handler.emit('dispatch', viewer => {
         viewer.addHandler('animation', () => {
           this.bounds = viewer.viewport.getBoundsNoRotate()
         })
@@ -672,7 +672,7 @@ export default {
                   h: match.coords[3],
                   class: 'overlay-match',
                 }
-                this.handler.$emit('add-overlay', overlay)
+                this.handler.emit('add-overlay', overlay)
               }
             })
           })
@@ -772,7 +772,7 @@ export default {
     },
     selectArticle() {
       const self = this
-      this.handler.$emit('dispatch', viewer => {
+      this.handler.emit('dispatch', viewer => {
         viewer.overlaysContainer.querySelectorAll('div').forEach(overlay => {
           if (self.article && overlay.dataset.articleUid === self.article.uid) {
             overlay.classList.add('active')

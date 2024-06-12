@@ -16,6 +16,7 @@ export const newI18n = () => {
     sharedMessages: messages,
     // fallbackWarn: false,
     // fallbackRoot: true,
+    escapeMessage: false,
     escapeParameterHtml: false,
     warnHtmlInMessage: 'off', // better remove HTML and disable this
     silentFallbackWarn: true,

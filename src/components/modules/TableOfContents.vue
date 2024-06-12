@@ -222,7 +222,7 @@ export default {
       Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearTimeout(this.retryTimer);
   },
 };

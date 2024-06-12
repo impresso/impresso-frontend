@@ -22,8 +22,8 @@
  * @deprecated Use pure Bootstrap CSS instead
  */
 
-import { useAttrs, getCurrentInstance } from 'vue'
-import {} from 'vue-router'
+import { useAttrs } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   to: {
@@ -41,7 +41,7 @@ const props = defineProps({
 })
 const attrs = useAttrs()
 
-const router = getCurrentInstance()?.proxy.$router
+const router = useRouter()
 
 const allowedAttrs = ['onClick', 'title', 'id', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))

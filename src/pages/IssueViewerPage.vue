@@ -361,9 +361,9 @@ export default {
     window.addEventListener('fullscreenchange', this.fullscreenChange)
     window.addEventListener('keydown', this.keyDown)
   },
-  destroyed() {
+  unmounted() {
     // eslint-disable-next-line
-    console.debug('[IssueViewerPage] destroyed()')
+    console.debug('[IssueViewerPage] unmounted()')
     window.removeEventListener('fullscreenchange', this.fullscreenChange)
     window.removeEventListener('keydown', this.keyDown)
   },

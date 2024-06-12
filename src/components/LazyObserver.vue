@@ -38,7 +38,7 @@ export default defineComponent({
     }, this.delay)
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     clearTimeout(this.timeoutId)
   },
 })

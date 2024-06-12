@@ -25,20 +25,20 @@ export default {
   },
   mounted() {
     if (this.handler) {
-      this.handler.$on('init', (options = {}) => {
+      this.handler.on('init', (options = {}) => {
         this.filepond = FilePond.create(
           this.$el,
           options,
         );
       });
 
-      this.handler.$on('dispatch', (cb) => {
+      this.handler.on('dispatch', (cb) => {
         if (cb && this.filepond) {
           cb.call(null, this.filepond);
         }
       });
 
-      this.handler.$on('destroy', () => {
+      this.handler.on('destroy', () => {
         this.destroy();
       });
     }
@@ -52,7 +52,7 @@ export default {
       }
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.destroy();
   },
 };

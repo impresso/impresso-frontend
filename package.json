@@ -44,6 +44,7 @@
     "impresso-theme": "github:impresso/impresso-theme",
     "markdown-it": "12.3.2",
     "markdown-it-decorate": "1.2.2",
+    "mitt": "^3.0.1",
     "openseadragon": "^4.1.0",
     "pinia": "2.1.7",
     "pinia-plugin-persistedstate": "3.2.1",

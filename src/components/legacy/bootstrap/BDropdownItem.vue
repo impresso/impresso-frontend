@@ -12,7 +12,7 @@
  */
 
 import { computed, useAttrs, getCurrentInstance } from 'vue'
-import {  } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 interface WithHide {
   hide: (force?: boolean) => void
@@ -33,8 +33,10 @@ const props = defineProps({
 })
 const attrs = useAttrs()
 
-const router = getCurrentInstance()?.proxy.$router
-const route = getCurrentInstance()?.proxy.$route
+const router = useRouter()
+const route = router.currentRoute
+
+// NOTE: There seems to be no easy way to get $parent in Vue 3
 const parent = getCurrentInstance()?.proxy?.$parent
 
 const onClick = () => {
@@ -61,7 +63,7 @@ const href = computed(() => {
 
 const linkClasses = computed(() => ({
   'dropdown-item': true,
-  [String(props.activeClass)]: props.active || href.value === route?.fullPath,
+  [String(props.activeClass)]: props.active || href.value === route.value?.fullPath,
   'disabled': props.disabled
 }))
 </script>

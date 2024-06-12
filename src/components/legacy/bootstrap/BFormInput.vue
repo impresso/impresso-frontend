@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useAttrs, onMounted, nextTick, ref, getCurrentInstance } from 'vue'
+import { computed, useAttrs, onMounted, nextTick, ref } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -28,7 +28,6 @@ const emit = defineEmits(['update:modelValue'])
 const attrs = useAttrs()
 
 const inputRef = ref<HTMLElement | null>(null)
-const inst = getCurrentInstance()
 
 const allowedAttrs = ['onClick', 'placeholder', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))

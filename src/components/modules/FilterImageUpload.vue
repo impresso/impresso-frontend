@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { createApp } from 'vue';
+import mitt from 'mitt'
 import FilePond from '@/components/modules/FilePond.vue';
 import { uploadedImages } from '@/services';
 
@@ -36,7 +36,7 @@ console.info('Current host:', MiddleLayerApiBase, 'filepond path:', FILEPOND_SER
 
 export default {
   data: () => ({
-    handler: createApp(),
+    handler: mitt(),
     options: {
       server: {
         url: MiddleLayerApiBase,
@@ -51,8 +51,8 @@ export default {
   }),
   methods: {
     init() {
-      this.handler.$emit('init', (this.options));
-      this.handler.$emit('dispatch', (pond) => {
+      this.handler.emit('init', (this.options));
+      this.handler.emit('dispatch', (pond) => {
         pond.onprocessfile = (error, file) => {
           console.info('File processed', file.filename, file.fileType, file.serverId);
           this.loadImage(file.serverId);
@@ -62,7 +62,7 @@ export default {
     remove() {
       this.image = false;
       this.$emit('remove');
-      this.handler.$emit('destroy');
+      this.handler.emit('destroy');
       this.init();
     },
     loadImage(val) {
@@ -71,7 +71,7 @@ export default {
         uploadedImages.get(val).then((res) => {
           this.$emit('load');
           this.image = res;
-          this.handler.$emit('destroy');
+          this.handler.emit('destroy');
         });
       } else {
         console.error('loadImage failed, no image id has been provided');

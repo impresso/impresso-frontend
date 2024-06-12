@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="newspaper-item d-flex align-items-center" :class="{ active }">
     <div class="flex-grow-1">
       <router-link v-if="showLink"
@@ -59,11 +59,11 @@ export default {
           from = this.$d(new Date(this.item.firstIssue.date), 'short');
           to = this.$d(new Date(this.item.lastIssue.date), 'short');
         }
-        return this.$t('availability', { from, to });
+        return this.$t('availability', { from: asDateTag(from), to: asDateTag(to) });
       } else if(this.item.startYear) {
         return this.$t('availability', {
-          from: this.item.startYear,
-          to: this.item.endYear
+          from: asDateTag(this.item.startYear),
+          to: asDateTag(this.item.endYear)
         })
       }
       return '';
@@ -86,6 +86,8 @@ export default {
     },
   },
 };
+
+const asDateTag = d => `<span class='date'>${d}</span>`
 </script>
 
 <style lang="scss">
@@ -108,7 +110,7 @@ export default {
   {
     "en": {
       "unavailable": "(coming soon)",
-      "availability": "from <span class='date'>{from}</span> to <span class='date'>{to}</span>"
+      "availability": "from {from} to {to}"
     }
   }
 </i18n>
