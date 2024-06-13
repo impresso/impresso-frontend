@@ -85,7 +85,7 @@
 
           <!-- button url  -->
           <div class="text-center m-2" v-if="detailsUrl">
-            <router-link class="btn btn-primary btn-sm" :to="detailsUrl" @click.native="handleMoreClicked">
+            <router-link class="btn btn-primary btn-sm" :to="detailsUrl" @click="handleMoreClicked">
               {{ $t('actions.more') }}
             </router-link>
           </div>

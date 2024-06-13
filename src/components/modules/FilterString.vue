@@ -5,8 +5,8 @@
         <b-input
           type="text"
           v-model="filter.query"
-          v-on:input.native="updateFilter"
-          v-on:keyup.enter.native="submitFilter"
+          v-on:input="updateFilter"
+          v-on:keyup.enter="submitFilter"
           v-bind:disabled="disabled"
           size="sm"
         />

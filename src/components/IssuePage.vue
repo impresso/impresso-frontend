@@ -57,7 +57,7 @@
               <b-form-input
                 placeholder="search for ..."
                 v-model.trim="q"
-                v-on:change.native="search"
+                v-on:change="search"
               />
             </div>
           </div>

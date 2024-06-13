@@ -1,11 +1,11 @@
 <template>
   <div class="row">
     <div class="col-6">
-      <b-form-input v-model="startDate" @input.native="validateStart" :aria-invalid="!startIsValid" :state="startIsValid ? null : false"></b-form-input>
+      <b-form-input v-model="startDate" @input="validateStart" :aria-invalid="!startIsValid" :state="startIsValid ? null : false"></b-form-input>
       <label>{{ $d(start, 'longUtc') }} </label>
     </div>
     <div class="col-6">
-      <b-form-input v-model="endDate"  @input.native="validateEnd" :aria-invalid="!endIsValid"  :state="endIsValid ? null : false"></b-form-input>
+      <b-form-input v-model="endDate"  @input="validateEnd" :aria-invalid="!endIsValid"  :state="endIsValid ? null : false"></b-form-input>
       <label>{{ $d(end, 'longUtc') }}</label>
     </div>
   </div>

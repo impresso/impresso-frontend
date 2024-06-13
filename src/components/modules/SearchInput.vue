@@ -5,8 +5,8 @@
     :placeholder="placeholder"
     v-model.trim="q"
     @keyup.enter="submit"
-    @input.native="change"
-    @keyup.native="change" />
+    @input="change"
+    @keyup="change" />
     <div class="input-group-append">
       <button type="button" class="btn btn-outline-primary px-2" @click="submit">
         <div class="search-submit dripicons-search"></div>

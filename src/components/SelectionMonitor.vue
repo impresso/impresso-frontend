@@ -145,7 +145,7 @@
           <router-link
             class="btn btn-secondary px-5 btn-sm d-block"
             :to="detailsUrl"
-            @click.native="hide"
+            @click="hide"
           >
             {{ $t('actions.detail') }}
           </router-link>
