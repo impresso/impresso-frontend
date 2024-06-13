@@ -1,23 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import User from '../User.vue'
+import UserRegister from '../UserRegister.vue'
 
-const meta: Meta<typeof User> = {
-  title: 'Pages/User',
-  component: User,
+const meta: Meta<typeof UserRegister> = {
+  title: 'Pages/UserRegister',
+  component: UserRegister,
   tags: ['autodocs'],
   argTypes: {},
   args: {},
   render: (args) => {
     return {
-      components: { User },
+      components: { UserRegister },
       setup() {
         return { args }
       },
-      template: '<User />'
+      template: '<UserRegister />'
     }
   },
   decorators: [],
-} satisfies Meta<typeof User>
+} satisfies Meta<typeof UserRegister>
 
 export default meta
 type Story = StoryObj<typeof meta>

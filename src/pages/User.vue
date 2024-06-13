@@ -171,18 +171,18 @@
 </template>
 
 <script lang="ts">
+import Modal from '@/components/base/Modal.vue';
 import { PasswordRegex } from '@/logic/user';
 import { User } from '@/models/user';
-import Modal from '@/components/base/Modal.vue';
-import { mapStores } from 'pinia'
-import { useUserStore } from '@/stores/user'
-import { defineComponent } from 'vue';
+import { useUserStore } from '@/stores/user';
 import useVuelidate from '@vuelidate/core';
-import { required, email, minLength, sameAs, helpers } from '@vuelidate/validators';
+import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators';
+import { mapStores } from 'pinia';
+import { defineComponent } from 'vue';
 
 const complexPassword = helpers.withMessage(
   'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
-  (value: string) => PasswordRegex.exec(value)
+  (value: string) => PasswordRegex.exec(value) !=  null
 )
 
 export default defineComponent({
@@ -294,7 +294,7 @@ export default defineComponent({
         }
         return '';
       },
-      set(v) {
+      set(v: string) {
         this.user.setPattern(v);
       }
     },
