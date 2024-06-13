@@ -80,8 +80,8 @@
 </template>
 
 <script>
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
-import Timeline from '@/components/modules/Timeline'
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
+import Timeline from '@/components/modules/Timeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import Bucket from '@/models/Bucket'
 import { search } from '@/services'

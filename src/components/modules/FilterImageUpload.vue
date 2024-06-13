@@ -5,7 +5,7 @@
         <div style="width:128px;">
           <img
             fluid-grow
-            src="`data:image/png;base64,${image.thumbnail}`" />
+            :src="`data:image/png;base64,${image.thumbnail}`" />
         </div>
       </div>
       <div class="media-body">

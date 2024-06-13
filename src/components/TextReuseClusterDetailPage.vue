@@ -52,8 +52,8 @@
 </template>
 
 <script>
-import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
-import PassageDetailsPanel from '@/components/modules/textReuse/PassageDetailsPanel'
+import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader.vue'
+import PassageDetailsPanel from '@/components/modules/textReuse/PassageDetailsPanel.vue'
 import Pagination from '@/components/modules/Pagination.vue';
 
 import { textReuseClusterPassages } from '@/services'

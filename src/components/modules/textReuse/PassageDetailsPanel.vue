@@ -39,9 +39,9 @@
 
 
 <script>
-import ItemSelector from '../ItemSelector';
+import ItemSelector from '../ItemSelector.vue';
 import { getShortArticleId } from '@/logic/ids'
-import LazyOpenSeadragonArticlePageViewer from '../vis/LazyOpenSeadragonArticlePageViewer'
+import LazyOpenSeadragonArticlePageViewer from '../vis/LazyOpenSeadragonArticlePageViewer.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
 

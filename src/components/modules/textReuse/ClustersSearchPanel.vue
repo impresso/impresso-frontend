@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import SearchInput from '@/components/modules/SearchInput'
+import SearchInput from '@/components/modules/SearchInput.vue'
 import SearchPills from '@/components/SearchPills.vue'
 
 const SortingMethod = {

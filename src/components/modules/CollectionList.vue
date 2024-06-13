@@ -101,7 +101,7 @@
 
 <script>
 import { mapStores } from 'pinia'
-import Pagination from './Pagination';
+import Pagination from './Pagination.vue';
 import { useCollectionsStore } from '@/stores/collections'
 
 export default {

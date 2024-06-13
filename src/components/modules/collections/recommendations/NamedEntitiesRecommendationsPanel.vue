@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import ItemLabel from '@/components/modules/lists/ItemLabel'
+import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import ItemSelector from '@/components/modules/ItemSelector.vue'
 import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'

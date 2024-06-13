@@ -108,17 +108,17 @@
 </template>
 
 <script>
-import TimeRangeSettings from './recommenders/TimeRangeRecommenderSettingsPanel'
-import NamedEntitiesSettings from './recommenders/NamedEntitiesRecommenderSettingsPanel'
-import TopicsSettings from './recommenders/TopicsRecommenderSettingsPanel'
-import TextReuseClustersSettings from './recommenders/TextReuseClustersRecommenderSettingsPanel'
+import TimeRangeSettings from './recommenders/TimeRangeRecommenderSettingsPanel.vue'
+import NamedEntitiesSettings from './recommenders/NamedEntitiesRecommenderSettingsPanel.vue'
+import TopicsSettings from './recommenders/TopicsRecommenderSettingsPanel.vue'
+import TextReuseClustersSettings from './recommenders/TextReuseClustersRecommenderSettingsPanel.vue'
 
-import TimeRangeResults from './recommendations/TimeRangeRecommendationsPanel'
-import NamedEntitiesResults from './recommendations/NamedEntitiesRecommendationsPanel'
-import TopicsResults from './recommendations/TopicsRecommendationsPanel'
-import TextReuseClustersResults from './recommendations/TextReuseClustersRecommendationsPanel'
+import TimeRangeResults from './recommendations/TimeRangeRecommendationsPanel.vue'
+import NamedEntitiesResults from './recommendations/NamedEntitiesRecommendationsPanel.vue'
+import TopicsResults from './recommendations/TopicsRecommendationsPanel.vue'
+import TextReuseClustersResults from './recommendations/TextReuseClustersRecommendationsPanel.vue'
 
-import Spinner from '@/components/layout/Spinner'
+import Spinner from '@/components/layout/Spinner.vue'
 
 /**
  * @typedef {{ enabled: boolean, type: string, weight?: number, parameters: any }} RecommenderSettings

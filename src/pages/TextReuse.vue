@@ -5,7 +5,7 @@
       <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item :to="{ name: 'textReuse' }" class="active" active-class="none">
+            <b-nav-item :to="{ name: 'textReuseOverview' }" class="active" active-class="none">
               <span
                 v-html="
                   $tc('searchTextReuseLabel', 10000, {
@@ -114,17 +114,17 @@
 </template>
 <script>
 import SearchPills from '@/components/SearchPills.vue'
-import SearchInput from '@/components/modules/SearchInput'
+import SearchInput from '@/components/modules/SearchInput.vue'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
-import FilterFacet from '@/components/modules/FilterFacet'
-import FilterRange from '@/components/modules/FilterRange'
-import FilterDynamicRange from '@/components/modules/FilterDynamicRange'
+import FilterFacet from '@/components/modules/FilterFacet.vue'
+import FilterRange from '@/components/modules/FilterRange.vue'
+import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import Facet from '@/models/Facet'
 import { getSearchFacetsService } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import { facetToTimelineValues } from '@/logic/facets'
-import FilterTimeline from '@/components/modules/FilterTimeline'
+import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { mapStores } from 'pinia'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'

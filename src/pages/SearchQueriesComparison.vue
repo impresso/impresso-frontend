@@ -92,9 +92,9 @@ import {
   filtersItems as filtersItemsService
 } from '@/services'
 import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel.vue';
-import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel'
-import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel'
-import Spinner from '@/components/layout/Spinner'
+import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel.vue'
+import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel.vue'
+import Spinner from '@/components/layout/Spinner.vue'
 import Bucket from '@/models/Bucket';
 import {
   optimizeFilters,
@@ -760,7 +760,7 @@ export default {
       }
     },
     /** @param {number} value */
-    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) },
+    roundValueForDisplay(value) { return this.$n(value ?? 0, { notation: 'short' }) },
     /**
      * @param {{ comparableIndex: number, comparable: Comparable }} param
      */

@@ -20,6 +20,7 @@ import IssueViewerPage from '@/pages/IssueViewerPage.vue'
 import { getShortArticleId } from '@/logic/ids'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
+import { defineAsyncComponent } from 'vue'
 
 const BASE_URL = import.meta.env.BASE_URL || '/'
 // eslint-disable-next-line
@@ -63,7 +64,7 @@ const router = createRouter({
     {
       path: '/search/ngrams',
       name: 'searchNgrams',
-      component: () => import(/* webpackChunkName: "searchNgrams" */ '@/pages/SearchNgrams.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/SearchNgrams.vue')),
       meta: {
         requiresAuth: false,
       },
@@ -87,7 +88,7 @@ const router = createRouter({
     {
       path: '/search',
       name: 'search',
-      component: () => import(/* webpackChunkName: "search" */ '@/pages/Search.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/Search.vue')),
       meta: {
         requiresAuth: false,
       },
@@ -95,7 +96,7 @@ const router = createRouter({
     {
       path: '/search/images',
       name: 'searchImages',
-      component: () => import(/* webpackChunkName: "searchImages" */ '@/pages/SearchImages.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/SearchImages.vue')),
       meta: {
         requiresAuth: false,
       },
@@ -130,7 +131,7 @@ const router = createRouter({
     {
       path: '/user',
       name: 'user',
-      component: () => import(/* webpackChunkName: "user" */ '@/pages/User.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/User.vue')),
       meta: {
         realm: 'user',
         requiresAuth: true,
@@ -139,7 +140,7 @@ const router = createRouter({
     {
       path: '/user/register',
       name: 'register',
-      component: () => import(/* webpackChunkName: "userRegister" */ '@/pages/UserRegister.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/UserRegister.vue')),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -148,8 +149,7 @@ const router = createRouter({
     {
       path: '/password-reset',
       name: 'passwordReset',
-      component: () =>
-        import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordReset.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/PasswordReset.vue')),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -158,8 +158,7 @@ const router = createRouter({
     {
       path: '/password-reset/:token',
       name: 'PasswordChange',
-      component: () =>
-        import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordChange.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/PasswordChange.vue')),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -168,8 +167,7 @@ const router = createRouter({
     {
       path: '/password-reset-sent',
       name: 'passwordResetSent',
-      component: () =>
-        import(/* webpackChunkName: "userPasswordReset" */ '@/pages/PasswordResetSent.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/PasswordResetSent.vue')),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -177,12 +175,11 @@ const router = createRouter({
     },
     {
       path: '/collections',
-      component: () => import(/* webpackChunkName: "collections" */ '@/pages/Collections.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/Collections.vue')),
       children: [
         {
           path: '',
-          component: () =>
-            import(/* webpackChunkName: "collections" */ '@/components/CollectionDetailPage.vue'),
+          component: () => defineAsyncComponent(() => import('@/components/CollectionDetailPage.vue')),
           name: 'collections',
           meta: {
             requiresAuth: true,
@@ -191,8 +188,7 @@ const router = createRouter({
         },
         {
           path: ':collection_uid',
-          component: () =>
-            import(/* webpackChunkName: "collections" */ '@/components/CollectionDetailPage.vue'),
+          component: () => defineAsyncComponent(() => import('@/components/CollectionDetailPage.vue')),
           name: 'collection',
           meta: {
             requiresAuth: true,
@@ -247,7 +243,7 @@ const router = createRouter({
     },
     {
       path: '/newspapers',
-      component: () => import(/* webpackChunkName: "newspapers" */ '@/pages/Newspapers.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/Newspapers.vue')),
       children: [
         {
           path: '',
@@ -280,7 +276,7 @@ const router = createRouter({
     },
     {
       path: '/entities',
-      component: () => import(/* webpackChunkName: "entities" */ '@/pages/Entities.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/Entities.vue')),
       children: [
         {
           path: '',
@@ -351,10 +347,7 @@ const router = createRouter({
     },
     {
       path: '/compare',
-      component: () =>
-        import(
-          /* webpackChunkName: "search-queries-comparison" */ '@/pages/SearchQueriesComparison.vue'
-        ),
+      component: () => defineAsyncComponent(() => import('@/pages/SearchQueriesComparison.vue')),
       name: 'compare',
       meta: {
         requiresAuth: false,
@@ -362,7 +355,7 @@ const router = createRouter({
     },
     {
       path: '/text-reuse',
-      component: () => import(/* webpackChunkName: "tr" */ '@/pages/TextReuse.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/TextReuse.vue')),
       meta: {
         requiresAuth: false,
         realm: 'textReuse',
@@ -370,10 +363,7 @@ const router = createRouter({
       children: [
         {
           path: '',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '@/components/TextReuseExplorerPage.vue'
-            ),
+          component: () => defineAsyncComponent(() => import('@/components/TextReuseExplorerPage.vue')),
           name: 'textReuseOverview',
           meta: {
             requiresAuth: false,
@@ -382,10 +372,7 @@ const router = createRouter({
         },
         {
           path: 'statistics',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '@/components/TextReuseExplorerPage.vue'
-            ),
+          component: () => defineAsyncComponent(() => import('@/components/TextReuseExplorerPage.vue')),
           name: 'textReuseStatistics',
           meta: {
             requiresAuth: false,
@@ -394,10 +381,7 @@ const router = createRouter({
         },
         {
           path: 'clusters',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '@/components/TextReuseExplorerPage.vue'
-            ),
+          component: () => defineAsyncComponent(() => import('@/components/TextReuseExplorerPage.vue')),
           name: 'textReuseClusters',
           meta: {
             requiresAuth: false,
@@ -406,10 +390,7 @@ const router = createRouter({
         },
         {
           path: 'passages',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '@/components/TextReuseExplorerPage.vue'
-            ),
+          component: () => defineAsyncComponent(() => import('@/components/TextReuseExplorerPage.vue')),
           name: 'textReusePassages',
           meta: {
             requiresAuth: false,
@@ -420,8 +401,7 @@ const router = createRouter({
     },
     {
       path: '/text-reuse-clusters',
-      component: () =>
-        import(/* webpackChunkName: "tr-clusters" */ '@/pages/TextReuseClusters.vue'),
+      component: () => defineAsyncComponent(() => import('@/pages/TextReuseClusters.vue')),
       name: 'text-reuse-clusters',
       meta: {
         requiresAuth: false,
@@ -429,10 +409,7 @@ const router = createRouter({
       children: [
         {
           path: '',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '@/components/TextReuseClusterDetailPage.vue'
-            ),
+          component: () => defineAsyncComponent(() => import('@/components/TextReuseClusterDetailPage.vue')),
           name: 'text-reuse-cluster-passages',
           meta: {
             requiresAuth: false,
@@ -440,10 +417,7 @@ const router = createRouter({
         },
         {
           path: 'card',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details-id-card" */ '@/components/TextReuseClusterIdCardPage.vue'
-            ),
+          component: () => defineAsyncComponent(() => import('@/components/TextReuseClusterIdCardPage.vue')),
           name: 'text-reuse-cluster-detail',
           meta: {
             requiresAuth: false,
@@ -451,10 +425,7 @@ const router = createRouter({
         },
         {
           path: 'connected-clusters',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-connected" */ '@/components/TextReuseConnectedClusters.vue'
-            ),
+          component: () => defineAsyncComponent(() => import('@/components/TextReuseConnectedClusters.vue')),
           name: 'text-reuse-connected-clusters',
           meta: {
             requiresAuth: false,

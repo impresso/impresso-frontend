@@ -35,10 +35,10 @@
 import { mapStores } from 'pinia'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
-import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
+import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel.vue'
 
-import TextReusePassageItemLabel from './TextReusePassageItemLabel'
-import Ellipsis from '../Ellipsis'
+import TextReusePassageItemLabel from './TextReusePassageItemLabel.vue'
+import Ellipsis from '../Ellipsis.vue'
 
 export default {
   name: 'ClusterItem',

@@ -14,8 +14,6 @@ export const newI18n = () => {
     datetimeFormats,
     numberFormats,
     sharedMessages: messages,
-    // fallbackWarn: false,
-    // fallbackRoot: true,
     escapeMessage: false,
     escapeParameterHtml: false,
     warnHtmlInMessage: 'off', // better remove HTML and disable this

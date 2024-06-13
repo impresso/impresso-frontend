@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineAsyncComponent, defineComponent } from 'vue'
 import { optimizeFilters } from '@/logic/filters'
 import { entities as entitiesService, textReusePassages } from '@/services'
 import WikidataBlock from './modules/WikidataBlock.vue'
@@ -175,7 +175,7 @@ export default defineComponent({
     WikidataBlock,
     Spinner,
     TextReusePassageItem,
-    ListOfItems: () => import('./ListOfItems.vue'),
+    ListOfItems: () => defineAsyncComponent(() => import('./ListOfItems.vue')),
   },
 })
 </script>

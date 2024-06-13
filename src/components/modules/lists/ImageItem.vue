@@ -21,11 +21,11 @@
     <div v-if="showMeta">
       <p v-if="hasTitle" class="item-title p-2 m-0">{{ item.title }}</p>
       <div class="p-2 articles-meta">
-        <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
-          {{ item.newspaper.name}}
+        <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item?.newspaper?.uid ?? 'na' }}" class="article-newspaper">
+          {{ item?.newspaper?.name}}
         </router-link>
-        <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
-        <span class="date">{{ $d(item.date, "long") }}</span>
+        <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper"/> &nbsp;
+        <span class="date">{{ $d(item?.date ?? 0, "long") }}</span>
         <span> – {{ pages }}</span>
       </div>
     </div>
@@ -61,8 +61,8 @@ export default {
       };
     },
     pages() {
-      return this.$tc('pp', this.item.nbPages, {
-        pages: this.item.pages.map(d => d.num).join(','),
+      return this.$tc('pp', this.item?.nbPages ?? 0, {
+        pages: this.item?.pages?.map(d => d.num).join(',') ?? '',
       });
     },
     hasTitle() {

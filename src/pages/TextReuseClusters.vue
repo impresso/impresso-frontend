@@ -51,8 +51,8 @@
 
 <script>
 import { protobuf } from 'impresso-jscommons';
-import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel'
-import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
+import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel.vue'
+import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel.vue'
 
 import List from '@/components/modules/lists/List.vue';
 import { textReuseClusters, filtersItems } from '@/services';

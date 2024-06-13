@@ -13,7 +13,7 @@
 
 <script>
 import DivergingBarsChart from '@/d3-modules/DivergingBarsChart'
-import Tooltip from '../tooltips/Tooltip'
+import Tooltip from '../tooltips/Tooltip.vue'
 
 /**
  * @typedef {{ left: number, right, number, intersection: number, label: string }} Item

@@ -28,7 +28,7 @@
             <section class="search-results-summary text-serif textbox-fancy border-tertiary">
               <label>ngrams viewer</label>
               <ellipsis v-bind:initialHeight="60">
-                <span v-html="unigramsSummary" />
+                <span v-html="unigramsSummary"></span>
                 &nbsp;
                 <span
                   v-html="
@@ -153,8 +153,8 @@ import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
 
 import FacetModel from '@/models/Facet'
-import SearchSidebar from '@/components/modules/SearchSidebar'
-import BaseTitleBar from '@/components/base/BaseTitleBar'
+import SearchSidebar from '@/components/modules/SearchSidebar.vue'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
 import MultiLinePlot from '@/components/modules/vis/MultiLinePlot.vue'
 import Ellipsis from '@/components/modules/Ellipsis.vue'

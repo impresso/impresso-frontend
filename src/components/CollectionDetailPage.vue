@@ -188,8 +188,8 @@
             :values="timevalues">
         <template v-slot="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b>
+            {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
           </div>
         </template>
       </timeline>
@@ -251,7 +251,7 @@ import Timeline from '@/components/modules/Timeline.vue';
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
-import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
+import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel.vue'
 import InfoButton from '@/components/base/InfoButton.vue';
 import { getQueryParameter } from '../router/util';
 import { exporter as exporterService,
@@ -261,7 +261,6 @@ import { exporter as exporterService,
 } from '@/services';
 import RadioGroup from '@/components/layout/RadioGroup.vue';
 import Modal from '@/components/base/Modal.vue'
-import { hide } from '@floating-ui/vue';
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
 import { Navigation } from '@/plugins/Navigation';

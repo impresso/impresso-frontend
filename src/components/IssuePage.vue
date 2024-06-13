@@ -239,6 +239,7 @@ import { useIssueStore } from '@/stores/issue'
 import { useUserStore } from '@/stores/user'
 import { search as searchService } from '@/services'
 import Article from '@/models/Article';
+import { renderMetaTags } from '@/plugins/MetaTags'
 
 export default {
   data: () => ({
@@ -500,7 +501,7 @@ export default {
         }
       }
 
-      this.$renderMetaTags({
+      renderMetaTags({
         title: titleParts.join(' · '),
         ...tags,
         updateZotero: true,

@@ -21,8 +21,8 @@
             :brushable="false">
             <template v-slot="tooltipScope">
               <div v-if="tooltipScope.tooltip.item">
-                {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                <b>{{ tooltipScope.tooltip.item.w }}</b>
+                {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
+                <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
               </div>
             </template>
           </timeline>
@@ -46,9 +46,9 @@
 </template>
 
 <script>
-import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
-import Timeline from '@/components/modules/Timeline'
+import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader.vue'
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
+import Timeline from '@/components/modules/Timeline.vue'
 import BaseTitleBar from '@/components/base/BaseTitleBar.vue';
 import Helpers from '@/plugins/Helpers';
 

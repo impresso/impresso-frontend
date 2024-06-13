@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import InfoButton from './InfoButton'
+import InfoButton from './InfoButton.vue'
 
 export default {
   props: {

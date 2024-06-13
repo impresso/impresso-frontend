@@ -49,11 +49,11 @@
   </div>
 </template>
 <script>
-import BaseTitleBar from '@/components/base/BaseTitleBar'
-import HistogramSlider from '@/components/modules/vis/HistogramSlider'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue'
 import { serializeFilters } from '@/logic/filters'
 import { stats as statsService, getSearchFacetsService } from '@/services'
-import Tooltip from './tooltips/Tooltip'
+import Tooltip from './tooltips/Tooltip.vue'
 import FilterFactory from '@/models/FilterFactory'
 import InfoButton from '@/components/base/InfoButton.vue'
 

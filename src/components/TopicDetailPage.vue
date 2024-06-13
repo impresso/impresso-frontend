@@ -15,7 +15,7 @@
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
             :class="{ active: tabItem.name === tab.name }"
             active-class='none'
-            :to="{ name: 'topic', params: { topic_uid: topic.uid }, query: { tab: tabItem.name }}">
+            :to="{ name: 'topic', params: { topic_uid: ['', null, undefined].includes(topic?.uid) ? 'na' : topic?.uid }, query: { tab: tabItem.name }}">
             <span v-html="tabItem.label"/>
           </b-nav-item>
         </template>
@@ -100,9 +100,9 @@
             :contrast="false"
             :values="timevalues">
         <template v-slot="tooltipScope">
-          <div v-if="tooltipScope.tooltip.item?.t">
-            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b>
+          <div v-if="tooltipScope.tooltip.item">
+            {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
           </div>
         </template>
       </timeline>

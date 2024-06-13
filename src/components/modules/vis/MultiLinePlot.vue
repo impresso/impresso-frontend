@@ -13,7 +13,7 @@
 
 <script>
 import TimeMultiLineChart from '@/d3-modules/TimeMultiLineChart'
-import Tooltip from '../tooltips/Tooltip'
+import Tooltip from '../tooltips/Tooltip.vue'
 
 /**
  * @typedef {{ value: number, time: Date }} Item
