@@ -6,6 +6,10 @@ import { newI18n } from '../src/plugins/i18n'
 import pinia from '../src/plugins/pinia'
 import { handlers as mswHandlers } from './mswHandlers'
 
+import 'dripicons/webfont/webfont.css'
+import 'impresso-theme/dist/css/bootpresso.css'
+import '../src/assets/legacy/bootstrap-vue.css'
+
 /*
  * Initializes MSW
  * See https://github.com/mswjs/msw-storybook-addon#configuring-msw

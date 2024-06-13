@@ -27,7 +27,7 @@ export default ({ mode }: { mode: string }) => {
       VueI18nPlugin({
         compositionOnly: false,
         strictMessage: false,
-        escapeHtml: true,
+        escapeHtml: false,
       })
     ],
     css: {

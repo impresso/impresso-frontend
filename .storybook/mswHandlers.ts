@@ -28,8 +28,22 @@ const getEntity = http.get('/api/entities/*', () => {
   return HttpResponse.json({})
 })
 
+const getMe = http.get('/api/me', () => {
+  return HttpResponse.json({
+    firstname: 'John',
+    lastname: 'Doe',
+    email: 'john.doe@example.com',
+    uid: '123',
+    username: 'johndoe',
+    isActive: true,
+    isStaff: false,
+    emailAccepted: false,
+  })
+})
+
 
 export const handlers = {
   getYearFacetHandler,
   getEntity,
+  getMe,
 }
