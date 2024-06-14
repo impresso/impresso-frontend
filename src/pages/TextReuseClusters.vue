@@ -184,7 +184,9 @@ export default {
       try {
         [this.clusterItems, this.searchInfo] = await textReuseClusters
           .find({ query })
-          .then(result => [result.clusters, result.info])
+          .then(result => {
+            return [result.clusters, result.info]
+          })
         if (this.selectedClusterId == null && this.clusterItems.length > 0) {
           this.selectedClusterId = this.clusterItems[0].cluster.id
         }

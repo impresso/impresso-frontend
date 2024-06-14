@@ -39,9 +39,9 @@
               :brushable="false">
           <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
-              {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
-              <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w, {
-                n: $n(tooltipScope.tooltip.item.w),
+              {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year', 'en') }} &middot;
+              <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w ?? 0, {
+                n: $n(tooltipScope.tooltip.item.w ?? 0),
               })"/>
             </div>
           </template>

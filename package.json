@@ -59,6 +59,7 @@
     "vue-matomo": "^4.2.0",
     "vue-router": "4.3.2",
     "vue-slider-component": "4.1.0-beta.7",
+    "vue3-observe-visibility": "^1.0.1",
     "webfontloader": "1.6.28"
   },
   "devDependencies": {

@@ -78,7 +78,7 @@ const renderClusterTags = (h, props, child) => {
 
   const onClusterSelected = h.$attrs.onOnClusterSelected ?? (() => ({}))
 
-  const clusterIndexes = Object.keys(h.clusterColours);
+  const clusterIndexes = Object.keys(h.clusterColours ?? {});
   const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId);
 
   return getBorderlinePassages(child).map(({ entity, isLast }) => (
@@ -96,11 +96,11 @@ const renderVericalLine = (h, props, child) => {
 
   if (child.entity.kind !== 'passage') return;
 
-  const clusterIndexes = Object.keys(props.clusterColours);
+  const clusterIndexes = Object.keys(props.clusterColours ?? {});
   const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId);
   const offsetRight = getClusterIndex(child.entity.clusterId);
 
-  return <span class="vertical-line" style={`backgroundColor: ${props.clusterColours[child.entity.clusterId]}; right: ${(offsetRight * 8)}px`} />
+  return <span class="vertical-line" style={`backgroundColor: ${props.clusterColours?.[child.entity.clusterId]}; right: ${(offsetRight * 8)}px`} />
 }
 
 export default defineComponent({

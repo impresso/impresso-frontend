@@ -1,7 +1,7 @@
 <template>
   <open-seadragon-viewer
     v-bind:handler="handler"
-    v-b-visible="handleVisibilityChange">
+    v-observe-visibility="handleVisibilityChange">
   </open-seadragon-viewer>
 </template>
 

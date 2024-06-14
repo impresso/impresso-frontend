@@ -80,8 +80,8 @@
         $t('actions.searchMore')
       }}
       {{
-        $tc('numbers.resultsParenthesis', total, {
-          n: $n(total),
+        $tc('numbers.resultsParenthesis', total ?? 0, {
+          n: $n(total ?? 0),
         })
       }}
     </router-link>

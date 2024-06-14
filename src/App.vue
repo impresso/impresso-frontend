@@ -841,6 +841,7 @@ input[type='range']:active::-ms-thumb {
   padding: 0;
   // top: -0.5px !important;
   margin-top: -1px;
+  width: fit-content;
 }
 
 // change button color when bg-dark

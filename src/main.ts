@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { initSequence } from './init'
+import VueObserveVisibility from 'vue3-observe-visibility'
 
 import App from '@/App.vue'
 import router from '@/router'
@@ -29,6 +30,7 @@ app.use(pinia)
 app.use(router)
 app.use(newI18n())
 app.use(globalComponents)
+app.use(VueObserveVisibility)
 
 initSequence().then(() => app.mount('#app-container'))
 
