@@ -27,7 +27,7 @@
         <i-dropdown
           v-model="visualisationOrderBy"
           :options="
-            visualisationOrderByOptions.map(value => ({
+            visualisationOrderByOptions.map((value: string) => ({
               value,
               text: $t(`use_orderby_${value}`),
             }))
@@ -166,6 +166,14 @@ const NoFacetFilters = {
   tr_passages: [],
 }
 
+interface QParams {
+  facet: string
+  index: string
+  domain: string
+  groupby?: string
+  unit: string
+}
+
 const StatsQueryParams = {
   trc_vs_newspapers: {
     facet: 'newspaper',
@@ -262,7 +270,7 @@ export default defineComponent({
       item: {
         term: null,
         count: 0,
-      },
+      } as Record<string, any>,
     },
   }),
   setup() {
@@ -270,17 +278,12 @@ export default defineComponent({
     return { itemClicked }
   },
   methods: {
-    /**
-     * @param {string} index
-     * @param {string} type
-     * @returns {boolean}
-     */
-    isFilterTypeSupporedInIndex(index, type) {
+    isFilterTypeSupporedInIndex(index: keyof typeof NoFacetFilters, type: string) {
       // NOTE: daterange is the only filter type that does not have corresponding facet at the moment
       const filterTypes = DefaultFacetTypesForIndex[index].concat(['daterange'])
-      return filterTypes.includes(type) && !NoFacetFilters[index].includes(type)
+      return filterTypes.includes(type) && !NoFacetFilters[index].includes(type as never)
     },
-    handleMousemove(event) {
+    handleMousemove(event: any) {
       // if it is term, get the right label.
       const term =
         this.stats.itemsDictionary && event.point.closestItem?.term
@@ -311,7 +314,7 @@ export default defineComponent({
         },
       }
     },
-    handleItemClicked({ item }) {
+    handleItemClicked({ item }: { item: any }) {
       if (!item) return
       console.debug('handleItemClicked', item.term)
       this.selectionMonitorStore.show({
@@ -331,26 +334,26 @@ export default defineComponent({
     },
     // get visualisation type from URL parameters
     visualisation: {
-      get() {
-        const { [CommonQueryParameters.VisualisationType]: visualisation } = this.$route?.query
+      get(): keyof typeof StatsQueryParams {
+        const { [CommonQueryParameters.VisualisationType]: visualisation } = this.$route?.query ?? {}
         // if visualisation type is undefined or not in the list of options, return the first option
         if (typeof visualisation !== 'string' || !VisualisationTypes.includes(visualisation)) {
-          return VisualisationTypes[0]
+          return VisualisationTypes[0] as keyof typeof StatsQueryParams
         }
-        return visualisation
+        return visualisation as keyof typeof StatsQueryParams
       },
-      set(visualisation) {
+      set(visualisation: string) {
         this.$navigation.updateQueryParameters({
           [CommonQueryParameters.VisualisationType]: visualisation,
         })
       },
     },
     visualisationOrderByOptions() {
-      return StatsQueryParams[this.visualisation].orderByOptions || []
+      return (StatsQueryParams[this.visualisation] as any).orderByOptions || []
     },
     /** return a translation label string */
     visualisationLabel() {
-      const unit = StatsQueryParams[this.visualisation].unit
+      const unit = (StatsQueryParams[this.visualisation] as any).unit
       if (!unit) return 'results'
       return unit
     },
@@ -360,7 +363,7 @@ export default defineComponent({
     },
     /** options for current visualisation */
     visualisationOptions() {
-      return StatsQueryParams[this.visualisation].options || {}
+      return (StatsQueryParams[this.visualisation] as any).options || {}
     },
     // get visualisation order by from URL parameters
     visualisationOrderBy: {
@@ -368,7 +371,7 @@ export default defineComponent({
         if (!this.visualisationOrderByOptions.length) return null
         const {
           [CommonQueryParameters.VisualisationOrderBy]: visualisationOrderBy,
-        } = this.$route?.query
+        } = this.$route?.query ?? {}
         // if visualisation order by is undefined or not in the list of options, return the first option
         if (
           typeof visualisationOrderBy !== 'string' ||
@@ -378,14 +381,14 @@ export default defineComponent({
         }
         return visualisationOrderBy
       },
-      set(visualisationOrderBy) {
+      set(visualisationOrderBy: string) {
         this.$navigation.updateQueryParameters({
           [CommonQueryParameters.VisualisationOrderBy]: visualisationOrderBy,
         })
       },
     },
     statsApiQueryParameters() {
-      const { index, facet, domain, groupby } = StatsQueryParams[this.visualisation]
+      const { index, facet, domain, groupby } = StatsQueryParams[this.visualisation] as QParams
       const supportedFilterTypes = SupportedFiltersByIndex[index]
       const filters = this.filters as FilterLike[]
       const supportedFilters = filters.filter(({ type }) => supportedFilterTypes.includes(type))
@@ -402,7 +405,7 @@ export default defineComponent({
         supportedFilters,
       )
 
-      const query = {
+      const query: Record<string, any> = {
         index,
         facet,
         domain,

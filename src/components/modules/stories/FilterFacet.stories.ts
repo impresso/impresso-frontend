@@ -1,5 +1,5 @@
-import type { Meta, StoryFn, StoryObj } from '@storybook/vue3'
-import FilterFacet from '../FilterFacet.vue'
+import type { Meta, StoryObj } from '@storybook/vue3'
+import FilterFacet from '@/components/FilterFacet.vue'
 import type { Facet } from '@/models'
 
 const meta: Meta<typeof FilterFacet> = {
@@ -7,7 +7,7 @@ const meta: Meta<typeof FilterFacet> = {
   component: FilterFacet,
   tags: ['autodocs'],
   argTypes: {
-    lazy: { control: 'toggle' },
+    lazy: { control: 'check' },
   },
   args: { primary: false }, // default value
 } satisfies Meta<typeof FilterFacet>;

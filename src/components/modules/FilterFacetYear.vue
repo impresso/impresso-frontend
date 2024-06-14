@@ -38,8 +38,8 @@ import SkyLine from '@/d3-modules/SkyLine';
 
 import 'flatpickr/dist/flatpickr.css';
 
-import BaseTitleBar from '../base/BaseTitleBar';
-import Tooltip from './FilterFacetYearTooltip';
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue';
+import Tooltip from '@/components/modules/FilterFacetYearTooltip.vue';
 
 export default {
   data: () => ({

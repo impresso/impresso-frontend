@@ -9,6 +9,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+
+    // remove when all codebase is fixed:
+    "verbatimModuleSyntax": false,
   }
 }

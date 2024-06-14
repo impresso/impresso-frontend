@@ -21,7 +21,7 @@ import {
   Placement,
   shift,
 } from '@floating-ui/vue'
-import { PropType, computed, ref, watch } from 'vue';
+import { PropType, computed, ref } from 'vue';
 
 const props = defineProps({
   content: String,
@@ -55,7 +55,7 @@ const { floatingStyles, middlewareData } = useFloating(anchorRef, tooltipRef, {
 const arrowStyles = computed(() => {
   const { x, y } = middlewareData.value.arrow ?? { x: null, y: null, centerOffset: null }
   return {
-    position: 'absolute',
+    position: 'absolute' as const,
     left: x != null ? `${x}px` : '',
     top: y != null ? `${y}px` : '',
   }

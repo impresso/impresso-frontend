@@ -37,9 +37,9 @@
 import Icon from '@/components/base/Icon.vue'
 import FilterFactory from '@/models/FilterFactory'
 
-import FilterSettingContext from './FilterSettingContext'
-import FilterSettingPrecision from './FilterSettingPrecision'
-import FilterWrapper from './FilterWrapper'
+import FilterSettingContext from '@/components/modules/FilterSettingContext.vue'
+import FilterSettingPrecision from '@/components/modules/FilterSettingPrecision.vue'
+import FilterWrapper from '@/components/modules/FilterWrapper.vue'
 
 export default {
   data: () => ({

@@ -15,8 +15,8 @@
  * @deprecated Not used anywhere.
  */
 
-import FilterWrapper from './FilterWrapper';
-import FilterSettingContext from './FilterSettingContext';
+import FilterWrapper from '@/components/modules/FilterWrapper.vue';
+import FilterSettingContext from '@/components/modules/FilterSettingContext.vue';
 
 export default {
   data: () => ({

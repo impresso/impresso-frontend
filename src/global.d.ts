@@ -17,3 +17,9 @@
 //     $navigation: Navigation;
 //   }
 // }
+
+
+declare module '@/models/*';
+declare module '@/components/*';
+declare module '@/components/modules/*';
+declare module '@/router/*';

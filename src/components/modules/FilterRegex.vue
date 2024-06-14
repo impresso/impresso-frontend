@@ -26,7 +26,7 @@
 
 import FilterFactory from '@/models/FilterFactory'
 
-import FilterWrapper from './FilterWrapper'
+import FilterWrapper from '@/components/modules/FilterWrapper.vue'
 
 export default {
   data: () => ({

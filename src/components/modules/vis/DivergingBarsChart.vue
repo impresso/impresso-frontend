@@ -67,7 +67,7 @@ export default {
         }
       return {
         ...tooltipData,
-        isActive: tooltipData.isActive && tooltipData.item != null && tooltipData.item !== {}
+        isActive: tooltipData.isActive && tooltipData.item != null && Object.keys(tooltipData.item).length > 0
       }
     }
   },
