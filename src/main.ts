@@ -30,7 +30,7 @@ app.use(router)
 app.use(newI18n())
 app.use(globalComponents)
 
-initSequence().then(() => app.mount('#app'))
+initSequence().then(() => app.mount('#app-container'))
 
 window.addEventListener('unhandledrejection', event => {
   if (event.reason) {

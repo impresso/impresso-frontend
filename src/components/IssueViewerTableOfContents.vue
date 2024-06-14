@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="issue-viewer-table-of-contents">
     <div v-for="(item, i) in items" :key="i"
       class="border-bottom"

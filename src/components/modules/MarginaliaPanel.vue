@@ -9,24 +9,24 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 
-/**
- * @typedef {{
- *   title: string,
- *   items: string[]
- * }} Section
- */
+interface Section {
+  title: string;
+  items: string[];
+}
 
-export default {
+export default defineComponent({
   props: {
     /** @type {import('vue').PropOptions<Section[]>} */
     sections: {
-      type: Array
+      type: Array as PropType<Section[]>,
     },
     isLeft: Boolean
   }
-}
+})
 </script>
 
 <style lang="scss">
