@@ -1,18 +1,7 @@
 <template lang="html">
-  <filter-wrapper
-    v-bind:id="filter.key"
-    v-bind:title="filter.query"
-    icon="rocket"
-    v-on:remove="remove"
-  >
-    <b-input
-      type="text"
-      v-model="filter.query"
-      v-on:input="updateFilter"
-      v-on:keyup.enter="submitFilter"
-      v-bind:disabled="disabled"
-      size="sm"
-    />
+  <filter-wrapper v-bind:id="filter.key" v-bind:title="filter.query" icon="rocket" v-on:remove="remove">
+    <b-input type="text" :modelValue="filter.query" v-on:input="updateFilter" v-on:keyup.enter="submitFilter"
+      v-bind:disabled="disabled" size="sm" />
     <template v-slot:settings>
       <p><em>ToDo:</em> RegEx filter Settings</p>
     </template>
@@ -54,8 +43,7 @@ export default {
 }
 </script>
 
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "query": "Regex",
     "edit": "Edit",
@@ -69,5 +57,4 @@ export default {
     "edit": "Bewerken",
     "save": "Opslaan"
   }
-}
-</i18n>
+}</i18n>

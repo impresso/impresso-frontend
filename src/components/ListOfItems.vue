@@ -5,14 +5,8 @@
     <slot v-bind:items="items">
       {{ items }}
     </slot>
-    <pagination
-      size="sm"
-      v-bind:perPage="limit"
-      v-bind:currentPage="page"
-      v-bind:totalRows="totalItems"
-      v-on:change="handlePaginationChange"
-      class="my-3 d-flex justify-content-center"
-    />
+    <pagination size="sm" v-bind:perPage="limit" v-bind:currentPage="page" v-bind:totalRows="totalItems"
+      v-on:change="handlePaginationChange" class="my-3 d-flex justify-content-center" />
   </div>
 </template>
 
@@ -90,7 +84,6 @@ export default defineComponent({
           .sort()
           .join(''),
       }
-      return request
     },
   },
   watch: {

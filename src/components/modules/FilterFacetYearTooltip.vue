@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="FilterFacetYearTooltip" v-bind:style="style">
-    <span class="year">Year: {{tooltip.year.getFullYear()}}</span>
-    <span class="count">Count: {{tooltip.count}}</span>
+    <span class="year">Year: {{ tooltip.year.getFullYear() }}</span>
+    <span class="count">Count: {{ tooltip.count }}</span>
   </div>
 </template>
 
@@ -15,12 +15,12 @@ export default {
     tooltip: {
       type: Object,
       required: true,
-      default: {
+      default: () => ({
         x: 0,
         y: 0,
         year: new Date(),
         count: 0,
-      },
+      }),
     }
   },
   computed: {
@@ -39,18 +39,19 @@ export default {
 @tt_margin_h: 6px;
 @tt_margin_v: 3px;
 
-.FilterFacetYearTooltip{
-  ::before{
+.FilterFacetYearTooltip {
+  ::before {
     content: "";
     display: block;
     width: 10px;
     height: 10px;
     position: absolute;
-    top:44px;
+    top: 44px;
     left: @tt_width / 2 - @tt_margin_h;
     transform: rotate(45deg);
     background: black;
   }
+
   position: absolute;
   z-index: 100;
   background: black;
@@ -63,13 +64,13 @@ export default {
   margin-left: -1 * (@tt_width / 2);
   font-size: .8em;
   padding:3px 6px;
-  .year{
+
+  .year {
     display: block;
     font-weight: bold;
     opacity: .8;
   }
-  .count{
 
-  }
+  .count {}
 }
 </style>

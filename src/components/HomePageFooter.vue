@@ -6,11 +6,8 @@
       <div class="row">
         <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo">
-            <a
-              href="https://dhlab.epfl.ch/"
-              target="_blank"
-              title="Digital Humanities Laboratory (DHLAB) Ecole Polytechnique Federale de Lausanne, Switzerland"
-            >
+            <a href="https://dhlab.epfl.ch/" target="_blank"
+              title="Digital Humanities Laboratory (DHLAB) Ecole Polytechnique Federale de Lausanne, Switzerland">
               <EpflLogo />
             </a>
             <p>
@@ -21,11 +18,8 @@
         </div>
         <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo ">
-            <a
-              href="http://www.cl.uzh.ch/en.html"
-              target="_blank"
-              title="Institute for Computational Linguistics Zurich University, Switzerland"
-            >
+            <a href="http://www.cl.uzh.ch/en.html" target="_blank"
+              title="Institute for Computational Linguistics Zurich University, Switzerland">
               <UzhLogo />
             </a>
             <p>Institute of Computational Linguistics Zurich University, Switzerland</p>
@@ -41,11 +35,8 @@
         </div>
         <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo">
-            <a
-              href="https://www.c2dh.uni.lu"
-              target="_blank"
-              title="Centre for Contemporary and Digital History (C2DH) Luxembourg University, Luxembourg."
-            >
+            <a href="https://www.c2dh.uni.lu" target="_blank"
+              title="Centre for Contemporary and Digital History (C2DH) Luxembourg University, Luxembourg.">
               <UniLogo />
             </a>
             <p>
@@ -69,11 +60,7 @@
       <div class="row">
         <div class="col-sm-12 col-md-6">
           <div class="logo">
-            <a
-              href="http://www.snf.ch/en/Pages/default.aspx"
-              target="_blank"
-              title="Swiss National Science Foundation"
-            >
+            <a href="http://www.snf.ch/en/Pages/default.aspx" target="_blank" title="Swiss National Science Foundation">
               <SnsfLogo />
             </a>
             <p>
@@ -84,11 +71,7 @@
         </div>
         <div class="col-sm-12 col-md-6">
           <div class="logo">
-            <a
-              href="https://www.fnr.lu/"
-              target="_blank"
-              title="Luxembourg National Research Fund - Aller à l'accueil"
-            >
+            <a href="https://www.fnr.lu/" target="_blank" title="Luxembourg National Research Fund - Aller à l'accueil">
               <FnrLogo />
             </a>
             <p>
@@ -108,13 +91,6 @@ import UzhLogo from '../assets/img/UzhLogo.vue'
 import UniLogo from '../assets/img/UniLogo.vue'
 import SnsfLogo from '../assets/img/SnsfLogo.vue'
 import UnilLogo from '../assets/img/UnilLogo.vue'
-import BnlLogo from '../assets/img/BnlLogo.vue'
-import ScccLogo from '../assets/img/ScccLogo.vue'
-import AevswLogo from '../assets/img/AevswLogo.vue'
-import UbLogo from '../assets/img/UbLogo.vue'
-import LetempsLogo from '../assets/img/LetempsLogo.vue'
-import NzzLogo from '../assets/img/NzzLogo.vue'
-import InfoclioLogo from '../assets/img/InfoclioLogo.vue'
 import FnrLogo from '../assets/img/FnrLogo.vue'
 import partners from './footerLinks.json'
 
@@ -125,13 +101,6 @@ export default {
     UniLogo,
     SnsfLogo,
     UnilLogo,
-    BnlLogo,
-    ScccLogo,
-    AevswLogo,
-    UbLogo,
-    LetempsLogo,
-    NzzLogo,
-    InfoclioLogo,
     FnrLogo,
   },
   data: () => ({
@@ -148,11 +117,14 @@ footer {
   h3 {
     color: var(--clr-grey-700);
   }
+
   .logo {
+
     a svg,
     a svg path {
       fill: var(--clr-grey-900);
     }
+
     a:hover svg,
     a:hover svg path {
       fill: var(--impresso-color-yellow);
@@ -163,6 +135,7 @@ footer {
       height: 100% !important;
       margin: 3rem 0;
       min-width: 240px;
+
       svg {
         max-width: 240px;
       }
@@ -184,12 +157,14 @@ footer {
         transition: all 0.2s ease;
       }
     }
+
     p {
       width: 100%;
       text-align: left;
       color: var(--clr-grey-600);
       transition: all 0.2s ease;
     }
+
     &:hover {
       p {
         color: white;
@@ -199,10 +174,12 @@ footer {
 
   .line {
     border-bottom: 1px solid var(--clr-grey-700);
+
     &.double {
       border-bottom-width: 2px;
     }
   }
+
   a:hover {
     background: none;
   }

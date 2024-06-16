@@ -2,15 +2,8 @@
   <div class="media py-3 border-bottom  search-result-list-item SearchResultListItem">
     <div class="media-aside align-self-start">
       <div v-if="isAvailable()" class="thumbnail">
-        <IIIFFragment
-          @click="goToArticle"
-          v-if="article?.pages?.length"
-          :iiif="article.pages[0].iiif"
-          size="!496,480"
-          :scale="0.5"
-          fit-to-regions
-          :regions="computedRegionsInArticleFirstPage"
-        />
+        <IIIFFragment @click="goToArticle" v-if="article?.pages?.length" :iiif="article.pages[0].iiif" size="!496,480"
+          :scale="0.5" fit-to-regions :regions="computedRegionsInArticleFirstPage" />
       </div>
       <div v-else class="error bg-light border">
         <p class="message">{{ $t('login_message') }}</p>
@@ -20,43 +13,16 @@
       <div class="d-flex">
         <div class="list-item-details me-3 mr-3">
           <!-- if article -->
-          <article-item
-            :item="article"
-            show-meta
-            show-excerpt
-            show-entities
-            show-matches
-            show-link
-            class="mb-2"
-          />
-          <b-badge
-            class="mb-2"
-            pill
-            v-for="tag in article.tags"
-            variant="secondary"
-            v-bind:key="tag.uid"
-            >{{ tag.name }}</b-badge
-          >
-          <div
-            v-if="article.collections && article.collections.length > 0"
-            class="article-collections mb-2"
-          >
-            <b-badge
-              v-for="(collection, i) in article.collections"
-              v-bind:key="i"
-              variant="info"
-              class="mr-1"
-            >
-              <router-link
-                class="text-white"
-                v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
-              >
+          <article-item :item="article" show-meta show-excerpt show-entities show-matches show-link class="mb-2" />
+          <b-badge class="mb-2" pill v-for="tag in article.tags" variant="secondary" v-bind:key="tag.uid">{{ tag.name
+            }}</b-badge>
+          <div v-if="article.collections && article.collections.length > 0" class="article-collections mb-2">
+            <b-badge v-for="(collection, i) in article.collections" v-bind:key="i" variant="info" class="mr-1">
+              <router-link class="text-white"
+                v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }">
                 {{ collection.name }}
               </router-link>
-              <a
-                class="dripicons dripicons-cross"
-                v-on:click="onRemoveCollection(collection, article)"
-              />
+              <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
             </b-badge>
           </div>
 
@@ -68,16 +34,9 @@
             <collection-add-to v-bind:item="article" v-bind:text="$t('add_to_collection')" />
           </slot>
 
-          <div
-            v-if="article.accessRight === 'OpenPublic'"
-            class="shareArticleControl d-inline ml-1"
-          >
-            <b-button
-              variant="outline-success"
-              size="sm"
-              v-on:click="showModalShareArticle()"
-              :title="$t('share_article')"
-            >
+          <div v-if="article.accessRight === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
+            <b-button variant="outline-success" size="sm" v-on:click="showModalShareArticle()"
+              :title="$t('share_article')">
               <div class="d-flex flex-row align-items-center">
                 <div class="d-flex dripicons dripicons-web mr-1" />
                 <div>
@@ -88,19 +47,11 @@
           </div>
         </div>
         <div v-if="showContext && computedRegionsInArticleFirstPage">
-          <IIIFFragment
-            @click="goToArticle"
-            :iiif="article.pages[0].iiif"
-            size="!248,240"
-            :regions="computedRegionsInArticleFirstPage"
-          />
+          <IIIFFragment @click="goToArticle" :iiif="article.pages[0].iiif" size="!248,240"
+            :regions="computedRegionsInArticleFirstPage" />
         </div>
         <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
-          <b-checkbox
-            class="mr-0 select-item"
-            v-bind:checked="checked"
-            v-on:change="toggleSelected"
-          />
+          <b-checkbox class="mr-0 select-item" v-bind:checked="checked" v-on:change="toggleSelected" />
         </div>
       </div>
       <copy-to-clipboard :article="article" v-if="showModalShare" @closed="hideModalShareArticle" />
@@ -112,7 +63,6 @@
 import { mapStores } from 'pinia'
 import CollectionAddTo from './CollectionAddTo.vue'
 import ArticleItem from './lists/ArticleItem.vue'
-import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePageViewer.vue'
 import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
@@ -278,7 +228,6 @@ export default {
     }
   },
   components: {
-    LazyOpenSeadragonArticlePageViewer,
     CollectionAddTo,
     ArticleItem,
     CopyToClipboard,
@@ -291,6 +240,7 @@ export default {
 .SearchResultListItem .list-item-details {
   max-width: 800px;
 }
+
 .SearchResultListItem {
   .thumbnail {
     width: 250px;
@@ -298,20 +248,25 @@ export default {
     position: relative;
     cursor: move;
   }
+
   .error {
     width: 250px;
     height: 240px;
     position: relative;
     text-align: center;
+
     .message {
       margin-top: 114px;
     }
   }
+
   h2 {
     font-size: 1.2em;
     font-weight: 500;
+
     a {
       text-decoration: underline;
+
       // text-decoration-color:#ccc;
       &:hover {
         text-decoration-color: transparent;
@@ -325,13 +280,11 @@ export default {
 }
 </style>
 
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "view": "View",
     "add_to_collection": "Save to Collection ...",
     "login_message": "Login to view image",
     "share_article": "Share ..."
   }
-}
-</i18n>
+}</i18n>

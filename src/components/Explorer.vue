@@ -1,17 +1,11 @@
 <template>
-  <Modal
-    :id="id"
-    :show="isModalVisible"
-    body-class="p-0"
-    @close="$emit(events.Hide)">
-    <template v-slot:modal-header="{ titleId, close }" class="mt-2 mr-0">
+  <Modal :id="id" :show="isModalVisible" body-class="p-0" @close="$emit(events.Hide)">
+    <template v-slot:modal-header="{ titleId, close }">
       <div>
         <div class="tb-title small-caps font-weight-bold" :id="titleId">{{ $t('explore') }}</div>
-        <b-button v-for="(availableType, i) in typeOptions" v-bind:key="i"
-                  class="mr-1 mt-1"
-                  variant="outline-primary" size="sm"
-                  v-on:click="handleTypeChange(availableType)"
-                  v-bind:class="{ 'active' : currentType === availableType }">
+        <b-button v-for="(availableType, i) in typeOptions" v-bind:key="i" class="mr-1 mt-1" variant="outline-primary"
+          size="sm" v-on:click="handleTypeChange(availableType)"
+          v-bind:class="{ 'active': currentType === availableType }">
           {{ $t(`labels.${availableType}`) }}
         </b-button>
         <div class="small mt-2">
@@ -22,12 +16,10 @@
         </div>
         <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
           <div class="input-group">
-            <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
-                          v-model.trim="searchQueryModel"
-                          autofocus/>
+            <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)" v-model.trim="searchQueryModel"
+              autofocus />
             <div class="input-group-append">
-              <button type="button" class="btn btn-outline-primary pt-2 pb-1 px-2"
-                     v-on:click="search">
+              <button type="button" class="btn btn-outline-primary pt-2 pb-1 px-2" v-on:click="search">
                 <div class="search-submit dripicons-search"></div>
               </button>
             </div>
@@ -36,42 +28,28 @@
 
       </div>
       <div class="ml-auto">
-        <b-button pill class="dripicons-cross px-0" variant="outline-danger"
-          style="width:1.5em; height:1.5em"
-          size="sm" v-on:click.prevent="close">
+        <b-button pill class="dripicons-cross px-0" variant="outline-danger" style="width:1.5em; height:1.5em" size="sm"
+          v-on:click.prevent="close">
         </b-button>
       </div>
 
     </template>
     <!-- .modal-body -->
     <div class="bg-light">
-      <div v-if='isLoading'
-           class="position-absolute w-100 h-100"
-           style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
+      <div v-if='isLoading' class="position-absolute w-100 h-100"
+        style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
         <i-spinner class="text-center pt-4" />
       </div>
-      <facet-explorer v-if="!RangeFacets.includes(currentType)"
-                      :filter-type="currentType"
-                      :buckets="buckets"
-                      v-model="filter">
-          <template v-slot:pagination>
-            <pagination
-                        :current-page="currentPageModel"
-                        @change="$event => currentPageModel = $event"
-                        v-bind:perPage="pageSize"
-                        v-bind:totalRows="totalResults"
-                        v-bind:showDescription="false"/>
-          </template>
+      <facet-explorer v-if="!RangeFacets.includes(currentType)" :filter-type="currentType" :buckets="buckets"
+        v-model="filter">
+        <template v-slot:pagination>
+          <pagination :current-page="currentPageModel" @change="$event => currentPageModel = $event"
+            v-bind:perPage="pageSize" v-bind:totalRows="totalResults" v-bind:showDescription="false" />
+        </template>
       </facet-Explorer>
-      <range-facet-explorer class="p-3" v-if="NumericRangeFacets.includes(currentType)"
-                      :filter-type="currentType"
-                      :buckets="buckets"
-                      :range="range"
-                      v-model="filter"
-                      />
-      <time-facet-explorer v-if="TimeRangeFacets.includes(currentType)"
-        v-model="filter"
-        :filter-type="currentType"
+      <range-facet-explorer class="p-3" v-if="NumericRangeFacets.includes(currentType)" :filter-type="currentType"
+        :buckets="buckets" :range="range" v-model="filter" />
+      <time-facet-explorer v-if="TimeRangeFacets.includes(currentType)" v-model="filter" :filter-type="currentType"
         :buckets="buckets" />
     </div><!-- .modal-body -->
     <!-- footer -->
@@ -349,37 +327,33 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss"></style>
 
-</style>
-
-<i18n lang="json">
-  {
-    "en": {
-      "explore": "refine",
-      "description": {
-        "search": "It looks like there are <b>no available options</b> matching for type: | ... Just <b>one</b> option mathing for type:| Select among<b> {count}</b> options matching {q} for type:",
-        "facets": "It looks like there are <b>no available options</b> using current search for type: | ... Just <b>one</b> option to refine your search for type:| Select among<b> {count}</b> options to refine your search for type:"
-      },
-      "searchField": {
-        "placeholder": "...|There is only one choice...|Search one of {n} available choices",
-        "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
-      },
-      "labels": {
-        "daterange": "by date",
-        "location": "location",
-        "country": "country",
-        "person": "person",
-        "language": "language",
-        "topic": "topic",
-        "newspaper": "newspaper",
-        "collection": "collection",
-        "year": "year",
-        "month": "month",
-        "textReuseClusterSize": "cluster size",
-        "textReuseClusterLexicalOverlap": "cluster lexical overlap",
-        "textReuseClusterDayDelta": "cluster span in days"
-      }
+<i18n lang="json">{
+  "en": {
+    "explore": "refine",
+    "description": {
+      "search": "It looks like there are <b>no available options</b> matching for type: | ... Just <b>one</b> option mathing for type:| Select among<b> {count}</b> options matching {q} for type:",
+      "facets": "It looks like there are <b>no available options</b> using current search for type: | ... Just <b>one</b> option to refine your search for type:| Select among<b> {count}</b> options to refine your search for type:"
+    },
+    "searchField": {
+      "placeholder": "...|There is only one choice...|Search one of {n} available choices",
+      "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
+    },
+    "labels": {
+      "daterange": "by date",
+      "location": "location",
+      "country": "country",
+      "person": "person",
+      "language": "language",
+      "topic": "topic",
+      "newspaper": "newspaper",
+      "collection": "collection",
+      "year": "year",
+      "month": "month",
+      "textReuseClusterSize": "cluster size",
+      "textReuseClusterLexicalOverlap": "cluster lexical overlap",
+      "textReuseClusterDayDelta": "cluster span in days"
     }
   }
-</i18n>
+}</i18n>

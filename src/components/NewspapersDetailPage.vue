@@ -5,9 +5,7 @@
       <BNavbar>
         <section>
           <span class="label small-caps">
-            <router-link :to="getRoute({ name: 'newspapers' })"
-              >&larr; {{ $t('newspapers') }}</router-link
-            >
+            <router-link :to="getRoute({ name: 'newspapers' })">&larr; {{ $t('newspapers') }}</router-link>
           </span>
           <h3>
             {{ newspaper.name }}
@@ -22,12 +20,7 @@
 
       <BTabs pills class="mx-3">
         <template v-slot:tabs-end>
-          <BNavItem
-            :to="getRoute({ name: 'newspaper_metadata' })"
-            exact
-            active-class="active"
-            class="pl-2"
-          >
+          <BNavItem :to="getRoute({ name: 'newspaper_metadata' })" exact active-class="active" class="pl-2">
             <span>{{ $t('route.newspaper_metadata') }}</span>
           </BNavItem>
           <BNavItem :to="getRoute({ name: 'newspaper' })" exact active-class="active" class="pl-2">
@@ -50,12 +43,8 @@
           </BNavItem>
         </BNavbarNav>
         <BNavbarNav v-if="$route.name === 'newspaper'" class="p-2">
-          <i-dropdown
-            v-model="orderBy"
-            v-bind:options="orderByOptions"
-            size="sm"
-            variant="outline-primary"
-          ></i-dropdown>
+          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm"
+            variant="outline-primary"></i-dropdown>
         </BNavbarNav>
       </BNavbar>
     </template>
@@ -105,12 +94,7 @@
         <div class="col-lg-12 col-xl-6">
           <div class="row">
             <div class="col-lg-12 col-xl-6" v-for="(facet, idx) in facets" v-bind:key="idx">
-              <stacked-bars-panel
-                class=""
-                :label="facet.type"
-                :buckets="facet.buckets"
-                :facet-type="facet.type"
-              />
+              <stacked-bars-panel class="" :label="facet.type" :buckets="facet.buckets" :facet-type="facet.type" />
             </div>
           </div>
         </div>
@@ -119,23 +103,14 @@
     <div v-if="$route.name !== 'newspaper_metadata'">
       <div class="p-4">
         <div class="row">
-          <div
-            class="col-sm-12 col-md-6 col-lg-4 col-xl-2 mb-4"
-            v-for="(issue, i) in issues"
-            :key="i"
-          >
+          <div class="col-sm-12 col-md-6 col-lg-4 col-xl-2 mb-4" v-for="(issue, i) in issues" :key="i">
             <issue-item :item="issue" />
           </div>
         </div>
       </div>
       <div class="fixed-pagination-footer p-1 mb-2 m-0">
-        <pagination
-          v-bind:perPage="limit"
-          v-bind:currentPage="page"
-          v-bind:totalRows="total"
-          v-on:change="onInputPagination"
-          v-bind:showDescription="false"
-        />
+        <pagination v-bind:perPage="limit" v-bind:currentPage="page" v-bind:totalRows="total"
+          v-on:change="onInputPagination" v-bind:showDescription="false" />
       </div>
     </div>
   </i-layout-section>
@@ -213,7 +188,7 @@ export default {
     },
     orderBy: {
       get() {
-        const { [CommonQueryParameters.OrderBy]: orderBy } = this.$route?.query
+        const { [CommonQueryParameters.OrderBy]: orderBy } = this.$route?.query ?? {}
         return OrderByOptions.includes(orderBy) ? orderBy : OrderByDefault
       },
       set(orderBy) {
@@ -317,10 +292,10 @@ export default {
           limit: 500,
         },
       })
-      .then(res => Helpers.timeline.fromBuckets(res.buckets))
-      .then(values => {
-        this.timevalues = values
-      })
+        .then(res => Helpers.timeline.fromBuckets(res.buckets))
+        .then(values => {
+          this.timevalues = values
+        })
     },
     async loadFacets() {
       this.facets = []
@@ -385,6 +360,7 @@ export default {
   .tabs {
     margin-bottom: -1px;
   }
+
   .card {
     border: 0px solid;
     background: transparent;
@@ -397,6 +373,7 @@ export default {
   .navbar-light .navbar-nav .nav-link {
     padding: 0.125rem 0.5rem 0.25rem;
     border: 1px solid transparent;
+
     &.router-link-exact-active {
       color: $clr-primary;
       border-color: #dee2e6;
@@ -407,8 +384,9 @@ export default {
 
   .b-table {
     background-color: white;
-    th {
-    }
+
+    th {}
+
     td[aria-colindex='2'] {
       overflow-wrap: anywhere;
       font-size: smaller;
@@ -416,8 +394,7 @@ export default {
   }
 }
 </style>
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "sort_date": "order by date ↑",
     "sort_-date": "order by date ↓",
@@ -432,5 +409,4 @@ export default {
       "countArticles": "Articles: "
     }
   }
-}
-</i18n>
+}</i18n>

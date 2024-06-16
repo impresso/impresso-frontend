@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 
-function getQuadDistance(x0, y0, x1, y1) {
+export function getQuadDistance(x0, y0, x1, y1) {
   return Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2)
 }
 
@@ -55,8 +55,8 @@ export default class LineChart {
       closestDistance = Infinity
       // get closest value mapping all point.value properties
       availableKeys
-        .filter(k => k !== 'count')
-        .forEach(k => {
+        .filter((k) => k !== 'count')
+        .forEach((k) => {
           if (!isNaN(closestPoint.value[k])) {
             const y1 = this.y(closestPoint.value[k])
             const dy = Math.abs(y1 - y0)
@@ -66,7 +66,7 @@ export default class LineChart {
               closestValueKey = k
             }
           } else if (Array.isArray(closestPoint.value[k])) {
-            closestPoint.value[k].forEach(d => {
+            closestPoint.value[k].forEach((d) => {
               const y1 = this.y(d.count)
               const dy = Math.abs(y1 - y0)
               if (dy < closestDistance) {
@@ -97,36 +97,31 @@ export default class LineChart {
     const { width, height } = this.element.getBoundingClientRect()
     const { colorPalette = {} } = options
     const dataWithValues = data.filter(
-      d => typeof d.value === 'object' && Object.keys(d.value).length,
+      (d) => typeof d.value === 'object' && Object.keys(d.value).length
     )
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
     // X
     this.x
-      .domain(/** @type {Date[]} */ (d3.extent(data, d => d.domain)))
+      .domain(/** @type {Date[]} */ (d3.extent(data, (d) => d.domain)))
       .range([this.margin.left, width - this.margin.right - this.margin.left])
 
-    const xAxis = g =>
+    const xAxis = (g) =>
       g.attr('transform', `translate(0,${height - this.margin.bottom})`).call(
         d3
           .axisBottom(this.x)
           .ticks(width / 80)
-          .tickSizeOuter(0),
+          .tickSizeOuter(0)
       )
 
-    this.axes
-      .selectAll('g.x')
-      .data([null])
-      .join('g')
-      .attr('class', 'x')
-      .call(xAxis)
+    this.axes.selectAll('g.x').data([null]).join('g').attr('class', 'x').call(xAxis)
 
-    const maxYLines = /** @type {number} */ (d3.max(data, d =>
-      d3.max(lineMetrics.map(({ extractor }) => extractor(d.value))),
-    ))
-    const maxYAreas = /** @type {number} */ (d3.max(data, d =>
-      d3.max(areaMetrics.flatMap(({ extractor }) => extractor(d.value))),
-    ))
+    const maxYLines = /** @type {number} */ (
+      d3.max(data, (d) => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value))))
+    )
+    const maxYAreas = /** @type {number} */ (
+      d3.max(data, (d) => d3.max(areaMetrics.flatMap(({ extractor }) => extractor(d.value))))
+    )
     const maxY = /** @type {number} */ (d3.max([maxYLines, maxYAreas]))
 
     // Y
@@ -135,26 +130,21 @@ export default class LineChart {
       .nice()
       .range([height - this.margin.bottom - this.margin.top, this.margin.top])
 
-    const yAxis = g =>
+    const yAxis = (g) =>
       g
         .attr('transform', `translate(${this.margin.left},0)`)
         .call(d3.axisLeft(this.y))
-        .call(g => g.select('.domain').remove())
-        .call(g =>
+        .call((g) => g.select('.domain').remove())
+        .call((g) =>
           g
             .select('.tick:last-of-type text')
             .clone()
             .attr('x', 3)
             .attr('text-anchor', 'start')
-            .attr('font-weight', 'bold'),
+            .attr('font-weight', 'bold')
         )
 
-    this.axes
-      .selectAll('g.y')
-      .data([null])
-      .join('g')
-      .attr('class', 'y')
-      .call(yAxis)
+    this.axes.selectAll('g.y').data([null]).join('g').attr('class', 'y').call(yAxis)
 
     // lines
     const line = d3
@@ -170,10 +160,10 @@ export default class LineChart {
       .attr('class', ({ id }) => id)
 
     console.info('lineMetrics', lineMetrics, dataWithValues)
-    const pointsContainers = this.points
-      .selectAll('g')
-      .data(lineMetrics)
-      .attr('class', ({ id }) => id)
+    // const pointsContainers = this.points
+    //   .selectAll('g')
+    //   .data(lineMetrics)
+    //   .attr('class', ({ id }) => id)
 
     // mousemove
     if (typeof options.onMouseMove === 'function') {
@@ -190,7 +180,7 @@ export default class LineChart {
           y,
           date,
           value,
-          point,
+          point
         })
         // assign closest point to instance
         this.closestPoint = point
@@ -205,7 +195,7 @@ export default class LineChart {
           const { closestItem, closestValueKey } = closestPoint
           options.onClick({
             item: closestItem,
-            key: closestValueKey,
+            key: closestValueKey
           })
         }
       })
@@ -217,17 +207,21 @@ export default class LineChart {
     const area = d3
       .area /** @type {d3.Area<[Date, [number, number]]>} */
       ()
-      .defined(([, [y0, y1]]) => [y0, y1].every(v => !isNaN(v)))
+      .defined(([, [y0, y1]]) => [y0, y1].every((v) => !isNaN(v)))
       .x(([date]) => this.x(date))
       .y0(([, [y0]]) => this.y(y0))
       .y1(([, [, y1]]) => this.y(y1))
 
     this.areas
       .selectAll('path')
-      .data(() =>
-        /** @type {[[Date, [number, number]][], string][]} */ (areaMetrics.map(
-          ({ id, extractor }) => [data.map(({ domain, value }) => [domain, extractor(value)]), id],
-        )),
+      .data(
+        () =>
+          /** @type {[[Date, [number, number]][], string][]} */ (
+            areaMetrics.map(({ id, extractor }) => [
+              data.map(({ domain, value }) => [domain, extractor(value)]),
+              id
+            ])
+          )
       )
       .join('path')
       .attr('class', ([, id]) => id)
@@ -241,10 +235,9 @@ export default class LineChart {
      * @param {number} index
      */
     const pathItem = (metric, index) => {
-      const lineData = data.map(d => /** @type {[number, number]} */ ([
-        d.domain.getTime(),
-        metric.extractor(d.value),
-      ]))
+      const lineData = data.map(
+        (d) => /** @type {[number, number]} */ ([d.domain.getTime(), metric.extractor(d.value)])
+      )
       return [{ metric: metric.id, index, data: lineData }]
     }
 
@@ -272,11 +265,11 @@ export default class LineChart {
 
     // show points, same colors as lines
     const pointsData = dataWithValues.reduce((acc, d) => {
-      const values = Object.keys(d.value).map(k => ({
+      const values = Object.keys(d.value).map((k) => ({
         k,
         t: d.domain,
         x: this.x(d.domain),
-        y: this.y(d.value[k]),
+        y: this.y(d.value[k])
       }))
       return acc.concat(values)
     }, [])
@@ -287,7 +280,7 @@ export default class LineChart {
       .selectAll('circle')
       .data(pointsData)
       .join('circle')
-      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .attr('transform', (d) => `translate(${d.x},${d.y})`)
       .attr('r', 2.5)
       // .attr('fill', 'black')
       .attr('fill', ({ k }) => colorPalette[k])

@@ -4,7 +4,6 @@
  * @param {string | undefined} defaultValue
  * @returns {string | undefined}
  */
-// eslint-disable-next-line import/prefer-default-export
 export function getQueryParameter(vueInstance, parameter, defaultValue = undefined) {
   const value = vueInstance.$route.query[parameter]
   if (value == null) return defaultValue
@@ -27,5 +26,5 @@ export const CommonQueryParameters = Object.freeze({
   OrderBy: 'sort',
   PageNumber: 'p',
   VisualisationType: 'vis',
-  VisualisationOrderBy: 'vis_sort',
+  VisualisationOrderBy: 'vis_sort'
 })

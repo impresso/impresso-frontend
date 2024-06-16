@@ -1,11 +1,7 @@
 <template lang="html">
-  <filter-wrapper
-    v-on:remove="remove"
-    v-bind:id="filter.key"
-    icon="pamphlet"
-    v-bind:title="filter.newspaper.name">
+  <filter-wrapper v-on:remove="remove" v-bind:id="filter.key" icon="pamphlet" v-bind:title="filter.newspaper.name">
     <template v-slot:settings>
-      <filter-setting-context v-model="filter" />
+      <filter-setting-context :modelValue="filter" />
     </template>
   </filter-wrapper>
 </template>

@@ -36,7 +36,7 @@ import { getLatestSerializedSearchQuery, setLatestSerializedSearchQuery } from '
  * @param {import('vue/types/vue').ComponentCustomProperties} vue
  */
 function tryMigrateLegacySearchQueryParameter(vue) {
-  const { [CommonQueryParameters.LegacySearchFilters]: f } = vue.$route?.query
+  const { [CommonQueryParameters.LegacySearchFilters]: f } = vue.$route?.query ?? {}
 
   const serialisedLegacyFilters = Array.isArray(f) ? f[0] : f
 
@@ -45,17 +45,17 @@ function tryMigrateLegacySearchQueryParameter(vue) {
     filters = serialisedLegacyFilters != null ? JSON.parse(serialisedLegacyFilters) : undefined
   } catch (e) {
     console.warn(
-      `Could not parse content of the legacy fiters query parameter "${CommonQueryParameters.LegacySearchFilters}"`,
+      `Could not parse content of the legacy fiters query parameter "${CommonQueryParameters.LegacySearchFilters}"`
     )
   }
 
   if (filters != null) {
-    vue.$nextTick(function() {
+    vue.$nextTick(function () {
       if (this.$route?.query[CommonQueryParameters.LegacySearchFilters] != null) {
         const serialisedFilters = serializeFilters(filters)
         this.$navigation.updateQueryParameters({
           [CommonQueryParameters.SearchFilters]: serialisedFilters,
-          [CommonQueryParameters.LegacySearchFilters]: undefined,
+          [CommonQueryParameters.LegacySearchFilters]: undefined
         })
       }
     })
@@ -67,9 +67,9 @@ function tryMigrateLegacySearchQueryParameter(vue) {
  * @param {import('vue/types/vue').ComponentCustomProperties} vue
  * @return {string}
  */
-const getSearchQueryFromQueryParameterOrLocalStorage = vue => {
+const getSearchQueryFromQueryParameterOrLocalStorage = (vue) => {
   tryMigrateLegacySearchQueryParameter(vue)
-  const { [CommonQueryParameters.SearchFilters]: sq } = vue.$route?.query
+  const { [CommonQueryParameters.SearchFilters]: sq } = vue.$route?.query ?? {}
 
   if (Array.isArray(sq) && sq[0] != null) return sq[0]
   if (!Array.isArray(sq) && sq != null) return sq
@@ -81,7 +81,7 @@ export const searchQueryHashGetter = () => {
   /**
    * @this {import('vue/types/vue').ComponentCustomProperties}
    */
-  const fn = function() {
+  const fn = function () {
     return getSearchQueryFromQueryParameterOrLocalStorage(this)
   }
   return fn
@@ -93,7 +93,7 @@ export const searchQueryHashGetter = () => {
  */
 export const searchQueryGetter = () => {
   /** @this {import('vue/types/vue').ComponentCustomProperties} */
-  const get = function() {
+  const get = function () {
     const sq = getSearchQueryFromQueryParameterOrLocalStorage(this)
     if (sq.length) {
       return SearchQuery.deserialize(sq)
@@ -118,14 +118,14 @@ export const searchQuerySetter = ({ additionalQueryParams = {} } = {}) => {
    * @this {import('vue/types/vue').ComponentCustomProperties}
    * @param {SearchQuery} searchQuery
    */
-  const set = function(searchQuery) {
+  const set = function (searchQuery) {
     // update searchquery in the store so that the current sq
     // hash in the local storage gets updated, too.
     const sq = /** @type {string} */ (searchQuery.getSerialized({ serializer: 'protobuf' }))
     setLatestSerializedSearchQuery(sq)
     this.$navigation.updateQueryParametersWithHistory({
       ...additionalQueryParams,
-      [CommonQueryParameters.SearchFilters]: sq,
+      [CommonQueryParameters.SearchFilters]: sq
     })
   }
   return { set }
@@ -133,7 +133,7 @@ export const searchQuerySetter = ({ additionalQueryParams = {} } = {}) => {
 
 export const mapSearchQuery = () => ({
   ...searchQueryGetter(),
-  ...searchQuerySetter(),
+  ...searchQuerySetter()
 })
 
 /**
@@ -141,7 +141,7 @@ export const mapSearchQuery = () => ({
  */
 export const mapFilters = ({ additionalQueryParams = {} } = {}) => {
   /** @this {import('vue/types/vue').ComponentCustomProperties} */
-  const get = function() {
+  const get = function () {
     return deserializeFilters(getSearchQueryFromQueryParameterOrLocalStorage(this))
   }
 
@@ -149,12 +149,12 @@ export const mapFilters = ({ additionalQueryParams = {} } = {}) => {
    * @this {import('vue/types/vue').ComponentCustomProperties}
    * @param {Filter[]} filters
    */
-  const set = function(filters) {
+  const set = function (filters) {
     const sq = serializeFilters(filters)
     setLatestSerializedSearchQuery(sq)
     this.$navigation.updateQueryParametersWithHistory({
       ...additionalQueryParams,
-      [CommonQueryParameters.SearchFilters]: sq,
+      [CommonQueryParameters.SearchFilters]: sq
     })
   }
 
@@ -168,7 +168,7 @@ export const mapApplyCurrentSearchFilters = () => {
      * @returns {boolean}
      */
     get() {
-      const { [CommonQueryParameters.ApplyCurrentSearchFilters]: asq } = this.$route?.query
+      const { [CommonQueryParameters.ApplyCurrentSearchFilters]: asq } = this.$route?.query ?? {}
       return /** @type {boolean} */ (asq === 'true')
     },
     /**
@@ -177,46 +177,46 @@ export const mapApplyCurrentSearchFilters = () => {
      */
     set(value) {
       this.$navigation.updateQueryParameters({
-        [CommonQueryParameters.ApplyCurrentSearchFilters]: String(value),
+        [CommonQueryParameters.ApplyCurrentSearchFilters]: String(value)
       })
-    },
+    }
   }
 }
 
 export const mapSuggestionQuery = () => {
-  const get = function() {
-    const { [CommonQueryParameters.SuggestionQuery]: q } = this.$route?.query
+  const get = function () {
+    const { [CommonQueryParameters.SuggestionQuery]: q } = this.$route?.query ?? {}
     return q
   }
-  const set = function(value) {
+  const set = function (value) {
     this.$navigation.updateQueryParameters({
-      [CommonQueryParameters.SuggestionQuery]: String(value),
+      [CommonQueryParameters.SuggestionQuery]: String(value)
     })
   }
   return { get, set }
 }
 
 export const mapPagination = () => {
-  const get = function() {
-    const { [CommonQueryParameters.PageNumber]: page = 1 } = this.$route?.query
+  const get = function () {
+    const { [CommonQueryParameters.PageNumber]: page = 1 } = this.$route?.query ?? {}
     return parseInt(/** @type {string} */ (page), 10)
   }
-  const set = function(page) {
+  const set = function (page) {
     this.$navigation.updateQueryParameters({
-      [CommonQueryParameters.PageNumber]: parseInt(page),
+      [CommonQueryParameters.PageNumber]: parseInt(page)
     })
   }
   return { get, set }
 }
 
 export const mapOrderBy = (values, defaultValue) => {
-  const get = function() {
-    const { [CommonQueryParameters.OrderBy]: orderBy } = this.$route?.query
+  const get = function () {
+    const { [CommonQueryParameters.OrderBy]: orderBy } = this.$route?.query ?? {}
     return values.includes(orderBy) ? orderBy : defaultValue
   }
-  const set = function(orderBy) {
+  const set = function (orderBy) {
     this.$navigation.updateQueryParametersWithHistory({
-      [CommonQueryParameters.OrderBy]: orderBy,
+      [CommonQueryParameters.OrderBy]: orderBy
     })
   }
   return { get, set }

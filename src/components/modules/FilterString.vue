@@ -2,27 +2,21 @@
   <filter-wrapper v-on:remove="remove" v-bind:title="filter.query" :id="filter.key">
     <template v-slot:settings>
       <div class="input-group mb-3">
-        <b-input
-          type="text"
-          v-model="filter.query"
-          v-on:input="updateFilter"
-          v-on:keyup.enter="submitFilter"
-          v-bind:disabled="disabled"
-          size="sm"
-        />
+        <b-input type="text" :modelValue="filter.query" v-on:input="updateFilter" v-on:keyup.enter="submitFilter"
+          v-bind:disabled="disabled" size="sm" />
         <b-button v-on:click="editFilter" v-show="disabled" size="sm">
-          <icon name="edit"
-        /></b-button>
+          <icon name="edit" />
+        </b-button>
         <b-button v-on:click="submitFilter" v-show="!disabled" size="sm">
           <icon name="check" />
         </b-button>
       </div>
       <i-layout>
         <i-layout-section width="50%">
-          <filter-setting-context v-model="filter" />
+          <filter-setting-context :modelValue="filter" />
         </i-layout-section>
         <i-layout-section>
-          <filter-setting-precision v-model="filter" />
+          <filter-setting-precision :modelValue="filter" />
         </i-layout-section>
       </i-layout>
     </template>
@@ -70,8 +64,7 @@ export default {
 }
 </script>
 
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "query": "Text",
     "edit": "Edit",
@@ -85,5 +78,4 @@ export default {
     "edit": "Bewerken",
     "save": "Opslaan"
   }
-}
-</i18n>
+}</i18n>

@@ -1,11 +1,8 @@
 <template lang="html">
-  <filter-wrapper
-    v-bind:id="filter.key"
-    v-on:remove="remove"
-    icon="message"
+  <filter-wrapper v-bind:id="filter.key" v-on:remove="remove" icon="message"
     v-bind:title="filter.item.getHtmlExcerpt()">
     <template v-slot:settings>
-      <filter-setting-context v-model="filter" />
+      <filter-setting-context :modelValue="filter" />
     </template>
   </filter-wrapper>
 </template>

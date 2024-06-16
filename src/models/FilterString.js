@@ -1,4 +1,3 @@
-/*eslint import/namespace: ['error', { allowComputed: true }]*/
 /**
  * FilterString object
  * @param {String} context either 'include' or 'exclude'
@@ -27,21 +26,21 @@ export default class FilterString extends FilterItems {
 
   setItems(items = []) {
     this.items = items
-      .map(uid => {
+      .map((uid) => {
         if (uid instanceof StringItem) {
           return uid
         }
         return new StringItem({ uid })
       })
-      .filter(item => item.isValid)
+      .filter((item) => item.isValid)
   }
 
   getQuery() {
     const query = {
       type: this.type,
       op: this.op,
-      q: this.items.map(d => d.uid),
-      precision: this.precision,
+      q: this.items.map((d) => d.uid),
+      precision: this.precision
     }
 
     if (this.distance !== 0) {

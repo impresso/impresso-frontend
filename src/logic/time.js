@@ -9,16 +9,17 @@ import { utcDay, utcMonth, utcYear } from 'd3'
  * @param {(Date) => T} fillItemFn function used to generate a new `T` given date
  * @returns {T[]}
  */
-// eslint-disable-next-line import/prefer-default-export
 export function withMissingDates(items, interval, getDateFn, fillItemFn) {
-  if (typeof getDateFn !== 'function') throw new Error(`getDateFn is not a function: ${typeof getDateFn}`)
-  if (typeof fillItemFn !== 'function') throw new Error(`fillItemFn is not a function: ${typeof fillItemFn}`)
+  if (typeof getDateFn !== 'function')
+    throw new Error(`getDateFn is not a function: ${typeof getDateFn}`)
+  if (typeof fillItemFn !== 'function')
+    throw new Error(`fillItemFn is not a function: ${typeof fillItemFn}`)
 
-  const intervalFn = ({
+  const intervalFn = {
     day: utcDay.range,
     month: utcMonth.range,
-    year: utcYear.range,
-  })[interval]
+    year: utcYear.range
+  }[interval]
   if (intervalFn == null) throw new Error(`Unknown interval: ${interval}`)
 
   const sortedItems = [...items].sort((a, b) => getDateFn(a).getTime() - getDateFn(b).getTime())

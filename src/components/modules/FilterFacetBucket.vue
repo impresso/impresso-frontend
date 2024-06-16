@@ -2,13 +2,7 @@
   <div class="FilterFacetBucket d-flex text-small">
     <b-form-checkbox v-model="isChecked"> </b-form-checkbox>
 
-    <item-selector
-      hide-icon
-      :uid="bucket.val"
-      :item="bucket.item"
-      :type="type"
-      :searchIndex="searchIndex"
-    >
+    <item-selector hide-icon :uid="bucket.val" :item="bucket.item" :type="type" :searchIndex="searchIndex">
       <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
       <span class="FilterFacetBucket__label" v-else>{{ item }}</span>
       <span v-if="bucket.count > -1">
@@ -52,8 +46,8 @@ export default {
       },
       set(checked) {
         this.checked = checked
-        this.bucket.checked = checked
-        this.bucket.operator = this.operator
+        this.bucket.checked = checked  // eslint-disable-line
+        this.bucket.operator = this.operator  // eslint-disable-line
         this.$emit('toggle-bucket', this.bucket)
       },
     },
@@ -81,16 +75,17 @@ export default {
 .FilterFacetBucket label {
   font-variant: normal;
 }
+
 .FilterFacetBucket .ItemSelector {
   cursor: pointer;
 }
+
 .FilterFacetBucket .ItemSelector:hover {
   text-decoration: underline;
 }
 </style>
 
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "dates": {
       "lastModifiedDate": "Last-Modified-Date"
@@ -101,5 +96,4 @@ export default {
       "and": "include (AND)"
     }
   }
-}
-</i18n>
+}</i18n>

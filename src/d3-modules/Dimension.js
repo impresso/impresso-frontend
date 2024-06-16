@@ -1,4 +1,3 @@
-/*eslint import/namespace: ['error', { allowComputed: true }]*/
 import * as d3 from 'd3'
 
 const TYPE_DISCRETE = 'TYPE_DISCRETE'
@@ -13,7 +12,7 @@ class Dimension {
     domain = [0, 1],
     range = [0, 1],
     isRangeFixed = false,
-    discreteColorSchemeName = 'Warm',
+    discreteColorSchemeName = 'Warm'
   } = {}) {
     this.name = name
     this.property = property
@@ -29,9 +28,7 @@ class Dimension {
       this.updateDiscreteColors(this.discreteColorsSchemeName)
       this.scale = this.scaleFn(this.discreteColors).domain(this.domain)
     } else {
-      this.scale = this.scaleFn()
-        .domain(this.domain)
-        .range(this.range)
+      this.scale = this.scaleFn().domain(this.domain).range(this.range)
     }
   }
 
@@ -60,7 +57,7 @@ class Dimension {
       console.warn('this.values not set in dimension, do update() before calling getNearestValue')
       return {
         index: -1,
-        nearest: null,
+        nearest: null
       }
     }
     const idx = d3.bisectLeft(this.values, v)
@@ -68,7 +65,7 @@ class Dimension {
     if (idx === 0) {
       return {
         index: 0,
-        nearest: this.values[0],
+        nearest: this.values[0]
       }
     }
 
@@ -78,12 +75,12 @@ class Dimension {
     if (Math.abs(v - d0) > Math.abs(v - d1)) {
       return {
         index: idx,
-        nearest: d1,
+        nearest: d1
       }
     }
     return {
       index: idx - 1,
-      nearest: d0,
+      nearest: d0
     }
   }
 
@@ -93,9 +90,7 @@ class Dimension {
     }
     this.domain = domain
     this.isDomainFixed = fixed
-    this.scale = this.scaleFn()
-      .domain(this.domain)
-      .range(this.range)
+    this.scale = this.scaleFn().domain(this.domain).range(this.range)
   }
   /**
    * If type is TYPE_CONTINUOUS, values should be a flattened array of values
@@ -106,7 +101,7 @@ class Dimension {
    * @return {[type]}          [description]
    */
   update({ property, values, range }) {
-    this.values = values.map(d => d[this.property])
+    this.values = values.map((d) => d[this.property])
     if (property) {
       this.property = property
     }
@@ -124,12 +119,12 @@ class Dimension {
         this.domain = Object.keys(groups)
         this.updateDiscreteColors(this.discreteColorsSchemeName)
         this.scale = this.scaleFn(this.discreteColors).domain(this.domain)
-        this.domain.forEach(key => {
+        this.domain.forEach((key) => {
           this.legend.push({
             name: key,
             property: this.property,
             count: groups[key].length,
-            color: this.scale(key),
+            color: this.scale(key)
           })
         })
       } catch (e) {
@@ -139,22 +134,20 @@ class Dimension {
           '\n- error:',
           e,
           '\n- values:',
-          values,
+          values
         )
       }
     } else {
       if (!this.isDomainFixed) {
-        this.domain = d3.extent(values, d => d[this.property])
+        this.domain = d3.extent(values, (d) => d[this.property])
         // console.info(`[${this.name}:${this.property}]`, 'Dimension.update(), updated domain:', this.domain);
       }
-      this.scale = this.scaleFn()
-        .domain(this.domain)
-        .range(this.range)
+      this.scale = this.scaleFn().domain(this.domain).range(this.range)
     }
   }
 
   accessor() {
-    return d => this.scale(d[this.property])
+    return (d) => this.scale(d[this.property])
   }
 
   /**

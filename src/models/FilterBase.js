@@ -1,4 +1,3 @@
-/*eslint import/namespace: ['error', { allowComputed: true }]*/
 import * as contexts from './Contexts'
 
 export default class Filter {
