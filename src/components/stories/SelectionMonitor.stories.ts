@@ -5,13 +5,18 @@ import { type State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import type { Meta, StoryObj } from '@storybook/vue3';
 import SelectionMonitor from '@/components/SelectionMonitor.vue';
 
-interface SelectionMonitorProps {
+interface SelectionMonitorProps extends Partial<State> {
   filters?: Filter[]
   startYear: number
   endYear: number
 }
 
-const meta: Meta<SelectionMonitorProps & State> = {
+const a: Partial<State> = {
+  isActive: true
+}
+
+
+const meta: Meta<SelectionMonitorProps> = {
   title: 'Components/SelectionMonitor',
   component: SelectionMonitor,
   tags: ['autodocs'],
@@ -19,18 +24,20 @@ const meta: Meta<SelectionMonitorProps & State> = {
   args: {
     startYear: 1800,
     endYear: 2000,
-    //
-    isActive: true,
-    applyCurrentSearchFilters: false,
-    item: null,
-    items: [],
-    searchIndex: 'search',
-    scope: 'overview',
-    type: null,
-    displayTimeline: true,
-    displayActionButtons: true,
-    debug: false,
-    displayCurrentSearchFilters: false
+    ...({
+      // store props
+      isActive: true,
+      applyCurrentSearchFilters: false,
+      item: null,
+      items: [],
+      searchIndex: 'search',
+      scope: 'overview',
+      type: null,
+      displayTimeline: true,
+      displayActionButtons: true,
+      debug: false,
+      displayCurrentSearchFilters: false
+    })
   },
   render: (args) => {
     const selectionMonitor = useSelectionMonitorStore()

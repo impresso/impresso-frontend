@@ -9,7 +9,7 @@ const DefaultImpressoFeatures = {
 
 const reducedTimeoutPromise = ({ ms = 500, service }) =>
   new Promise((resolve, reject) => {
-    let id = setTimeout(() => {
+    const id = setTimeout(() => {
       clearTimeout(id)
       reject(new Error(`Timed out in ${ms} ms for service: ${service}`))
     }, ms)
@@ -46,7 +46,9 @@ export const initSequence = async () => Promise.race([
     // eslint-disable-next-line
     console.debug('[main] Loading app & data version...')
     return Promise.race([
-      reducedTimeoutPromise({ service: 'version' }),
+      reducedTimeoutPromise({
+        service: 'version',
+      }),
       versionService.find().then(res => ({
         version: res.version,
         apiVersion: res.apiVersion,
@@ -71,6 +73,12 @@ export const initSequence = async () => Promise.race([
       newspapers,
       apiVersion = {},
       features = DefaultImpressoFeatures,
+    }: {
+      version: string,
+      documentsDateSpan: { firstDate: string, lastDate: string },
+      newspapers: any,
+      apiVersion: any,
+      features: any,
     }) => {
       console.info(
         '%cimpresso-middle-layer version',
@@ -87,35 +95,36 @@ export const initSequence = async () => Promise.race([
         '\n - features:',
         features,
       )
-      window.impressoFrontendVersion = import.meta.env.VITE_GIT_TAG
-      window.impressoFrontendRevision = import.meta.env.VITE_GIT_REVISION
-      window.impressoFrontendBranch = import.meta.env.VITE_GIT_BRANCH
-      window.impressoVersion = version
-      window.impressoApiVersion = apiVersion
-      window.impressoDocumentsDateSpan = documentsDateSpan
-      window.impressoNewspapers = newspapers
-      window.impressoFeatures = features
-      window.impressoDocumentsYearSpan = {
+      const glob: any = window
+      glob.impressoFrontendVersion = import.meta.env.VITE_GIT_TAG
+      glob.impressoFrontendRevision = import.meta.env.VITE_GIT_REVISION
+      glob.impressoFrontendBranch = import.meta.env.VITE_GIT_BRANCH
+      glob.impressoVersion = version
+      glob.impressoApiVersion = apiVersion
+      glob.impressoDocumentsDateSpan = documentsDateSpan
+      glob.impressoNewspapers = newspapers
+      glob.impressoFeatures = features
+      glob.impressoDocumentsYearSpan = {
         firstYear: new Date(documentsDateSpan.firstDate).getFullYear(),
         lastYear: new Date(documentsDateSpan.lastDate).getFullYear(),
       }
-      window.impressoInfo = {
+      glob.impressoInfo = {
         frontend: {
-          version: window.impressoFrontendVersion,
-          revision: window.impressoFrontendRevision,
-          branch: window.impressoFrontendBranch,
+          version: glob.impressoFrontendVersion,
+          revision: glob.impressoFrontendRevision,
+          branch: glob.impressoFrontendBranch,
           gitRepoUrl: import.meta.env.VITE_GIT_REPO,
-          gitCommitUrl: `${import.meta.env.VITE_GIT_REPO}/commit/${window.impressoFrontendRevision}`,
+          gitCommitUrl: `${import.meta.env.VITE_GIT_REPO}/commit/${glob.impressoFrontendRevision}`,
           gitCommitUrlLabel: import.meta.env.VITE_GIT_REPO.split('/')
             .slice(3, 5)
             .join('/'),
         },
         middleLayer: {
-          version: 'v' + window.impressoApiVersion.version,
-          revision: window.impressoApiVersion.revision,
-          branch: window.impressoApiVersion.branch,
+          version: 'v' + glob.impressoApiVersion.version,
+          revision: glob.impressoApiVersion.revision,
+          branch: glob.impressoApiVersion.branch,
           gitRepoUrl: import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO,
-          gitCommitUrl: `${import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO}/commit/${window.impressoApiVersion.revision}`,
+          gitCommitUrl: `${import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO}/commit/${glob.impressoApiVersion.revision}`,
           gitCommitUrlLabel: import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO.split('/')
             .slice(3, 5)
             .join('/'),

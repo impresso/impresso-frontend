@@ -122,7 +122,7 @@
   </div>
 </template>
 
-<script>
+<script lang="js">
 import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import FilterFacetBucket from '@/components/modules/FilterFacetBucket.vue'
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
@@ -362,6 +362,7 @@ export default defineComponent({
             ),
           )
           this.skip = this.additionalBuckets.length + this.facet.buckets.length
+          // eslint-disable-next-line vue/no-mutating-props
           this.facet.numBuckets = numBuckets
         })
         .catch(err => {
@@ -389,6 +390,7 @@ export default defineComponent({
             { ignoreErrors: true },
           )
           .then(({ numBuckets, buckets }) => {
+            // eslint-disable-next-line vue/no-mutating-props
             this.facet.numBuckets = numBuckets
             this.facet.setBuckets(buckets)
           })

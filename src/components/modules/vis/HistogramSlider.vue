@@ -6,7 +6,7 @@
       </b-row>
       <b-row>
         <vue-slider
-          class="slider"
+          :class="slider"
           v-model="sliderValue"
           :min="sliderRange[0]"
           :max="sliderRange[1]"
@@ -23,8 +23,7 @@
 
 <script>
 import * as d3 from 'd3'
-import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
+import VueSlider from 'vue-3-slider-component'
 
 /**
  * NOTE: Only works with integers. If you need to do fractions you

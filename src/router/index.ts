@@ -20,7 +20,7 @@ import IssueViewerPage from '@/pages/IssueViewerPage.vue'
 import { getShortArticleId } from '@/logic/ids'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
-import { defineAsyncComponent } from 'vue'
+import { AnalyticsObject } from '@/plugins/analytics'
 
 const BASE_URL = import.meta.env.BASE_URL || '/'
 // eslint-disable-next-line
@@ -119,7 +119,9 @@ const router = createRouter({
         userStore.logout().then(
           () => {},
           err => {
-            this.error = this.$t(err.message)
+            console.error(err)
+            // what was supposed to be `this`?
+            // this.error = this.$t(err.message)
           },
         )
       },
@@ -236,8 +238,8 @@ const router = createRouter({
           issue_uid: to.params.issue_uid,
         },
         query: {
-          p: to.params.page_uid.match(/p0*(\d+)$/)[1],
-          articleId: getShortArticleId(to.params.article_uid),
+          p: (to.params.page_uid as string).match(/p0*(\d+)$/)[1],
+          articleId: getShortArticleId(to.params.article_uid as string),
         },
       }),
     },
@@ -329,20 +331,20 @@ const router = createRouter({
     },
     {
       path: '/article/:article_uid',
-      beforeEnter: (to, from, next) => {
-        services.articles.get(to.params.article_uid).then(res => {
-          next({
-            name: 'issue-viewer',
-            params: {
-              issue_uid: res.issue.uid,
-            },
-            query: {
-              p: res.pages[0]?.num,
-              articleId: getShortArticleId(res.uid),
-              text: '1',
-            },
-          })
-        })
+      component: () => null,
+      beforeEnter: async (to) => {
+        const res = await services.articles.get(to.params.article_uid as string)
+        return {
+          name: 'issue-viewer',
+          params: {
+            issue_uid: res.issue.uid,
+          },
+          query: {
+            p: res.pages[0]?.num,
+            articleId: getShortArticleId(res.uid),
+            text: '1',
+          },
+        }
       },
     },
     {
@@ -447,16 +449,17 @@ router.beforeEach((to, from, next) => {
   // console.info('[router/index] Routing \-to : to', to.name, to.path, 'from', from.name, from.path)
   // Vue.prototype.$renderMetaTags({ title: to.name })
   // # forward page to matomo analytics using base.URL
-  if (window._paq) {
+  const analytics = (window as any as { _paq?: AnalyticsObject })._paq
+  if (analytics) {
     console.info(
       '[router/index] Matomo tracking \n - path: ',
       pathWithPrefix,
       ' \n - title:',
       to.name,
     )
-    window._paq.push(['setCustomUrl', pathWithPrefix])
-    window._paq.push(['setDocumentTitle', to.name])
-    window._paq.push(['trackPageView'])
+    analytics.push(['setCustomUrl', pathWithPrefix])
+    analytics.push(['setDocumentTitle', to.name as string])
+    analytics.push(['trackPageView'])
   } else {
     console.warn('[router/index] Matomo not loaded')
   }

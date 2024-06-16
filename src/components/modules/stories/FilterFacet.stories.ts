@@ -1,15 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import FilterFacet from '@/components/FilterFacet.vue'
+import FilterFacet from '@/components/modules/FilterFacet.vue'
 import type { Facet } from '@/models'
 
-const meta: Meta<typeof FilterFacet> = {
+interface CompType {
+  primary?: boolean, lazy?: boolean, facet?: any,
+}
+
+const meta: Meta<CompType> = {
   title: 'Components/Modules/FilterFacet',
   component: FilterFacet,
   tags: ['autodocs'],
   argTypes: {
     lazy: { control: 'check' },
   },
-  args: { primary: false }, // default value
+  args: { primary: false } as any, // default value
 } satisfies Meta<typeof FilterFacet>;
 
 export default meta

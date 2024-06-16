@@ -173,7 +173,7 @@
 <script lang="ts">
 import Modal from '@/components/base/Modal.vue';
 import { PasswordRegex } from '@/logic/user';
-import { User } from '@/models/user';
+import User from '@/models/User';
 import { useUserStore } from '@/stores/user';
 import useVuelidate from '@vuelidate/core';
 import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators';

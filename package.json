@@ -58,7 +58,7 @@
     "vue-i18n": "9.13.1",
     "vue-matomo": "^4.2.0",
     "vue-router": "4.3.2",
-    "vue-slider-component": "4.1.0-beta.7",
+    "vue-3-slider-component": "1.0.0",
     "vue3-observe-visibility": "^1.0.1",
     "webfontloader": "1.6.28"
   },
@@ -107,6 +107,7 @@
     "vite": "^5.2.8",
     "vite-plugin-vue-devtools": "7.3.0-beta.2",
     "vitest": "^1.4.0",
+    "vue-component-type-helpers": "^2.0.21",
     "vue-tsc": "^2.0.11"
   },
   "browserslist": [

@@ -1,8 +1,10 @@
 // import Vue from 'vue'
 // import VueRouter, { Route } from 'vue-router'
 
+import { Component } from "vue";
+
 // declare module "*.vue" {
-//   export default Vue;
+//   export default Component;
 // }
 
 // declare class Navigation {
@@ -19,7 +21,17 @@
 // }
 
 
-declare module '@/models/*';
-declare module '@/components/*';
-declare module '@/components/modules/*';
-declare module '@/router/*';
+// declare module '@/models/*';
+// declare module '@/components/*';
+// declare module '@/components/modules/*';
+// declare module '@/router/*';
+// declare module '@/logic/*';
+// declare module '@/d3-modules/*';
+// declare module '@/pages/*';
+
+// declare module 'vue-slider-component' {
+  // export default any
+// }
+//  {
+//   export default Component
+// }

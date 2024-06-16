@@ -61,14 +61,10 @@ export const useUserStore = defineStore('user', {
       return meService.find().then(d => new User(d));
     },
     changePassword({ uid, previousPassword, newPassword}: { uid: string, previousPassword: string, newPassword: string }) {
-      return meService.patch(uid, { previousPassword, newPassword }, {
-        ignoreErrors: true,
-      });
+      return meService.patch(uid, { previousPassword, newPassword }, {});
     },
     updateCurrentUser(user: User) {
-      return meService.update(user.uid, user, {
-        ignoreErrors: true,
-      }).then((d) => {
+      return meService.update(user.uid, user, {}).then((d) => {
         const user = new User(d);
         this.userData = user
         return user;

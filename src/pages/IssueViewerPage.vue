@@ -537,7 +537,7 @@ export default {
         })
       },
     },
-    /** @returns {import('@/models/User').default} */
+    /** @returns {import('@/models/User')} */
     currentUser() {
       return this.userStore.user
     },

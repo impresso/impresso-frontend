@@ -40,6 +40,7 @@
     <!-- visible pages -->
     <li
       v-for="page in visiblePages"
+      :key="page.number"
       role="presentation"
       class="page-item"
       :class="{ active: page.isCurrent }">
@@ -119,7 +120,7 @@ const props = defineProps({
 const emit = defineEmits(['change'])
 
 const currentPage = computed({
-  get: () => props.modelValue != null ? props.modelValue : props.currentPage,
+  get: () => props.currentPage,
   set: (value) => emit('change', value),
 })
 

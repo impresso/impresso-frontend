@@ -20,8 +20,7 @@
 </template>
 
 <script>
-import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
+import VueSlider from 'vue-3-slider-component'
 
 export default {
   components: {

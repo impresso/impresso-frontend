@@ -171,7 +171,7 @@ import useVuelidate from '@vuelidate/core';
 import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators';
 import { users as usersService } from '@/services'
 import { PasswordRegex, UserRegex } from '@/logic/user'
-import { User } from '@/models/user';
+import User from '@/models/User';
 
 // extend('required', {
 //   ...required,
@@ -237,7 +237,7 @@ export default defineComponent({
       displayName: 'Researcher',
       colors: Array(),
       pattern: Array(),
-    } as User,
+    } as User & { password: string },
     isCreated: false,
     isLoading: false,
     nda: null,
