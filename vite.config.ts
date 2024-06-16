@@ -54,6 +54,17 @@ export default ({ mode }: { mode: string }) => {
           changeOrigin: true,
         }
       }
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (id.includes('openseadragon')) return 'openseadragon'
+            if (id.includes('d3')) return 'd3'
+            if (id.includes('protobuf')) return 'protobuf'
+          }
+        }
+      }
     }
   })
 }
