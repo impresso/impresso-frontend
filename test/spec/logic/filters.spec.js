@@ -1,4 +1,4 @@
-/* eslint-env mocha */
+import { describe, test as it } from 'vitest'
 import assert from 'assert';
 import { optimizeFilters } from '../../../src/logic/filters'
 

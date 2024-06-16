@@ -1,5 +1,4 @@
-// @ts-check
-/* eslint-env mocha */
+import { describe, test as it } from 'vitest'
 import assert from 'assert';
 import { withMissingDates } from '../../../src/logic/time'
 
