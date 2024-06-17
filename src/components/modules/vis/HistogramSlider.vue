@@ -4,15 +4,15 @@
       <b-row ref="chartContainer">
         <svg ref="chart" class="chart" preserveAspectRatio="none"></svg>
       </b-row>
-      <b-row>
-        <vue-slider
-          :class="slider"
+      <b-row v-if="shouldEnableSlider">
+        <VueSlider
+          width="100%"
           v-model="sliderValue"
-          :min="sliderRange[0]"
-          :max="sliderRange[1]"
-          :marks="sliderMarks"
-          :silent="true"
-          :enable-cross="false"
+          v-bind="{
+            modelValue: [sliderValue[0], sliderValue[1]],
+            min: sliderRange[0],
+            max: sliderRange[1]
+          }"
           :tooltip-formatter="formatTooltip"
           :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
         />
@@ -24,7 +24,7 @@
 <script>
 import * as d3 from 'd3'
 import VueSlider from 'vue-3-slider-component'
-
+import DualSlider from '../../legacy/DualSlider.vue'
 /**
  * NOTE: Only works with integers. If you need to do fractions you
  * will need to normalise them.
@@ -34,30 +34,30 @@ export default {
   props: {
     /** @type {import('vue').PropOptions<Number[]>} */
     modelValue: {
-      type: Array,
+      type: Array
     },
     /** @type {import('vue').PropOptions<Number[]>} */
     range: {
-      type: Array,
+      type: Array
     },
     /** @type {import('vue').PropOptions<import('@/models').Bucket[]>} */
     buckets: {
-      type: Array,
+      type: Array
     },
     chartHeight: {
       type: Number,
-      default: 50,
+      default: 50
     },
     onlyRangeLabels: {
       type: Boolean,
-      default: false,
+      default: false
     },
     scaleType: {
       type: String,
-      default: 'linear',
-    },
+      default: 'linear'
+    }
   },
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'change'],
   mounted() {
     // @ts-ignore
     window.addEventListener('resize', this.renderChart.bind(this))
@@ -68,23 +68,29 @@ export default {
     window.removeEventListener('resize', this.renderChart.bind(this))
   },
   computed: {
-    value() { return this.modelValue },
+    value() {
+      return this.modelValue
+    },
     sliderValue: {
       /** @returns {undefined|number[]} */
       get() {
-        return this.value?.length === 2 ? this.value : [0, 0]
+        return this.value?.length === 2 ? this.value : [this.sliderRange[0], this.sliderRange[1]]
       },
       /** @param {undefined|number[]} value */
       set(value) {
         this.$emit('change', value)
-      },
+      }
     },
     /** @returns {{[key:string]: string}|string[]|undefined} */
     sliderMarks() {
       if (this.onlyRangeLabels) {
         return this.sliderRange.reduce((acc, d) => {
           let label = ''
-          try { label = this.$n(d) } catch { /* noop */ }
+          try {
+            label = this.$n(d)
+          } catch {
+            /* noop */
+          }
           acc[d] = { label }
           return acc
         }, {})
@@ -93,13 +99,10 @@ export default {
       if (this.buckets && this.buckets.length > 0) {
         const step = Math.floor(this.buckets.length / marksCount)
         return this.buckets
-          .reduce(
-            (acc, { val }, index) => {
-              if (index % step === 0) acc.push(val)
-              return acc
-            },
-            /** @type {string[]} */ ([]),
-          )
+          .reduce((acc, { val }, index) => {
+            if (index % step === 0) acc.push(val)
+            return acc
+          }, /** @type {string[]} */ ([]))
           .concat([this.sliderRange[1].toString()])
       }
       const [min, max] = this.sliderRange
@@ -116,6 +119,20 @@ export default {
 
       return [min < this.range[0] ? min : this.range[0], max > this.range[1] ? max : this.range[1]]
     },
+    shouldEnableSlider() {
+      console.log('shouldEnableSlider', this.sliderRange, this.sliderValue)
+      if (
+        !isNaN(this.sliderRange[0]) &&
+        isFinite(this.sliderRange[0]) &&
+        !isNaN(this.sliderRange[1]) &&
+        isFinite(this.sliderRange[1]) &&
+        !isNaN(this.sliderValue[0]) &&
+        !isNaN(this.sliderValue[1])
+      ) {
+        return true
+      }
+      return false
+    }
   },
   methods: {
     renderChart() {
@@ -140,7 +157,7 @@ export default {
         {
           linear: d3.scaleLinear,
           sqrt: d3.scaleSqrt,
-          symlog: d3.scaleSymlog,
+          symlog: d3.scaleSymlog
         }[this.scaleType] ?? d3.scaleLinear
 
       const y = yScaler()
@@ -163,13 +180,13 @@ export default {
         .data(this.buckets)
         .join('g')
         .attr('class', (d, i) => (i === barIndexWithMaximumValue ? 'bar max' : 'bar'))
-        .attr('transform', d => `translate(${x(d.val) ?? 0}, ${this.chartHeight - y(d.count)})`)
+        .attr('transform', (d) => `translate(${x(d.val) ?? 0}, ${this.chartHeight - y(d.count)})`)
 
       // add rects to the bars
       bars
         .append('rect')
         .attr('width', x.bandwidth())
-        .attr('height', d => Math.max(1, y(d.count)))
+        .attr('height', (d) => Math.max(1, y(d.count)))
 
       // add a black line on top of the bars
       bars
@@ -183,10 +200,10 @@ export default {
       bars
         .join('rect')
         .attr('class', 'bar')
-        .attr('x', d => x(d.val) ?? 0)
+        .attr('x', (d) => x(d.val) ?? 0)
         .attr('width', x.bandwidth())
-        .attr('y', d => this.chartHeight - y(d.count))
-        .attr('height', d => Math.max(1, y(d.count)))
+        .attr('y', (d) => this.chartHeight - y(d.count))
+        .attr('height', (d) => Math.max(1, y(d.count)))
         // add black lines to the top of the bars
         .append('line')
         .attr('x1', 0)
@@ -195,10 +212,7 @@ export default {
         .attr('y2', 0)
         .attr('stroke', 'black')
 
-      const hoveredBar = svg
-        .selectAll('g.hovered-bar')
-        .data([null])
-        .join('g')
+      const hoveredBar = svg.selectAll('g.hovered-bar').data([null]).join('g')
 
       const hoveredBackground = hoveredBar
         .append('rect')
@@ -220,7 +234,7 @@ export default {
         .on('mousemove', () => {
           const [xPos] = d3.mouse(this.$refs.chart)
           const bucket = this.buckets.find(
-            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth(),
+            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth()
           )
           if (bucket) {
             const xBucket = x(bucket.val) ?? 0
@@ -228,10 +242,10 @@ export default {
             this.$emit('mousemove', {
               pointer: {
                 x: xBucket + x.bandwidth() / 2,
-                y: yBucket,
+                y: yBucket
               },
               hspace: this.chartWidth,
-              bucket,
+              bucket
             })
             // translate the hovered bar to the correct position using transform for x and y
             hoveredBar.attr('transform', `translate(${xBucket}, ${yBucket})`)
@@ -254,7 +268,7 @@ export default {
         .on('click', () => {
           const [xPos] = d3.mouse(this.$refs.chart)
           const bucket = this.buckets.find(
-            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth(),
+            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth()
           )
           if (bucket) {
             this.$emit('click', { bucket })
@@ -266,7 +280,7 @@ export default {
         .data(maxCountBucketIndex >= 0 ? [this.buckets[maxCountBucketIndex]] : [])
         .join('g')
         .attr('class', 'maxval')
-        .attr('transform', bucket => {
+        .attr('transform', (bucket) => {
           const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
           const yOffset = this.chartHeight - y(bucket.count)
           return `translate(${xOffset}, ${yOffset})`
@@ -274,17 +288,17 @@ export default {
 
       maxval
         .selectAll('text')
-        .data(d => [d])
+        .data((d) => [d])
         .join('text')
         .attr('dy', -5)
-        .text(bucket => {
+        .text((bucket) => {
           const tlabel = bucket.upper && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
           return this.$t(tlabel, {
             n: this.$n(Math.round(bucket.count)),
-            ...bucket,
+            ...bucket
           })
         })
-        .attr('text-anchor', bucket => {
+        .attr('text-anchor', (bucket) => {
           const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
           const oneThirdWidth = width / 3
           if (xOffset <= oneThirdWidth) return 'start'
@@ -294,14 +308,14 @@ export default {
 
       maxval
         .selectAll('circle.point')
-        .data(d => [d])
+        .data((d) => [d])
         .join('circle')
         .attr('class', 'point')
         .attr('r', 2) // 3
     },
     formatTooltip(d) {
       return this.$n(d)
-    },
+    }
   },
   watch: {
     buckets() {
@@ -309,11 +323,12 @@ export default {
       if (this.$refs.chart) {
         this.renderChart()
       }
-    },
+    }
   },
   components: {
     VueSlider,
-  },
+    DualSlider
+  }
 }
 </script>
 
