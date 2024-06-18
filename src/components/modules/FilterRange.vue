@@ -22,6 +22,7 @@
       :only-range-labels="true"
       :scale-type="'symlog'"
       :sliderValue="value"
+      @change="changeValue"
     />
 
     <div class="p-2" v-if="valuesHaveChanged">
@@ -48,19 +49,19 @@ import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue'
 
 export default {
   data: () => ({
-    value: /** @type {number[]} */ ([]),
+    value: /** @type {number[]} */ ([])
   }),
   props: {
     /** @type {import('vue').PropOptions<import('@/models').Facet>} */
     facet: {
       type: Object,
-      required: true,
+      required: true
     },
     /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
     facetFilters: {
       type: Array,
-      required: true,
-    },
+      required: true
+    }
   },
   computed: {
     /** @returns {import('@/models').Bucket[]} */
@@ -82,16 +83,19 @@ export default {
       /** @param val {number[]} */
       set(val) {
         this.value = val
-      },
+      }
     },
     /** @returns {number[]} */
     filterValue() {
       if (this.facetFilters.length === 0) return []
       if (typeof this.facetFilters[0].q === 'undefined') return []
-      return /** @type {string[]} */ (this.facetFilters[0].q).map(v => parseInt(v, 10))
-    },
+      return /** @type {string[]} */ (this.facetFilters[0].q).map((v) => parseInt(v, 10))
+    }
   },
   methods: {
+    changeValue(val) {
+      this.value = val
+    },
     resetValues() {
       this.value = []
     },
@@ -99,19 +103,19 @@ export default {
       if (this.value.length !== 2) return this.$emit('changed', [])
       const filter = {
         type: this.facet.type,
-        q: this.value.map(v => v.toString()),
+        q: this.value.map((v) => v.toString())
       }
       this.$emit('changed', [filter])
     },
     handleResetFilters() {
       this.value = []
       this.applyValues()
-    },
+    }
   },
   components: {
     HistogramSlider,
     BaseTitleBar,
-    InfoButton,
-  },
+    InfoButton
+  }
 }
 </script>
