@@ -24,7 +24,6 @@
 <script>
 import * as d3 from 'd3'
 import VueSlider from 'vue-3-slider-component'
-import DualSlider from '../../legacy/DualSlider.vue'
 /**
  * NOTE: Only works with integers. If you need to do fractions you
  * will need to normalise them.
@@ -325,8 +324,7 @@ export default {
     }
   },
   components: {
-    VueSlider,
-    DualSlider
+    VueSlider
   }
 }
 </script>
