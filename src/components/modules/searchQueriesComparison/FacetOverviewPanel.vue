@@ -37,14 +37,14 @@
               :highlight="timelineHighlightValue"
               :highlight-enabled-state="timelineHighlightEnabled"
               :brushable="false">
-          <div slot-scope="tooltipScope">
+          <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
-              {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
-              <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w, {
-                n: $n(tooltipScope.tooltip.item.w),
+              {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year', 'en') }} &middot;
+              <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w ?? 0, {
+                n: $n(tooltipScope.tooltip.item.w ?? 0),
               })"/>
             </div>
-          </div>
+          </template>
         </timeline>
       </div>
     </div>
@@ -80,9 +80,9 @@
 </template>
 
 <script>
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
-import Timeline from '@/components/modules/Timeline'
-import InfoButton from '@/components/base/InfoButton'
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
+import Timeline from '@/components/modules/Timeline.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 import Bucket from '@/models/Bucket'
 import { search } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
@@ -276,7 +276,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

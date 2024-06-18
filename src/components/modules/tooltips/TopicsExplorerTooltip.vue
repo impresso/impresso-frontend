@@ -48,25 +48,25 @@ import { useMonitorStore } from '@/stores/monitor'
 import { topics as topicsService } from '@/services'
 
 export default {
-  model: {
-    prop: 'tooltip',
-    default: {
-      x: 0,
-      y: 0,
-      count: 0,
-      isActive: false,
-      isHighlighted: false,
-      item: new Topic(),
-    },
-  },
   props: {
-    tooltip: Object,
+    modelValue: {
+      type: Object,
+      default: () => ({
+        x: 0,
+        y: 0,
+        count: 0,
+        isActive: false,
+        isHighlighted: false,
+        item: new Topic(),
+      })
+    },
     isActive: Boolean,
   },
   data: () => ({
     isLoading: false,
   }),
   computed: {
+    tooltip() { return this.modelValue },
     ...mapStores(useMonitorStore),
     searchRouteLink() {
       return {

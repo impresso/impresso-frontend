@@ -1,7 +1,8 @@
 <template>
   <i-layout-section :width="width">
     <!--  header -->
-    <div slot="header" class="border-bottom bg-light">
+    <template v-slot:header>
+    <div class="border-bottom bg-light">
       <slot name="tabs">
         <search-tabs />
       </slot>
@@ -24,6 +25,7 @@
         </slot>
       </div>
     </div>
+    </template>
     <!-- body (aka) facets -->
     <div class="pt-3 pb-5">
       <slot>
@@ -41,10 +43,10 @@
 </template>
 
 <script>
-import SearchPills from '@/components/SearchPills'
-import SearchTabs from '@/components/modules/SearchTabs'
-import InfoButton from '@/components/base/InfoButton'
-import SearchFacets from '@/components/SearchFacets'
+import SearchPills from '@/components/SearchPills.vue'
+import SearchTabs from '@/components/modules/SearchTabs.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
+import SearchFacets from '@/components/SearchFacets.vue'
 
 /**
  * @typedef {import('@/models').Filter} Filter

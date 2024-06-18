@@ -3,7 +3,7 @@
     <option
       v-for="option in options"
       :key="option.value"
-      :selected="option.value === value"
+      :selected="option.value === modelValue"
       :value="option.value">
         {{ option.text }}
     </option>
@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, computed, useAttrs } from 'vue'
+import { type PropType, computed, useAttrs } from 'vue'
 
 export interface Option {
   value: string | number
@@ -19,7 +19,7 @@ export interface Option {
 }
 
 const props = defineProps({
-  value: [String, Number],
+  modelValue: [String, Number],
   options: {
     type: Array as PropType<Option[]>,
     required: true,
@@ -29,11 +29,11 @@ const props = defineProps({
     default: 'md',
   }
 })
-const emit = defineEmits(['change', 'input'])
+const emit = defineEmits(['update:modelValue'])
 
 const attrs = useAttrs()
 
-const allowedAttrs = ['onClick', 'title']
+const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BFormSelect: Unknown attributes: ${unknownAttrs.join(', ')}`)
@@ -47,7 +47,6 @@ const sClass = computed(() => ({
 
 const handleChange = (event: Event) => {
   const target = event.target as HTMLSelectElement
-  emit('change', target.value)
-  emit('input', target.value)
+  emit('update:modelValue', target.value)
 }
 </script>

@@ -28,9 +28,7 @@
             params: {
               entity_id: this.id,
             },
-          }"
-          @click.native="hide"
-        >
+          }">
           {{ $t('actions.detail') }}
         </router-link>
       </div>
@@ -52,12 +50,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineAsyncComponent, defineComponent } from 'vue'
 import { optimizeFilters } from '@/logic/filters'
 import { entities as entitiesService, textReusePassages } from '@/services'
 import WikidataBlock from './modules/WikidataBlock.vue'
 import Spinner from './layout/Spinner.vue'
-import TextReusePassage from '@/models/TextReusePassage'
 import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
 
 export default defineComponent({
@@ -178,12 +175,12 @@ export default defineComponent({
     WikidataBlock,
     Spinner,
     TextReusePassageItem,
-    ListOfItems: () => import('./ListOfItems.vue'),
+    ListOfItems: () => defineAsyncComponent(() => import('./ListOfItems.vue')),
   },
 })
 </script>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "tabs_overview_search": "overview",

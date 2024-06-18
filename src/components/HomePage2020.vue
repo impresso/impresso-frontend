@@ -1,17 +1,17 @@
 <template>
   <i-layout id="HomePage2020" class="HomePage bg-dark">
-    <i-layout-section
-      class="HomePage__sidebar"
-      :class="{ ' mr-1px border-top border-right': showLines, 'border-tertiary': darkMode }"
-    >
+    <i-layout-section class="HomePage__sidebar"
+      :class="{ ' mr-1px border-top border-right': showLines, 'border-tertiary': darkMode }">
       <!--  header -->
-      <div slot="header" :class="{ 'border-bottom border-secondary': showLines }">
-        <search-tabs focusOnSearch />
-        <div class="py-3 px-3">
-          <search-pills :filters="enrichedFilters" @changed="handleFiltersChanged" />
-          <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
+      <template v-slot:header>
+        <div :class="{ 'border-bottom border-secondary': showLines }">
+          <search-tabs focusOnSearch />
+          <div class="py-3 px-3">
+            <search-pills :filters="enrichedFilters" @changed="handleFiltersChanged" />
+            <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
+          </div>
         </div>
-      </div>
+      </template>
 
       <!--  body -->
       <div class="text-tertiary p-3 stats">
@@ -37,11 +37,8 @@
         </p>
         <p>
           More? Check on our
-          <a
-            class="text-white"
-            href="https://impresso-project.ch/news/2020/01/23/state-corpus-january2020.html"
-            >blog</a
-          >
+          <a class="text-white"
+            href="https://impresso-project.ch/news/2020/01/23/state-corpus-january2020.html">blog</a>
         </p>
 
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
@@ -51,36 +48,24 @@
             project website: <a href="/" target="_blank">impresso-project.ch</a>
           </p>
           <br />
-          <img
-            src="@/assets/img/GitHub-Mark-Light-32px.png"
-            alt="GitHub icon"
-            class="mr-2"
-            style="max-height: 1em"
-          />
+          <img src="@/assets/img/GitHub-Mark-Light-32px.png" alt="GitHub icon" class="mr-2" style="max-height: 1em" />
           github:
           <a :href="impressoInfo.project.repoUrl" target="_blank">
-            {{ impressoInfo.project.repoUrlLabel }}</a
-          >
+            {{ impressoInfo.project.repoUrlLabel }}</a>
           <p>
-            <img
-              src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
-              class="mr-2"
-              style="max-height: 1em"
-              alt="X (former Twitter) icon"
-            />
+            <img src="@/assets/img/Twitter_Logo_WhiteOnImage.png" class="mr-2" style="max-height: 1em"
+              alt="X (former Twitter) icon" />
             X (former Twitter):
             <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
           </p>
           <p>
             version:
             <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
-              {{ impressoInfo.frontend.version }}</a
-            >
+              {{ impressoInfo.frontend.version }}</a>
             <br />
             middle layer:
             <a :href="impressoInfo.middleLayer.gitCommitUrl" target="_blank">
-              {{ impressoInfo.middleLayer.version }}</a
-            >
+              {{ impressoInfo.middleLayer.version }}</a>
           </p>
         </div>
 
@@ -97,10 +82,8 @@
             Mining 200 years <br />of historical newspapers, and radio.
           </h2>
         </section>
-        <section
-          v-if="!user"
-          class="HomePage__card p-3 mb-3 mt-5 text-tertiary rounded enhance-contents position-relative shadow"
-        >
+        <section v-if="!user"
+          class="HomePage__card p-3 mb-3 mt-5 text-tertiary rounded enhance-contents position-relative shadow">
           <div class="starburst-mask">
             <div class="starburst-wrapper">
               <div class="position-absolute text">
@@ -120,13 +103,9 @@
             <router-link class="text-white" :to="{ name: 'register' }">register</router-link>
             and sign our Non-Disclosure-Agreement.
           </p>
-          <b-button
-            :variant="darkMode ? 'primary' : 'outline-primary'"
-            size="lg"
+          <b-button :variant="darkMode ? 'primary' : 'outline-primary'" size="lg"
             class="border-primary rounded shadow-sm"
-            href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
-            target="_self"
-          >
+            href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" target="_self">
             <div class="d-flex flex-row align-items-center">
               <div class="d-flex dripicons dripicons-download mr-2" />
               <div>{{ $t('download_nda') }}</div>
@@ -134,9 +113,7 @@
           </b-button>
           <p class="mb-0 mt-3">
             ... and return the signed form to
-            <a class="text-white" href="mailto:info@impresso-project.ch" target="_self"
-              >info@impresso-project.ch</a
-            >
+            <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">info@impresso-project.ch</a>
           </p>
         </section>
 
@@ -148,13 +125,8 @@
             How to explore the newspapers with persons or locations? <br />What are topics good for?
             <br />What elements can be compared?
           </p>
-          <b-button
-            variant="primary"
-            size="lg"
-            href="./../assets/impresso-challenges-1.2.3.pdf"
-            target="_blank"
-            class="rounded border"
-          >
+          <b-button variant="primary" size="lg" href="./../assets/impresso-challenges-1.2.3.pdf" target="_blank"
+            class="rounded border">
             <div class="d-flex flex-row w-100 align-items-center">
               <div class="d-flex dripicons dripicons-download mr-2" />
               <div class="small-caps">
@@ -214,30 +186,16 @@
             Just a few examples to get you started!
           </p>
         </section>
-        <Recipe
-          v-for="recipe in computedRecipesWithQuery"
-          class="HomePage__card "
-          :key="recipe.caption"
-          :query="recipe.query"
-          :caption="recipe.caption"
-          :text="recipe.text"
-          :video="recipe.video"
-          :img_src="recipe.img_src"
-        />
+        <Recipe v-for="recipe in computedRecipesWithQuery" class="HomePage__card " :key="recipe.caption"
+          :query="recipe.query" :caption="recipe.caption" :text="recipe.text" :video="recipe.video"
+          :img_src="recipe.img_src" />
 
         <h3 class="p-3 m-3 HomePage__card">
           Take a moment to familiarise yourself with <em>impresso</em>'s <b>advanced search</b> and
           <b> exploration workflows</b>
         </h3>
-        <Recipe
-          v-for="recipe in computedRecipesWithoutQuery"
-          class=" HomePage__card  "
-          :key="recipe.caption"
-          :caption="recipe.caption"
-          :text="recipe.text"
-          :video="recipe.video"
-          :img_src="recipe.img_src"
-        />
+        <Recipe v-for="recipe in computedRecipesWithoutQuery" class=" HomePage__card  " :key="recipe.caption"
+          :caption="recipe.caption" :text="recipe.text" :video="recipe.video" :img_src="recipe.img_src" />
       </div>
       <HomePageFooter />
     </i-layout-section>
@@ -245,13 +203,11 @@
 </template>
 
 <script>
-import Autocomplete from './Autocomplete'
-import SearchTabs from './modules/SearchTabs'
-import SearchPills from '@/components/SearchPills'
-import Recipes from './modules/homepage/Recipes'
-import HomePageFooter from './HomePageFooter'
-import InfoButton from './base/InfoButton'
-import Recipe from './Recipe'
+import Autocomplete from './Autocomplete.vue'
+import SearchTabs from './modules/SearchTabs.vue'
+import SearchPills from '@/components/SearchPills.vue'
+import HomePageFooter from './HomePageFooter.vue'
+import Recipe from './Recipe.vue'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
@@ -350,9 +306,7 @@ export default {
   components: {
     Autocomplete,
     SearchTabs,
-    Recipes,
     HomePageFooter,
-    InfoButton,
     SearchPills,
     Recipe,
   },
@@ -361,6 +315,7 @@ export default {
 
 <style lang="scss">
 @import 'impresso-theme/src/scss/variables.sass';
+
 .HomePage__card {
   max-width: 420px;
   margin: var(--spacing-3);
@@ -370,6 +325,7 @@ export default {
 .HomePage__sidebar {
   min-width: 400px;
 }
+
 .HomePage.bg-dark {
   color: var(--clr-grey-500);
 }
@@ -378,6 +334,7 @@ export default {
   font-family: var(--bs-font-sans-serif);
   color: var(--clr-grey-700);
 }
+
 #HomePage2020.bg-dark {
   ul.nav.nav-pills .nav-item.active .nav-link {
     color: var(--clr-white);
@@ -386,23 +343,27 @@ export default {
   }
 
   .btn-primary,
-  .input-group > .form-control,
-  .input-group > .custom-select,
-  .input-group > .custom-file {
+  .input-group>.form-control,
+  .input-group>.custom-select,
+  .input-group>.custom-file {
     color: var(--clr-white);
     background-color: #343a40;
     border-color: var(--clr-white) !important;
+
     &::placeholder {
       color: var(--clr-white);
     }
+
     &:hover {
       background-color: var(--clr-dark);
     }
   }
+
   .btn-outline-primary {
     border-color: var(--clr-grey-500);
     color: var(--clr-grey-500);
     text-decoration: none;
+
     &:hover {
       color: var(--clr-white);
     }
@@ -417,12 +378,13 @@ export default {
   }
 
   .search-pill span.label.sp-string,
-  .search-pill span.label > .sp-string {
+  .search-pill span.label>.sp-string {
     color: black;
   }
 
   .stats a {
     color: var(--clr-white);
+
     &:hover {
       color: var(--impresso-color-yellow);
     }
@@ -437,6 +399,7 @@ h1.HomePage__hugeHeading {
   font-size: 8vh;
   line-height: 0.9;
 }
+
 .stats span.number {
   color: #343a40;
 }
@@ -445,10 +408,12 @@ h1.HomePage__hugeHeading {
   h1.HomePage__hugeHeading {
     text-shadow: 1px 1px 1px #17191c;
   }
+
   h1.HomePage__hugeHeading,
   h2 {
     color: var(--clr-white);
   }
+
   .stats span.number {
     color: var(--clr-white);
   }
@@ -457,6 +422,7 @@ h1.HomePage__hugeHeading {
   .border-tertiary {
     border-color: #ffffff47 !important;
   }
+
   .enhance-contents {
     background-color: #3e454c;
     font-size: 1em;
@@ -482,6 +448,7 @@ h1.HomePage__hugeHeading {
   transform: rotate(-45deg);
   transition: background-color 0.5s ease-in-out;
 }
+
 .starburst,
 .starburst span {
   display: flex;
@@ -518,6 +485,7 @@ h1.HomePage__hugeHeading {
 .starburst span:after {
   transform: rotate(30deg);
 }
+
 .starburst span:before {
   transform: rotate(-30deg);
 }
@@ -555,48 +523,56 @@ h1.HomePage__hugeHeading {
     border-radius: 50%;
     padding-top: 1.15rem;
   }
+
   &:hover {
     .starburst-wrapper {
       transform: translateY(-5rem);
     }
+
     .starburst {
       background-color: #f4d062;
     }
   }
 }
+
 .enhance-contents:hover {
   .starburst-wrapper {
     transform: translateY(-5rem);
   }
+
   .starburst {
     background-color: #f4d062;
   }
 }
 
 @-webkit-keyframes rotating {
+
   // safari and chrome
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
 @keyframes rotating {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
 .rotating {
   animation: rotating 15s linear infinite;
 }
 </style>
 
-<i18n>
-{
+<i18n lang="json">{
   "en": {
     "toggle_lines_off": "lines: off",
     "toggle_lines_on": "lines: on",
@@ -604,5 +580,4 @@ h1.HomePage__hugeHeading {
     "toggle_darkmode_on": "dark mode: on",
     "download_nda": "download Non-Disclosure-Agreement form"
   }
-}
-</i18n>
+}</i18n>

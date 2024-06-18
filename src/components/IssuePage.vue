@@ -1,7 +1,9 @@
 <template>
   <i-layout id="IssuePage" class="bg-light" ref="issuePage">
     <i-layout-section width="350px">
-      <div slot="header" class="border-bottom border-tertiary">
+
+      <template v-slot:header>
+      <div class="border-bottom border-tertiary">
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item
@@ -55,12 +57,13 @@
               <b-form-input
                 placeholder="search for ..."
                 v-model.trim="q"
-                v-on:change.native="search"
+                v-on:change="search"
               />
             </div>
           </div>
         </div>
       </div>
+      </template>
       <!--  ToC -->
       <table-of-contents
         v-if="!isTabSearch && isTocReady"
@@ -93,7 +96,8 @@
     </i-layout-section>
     <!--  page openseadragon or article -->
     <i-layout-section main>
-      <div slot="header" class="border-bottom">
+      <template v-slot:header>
+      <div class="border-bottom">
         <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
           <section class="p-2 pl-3">
             <h3 v-if="issue" class="m-0">
@@ -184,6 +188,7 @@
           </b-navbar-nav>
         </b-navbar>
       </div>
+      </template>
       <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
         <div class="align-self-center">
           <p>{{ $t('errors.loggedInOnly') }}</p>
@@ -216,16 +221,15 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import mitt from 'mitt'
+import IssueViewerText from './modules/IssueViewerText.vue'
+import OpenSeadragonViewer from './modules/OpenSeadragonViewer.vue'
 
-import IssueViewerText from './modules/IssueViewerText'
-import OpenSeadragonViewer from './modules/OpenSeadragonViewer'
-
-import SearchPills from './SearchPills'
-import TableOfContents from './modules/TableOfContents'
-import ThumbnailSlider from './modules/ThumbnailSlider'
-import Pagination from './modules/Pagination'
-import InfoButton from './base/InfoButton'
+import SearchPills from './SearchPills.vue'
+import TableOfContents from './modules/TableOfContents.vue'
+import ThumbnailSlider from './modules/ThumbnailSlider.vue'
+import Pagination from './modules/Pagination.vue'
+import InfoButton from './base/InfoButton.vue'
 import { toCanonicalFilter, SupportedFiltersByContext } from '../logic/filters'
 import { mapSearchQuery } from '@/logic/queryParams'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
@@ -235,11 +239,12 @@ import { useIssueStore } from '@/stores/issue'
 import { useUserStore } from '@/stores/user'
 import { search as searchService } from '@/services'
 import Article from '@/models/Article';
+import { renderMetaTags } from '@/plugins/MetaTags'
 
 export default {
   data: () => ({
     tab: 'toc',
-    handler: new Vue(),
+    handler: mitt(),
     bounds: {},
     // issue: null,
     page: null,
@@ -272,7 +277,7 @@ export default {
     window.addEventListener('fullscreenchange', this.fullscreenChange)
     window.addEventListener('keydown', this.keyDown)
   },
-  destroyed() {
+  unmounted() {
     window.removeEventListener('fullscreenchange', this.fullscreenChange)
     window.removeEventListener('keydown', this.keyDown)
   },
@@ -412,7 +417,7 @@ export default {
         // we reset the handler here. Why?
         await this.resetHandler()
         // we dispatch the gotoPage to change page in openseadragon
-        this.handler.$emit('dispatch', viewer => {
+        this.handler.emit('dispatch', viewer => {
           viewer.goToPage(this.currentPageIndex)
         })
         // force reload fo marginalia, page changed.
@@ -496,7 +501,7 @@ export default {
         }
       }
 
-      this.$renderMetaTags({
+      renderMetaTags({
         title: titleParts.join(' · '),
         ...tags,
         updateZotero: true,
@@ -534,8 +539,8 @@ export default {
     resetHandler() {
       const self = this
       self.isLoaded = false
-      this.handler.$emit('destroy')
-      this.handler.$emit('init', {
+      this.handler.emit('destroy')
+      this.handler.emit('init', {
         sequenceMode: true,
         showSequenceControl: false,
         initialPage: 0,
@@ -548,7 +553,7 @@ export default {
         },
         visibilityRatio: 0.5,
       })
-      this.handler.$emit('dispatch', viewer => {
+      this.handler.emit('dispatch', viewer => {
         viewer.addHandler('animation', () => {
           this.bounds = viewer.viewport.getBoundsNoRotate()
         })
@@ -668,7 +673,7 @@ export default {
                   h: match.coords[3],
                   class: 'overlay-match',
                 }
-                this.handler.$emit('add-overlay', overlay)
+                this.handler.emit('add-overlay', overlay)
               }
             })
           })
@@ -768,7 +773,7 @@ export default {
     },
     selectArticle() {
       const self = this
-      this.handler.$emit('dispatch', viewer => {
+      this.handler.emit('dispatch', viewer => {
         viewer.overlaysContainer.querySelectorAll('div').forEach(overlay => {
           if (self.article && overlay.dataset.articleUid === self.article.uid) {
             overlay.classList.add('active')
@@ -903,7 +908,7 @@ div.marginalia {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages",

@@ -1,4 +1,5 @@
-<script>
+<script lang="jsx">
+import { defineComponent } from 'vue'
 
 const getItemTag = item => {
   switch (item.entity.kind) {
@@ -53,56 +54,56 @@ const getClusterTagStyle = (entity, colourMap, offsetRight) => {
   const right = (offsetRight * 8) + 'px';
   return { borderColor, right }
 }
-const getClusterInnerTagStyle = (context, entity, colourMap) => {
-  const backgroundColor = context.props.selectedClusterId === entity.clusterId ? colourMap[entity.clusterId] : 'transparent';
+const getClusterInnerTagStyle = (props, entity, colourMap) => {
+  const backgroundColor = props.selectedClusterId === entity.clusterId ? colourMap[entity.clusterId] : 'transparent';
   return { backgroundColor }
 }
 
-const getClusterTitle = (context, clusterId) => {
-  const select = context.props.selectedClusterId === clusterId ? 'unselect' : 'select';
+const getClusterTitle = (props, clusterId) => {
+  const select = props.selectedClusterId === clusterId ? 'unselect' : 'select';
   return select + ' this passage'
 }
 
 const getClusterClass = isLast => isLast ? 'cluster-tag ending' : 'cluster-tag starting';
 
-const renderChildren = (h, context, child) => (
+const renderChildren = (h, props, child) => (
   <annotated-text
     children={child.children}
-    cluster-colours={context.props.clusterColours}
-    selected-cluster-id={context.props.selectedClusterId}/>
+    cluster-colours={props.clusterColours}
+    selected-cluster-id={props.selectedClusterId}/>
 )
 
-const renderClusterTags = (h, context, child) => {
+const renderClusterTags = (h, props, child) => {
   if (child.entity.kind !== 'line') return ''
 
-  const { onClusterSelected = (() => ({})) } = context.listeners
+  const onClusterSelected = h.$attrs.onOnClusterSelected ?? (() => ({}))
 
-  const clusterIndexes = Object.keys(context.props.clusterColours);
+  const clusterIndexes = Object.keys(h.clusterColours ?? {});
   const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId);
 
   return getBorderlinePassages(child).map(({ entity, isLast }) => (
     <span
-      title={getClusterTitle(context, entity.clusterId)}
+      title={getClusterTitle(props, entity.clusterId)}
       class={getClusterClass(isLast)}
-      style={getClusterTagStyle(entity, context.props.clusterColours, getClusterIndex(entity.clusterId))}
+      style={getClusterTagStyle(entity, h.clusterColours, getClusterIndex(entity.clusterId))}
       onClick={() => { onClusterSelected(entity.clusterId); }}>
-      <span class="select" style={getClusterInnerTagStyle(context, entity, context.props.clusterColours)} />
+      <span class="select" style={getClusterInnerTagStyle(props, entity, h.clusterColours)} />
     </span>
   ))
 }
 
-const renderVericalLine = (h, context, child) => {
+const renderVericalLine = (h, props, child) => {
 
   if (child.entity.kind !== 'passage') return;
 
-  const clusterIndexes = Object.keys(context.props.clusterColours);
+  const clusterIndexes = Object.keys(props.clusterColours ?? {});
   const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId);
   const offsetRight = getClusterIndex(child.entity.clusterId);
 
-  return <span class="vertical-line" style={`backgroundColor: ${context.props.clusterColours[child.entity.clusterId]}; right: ${(offsetRight * 8)}px`} />
+  return <span class="vertical-line" style={`backgroundColor: ${props.clusterColours?.[child.entity.clusterId]}; right: ${(offsetRight * 8)}px`} />
 }
 
-export default {
+export default defineComponent({
   name: 'annotated-text',
   functional: true,
   props: {
@@ -113,15 +114,15 @@ export default {
     },
     selectedClusterId: String
   },
-  render (h, context) {
-    return (context.props.children || []).map(child => {
+  render (h, props, { children }) {
+    return (children || []).map(child => {
       if (typeof child === 'string') return child
 
-      if (child.entity.kind === 'passage' && child.entity.clusterId !== context.props.selectedClusterId) {
+      if (child.entity.kind === 'passage' && child.entity.clusterId !== props.selectedClusterId) {
         return [
-          renderChildren(h, context, child),
-          renderClusterTags(h, context, child),
-          renderVericalLine(h, context, child)
+          renderChildren(h, props, child),
+          renderClusterTags(h, props, child),
+          renderVericalLine(h, props, child)
         ]
       }
 
@@ -130,15 +131,15 @@ export default {
         <Tag
           class={getItemClasses(child)}
           data-id={getDataId(child)}
-          style={getItemStyles(child, context.props.clusterColours)}>
-          {renderChildren(h, context, child)}
-          {renderClusterTags(h, context, child)}
-          {renderVericalLine(h, context, child)}
+          style={getItemStyles(child, props.clusterColours)}>
+          {renderChildren(h, props, child)}
+          {renderClusterTags(h, props, child)}
+          {renderVericalLine(h, props, child)}
         </Tag>
       )
     })
   }
-}
+})
 </script>
 
 <style lang="scss">

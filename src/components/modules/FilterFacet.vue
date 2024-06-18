@@ -18,7 +18,7 @@
       />
       <info-button v-if="facet.type === 'newspaper'" name="which-newspapers" class="ml-1" />
       <info-button v-if="facet.type === 'topic'" name="how-to-read-the-topics" class="ml-1" />
-      <div slot="options">
+      <template v-slot:options>
         <b-button v-show="isFiltered" size="sm" variant="outline-primary" @click="resetFilters">
           {{ $t(`actions.reset`) }}
         </b-button>
@@ -28,8 +28,8 @@
             :class="{ 'dripicons-plus': isCollapsed, 'dripicons-minus': !isCollapsed }"
           ></span>
         </b-button>
-      </div>
-      <div slot="description">
+      </template>
+      <template v-slot:description>
         <div v-if="isFiltered" v-html="$t(`label.${facet.type}.filtered`)" />
         <div v-else-if="selectedBucketsIds.length">
           <span v-html="$t(`label.${facet.type}.selected`, { count: selectedBucketsIds.length })" />
@@ -45,7 +45,7 @@
             {{ $t(`label.${facet.type}.description`) }}
           </span> -->
         </div>
-      </div>
+      </template>
 
       <!-- .description -->
     </base-title-bar>
@@ -122,11 +122,11 @@
   </div>
 </template>
 
-<script>
-import BaseTitleBar from '@/components/base/BaseTitleBar'
-import FilterFacetBucket from '@/components/modules/FilterFacetBucket'
-import FilterMonitor from '@/components/modules/FilterMonitor'
-import InfoButton from '@/components/base/InfoButton'
+<script lang="js">
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import FilterFacetBucket from '@/components/modules/FilterFacetBucket.vue'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 import { toSerializedFilter } from '@/logic/filters'
 import Bucket from '@/models/Bucket'
 import { getSearchFacetsService } from '@/services'
@@ -142,10 +142,6 @@ export default defineComponent({
    * - new filter is created (the model was an empty array before)
    * - filters were removed (the model contained at least one filter but became an empty array)
    */
-  model: {
-    prop: 'facetFilters',
-    event: 'changed',
-  },
   data: () => ({
     isCollapsed: true,
     selectedBucketsIds: [],
@@ -366,6 +362,7 @@ export default defineComponent({
             ),
           )
           this.skip = this.additionalBuckets.length + this.facet.buckets.length
+          // eslint-disable-next-line vue/no-mutating-props
           this.facet.numBuckets = numBuckets
         })
         .catch(err => {
@@ -393,6 +390,7 @@ export default defineComponent({
             { ignoreErrors: true },
           )
           .then(({ numBuckets, buckets }) => {
+            // eslint-disable-next-line vue/no-mutating-props
             this.facet.numBuckets = numBuckets
             this.facet.setBuckets(buckets)
           })
@@ -425,7 +423,7 @@ export default defineComponent({
 
 <style lang="css" scoped></style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "clearSelection": "Clear selection ({selected})",

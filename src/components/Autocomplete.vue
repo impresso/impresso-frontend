@@ -5,10 +5,10 @@
         :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
         :placeholder="$tc('placeholder.search', filterCount)"
         v-model.trim="q"
-        @input.native="search"
-        @focus.native="selectInput"
-        @blur.native="blurHandler"
-        v-on:keyup.native="keyup"
+        @update:modelValue="search"
+        @focus="selectInput"
+        @blur="blurHandler"
+        @keyup="keyup"
       />
       <div class="input-group-append">
         <button type="button" class="btn btn-outline-primary"
@@ -111,7 +111,7 @@ import { mapStores } from 'pinia'
 import FilterFactory from '@/models/FilterFactory'
 import { useAutocompleteStore } from '@/stores/autocomplete'
 import { useUserStore } from '@/stores/user'
-import Explorer from './Explorer'
+import Explorer from './Explorer.vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 
 const AVAILABLE_TYPES = ['mention', 'newspaper', 'topic', 'location', 'person', 'collection']
@@ -186,7 +186,11 @@ export default {
       return this.selectableSuggestions[this.selectedIndex].type
     },
     suggestionIndex() {
-      const index = this.$helpers.groupBy(this.suggestions, 'type')
+      const key = 'type'
+      const index = this.suggestions.reduce((reduced, item) => {
+        (reduced[item[key]] = reduced[item[key]] || []).push(item);
+        return reduced;
+      }, {})
 
       let idx = this.staticSuggestions.length - 1
       let selectableSuggestions = [...this.staticSuggestions]
@@ -270,6 +274,7 @@ export default {
       this.showSuggestions = false
     },
     search() {
+      console.log('searching')
       this.showSuggestions = this.q.length > 0
       // debugger;
       if (this.q.length) {
@@ -506,7 +511,7 @@ export default {
 // }
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "placeholder" : {

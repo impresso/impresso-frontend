@@ -1,9 +1,9 @@
 <template>
   <i-layout-section main>
     <!-- slot:header -->
-    <div slot="header">
+    <template v-slot:header>
       <cluster-page-header :cluster="cluster" :resolution="resolution" />
-    </div>
+    </template>
 
 
     <b-container fluid class="p-3">
@@ -19,12 +19,12 @@
             :values="timelineValues"
             :resolution="resolution"
             :brushable="false">
-            <div slot-scope="tooltipScope">
+            <template v-slot="tooltipScope">
               <div v-if="tooltipScope.tooltip.item">
-                {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                <b>{{ tooltipScope.tooltip.item.w }}</b>
+                {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
+                <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
               </div>
-            </div>
+            </template>
           </timeline>
         </b-col>
       </b-row>
@@ -46,10 +46,10 @@
 </template>
 
 <script>
-import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
-import Timeline from '@/components/modules/Timeline'
-import BaseTitleBar from '@/components/base/BaseTitleBar';
+import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader.vue'
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
+import Timeline from '@/components/modules/Timeline.vue'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue';
 import Helpers from '@/plugins/Helpers';
 
 import { textReuseClusters as textReuseClustersService } from '@/services'

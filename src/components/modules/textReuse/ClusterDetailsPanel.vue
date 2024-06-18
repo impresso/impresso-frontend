@@ -46,8 +46,8 @@
 </template>
 
 <script>
-import TimelineWithSpan from '@/components/modules/textReuse/TimelineWithSpan';
-import Ellipsis from '@/components/modules/Ellipsis';
+import TimelineWithSpan from '@/components/modules/textReuse/TimelineWithSpan.vue';
+import Ellipsis from '@/components/modules/Ellipsis.vue';
 import WithTooltip from '@/components/base/WithTooltip.vue'
 
 export default {
@@ -116,7 +116,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "clusterLabel": "cluster",

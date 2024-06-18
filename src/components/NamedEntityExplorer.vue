@@ -48,14 +48,14 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere
+ */
 import DateSlider from './modules/NamedEntityExplorerDateSlider';
 
 export default {
-  model: {
-    prop: 'issue',
-  },
   props: {
-    issue: {
+    modelValue: {
       default: null,
     },
   },
@@ -65,6 +65,9 @@ export default {
     perdiods: ['day', 'week', 'month'],
     period: 'day',
   }),
+  computed: {
+    issue() { return this.modelValue }
+  },
   methods: {
     selectType(type) {
       this.type = type;

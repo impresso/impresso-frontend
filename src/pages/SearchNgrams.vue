@@ -8,27 +8,27 @@
       contextTag="search-ngrams"
       @changed="handleFiltersChanged"
     >
-      <div slot="header">
+      <template v-slot:header>
         <!-- tehre is a hidden filter in allowed filter :) -->
         <div v-if="allowedFilters.length < 2" class=" mx-1 small">
           Filter your search with the options below.
         </div>
-      </div>
+      </template>
       <b-form-group class="mx-3">
-        <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+        <b-form-checkbox v-model="isFront" switch :modelValue="true">
           {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>
     </search-sidebar>
     <!-- main section -->
     <i-layout-section main>
-      <div slot="header">
+      <template v-slot:header>
         <b-navbar class="d-flex p-0 border-bottom align-items-center">
           <b-navbar-nav class="border-right flex-grow-1 px-2 pl-3 py-2 ">
             <section class="search-results-summary text-serif textbox-fancy border-tertiary">
               <label>ngrams viewer</label>
               <ellipsis v-bind:initialHeight="60">
-                <span v-html="unigramsSummary" />
+                <span v-html="unigramsSummary"></span>
                 &nbsp;
                 <span
                   v-html="
@@ -84,7 +84,7 @@
             </b-dropdown>
           </div>
         </b-navbar>
-      </div>
+      </template>
       <div
         class="m-3"
         v-if="unigrams.length > 0"
@@ -92,16 +92,16 @@
       >
         <base-title-bar class="my-3">
           <span v-html="$t('label.timeline.unigramTitle')" />
-          <div slot="description">
+          <template v-slot:description>
             {{ $t('label.timeline.unigramDescription') }}
-          </div>
+          </template>
         </base-title-bar>
         <multi-line-plot
           :items-sets="plotItems"
           :round-value-fn="roundValueForDisplay"
           :height="300"
         >
-          <div slot-scope="tooltipScope">
+          <template v-slot="tooltipScope">
             <div>
               <div>
                 {{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;
@@ -118,7 +118,7 @@
                 }})
               </div>
             </div>
-          </div>
+          </template>
         </multi-line-plot>
         <div class="loading-overlay" v-if="isLoading">
           <em>{{ $t('loading') }}</em>
@@ -153,13 +153,13 @@ import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
 
 import FacetModel from '@/models/Facet'
-import SearchSidebar from '@/components/modules/SearchSidebar'
-import BaseTitleBar from '@/components/base/BaseTitleBar'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
-import MultiLinePlot from '@/components/modules/vis/MultiLinePlot'
-import Ellipsis from '@/components/modules/Ellipsis'
-import InfoButton from '@/components/base/InfoButton'
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
+import SearchSidebar from '@/components/modules/SearchSidebar.vue'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
+import MultiLinePlot from '@/components/modules/vis/MultiLinePlot.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import TagsInput from '@/components/base/TagsInput.vue'
 
 import {
@@ -173,6 +173,7 @@ import {
   buildEmptyFacets,
 } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -330,6 +331,9 @@ export default {
   },
   computed: {
     ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @type {import('vue').ComputedOptions<string[]>} */
     unigrams: {
       /** @returns {string[]} */
@@ -549,14 +553,14 @@ export default {
     },
     /** @param {string} term */
     handleSuggestedTermSelected(term) {
-      this.$set(this, 'unigrams', this.unigrams.concat([term]))
+      this['unigrams'] = this.unigrams.concat([term])
       this.$refs.embeddings.hide(true)
     },
   },
 }
 </script>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "tabs": {

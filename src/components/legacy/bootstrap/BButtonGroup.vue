@@ -1,5 +1,5 @@
 <template>
-  <div :class="gClass" v-on="$listeners">
+  <div :class="gClass" v-bind="$attrs">
     <slot></slot>
   </div>
 </template>
@@ -12,7 +12,7 @@ const props = defineProps({
 })
 const attrs = useAttrs()
 
-const allowedAttrs = ['onClick', 'title']
+const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BButtonGroup: Unknown attributes: ${unknownAttrs.join(', ')}`)

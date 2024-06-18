@@ -162,7 +162,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "error_NotFound": "Ops, it looks like <b>{query}</b> is not available in our embeddings",

@@ -1,4 +1,4 @@
-import uuid from 'uuid'
+import { v4 } from 'uuid'
 import FilterBoolean from '@/models/FilterBoolean'
 import FilterEntity from '@/models/FilterEntity'
 import FilterString from '@/models/FilterString'
@@ -80,7 +80,7 @@ export default {
     }
 
     if (filter.getHash != null) {
-      filter.key = filterData.key || uuid.v4()
+      filter.key = filterData.key || v4()
     }
     return filter
   },

@@ -51,7 +51,7 @@ export default {
     const rect = this.$el.getBoundingClientRect()
     this.width = rect.width
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.observer.disconnect();
   },
   created() {
@@ -136,7 +136,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "login_message": "Login to view image"

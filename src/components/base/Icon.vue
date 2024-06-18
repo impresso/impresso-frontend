@@ -1,7 +1,7 @@
 <template>
   <svg
-    :width="width * scale"
-    :height="height * scale"
+    :width="width * scaleValue"
+    :height="height * scaleValue"
     :viewBox="computedSvgViewbox"
     :class="{'Icon': true }"
   >
@@ -19,8 +19,7 @@
 </template>
 <script setup lang="ts">
 // usage <icon name="slack" />
-import { computed, defineProps } from 'vue'
-import type { CSSProperties } from 'vue/types/jsx'
+import { computed, type CSSProperties } from 'vue'
 
 interface Path {
   d: string
@@ -101,7 +100,7 @@ const props = defineProps({
     default: 'slack',
   },
   scale: {
-    type: Number,
+    type: [Number, String],
     default: 1,
   },
   paths: {
@@ -134,7 +133,12 @@ const computedSvgViewbox = computed(() => {
   const { width, height } = Icons[props.name]
   return `0 0 ${width} ${height}`
 })
+
+const scaleValue = computed(() => {
+  return typeof props.scale === 'string' ? parseFloat(props.scale) : props.scale
+})
 </script>
+
 <style scoped>
 svg {
   fill: currentColor;

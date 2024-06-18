@@ -97,7 +97,7 @@
           ref="ddownJobs"
           v-on:hidden="updateLastNotificationDate"
         >
-          <template slot="button-content">
+          <template v-slot:button-content>
             <div
               class="d-inline-block dripicons-cloud-download position-relative"
               style="top: 0.25em"
@@ -139,7 +139,7 @@
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
         <b-nav-item-dropdown class="px-0" right>
-          <template slot="button-content">
+          <template v-slot:button-content>
             <div class="d-flex px-2 py-1 align-items-center">
               <div class="user-picture position-relative mr-2 me-2" :style="userPicture"></div>
               <div class="user-label mr-4 me-4">
@@ -212,10 +212,10 @@
 </template>
 
 <script>
-import Icon from '@/components/base/Icon'
-import JobItem from '@/components/modules/lists/JobItem'
-import Pagination from '@/components/modules/Pagination'
-import Logo from '@/components/Logo'
+import Icon from '@/components/base/Icon.vue'
+import JobItem from '@/components/modules/lists/JobItem.vue'
+import Pagination from '@/components/modules/Pagination.vue'
+import Logo from '@/components/Logo.vue'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { mapStores } from 'pinia'
 import { useJobsStore } from '@/stores/jobs'
@@ -713,7 +713,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "login": "login",

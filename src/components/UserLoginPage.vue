@@ -174,7 +174,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "Invalid login": "Invalid login",

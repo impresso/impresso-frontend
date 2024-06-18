@@ -51,14 +51,15 @@
 
 <script>
 import { protobuf } from 'impresso-jscommons';
-import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel'
-import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
+import ClusterTextSearchPanel from '@/components/modules/textReuse/ClustersSearchPanel.vue'
+import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel.vue'
 
-import List from '@/components/modules/lists/List';
+import List from '@/components/modules/lists/List.vue';
 import { textReuseClusters, filtersItems } from '@/services';
 import { toCanonicalFilter, toSerializedFilters, SupportedFiltersByContext } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
 import { mapFilters } from '@/logic/queryParams'
+import { Navigation } from '@/plugins/Navigation';
 
 /**
  * @typedef {import('@/models').TextReuseCluster} TextReuseCluster
@@ -183,7 +184,9 @@ export default {
       try {
         [this.clusterItems, this.searchInfo] = await textReuseClusters
           .find({ query })
-          .then(result => [result.clusters, result.info])
+          .then(result => {
+            return [result.clusters, result.info]
+          })
         if (this.selectedClusterId == null && this.clusterItems.length > 0) {
           this.selectedClusterId = this.clusterItems[0].cluster.id
         }
@@ -217,6 +220,9 @@ export default {
     }
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @returns {string[]} */
     supportedFilterTypes() { return SupportedFilterTypes },
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
@@ -361,7 +367,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "searchClustersLabel": "browse clusters | browse clusters (1) | browse {n} clusters",

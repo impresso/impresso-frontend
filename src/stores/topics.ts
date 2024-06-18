@@ -73,13 +73,13 @@ export const useTopicsStore = defineStore('topics', {
       return topicsService.find({
         query,
       }).then((res) => {
-        const data = res.data.map(d => new Topic(d, {
+        const data = res.data.map((d: any) => new Topic(d, {
           highlight: query.q ? q?.split('*')?.join('') : '',
         }));
 
         this.items = data;
         this.itemsIndex = {};
-        data.forEach((d, k) => {
+        data.forEach((d: any, k: string) => {
           if (this.visualizedItemsIndex[d.uid]) {
             data[k].visualized = true;
           }

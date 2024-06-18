@@ -1,42 +1,44 @@
 <template lang="html">
-  <div v-bind:class="{'mb-3': expanded}">
-    <div
-      class="border-top border-tertiary pt-1px" style="margin:auto -1em">
+  <div v-bind:class="{ 'mb-3': expanded }">
+    <div class="border-top border-tertiary pt-1px" style="margin:auto -1em">
       <div class="border-top" />
     </div>
     <base-title-bar class="pt-2 w-100">
-      {{$t(`label.${filter.type}`)}}
+      {{ $t(`label.${filter.type}`) }}
       <b-button v-on:click="toggleExpanded" class="float-right d-none" variant="link" size="sm">
         <span v-bind:class="expanded ? 'dripicons-chevron-up' : 'dripicons-chevron-down'" />
       </b-button>
     </base-title-bar>
-    <div class="skyline-outer-wrapper w-100" v-bind:class="{expanded: expanded}">
+    <div class="skyline-outer-wrapper w-100" v-bind:class="{ expanded: expanded }">
       <tooltip v-model="tooltip" />
-      <div class="skyline-inner-wrapper" >
+      <div class="skyline-inner-wrapper">
         <div id="skyline">
         </div>
       </div>
     </div>
     <div class="row" v-show="expanded">
       <div v-bind:append="$t('label.start')" class="input-group input-group-sm col">
-        <flat-pickr v-bind:value="filter.start" v-on:on-close="setStart" class="form-control"></flat-pickr>
+        <flat-pickr :modelValue="filter.start" @on-close="setStart" class="form-control"></flat-pickr>
       </div>
       <div v-bind:append="$t('label.end')" class="input-group input-group-sm col">
-        <flat-pickr v-bind:value="filter.end" v-on:on-close="setEnd" class="form-control"></flat-pickr>
+        <flat-pickr :modelValue="filter.end" @on-close="setEnd" class="form-control"></flat-pickr>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere
+ */
 
 import flatPickr from 'vue-flatpickr-component';
 import SkyLine from '@/d3-modules/SkyLine';
 
 import 'flatpickr/dist/flatpickr.css';
 
-import BaseTitleBar from '../base/BaseTitleBar';
-import Tooltip from './FilterFacetYearTooltip';
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue';
+import Tooltip from '@/components/modules/FilterFacetYearTooltip.vue';
 
 export default {
   data: () => ({
@@ -53,25 +55,22 @@ export default {
     },
     skyline: false,
   }),
-  model: {
-    prop: 'filter',
-  },
   props: ['filter'],
   methods: {
     toggleExpanded() {
       this.expanded = !this.expanded;
     },
     setStart(start) {
-      this.filter.start = new Date(start);
+      this.filter.start = new Date(start); // eslint-disable-line
       this.skyline.zoomTo(this.filter.start, this.filter.end);
     },
     setEnd(end) {
-      this.filter.end = new Date(end);
+      this.filter.end = new Date(end); // eslint-disable-line
       this.skyline.zoomTo(this.filter.start, this.filter.end);
     },
     setStartEnd(start, end) {
-      this.filter.start = new Date(start);
-      this.filter.end = new Date(end);
+      this.filter.start = new Date(start); // eslint-disable-line
+      this.filter.end = new Date(end); // eslint-disable-line
       this.skyline.zoomTo(this.filter.start, this.filter.end);
     },
     touch() {
@@ -110,8 +109,8 @@ export default {
     this.skyline = new SkyLine(this.config);
 
     this.skyline.on('zoomEnd', (domain) => {
-      this.filter.start = new Date(domain[0]);
-      this.filter.end = new Date(domain[1]);
+      this.filter.start = new Date(domain[0]);  // eslint-disable-line
+      this.filter.end = new Date(domain[1]);  // eslint-disable-line
     });
 
     this.skyline.on('mouseover', (d) => {
@@ -142,29 +141,33 @@ export default {
 </script>
 
 <style lang="less">
-
-.skyline-outer-wrapper{
+.skyline-outer-wrapper {
   position: relative;
-  .skyline-inner-wrapper{
+
+  .skyline-inner-wrapper {
     overflow: hidden;
     height: 80px;
     position: relative;
-    #skyline{
-      top:-150px;
+
+    #skyline {
+      top: -150px;
     }
   }
-  &.expanded{
-    .skyline-inner-wrapper{
+
+  &.expanded {
+    .skyline-inner-wrapper {
       height: auto;
-      #skyline{
-        top:0;
+
+      #skyline {
+        top: 0;
       }
     }
   }
 }
 
-#skyline{
+#skyline {
   position: relative;
+
   .area {
     stroke-width: 1;
     stroke: black;
@@ -184,8 +187,7 @@ export default {
 }
 </style>
 
-<i18n>
-{
+<i18n lang="json">{
   "en": {
     "label": {
       "year": "Year",
@@ -200,5 +202,4 @@ export default {
       "end": "Tot"
     }
   }
-}
-</i18n>
+}</i18n>

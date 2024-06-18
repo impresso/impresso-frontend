@@ -2,11 +2,10 @@
   <div>
     <div v-show="image.thumbnail" class="media">
       <div class="media-aside align-self-start">
-        <div style="width:128px;" slot="aside">
+        <div style="width:128px;">
           <img
             fluid-grow
-            slot="aside"
-            src="`data:image/png;base64,${image.thumbnail}`" />
+            :src="`data:image/png;base64,${image.thumbnail}`" />
         </div>
       </div>
       <div class="media-body">
@@ -22,14 +21,14 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import FilePond from '@/components/modules/FilePond';
+import mitt from 'mitt'
+import FilePond from '@/components/modules/FilePond.vue';
 import { uploadedImages } from '@/services';
 
-const MiddleLayerApiBase = process.env.VUE_APP_MIDDLELAYER_API || window.location.hostname;
+const MiddleLayerApiBase = import.meta.env.VITE_MIDDLELAYER_API || window.location.hostname;
 
 const FILEPOND_SERVICE_PATH = [
-  process.env.VUE_APP_MIDDLELAYER_API_PATH,
+  import.meta.env.VITE_MIDDLELAYER_API_PATH,
   '/filepond',
 ].join('/').replace(/\/\/+/g, '/');
 
@@ -37,7 +36,7 @@ console.info('Current host:', MiddleLayerApiBase, 'filepond path:', FILEPOND_SER
 
 export default {
   data: () => ({
-    handler: new Vue(),
+    handler: mitt(),
     options: {
       server: {
         url: MiddleLayerApiBase,
@@ -52,8 +51,8 @@ export default {
   }),
   methods: {
     init() {
-      this.handler.$emit('init', (this.options));
-      this.handler.$emit('dispatch', (pond) => {
+      this.handler.emit('init', (this.options));
+      this.handler.emit('dispatch', (pond) => {
         pond.onprocessfile = (error, file) => {
           console.info('File processed', file.filename, file.fileType, file.serverId);
           this.loadImage(file.serverId);
@@ -63,7 +62,7 @@ export default {
     remove() {
       this.image = false;
       this.$emit('remove');
-      this.handler.$emit('destroy');
+      this.handler.emit('destroy');
       this.init();
     },
     loadImage(val) {
@@ -72,7 +71,7 @@ export default {
         uploadedImages.get(val).then((res) => {
           this.$emit('load');
           this.image = res;
-          this.handler.$emit('destroy');
+          this.handler.emit('destroy');
         });
       } else {
         console.error('loadImage failed, no image id has been provided');

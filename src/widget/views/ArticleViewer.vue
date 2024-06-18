@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import mitt from 'mitt'
 import { articles } from '@/services'
 import Article from '@/models/Article'
 import { validateOrIgnore } from '../logic/props'
@@ -17,7 +17,7 @@ export default {
   data: () => ({
     imageURL: null,
     article: null,
-    handler: new Vue(),
+    handler: mitt(),
     isOSVieverLoaded: false,
   }),
   props: {
@@ -97,8 +97,8 @@ export default {
     initViewer() {
       const self = this
       this.isOSVieverLoaded = false
-      this.handler.$emit('destroy')
-      this.handler.$emit('init', {
+      this.handler.emit('destroy')
+      this.handler.emit('init', {
         sequenceMode: true,
         showSequenceControl: false,
         initialPage: 0,
@@ -113,7 +113,7 @@ export default {
         visibilityRatio: 0.5,
       })
 
-      this.handler.$emit('dispatch', viewer => {
+      this.handler.emit('dispatch', viewer => {
         viewer.addHandler('tile-loaded', () => {
           if (self.isOSVieverLoaded) {
             return

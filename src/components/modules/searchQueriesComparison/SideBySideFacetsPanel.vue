@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel';
-import LoadingIndicator from '@/components/modules/LoadingIndicator';
+import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel.vue';
+import LoadingIndicator from '@/components/modules/LoadingIndicator.vue';
 import { ComparableTypes } from '@/logic/queryComparison'
 import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
@@ -139,14 +139,14 @@ export default {
      * @param {{ facetId: string, data: any }} param
      */
     onTimelineHighlight({ facetId, data }) {
-      this.$set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
+      this.timelineHighlights[facetId] = { enabled: true, data: data.datum };
     },
     /**
      * @param {{ facetId: string }} param
      */
     onTimelineHighlightOff({ facetId }) {
       this.timelineHighlights[facetId] = { enabled: false };
-      this.$set(this.timelineHighlights, facetId, { enabled: false });
+      this.timelineHighlights[facetId] = { enabled: false };
     },
     /**
      * @param {any} val
@@ -246,7 +246,7 @@ export default {
     background: #ececec87;
   }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "missingSearchQueries": "Two queries are required to compute intersection"

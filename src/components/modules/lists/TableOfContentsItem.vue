@@ -38,8 +38,8 @@
 </template>
 
 <script>
-import ArticleItem from '@/components/modules/lists/ArticleItem'
-import ImageItem from '@/components/modules/lists/ImageItem'
+import ArticleItem from '@/components/modules/lists/ArticleItem.vue'
+import ImageItem from '@/components/modules/lists/ImageItem.vue'
 
 export default {
   props: {

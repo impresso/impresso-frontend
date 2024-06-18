@@ -1,12 +1,8 @@
 <template lang="html">
-  <filter-wrapper
-    v-on:remove="remove"
-    v-bind:id="filter.key"
-    icon="pamphlet"
-    v-bind:title="filter.newspaper.name">
-    <div slot="settings">
-      <filter-setting-context v-model="filter" />
-    </div>
+  <filter-wrapper v-on:remove="remove" v-bind:id="filter.key" icon="pamphlet" v-bind:title="filter.newspaper.name">
+    <template v-slot:settings>
+      <filter-setting-context :modelValue="filter" />
+    </template>
   </filter-wrapper>
 </template>
 
@@ -15,16 +11,13 @@
  * @deprecated Not used anywhere.
  */
 
-import FilterWrapper from './FilterWrapper';
-import FilterSettingContext from './FilterSettingContext';
+import FilterWrapper from '@/components/modules/FilterWrapper.vue';
+import FilterSettingContext from '@/components/modules/FilterSettingContext.vue';
 
 export default {
   data: () => ({
     disabled: true,
   }),
-  model: {
-    prop: 'filter',
-  },
   props: ['filter'],
   methods: {
     remove() {

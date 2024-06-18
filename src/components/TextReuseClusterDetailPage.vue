@@ -1,7 +1,7 @@
 <template>
   <i-layout-section main>
     <!-- slot:header -->
-    <div slot="header">
+    <template v-slot:header>
       <cluster-page-header :cluster="cluster">
         <template v-slot:toolbar>
           <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
@@ -19,7 +19,7 @@
           </b-navbar>
         </template>
       </cluster-page-header>
-    </div>
+    </template>
 
     <div v-if="!cluster" class="d-none" style="height: 100%">
       <div class="d-flex flex-row justify-content-center" style="height: 100%">
@@ -52,12 +52,13 @@
 </template>
 
 <script>
-import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
-import PassageDetailsPanel from '@/components/modules/textReuse/PassageDetailsPanel'
-import Pagination from '@/components/modules/Pagination';
+import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader.vue'
+import PassageDetailsPanel from '@/components/modules/textReuse/PassageDetailsPanel.vue'
+import Pagination from '@/components/modules/Pagination.vue';
 
 import { textReuseClusterPassages } from '@/services'
 import Newspaper from '@/models/Newspaper'
+import { Navigation } from '@/plugins/Navigation';
 
 
 const QueryParameters = Object.freeze({
@@ -91,6 +92,9 @@ export default {
     Pagination
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @returns {string|undefined} */
     clusterId() {
       return /** @type {string} */ (this.$route.query.clusterId)
@@ -206,7 +210,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "sort": {

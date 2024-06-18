@@ -1,13 +1,13 @@
-<template lang="html">
+<template>
   <open-seadragon-viewer
     v-bind:handler="handler"
-    v-b-visible="handleVisibilityChange">
+    v-observe-visibility="handleVisibilityChange">
   </open-seadragon-viewer>
 </template>
 
 <script>
-import Vue from 'vue';
-import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer';
+import mitt from 'mitt';
+import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer.vue';
 
 /**
  * @typedef {object} Overlay
@@ -20,7 +20,7 @@ import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer';
 
 export default {
   data: () => ({
-    handler: new Vue(),
+    handler: mitt(),
     isVisible: false, // by default the item is not visible in the browser viewport
   }),
   props: {
@@ -37,11 +37,11 @@ export default {
     OpenSeadragonViewer,
   },
   mounted() {
-    this.handler.$on('tile-loaded', () => {
+    this.handler.on('tile-loaded', () => {
       if (this.overlays) {
-        this.overlays.forEach(overlay => this.handler.$emit('add-overlay', overlay));
+        this.overlays.forEach(overlay => this.handler.emit('add-overlay', overlay));
       }
-      this.handler.$emit('fit-bounds-to-overlays');
+      this.handler.emit('fit-bounds-to-overlays');
     });
   },
   methods: {
@@ -50,16 +50,16 @@ export default {
     },
     init() {
       if (!this.isVisible || !this.viewerOptions) return
-      this.handler.$emit('init', this.viewerOptions);
+      this.handler.emit('init', this.viewerOptions);
     }
   },
   watch: {
     viewerOptions() {
-      this.handler.$emit('destroy')
+      this.handler.emit('destroy')
       this.init()
     },
     overlays() {
-      this.handler.$emit('destroy')
+      this.handler.emit('destroy')
       this.init()
     },
     isVisible() { this.init() }

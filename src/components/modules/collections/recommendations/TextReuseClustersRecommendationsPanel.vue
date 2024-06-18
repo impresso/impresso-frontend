@@ -19,8 +19,8 @@
 </template>
 
 <script>
-import ItemLabel from '@/components/modules/lists/ItemLabel'
-import ItemSelector from '@/components/modules/ItemSelector'
+import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
+import ItemSelector from '@/components/modules/ItemSelector.vue'
 import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
 
@@ -76,7 +76,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

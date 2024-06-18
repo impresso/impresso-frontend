@@ -13,14 +13,8 @@
       </b-row>
       <b-row>
         <b-col md="6" offset-md="3">
-          <b-alert
-            v-if="formError"
-            variant="danger"
-            dismissible
-            :show="Boolean(formError)"
-            @dismissed="formError = null"
-            v-html="$t('errors.formError', { error: formError })"
-          >
+          <b-alert v-if="formError" variant="danger" dismissible :show="Boolean(formError)"
+            @dismissed="formError = null" v-html="$t('errors.formError', { error: formError })">
           </b-alert>
           <b-alert v-if="error" :show="Boolean(error)" variant="danger">
             <p>
@@ -28,46 +22,23 @@
               restart the process.
             </p>
 
-            <router-link
-              :to="{ name: 'passwordReset' }"
-              class="btn btn-sm btn-outline-secondary"
-              v-html="$t('actions.resetMyPassword')"
-            />
+            <router-link :to="{ name: 'passwordReset' }" class="btn btn-sm btn-outline-secondary"
+              v-html="$t('actions.resetMyPassword')" />
           </b-alert>
           <form @submit.prevent="onSubmit">
-            <b-form-group
-              id="input-group-1"
-              label="New password:"
-              label-for="input-1"
-              description="Enter your new password."
-            >
-              <b-form-input
-                id="input-1"
-                @update="() => (error = null)"
-                v-model="password"
-                type="password"
-                required
-                placeholder="Enter new password"
-              ></b-form-input>
+            <b-form-group id="input-group-1" label="New password:" label-for="input-1"
+              description="Enter your new password.">
+              <b-form-input id="input-1" @update:modelValue="() => (error = null)" v-model="password" type="password"
+                required placeholder="Enter new password"></b-form-input>
             </b-form-group>
-            <b-form-group
-              id="input-group-2"
-              label="Confirm new password:"
-              label-for="input-2"
-              description="Confirm your new password."
-            >
-              <b-form-input
-                @update="() => (error = null)"
-                id="input-2"
-                v-model="passwordConfirm"
-                type="password"
-                required
-                placeholder="Confirm new password"
-              ></b-form-input>
+            <b-form-group id="input-group-2" label="Confirm new password:" label-for="input-2"
+              description="Confirm your new password.">
+              <b-form-input @update:modelValue="() => (error = null)" id="input-2" v-model="passwordConfirm"
+                type="password" required placeholder="Confirm new password"></b-form-input>
             </b-form-group>
             <b-button type="submit" class="mt-2" size="sm" variant="outline-secondary">{{
               $t('actions.changePassword')
-            }}</b-button>
+              }}</b-button>
           </form>
         </b-col>
       </b-row>
@@ -81,7 +52,7 @@ import { useNotificationsStore } from '@/stores/notifications'
 
 import { passwordReset as passwordResetService } from '@/services'
 
-const PasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_\-@$!%*?&])[A-Za-z\d@$!%*?&_\-]{8,}$/
+const PasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_\-@$!%*?&])[A-Za-z\d@$!%*?&_-]{8,}$/
 
 export default {
   name: 'PasswordChange',

@@ -147,7 +147,7 @@ export default {
 </script>
 
 <style lang="css"></style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "numbers": {

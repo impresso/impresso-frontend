@@ -1,8 +1,8 @@
-import Layout from '@/components/layout/Layout';
-import Section from '@/components/layout/Section';
-import Dropdown from '@/components/layout/Dropdown';
-import Slider from '@/components/layout/Slider';
-import Spinner from '@/components/layout/Spinner';
+import Layout from '@/components/layout/Layout.vue';
+import Section from '@/components/layout/Section.vue';
+import Dropdown from '@/components/layout/Dropdown.vue';
+import Slider from '@/components/layout/Slider.vue';
+import Spinner from '@/components/layout/Spinner.vue';
 import FirstNonemptyChild from '@/components/layout/FirstNonemptyChild';
 
 const ImpressoLayout = {

@@ -2,74 +2,44 @@
   <i-layout>
     <i-layout-section width="400px">
       <!--  header -->
-      <template slot="header">
+      <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item :to="{ name: 'textReuse' }" class="active" active-class="none">
-              <span
-                v-html="
-                  $tc('searchTextReuseLabel', 10000, {
-                    n: $n(10000),
-                  })
-                "
-              />
+            <b-nav-item :to="{ name: 'textReuseOverview' }" class="active" active-class="none">
+              <span v-html="$tc('searchTextReuseLabel', 10000, {
+                n: $n(10000),
+              })
+                " />
               <span v-if="isLoading" class=""> &mdash; {{ $t('actions.loading') }}</span>
             </b-nav-item>
           </template>
         </b-tabs>
         <div class="p-3 border-bottom bg-light">
           <div class="mb-2" v-if="ignoredFilters.length">
-            <em
-              class="small"
-              v-html="
-                $tc('numbers.ignoredFiltersDetailed', ignoredFilters.length, {
-                  n: ignoredFilters.length,
-                  detail: ignoredFilters.map(f => f.type).join(', '),
-                })
-              "
-            />
+            <em class="small" v-html="$tc('numbers.ignoredFiltersDetailed', ignoredFilters.length, {
+              n: ignoredFilters.length,
+              detail: ignoredFilters.map(f => f.type).join(', '),
+            })
+              " />
           </div>
-          <search-pills
-            :filters="filtersWithItems"
-            @changed="handleFiltersChanged"
-            :includedFilterTypes="allowedFilterTypes"
-          />
-          <search-input
-            @submit="handleSearchInputSubmit"
-            placeholder="start searching..."
-          ></search-input>
+          <search-pills :filters="filtersWithItems" @changed="handleFiltersChanged"
+            :includedFilterTypes="allowedFilterTypes" />
+          <search-input @submit="handleSearchInputSubmit" placeholder="start searching..."></search-input>
         </div>
       </template>
       <template v-if="timelineValues.length">
-        <FilterTimeline
-          info-button-id="text-reuse-filter-year"
-          class="py-2 mx-3"
-          :key="`t-year`"
-          group-by="passages"
-          disableRelativeDisplayStyle
-          :facet="timelineFacets[0]"
-          :facet-filters="filters"
-          :values="timelineValues"
-          :min-date="minDate"
-          :max-date="maxDate"
-          :start-year="minDate.getFullYear()"
-          :end-year="maxDate.getFullYear()"
-          @changed="handleFacetFiltersChanged"
-        />
+        <FilterTimeline info-button-id="text-reuse-filter-year" class="py-2 mx-3" :key="`t-year`" group-by="passages"
+          disableRelativeDisplayStyle :facet="timelineFacets[0]" :facet-filters="filters" :values="timelineValues"
+          :min-date="minDate" :max-date="maxDate" :start-year="minDate.getFullYear()" :end-year="maxDate.getFullYear()"
+          @changed="handleFacetFiltersChanged" />
       </template>
-      <FilterDynamicRange
-        class="py-2 mx-3"
-        index="tr_passages"
-        :facet="textReuseClusterSizeFacet"
+      <FilterDynamicRange class="py-2 mx-3" index="tr_passages" :facet="textReuseClusterSizeFacet"
         :facet-filters="allowedFilters"
         :isFiltered="allowedFilters.some(f => f.type === textReuseClusterSizeFacet.type)"
-        @changed="handleFiltersChanged"
-        @clicked="handleFacetFiltersClicked"
+        @changed="handleFiltersChanged" @clicked="handleFacetFiltersClicked"
         :info-button-id="`text-reuse-filter-${textReuseClusterSizeFacet.type}`"
-        value-label="textReuseClusterSizeValueLabel"
-        value-as-range-label="textReuseClusterSizeValueAsRangeLabel"
-        count-label="numbers.passages"
-      >
+        value-label="textReuseClusterSizeValueLabel" value-as-range-label="textReuseClusterSizeValueAsRangeLabel"
+        count-label="numbers.passages">
         <template v-slot:description>
           <div class="mb-3">
             How to read histograms
@@ -77,57 +47,38 @@
           </div>
         </template>
       </FilterDynamicRange>
-      <FilterDynamicRange
-        v-for="(facet, i) in dynamicRangeFacets"
-        class="py-2 mx-3"
-        index="tr_passages"
-        :key="`rd-${i}`"
-        :facet="facet"
-        :facet-filters="allowedFilters"
-        :isFiltered="allowedFilters.some(f => f.type === facet.type)"
-        @changed="handleFiltersChanged"
-        @clicked="handleFacetFiltersClicked"
-        count-label="numbers.passages"
+      <FilterDynamicRange v-for="(facet, i) in dynamicRangeFacets" class="py-2 mx-3" index="tr_passages"
+        :key="`rd-${i}`" :facet="facet" :facet-filters="allowedFilters"
+        :isFiltered="allowedFilters.some(f => f.type === facet.type)" @changed="handleFiltersChanged"
+        @clicked="handleFacetFiltersClicked" count-label="numbers.passages"
         :isPercentage="facet.type === 'textReuseClusterLexicalOverlap'"
-        :value-percentage-label="facet.type + 'ValuePercentageLabel'"
-        :value-label="facet.type + 'ValueLabel'"
-        :value-as-range-label="facet.type + 'ValueAsRangeLabel'"
-        :info-button-id="`text-reuse-filter-${facet.type}`"
-      />
+        :value-percentage-label="facet.type + 'ValuePercentageLabel'" :value-label="facet.type + 'ValueLabel'"
+        :value-as-range-label="facet.type + 'ValueAsRangeLabel'" :info-button-id="`text-reuse-filter-${facet.type}`" />
 
-      <FilterFacet
-        v-for="(facet, index) in standardFacets"
-        class="border-top py-2 mx-3"
-        search-index="tr_passages"
-        :facet="facet"
-        :key="index"
-        :context-filters="allowedFilters"
-        collapsible
-        @changed="fs => handleFacetFiltersChanged(fs, facet.type)"
-        :info-button-id="
-          facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : null
-        "
-      />
+      <FilterFacet v-for="(facet, index) in standardFacets" class="border-top py-2 mx-3" search-index="tr_passages"
+        :facet="facet" :key="index" :context-filters="allowedFilters" collapsible
+        @changed="fs => handleFacetFiltersChanged(fs, facet.type)" :info-button-id="facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : null
+          " />
     </i-layout-section>
     <router-view :filters="filters" :filtersWithItems="filtersWithItems"></router-view>
   </i-layout>
 </template>
 <script>
-import SearchPills from '@/components/SearchPills'
-import SearchInput from '@/components/modules/SearchInput'
+import SearchPills from '@/components/SearchPills.vue'
+import SearchInput from '@/components/modules/SearchInput.vue'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
-import FilterFacet from '@/components/modules/FilterFacet'
-import FilterRange from '@/components/modules/FilterRange'
-import FilterDynamicRange from '@/components/modules/FilterDynamicRange'
+import FilterFacet from '@/components/modules/FilterFacet.vue'
+import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import Facet from '@/models/Facet'
 import { getSearchFacetsService } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import { facetToTimelineValues } from '@/logic/facets'
-import FilterTimeline from '@/components/modules/FilterTimeline'
+import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { mapStores } from 'pinia'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -156,7 +107,6 @@ export default {
     SearchPills,
     SearchInput,
     FilterFacet,
-    FilterRange,
     FilterTimeline,
     FilterDynamicRange,
     InfoButton,
@@ -177,6 +127,9 @@ export default {
   },
   computed: {
     ...mapStores(useSelectionMonitorStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     allowedFilters() {
       return this.filters.filter(({ type }) => SupportedFiltersByContext.textReuse.includes(type))
     },
@@ -405,11 +358,9 @@ export default {
 }
 </script>
 
-<i18n>
-  {
-    "en": {
-      "searchTextReuseLabel": "search text reuse passages",
-      "searchTextReusePlaceholder": "search text reuse passages"
-    }
+<i18n lang="json">{
+  "en": {
+    "searchTextReuseLabel": "search text reuse passages",
+    "searchTextReusePlaceholder": "search text reuse passages"
   }
-  </i18n>
+}</i18n>

@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import SearchQuerySummary from './SearchQuerySummary';
+import SearchQuerySummary from './SearchQuerySummary.vue';
 
 export default {
   props: {
@@ -34,7 +34,7 @@ export default {
 };
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "incipit": "Sorry, {groupByLabel} found | {groupByLabel} found | {groupByLabel} found"

@@ -137,13 +137,13 @@ export default {
       articles: 'Search in <span class="number">{count}</span> published articles',
     },
     numbers: {
-      options: ' | (1 option) | ({n} options)',
-      moreOptions: ' | (1 more option) | ({n} more options)',
+      options: '&nbsp; | (1 option) | ({n} options)',
+      moreOptions: '&nbsp; | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
       clusterSize: ' | single cluster | <span class="number">{n}</span> passages',
       lexicalOverlap: '<span class="number">{n}%</span> lexical overlap',
       ofPassages:
-        ' | of <span class="number">{n}</span> passages | of <span class="number">{n}</span> passages',
+        '&nbsp; | of <span class="number">{n}</span> passages | of <span class="number">{n}</span> passages',
       passages:
         '0 passages | <span class="number">{n}</span> passage | <span class="number">{n}</span> passages',
       clusters:

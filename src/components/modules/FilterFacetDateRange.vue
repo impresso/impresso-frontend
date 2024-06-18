@@ -1,17 +1,11 @@
 <template>
   <div class="FilterFacetDateRange">
-    <BaseTitleBar
-      >{{ $t('label_daterange_title') }} {{ minDate }} - {{ maxDate }}
-      <div slot="options">
-        <b-button
-          v-show="filters.length"
-          size="sm"
-          variant="outline-primary"
-          @click="resetFilters()"
-        >
+    <BaseTitleBar>{{ $t('label_daterange_title') }} {{ minDate }} - {{ maxDate }}
+      <template v-slot:options>
+        <b-button v-show="filters.length" size="sm" variant="outline-primary" @click="resetFilters()">
           {{ $t('actions.reset') }}
         </b-button>
-      </div>
+      </template>
     </BaseTitleBar>
     <!-- <div class="border p-2 bg-white" v-for="(filter, i) in daterangeFilters" :key="i">
       <FilterMonitor
@@ -24,29 +18,21 @@
     <b-button size="sm" variant="outline-primary" @click="addDaterangeFilter">
       {{ $t('actions.addNewDateRangeFilter') }}
     </b-button>
-    <FilterDateRangeCalendar
-      v-if="newFilter"
-      :min-date="minDate"
-      :start-date="startDate || minDate"
-      :max-date="maxDate"
-      :end-date="endDate || maxDate"
-      @changed="updateDaterangeFilters"
-    />
+    <FilterDateRangeCalendar v-if="newFilter" :min-date="minDate" :start-date="startDate || minDate" :max-date="maxDate"
+      :end-date="endDate || maxDate" @changed="updateDaterangeFilters" />
   </div>
 </template>
 
 <script>
 import Daterange from '@/models/Daterange'
-import BaseTitleBar from '@/components/base/BaseTitleBar'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import FilterDaterange from '@/models/FilterDaterange'
-import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar'
-import FilterMonitor from '@/components/modules/FilterMonitor'
+import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
 
 export default {
   name: 'FilterFacetDateRange',
   components: {
     BaseTitleBar,
-    FilterMonitor,
     FilterDateRangeCalendar,
   },
   data: () => ({
@@ -103,10 +89,8 @@ export default {
   },
 }
 </script>
-<i18n>
-  {
-    "en": {
-      "label_daterange_title": "publication date"
-    }
+<i18n lang="json">{
+  "en": {
+    "label_daterange_title": "publication date"
   }
-</i18n>
+}</i18n>

@@ -114,7 +114,8 @@
     <!-- main section -->
     <i-layout-section main>
       <!-- header -->
-      <div slot="header" class="border-bottom" v-if="issue">
+      <template v-slot:header>
+      <div class="border-bottom" v-if="issue">
         <b-navbar variant="light" class="px-0 py-0 border-bottom">
           <b-navbar-nav class="p-2 pl-3">
             <section>
@@ -219,6 +220,7 @@
           </b-navbar-nav>
         </b-navbar>
       </div>
+      </template>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center position-relative" v-if="issue">
         <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable">
@@ -269,10 +271,10 @@
 </template>
 
 <script>
-import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
-import PageItem from '@/components/modules/lists/PageItem'
-import List from '@/components/modules/lists/List'
-import IssueViewerText from '@/components/modules/IssueViewerText'
+import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
+import PageItem from '@/components/modules/lists/PageItem.vue'
+import List from '@/components/modules/lists/List.vue'
+import IssueViewerText from '@/components/modules/IssueViewerText.vue'
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
@@ -292,14 +294,15 @@ import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Issue from '@/models/Issue'
 import Article from '@/models/Article'
 import TableOfContents from '@/models/TableOfContents'
-import SearchPills from '@/components/SearchPills'
-import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
-import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
-import CollectionAddTo from '@/components/modules/CollectionAddTo'
+import SearchPills from '@/components/SearchPills.vue'
+import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
+import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents.vue'
+import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import WithTooltip from '@/components/base/WithTooltip.vue'
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -358,9 +361,9 @@ export default {
     window.addEventListener('fullscreenchange', this.fullscreenChange)
     window.addEventListener('keydown', this.keyDown)
   },
-  destroyed() {
+  unmounted() {
     // eslint-disable-next-line
-    console.debug('[IssueViewerPage] destroyed()')
+    console.debug('[IssueViewerPage] unmounted()')
     window.removeEventListener('fullscreenchange', this.fullscreenChange)
     window.removeEventListener('keydown', this.keyDown)
   },
@@ -374,6 +377,9 @@ export default {
           p: '1',
         },
       }),
+    },
+    $navigation() {
+      return new Navigation(this)
     },
     /** @returns {Filter[]} */
     filters() {
@@ -531,7 +537,7 @@ export default {
         })
       },
     },
-    /** @returns {import('@/models/User').default} */
+    /** @returns {import('@/models/User')} */
     currentUser() {
       return this.userStore.user
     },
@@ -720,7 +726,7 @@ export default {
             },
           })
           .then(response => response.data.map(article => new Article(article)))
-        this.$set(this.pagesArticles, pageIndex, articles)
+        this.pagesArticles[pageIndex] = articles
       }
     },
     async loadMarginalia(pageIndex) {
@@ -744,7 +750,7 @@ export default {
           }
         })
 
-        this.$set(this.pagesMarginalia, pageIndex, entitySections.concat([topicsSection]))
+        this.pagesMarginalia[pageIndex] = entitySections.concat([topicsSection])
       }
     },
     /** @param {string} articleUid */
@@ -765,7 +771,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages <br/><span class='small'>{accessRights}</span>",

@@ -1,39 +1,17 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "strict": true,
-    "importHelpers": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "allowJs": true,
-    "checkJs": false,
-    "noEmit": true,
-    "noImplicitAny": false,
-    "resolveJsonModule": true,
-    "paths": {
-      "@/*": [
-        "src/*"
-      ]
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
     },
-    "lib": [
-      "es2019",
-      "ESNext.Array",
-      "DOM"
-    ]
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.js",
-    "src/**/*.vue"
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
   ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
-  "vueCompilerOptions": {
-    "target": 2.7,
-    "extensions": [ ".vue"]
+  "compilerOptions": {
+    "module": "NodeNext"
   }
 }

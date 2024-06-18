@@ -7,7 +7,7 @@
 
 <script>
 import { pages } from '@/services';
-import { DefaultCoords, validateOrIgnore } from '../logic/props';
+import { DefaultCoords, validateOrIgnore } from '@/widget/logic/props';
 
 // https://impresso-project.ch/api/proxy/iiif/EXP-1958-03-15-a-p0020/90,1844,408,515/full/0/default.png
 export default {

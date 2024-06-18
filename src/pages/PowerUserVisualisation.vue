@@ -6,17 +6,17 @@
       :facets="facets"
       contextTag="powerUserVis"
       @changed="handleFiltersChanged">
-      <div slot="tabs">
+      <template v-slot:tabs>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item class="active"><span v-html="$t('tabs.powervis')"/>
             </b-nav-item>
           </template>
         </b-tabs>
-      </div>
-      <div slot="header">
+      </template>
+      <template v-slot:header>
         <autocomplete v-on:submit="handleAutocompleteSubmit" />
-      </div>
+      </template>
     </search-sidebar>
 
     <!-- main section -->
@@ -51,8 +51,8 @@
           <div class="border-top p-2 pb-3" style='max-height: 180px;overflow:scroll'>
             <div class="d-inline-flex mx-1 align-items-center" v-for="item in statsLegendItems" :key="item.id">
               <b-form-checkbox
-                :checked="selectedItems[item.id]"
-                @input="v => handleItemChanged(item.id, v)">
+                :modelValue="selectedItems[item.id]"
+                @update:modelValue="v => handleItemChanged(item.id, v)">
                 <div
                   class="pl-1 pr-1 d-flex"
                   :style="{'background-color': item.color.length > 7 ? item.color : `${item.color}77`}">
@@ -81,9 +81,9 @@
 <script>
 import { schemeCategory10, schemeAccent } from 'd3'
 
-import SearchSidebar from '@/components/modules/SearchSidebar'
-import Autocomplete from '@/components/Autocomplete'
-import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase'
+import SearchSidebar from '@/components/modules/SearchSidebar.vue'
+import Autocomplete from '@/components/Autocomplete.vue'
+import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase.vue'
 import Modal from '@/components/base/Modal.vue'
 
 import {
@@ -104,6 +104,7 @@ import {
   buildEmptyFacets
 } from '@/logic/facets'
 import { getQueryParameter, CommonQueryParameters } from '@/router/util'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @param {number} index
@@ -225,7 +226,7 @@ export default {
      * @param {boolean} value
      */
     handleItemChanged(id, value) {
-      this.$set(this.selectedItems, id, value)
+      this.selectedItems[id] = value
     },
     /**
      * @param {string} index
@@ -252,6 +253,9 @@ export default {
     this.facets = buildEmptyFacets(this.facetTypes)
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @returns {boolean} */
     textReuseEnabled() {
       // @ts-ignore
@@ -436,7 +440,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "legendLabels": {

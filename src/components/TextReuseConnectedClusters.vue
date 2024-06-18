@@ -1,9 +1,9 @@
 <template>
   <i-layout-section main>
     <!-- slot:header -->
-    <div slot="header">
+    <template v-slot:header>
       <cluster-page-header :cluster="cluster" :resolution="resolution" />
-    </div>
+    </template>
 
 
     <b-container fluid class="p-4">
@@ -22,7 +22,8 @@
         </div>
       </div>
     </b-container>
-    <div slot="footer" class="fixed-pagination-footer p-1 m-0" v-if="totalClusters > 0">
+    <template v-slot:footer >
+    <div class="fixed-pagination-footer p-1 m-0" v-if="totalClusters > 0">
       <pagination
         size="sm"
         v-bind:perPage="perPage"
@@ -31,15 +32,17 @@
         v-bind:totalRows="totalClusters"
         class="float-left small-caps" />
     </div>
+    </template>
   </i-layout-section>
 </template>
 
 <script>
-import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader'
-import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
-import Pagination from '@/components/modules/Pagination'
+import ClusterPageHeader from '@/components/modules/textReuse/ClusterPageHeader.vue'
+import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel.vue'
+import Pagination from '@/components/modules/Pagination.vue'
 import { textReuseConnectedClusters as textReuseConnectedClustersService } from '@/services'
 import { getQueryParameter } from '@/router/util'
+import { Navigation } from '@/plugins/Navigation'
 
 const QueryParameters = Object.freeze({
   ClusterId: 'clusterId',
@@ -79,6 +82,9 @@ export default {
     },
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @returns {string} */
     clusterId() {
       return this.cluster?.id

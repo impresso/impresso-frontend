@@ -1,7 +1,7 @@
 <template>
   <i-layout-section main>
     <template v-slot:header>
-      <b-navbar type="light" variant="light" slot="header">
+      <b-navbar type="light" variant="light">
         <section v-if="observingList" class="top-section">
           <div class="label small-caps">
             {{ $t('entities') }}
@@ -70,12 +70,12 @@
           height="120px"
           @brush-end="onTimelineBrushed"
           @clear-selection="handleTimelineCleared">
-          <div slot-scope="tooltipScope">
+          <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
               <b>{{ tooltipScope.tooltip.item.w }}</b>
             </div>
-          </div>
+          </template>
         </timeline>
       </section>
       <div v-if="$route.query.items" ref="visualisationWrapper">
@@ -185,10 +185,10 @@
 import Timeline from '@/components/modules/Timeline'
 import SearchQueryExplorer from '@/components/modals/SearchQueryExplorer'
 import PunchExplorer from '@/components/modals/PunchExplorer'
-import Pagination from '@/components/modules/Pagination'
+import Pagination from '@/components/modules/Pagination.vue'
 import { searchQueryGetter, mapApplyCurrentSearchFilters } from '@/logic/queryParams'
-import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart'
-import BaseTitleBar from '@/components/base/BaseTitleBar';
+import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart.vue'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue';
 import {
   entityMentionsTimeline as entityMentionsTimelineService
 } from '@/services'
@@ -312,11 +312,14 @@ export default {
       lastDate.getFullYear()
     ];
   },
-  computed: {
+  _computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     punchModalStyle() {
       return {
         transform: `translate(${this.punchModalPositions.x}px,${this.punchModalPositions.y}px)`,
-      };
+      }
     },
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     timelineSelectionStart: {
@@ -370,9 +373,9 @@ export default {
         return this.$t('entity-label-in-year', {
           label: this.punchData.label,
           year: this.punchData.time.getFullYear(),
-        });
+        })
       }
-      return '';
+      return ''
     },
     searchQuery: {
       get() {
@@ -390,17 +393,17 @@ export default {
             type: this.selectedEntity.entityType,
             q: [this.selectedEntity.id],
           }
-        ];
+        ]
         if (this.punchcardResolution === 'year') {
           filters.push({
             type: 'year',
-            q: [ String(this.punchData.time.getFullYear())],
-          });
+            q: [String(this.punchData.time.getFullYear())],
+          })
         } else if (this.punchcardResolution === 'month') {
           filters.push({
             type: 'year',
             q: this.punchData.time.getFullYear(),
-          });
+          })
         }
         if (this.applyCurrentSearchFilters) {
           return {
@@ -409,11 +412,11 @@ export default {
         }
         return { filters }
       }
-      return this.searchQuery;
+      return this.searchQuery
     },
     /** @returns {number} */
     countActiveFilters() {
-      return this.searchQuery.countActiveFilters();
+      return this.searchQuery.countActiveFilters()
     },
     observingList: {
       /** @returns {string[]} */
@@ -439,7 +442,7 @@ export default {
       return {
         entitiesIds: this.observingList,
         applyCurrentSearchFilters: this.applyCurrentSearchFilters
-      };
+      }
     },
     /** @returns {any} */
     punchcardUpdateParameters() {
@@ -450,33 +453,33 @@ export default {
         skipPerEntity: this.observingList.reduce((acc, id) => {
           const { perPage, currentPage } = this.paginations[id] ?? getDefaultPagination()
           acc[id] = perPage * (currentPage - 1)
-          return acc;
+          return acc
         }, {})
-      };
+      }
     },
     /**
      * @returns {import('@/d3-modules/TimePunchcardChart').ChartData}
      */
     punchcardChartData() {
       const categories = this.mentionsFrequenciesResponses.reduce((acc, response) => {
-        const items = mentionsFrequenciesResponseToPunchcardChartCategories(response);
-        return acc.concat(items);
-      }, /** @type {import('@/d3-modules/TimePunchcardChart').ChartCategory[]} */ ([]))
+        const items = mentionsFrequenciesResponseToPunchcardChartCategories(response)
+        return acc.concat(items)
+      }, /** @type {import('@/d3-modules/TimePunchcardChart').ChartCategory[]} */([]))
 
       return { categories }
     },
     selectedEntity() {
       if (this.mentionsFrequenciesResponses && this.punchData.categoryIndex > -1) {
-        return this.mentionsFrequenciesResponses[this.punchData.categoryIndex].item;
+        return this.mentionsFrequenciesResponses[this.punchData.categoryIndex].item
       }
-      return null;
+      return null
     },
     /** @returns {EntityOrMention[]} */
     entitiesList() {
       return this.mentionsFrequenciesResponses.reduce((acc, response) => {
-        const { item, subitems = [] } = response;
-        return acc.concat(item).concat(subitems);
-      }, /** @type {EntityOrMention[]} */ ([]))
+        const { item, subitems = [] } = response
+        return acc.concat(item).concat(subitems)
+      }, /** @type {EntityOrMention[]} */([]))
     },
     scale: {
       /** @returns {string} */
@@ -496,6 +499,12 @@ export default {
         circleScale: this.scale
       }
     }
+  },
+  get computed() {
+    return this._computed
+  },
+  set computed(value) {
+    this._computed = value
   },
   methods: {
     /**
@@ -527,7 +536,7 @@ export default {
       const pagination = this.paginations[entityId] ?? getDefaultPagination()
 
       pagination.currentPage = pageNumber
-      this.$set(this.paginations, entityId, pagination)
+      this.paginations[entityId] = pagination
     },
     async loadTimeline() {
       const observedItemsFilters = /** @type {Filter[]} */ (this.observingList.length > 0
@@ -598,7 +607,7 @@ export default {
           if (item.id == null) return
           const pagination = this.paginations[/** @type {string} */ (item.id)] ?? getDefaultPagination()
           pagination.totalRows = totalSubitems
-          this.$set(this.paginations, item.id, pagination)
+          this.paginations[item.id] = pagination
         })
       } finally {
         this.isPunchcardLoading = false
@@ -679,7 +688,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "entity-label-in-year" : "<b>{label}</b> in <span class='date smallcaps'>{year}</span>",

@@ -1,7 +1,7 @@
 <template>
   <i-layout-section>
 
-    <div slot="header">
+    <template v-slot:header>
 
       <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
 
@@ -116,7 +116,7 @@
 
       </b-navbar>
 
-    </div>
+    </template>
 
     <div v-if="tab.name === TAB_ARTICLES" class="collection-group">
 
@@ -160,8 +160,8 @@
         <p class="text-center">{{ $t('no_articles_in_collection_long')}}</p>
       </div>
 
-      <div class="my-5" />
-      <div v-if="!fetching && paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+      <div class="my-5"></div>
+      <div v-if="!fetching && paginationTotalRows > paginationPerPage" class="fixed-pagination-footer p-1 m-0">
         <pagination
           size="sm"
           v-bind:perPage="paginationPerPage"
@@ -186,12 +186,12 @@
             :class="{'loading': isTimelineLoading}"
             :domain="[startYear, endYear]"
             :values="timevalues">
-        <div slot-scope="tooltipScope">
+        <template v-slot="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b>
+            {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
           </div>
-        </div>
+        </template>
       </timeline>
 
       <b-container fluid class="my-3">
@@ -240,19 +240,19 @@
 import { mapStores } from 'pinia'
 import { protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection';
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem';
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem';
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue';
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue';
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue';
 import Article from '@/models/Article';
-import Pagination from '@/components/modules/Pagination';
+import Pagination from '@/components/modules/Pagination.vue';
 import SearchQuery from '@/models/SearchQuery';
 import Facet from '@/models/Facet';
-import Timeline from '@/components/modules/Timeline';
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import Timeline from '@/components/modules/Timeline.vue';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
-import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
-import InfoButton from '@/components/base/InfoButton';
+import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel.vue'
+import InfoButton from '@/components/base/InfoButton.vue';
 import { getQueryParameter } from '../router/util';
 import { exporter as exporterService,
   collections as collectionsService,
@@ -261,9 +261,9 @@ import { exporter as exporterService,
 } from '@/services';
 import RadioGroup from '@/components/layout/RadioGroup.vue';
 import Modal from '@/components/base/Modal.vue'
-import { hide } from '@floating-ui/vue';
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
+import { Navigation } from '@/plugins/Navigation';
 
 
 const QueryParameters = Object.freeze({
@@ -307,6 +307,9 @@ export default {
   },
   computed: {
     ...mapStores(useCollectionsStore, useSettingsStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     displayStyleOptions() {
       return [
         {value: 'list', text: this.$t('display_button_list')},
@@ -576,7 +579,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "collections": "collections",

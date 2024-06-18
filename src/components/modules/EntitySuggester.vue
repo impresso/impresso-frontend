@@ -22,7 +22,7 @@
 
 <script>
 import Entity from '@/models/Entity'
-import ItemLabel from '@/components/modules/lists/ItemLabel'
+import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import { entities as entitiesService } from '@/services'
 
 export default {

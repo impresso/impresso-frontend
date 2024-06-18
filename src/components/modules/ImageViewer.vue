@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="thumbnail">
     <open-seadragon-viewer
       v-bind:handler="handler">
@@ -7,12 +7,12 @@
 </template>
 
 <script>
-import Vue from 'vue';
+import mitt from 'mitt';
 import OpenSeadragonViewer from './OpenSeadragonViewer';
 
 export default {
   data: () => ({
-    handler: new Vue(),
+    handler: mitt(),
   }),
   props: {
     image: {
@@ -41,7 +41,7 @@ export default {
         ...this.options,
       };
 
-      this.handler.$emit('init', options);
+      this.handler.emit('init', options);
     },
   },
   mounted() {
@@ -50,7 +50,7 @@ export default {
   watch: {
     image: {
       handler() {
-        this.handler.$emit('destroy');
+        this.handler.emit('destroy');
         this.init();
       },
     },

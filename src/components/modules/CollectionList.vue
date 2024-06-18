@@ -81,8 +81,9 @@
         <div v-else>
           <p class="text-center p-4" v-html="$t('no_match')" />
         </div>
-
-        <div v-if="paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+      </template>
+      <template v-slot:footer>
+        <div v-if="paginationTotalRows > paginationPerPage" class="fixed-pagination-footer p-1 m-0">
           <pagination
             size="sm"
             v-bind:perPage="paginationPerPage"
@@ -94,14 +95,13 @@
       </template>
 
 
-
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
 import { mapStores } from 'pinia'
-import Pagination from './Pagination';
+import Pagination from './Pagination.vue';
 import { useCollectionsStore } from '@/stores/collections'
 
 export default {
@@ -301,7 +301,7 @@ background-color: #f2f2f2;
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "a-z": "a-z",

@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import ImageItem from '@/components/modules/lists/ImageItem';
+import ImageItem from '@/components/modules/lists/ImageItem.vue';
 
 export default {
   components: {

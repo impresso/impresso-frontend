@@ -4,67 +4,33 @@
       <!-- add pagination for startPassage and endPassage -->
       <div class="d-flex flex-row p-3">
         <div class="w-50">
-          <i-dropdown
-            v-model="startPassageOrderBy"
-            :options="
-              orderByOptions.map(value => ({
-                value,
-                text: $t(`sort_${value}`),
-              }))
-            "
-            class="mr-auto"
-            size="sm"
-            variant="outline-primary"
-          ></i-dropdown>
-          <Pagination
-            size="sm"
-            :totalRows="totalPassages"
-            :perPage="1"
-            :currentPage="startPassageOffset"
-            @change="handleStartPassageOffsetChange"
-            class="d-flex justify-content-center"
-          />
+          <i-dropdown v-model="startPassageOrderBy" :options="orderByOptions.map(value => ({
+            value,
+            text: $t(`sort_${value}`),
+          }))
+            " class="mr-auto" size="sm" variant="outline-primary"></i-dropdown>
+          <Pagination size="sm" :totalRows="totalPassages" :perPage="1" :currentPage="startPassageOffset"
+            @change="handleStartPassageOffsetChange" class="d-flex justify-content-center" />
         </div>
         <div class="w-50">
-          <i-dropdown
-            v-model="endPassageOrderBy"
-            :options="
-              orderByOptions.map(value => ({
-                value,
-                text: $t(`sort_${value}`),
-              }))
-            "
-            class="mr-auto"
-            size="sm"
-            variant="outline-primary"
-          ></i-dropdown>
-          <Pagination
-            size="sm"
-            :totalRows="totalPassages"
-            :perPage="1"
-            :currentPage="endPassageOffset"
-            @change="handleEndPassageOffsetChange"
-            class="d-flex justify-content-center"
-          />
+          <i-dropdown v-model="endPassageOrderBy" :options="orderByOptions.map(value => ({
+            value,
+            text: $t(`sort_${value}`),
+          }))
+            " class="mr-auto" size="sm" variant="outline-primary"></i-dropdown>
+          <Pagination size="sm" :totalRows="totalPassages" :perPage="1" :currentPage="endPassageOffset"
+            @change="handleEndPassageOffsetChange" class="d-flex justify-content-center" />
         </div>
       </div>
       <div class="d-flex flex-row TextReuseClusterMonitor_header">
-        <TextReusePassageItemLabel
-          v-if="startPassage"
-          :item="startPassage"
-          class="py-2 mx-3 border-bottom"
-        />
-        <TextReusePassageItemLabel
-          v-if="endPassage"
-          :item="endPassage"
-          class="py-2 mx-3 border-bottom"
-        />
+        <TextReusePassageItemLabel v-if="startPassage" :item="startPassage" class="py-2 mx-3 border-bottom" />
+        <TextReusePassageItemLabel v-if="endPassage" :item="endPassage" class="py-2 mx-3 border-bottom" />
       </div>
     </div>
     <div class="position-relative flex-grow-1 mb-1">
       <div class="left w-50 position-absolute h-100 ">
         <p class="p-3" v-if="diff.length">
-          <span v-for="part in diff">
+          <span v-for="part in diff" :key="part.value">
             <span v-if="part.added" class="added">{{ part.value }}</span>
             <span v-else-if="part.removed" class="removed">{{ part.value }}</span>
             <span v-else-if="part.value">{{ part.value }}</span>
@@ -76,7 +42,7 @@
       </div>
       <div class="right w-50 position-absolute h-100">
         <p class="p-3">
-          <span v-for="part in diff">
+          <span v-for="part in diff" :key="part.value">
             <span v-if="part.added" class="added">{{ part.value }}</span>
             <span v-else-if="part.removed" class="removed">{{ part.value }}</span>
             <span v-else-if="part.value">{{ part.value }}</span>
@@ -88,12 +54,11 @@
 </template>
 <script>
 import { diffChars } from 'diff'
-import ItemLabel from './modules/lists/ItemLabel'
 import { textReusePassages } from '@/services'
 import TextReusePassage from '@/models/TextReusePassage'
-import TextReusePassageItemLabel from './modules/lists/TextReusePassageItemLabel'
+import TextReusePassageItemLabel from './modules/lists/TextReusePassageItemLabel.vue'
 import { optimizeFilters } from '@/logic/filters'
-import Pagination from '@/components/modules/Pagination'
+import Pagination from '@/components/modules/Pagination.vue'
 // onmounted load the first 2 text reuse passages from textreusepassage endpoint
 
 const OrderByOptions = ['date', '-date', 'size', '-size']
@@ -101,7 +66,6 @@ const OrderByOptions = ['date', '-date', 'size', '-size']
 export default {
   name: 'TextReuseClusterMonitor',
   components: {
-    ItemLabel,
     TextReusePassageItemLabel,
     Pagination,
   },
@@ -252,17 +216,20 @@ export default {
 </script>
 
 <style lang="css">
-.TextReuseClusterMonitor_header > div {
+.TextReuseClusterMonitor_header>div {
   flex: 1 1 0px;
 }
+
 .TextReuseClusterMonitor .left,
 .TextReuseClusterMonitor .right {
   overflow: scroll;
   width: 50%;
 }
+
 .TextReuseClusterMonitor .right {
   left: 50%;
 }
+
 .TextReuseClusterMonitor .left p .added,
 .TextReuseClusterMonitor .right p .removed {
   display: none;
@@ -272,10 +239,12 @@ export default {
   color: inherit;
   opacity: 1;
 }
+
 .TextReuseClusterMonitor p .added {
   color: inherit;
   font-weight: bold;
 }
+
 .TextReuseClusterMonitor p .removed,
 .TextReuseClusterMonitor p .added {
   background-color: white;
@@ -284,10 +253,12 @@ export default {
 .TextReuseClusterMonitor.bg-dark p {
   color: var(--clr-grey-800);
 }
+
 .TextReuseClusterMonitor.bg-dark p .added {
   background-color: #42fd002e;
   color: white;
 }
+
 .TextReuseClusterMonitor.bg-dark p .removed {
   background-color: #ff272763;
   color: white;

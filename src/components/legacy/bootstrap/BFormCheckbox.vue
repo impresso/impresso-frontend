@@ -3,9 +3,10 @@
     <input
       type="checkbox"
       class="custom-control-input"
-      :value="props.value"
+      :value="props.modelValue"
+      :checked="props.modelValue"
       :id="uid"
-      :disabled="props.disabled ? 'disabled' : undefined"
+      :disabled="props.disabled"
       @change="handleChanged">
     <label class="custom-control-label" :for="uid">
       <slot></slot>
@@ -15,11 +16,10 @@
 
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
-import uuid from 'uuid'
+import { v4 } from 'uuid'
 
-// TODO in Vue3 replace value with modelValue
 const props = defineProps({
-  value: {
+  modelValue: {
     type: Boolean,
     default: false,
   },
@@ -32,17 +32,17 @@ const props = defineProps({
     default: false,
   },
 })
-const emit = defineEmits(['input', 'change'])
+const emit = defineEmits(['update:modelValue'])
 
 const attrs = useAttrs()
 
-const allowedAttrs = ['onClick', 'title']
+const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BFormCheckbox: Unknown attributes: ${unknownAttrs.join(', ')}`)
 }
 
-const uid = computed(() => uuid.v4())
+const uid = computed(() => v4())
 
 const cbClass = computed(() => ({
   'custom-control': true,
@@ -52,7 +52,6 @@ const cbClass = computed(() => ({
 
 const handleChanged = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('input', target.checked)
-  emit('change', target.checked)
+  emit('update:modelValue', target.checked)
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef">
-    <ul ref="ulRef" v-bind="$attrs" :class="tabsClass" v-on="$listeners">
+    <ul ref="ulRef" :class="tabsClass" v-bind="$attrs">
       <slot name="tabs-start"></slot>
       <slot name="tabs-end"></slot>
     </ul>
@@ -22,7 +22,7 @@ const props = defineProps({
 })
 const attrs = useAttrs()
 
-const allowedAttrs = ['onClick', 'title']
+const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BTabs: Unknown attributes: ${unknownAttrs.join(', ')}`)

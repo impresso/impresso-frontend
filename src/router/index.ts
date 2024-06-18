@@ -1,37 +1,33 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import * as services from '@/services'
-import HomePage from '../components/HomePage'
-import HomePage2020 from '../components/HomePage2020'
-import FaqPage from '../components/FaqPage'
-import TermsOfUsePage from '../components/TermsOfUsePage'
-import IssuePage from '../components/IssuePage'
-import UserLoginPage from '../components/UserLoginPage'
-import TestPage from '../components/TestPage'
-import NewspapersExplorerPage from '../components/NewspapersExplorerPage'
-import NewspapersDetailPage from '../components/NewspapersDetailPage'
-// import EntitiesExplorerPage from '../components/EntitiesExplorerPage';
-import EntitiesTemporaryPage from '../components/EntitiesTemporaryPage'
-import EntitiesDetailPage from '../components/EntitiesDetailPage'
-import TopicsPage from '../components/TopicsPage'
-import TopicsExplorerPage from '../components/TopicsExplorerPage'
-import TopicDetailPage from '../components/TopicDetailPage'
-import PowerUserVisualisation from '../pages/PowerUserVisualisation'
-// import PowerUserVisualisation from '../pages/PowerUserVisualisationOld'
+import HomePage from '@/components/HomePage.vue'
+import HomePage2020 from '@/components/HomePage2020.vue'
+import FaqPage from '@/components/FaqPage.vue'
+import TermsOfUsePage from '@/components/TermsOfUsePage.vue'
+import IssuePage from '@/components/IssuePage.vue'
+import UserLoginPage from '@/components/UserLoginPage.vue'
+import TestPage from '@/components/TestPage.vue'
+import NewspapersExplorerPage from '@/components/NewspapersExplorerPage.vue'
+import NewspapersDetailPage from '@/components/NewspapersDetailPage.vue'
+import EntitiesTemporaryPage from '@/components/EntitiesTemporaryPage.vue'
+import EntitiesDetailPage from '@/components/EntitiesDetailPage.vue'
+import TopicsPage from '@/components/TopicsPage.vue'
+import TopicsExplorerPage from '@/components/TopicsExplorerPage.vue'
+import TopicDetailPage from '@/components/TopicDetailPage.vue'
+import PowerUserVisualisation from '@/pages/PowerUserVisualisation.vue'
 
-import IssueViewerPage from '../pages/IssueViewerPage'
+import IssueViewerPage from '@/pages/IssueViewerPage.vue'
 import { getShortArticleId } from '@/logic/ids'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
+import { AnalyticsObject } from '@/plugins/analytics'
 
-Vue.use(Router)
-
-const BASE_URL = process.env.BASE_URL || '/'
+const BASE_URL = import.meta.env.BASE_URL || '/'
 // eslint-disable-next-line
 console.debug('[router] Router with BASE_URL to:', BASE_URL)
 
-const router = new Router({
-  mode: 'history',
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
@@ -39,14 +35,15 @@ const router = new Router({
     if (to.hash) {
       const el = document.querySelector('div#app-content')
       // console.log('---', el.scrollLeft, el.scrollTop);
-      const rect = el.getBoundingClientRect()
+      const rect = el?.getBoundingClientRect()
       const ela = document.querySelector(to.hash)
-      const recta = ela.getBoundingClientRect()
-      el.scrollTop = recta.top - rect.top - 10
+      const recta = ela?.getBoundingClientRect()
+      if (el && rect && ela && recta) {
+        el.scrollTop = recta.top - rect.top - 10
+      }
     }
     return {}
   },
-  base: BASE_URL,
   routes: [
     {
       path: '',
@@ -67,7 +64,7 @@ const router = new Router({
     {
       path: '/search/ngrams',
       name: 'searchNgrams',
-      component: () => import(/* webpackChunkName: "searchNgrams" */ '../pages/SearchNgrams.vue'),
+      component: () => import('@/pages/SearchNgrams.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -91,7 +88,7 @@ const router = new Router({
     {
       path: '/search',
       name: 'search',
-      component: () => import(/* webpackChunkName: "search" */ '../pages/Search.vue'),
+      component: () => import('@/pages/Search.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -99,7 +96,7 @@ const router = new Router({
     {
       path: '/search/images',
       name: 'searchImages',
-      component: () => import(/* webpackChunkName: "searchImages" */ '../pages/SearchImages.vue'),
+      component: () => import('@/pages/SearchImages.vue'),
       meta: {
         requiresAuth: false,
       },
@@ -122,7 +119,9 @@ const router = new Router({
         userStore.logout().then(
           () => {},
           err => {
-            this.error = this.$t(err.message)
+            console.error(err)
+            // what was supposed to be `this`?
+            // this.error = this.$t(err.message)
           },
         )
       },
@@ -134,7 +133,7 @@ const router = new Router({
     {
       path: '/user',
       name: 'user',
-      component: () => import(/* webpackChunkName: "user" */ '../pages/User.vue'),
+      component: () => import('@/pages/User.vue'),
       meta: {
         realm: 'user',
         requiresAuth: true,
@@ -143,7 +142,7 @@ const router = new Router({
     {
       path: '/user/register',
       name: 'register',
-      component: () => import(/* webpackChunkName: "userRegister" */ '../pages/UserRegister.vue'),
+      component: () => import('@/pages/UserRegister.vue'),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -152,8 +151,7 @@ const router = new Router({
     {
       path: '/password-reset',
       name: 'passwordReset',
-      component: () =>
-        import(/* webpackChunkName: "userPasswordReset" */ '../pages/PasswordReset.vue'),
+      component: () => import('@/pages/PasswordReset.vue'),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -162,8 +160,7 @@ const router = new Router({
     {
       path: '/password-reset/:token',
       name: 'PasswordChange',
-      component: () =>
-        import(/* webpackChunkName: "userPasswordReset" */ '../pages/PasswordChange.vue'),
+      component: () => import('@/pages/PasswordChange.vue'),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -172,8 +169,7 @@ const router = new Router({
     {
       path: '/password-reset-sent',
       name: 'passwordResetSent',
-      component: () =>
-        import(/* webpackChunkName: "userPasswordReset" */ '../pages/PasswordResetSent.vue'),
+      component: () => import('@/pages/PasswordResetSent.vue'),
       meta: {
         realm: 'user',
         requiresAuth: false,
@@ -181,12 +177,11 @@ const router = new Router({
     },
     {
       path: '/collections',
-      component: () => import(/* webpackChunkName: "collections" */ '../pages/Collections.vue'),
+      component: () => import('@/pages/Collections.vue'),
       children: [
         {
           path: '',
-          component: () =>
-            import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
+          component: () => import('@/components/CollectionDetailPage.vue'),
           name: 'collections',
           meta: {
             requiresAuth: true,
@@ -195,8 +190,7 @@ const router = new Router({
         },
         {
           path: ':collection_uid',
-          component: () =>
-            import(/* webpackChunkName: "collections" */ '../components/CollectionDetailPage.vue'),
+          component: () => import('@/components/CollectionDetailPage.vue'),
           name: 'collection',
           meta: {
             requiresAuth: true,
@@ -244,14 +238,14 @@ const router = new Router({
           issue_uid: to.params.issue_uid,
         },
         query: {
-          p: to.params.page_uid.match(/p0*(\d+)$/)[1],
-          articleId: getShortArticleId(to.params.article_uid),
+          p: (to.params.page_uid as string).match(/p0*(\d+)$/)[1],
+          articleId: getShortArticleId(to.params.article_uid as string),
         },
       }),
     },
     {
       path: '/newspapers',
-      component: () => import(/* webpackChunkName: "newspapers" */ '../pages/Newspapers.vue'),
+      component: () => import('@/pages/Newspapers.vue'),
       children: [
         {
           path: '',
@@ -284,7 +278,7 @@ const router = new Router({
     },
     {
       path: '/entities',
-      component: () => import(/* webpackChunkName: "entities" */ '../pages/Entities.vue'),
+      component: () => import('@/pages/Entities.vue'),
       children: [
         {
           path: '',
@@ -337,28 +331,25 @@ const router = new Router({
     },
     {
       path: '/article/:article_uid',
-      beforeEnter: (to, from, next) => {
-        services.articles.get(to.params.article_uid).then(res => {
-          next({
-            name: 'issue-viewer',
-            params: {
-              issue_uid: res.issue.uid,
-            },
-            query: {
-              p: res.pages[0]?.num,
-              articleId: getShortArticleId(res.uid),
-              text: '1',
-            },
-          })
-        })
+      component: () => null,
+      beforeEnter: async (to) => {
+        const res = await services.articles.get(to.params.article_uid as string)
+        return {
+          name: 'issue-viewer',
+          params: {
+            issue_uid: res.issue.uid,
+          },
+          query: {
+            p: res.pages[0]?.num,
+            articleId: getShortArticleId(res.uid),
+            text: '1',
+          },
+        }
       },
     },
     {
       path: '/compare',
-      component: () =>
-        import(
-          /* webpackChunkName: "search-queries-comparison" */ '../pages/SearchQueriesComparison'
-        ),
+      component: () => import('@/pages/SearchQueriesComparison.vue'),
       name: 'compare',
       meta: {
         requiresAuth: false,
@@ -366,7 +357,7 @@ const router = new Router({
     },
     {
       path: '/text-reuse',
-      component: () => import(/* webpackChunkName: "tr" */ '../pages/TextReuse.vue'),
+      component: () => import('@/pages/TextReuse.vue'),
       meta: {
         requiresAuth: false,
         realm: 'textReuse',
@@ -374,10 +365,7 @@ const router = new Router({
       children: [
         {
           path: '',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
-            ),
+          component: () => import('@/components/TextReuseExplorerPage.vue'),
           name: 'textReuseOverview',
           meta: {
             requiresAuth: false,
@@ -386,10 +374,7 @@ const router = new Router({
         },
         {
           path: 'statistics',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
-            ),
+          component: () => import('@/components/TextReuseExplorerPage.vue'),
           name: 'textReuseStatistics',
           meta: {
             requiresAuth: false,
@@ -398,10 +383,7 @@ const router = new Router({
         },
         {
           path: 'clusters',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
-            ),
+          component: () => import('@/components/TextReuseExplorerPage.vue'),
           name: 'textReuseClusters',
           meta: {
             requiresAuth: false,
@@ -410,10 +392,7 @@ const router = new Router({
         },
         {
           path: 'passages',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseExplorerPage.vue'
-            ),
+          component: () => import('@/components/TextReuseExplorerPage.vue'),
           name: 'textReusePassages',
           meta: {
             requiresAuth: false,
@@ -424,8 +403,7 @@ const router = new Router({
     },
     {
       path: '/text-reuse-clusters',
-      component: () =>
-        import(/* webpackChunkName: "tr-clusters" */ '../pages/TextReuseClusters.vue'),
+      component: () => import('@/pages/TextReuseClusters.vue'),
       name: 'text-reuse-clusters',
       meta: {
         requiresAuth: false,
@@ -433,10 +411,7 @@ const router = new Router({
       children: [
         {
           path: '',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details" */ '../components/TextReuseClusterDetailPage.vue'
-            ),
+          component: () => import('@/components/TextReuseClusterDetailPage.vue'),
           name: 'text-reuse-cluster-passages',
           meta: {
             requiresAuth: false,
@@ -444,10 +419,7 @@ const router = new Router({
         },
         {
           path: 'card',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-details-id-card" */ '../components/TextReuseClusterIdCardPage.vue'
-            ),
+          component: () => import('@/components/TextReuseClusterIdCardPage.vue'),
           name: 'text-reuse-cluster-detail',
           meta: {
             requiresAuth: false,
@@ -455,10 +427,7 @@ const router = new Router({
         },
         {
           path: 'connected-clusters',
-          component: () =>
-            import(
-              /* webpackChunkName: "tr-clusters-connected" */ '../components/TextReuseConnectedClusters.vue'
-            ),
+          component: () => import('@/components/TextReuseConnectedClusters.vue'),
           name: 'text-reuse-connected-clusters',
           meta: {
             requiresAuth: false,
@@ -478,18 +447,19 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   const pathWithPrefix = String(BASE_URL + to.path).replace(/\/+/g, '/')
   // console.info('[router/index] Routing \-to : to', to.name, to.path, 'from', from.name, from.path)
-  Vue.prototype.$renderMetaTags({ title: to.name })
+  // Vue.prototype.$renderMetaTags({ title: to.name })
   // # forward page to matomo analytics using base.URL
-  if (window._paq) {
+  const analytics = (window as any as { _paq?: AnalyticsObject })._paq
+  if (analytics) {
     console.info(
       '[router/index] Matomo tracking \n - path: ',
       pathWithPrefix,
       ' \n - title:',
       to.name,
     )
-    window._paq.push(['setCustomUrl', pathWithPrefix])
-    window._paq.push(['setDocumentTitle', to.name])
-    window._paq.push(['trackPageView'])
+    analytics.push(['setCustomUrl', pathWithPrefix])
+    analytics.push(['setDocumentTitle', to.name as string])
+    analytics.push(['trackPageView'])
   } else {
     console.warn('[router/index] Matomo not loaded')
   }

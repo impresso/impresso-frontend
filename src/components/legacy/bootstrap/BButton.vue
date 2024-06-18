@@ -3,7 +3,7 @@
     type="button"
     :class="buttonClass"
     :disabled="props.disabled ? true : undefined"
-    v-on="$listeners">
+    v-bind="$attrs">
     <slot></slot>
   </button>
 </template>
@@ -30,7 +30,7 @@ const props = defineProps({
 const attrs = useAttrs()
 Object.keys(attrs)
 
-const allowedAttrs = ['onClick', 'title']
+const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BButton: Unknown attributes: ${unknownAttrs.join(', ')}`)

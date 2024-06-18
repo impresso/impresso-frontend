@@ -30,8 +30,8 @@
 </template>
 
 <script>
-import SearchInput from '@/components/modules/SearchInput'
-import SearchPills from '@/components/SearchPills'
+import SearchInput from '@/components/modules/SearchInput.vue'
+import SearchPills from '@/components/SearchPills.vue'
 
 const SortingMethod = {
   PassagesCount: 'passages-count',
@@ -97,7 +97,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "searchInPatternsLabel": "search in text reuse patterns",

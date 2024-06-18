@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="issue-viewer-table-of-contents">
     <div v-for="(item, i) in items" :key="i"
       class="border-bottom"
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem'
+import TableOfContentsItem from '@/components/modules/lists/TableOfContentsItem.vue'
 
 export default {
   data: () => ({
@@ -73,7 +73,7 @@ export default {
   }
 }
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_full_text": "full text",

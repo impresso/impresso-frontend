@@ -21,7 +21,7 @@
         </g>
       </svg>
     </button>
-    <input type="date" :required="props.required ? 'required' : undefined" :min="minDate" :max="maxDate" :id="`${uid}-value`" :value="props.value" @input="handleInput" style="width: 0px; height: 0px; border: 0px; margin: 0px; padding: 0px;" ref="dateInput"/>
+    <input type="date" :required="props.required" :min="minDate" :max="maxDate" :id="`${uid}-value`" :value="props.value" @input="handleInput" style="width: 0px; height: 0px; border: 0px; margin: 0px; padding: 0px;" ref="dateInput"/>
   </div>
 </template>
 
@@ -81,12 +81,14 @@ const minDate = computed(() => {
   if (d instanceof Date) {
     return d.toISOString().split('T')[0]
   }
+  return undefined
 })
 const maxDate = computed(() => {
   const d = props.max
   if (d instanceof Date) {
     return d.toISOString().split('T')[0]
   }
+  return undefined
 })
 
 const handleClick = () => {

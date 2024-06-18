@@ -38,7 +38,7 @@
       />
     </form>
 
-    <template slot="modal-footer">
+    <template v-slot:modal-footer>
       <b-button
         size="sm"
         class="shadow-sm rounded"
@@ -177,7 +177,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "Collection_Name": "Collection Name",

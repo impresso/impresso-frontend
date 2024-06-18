@@ -88,7 +88,7 @@
 import Job from '@/models/Job'
 import SearchQuery from '@/models/SearchQuery'
 import { CommonQueryParameters } from '@/router/util'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
 import { MIDDLELAYER_MEDIA_URL, getAuthenticationBearer, jobs as jobsService } from '@/services'
 
 export default {
@@ -184,7 +184,7 @@ span.DON {
   border-radius: 2px;
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "no-jobs-yet": "Here you will find notifications about your newly created collections and recent downloads.",

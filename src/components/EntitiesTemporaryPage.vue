@@ -1,7 +1,7 @@
 <template>
   <i-layout-section main>
     <template v-slot:header>
-      <b-navbar type="light" variant="light" slot="header">
+      <b-navbar type="light" variant="light">
         <section class="top-section">
           <h3>{{ $t('title') }}</h3>
         </section>
@@ -12,7 +12,7 @@
   </i-layout-section>
 </template>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "title": "Entities"

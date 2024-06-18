@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { PropType, computed } from 'vue'
-import type { StoredNotification } from '@/store/Notifications'
+import type { StoredNotification } from '@/stores/notifications'
 
 const props = defineProps({
   notification: {

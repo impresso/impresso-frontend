@@ -8,30 +8,23 @@
           <h3 class="mb-1">
             <span v-if="isLoading"> ... (loading) </span>
             <span>{{ $t('routes.' + $route.name) }}</span>
-            <small><InfoButton name="text-reuse" class="ml-1"/></small>
+            <small>
+              <InfoButton name="text-reuse" class="ml-1" />
+            </small>
           </h3>
           <section class="text-serif  TextReuseExplorerPage_summary">
             <Ellipsis :initialHeight="60" :maxHeight="0">
               <span v-html="incipit" />
-              <SearchQuerySummary
-                v-on:updated="summaryUpdatedHandler"
-                :search-query="{ filters: supportedFiltersWithItems }"
-              />
+              <SearchQuerySummary v-on:updated="summaryUpdatedHandler"
+                :search-query="{ filters: supportedFiltersWithItems }" />
             </Ellipsis>
             <div class="ml-2">
-              <AddToCollection
-                @item:click="handleAddToCollectionClick"
-                @create="handleAddToCollectionCreate"
-                :title="$t('addTrQueryResultsToCollection')"
-              >
-                <template slot="empty">
+              <AddToCollection @item:click="handleAddToCollectionClick" @create="handleAddToCollectionCreate"
+                :title="$t('addTrQueryResultsToCollection')">
+                <template v-slot:empty>
                   <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>
-                  <b-button
-                    size="sm"
-                    class="small-caps rounded shadow-sm mt-3"
-                    variant="outline-secondary"
-                    @click="showCreateCollectionModal()"
-                  >
+                  <b-button size="sm" class="small-caps rounded shadow-sm mt-3" variant="outline-secondary"
+                    @click="showCreateCollectionModal()">
                     <span class="dripicons-archive pr-1"></span>
                     {{ $t('query_add_to_collection') }}
                   </b-button>
@@ -43,172 +36,93 @@
       </b-navbar>
       <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReuseOverview', query: { p: 1 } })"
-            active-class="active"
-            exact
-            class="pl-2"
-          >
+          <b-nav-item :to="goToRoute({ name: 'textReuseOverview', query: { p: 1 } })" active-class="active" exact
+            class="pl-2">
             <span>{{ $t('routeTextReuseOverview') }}</span>
           </b-nav-item>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReuseStatistics' })"
-            active-class="active"
-            exact
-            class="pl-2"
-          >
+          <b-nav-item :to="goToRoute({ name: 'textReuseStatistics' })" active-class="active" exact class="pl-2">
             <span>{{ $t('routeTextReuseStatistics') }}</span>
           </b-nav-item>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReuseClusters' })"
-            active-class="active"
-            class="pl-2"
-          >
-            <span
-              v-html="
-                $tc('routeTextReuseClusters', totalClusters, {
-                  n: isLoadingClusters ? '...' : $n(totalClusters),
-                })
-              "
-            />
+          <b-nav-item :to="goToRoute({ name: 'textReuseClusters' })" active-class="active" class="pl-2">
+            <span v-html="$tc('routeTextReuseClusters', totalClusters, {
+              n: isLoadingClusters ? '...' : $n(totalClusters),
+            })
+              " />
           </b-nav-item>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReusePassages' })"
-            active-class="active"
-            class="pl-2"
-          >
-            <span
-              v-html="
-                $tc('routeTextReusePassages', totalPassages, {
-                  n: isLoadingPassages ? '...' : $n(totalPassages),
-                })
-              "
-            />
+          <b-nav-item :to="goToRoute({ name: 'textReusePassages' })" active-class="active" class="pl-2">
+            <span v-html="$tc('routeTextReusePassages', totalPassages, {
+              n: isLoadingPassages ? '...' : $n(totalPassages),
+            })
+              " />
           </b-nav-item>
 
           <li class="navbar-text p-0 d-flex align-items-center ml-3"> </li>
         </template>
       </b-tabs>
     </template>
-    <TextReuseOverview
-      v-if="$route.name === 'textReuseOverview'"
-      :filters="supportedFilters"
-      :loading="isLoading"
-    ></TextReuseOverview>
-    <TextReuseStatistics
-      v-if="$route.name === 'textReuseStatistics'"
-      :filters="supportedFilters"
-      :loading="isLoading"
-    />
-    <List
-      v-if="$route.name === 'textReuseClusters' && !isLoadingClusters"
-      :items="clusters"
-      :pagination-list="clustersPaginationList"
-      @change-page="
-        page => {
+    <TextReuseOverview v-if="$route.name === 'textReuseOverview'" :filters="supportedFilters" :loading="isLoading">
+    </TextReuseOverview>
+    <TextReuseStatistics v-if="$route.name === 'textReuseStatistics'" :filters="supportedFilters"
+      :loading="isLoading" />
+    <List v-if="$route.name === 'textReuseClusters' && !isLoadingClusters" :items="clusters"
+      :pagination-list="clustersPaginationList" @change-page="page => {
           this.paginationCurrentPage = page
         }
-      "
-    >
+        ">
       <template v-slot:header>
         <b-navbar-nav class="d-flex flex-row pt-1">
           <li class="navbar-text ml-3 mr-2 text-muted">
-            <label>{{ $t('sortBy') }}</label></li>
+            <label>{{ $t('sortBy') }}</label>
+          </li>
           <li class="navbar-text mr-1">
-            <i-dropdown
-              v-model="orderBy"
-              :options="
-                orderByOptions.map(value => ({
-                  value,
-                  text: $t(`sort_${value}`),
-                }))
-              "
-              class="mr-auto"
-              size="sm"
-              variant="outline-primary"
-            ></i-dropdown
-          ></li>
+            <i-dropdown v-model="orderBy" :options="orderByOptions.map(value => ({
+              value,
+              text: $t(`sort_${value}`),
+            }))
+              " class="mr-auto" size="sm" variant="outline-primary"></i-dropdown>
+          </li>
         </b-navbar-nav>
       </template>
       <template v-slot:default>
         <div class="d-flex flex-wrap">
-          <ClusterItem
-            class="m-3 pb-4 border-bottom"
-            v-for="item in clusters"
-            :item="item"
-            :key="item.id"
-          />
+          <ClusterItem class="m-3 pb-4 border-bottom" v-for="item in clusters" :item="item" :key="item.id" />
         </div>
       </template>
     </List>
-    <List
-      v-if="$route.name === 'textReusePassages' && !isLoadingPassages"
-      :items="passages"
-      :pagination-list="passagesPaginationList"
-      @change-page="
-        page => {
+    <List v-if="$route.name === 'textReusePassages' && !isLoadingPassages" :items="passages"
+      :pagination-list="passagesPaginationList" @change-page="page => {
           this.paginationCurrentPage = page
         }
-      "
-    >
+        ">
       <template v-slot:header>
         <b-navbar-nav class="py-2 pl-3 ml-auto">
-          <i-dropdown
-            v-model="orderBy"
-            :options="
-              orderByOptions.map(value => ({
-                value,
-                text: $t(`sort_${value}`),
-              }))
-            "
-            class="mr-auto"
-            size="sm"
-            variant="outline-primary"
-          ></i-dropdown>
+          <i-dropdown v-model="orderBy" :options="orderByOptions.map(value => ({
+            value,
+            text: $t(`sort_${value}`),
+          }))
+            " class="mr-auto" size="sm" variant="outline-primary"></i-dropdown>
         </b-navbar-nav>
       </template>
       <template v-slot:default>
         <div class="d-flex flex-wrap">
-          <TextReusePassageItem
-            :item="item"
-            class="m-3 pb-4 border-bottom"
-            v-for="item in passages"
-            :key="item.id"
-            @click="handleTextReusePassageClick"
-          />
+          <TextReusePassageItem :item="item" class="m-3 pb-4 border-bottom" v-for="item in passages" :key="item.id"
+            @click="handleTextReusePassageClick" />
         </div>
       </template>
     </List>
-    <CreateCollection
-      id="createCollectionFromFilters"
-      :show="isCreateCollectionModalVisible"
-      :filters="supportedFilters"
-      index="tr_passages"
-      :title="$t('query_add_to_collection')"
-      :description="summary"
-      :name="newCollectionName"
-      @create="handleCreateCollection"
-      @collection:created="handleCollectionCreated"
-      @close="hideCreateCollectionModal"
-    />
-    <ConfirmModal
-      id="confirmAddToCollectionFromFilters"
-      :title="$t('confirmAddToCollectionFromFilters')"
-      :okLabel="$t('saveToTheCollection')"
-      @ok="saveArticlesInSelectedCollection"
-      :show="isConfirmAddToCollectionDialogVisible"
-      @close="
-        () => {
+    <CreateCollection id="createCollectionFromFilters" :show="isCreateCollectionModalVisible"
+      :filters="supportedFilters" index="tr_passages" :title="$t('query_add_to_collection')" :description="summary"
+      :name="newCollectionName" @create="handleCreateCollection" @collection:created="handleCollectionCreated"
+      @close="hideCreateCollectionModal" />
+    <ConfirmModal id="confirmAddToCollectionFromFilters" :title="$t('confirmAddToCollectionFromFilters')"
+      :okLabel="$t('saveToTheCollection')" @ok="saveArticlesInSelectedCollection"
+      :show="isConfirmAddToCollectionDialogVisible" @close="() => {
           isConfirmAddToCollectionDialogVisible = false
         }
-      "
-    >
+        ">
       Selected collection:
-      <div
-        v-if="selectedCollection"
-        class="shadow-sm border px-3 mt-2 p-2 rounded"
-        style="background-color: rgba(0, 0, 0, 0.025)"
-      >
+      <div v-if="selectedCollection" class="shadow-sm border px-3 mt-2 p-2 rounded"
+        style="background-color: rgba(0, 0, 0, 0.025)">
         <ItemLabel :item="selectedCollection" type="collection" />
         <blockquote class="p-2 px-3 mt-2 text-small">
           {{ selectedCollection.description }}
@@ -221,27 +135,27 @@
 <script>
 import { mapActions } from 'pinia'
 import { useNotificationsStore } from '@/stores/notifications'
-import InfoButton from '@/components/base/InfoButton'
-import Ellipsis from '@/components/modules/Ellipsis'
-import List from '@/components/modules/lists/List'
-import ClusterItem from '@/components/modules/lists/ClusterItem'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
-import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem'
-import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics'
-import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
+import InfoButton from '@/components/base/InfoButton.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import List from '@/components/modules/lists/List.vue'
+import ClusterItem from '@/components/modules/lists/ClusterItem.vue'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
+import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem.vue'
+import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics.vue'
+import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview.vue'
 import { mapPagination, mapOrderBy } from '@/logic/queryParams'
 import { textReusePassages, search as searchService, collections } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 import { optimizeFilters, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseCluster from '@/models/TextReuseCluster'
-import CreateCollection from './modules/collections/CreateCollection'
-import AddToCollection from './modules/collections/AddToCollection'
+import CreateCollection from './modules/collections/CreateCollection.vue'
+import AddToCollection from './modules/collections/AddToCollection.vue'
 import ConfirmModal from './modules/collections/ConfirmModal.vue'
 import ItemLabel from './modules/lists/ItemLabel.vue'
-import { hide } from '@floating-ui/vue'
 import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -468,7 +382,7 @@ export default {
               type: 'error'
             })
             return
-          } else if ((err.code = 501)) {
+          } else if ((err.code === 501)) {
             // too many jobs...
             this.addNotification({
               title: 'Please wait...',
@@ -495,6 +409,9 @@ export default {
   },
   computed: {
     ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     isLoggedIn() {
       return this.userStore.userData
     },
@@ -582,51 +499,51 @@ export default {
   },
 }
 </script>
-<i18n>
-  {
-    "en": {
+<i18n lang="json">{
+  "en": {
+    "textReuse": "Text Reuse",
+    "textReuseSummaryIncipit": "{passages} in {clusters}",
+    "textReuseSummaryIncipitWithoutClusters": "{passages}",
+    "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
+    "routeTextReusePassages": "no passages | view <span class='number'>1</span> passage | view <span class='number'>{n}</span> passages",
+    "routeTextReuseOverview": "overview",
+    "routeTextReuseStatistics": "statistics",
+    "query_add_to_collection": "Create new collection",
+    "no_collections_found": "No collections found",
+    "addTrQueryResultsToCollection": "Save articles to collection",
+    "sort_-date": "Date (newest first)",
+    "sort_date": "Date (oldest first)",
+    "sort_-clusterSize": "Cluster size (largest first)",
+    "sort_clusterSize": "Cluster size (smallest first)",
+    "sort_-timeDifferenceDay": "Time difference (largest first)",
+    "sort_timeDifferenceDay": "Time difference (smallest first)",
+    "sort_-size": "Passage size, number of tokens (largest first)",
+    "sort_size": "Passage size, number of tokens (smallest first)",
+    "sort_-lexicalOverlap": "Lexical overlap (largest first)",
+    "sort_lexicalOverlap": "Lexical overlap (smallest first)",
+    "routes": {
       "textReuse": "Text Reuse",
-      "textReuseSummaryIncipit": "{passages} in {clusters}",
-      "textReuseSummaryIncipitWithoutClusters": "{passages}",
-      "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
-      "routeTextReusePassages": "no passages | view <span class='number'>1</span> passage | view <span class='number'>{n}</span> passages",
-      "routeTextReuseOverview": "overview",
-      "routeTextReuseStatistics": "statistics",
-      "query_add_to_collection": "Create new collection",
-      "no_collections_found": "No collections found",
-      "addTrQueryResultsToCollection": "Save articles to collection",
-      "sort_-date": "Date (newest first)",
-      "sort_date": "Date (oldest first)",
-      "sort_-clusterSize": "Cluster size (largest first)",
-      "sort_clusterSize": "Cluster size (smallest first)",
-      "sort_-timeDifferenceDay": "Time difference (largest first)",
-      "sort_timeDifferenceDay": "Time difference (smallest first)",
-      "sort_-size": "Passage size, number of tokens (largest first)",
-      "sort_size": "Passage size, number of tokens (smallest first)",
-      "sort_-lexicalOverlap": "Lexical overlap (largest first)",
-      "sort_lexicalOverlap": "Lexical overlap (smallest first)",
-      "routes": {
-        "textReuse": "Text Reuse",
-        "textReuseStatistics": "Statistics",
-        "textReuseOverview": "Overview of Text Reuse Distribution",
-        "textReusePassages": "List of Text Reuse Passages",
-        "textReuseClusters": "List of Text Reuse Clusters"
-      },
-      "confirmAddToCollectionFromFilters": "Add all filtered articles to a collection",
-      "saveToTheCollection": "Save to my collection"
-    }
+      "textReuseStatistics": "Statistics",
+      "textReuseOverview": "Overview of Text Reuse Distribution",
+      "textReusePassages": "List of Text Reuse Passages",
+      "textReuseClusters": "List of Text Reuse Clusters"
+    },
+    "confirmAddToCollectionFromFilters": "Add all filtered articles to a collection",
+    "saveToTheCollection": "Save to my collection"
   }
-  </i18n>
+}</i18n>
 <style lang="css">
 .TextReuseExplorerPage_summary .number {
   font-weight: bold;
 }
+
 .TextReuseExplorerPage_summary {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 }
+
 .TextReuseExplorerPage_summary p {
   margin: 0;
   display: inline;

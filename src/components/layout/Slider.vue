@@ -14,21 +14,25 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere
+ */
 export default {
   props: {
-    activeSlide: {
+    modelValue: {
       default: 'left', // either left or right
       type: String,
     },
   },
-  model: {
-    prop: 'activeSlide',
-  },
+  emits: ['modelValue:updated'],
   methods: {
     onClickBack() {
-      this.$emit('input', 'left');
+      this.$emit('modelValue:updated', 'left');
     },
   },
+  computed: {
+    activeSlide() { return this.modelValue }
+  }
 };
 </script>
 

@@ -1,35 +1,16 @@
 <template>
   <div class="dropdown b-dropdown btn-group" :class="{ show: isOpen }">
-    <button
-      aria-haspopup="menu"
-      :aria-expanded="isOpen"
-      type="button"
-      class="btn dropdown-toggle"
-      :class="{
-        [`btn-${size}`]: size != undefined,
-        [`btn-${variant}`]: variant != undefined,
-      }"
-      @click="isOpen = !isOpen"
-      ref="buttonRef"
-    >
+    <button aria-haspopup="menu" :aria-expanded="isOpen" type="button" class="btn dropdown-toggle" :class="{
+      [`btn-${size}`]: size != undefined,
+      [`btn-${variant}`]: variant != undefined,
+    }" @click="isOpen = !isOpen" ref="buttonRef">
       {{ selectedOption.text }}
     </button>
-    <ul
-      role="menu"
-      tabindex="-1"
-      class="dropdown-menu"
-      :class="{ show: isOpen, 'dropdown-menu-right': right }"
-      ref="dropdownRef"
-    >
-      <li v-for="option in options" role="presentation">
-        <a
-          role="menuitem"
-          target="_self"
-          :aria-disabled="option.disabled"
-          class="dropdown-item"
-          :class="{ disabled: option.disabled }"
-          @click="selectOption(option)"
-        >
+    <ul role="menu" tabindex="-1" class="dropdown-menu" :class="{ show: isOpen, 'dropdown-menu-right': right }"
+      ref="dropdownRef">
+      <li v-for="option in options" :key="option.value" role="presentation">
+        <a role="menuitem" target="_self" :aria-disabled="option.disabled" class="dropdown-item"
+          :class="{ disabled: option.disabled }" @click="selectOption(option)">
           {{ option.text }}
         </a>
       </li>

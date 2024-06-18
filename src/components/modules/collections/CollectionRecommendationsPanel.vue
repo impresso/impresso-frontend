@@ -18,8 +18,8 @@
         <div v-if="articlesLoaded && recommendedArticles.length > 0">
           <div>
             <b-row v-if="displayStyle === DisplayStyle.List">
-              <b-col cols="12" v-for="article in recommendedArticles" :key="article.uid">
-                <search-results-list-item :article="article">
+              <b-col cols="12" v-for="(article, idx) in recommendedArticles" :key="article.uid">
+                <search-results-list-item v-model="recommendedArticles[idx]">
                   <template v-slot:secondary-action>
                     <b-button
                       variant="outline-primary" size="sm"
@@ -31,11 +31,11 @@
               </b-col>
             </b-row>
             <b-row v-if="displayStyle === DisplayStyle.Tiles">
-              <b-col cols="6" sm="12" md="4" lg="3" v-for="article in recommendedArticles" :key="article.uid">
+              <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, idx) in recommendedArticles" :key="article.uid">
                 <search-results-tiles-item
                   v-if="article.type === ArticleType"
                   @click="goToArticle(article)"
-                  :article="article" />
+                  v-model="recommendedArticles[idx]" />
                 <search-results-image-item
                   v-if="article.type !== ArticleType"
                   @click="goToArticle(article)"
@@ -50,7 +50,7 @@
           <span>{{ $t('label.notfound') }}</span>
         </div>
 
-        <div class="fixed-pagination-footer p-1 m-0" slot="footer"  v-if="articlesLoaded && recommendedArticles.length > 0">
+        <div class="fixed-pagination-footer p-1 m-0"  v-if="articlesLoaded && recommendedArticles.length > 0">
           <pagination
             v-if="recommendedArticles.length"
             :current-page="paginationCurrentPage"
@@ -66,13 +66,13 @@
 </template>
 
 <script>
-import RecommenderPill from './RecommenderPill'
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem'
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem'
+import RecommenderPill from './RecommenderPill.vue'
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue'
 
-import Pagination from '@/components/modules/Pagination'
-import Spinner from '@/components/layout/Spinner'
+import Pagination from '@/components/modules/Pagination.vue'
+import Spinner from '@/components/layout/Spinner.vue'
 
 import {
   articlesRecommendations,
@@ -287,7 +287,7 @@ export default {
       const rs = this.recommendersSettings
       rs[index] = settings
       this.recommendersSettings = rs
-      // this.$set(this.recommendersSettings, index, settings)
+      // this.recommendersSettings[index] =settings
       this.paginationCurrentPage = 1
     },
     handleSearchparametersChanged(settings) {
@@ -295,7 +295,7 @@ export default {
       const rs = this.recommendersSettings
       rs[index] = settings
       this.recommendersSettings = rs
-      // this.$set(this.recommendersSettings, index, settings)
+      // this.recommendersSettings[index] = settings
       this.paginationCurrentPage = 1
     },
     goToArticle(article) {
@@ -330,7 +330,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

@@ -3,7 +3,7 @@
     <base-title-bar
       >{{ $t(`label.timeline.${groupBy}`) }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" />
-      <div slot="options">
+      <template v-slot:options>
         <b-button
           v-show="filters.length"
           size="sm"
@@ -12,8 +12,8 @@
         >
           {{ $t('actions.reset') }}
         </b-button>
-      </div>
-      <div slot="description">
+      </template>
+      <template v-slot:description>
         <span v-if="filters.length">
           {{ $t(`label.timelineDescription.${groupBy}.filtered.${displayStyle}`) }}
         </span>
@@ -30,7 +30,7 @@
             <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
           </form>
         </li>
-      </div>
+      </template>
     </base-title-bar>
 
     <!--  timeline vis -->
@@ -43,17 +43,17 @@
       :percentage="isPercentage"
       @brushed="onTimelineBrushed"
     >
-      <div slot-scope="tooltipScope">
+      <template v-slot="tooltipScope">
         <div v-if="tooltipScope.tooltip.item">
-          {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-          <b>{{ $n(tooltipScope.tooltip.item.w) }}</b> {{ groupBy }}
+          {{ tooltipScope?.tooltip?.item?.t ? $d(tooltipScope.tooltip.item.t, 'year') : '' }} &middot;
+          <b>{{ tooltipScope?.tooltip?.item?.w ? $n(tooltipScope.tooltip.item.w) : '' }}</b> {{ groupBy }}
           <!-- <br />
           <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
           &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
           ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
           </span> -->
         </div>
-      </div>
+      </template>
     </timeline>
 
     <div v-if="!temporaryFilter && !filters.length">
@@ -104,10 +104,10 @@
 import Daterange from '@/models/Daterange'
 import FilterDaterange from '@/models/FilterDaterange'
 
-import BaseTitleBar from '@/components/base/BaseTitleBar'
-import InfoButton from '@/components/base/InfoButton'
-import Timeline from '@/components/modules/Timeline'
-import FilterMonitor from '@/components/modules/FilterMonitor'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
+import Timeline from '@/components/modules/Timeline.vue'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue';
 import { getFilterHash } from '../../models/SearchQuery'
 
@@ -301,7 +301,7 @@ export default {
 </script>
 
 <style lang="css" scoped></style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

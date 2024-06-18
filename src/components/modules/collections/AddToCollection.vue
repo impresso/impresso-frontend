@@ -222,7 +222,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "no_collections_found": "No collections found",

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout class="search-images">
     <search-sidebar width="400px"
       :filters="enrichedFilters"
@@ -7,7 +7,7 @@
       :excludedTypes="excludedTypes"
       contextTag="search-images"
       @changed="handleFiltersChanged">
-      <div slot="header">
+      <template v-slot:header>
         <div v-if="similarToImage" class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex">
           <div class="flex-shrink-1 mr-2" style="width: 100px">
             <img v-if="similarToImage.regions.length"
@@ -28,9 +28,9 @@
         <filter-image-upload
           v-if="enableUpload" />
         <search-input @submit="onSearchQuery"></search-input>
-      </div>
+      </template>
       <b-form-group class="mx-3">
-        <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+        <b-form-checkbox v-model="isFront" switch :modelValue="true">
           {{$t('label.isFront')}}
         </b-form-checkbox>
       </b-form-group>
@@ -38,7 +38,7 @@
 
     <i-layout-section main>
       <!-- header -->
-      <div slot="header">
+      <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="p-2 border-right">
             <li class="form-inline">
@@ -72,7 +72,7 @@
             <b class="small-caps font-weight-bold">{{$t("sort_by_similarity")}}</b>
           </b-navbar-nav>
         </b-navbar>
-     </div>
+      </template>
 
      <!--  body -->
       <div class="p-1 my-2">
@@ -124,19 +124,20 @@ import {
   filtersItems as filtersItemsService,
   getAuthenticationBearer
 } from '@/services';
-import FilterImageUpload from '@/components/modules/FilterImageUpload';
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
-import Pagination from '@/components/modules/Pagination';
-import SearchSidebar from '@/components/modules/SearchSidebar';
-import SearchResultsSummary from '@/components/modules/SearchResultsSummary';
-import Ellipsis from '@/components/modules/Ellipsis';
-import SearchInput from '@/components/modules/SearchInput';
+import FilterImageUpload from '@/components/modules/FilterImageUpload.vue';
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue';
+import Pagination from '@/components/modules/Pagination.vue';
+import SearchSidebar from '@/components/modules/SearchSidebar.vue';
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue';
+import Ellipsis from '@/components/modules/Ellipsis.vue';
+import SearchInput from '@/components/modules/SearchInput.vue';
 import FilterFactory from '@/models/FilterFactory';
 import Image from '@/models/Image';
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
 import FacetModel from '@/models/Facet';
 import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
+import { Navigation } from '@/plugins/Navigation';
 
 const AllowedFilterTypes = [
   'newspaper',
@@ -194,6 +195,9 @@ export default {
   },
   computed: {
     ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
@@ -529,7 +533,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "label_order": "Order By",

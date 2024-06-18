@@ -1,18 +1,13 @@
 <template>
-  <div role="radiogroup" tabindex="-1" :class="gClass" v-on="$listeners">
-    <RadioGroupItem
-      v-for="(option, idx) in options"
-      :key="option.value"
-      :option="option"
-      :type="props.type"
-      :modelValue="isSelected(option)"
-      @update:modelValue="select(option.value)"/>
+  <div role="radiogroup" tabindex="-1" :class="gClass" v-bind="$attrs">
+    <RadioGroupItem v-for="option in options" :key="option.value" :option="option" :type="props.type"
+      :modelValue="isSelected(option)" @update:modelValue="select(option.value)" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { PropType, computed } from 'vue'
-import uuid from 'uuid'
+import { v4 } from 'uuid'
 import RadioGroupItem, { type Option } from './RadioGroupItem.vue'
 
 const props = defineProps({
@@ -31,7 +26,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue'])
 const isButton = computed(() => props.type === 'button')
-const uid = computed(() => uuid.v4())
+const uid = computed(() => v4())
 
 const gClass = computed(() => ({
   'bv-no-focus-ring': true,

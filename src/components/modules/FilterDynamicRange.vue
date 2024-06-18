@@ -3,14 +3,14 @@
     <BaseTitleBar>
       {{ $t(`label.${facet.type}.filterTitle`).toLowerCase() }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" class="ml-1" />
-      <div slot="description">
+      <template v-slot:description>
         <slot name="description"></slot>
-      </div>
-      <div slot="options">
+      </template>
+      <template v-slot:options>
         <b-button v-show="isFiltered" size="sm" variant="outline-primary" @click="resetValues">
           {{ $t(`actions.reset`) }}
         </b-button>
-      </div>
+      </template>
     </BaseTitleBar>
 
     <!-- min 100px height -->
@@ -49,13 +49,13 @@
   </div>
 </template>
 <script>
-import BaseTitleBar from '@/components/base/BaseTitleBar'
-import HistogramSlider from '@/components/modules/vis/HistogramSlider'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue'
 import { serializeFilters } from '@/logic/filters'
 import { stats as statsService, getSearchFacetsService } from '@/services'
-import Tooltip from './tooltips/Tooltip'
+import Tooltip from './tooltips/Tooltip.vue'
 import FilterFactory from '@/models/FilterFactory'
-import InfoButton from '@/components/base/InfoButton'
+import InfoButton from '@/components/base/InfoButton.vue'
 
 /** export vue component that display range facets based on actual stats for the solr field */
 export default {
@@ -288,7 +288,7 @@ export default {
   },
 }
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "value": "value: <span class='number'>{val}</span>",

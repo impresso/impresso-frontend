@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container d-flex flex-column">
     <!-- slot:header -->
-    <div slot="header" class="flex-shrink-1">
+    <div class="flex-shrink-1">
       <slot name="header"> </slot>
     </div>
     <!-- slot:body -->
@@ -18,13 +18,13 @@
       :color-palette="chartData.colorPalette"
       :items-dictionary="chartData.itemsDictionary"
       :horizontal="chartData.horizontal"
-      @item:click="e => $emit('item:click', e)"
-      @mousemove="e => $emit('mousemove', e)"
-      @mouseleave="e => $emit('mouseleave', e)"
+      @item:click="(e: Event) => $emit('item:click', e)"
+      @mousemove="(e: Event) => $emit('mousemove', e)"
+      @mouseleave="(e: Event) => $emit('mouseleave', e)"
       :options="options"
     />
     <!-- slot:footer -->
-    <div slot="footer" class="flex-shrink-1 border-top">
+    <div class="flex-shrink-1 border-top">
       <slot name="footer" class="border-top p-2 pb-3" style="max-height: 180px;overflow:scroll">
       </slot>
     </div>
@@ -37,24 +37,24 @@ import { computed, defineComponent } from 'vue'
 import { withMissingDates } from '@/logic/time'
 import PowerChart from './PowerChart.vue'
 
-function colorForLineMetric(index) {
+function colorForLineMetric(index: number) {
   if (index < 0) return '#ffffffff'
   return schemeCategory10[index % schemeCategory10.length]
 }
 
-function colorForAreaMetric(index) {
+function colorForAreaMetric(index: number) {
   if (index < 0) return '#ffffffff'
   return `${schemeAccent[index % schemeAccent.length]}33`
 }
 
 interface LineMetricExtractor {
   id: string
-  extractor: (any) => number
+  extractor: (any: any) => number
 }
 
 interface AreaMetricExtractor {
   id: string
-  extractor: (any) => [number, number]
+  extractor: (any: any) => [number, number]
 }
 
 const lineMetricExtractorFactory = (metric: string): LineMetricExtractor => ({
@@ -74,7 +74,7 @@ const itemCountLineMetricExtractorFactory = (metric: string): LineMetricExtracto
   id: metric,
   extractor: value => {
     const { items = [] } = value
-    const item = items.find(({ term }) => term === metric)
+    const item = items.find(({ term }: { term: any }) => term === metric)
     return item ? item.count : undefined
   },
 })
@@ -96,12 +96,12 @@ export const MetricsByFacetType = {
     area: () => [stdAreaMetricExtractorFactory('onesigma')],
   },
   term: {
-    line: response => {
+    line: (response: any) => {
       const { domain, facetType }  = response.meta ?? {}
 
       let itemsIds: string[] | undefined = Object.keys(response.itemsDictionary)
       if (domain === 'newspaper' && facetType == 'term') {
-        itemsIds = response.items?.[0]?.value?.items?.map(({ term }) => term)
+        itemsIds = response.items?.[0]?.value?.items?.map(({ term }: { term: any }) => term)
       }
       return itemsIds?.map(itemCountLineMetricExtractorFactory) ?? []
     },
@@ -145,7 +145,7 @@ export default defineComponent({
 
       const items =
         meta.domain === 'time'
-          ? statsItems.map(({ domain, value }) => ({
+          ? statsItems.map(({ domain, value }: { domain: any, value: any }) => ({
               domain: new Date(domain),
               value,
             }))
@@ -156,8 +156,8 @@ export default defineComponent({
           ? withMissingDates(
               items,
               meta.resolution,
-              item => item.domain,
-              date => ({ domain: date, value: {} }),
+              (item: any) => item.domain,
+              (date: any) => ({ domain: date, value: {} }),
             )
           : items
 
@@ -168,12 +168,12 @@ export default defineComponent({
           areaMetrics: [],
         }
 
-      const metrics = MetricsByFacetType[meta.facetType] || MetricsByFacetType['numeric']
+      const metrics = MetricsByFacetType[meta.facetType as keyof typeof MetricsByFacetType] || MetricsByFacetType['numeric']
       const lineMetrics = metrics.line(props.data)
-      const areaMetrics = metrics.area(props.data)
+      const areaMetrics = (metrics.area as any)(props.data as any)
 
-      const getId = ({ id }) => id
-      const paletteReducer = (fn, base = 0) => (acc, id, index) => ({
+      const getId = ({ id }: { id: any }) => id
+      const paletteReducer = (fn: (any: any) => any, base = 0) => (acc: Record<string, any>, id: string, index: number) => ({
         ...acc,
         [id]: fn(base + index),
       })
@@ -189,7 +189,7 @@ export default defineComponent({
       const hasFilters = props.idFilters != null
 
       const filteredLineMetrics = lineMetrics.filter(metric => !hasFilters || idFilters[metric.id])
-      const filteredAreaMetrics = areaMetrics.filter(metric => !hasFilters || idFilters[metric.id])
+      const filteredAreaMetrics = areaMetrics.filter((metric: any) => !hasFilters || idFilters[metric.id])
 
       return {
         items: entrichedItems,

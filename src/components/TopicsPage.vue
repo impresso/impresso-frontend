@@ -16,7 +16,7 @@
           </template>
         </b-tabs>
         <div class='pb-2 px-3' v-if="tab === 'list'">
-          <b-form-input placeholder="filter topics ..." :value="q" v-on:change="changeQ" class="my-3"></b-form-input>
+          <b-form-input placeholder="filter topics ..." :modelValue="q" @update:modelValue="changeQ" class="my-3"></b-form-input>
           <b-form-checkbox v-if="countActiveFilters"
             v-model="applyCurrentSearchFilters"
           ><span v-html="$t('label_applyCurrentSearchFilters', { countActiveFilters })" /></b-form-checkbox>
@@ -74,9 +74,9 @@
 
 <script>
 // import { protobuf } from 'impresso-jscommons';
-import List from './modules/lists/List';
+import List from './modules/lists/List.vue';
 // import InfoButton from './base/InfoButton';
-import TopicItem from './modules/lists/TopicItem';
+import TopicItem from './modules/lists/TopicItem.vue';
 import SearchQuery from '@/models/SearchQuery';
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams';
 import { SupportedFiltersByContext } from '@/logic/filters';
@@ -347,7 +347,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_list": "browse {total} topics",

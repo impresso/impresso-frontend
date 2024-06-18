@@ -40,7 +40,7 @@
             readonly
             :value="[iframeCode, iframeCaptionCode].join('\n')"
             class="mb-2 form-control"
-          /></textarea>
+          ></textarea>
 
           <b-button variant="outline-primary" size="sm" v-on:click="copyArticleUrlToClipboard()"
             >{{ $t('copy_to_clipboard') }}
@@ -53,8 +53,8 @@
           <div class="input-group input-group-sm">
             <b-input
               id="form-input-title"
-              :value="title"
-              @input="debounceInput($event, 'title')"
+              :modelValue="title"
+              @update:modelValue="debounceInput($event, 'title')"
             ></b-input>
           </div>
           <hr class="my-2" />
@@ -77,8 +77,8 @@
                 </div>
                 <b-input
                   id="form-input-bgcolor"
-                  :value="backgroundColor"
-                  @input="debounceInput($event, 'backgroundColor')"
+                  :modelValue="backgroundColor"
+                  @update:modelValue="debounceInput($event, 'backgroundColor')"
                 ></b-input>
               </div>
 
@@ -105,8 +105,8 @@
                 </div>
                 <b-input
                   id="form-input-bgcolor"
-                  :value="textColor"
-                  @input="debounceInput($event, 'textColor')"
+                  :modelValue="textColor"
+                  @update:modelValue="debounceInput($event, 'textColor')"
                 ></b-input>
               </div>
 
@@ -136,8 +136,8 @@
                 </div>
                 <b-input
                   id="form-input-ovcolor"
-                  :value="overlayBackgroundColor"
-                  @input="debounceInput($event, 'overlayBackgroundColor')"
+                  :modelValue="overlayBackgroundColor"
+                  @update:modelValue="debounceInput($event, 'overlayBackgroundColor')"
                 ></b-input>
               </div>
               <small id="form-input-ovcolor-help" class="form-text text-muted">{{
@@ -154,8 +154,8 @@
                 <b-input
                   id="form-input-coords-x"
                   type="number"
-                  :value="cx"
-                  @input="debounceInput($event, 'cx')"
+                  :modelValue="cx"
+                  @update:modelValue="debounceInput($event, 'cx')"
                 ></b-input>
               </div>
             </b-col>
@@ -165,8 +165,8 @@
                 <b-input
                   id="form-input-coords-y"
                   type="number"
-                  :value="cy"
-                  @input="debounceInput($event, 'cy')"
+                  :modelValue="cy"
+                  @update:modelValue="debounceInput($event, 'cy')"
                 ></b-input>
               </div>
             </b-col>
@@ -178,8 +178,8 @@
                 <b-input
                   id="form-input-coords-w"
                   type="number"
-                  :value="cw"
-                  @input="debounceInput($event, 'cw')"
+                  :modelValue="cw"
+                  @update:modelValue="debounceInput($event, 'cw')"
                 ></b-input>
               </div>
             </b-col>
@@ -189,8 +189,8 @@
                 <b-input
                   id="form-input-coords-h"
                   type="number"
-                  :value="ch"
-                  @input="debounceInput($event, 'ch')"
+                  :modelValue="ch"
+                  @update:modelValue="debounceInput($event, 'ch')"
                 >
                 </b-input>
               </div>
@@ -217,8 +217,8 @@
             <b-input
               id="form-input-max-height"
               type="number"
-              :value="maxHeight"
-              @input="debounceInput($event, 'maxHeight')"
+              :modelValue="maxHeight"
+              @update:modelValue="debounceInput($event, 'maxHeight')"
             ></b-input>
           </div>
           <b-row class="mt-2">
@@ -232,8 +232,8 @@
                 <b-input
                   id="form-input-caption-padding"
                   type="number"
-                  :value="captionPadding"
-                  @input="debounceInput($event, 'captionPadding')"
+                  :modelValue="captionPadding"
+                  @update:modelValue="debounceInput($event, 'captionPadding')"
                 ></b-input>
               </div>
               <small id="form-input-caption-padding-help" class="form-text text-muted">{{
@@ -249,8 +249,8 @@
                 <b-input
                   id="form-input-viewport-coords-margin"
                   type="number"
-                  :value="coordsMargin"
-                  @input="debounceInput($event, 'coordsMargin')"
+                  :modelValue="coordsMargin"
+                  @update:modelValue="debounceInput($event, 'coordsMargin')"
                 ></b-input>
               </div>
             </b-col>
@@ -289,9 +289,6 @@ export default {
     partner: null,
     isModalVisible: false,
   }),
-  model: {
-    prop: 'article',
-  },
   props: {
     article: Object,
   },
@@ -315,7 +312,7 @@ export default {
     },
     iframeCaptionCode() {
       const date = this.$d(this.article.date, 'long')
-      const url = `${process.env.VUE_APP_BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
+      const url = `${import.meta.env.VITE_BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
       return [
         `<div style="color: ${this.textColor}">`,
         `<p style="padding: ${this.captionPadding}px ${this.captionPadding}px 0; margin: 0; font-style: italic"><a href="${url}">${this.title}</a></p>`,
@@ -502,7 +499,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "title": "title",

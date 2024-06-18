@@ -13,7 +13,7 @@
 
 <script>
 import TimeMultiLineChart from '@/d3-modules/TimeMultiLineChart'
-import Tooltip from '../tooltips/Tooltip'
+import Tooltip from '../tooltips/Tooltip.vue'
 
 /**
  * @typedef {{ value: number, time: Date }} Item
@@ -63,7 +63,7 @@ export default {
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // @ts-ignore
     window.removeEventListener('resize', this.render.bind(this))
   },

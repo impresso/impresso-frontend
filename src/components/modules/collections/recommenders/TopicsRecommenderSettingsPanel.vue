@@ -33,20 +33,18 @@
 
 <script>
 
-const ChangedEvent = 'changed'
+const ChangedEvent = 'update:modelValue'
 
 export default {
-  model: {
-    prop: 'parameters',
-    event: ChangedEvent
-  },
   props: {
-    parameters: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+  emits: ['update:modelValue'],
   computed: {
+    parameters() { return this.modelValue },
     /** @return {string} */
     id() { return this['_uid']; },
     numberToKeep: {
@@ -89,7 +87,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "param": {

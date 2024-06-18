@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import Icon from '@/components/base/Icon'
+import Icon from '@/components/base/Icon.vue'
 
 export default {
   name: 'Recipe',
@@ -100,7 +100,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "perform_query": "Perform this query",

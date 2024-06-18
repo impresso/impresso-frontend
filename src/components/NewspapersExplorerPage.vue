@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout-section main v-on:scroll='onScroll'>
-    <div slot="header">
+    <template v-slot:header>
       <b-navbar  type="light" variant="light" class="border-bottom">
         <section class='pt-2 pb-1'>
           <span class="label small-caps">{{$t('list_of_newspapers')}}</span>
@@ -22,9 +22,9 @@
                     :domain="[start, end]"
                     :highlight="highlightA"
                     v-on:highlight="onHighlight($event, 'A')">
-                <div slot-scope="tooltipScope">
+                <template v-slot="tooltipScope">
                   <div v-if="tooltipScope.tooltip.item">
-                    {{ $d(tooltipScope.tooltip.item.t, 'year') }}
+                    {{ tooltipScope.tooltip.item.t ? $d(tooltipScope.tooltip.item.t, 'year') : '' }}
                     <br />
                     <b>{{ tooltipScope.tooltip.item.w }}</b> {{ totalLabel }}
                     <br />
@@ -33,17 +33,17 @@
                     ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
                     </span>
                   </div>
-                </div>
+                </template>
               </timeline>
           </b-navbar-nav>
 
       </section>
 
       </b-navbar>
-    </div>
+    </template>
     <!--  newspaper lifespans -->
     <newspapers-lines class="m-3"
-      v-model="newspapers"
+      :modelValue="newspapers"
       :margin="{left: 210, right:60}"
       :scrollTop="scrollTop"
       :highlight="highlightB" v-on:highlight="onHighlight($event, 'B')"
@@ -51,10 +51,11 @@
   </i-layout-section>
 </template>
 <script>
-import NewspapersLines from './NewspapersLines';
-import Timeline from './modules/Timeline';
-import InfoButton from './base/InfoButton';
+import NewspapersLines from './NewspapersLines.vue';
+import Timeline from './modules/Timeline.vue';
+import InfoButton from './base/InfoButton.vue';
 import { pagesTimelines, issuesTimeline } from '@/services';
+import Helpers from '@/plugins/Helpers'
 
 export default {
   props: {
@@ -98,10 +99,10 @@ export default {
       issuesTimeline.get('stats', {})
     ]).then(([ pages, issues ]) => {
       const pagesValues = pages.values.length
-        ? this.$helpers.timeline.addEmptyIntervals(pages.values.sort((a, b) => a.t - b.t))
+        ? Helpers.timeline.addEmptyIntervals(pages.values.sort((a, b) => a.t - b.t))
         : [];
       const issuesValues = issues.values.length
-        ? this.$helpers.timeline.addEmptyIntervals(issues.values.sort((a, b) => a.t - b.t))
+        ? Helpers.timeline.addEmptyIntervals(issues.values.sort((a, b) => a.t - b.t))
         : [];
       this.timelinesValues = {
         pages: pagesValues,
@@ -162,7 +163,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_order": "Order By",

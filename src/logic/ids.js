@@ -1,5 +1,3 @@
-
-// eslint-disable-next-line import/prefer-default-export
 export function getArticleParameters(articleId, pageNumber) {
   const parts = articleId.split('-')
   const issueId = parts.slice(0, parts.length - 1).join('-')

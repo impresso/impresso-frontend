@@ -1,12 +1,12 @@
 <template>
-  <input ref="inputRef" :type="props.type" :class="iClass" :value="props.value" v-on="$listeners" />
+  <input ref="inputRef" :type="props.type" :class="iClass" :value="props.modelValue" @input="handleChanged" v-bind="$attrs" />
 </template>
 
 <script setup lang="ts">
-import { computed, useAttrs, onMounted, nextTick, ref, getCurrentInstance } from 'vue'
+import { computed, useAttrs, onMounted, nextTick, ref } from 'vue'
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: [String, Number],
     default: '',
   },
@@ -23,14 +23,13 @@ const props = defineProps({
     default: 'md',
   },
 })
-const emit = defineEmits(['input', 'change'])
+const emit = defineEmits(['update:modelValue'])
 
 const attrs = useAttrs()
 
 const inputRef = ref<HTMLElement | null>(null)
-const inst = getCurrentInstance()
 
-const allowedAttrs = ['onClick', 'placeholder']
+const allowedAttrs = ['onClick', 'placeholder', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BFormInput: Unknown attributes: ${unknownAttrs.join(', ')}`)
@@ -51,11 +50,7 @@ onMounted(() => {
 
 const handleChanged = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('input', target.value)
-}
-
-if (inst?.proxy?.$listeners) {
-  inst.proxy.$listeners.input = handleChanged
+  emit('update:modelValue', target.value)
 }
 
 </script>

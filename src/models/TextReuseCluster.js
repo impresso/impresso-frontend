@@ -58,6 +58,8 @@ export default class TextReuseCluster {
    * @returns TextReuseCluster object
    */
   static fromTextReusePassage(item) {
+    if (!item.textReuseCluster) return undefined
+
     const maxDate = new Date(item.date)
     const minDate = new Date(
       +maxDate - item.textReuseCluster.timeDifferenceDay * 24 * 60 * 60 * 1000,

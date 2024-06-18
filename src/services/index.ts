@@ -1,58 +1,38 @@
 // https://github.com/delay/feathers-vue-blog-admin-demo/blob/master/client/src/services/index.js
-import io from 'socket.io-client'
-import feathers from '@feathersjs/feathers'
-import socketio from '@feathersjs/socketio-client'
 import auth from '@feathersjs/authentication-client'
+import { feathers } from '@feathersjs/feathers'
 
-import articlesSuggestionsHooks from './hooks/articlesSuggestions'
-import uploadedImagesHooks from './hooks/uploadedImages'
-import imagesHooks from './hooks/images'
-import NamesService from './names'
 import { useJobsStore } from '@/stores/jobs'
 import { useNotificationsStore } from '@/stores/notifications'
+import articlesSuggestionsHooks from './hooks/articlesSuggestions'
+import imagesHooks from './hooks/images'
+import uploadedImagesHooks from './hooks/uploadedImages'
+import NamesService from './names'
+import { configureRestTransport, configureSocketIoTransport } from './transport'
 
-// e.g io api base is http://localhost
-// and path is  something like /path/to/socket.io defined in the backend
-// const SocketBasePath =
-//   process.env.NODE_ENV === 'development' ? '' : process.env.VUE_APP_MIDDLELAYER_API
-const SocketBasePath = process.env.VUE_APP_USE_PROXY_MIDDLEWARE
-  ? ''
-  : process.env.VUE_APP_MIDDLELAYER_API
-const socket = io(SocketBasePath, {
-  path: process.env.VUE_APP_MIDDLELAYER_API_SOCKET_PATH,
-})
 export const app = feathers()
 
-app.configure(
-  socketio(socket, {
-    timeout: 130000,
-  }),
-)
+const transport: 'socketio' | 'rest' = import.meta.env.VITE_API_TRANSPORT ?? 'socketio'
+
+switch (transport) {
+  case 'socketio':
+    configureSocketIoTransport(app)
+    break
+  case 'rest':
+    console.log('✨ Using REST transport')
+    configureRestTransport(app)
+    break
+  default:
+    throw new Error(`Unknown transport: ${transport}`)
+}
+
 app.configure(
   auth({
     storage: window.localStorage,
   }),
 )
 
-socket.on('reconnect', () => {
-  app.reAuthenticate()
-  if (window.app && window.app.$store) {
-    const notificationsStore = useNotificationsStore()
-    notificationsStore.displayConnectivityStatus(true)
-  }
-}) // https://github.com/feathersjs/feathers-authentication/issues/272#issuecomment-240937322
-
-socket.on('connect_error', err => {
-  if (window.app && window.app.$store) {
-    err.message = `Could not connect to the API: ${err.message}`
-    console.error(err)
-    const notificationsStore = useNotificationsStore()
-    notificationsStore.displayConnectivityStatus(false)
-    notificationsStore.lockScreen(false)
-  }
-})
-
-const needsLockScreen = p => ['search.find', 'ngram-trends.create'].includes(p)
+const needsLockScreen = (p: string) => ['search.find', 'ngram-trends.create'].includes(p)
 
 const silentErrorCodes = [404, 409]
 
@@ -61,12 +41,10 @@ app.hooks({
     all: [
       context => {
         const route = `${context.path}.${context.method}`
-        if (window.app && window.app.$store) {
-          const notificationsStore = useNotificationsStore()
-          notificationsStore.updateProcessingActivity({ route, status: 'LOADING' })
-          if (needsLockScreen(route) && context.params.lock !== false) {
-            notificationsStore.lockScreen(true)
-          }
+        const notificationsStore = useNotificationsStore()
+        notificationsStore.updateProcessingActivity({ route, status: 'LOADING' })
+        if (needsLockScreen(route) && context.params.lock !== false) {
+          notificationsStore.lockScreen(true)
         }
       },
     ],
@@ -75,12 +53,10 @@ app.hooks({
     all: [
       context => {
         const route = `${context.path}.${context.method}`
-        if (window.app && window.app.$store) {
-          const notificationsStore = useNotificationsStore()
-          notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
-          if (needsLockScreen(route)) {
-            notificationsStore.lockScreen(false)
-          }
+        const notificationsStore = useNotificationsStore()
+        notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
+        if (needsLockScreen(route)) {
+          notificationsStore.lockScreen(false)
         }
       },
     ],
@@ -89,42 +65,40 @@ app.hooks({
     all: [
       context => {
         const route = `${context.path}.${context.method}`
-        if (window.app && window.app.$store) {
-          const notificationsStore = useNotificationsStore()
+        const notificationsStore = useNotificationsStore()
 
-          // handle not authenticated error when removing authentication
-          if (context.params.ignoreErrors) {
-            console.warn(
-              'app.hooks.error.all:ignoreErrors',
-              context.error?.name,
-              '\n - route:',
-              route,
-              '\n - code:',
-              context.error?.code,
-              '\n - type:',
-              context.error?.type,
-              '\n - data:',
-              context.error?.data,
-            )
-          } else if (
-            route === 'authentication.remove' &&
-            context.error.name === 'NotAuthenticated'
-          ) {
-            console.warn('Ignore NotAuthenticated error on "authentication.remove" route.')
-          } else if (route === 'authentication.create') {
-            console.warn('Ignore NotAuthenticated error on "authentication.create" route.')
-          } else if (!silentErrorCodes.includes(context.error.code)) {
-            // eslint-disable-next-line no-console
-            console.warn('app.hooks.error.all', context.error)
-            notificationsStore.displayError({
-              error: context.error,
-              origin: 'app.hooks.error.all',
-            })
-          }
-          notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
-          if (needsLockScreen(route)) {
-            notificationsStore.lockScreen(false)
-          }
+        // handle not authenticated error when removing authentication
+        if (context.params.ignoreErrors) {
+          console.warn(
+            'app.hooks.error.all:ignoreErrors',
+            context.error?.name,
+            '\n - route:',
+            route,
+            '\n - code:',
+            context.error?.code,
+            '\n - type:',
+            context.error?.type,
+            '\n - data:',
+            context.error?.data,
+          )
+        } else if (
+          route === 'authentication.remove' &&
+          context.error.name === 'NotAuthenticated'
+        ) {
+          console.warn('Ignore NotAuthenticated error on "authentication.remove" route.')
+        } else if (route === 'authentication.create') {
+          console.warn('Ignore NotAuthenticated error on "authentication.create" route.')
+        } else if (!silentErrorCodes.includes(context.error.code)) {
+          // eslint-disable-next-line no-console
+          console.warn('app.hooks.error.all', context.error)
+          notificationsStore.displayError({
+            error: context.error,
+            origin: 'app.hooks.error.all',
+          })
+        }
+        notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
+        if (needsLockScreen(route)) {
+          notificationsStore.lockScreen(false)
         }
       },
     ],
@@ -134,18 +108,16 @@ app.hooks({
 app.service('logs').on('created', payload => {
   console.info('@logs->created', payload)
   if (payload.job) {
-    const extra = {}
+    const extra: { collection?: any } = {}
     if (payload.collection) {
       extra.collection = payload.collection
     }
-    if (window.app) {
-      const jobsStore = useJobsStore()
-      jobsStore.updateJob({
-        ...payload.job,
-        progress: payload.progress,
-        extra,
-      })
-    }
+    const jobsStore = useJobsStore()
+    jobsStore.updateJob({
+      ...payload.job,
+      progress: payload.progress,
+      extra,
+    })
   }
 })
 
@@ -177,7 +149,7 @@ export const uploadedImages = app.service('uploaded-images').hooks(uploadedImage
 export const searchFacets = app.service('search-facets/search')
 export const searchFacetsTRClusters = app.service('search-facets/tr-clusters')
 export const searchFacetsTRPassages = app.service('search-facets/tr-passages')
-export const getSearchFacetsService = (index) => {
+export const getSearchFacetsService = (index: string) => {
   switch (index.replace(/_/g, '-')) {
     case 'search':
       return searchFacets
@@ -207,8 +179,8 @@ export const entityMentionsTimeline = app.service('entity-mentions-timeline')
 export const textReuseConnectedClusters = app.service('text-reuse-connected-clusters')
 export const passwordReset = app.service('password-reset')
 
-export const MIDDLELAYER_API = process.env.VUE_APP_MIDDLELAYER_API
-export const MIDDLELAYER_MEDIA_PATH = process.env.VUE_APP_MIDDLELAYER_MEDIA_PATH
+export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
+export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('')
 
 export const getAuthenticationBearer = () => app.authentication.options.storage['feathers-jwt']

@@ -61,9 +61,10 @@
 
 <script>
 import Entity from '@/models/Entity';
-import List from '@/components/modules/lists/List';
-import EntityItem from '@/components/modules/lists/EntityItem';
+import List from '@/components/modules/lists/List.vue';
+import EntityItem from '@/components/modules/lists/EntityItem.vue';
 import { entities as entitiesService } from '@/services';
+import { Navigation } from '@/plugins/Navigation';
 
 const QueryParameters = Object.freeze({
   SelectedEntitiesIds: 'items',
@@ -90,6 +91,9 @@ export default {
     isLoading: false,
   }),
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     paginationList() {
       return {
         perPage: this.paginationPerPage,
@@ -275,7 +279,7 @@ a.d-block.active {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_order": "Order By",

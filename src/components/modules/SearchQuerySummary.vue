@@ -94,24 +94,24 @@ export default {
           })
         }
       })
-      // other translations
-      ;['string', 'title', 'daterange'].concat(this.enumerables).forEach(type => {
-        if (filtersIndex[type]) {
-          if (this.isEnumerable(type)) {
-            enumerables.push(
-              this.getTranslation({
+        // other translations
+        ;['string', 'title', 'daterange'].concat(this.enumerables).forEach(type => {
+          if (filtersIndex[type]) {
+            if (this.isEnumerable(type)) {
+              enumerables.push(
+                this.getTranslation({
+                  filters: filtersIndex[type],
+                  type,
+                }),
+              )
+            } else {
+              translationTable[type] = this.getTranslation({
                 filters: filtersIndex[type],
                 type,
-              }),
-            )
-          } else {
-            translationTable[type] = this.getTranslation({
-              filters: filtersIndex[type],
-              type,
-            })
+              })
+            }
           }
-        }
-      })
+        })
 
       // Return is here because of "hidden" filters, such as hasTextContents
       if (!enumerables.length && !Object.keys(translationTable).length) {
@@ -223,7 +223,7 @@ export default {
               )
               .join(` <span class="operator">${operator}</span> `) +
             ` [... ${filter.items.length -
-              this.limitNumberOfFilterItems} additional options]</span>`
+            this.limitNumberOfFilterItems} additional options]</span>`
           )
         }
         return filter.items
@@ -272,8 +272,6 @@ export default {
           return acc
         }, [])
         .join('; ')
-
-      return type
     },
     getTranslation({ filters, type, prefix = '' }) {
       const sections = this.getContextSections(filters)
@@ -304,22 +302,22 @@ export default {
         }
         sections[d.context].push(d)
       })
-      ;['include', 'exclude'].forEach(context => {
-        if (sections[context]) {
-          if (this.reduced) {
-            results.push(
-              this.$tc(
-                `${context}.${type}.reduced`,
-                // number of items in total, as it is reduced
-                sections[context].reduce((sum, d) => sum + d.items.length, 0),
-              ),
-            )
-          } else {
-            const parts = []
-            results.push(parts.join(' '))
+        ;['include', 'exclude'].forEach(context => {
+          if (sections[context]) {
+            if (this.reduced) {
+              results.push(
+                this.$tc(
+                  `${context}.${type}.reduced`,
+                  // number of items in total, as it is reduced
+                  sections[context].reduce((sum, d) => sum + d.items.length, 0),
+                ),
+              )
+            } else {
+              const parts = []
+              results.push(parts.join(' '))
+            }
           }
-        }
-      })
+        })
       return results.join('; ')
     },
   },
@@ -327,18 +325,21 @@ export default {
 </script>
 <style lang="scss">
 .search-query-summary {
+
   span.item.person,
   span.item.topic,
   span.item.location,
-  span.item.daterange > span.date {
+  span.item.daterange>span.date {
     font-family: var(--bs-font-sans-serif);
     font-variant: small-caps;
     text-transform: lowercase;
   }
+
   span.item.collection {
     font-family: var(--bs-font-sans-serif);
     color: #049dae;
   }
+
   span.item.newspaper,
   span.item.country {
     color: black;
@@ -347,85 +348,87 @@ export default {
     font-weight: var(--impresso-wght-bold);
     font-variation-settings: 'wght' var(--impresso-wght-bold);
   }
+
   .precision-exact::before,
   .precision-exact::after {
     content: '"';
     font-weight: bold;
   }
+
   .precision-fuzzy::after {
     content: '~';
     font-weight: bold;
   }
+
   .precision-soft::before {
     content: '[';
     font-weight: bold;
   }
+
   .precision-soft::after {
     content: ']';
     font-weight: bold;
   }
 }
 </style>
-<i18n>
-  {
-    "en": {
-      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} ",
-      "isFront": "appearing on the <em>front page</em>",
-      "include": {
-        "accessRight": "available as",
-        "topic": "with topic",
-        "pub": {
-          "newspaper": "published in",
-          "textReuseCluster": "appearing in clusters"
-        },
-        "pubof": {
-          "newspaper": "in",
-          "textReuseCluster" : "clustered in"
-        },
+<i18n lang="json">{
+  "en": {
+    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} ",
+    "isFront": "appearing on the <em>front page</em>",
+    "include": {
+      "accessRight": "available as",
+      "topic": "with topic",
+      "pub": {
         "newspaper": "published in",
-        "person": "mentioning",
-        "location": "mentioning",
-        "string": "containing",
-        "title": "where title includes",
-        "daterange": "published",
-        "year": "published in",
-        "collection": "saved in",
-        "language": "written in",
-        "country": "printed in",
-        "type": "- tagged as",
-        "year": "in year",
-        "textReuseCluster": "showing up in clusters",
-        "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-        "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
-        "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+        "textReuseCluster": "appearing in clusters"
       },
-      "exclude": {
-        "accessRight": "not available as",
-        "topic": "without topic",
-        "pub": {
-          "newspaper": "not published in",
-          "textReuseCluster": "not in clusters"
-        },
-        "pubof": {
-          "newspaper": "not published in"
-        },
+      "pubof": {
+        "newspaper": "in",
+        "textReuseCluster": "clustered in"
+      },
+      "newspaper": "published in",
+      "person": "mentioning",
+      "location": "mentioning",
+      "string": "containing",
+      "title": "where title includes",
+      "daterange": "published",
+      "year": "published in",
+      "collection": "saved in",
+      "language": "written in",
+      "country": "printed in",
+      "type": "- tagged as",
+      "year": "in year",
+      "textReuseCluster": "showing up in clusters",
+      "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+      "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
+      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+    },
+    "exclude": {
+      "accessRight": "not available as",
+      "topic": "without topic",
+      "pub": {
         "newspaper": "not published in",
-        "person": "not mentioning",
-        "location": "not mentioning",
-        "string": "not containing",
-        "title": "where title does not include",
-        "daterange": "not published",
-        "year": "not published in",
-        "collection": "not saved in",
-        "language": "not written in",
-        "country": "not printed in",
-        "type": "- not tagged as",
-        "year": "not in year",
-        "textReuseCluster": "not in clusters",
-        "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-        "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-        "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
-      }
+        "textReuseCluster": "not in clusters"
+      },
+      "pubof": {
+        "newspaper": "not published in"
+      },
+      "newspaper": "not published in",
+      "person": "not mentioning",
+      "location": "not mentioning",
+      "string": "not containing",
+      "title": "where title does not include",
+      "daterange": "not published",
+      "year": "not published in",
+      "collection": "not saved in",
+      "language": "not written in",
+      "country": "not printed in",
+      "type": "- not tagged as",
+      "year": "not in year",
+      "textReuseCluster": "not in clusters",
+      "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+      "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
     }
   }
-</i18n>
+}</i18n>

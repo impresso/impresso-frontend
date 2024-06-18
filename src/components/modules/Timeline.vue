@@ -1,9 +1,9 @@
-<template lang="html">
+<template>
   <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`">
     <tooltip :tooltip="tooltip">
-      <slot :tooltip="tooltip">
-        <div v-if="tooltip.item">
-          {{ tooltip.item }}
+      <slot :tooltip="{...tooltip, item }">
+        <div v-if="item">
+          {{ item }}
         </div>
       </slot>
     </tooltip>
@@ -18,18 +18,18 @@
    :brush="[startDaterange, endDaterange]"
    :domain="[startYear, endYear]"
    @brushed="afterBrush()">
-   <div slot-scope="tooltipScope">
+   <template v-slot="tooltipScope">
      <div v-if="tooltipScope.tooltip.item">
        {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
        <b>{{ tooltipScope.tooltip.item.w }}</b> {{ localComputedVar }}
      </div>
-   </div>
+   </template>
  </timeline>
 */
 
 import ContrastTimeline from '@/d3-modules/ContrastTimeline'
 import Timeline from '@/d3-modules/Timeline'
-import Tooltip from './tooltips/Tooltip'
+import Tooltip from './tooltips/Tooltip.vue'
 
 const getTimeFormatForResolution = resolution =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
@@ -64,9 +64,9 @@ export default {
     tooltip: {
       x: 0,
       y: 0,
-      isActive: false,
-      item: {},
+      isActive: false
     },
+    item: {},
   }),
   computed: {
     heightVal() {
@@ -77,12 +77,11 @@ export default {
   methods: {
     moveTooltip(data) {
       this.tooltip = {
-        item: data.datum,
         isActive: true,
         x: data.pointer.x + 50,
         y: data.pointer.y - 50,
-        hspace: this.timeline.width,
       }
+      this.item = data.datum
     },
     onResize() {
       this.timeline.resize()
@@ -168,7 +167,7 @@ export default {
     }
     window.addEventListener('resize', this.onResize)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.onResize)
   },
   watch: {

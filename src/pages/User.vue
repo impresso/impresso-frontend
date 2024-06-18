@@ -28,22 +28,18 @@
             </b-alert>
           </div>
 
-          <ValidationObserver v-slot="{ invalid }">
-
             <form @submit.prevent="onSubmit" v-if="user.uid">
 
-              <validation-provider name="email" rules="required|email" v-slot="{ errors }">
                 <b-form-group
                   id="input-group-1"
                   label="Email address"
                   label-for="email"
-                  :description="errors[0]">
+                  :description="v$.user.email.$errors[0]?.$message">
                   <b-form-input
                     id="email" name="email" autocomplete="home email"
                     v-model.trim="user.email"
                   ></b-form-input>
                 </b-form-group>
-              </validation-provider>
 
               <b-row>
                 <b-col>
@@ -92,21 +88,19 @@
                   <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
               </div>
 
-              <b-button size="sm" type='submit' variant="outline-primary" :disabled="invalid">{{$t('actions.applyChanges')}}</b-button>
+              <b-button size="sm" type='submit' variant="outline-primary" :disabled="v$.user.$error">{{$t('actions.applyChanges')}}</b-button>
               <!-- (TODO)
                 <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
               -->
 
             </form>
 
-          </ValidationObserver>
         </b-col>
       </b-row>
 
       <h2 class="border-bottom mt-5 mb-3 pb-3">{{ $t('form_change_password') }}</h2>
       <b-row class="mb-5">
         <b-col md="6" offset-md="3">
-          <ValidationObserver v-slot="{ invalid }">
             <form @submit.prevent="onSubmitChangePassword">
               <div v-if="passwordSubmitted">
                 <b-alert v-if="passwordSubmittedSuccess" variant="success" show dismissible>{{ $t('form_password_changed') }}</b-alert>
@@ -117,21 +111,18 @@
                 </b-alert>
               </div>
               <!-- current password -->
-              <ValidationProvider name="Password" rules="required|min:8" v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-1"
                   :label="$t('form_oldpassword')"
                   label-for="current-password"
-                  :description="errors[0]"
+                  :description="v$.previousPassword.$errors[0]?.$message"
                   >
                   <b-form-input
                     id="current-password" name="current-password"
                     v-model="previousPassword"
                     type="password" />
                 </b-form-group>
-              </ValidationProvider><!-- current password -->
               <!-- new password -->
-              <ValidationObserver>
                 <!-- dd rule:
                   Use the following Regex to satisfy the below conditions:
 
@@ -144,86 +135,63 @@
 
                   Regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{12,42}$/
                 -->
-                <ValidationProvider name="Password"
-                  :rules="{ min: 8, regex: passwordRegex }"
-                  v-slot="{ errors }" vid="repeatPassword">
                 <b-form-group
                   id="input-group-changepwd-2"
                   :label="$t('form_newpassword')"
                   label-for="password"
-                  :description="errors[0]">
+                  :description="v$.newPassword.$errors[0]?.$message">
                   <b-form-input
                     id="password" name="password"
                     v-model="newPassword"
                     type="password"
                     maxlength="80"
-                    :description="errors[0]"
                   ></b-form-input>
                 </b-form-group>
-                </ValidationProvider>
 
-                <ValidationProvider rules="required|confirmed:repeatPassword" v-slot="{ errors }">
                   <b-form-group
                     id="input-group-changepwd-3"
                     :label="$t('form_newpassword_repeat')"
                     label-for="repeat-password"
-                    :description="errors[0]">
+                    :description="v$.repeatPassword.$errors[0]?.$message">
                     <b-form-input
                       id="repeat-password" name="repeat-password"
                       v-model="repeatPassword"
                       maxlength="80"
                       type="password" />
                   </b-form-group>
-                </ValidationProvider>
-              </ValidationObserver><!-- new password -->
-              <b-button size="sm" type='submit' :disabled="invalid" variant="outline-primary">{{ $t('actions.requestNewPassword') }}</b-button>
+              <b-button size="sm" type='submit' :disabled="!canUpdatePassword" variant="outline-primary">{{ $t('actions.requestNewPassword') }}</b-button>
             </form>
-          </ValidationObserver>
         </b-col>
       </b-row>
     </b-container>
     <Modal :show="isDeleteConfirmationDialogVisible" @close="hideDeleteConfirmationDialog" @ok="handleDeleteUserAfterConfirmation">
-      {{ this.$t('Are you sure you want to permanently delete your profile?') }}
+      {{ $t('Are you sure you want to permanently delete your profile?') }}
     </Modal>
   </main>
 </template>
 
-<script>
-import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
-import { required, email, confirmed, min, regex } from 'vee-validate/dist/rules';
-import { PasswordRegex } from '@/logic/user';
+<script lang="ts">
 import Modal from '@/components/base/Modal.vue';
-import { mapStores } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { PasswordRegex } from '@/logic/user';
+import User from '@/models/User';
+import { useUserStore } from '@/stores/user';
+import useVuelidate from '@vuelidate/core';
+import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators';
+import { mapStores } from 'pinia';
+import { defineComponent } from 'vue';
 
-extend('required', {
-  ...required,
-  message: 'This field is required'
-});
+const complexPassword = helpers.withMessage(
+  'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
+  (value: string) => PasswordRegex.exec(value) !=  null
+)
 
-extend('email', email);
-
-extend('confirmed', {
-  ...confirmed,
-  message: 'Passwords do not match'
-});
-
-extend('min', {
-  ...min,
-  params: ['length'],
-  message: 'Password must have at least {length} characters'
-});
-
-extend('regex', {
-  ...regex,
-  message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
-});
-
-
-export default {
+export default defineComponent({
+  setup() {
+    return { v$: useVuelidate() }
+  },
   data: () => ({
     passwordRegex: PasswordRegex,
-    user: Object,
+    user: {} as User,
     previousPassword: '',
     newPassword: '',
     repeatPassword: '',
@@ -246,8 +214,6 @@ export default {
     isDeleteConfirmationDialogVisible: false,
   }),
   components: {
-    ValidationProvider,
-    ValidationObserver,
     Modal,
   },
   methods: {
@@ -261,7 +227,7 @@ export default {
       this.passwordSubmitted = false;
       this.passwordSubmittedError = '';
       this.userStore.changePassword({
-        uid: this.user.uid,
+        uid: this.user?.uid,
         previousPassword: this.previousPassword,
         newPassword: this.newPassword,
       }).then(() => {
@@ -306,7 +272,7 @@ export default {
       }
       this.user.pattern = this.user.colors;
     },
-    getColorBandStyle(color) {
+    getColorBandStyle(color: string) {
       const width = this.user.colors.length ? `${(100 / this.user.colors.length)}%` : '0%';
       return {
         'background-color': color,
@@ -316,6 +282,11 @@ export default {
   },
   computed: {
     ...mapStores(useUserStore),
+    canUpdatePassword() {
+      return this.v$.previousPassword.$dirty && !this.v$.previousPassword.$invalid
+        && this.v$.newPassword.$dirty && !this.v$.newPassword.$invalid
+        && this.v$.repeatPassword.$dirty && !this.v$.repeatPassword.$invalid;
+    },
     patternAsText: {
       get() {
         if (this.user) {
@@ -323,7 +294,7 @@ export default {
         }
         return '';
       },
-      set(v) {
+      set(v: string) {
         this.user.setPattern(v);
       }
     },
@@ -333,7 +304,17 @@ export default {
     console.info('UserPage mounted.',  this.user);
     if (this.user && this.user.pattern.length === 0) this.onGeneratePattern();
   },
-};
+  validations() {
+    return {
+      user: {
+        email: { required, email, $autoDirty: true },
+      },
+      previousPassword: { required, minLength: minLength(8), $autoDirty: true },
+      newPassword: { required, minLength: minLength(8), complexPassword, $autoDirty: true },
+      repeatPassword: { required, sameAsPassword: sameAs(this.newPassword), $autoDirty: true },
+    }
+  }
+})
 </script>
 
 <style scoped lang="less">
@@ -363,7 +344,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "form_firstname": "First name",

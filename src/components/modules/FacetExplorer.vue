@@ -10,9 +10,9 @@
           style="min-height: 4em; max-height: 16em; overflow: scroll">
           <b-form-checkbox v-for="(bucket, idx) in buckets"
                            v-bind:key="idx"
-                           :value="bucket.val"
+                           :modelValue="bucket.val"
                            class="d-block"
-                           @change="handleChecked($event, bucket.val)">
+                           @update:modelValue="handleChecked($event, bucket.val)">
             <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
             <span v-if="bucket.count > -1">
               (<span v-html="$tc('numbers.results', bucket.count, { n : $n(bucket.count) })"/>)
@@ -40,25 +40,22 @@
 </template>
 
 <script>
-import ItemLabel from './lists/ItemLabel'
-import ItemSelector from './ItemSelector'
+import ItemLabel from './lists/ItemLabel.vue'
+import ItemSelector from './ItemSelector.vue'
 
 function getEntitiesForIds(ids, entities = []) {
   return ids.map(id => entities.find(entity => entity && entity.uid  === id))
 }
 
 export default {
-  model: {
-    prop: 'filter',
-    event: 'change'
-  },
+  emits: ['update:modelValue'],
   data: () => ({
     /** @type {string[]} */
     selectedIds: [],
     selectedIdsEntities: [],
   }),
   props: {
-    filter: {
+    modelValue: {
       /** @type {import('vue').PropType<import('../../models/models').Filter>} */
       type: Object
     },
@@ -77,6 +74,7 @@ export default {
       throw new Error('"filter" type must be equal to "filterType"')
   },
   computed: {
+    filter() { return this.modelValue },
     // Filter type https://github.com/impresso/impresso-jscommons/blob/master/proto/query.proto#L19-L45
     type() {
       return this.filter && this.filter.type
@@ -116,7 +114,7 @@ export default {
         q: this.selectedIds,
         items: entities
       })
-      this.$emit('change', updatedFilter)
+      this.$emit('update:modelValue', updatedFilter)
     },
   },
   watch: {
@@ -147,7 +145,7 @@ export default {
   max-width: 100%;
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
   }

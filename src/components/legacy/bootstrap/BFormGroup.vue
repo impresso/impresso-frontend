@@ -1,5 +1,5 @@
 <template>
-  <component :is="topLevelComponent" :class="fgClass" v-on="$listeners">
+  <component :is="topLevelComponent" :class="fgClass" v-bind="$attrs">
     <label
       v-if="props.label != null"
       :class="{
@@ -34,7 +34,7 @@ const props = defineProps({
 })
 const attrs = useAttrs()
 
-const allowedAttrs = ['onClick', 'title']
+const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BFormGroup: Unknown attributes: ${unknownAttrs.join(', ')}`)

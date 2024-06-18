@@ -18,13 +18,14 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import Facet from '@/models/Facet'
 import { getSearchFacetsService } from '@/services'
 
 export default {
   name: 'TextReuseOverview',
   components: {
-    StackedBarsPanel: () => import('@/components/modules/vis/StackedBarsPanel'),
+    StackedBarsPanel: defineAsyncComponent(() => import('@/components/modules/vis/StackedBarsPanel.vue')),
   },
   props: {
     filters: {

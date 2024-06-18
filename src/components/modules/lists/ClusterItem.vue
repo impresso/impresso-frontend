@@ -1,18 +1,10 @@
 <template>
   <div class="ClusterItem">
     <span class="d-flex align-self-stretch flex-shrink-0 selection-indicator" />
-    <TextReusePassageItemLabel
-      :item="textReusePassageItem"
-      class="border-left pl-2 my-2 small border-tertiary"
-    />
+    <TextReusePassageItemLabel :item="textReusePassageItem" class="border-left pl-2 my-2 small border-tertiary" />
 
     <div class="rounded border border-tertiary bg-white shadow-sm p-1">
-      <Ellipsis
-        v-bind:max-height="300"
-        v-bind:initialHeight="200"
-        :additional-height="50"
-        @click.prevent.stop
-      >
+      <Ellipsis v-bind:max-height="300" v-bind:initialHeight="200" :additional-height="50" @click.prevent.stop>
         <p class="text-sample p-2">
           <span>{{ item.textSampleContent }}</span>
         </p>
@@ -20,12 +12,8 @@
     </div>
     <div class="small text-muted mb-2" v-html="textReuseClusterSummary"></div>
 
-    <b-button
-      variant="outline-secondary"
-      size="sm"
-      class="TextReusePassageItem_compareBtn float-left rounded shadow-sm"
-      @click="handleClusterClick"
-    >
+    <b-button variant="outline-secondary" size="sm" class="TextReusePassageItem_compareBtn float-left rounded shadow-sm"
+      @click="handleClusterClick">
       {{ $t('seeTextReuseCluster') }}
     </b-button>
   </div>
@@ -35,15 +23,12 @@
 import { mapStores } from 'pinia'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
-import ClusterDetailsPanel from '@/components/modules/textReuse/ClusterDetailsPanel'
-
-import TextReusePassageItemLabel from './TextReusePassageItemLabel'
-import Ellipsis from '../Ellipsis'
+import TextReusePassageItemLabel from './TextReusePassageItemLabel.vue'
+import Ellipsis from '../Ellipsis.vue'
 
 export default {
   name: 'ClusterItem',
   components: {
-    ClusterDetailsPanel,
     TextReusePassageItemLabel,
     Ellipsis,
   },
@@ -132,24 +117,23 @@ export default {
 .ClusterItem .selection-indicator {
   width: 0.25em;
 }
+
 .ClusterItem {
   max-width: 350px;
 }
+
 .ClusterItem .number {
   font-weight: bold;
 }
 </style>
 
-<i18n>
-  {
-    "en": {
-      "numbers": {
-        "days": "<span class='number'>{n}</span> day|<span class='number'>{n}</span> days"
-      },
-      "fromArticle": "From article",
-      "seeTextReuseCluster": "Compare passages in cluster",
-      "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap} over {timespan}."
-    }
+<i18n lang="json">{
+  "en": {
+    "numbers": {
+      "days": "<span class='number'>{n}</span> day|<span class='number'>{n}</span> days"
+    },
+    "fromArticle": "From article",
+    "seeTextReuseCluster": "Compare passages in cluster",
+    "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap} over {timespan}."
   }
-
-</i18n>
+}</i18n>

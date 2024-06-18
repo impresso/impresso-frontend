@@ -74,14 +74,12 @@ export const useMonitorStore = defineStore('monitor', {
       }
       // fetch article timeline related to the given type
       return searchService.find({
-        lock: false,
         query: {
           group_by: this.groupBy,
           filters,
           facets: 'year',
           limit: 0,
         },
-        limit: 0,
       }).then((res) => {
         this.itemCountRelated = res.total;
         if (res.info.facets && res.info.facets.year) {

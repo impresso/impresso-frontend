@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="isActive"
-    class="SelectionMonitor  rounded drop-shadow bg-light"
+    class="SelectionMonitor rounded drop-shadow bg-light"
     :class="monitor.type"
     v-on:click.stop
   >
@@ -50,12 +50,12 @@
             :contrast="false"
             :values="timelineValues"
           >
-            <div slot-scope="tooltipScope">
-              <div v-if="tooltipScope.tooltip.item">
-                {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                <b>{{ tooltipScope.tooltip.item.w }}</b>
+            <template v-slot="{ tooltip }">
+              <div v-if="tooltip.item">
+                {{ $d(tooltip.item?.t ?? 0, 'year') }} &middot;
+                <b>{{ tooltip.item?.w ?? 0 }}</b>
               </div>
-            </div>
+            </template>
           </timeline>
         </div>
         <!-- end timeline -->
@@ -145,7 +145,7 @@
           <router-link
             class="btn btn-secondary px-5 btn-sm d-block"
             :to="detailsUrl"
-            @click.native="hide"
+            @click="hide"
           >
             {{ $t('actions.detail') }}
           </router-link>
@@ -183,9 +183,9 @@
 import Helpers from '@/plugins/Helpers'
 import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
-import { SupportedFiltersByIndex, optimizeFilters } from '@/logic/filters'
+import { SupportedFiltersByIndex } from '@/logic/filters'
 import { searchFacets } from '@/services'
-import Timeline from '@/components/modules/Timeline'
+import Timeline from '@/components/modules/Timeline.vue'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
 import SelectionMonitorFilter from './SelectionMonitorFilter.vue'
@@ -194,7 +194,8 @@ import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
 import { defineComponent } from 'vue'
 import { mapStores } from 'pinia'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
-
+import EntityMonitor from '@/components/EntityMonitor.vue'
+import TextReusePassageMonitor from '@/components/TextReusePassageMonitor.vue'
 /**
  * SelectionMonitor component is initialized in App.vue and it is always available.
  * The filters props is kept in sync with the current search filters.
@@ -219,9 +220,9 @@ export default defineComponent({
     ItemLabel,
     TextReuseClusterMonitor,
     SelectionMonitorFilter,
-    TextReusePassageMonitor: () => import('./TextReusePassageMonitor.vue'),
-    EntityMonitor: () => import('./EntityMonitor.vue'),
-    ListOfItems: () => import('./ListOfItems.vue'),
+    TextReusePassageMonitor,
+    EntityMonitor,
+    ListOfItems,
     TextReusePassageItem,
   },
   computed: {
@@ -234,9 +235,9 @@ export default defineComponent({
     monitorFilter() {
       return FilterFactory.create({
         type: this.monitor.type,
-        q: Array.isArray(this.monitor.item.q)
-          ? this.monitor.item.q.map(d => String(d))
-          : [this.monitor.item.id ?? this.monitor.item.uid],
+        q: Array.isArray(this.monitor.item?.q)
+          ? this.monitor.item?.q?.map(d => String(d))
+          : [this.monitor.item?.id ?? this.monitor.item?.uid],
       })
     },
     isMonitorFilterChanged() {
@@ -506,7 +507,7 @@ export default defineComponent({
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "labels": {

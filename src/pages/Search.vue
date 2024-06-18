@@ -7,16 +7,16 @@
       contextTag="search"
       @changed="handleFiltersChanged"
     >
-      <div slot="header" slot-scope="{ focusHandler }">
+      <template v-slot:header="{ focusHandler }">
         <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
-      </div>
+      </template>
       <div>
         <b-button class="float-right mx-3 btn-sm" @click="showModal('embeddings')">
           {{ $t('label_embeddings') }}
           <info-button class="ml-1" name="how-are-word-embeddings-generated" />
         </b-button>
         <b-form-group class="mx-3">
-          <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+          <b-form-checkbox v-model="isFront" switch v-bind:modelValue="true">
             {{ $t('label_isFront') }}
           </b-form-checkbox>
         </b-form-group>
@@ -24,7 +24,7 @@
     </search-sidebar>
 
     <i-layout-section main>
-      <div slot="header">
+      <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
             <label class="mr-1">{{ $t('label_group') }}</label>
@@ -127,13 +127,13 @@
               class="mx-1"
               v-bind:title="$t('select_all')"
               v-bind:indeterminate="this.allIndeterminate"
-              v-bind:checked="this.allSelected"
-              v-on:change="toggleSelectAll"
+              v-bind:modelValue="this.allSelected"
+              @update:modelValue="toggleSelectAll"
             >
             </b-form-checkbox> -->
           </b-navbar-nav>
         </b-navbar>
-      </div>
+      </template>
 
       <Modal
         id="nameSelectionCollection"
@@ -158,7 +158,7 @@
         <form v-on:submit.stop.prevent="createQueryCollection()">
           <label for="inputName">Name</label>
           <b-form-input
-            v-on:input="nameCollectionOnInput"
+            @update:modelValue="nameCollectionOnInput"
             type="text"
             v-bind:placeholder="$t('Collection_Name')"
             name="inputName"
@@ -229,7 +229,7 @@
           </b-row>
         </b-container>
         <div class="my-5" />
-        <div class="fixed-pagination-footer p-1 m-0" slot="footer">
+        <div class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-if="searchResults.length"
             :current-page="paginationCurrentPage"
@@ -246,22 +246,22 @@
 
 <script>
 import { mapStores } from 'pinia'
-import Autocomplete from '@/components/Autocomplete'
-import Pagination from '@/components/modules/Pagination'
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem'
-import SearchResultsSummary from '@/components/modules/SearchResultsSummary'
-import CollectionAddTo from '@/components/modules/CollectionAddTo'
-import CollectionAddToList from '@/components/modules/CollectionAddToList'
-import Ellipsis from '@/components/modules/Ellipsis'
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
-import SearchSidebar from '@/components/modules/SearchSidebar'
-import InfoButton from '@/components/base/InfoButton'
+import Autocomplete from '@/components/Autocomplete.vue'
+import Pagination from '@/components/modules/Pagination.vue'
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
+import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
+import CollectionAddToList from '@/components/modules/CollectionAddToList.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
+import SearchSidebar from '@/components/modules/SearchSidebar.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
-import Modal from '@/components/base/Modal'
+import Modal from '@/components/base/Modal.vue'
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -274,6 +274,7 @@ import {
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -311,6 +312,9 @@ export default {
   }),
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
@@ -759,7 +763,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_display": "Display As",

@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout-section main>
-    <div slot="header">
+    <template v-slot:header>
       <b-navbar>
         <section>
           <span class="label small-caps">
@@ -15,7 +15,7 @@
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
             :class="{ active: tabItem.name === tab.name }"
             active-class='none'
-            :to="{ name: 'topic', params: { topic_uid: topic.uid }, query: { tab: tabItem.name }}">
+            :to="{ name: 'topic', params: { topic_uid: ['', null, undefined].includes(topic?.uid) ? 'na' : topic?.uid }, query: { tab: tabItem.name }}">
             <span v-html="tabItem.label"/>
           </b-nav-item>
         </template>
@@ -53,7 +53,7 @@
         </b-navbar-nav>
 
       </b-navbar>
-    </div>
+    </template>
 
     <div v-if="tab.name === TAB_ARTICLES" class="mb-5">
       <div v-for="(article, idx) in articles" :key="idx" class="p-3 mb-2 border-bottom">
@@ -99,12 +99,12 @@
             :domain="[startYear, endYear]"
             :contrast="false"
             :values="timevalues">
-        <div slot-scope="tooltipScope">
+        <template v-slot="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b>
+            {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
           </div>
-        </div>
+        </template>
       </timeline>
       <b-container fluid class="my-3">
         <!-- <h2>Facets – top ten buckets</h2> -->
@@ -126,12 +126,12 @@
 import SearchQuery from '@/models/SearchQuery';
 import Topic from '@/models/Topic';
 import Facet from '@/models/Facet';
-import Pagination from './modules/Pagination';
-import ArticleItem from './modules/lists/ArticleItem';
+import Pagination from './modules/Pagination.vue';
+import ArticleItem from './modules/lists/ArticleItem.vue';
 import Article from '@/models/Article'
-import Ellipsis from './modules/Ellipsis';
-import Timeline from './modules/Timeline';
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import Ellipsis from './modules/Ellipsis.vue';
+import Timeline from './modules/Timeline.vue';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue';
 import { searchQueryHashGetter, mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import {
@@ -352,7 +352,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "topic": {

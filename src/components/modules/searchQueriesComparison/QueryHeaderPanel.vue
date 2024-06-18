@@ -80,8 +80,8 @@
         $t('actions.searchMore')
       }}
       {{
-        $tc('numbers.resultsParenthesis', total, {
-          n: $n(total),
+        $tc('numbers.resultsParenthesis', total ?? 0, {
+          n: $n(total ?? 0),
         })
       }}
     </router-link>
@@ -92,11 +92,11 @@
 
 <script>
 // import SearchQueryModel from '@/models/SearchQuery';
-import SearchPills from '../../SearchPills';
-import InfoButton from '@/components/base/InfoButton';
-import Autocomplete from '../../Autocomplete';
+import SearchPills from '../../SearchPills.vue';
+import InfoButton from '@/components/base/InfoButton.vue';
+import Autocomplete from '../../Autocomplete.vue';
 // import CollectionPicker from '../../base/CollectionPicker';
-import InfoIgnoredFilters from '../../base/InfoIgnoredFilters';
+import InfoIgnoredFilters from '../../base/InfoIgnoredFilters.vue';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 import { serializeFilters } from '@/logic/filters'
 
@@ -190,8 +190,8 @@ export default {
     /** @param {string} type */
     getTabLabel(type) {
       if (type === this.comparable.type) {
-        return this.$tc(`tabs.${type}.active`, this.total, {
-          count: this.$n(this.total),
+        return this.$tc(`tabs.${type}.active`, this.total ?? 0, {
+          count: this.$n(this.total ?? 0),
         });
       }
       return this.$t(`tabs.${type}.pick`);
@@ -341,7 +341,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "comparison": {

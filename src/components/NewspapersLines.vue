@@ -56,15 +56,11 @@
 
 <script>
 import * as d3 from 'd3';
-import Tooltip from './modules/tooltips/Tooltip';
+import Tooltip from './modules/tooltips/Tooltip.vue';
 import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
 
 export default {
-  model: {
-    prop: 'newspapers',
-    default: [],
-  },
   data: () => ({
     tooltip: {
       x: 0,
@@ -81,7 +77,10 @@ export default {
     width: 0,
   }),
   props: {
-    newspapers: Array,
+    modelValue: {
+      type: Array,
+      default: () => []
+    },
     highlight: Object,
     scrollTop: Number,
     margin: {
@@ -216,11 +215,12 @@ export default {
     this.onResize();
     window.addEventListener('resize', this.onResize);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.onResize);
   },
   computed: {
     ...mapStores(useMonitorStore),
+    newspapers() { return this.modelValue },
     tooltipProperties() {
       if (!this.tooltip.item || !this.tooltip.item.properties) {
         return '';
@@ -426,7 +426,7 @@ export default {
 
   }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "provinceCode": {

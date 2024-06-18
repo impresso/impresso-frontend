@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import ItemSelector from '../ItemSelector';
+import ItemSelector from '../ItemSelector.vue';
 import { mapStores } from 'pinia'
 import { useTopicsStore } from '@/stores/topics'
 

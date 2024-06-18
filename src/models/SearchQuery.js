@@ -1,13 +1,12 @@
 import { protobuf } from 'impresso-jscommons';
 import FilterFactory from '@/models/FilterFactory';
 import { toCanonicalFilter } from '@/logic/filters'
-
+import { v4 } from 'uuid'
 
 /**
  * @class SearchQuery is an object representing Search Query we can send to the api
  */
 
-const uuid = require('uuid');
 
 const filterize = (filter) => {
   if (typeof filter.getHash !== 'function') {
@@ -29,7 +28,7 @@ export default class SearchQuery {
       // { type: 'hasTextContents' },
     ],
   } = {}) {
-    this.uuid = uuid.v4();
+    this.uuid = v4();
     this.filtersIds = [];
     this.filters = [];
     this.filtersIndex = {}; // grouped by type

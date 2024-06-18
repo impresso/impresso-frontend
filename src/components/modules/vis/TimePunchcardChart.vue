@@ -44,7 +44,7 @@
 
 <script>
 import TimePunchcardChart from '@/d3-modules/TimePunchcardChart'
-import Tooltip from '@/components/modules/tooltips/Tooltip'
+import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
 import LinePointer from '@/components/modules/tooltips/LinePointer'
 /**
  * @typedef {import('@/d3-modules/TimePunchcardChart').ChartData} ChartData
@@ -84,7 +84,7 @@ export default {
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // @ts-ignore
     window.removeEventListener('resize', this.render.bind(this))
   },

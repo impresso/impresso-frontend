@@ -31,50 +31,46 @@ const getOrCreate = (selector = 'meta[name=description]') => {
   return el
 }
 
-const MetaTags = {
-  install(Vue, { suffix } = {}) {
-    Vue.prototype.$renderMetaTags = ({
-      title = 'title',
-      // objects { property: content }
-      og = {},
-      // objects { name: content }
-      dc = {},
-      // objects { name: content }
-      meta = {},
-      updateZotero = false,
-    } = {}) => {
-      console.info('$metaTags setting title:', title, updateZotero)
-      document.title = suffix ? [suffix, title].join(' - ') : title
-      // console.info('Vue.prototype.$renderMetaTag', title);
-      META_PROPERTY.forEach(name => {
-        // console.info('Vue.prototype.$renderMetaTag META_PROPERTY', `meta[name=${name}]`, meta[name]);
-        const el = getOrCreate(`meta[name=${name}]`)
-        el.setAttribute('content', meta[name] || 'ciu')
-      })
-      DC_PROPERTIES.forEach(name => {
-        // console.info('Vue.prototype.$renderMetaTag DC_PROPERTIES', `meta[name=${name}]`, dc[name]);
-        const el = getOrCreate(`meta[name="${name}"]`)
-        el.setAttribute('content', dc[name] || '')
-        el.setAttribute('name', name)
-      })
-      OG_PROPERTIES.forEach(prop => {
-        // console.info('Vue.prototype.$renderMetaTag OG_PROPERTIES', `meta[property=${prop}]`,  og[prop]);
-        // <meta property="og:title" content="The Rock" />
-        const el = getOrCreate(`meta[property="${prop}"]`)
-        el.setAttribute('content', og[prop] || '')
-        el.setAttribute('property', prop)
-      })
+const suffix = 'impresso'
 
-      if (updateZotero) {
-        document.dispatchEvent(
-          new Event('ZoteroItemUpdated', {
-            bubbles: true,
-            cancelable: true,
-          }),
-        )
-      }
-    }
-  },
+export const renderMetaTags = ({
+  title = 'title',
+  // objects { property: content }
+  og = {},
+  // objects { name: content }
+  dc = {},
+  // objects { name: content }
+  meta = {},
+  updateZotero = false,
+} = {}) => {
+  console.info('$metaTags setting title:', title, updateZotero)
+  document.title = suffix ? [suffix, title].join(' - ') : title
+  // console.info('Vue.prototype.$renderMetaTag', title);
+  META_PROPERTY.forEach(name => {
+    // console.info('Vue.prototype.$renderMetaTag META_PROPERTY', `meta[name=${name}]`, meta[name]);
+    const el = getOrCreate(`meta[name=${name}]`)
+    el.setAttribute('content', meta[name] || 'ciu')
+  })
+  DC_PROPERTIES.forEach(name => {
+    // console.info('Vue.prototype.$renderMetaTag DC_PROPERTIES', `meta[name=${name}]`, dc[name]);
+    const el = getOrCreate(`meta[name="${name}"]`)
+    el.setAttribute('content', dc[name] || '')
+    el.setAttribute('name', name)
+  })
+  OG_PROPERTIES.forEach(prop => {
+    // console.info('Vue.prototype.$renderMetaTag OG_PROPERTIES', `meta[property=${prop}]`,  og[prop]);
+    // <meta property="og:title" content="The Rock" />
+    const el = getOrCreate(`meta[property="${prop}"]`)
+    el.setAttribute('content', og[prop] || '')
+    el.setAttribute('property', prop)
+  })
+
+  if (updateZotero) {
+    document.dispatchEvent(
+      new Event('ZoteroItemUpdated', {
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+  }
 }
-
-export default MetaTags

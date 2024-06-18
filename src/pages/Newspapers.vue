@@ -38,10 +38,11 @@
 
 <script>
 import Newspaper from '@/models/Newspaper'
-import List from '@/components/modules/lists/List';
-import NewspaperItem from '@/components/modules/lists/NewspaperItem';
+import List from '@/components/modules/lists/List.vue';
+import NewspaperItem from '@/components/modules/lists/NewspaperItem.vue';
 import { newspapers as newspapersService} from '@/services';
 import { mapApplyCurrentSearchFilters, mapSuggestionQuery } from '@/logic/queryParams';
+import { Navigation } from '@/plugins/Navigation';
 
 const OrderByOptions = [
   'name', '-name', 'startYear', '-startYear',
@@ -59,6 +60,9 @@ export default {
     isLoading: false,
   }),
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     paginationList() {
       return {
         perPage: this.paginationPerPage,
@@ -164,7 +168,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "filter_newspapers": "filter list of newspapers by name ...",

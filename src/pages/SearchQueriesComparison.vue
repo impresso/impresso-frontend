@@ -1,7 +1,7 @@
 <template>
   <i-layout id="SearchQueriesComparisonPage">
     <i-layout-section class="border-top ">
-      <div slot="header">
+      <template v-slot:header>
         <div class="header row pm-fixer bg-light">
           <div class="one-third"
               v-for="(queryResult, queryIdx) in queriesResults"
@@ -18,7 +18,7 @@
                                 @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
           </div>
         </div>
-      </div>
+      </template>
       <!-- body -->
       <div class="aspects-container container-fluid">
         <!-- this component contains the three columns (show timeline only) -->
@@ -91,10 +91,10 @@ import {
   searchFacets,
   filtersItems as filtersItemsService
 } from '@/services'
-import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel';
-import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel'
-import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel'
-import Spinner from '@/components/layout/Spinner'
+import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel.vue';
+import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel.vue'
+import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel.vue'
+import Spinner from '@/components/layout/Spinner.vue'
 import Bucket from '@/models/Bucket';
 import {
   optimizeFilters,
@@ -107,6 +107,7 @@ import { getQueryParameter } from '../router/util';
 import { getBucketLabel } from '../logic/facets';
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 import { getLatestFilters } from '../logic/storage';
+import { Navigation } from '@/plugins/Navigation';
 
 /**
  * @param {import('@/models').Filter} filter
@@ -333,7 +334,7 @@ export default {
         try {
           this.loadingFlags[QueryIndex.Left] = true
           const result = await this.getQueryResult(this.leftComparable)
-          this.$set(this.queriesResults, QueryIndex.Left, result)
+          this.queriesResults[QueryIndex.Left] = result
         } finally {
           this.loadingFlags[QueryIndex.Left] = false
         }
@@ -343,7 +344,7 @@ export default {
             filters: serializeFilters(comparableToQuery(this.leftComparable)?.filters ?? []),
           },
         }).then(joinFiltersWithItems)
-        this.$set(this.filtersWithItems, QueryIndex.Left, filtersWithItems)
+        this.filtersWithItems[QueryIndex.Left] = filtersWithItems
       },
       deep: true,
       immediate: true
@@ -358,7 +359,7 @@ export default {
         try {
           this.loadingFlags[QueryIndex.Right] = true
           const result = await this.getQueryResult(this.rightComparable)
-          this.$set(this.queriesResults, QueryIndex.Right, result)
+          this.queriesResults[QueryIndex.Right] = result
         } finally {
           this.loadingFlags[QueryIndex.Right] = false
         }
@@ -368,7 +369,7 @@ export default {
             filters: serializeFilters(comparableToQuery(this.rightComparable)?.filters ?? []),
           },
         }).then(joinFiltersWithItems)
-        this.$set(this.filtersWithItems, QueryIndex.Right, filtersWithItems)
+        this.filtersWithItems[QueryIndex.Right] = filtersWithItems
       },
       deep: true,
       immediate: true
@@ -386,7 +387,7 @@ export default {
         try {
           this.loadingFlags[QueryIndex.Intersection] = true
           const result = await this.getQueryResult(this.intersection)
-          this.$set(this.queriesResults, QueryIndex.Intersection, result)
+          this.queriesResults[QueryIndex.Intersection] = result
         } finally {
           this.loadingFlags[QueryIndex.Intersection] = false
         }
@@ -402,6 +403,9 @@ export default {
     this.collections = data.map(d => new Collection(d));
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     leftComparable: {
       /** @returns {Comparable} */
       get() {
@@ -679,7 +683,7 @@ export default {
       const allBuckets = additionaBucketsForComparable[facetId] ?? []
       additionaBucketsForComparable[facetId] = allBuckets.concat(buckets)
 
-      this.$set(this.additionalBuckets, comparableIndex, additionaBucketsForComparable)
+      this.additionalBuckets[comparableIndex] = additionaBucketsForComparable
     },
     /** @param {string | undefined} loadMoreType */
     async updateCompareData(loadMoreType = undefined) {
@@ -756,7 +760,7 @@ export default {
       }
     },
     /** @param {number} value */
-    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) },
+    roundValueForDisplay(value) { return this.$n(value ?? 0, { notation: 'short' }) },
     /**
      * @param {{ comparableIndex: number, comparable: Comparable }} param
      */
@@ -799,7 +803,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "cta": {

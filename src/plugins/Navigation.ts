@@ -1,12 +1,17 @@
+import type { App, Component, ComponentCustomProperties } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 /**
  * Utility layer on top of `$router`.
  *
  * Exposes two methods that update only provided query parameters
  * leaving others intact.
  */
-class Navigation {
-  constructor(vue) {
-    this.$vue = vue
+export class Navigation {
+  private component: ComponentCustomProperties
+
+  constructor(component: ComponentCustomProperties) {
+    this.component = component
   }
 
   /**
@@ -15,9 +20,9 @@ class Navigation {
    * @param {object} queryParameters
    */
   updateQueryParameters(queryParameters = {}) {
-    const { query } = this.$vue.$route
+    const { query } = this.component.$route
     const updatedQuery = Object.assign({}, query, queryParameters)
-    return this.$vue.$router.replace({ query: updatedQuery }).catch(() => {})
+    return this.component.$router.replace({ query: updatedQuery }).catch(() => {})
   }
 
   /**
@@ -25,19 +30,10 @@ class Navigation {
    * Pushed onto history stack.
    * @param {object} queryParameters
    */
-  updateQueryParametersWithHistory(queryParameters) {
-    const { query } = this.$vue.$route
+  updateQueryParametersWithHistory(queryParameters: object) {
+    const { query } = this.component.$route
     const updatedQuery = Object.assign({}, query, queryParameters)
-    return this.$vue.$router.push({ query: updatedQuery }).catch(() => {})
+    return this.component.$router.push({ query: updatedQuery }).catch(() => {})
   }
 }
 
-export default {
-  install(Vue) {
-    Vue.mixin({
-      created() {
-        this.$navigation = new Navigation(this)
-      }
-    })
-  }
-}

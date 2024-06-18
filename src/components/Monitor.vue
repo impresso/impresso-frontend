@@ -34,7 +34,7 @@
               <timeline class='bg-light pb-2'
                 :values="itemTimeline"
                 :domain="itemTimelineDomain">
-                <div slot-scope="tooltipScope">
+                <template v-slot="tooltipScope">
                   <div v-if="tooltipScope.tooltip.item">
                     {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
                     <b>{{ tooltipScope.tooltip.item.w }}</b> {{ groupBy }}
@@ -44,7 +44,7 @@
                     ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
                     </span> -->
                   </div>
-                </div>
+                </template>
               </timeline>
 
             </div>
@@ -85,7 +85,7 @@
 
           <!-- button url  -->
           <div class="text-center m-2" v-if="detailsUrl">
-            <router-link class="btn btn-primary btn-sm" :to="detailsUrl" @click.native="handleMoreClicked">
+            <router-link class="btn btn-primary btn-sm" :to="detailsUrl" @click="handleMoreClicked">
               {{ $t('actions.more') }}
             </router-link>
           </div>
@@ -100,11 +100,11 @@
 <script>
 import { mapState, mapActions, mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
-import Ellipsis from './modules/Ellipsis';
-import Timeline from './modules/Timeline';
-import WikidataBlock from './modules/WikidataBlock';
-import ItemLabel from './modules/lists/ItemLabel';
-import SearchQuerySummary from './modules/SearchQuerySummary';
+import Ellipsis from './modules/Ellipsis.vue';
+import Timeline from './modules/Timeline.vue';
+import WikidataBlock from './modules/WikidataBlock.vue';
+import ItemLabel from './modules/lists/ItemLabel.vue';
+import SearchQuerySummary from './modules/SearchQuerySummary.vue';
 import SearchQuery from '../models/SearchQuery';
 import { containsFilter } from '@/logic/filters'
 
@@ -260,7 +260,7 @@ export default {
           },
         };
       // @ts-ignore
-      } else if (this.$helpers.isEntity(this.type)) {
+      } else if (['person', 'location'].indexOf(type) !== this.type) {
         return {
           name: 'entity',
           params: {
@@ -342,7 +342,7 @@ export default {
     }
   }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "tabs": {

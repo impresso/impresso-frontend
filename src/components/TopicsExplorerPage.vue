@@ -1,7 +1,7 @@
 <template lang="html">
   <i-layout-section ref="explorerPage" class="topics-explorer-page" main>
     <!-- slot:header  -->
-    <div slot="header">
+    <template v-slot:header>
       <b-navbar>
         <section>
           <span class="label small-caps">
@@ -38,7 +38,7 @@
           <b-button v-on:click="zoomReset()" variant="secondary" size="sm">{{ $t('actions.reset') }}</b-button>
         </b-navbar-nav>
       </b-navbar>
-    </div><!-- slot:header -->
+    </template><!-- slot:header -->
     <!-- slot:body or default  -->
     <div class="d3-graph-wrapper position-relative h-100 small-caps bg-light" v-on:mousemove="onMousemove">
       <div id="d3-graph" ref="graph" class="h-100"></div>
@@ -62,7 +62,7 @@
       <topics-explorer-tooltip v-model="tooltip" @toggle-highlighted="handleToggleHighlighted"/>
     </div>
     <!-- slot:footer  -->
-    <div slot="footer">
+    <template v-slot:footer>
       <b-navbar class="border-top">
         <legend>
           <div class="border bg-white p-1" style="height: 40px; overflow:scroll">
@@ -74,15 +74,15 @@
         </legend>
         <!-- /{{ zoomTransform }}/ -->
       </b-navbar>
-    </div>
+    </template>
   </i-layout-section>
 </template>
 
 <script>
 import Graph from '@/d3-modules/Graph';
-import InfoButton from '@/components/base/InfoButton';
-import Tooltip from '@/components/modules/tooltips/Tooltip';
-import TopicsExplorerTooltip from '@/components/modules/tooltips/TopicsExplorerTooltip';
+import InfoButton from '@/components/base/InfoButton.vue';
+import Tooltip from '@/components/modules/tooltips/Tooltip.vue';
+import TopicsExplorerTooltip from '@/components/modules/tooltips/TopicsExplorerTooltip.vue';
 import {topicsGraph} from '@/services';
 import { serializeFilters } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
@@ -247,7 +247,7 @@ export default {
       this.highlightNodes(this.itemsVisualized);
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.onResize);
   },
   methods: {
@@ -621,7 +621,7 @@ export default {
   height: 1rem;
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "summary": "Explore the list of topics",
