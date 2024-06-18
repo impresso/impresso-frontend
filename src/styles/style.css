@@ -1,0 +1,113 @@
+@font-face {
+  font-family: 'Satoshi-Variable';
+  src:
+    url('/assets/fonts/Satoshi-Variable.woff2') format('woff2'),
+    url('/assets/fonts/Satoshi-Variable.woff') format('woff'),
+    url('/assets/fonts/Satoshi-Variable.ttf') format('truetype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi-VariableItalic';
+  src:
+    url('/assets/fonts/Satoshi-VariableItalic.woff2') format('woff2'),
+    url('/assets/fonts/Satoshi-VariableItalic.woff') format('woff'),
+    url('/assets/fonts/Satoshi-VariableItalic.ttf') format('truetype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: italic;
+}
+
+:root {
+  --impresso-color-paper: #fafbf2;
+
+  --impresso-color-yellow-code: 255, 235, 120;
+  --impresso-color-yellow: #ffeb78;
+  --impresso-color-yellow-alpha-20: rgba(255, 235, 120, 0.2);
+  --impresso-color-yellow-alpha-30: rgba(255, 235, 120, 0.3);
+  --impresso-color-yellow-alpha-50: rgba(255, 235, 120, 0.5);
+  --impresso-color-yellow-alpha-80: rgba(255, 235, 120, 0.8);
+
+  --impresso-color-black: #343a40;
+  --impresso-color-black-rgb: 52, 58, 64;
+
+  --impresso-color-pastel-blue: rgba(86, 204, 242);
+  --impresso-color-pastel-blue-alpha-20: rgba(86, 204, 242, 0.2);
+
+  --impresso-border-radius-xs: 5px;
+  --impresso-border-radius-sm: 10px;
+  --impresso-border-radius-md: 15px;
+  --impresso-border-radius-lg: 20px;
+  --impresso-border-radius-xl: 30px;
+  --impresso-font-size-smallcaps: 0.72em;
+  --impresso-letter-spacing-smallcaps: 0.08em;
+  --impresso-font-size-smaller: 0.85em;
+  --impresso-wght: 450;
+  --impresso-wght-bold: 700;
+  --impresso-wght-smallcaps: 580;
+  --impresso-wght-smallcaps-bold: 800;
+  --clr-white: #f8f8ff;
+  --clr-white-rgba-20: #ffffff33;
+  --clr-dark: var(--impresso-color-black);
+
+  --clr-grey-100: #3d4146;
+  --clr-grey-200: #5b5e65;
+  --clr-grey-300: #84868e;
+  --clr-grey-400: #a9aab4;
+  --clr-grey-500: #c2c3cb;
+  --clr-grey-600: #d4d5e1;
+  --clr-grey-700: #e1e1ee;
+  --clr-grey-800: #ececfb;
+  --clr-grey-900: #f8f8ff;
+  --clr-grey-100-rgba-20: #464d5333;
+  --clr-grey-200-rgba-20: #585d6633;
+  --clr-grey-300-rgba-20: #7c7f8c33;
+  --clr-grey-400-rgba-20: #a0a1a333;
+  --clr-grey-500-rgba-20: #b1b2c633;
+  --clr-grey-600-rgba-20: #c3c4d933;
+  --clr-grey-700-rgba-20: #d5d5ec33;
+  --clr-grey-800-rgba-20: #e7e7ff33;
+  --clr-grey-900-rgba-20: #f8f8ff33;
+
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 1rem;
+  --spacing-4: 1.5rem;
+  --spacing-5: 3rem;
+  --negative-spacing-1: -0.25rem;
+  --negative-spacing-2: -0.5rem;
+  --negative-spacing-3: -1rem;
+  --negative-spacing-4: -1.5rem;
+  --negative-spacing-5: -3rem;
+
+  --accent: #28a745;
+  --impresso-yellow: #ffeb78;
+  --border-radius-sm: 3px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+
+  /* Bootstrap overrides */
+  --bs-font-sans-serif: 'Satoshi-Variable', sans-serif;
+  --bs-font-sans-serif-italic: 'Satoshi-VariableItalic', sans-serif;
+  --bs-font-serif-italic: 'questa', serif;
+  --bs-font-serif: 'questa', serif;
+  --bs-border-radius-lg: var(--impresso-border-radius-lg);
+  --bs-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.125);
+  --bs-box-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --bs-box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  --bs-box-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+
+  --bs-font-size-base: 1rem;
+  --impresso-font-size-3: 1.75rem;
+  --impresso-font-size-4: 1.5rem;
+}
+
+body {
+  font-family: var(--bs-font-sans-serif);
+  font-weight: 450;
+  font-variation-settings: 'wght' 450;
+  text-rendering: optimizeLegibility;
+}
