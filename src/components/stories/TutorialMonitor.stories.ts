@@ -5,7 +5,6 @@ const meta: Meta<typeof TutorialMonitor> = {
   title: 'Components/TutorialMonitor',
   component: TutorialMonitor,
   tags: ['autodocs'],
-
   args: {
     title: 'Tutorial Monitor'
   }
