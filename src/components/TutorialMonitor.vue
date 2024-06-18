@@ -1,91 +1,76 @@
 <template>
-  <div ref="rootRef" class="TutorialMonitor">
-    <div ref="headerRef" class="d-flex justify-content-between align-items-center p-4">
-      <div>
-        <h3>Hello! {{ title }}</h3>
-        <p class="mb-0">subtitle</p>
+  <CollapsiblePanel
+    class="TutorialMonitor border border-dark"
+    :subtitle="subtitle"
+    :title="title"
+    :isCollapsedOnMounted="isCollapsed"
+    :offsetHeight="offsetHeight"
+  >
+    <template v-slot:header>
+      <div class="p-3">
+        <h3 class="mb-0">{{ title }}</h3>
+        <span class="text-muted">{{ subtitle }}</span>
       </div>
-      <button
-        class="btn btn-sm"
-        :class="{
-          active: !isCollapsed
-        }"
-        @click="toggleCollapse"
-      >
-        <Icon name="chevron" />
-      </button>
-    </div>
-    <div class="TutorialMonitor__body position-absolute">
-      ciccio pasticcio
-      <slot></slot>
-    </div>
-  </div>
+    </template>
+    <ol class="ps-0">
+      <li v-for="(task, idx) in tasks" class="border-bottom border-top m-2">
+        <TutorialTask
+          :task="task"
+          @toggled="(payload: CollapsiblePanelData) => onTutorialTaskToggled(idx, payload)"
+        ></TutorialTask>
+      </li>
+    </ol>
+  </CollapsiblePanel>
 </template>
 <script setup lang="ts">
-import { defineProps, ref, onMounted } from 'vue'
-import Icon from './base/Icon.vue'
+import { computed, ref } from 'vue'
+import CollapsiblePanel, { CollapsiblePanelData } from './CollapsiblePanel.vue'
+import TutorialTask from './TutorialTask.vue'
 
-const rootRef = ref<HTMLElement | null>(null)
-const headerRef = ref<HTMLElement | null>(null)
-const isCollapsed = ref(true)
-const props = defineProps({
+const offsetHeights = ref({})
+const offsetHeight = computed(() =>
+  Object.keys(offsetHeights.value).reduce((acc, k) => acc + offsetHeights[k], 0)
+)
+
+defineProps({
   /** @type {string} */
   title: {
     type: String,
     required: true
+  },
+  isCollapsed: {
+    type: Boolean,
+    default: true
+  },
+  /** @type {string} */
+  subtitle: {
+    type: String,
+    default: ''
+  },
+  /** @type {import('@/models').TutorialTask[]} */
+  tasks: {
+    type: Array,
+    required: true
   }
 })
 
-// at the very beginning, we want the height of rootRef equals headerRef only
-// then, we want to animate the height of rootRef to the full height of the body
-
-onMounted(() => {
-  const root = rootRef.value
-  const header = headerRef.value
-  if (root && header) {
-    root.style.height = `${header.offsetHeight}px`
-    // hidden
-    root.style.overflow = 'hidden'
-  }
-})
-
-const toggleCollapse = () => {
-  const root = rootRef.value
-  const header = headerRef.value
-  if (root && header) {
-    if (isCollapsed.value) {
-      root.style.height = `${root.scrollHeight}px`
-      isCollapsed.value = false
-    } else {
-      root.style.height = `${header.offsetHeight}px`
-      isCollapsed.value = true
-    }
-  }
+const onTutorialTaskToggled = (idx: number, payload: CollapsiblePanelData) => {
+  console.debug('[TutorialMonitor] idx', idx, '@onTutorialTaskToggled', payload)
+  offsetHeights[idx] = payload.value ? 0 : payload.expandedHeight
 }
 </script>
 <style>
-.TutorialMonitor {
+.TutorialMonitor.CollapsiblePanel {
   box-shadow: var(--bs-box-shadow-sm);
   border-radius: var(--border-radius-lg);
-  position: relative;
-  overflow: hidden;
-  will-change: height;
-  transition: height 0.6s;
-  transition-timing-function: var(--impresso-transition-ease);
 }
-
-.TutorialMonitor h3 {
-  font-family: var(--bs-font-sans-serif);
+.TutorialMonitor ol {
+  list-style-type: none;
+  padding-inline-start: 0;
 }
-.TutorialMonitor__body {
-  height: 100px;
-  background: var(--clr-grey-500);
-}
-.TutorialMonitor button {
-  transition: transform 0.6s;
-  transition-timing-function: var(--impresso-transition-ease);
-}
-.TutorialMonitor button.active {
-  transform: rotate(180deg);
+.TutorialMonitor li {
+  padding: 0;
+  box-shadow: var(--bs-box-shadow-sm);
+  border-radius: var(--border-radius-lg);
 }
 </style>

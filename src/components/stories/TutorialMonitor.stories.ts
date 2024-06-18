@@ -4,10 +4,7 @@ import TutorialMonitor from '@/components/TutorialMonitor.vue'
 const meta: Meta<typeof TutorialMonitor> = {
   title: 'Components/TutorialMonitor',
   component: TutorialMonitor,
-  tags: ['autodocs'],
-  args: {
-    title: 'Tutorial Monitor'
-  }
+  tags: ['autodocs']
 }
 
 export default meta
@@ -16,6 +13,24 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    title: 'Tutorial Monitor'
+    title: 'Tutorial Monitor Story',
+    isCollapsed: false,
+    tasks: [
+      {
+        id: 'task-1',
+        title: 'Task 1',
+        description: 'Description for task 1'
+      },
+      {
+        id: 'task-2',
+        title: 'Task 2',
+        description: 'Description for task 2'
+      },
+      {
+        id: 'task-3',
+        title: 'Task 3',
+        description: 'Description for task 3'
+      }
+    ]
   }
 }
