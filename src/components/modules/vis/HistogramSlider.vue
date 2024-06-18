@@ -120,7 +120,6 @@ export default {
       return [min < this.range[0] ? min : this.range[0], max > this.range[1] ? max : this.range[1]]
     },
     shouldEnableSlider() {
-      console.log('shouldEnableSlider', this.sliderRange, this.sliderValue)
       if (
         !isNaN(this.sliderRange[0]) &&
         isFinite(this.sliderRange[0]) &&
