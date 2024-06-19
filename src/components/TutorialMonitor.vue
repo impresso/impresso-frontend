@@ -1,6 +1,11 @@
 <template>
-  <CollapsiblePanel class="TutorialMonitor border border-dark" v-model="isOpen" :subtitle="subtitle" :title="title"
-    :style="{ height: `${offsetHeight}px` }">
+  <CollapsiblePanel
+    class="TutorialMonitor border border-dark"
+    v-model="isOpen"
+    :subtitle="subtitle"
+    :title="title"
+    :style="{ height: isOpen ? `${offsetHeight}px` : `${headerHeight}px` }"
+  >
     <template v-slot:header>
       <div class="p-3">
         <h3 class="mb-0">{{ title }}</h3>
@@ -9,26 +14,30 @@
     </template>
     <ol>
       <li v-for="(task, idx) in tasks" :key="task.id">
-        <TutorialTaskPanel :modelValue="currentOpenTaskId === task.id" :task="task" :taskNum="idx + 1"
-          @update:modelValue="(value: boolean) => currentOpenTaskId = value ? task.id : null"
-          @heightChanged="e => updateHeight(task.id, e)">
+        <TutorialTaskPanel
+          :modelValue="currentOpenTaskId === task.id"
+          :task="task"
+          :taskNum="idx + 1"
+          @update:modelValue="(value: boolean) => (currentOpenTaskId = value ? task.id : null)"
+          @heightChanged="(e) => updateHeight(task.id, e)"
+        >
         </TutorialTaskPanel>
       </li>
     </ol>
   </CollapsiblePanel>
 </template>
 <script setup lang="ts">
-import TutorialTaskPanel from '@/components/TutorialTaskPanel.vue';
-import { ITutorialTask } from '@/models/TutorialTask';
-import { computed, PropType, ref, watch } from 'vue';
-import CollapsiblePanel from './CollapsiblePanel.vue';
+import TutorialTaskPanel from '@/components/TutorialTaskPanel.vue'
+import { ITutorialTask } from '@/models/TutorialTask'
+import { computed, PropType, ref, watch } from 'vue'
+import CollapsiblePanel from './CollapsiblePanel.vue'
 
 // TODO: Get from the element?
 const headerHeight = 50
 
 const offsetHeights = ref<Record<string, number>>({})
-const offsetHeight = computed(() =>
-  headerHeight + Object.values(offsetHeights.value).reduce((a, b) => a + b, 0)
+const offsetHeight = computed(
+  () => headerHeight + Object.values(offsetHeights.value).reduce((a, b) => a + b, 0)
 )
 
 const props = defineProps({
@@ -53,9 +62,12 @@ const props = defineProps({
 const isOpen = ref(!props.isCollapsed)
 const currentOpenTaskId = ref<string | null>(null)
 
-watch(() => props.isCollapsed, isCollapsed => {
-  isOpen.value = !isCollapsed
-})
+watch(
+  () => props.isCollapsed,
+  (isCollapsed) => {
+    isOpen.value = !isCollapsed
+  }
+)
 
 const updateHeight = (id: string, height: string) => {
   const heightAsNumber = parseInt(height.replace('px', ''))
