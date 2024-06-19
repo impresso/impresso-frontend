@@ -1,6 +1,10 @@
 <template>
   <div ref="rootRef" class="CollapsiblePanel" :class="className">
-    <div ref="headerRef" class="d-flex justify-content-between align-items-center">
+    <div
+      ref="headerRef"
+      class="CollapsiblePanel__header d-flex justify-content-between align-items-center"
+      @click="toggleCollapseOnClick"
+    >
       <slot name="header">
         <div class="p-3">
           <h4 class="m-0">{{ title }}</h4>
@@ -8,11 +12,10 @@
         </div>
       </slot>
       <button
-        class="btn btn-sm mx-2"
+        class="btn btn-sm btn-icon mx-2"
         :class="{
           active: !isCollapsed
         }"
-        @click="toggleCollapseOnClick"
       >
         <Icon name="chevron" />
       </button>
@@ -103,6 +106,7 @@ const render = (isEmittingEvent: boolean = false) => {
     return
   }
   const collapsedHeight = `${header.offsetHeight}px`
+
   const expandedHeight = `${root.scrollHeight + props.offsetHeight}px`
 
   if (isPristine.value) {
@@ -135,6 +139,11 @@ const render = (isEmittingEvent: boolean = false) => {
   will-change: height;
   transition: height 0.6s;
   transition-timing-function: var(--impresso-transition-ease);
+}
+.CollapsiblePanel__header {
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
 }
 
 .CollapsiblePanel h3 {

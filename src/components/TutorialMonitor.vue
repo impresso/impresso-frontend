@@ -12,10 +12,11 @@
         <span class="text-muted">{{ subtitle }}</span>
       </div>
     </template>
-    <ol class="ps-0">
-      <li v-for="(task, idx) in tasks" class="border-bottom border-top m-2">
+    <ol>
+      <li v-for="(task, idx) in tasks">
         <TutorialTask
           :task="task"
+          :taskNum="idx + 1"
           @toggled="(payload: CollapsiblePanelData) => onTutorialTaskToggled(idx, payload)"
         ></TutorialTask>
       </li>
@@ -56,7 +57,7 @@ defineProps({
 
 const onTutorialTaskToggled = (idx: number, payload: CollapsiblePanelData) => {
   console.debug('[TutorialMonitor] idx', idx, '@onTutorialTaskToggled', payload)
-  offsetHeights[idx] = payload.value ? 0 : payload.expandedHeight
+  offsetHeights[idx] = payload.value ? 50 : payload.expandedHeight
 }
 </script>
 <style>
@@ -67,10 +68,24 @@ const onTutorialTaskToggled = (idx: number, payload: CollapsiblePanelData) => {
 .TutorialMonitor ol {
   list-style-type: none;
   padding-inline-start: 0;
+  padding-inline-end: 0;
+  margin-inline-start: var(--spacing-2);
+  margin-inline-end: var(--spacing-2);
+
+  margin-bottom: var(--spacing-1);
 }
 .TutorialMonitor li {
-  padding: 0;
-  box-shadow: var(--bs-box-shadow-sm);
-  border-radius: var(--border-radius-lg);
+  border-top: 1px solid var(--clr-grey-200);
+}
+.TutorialMonitor li:first-of-type {
+  border-top-width: 0px;
+}
+.TutorialMonitor h3 {
+  font-size: var(--impresso-font-size-smallcaps);
+  font-family: var(--bs-font-sans-serif);
+  text-transform: uppercase;
+  letter-spacing: var(--impresso-letter-spacing-smallcaps);
+  font-weight: var(--impresso-wght-smallcaps);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
 </style>

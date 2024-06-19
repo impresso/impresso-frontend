@@ -93,7 +93,7 @@ const Icons: Record<string, IconData> = {
     height: 24,
     paths: [
       {
-        style: 'fill:white; stroke:black; stroke-width:1px;',
+        style: 'fill:transparent; stroke:black; stroke-width:1px;',
 
         d: 'M6 9L12 15L18 9'
       }
