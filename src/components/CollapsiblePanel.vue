@@ -1,16 +1,22 @@
 <template>
   <div ref="rootRef" class="CollapsiblePanel" :class="className" :style="rootStyles">
-    <div ref="headerRef" class="CollapsiblePanel__header d-flex justify-content-between align-items-center"
-      @click="togglePanelState">
+    <div
+      ref="headerRef"
+      class="CollapsiblePanel__header d-flex justify-content-between align-items-center"
+      @click="togglePanelState"
+    >
       <slot name="header">
         <div class="p-3">
           <h4 class="m-0">{{ title }}</h4>
           <p v-if="subtitle.length" class="mb-0">subtitle</p>
         </div>
       </slot>
-      <button class="btn btn-sm btn-icon mx-2" :class="{
-        active: modelValue
-      }">
+      <button
+        class="btn btn-sm btn-icon mx-2"
+        :class="{
+          active: modelValue
+        }"
+      >
         <Icon name="chevron" />
       </button>
     </div>
@@ -46,7 +52,7 @@ const props = defineProps({
   className: {
     type: String,
     default: ''
-  },
+  }
 })
 
 const rootRef = ref<HTMLElement | null>(null)
@@ -74,10 +80,13 @@ const rootStyles = computed(() => {
   }
 })
 
-watch(() => rootStyles.value.height, height => {
-  emit('heightChanged', height)
-}, { immediate: true })
-
+watch(
+  () => rootStyles.value.height,
+  (height) => {
+    emit('heightChanged', height)
+  },
+  { immediate: true }
+)
 </script>
 
 <style>
@@ -100,7 +109,7 @@ watch(() => rootStyles.value.height, height => {
 }
 
 .CollapsiblePanel__body {
-  min-height: 100px;
+  min-height: 50px;
   width: 100%;
 }
 
