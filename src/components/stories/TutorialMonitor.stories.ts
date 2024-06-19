@@ -19,17 +19,21 @@ export const Default: Story = {
       {
         id: 'task-1',
         title: 'Task 1',
-        description: 'Description for task 1'
+        description: 'Description for task 1',
+        status: 'completed',
+        coverUrl: 'https://via.placeholder.com/150'
       },
       {
         id: 'task-2',
         title: 'Task 2',
-        description: 'Description for task 2'
+        description: 'Description for task 2',
+        status: 'in-progress'
       },
       {
         id: 'task-3',
         title: 'Task 3',
-        description: 'Description for task 3'
+        description: 'Description for task 3',
+        status: 'pending'
       }
     ]
   }
