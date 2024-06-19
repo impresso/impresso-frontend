@@ -2,11 +2,11 @@ export interface ITutorialTask {
   id: string
   title: string
   description: string
-  status: string
-  coverUrl: string
-  videoUrl: string
-  creationDate: Date
-  completionDate: Date
+  status?: string
+  coverUrl?: string
+  videoUrl?: string
+  creationDate?: Date
+  completionDate?: Date
 }
 
 export class TutorialTaskModel implements ITutorialTask {
@@ -24,7 +24,7 @@ export class TutorialTaskModel implements ITutorialTask {
     title = '',
     description = '',
     status = '',
-    creationDate = null,
+    creationDate = new Date(),
     completionDate = null,
     coverUrl = '',
     videoUrl = ''
