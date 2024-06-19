@@ -1,11 +1,6 @@
 <template>
-  <CollapsiblePanel
-    class="TutorialMonitor border border-dark"
-    :subtitle="subtitle"
-    :title="title"
-    :isCollapsedOnMounted="isCollapsed"
-    :offsetHeight="offsetHeight"
-  >
+  <CollapsiblePanel class="TutorialMonitor border border-dark" v-model="isOpen" :subtitle="subtitle" :title="title"
+    :style="{ height: `${offsetHeight}px` }">
     <template v-slot:header>
       <div class="p-3">
         <h3 class="mb-0">{{ title }}</h3>
@@ -13,28 +8,30 @@
       </div>
     </template>
     <ol>
-      <li v-for="(task, idx) in tasks">
-        <TutorialTask
-          :task="task"
-          :taskNum="idx + 1"
-          @toggled="(payload: CollapsiblePanelData) => onTutorialTaskToggled(idx, payload)"
-        ></TutorialTask>
+      <li v-for="(task, idx) in tasks" :key="task.id">
+        <TutorialTaskPanel :modelValue="currentOpenTaskId === task.id" :task="task" :taskNum="idx + 1"
+          @update:modelValue="(value: boolean) => currentOpenTaskId = value ? task.id : null"
+          @heightChanged="e => updateHeight(task.id, e)">
+        </TutorialTaskPanel>
       </li>
     </ol>
   </CollapsiblePanel>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import CollapsiblePanel, { CollapsiblePanelData } from './CollapsiblePanel.vue'
-import TutorialTask from './TutorialTask.vue'
+import TutorialTaskPanel from '@/components/TutorialTaskPanel.vue';
+import { ITutorialTask } from '@/models/TutorialTask';
+import { computed, PropType, ref, watch } from 'vue';
+import CollapsiblePanel from './CollapsiblePanel.vue';
 
-const offsetHeights = ref({})
+// TODO: Get from the element?
+const headerHeight = 50
+
+const offsetHeights = ref<Record<string, number>>({})
 const offsetHeight = computed(() =>
-  Object.keys(offsetHeights.value).reduce((acc, k) => acc + offsetHeights[k], 0)
+  headerHeight + Object.values(offsetHeights.value).reduce((a, b) => a + b, 0)
 )
 
-defineProps({
-  /** @type {string} */
+const props = defineProps({
   title: {
     type: String,
     required: true
@@ -43,28 +40,40 @@ defineProps({
     type: Boolean,
     default: true
   },
-  /** @type {string} */
   subtitle: {
     type: String,
     default: ''
   },
-  /** @type {import('@/models').TutorialTask[]} */
   tasks: {
-    type: Array,
+    type: Array as PropType<ITutorialTask[]>,
     required: true
   }
 })
 
-const onTutorialTaskToggled = (idx: number, payload: CollapsiblePanelData) => {
-  console.debug('[TutorialMonitor] idx', idx, '@onTutorialTaskToggled', payload)
-  offsetHeights[idx] = payload.value ? 50 : payload.expandedHeight
+const isOpen = ref(!props.isCollapsed)
+const currentOpenTaskId = ref<string | null>(null)
+
+watch(() => props.isCollapsed, isCollapsed => {
+  isOpen.value = !isCollapsed
+})
+
+const updateHeight = (id: string, height: string) => {
+  const heightAsNumber = parseInt(height.replace('px', ''))
+  offsetHeights.value[id] = isNaN(heightAsNumber) ? 0 : heightAsNumber
 }
+
+// const onTutorialTaskToggled = (idx: number, payload: CollapsiblePanelData) => {
+//   console.debug('[TutorialMonitor] idx', idx, '@onTutorialTaskToggled', payload)
+//   offsetHeights[idx] = payload.value ? 50 : payload.expandedHeight
+// }
 </script>
+
 <style>
 .TutorialMonitor.CollapsiblePanel {
   box-shadow: var(--bs-box-shadow-sm);
   border-radius: var(--border-radius-lg);
 }
+
 .TutorialMonitor ol {
   list-style-type: none;
   padding-inline-start: 0;
@@ -74,12 +83,15 @@ const onTutorialTaskToggled = (idx: number, payload: CollapsiblePanelData) => {
 
   margin-bottom: var(--spacing-1);
 }
+
 .TutorialMonitor li {
   border-top: 1px solid var(--clr-grey-200);
 }
+
 .TutorialMonitor li:first-of-type {
   border-top-width: 0px;
 }
+
 .TutorialMonitor h3 {
   font-size: var(--impresso-font-size-smallcaps);
   font-family: var(--bs-font-sans-serif);
