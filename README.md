@@ -30,20 +30,6 @@ Finally run with:
 npm run dev
 ```
 
-### Use docker stack for development (node v12)
-
-We provide a Dockerfile-dev to streamline node 12 installation with now unsupported modules.
-
-Build the docker image with python3 support, then start the vue app using `npm start`:
-
-```
-docker-compose -f docker-compose-dev.yml up
-```
-
-or if make is available, `make run-dev`
-
-> A Vue.js project
-
 ## Build Setup
 
 ```bash
