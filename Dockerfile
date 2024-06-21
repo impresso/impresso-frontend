@@ -1,5 +1,5 @@
 # 1. build
-FROM node:17.9-alpine AS frontend_builder
+FROM node:22-alpine AS frontend_builder
 
 ARG GIT_TAG
 ARG GIT_BRANCH
@@ -7,16 +7,14 @@ ARG GIT_REVISION
 
 WORKDIR /impresso_frontend
 
-RUN apk add --no-cache git build-base python3
-
-ENV NODE_OPTIONS --openssl-legacy-provider
-
 COPY package.json package-lock.json ./
 COPY src ./src
 COPY static ./static
 COPY public ./public
 
-COPY .eslintrc.cjs .eslintignore .postcssrc.js .babelrc vue.config.js tsconfig.json ./
+COPY .eslintrc.cjs .eslintignore tsconfig.app.json tsconfig.json tsconfig.node.json tsconfig.vitest.json ./
+COPY index.html ./
+COPY vite.config.ts vitest.config.ts ./
 COPY .env .env.production ./
 
 RUN npm install
@@ -30,7 +28,7 @@ ENV GIT_REVISION=${GIT_REVISION}
 RUN npm run build
 
 # 2. copy
-FROM busybox
+FROM busybox:1.36
 
 WORKDIR /impresso-frontend
 
