@@ -396,7 +396,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 .search-bar {
   position: relative;
   input.form-control.search-input {

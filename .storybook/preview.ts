@@ -7,7 +7,7 @@ import pinia from '../src/plugins/pinia'
 import { handlers as mswHandlers } from './mswHandlers'
 
 import 'dripicons/webfont/webfont.css'
-import 'impresso-theme/dist/css/bootpresso.css'
+import './assets/legacy/bootstrap-impresso-theme.css'
 import '../src/assets/legacy/bootstrap-vue.css'
 
 /*
