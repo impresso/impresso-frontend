@@ -97,7 +97,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .wrapper {
   flex-direction: column;
