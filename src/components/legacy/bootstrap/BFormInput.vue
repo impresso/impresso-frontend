@@ -1,5 +1,6 @@
 <template>
-  <input ref="inputRef" :type="props.type" :class="iClass" :value="props.modelValue" @input="handleChanged" v-bind="$attrs" />
+  <input ref="inputRef" :type="props.type" :class="iClass" :value="props.modelValue" @input="handleChanged"
+    v-bind="$attrs" :data-testid="dataTestid" />
 </template>
 
 <script setup lang="ts">
@@ -21,6 +22,10 @@ const props = defineProps({
   size: {
     type: String,
     default: 'md',
+  },
+  dataTestid: {
+    type: String,
+    default: undefined,
   },
 })
 const emit = defineEmits(['update:modelValue'])

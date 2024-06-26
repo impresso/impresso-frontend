@@ -1,9 +1,6 @@
 <template>
-  <button
-    type="button"
-    :class="buttonClass"
-    :disabled="props.disabled ? true : undefined"
-    v-bind="$attrs">
+  <button type="button" :class="buttonClass" :disabled="props.disabled ? true : undefined" v-bind="$attrs"
+    :data-testid="dataTestid">
     <slot></slot>
   </button>
 </template>
@@ -25,6 +22,10 @@ const props = defineProps({
   pill: {
     type: Boolean,
     default: false,
+  },
+  dataTestid: {
+    type: String,
+    default: undefined,
   },
 })
 const attrs = useAttrs()
