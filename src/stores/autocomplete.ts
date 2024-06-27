@@ -3,7 +3,7 @@ import SuggestionFactory from '@/models/SuggestionFactory'
 import { collections as collectionsService, suggestions as suggestionsService } from '@/services'
 import { defineStore } from 'pinia'
 
-interface State {
+export interface State {
   queries: string[]
   searchableQueries: string[]
 }

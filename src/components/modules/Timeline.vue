@@ -1,7 +1,7 @@
 <template>
-  <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`">
+  <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`" :data-testid="dataTestid">
     <tooltip :tooltip="tooltip">
-      <slot :tooltip="{...tooltip, item }">
+      <slot :tooltip="{ ...tooltip, item }">
         <div v-if="item">
           {{ item }}
         </div>
@@ -59,6 +59,10 @@ export default {
         return [undefined, 'year', 'month', 'day'].includes(value)
       },
     },
+    dataTestid: {
+      type: String,
+      default: 'timeline'
+    }
   },
   data: () => ({
     tooltip: {
@@ -256,36 +260,44 @@ export default {
 
   g.context path.area {
     fill: lighten($clr-primary, 78);
+
     &.contrast {
       fill: coral;
       stroke: red;
     }
   }
+
   g.context rect {
     fill: transparent;
   }
+
   g.context circle.pointer {
     opacity: 0;
+
     &.active {
       opacity: 1;
     }
+
     &.contrast {
       fill: red;
     }
   }
+
   g.context .peak text {
     font-size: 11px;
   }
+
   g.brush {
     rect.selection {
       fill: $clr-accent;
       stroke: $clr-accent;
     }
+
     rect.handle {
       // fill: $clr-accent;
     }
-    rect.handle--e {
-    }
+
+    rect.handle--e {}
   }
 }
 </style>

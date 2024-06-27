@@ -1,21 +1,13 @@
 <template>
-  <div class="filter-facet">
+  <div class="filter-facet" :data-testid="`facet-filter-${facet.type}`">
     <base-title-bar>
       {{ $t(`label.${facet.type}.filterTitle`) }}
-      <span
-        v-if="facet.numBuckets > -1"
-        v-html="
-          $tc('numbers.options', facet.numBuckets, {
-            n: $n(facet.numBuckets),
-          })
-        "
-      />
-      <info-button
-        class="ml-1"
-        v-if="infoButtonId || facet.type === 'person' || facet.type === 'location'"
-        :target="facet.type"
-        :name="infoButtonId || 'what-is-nep'"
-      />
+      <span v-if="facet.numBuckets > -1" v-html="$tc('numbers.options', facet.numBuckets, {
+        n: $n(facet.numBuckets),
+      })
+        " />
+      <info-button class="ml-1" v-if="infoButtonId || facet.type === 'person' || facet.type === 'location'"
+        :target="facet.type" :name="infoButtonId || 'what-is-nep'" />
       <info-button v-if="facet.type === 'newspaper'" name="which-newspapers" class="ml-1" />
       <info-button v-if="facet.type === 'topic'" name="how-to-read-the-topics" class="ml-1" />
       <template v-slot:options>
@@ -23,10 +15,7 @@
           {{ $t(`actions.reset`) }}
         </b-button>
         <b-button v-if="isCollapsible" size="sm" variant="outline-icon" @click="toggleVisibility">
-          <span
-            class="icon-link"
-            :class="{ 'dripicons-plus': isCollapsed, 'dripicons-minus': !isCollapsed }"
-          ></span>
+          <span class="icon-link" :class="{ 'dripicons-plus': isCollapsed, 'dripicons-minus': !isCollapsed }"></span>
         </b-button>
       </template>
       <template v-slot:description>
@@ -50,67 +39,30 @@
       <!-- .description -->
     </base-title-bar>
     <LazyObserver v-if="lazy" :delay="lazyDelay" @onIntersect="onIntersectHandler" />
-    <div
-      v-for="{ filter, filterIndex } in includedFilterItems"
-      :key="filterIndex"
-      class=" p-2 bg-white border rounded shadow-sm my-2"
-    >
-      <filter-monitor
-        :items-to-add="selectedBucketsItems"
-        :filter="filter"
-        :operators="facet.operators"
-        @changed="filter => updateFilter(filterIndex, filter)"
-        @remove="filter => removeFilter(filterIndex, filter)"
-      />
+    <div v-for="{ filter, filterIndex } in includedFilterItems" :key="filterIndex"
+      class=" p-2 bg-white border rounded shadow-sm my-2">
+      <filter-monitor :items-to-add="selectedBucketsItems" :filter="filter" :operators="facet.operators"
+        @changed="filter => updateFilter(filterIndex, filter)" @remove="filter => removeFilter(filterIndex, filter)" />
     </div>
-    <div
-      v-for="{ filter, filterIndex } in excludedFilterItems"
-      :key="filterIndex"
-      class=" p-2 bg-white border rounded shadow-sm my-2"
-    >
-      <filter-monitor
-        :filter="filter"
-        :operators="facet.operators"
-        @changed="filter => updateFilter(filterIndex, filter)"
-        @remove="filter => removeFilter(filterIndex, filter)"
-      />
+    <div v-for="{ filter, filterIndex } in excludedFilterItems" :key="filterIndex"
+      class=" p-2 bg-white border rounded shadow-sm my-2">
+      <filter-monitor :filter="filter" :operators="facet.operators"
+        @changed="filter => updateFilter(filterIndex, filter)" @remove="filter => removeFilter(filterIndex, filter)" />
     </div>
-    <div v-if="showBuckets" class="pt-2">
-      <filter-facet-bucket
-        v-for="bucket in unfilteredBuckets"
-        :key="bucket.val"
-        :loading="isLoading"
-        :bucket="bucket"
-        :type="facet.type"
-        :search-index="searchIndex"
-        @toggle-bucket="toggleBucket"
-      />
-      <filter-facet-bucket
-        v-for="bucket in additionalBuckets"
-        :key="bucket.val"
-        :loading="isLoading"
-        :bucket="bucket"
-        :type="facet.type"
-        :search-index="searchIndex"
-        @toggle-bucket="toggleBucket"
-      />
-      <b-button
-        v-if="facet.numBuckets > 0 && countMissingBuckets"
-        size="sm"
-        variant="outline-secondary"
-        class="mt-2 mr-1 rounded shadow-sm"
-        @click="loadMoreBuckets"
-      >
+    <div v-if="showBuckets" class="pt-2" data-testid="facet-buckets">
+      <filter-facet-bucket v-for="bucket in unfilteredBuckets" :key="bucket.val" :loading="isLoading" :bucket="bucket"
+        :type="facet.type" :search-index="searchIndex" @toggle-bucket="toggleBucket" />
+      <filter-facet-bucket v-for="bucket in additionalBuckets" :key="bucket.val" :loading="isLoading" :bucket="bucket"
+        :type="facet.type" :search-index="searchIndex" @toggle-bucket="toggleBucket" />
+      <b-button v-if="facet.numBuckets > 0 && countMissingBuckets" size="sm" variant="outline-secondary"
+        class="mt-2 mr-1 rounded shadow-sm" @click="loadMoreBuckets">
         <span v-if="isMoreLoading" v-html="$t('actions.loading')" />
         <span v-else>
           {{ $t('actions.more') }}
-          <span
-            v-html="
-              $tc('numbers.moreOptions', countMissingBuckets, {
-                n: $n(countMissingBuckets),
-              })
-            "
-          />
+          <span v-html="$tc('numbers.moreOptions', countMissingBuckets, {
+            n: $n(countMissingBuckets),
+          })
+            " />
         </span>
       </b-button>
     </div>
@@ -423,11 +375,9 @@ export default defineComponent({
 
 <style lang="css" scoped></style>
 
-<i18n lang="json">
-  {
-    "en": {
-      "clearSelection": "Clear selection ({selected})",
-      "selectAll": "Select all ({count})"
-    }
+<i18n lang="json">{
+  "en": {
+    "clearSelection": "Clear selection ({selected})",
+    "selectAll": "Select all ({count})"
   }
-</i18n>
+}</i18n>

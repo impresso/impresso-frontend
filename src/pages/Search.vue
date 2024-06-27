@@ -1,21 +1,17 @@
 <template>
   <i-layout id="SearchPage">
-    <search-sidebar
-      width="400px"
-      :filters="enrichedFilters"
-      :facets="facets"
-      contextTag="search"
-      @changed="handleFiltersChanged"
-    >
+    <search-sidebar width="400px" :filters="enrichedFilters" :facets="facets" contextTag="search"
+      @changed="handleFiltersChanged">
       <template v-slot:header="{ focusHandler }">
         <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
       </template>
       <div>
-        <b-button class="float-right mx-3 btn-sm" @click="showModal('embeddings')">
+        <b-button class="float-right mx-3 btn-sm" @click="showModal('embeddings')"
+          data-testid="add-similar-words-button">
           {{ $t('label_embeddings') }}
           <info-button class="ml-1" name="how-are-word-embeddings-generated" />
         </b-button>
-        <b-form-group class="mx-3">
+        <b-form-group class="mx-3" data-testid="is-frontpage-toggle">
           <b-form-checkbox v-model="isFront" switch v-bind:modelValue="true">
             {{ $t('label_isFront') }}
           </b-form-checkbox>
@@ -28,22 +24,13 @@
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
             <label class="mr-1">{{ $t('label_group') }}</label>
-            <i-dropdown
-              v-model="groupBy"
-              v-bind:options="groupByOptions"
-              size="sm"
-              variant="outline-primary"
-            ></i-dropdown>
+            <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm" variant="outline-primary"
+              data-testid="group-by-dropdown"></i-dropdown>
           </b-navbar-nav>
           <b-navbar-nav class="px-3 py-3 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
-            <i-dropdown
-              v-model="orderBy"
-              v-bind:options="orderByOptions"
-              size="sm"
-              variant="outline-primary"
-              right
-            ></i-dropdown>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" right
+              data-testid="order-by-dropdown"></i-dropdown>
           </b-navbar-nav>
         </b-navbar>
 
@@ -55,60 +42,35 @@
             <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
               {{ $t('Clear Selection') }}
             </b-button>
-            <collection-add-to
-              :items="selectedItems"
-              :text="$tc('add_n_to_collection', selectedItems.length)"
-              class="addbulk bg-white float-right"
-            />
+            <collection-add-to :items="selectedItems" :text="$tc('add_n_to_collection', selectedItems.length)"
+              class="addbulk bg-white float-right" />
           </div>
         </b-navbar>
 
         <b-navbar class="d-flex p-0 border-bottom bg-light">
           <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
             <ellipsis v-bind:initialHeight="60">
-              <search-results-summary
-                @onSummary="onSummary"
-                :group-by="groupBy"
-                :search-query="{ filters: enrichedFilters }"
-                :totalRows="paginationTotalRows"
-              />
+              <search-results-summary @onSummary="onSummary" :group-by="groupBy"
+                :search-query="{ filters: enrichedFilters }" :totalRows="paginationTotalRows" />
             </ellipsis>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-3">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              class="mr-1"
-              :to="{
-                name: 'compare',
-                query: {
-                  left: searchQueryHash,
-                },
-              }"
-            >
+            <b-button size="sm" variant="outline-primary" class="mr-1" :to="{
+              name: 'compare',
+              query: {
+                left: searchQueryHash,
+              },
+            }">
               {{ $t('actions.compare') }}
             </b-button>
-            <b-dropdown
-              v-if="isLoggedIn"
-              v-bind:text="$t('query_actions')"
-              size="sm"
-              variant="outline-primary"
-              right
-              class="bg-white mr-3"
-            >
-              <b-dropdown-item
-                v-if="selectedItems.length > 0"
-                class="p-2 small-caps"
-                @click="showModal('nameSelectionCollection')"
-              >
+            <b-dropdown v-if="isLoggedIn" v-bind:text="$t('query_actions')" size="sm" variant="outline-primary" right
+              class="bg-white mr-3">
+              <b-dropdown-item v-if="selectedItems.length > 0" class="p-2 small-caps"
+                @click="showModal('nameSelectionCollection')">
                 <span class="dripicons-checklist pr-1"></span>
                 {{ $tc('add_n_to_collection', selectedItems.length) }}
               </b-dropdown-item>
-              <b-dropdown-item
-                v-on:click="exportSelectedCsv"
-                v-if="selectedItems.length > 0"
-                class="p-2 small-caps"
-              >
+              <b-dropdown-item v-on:click="exportSelectedCsv" v-if="selectedItems.length > 0" class="p-2 small-caps">
                 <span class="dripicons-export pr-1"></span>
                 {{ $t('selected_export_csv') }}
               </b-dropdown-item>
@@ -135,43 +97,21 @@
         </b-navbar>
       </template>
 
-      <Modal
-        id="nameSelectionCollection"
-        hide-footer
-        body-class="m-0 p-0"
-        :title="$tc('add_n_to_collection', selectedItems.length)"
-        :show="isModalVisible('nameSelectionCollection')"
-        @shown="nameSelectedCollectionOnShown()"
-        >
+      <Modal id="nameSelectionCollection" hide-footer body-class="m-0 p-0"
+        :title="$tc('add_n_to_collection', selectedItems.length)" :show="isModalVisible('nameSelectionCollection')"
+        @shown="nameSelectedCollectionOnShown()">
         <collection-add-to-list :items="selectedItems" />
       </Modal>
 
-      <Modal
-        id="nameCollection"
-        :title="$t('query_add_to_collection')"
-        :show="isModalVisible('nameCollection')"
-        :okDisabled="nameCollectionOkDisabled"
-        @close="hideModal('nameCollection')"
-        @ok="createQueryCollection()"
-        @shown="nameCollectionOnShown()"
-        >
+      <Modal id="nameCollection" :title="$t('query_add_to_collection')" :show="isModalVisible('nameCollection')"
+        :okDisabled="nameCollectionOkDisabled" @close="hideModal('nameCollection')" @ok="createQueryCollection()"
+        @shown="nameCollectionOnShown()">
         <form v-on:submit.stop.prevent="createQueryCollection()">
           <label for="inputName">Name</label>
-          <b-form-input
-            @update:modelValue="nameCollectionOnInput"
-            type="text"
-            v-bind:placeholder="$t('Collection_Name')"
-            name="inputName"
-            ref="inputName"
-            v-model="inputName"
-          />
+          <b-form-input @update:modelValue="nameCollectionOnInput" type="text"
+            v-bind:placeholder="$t('Collection_Name')" name="inputName" ref="inputName" v-model="inputName" />
           <label for="inputDescription" class="mt-3">Description</label>
-          <textarea
-            type="text"
-            name="inputDescription"
-            class="form-control"
-            v-model="inputDescription"
-          />
+          <textarea type="text" name="inputDescription" class="form-control" v-model="inputDescription" />
         </form>
         <div class="mt-3 small-caps">
           <p>Please note: Collections are currently limited to 10.000 items.</p>
@@ -182,62 +122,34 @@
         </div>
       </Modal>
 
-      <Modal
-        hide-footer
-        id="embeddings"
-        :title="$t('label_embeddings')"
-        :show="isModalVisible('embeddings')"
-        @close="hideModal('embeddings')"
-      >
+      <Modal hide-footer id="embeddings" :title="$t('label_embeddings')" :show="isModalVisible('embeddings')"
+        @close="hideModal('embeddings')">
         <embeddings-search @embdding-selected="addFilterFromEmbedding" />
       </Modal>
 
       <div class="p-1">
         <b-container fluid>
-          <b-row v-if="displayStyle === 'list'">
-            <b-col
-              cols="12"
-              v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.uid"
-            >
-              <search-results-list-item
-                v-bind:checkbox="false"
-                v-on:toggleSelected="toggleSelected(searchResult)"
-                v-bind:checked="isChecked(searchResult)"
-                v-on:click="onClickResult(searchResult)"
-                v-model="searchResults[index]"
-              />
+          <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
+            <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.uid">
+              <search-results-list-item v-bind:checkbox="false" v-on:toggleSelected="toggleSelected(searchResult)"
+                v-bind:checked="isChecked(searchResult)" v-on:click="onClickResult(searchResult)"
+                v-model="searchResults[index]" />
             </b-col>
           </b-row>
           <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-            <b-col
-              cols="6"
-              sm="12"
-              md="6"
-              lg="4"
-              v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.article_uid"
-            >
-              <search-results-tiles-item
-                checkbox="true"
-                v-on:toggleSelected="toggleSelected(searchResult)"
-                v-bind:checked="isChecked(searchResult)"
-                v-on:click="onClickResult(searchResult)"
-                v-model="searchResults[index]"
-              />
+            <b-col cols="6" sm="12" md="6" lg="4" v-for="(searchResult, index) in searchResults"
+              v-bind:key="searchResult.article_uid">
+              <search-results-tiles-item checkbox="true" v-on:toggleSelected="toggleSelected(searchResult)"
+                v-bind:checked="isChecked(searchResult)" v-on:click="onClickResult(searchResult)"
+                v-model="searchResults[index]" />
             </b-col>
           </b-row>
         </b-container>
         <div class="my-5" />
         <div class="fixed-pagination-footer p-1 m-0">
-          <pagination
-            v-if="searchResults.length"
-            :current-page="paginationCurrentPage"
-            @change="$event => (paginationCurrentPage = $event)"
-            :per-page="paginationPerPage"
-            :total-rows="paginationTotalRows"
-            class="float-left small-caps"
-          />
+          <pagination v-if="searchResults.length" :current-page="paginationCurrentPage"
+            @change="$event => (paginationCurrentPage = $event)" :per-page="paginationPerPage"
+            :total-rows="paginationTotalRows" class="float-left small-caps" />
         </div>
       </div>
     </i-layout-section>
@@ -673,18 +585,18 @@ export default {
             .then(joinFiltersWithItems),
           this.isLoggedIn
             ? collectionsItemsService
-                .find({
-                  query: {
-                    item_uids: this.searchResults.map(d => d.uid),
-                    limit: 100,
-                  },
-                })
-                .then(({ data }) =>
-                  data.reduce((acc, d) => {
-                    acc[d.itemId] = d
-                    return acc
-                  }, {}),
-                )
+              .find({
+                query: {
+                  item_uids: this.searchResults.map(d => d.uid),
+                  limit: 100,
+                },
+              })
+              .then(({ data }) =>
+                data.reduce((acc, d) => {
+                  acc[d.itemId] = d
+                  return acc
+                }, {}),
+              )
             : {},
         ])
         facets = facets.concat(extraFacets)
@@ -733,10 +645,12 @@ export default {
 .navbar-nav {
   flex-direction: row;
   align-items: center;
+
   label {
     margin-bottom: 0;
     line-height: 1.5;
   }
+
   .custom-control-label,
   .custom-control-label::before {
     position: inherit;
@@ -763,8 +677,7 @@ export default {
 }
 </style>
 
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "label_display": "Display As",
     "label_order": "Order By",
@@ -784,8 +697,8 @@ export default {
     "add_n_to_collection": "Add selected item to collection ... | Add {count} selected items to collection ...",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
-    "Collection_Name" : "Collection Name",
-    "Collection_Description" : "Collection Description",
+    "Collection_Name": "Collection Name",
+    "Collection_Description": "Collection Description",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
     "selected_export_csv": "Export selected items as CSV",
@@ -808,5 +721,4 @@ export default {
     "order_articles": "Artikel",
     "order_sentences": "Zin"
   }
-}
-</i18n>
+}</i18n>

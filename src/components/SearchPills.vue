@@ -1,12 +1,13 @@
 <template>
-  <div class="search-pills d-flex" :class="{ empty: isEmpty }">
+  <div class="search-pills d-flex" :class="{ empty: isEmpty }" data-testid="search-pills">
     <div v-if="isFrontFilterEnabled" class="search-pill front-filter mr-1 mb-1 d-flex align-items-center border-radius">
       <div class="label">{{ $t('label.isFront') }}</div>
-      <b-button class="dripicons-cross" @click="handleFrontpageFilterRemoved" size="sm"
-        variant="transparent"></b-button>
+      <b-button class="dripicons-cross" @click="handleFrontpageFilterRemoved" size="sm" variant="transparent"
+        data-testid="remove-frontpage-filter-button"></b-button>
     </div>
     <div v-for="{ filter, filterIndex } in pills" :key="filterIndex">
-      <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill">
+      <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill"
+        :data-testid="`search-pill-${filter.type}`">
         <!--  button content -->
         <template v-slot:button-content>
           <!-- badge: initial type instead of icons -->
@@ -45,14 +46,14 @@
           <span class="label sp-generic-item" v-if="
             ['language', 'country', 'type', 'accessRight', 'partner'].indexOf(filter.type) !== -1
           " v-html="labelByItems({
-              items: filter.items,
-              max: 2,
-              prop: 'uid',
-              translate: true,
-              type: filter.type,
-              op: filter.op,
-            })
-              " :class="filter.context">
+            items: filter.items,
+            max: 2,
+            prop: 'uid',
+            translate: true,
+            type: filter.type,
+            op: filter.op,
+          })
+            " :class="filter.context">
           </span>
           <!--  type:generic -->
           <span class="label sp-generic-item" v-if="['year'].includes(filter.type)" :class="filter.context">{{
@@ -94,12 +95,13 @@
         </div>
       </b-dropdown>
     </div>
-    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer">
+    <b-button v-if="enableAddFilter" class="mb-1" variant="outline-primary" size="sm" v-on:click="showFilterExplorer"
+      data-testid="add-filter-button">
       {{ $t('actions.addContextualFilter') }}
     </b-button>
 
     <b-button class="mb-1 px-2 ml-auto border-radius" variant="outline-danger" v-if="isResettable"
-      :title="$t('actions.resetFilters')" @click="handleReset">
+      :title="$t('actions.resetFilters')" @click="handleReset" data-testid="reset-filters-button">
       <div class="d-flex dripicons-cross"></div>
     </b-button>
 

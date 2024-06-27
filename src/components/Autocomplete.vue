@@ -1,52 +1,34 @@
 <template>
   <section class="search-bar" ref="autocomplete">
     <div class="input-group">
-      <b-form-input
-        :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
-        :placeholder="$tc('placeholder.search', filterCount)"
-        v-model.trim="q"
-        @update:modelValue="search"
-        @focus="selectInput"
-        @blur="blurHandler"
-        @keyup="keyup"
-      />
+      <b-form-input :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
+        :placeholder="$tc('placeholder.search', filterCount)" v-model.trim="q" @update:modelValue="search"
+        @focus="selectInput" @blur="blurHandler" @keyup="keyup" data-testid="autocomplete-input" />
       <div class="input-group-append">
-        <button type="button" class="btn btn-outline-primary"
-          ref="searchButton"
-          :title="$tc('placeholder.search', filterCount)"
-          @click="submit({ type: 'string', q })"
-        >
+        <button type="button" class="btn btn-outline-primary" ref="searchButton"
+          :title="$tc('placeholder.search', filterCount)" @click="submit({ type: 'string', q })"
+          data-testid="add-keyword-button">
           <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
           <div v-else class="d-flex search-submit dripicons-search"></div>
         </button>
-        <button type="button" class="btn btn-outline-primary" :title="$t('actions.addFilter')" @click="showExplorer">
+        <button type="button" class="btn btn-outline-primary" :title="$t('actions.addFilter')" @click="showExplorer"
+          data-testid="add-filter-button">
           <div class="d-flex dripicons-experiment"></div>
         </button>
       </div>
     </div>
 
-    <div
-      class="suggestions border-left border-right border-bottom border-primary drop-shadow"
-      v-show="showSuggestions"
-    >
-      <div class="border-bottom ">
-        <div
-          class="suggestion p-1"
-          v-for="(suggestion, index) in staticSuggestions"
-          v-bind:key="index"
-          @click="submitStaticSuggestion(suggestion)"
-          :data-idx="suggestion.idx"
-          @mouseover="select(suggestion)"
-          :class="{ selected: selectedIndex === suggestion.idx }"
-        >
+    <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
+      <div class="border-bottom">
+        <div class="suggestion p-1" v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
+          @click="submitStaticSuggestion(suggestion)" :data-idx="suggestion.idx" @mouseover="select(suggestion)"
+          :class="{ selected: selectedIndex === suggestion.idx }">
           <div :class="`suggestion-${suggestion.type}`">
             <span class="small" v-if="suggestion.h" v-html="suggestion.h" />
-            <span class="small" v-else
-              >...<b>{{ q }}</b></span
-            >
-            <b-badge variant="light" class="border border-medium">{{
-              $t(`label.${suggestion.type}.title`)
-            }}</b-badge>
+            <span class="small" v-else>...<b>{{ q }}</b></span>
+            <b-badge variant="light" class="border border-medium">
+              {{ $t(`label.${suggestion.type}.title`) }}
+            </b-badge>
           </div>
         </div>
       </div>
@@ -57,35 +39,21 @@
           </div>
           <div class="col">
             <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
-            <div
-              v-for="(s, j) in suggestionIndex[type]"
-              :key="j"
-              @click="submit(s)"
-              @mouseover="select(s)"
-              :data-idx="s.idx"
-              class="suggestion pr-1 pl-2 py-1"
-              :class="{
+            <div v-for="(s, j) in suggestionIndex[type]" :key="j" @click="submit(s)" @mouseover="select(s)"
+              :data-idx="s.idx" class="suggestion pr-1 pl-2 py-1" :class="{
                 selected: selectedIndex === s.idx,
-              }"
-            >
+              }">
               <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
-                <span class="small"
-                  >... <b>{{ q }}</b></span
-                >
+                <span class="small">... <b>{{ q }}</b></span>
                 <b-badge variant="light" class="border border-medium">
-                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge
-                >
+                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
               </div>
               <div v-else :class="`${type} small`">
                 <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
-                <span
-                  v-if="['collection', 'newspaper'].indexOf(type) !== -1"
-                  v-html="s.item.name"
-                />
+                <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
                 <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
-                <span v-if="s.type === 'daterange'"
-                  >{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}</span
-                >
+                <span v-if="s.type === 'daterange'">{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end,
+                  'short') }}</span>
               </div>
             </div>
           </div>
@@ -93,15 +61,9 @@
       </div>
     </div>
 
-    <explorer
-      v-model="explorerFilters"
-      :is-visible="explorerVisible"
-      @onHide="handleExplorerHide"
-      :searching-enabled="true"
-      :initial-search-query="q"
-      :initial-type="explorerInitialType"
-      :included-types="explorerIncludedTypes"
-    />
+    <explorer v-model="explorerFilters" :is-visible="explorerVisible" @onHide="handleExplorerHide"
+      :searching-enabled="true" :initial-search-query="q" :initial-type="explorerInitialType"
+      :included-types="explorerIncludedTypes" />
   </section>
 </template>
 
@@ -138,6 +100,7 @@ export default {
     showSuggestions: false,
     explorerVisible: false,
   }),
+  emits: ['submit', 'submitEmpty', 'input-focus'],
   props: {
     variant: {
       type: String,
@@ -156,11 +119,7 @@ export default {
   beforeMount() {
     const autocomplete = ref(this.$refs.autocomplete)
     const button = ref(this.$refs.searchButton)
-    useClickOutside(
-      autocomplete,
-      () => this.hideSuggestions(),
-      button,
-    )
+    useClickOutside(autocomplete, () => this.hideSuggestions(), button)
   },
   computed: {
     ...mapStores(useAutocompleteStore, useUserStore),
@@ -188,8 +147,8 @@ export default {
     suggestionIndex() {
       const key = 'type'
       const index = this.suggestions.reduce((reduced, item) => {
-        (reduced[item[key]] = reduced[item[key]] || []).push(item);
-        return reduced;
+        ; (reduced[item[key]] = reduced[item[key]] || []).push(item)
+        return reduced
       }, {})
 
       let idx = this.staticSuggestions.length - 1
@@ -286,17 +245,14 @@ export default {
       }
 
       if (this.q.length > 1) {
-        this.autocompleteStore
-          .search(this.q.trim())
-          .then(res => {
-            this.suggestions = [...res, ...this.collectionSuggestions]
-          })
+        this.autocompleteStore.search(this.q.trim()).then(res => {
+          this.suggestions = [...res, ...this.collectionSuggestions]
+        })
         if (this.user) {
-          this.autocompleteStore.suggestCollections(this.q.trim())
-            .then(res => {
-              this.collectionSuggestions = res
-              this.suggestions = [...res, ...this.suggestions]
-            })
+          this.autocompleteStore.suggestCollections(this.q.trim()).then(res => {
+            this.collectionSuggestions = res
+            this.suggestions = [...res, ...this.suggestions]
+          })
         }
       } else {
         // if length of the query is 0 then we clear the suggestions
@@ -397,8 +353,10 @@ export default {
 
 <style scoped lang="scss">
 @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+
 .search-bar {
   position: relative;
+
   input.form-control.search-input {
     border-color: $clr-primary;
     background: transparent;
@@ -410,17 +368,20 @@ export default {
       background: white;
       border: 1px solid $clr-secondary;
     }
+
     &:focus.has-suggestions {
       // border: 1px solid $clr-secondary;
       border-bottom: 0;
     }
   }
+
   .suggestions {
     position: absolute;
     top: 38px;
     width: 100%;
     background: white;
     z-index: 10;
+
     .icon {
       color: $clr-primary;
       // border: 1px solid $clr-secondary;
@@ -436,21 +397,26 @@ export default {
       margin-top: -12px;
       position: absolute;
     }
+
     .suggestion {
       border: 1px solid transparent;
       cursor: pointer;
-      > div {
+
+      >div {
         display: flex;
         flex-direction: row;
         align-items: center;
+
         span {
           flex: 1;
           flex-grow: 8;
         }
+
         .badge {
           flex: 1;
         }
       }
+
       &.selected {
         background: rgba($clr-accent-secondary, 0.5);
         border-color: rgba($clr-accent-secondary, 0.75);
@@ -459,31 +425,34 @@ export default {
   }
 }
 
-.search-bar .input-group > .form-control {
+.search-bar .input-group>.form-control {
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
   z-index: 1;
 }
 
-.search-box .search-bar .input-group > .form-control {
+.search-box .search-bar .input-group>.form-control {
   background: white;
+
   &:focus {
     border-width: 0;
   }
 }
 
 .bg-dark {
-  .search-bar .input-group > .form-control {
+  .search-bar .input-group>.form-control {
     border-top-width: 0;
     border-left-width: 0;
     border-right-width: 0;
     background: transparent;
+
     &:focus {
       background: transparent;
     }
   }
 }
+
 // .search-bar .input-group > .form-control {
 //   color: white;
 // }
@@ -508,57 +477,54 @@ export default {
 //   background: rgb(253,233,119);
 //   background: linear-gradient(90deg, rgba(253,233,119,1) 0%, rgba(253,233,119,0) 100%);
 //   width: 100px;
-// }
-</style>
+// }</style>
 
-<i18n lang="json">
-  {
-    "en": {
-      "placeholder" : {
-        "search": "search for ... | add keyword to search"
-      },
-      "label": {
-        "string": {
-          "title": "Search in article contents"
-        },
-        "mention": {
-          "title": "in contents ..."
-        },
-        "title": {
-          "title": "Search in article titles"
-        },
-        "topic": {
-          "title": "suggested topics",
-          "moreLikeThis": "More Topics ..."
-        },
-        "person": {
-          "title": "suggested people",
-          "moreLikeThis": "More Persons ..."
-        },
-        "location": {
-          "title": "suggested locations",
-          "moreLikeThis": "More Locations ..."
-        },
-        "collection": {
-          "title": "suggested collections",
-          "moreLikeThis": "More Collections ..."
-        },
-        "newspaper": {
-          "title": "suggested newspaper",
-          "moreLikeThis": "More Newspapers ..."
-        },
-        "daterange": {
-          "title": "filter by date of publication",
-          "item": "From {start} to {end}"
-        }
-      }
+<i18n lang="json">{
+  "en": {
+    "placeholder": {
+      "search": "search for ... | add keyword to search"
     },
-    "nl": {
-      "person": "Persoon",
-      "location": "Locatie",
-      "daterange": "Periode",
-      "topic": "Onderwerp",
-      "collection": "Collectie"
+    "label": {
+      "string": {
+        "title": "Search in article contents"
+      },
+      "mention": {
+        "title": "in contents ..."
+      },
+      "title": {
+        "title": "Search in article titles"
+      },
+      "topic": {
+        "title": "suggested topics",
+        "moreLikeThis": "More Topics ..."
+      },
+      "person": {
+        "title": "suggested people",
+        "moreLikeThis": "More Persons ..."
+      },
+      "location": {
+        "title": "suggested locations",
+        "moreLikeThis": "More Locations ..."
+      },
+      "collection": {
+        "title": "suggested collections",
+        "moreLikeThis": "More Collections ..."
+      },
+      "newspaper": {
+        "title": "suggested newspaper",
+        "moreLikeThis": "More Newspapers ..."
+      },
+      "daterange": {
+        "title": "filter by date of publication",
+        "item": "From {start} to {end}"
+      }
     }
+  },
+  "nl": {
+    "person": "Persoon",
+    "location": "Locatie",
+    "daterange": "Periode",
+    "topic": "Onderwerp",
+    "collection": "Collectie"
   }
-</i18n>
+}</i18n>
