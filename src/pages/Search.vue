@@ -24,13 +24,13 @@
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
             <label class="mr-1">{{ $t('label_group') }}</label>
-            <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm"
-              variant="outline-primary"></i-dropdown>
+            <i-dropdown v-model="groupBy" v-bind:options="groupByOptions" size="sm" variant="outline-primary"
+              data-testid="group-by-dropdown"></i-dropdown>
           </b-navbar-nav>
           <b-navbar-nav class="px-3 py-3 border-right">
             <label class="mr-1">{{ $t('label_order') }}</label>
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"
-              right></i-dropdown>
+            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" right
+              data-testid="order-by-dropdown"></i-dropdown>
           </b-navbar-nav>
         </b-navbar>
 
@@ -129,7 +129,7 @@
 
       <div class="p-1">
         <b-container fluid>
-          <b-row v-if="displayStyle === 'list'">
+          <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
             <b-col cols="12" v-for="(searchResult, index) in searchResults" v-bind:key="searchResult.uid">
               <search-results-list-item v-bind:checkbox="false" v-on:toggleSelected="toggleSelected(searchResult)"
                 v-bind:checked="isChecked(searchResult)" v-on:click="onClickResult(searchResult)"

@@ -1,29 +1,17 @@
 <template>
-  <div class="filter-range">
+  <div class="filter-range" data-testid="filter-range">
     <base-title-bar>
       {{ $t(`label.${facet.type}.filterTitle`) }}
       <info-button class="ml-1" :target="facet.type" name="filter-range" />
 
       <template v-slot:options>
-        <b-button
-          size="sm"
-          variant="outline-primary"
-          @click="handleResetFilters"
-          v-if="value.length === 2"
-        >
+        <b-button size="sm" variant="outline-primary" @click="handleResetFilters" v-if="value.length === 2">
           {{ $t('actions.reset') }}
         </b-button>
       </template>
     </base-title-bar>
-    <histogram-slider
-      class="histo-slider"
-      v-model="sliderValue"
-      :buckets="sliderBuckets"
-      :only-range-labels="true"
-      :scale-type="'symlog'"
-      :sliderValue="value"
-      @change="changeValue"
-    />
+    <histogram-slider class="histo-slider" v-model="sliderValue" :buckets="sliderBuckets" :only-range-labels="true"
+      :scale-type="'symlog'" :sliderValue="value" @change="changeValue" />
 
     <div class="p-2" v-if="valuesHaveChanged">
       <b-row no-gutters>
