@@ -1,15 +1,10 @@
 <template>
   <div class="filter-timeline">
-    <base-title-bar
-      >{{ $t(`label.timeline.${groupBy}`) }}
+    <base-title-bar>{{ $t(`label.timeline.${groupBy}`) }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" />
       <template v-slot:options>
-        <b-button
-          v-show="filters.length"
-          size="sm"
-          variant="outline-primary"
-          @click="resetFilters()"
-        >
+        <b-button v-show="filters.length" size="sm" variant="outline-primary" @click="resetFilters()"
+          data-testid="reset-filters-button">
           {{ $t('actions.reset') }}
         </b-button>
       </template>
@@ -22,11 +17,8 @@
         </span>
         <li v-if="!disableRelativeDisplayStyle" class="form-inline">
           <form class="form-inline">
-            <radio-group
-                :modelValue="displayStyle"
-                @update:modelValue="displayStyle = $event"
-                :options="displayStyleOptions"
-                type="button" />
+            <radio-group :modelValue="displayStyle" @update:modelValue="displayStyle = $event"
+              :options="displayStyleOptions" type="button" />
             <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
           </form>
         </li>
@@ -34,15 +26,8 @@
     </base-title-bar>
 
     <!--  timeline vis -->
-    <timeline
-      class="bg-light pb-2 mb-3"
-      :values="values"
-      :brushable="false"
-      :brush="brush"
-      @brush-end="onTimelineBrushEnd"
-      :percentage="isPercentage"
-      @brushed="onTimelineBrushed"
-    >
+    <timeline class="bg-light pb-2 mb-3" :values="values" :brushable="false" :brush="brush"
+      @brush-end="onTimelineBrushEnd" :percentage="isPercentage" @brushed="onTimelineBrushed">
       <template v-slot="tooltipScope">
         <div v-if="tooltipScope.tooltip.item">
           {{ tooltipScope?.tooltip?.item?.t ? $d(tooltipScope.tooltip.item.t, 'year') : '' }} &middot;
@@ -57,23 +42,16 @@
     </timeline>
 
     <div v-if="!temporaryFilter && !filters.length">
-      <b-button size="sm" variant="outline-primary" @click="addTemporaryDaterangeFilter">
+      <b-button size="sm" variant="outline-primary" @click="addTemporaryDaterangeFilter"
+        data-testid="add-new-date-filter-button">
         {{ $t('label.daterange.pick') }}
       </b-button>
     </div>
 
-    <div
-      class=" p-2 bg-white border rounded"
-      v-for="(filter, i) in filters"
-      :key="i"
-      style="box-shadow: var(--bs-box-shadow-sm)"
-    >
-      <filter-monitor
-        :filter="filter"
-        @daterange-changed="updateBrush($event)"
-        @changed="updateDaterangeFilterAtIndex($event, i)"
-        @remove="removeFilter(i)"
-      />
+    <div class=" p-2 bg-white border rounded" v-for="(filter, i) in filters" :key="i"
+      style="box-shadow: var(--bs-box-shadow-sm)">
+      <filter-monitor :filter="filter" @daterange-changed="updateBrush($event)"
+        @changed="updateDaterangeFilterAtIndex($event, i)" @remove="removeFilter(i)" />
     </div>
     <!-- temporary filter -->
     <div class="border p-2" v-if="temporaryFilter">
@@ -81,12 +59,7 @@
 
       <b-row no-gutters>
         <b-col class="pr-1">
-          <b-button
-            size="sm"
-            block
-            variant="outline-primary"
-            @click="removeTemporaryDaterangeFilter"
-          >
+          <b-button size="sm" block variant="outline-primary" @click="removeTemporaryDaterangeFilter">
             {{ $t('actions.dismiss') }}
           </b-button>
         </b-col>
@@ -301,8 +274,7 @@ export default {
 </script>
 
 <style lang="css" scoped></style>
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "label": {
       "timeline": {
@@ -354,5 +326,4 @@ export default {
       }
     }
   }
-}
-</i18n>
+}</i18n>

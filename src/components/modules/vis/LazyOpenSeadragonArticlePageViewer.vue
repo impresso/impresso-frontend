@@ -1,8 +1,8 @@
 <template>
-  <open-seadragon-viewer
-    v-bind:handler="handler"
-    v-observe-visibility="handleVisibilityChange">
-  </open-seadragon-viewer>
+  <div ref="viewer">
+    <open-seadragon-viewer v-bind:handler="handler" v-if="isVisible">
+    </open-seadragon-viewer>
+  </div>
 </template>
 
 <script>
@@ -22,6 +22,7 @@ export default {
   data: () => ({
     handler: mitt(),
     isVisible: false, // by default the item is not visible in the browser viewport
+    observer: undefined,
   }),
   props: {
     viewerOptions: {
@@ -43,11 +44,31 @@ export default {
       }
       this.handler.emit('fit-bounds-to-overlays');
     });
+
+    // old browser - load right away
+    if (!('IntersectionObserver' in window)) {
+      this.isVisible = true
+    }
+
+    this.observer = new IntersectionObserver((entries) => {
+      let entry = entries[0];
+
+      if (entries.length > 1) {
+        const intersectingEntry = entries.find((e) => e.isIntersecting);
+
+        if (intersectingEntry) {
+          entry = intersectingEntry;
+        }
+      }
+
+      this.isVisible = entry.isIntersecting
+      console.log('isVisible', this.isVisible)
+    })
+    if (this.observer) {
+      this.observer.observe(this.$refs.viewer)
+    }
   },
   methods: {
-    handleVisibilityChange(isVisible) {
-      this.isVisible = isVisible
-    },
     init() {
       if (!this.isVisible || !this.viewerOptions) return
       this.handler.emit('init', this.viewerOptions);
