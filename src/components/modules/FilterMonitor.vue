@@ -53,6 +53,7 @@
         size="sm"
         variant="transparent"
         @click="removeFilter"
+        data-testid="remove-filter-button"
       ></b-button>
     </div>
     <div class="items" :class="{ reduced: tooManyItems }">
