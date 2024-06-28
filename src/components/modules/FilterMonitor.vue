@@ -3,13 +3,21 @@
     <div v-if="checkbox">
       <!--  context -->
       <b-form-group>
-        <radio-group :modelValue="currentContext" @update:modelValue="currentContext = $event"
-          :options="checkboxContexts" type="radio" />
+        <radio-group
+          :modelValue="currentContext"
+          @update:modelValue="currentContext = $event"
+          :options="checkboxContexts"
+          type="radio"
+        />
       </b-form-group>
       <!--  operator -->
       <b-form-group v-if="currentContext === 'include' && availableItems.length > 1">
-        <radio-group :modelValue="editedFilter.op" @update:modelValue="editedFilter.op = $event"
-          :options="checkboxOperators" type="radio" />
+        <radio-group
+          :modelValue="editedFilter.op"
+          @update:modelValue="editedFilter.op = $event"
+          :options="checkboxOperators"
+          type="radio"
+        />
       </b-form-group>
     </div>
 
@@ -19,46 +27,83 @@
         <template v-slot:button-content>
           <span v-html="$t(`label.${type}.context.${currentContext}`)" />
         </template>
-        <b-dropdown-item v-for="option in contexts" v-bind:active="currentContext === option" v-bind:key="option"
-          v-on:click="currentContext = option"><span class="small"
-            v-html="$t(`label.${type}.context.${option}`)"></span></b-dropdown-item>
+        <b-dropdown-item
+          v-for="option in contexts"
+          v-bind:active="currentContext === option"
+          v-bind:key="option"
+          v-on:click="currentContext = option"
+          ><span class="small" v-html="$t(`label.${type}.context.${option}`)"></span
+        ></b-dropdown-item>
       </b-dropdown>
       <!--  operator -->
       <b-dropdown v-if="operators.length > 1" size="sm" variant="outline-primary">
         <template v-slot:button-content>
           <span v-html="$t(`op.${editedFilter.op}.${currentContext}`)" />
         </template>
-        <b-dropdown-item v-for="option in operators" v-bind:active="editedFilter.op === option" v-bind:key="option"
-          v-on:click="editedFilter.op = option"><span class="small"
-            v-html="$t(`op.${option}.${currentContext}`)"></span></b-dropdown-item>
+        <b-dropdown-item
+          v-for="option in operators"
+          v-bind:active="editedFilter.op === option"
+          v-bind:key="option"
+          v-on:click="editedFilter.op = option"
+          ><span class="small" v-html="$t(`op.${option}.${currentContext}`)"></span
+        ></b-dropdown-item>
       </b-dropdown>
-      <b-button class="dripicons-cross ms-auto ml-auto rounded p-0" size="sm" variant="transparent"
-        @click="removeFilter"></b-button>
+      <b-button
+        class="dripicons-cross ms-auto ml-auto rounded p-0 no-outline"
+        size="sm"
+        variant="transparent"
+        @click="removeFilter"
+      ></b-button>
     </div>
     <div class="items" :class="{ reduced: tooManyItems }">
       <div v-for="(item, idx) in filterItems" :key="idx" class="mt-2">
         <div v-if="RangeFacets.includes(type)">
-          <filter-number-range v-if="NumericRangeFacets.includes(type)" :start="parseInt(item.start, 10)"
-            :end="parseInt(item.end, 10)" @changed="handleRangeChanged" />
+          <filter-number-range
+            v-if="NumericRangeFacets.includes(type)"
+            :start="parseInt(item.start, 10)"
+            :end="parseInt(item.end, 10)"
+            @changed="handleRangeChanged"
+          />
           <div v-if="type === 'daterange'">
-            <FilterDateRangeCalendar :show-calendar="!checkbox" :start-date="new Date(item.start)"
-              :end-date="new Date(item.end)" :min-date="minDate" :max-date="maxDate" @changed="handleRangeChanged" />
+            <FilterDateRangeCalendar
+              :show-calendar="!checkbox"
+              :start-date="new Date(item.start)"
+              :end-date="new Date(item.end)"
+              :min-date="minDate"
+              :max-date="maxDate"
+              @changed="handleRangeChanged"
+            />
           </div>
         </div>
-        <b-form-checkbox v-else-if="StringTypes.includes(type)" v-model="checkedItems[item.uid]"
-          @update:modelValue="toggleFilterItem($event, item.uid)">
-          <b-form-input size="sm" placeholder="" class="accepted" v-model="item.uid" @click.prevent.stop
-            @update:modelValue="changeStringFilterItemAtIndex($event, idx)">
+        <b-form-checkbox
+          v-else-if="StringTypes.includes(type)"
+          v-model="checkedItems[item.uid]"
+          @update:modelValue="toggleFilterItem($event, item.uid)"
+        >
+          <b-form-input
+            size="sm"
+            placeholder=""
+            class="accepted"
+            v-model="item.uid"
+            @click.prevent.stop
+            @update:modelValue="changeStringFilterItemAtIndex($event, idx)"
+          >
           </b-form-input>
         </b-form-checkbox>
         <div v-else class="d-flex text-small">
-          <b-form-checkbox v-model="checkedItems[item.uid]" @update:modelValue="toggleFilterItem($event, item.uid)">
+          <b-form-checkbox
+            v-model="checkedItems[item.uid]"
+            @update:modelValue="toggleFilterItem($event, item.uid)"
+          >
           </b-form-checkbox>
           <item-selector hide-icon :uid="item.uid" :item="item" :type="type">
             <item-label :item="item" :type="type" />
             <span v-if="!item.uid">...</span>
-            <span v-if="item.count">&nbsp;(<span
-                v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)&nbsp;</span>
+            <span v-if="item.count"
+              >&nbsp;(<span
+                v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"
+              />)&nbsp;</span
+            >
           </item-selector>
         </div>
       </div>
@@ -68,24 +113,42 @@
           <span v-if="type === 'topic'" v-html="item.htmlExcerpt"></span>
           <span v-if="['person', 'location', 'newspaper'].indexOf(type) !== -1">{{
             item.name
-            }}</span>
+          }}</span>
           <span v-if="['language', 'country'].indexOf(type) !== -1">{{
             $t(`buckets.${type}.${item.uid}`)
-            }}</span>
+          }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
-          <span v-if="item.count">(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span>
+          <span v-if="item.count"
+            >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
+          >
           <item-selector :uid="item.uid" :item="item" :type="type" />
-          <b-button class="dripicons-cross ml-auto" variant="transparent" size="sm"
-            style="padding:0.25rem 0.5rem 0 0.5rem" @click.prevent.stop="removeItem(idx)" />
+          <b-button
+            class="dripicons-cross ml-auto"
+            variant="transparent"
+            size="sm"
+            style="padding: 0.25rem 0.5rem 0 0.5rem"
+            @click.prevent.stop="removeItem(idx)"
+          />
         </div>
       </div>
       <!-- string to add -->
       <div class="strings-to-add m-2 ml-4" v-if="stringsToAdd.length">
         <div v-for="(item, idx) in stringsToAdd" :key="idx" class="mb-2 d-flex">
-          <b-form-input size="sm" placeholder="..." class="mr-1" v-model="item.uid" @click.prevent.stop>
+          <b-form-input
+            size="sm"
+            placeholder="..."
+            class="mr-1"
+            v-model="item.uid"
+            @click.prevent.stop
+          >
           </b-form-input>
-          <b-button class="dripicons-cross" variant="transparent" size="sm" style="padding:0.25rem 0.5rem 0 0.5rem"
-            @click.prevent.stop="removeStringItem(idx)" />
+          <b-button
+            class="dripicons-cross"
+            variant="transparent"
+            size="sm"
+            style="padding: 0.25rem 0.5rem 0 0.5rem"
+            @click.prevent.stop="removeStringItem(idx)"
+          />
         </div>
       </div>
     </div>
@@ -93,15 +156,24 @@
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
-            <b-button size="sm" variant="outline-primary" block
-              v-on:click.prevent="showEntitySuggester = !showEntitySuggester">
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              block
+              v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
+            >
               {{ $t('actions.addUsingEmbeddings') }}
             </b-button>
           </div>
         </b-col>
       </b-row>
-      <entity-suggester v-if="showEntitySuggester" :filter="filter" :type="type" @filter-changed="handleFilterChanged"
-        class="border p-2 bg-light" />
+      <entity-suggester
+        v-if="showEntitySuggester"
+        :filter="filter"
+        :type="type"
+        @filter-changed="handleFilterChanged"
+        class="border p-2 bg-light"
+      />
     </div>
     <!-- @entity-selected="addEmbeddingSuggestion"/> -->
     <!-- add new string as an OR filter -->
@@ -109,29 +181,52 @@
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
-            <b-button size="sm" variant="outline-primary" block @click.prevent.stop="addStringItem(type)"
-              :disabled="hasEmptyStringItems">
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              block
+              @click.prevent.stop="addStringItem(type)"
+              :disabled="hasEmptyStringItems"
+            >
               {{ $t('actions.addItem') }}
             </b-button>
           </div>
         </b-col>
         <b-col cols="6">
           <div class="ml-1">
-            <b-button size="sm" variant="outline-primary" block v-on:click.prevent="showEmbeddings = !showEmbeddings">
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              block
+              v-on:click.prevent="showEmbeddings = !showEmbeddings"
+            >
               {{ $t('actions.addUsingEmbeddings') }}
             </b-button>
           </div>
         </b-col>
       </b-row>
-      <embeddings-search v-if="showEmbeddings" :filter="editedFilter" @click.stop.prevent
-        @embdding-selected="addEmbeddingSuggestion" />
+      <embeddings-search
+        v-if="showEmbeddings"
+        :filter="editedFilter"
+        @click.stop.prevent
+        @embdding-selected="addEmbeddingSuggestion"
+      />
     </div>
-    <b-button class="mt-2" v-if="hasChanges" block size="sm" variant="outline-primary" @click="applyChanges()">
-      <span v-if="validStringsToAdd.length > 0 || itemsToAdd.length > 0 || excludedItemsIds.length > 0">
+    <b-button
+      class="mt-2"
+      v-if="hasChanges"
+      block
+      size="sm"
+      variant="outline-primary"
+      @click="applyChanges()"
+    >
+      <span
+        v-if="validStringsToAdd.length > 0 || itemsToAdd.length > 0 || excludedItemsIds.length > 0"
+      >
         {{
           $t('actions.applyChangesDetailed', {
             added: validStringsToAdd.length || itemsToAdd.length,
-            removed: excludedItemsIds.length,
+            removed: excludedItemsIds.length
           })
         }}
       </span>
@@ -154,7 +249,7 @@ import {
   toCanonicalFilter,
   toSerializedFilter,
   RangeFacets,
-  NumericRangeFacets,
+  NumericRangeFacets
 } from '@/logic/filters'
 
 const StringTypes = ['string', 'title']
@@ -164,7 +259,7 @@ const EntityTypes = ['person', 'location', 'entity']
  * Use with `v-model`.
  */
 export default {
-  emits: ['changed', 'remove', 'daterange-changed'],
+  emits: ['changed', 'removed', 'daterange-changed'],
   data: () => ({
     showEmbeddings: false,
     showEntitySuggester: false,
@@ -174,25 +269,25 @@ export default {
     RangeFacets,
     NumericRangeFacets,
     StringTypes,
-    EntityTypes,
+    EntityTypes
   }),
   props: {
     operators: {
       type: Array,
-      default: () => ['OR'],
+      default: () => ['OR']
     },
     contexts: {
       type: Array,
-      default: () => ['include', 'exclude'],
+      default: () => ['include', 'exclude']
     },
     precisions: {
       type: Array,
-      default: () => ['fuzzy', 'exact', 'soft'],
+      default: () => ['fuzzy', 'exact', 'soft']
     },
     /* Render context, operators as checkboxes */
     checkbox: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** @type {import('vue').PropType<import('../../models/models').Filter>} */
     filter: Object,
@@ -200,7 +295,7 @@ export default {
     itemsToAdd: {
       /** @type {import('vue').PropType<Array<import('../../models/models').Entity>>} */
       type: Array,
-      default: () => [],
+      default: () => []
     },
     // ony required when type is daterange. This is implemented in FilterFacetDateRange component
     minDate: {
@@ -210,7 +305,7 @@ export default {
         const date = new Date(window.impressoDocumentsYearSpan.firstYear + '-01-01')
         date.setUTCHours(0, 0, 0, 0)
         return date
-      },
+      }
     },
     maxDate: {
       type: Date,
@@ -219,8 +314,8 @@ export default {
         const date = new Date(window.impressoDocumentsYearSpan.lastYear + '-12-31')
         date.setUTCHours(23, 59, 59, 0)
         return date
-      },
-    },
+      }
+    }
   },
   computed: {
     tooManyItems() {
@@ -251,19 +346,19 @@ export default {
     checkboxPrecisions() {
       return this.precisions.map(value => ({
         text: this.$t(`label.${this.type}.precision.${value}`),
-        value,
+        value
       }))
     },
     checkboxContexts() {
       return this.contexts.map(value => ({
         text: this.$t(`label.${this.type}.context.${value}`),
-        value,
+        value
       }))
     },
     checkboxOperators() {
       return this.operators.map(value => ({
         text: this.$t(`op.${value}.${this.currentContext}`),
-        value,
+        value
       }))
     },
     serializedFilters() {
@@ -274,7 +369,7 @@ export default {
         this.itemsToAdd.length,
         toSerializedFilter(this.filter),
         toSerializedFilter(this.editedFilter),
-        toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter),
+        toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
       ]
     },
     filterItems() {
@@ -294,14 +389,14 @@ export default {
       },
       set(context) {
         this.editedFilter = { ...this.editedFilter, context }
-      },
-    },
+      }
+    }
   },
   methods: {
     removeFilter(e) {
       e.preventDefault()
-      console.info('[FilterMonitor] @remove')
-      this.$emit('remove', this.filter)
+      console.info('[FilterMonitor] @removed')
+      this.$emit('removed', this.filter)
     },
     applyChanges() {
       const { type } = this.editedFilter
@@ -312,7 +407,7 @@ export default {
           return acc
         }, {})
         const availableItemsIds = [
-          ...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid)),
+          ...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid))
         ]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
         const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
@@ -320,14 +415,14 @@ export default {
         this.$emit('changed', {
           ...this.editedFilter,
           items: selectedItems,
-          q: selectedItemsIds,
+          q: selectedItemsIds
         })
       } else if (StringTypes.includes(type)) {
         const newFilter = {
           ...this.editedFilter,
           q: this.editedFilter.q
             .filter(d => !this.excludedItemsIds.includes(d))
-            .concat(this.validStringsToAdd.map(d => d.uid)),
+            .concat(this.validStringsToAdd.map(d => d.uid))
         }
         this.$emit('changed', newFilter)
         this.stringsToAdd = []
@@ -338,7 +433,7 @@ export default {
     addStringItem() {
       this.stringsToAdd.push({
         uid: '',
-        checked: true,
+        checked: true
       })
     },
     removeStringItem(idx) {
@@ -369,7 +464,7 @@ export default {
     addEmbeddingSuggestion(embedding) {
       this.stringsToAdd.push({
         uid: embedding,
-        checked: true,
+        checked: true
       })
       // this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
       // this.editedFilter.precisions = 'soft'
@@ -379,16 +474,16 @@ export default {
       this.editedFilter = {
         ...this.editedFilter,
         // items: [item],
-        q,
+        q
       }
       if (!NumericRangeFacets.includes(this.editedFilter.type))
         this.$emit('daterange-changed', this.editedFilter)
     },
     handleFilterChanged({ items }) {
       console.info('handleFilterChanged')
-      this.itemsToAdd = items  // eslint-disable-line
+      this.itemsToAdd = items // eslint-disable-line
       // TODO:  exclude item already present
-    },
+    }
   },
   components: {
     // FilterDaterange,
@@ -399,7 +494,7 @@ export default {
     ItemSelector,
     FilterNumberRange,
     EntitySuggester,
-    RadioGroup,
+    RadioGroup
   },
   watch: {
     /**
@@ -414,15 +509,15 @@ export default {
         if (this.itemsToAdd) {
           this.editedFilter = {
             ...this.editedFilter,
-            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid)),
+            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
           }
         }
         this.excludedItemsIds = []
       },
       immediate: true,
-      deep: true,
-    },
-  },
+      deep: true
+    }
+  }
 }
 </script>
 
@@ -439,8 +534,13 @@ export default {
   max-height: 200px;
   overflow: scroll;
 }
+
+.FilterMonitor .no-outline:focus {
+  box-shadow: none;
+}
 </style>
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "op": {
       "OR": {
@@ -618,4 +718,5 @@ export default {
       "language": "Taal"
     }
   }
-}</i18n>
+}
+</i18n>
