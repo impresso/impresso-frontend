@@ -1,5 +1,5 @@
 <template>
-  <div class="facet-explorer">
+  <div class="facet-explorer" data-testid="facet-explorer">
     <div>
       <!-- The Loop -->
       <div class="position-relative">
@@ -7,34 +7,40 @@
           role="group"
           tabindex="-1"
           class="position-relative px-3 pt-2 pb-5 bv-no-focus-ring"
-          style="min-height: 4em; max-height: 16em; overflow: scroll">
-          <b-form-checkbox v-for="(bucket, idx) in buckets"
-                           v-bind:key="idx"
-                           :modelValue="bucket.val"
-                           class="d-block"
-                           @update:modelValue="handleChecked($event, bucket.val)">
+          style="min-height: 4em; max-height: 16em; overflow: scroll"
+          data-testid="facet-explorer-list"
+        >
+          <b-form-checkbox
+            v-for="(bucket, idx) in buckets"
+            v-bind:key="idx"
+            :modelValue="selectedIds.includes(bucket.val)"
+            class="d-block"
+            @update:modelValue="handleChecked($event, bucket.val)"
+            data-testid="facet-explorer-list-item-checkbox"
+          >
             <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
             <span v-if="bucket.count > -1">
-              (<span v-html="$tc('numbers.results', bucket.count, { n : $n(bucket.count) })"/>)
+              (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
             </span>
-            <item-selector :uid="bucket.val" :item="bucket.item" :type="type"/>
+            <item-selector :uid="bucket.val" :item="bucket.item" :type="type" />
             <div class="matches" v-if="bucket.item && bucket.item.matches">
-              <span v-for="(match, i) in bucket.item.matches" v-html="match" :key="i"/>
+              <span v-for="(match, i) in bucket.item.matches" v-html="match" :key="i" />
             </div>
           </b-form-checkbox>
         </div>
         <div class="fixed-pagination-footer p-1 mb-2 small">
-          <slot name="pagination">
-          </slot>
+          <slot name="pagination"> </slot>
         </div>
       </div>
     </div>
     <!-- Apply! -->
-    <div class="p-2 border-top text-center" v-if='selectedIdsChanged'>
+    <div class="p-2 border-top text-center" v-if="selectedIdsChanged">
       <b-button
         @click="applyFilter()"
-        size="sm" variant="success"
-        v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"></b-button>
+        size="sm"
+        variant="success"
+        v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"
+      ></b-button>
     </div>
   </div>
 </template>
@@ -44,7 +50,7 @@ import ItemLabel from './lists/ItemLabel.vue'
 import ItemSelector from './ItemSelector.vue'
 
 function getEntitiesForIds(ids, entities = []) {
-  return ids.map(id => entities.find(entity => entity && entity.uid  === id))
+  return ids.map(id => entities.find(entity => entity && entity.uid === id))
 }
 
 export default {
@@ -52,7 +58,7 @@ export default {
   data: () => ({
     /** @type {string[]} */
     selectedIds: [],
-    selectedIdsEntities: [],
+    selectedIdsEntities: []
   }),
   props: {
     modelValue: {
@@ -74,17 +80,15 @@ export default {
       throw new Error('"filter" type must be equal to "filterType"')
   },
   computed: {
-    filter() { return this.modelValue },
+    filter() {
+      return this.modelValue
+    },
     // Filter type https://github.com/impresso/impresso-jscommons/blob/master/proto/query.proto#L19-L45
     type() {
-      return this.filter && this.filter.type
-        ? this.filter.type
-        : this.filterType
+      return this.filter && this.filter.type ? this.filter.type : this.filterType
     },
     filterIds() {
-      return this.filter && Array.isArray(this.filter.q)
-        ? this.filter.q
-        : []
+      return this.filter && Array.isArray(this.filter.q) ? this.filter.q : []
     },
     selectedIdsChanged() {
       const a = JSON.stringify([...this.selectedIds].sort())
@@ -98,8 +102,7 @@ export default {
         this.selectedIds.forEach((id, idx) => {
           if (id === val) this.selectedIds.splice(idx, 1)
         })
-      }
-      else this.selectedIds.push(val)
+      } else this.selectedIds.push(val)
     },
     applyFilter() {
       const entities = getEntitiesForIds(
@@ -107,15 +110,13 @@ export default {
         this.selectedIdsEntities.concat(this.buckets.map(({ item }) => item))
       )
 
-      const originalFilter = this.filter
-        ? this.filter
-        : { type: this.filterType }
+      const originalFilter = this.filter ? this.filter : { type: this.filterType }
       const updatedFilter = Object.assign({}, originalFilter, {
         q: this.selectedIds,
         items: entities
       })
       this.$emit('update:modelValue', updatedFilter)
-    },
+    }
   },
   watch: {
     filter: {
@@ -129,13 +130,12 @@ export default {
   },
   components: {
     ItemLabel,
-    ItemSelector,
-  },
-};
+    ItemSelector
+  }
+}
 </script>
 
 <style scoped lang="less">
-
 .fixed-pagination-footer {
   position: absolute;
   bottom: 0;
@@ -147,7 +147,6 @@ export default {
 </style>
 <i18n lang="json">
 {
-  "en": {
-  }
+  "en": {}
 }
 </i18n>
