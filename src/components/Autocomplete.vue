@@ -1,31 +1,59 @@
 <template>
   <section class="search-bar" ref="autocomplete">
     <div class="input-group">
-      <b-form-input :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
-        :placeholder="$tc('placeholder.search', filterCount)" v-model.trim="q" @update:modelValue="search"
-        @focus="selectInput" @blur="blurHandler" @keyup="keyup" data-testid="autocomplete-input" />
+      <b-form-input
+        :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
+        :placeholder="$tc('placeholder.search', filterCount)"
+        v-model.trim="q"
+        @update:modelValue="search"
+        @focus="selectInput"
+        @blur="blurHandler"
+        @keyup="keyup"
+        data-testid="autocomplete-input"
+      />
       <div class="input-group-append">
-        <button type="button" class="btn btn-outline-primary" ref="searchButton"
-          :title="$tc('placeholder.search', filterCount)" @click="submit({ type: 'string', q })"
-          data-testid="add-keyword-button">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          ref="searchButton"
+          :title="$tc('placeholder.search', filterCount)"
+          @click="submit({ type: 'string', q })"
+          data-testid="add-keyword-button"
+        >
           <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
           <div v-else class="d-flex search-submit dripicons-search"></div>
         </button>
-        <button type="button" class="btn btn-outline-primary" :title="$t('actions.addFilter')" @click="showExplorer"
-          data-testid="add-filter-button">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          :title="$t('actions.addFilter')"
+          @click="showExplorer"
+          data-testid="add-filter-button"
+        >
           <div class="d-flex dripicons-experiment"></div>
         </button>
       </div>
     </div>
 
-    <div class="suggestions border-left border-right border-bottom border-primary drop-shadow" v-show="showSuggestions">
+    <div
+      class="suggestions border-left border-right border-bottom border-primary drop-shadow"
+      v-show="showSuggestions"
+    >
       <div class="border-bottom">
-        <div class="suggestion p-1" v-for="(suggestion, index) in staticSuggestions" v-bind:key="index"
-          @click="submitStaticSuggestion(suggestion)" :data-idx="suggestion.idx" @mouseover="select(suggestion)"
-          :class="{ selected: selectedIndex === suggestion.idx }">
+        <div
+          class="suggestion p-1"
+          v-for="(suggestion, index) in staticSuggestions"
+          v-bind:key="index"
+          @click="submitStaticSuggestion(suggestion)"
+          :data-idx="suggestion.idx"
+          @mouseover="select(suggestion)"
+          :class="{ selected: selectedIndex === suggestion.idx }"
+        >
           <div :class="`suggestion-${suggestion.type}`">
             <span class="small" v-if="suggestion.h" v-html="suggestion.h" />
-            <span class="small" v-else>...<b>{{ q }}</b></span>
+            <span class="small" v-else
+              >...<b>{{ q }}</b></span
+            >
             <b-badge variant="light" class="border border-medium">
               {{ $t(`label.${suggestion.type}.title`) }}
             </b-badge>
@@ -39,21 +67,35 @@
           </div>
           <div class="col">
             <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
-            <div v-for="(s, j) in suggestionIndex[type]" :key="j" @click="submit(s)" @mouseover="select(s)"
-              :data-idx="s.idx" class="suggestion pr-1 pl-2 py-1" :class="{
-                selected: selectedIndex === s.idx,
-              }">
+            <div
+              v-for="(s, j) in suggestionIndex[type]"
+              :key="j"
+              @click="submit(s)"
+              @mouseover="select(s)"
+              :data-idx="s.idx"
+              class="suggestion pr-1 pl-2 py-1"
+              :class="{
+                selected: selectedIndex === s.idx
+              }"
+            >
               <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
-                <span class="small">... <b>{{ q }}</b></span>
+                <span class="small"
+                  >... <b>{{ q }}</b></span
+                >
                 <b-badge variant="light" class="border border-medium">
-                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge>
+                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge
+                >
               </div>
               <div v-else :class="`${type} small`">
                 <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
-                <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
+                <span
+                  v-if="['collection', 'newspaper'].indexOf(type) !== -1"
+                  v-html="s.item.name"
+                />
                 <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
-                <span v-if="s.type === 'daterange'">{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end,
-                  'short') }}</span>
+                <span v-if="s.type === 'daterange'"
+                  >{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}</span
+                >
               </div>
             </div>
           </div>
@@ -61,9 +103,15 @@
       </div>
     </div>
 
-    <explorer v-model="explorerFilters" :is-visible="explorerVisible" @onHide="handleExplorerHide"
-      :searching-enabled="true" :initial-search-query="q" :initial-type="explorerInitialType"
-      :included-types="explorerIncludedTypes" />
+    <explorer
+      v-model="explorerFilters"
+      :is-visible="explorerVisible"
+      @onHide="handleExplorerHide"
+      :searching-enabled="true"
+      :initial-search-query="q"
+      :initial-type="explorerInitialType"
+      :included-types="explorerIncludedTypes"
+    />
   </section>
 </template>
 
@@ -83,11 +131,11 @@ export default {
     q: '',
     initialSuggestions: [
       {
-        type: 'string',
+        type: 'string'
       },
       {
-        type: 'title',
-      },
+        type: 'title'
+      }
     ],
     recentSuggestions: [],
     collectionSuggestions: [],
@@ -98,23 +146,23 @@ export default {
     maxSelectedIndex: 0,
     selectableSuggestions: [],
     showSuggestions: false,
-    explorerVisible: false,
+    explorerVisible: false
   }),
   emits: ['submit', 'submitEmpty', 'input-focus'],
   props: {
     variant: {
       type: String,
-      default: 'primary',
+      default: 'primary'
     },
     explorerIncludedTypes: {
       type: Array,
-      default: () => ['newspaper', 'topic', 'location', 'person', 'collection'],
+      default: () => ['newspaper', 'topic', 'location', 'person', 'collection']
     },
     /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   beforeMount() {
     const autocomplete = ref(this.$refs.autocomplete)
@@ -129,7 +177,7 @@ export default {
     staticSuggestions() {
       return this.initialSuggestions.concat(this.recentSuggestions).map((d, idx) => ({
         ...d,
-        idx,
+        idx
       }))
     },
     explorerInitialType() {
@@ -147,7 +195,7 @@ export default {
     suggestionIndex() {
       const key = 'type'
       const index = this.suggestions.reduce((reduced, item) => {
-        ; (reduced[item[key]] = reduced[item[key]] || []).push(item)
+        ;(reduced[item[key]] = reduced[item[key]] || []).push(item)
         return reduced
       }, {})
 
@@ -161,7 +209,7 @@ export default {
             // add correct index to choice
             return {
               ...d,
-              idx,
+              idx
             }
           })
           // exclude extra suggestions for mentions
@@ -171,7 +219,7 @@ export default {
             index[type].push({
               type,
               fake: true,
-              idx,
+              idx
             })
           }
         }
@@ -197,13 +245,13 @@ export default {
         const filter = filters[0]
         this.$emit('submit', filter)
         this.q = ''
-      },
+      }
     },
     filterCount() {
       return typeof this.filters === 'undefined'
         ? 1
         : this.filters.filter(d => d.type !== 'hasTextContents').length + 1
-    },
+    }
   },
   methods: {
     showExplorer() {
@@ -240,7 +288,7 @@ export default {
         const res = this.autocompleteStore.suggestRecentQuery(this.q)
         this.recentSuggestions = res.map(d => ({
           ...d,
-          type: 'string',
+          type: 'string'
         }))
       }
 
@@ -266,7 +314,7 @@ export default {
         console.info('submitStaticSuggestion', type, sq)
         this.submit({
           type,
-          q: sq,
+          q: sq
         })
         this.q = ''
       }
@@ -284,8 +332,8 @@ export default {
             FilterFactory.create({
               type,
               q: [sq],
-              op: 'OR',
-            }),
+              op: 'OR'
+            })
           )
           this.q = ''
         } else {
@@ -297,8 +345,8 @@ export default {
           FilterFactory.create({
             type,
             q: [item.uid],
-            items: [item],
-          }),
+            items: [item]
+          })
         )
         this.q = ''
       }
@@ -320,7 +368,7 @@ export default {
           console.info(
             '@keyup ENTER',
             this.selectedIndex,
-            this.selectableSuggestions[this.selectedIndex],
+            this.selectableSuggestions[this.selectedIndex]
           )
           this.submit(this.selectableSuggestions[this.selectedIndex])
           this.selectInput(event)
@@ -343,11 +391,11 @@ export default {
       } else if (this.selectedIndex < 0) {
         this.selectedIndex = this.maxSelectedIndex
       }
-    },
+    }
   },
   components: {
-    Explorer,
-  },
+    Explorer
+  }
 }
 </script>
 
@@ -402,7 +450,7 @@ export default {
       border: 1px solid transparent;
       cursor: pointer;
 
-      >div {
+      > div {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -425,14 +473,14 @@ export default {
   }
 }
 
-.search-bar .input-group>.form-control {
+.search-bar .input-group > .form-control {
   border-top-width: 0;
   border-left-width: 0;
   border-right-width: 0;
   z-index: 1;
 }
 
-.search-box .search-bar .input-group>.form-control {
+.search-box .search-bar .input-group > .form-control {
   background: white;
 
   &:focus {
@@ -441,7 +489,7 @@ export default {
 }
 
 .bg-dark {
-  .search-bar .input-group>.form-control {
+  .search-bar .input-group > .form-control {
     border-top-width: 0;
     border-left-width: 0;
     border-right-width: 0;
@@ -477,9 +525,11 @@ export default {
 //   background: rgb(253,233,119);
 //   background: linear-gradient(90deg, rgba(253,233,119,1) 0%, rgba(253,233,119,0) 100%);
 //   width: 100px;
-// }</style>
+// }
+</style>
 
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "placeholder": {
       "search": "search for ... | add keyword to search"
@@ -527,4 +577,5 @@ export default {
     "topic": "Onderwerp",
     "collection": "Collectie"
   }
-}</i18n>
+}
+</i18n>
