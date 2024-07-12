@@ -9,17 +9,27 @@
         @focus="selectInput"
         @blur="blurHandler"
         @keyup="keyup"
+        data-testid="autocomplete-input"
       />
       <div class="input-group-append">
-        <button type="button" class="btn btn-outline-primary"
+        <button
+          type="button"
+          class="btn btn-outline-primary"
           ref="searchButton"
           :title="$tc('placeholder.search', filterCount)"
           @click="submit({ type: 'string', q })"
+          data-testid="add-keyword-button"
         >
           <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
           <div v-else class="d-flex search-submit dripicons-search"></div>
         </button>
-        <button type="button" class="btn btn-outline-primary" :title="$t('actions.addFilter')" @click="showExplorer">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          :title="$t('actions.addFilter')"
+          @click="showExplorer"
+          data-testid="add-filter-button"
+        >
           <div class="d-flex dripicons-experiment"></div>
         </button>
       </div>
@@ -29,7 +39,7 @@
       class="suggestions border-left border-right border-bottom border-primary drop-shadow"
       v-show="showSuggestions"
     >
-      <div class="border-bottom ">
+      <div class="border-bottom">
         <div
           class="suggestion p-1"
           v-for="(suggestion, index) in staticSuggestions"
@@ -44,9 +54,9 @@
             <span class="small" v-else
               >...<b>{{ q }}</b></span
             >
-            <b-badge variant="light" class="border border-medium">{{
-              $t(`label.${suggestion.type}.title`)
-            }}</b-badge>
+            <b-badge variant="light" class="border border-medium">
+              {{ $t(`label.${suggestion.type}.title`) }}
+            </b-badge>
           </div>
         </div>
       </div>
@@ -65,7 +75,7 @@
               :data-idx="s.idx"
               class="suggestion pr-1 pl-2 py-1"
               :class="{
-                selected: selectedIndex === s.idx,
+                selected: selectedIndex === s.idx
               }"
             >
               <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
@@ -121,11 +131,11 @@ export default {
     q: '',
     initialSuggestions: [
       {
-        type: 'string',
+        type: 'string'
       },
       {
-        type: 'title',
-      },
+        type: 'title'
+      }
     ],
     recentSuggestions: [],
     collectionSuggestions: [],
@@ -136,31 +146,28 @@ export default {
     maxSelectedIndex: 0,
     selectableSuggestions: [],
     showSuggestions: false,
-    explorerVisible: false,
+    explorerVisible: false
   }),
+  emits: ['submit', 'submitEmpty', 'input-focus'],
   props: {
     variant: {
       type: String,
-      default: 'primary',
+      default: 'primary'
     },
     explorerIncludedTypes: {
       type: Array,
-      default: () => ['newspaper', 'topic', 'location', 'person', 'collection'],
+      default: () => ['newspaper', 'topic', 'location', 'person', 'collection']
     },
     /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   beforeMount() {
     const autocomplete = ref(this.$refs.autocomplete)
     const button = ref(this.$refs.searchButton)
-    useClickOutside(
-      autocomplete,
-      () => this.hideSuggestions(),
-      button,
-    )
+    useClickOutside(autocomplete, () => this.hideSuggestions(), button)
   },
   computed: {
     ...mapStores(useAutocompleteStore, useUserStore),
@@ -170,7 +177,7 @@ export default {
     staticSuggestions() {
       return this.initialSuggestions.concat(this.recentSuggestions).map((d, idx) => ({
         ...d,
-        idx,
+        idx
       }))
     },
     explorerInitialType() {
@@ -188,8 +195,8 @@ export default {
     suggestionIndex() {
       const key = 'type'
       const index = this.suggestions.reduce((reduced, item) => {
-        (reduced[item[key]] = reduced[item[key]] || []).push(item);
-        return reduced;
+        ;(reduced[item[key]] = reduced[item[key]] || []).push(item)
+        return reduced
       }, {})
 
       let idx = this.staticSuggestions.length - 1
@@ -202,7 +209,7 @@ export default {
             // add correct index to choice
             return {
               ...d,
-              idx,
+              idx
             }
           })
           // exclude extra suggestions for mentions
@@ -212,7 +219,7 @@ export default {
             index[type].push({
               type,
               fake: true,
-              idx,
+              idx
             })
           }
         }
@@ -238,13 +245,13 @@ export default {
         const filter = filters[0]
         this.$emit('submit', filter)
         this.q = ''
-      },
+      }
     },
     filterCount() {
       return typeof this.filters === 'undefined'
         ? 1
         : this.filters.filter(d => d.type !== 'hasTextContents').length + 1
-    },
+    }
   },
   methods: {
     showExplorer() {
@@ -281,22 +288,19 @@ export default {
         const res = this.autocompleteStore.suggestRecentQuery(this.q)
         this.recentSuggestions = res.map(d => ({
           ...d,
-          type: 'string',
+          type: 'string'
         }))
       }
 
       if (this.q.length > 1) {
-        this.autocompleteStore
-          .search(this.q.trim())
-          .then(res => {
-            this.suggestions = [...res, ...this.collectionSuggestions]
-          })
+        this.autocompleteStore.search(this.q.trim()).then(res => {
+          this.suggestions = [...res, ...this.collectionSuggestions]
+        })
         if (this.user) {
-          this.autocompleteStore.suggestCollections(this.q.trim())
-            .then(res => {
-              this.collectionSuggestions = res
-              this.suggestions = [...res, ...this.suggestions]
-            })
+          this.autocompleteStore.suggestCollections(this.q.trim()).then(res => {
+            this.collectionSuggestions = res
+            this.suggestions = [...res, ...this.suggestions]
+          })
         }
       } else {
         // if length of the query is 0 then we clear the suggestions
@@ -310,7 +314,7 @@ export default {
         console.info('submitStaticSuggestion', type, sq)
         this.submit({
           type,
-          q: sq,
+          q: sq
         })
         this.q = ''
       }
@@ -328,8 +332,8 @@ export default {
             FilterFactory.create({
               type,
               q: [sq],
-              op: 'OR',
-            }),
+              op: 'OR'
+            })
           )
           this.q = ''
         } else {
@@ -341,8 +345,8 @@ export default {
           FilterFactory.create({
             type,
             q: [item.uid],
-            items: [item],
-          }),
+            items: [item]
+          })
         )
         this.q = ''
       }
@@ -364,7 +368,7 @@ export default {
           console.info(
             '@keyup ENTER',
             this.selectedIndex,
-            this.selectableSuggestions[this.selectedIndex],
+            this.selectableSuggestions[this.selectedIndex]
           )
           this.submit(this.selectableSuggestions[this.selectedIndex])
           this.selectInput(event)
@@ -387,18 +391,20 @@ export default {
       } else if (this.selectedIndex < 0) {
         this.selectedIndex = this.maxSelectedIndex
       }
-    },
+    }
   },
   components: {
-    Explorer,
-  },
+    Explorer
+  }
 }
 </script>
 
 <style scoped lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+
 .search-bar {
   position: relative;
+
   input.form-control.search-input {
     border-color: $clr-primary;
     background: transparent;
@@ -410,17 +416,20 @@ export default {
       background: white;
       border: 1px solid $clr-secondary;
     }
+
     &:focus.has-suggestions {
       // border: 1px solid $clr-secondary;
       border-bottom: 0;
     }
   }
+
   .suggestions {
     position: absolute;
     top: 38px;
     width: 100%;
     background: white;
     z-index: 10;
+
     .icon {
       color: $clr-primary;
       // border: 1px solid $clr-secondary;
@@ -436,21 +445,26 @@ export default {
       margin-top: -12px;
       position: absolute;
     }
+
     .suggestion {
       border: 1px solid transparent;
       cursor: pointer;
+
       > div {
         display: flex;
         flex-direction: row;
         align-items: center;
+
         span {
           flex: 1;
           flex-grow: 8;
         }
+
         .badge {
           flex: 1;
         }
       }
+
       &.selected {
         background: rgba($clr-accent-secondary, 0.5);
         border-color: rgba($clr-accent-secondary, 0.75);
@@ -468,6 +482,7 @@ export default {
 
 .search-box .search-bar .input-group > .form-control {
   background: white;
+
   &:focus {
     border-width: 0;
   }
@@ -479,11 +494,13 @@ export default {
     border-left-width: 0;
     border-right-width: 0;
     background: transparent;
+
     &:focus {
       background: transparent;
     }
   }
 }
+
 // .search-bar .input-group > .form-control {
 //   color: white;
 // }
@@ -512,53 +529,53 @@ export default {
 </style>
 
 <i18n lang="json">
-  {
-    "en": {
-      "placeholder" : {
-        "search": "search for ... | add keyword to search"
-      },
-      "label": {
-        "string": {
-          "title": "Search in article contents"
-        },
-        "mention": {
-          "title": "in contents ..."
-        },
-        "title": {
-          "title": "Search in article titles"
-        },
-        "topic": {
-          "title": "suggested topics",
-          "moreLikeThis": "More Topics ..."
-        },
-        "person": {
-          "title": "suggested people",
-          "moreLikeThis": "More Persons ..."
-        },
-        "location": {
-          "title": "suggested locations",
-          "moreLikeThis": "More Locations ..."
-        },
-        "collection": {
-          "title": "suggested collections",
-          "moreLikeThis": "More Collections ..."
-        },
-        "newspaper": {
-          "title": "suggested newspaper",
-          "moreLikeThis": "More Newspapers ..."
-        },
-        "daterange": {
-          "title": "filter by date of publication",
-          "item": "From {start} to {end}"
-        }
-      }
+{
+  "en": {
+    "placeholder": {
+      "search": "search for ... | add keyword to search"
     },
-    "nl": {
-      "person": "Persoon",
-      "location": "Locatie",
-      "daterange": "Periode",
-      "topic": "Onderwerp",
-      "collection": "Collectie"
+    "label": {
+      "string": {
+        "title": "Search in article contents"
+      },
+      "mention": {
+        "title": "in contents ..."
+      },
+      "title": {
+        "title": "Search in article titles"
+      },
+      "topic": {
+        "title": "suggested topics",
+        "moreLikeThis": "More Topics ..."
+      },
+      "person": {
+        "title": "suggested people",
+        "moreLikeThis": "More Persons ..."
+      },
+      "location": {
+        "title": "suggested locations",
+        "moreLikeThis": "More Locations ..."
+      },
+      "collection": {
+        "title": "suggested collections",
+        "moreLikeThis": "More Collections ..."
+      },
+      "newspaper": {
+        "title": "suggested newspaper",
+        "moreLikeThis": "More Newspapers ..."
+      },
+      "daterange": {
+        "title": "filter by date of publication",
+        "item": "From {start} to {end}"
+      }
     }
+  },
+  "nl": {
+    "person": "Persoon",
+    "location": "Locatie",
+    "daterange": "Periode",
+    "topic": "Onderwerp",
+    "collection": "Collectie"
   }
+}
 </i18n>

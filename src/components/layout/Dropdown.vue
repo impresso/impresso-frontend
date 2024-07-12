@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown b-dropdown btn-group" :class="{ show: isOpen }">
+  <div class="dropdown b-dropdown btn-group" :class="{ show: isOpen }" :data-testid="dataTestid">
     <button aria-haspopup="menu" :aria-expanded="isOpen" type="button" class="btn dropdown-toggle" :class="{
       [`btn-${size}`]: size != undefined,
       [`btn-${variant}`]: variant != undefined,
@@ -29,7 +29,7 @@ interface Option {
 }
 
 const props = defineProps({
-  value: {
+  modelValue: {
     type: String
   },
   options: {
@@ -48,19 +48,23 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  dataTestid: {
+    type: String,
+    default: undefined,
+  }
 })
 
-const emit = defineEmits(['update:value', 'input'])
+const emit = defineEmits(['update:modelValue', 'input'])
 
 const isOpen = ref(false)
 
 const selectedOption = computed(() => {
-  const option = props.options.find(option => option.value === props.value)
+  const option = props.options.find(option => option.value === props.modelValue)
   return option ?? props.options?.[0]
 })
 
 const selectOption = (option: Option) => {
-  emit('update:value', option.value)
+  emit('update:modelValue', option.value)
   emit('input', option.value);
   isOpen.value = false
 }

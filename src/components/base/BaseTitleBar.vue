@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .tb {
   // padding-top:1px;

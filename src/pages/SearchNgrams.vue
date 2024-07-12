@@ -589,7 +589,7 @@ export default {
 </i18n>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .legend-dot {
   width: 0.5em;

@@ -1,5 +1,6 @@
 <template>
-  <div class="media py-3 border-bottom  search-result-list-item SearchResultListItem">
+  <div class="media py-3 border-bottom  search-result-list-item SearchResultListItem"
+    data-testid="search-results-list-item">
     <div class="media-aside align-self-start">
       <div v-if="isAvailable()" class="thumbnail">
         <IIIFFragment @click="goToArticle" v-if="article?.pages?.length" :iiif="article.pages[0].iiif" size="!496,480"

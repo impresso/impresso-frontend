@@ -7,9 +7,9 @@ import pinia from '../src/plugins/pinia'
 import { handlers as mswHandlers } from './mswHandlers'
 
 import 'dripicons/webfont/webfont.css'
-import 'impresso-theme/dist/css/bootpresso.css'
-import '../src/styles/style.css'
+import './assets/legacy/bootstrap-impresso-theme.css'
 import '../src/assets/legacy/bootstrap-vue.css'
+import '../src/styles/style.css'
 
 /*
  * Initializes MSW
@@ -28,7 +28,7 @@ const worker = initialize({
 // it won't load the handlers without this call. May be a bug
 worker.use(...[])
 
-setup((app) => {
+setup(app => {
   app.use(pinia)
   app.use(newI18n())
   app.use(globalComponents)

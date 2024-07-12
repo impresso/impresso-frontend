@@ -15,23 +15,12 @@
 
     <!-- min 100px height -->
     <div v-if="loading" class="text-center" style="height: 100px">
-      <span
-        role="status"
-        aria-hidden
-        class="spinner-grow spinner-grow-sm text-primary">
+      <span role="status" aria-hidden class="spinner-grow spinner-grow-sm text-primary">
       </span>
     </div>
     <div v-else-if="loaded" class="position-relative">
-      <HistogramSlider
-        class="histo-slider"
-        v-model="sliderValue"
-        :buckets="buckets"
-        :only-range-labels="true"
-        :scale-type="'symlog'"
-        :sliderValue="value"
-        @mousemove="handleMouseMove"
-        @click="handleClick"
-      />
+      <HistogramSlider class="histo-slider" v-model="sliderValue" :buckets="buckets" :only-range-labels="true"
+        :scale-type="'symlog'" :sliderValue="value" @mousemove="handleMouseMove" @click="handleClick" />
       <tooltip :tooltip="tooltip">
         <slot :tooltip="tooltip">
           <div v-if="tooltip.item">
@@ -154,22 +143,22 @@ export default {
 
       if (this.isPercentage) {
         label =
-          value.bucket.upper && value.bucket.upper !== value.bucket.lower
+          value.bucket?.upper && value.bucket?.upper !== value.bucket?.lower
             ? this.$t(this.valuePercentageLabel, {
-                upper: this.$n(value.bucket.upper),
-                lower: this.$n(value.bucket.lower),
-              })
+              upper: this.$n(value.bucket.upper),
+              lower: this.$n(value.bucket.lower),
+            })
             : this.$t(this.valuePercentageLabel, {
-                upper: this.$n(value.bucket.upper + 0.999),
-                lower: this.$n(value.bucket.lower),
-              })
+              upper: this.$n(value.bucket.upper + 0.999),
+              lower: this.$n(value.bucket.lower),
+            })
       } else {
         label =
           value.bucket.upper && value.bucket.upper !== value.bucket.lower
             ? this.$t(this.valueAsRangeLabel, {
-                upper: this.$n(value.bucket.upper),
-                lower: this.$n(value.bucket.lower),
-              })
+              upper: this.$n(value.bucket.upper),
+              lower: this.$n(value.bucket.lower),
+            })
             : this.$t(this.valueLabel, { val: this.$n(value.bucket.val) })
       }
 
@@ -288,19 +277,15 @@ export default {
   },
 }
 </script>
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "value": "value: <span class='number'>{val}</span>",
     "valuePercentage": "value: <span class='number'>{lower}% - {upper}%</span>",
     "valueAsRange": "range: <span class='number'>{lower} - {upper}</span>",
-
-    "textReuseClusterSizeValueLabel":  "cluster size: <span class='number'>{val}</span> passages per cluster",
+    "textReuseClusterSizeValueLabel": "cluster size: <span class='number'>{val}</span> passages per cluster",
     "textReuseClusterSizeValueAsRangeLabel": "cluster size: <span class='number'>{lower} - {upper}</span>",
     "textReuseClusterLexicalOverlapValuePercentageLabel": "<span class='number'>{lower}% - {upper}%</span> lexical overlap",
-
     "textReuseClusterDayDeltaValueLabel": "<span class='number'>{val}</span> days",
     "textReuseClusterDayDeltaValueAsRangeLabel": "<span class='number'>{lower} - {upper}</span> days"
   }
-}
-</i18n>
+}</i18n>

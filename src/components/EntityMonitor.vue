@@ -1,19 +1,19 @@
 <template>
-  <div class="EntityMonitor bg-dark" style="min-height:100px">
+  <div class="EntityMonitor bg-dark" style="min-height: 100px">
     <!-- header -->
     <div class="d-flex mb-2 align-items-center">
-      <b-tabs pills class="px-2" style="flex-grow:1">
+      <b-tabs pills class="px-2" style="flex-grow: 1">
         <template v-slot:tabs-end>
           <b-nav-item v-for="t in tabs" :key="t" :class="{ active: tab === t }" @click="tab = t">
-            <span v-html="$t(`tabs_${t}_${searchIndex}`).toLowerCase()" />
+            <span class="nav-link" v-html="$t(`tabs_${t}_${searchIndex}`).toLowerCase()" />
           </b-nav-item>
         </template>
       </b-tabs>
     </div>
     <!-- end header -->
     <div
-      style="height:100px"
-      class=" d-flex align-items-center justify-content-center text-white"
+      style="height: 100px"
+      class="d-flex align-items-center justify-content-center text-white"
       v-if="isLoading"
     >
       <div><Spinner /></div>
@@ -22,13 +22,14 @@
       <WikidataBlock :item="item" v-if="item && item.wikidataId" />
       <div class="text-center m-2 mb-3">
         <router-link
-          class="btn btn-primary px-5 btn-sm "
+          class="btn btn-primary px-5 btn-sm"
           :to="{
             name: 'entity',
             params: {
-              entity_id: this.id,
-            },
-          }">
+              entity_id: this.id
+            }
+          }"
+        >
           {{ $t('actions.detail') }}
         </router-link>
       </div>
@@ -62,20 +63,20 @@ export default defineComponent({
   props: {
     id: {
       type: String,
-      required: true,
+      required: true
     },
     type: {
       type: String,
-      required: true,
+      required: true
     },
     searchIndex: {
       type: String,
-      default: 'search',
+      default: 'search'
     },
     filters: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   data: () => ({
     isLoading: false,
@@ -83,7 +84,7 @@ export default defineComponent({
     matches: [],
     totalMatches: 0,
     tab: 'overview',
-    tabs: ['overview'],
+    tabs: ['overview']
   }),
   computed: {
     apiQueryParams() {
@@ -96,24 +97,21 @@ export default defineComponent({
             [
               {
                 type: this.type,
-                q: [this.id],
-              },
-            ].concat(this.filters),
-          ),
-        },
+                q: [this.id]
+              }
+            ].concat(this.filters)
+          )
+        }
       }
 
       return {
         request,
-        hash: JSON.stringify(request)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(request).split('').sort().join('')
       }
     },
     needToLoadItem() {
       return [this.tab, this.id]
-    },
+    }
   },
   methods: {
     async fetchEntity() {
@@ -121,7 +119,7 @@ export default defineComponent({
       const res = await entitiesService.get(this.id)
       this.item = res
       this.isLoading = false
-    },
+    }
   },
   watch: {
     needToLoadItem: {
@@ -134,7 +132,7 @@ export default defineComponent({
           this.fetchEntity()
         }
       },
-      immediate: true,
+      immediate: true
     },
     apiQueryParams: {
       async handler({ request, hash }, previousValue) {
@@ -152,9 +150,9 @@ export default defineComponent({
           await textReusePassages
             .find(
               {
-                query: request.query,
+                query: request.query
               },
-              { ignoreErrors: true },
+              { ignoreErrors: true }
             )
             .then(res => {
               console.info(res)
@@ -168,25 +166,25 @@ export default defineComponent({
         }
       },
       immediate: true,
-      deep: false,
-    },
+      deep: false
+    }
   },
   components: {
     WikidataBlock,
     Spinner,
     TextReusePassageItem,
-    ListOfItems: () => defineAsyncComponent(() => import('./ListOfItems.vue')),
-  },
+    ListOfItems: () => defineAsyncComponent(() => import('./ListOfItems.vue'))
+  }
 })
 </script>
 
 <i18n lang="json">
-  {
-    "en": {
-      "tabs_overview_search": "overview",
-      "tabs_results_search": "matching articles",
-      "tabs_overview_tr_passages": "overview",
-      "tabs_results_tr_passages": "matching passages"
-    }
+{
+  "en": {
+    "tabs_overview_search": "overview",
+    "tabs_results_search": "matching articles",
+    "tabs_overview_tr_passages": "overview",
+    "tabs_results_tr_passages": "matching passages"
   }
+}
 </i18n>

@@ -1,13 +1,7 @@
 <template>
   <div :class="cbClass">
-    <input
-      type="checkbox"
-      class="custom-control-input"
-      :value="props.modelValue"
-      :checked="props.modelValue"
-      :id="uid"
-      :disabled="props.disabled"
-      @change="handleChanged">
+    <input type="checkbox" class="custom-control-input" :value="props.modelValue" :checked="props.modelValue" :id="uid"
+      :disabled="props.disabled" @change="handleChanged" :data-testid="dataTestid">
     <label class="custom-control-label" :for="uid">
       <slot></slot>
     </label>
@@ -30,6 +24,10 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false,
+  },
+  dataTestid: {
+    type: String,
+    default: undefined,
   },
 })
 const emit = defineEmits(['update:modelValue'])

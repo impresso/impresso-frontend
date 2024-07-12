@@ -244,7 +244,7 @@ export default {
 </script>
 
 <style lang="scss">
-  @import "impresso-theme/src/scss/variables.sass";
+  @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
   @import "@/styles/variables.sass";
    // multiply A + B
   // $inspect-compare-middle-panel-color: #fdafdb;// dodge A B

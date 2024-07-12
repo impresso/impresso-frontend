@@ -9,8 +9,8 @@
       <!-- top -->
       <section>
         <!-- header -->
-        <div class="d-flex my-2 ml-2 ms-2 align-items-center ">
-          <b-tabs pills class="px-2 pb-2 pt-1 small-caps" style="flex-grow:1">
+        <div class="d-flex my-2 ml-2 ms-2 align-items-center">
+          <b-tabs pills class="px-2 pb-2 pt-1 small-caps" style="flex-grow: 1">
             <template v-slot:tabs-end>
               <b-nav-item class="active">
                 <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`).toLowerCase()" />
@@ -29,7 +29,7 @@
             [
               'textReuseClusterLexicalOverlap',
               'textReuseClusterDayDelta',
-              'textReuseClusterSize',
+              'textReuseClusterSize'
             ].includes(monitor.type)
           "
           :filter="additionalFilters.length ? additionalFilters[0] : monitorFilter"
@@ -75,7 +75,7 @@
             <SearchQuerySummary
               class="d-inline"
               :search-query="{
-                filters: additionalFilters.length ? additionalFilters : [monitorFilter],
+                filters: additionalFilters.length ? additionalFilters : [monitorFilter]
               }"
             />
             <span v-if="monitor.displayTimeline && this.total">
@@ -84,7 +84,7 @@
                 v-html="
                   $t('dates.allResultsFallBetween', {
                     from: minDate.getFullYear(),
-                    to: maxDate.getFullYear(),
+                    to: maxDate.getFullYear()
                   })
                 "
               />
@@ -113,7 +113,7 @@
           [
             'textReuseClusterLexicalOverlap',
             'textReuseClusterDayDelta',
-            'textReuseClusterSize',
+            'textReuseClusterSize'
           ].includes(monitor.type)
         "
         :params="{ addons: { newspaper: 'text' } }"
@@ -142,11 +142,7 @@
         <item-label :item="monitor.item" :type="monitor.type" detailed />
         <!-- button url  -->
         <div class="text-right mt-2" v-if="detailsUrl">
-          <router-link
-            class="btn btn-secondary px-5 btn-sm d-block"
-            :to="detailsUrl"
-            @click="hide"
-          >
+          <router-link class="btn btn-secondary px-5 btn-sm d-block" :to="detailsUrl" @click="hide">
             {{ $t('actions.detail') }}
           </router-link>
         </div>
@@ -205,14 +201,14 @@ export default defineComponent({
   props: {
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     startYear: {
-      type: Number,
+      type: Number
     },
     endYear: {
-      type: Number,
-    },
+      type: Number
+    }
   },
   components: {
     Timeline,
@@ -223,13 +219,17 @@ export default defineComponent({
     TextReusePassageMonitor,
     EntityMonitor,
     ListOfItems,
-    TextReusePassageItem,
+    TextReusePassageItem
+  },
+  beforeMount() {
+    const store = useSelectionMonitorStore()
+    this.applyCurrentSearchFilters = store.applyCurrentSearchFilters
   },
   computed: {
     ...mapStores(useSelectionMonitorStore),
     supportedFilters() {
       return this.filters.filter(filter =>
-        SupportedFiltersByIndex[this.monitor.searchIndex].includes(filter.type),
+        SupportedFiltersByIndex[this.monitor.searchIndex].includes(filter.type)
       )
     },
     monitorFilter() {
@@ -237,7 +237,7 @@ export default defineComponent({
         type: this.monitor.type,
         q: Array.isArray(this.monitor.item?.q)
           ? this.monitor.item?.q?.map(d => String(d))
-          : [this.monitor.item?.id ?? this.monitor.item?.uid],
+          : [this.monitor.item?.id ?? this.monitor.item?.uid]
       })
     },
     isMonitorFilterChanged() {
@@ -261,15 +261,15 @@ export default defineComponent({
         return {
           name: 'newspaper',
           params: {
-            newspaper_uid: this.monitor.item.uid,
-          },
+            newspaper_uid: this.monitor.item.uid
+          }
         }
       } else if (this.monitor.type === 'topic') {
         return {
           name: 'topic',
           params: {
-            topic_uid: this.monitor.item.uid,
-          },
+            topic_uid: this.monitor.item.uid
+          }
         }
         // @ts-ignore
       }
@@ -280,12 +280,12 @@ export default defineComponent({
       const query = {
         index: this.monitor.searchIndex,
         limit: 500,
-        filters: [],
+        filters: []
       }
       console.debug(
         '[SelectionMonitor] timelineApiQueryParams',
         this.displayCurrentSearchFilters,
-        this.applyCurrentSearchFilters,
+        this.applyCurrentSearchFilters
       )
       if (this.monitor.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
         query.filters = [...this.monitorFilters]
@@ -295,17 +295,11 @@ export default defineComponent({
 
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
     },
     isActive() {
       return this.selectionMonitorStore.isActive
-    },
-    applyCurrentSearchFiltersOnInit() {
-      return this.selectionMonitorStore.applyCurrentSearchFilters
     },
     monitor() {
       return this.selectionMonitorStore
@@ -322,7 +316,7 @@ export default defineComponent({
       }
       return this.$t(key, {
         count: this.$n(this.total),
-        searchIndex: this.$t('searchIndexes.' + this.monitor.searchIndex),
+        searchIndex: this.$t('searchIndexes.' + this.monitor.searchIndex)
       })
     },
     /** @returns {Date} */
@@ -330,7 +324,7 @@ export default defineComponent({
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (min, d) => (d.t < min ? d.t : min),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-01-01`)
       }
@@ -341,7 +335,7 @@ export default defineComponent({
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (max, d) => (d.t > max ? d.t : max),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-12-31`)
       }
@@ -349,14 +343,14 @@ export default defineComponent({
     },
     monitorType() {
       return this.monitor.type
-    },
+    }
   },
   data: () => ({
     total: 0,
     timelineValues: [],
     applyCurrentSearchFilters: false,
     isLoading: false,
-    additionalFilters: [],
+    additionalFilters: []
   }),
   methods: {
     handleChangeFilter(newFilter) {
@@ -377,13 +371,13 @@ export default defineComponent({
           'change',
           this.filters
             .filter(f => f.type !== this.monitorFilter.type)
-            .concat(this.additionalFilters),
+            .concat(this.additionalFilters)
         )
       } else {
         // we replace the current filter with the monitorFilter
         this.$emit(
           'change',
-          this.filters.filter(f => f.type !== this.monitorFilter.type).concat(this.monitorFilter),
+          this.filters.filter(f => f.type !== this.monitorFilter.type).concat(this.monitorFilter)
         )
       }
     },
@@ -394,9 +388,9 @@ export default defineComponent({
         .get(
           'year',
           {
-            query: this.timelineApiQueryParams.query,
+            query: this.timelineApiQueryParams.query
           },
-          { ignoreErrors: true },
+          { ignoreErrors: true }
         )
         .then(response => {
           // eslint-disable-next-line no-console
@@ -404,19 +398,13 @@ export default defineComponent({
           this.timelineValues = Helpers.timeline.fromBuckets(response.buckets)
           this.total = response.buckets.reduce((acc, bucket) => acc + bucket.count, 0)
         })
-    },
+    }
   },
   watch: {
-    applyCurrentSearchFiltersOnInit: {
-      handler() {
-        this.applyCurrentSearchFilters = this.applyCurrentSearchFiltersOnInit
-      },
-      immediate: true,
-    },
     monitorType: {
       handler() {
         this.additionalFilters = []
-      },
+      }
     },
     timelineApiQueryParams: {
       async handler({ query, hash }, previousValue) {
@@ -430,9 +418,9 @@ export default defineComponent({
         }
       },
       immediate: true,
-      deep: false,
-    },
-  },
+      deep: false
+    }
+  }
 })
 </script>
 
@@ -523,7 +511,7 @@ export default defineComponent({
     "types_accessRight": "access right",
     "types_partner": "archive / parnter institution",
     "types_topic": "topic",
-    "types_collection"  : "collection",
+    "types_collection": "collection",
     "types_newspaper": "newspaper",
     "types_person": "person",
     "types_location": "location",

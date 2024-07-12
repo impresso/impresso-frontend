@@ -1,12 +1,12 @@
 <template>
-  <div class="filter-facet">
+  <div class="filter-facet" :data-testid="`facet-filter-${facet.type}`">
     <base-title-bar>
       {{ $t(`label.${facet.type}.filterTitle`) }}
       <span
         v-if="facet.numBuckets > -1"
         v-html="
           $tc('numbers.options', facet.numBuckets, {
-            n: $n(facet.numBuckets),
+            n: $n(facet.numBuckets)
           })
         "
       />
@@ -22,7 +22,13 @@
         <b-button v-show="isFiltered" size="sm" variant="outline-primary" @click="resetFilters">
           {{ $t(`actions.reset`) }}
         </b-button>
-        <b-button v-if="isCollapsible" size="sm" variant="outline-icon" @click="toggleVisibility">
+        <b-button
+          v-if="isCollapsible"
+          size="sm"
+          variant="outline-icon"
+          @click="toggleVisibility"
+          data-testid="expand-collapse-button"
+        >
           <span
             class="icon-link"
             :class="{ 'dripicons-plus': isCollapsed, 'dripicons-minus': !isCollapsed }"
@@ -53,29 +59,29 @@
     <div
       v-for="{ filter, filterIndex } in includedFilterItems"
       :key="filterIndex"
-      class=" p-2 bg-white border rounded shadow-sm my-2"
+      class="p-2 bg-white border rounded shadow-sm my-2"
     >
       <filter-monitor
         :items-to-add="selectedBucketsItems"
         :filter="filter"
         :operators="facet.operators"
         @changed="filter => updateFilter(filterIndex, filter)"
-        @remove="filter => removeFilter(filterIndex, filter)"
+        @removed="filter => removeFilter(filterIndex, filter)"
       />
     </div>
     <div
       v-for="{ filter, filterIndex } in excludedFilterItems"
       :key="filterIndex"
-      class=" p-2 bg-white border rounded shadow-sm my-2"
+      class="p-2 bg-white border rounded shadow-sm my-2"
     >
       <filter-monitor
         :filter="filter"
         :operators="facet.operators"
         @changed="filter => updateFilter(filterIndex, filter)"
-        @remove="filter => removeFilter(filterIndex, filter)"
+        @removed="filter => removeFilter(filterIndex, filter)"
       />
     </div>
-    <div v-if="showBuckets" class="pt-2">
+    <div v-if="showBuckets" class="pt-2" data-testid="facet-buckets">
       <filter-facet-bucket
         v-for="bucket in unfilteredBuckets"
         :key="bucket.val"
@@ -107,7 +113,7 @@
           <span
             v-html="
               $tc('numbers.moreOptions', countMissingBuckets, {
-                n: $n(countMissingBuckets),
+                n: $n(countMissingBuckets)
               })
             "
           />
@@ -151,32 +157,32 @@ export default defineComponent({
     offset: 0,
     additionalBuckets: [],
     isMoreLoading: false,
-    lazyIsPristine: true,
+    lazyIsPristine: true
   }),
   props: {
     lazy: Boolean,
     lazyDelay: {
       type: Number,
-      default: 100,
+      default: 100
     },
     searchIndex: {
       type: String,
-      default: 'search',
+      default: 'search'
     },
     facet: Object,
     facetFilters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     /* filters used to narrow down the search for new facet filters option in explorer */
     contextFilters: {
       /** @type {import('vue').PropType<import('@/models').Filter[]>} */
       type: Array,
-      default: () => [],
+      default: () => []
     },
     isLoading: Boolean,
     collapsible: Boolean,
-    infoButtonId: String,
+    infoButtonId: String
   },
   computed: {
     showBuckets() {
@@ -210,13 +216,13 @@ export default defineComponent({
               if (this.bucketsIndex[item.uid]) {
                 return {
                   ...item,
-                  count: this.bucketsIndex[item.uid].count,
+                  count: this.bucketsIndex[item.uid].count
                 }
               }
               return item
-            }),
+            })
           },
-          filterIndex,
+          filterIndex
         }))
     },
     /**
@@ -226,7 +232,7 @@ export default defineComponent({
     filtersIncludedItemsIds() {
       return this.includedFilterItems.reduce(
         (acc, { filter }) => acc.concat(Array.isArray(filter.q) ? filter.q : [filter.q]),
-        [],
+        []
       )
     },
     excludedFilterItems() {
@@ -253,7 +259,7 @@ export default defineComponent({
     },
     countMissingBuckets() {
       return this.facet.numBuckets - this.additionalBuckets.length - this.facet.buckets.length
-    },
+    }
   },
   methods: {
     toggleVisibility() {
@@ -267,7 +273,7 @@ export default defineComponent({
         this.selectedBucketsItems = this.unfilteredBuckets.map(b => ({
           checked: true,
           ...b.item,
-          count: b.count,
+          count: b.count
         }))
       }
     },
@@ -284,7 +290,7 @@ export default defineComponent({
           this.selectedBucketsItems.push({
             checked: true,
             ...bucket.item,
-            count: bucket.count,
+            count: bucket.count
           })
         } else {
           this.selectedItems.push(bucket)
@@ -299,7 +305,7 @@ export default defineComponent({
       console.info('[FilterFacet] removeFilter', filter)
       this.$emit(
         'changed',
-        this.facetFilters.filter((f, index) => index !== filterIndex),
+        this.facetFilters.filter((f, index) => index !== filterIndex)
       )
     },
     updateFilter(filterIndex, filter) {
@@ -326,9 +332,9 @@ export default defineComponent({
           {
             type: this.facet.type,
             q: this.selectedBucketsIds,
-            items: this.selectedBucketsItems,
-          },
-        ]),
+            items: this.selectedBucketsItems
+          }
+        ])
       )
       this.clearSelectedItems()
     },
@@ -347,8 +353,8 @@ export default defineComponent({
           query: {
             filters: this.contextFilters,
             limit: this.limit,
-            offset: this.skip,
-          },
+            offset: this.skip
+          }
         })
         .then(({ numBuckets, buckets }) => {
           console.info('loadMoreBuckets', buckets, this.skip)
@@ -357,9 +363,9 @@ export default defineComponent({
               d =>
                 new Bucket({
                   ...d,
-                  type: this.facet.type,
-                }),
-            ),
+                  type: this.facet.type
+                })
+            )
           )
           this.skip = this.additionalBuckets.length + this.facet.buckets.length
           // eslint-disable-next-line vue/no-mutating-props
@@ -384,10 +390,10 @@ export default defineComponent({
               query: {
                 filters: this.contextFilters,
                 limit: this.limit,
-                offset: this.skip,
-              },
+                offset: this.skip
+              }
             },
-            { ignoreErrors: true },
+            { ignoreErrors: true }
           )
           .then(({ numBuckets, buckets }) => {
             // eslint-disable-next-line vue/no-mutating-props
@@ -398,7 +404,7 @@ export default defineComponent({
             console.error(err)
           })
       }
-    },
+    }
   },
   watch: {
     facet: {
@@ -408,26 +414,26 @@ export default defineComponent({
         // set or reset initial skip (it resets additionalBuckets lists)
         this.skip = buckets.length
         this.additionalBuckets = []
-      },
-    },
+      }
+    }
   },
   components: {
     BaseTitleBar,
     InfoButton,
     FilterMonitor,
     FilterFacetBucket,
-    LazyObserver,
-  },
+    LazyObserver
+  }
 })
 </script>
 
 <style lang="css" scoped></style>
 
 <i18n lang="json">
-  {
-    "en": {
-      "clearSelection": "Clear selection ({selected})",
-      "selectAll": "Select all ({count})"
-    }
+{
+  "en": {
+    "clearSelection": "Clear selection ({selected})",
+    "selectAll": "Select all ({count})"
   }
+}
 </i18n>

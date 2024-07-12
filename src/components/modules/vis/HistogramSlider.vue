@@ -5,17 +5,12 @@
         <svg ref="chart" class="chart" preserveAspectRatio="none"></svg>
       </b-row>
       <b-row v-if="shouldEnableSlider">
-        <VueSlider
-          width="100%"
-          v-model="sliderValue"
-          v-bind="{
-            modelValue: [sliderValue[0], sliderValue[1]],
-            min: sliderRange[0],
-            max: sliderRange[1]
-          }"
-          :tooltip-formatter="formatTooltip"
-          :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
-        />
+        <VueSlider width="100%" v-model="sliderValue" v-bind="{
+          modelValue: [sliderValue[0], sliderValue[1]],
+          min: sliderRange[0],
+          max: sliderRange[1]
+        }" :tooltip-formatter="formatTooltip" :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
+          data-testid="slider-control" />
       </b-row>
     </b-col>
   </b-container>
@@ -101,7 +96,7 @@ export default {
           .reduce((acc, { val }, index) => {
             if (index % step === 0) acc.push(val)
             return acc
-          }, /** @type {string[]} */ ([]))
+          }, /** @type {string[]} */([]))
           .concat([this.sliderRange[1].toString()])
       }
       const [min, max] = this.sliderRange
@@ -330,12 +325,14 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+
 .histogram-slider {
   .slider {
     width: 100% !important;
     margin-bottom: 1.4em; // slider ticks
   }
+
   .chart {
     .bars {
       .bar {
@@ -346,14 +343,18 @@ export default {
         fill: #999999;
       }
     }
+
     .hovered-value {
       fill: #999999;
     }
+
     .hovered-background {
       fill: #b65656;
     }
+
     .maxval {
       font-size: 12px;
+
       .point {
         fill: $clr-primary;
       }
@@ -361,11 +362,9 @@ export default {
   }
 }
 </style>
-<i18n lang="json">
-{
+<i18n lang="json">{
   "en": {
     "maxval": "{val} ({n} results)",
     "maxvalrange": "{lower} - {upper} ({n} results)"
   }
-}
-</i18n>
+}</i18n>

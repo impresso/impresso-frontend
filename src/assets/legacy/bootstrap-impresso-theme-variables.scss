@@ -1,0 +1,60 @@
+//
+//  Colors
+//
+$clr-bg-primary: #fff;
+$clr-bg-secondary: darken($clr-bg-primary, 5);
+
+$clr-primary: #111;
+$clr-secondary: lighten($clr-primary, 25);
+$clr-tertiary: lighten($clr-primary, 60);
+$clr-quaternary: lighten($clr-primary, 80);
+
+$clr-accent: #F4D062;
+$clr-accent-light: #FFEB78;
+$clr-accent-secondary: #56CCF2;
+
+$theme-colors: ( primary: $clr-primary, secondary: $clr-secondary );
+
+// colors with names
+$clr-white: #ffffff;
+$clr-grey-100: #17191c;
+$clr-grey-300: #424a52;
+$clr-grey-400: #5a6672;
+$clr-grey-800: #c6ccd2;
+
+$link-color: $clr-primary;
+$link-hover-color: $clr-primary;
+$link-hover-bg: rgba( $clr-accent-secondary, 0.4 );
+$link-active-bg: $clr-accent-secondary;
+$body-bg: $clr-bg-primary;
+$text-color: $clr-primary;
+$headings-color: $clr-primary;
+$input-focus-border-color: $clr-bg-secondary;
+
+$dropdown-link-active-color: $clr-primary;
+$dropdown-link-active-bg: $clr-accent-secondary;
+$dropdown-link-hover-color: $clr-primary;
+$dropdown-link-hover-bg: rgba( $clr-accent-secondary, 0.4 );
+
+$code-color: darken($clr-accent-secondary, 30);
+$code-bg: $clr-bg-secondary;
+
+//
+// typography
+//
+$font-family-serif: 'questa', serif;
+$font-family-sans-serif: 'questa-sans',sans-serif;
+$headings-font-family: $font-family-serif;
+$font-family-base: $font-family-sans-serif;
+
+//
+// Misc
+//
+$enable-rounded: false !default;
+$spacer: 1rem;
+$enable-caret: true;
+$enable-shadows: false;
+$enable-gradients: false;
+$enable-transitions	: true;
+$enable-grid-classes: true;
+$enable-print-styles: true;

@@ -1,6 +1,6 @@
 <template>
   <div class="FilterFacetBucket d-flex text-small">
-    <b-form-checkbox v-model="isChecked"> </b-form-checkbox>
+    <b-form-checkbox v-model="isChecked" data-testid="filter-facet-bucket-checkbox"> </b-form-checkbox>
 
     <item-selector hide-icon :uid="bucket.val" :item="bucket.item" :type="type" :searchIndex="searchIndex">
       <item-label v-if="bucket.item" :item="bucket.item" :type="type" />

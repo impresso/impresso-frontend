@@ -1,9 +1,8 @@
 import { createApp } from 'vue'
 import { initSequence } from './init'
-import VueObserveVisibility from 'vue3-observe-visibility'
 
 import 'dripicons/webfont/webfont.css'
-import 'impresso-theme/dist/css/bootpresso.css'
+import './assets/legacy/bootstrap-impresso-theme.css'
 import './assets/legacy/bootstrap-vue.css'
 
 import App from '@/App.vue'
@@ -16,7 +15,7 @@ import globalComponents from './plugins/globalComponents'
 
 const app = createApp(App)
 
-app.config.errorHandler = (error) => {
+app.config.errorHandler = error => {
   const notificationsStore = useNotificationsStore()
   notificationsStore.displayError({
     error: error as any,
@@ -28,11 +27,10 @@ app.use(pinia)
 app.use(router)
 app.use(newI18n())
 app.use(globalComponents)
-app.use(VueObserveVisibility)
 
 initSequence().then(() => app.mount('#app-container'))
 
-window.addEventListener('unhandledrejection', (event) => {
+window.addEventListener('unhandledrejection', event => {
   if (event.reason) {
     const notificationsStore = useNotificationsStore()
     notificationsStore.displayError({
