@@ -4,26 +4,34 @@
       <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item class="pl-2 active"
-              active-class='none'
-              :to="{ name:'newspapers'}"><span v-html="$t('label_list', { total: $n(paginationTotalRows) })"/></b-nav-item>
+            <b-nav-item class="pl-2 active" active-class="none" :to="{ name: 'newspapers' }"
+              ><span v-html="$t('label_list', { total: $n(paginationTotalRows) })"
+            /></b-nav-item>
           </template>
         </b-tabs>
         <div class="pb-2 px-3">
-          <b-input class="my-3" v-model.trim="suggestionQuery"
-            debounce="150" :placeholder="$t('filter_newspapers')" />
+          <b-input
+            class="my-3"
+            v-model.trim="suggestionQuery"
+            debounce="150"
+            :placeholder="$t('filter_newspapers')"
+          />
           <div class="my-2">
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+            <i-dropdown
+              v-model="orderBy"
+              v-bind:options="orderByOptions"
+              size="sm"
+              variant="outline-primary"
+            ></i-dropdown>
           </div>
-          <b-form-checkbox
-            v-model="includedOnly"
-            switch>
+          <b-form-checkbox v-model="includedOnly" switch>
             {{ $t('filter_included_only') }}
           </b-form-checkbox>
         </div>
       </template>
       <template v-slot:default>
-        <newspaper-item v-for="(newspaper, i) in items"
+        <newspaper-item
+          v-for="(newspaper, i) in items"
           class="p-3 border-bottom"
           :key="i"
           :item="newspaper"
@@ -38,17 +46,23 @@
 
 <script>
 import Newspaper from '@/models/Newspaper'
-import List from '@/components/modules/lists/List.vue';
-import NewspaperItem from '@/components/modules/lists/NewspaperItem.vue';
-import { newspapers as newspapersService} from '@/services';
-import { mapApplyCurrentSearchFilters, mapSuggestionQuery } from '@/logic/queryParams';
-import { Navigation } from '@/plugins/Navigation';
+import List from '@/components/modules/lists/List.vue'
+import NewspaperItem from '@/components/modules/lists/NewspaperItem.vue'
+import { newspapers as newspapersService } from '@/services'
+import { mapApplyCurrentSearchFilters, mapSuggestionQuery } from '@/logic/queryParams'
+import { Navigation } from '@/plugins/Navigation'
 
 const OrderByOptions = [
-  'name', '-name', 'startYear', '-startYear',
-  'endYear', '-endYear', 'countIssues', '-countIssues'
-];
-const OrderByDefault = '-countIssues';
+  'name',
+  '-name',
+  'startYear',
+  '-startYear',
+  'endYear',
+  '-endYear',
+  'countIssues',
+  '-countIssues'
+]
+const OrderByDefault = '-countIssues'
 
 export default {
   data: () => ({
@@ -57,7 +71,7 @@ export default {
     paginationTotalRows: 0,
     items: [],
     observedItems: [],
-    isLoading: false,
+    isLoading: false
   }),
   computed: {
     $navigation() {
@@ -67,45 +81,45 @@ export default {
       return {
         perPage: this.paginationPerPage,
         currentPage: this.paginationCurrentPage,
-        totalRows: this.paginationTotalRows,
-      };
+        totalRows: this.paginationTotalRows
+      }
     },
     newspaperUid() {
-      return this.$route.params.newspaper_uid;
+      return this.$route.params.newspaper_uid
     },
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     includedOnly: {
       get() {
-        return this.$route.query.included !== '';
+        return this.$route.query.included !== ''
       },
       set(included) {
         this.$navigation.updateQueryParametersWithHistory({
-          included,
-        });
-      },
+          included
+        })
+      }
     },
     suggestionQuery: mapSuggestionQuery(),
     /** @returns {number} */
     countActiveFilters() {
-      return this.searchQuery.countActiveFilters();
+      return this.searchQuery.countActiveFilters()
     },
     orderByOptions() {
       return OrderByOptions.map(value => ({
         value,
-        text: this.$t(`sort_${value}`),
-      }));
+        text: this.$t(`sort_${value}`)
+      }))
     },
     orderBy: {
       get() {
         return OrderByOptions.includes(this.$route.query.orderBy)
           ? this.$route.query.orderBy
-          : OrderByDefault;
+          : OrderByDefault
       },
       set(orderBy) {
         this.$navigation.updateQueryParametersWithHistory({
-          orderBy,
-        });
-      },
+          orderBy
+        })
+      }
     },
     serviceQuery() {
       return {
@@ -113,14 +127,14 @@ export default {
         limit: this.paginationPerPage,
         page: this.paginationCurrentPage,
         orderBy: this.orderBy,
-        includedOnly: this.includedOnly ?? '',
-      };
-    },
+        includedOnly: this.includedOnly ?? ''
+      }
+    }
   },
   methods: {
     changePage(page = 1) {
-      this.paginationCurrentPage = page;
-    },
+      this.paginationCurrentPage = page
+    }
   },
   watch: {
     serviceQuery: {
@@ -130,42 +144,43 @@ export default {
         const oldParamsStr = JSON.stringify(oldParams)
         if (newParamsStr === oldParamsStr) {
           // Params are the same: ${newParamsStr} ${oldParamsStr}`)
-          return;
+          return
         }
-        const { q, limit, page, orderBy, includedOnly } = params;
+        const { q, limit, page, orderBy, includedOnly } = params
         const query = {
           page,
           limit,
-          order_by: orderBy,
-        };
+          order_by: orderBy
+        }
         if (q && q.length) {
           // add q only if length is enough
-          query.q = q;
+          query.q = q
         }
         if (includedOnly) {
-          query.filters = [{ type: 'included' }];
+          query.includedOnly = true
         }
-        this.items = [];
-        return newspapersService.find({
-          query,
-        }).then(({ data, total }) => {
-          this.paginationTotalRows = total;
-          this.items = data.map(d => new Newspaper(d));
-        });
+        this.items = []
+        return newspapersService
+          .find({
+            query
+          })
+          .then(({ data, total }) => {
+            this.paginationTotalRows = total
+            this.items = data.map(d => new Newspaper(d))
+          })
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   components: {
     List,
-    NewspaperItem,
+    NewspaperItem
   }
 }
 </script>
 
 <style scoped lang="scss">
 @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
 </style>
 
 <i18n lang="json">
