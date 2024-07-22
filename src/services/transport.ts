@@ -1,5 +1,5 @@
 import { useNotificationsStore } from '@/stores/notifications'
-import type { Application } from "@feathersjs/feathers"
+import type { Application } from '@feathersjs/feathers'
 import rest from '@feathersjs/rest-client'
 import socketio from '@feathersjs/socketio-client'
 import io from 'socket.io-client'
@@ -11,20 +11,27 @@ import io from 'socket.io-client'
 const BasePath = import.meta.env.VITE_USE_PROXY_MIDDLEWARE
   ? ''
   : import.meta.env.VITE_MIDDLELAYER_API
+const Timeout = import.meta.env.VITE_MIDDLELAYER_API_SOCKET_TIMEOUT ?? 10000
 
 export const configureSocketIoTransport = (app: Application) => {
-
   const socket = io(BasePath, {
     path: import.meta.env.VITE_MIDDLELAYER_API_SOCKET_PATH,
+    timeout: Timeout
   })
 
-  app.configure(
-    socketio(socket, {
-      timeout: 130000,
-    }),
-  )
+  app.configure(socketio(socket))
 
+  socket.on('disconnect', reason => {
+    console.error('[transport] Socket disconnected:', reason)
+  })
+  socket.on('connect', () => {
+    console.info('[transport] Socket connected!')
+    const notificationsStore = useNotificationsStore()
+    notificationsStore.displayConnectivityStatus(true)
+    notificationsStore.lockScreen(false)
+  })
   socket.on('reconnect', () => {
+    console.info('[transport] Socket @reconnect connected!')
     app.reAuthenticate(false)
     const notificationsStore = useNotificationsStore()
     notificationsStore.displayConnectivityStatus(true)
