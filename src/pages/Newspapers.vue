@@ -26,6 +26,7 @@
           </div>
           <b-form-checkbox v-model="includedOnly" switch>
             {{ $t('filter_included_only') }}
+            {{ paginationTotalRows }}
           </b-form-checkbox>
         </div>
       </template>
@@ -90,7 +91,7 @@ export default {
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     includedOnly: {
       get() {
-        return this.$route.query.included !== ''
+        return this.$route.query.included !== 'false'
       },
       set(included) {
         this.$navigation.updateQueryParametersWithHistory({
@@ -148,7 +149,7 @@ export default {
         }
         const { q, limit, page, orderBy, includedOnly } = params
         const query = {
-          page,
+          offset: (page - 1) * limit,
           limit,
           order_by: orderBy
         }
