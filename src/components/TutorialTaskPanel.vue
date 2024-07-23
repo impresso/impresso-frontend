@@ -3,16 +3,28 @@
     class="TutorialTask"
     v-model="state"
     :title="task.title"
-    @heightChanged="(e) => emit('heightChanged', e)"
+    @heightChanged="e => emit('heightChanged', e)"
   >
     <template v-slot:header>
       <div class="d-flex align-items-center">
-        <div class="TutorialTask__num py-3 px-2 mb-0">task {{ taskNum }}</div>
-        <h4 class="mb-0">{{ task.title }}</h4>
+        <div class="TutorialTask__num py-3 px-2 mb-0">{{ taskNum }}</div>
+        <h4 class="mb-0">{{ task.title }} {{ task.getCompletion() }}</h4>
       </div>
     </template>
     <img v-if="task.coverUrl" :src="task.coverUrl" alt="task screencast video" class="img-fluid" />
     <div v-html="task.description"></div>
+    <ol v-if="task.tasks.length">
+      <li
+        v-for="(subtask, idx) in task.tasks"
+        :key="subtask.id"
+        class="pt-2 mb-2 mx-2 d-flex align-items-center"
+      >
+        <div class="p-1 flex-grow-1">
+          {{ subtask.title }}
+        </div>
+        <div class="pr-2 flex-shrink-1">{{ subtask.status }}</div>
+      </li>
+    </ol>
   </CollapsiblePanel>
 </template>
 

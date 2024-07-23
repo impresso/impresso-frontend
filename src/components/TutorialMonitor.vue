@@ -19,7 +19,7 @@
           :task="task"
           :taskNum="idx + 1"
           @update:modelValue="(value: boolean) => (currentOpenTaskId = value ? task.id : null)"
-          @heightChanged="(e) => updateHeight(task.id, e)"
+          @heightChanged="e => updateHeight(task.id, e)"
         >
         </TutorialTaskPanel>
       </li>
@@ -56,15 +56,19 @@ const props = defineProps({
   tasks: {
     type: Array as PropType<ITutorialTask[]>,
     required: true
+  },
+  initialOpenedTaskId: {
+    type: String,
+    default: null
   }
 })
 
 const isOpen = ref(!props.isCollapsed)
-const currentOpenTaskId = ref<string | null>(null)
+const currentOpenTaskId = ref<string | null>(props.initialOpenedTaskId)
 
 watch(
   () => props.isCollapsed,
-  (isCollapsed) => {
+  isCollapsed => {
     isOpen.value = !isCollapsed
   }
 )
