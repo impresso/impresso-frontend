@@ -27,7 +27,6 @@
 import BDropdown from './legacy/bootstrap/BDropdown.vue'
 import { defineProps, withDefaults, ref, computed } from 'vue'
 import SearchPills from './SearchPills.vue'
-import FilterBoolean from '@/models/FilterBoolean'
 import SearchQuery from '@/models/SearchQuery'
 import FilterFactory from '@/models/FilterFactory'
 import type { Filter, FilterInterface } from '@/models'
@@ -40,7 +39,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   code: 'import impresso\n\nimpresso.connect()\nimpresso.search($1)',
-  filters: [] as PropType<Filter[] | FilterInterface[]>
+  filters: () => [] as PropType<Filter[] | FilterInterface[]>
 })
 
 const glob: any = window
