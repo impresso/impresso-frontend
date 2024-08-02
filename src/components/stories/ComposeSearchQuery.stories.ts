@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import ComposeSearchQuery, { Props } from '../ComposeSearchQuery.vue'
+import ComposeSearchQuery from '../ComposeSearchQuery.vue'
+import type { Props } from '../ComposeSearchQuery.vue'
 
 const meta: Meta<typeof ComposeSearchQuery> = {
   title: 'Components/ComposeSearchQuery',
@@ -14,7 +15,7 @@ const meta: Meta<typeof ComposeSearchQuery> = {
         return { args }
       },
       template:
-        '<div style="height: 200px; width: 100%; text-align:end">test<ComposeSearchQuery v-bind="args"/></div>'
+        '<div style="height: 400px; width: 100%; text-align:end"><ComposeSearchQuery v-bind="args"/></div>'
     }
   },
   decorators: []

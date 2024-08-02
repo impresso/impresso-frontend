@@ -32,8 +32,8 @@ import FilterFactory from '@/models/FilterFactory'
 import type { Filter, FilterInterface } from '@/models'
 
 export interface Props {
-  code: string
-  filters: FilterInterface[]
+  code?: string
+  filters: Filter[] | FilterInterface[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
