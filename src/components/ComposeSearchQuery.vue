@@ -30,16 +30,15 @@ import SearchPills from './SearchPills.vue'
 import SearchQuery from '@/models/SearchQuery'
 import FilterFactory from '@/models/FilterFactory'
 import type { Filter, FilterInterface } from '@/models'
-import type { PropType } from 'vue'
 
-interface Props {
-  code: string
+export interface Props {
+  code?: string
   filters: Filter[] | FilterInterface[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   code: 'import impresso\n\nimpresso.connect()\nimpresso.search($1)',
-  filters: () => [] as PropType<Filter[] | FilterInterface[]>
+  filters: () => []
 })
 
 const glob: any = window
