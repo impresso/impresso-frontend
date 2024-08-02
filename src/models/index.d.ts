@@ -1,44 +1,48 @@
 export interface Entity {
-  uid: string,
+  uid: string
 
-  name?: string,
-  language?: string,
-  htmlExcerpt?: string,
+  name?: string
+  language?: string
+  htmlExcerpt?: string
   creator?: { username?: string }
   lastModifiedDate?: Date
 
-  y?: string,
+  y?: string
 
-  firstIssue?: { date: Date },
-  lastIssue?: { date: Date },
+  firstIssue?: { date: Date }
+  lastIssue?: { date: Date }
 
-  countArticles?: Number,
-  countIssues?: Number,
+  countArticles?: Number
+  countIssues?: Number
 
-  start?: Number,
+  start?: Number
   end?: Number
 }
 
 export interface Filter {
-  q?: string[] | string,
-  type: string,
-  context?: string,
-  precision?: string,
-  op?: string,
+  q?: string[] | string
+  type: string
+  context?: string
+  precision?: string
+  op?: string
 
   items?: Entity[]
 }
 
+export interface FilterInterface extends Filter {
+  getQuery(): object
+}
+
 export interface Bucket {
-  val: string,
-  count: number,
+  val: string
+  count: number
   item?: Entity
 }
 
 export interface Facet {
   type: string
-  buckets: Bucket[],
-  operators?: string[],
+  buckets: Bucket[]
+  operators?: string[]
   numBuckets?: number
 }
 

@@ -7,13 +7,16 @@
       class="btn dropdown-toggle"
       :class="{
         [`btn-${size}`]: size != undefined,
-        [`btn-${variant}`]: variant != undefined,
+        [`btn-${variant}`]: variant != undefined
       }"
       @click="isOpen = !isOpen"
       ref="buttonRef"
     >
       <slot name="button-content">
         {{ text }}
+      </slot>
+      <slot name="button-icon">
+        <Icon :scale="0.75" :strokeWidth="1" name="chevron" />
       </slot>
     </button>
     <ul
@@ -33,17 +36,19 @@
 <script setup lang="ts">
 import { useAttrs, ref, watch } from 'vue'
 import { useClickOutside } from '@/composables/useClickOutside'
+import Icon from '@/components/base/Icon.vue'
 
 const props = defineProps({
   size: String,
   variant: String,
   text: String,
   right: Boolean,
+  initialIsOpen: Boolean
 })
 const emit = defineEmits(['shown', 'hidden'])
 const attrs = useAttrs()
 
-const isOpen = ref(false)
+const isOpen = ref(props.initialIsOpen)
 
 const allowedAttrs = ['onClick', 'title', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
@@ -65,16 +70,27 @@ watch(
       emit('hidden')
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 defineExpose({
-  hide: () => (isOpen.value = false),
+  hide: () => (isOpen.value = false)
 })
 </script>
 <style>
 .dropdown .dropdown-toggle {
   z-index: 1001 !important;
+}
+.dropdown .dropdown-toggle svg {
+  margin-left: var(--spacing-2);
+  will-change: transform;
+  transition: var(--impresso-transition-ease) transform 0.2s;
+}
+.dropdown .dropdown-toggle::after {
+  display: none;
+}
+.dropdown .dropdown-toggle:hover svg {
+  transform: translateY(3px);
 }
 .dropdown.show .dropdown-toggle {
   background-color: #fff;
@@ -100,5 +116,9 @@ defineExpose({
 .dropdown-menu.dropdown-menu-right {
   right: 0;
   left: auto;
+}
+
+.dropdown-toggle::after {
+  position: absolute;
 }
 </style>
