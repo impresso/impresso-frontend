@@ -28,7 +28,7 @@
 </template>
 <script setup lang="ts">
 import SearchPills from '@/components/SearchPills.vue'
-import type { Filter } from '@/models'
+import type { Filter, FilterInterface } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
 import SearchQuery from '@/models/SearchQuery'
 import { computed, onMounted, ref } from 'vue'
@@ -81,7 +81,16 @@ const onInputTextarea = (event: Event) => {
 }
 
 const onFiltersChanged = (filters: any) => {
-  const value = JSON.stringify(filters.map(d => FilterFactory.create(d).getQuery(), null, 2))
+  const value = JSON.stringify(
+    filters.map(
+      d => {
+        const filter: FilterInterface = FilterFactory.create(d) as FilterInterface
+        return filter.getQuery()
+      },
+      null,
+      2
+    )
+  )
   inputText.value = value
   parseFiltersFromInputText(value)
 }
