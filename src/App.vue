@@ -149,7 +149,7 @@ $clr-grey-400: #5a6672;
 $clr-grey-800: #c6ccd2;
 $clr-grey-900: #ddd;
 
-@import 'src/styles/style.css';
+@import './styles/style.css';
 
 #app {
   display: grid;
