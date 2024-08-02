@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import ComposeSearchQuery from '../ComposeSearchQuery.vue'
+import ComposeSearchQuery, { Props } from '../ComposeSearchQuery.vue'
 
 const meta: Meta<typeof ComposeSearchQuery> = {
   title: 'Components/ComposeSearchQuery',
@@ -14,7 +14,7 @@ const meta: Meta<typeof ComposeSearchQuery> = {
         return { args }
       },
       template:
-        '<div style="height: 200px; width: 100%; text-align:end">test<ComposeSearchQuery /></div>'
+        '<div style="height: 200px; width: 100%; text-align:end">test<ComposeSearchQuery v-bind="args"/></div>'
     }
   },
   decorators: []
@@ -34,5 +34,5 @@ export const Default: Story = {
         type: 'isFront'
       }
     ]
-  }
+  } as Props
 }
