@@ -105,6 +105,6 @@ onMounted(() => {
 </script>
 <style scoped>
 h1 {
-  color: red;
+  color: var(--dark);
 }
 </style>
