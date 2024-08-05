@@ -109,9 +109,9 @@
         >
           <template v-slot="tooltipScope">
             <div>
-              <div>
-                {{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;
-              </div>
+              <h4>
+                {{ $d(getTooltipScopeTime(tooltipScope) ?? new Date(), timelineResolution, 'en') }}
+              </h4>
               <div v-for="(item, index) in tooltipScope.tooltip.item.items" :key="item.label">
                 <div
                   :style="{ 'background-color': tooltipScope.tooltip.item.colors[index] }"
@@ -493,6 +493,7 @@ export default {
     },
     /** @returns {string} */
     timelineResolution() {
+      // the time-interval needs to be one i18n datetimeFormats, e.g `year`,
       return this.ngramResult.timeInterval
     },
     /** @returns {string[]} */
@@ -525,8 +526,10 @@ export default {
     /** @returns {Date} */
     getTooltipScopeTime(scope) {
       const times = [...new Set(scope?.tooltip?.item?.items.map(({ item: { time } }) => time))]
+
       if (times.length > 1)
         console.warn(`More than one time found in tooltip data. Using first time`, times)
+
       return times[0]
     },
     /**
@@ -542,7 +545,8 @@ export default {
      * @param {boolean} withSuffix display ppm suffix
      */
     roundValueForDisplay(value, withSuffix = true) {
-      const v = this.$n(value, { notation: 'short' })
+      // max 2 decimals
+      const v = this.$n(value, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
       return withSuffix ? `${v} ppm` : v
     },
     /**
@@ -598,9 +602,7 @@ export default {
 }
 </i18n>
 
-<style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
+<style scoped lang="css">
 .legend-dot {
   width: 0.5em;
   height: 0.5em;
@@ -621,5 +623,9 @@ export default {
   justify-content: center;
   background-color: #d4d4d412;
   backdrop-filter: blur(0.8px);
+}
+
+.tooltip h4 {
+  color: var(--white);
 }
 </style>
