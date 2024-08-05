@@ -597,7 +597,7 @@ export default {
       "noUnigram": "... look for a specific <em>unigram</em> in",
       "withTrends": "{trends} in",
       "availableFacets": "Available filters for ngram analysis",
-      "addSimilar": "add similar words"
+      "addSimilar": "add similar"
     },
     "loading": "Loading ...",
     "tooltipValueUnit": "per 1 million",
