@@ -120,6 +120,7 @@ export default {
     window.addEventListener('click', () => {
       this.$root.$emit('bv::hide::popover')
     })
+    this.loadFilterItems()
   },
   created() {
     // load typekit
