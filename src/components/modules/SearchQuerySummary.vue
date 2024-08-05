@@ -18,7 +18,7 @@ export default {
     searchQuery: Object,
     limitNumberOfFilterItems: {
       type: Number,
-      default: -1,
+      default: -1
     },
     enumerables: {
       type: Array,
@@ -31,12 +31,12 @@ export default {
         'language',
         'country',
         'year',
-        'accessRight',
-      ],
-    },
+        'accessRight'
+      ]
+    }
   },
   data: () => ({
-    newspaperLabels: undefined,
+    newspaperLabels: undefined
   }),
   computed: {
     reducedSummary() {
@@ -70,7 +70,7 @@ export default {
         translationTable.newspaper = this.getTranslation({
           filters: filtersIndex.newspaper,
           type: 'newspaper',
-          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.',
+          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.'
         })
       }
 
@@ -78,40 +78,40 @@ export default {
         translationTable.textReuseCluster = this.getTranslation({
           filters: filtersIndex.textReuseCluster,
           type: 'textReuseCluster',
-          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.',
+          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.'
         })
       }
 
       ;[
         'textReuseClusterSize',
         'textReuseClusterLexicalOverlap',
-        'textReuseClusterDayDelta',
+        'textReuseClusterDayDelta'
       ].forEach(type => {
         if (filtersIndex[type]) {
           translationTable[type] = this.getRangeTranslation({
             filters: filtersIndex[type],
-            type,
+            type
           })
         }
       })
-        // other translations
-        ;['string', 'title', 'daterange'].concat(this.enumerables).forEach(type => {
-          if (filtersIndex[type]) {
-            if (this.isEnumerable(type)) {
-              enumerables.push(
-                this.getTranslation({
-                  filters: filtersIndex[type],
-                  type,
-                }),
-              )
-            } else {
-              translationTable[type] = this.getTranslation({
+      // other translations
+      ;['string', 'title', 'daterange'].concat(this.enumerables).forEach(type => {
+        if (filtersIndex[type]) {
+          if (this.isEnumerable(type)) {
+            enumerables.push(
+              this.getTranslation({
                 filters: filtersIndex[type],
-                type,
+                type
               })
-            }
+            )
+          } else {
+            translationTable[type] = this.getTranslation({
+              filters: filtersIndex[type],
+              type
+            })
           }
-        })
+        }
+      })
 
       // Return is here because of "hidden" filters, such as hasTextContents
       if (!enumerables.length && !Object.keys(translationTable).length) {
@@ -125,7 +125,7 @@ export default {
     },
     summaryProps() {
       return ''
-    },
+    }
   },
   watch: {
     searchQuery: {
@@ -137,8 +137,8 @@ export default {
         }
         this.newspaperLabels = newspaperLabels
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   methods: {
     isEnumerable(type) {
@@ -152,7 +152,7 @@ export default {
             const [start, end] = getStarAndEndDates(item)
             t = `from <span class="date">${this.$d(
               start,
-              'compactUtc',
+              'compactUtc'
             )}</span> to <span class="date">${this.$d(end, 'compactUtc')}</span>`
           }
           break
@@ -174,8 +174,9 @@ export default {
           break
         case 'title':
         case 'string':
-          t = `<span class="highlight precision-${item.precision}">${item.uid ||
-            item.q}</span>${item.distance || ''}`
+          t = `<span class="highlight precision-${item.precision}">${
+            item.uid || item.q
+          }</span>${item.distance || ''}`
           break
         case 'topic':
           if (item.htmlExcerpt) {
@@ -216,14 +217,15 @@ export default {
                   this.getLabel({
                     item,
                     type: filter.type,
-                    filter,
+                    filter
                   }),
-                  '</span>',
-                ].join(''),
+                  '</span>'
+                ].join('')
               )
               .join(` <span class="operator">${operator}</span> `) +
-            ` [... ${filter.items.length -
-            this.limitNumberOfFilterItems} additional options]</span>`
+            ` [... ${
+              filter.items.length - this.limitNumberOfFilterItems
+            } additional options]</span>`
           )
         }
         return filter.items
@@ -233,17 +235,17 @@ export default {
               this.getLabel({
                 item,
                 type: filter.type,
-                filter,
+                filter
               }),
-              '</span>',
-            ].join(''),
+              '</span>'
+            ].join('')
           )
           .join(` <span class="operator">${operator}</span> `)
       } else if (filter.type === 'string') {
         return this.getLabel({
           item: filter,
           type: filter.type,
-          filter,
+          filter
         })
       }
       console.warn('filter not valid:', filter)
@@ -266,8 +268,8 @@ export default {
           acc.push(
             this.$t(`${context}.${type}`, {
               min: sections[context][0].q[0],
-              max: sections[context][0].q[1],
-            }),
+              max: sections[context][0].q[1]
+            })
           )
           return acc
         }, [])
@@ -302,37 +304,40 @@ export default {
         }
         sections[d.context].push(d)
       })
-        ;['include', 'exclude'].forEach(context => {
-          if (sections[context]) {
-            if (this.reduced) {
-              results.push(
-                this.$tc(
-                  `${context}.${type}.reduced`,
-                  // number of items in total, as it is reduced
-                  sections[context].reduce((sum, d) => sum + d.items.length, 0),
-                ),
+      ;['include', 'exclude'].forEach(context => {
+        if (sections[context]) {
+          if (this.reduced) {
+            results.push(
+              this.$tc(
+                `${context}.${type}.reduced`,
+                // number of items in total, as it is reduced
+                sections[context].reduce((sum, d) => sum + d.items.length, 0)
               )
-            } else {
-              const parts = []
-              results.push(parts.join(' '))
-            }
+            )
+          } else {
+            const parts = []
+            results.push(parts.join(' '))
           }
-        })
+        }
+      })
       return results.join('; ')
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="scss">
 .search-query-summary {
-
   span.item.person,
   span.item.topic,
   span.item.location,
-  span.item.daterange>span.date {
+  span.item.daterange > span.date {
+    text-transform: uppercase;
     font-family: var(--bs-font-sans-serif);
-    font-variant: small-caps;
-    text-transform: lowercase;
+    font-size: var(--impresso-font-size-smallcaps);
+    font-variant: normal;
+    letter-spacing: var(--impresso-letter-spacing-smallcaps);
+    font-weight: var(--impresso-wght-smallcaps);
+    font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
   }
 
   span.item.collection {
@@ -371,7 +376,8 @@ export default {
   }
 }
 </style>
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} ",
     "isFront": "appearing on the <em>front page</em>",
@@ -431,4 +437,5 @@ export default {
       "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
     }
   }
-}</i18n>
+}
+</i18n>

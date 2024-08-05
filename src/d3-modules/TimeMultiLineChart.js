@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 export default class TimeMultiLineChart {
   constructor({
     element = null,
-    margin = { top: 10, bottom: 25, left: 5, right: 5},
+    margin = { top: 10, bottom: 25, left: 5, right: 5 },
     labelsPanelWidth = 100,
     labelFontSize = '0.8em',
     roundValueFn = (/** @type {number} */ v) => `${v}`
@@ -15,7 +15,8 @@ export default class TimeMultiLineChart {
 
     this.roundValueFn = roundValueFn
 
-    this.svg = d3.select(element)
+    this.svg = d3
+      .select(element)
       .append('svg')
       .attr('fill', 'none')
       .attr('stroke-linejoin', 'round')
@@ -39,8 +40,14 @@ export default class TimeMultiLineChart {
     // interaction
     this.svg
       .on('mousemove', () => this._renderInteractionLayer())
-      .on('mouseover',  () => { this._interactionActive = true; this._renderInteractionLayer() })
-      .on('mouseout',  () => { this._interactionActive = false; this._renderInteractionLayer() })
+      .on('mouseover', () => {
+        this._interactionActive = true
+        this._renderInteractionLayer()
+      })
+      .on('mouseout', () => {
+        this._interactionActive = false
+        this._renderInteractionLayer()
+      })
   }
 
   /**
@@ -66,21 +73,21 @@ export default class TimeMultiLineChart {
       .domain(minAndMaxTimes)
       .range([this.margin.left, width - this.labelsPanelWidth - this.margin.right])
 
-    const xAxis = g => g
-      .attr('transform', `translate(0,${height - this.margin.bottom})`)
-      .call(d3.axisBottom(this.x).ticks(width / 80).tickSizeOuter(0))
+    const xAxis = g =>
+      g.attr('transform', `translate(0,${height - this.margin.bottom})`).call(
+        d3
+          .axisBottom(this.x)
+          .ticks(width / 80)
+          .tickSizeOuter(0)
+      )
 
-    this.axes
-      .selectAll('g.x')
-      .data([null])
-      .join('g')
-      .attr('class', 'x')
-      .call(xAxis)
+    this.axes.selectAll('g.x').data([null]).join('g').attr('class', 'x').call(xAxis)
 
     // Y
     const maxValue = d3.max(data, ({ items }) => d3.max(items, ({ value }) => value))
     this.y
-      .domain([0, maxValue != null ? maxValue : 0]).nice()
+      .domain([0, maxValue != null ? maxValue : 0])
+      .nice()
       .range([height - this.margin.bottom, this.margin.top])
 
     // Lines
@@ -97,24 +104,26 @@ export default class TimeMultiLineChart {
       .join('g')
       .attr('class', ({ label }) => label)
 
-
     // line with data and missing data points
     linesContainers
       .selectAll('path.missing')
       .data(
-        ({ items, ... rest }, index) => [{ ...rest, items: items.filter(line.defined()), index }],
+        ({ items, ...rest }, index) => [{ ...rest, items: items.filter(line.defined()), index }],
         ({ label }) => label
       )
       .join('path')
       .attr('class', 'missing')
       .attr('stroke', '#eee')
       .attr('pointer-events', 'none')
-      .attr('d', ({ items }) => line(items));
+      .attr('d', ({ items }) => line(items))
 
     // line with data
     linesContainers
       .selectAll('path.metric')
-      .data((itemsSet, index) => [{ ...itemsSet, index }], ({ label }) => label)
+      .data(
+        (itemsSet, index) => [{ ...itemsSet, index }],
+        ({ label }) => label
+      )
       .join('path')
       .attr('class', 'metric')
       .attr('stroke', ({ label, index }) => colorPalette[label] || d3.schemeCategory10[index])
@@ -128,7 +137,11 @@ export default class TimeMultiLineChart {
       .filter(v => v != null)[0]
 
     const peak = this.peak
-      .data(/** @type {[Date, number][]} */ (maxValueTime != null && maxValue != null ? [[maxValueTime, maxValue]] : []))
+      .data(
+        /** @type {[Date, number][]} */ (
+          maxValueTime != null && maxValue != null ? [[maxValueTime, maxValue]] : []
+        )
+      )
       .attr('transform', ([time, value]) => `translate(${this.x(time)}, ${this.y(value)})`)
 
     peak
@@ -149,8 +162,7 @@ export default class TimeMultiLineChart {
       .text(([, value]) => this.roundValueFn(value))
 
     // labels
-    this.labels
-      .attr('transform', `translate(${width - this.labelsPanelWidth}, 0)`)
+    this.labels.attr('transform', `translate(${width - this.labelsPanelWidth}, 0)`)
 
     const labelElementHeightPixels = this._getLabelElementHeightPixels()
     const labelValueGridSize = this.y.invert(0) - this.y.invert(labelElementHeightPixels)
@@ -190,12 +202,11 @@ export default class TimeMultiLineChart {
 
     if (mouseX > linesContainerWidth + this.margin.left) {
       mouseX = linesContainerWidth + this.margin.left
-    } else if (mouseX < this.margin.left){
+    } else if (mouseX < this.margin.left) {
       mouseX = this.margin.left
     }
 
     this._lastMousePosition = [mouseX, mouseY]
-
     const currentMouseTimeValue = this.x.invert(mouseX)
 
     const positionData = this._interactionActive ? [currentMouseTimeValue] : []
@@ -215,14 +226,14 @@ export default class TimeMultiLineChart {
     const data = /** @type {ItemsSet[]} */ (this.lines.selectAll('g').data())
 
     const nearestItems = data.map(({ items, label }) => {
-      const distances = items
-        .map(({ time }) => Math.abs(time.getTime() - currentMouseTimeValue.getTime()))
+      const distances = items.map(({ time }) =>
+        Math.abs(time.getTime() - currentMouseTimeValue.getTime())
+      )
       const minDistance = /** @type {number} */ (d3.min(distances))
       const nearestIndex = distances.indexOf(minDistance)
 
-      const nearestItem = nearestIndex < items.length
-        ? items[nearestIndex]
-        : items[items.length - 1]
+      const nearestItem =
+        nearestIndex < items.length ? items[nearestIndex] : items[items.length - 1]
       return { label, item: nearestItem }
     })
 
@@ -233,10 +244,14 @@ export default class TimeMultiLineChart {
       .data(this._interactionActive ? nearestItems : [])
       .join('circle')
       .attr('pointer-events', 'none')
-      .attr('transform', ({ item: { time, value } }) => `translate(${this.x(time)}, ${this.y(value)})`)
+      .attr(
+        'transform',
+        ({ item: { time, value } }) => `translate(${this.x(time)}, ${this.y(value)})`
+      )
       .attr('r', 4)
       .attr('fill', ({ label }, index) => this._getColor(label, index))
 
+    this.element.dispatchEvent(new CustomEvent('tooltip', { detail: this.tooltipData() }))
   }
 
   _getColor(label, index) {
@@ -246,9 +261,7 @@ export default class TimeMultiLineChart {
   _getLabelElementHeightPixels() {
     // Get pixel size of a temporary text field. We will use it later to calculate
     // "snap to grid" vertical positions of labels so that they do not overlap.
-    const textSizer = this.svg.append('text')
-      .attr('font-size', this.labelFontSize)
-      .text('_')
+    const textSizer = this.svg.append('text').attr('font-size', this.labelFontSize).text('_')
 
     const { height: textHeight } = textSizer.node().getBoundingClientRect()
 

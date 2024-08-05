@@ -2,29 +2,29 @@
   <i-layout-section :width="width">
     <!--  header -->
     <template v-slot:header>
-    <div class="border-bottom bg-light">
-      <slot name="tabs">
-        <search-tabs />
-      </slot>
-      <div class="my-3 mx-3" :class="{ focus: hasFocus }">
-        <search-pills :filters="filters" @changed="handleFiltersChanged" />
-        <span v-if="filters.length && ignoredFilters.length">
-          <i
-            class="small"
-            v-html="
-              $tc('numbers.ignoredFilters', ignoredFilters.length, {
-                n: ignoredFilters.length,
-              })
-            "
-          />
-
-          <info-button :name="infoButtonName" />
-        </span>
-        <slot name="header" :focusHandler="focusHandler">
-          <!-- extra header -->
+      <div class="border-bottom bg-light">
+        <slot name="tabs">
+          <search-tabs />
         </slot>
+        <div class="my-3 mx-3" :class="{ focus: hasFocus }">
+          <search-pills :filters="filters" @changed="handleFiltersChanged" />
+          <span v-if="filters.length && ignoredFilters.length">
+            <i
+              class="small"
+              v-html="
+                $tc('numbers.ignoredFilters', ignoredFilters.length, {
+                  n: ignoredFilters.length
+                })
+              "
+            />
+
+            <info-button :name="infoButtonName" />
+          </span>
+          <slot name="header" :focusHandler="focusHandler">
+            <!-- extra header -->
+          </slot>
+        </div>
       </div>
-    </div>
     </template>
     <!-- body (aka) facets -->
     <div class="pt-3 pb-5">
@@ -55,32 +55,32 @@ import SearchFacets from '@/components/SearchFacets.vue'
 
 export default {
   data: () => ({
-    hasFocus: false,
+    hasFocus: false
   }),
   props: {
     /* Used for helper button */
     contextTag: {
-      type: String,
+      type: String
     },
     width: {
       type: String,
-      default: '400px',
+      default: '400px'
     },
     /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     /** @type {import('vue').PropOptions<Facet[]>} */
     facets: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     /** @type {import('vue').PropOptions<Filter[]>} */
     ignoredFilters: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   methods: {
     /** @param {Filter[]} filters */
@@ -90,7 +90,7 @@ export default {
     },
     focusHandler(value) {
       this.hasFocus = !!value
-    },
+    }
   },
   computed: {
     /** @return {boolean} */
@@ -103,14 +103,14 @@ export default {
     },
     endYear() {
       return window.impressoDocumentsYearSpan.lastYear
-    },
+    }
   },
   components: {
     SearchPills,
     InfoButton,
     SearchTabs,
-    SearchFacets,
-  },
+    SearchFacets
+  }
 }
 </script>
 <style lang="scss">
