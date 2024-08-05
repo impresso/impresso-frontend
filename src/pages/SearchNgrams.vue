@@ -1,7 +1,7 @@
 <template>
   <i-layout id="SearchNgramsPage">
     <!-- sidebar (contains i-layout-section) -->
-    <search-sidebar
+    <SearchSidebar
       :filters="enrichedFilters"
       :ignored-filters="ignoredFilters"
       :facets="facets"
@@ -9,6 +9,12 @@
       @changed="handleFiltersChanged"
     >
       <template v-slot:header>
+        <div
+          v-if="ignoredFilters.length > 0 && ignoredFilters.some(d => d.type === 'string')"
+          class="mx-1 small"
+        >
+          {{ $t('label_ignored_string_filters') }}
+        </div>
         <!-- tehre is a hidden filter in allowed filter :) -->
         <div v-if="allowedFilters.length < 2" class="mx-1 small">
           Filter your search with the options below.
@@ -19,7 +25,7 @@
           {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>
-    </search-sidebar>
+    </SearchSidebar>
     <!-- main section -->
     <i-layout-section main>
       <template v-slot:header>
@@ -34,9 +40,8 @@
                     $tc('numbers.articles', totalArticlesCount, { n: $n(totalArticlesCount) })
                   "
                 />
-                &nbsp;
                 <search-query-summary
-                  class="d-inline"
+                  class="d-inline ml-0"
                   :search-query="{ filters: enrichedFilters }"
                 />
               </ellipsis>
@@ -58,7 +63,7 @@
             <info-button name="what-are-ngram" />
           </span>
           <div class="input-group">
-            <tags-input
+            <TagsInput
               :value="unigrams"
               :disabled="isLoading"
               :placeholder="unigrams.length === 0 ? 'search unigrams ...' : ''"
@@ -597,7 +602,8 @@ export default {
     "loading": "Loading ...",
     "tooltipValueUnit": "per 1 million",
     "downloadVisualisationData": "download data in JSON",
-    "tooltipAbsoluteValue": "{count} tokens"
+    "tooltipAbsoluteValue": "{count} tokens",
+    "label_ignored_string_filters": "It is currently not possible to use keyword or phrase filters to retrieve unigram counts."
   }
 }
 </i18n>
