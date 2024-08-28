@@ -24,18 +24,18 @@ export default {
   props: {
     item: {
       type: Object,
-      required: true,
+      required: true
     },
     type: {
       type: String,
-      required: true,
+      required: true
     },
     detailed: {
-      type: Boolean,
+      type: Boolean
     },
     hideuser: {
-      type: Boolean,
-    },
+      type: Boolean
+    }
   },
   computed: {
     label() {
@@ -55,13 +55,13 @@ export default {
             username,
             '<span class="small-caps">',
             this.$t('dates.lastModifiedDate'),
-            this.$d(this.item.lastModifiedDate, 'short'),
+            this.item.lastModifiedDate ? this.$d(this.item.lastModifiedDate, 'short') : '(unknown)',
             '</span><br/>',
             this.item.countItems
               ? this.$tc('numbers.articles', this.item.countItems, {
-                  n: this.$n(this.item.countItems),
+                  n: this.$n(this.item.countItems)
                 })
-              : '(empty)',
+              : '(empty)'
           ].join(' ')
         } else {
           t = this.item.uid
@@ -90,17 +90,17 @@ export default {
         `<span class="number"> ${this.$n(this.item.countArticles)}</span> articles,`,
         `<span class="number">${this.$n(this.item.countPages)}</span> pages,`,
         `<span class="number">${this.$n(this.item.countIssues)}</span> issues. <br/>`,
-        `Published from: ${firstIssueDate} to ${lastIssueDate}.`,
+        `Published from: ${firstIssueDate} to ${lastIssueDate}.`
       ].join(' ')
-    },
+    }
   },
   methods: {
     getTextReuseClusterSummary(item) {
       const clusterSizeLabel = this.$tc('numbers.clusterSize', item.clusterSize, {
-        n: this.$n(item.clusterSize),
+        n: this.$n(item.clusterSize)
       })
       const lexicalOverlapLabel = this.$tc('numbers.lexicalOverlap', item.lexicalOverlap, {
-        n: this.$n(Math.round(item.lexicalOverlap * 100) / 100),
+        n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
       })
       let dates = []
       if (!item.maxDate || !item.minDate) {
@@ -128,9 +128,9 @@ export default {
         clusterSize: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
         timespan: this.$tc('numbers.days', item.timeDifferenceDay, {
-          n: item.timeDifferenceDay,
+          n: item.timeDifferenceDay
         }),
-        dates: dates.join(' - '),
+        dates: dates.join(' - ')
       })
     },
     getTextReusePassageSummary(item) {
@@ -139,10 +139,10 @@ export default {
       const excerpt = item.content.length > 50 ? `${item.content.substring(0, 50)}…` : item.content
       return [
         `<span class='small-caps'>${this.$d(passageDate, 'long').toLowerCase()}</span>`,
-        `"${excerpt}"`,
+        `"${excerpt}"`
       ].join(' ')
-    },
-  },
+    }
+  }
 }
 </script>
 
