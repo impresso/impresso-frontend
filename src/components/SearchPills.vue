@@ -323,7 +323,11 @@ export default {
         .slice(0, max)
         .map((/** @type {object} */ d) => {
           if (translate) {
-            return this.$t(`buckets.${type}.${d[prop]}`)
+            const translation = this.$t(`buckets.${type}.${d[prop]}`)
+            if (translation.startsWith('buckets.')) {
+              return d[prop]
+            }
+            return translation
           }
           return d[prop] || '...'
         })

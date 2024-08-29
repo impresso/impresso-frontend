@@ -70,6 +70,9 @@ export default {
         t = this.item ? this.item.y : this.val
       } else if (['type', 'country', 'language', 'partner'].includes(this.type)) {
         t = this.$t(`buckets.${this.type}.${this.item.uid}`)
+        if (t.startsWith('buckets.')) {
+          t = `"${this.item.uid}"`
+        }
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {
