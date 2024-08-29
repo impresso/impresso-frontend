@@ -617,6 +617,12 @@ export default {
           "exclude": "<b>NOT</b> mentioning"
         }
       },
+      "entity": {
+        "context": {
+          "include": "Mentioning",
+          "exclude": "<b>NOT</b> mentioning"
+        }
+      },
       "collection": {
         "title": "collection",
         "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
