@@ -99,12 +99,18 @@ export default {
   },
   methods: {
     getTextReuseClusterSummary(item) {
-      const clusterSizeLabel = this.$tc('numbers.clusterSize', item.clusterSize, {
-        n: this.$n(item.clusterSize)
-      })
-      const lexicalOverlapLabel = this.$tc('numbers.lexicalOverlap', item.lexicalOverlap, {
-        n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
-      })
+      const clusterSizeLabel =
+        item.clusterSize != null
+          ? this.$tc('numbers.clusterSize', item.clusterSize, {
+              n: this.$n(item.clusterSize)
+            })
+          : ''
+      const lexicalOverlapLabel =
+        item.lexicalOverlap != null
+          ? this.$tc('numbers.lexicalOverlap', item.lexicalOverlap, {
+              n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
+            })
+          : ''
       let dates = []
       if (!item.maxDate || !item.minDate) {
         dates = []
