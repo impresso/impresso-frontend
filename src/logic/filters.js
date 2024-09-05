@@ -15,14 +15,14 @@ export function toSerializedFilter(filter) {
 }
 
 export function toSerializedFilters(filters) {
-  return protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
+  return protobuf.searchQuery.serialize({ filters: filters?.map(toCanonicalFilter) ?? [] })
 }
 
 export const NumericRangeFacets = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
-  'contentLength',
+  'contentLength'
 ]
 
 export const TimeRangeFacets = ['daterange']
@@ -83,9 +83,9 @@ export function optimizeFilters(filters) {
         context,
         precision,
         op,
-        q: q.length > 1 ? q : q[0],
+        q: q.length > 1 ? q : q[0]
       },
-      value => value == null,
+      value => value == null
     )
   })
 }
@@ -167,7 +167,7 @@ export const SupportedFiltersByContext = Object.freeze({
     'entity-string',
     'entity-type',
     'regex',
-    'textReuseCluster',
+    'textReuseCluster'
   ],
   textReuse: [
     'textReuseClusterSize',
@@ -184,7 +184,7 @@ export const SupportedFiltersByContext = Object.freeze({
     'type',
     'country',
     'location',
-    'person',
+    'person'
   ],
   textReusePassages: [
     'textReuseCluster',
@@ -202,27 +202,27 @@ export const SupportedFiltersByContext = Object.freeze({
     'type',
     'country',
     'location',
-    'person',
+    'person'
   ],
   textReuseClusters: [
     'textReuseCluster',
     'textReuseClusterSize',
     'textReuseClusterLexicalOverlap',
     'textReuseClusterDayDelta',
-    'newspaper',
+    'newspaper'
   ],
-  entities: ['string', 'type', 'uid'],
+  entities: ['string', 'type', 'uid']
 })
 
 export const SupportedFiltersByIndex = Object.freeze({
   search: SupportedFiltersByContext.search,
   tr_passages: SupportedFiltersByContext.textReusePassages,
-  tr_clusters: SupportedFiltersByContext.textReuseClusters,
+  tr_clusters: SupportedFiltersByContext.textReuseClusters
 })
 
 export const SupportedIndexByContext = Object.freeze({
   search: 'search',
   textReuse: 'tr_passages',
   textReusePassages: 'tr_passages',
-  textReuseClusters: 'tr_clusters',
+  textReuseClusters: 'tr_clusters'
 })
