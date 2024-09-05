@@ -4,16 +4,7 @@
       <div v-if="tooltip.item">
         <h1 class="text-white">{{ tooltip.item.name }}</h1>
         <p>
-          <span
-            class="available"
-            v-if="tooltip.item.included"
-            v-html="
-              $t('dates.includedLifespan', {
-                from: $d(getIssueDate(tooltip.item.firstIssue), 'short'),
-                to: $d(getIssueDate(tooltip.item.lastIssue), 'short')
-              })
-            "
-          />
+          <span class="available" v-if="tooltip.item.included" v-html="includedLifespan()" />
           <span class="small-caps" v-else>{{ $t('dates.notYetAvailable') }}</span>
         </p>
         <p>
@@ -151,6 +142,14 @@ export default {
     },
     getIssueDate(n) {
       if (n && n.date) return n.date
+    },
+    includedLifespan() {
+      if (this.tooltip.item.lastIssue?.date == null || this.tooltip.item.firstIssue?.date == null)
+        return ''
+      return this.$t('dates.includedLifespan', {
+        from: this.$d(this.getIssueDate(this.tooltip.item.firstIssue), 'short'),
+        to: this.$d(this.getIssueDate(this.tooltip.item.lastIssue), 'short')
+      })
     },
     onMousemove({ clientX, clientY }) {
       const x = clientX - this.$refs.lines.offsetLeft - this.$refs.lines.offsetParent.offsetLeft
