@@ -70,3 +70,13 @@ export const NoUpperLower: Story = {
     facetSearchProvider: noUpperLowerFacetSearchProvider
   }
 }
+
+export const Loading: Story = {
+  args: {
+    statsProvider: async (type, { query }) => {
+      const result = await statsProvider(type, { query })
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      return result
+    }
+  }
+}

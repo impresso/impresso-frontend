@@ -15,7 +15,7 @@
 
     <!-- min 100px height -->
     <div v-if="loading" class="text-center" style="height: 100px">
-      <span role="status" aria-hidden class="spinner-grow spinner-grow-sm text-primary"> </span>
+      <Spinner />
     </div>
     <div v-else-if="loaded" class="position-relative">
       <HistogramSlider
@@ -51,6 +51,7 @@
 <script lang="ts">
 import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import Spinner from '@/components/layout/Spinner.vue'
 import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue'
 import { serializeFilters } from '@/logic/filters'
 import { Bucket, Facet, Filter } from '@/models'
@@ -103,7 +104,8 @@ export default defineComponent({
     BaseTitleBar,
     HistogramSlider,
     Tooltip,
-    InfoButton
+    InfoButton,
+    Spinner
   },
   data() {
     return {
