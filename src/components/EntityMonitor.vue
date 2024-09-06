@@ -29,6 +29,7 @@
               entity_id: this.id
             }
           }"
+          @click="$emit('close')"
         >
           {{ $t('actions.detail') }}
         </router-link>
@@ -78,6 +79,7 @@ export default defineComponent({
       default: () => []
     }
   },
+  emits: ['close'],
   data: () => ({
     isLoading: false,
     item: null,

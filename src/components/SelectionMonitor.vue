@@ -133,6 +133,7 @@
         :id="monitor.item.id || monitor.item.uid || ''"
         :type="monitor.type"
         :search-index="monitor.searchIndex"
+        @close="hide"
       />
       <div
         v-else-if="['topic', 'newspaper'].includes(monitor.type)"
