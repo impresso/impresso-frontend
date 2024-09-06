@@ -5,12 +5,18 @@
         <svg ref="chart" class="chart" preserveAspectRatio="none"></svg>
       </b-row>
       <b-row v-if="shouldEnableSlider">
-        <VueSlider width="100%" v-model="sliderValue" v-bind="{
-          modelValue: [sliderValue[0], sliderValue[1]],
-          min: sliderRange[0],
-          max: sliderRange[1]
-        }" :tooltip-formatter="formatTooltip" :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
-          data-testid="slider-control" />
+        <VueSlider
+          width="100%"
+          v-model="sliderValue"
+          v-bind="{
+            modelValue: [sliderValue[0], sliderValue[1]],
+            min: sliderRange[0],
+            max: sliderRange[1]
+          }"
+          :tooltip-formatter="formatTooltip"
+          :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
+          data-testid="slider-control"
+        />
       </b-row>
     </b-col>
   </b-container>
@@ -51,7 +57,7 @@ export default {
       default: 'linear'
     }
   },
-  emits: ['update:modelValue', 'change'],
+  emits: ['update:modelValue', 'change', 'mousemove', 'click'],
   mounted() {
     // @ts-ignore
     window.addEventListener('resize', this.renderChart.bind(this))
@@ -73,6 +79,7 @@ export default {
       /** @param {undefined|number[]} value */
       set(value) {
         this.$emit('change', value)
+        this.$emit('update:modelValue', value)
       }
     },
     /** @returns {{[key:string]: string}|string[]|undefined} */
@@ -96,7 +103,7 @@ export default {
           .reduce((acc, { val }, index) => {
             if (index % step === 0) acc.push(val)
             return acc
-          }, /** @type {string[]} */([]))
+          }, /** @type {string[]} */ ([]))
           .concat([this.sliderRange[1].toString()])
       }
       const [min, max] = this.sliderRange
@@ -173,13 +180,13 @@ export default {
         .data(this.buckets)
         .join('g')
         .attr('class', (d, i) => (i === barIndexWithMaximumValue ? 'bar max' : 'bar'))
-        .attr('transform', (d) => `translate(${x(d.val) ?? 0}, ${this.chartHeight - y(d.count)})`)
+        .attr('transform', d => `translate(${x(d.val) ?? 0}, ${this.chartHeight - y(d.count)})`)
 
       // add rects to the bars
       bars
         .append('rect')
         .attr('width', x.bandwidth())
-        .attr('height', (d) => Math.max(1, y(d.count)))
+        .attr('height', d => Math.max(1, y(d.count)))
 
       // add a black line on top of the bars
       bars
@@ -193,10 +200,10 @@ export default {
       bars
         .join('rect')
         .attr('class', 'bar')
-        .attr('x', (d) => x(d.val) ?? 0)
+        .attr('x', d => x(d.val) ?? 0)
         .attr('width', x.bandwidth())
-        .attr('y', (d) => this.chartHeight - y(d.count))
-        .attr('height', (d) => Math.max(1, y(d.count)))
+        .attr('y', d => this.chartHeight - y(d.count))
+        .attr('height', d => Math.max(1, y(d.count)))
         // add black lines to the top of the bars
         .append('line')
         .attr('x1', 0)
@@ -273,7 +280,7 @@ export default {
         .data(maxCountBucketIndex >= 0 ? [this.buckets[maxCountBucketIndex]] : [])
         .join('g')
         .attr('class', 'maxval')
-        .attr('transform', (bucket) => {
+        .attr('transform', bucket => {
           const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
           const yOffset = this.chartHeight - y(bucket.count)
           return `translate(${xOffset}, ${yOffset})`
@@ -281,17 +288,17 @@ export default {
 
       maxval
         .selectAll('text')
-        .data((d) => [d])
+        .data(d => [d])
         .join('text')
         .attr('dy', -5)
-        .text((bucket) => {
+        .text(bucket => {
           const tlabel = bucket.upper && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
           return this.$t(tlabel, {
             n: this.$n(Math.round(bucket.count)),
             ...bucket
           })
         })
-        .attr('text-anchor', (bucket) => {
+        .attr('text-anchor', bucket => {
           const xOffset = (x(bucket.val) ?? 0) + x.bandwidth() / 2
           const oneThirdWidth = width / 3
           if (xOffset <= oneThirdWidth) return 'start'
@@ -301,7 +308,7 @@ export default {
 
       maxval
         .selectAll('circle.point')
-        .data((d) => [d])
+        .data(d => [d])
         .join('circle')
         .attr('class', 'point')
         .attr('r', 2) // 3
@@ -362,9 +369,11 @@ export default {
   }
 }
 </style>
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "maxval": "{val} ({n} results)",
     "maxvalrange": "{lower} - {upper} ({n} results)"
   }
-}</i18n>
+}
+</i18n>

@@ -37,6 +37,9 @@ export interface Bucket {
   val: string
   count: number
   item?: Entity
+
+  upper?: number
+  lower?: number
 }
 
 export interface Facet {

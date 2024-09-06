@@ -6,40 +6,70 @@
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
             <b-nav-item :to="{ name: 'textReuseOverview' }" class="active" active-class="none">
-              <span v-html="$tc('searchTextReuseLabel', 10000, {
-                n: $n(10000),
-              })
-                " />
+              <span
+                v-html="
+                  $tc('searchTextReuseLabel', 10000, {
+                    n: $n(10000)
+                  })
+                "
+              />
               <span v-if="isLoading" class=""> &mdash; {{ $t('actions.loading') }}</span>
             </b-nav-item>
           </template>
         </b-tabs>
         <div class="p-3 border-bottom bg-light">
           <div class="mb-2" v-if="ignoredFilters.length">
-            <em class="small" v-html="$tc('numbers.ignoredFiltersDetailed', ignoredFilters.length, {
-              n: ignoredFilters.length,
-              detail: ignoredFilters.map(f => f.type).join(', '),
-            })
-              " />
+            <em
+              class="small"
+              v-html="
+                $tc('numbers.ignoredFiltersDetailed', ignoredFilters.length, {
+                  n: ignoredFilters.length,
+                  detail: ignoredFilters.map(f => f.type).join(', ')
+                })
+              "
+            />
           </div>
-          <search-pills :filters="filtersWithItems" @changed="handleFiltersChanged"
-            :includedFilterTypes="allowedFilterTypes" />
-          <search-input @submit="handleSearchInputSubmit" placeholder="start searching..."></search-input>
+          <search-pills
+            :filters="filtersWithItems"
+            @changed="handleFiltersChanged"
+            :includedFilterTypes="allowedFilterTypes"
+          />
+          <search-input
+            @submit="handleSearchInputSubmit"
+            placeholder="start searching..."
+          ></search-input>
         </div>
       </template>
       <template v-if="timelineValues.length">
-        <FilterTimeline info-button-id="text-reuse-filter-year" class="py-2 mx-3" :key="`t-year`" group-by="passages"
-          disableRelativeDisplayStyle :facet="timelineFacets[0]" :facet-filters="filters" :values="timelineValues"
-          :min-date="minDate" :max-date="maxDate" :start-year="minDate.getFullYear()" :end-year="maxDate.getFullYear()"
-          @changed="handleFacetFiltersChanged" />
+        <FilterTimeline
+          info-button-id="text-reuse-filter-year"
+          class="py-2 mx-3"
+          :key="`t-year`"
+          group-by="passages"
+          disableRelativeDisplayStyle
+          :facet="timelineFacets[0]"
+          :facet-filters="filters"
+          :values="timelineValues"
+          :min-date="minDate"
+          :max-date="maxDate"
+          :start-year="minDate.getFullYear()"
+          :end-year="maxDate.getFullYear()"
+          @changed="handleFacetFiltersChanged"
+        />
       </template>
-      <FilterDynamicRange class="py-2 mx-3" index="tr_passages" :facet="textReuseClusterSizeFacet"
+      <FilterDynamicRange
+        class="py-2 mx-3"
+        index="tr_passages"
+        :facetType="textReuseClusterSizeFacet?.type"
         :facet-filters="allowedFilters"
         :isFiltered="allowedFilters.some(f => f.type === textReuseClusterSizeFacet.type)"
-        @changed="handleFiltersChanged" @clicked="handleFacetFiltersClicked"
+        @changed="handleFiltersChanged"
+        @clicked="handleFacetFiltersClicked"
         :info-button-id="`text-reuse-filter-${textReuseClusterSizeFacet.type}`"
-        value-label="textReuseClusterSizeValueLabel" value-as-range-label="textReuseClusterSizeValueAsRangeLabel"
-        count-label="numbers.passages">
+        value-label="textReuseClusterSizeValueLabel"
+        value-as-range-label="textReuseClusterSizeValueAsRangeLabel"
+        count-label="numbers.passages"
+      >
         <template v-slot:description>
           <div class="mb-3">
             How to read histograms
@@ -47,18 +77,37 @@
           </div>
         </template>
       </FilterDynamicRange>
-      <FilterDynamicRange v-for="(facet, i) in dynamicRangeFacets" class="py-2 mx-3" index="tr_passages"
-        :key="`rd-${i}`" :facet="facet" :facet-filters="allowedFilters"
-        :isFiltered="allowedFilters.some(f => f.type === facet.type)" @changed="handleFiltersChanged"
-        @clicked="handleFacetFiltersClicked" count-label="numbers.passages"
+      <FilterDynamicRange
+        v-for="(facet, i) in dynamicRangeFacets"
+        class="py-2 mx-3"
+        index="tr_passages"
+        :key="`rd-${i}`"
+        :facetType="facet?.type"
+        :facet-filters="allowedFilters"
+        :isFiltered="allowedFilters.some(f => f.type === facet.type)"
+        @changed="handleFiltersChanged"
+        @clicked="handleFacetFiltersClicked"
+        count-label="numbers.passages"
         :isPercentage="facet.type === 'textReuseClusterLexicalOverlap'"
-        :value-percentage-label="facet.type + 'ValuePercentageLabel'" :value-label="facet.type + 'ValueLabel'"
-        :value-as-range-label="facet.type + 'ValueAsRangeLabel'" :info-button-id="`text-reuse-filter-${facet.type}`" />
+        :value-percentage-label="facet.type + 'ValuePercentageLabel'"
+        :value-label="facet.type + 'ValueLabel'"
+        :value-as-range-label="facet.type + 'ValueAsRangeLabel'"
+        :info-button-id="`text-reuse-filter-${facet.type}`"
+      />
 
-      <FilterFacet v-for="(facet, index) in standardFacets" class="border-top py-2 mx-3" search-index="tr_passages"
-        :facet="facet" :key="index" :context-filters="allowedFilters" collapsible
-        @changed="fs => handleFacetFiltersChanged(fs, facet.type)" :info-button-id="facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : null
-          " />
+      <FilterFacet
+        v-for="(facet, index) in standardFacets"
+        class="border-top py-2 mx-3"
+        search-index="tr_passages"
+        :facet="facet"
+        :key="index"
+        :context-filters="allowedFilters"
+        collapsible
+        @changed="fs => handleFacetFiltersChanged(fs, facet.type)"
+        :info-button-id="
+          facet.type === 'textReuseCluster' ? 'text-reuse-filter-textReuseCluster' : null
+        "
+      />
     </i-layout-section>
     <router-view :filters="filters" :filtersWithItems="filtersWithItems"></router-view>
   </i-layout>
@@ -99,7 +148,7 @@ const FacetTypes = [
   'location',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta',
+  'textReuseClusterDayDelta'
 ]
 
 export default {
@@ -109,21 +158,21 @@ export default {
     FilterFacet,
     FilterTimeline,
     FilterDynamicRange,
-    InfoButton,
+    InfoButton
   },
   data: () => ({
     isLoading: false,
-    facets: FacetTypes.map(type => new Facet({ type })),
+    facets: FacetTypes.map(type => new Facet({ type }))
   }),
   props: {
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     filtersWithItems: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   computed: {
     ...mapStores(useSelectionMonitorStore),
@@ -141,7 +190,7 @@ export default {
       // we exclude also `hasTextContents` as it is useless for text reuse
       return this.filters.filter(
         ({ type }) =>
-          !SupportedFiltersByContext.textReusePassages.includes(type) && type !== 'hasTextContents',
+          !SupportedFiltersByContext.textReusePassages.includes(type) && type !== 'hasTextContents'
       )
     },
     standardFacets() {
@@ -155,8 +204,8 @@ export default {
           'country',
           'language',
           'person',
-          'location',
-        ].includes(type),
+          'location'
+        ].includes(type)
       )
     },
     timelineFacets() {
@@ -174,7 +223,7 @@ export default {
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (min, d) => (d.t < min ? d.t : min),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-01-01`)
       }
@@ -185,7 +234,7 @@ export default {
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (max, d) => (d.t > max ? d.t : max),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-12-31`)
       }
@@ -196,7 +245,7 @@ export default {
     },
     dynamicRangeFacets() {
       const rangeFacets = this.facets.filter(({ type }) =>
-        ['textReuseClusterDayDelta', 'textReuseClusterLexicalOverlap'].includes(type),
+        ['textReuseClusterDayDelta', 'textReuseClusterLexicalOverlap'].includes(type)
       )
       return rangeFacets
     },
@@ -206,18 +255,15 @@ export default {
         limit: 10,
         order_by: '-count',
         page: 1,
-        filters: this.allowedFilters,
+        filters: this.allowedFilters
       }
       // eslint-disable-next-line
       console.debug('[TextReuse] searchFacetApiQueryParams', query)
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
-    },
+    }
   },
   methods: {
     /** @param {Filter[]} filters */
@@ -225,7 +271,7 @@ export default {
       // eslint-disable-next-line
       console.debug('[TextReuse] handleFiltersChanged', filters)
       this.$navigation.updateQueryParameters({
-        [CommonQueryParameters.SearchFilters]: serializeFilters(filters),
+        [CommonQueryParameters.SearchFilters]: serializeFilters(filters)
       })
     },
     handleFacetFiltersChanged(filters, type) {
@@ -243,7 +289,7 @@ export default {
           this.filters.map(filter => {
             const updatedFilter = filters.find(({ type }) => type === filter.type)
             return updatedFilter || filter
-          }),
+          })
         )
         return
       } else {
@@ -260,12 +306,12 @@ export default {
         this.selectionMonitorStore.show({
           item: {
             ...filter,
-            q: [String(filter.q[0]), String(parseInt(filter.q[0], 10) + 0.999)],
+            q: [String(filter.q[0]), String(parseInt(filter.q[0], 10) + 0.999)]
           },
           searchIndex: 'tr_passages',
           type: filter.type,
           scope: 'closeUp',
-          applyCurrentSearchFilters: true,
+          applyCurrentSearchFilters: true
         })
         return
       }
@@ -275,7 +321,7 @@ export default {
         searchIndex: 'tr_passages',
         type: filter.type,
         scope: 'closeUp',
-        applyCurrentSearchFilters: true,
+        applyCurrentSearchFilters: true
       })
     },
     handleSearchInputSubmit({ q, appendIfExisting = false }) {
@@ -289,7 +335,7 @@ export default {
         '[TextReuse] handleSearchInputSubmit \n - q:',
         q,
         '\n - appendIfExisting:',
-        appendIfExisting,
+        appendIfExisting
       )
 
       if (filterExists && appendIfExisting) {
@@ -299,7 +345,7 @@ export default {
               return stringFilter
             }
             return filter
-          }),
+          })
         )
       } else {
         this.handleFiltersChanged([...this.filters, stringFilter])
@@ -315,8 +361,8 @@ export default {
         .get(type, {
           query: {
             ...this.searchFacetApiQueryParams.query,
-            ...opts,
-          },
+            ...opts
+          }
         })
         .then(response => {
           const facet = this.facets.find(facet => facet.type === type)
@@ -326,7 +372,7 @@ export default {
             facet.setBuckets(response.buckets)
           }
         })
-    },
+    }
   },
   mounted() {
     // eslint-disable-next-line
@@ -352,15 +398,17 @@ export default {
         await this.loadFacet('location')
       },
       immediate: true,
-      deep: false,
-    },
-  },
+      deep: false
+    }
+  }
 }
 </script>
 
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "searchTextReuseLabel": "search text reuse passages",
     "searchTextReusePlaceholder": "search text reuse passages"
   }
-}</i18n>
+}
+</i18n>
