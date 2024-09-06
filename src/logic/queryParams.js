@@ -53,6 +53,7 @@ function tryMigrateLegacySearchQueryParameter(vue) {
     vue.$nextTick(function () {
       if (this.$route?.query[CommonQueryParameters.LegacySearchFilters] != null) {
         const serialisedFilters = serializeFilters(filters)
+        if (this.$navigation == null) return
         this.$navigation.updateQueryParameters({
           [CommonQueryParameters.SearchFilters]: serialisedFilters,
           [CommonQueryParameters.LegacySearchFilters]: undefined
@@ -67,7 +68,7 @@ function tryMigrateLegacySearchQueryParameter(vue) {
  * @param {import('vue/types/vue').ComponentCustomProperties} vue
  * @return {string}
  */
-const getSearchQueryFromQueryParameterOrLocalStorage = (vue) => {
+const getSearchQueryFromQueryParameterOrLocalStorage = vue => {
   tryMigrateLegacySearchQueryParameter(vue)
   const { [CommonQueryParameters.SearchFilters]: sq } = vue.$route?.query ?? {}
 
