@@ -79,6 +79,7 @@ export default {
       /** @param {undefined|number[]} value */
       set(value) {
         this.$emit('change', value)
+        this.$emit('update:modelValue', value)
       }
     },
     /** @returns {{[key:string]: string}|string[]|undefined} */
