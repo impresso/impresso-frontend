@@ -20,8 +20,8 @@ export default {
     if (filterData.type === 'mention') {
       filter = new FilterString({
         ...filterData,
-        type: 'string', // we force EXACT string filter
-        precision: 'EXACT',
+        type: 'mention', // we force EXACT string filter
+        precision: 'EXACT'
       })
     }
 
@@ -32,7 +32,7 @@ export default {
     if (filterData.type === 'title') {
       filter = new FilterString({
         ...filterData,
-        type: 'title',
+        type: 'title'
       })
     }
 
@@ -57,7 +57,7 @@ export default {
         'year',
         'accessRight',
         'partner',
-        'textReuseClusterId',
+        'textReuseClusterId'
       ].includes(filterData.type)
     ) {
       filter = new FilterItem(filterData)
@@ -83,5 +83,5 @@ export default {
       filter.key = filterData.key || v4()
     }
     return filter
-  },
+  }
 }
