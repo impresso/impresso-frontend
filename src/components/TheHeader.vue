@@ -1,13 +1,14 @@
 <template>
   <div>
-    <div class="progress" v-if="processingStatus" style="height: 4px;">
+    <div class="progress" v-if="processingStatus" style="height: 4px">
       <div
         class="progress-bar bg-info progress-bar-animated progress-bar-striped"
         role="progressbar"
         aria-valuemin="0"
         aria-valuemax="100"
         aria-valuenow="100"
-        :style="`width: ${100}%;`"></div>
+        :style="`width: ${100}%;`"
+      ></div>
     </div>
     <b-navbar
       id="TheHeader"
@@ -203,6 +204,10 @@
             {{ $t(`errors.BadRequest`) }}
             <span v-if="error.message === 'Login incorrect'">{{ error.message }}</span>
           </span>
+          <span v-else-if="error.name === 'GeneralError'">
+            {{ $t(`errors.GeneralError`) }}
+            <span v-if="error.message">{{ error.message }}</span>
+          </span>
           <span v-else>{{ error }}</span>
         </span>
         <span v-if="error.route.length">&nbsp;{{ $t(['paths', ...error.route].join('.')) }}</span>
@@ -232,31 +237,31 @@ export default {
       de: {
         code: 'de',
         name: 'Deutsch',
-        disabled: true,
+        disabled: true
       },
       en: {
         code: 'en',
-        name: 'English',
+        name: 'English'
       },
       fr: {
         code: 'fr',
         name: 'Français',
-        disabled: true,
+        disabled: true
       },
       it: {
         code: 'it',
         name: 'Italiano',
-        disabled: true,
+        disabled: true
       },
       nl: {
         code: 'nl',
         name: 'Nederlands',
-        disabled: true,
-      },
+        disabled: true
+      }
     },
     jobsPaginationPerPage: 4,
     jobsCurrentPage: 1,
-    jobsPaginationCurrentPage: 1,
+    jobsPaginationCurrentPage: 1
   }),
   // mounted() {
   //   if (this.user) {
@@ -273,16 +278,16 @@ export default {
       return {
         name: 'login',
         query: {
-          redirect: this.$route.path,
-        },
+          redirect: this.$route.path
+        }
       }
     },
     registerRouteParams() {
       return {
         name: 'register',
         query: {
-          redirect: this.$route.path,
-        },
+          redirect: this.$route.path
+        }
       }
     },
     countActiveFilters() {
@@ -305,11 +310,7 @@ export default {
     },
     showAlert() {
       const messages = this.notificationsStore.errorMessages
-      if (
-        messages.length &&
-        !this.user &&
-        messages[0].name === 'NotAuthenticated'
-      ) {
+      if (messages.length && !this.user && messages[0].name === 'NotAuthenticated') {
         return false
       }
       return messages.length > 0
@@ -335,7 +336,7 @@ export default {
     },
     userPicture() {
       const style = {
-        backgroundColor: 'black',
+        backgroundColor: 'black'
       }
 
       if (this.user.pattern) {
@@ -360,7 +361,7 @@ export default {
     textReuseEnabled() {
       // @ts-ignore
       return !!window.impressoFeatures?.textReuse?.enabled
-    },
+    }
   },
   methods: {
     updateLastNotificationDate() {
@@ -379,10 +380,10 @@ export default {
         query: {
           ...route.query,
           ...additionalQueryParameters,
-          sq: this.searchQueryHash,
-        },
+          sq: this.searchQueryHash
+        }
       }
-    },
+    }
   },
   watch: {
     jobsPaginationCurrentPage: {
@@ -390,21 +391,21 @@ export default {
         if (this.user) {
           this.jobsStore.loadJobs({
             page,
-            limit: this.jobsPaginationPerPage,
+            limit: this.jobsPaginationPerPage
           })
         }
       },
-      immediate: true,
+      immediate: true
     },
     user: {
       handler(user) {
         if (user) {
           this.jobsStore.loadJobs({
             page: 1,
-            limit: this.jobsPaginationPerPage,
+            limit: this.jobsPaginationPerPage
           })
         }
-      },
+      }
     },
     jobs: {
       handler(jobs) {
@@ -417,25 +418,25 @@ export default {
 
           if (lastNotificationDate - lastModifiedDate < 0) {
             console.info(
-              'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.',
+              'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.'
             )
             this.$refs.ddownJobs.show()
           } else {
             console.info(
-              'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.',
+              'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.'
             )
           }
         }
-      },
-    },
+      }
+    }
   },
   components: {
     Icon,
     Logo,
     // Toast,
     JobItem,
-    Pagination,
-  },
+    Pagination
+  }
 }
 </script>
 
@@ -735,7 +736,7 @@ export default {
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
     "label_faq": "Help",
-    "label_jobs" : "Running tasks",
+    "label_jobs": "Running tasks",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",
