@@ -114,24 +114,22 @@
       "
     >
       <template v-slot:header>
-        <b-navbar-nav class="d-flex flex-row pt-1">
-          <li class="navbar-text ml-3 mr-2 text-muted">
-            <label>{{ $t('sortBy') }}</label>
-          </li>
-          <li class="navbar-text mr-1">
-            <i-dropdown
-              v-model="orderBy"
-              :options="
-                orderByOptions.map(value => ({
-                  value,
-                  text: $t(`sort_${value}`)
-                }))
-              "
-              class="mr-auto"
-              size="sm"
-              variant="outline-primary"
-            ></i-dropdown>
-          </li>
+        <b-navbar-nav class="py-2 pl-3 ml-auto d-flex flex-row">
+          <b-nav-item class="navbar-text d-inline-block ml-3 mr-2 text-muted small-caps">
+            {{ $t('sortBy') }}
+          </b-nav-item>
+          <i-dropdown
+            v-model="orderBy"
+            :options="
+              orderByOptions.map(value => ({
+                value,
+                text: $t(`sort_${value}`)
+              }))
+            "
+            class="mr-auto"
+            size="sm"
+            variant="outline-tertiary"
+          ></i-dropdown>
         </b-navbar-nav>
       </template>
       <template v-slot:default>
@@ -171,7 +169,7 @@
             "
             class="mr-auto"
             size="sm"
-            variant="outline-primary"
+            variant="outline-tertiary"
           ></i-dropdown>
         </b-navbar-nav>
       </template>
