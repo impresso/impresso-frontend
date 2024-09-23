@@ -468,6 +468,7 @@ input[type='range']:active::-ms-thumb {
   &:not(.disabled):focus,
   &:hover {
     background-color: transparent;
+    color: var(--impresso-color-black);
   }
 }
 
