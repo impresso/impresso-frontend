@@ -104,12 +104,12 @@
       <TextReusePassageMonitor
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
         :item="monitor.item"
-        v-else-if="monitor.type === 'textReusePassage'"
+        v-if="monitor.type === 'textReusePassage'"
         class="flex-grow-1 bg-dark mt-2"
       ></TextReusePassageMonitor>
       <!-- range closeup view-->
       <ListOfItems
-        v-else-if="
+        v-if="
           [
             'textReuseClusterLexicalOverlap',
             'textReuseClusterDayDelta',
