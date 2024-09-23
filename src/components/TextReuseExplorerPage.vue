@@ -154,7 +154,7 @@
       "
     >
       <template v-slot:header>
-        <b-navbar-nav class="py-2 pl-3 ml-auto">
+        <b-navbar-nav class="py-2 pl-3 ml-auto d-flex flex-row">
           <b-nav-item class="navbar-text ml-3 mr-2 text-muted small-caps">
             {{ $t('sortBy') }}
           </b-nav-item>
