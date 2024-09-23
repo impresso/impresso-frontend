@@ -1,5 +1,5 @@
 <template>
-  <div class="EntityMonitor bg-dark" style="min-height: 100px">
+  <div class="EntityMonitor bg-dark p-2" style="min-height: 100px">
     <!-- header -->
     <div class="d-flex mb-2 align-items-center">
       <b-tabs pills class="px-2" style="flex-grow: 1">
