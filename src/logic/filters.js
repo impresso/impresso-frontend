@@ -56,6 +56,11 @@ const omitBy = (object, fn) =>
  * @returns {Filter[]}
  */
 export function optimizeFilters(filters) {
+  if (!Array.isArray(filters)) {
+    console.error('optimizeFilters: filters is not an array', filters)
+    return []
+  }
+  if (filters.length === 0) return []
   const groupingMap = filters.reduce((map, filter, i) => {
     let key = getFilterMergeKey(filter)
     // DO NOT GROUP range filters together
