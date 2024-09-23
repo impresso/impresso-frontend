@@ -260,6 +260,17 @@ label {
   top: 3px;
   left: 3px;
 }
+
+.btn-outline-tertiary {
+  border-color: var(--clr-grey-600) !important;
+}
+
+.btn-outline-tertiary:focus,
+.btn-outline-tertiary:hover {
+  box-shadow: none;
+  background-color: transparent !important;
+  border-bottom-color: var(--clr-grey-400) !important;
+}
 .btn-md {
   border-radius: var(--border-radius-md);
   box-shadow: var(--bs-box-shadow-sm);
@@ -340,6 +351,15 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
   box-shadow: none;
 }
 
+/* Dropdown */
+.dropdown.show .dropdown-toggle.btn-outline-tertiary {
+  border: 1px solid var(--impresso-color-black) !important;
+  border-bottom-color: transparent !important;
+  background-color: white !important;
+}
+.dropdown.show .dropdown-toggle.btn-outline-tertiary:hover {
+  background-color: white !important;
+}
 /* SVGs */
 svg text {
   font-family: var(--bs-font-sans-serif), sans-serif;
