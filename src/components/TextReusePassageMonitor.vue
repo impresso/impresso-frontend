@@ -11,24 +11,38 @@
             with #
 
             <!-- input form to increase pagination-->
-            <b-form-input v-model="endPassageOffset" type="number" size="sm" min="1" :max="totalPassages"
-              style="width: 60px" class="mx-2 rounded text-right" />
+            <b-form-input
+              v-model="endPassageOffset"
+              type="number"
+              size="sm"
+              min="1"
+              :max="totalPassages"
+              style="width: 60px"
+              class="mx-2 rounded text-right"
+            />
             <div v-html="$tc('numbers.ofPassages', totalPassages, { n: totalPassages })" />
-            <i-dropdown v-model="endPassageOrderBy" :options="orderByOptions.map(value => ({
-              value,
-              text: $t(`sort_${value}`),
-            }))
-              " class="ml-2" size="sm" variant="outline-primary"></i-dropdown>
+            <i-dropdown
+              v-model="endPassageOrderBy"
+              :options="
+                orderByOptions.map(value => ({
+                  value,
+                  text: $t(`sort_${value}`)
+                }))
+              "
+              class="ml-2"
+              size="sm"
+              variant="outline-primary"
+            ></i-dropdown>
           </div>
         </div>
       </div>
-      <div class="d-flex flex-row TextReusePassageMonitor_header ">
+      <div class="d-flex flex-row TextReusePassageMonitor_header">
         <TextReusePassageItemLabel :item="item" class="px-3" />
         <TextReusePassageItemLabel v-if="endPassage" :item="endPassage" class="px-3" />
       </div>
     </div>
     <div class="position-relative flex-grow-1 mb-1">
-      <div class="left w-50 position-absolute h-100 ">
+      <div class="left w-50 position-absolute h-100">
         <p class="m-3 border-top border-tertiary pt-3" v-if="diff.length">
           <span v-for="part in diff" :key="part.value">
             <span v-if="part.added" class="added">{{ part.value }}</span>
@@ -63,25 +77,25 @@ const OrderByOptions = ['date', '-date', 'size']
 export default {
   name: 'TextReusePassageMonitor',
   components: {
-    TextReusePassageItemLabel,
+    TextReusePassageItemLabel
   },
   props: {
     item: {
       type: Object,
-      required: true,
+      required: true
     },
     filters: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   data: () => ({
     totalPassages: -1,
     endPassage: null,
     endPassageOrderBy: '-date',
-    endPassageOffset: 1,
+    endPassageOffset: 0,
     endPassageIsLoading: false,
-    orderByOptions: OrderByOptions,
+    orderByOptions: OrderByOptions
   }),
   methods: {
     async loadEndPassage({ query }) {
@@ -90,9 +104,14 @@ export default {
       await textReusePassages
         .find({ query })
         .then(res => {
+          console.debug('[TextReusePassageMonitor] loadEndPassage result', res)
+          if (!res.data.length) {
+            this.endPassage = null
+            this.endPassageIsLoading = false
+            return res
+          }
           this.endPassage = new TextReusePassage(res.data[0])
           this.totalPassages = res.total
-          this.endPassageIsLoading = false
           return res
         })
         .catch(err => {
@@ -100,7 +119,8 @@ export default {
           this.endPassageIsLoading = false
           return { data: [] }
         })
-    },
+      this.endPassageIsLoading = false
+    }
   },
   computed: {
     diff() {
@@ -113,23 +133,20 @@ export default {
       const filters = this.filters.length
         ? optimizeFilters(this.filters)
         : [{ type: 'textReuseCluster', q: this.item.textReuseCluster.id }]
-      filters.push({ type: 'id', q: this.item.id, context: 'exclude' })
+      // filters.push({ type: 'id', q: this.item.id, context: 'exclude' })
       const query = {
         offset: parseInt(this.endPassageOffset, 10),
         limit: 1,
         order_by: this.endPassageOrderBy,
         filters,
-        addons: { newspaper: 'text' },
+        addons: { newspaper: 'text' }
       }
 
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
-    },
+    }
   },
   watch: {
     searchApiEndPassageQueryParameters: {
@@ -139,9 +156,9 @@ export default {
         }
         await this.loadEndPassage({ query })
       },
-      immediate: true,
-    },
-  },
+      immediate: true
+    }
+  }
 }
 </script>
 <style lang="scss">
@@ -198,11 +215,13 @@ export default {
   margin: 0;
 }
 </style>
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "sort_date": "by date",
     "sort_-date": "by date (desc)",
     "sort_size": "by size",
     "sort_-size": "by size (desc)"
   }
-}</i18n>
+}
+</i18n>
